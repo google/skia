@@ -28,7 +28,6 @@
 #include "sk_patheffect.h"
 #include "sk_picture.h"
 #include "sk_pixmap.h"
-#include "sk_pixelserializer.h"
 #include "sk_region.h"
 #include "sk_rrect.h"
 #include "sk_shader.h"
@@ -42,7 +41,6 @@
 
 // Xamarin
 #include "sk_managedstream.h"
-#include "sk_managedpixelserializer.h"
 
 SK_X_API void** KeepSkiaCSymbols (void);
 
@@ -50,7 +48,7 @@ void** KeepSkiaCSymbols (void)
 {
     static void* ret[] = {
         // Skia
-        (void*)gr_context_create,
+        (void*)gr_context_unref,
         (void*)gr_glinterface_create_native_interface,
         (void*)sk_bitmap_new,
         (void*)sk_canvas_destroy,
@@ -70,7 +68,6 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_path_effect_unref,
         (void*)sk_picture_recorder_new,
         (void*)sk_pixmap_destructor,
-        (void*)sk_pixelserializer_unref,
         (void*)sk_region_new,
         (void*)sk_rrect_new,
         (void*)sk_shader_ref,
@@ -78,13 +75,12 @@ void** KeepSkiaCSymbols (void)
         (void*)sk_string_new_empty,
         (void*)sk_colortype_get_default_8888,
         (void*)sk_svgcanvas_create,
-        (void*)sk_typeface_create_from_name,
+        (void*)sk_typeface_unref,
         (void*)sk_xmlstreamwriter_new,
         (void*)sk_vertices_unref,
 
         // Xamarin
         (void*)sk_managedstream_new,
-        (void*)sk_managedpixelserializer_new,
     };
     return ret;
 }

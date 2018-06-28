@@ -20,19 +20,9 @@ void sk_typeface_unref(sk_typeface_t* tf)
     SkSafeUnref(AsTypeface(tf));
 }
 
-sk_typeface_t* sk_typeface_create_from_name(const char *familyName, sk_typeface_style_t sstyle)
-{
-    return ToTypeface(SkTypeface::MakeFromName (familyName, SkFontStyle::FromOldStyle((SkTypeface::Style)sstyle)).release());
-}
-
 sk_typeface_t* sk_typeface_create_from_name_with_font_style(const char *familyName, int weight, int width, sk_font_style_slant_t slant)
 {
     return ToTypeface(SkTypeface::MakeFromName (familyName, SkFontStyle(weight, width, (SkFontStyle::Slant)slant)).release());
-}
-
-sk_typeface_t* sk_typeface_create_from_typeface(sk_typeface_t* typeface, sk_typeface_style_t sstyle)
-{
-    return ToTypeface(SkTypeface::MakeFromTypeface (AsTypeface(typeface), (SkTypeface::Style)sstyle).release());
 }
 
 sk_typeface_t* sk_typeface_create_from_file(const char* path, int index)
@@ -85,11 +75,6 @@ int sk_typeface_get_font_width(sk_typeface_t* typeface)
 sk_font_style_slant_t sk_typeface_get_font_slant(sk_typeface_t* typeface)
 {
     return (sk_font_style_slant_t)AsTypeface(typeface)->fontStyle().slant();
-}
-
-sk_typeface_style_t sk_typeface_get_style(sk_typeface_t* typeface)
-{
-    return (sk_typeface_style_t)AsTypeface(typeface)->style();
 }
 
 int sk_typeface_count_tables(sk_typeface_t* typeface)

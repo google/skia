@@ -10,7 +10,6 @@
 #include "sk_types_priv.h"
 
 #include "SkMatrix44.h"
-#include "SkBitmapScaler.h"
 #include "SkBlurMaskFilter.h"
 #include "SkPngEncoder.h"
 #include "SkJpegEncoder.h"
@@ -27,6 +26,7 @@
 #include "SkRegion.h"
 #include "Sk1DPathEffect.h"
 #include "SkHighContrastFilter.h"
+#include "SkMask.h"
 
 #if SK_SUPPORT_GPU
 #include "GrTypes.h"
@@ -38,12 +38,6 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define ASSERT_MSG(SK, C) "ABI changed, you must write a enumeration mapper for " TOSTRING(#SK) " to " TOSTRING(#C) "."
-
-// sk_typeface_style_t
-static_assert ((int)SkTypeface::Style::kNormal       == (int)NORMAL_TYPEFACE_STYLE,        ASSERT_MSG(SkTypeface::Style, sk_typeface_style_t));
-static_assert ((int)SkTypeface::Style::kBold         == (int)BOLD_TYPEFACE_STYLE,          ASSERT_MSG(SkTypeface::Style, sk_typeface_style_t));
-static_assert ((int)SkTypeface::Style::kItalic       == (int)ITALIC_TYPEFACE_STYLE,        ASSERT_MSG(SkTypeface::Style, sk_typeface_style_t));
-static_assert ((int)SkTypeface::Style::kBoldItalic   == (int)BOLD_ITALIC_TYPEFACE_STYLE,   ASSERT_MSG(SkTypeface::Style, sk_typeface_style_t));
 
 // sk_encoding_t
 static_assert ((int)SkTypeface::Encoding::kUTF8_Encoding    == (int)UTF8_ENCODING,    ASSERT_MSG(SkTypeface::Encoding, sk_encoding_t));
@@ -160,15 +154,17 @@ static_assert ((int)SkBlendMode::kColor        == (int)COLOR_SK_BLENDMODE,      
 static_assert ((int)SkBlendMode::kLuminosity   == (int)LUMINOSITY_SK_BLENDMODE,   ASSERT_MSG(SkBlendMode, sk_blendmode_t));
 
 // sk_colortype_t
-static_assert ((int)SkColorType::kUnknown_SkColorType     == (int)UNKNOWN_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kAlpha_8_SkColorType     == (int)ALPHA_8_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGB_565_SkColorType     == (int)RGB_565_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kARGB_4444_SkColorType   == (int)ARGB_4444_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_8888_SkColorType   == (int)RGBA_8888_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kBGRA_8888_SkColorType   == (int)BGRA_8888_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kIndex_8_SkColorType     == (int)Index_8_SK_COLORTYPE,     ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kGray_8_SkColorType      == (int)Gray_8_SK_COLORTYPE,      ASSERT_MSG(SkColorType, sk_colortype_t));
-static_assert ((int)SkColorType::kRGBA_F16_SkColorType    == (int)RGBA_F16_SK_COLORTYPE,    ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kUnknown_SkColorType        == (int)UNKNOWN_SK_COLORTYPE,        ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kAlpha_8_SkColorType        == (int)ALPHA_8_SK_COLORTYPE,        ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_565_SkColorType        == (int)RGB_565_SK_COLORTYPE,        ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kARGB_4444_SkColorType      == (int)ARGB_4444_SK_COLORTYPE,      ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_8888_SkColorType      == (int)RGBA_8888_SK_COLORTYPE,      ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_888x_SkColorType       == (int)RGB_888X_SK_COLORTYPE,       ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kBGRA_8888_SkColorType      == (int)BGRA_8888_SK_COLORTYPE,      ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_1010102_SkColorType   == (int)RGBA_1010102_SK_COLORTYPE,   ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGB_101010x_SkColorType    == (int)RGB_101010X_SK_COLORTYPE,    ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kGray_8_SkColorType         == (int)GRAY_8_SK_COLORTYPE,         ASSERT_MSG(SkColorType, sk_colortype_t));
+static_assert ((int)SkColorType::kRGBA_F16_SkColorType       == (int)RGBA_F16_SK_COLORTYPE,       ASSERT_MSG(SkColorType, sk_colortype_t));
 
 // sk_alphatype_t
 static_assert ((int)SkAlphaType::kUnknown_SkAlphaType    == (int)UNKNOWN_SK_ALPHATYPE,    ASSERT_MSG(SkAlphaType, sk_alphatype_t));
@@ -193,12 +189,6 @@ static_assert ((int)SkBlurStyle::kNormal_SkBlurStyle   == (int)NORMAL_SK_BLUR_ST
 static_assert ((int)SkBlurStyle::kSolid_SkBlurStyle    == (int)SOLID_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
 static_assert ((int)SkBlurStyle::kOuter_SkBlurStyle    == (int)OUTER_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
 static_assert ((int)SkBlurStyle::kInner_SkBlurStyle    == (int)INNER_SK_BLUR_STYLE,    ASSERT_MSG(SkBlurStyle, sk_blurstyle_t));
-
-// sk_blurmaskfilter_blurflags_t
-static_assert ((int)SkBlurMaskFilter::BlurFlags::kNone_BlurFlag               == (int)NONE_SK_BLUR_MASK_FILTER_BLUR_FLAGS,                ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
-static_assert ((int)SkBlurMaskFilter::BlurFlags::kIgnoreTransform_BlurFlag    == (int)IGNORE_TRANSFORM_SK_BLUR_MASK_FILTER_BLUR_FLAGS,    ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
-static_assert ((int)SkBlurMaskFilter::BlurFlags::kHighQuality_BlurFlag        == (int)HIGHT_QUALITY_SK_BLUR_MASK_FILTER_BLUR_FLAGS,       ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
-static_assert ((int)SkBlurMaskFilter::BlurFlags::kAll_BlurFlag                == (int)ALL_SK_BLUR_MASK_FILTER_BLUR_FLAGS,                 ASSERT_MSG(SkBlurMaskFilter::BlurFlags, sk_blurmaskfilter_blurflags_t));
 
 // sk_stroke_cap_t
 static_assert ((int)SkPaint::Cap::kButt_Cap     == (int)BUTT_SK_STROKE_CAP,     ASSERT_MSG(SkPaint::Cap, sk_stroke_cap_t));
@@ -235,24 +225,27 @@ static_assert ((int)SkEncodedImageFormat::kKTX       == (int)KTX_SK_ENCODED_FORM
 static_assert ((int)SkEncodedImageFormat::kASTC      == (int)ASTC_SK_ENCODED_FORMAT,      ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 static_assert ((int)SkEncodedImageFormat::kDNG       == (int)DNG_SK_ENCODED_FORMAT,       ASSERT_MSG(SkEncodedImageFormat, sk_encoded_image_format_t));
 
-// sk_codec_origin_t
-static_assert ((int)SkCodec::Origin::kTopLeft_Origin       == (int)TOP_LEFT_SK_CODEC_ORIGIN,       ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kTopRight_Origin      == (int)TOP_RIGHT_SK_CODEC_ORIGIN,      ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kBottomRight_Origin   == (int)BOTTOM_RIGHT_SK_CODEC_ORIGIN,   ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kBottomLeft_Origin    == (int)BOTTOM_LEFT_SK_CODEC_ORIGIN,    ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kLeftTop_Origin       == (int)LEFT_TOP_SK_CODEC_ORIGIN,       ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kRightTop_Origin      == (int)RIGHT_TOP_SK_CODEC_ORIGIN,      ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kRightBottom_Origin   == (int)RIGHT_BOTTOM_SK_CODEC_ORIGIN,   ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
-static_assert ((int)SkCodec::Origin::kLeftBottom_Origin    == (int)LEFT_BOTTOM_SK_CODEC_ORIGIN,    ASSERT_MSG(SkCodec::Origin, sk_codec_origin_t));
+// SK_ENCODED_ORIGIN_t
+static_assert ((int)SkEncodedOrigin::kTopLeft_SkEncodedOrigin       == (int)TOP_LEFT_SK_ENCODED_ORIGIN,         ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kTopRight_SkEncodedOrigin      == (int)TOP_RIGHT_SK_ENCODED_ORIGIN,        ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kBottomRight_SkEncodedOrigin   == (int)BOTTOM_RIGHT_SK_ENCODED_ORIGIN,     ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kBottomLeft_SkEncodedOrigin    == (int)BOTTOM_LEFT_SK_ENCODED_ORIGIN,      ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kLeftTop_SkEncodedOrigin       == (int)LEFT_TOP_SK_ENCODED_ORIGIN,         ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kRightTop_SkEncodedOrigin      == (int)RIGHT_TOP_SK_ENCODED_ORIGIN,        ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kRightBottom_SkEncodedOrigin   == (int)RIGHT_BOTTOM_SK_ENCODED_ORIGIN,     ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kLeftBottom_SkEncodedOrigin    == (int)LEFT_BOTTOM_SK_ENCODED_ORIGIN,      ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
+static_assert ((int)SkEncodedOrigin::kDefault_SkEncodedOrigin       == (int)DEFAULT_SK_ENCODED_ORIGIN,          ASSERT_MSG(SkEncodedOrigin, sk_encodedorigin_t));
 
 // sk_codec_result_t
 static_assert ((int)SkCodec::Result::kSuccess             == (int)SUCCESS_SK_CODEC_RESULT,              ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kIncompleteInput     == (int)INCOMPLETE_INPUT_SK_CODEC_RESULT,     ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
+static_assert ((int)SkCodec::Result::kErrorInInput        == (int)ERROR_IN_INPUT_SK_CODEC_RESULT,       ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kInvalidConversion   == (int)INVALID_CONVERSION_SK_CODEC_RESULT,   ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kInvalidScale        == (int)INVALID_SCALE_SK_CODEC_RESULT,        ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kInvalidParameters   == (int)INVALID_PARAMETERS_SK_CODEC_RESULT,   ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kInvalidInput        == (int)INVALID_INPUT_SK_CODEC_RESULT,        ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kCouldNotRewind      == (int)COULD_NOT_REWIND_SK_CODEC_RESULT,     ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
+static_assert ((int)SkCodec::Result::kInternalError       == (int)INTERNAL_ERROR_SK_CODEC_RESULT,       ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 static_assert ((int)SkCodec::Result::kUnimplemented       == (int)UNIMPLEMENTED_SK_CODEC_RESULT,        ASSERT_MSG(SkCodec::Result, sk_codec_result_t));
 
 // sk_codec_zero_initialized_t
@@ -262,6 +255,11 @@ static_assert ((int)SkCodec::ZeroInitialized::kNo_ZeroInitialized    == (int)NO_
 // sk_codec_scanline_order_t
 static_assert ((int)SkCodec::SkScanlineOrder::kTopDown_SkScanlineOrder    == (int)TOP_DOWN_SK_CODEC_SCANLINE_ORDER,    ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codec_scanline_order_t));
 static_assert ((int)SkCodec::SkScanlineOrder::kBottomUp_SkScanlineOrder   == (int)BOTTOM_UP_SK_CODEC_SCANLINE_ORDER,   ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codec_scanline_order_t));
+
+// sk_codecanimation_disposalmethod_t
+static_assert ((int)SkCodecAnimation::DisposalMethod::kKeep              == (int)KEEP_SK_CODEC_ANIMATION_DISPOSAL_METHOD,               ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codecanimation_disposalmethod_t));
+static_assert ((int)SkCodecAnimation::DisposalMethod::kRestoreBGColor    == (int)RESTORE_BG_COLOR_SK_CODEC_ANIMATION_DISPOSAL_METHOD,   ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codecanimation_disposalmethod_t));
+static_assert ((int)SkCodecAnimation::DisposalMethod::kRestorePrevious   == (int)RESTORE_PREVIOUS_SK_CODEC_ANIMATION_DISPOSAL_METHOD,   ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codecanimation_disposalmethod_t));
 
 // sk_path_effect_1d_style_t
 static_assert ((int)SkPath1DPathEffect::Style::kTranslate_Style   == (int)TRANSLATE_SK_PATH_EFFECT_1D_STYLE,   ASSERT_MSG(SkPath1DPathEffect::Style, sk_path_effect_1d_style_t));
@@ -287,13 +285,6 @@ static_assert ((int)SkCanvas::PointMode::kPolygon_PointMode   == (int)POLYGON_SK
 // sk_surfaceprops_flags_t
 static_assert ((int)SkSurfaceProps::Flags::kUseDeviceIndependentFonts_Flag   == (int)USE_DEVICE_INDEPENDENT_FONTS_SK_SURFACE_PROPS_FLAGS,   ASSERT_MSG(SkSurfaceProps::Flags, sk_surfaceprops_flags_t));
 
-// sk_bitmapscaler_resizemethod_t
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_BOX        == (int)BOX_SK_BITMAP_SCALER_RESIZE_METHOD,        ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_TRIANGLE   == (int)TRIANGLE_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_LANCZOS3   == (int)LANCZOS3_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_HAMMING    == (int)HAMMING_SK_BITMAP_SCALER_RESIZE_METHOD,    ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-static_assert ((int)SkBitmapScaler::ResizeMethod::RESIZE_MITCHELL   == (int)MITCHELL_SK_BITMAP_SCALER_RESIZE_METHOD,   ASSERT_MSG(SkBitmapScaler::ResizeMethod, sk_bitmapscaler_resizemethod_t));
-
 // SkBudgeted
 static_assert ((bool)SkBudgeted::kNo    == (bool)false,   ASSERT_MSG(SkBudgeted, bool));
 static_assert ((bool)SkBudgeted::kYes   == (bool)true,    ASSERT_MSG(SkBudgeted, bool));
@@ -311,32 +302,14 @@ static_assert ((int)SkPath::Convexity::kConvex_Convexity    == (int)CONVEX_SK_PA
 static_assert ((int)SkPath::Convexity::kConcave_Convexity   == (int)CONCAVE_SK_PATH_CONVEXITY,   ASSERT_MSG(SkPath::Convexity, sk_path_convexity_t));
 
 // sk_lattice_flags_t
-static_assert ((int)0                                              == (int)DEFAULT_SK_LATTICE_FLAGS,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
-static_assert ((int)SkCanvas::Lattice::Flags::kTransparent_Flags   == (int)TRANSPARENT_SK_LATTICE_FLAGS,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_flags_t));
+static_assert ((int)SkCanvas::Lattice::RectType::kDefault       == (int)DEFAULT_SK_LATTICE_RECT_TYPE,       ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));
+static_assert ((int)SkCanvas::Lattice::RectType::kTransparent   == (int)TRANSPARENT_SK_LATTICE_RECT_TYPE,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));
+static_assert ((int)SkCanvas::Lattice::RectType::kFixedColor    == (int)FIXED_COLOR_SK_LATTICE_RECT_TYPE,   ASSERT_MSG(SkCanvas::Lattice::Flags, sk_lattice_recttype_t));
 
 // sk_pathmeasure_matrixflags_t
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosition_MatrixFlag    == (int)GET_POSITION_SK_PATHMEASURE_MATRIXFLAGS,      ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetTangent_MatrixFlag     == (int)GET_TANGENT_SK_PATHMEASURE_MATRIXFLAGS,       ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
 static_assert ((int)SkPathMeasure::MatrixFlags::kGetPosAndTan_MatrixFlag   == (int)GET_POS_AND_TAN_SK_PATHMEASURE_MATRIXFLAGS,   ASSERT_MSG(SkPathMeasure::MatrixFlags, sk_pathmeasure_matrixflags_t));
-
-// sk_encodedinfo_alpha_t
-static_assert ((int)SkEncodedInfo::Alpha::kOpaque_Alpha     == (int)OPAQUE_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-static_assert ((int)SkEncodedInfo::Alpha::kUnpremul_Alpha   == (int)UNPREMUL_SK_ENCODEDINFO_ALPHA,   ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-static_assert ((int)SkEncodedInfo::Alpha::kBinary_Alpha     == (int)BINARY_SK_ENCODEDINFO_ALPHA,     ASSERT_MSG(SkEncodedInfo::Alpha, sk_encodedinfo_alpha_t));
-
-// sk_encodedinfo_color_t
-static_assert ((int)SkEncodedInfo::Color::kGray_Color           == (int)GRAY_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kGrayAlpha_Color      == (int)GRAY_ALPHA_SK_ENCODEDINFO_COLOR,      ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kPalette_Color        == (int)PALETTE_SK_ENCODEDINFO_COLOR,         ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kRGB_Color            == (int)RGB_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kRGBA_Color           == (int)RGBA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGR_Color            == (int)BGR_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGRX_Color           == (int)BGRX_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kBGRA_Color           == (int)BGRA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYUV_Color            == (int)YUV_SK_ENCODEDINFO_COLOR,             ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYUVA_Color           == (int)YUVA_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kInvertedCMYK_Color   == (int)INVERTED_CMYK_SK_ENCODEDINFO_COLOR,   ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
-static_assert ((int)SkEncodedInfo::Color::kYCCK_Color           == (int)YCCK_SK_ENCODEDINFO_COLOR,            ASSERT_MSG(SkEncodedInfo::Color, sk_encodedinfo_color_t));
 
 // sk_colorspace_gamut_t
 static_assert ((int)SkColorSpace::Gamut::kSRGB_Gamut        == (int)SRGB_SK_COLORSPACE_GAMUT,        ASSERT_MSG(SkColorSpace::Gamut, sk_colorspace_gamut_t));
@@ -418,8 +391,8 @@ static_assert ((int)SkRRect::Corner::kLowerLeft_Corner    == (int)LOWER_LEFT_SK_
 #if SK_SUPPORT_GPU
 
 // gr_surfaceorigin_t
-static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
 static_assert ((int)GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin      == (int)TOP_LEFT_GR_SURFACE_ORIGIN,      ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
+static_assert ((int)GrSurfaceOrigin::kBottomLeft_GrSurfaceOrigin   == (int)BOTTOM_LEFT_GR_SURFACE_ORIGIN,   ASSERT_MSG(GrSurfaceOrigin, gr_surfaceorigin_t));
 
 // gr_pixelconfig_t
 static_assert ((int)GrPixelConfig::kUnknown_GrPixelConfig          == (int)UNKNOWN_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
@@ -428,35 +401,21 @@ static_assert ((int)GrPixelConfig::kGray_8_GrPixelConfig           == (int)GRAY_
 static_assert ((int)GrPixelConfig::kRGB_565_GrPixelConfig          == (int)RGB_565_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_4444_GrPixelConfig        == (int)RGBA_4444_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_8888_GrPixelConfig        == (int)RGBA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGB_888_GrPixelConfig          == (int)RGB_888_GR_PIXEL_CONFIG,          ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kBGRA_8888_GrPixelConfig        == (int)BGRA_8888_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kSRGBA_8888_GrPixelConfig       == (int)SRGBA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kSBGRA_8888_GrPixelConfig       == (int)SBGRA_8888_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
-static_assert ((int)GrPixelConfig::kRGBA_8888_sint_GrPixelConfig   == (int)RGBA_8888_SINT_GR_PIXEL_CONFIG,   ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
+static_assert ((int)GrPixelConfig::kRGBA_1010102_GrPixelConfig     == (int)RGBA_1010102_GR_PIXEL_CONFIG,     ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_float_GrPixelConfig       == (int)RGBA_FLOAT_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRG_float_GrPixelConfig         == (int)RG_FLOAT_GR_PIXEL_CONFIG,         ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kAlpha_half_GrPixelConfig       == (int)ALPHA_HALF_GR_PIXEL_CONFIG,       ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig        == (int)RGBA_HALF_GR_PIXEL_CONFIG,        ASSERT_MSG(GrPixelConfig, gr_pixelconfig_t));
 
-// gr_backendtexture_flags_t
-static_assert ((int)GrBackendTextureFlags::kNone_GrBackendTextureFlag           == (int)NONE_GR_BACKEND_TEXTURE_FLAGS,            ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
-static_assert ((int)GrBackendTextureFlags::kRenderTarget_GrBackendTextureFlag   == (int)RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS,   ASSERT_MSG(GrBackendTextureFlags, gr_backendtexture_flags_t));
-
 // gr_backend_t
+static_assert ((int)GrBackend::kMetal_GrBackend    == (int)METAL_GR_BACKEND,    ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
-
-// gr_contextoptions_gpupathrenderers_t
-static_assert ((int)GrContextOptions::GpuPathRenderers::kNone              == (int)NONE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kDashLine          == (int)DASHLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,            ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kStencilAndCover   == (int)STENCIL_AND_COVER_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,   ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kMSAA              == (int)MSAA_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kAAHairline        == (int)AA_HAIRLINE_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,         ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kAAConvex          == (int)AA_CONVEX_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,           ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kAALinearizing     == (int)AA_LINEARIZING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,      ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kSmall             == (int)SMALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,               ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kTessellating      == (int)TESSELLATING_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,        ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kDefault           == (int)DEFAULT_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,             ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
-static_assert ((int)GrContextOptions::GpuPathRenderers::kAll               == (int)ALL_GR_CONTEXT_OPTIONS_GPU_PATH_RENDERERS,                 ASSERT_MSG(GrContextOptions::GpuPathRenderers, gr_contextoptions_gpupathrenderers_t));
+static_assert ((int)GrBackend::kMock_GrBackend     == (int)MOCK_GR_BACKEND,     ASSERT_MSG(GrBackend, gr_backend_t));
 
 #endif
 

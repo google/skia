@@ -18,7 +18,6 @@ SK_C_API void sk_image_ref(const sk_image_t*);
 SK_C_API void sk_image_unref(const sk_image_t*);
 SK_C_API sk_image_t* sk_image_new_raster_copy(const sk_imageinfo_t*, const void* pixels, size_t rowBytes);
 SK_C_API sk_image_t* sk_image_new_raster_copy_with_pixmap(const sk_pixmap_t* pixmap);
-SK_C_API sk_image_t* sk_image_new_raster_copy_with_colortable(const sk_imageinfo_t* cinfo, const void* pixels, size_t rowBytes, sk_colortable_t* ctable);
 SK_C_API sk_image_t* sk_image_new_raster_data(const sk_imageinfo_t* cinfo, sk_data_t* pixels, size_t rowBytes);
 SK_C_API sk_image_t* sk_image_new_raster(const sk_pixmap_t* pixmap, sk_image_raster_release_proc releaseProc, void* context);
 SK_C_API sk_image_t* sk_image_new_from_bitmap(const sk_bitmap_t *cbitmap);
@@ -39,7 +38,6 @@ SK_C_API bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t
 SK_C_API bool sk_image_read_pixels_into_pixmap(const sk_image_t* image, const sk_pixmap_t* dst, int srcX, int srcY, sk_image_caching_hint_t cachingHint);
 SK_C_API bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_filter_quality_t quality, sk_image_caching_hint_t cachingHint);
 SK_C_API sk_data_t* sk_image_encode(const sk_image_t*);
-SK_C_API sk_data_t* sk_image_encode_with_serializer(const sk_image_t*, sk_pixelserializer_t* serializer);
 SK_C_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality);
 SK_C_API sk_image_t* sk_image_make_subset(const sk_image_t* cimage, const sk_irect_t* subset);
 SK_C_API sk_image_t* sk_image_make_non_texture_image(const sk_image_t* cimage);

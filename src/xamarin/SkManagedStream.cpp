@@ -109,11 +109,11 @@ size_t SkManagedStream::getLength() const {
     return ::fGetLength(this);
 }
 
-SkManagedStream* SkManagedStream::duplicate() const {
+SkStreamAsset* SkManagedStream::onDuplicate() const {
     return ::fCreateNew(this);
 }
 
-SkManagedStream* SkManagedStream::fork() const {
+SkStreamAsset* SkManagedStream::onFork() const {
     std::unique_ptr<SkManagedStream> that(::fCreateNew(this));
     that->seek(getPosition());
     return that.release();

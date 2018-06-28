@@ -35,9 +35,9 @@ void sk_maskfilter_unref(sk_maskfilter_t* cfilter) {
 }
 
 sk_maskfilter_t* sk_maskfilter_new_blur(sk_blurstyle_t cstyle, float sigma) {
-    return ToMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)cstyle, sigma).release());
+    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma).release());
 }
 
-sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, sk_blurmaskfilter_blurflags_t flags) {
-    return ToMaskFilter(SkBlurMaskFilter::Make((SkBlurStyle)cstyle, sigma, AsRect(*occluder), (SkBlurMaskFilter::BlurFlags)flags).release());
+sk_maskfilter_t* sk_maskfilter_new_blur_with_flags(sk_blurstyle_t cstyle, float sigma, const sk_rect_t* occluder, bool respectCTM) {
+    return ToMaskFilter(SkMaskFilter::MakeBlur((SkBlurStyle)cstyle, sigma, AsRect(*occluder), respectCTM).release());
 }

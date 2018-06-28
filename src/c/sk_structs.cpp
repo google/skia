@@ -53,7 +53,6 @@ static_assert (sizeof (sk_codec_options_t) == sizeof (SkCodec::Options), ASSERT_
 static_assert (sizeof (sk_mask_t) == sizeof (SkMask), ASSERT_MSG(SkMask, sk_mask_t));
 static_assert (sizeof (sk_lattice_t) == sizeof (SkCanvas::Lattice), ASSERT_MSG(SkCanvas::Lattice, sk_lattice_t));
 static_assert (sizeof (sk_time_datetime_t) == sizeof (SkTime::DateTime), ASSERT_MSG(SkTime::DateTime, sk_time_datetime_t));
-static_assert (sizeof (sk_encodedinfo_t) == sizeof (SkEncodedInfo), ASSERT_MSG(SkEncodedInfo, sk_encodedinfo_t));
 static_assert (sizeof (sk_codec_frameinfo_t) == sizeof (SkCodec::FrameInfo), ASSERT_MSG(SkCodec::FrameInfo, sk_codec_frameinfo_t));
 static_assert (sizeof (sk_colorspace_transfer_fn_t) == sizeof (SkColorSpaceTransferFn), ASSERT_MSG(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t));
 static_assert (sizeof (sk_colorspaceprimaries_t) == sizeof (SkColorSpacePrimaries), ASSERT_MSG(SkColorSpacePrimaries, sk_colorspaceprimaries_t));
@@ -65,7 +64,6 @@ static_assert (sizeof (sk_webpencoder_options_t) == sizeof (SkWebpEncoder::Optio
 #if SK_SUPPORT_GPU
 static_assert (sizeof (gr_backend_rendertarget_desc_t) == sizeof (GrBackendRenderTargetDesc), ASSERT_MSG(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t));
 static_assert (sizeof (gr_backend_texture_desc_t) == sizeof (GrBackendTextureDesc), ASSERT_MSG(GrBackendTextureDesc, gr_backend_texture_desc_t));
-static_assert (sizeof (gr_context_options_t) == sizeof (GrContextOptions), ASSERT_MSG(GrContextOptions, gr_context_options_t));
 #endif
 
 #endif

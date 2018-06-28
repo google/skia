@@ -6,14 +6,14 @@ import sys
 root = sys.argv[1]
 
 files = [
-    "third_party/externals/dng_sdk/source/dng_string.cpp",
-    "third_party/externals/dng_sdk/source/dng_utils.cpp",
-    "third_party/externals/dng_sdk/source/dng_pthread.cpp",
-    "third_party/externals/zlib/deflate.c",
-    "third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c",
-    "third_party/externals/libjpeg-turbo/simd/jsimd_i386.c",
-    "third_party/externals/libjpeg-turbo/simd/jsimd_arm.c",
-    "third_party/externals/libjpeg-turbo/simd/jsimd_arm64.c",
+    # "third_party/externals/dng_sdk/source/dng_string.cpp",
+    # "third_party/externals/dng_sdk/source/dng_utils.cpp",
+    # "third_party/externals/dng_sdk/source/dng_pthread.cpp",
+    # "third_party/externals/zlib/deflate.c",
+    # "third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c",
+    # "third_party/externals/libjpeg-turbo/simd/jsimd_i386.c",
+    # "third_party/externals/libjpeg-turbo/simd/jsimd_arm.c",
+    # "third_party/externals/libjpeg-turbo/simd/jsimd_arm64.c",
 ]
 
 for f in files:

@@ -53,12 +53,17 @@ toolchain("msvc") {
     bin = "$win_vc/Tools/MSVC/$win_toolchain_version/bin/HostX64/$target_cpu"
   }
 
-  env_setup = ""
-  if (target_cpu == "x86") {
-    # Toolchain asset includes a script that configures for x86 building.
-    # We don't support x86 builds with local MSVC installations.
-    env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
+  if (target_cpu == "x64") {
+    _target = "amd64"
+  } else {
+    _target = "amd64_" + target_cpu
   }
+  if (is_winrt) {
+    _target  += " store"
+  }
+
+  _vcvarsall = "$win_vc/Auxiliary/Build/vcvarsall.bat"
+  env_setup = "cmd /c set __VSCMD_ARG_NO_LOGO=1 && set VSCMD_START_DIR=%CD% && \"$_vcvarsall\" $_target && "
 
   cl_m32_flag = ""
   if (clang_win != "") {
@@ -78,7 +83,7 @@ toolchain("msvc") {
     if (target_cpu == "x64") {
       _ml += "64"
     }
-    command = "$env_setup $bin/$_ml.exe {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
+    command = "$env_setup \"$bin/$_ml.exe\" {{asmflags}} /nologo /c /Fo {{output}} {{source}}"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
@@ -120,7 +125,7 @@ toolchain("msvc") {
   tool("alink") {
     rspfile = "{{output}}.rsp"
 
-    command = "$env_setup $bin/lib.exe /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
+    command = "$env_setup \"$bin/lib.exe\" /nologo /ignore:4221 {{arflags}} /OUT:{{output}} @$rspfile"
     outputs = [
       # Ignore {{output_extension}} and always use .lib, there's no reason to
       # allow targets to override this extension on Windows.
@@ -140,7 +145,7 @@ toolchain("msvc") {
     pdbname = "${dllname}.pdb"
     rspfile = "${dllname}.rsp"
 
-    command = "$env_setup $bin/link.exe /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
+    command = "$env_setup \"$bin/link.exe\" /nologo /IMPLIB:$libname /DLL /OUT:$dllname /PDB:$pdbname @$rspfile"
     outputs = [
       dllname,
       libname,
@@ -170,7 +175,7 @@ toolchain("msvc") {
     rspfile = "$exename.rsp"
 
     command =
-        "$env_setup $bin/link.exe /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
+        "$env_setup \"$bin/link.exe\" /nologo /OUT:$exename /PDB:$pdbname @$rspfile"
 
     default_output_extension = ".exe"
     default_output_dir = "{{root_out_dir}}"

@@ -84,10 +84,6 @@ config("default") {
       include_dirs = _include_dirs
     }
 
-    _is_store = ""
-    if (is_winrt) {
-      _is_store = "/store"
-    }
     lib_dirs = [
       "$win_sdk/Lib/$win_sdk_version/ucrt/$target_cpu",
       "$win_sdk/Lib/$win_sdk_version/um/$target_cpu",
@@ -99,6 +95,10 @@ config("default") {
         lib_dirs += [ "$win_vc/lib/amd64" ]
       }
     } else {  # 2017
+      _is_store = ""
+      if (is_winrt) {
+        _is_store = "/store"
+      }
       lib_dirs +=
           [ "$win_vc/Tools/MSVC/$win_toolchain_version/lib/$target_cpu$_is_store" ]
     }

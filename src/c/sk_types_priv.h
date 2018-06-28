@@ -84,7 +84,6 @@ DEF_CLASS_MAP(SkPathEffect, sk_path_effect_t, PathEffect)
 DEF_CLASS_MAP(SkPathMeasure, sk_pathmeasure_t, PathMeasure)
 DEF_CLASS_MAP(SkPicture, sk_picture_t, Picture)
 DEF_CLASS_MAP(SkPictureRecorder, sk_picture_recorder_t, PictureRecorder)
-DEF_CLASS_MAP(SkPixelSerializer, sk_pixelserializer_t, PixelSerializer)
 DEF_CLASS_MAP(SkPixmap, sk_pixmap_t, Pixmap)
 DEF_CLASS_MAP(SkRegion, sk_region_t, Region)
 DEF_CLASS_MAP(SkRRect, sk_rrect_t, RRect)
@@ -104,7 +103,6 @@ DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
 
 DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspaceprimaries_t, ColorSpacePrimaries)
 DEF_STRUCT_MAP(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
-DEF_STRUCT_MAP(SkEncodedInfo, sk_encodedinfo_t, EncodedInfo)
 DEF_STRUCT_MAP(SkHighContrastConfig, sk_highcontrastconfig_t, HighContrastConfig)
 DEF_STRUCT_MAP(SkIPoint, sk_ipoint_t, IPoint)
 DEF_STRUCT_MAP(SkIRect, sk_irect_t, IRect)
@@ -117,7 +115,6 @@ DEF_STRUCT_MAP(SkSize, sk_size_t, Size)
 
 DEF_STRUCT_MAP(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t, GrBackendRenderTargetDesc)
 DEF_STRUCT_MAP(GrBackendTextureDesc, gr_backend_texture_desc_t, GrBackendTextureDesc)
-DEF_STRUCT_MAP(GrContextOptions, gr_context_options_t, GrContextOptions)
 DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
 
 #include "SkCanvas.h"
