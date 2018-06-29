@@ -30,7 +30,6 @@ GrRenderTargetOpList::GrRenderTargetOpList(GrResourceProvider* resourceProvider,
                                            GrRenderTargetProxy* proxy,
                                            GrAuditTrail* auditTrail)
         : INHERITED(resourceProvider, std::move(opMemoryPool), proxy, auditTrail)
-        , fLastClipStackGenID(SK_InvalidUniqueID)
         SkDEBUGCODE(, fNumClips(0)) {
 }
 
@@ -202,7 +201,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 }
 
 void GrRenderTargetOpList::endFlush() {
-    fLastClipStackGenID = SK_InvalidUniqueID;
+    fLastStencilClipKey.reset();
     this->deleteOps();
     fClipAllocator.reset();
     INHERITED::endFlush();
