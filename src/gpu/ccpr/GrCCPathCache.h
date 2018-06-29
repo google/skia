@@ -100,6 +100,8 @@ class GrCCPathCacheEntry : public SkPathRef::GenIDChangeListener {
 public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCPathCacheEntry);
 
+    ~GrCCPathCacheEntry() override;
+
     // The number of times this specific entry (path + matrix combination) has been pulled from
     // the path cache. As long as the caller does exactly one lookup per draw, this translates to
     // the number of times the path has been drawn with a compatible matrix.
@@ -153,11 +155,15 @@ private:
     GrCCPathCacheEntry(GrCCPathCache* cache, const MaskTransform& m)
             : fCacheWeakPtr(cache), fMaskTransform(m) {}
 
+    // Resets this entry back to not having an atlas, and purges its previous atlas texture from the
+    // resource cache if needed.
+    void invalidateAtlas();
+
     // Called when our corresponding path is modified or deleted.
     void onChange() override;
 
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
-    const MaskTransform fMaskTransform;
+    MaskTransform fMaskTransform;
     int fHitCount = 1;
 
     GrUniqueKey fAtlasKey;
