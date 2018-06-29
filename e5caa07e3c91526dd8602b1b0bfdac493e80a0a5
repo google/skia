@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "6b880f09_3401863f",
+        "filename": "infra/bots/assets/opencl_intel_neo_linux/create.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-06-29T13:20:42Z",
+      "side": 1,
+      "message": "I think you can also just `make -j` here to allow as much build parallelism as possible.\nAlternatively, you can use `cmake -G ninja` then `ninja` here instead.",
+      "range": {
+        "startLine": 52,
+        "startChar": 35,
+        "endLine": 52,
+        "endChar": 71
+      },
+      "revId": "e5caa07e3c91526dd8602b1b0bfdac493e80a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6dda4b94_5211cf08",
         "filename": "infra/bots/assets/opencl_intel_neo_linux/create_and_upload.py",
         "patchSetId": 4
