@@ -225,7 +225,8 @@ protected:
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
     virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRun* glyphRun);
-    virtual void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) = 0;
+    virtual void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+                              const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
     // default implementation unrolls the blob runs.
@@ -434,7 +435,8 @@ protected:
     void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
                      const SkPaint&) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override {}
+    void drawVertices(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+                      const SkPaint&) override {}
 
 private:
     typedef SkBaseDevice INHERITED;

@@ -1551,8 +1551,12 @@ if (skia_enable_tools) {
         ":xml",
         "modules/sksg:samples",
         "modules/skshaper",
-        "//third_party/Nima-Cpp",
       ]
+
+      # NIMA does not build on Windows clang
+      if (!is_win || !is_clang) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
 
       if (skia_use_lua) {
         sources += [ "samplecode/SampleLua.cpp" ]
@@ -1581,10 +1585,14 @@ if (skia_enable_tools) {
         ":tool_utils",
         "modules/skottie",
         "modules/sksg",
-        "//third_party/Nima-Cpp",
         "//third_party/jsoncpp",
         "//third_party/libpng",
       ]
+
+      # NIMA does not build on Windows clang
+      if (!is_win || !is_clang) {
+        deps += [ "//third_party/Nima-Cpp" ]
+      }
     }
   }
 
@@ -2005,9 +2013,14 @@ if (skia_enable_tools) {
       ":views",
       "modules/skottie",
       "modules/sksg",
-      "//third_party/Nima-Cpp",
       "//third_party/imgui",
     ]
+
+    # NIMA does not build on Windows clang
+    if (!is_win || !is_clang) {
+      sources += [ "tools/viewer/NIMASlide.cpp" ]
+      deps += [ "//third_party/Nima-Cpp" ]
+    }
   }
 
   if (is_android) {

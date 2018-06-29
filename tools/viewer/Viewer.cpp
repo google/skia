@@ -52,6 +52,10 @@
     #include "SkottieSlide.h"
 #endif
 
+#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
+    #include "NIMASlide.h"
+#endif
+
 using namespace sk_app;
 
 static std::map<GpuPathRenderers, std::string> gPathRendererNames;
@@ -565,6 +569,12 @@ void Viewer::initSlides() {
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}
         },
+#if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
+        { ".nima", "nima-dir", FLAGS_nimas,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<NIMASlide>(name, path);}
+        },
+#endif
     };
 
     SkTArray<sk_sp<Slide>, true> dirSlides;

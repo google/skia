@@ -2149,6 +2149,40 @@ public:
     */
     void drawVertices(const sk_sp<SkVertices>& vertices, SkBlendMode mode, const SkPaint& paint);
 
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+        The first element of bones should be an object to world space transformation matrix that
+        will be applied before performing mesh deformations. If no such transformation is needed,
+        it should be the identity matrix.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone matrix data
+        @param boneCount number of bone matrices
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+                      SkBlendMode mode, const SkPaint& paint);
+
+    /** Draw SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
+        deform vertices with bone weights.
+        If vertices texs and vertices colors are defined in vertices, and SkPaint paint
+        contains SkShader, SkBlendMode mode combines vertices colors with SkShader.
+        The first element of bones should be an object to world space transformation matrix that
+        will be applied before performing mesh deformations. If no such transformation is needed,
+        it should be the identity matrix.
+
+        @param vertices  triangle mesh to draw
+        @param bones     bone matrix data
+        @param boneCount number of bone matrices
+        @param mode      combines vertices colors with SkShader, if both are present
+        @param paint     specifies the SkShader, used as SkVertices texture, may be nullptr
+    */
+    void drawVertices(const sk_sp<SkVertices> vertices, const SkMatrix* bones, int boneCount,
+                      SkBlendMode mode, const SkPaint& paint);
+
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
 
@@ -2472,8 +2506,14 @@ protected:
                            const SkPoint texCoords[4], SkBlendMode mode, const SkPaint& paint);
     virtual void onDrawPoints(PointMode mode, size_t count, const SkPoint pts[],
                               const SkPaint& paint);
+
+    // TODO: Remove old signature
     virtual void onDrawVerticesObject(const SkVertices* vertices, SkBlendMode mode,
-                                      const SkPaint& paint);
+                                      const SkPaint& paint) {
+        this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
+    }
+    virtual void onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+                                      int boneCount, SkBlendMode mode, const SkPaint& paint);
 
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);
     virtual void onDrawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
