@@ -22,6 +22,7 @@ using namespace sk_app;
 
 ImGuiLayer::ImGuiLayer() {
     // ImGui initialization:
+    ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
     // Keymap...
@@ -57,6 +58,10 @@ ImGuiLayer::ImGuiLayer() {
     fFontPaint.setColor(SK_ColorWHITE);
     fFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fFontPaint;
+}
+
+ImGuiLayer::~ImGuiLayer() {
+    ImGui::DestroyContext();
 }
 
 void ImGuiLayer::onAttach(Window* window) {
