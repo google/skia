@@ -30,6 +30,19 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 }
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
+                           Wrapped,
+                           const GrSurfaceDesc& desc,
+                           id<MTLTexture> texture,
+                           GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
+                    mipMapsStatus)
+        , fTexture(texture) {
+    SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
+    this->registerWithCacheWrapped();
+}
+
+GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
@@ -47,6 +60,11 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
         return nullptr;
     }
 
+    if (desc.fSampleCnt > 1) {
+        SkASSERT(false); // Currently we don't support msaa
+        return nullptr;
+    }
+
     MTLTextureDescriptor* descriptor = [[MTLTextureDescriptor alloc] init];
     descriptor.textureType = MTLTextureType2D;
     descriptor.pixelFormat = format;
@@ -58,7 +76,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
     descriptor.arrayLength = 1;
     // descriptor.resourceOptions This looks to be set by setting cpuCacheMode and storageModes
     descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    // Shared is not available on MacOS. Is there a reason to want managed to allow mapping?
+    // Make all textures have private gpu only access. We can use transfer buffers to copy to them.
     descriptor.storageMode = MTLStorageModePrivate;
     descriptor.usage = MTLTextureUsageShaderRead;
 
@@ -68,6 +86,16 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
                                                   : GrMipMapsStatus::kNotAllocated;
 
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
+}
+
+sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
+                                                     const GrSurfaceDesc& desc,
+                                                     id<MTLTexture> texture) {
+    SkASSERT(nil != texture);
+    SkASSERT(MTLTextureUsageShaderRead & texture.usage);
+    GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
+                                                                 : GrMipMapsStatus::kNotAllocated;
+    return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus));
 }
 
 GrMtlTexture::~GrMtlTexture() {
@@ -80,5 +108,10 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
 }
 
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
-    return GrBackendTexture(); // invalid
+    GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
+                                                          : GrMipMapped::kNo;
+    GrMtlTextureInfo info;
+    info.fTexture = GrGetPtrFromId(fTexture);
+    return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
+

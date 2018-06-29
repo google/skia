@@ -20,7 +20,7 @@ public:
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
-                                                                          GrWrapOwnership);
+                                                                          id<MTLTexture>);
 
 protected:
     void onAbandon() override {

@@ -18,10 +18,9 @@ class GrMtlGpu;
 
 class GrMtlRenderTarget: public GrRenderTarget {
 public:
-    static sk_sp<GrMtlRenderTarget> CreateNewRenderTarget(GrMtlGpu*, const GrSurfaceDesc&,
-                                                          SkBudgeted);
-
-    static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*, const GrSurfaceDesc&);
+    static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
+                                                            const GrSurfaceDesc&,
+                                                            id<MTLTexture>);
 
     ~GrMtlRenderTarget() override;
 
@@ -40,9 +39,7 @@ public:
         return true;
     }
 
-    GrBackendRenderTarget getBackendRenderTarget() const override {
-        return GrBackendRenderTarget(); // invalid
-    }
+    GrBackendRenderTarget getBackendRenderTarget() const override;
 
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
@@ -62,6 +59,8 @@ protected:
     // This accounts for the texture's memory and any MSAA renderbuffer's memory.
     size_t onGpuMemorySize() const override {
         int numColorSamples = this->numColorSamples();
+        // TODO: When used as render targets certain formats may actually have a larger size than
+        // the base format size. Check to make sure we are reporting the correct value here.
         // The plus 1 is to account for the resolve texture or if not using msaa the RT itself
         if (numColorSamples > 1) {
             ++numColorSamples;
@@ -75,19 +74,19 @@ protected:
 
 private:
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
                       SkBudgeted,
+                      const GrSurfaceDesc& desc,
                       id<MTLTexture> renderTexture,
                       id<MTLTexture> resolveTexture);
 
     GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
                       SkBudgeted,
+                      const GrSurfaceDesc& desc,
                       id<MTLTexture> renderTexture);
 
     static sk_sp<GrMtlRenderTarget> Make(GrMtlGpu*,
-                                         const GrSurfaceDesc&,
                                          SkBudgeted,
+                                         const GrSurfaceDesc&,
                                          id<MTLTexture> renderTexture,
                                          bool isWrapped);
 
