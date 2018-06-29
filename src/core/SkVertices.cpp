@@ -201,6 +201,14 @@ uint16_t* SkVertices::Builder::indices() {
     return const_cast<uint16_t*>(fVertices->indices());
 }
 
+bool SkVertices::Builder::isVolatile() const {
+    return fVertices->isVolatile();
+}
+
+void SkVertices::Builder::setIsVolatile(bool isVolatile) {
+    fVertices->fIsVolatile = isVolatile;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
@@ -208,7 +216,8 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkColor colors[],
                                        const BoneIndices boneIndices[],
                                        const BoneWeights boneWeights[],
-                                       int indexCount, const uint16_t indices[]) {
+                                       int indexCount, const uint16_t indices[],
+                                       bool isVolatile) {
     SkASSERT((!boneIndices && !boneWeights) || (boneIndices && boneWeights));
     Sizes sizes(mode,
                 vertexCount,
@@ -230,6 +239,7 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
     sk_careful_memcpy(builder.boneWeights(), boneWeights, sizes.fBWSize);
     size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
     sk_careful_memcpy(builder.indices(), indices, isize);
+    builder.setIsVolatile(isVolatile);
 
     return builder.detach();
 }
@@ -288,6 +298,7 @@ sk_sp<SkData> SkVertices::encode() const {
     writer.write32(packed);
     writer.write32(fVertexCnt);
     writer.write32(fIndexCnt);
+    writer.writeBool(fIsVolatile);
     writer.write(fPositions, sizes.fVSize);
     writer.write(fTexs, sizes.fTSize);
     writer.write(fColors, sizes.fCSize);
@@ -310,6 +321,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     const uint32_t packed = reader.readInt();
     const int vertexCount = safe.checkGE(reader.readInt(), 0);
     const int indexCount = safe.checkGE(reader.readInt(), 0);
+    const bool isVolatile = reader.readBool();
     const VertexMode mode = safe.checkLE<VertexMode>(packed & kMode_Mask,
                                                      SkVertices::kLast_VertexMode);
     if (!safe) {
@@ -328,6 +340,8 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     }
 
     Builder builder(mode, vertexCount, indexCount, sizes);
+
+    builder.setIsVolatile(isVolatile);
 
     reader.read(builder.positions(), sizes.fVSize);
     reader.read(builder.texCoords(), sizes.fTSize);
