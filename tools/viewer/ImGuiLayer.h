@@ -16,6 +16,7 @@
 class ImGuiLayer : public sk_app::Window::Layer {
 public:
     ImGuiLayer();
+    ~ImGuiLayer() override;
 
     typedef std::function<void(SkCanvas*)> SkiaWidgetFunc;
     void skiaWidget(const ImVec2& size, SkiaWidgetFunc func);
