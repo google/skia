@@ -1,0 +1,577 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0fc76658_2316e952",
+        "filename": "src/core/SkBitmapDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "parameter names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d89a0069_2b6c7a4c",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc84dc90_e9d94f76",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3999b7e4_f2f218b1",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "What do you think about \u0027count\u0027 -\u003e \u0027vertexCount\u0027 ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85f57215_f6782a61",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "Okay, do you think reserving stack space for the 32 bone \u0026 16 vertex case is appropriate ?\n\nI think \u0027Def\u0027 for default might better than \u0027Est\u0027 for estimate but it is up to you.",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "872ffe86_d1607a68",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "xtra \u0027 \u0027 ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90a10aae_d61a1eae",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "use:\n{\n   continue;\n}\n\n?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41ee768f_90763002",
+        "filename": "src/core/SkDraw_vertices.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "Does it make sense to have an assert that, at this point, index !\u003d 0 ?\nI guess that might be valid though ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f395b1d9_58a7607b",
+        "filename": "src/core/SkLiteDL.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "Just to double check, we\u0027re not supposed to be copying \u0027bones\u0027 here ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54757ef8_a10420c0",
+        "filename": "src/core/SkLiteDL.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "836b6c77_39419c75",
+        "filename": "src/core/SkThreadedBMPDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names and \u0027\\n\u0027 ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "028b59b6_74df6e01",
+        "filename": "src/gpu/SkGpuDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b77d2688_fa8e2884",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b710d4a8_d2383d51",
+        "filename": "src/svg/SkSVGDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "adde6fc5_03762984",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1159,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "\u0027b\u0027 may not be a useful name",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8234f98e_2c1b7f74",
+        "filename": "src/xps/SkXPSDevice.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "names ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "302146b2_49431ea0",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "nima_to_skmatrix ?\n\n// NIMA stores its matrices ... \n\n?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a371e618_599387ee",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "vector_getter ?\n\n// This seems exciting, why do we need it ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1f1e279_c8748992",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "tab over once more",
+      "range": {
+        "startLine": 40,
+        "startChar": 0,
+        "endLine": 43,
+        "endChar": 21
+      },
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f12719e_0d691109",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "can \u0027backend\u0027 be an enum ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f1f906c_7c694170",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cec5ac53_beeaa5f4",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "tab over once more",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 22
+      },
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d4592cf_503d6d3e",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "this-\u003e \n\nhere an below ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3eb0e3c4_9b92fc50",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "here too ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3d72bbf_b1d6da0c",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "no updateBones() call ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "061d0ec9_4155266e",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "// Explain why 6 ?\n\nMaybe have a \u0027kNIMAMatrixSize\u0027 ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d0a9887_b567d47f",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "kNIMAMatrixSize ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b529b57_869e1256",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "// NIMAActors are ...\n\n?\n\nDoes this class actually need to be in the header?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d90c223_b5ec8b76",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "Is this an override ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4c5e321_73affec3",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "It is unusual to see a pointer to an SkPaint.",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "673bb89a_505e6616",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "// A NIMAActorImage is a ..\n?\n\nDoes this class need to be in the header ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f8e00ee_a37fa5be",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "Here too ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1941b07d_ef439d96",
+        "filename": "tools/viewer/NIMASlide.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:17:03Z",
+      "side": 1,
+      "message": "// What is this ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
