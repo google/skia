@@ -945,18 +945,28 @@ private:
     }
 };
 
-SkBlendMode MaskBlendMode(char mode) {
+struct MaskInfo {
+    SkBlendMode fBlendMode;
+    bool        fInvertGeometry;
+};
+
+const MaskInfo* GetMaskInfo(char mode) {
+    static constexpr MaskInfo k_add_info = { SkBlendMode::kSrcOver   , false };
+    static constexpr MaskInfo k_int_info = { SkBlendMode::kSrcIn     , false };
+    // AE 'subtract' is the same as 'intersect' + inverted geometry
+    // (draws the opacity-adjusted paint *outside* the shape).
+    static constexpr MaskInfo k_sub_info = { SkBlendMode::kSrcIn     , true  };
+    static constexpr MaskInfo k_dif_info = { SkBlendMode::kDifference, false };
+
     switch (mode) {
-    case 'a': return SkBlendMode::kSrcOver;    // Additive
-    case 's': return SkBlendMode::kExclusion;  // Subtract
-    case 'i': return SkBlendMode::kDstIn;      // Intersect
-    case 'l': return SkBlendMode::kLighten;    // Lighten
-    case 'd': return SkBlendMode::kDarken;     // Darken
-    case 'f': return SkBlendMode::kDifference; // Difference
+    case 'a': return &k_add_info;
+    case 'f': return &k_dif_info;
+    case 'i': return &k_int_info;
+    case 's': return &k_sub_info;
     default: break;
     }
 
-    return SkBlendMode::kSrcOver;
+    return nullptr;
 }
 
 sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
@@ -977,26 +987,40 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     for (const skjson::ObjectValue* m : *jmask) {
         if (!m) continue;
 
+        SkString mode;
+        if (!Parse<SkString>((*m)["mode"], &mode) || mode.size() != 1) {
+            LogFail((*m)["mode"], "Invalid mask mode");
+            continue;
+        }
+
+        if (mode[0] == 'n') {
+            // "None" masks have no effect.
+            continue;
+        }
+
+        const auto* mask_info = GetMaskInfo(mode[0]);
+        if (!mask_info) {
+            LOG("?? Unsupported mask mode: '%c'\n", mode[0]);
+            continue;
+        }
+
         auto mask_path = AttachPath((*m)["pt"], ctx);
         if (!mask_path) {
             LogFail(*m, "Could not parse mask path");
             continue;
         }
 
-        mask_path->setFillType(ParseDefault<bool>((*m)["inv"], false)
-            ? SkPath::kInverseWinding_FillType
-            : SkPath::kWinding_FillType);
-
-        SkString mode;
-        if (!Parse<SkString>((*m)["mode"], &mode) ||
-            mode.size() != 1 ||
-            !strcmp(mode.c_str(), "n")) { // "None" masks have no effect.
-            continue;
-        }
+        // "inv" is cumulative with mask info fInvertGeometry
+        const auto inverted =
+            (mask_info->fInvertGeometry != ParseDefault<bool>((*m)["inv"], false));
+        mask_path->setFillType(inverted ? SkPath::kInverseWinding_FillType
+                                        : SkPath::kWinding_FillType);
 
         auto mask_paint = sksg::Color::Make(SK_ColorBLACK);
         mask_paint->setAntiAlias(true);
-        mask_paint->setBlendMode(MaskBlendMode(mode.c_str()[0]));
+        // First mask in the stack initializes the mask buffer.
+        mask_paint->setBlendMode(mask_stack.empty() ? SkBlendMode::kSrc
+                                                    : mask_info->fBlendMode);
 
         has_opacity |= BindProperty<ScalarValue>((*m)["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) {
