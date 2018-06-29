@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "8a32509f_42522df2",
+        "filename": "infra/bots/assets/opencl_headers/create.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:41:57Z",
+      "side": 1,
+      "message": "Reworded.",
+      "parentUuid": "5f4adda9_bb88b5bd",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 80
+      },
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "21e27233_11c792a8",
         "filename": "infra/bots/assets/opencl_headers/create_and_upload.py",
         "patchSetId": 15
@@ -192,6 +216,24 @@
       "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f1b43a1_df0607ec",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:41:57Z",
+      "side": 1,
+      "message": "I suspect the headers will be part of the SDK on Windows, but it seemed useful to split them out anyway.",
+      "parentUuid": "2a8249f0_6c6072a4",
+      "revId": "b03a58bdc18b19af3a25ac6ff0be2127ef31e9f0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
