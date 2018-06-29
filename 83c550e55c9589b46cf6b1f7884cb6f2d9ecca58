@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f3a0bf9e_1a33f8c5",
+        "filename": "src/core/SkATrace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-29T20:56:40Z",
+      "side": 1,
+      "message": "Made it a static as suggested \"SkAndroidFrameworkTraceUtil::gEnableAndroidTracing\".\nI kept variable initialization here, to avoid creating an almost empty SkTraceEventCommon.cpp (I\u0027m OK to add a cpp file if like it better).",
+      "parentUuid": "223036b1_2cdef7d3",
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e5f7bac_0d33435e",
         "filename": "src/core/SkTraceEventCommon.h",
         "patchSetId": 1
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "c9833c46_9e8068bd",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-29T20:56:40Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "8e5f7bac_0d33435e",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3651c0a_396d842c",
         "filename": "src/core/SkTraceEventCommon.h",
         "patchSetId": 1
@@ -62,6 +104,30 @@
       "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "924f3c5f_1eed400c",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-06-29T20:56:40Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "f3651c0a_396d842c",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
