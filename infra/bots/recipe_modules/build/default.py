@@ -204,6 +204,13 @@ def compile_fn(api, checkout_root, out_dir):
       args['skia_moltenvk_path'] = '"%s"' % moltenvk
   if 'Metal' in extra_tokens:
     args['skia_use_metal'] = 'true'
+  if 'OpenCL' in extra_tokens:
+    args['skia_use_opencl'] = 'true'
+    extra_cflags.append(
+        '-isystem%s' % api.vars.slave_dir.join('opencl_headers'))
+    if api.vars.is_linux:
+      extra_ldflags.append(
+          '-L%s' % api.vars.slave_dir.join('opencl_ocl_icd_linux'))
   if 'iOS' in extra_tokens:
     # Bots use Chromium signing cert.
     args['skia_ios_identity'] = '".*GS9WA.*"'

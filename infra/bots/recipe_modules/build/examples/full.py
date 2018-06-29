@@ -32,6 +32,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES',
   'Build-Debian9-Clang-x86_64-Debug-Coverage',
   'Build-Debian9-Clang-x86_64-Debug-MSAN',
+  'Build-Debian9-Clang-x86_64-Debug-OpenCL',
   'Build-Debian9-Clang-x86_64-Debug-SK_CPU_LIMIT_SSE41',
   'Build-Debian9-Clang-x86_64-Debug-SafeStack',
   'Build-Debian9-Clang-x86_64-Release-ASAN',
@@ -76,4 +77,3 @@ def GenTests(api):
       api.properties(**defaultProps(buildername))
     )
     yield test
-
