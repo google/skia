@@ -201,6 +201,14 @@ uint16_t* SkVertices::Builder::indices() {
     return const_cast<uint16_t*>(fVertices->indices());
 }
 
+bool SkVertices::Builder::isVolatile() const {
+    return fVertices->isVolatile();
+}
+
+void SkVertices::Builder::setIsVolatile(bool isVolatile) {
+    fVertices->fIsVolatile = isVolatile;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
@@ -208,7 +216,8 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkColor colors[],
                                        const BoneIndices boneIndices[],
                                        const BoneWeights boneWeights[],
-                                       int indexCount, const uint16_t indices[]) {
+                                       int indexCount, const uint16_t indices[],
+                                       bool isVolatile) {
     SkASSERT((!boneIndices && !boneWeights) || (boneIndices && boneWeights));
     Sizes sizes(mode,
                 vertexCount,
@@ -230,6 +239,7 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
     sk_careful_memcpy(builder.boneWeights(), boneWeights, sizes.fBWSize);
     size_t isize = (mode == kTriangleFan_VertexMode) ? sizes.fBuilderTriFanISize : sizes.fISize;
     sk_careful_memcpy(builder.indices(), indices, isize);
+    builder.setIsVolatile(isVolatile);
 
     return builder.detach();
 }
