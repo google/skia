@@ -7,30 +7,6 @@
 #include "Test.h"
 #include "SkPolyUtils.h"
 
-static bool is_convex(const SkTDArray<SkPoint>& poly) {
-    if (poly.count() < 3) {
-        return false;
-    }
-
-    SkVector v0 = poly[0] - poly[poly.count() - 1];
-    SkVector v1 = poly[1] - poly[poly.count() - 1];
-    SkScalar winding = v0.cross(v1);
-
-    for (int i = 0; i < poly.count()-1; ++i) {
-        int j = i + 1;
-        int k = (i + 2) % poly.count();
-
-        SkVector v0 = poly[j] - poly[i];
-        SkVector v1 = poly[k] - poly[i];
-        SkScalar perpDot = v0.cross(v1);
-        if (winding*perpDot < 0) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 DEF_TEST(OffsetSimplePoly, reporter) {
     SkTDArray<SkPoint> rrectPoly;
 
@@ -58,18 +34,18 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *rrectPoly.push() = SkPoint::Make(-100 - 4.330127f, 50 + 2.5f);
     *rrectPoly.push() = SkPoint::Make(-100 - 3.535534f, 50 + 3.535534f);
     *rrectPoly.push() = SkPoint::Make(-100 - 2.5f, 50 + 4.330127f);
-    REPORTER_ASSERT(reporter, is_convex(rrectPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(rrectPoly.begin(), rrectPoly.count()));
 
     // inset a little
     SkTDArray<SkPoint> offsetPoly;
     bool result = SkOffsetSimplePolygon(&rrectPoly[0], rrectPoly.count(), 3, &offsetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(offsetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
 
     // inset to rect
     result = SkOffsetSimplePolygon(&rrectPoly[0], rrectPoly.count(), 10, &offsetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(offsetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
     REPORTER_ASSERT(reporter, offsetPoly.count() == 4);
     if (offsetPoly.count() == 4) {
         REPORTER_ASSERT(reporter, offsetPoly[0].equals(-95, 45));
@@ -82,7 +58,7 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     // fails, but outputs a line segment
     result = SkOffsetSimplePolygon(&rrectPoly[0], rrectPoly.count(), 55, &offsetPoly);
     REPORTER_ASSERT(reporter, !result);
-    REPORTER_ASSERT(reporter, !is_convex(offsetPoly));
+    REPORTER_ASSERT(reporter, !SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
     REPORTER_ASSERT(reporter, offsetPoly.count() == 2);
     if (offsetPoly.count() == 2) {
         REPORTER_ASSERT(reporter, offsetPoly[0].equals(-50, 0));
@@ -122,12 +98,13 @@ DEF_TEST(OffsetSimplePoly, reporter) {
     *clippedRRectPoly.push() = SkPoint::Make(381.195313f, 432.207275f);
     *clippedRRectPoly.push() = SkPoint::Make(377.312134f, 432.947998f);
     *clippedRRectPoly.push() = SkPoint::Make(342.289948f, 432.947998f);
-    REPORTER_ASSERT(reporter, is_convex(clippedRRectPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(clippedRRectPoly.begin(),
+                                                clippedRRectPoly.count()));
 
     result = SkOffsetSimplePolygon(&clippedRRectPoly[0], clippedRRectPoly.count(), 32.3699417f,
                                    &offsetPoly);
     REPORTER_ASSERT(reporter, result);
-    REPORTER_ASSERT(reporter, is_convex(offsetPoly));
+    REPORTER_ASSERT(reporter, SkIsConvexPolygon(offsetPoly.begin(), offsetPoly.count()));
 
     ////////////////////////////////////////////////////////////////////////////////
     // Concave tests
