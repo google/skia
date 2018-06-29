@@ -122,3 +122,10 @@ id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwner
     }
 }
 
+<<<<<<< HEAD
+const void* GrGetPtrFromId(id idObject) {
+    return (__bridge const void*)idObject;
+}
+
+=======
+>>>>>>> 4e85e80a5a32f11b850830f7bf6ee45ca195d137

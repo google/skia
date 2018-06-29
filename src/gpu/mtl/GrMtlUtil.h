@@ -29,4 +29,12 @@ GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format);
  */
 id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
 
+<<<<<<< HEAD
+/**
+ * Returns a const void* to whatever the id object is pointing to. Always uses __bridge.
+ */
+const void* GrGetPtrFromId(id idObject);
+
+=======
+>>>>>>> 4e85e80a5a32f11b850830f7bf6ee45ca195d137
 #endif
