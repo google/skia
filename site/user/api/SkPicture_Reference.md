@@ -14,15 +14,15 @@ SkPicture can be constructed or initialized by these functions, including C++ cl
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromData'>MakeFromData</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from data</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromStream'>MakeFromStream</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from stream</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs placeholder with unique identifier</td>
   </tr>
 </table>
 
@@ -71,39 +71,39 @@ SkPicture member functions read and modify the structure properties.
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromData'>MakeFromData</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from data</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromStream'>MakeFromStream</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from stream</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs placeholder with unique identifier</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_approximateBytesUsed'>approximateBytesUsed</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns approximate size</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_approximateOpCount'>approximateOpCount</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns approximate operation count</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_cullRect'>cullRect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns bounds used to record <a href='#Picture'>Picture</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_playback'>playback</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replays drawing commands on canvas</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_serialize'>serialize</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#Picture'>Picture</a> to data</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_uniqueID'>uniqueID</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns identifier for <a href='#Picture'>Picture</a></td>
   </tr>
 </table>
 
@@ -128,6 +128,10 @@ SkPicture member functions read and modify the structure properties.
 </table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    class <a href='#SkPicture_AbortCallback_empty_constructor'>AbortCallback</a> {
+    public:
+        <a href='#SkPicture_AbortCallback_empty_constructor'>AbortCallback()</a> {}
+        virtual
 </pre>
 
 <a href='undocumented#Subclasses'>Subclasses</a> of this can be passed to <a href='#SkPicture_playback'>playback</a>. During the playback
@@ -145,17 +149,15 @@ to the same level it was before the playback call was made.
 <a href='#SkPicture_AbortCallback_empty_constructor'>AbortCallback</a>()
 </pre>
 
+Default constructor has no effect.
+
 ### Return Value
 
-incomplete
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+abstract class cannot be instantiated
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_playback'>playback</a>
 
 ---
 
@@ -166,13 +168,11 @@ incomplete
 virtual
 </pre>
 
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+Default destructor has no effect.
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_playback'>playback</a>
 
 ---
 
@@ -183,19 +183,23 @@ incomplete
 virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a>() = 0
 </pre>
 
+Override in a subclass to stop <a href='#Picture'>Picture</a> playback when some condition is met.
+
 ### Return Value
 
-incomplete
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+true to stop playback
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_playback'>playback</a>
 
 ---
+
+### Example
+
+<div><fiddle-embed name="56ed920dadbf2b2967ac45fb5a9bded6"><div>JustOneDraw allows the black rectangle to draw but stops playback before the
+white rectangle appears.
+</div></fiddle-embed></div>
 
 <a name='SkPicture_MakeFromStream'></a>
 ## MakeFromStream
@@ -204,29 +208,29 @@ incomplete
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromStream'>MakeFromStream</a>(<a href='undocumented#SkStream'>SkStream</a>* stream, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
 </pre>
 
-Recreate a picture that was serialized into a <a href='#SkPicture_MakeFromStream_stream'>stream</a> or data.
+Recreates a picture that was serialized into a <a href='#SkPicture_MakeFromStream_stream'>stream</a>.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_MakeFromStream_stream'><code><strong>stream</strong></code></a></td>
-    <td>incomplete</td>
+    <td>container for serial data</td>
   </tr>
   <tr>    <td><a name='SkPicture_MakeFromStream_procs'><code><strong>procs</strong></code></a></td>
-    <td>incomplete</td>
+    <td>custom serial data decoders; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromStream_stream'>stream</a> data
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="404fb42560a289c2004cad1caf3b96de"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_MakeFromData'>MakeFromData</a><sup><a href='#SkPicture_MakeFromData_2'>[2]</a></sup> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
 
 ---
 
@@ -237,27 +241,29 @@ incomplete
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const <a href='undocumented#SkData'>SkData</a>* data, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
 </pre>
 
+Recreates a picture that was serialized into <a href='#SkPicture_MakeFromData_data'>data</a>.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_MakeFromData_data'><code><strong>data</strong></code></a></td>
-    <td>incomplete</td>
+    <td>container for serial <a href='#SkPicture_MakeFromData_data'>data</a></td>
   </tr>
   <tr>    <td><a name='SkPicture_MakeFromData_procs'><code><strong>procs</strong></code></a></td>
-    <td>incomplete</td>
+    <td>custom serial <a href='#SkPicture_MakeFromData_data'>data</a> decoders; may be nullptr</td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromData_data'>data</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="58b44bf47d8816782066618700afdecb"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
 
 ---
 
@@ -271,27 +277,29 @@ static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture<
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_MakeFromData_2_data'><code><strong>data</strong></code></a></td>
-    <td>incomplete</td>
+    <td>pointer to serial <a href='#SkPicture_MakeFromData_2_data'>data</a></td>
   </tr>
   <tr>    <td><a name='SkPicture_MakeFromData_2_size'><code><strong>size</strong></code></a></td>
-    <td>incomplete</td>
+    <td><a href='#SkPicture_MakeFromData_2_size'>size</a> of <a href='#SkPicture_MakeFromData_2_data'>data</a></td>
   </tr>
   <tr>    <td><a name='SkPicture_MakeFromData_2_procs'><code><strong>procs</strong></code></a></td>
-    <td>incomplete</td>
+    <td>custom serial <a href='#SkPicture_MakeFromData_2_data'>data</a> decoders; may be nullptr</td>
   </tr>
+Recreates a picture that was serialized into <a href='#SkPicture_MakeFromData_2_data'>data</a>.
+
 </table>
 
 ### Return Value
 
-incomplete
+<a href='#Picture'>Picture</a> constructed from <a href='#SkPicture_MakeFromData_2_data'>data</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="30b9f1b310187db6aff720a5d67591e2"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkPicture_MakeFromStream'>MakeFromStream</a> <a href='undocumented#SkPictureRecorder'>SkPictureRecorder</a>
 
 ---
 
@@ -310,11 +318,10 @@ this has the effect of unfurling this picture into the destination
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPicture_playback_canvas'><code><strong>canvas</strong></code></a></td>
-    <td>the <a href='#SkPicture_playback_canvas'>canvas</a> receiving the drawing commands.
-</td>
+    <td>receiver of drawing commands</td>
   </tr>
   <tr>    <td><a name='SkPicture_playback_callback'><code><strong>callback</strong></code></a></td>
-    <td>a <a href='#SkPicture_playback_callback'>callback</a> that allows interruption of playback</td>
+    <td>allows interruption of playback</td>
   </tr>
 </table>
 
@@ -339,7 +346,7 @@ incomplete
 virtual <a href='SkRect_Reference#SkRect'>SkRect</a> <a href='#SkPicture_cullRect'>cullRect</a>() const = 0
 </pre>
 
-Return a cull rect for this picture.
+Returns cull rect for this picture.
 Ops recorded into this picture that attempt to draw outside the cull might not be drawn.
 
 ### Return Value

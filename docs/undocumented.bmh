@@ -137,14 +137,6 @@ FT_Load_Glyph
 #Substitute HTML gray
 ##
 
-#Topic HTML_DarkGray 
-#Substitute HTML dark gray
-##
-
-#Topic HTML_LightGray 
-#Substitute HTML light gray
-##
-
 #Topic HTML_Silver 
 #Substitute HTML silver
 ##

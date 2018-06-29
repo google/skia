@@ -58,7 +58,7 @@ SkRRect related constants are defined by <code>enum</code>, <code>enum class</co
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage space for <a href='#RRect'>Round Rect</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_kUpperLeft_Corner'>kUpperLeft Corner</a></td>
@@ -263,7 +263,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_isValid'>isValid</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#SkRRect_type'>type</a> matches bounds and radii</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_makeOffset'>makeOffset</a></td>
@@ -283,7 +283,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_readFromMemory'>readFromMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>reads <a href='#RRect'>Round Rect</a> from buffer</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_rect'>rect</a></td>
@@ -327,7 +327,7 @@ SkRRect member functions read and modify the structure properties.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRRect_writeToMemory'>writeToMemory</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>incomplete</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>writes <a href='#RRect'>Round Rect</a> to buffer</td>
   </tr>
 </table>
 
@@ -377,7 +377,7 @@ copy of <a href='#SkRRect_copy_const_SkRRect_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="9be9adb06c26dac75a5a5a7c1ceca681"></fiddle-embed></div>
+<div><fiddle-embed name="ad8f5d49edfcee60eddfe2a955b6c5f5"></fiddle-embed></div>
 
 ### See Also
 
@@ -407,7 +407,7 @@ copy of <a href='#SkRRect_copy_operator_rrect'>rrect</a>
 
 ### Example
 
-<div><fiddle-embed name="94c298c404fff922ec53a3d7567852a2"></fiddle-embed></div>
+<div><fiddle-embed name="52926c98c1cca00606d3ea99f23fea3d"></fiddle-embed></div>
 
 ### See Also
 
@@ -445,21 +445,21 @@ The enum members become progressively less restrictive; larger values of
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kEmpty_Type'><code>SkRRect::kEmpty_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # zero width or height ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has zero width or height. All radii are zero.
 </td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kRect_Type'><code>SkRRect::kRect_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height, and zeroed radii ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All radii are zero.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kOval_Type'><code>SkRRect::kOval_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height filled with radii ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal,
 and at least half the width. All four y-radii are equal,
@@ -468,7 +468,7 @@ and at least half the height.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kSimple_Type'><code>SkRRect::kSimple_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with equal radii ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. All four x-radii are equal and
 greater than zero, and all four y-radii are equal and greater than
@@ -478,7 +478,7 @@ less than half the height, or both.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kNinePatch_Type'><code>SkRRect::kNinePatch_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with axis-aligned radii ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. Left x-radii are equal, top
 y-radii are equal, right x-radii are equal, and bottom y-radii
@@ -491,14 +491,14 @@ interior rectangle, four edges, and four corners.
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kComplex_Type'><code>SkRRect::kComplex_Type</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>#Line # non-zero width and height with arbitrary radii ##</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 both radii are non-zero.
 </td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kLastType'><code>SkRRect::kLastType</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>= kComplex_Type</td>
+    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 largest Type value</td>
   </tr>
@@ -528,7 +528,7 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 
 ### Example
 
-<div><fiddle-embed name="53634cc0794c0fa6c0c2b3ac4cc69490"><div>rrect2 is not a <a href='SkRect_Reference#Rect'>Rect</a>; <a href='#SkRRect_inset'>inset</a> has made it empty.
+<div><fiddle-embed name="ace8f4aebf90527d43e4b7291375c9ad"><div>rrect2 is not a <a href='SkRect_Reference#Rect'>Rect</a>; <a href='#SkRRect_inset'>inset</a> has made it empty.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -553,7 +553,7 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 
 ### Example
 
-<div><fiddle-embed name="02b03d651c4b5d18018c6f75fa88b8ce"><div><a href='#SkRRect_inset'>inset</a> has made rrect2 empty.
+<div><fiddle-embed name="1080805c8449406a4e26d694bc56d2dc"><div><a href='#SkRRect_inset'>inset</a> has made rrect2 empty.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -707,7 +707,7 @@ true if not empty, rect, oval, simple, or nine-patch
 
 ### Example
 
-<div><fiddle-embed name="75db3f4e4757478bca641bccf89b9398"></fiddle-embed></div>
+<div><fiddle-embed name="e4ba9346ee5c2d37d5e504f8cc678544"></fiddle-embed></div>
 
 ### See Also
 
@@ -801,7 +801,7 @@ corner radii for simple types
 
 ### Example
 
-<div><fiddle-embed name="f0e02101ecbdb5a2963ec82e7832afb1"></fiddle-embed></div>
+<div><fiddle-embed name="ebcc50ed30240e94de8439d21dd8171c"></fiddle-embed></div>
 
 ### See Also
 
@@ -821,7 +821,7 @@ corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type
 
 ### Example
 
-<div><fiddle-embed name="59c1025b8116ec1d3b55f4f6306d1e37"><div>Nothing blue is drawn because rrect is set to empty.
+<div><fiddle-embed name="44e9a9c2c5ef1af2a616086ff46a9037"><div>Nothing blue is drawn because rrect is set to empty.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1129,7 +1129,7 @@ sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>. Otherwise, sets to <a 
 
 ### Example
 
-<div><fiddle-embed name="4589dd49da291f8cd414db96c12851c7"></fiddle-embed></div>
+<div><fiddle-embed name="340d6c51efaa1f7f3d0dcaf8b0e90696"></fiddle-embed></div>
 
 ### See Also
 
@@ -1583,7 +1583,7 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="884447c809921cfaebc87aeb63dedd48"></fiddle-embed></div>
 
 ### See Also
 
@@ -1598,17 +1598,22 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 bool <a href='#SkRRect_isValid'>isValid</a>() const
 </pre>
 
+Returns true if bounds and radii values are finite and describe a <a href='#RRect'>Round Rect</a>
+<a href='#SkRRect_Type'>Type</a> that matches <a href='#SkRRect_getType'>getType</a>. All <a href='#RRect'>Round Rect</a> methods construct valid types,
+even if the input values are not valid. Invalid <a href='#RRect'>Round Rect</a> data can only
+be generated by corrupting memory.
+
 ### Return Value
 
-incomplete
+true if bounds and radii match <a href='#SkRRect_type'>type</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="d28709aa457742391842a9ab1f21b5fa"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_Type'>Type</a> <a href='#SkRRect_getType'>getType</a>
 
 ---
 
@@ -1622,12 +1627,7 @@ incomplete
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkRRect_kSizeInMemory'><code>SkRRect::kSizeInMemory</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>48</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-
-
-### Example
-
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>incomplete
-
+Space required to serialize <a href='#SkRRect'>SkRRect</a> into a buffer. Always a multiple of four.
 </td>
   </tr>
 </table>
@@ -1639,28 +1639,27 @@ incomplete
 size_t <a href='#SkRRect_writeToMemory'>writeToMemory</a>(void* buffer) const
 </pre>
 
-Write the rrect into the specified <a href='#SkRRect_writeToMemory_buffer'>buffer</a>. This is guaranteed to always
-write <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes, and that value is guaranteed to always be
-a multiple of 4. Return <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>.
+Writes <a href='#RRect'>Round Rect</a> to <a href='#SkRRect_writeToMemory_buffer'>buffer</a>. Writes <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes, and returns
+<a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>, the number of bytes written.
 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRRect_writeToMemory_buffer'><code><strong>buffer</strong></code></a></td>
-    <td>incomplete</td>
+    <td>storage for <a href='#RRect'>Round Rect</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-incomplete
+bytes written, <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="1466c844a78fd05a7362537347e360ca"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_readFromMemory'>readFromMemory</a>
 
 ---
 
@@ -1671,9 +1670,9 @@ incomplete
 size_t <a href='#SkRRect_readFromMemory'>readFromMemory</a>(const void* buffer, size_t length)
 </pre>
 
-Reads the rrect from the specified <a href='#SkRRect_readFromMemory_buffer'>buffer</a>.
-If the specified <a href='#SkRRect_readFromMemory_buffer'>buffer</a> is large enough, this will read <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes,
-and that value is guaranteed to always be a multiple of 4.
+Reads <a href='#RRect'>Round Rect</a> from <a href='#SkRRect_readFromMemory_buffer'>buffer</a>, reading <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a> bytes.
+Returns <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>, bytes read if <a href='#SkRRect_readFromMemory_length'>length</a> is at least <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>.
+Otherwise, returns zero.
 
 ### Parameters
 
@@ -1681,22 +1680,21 @@ and that value is guaranteed to always be a multiple of 4.
     <td>memory to read from</td>
   </tr>
   <tr>    <td><a name='SkRRect_readFromMemory_length'><code><strong>length</strong></code></a></td>
-    <td>amount of memory available in the <a href='#SkRRect_readFromMemory_buffer'>buffer</a></td>
+    <td>size of <a href='#SkRRect_readFromMemory_buffer'>buffer</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-number of bytes read (must be a multiple of 4) or
-0 if there was not enough memory available
+bytes read, or 0 if <a href='#SkRRect_readFromMemory_length'>length</a> is less than <a href='#SkRRect_kSizeInMemory'>kSizeInMemory</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="b877c0adff35470865a57aa150bf5329"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='#SkRRect_writeToMemory'>writeToMemory</a>
 
 ---
 
@@ -1729,11 +1727,11 @@ true if transformation succeeded.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="99ccc6862bb9fe3ca35228eee9f9725d"></fiddle-embed></div>
 
 ### See Also
 
-incomplete
+<a href='SkPath_Reference#SkPath_transform'>SkPath::transform</a><sup><a href='SkPath_Reference#SkPath_transform_2'>[2]</a></sup>
 
 ---
 

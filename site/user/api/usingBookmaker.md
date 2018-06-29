@@ -100,11 +100,17 @@ which will be ignored.
 ## <a name='Installing'>Installing</a>
 
 Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
+Check the version. The resuls should be 1.10 or greater.
+
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+$ go version
+</pre>
+
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ go get go.skia.org/infra/fiddle/go/fiddlecli
+$ go get go.skia.org/infra/fiddlek/go/fiddlecli
 </pre>
 
 Build <a href='#Bookmaker'>Bookmaker</a>.

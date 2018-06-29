@@ -197,7 +197,7 @@ components improve performance.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kOpaque_SkAlphaType'><code>kOpaque_SkAlphaType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Type_Opaque'>Alpha&nbsp;Type&nbsp;Opaque</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Opaque'>Opaque</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Pixels are opaque. The <a href='#Color_Type'>Color Type</a> must have no explicit alpha
 component, or all alpha components must be set to their maximum value.
@@ -206,7 +206,7 @@ component, or all alpha components must be set to their maximum value.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kPremul_SkAlphaType'><code>kPremul_SkAlphaType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Type_Premul'>Alpha&nbsp;Type&nbsp;Premul</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Premul'>Premul</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Pixels have <a href='SkColor_Reference#Alpha'>Alpha</a> <a href='undocumented#Premultiply'>Premultiplied</a> into color components.
 <a href='SkSurface_Reference#Surface'>Surface</a> pixels must be <a href='undocumented#Premultiply'>Premultiplied</a>.
@@ -215,7 +215,7 @@ Pixels have <a href='SkColor_Reference#Alpha'>Alpha</a> <a href='undocumented#Pr
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kUnpremul_SkAlphaType'><code>kUnpremul_SkAlphaType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Type_Unpremul'>Alpha&nbsp;Type&nbsp;Unpremul</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Unpremul'>Unpremul</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='undocumented#Pixel'>Pixel</a> color component values are independent of alpha value.
 Images generated from encoded data like PNG do not <a href='undocumented#Premultiply'>Premultiply</a> pixel color
@@ -375,7 +375,7 @@ encoding format and size is unknown.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kAlpha_8_SkColorType'><code>kAlpha_8_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Alpha_8'>Color&nbsp;Type&nbsp;Alpha&nbsp;8</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_8'>Alpha&nbsp;8</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 8-bit byte pixel encoding that represents transparency. Value of zero
 is completely transparent; a value of 255 is completely opaque.
@@ -384,7 +384,7 @@ is completely transparent; a value of 255 is completely opaque.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGB_565_SkColorType'><code>kRGB_565_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_565'>Color&nbsp;Type&nbsp;RGB&nbsp;565</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGB_565'>RGB&nbsp;565</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 16-bit word pixel encoding that contains five bits of blue,
 six bits of green, and five bits of red.
@@ -393,7 +393,7 @@ six bits of green, and five bits of red.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kARGB_4444_SkColorType'><code>kARGB_4444_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_ARGB_4444'>Color&nbsp;Type&nbsp;ARGB&nbsp;4444</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#ARGB_4444'>ARGB&nbsp;4444</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 16-bit word pixel encoding that contains four bits of alpha,
 four bits of blue, four bits of green, and four bits of red.
@@ -402,7 +402,7 @@ four bits of blue, four bits of green, and four bits of red.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGBA_8888_SkColorType'><code>kRGBA_8888_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_8888'>Color&nbsp;Type&nbsp;RGBA&nbsp;8888</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGBA_8888'>RGBA&nbsp;8888</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 32-bit word pixel encoding that contains eight bits of red,
 eight bits of green, eight bits of blue, and eight bits of alpha.
@@ -411,7 +411,7 @@ eight bits of green, eight bits of blue, and eight bits of alpha.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGB_888x_SkColorType'><code>kRGB_888x_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_888'>Color&nbsp;Type&nbsp;RGB&nbsp;888</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGB_888'>RGB&nbsp;888</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 32-bit word pixel encoding that contains eight bits of red,
 eight bits of green, eight bits of blue, and eight unused bits.
@@ -420,7 +420,7 @@ eight bits of green, eight bits of blue, and eight unused bits.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kBGRA_8888_SkColorType'><code>kBGRA_8888_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>6</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_BGRA_8888'>Color&nbsp;Type&nbsp;BGRA&nbsp;8888</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#BGRA_8888'>BGRA&nbsp;8888</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 32-bit word pixel encoding that contains eight bits of blue,
 eight bits of green, eight bits of red, and eight bits of alpha.
@@ -429,7 +429,7 @@ eight bits of green, eight bits of red, and eight bits of alpha.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGBA_1010102_SkColorType'><code>kRGBA_1010102_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>7</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_1010102'>Color&nbsp;Type&nbsp;RGBA&nbsp;1010102</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGBA_1010102'>RGBA&nbsp;1010102</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 32-bit word pixel encoding that contains ten bits of red,
 ten bits of green, ten bits of blue, and two bits of alpha.
@@ -438,7 +438,7 @@ ten bits of green, ten bits of blue, and two bits of alpha.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGB_101010x_SkColorType'><code>kRGB_101010x_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGB_101010'>Color&nbsp;Type&nbsp;RGB&nbsp;101010</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGB_101010'>RGB&nbsp;101010</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 32-bit word pixel encoding that contains ten bits of red,
 ten bits of green, ten bits of blue, and two unused bits.
@@ -447,7 +447,7 @@ ten bits of green, ten bits of blue, and two unused bits.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kGray_8_SkColorType'><code>kGray_8_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>9</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_Gray_8'>Color&nbsp;Type&nbsp;Gray&nbsp;8</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Gray_8'>Gray&nbsp;8</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 8-bit byte pixel encoding that equivalent to equal values for red,
 blue, and green, representing colors from black to white.
@@ -456,7 +456,7 @@ blue, and green, representing colors from black to white.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGBA_F16_SkColorType'><code>kRGBA_F16_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>10</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F16'>Color&nbsp;Type&nbsp;RGBA&nbsp;F16</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGBA_F16'>RGBA&nbsp;F16</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 64-bit word pixel encoding that contains 16 bits of blue,
 16 bits of green, 16 bits of red, and 16 bits of alpha. Each component
@@ -466,7 +466,7 @@ is encoded as a half float.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='kRGBA_F32_SkColorType'><code>kRGBA_F32_SkColorType</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>11</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Type_RGBA_F32'>Color&nbsp;Type&nbsp;RGBA&nbsp;F32</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#RGBA_F32'>RGBA&nbsp;F32</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Stores 128-bit word pixel encoding that contains 32 bits of blue,
 32 bits of green, 32 bits of red, and 32 bits of alpha. Each component
