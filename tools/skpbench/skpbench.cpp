@@ -64,6 +64,7 @@ DEFINE_int32(duration, 5000, "number of milliseconds to run the benchmark");
 DEFINE_int32(sampleMs, 50, "minimum duration of a sample");
 DEFINE_bool(gpuClock, false, "time on the gpu clock (gpu work only)");
 DEFINE_bool(fps, false, "use fps instead of ms");
+DEFINE_bool(dollyzoom, false, "zoom in and out to quash mask caching (not supported by ddl)");
 DEFINE_string(src, "", "path to a single .skp or .svg file, or 'warmup' for a builtin warmup run");
 DEFINE_string(png, "", "if set, save a .png proof to disk at this file location");
 DEFINE_int32(verbosity, 4, "level of verbosity (0=none to 5=debug)");
@@ -113,7 +114,9 @@ enum class ExitErr {
     kSoftware     = 70
 };
 
-static void draw_skp_and_flush(SkCanvas*, const SkPicture*);
+static void draw_skp_and_flush(
+        SkCanvas*, const SkPicture*,
+        std::chrono::nanoseconds animationTime = std::chrono::nanoseconds(0));
 static sk_sp<SkPicture> create_warmup_skp();
 static sk_sp<SkPicture> create_skp_from_svg(SkStream*, const char* filename);
 static bool mkdir_p(const SkString& name);
@@ -152,6 +155,10 @@ static void run_ddl_benchmark(const sk_gpu_test::FenceSync* fenceSync,
     using clock = std::chrono::high_resolution_clock;
     const Sample::duration sampleDuration = std::chrono::milliseconds(FLAGS_sampleMs);
     const clock::duration benchDuration = std::chrono::milliseconds(FLAGS_duration);
+
+    if (FLAGS_dollyzoom) {
+        exitf(ExitErr::kUsage, "DDL: 'dollyzoom' flag not supported by ddl");
+    }
 
     SkIRect viewport = finalCanvas->imageInfo().bounds();
 
@@ -209,7 +216,8 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
         gpuSync.syncToPreviousFrame();
     }
 
-    clock::time_point now = clock::now();
+    clock::time_point start, now;
+    start = now = clock::now();
     const clock::time_point endTime = now + benchDuration;
 
     do {
@@ -218,7 +226,7 @@ static void run_benchmark(const sk_gpu_test::FenceSync* fenceSync, SkCanvas* can
         Sample& sample = samples->back();
 
         do {
-            draw_skp_and_flush(canvas, skp);
+            draw_skp_and_flush(canvas, skp, now - start);
             gpuSync.syncToPreviousFrame();
 
             now = clock::now();
@@ -252,7 +260,8 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
         gpuSync.syncToPreviousFrame();
     }
 
-    clock::time_point now = clock::now();
+    clock::time_point start, now;
+    start = now = clock::now();
     const clock::time_point endTime = now + benchDuration;
 
     do {
@@ -262,7 +271,7 @@ static void run_gpu_time_benchmark(sk_gpu_test::GpuTimer* gpuTimer,
 
         do {
             gpuTimer->queueStart();
-            draw_skp_and_flush(canvas, skp);
+            draw_skp_and_flush(canvas, skp, now - start);
             PlatformTimerQuery time = gpuTimer->queueStop();
             gpuSync.syncToPreviousFrame();
 
@@ -483,7 +492,21 @@ int main(int argc, char** argv) {
     exit(0);
 }
 
-static void draw_skp_and_flush(SkCanvas* canvas, const SkPicture* skp) {
+static void draw_skp_and_flush(SkCanvas* canvas, const SkPicture* skp,
+                               std::chrono::nanoseconds animationTime) {
+    SkAutoCanvasRestore acr(canvas, true);
+
+    if (FLAGS_dollyzoom) {
+        static constexpr double kZoomPeriodNanoSec = 2500. * 1000. * 1000.;
+        static constexpr double kMaxZoomLevel = 1.5f;
+
+        double t = fmod(animationTime.count() / kZoomPeriodNanoSec + .25, 1.0); // t is in [0, 1).
+        t = fabs(2 * t - 1) * 2 - 1; // Make t ping-pong between -1 and 1, starting at 0.
+        double zoom = pow(kMaxZoomLevel, t);
+
+        canvas->scale(zoom, zoom);
+    }
+
     canvas->drawPicture(skp);
     canvas->flush();
 }
