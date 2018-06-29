@@ -108,7 +108,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
                                GrAATypeIsHW(args.fAAType), true, &appliedClip, &devBounds)) {
             return true;
         }
-        GrStencilClip stencilClip(appliedClip.stencilStackID());
+        GrStencilClip stencilClip(true);
         if (appliedClip.scissorState().enabled()) {
             stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
         }
