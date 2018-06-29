@@ -2766,10 +2766,6 @@ GrColorType GrGLCaps::supportedReadPixelsColorType(GrPixelConfig config,
         case kNormalizedFixedPoint_FormatType:
             return GrColorType::kRGBA_8888;
         case kFloat_FormatType:
-            // We cheat a little here and allow F16 read back if the src and dst match.
-            if (kRGBA_half_GrPixelConfig == config && GrColorType::kRGBA_F16 == dstColorType) {
-                return GrColorType::kRGBA_F16;
-            }
             if ((kAlpha_half_GrPixelConfig == config ||
                  kAlpha_half_as_Red_GrPixelConfig == config) &&
                 GrColorType::kAlpha_F16 == dstColorType) {
