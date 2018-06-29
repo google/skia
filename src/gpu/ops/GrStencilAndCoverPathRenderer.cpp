@@ -109,7 +109,7 @@ bool GrStencilAndCoverPathRenderer::onDrawPath(const DrawPathArgs& args) {
             return true;
         }
         GrStencilClip stencilClip(appliedClip.stencilStackID());
-        if (appliedClip.scissorState().enabled()) {
+        if (appliedClip.scissorState().scissorTest() == GrScissorTest::kEnabled) {
             stencilClip.fixedClip().setScissor(appliedClip.scissorState().rect());
         }
         if (appliedClip.windowRectsState().enabled()) {

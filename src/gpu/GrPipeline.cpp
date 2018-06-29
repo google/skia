@@ -28,7 +28,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
     if (appliedClip.hasStencilClip()) {
         fFlags |= kHasStencilClip_Flag;
     }
-    if (appliedClip.scissorState().enabled()) {
+    if (appliedClip.scissorState().scissorTest() == GrScissorTest::kEnabled) {
         fFlags |= kScissorEnabled_Flag;
     }
 
@@ -99,7 +99,7 @@ GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     return this->getXferProcessor().xferBarrierType(caps);
 }
 
-GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, SkBlendMode blendmode)
+GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, GrScissorTest scissorTest, SkBlendMode blendmode)
         : fProxy(proxy)
         , fWindowRectsState()
         , fUserStencilSettings(&GrUserStencilSettings::kUnused)
@@ -108,7 +108,7 @@ GrPipeline::GrPipeline(GrRenderTargetProxy* proxy, ScissorState scissorState, Sk
         , fFragmentProcessors()
         , fNumColorProcessors(0) {
     SkASSERT(proxy);
-    if (scissorState) {
+    if (scissorTest == GrScissorTest::kEnabled) {
         fFlags |= kScissorEnabled_Flag;
     }
 }

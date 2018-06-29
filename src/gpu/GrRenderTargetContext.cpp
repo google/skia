@@ -329,7 +329,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
                                           CanClearFullscreen canClearFullscreen) {
     bool isFull = false;
     if (!clip.hasWindowRectangles()) {
-        isFull = !clip.scissorEnabled() ||
+        isFull = clip.scissorTest() == GrScissorTest::kDisabled ||
                  (CanClearFullscreen::kYes == canClearFullscreen &&
                   this->caps()->preferFullscreenClears()) ||
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));

@@ -33,7 +33,7 @@ public:
         SkString string;
         string.append(INHERITED::dumpInfo());
         string.appendf("Scissor [ ");
-        if (fClip.scissorEnabled()) {
+        if (fClip.scissorTest() == GrScissorTest::kEnabled) {
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         } else {
@@ -83,9 +83,11 @@ private:
 
     bool contains(const GrClearOp* that) const {
         // The constructor ensures that scissor gets disabled on any clip that fills the entire RT.
-        return !fClip.scissorEnabled() ||
-               (that->fClip.scissorEnabled() &&
-                fClip.scissorRect().contains(that->fClip.scissorRect()));
+        if (fClip.scissorTest() == GrScissorTest::kDisabled) {
+            return true;
+        }
+        return that->fClip.scissorTest() == GrScissorTest::kEnabled &&
+               fClip.scissorRect().contains(that->fClip.scissorRect());
     }
 
     void onPrepare(GrOpFlushState*) override {}
