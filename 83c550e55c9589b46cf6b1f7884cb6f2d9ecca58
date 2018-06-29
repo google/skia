@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "223036b1_2cdef7d3",
+        "filename": "src/core/SkATrace.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-29T19:24:39Z",
+      "side": 1,
+      "message": "I\u0027d feel better if this weren\u0027t just a global bool. Can it be a static in the util class?\n\neg:\nbool SkAndroidFrameworkTraceUtil::gEnableAndroidTracing \u003d false;",
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e5f7bac_0d33435e",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-29T19:24:39Z",
+      "side": 1,
+      "message": "Remove this?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 0
+      },
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3651c0a_396d842c",
+        "filename": "src/core/SkTraceEventCommon.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-06-29T19:24:39Z",
+      "side": 1,
+      "message": "... and this?",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 151,
+        "endChar": 0
+      },
+      "revId": "83c550e55c9589b46cf6b1f7884cb6f2d9ecca58",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
