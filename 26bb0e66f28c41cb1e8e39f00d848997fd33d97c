@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd5d75f2_2de0fd95",
+        "filename": "src/core/SkTypeface_remote.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-06-29T21:57:55Z",
+      "side": 0,
+      "message": "Since we\u0027re here, do the rest of these need to be release asserts?",
+      "range": {
+        "startLine": 89,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 16
+      },
+      "revId": "26bb0e66f28c41cb1e8e39f00d848997fd33d97c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
