@@ -137,10 +137,9 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
 
 static SkScalar perp_dot(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
     SkVector v0 = p1 - p0;
-    SkVector v1 = p2 - p0;
+    SkVector v1 = p2 - p1;
     return v0.cross(v1);
 }
-
 
 SkBaseShadowTessellator::SkBaseShadowTessellator(const SkPoint3& zPlaneParams, bool transparent)
         : fZPlaneParams(zPlaneParams)
@@ -189,9 +188,12 @@ bool SkBaseShadowTessellator::accumulateCentroid(const SkPoint& curr, const SkPo
         return false;
     }
 
-    SkScalar quadArea = curr.cross(next);
-    fCentroid.fX += (curr.fX + next.fX) * quadArea;
-    fCentroid.fY += (curr.fY + next.fY) * quadArea;
+//    SkASSERT(fPathPolygon.count() > 0);
+    SkVector v0 = curr;// -fPathPolygon[0];
+    SkVector v1 = next;// -fPathPolygon[0];
+    SkScalar quadArea = v0.cross(v1);
+    fCentroid.fX += (v0.fX + v1.fX) * quadArea;
+    fCentroid.fY += (v0.fY + v1.fY) * quadArea;
     fArea += quadArea;
     // convexity check
     if (quadArea*fLastArea < 0) {
@@ -226,6 +228,10 @@ void SkBaseShadowTessellator::finishPathPolygon() {
             // remove coincident point
             fPathPolygon.pop();
         }
+
+        // do this before the final convexity check, so we use the correct fPathPolygon[0]
+        fCentroid *= sk_ieee_float_divide(1, 3 * fArea);
+//        fCentroid += fPathPolygon[0];
     }
 
     if (fPathPolygon.count() > 2) {
@@ -238,7 +244,6 @@ void SkBaseShadowTessellator::finishPathPolygon() {
         }
     }
 
-    fCentroid *= sk_ieee_float_divide(1, 3 * fArea);
     // It's possible to have a concave path that self-intersects but also passes the
     // cross-product check (e.g., a star). In that case, the signed area will change signs more
     // than twice, so we check for that here.

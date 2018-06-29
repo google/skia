@@ -118,6 +118,15 @@ void SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkSc
                           SkScalar* rotSin, SkScalar* rotCos, int* n);
 
 /**
+* Determine whether a polygon is convex or not.
+*
+* @param polygonVerts  Array of points representing the vertices of the polygon.
+* @param polygonSize  Number of vertices in the polygon.
+* @return true if the polygon is convex, false otherwise.
+*/
+bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize);
+
+/**
  * Determine whether a polygon is simple (i.e., not self-intersecting) or not.
  *
  * @param polygonVerts  Array of points representing the vertices of the polygon.
