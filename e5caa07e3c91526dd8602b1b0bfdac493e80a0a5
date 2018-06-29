@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6cbdad3e_5953e351",
+        "filename": "infra/bots/assets/opencl_intel_neo_linux/common.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:28:03Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "e5caa07e3c91526dd8602b1b0bfdac493e80a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dda4b94_5211cf08",
+        "filename": "infra/bots/assets/opencl_intel_neo_linux/create_and_upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:28:03Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "e5caa07e3c91526dd8602b1b0bfdac493e80a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "502d4abc_490e0b9a",
+        "filename": "infra/bots/assets/opencl_intel_neo_linux/download.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:28:03Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "e5caa07e3c91526dd8602b1b0bfdac493e80a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dc34b812_68d074a3",
+        "filename": "infra/bots/assets/opencl_intel_neo_linux/upload.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-06-29T00:28:03Z",
+      "side": 1,
+      "message": "Boilerplate.",
+      "revId": "e5caa07e3c91526dd8602b1b0bfdac493e80a0a5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
