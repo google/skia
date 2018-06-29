@@ -78,19 +78,7 @@ GrCCPathCache::HashNode::~HashNode() {
     SkASSERT(fEntry->fCacheWeakPtr);
     fEntry->fCacheWeakPtr->fLRU.remove(fEntry);
     fEntry->fCacheWeakPtr = nullptr;
-
-    if (GrCCAtlas::CachedAtlasInfo* info = fEntry->fCachedAtlasInfo.get()) {
-        // Mark our own pixels invalid in the cached atlas texture now that we have been evicted.
-        info->fNumInvalidatedPathPixels += fEntry->height() * fEntry->width();
-        if (!info->fIsPurgedFromResourceCache &&
-            info->fNumInvalidatedPathPixels >= info->fNumPathPixels / 2) {
-            // Too many invalidated pixels: purge the atlas texture from the resource cache.
-            SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                    GrUniqueKeyInvalidatedMessage(fEntry->fAtlasKey));
-            info->fIsPurgedFromResourceCache = true;
-        }
-    }
-
+    fEntry->invalidateAtlas();
     fEntry->unref();
 }
 
@@ -115,9 +103,15 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
         entry = node->entry();
         SkASSERT(this == entry->fCacheWeakPtr);
         if (fuzzy_equals(m, entry->fMaskTransform)) {
-            ++entry->fHitCount;
+            ++entry->fHitCount;  // The path was reused with a compatible matrix.
+        } else if (CreateIfAbsent::kYes == createIfAbsent && entry->unique()) {
+            // This entry is unique: we can recycle it instead of deleting and malloc-ing a new one.
+            entry->fMaskTransform = m;
+            entry->fHitCount = 1;
+            entry->invalidateAtlas();
+            SkASSERT(!entry->fCurrFlushAtlas);  // Should be null because 'entry' is unique.
         } else {
-            this->evict(entry);  // The path was reused with an incompatible matrix.
+            this->evict(entry);
             entry = nullptr;
         }
     }
@@ -177,6 +171,23 @@ void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey,
     SkASSERT(!fCachedAtlasInfo);  // Otherwise we need to invalidate our pixels in the old info.
     fCachedAtlasInfo = std::move(info);
     fCachedAtlasInfo->fNumPathPixels += this->height() * this->width();
+}
+
+void GrCCPathCacheEntry::invalidateAtlas() {
+    if (fCachedAtlasInfo) {
+        // Mark our own pixels invalid in the cached atlas texture.
+        fCachedAtlasInfo->fNumInvalidatedPathPixels += this->height() * this->width();
+        if (!fCachedAtlasInfo->fIsPurgedFromResourceCache &&
+            fCachedAtlasInfo->fNumInvalidatedPathPixels >= fCachedAtlasInfo->fNumPathPixels / 2) {
+            // Too many invalidated pixels: purge the atlas texture from the resource cache.
+            SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
+                    GrUniqueKeyInvalidatedMessage(fAtlasKey));
+            fCachedAtlasInfo->fIsPurgedFromResourceCache = true;
+        }
+    }
+
+    fAtlasKey.reset();
+    fCachedAtlasInfo = nullptr;
 }
 
 void GrCCPathCacheEntry::onChange() {
