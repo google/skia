@@ -473,6 +473,80 @@
     },
     {
       "key": {
+        "uuid": "a16087f4_3c4cf8a4",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:26:23Z",
+      "side": 1,
+      "message": "\u0027usePositions\u0027 seems like an odd name.\n\nMaybe \u0027positionsToUse\u0027 ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fa240d7_2703331f",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:26:23Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03c80481_9f76b31e",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:26:23Z",
+      "side": 1,
+      "message": "tab over once more ?",
+      "range": {
+        "startLine": 352,
+        "startChar": 0,
+        "endLine": 358,
+        "endChar": 26
+      },
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "398e61e6_16ff8a68",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-06-29T16:26:23Z",
+      "side": 1,
+      "message": "this-\u003e ?",
+      "revId": "4049180e300f4433849e86b4943411bd75bae5fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b529b57_869e1256",
         "filename": "tools/viewer/NIMASlide.h",
         "patchSetId": 11
