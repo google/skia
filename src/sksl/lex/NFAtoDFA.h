@@ -133,6 +133,27 @@ private:
     // represents a character and often there are many characters for which all transitions are
     // identical (e.g. [0-9] are treated the same way by all lexer rules)
     void computeMappings() {
+        // At this point the transitions tables should be one of two sizes,
+        // one being empty for unmentioned characters.  First, find the other size, N.
+        size_t N = 0;
+        for (size_t i = 0; i < fTransitions.size(); i++) {
+            if (fTransitions[i].size() > 0) {
+                if (N == 0) {
+                    N = fTransitions[i].size();
+                }
+                SkASSERT( fTransitions[i].size() == N );
+            }
+        }
+
+        // Now resize all the zero-sized transition tables to match (with transitions to state 0).
+        for (size_t i = 0; i < fTransitions.size(); i++) {
+            if (fTransitions[i].size() == 0) {
+                fTransitions[i].resize(N, 0);
+            }
+        }
+        // That should allow us to have characters we've seen but always map to a 0 state
+        // share a mapping with the unmentioned characters.
+
         // mappings[<input row>] = <output row>
         std::vector<std::vector<int>*> uniques;
         // this could be done more efficiently, but O(n^2) is plenty fast for our purposes

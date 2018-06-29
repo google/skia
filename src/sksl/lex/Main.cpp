@@ -94,10 +94,8 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     out << "namespace SkSL {\n";
     out << "\n";
 
-    size_t states = 0;
-    for (const auto& row : dfa.fTransitions) {
-        states = std::max(states, row.size());
-    }
+    // All transition tables should be the same size.
+    size_t states = dfa.fTransitions[0].size();
     out << "static int16_t mappings[" << dfa.fCharMappings.size() << "] = {\n    ";
     const char* separator = "";
     for (int m : dfa.fCharMappings) {
@@ -109,11 +107,8 @@ void writeCPP(const DFA& dfa, const char* lexer, const char* token, const char* 
     for (size_t c = 0; c < dfa.fTransitions.size(); ++c) {
         out << "    {";
         for (size_t j = 0; j < states; ++j) {
-            if ((size_t) c < dfa.fTransitions.size() && j < dfa.fTransitions[c].size()) {
-                out << " " << dfa.fTransitions[c][j] << ",";
-            } else {
-                out << " 0,";
-            }
+            SkASSERT( (size_t)c < dfa.fTransitions.size() && j < dfa.fTransitions[c].size() );
+            out << " " << dfa.fTransitions[c][j] << ",";
         }
         out << " },\n";
     }
