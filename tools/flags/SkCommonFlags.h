@@ -28,6 +28,7 @@ DECLARE_int32(skpViewportSize);
 DECLARE_string(jpgs);
 DECLARE_string(jsons);
 DECLARE_string(svgs);
+DECLARE_string(nimas);
 DECLARE_bool(nativeFonts);
 DECLARE_int32(threads);
 DECLARE_string(resourcePath);

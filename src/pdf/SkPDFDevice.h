@@ -100,7 +100,8 @@ public:
                      const SkPoint& offset, const SkPaint&) override;
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint &, SkDrawFilter*) override;
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
+    void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+                      const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
 

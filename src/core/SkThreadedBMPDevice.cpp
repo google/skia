@@ -222,15 +222,16 @@ void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScal
     });
 }
 
-void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-        const SkPaint& paint) {
+void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones,
+                                       int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     const sk_sp<SkVertices> verts = sk_ref_sp(vertices);  // retain vertices until flush
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawVertices(verts->mode(), verts->vertexCount(),
                                               verts->positions(), verts->texCoords(),
-                                              verts->colors(), bmode, verts->indices(),
-                                              verts->indexCount(), paint);
+                                              verts->colors(), verts->boneIndices(),
+                                              verts->boneWeights(), bmode, verts->indices(),
+                                              verts->indexCount(), paint, bones, boneCount);
     });
 }
 

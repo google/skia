@@ -126,7 +126,7 @@ DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.p
 DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
-DRAW(DrawVertices, drawVertices(r.vertices, r.bmode, r.paint));
+DRAW(DrawVertices, drawVertices(r.vertices, r.bones, r.boneCount, r.bmode, r.paint));
 DRAW(DrawShadowRec, private_draw_shadow_rec(r.path, r.rec));
 DRAW(DrawAnnotation, drawAnnotation(r.rect, r.key.c_str(), r.value.get()));
 #undef DRAW

@@ -570,11 +570,12 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
                 nullptr)
 }
 
-void SkBitmapDevice::drawVertices(const SkVertices* vertices, SkBlendMode bmode,
-                                  const SkPaint& paint) {
+void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+                                  SkBlendMode bmode, const SkPaint& paint) {
     BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                              vertices->texCoords(), vertices->colors(), bmode,
-                              vertices->indices(), vertices->indexCount(), paint);
+                              vertices->texCoords(), vertices->colors(), vertices->boneIndices(),
+                              vertices->boneWeights(), bmode, vertices->indices(),
+                              vertices->indexCount(), paint, bones, boneCount);
 }
 
 void SkBitmapDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& origPaint) {

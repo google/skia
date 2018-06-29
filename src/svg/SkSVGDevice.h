@@ -43,7 +43,8 @@ protected:
     void drawTextOnPath(const void* text, size_t len,
                         const SkPath& path, const SkMatrix* matrix,
                         const SkPaint& paint) override;
-    void drawVertices(const SkVertices*, SkBlendMode, const SkPaint& paint) override;
+    void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+                      const SkPaint& paint) override;
 
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;

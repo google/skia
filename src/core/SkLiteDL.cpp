@@ -459,13 +459,17 @@ namespace {
     };
     struct DrawVertices final : Op {
         static const auto kType = Type::DrawVertices;
-        DrawVertices(const SkVertices* v, SkBlendMode m, const SkPaint& p)
-            : vertices(sk_ref_sp(const_cast<SkVertices*>(v))), mode(m), paint(p) {}
+        DrawVertices(const SkVertices* v, int bc, SkBlendMode m, const SkPaint& p)
+            : vertices(sk_ref_sp(const_cast<SkVertices*>(v)))
+            , boneCount(bc)
+            , mode(m)
+            , paint(p) {}
         sk_sp<SkVertices> vertices;
+        int boneCount;
         SkBlendMode mode;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawVertices(vertices, mode, paint);
+            c->drawVertices(vertices, pod<SkMatrix>(this), boneCount, mode, paint);
         }
     };
     struct DrawAtlas final : Op {
@@ -676,8 +680,14 @@ void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint 
     void* pod = this->push<DrawPoints>(count*sizeof(SkPoint), mode, count, paint);
     copy_v(pod, points,count);
 }
-void SkLiteDL::drawVertices(const SkVertices* vertices, SkBlendMode mode, const SkPaint& paint) {
-    this->push<DrawVertices>(0, vertices, mode, paint);
+void SkLiteDL::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+                            SkBlendMode mode, const SkPaint& paint) {
+    void* pod = this->push<DrawVertices>(boneCount * sizeof(SkMatrix),
+                                         vertices,
+                                         boneCount,
+                                         mode,
+                                         paint);
+    copy_v(pod, bones, boneCount);
 }
 void SkLiteDL::drawAtlas(const SkImage* atlas, const SkRSXform xforms[], const SkRect texs[],
                          const SkColor colors[], int count, SkBlendMode xfermode,

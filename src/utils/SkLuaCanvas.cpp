@@ -314,7 +314,8 @@ void SkLuaCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) {
     this->INHERITED::onDrawDrawable(drawable, matrix);
 }
 
-void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, SkBlendMode, const SkPaint& paint) {
+void SkLuaCanvas::onDrawVerticesObject(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+                                       const SkPaint& paint) {
     AUTO_LUA("drawVertices");
     lua.pushPaint(paint, "paint");
 }
