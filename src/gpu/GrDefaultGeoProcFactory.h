@@ -54,11 +54,39 @@ namespace GrDefaultGeoProcFactory {
         SkPoint fLocalCoord;
     };
 
-    struct PositionColorLocalCoordCoverage {
+    struct PositionColorLocalCoordCoverageAttr {
         SkPoint fPosition;
         GrColor fColor;
         SkPoint fLocalCoord;
         float   fCoverage;
+    };
+
+    struct PositionBoneAttr {
+        SkPoint fPosition;
+        int     fBoneIndex;
+        float   fBoneWeight;
+    };
+
+    struct PositionColorBoneAttr {
+        SkPoint fPosition;
+        SkColor fColor;
+        int     fBoneIndex;
+        float   fBoneWeight;
+    };
+
+    struct PositionLocalCoordBoneAttr {
+        SkPoint fPosition;
+        SkPoint fLocalCoord;
+        int     fBoneIndex;
+        float   fBoneWeight;
+    };
+
+    struct PositionColorLocalCoordBoneAttr {
+        SkPoint fPosition;
+        GrColor fColor;
+        SkPoint fLocalCoord;
+        int     fBoneIndex;
+        float   fBoneWeight;
     };
 
     struct Color {
@@ -118,6 +146,15 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
+    struct Bones {
+        Bones(const SkMatrix bones[], int boneCount)
+            : fBones(bones)
+            , fBoneCount(boneCount) {}
+
+        const SkMatrix* fBones;
+        int fBoneCount;
+    };
+
     sk_sp<GrGeometryProcessor> Make(const Color&,
                                     const Coverage&,
                                     const LocalCoords&,
@@ -132,6 +169,17 @@ namespace GrDefaultGeoProcFactory {
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);
+
+    /*
+     * Use this factory to create a GrGeometryProcessor that supports skeletal animation through
+     * deformation of vertices using matrices that are passed in. This should only be called from
+     * GrDrawVerticesOp.
+     */
+    sk_sp<GrGeometryProcessor> MakeWithBones(const Color&,
+                                             const Coverage&,
+                                             const LocalCoords&,
+                                             const Bones&,
+                                             const SkMatrix& viewMatrix);
 };
 
 #endif
