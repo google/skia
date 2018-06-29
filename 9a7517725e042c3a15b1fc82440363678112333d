@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fa0f8a2_1f6f881c",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 2777,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-06-29T19:19:27Z",
+      "side": 0,
+      "message": "Should we delete this one, too? I believe only GL_RGBA, GL_FLOAT is guaranteed to work.",
+      "range": {
+        "startLine": 2773,
+        "startChar": 0,
+        "endLine": 2777,
+        "endChar": 13
+      },
+      "revId": "9a7517725e042c3a15b1fc82440363678112333d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
