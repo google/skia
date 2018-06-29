@@ -1,0 +1,533 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "28bdcf7d_92055853",
+        "filename": "gm/animatedGif.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "drawFrame should never be called with a size \u003e\u003d fFrameInfos.size(). Perhaps we should assert that frameIndex \u003c\u003d fFrameInfos.size()?",
+      "range": {
+        "startLine": 49,
+        "startChar": 27,
+        "endLine": 49,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f0bbd29_ab0a0844",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Probably want to move this up to where SkGifCodec was. We search in the order of this list, which is somewhat in the order of frequency of the image type. (That said, GIF should perhaps be above WebP; I don\u0027t remember their relative frequencies.)",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 63
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3afc811_d977b6d8",
+        "filename": "src/codec/SkStreamBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "SkPngCodec doesn\u0027t completely support incremental decoding. Although it does implement the methods, and they are used in SkSampledCodec (which is used by Android to decoded a sampled version of the image without ever allocating space for the entire image), it doesn\u0027t work for the case where the data is supplied incrementally (which is crucial for Chromium). The following document sums up \"incremental decoding\":\n\nhttps://docs.google.com/document/d/11Mn8-ePDKwVEMCjs3nWwSjxcSpJ_Cu8DF57KNtUmgLM/\n\nSkPngCodec needs to buffer the incoming data somehow, in case we had less than a whole chunk of data to decode. The plan is to use SkStreamBuffer for that purpose.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 45
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7d8f7f4_ed10720c",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "I think so. We just don\u0027t create an SkCodec in that case.",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 72
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be1d8a67_eef241f1",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "We\u0027ve gone back and forth over whether this should be the color type that mostly matches the image or what works best for Skia. Ultimately we\u0027ve decided that the SkCodec should not have a preference here (skbug.com/6839 has more details).",
+      "range": {
+        "startLine": 134,
+        "startChar": 19,
+        "endLine": 134,
+        "endChar": 50
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2f47a51_75d27a1e",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "There is a kBGRA. This is the format that the decoded colors are in before we apply color transformations. Based on your comments above, I think you should use kBGRA",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 59
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eccd2fe6_b4a347ab",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "We should be able to support BGRA and RGBA. This can be handled with the SkSwizzler.",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 3
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "162eda27_1960748a",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "That\u0027s taken care of by the base class, based on rowsDecoded. For interlaced, we zero initialize ahead of time, in case the image is incomplete. But yes, depending on fZeroInitialized, we may not have to do any initilization.",
+      "range": {
+        "startLine": 292,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71e0ff88_8fdf5e95",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Are you asking whether dst is the frame rectangle or the image rectangle? It is the image rectangle.",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 30
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e59a088_13b33088",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Yes, although we currently only support 565 for the first frame.",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 76
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e672b4a_b5399034",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "rowsDecoded is just to tell you whether the rows are initialized, so the base class can initialize the remaining rows. For interlaced images, we just initialize first, since we don\u0027t have a sensible way to initialize once we fail.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 29
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "13c08b1e_48ba0ee8",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "nit: We allow up to 100 character lines. I suspect this will fit (though I don\u0027t know for sure)",
+      "range": {
+        "startLine": 384,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0261661a_1316320e",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "The intent of onGetFrameInfo is that it has already cached the relevant information, so it doesn\u0027t need to do any rewinding. This information is cached by onGetFrameCount, which is not const.",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 25
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6db3f8f4_cf6bb245",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "The frame this frame depends on. The idea is that if you have to start decoding arbitrary frame i, you don\u0027t have to start from 0 to decode it. You can start from the required frame, saving some work.",
+      "range": {
+        "startLine": 407,
+        "startChar": 4,
+        "endLine": 407,
+        "endChar": 70
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "600311ef_fcd9780f",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "This is whether we\u0027ve received all the lzw data for this frame.",
+      "range": {
+        "startLine": 408,
+        "startChar": 4,
+        "endLine": 408,
+        "endChar": 74
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d05d17d_377e3614",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "We can draw faster if the src is opaque. So if we can say a frame is opaque, that makes a difference. The difference between unpremul and premul is less important here (since a gif pixel is either completely transparent or completely opaque).",
+      "range": {
+        "startLine": 409,
+        "startChar": 4,
+        "endLine": 409,
+        "endChar": 74
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89f36524_5c3cd161",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Could you copy the wuffs_gif__decoder? How big is it?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 17
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6ee0b6f7_2208b344",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "We do have SkStream::getMemoryBase(). If that returns non-null, we can store it and the length in an SkData. SkWebpCodec already does this. (If getMemoryBase returns null, it just copies the whole stream, since libwebp requires a consecutive block of memory. I\u0027ve been thinking that Android should just always give us the whole block, which would make this easier. It doesn\u0027t help the incremental case, though.)",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd2ef0a2_6d8bfbf2",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "This got added in https://skia-review.googlesource.com/5758. That commit has some more detail, but basically the unexpected behavior was that we used the wrong color map once more data was provided.",
+      "range": {
+        "startLine": 362,
+        "startChar": 0,
+        "endLine": 362,
+        "endChar": 64
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9baeec24_be7ddc1a",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "It\u0027s fair to say it\u0027s overly specific. The important thing is that we don\u0027t build the incorrect color map. If we just don\u0027t create the codec until we have enough info, we should be able to use the proper color map.",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 5
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b1449990_46953669",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "No, that is a bug.",
+      "range": {
+        "startLine": 387,
+        "startChar": 27,
+        "endLine": 390,
+        "endChar": 0
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "15fa6ec7_cb808d21",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Good question. This preserves Chromium\u0027s existing behavior. I\u0027d be surprised if this was a common use case.",
+      "range": {
+        "startLine": 195,
+        "startChar": 74,
+        "endLine": 197,
+        "endChar": 66
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f81fc8b_b2b5479e",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-06-29T18:39:24Z",
+      "side": 1,
+      "message": "Yes I think it\u0027s fine to just not create a codec in this case.",
+      "range": {
+        "startLine": 291,
+        "startChar": 23,
+        "endLine": 291,
+        "endChar": 72
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
