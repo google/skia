@@ -7649,10 +7649,10 @@
     "name": "SkRRect::Type"
 },
     "SkRRect_contains": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect test = {10, 10, 110, 80};\n    SkRRect rrect = SkRRect::MakeRect(test);\n    SkRRect oval = SkRRect::MakeOval(test);\n    test.inset(10, 10);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(rrect.contains(test) ? \"contains\" : \"does not contain\", 55, 100, paint);\n    canvas->drawString(oval.contains(test) ? \"contains\" : \"does not contain\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawRect(test, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(oval, paint);\n    canvas->drawRect(test, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "884447c809921cfaebc87aeb63dedd48",
     "file": "SkRRect_Reference",
     "name": "SkRRect::contains()"
 },
@@ -7777,20 +7777,12 @@
     "name": "SkRRect::isSimple"
 },
     "SkRRect_isValid": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 110, 80});\n    SkRRect corrupt = rrect;\n    *((float*) &corrupt) = 120;\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(rrect.isValid() ? \"is valid\" : \"is corrupted\", 55, 100, paint);\n    canvas->drawString(corrupt.isValid() ? \"is valid\" : \"is corrupted\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(corrupt, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "d28709aa457742391842a9ab1f21b5fa",
     "file": "SkRRect_Reference",
     "name": "SkRRect::isValid"
-},
-    "SkRRect_kSizeInMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::kSizeInMemory"
 },
     "SkRRect_makeOffset": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect = rrect.makeOffset(-3, 3);\n    }\n}",
@@ -7833,10 +7825,10 @@
     "name": "SkRRect::outset_2"
 },
     "SkRRect_readFromMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkVector radii[] = {{5, 5},  {10, 10}, {15, 15}, {5, 5}};\n    SkRRect rrect;\n    rrect.setRectRadii({10, 10, 110, 80}, radii);\n    char storage[SkRRect::kSizeInMemory];\n    rrect.writeToMemory(storage);\n    SkRRect copy;\n    copy.readFromMemory(storage, sizeof(storage));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(\"copy\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(copy, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "b877c0adff35470865a57aa150bf5329",
     "file": "SkRRect_Reference",
     "name": "SkRRect::readFromMemory"
 },
@@ -7889,10 +7881,10 @@
     "name": "SkRRect::setRectXY"
 },
     "SkRRect_transform": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkVector radii[] = {{5, 5},  {10, 10}, {15, 15}, {5, 5}};\n    SkRRect rrect;\n    rrect.setRectRadii({10, 10, 110, 80}, radii);\n    SkRRect transformed;\n    SkMatrix matrix = SkMatrix::MakeRectToRect(rrect.rect(), {140, 30, 220, 80},\n                                               SkMatrix::kCenter_ScaleToFit);\n    bool success = rrect.transform(matrix, &transformed);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(success ? \"transformed\" : \"transform failed\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawRRect(transformed, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "99ccc6862bb9fe3ca35228eee9f9725d",
     "file": "SkRRect_Reference",
     "name": "SkRRect::transform()"
 },
@@ -7905,10 +7897,10 @@
     "name": "SkRRect::type()"
 },
     "SkRRect_writeToMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 110, 80});\n    char storage[SkRRect::kSizeInMemory];\n    rrect.writeToMemory(storage);\n    SkRRect copy;\n    copy.readFromMemory(storage, sizeof(storage));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(\"copy\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(copy, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "1466c844a78fd05a7362537347e360ca",
     "file": "SkRRect_Reference",
     "name": "SkRRect::writeToMemory"
 },
