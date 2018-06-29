@@ -56,6 +56,9 @@ __argparse.add_argument('--gpu',
   help="perform timing on the gpu clock instead of cpu (gpu work only)")
 __argparse.add_argument('--fps',
   action='store_true', help="use fps instead of ms")
+__argparse.add_argument('--dollyzoom',
+  action='store_true',
+  help="zoom in and out to quash mask caching (not supported by ddl)")
 __argparse.add_argument('--pr',
   help="comma- or space-separated list of GPU path renderers, including: "
        "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
@@ -129,6 +132,8 @@ class SKPBench:
     ARGV.extend(['--gpuClock', 'true'])
   if FLAGS.fps:
     ARGV.extend(['--fps', 'true'])
+  if FLAGS.dollyzoom:
+    ARGV.extend(['--dollyzoom', 'true'])
   if FLAGS.pr:
     ARGV.extend(['--pr'] + re.split(r'[ ,]', FLAGS.pr))
   if FLAGS.nocache:
