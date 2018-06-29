@@ -560,7 +560,7 @@ static SkPath create_path_38() {
     return path;
 }
 
-// Reduction from crbug.com/851409. Exercises collinear last vertex.
+// Reduction from crbug.com/851409.
 static SkPath create_path_39() {
     SkPath path;
     path.moveTo(2072553216, 0);
@@ -568,18 +568,6 @@ static SkPath create_path_39() {
     path.lineTo(2072553472, -13.5);
     path.lineTo(2072553216, 0);
     path.lineTo(2072553472, -6.5);
-    return path;
-}
-
-// Another reduction from crbug.com/851409. Exercises two sequential collinear edges.
-static SkPath create_path_40() {
-    SkPath path;
-    path.moveTo(2072553216, 0);
-    path.lineTo(2072553216, 1);
-    path.lineTo(2072553472, -13);
-    path.lineTo(2072553216, 0);
-    path.lineTo(2072553472, -6);
-    path.lineTo(2072553472, -13);
     return path;
 }
 
@@ -682,5 +670,4 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_37());
     test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_39());
-    test_path(ctx, rtc.get(), create_path_40());
 }
