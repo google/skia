@@ -88,6 +88,7 @@ static bool bridgeWinding(SkOpContourHead* contourList, SkPathWriter* simple) {
 // returns true if all edges were processed
 static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
     bool unsortable = false;
+    int safetyNet = 1000000;
     do {
         SkOpSpan* span = FindUndone(contourList);
         if (!span) {
@@ -97,6 +98,9 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
         SkOpSpanBase* start = span->next();
         SkOpSpanBase* end = span;
         do {
+            if (--safetyNet < 0) {
+                return false;
+            }
             if (!unsortable && current->done()) {
                 break;
             }
