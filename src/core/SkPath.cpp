@@ -3529,3 +3529,9 @@ bool SkPath::IsCubicDegenerate(const SkPoint& p1, const SkPoint& p2,
             SkPointPriv::EqualsWithinTolerance(p2, p3) &&
             SkPointPriv::EqualsWithinTolerance(p3, p4);
 }
+
+void SkPathSinker::onMoveTo(SkPoint a) { fPath->moveTo(a); }
+void SkPathSinker::onLineTo(SkPoint a) { fPath->lineTo(a); }
+void SkPathSinker::onQuadTo(SkPoint a, SkPoint b) { fPath->quadTo(a, b); }
+void SkPathSinker::onConicTo(SkPoint a, SkPoint b, SkScalar w) { fPath->conicTo(a, b, w); }
+void SkPathSinker::onCubicTo(SkPoint a, SkPoint b, SkPoint c) { fPath->cubicTo(a, b, c); }

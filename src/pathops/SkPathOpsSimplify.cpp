@@ -135,19 +135,15 @@ static bool bridgeXor(SkOpContourHead* contourList, SkPathWriter* simple) {
     return true;
 }
 
+static SkPath::FillType matching_evenodd(bool isInverse) {
+    return isInverse ? SkPath::kInverseEvenOdd_FillType : SkPath::kEvenOdd_FillType;
+}
+
 // FIXME : add this as a member of SkPath
-bool SimplifyDebug(const SkPath& path, SkPath* result
+bool SimplifyDebug(const SkPath& path, SkPathSink* result
         SkDEBUGPARAMS(bool skipAssert) SkDEBUGPARAMS(const char* testName)) {
     // returns 1 for evenodd, -1 for winding, regardless of inverse-ness
-    SkPath::FillType fillType = path.isInverseFillType() ? SkPath::kInverseEvenOdd_FillType
-            : SkPath::kEvenOdd_FillType;
-    if (path.isConvex()) {
-        if (result != &path) {
-            *result = path;
-        }
-        result->setFillType(fillType);
-        return true;
-    }
+    SkPath::FillType fillType = matching_evenodd(path.isInverseFillType());
     // turn path into list of segments
     SkSTArenaAlloc<4096> allocator;  // FIXME: constant-ize, tune
     SkOpContour contour;
@@ -183,8 +179,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     contour.dumpSegments();
 #endif
     if (!SortContourList(&contourList, false, false)) {
-        result->reset();
-        result->setFillType(fillType);
+        result->setFillType((SkPathSink::FillType)fillType);
         return true;
     }
     // find all intersections between segments
@@ -208,8 +203,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     contour.dumpSegments("aligned");
 #endif
     // construct closed contours
-    result->reset();
-    result->setFillType(fillType);
+    result->setFillType((SkPathSink::FillType)fillType);
     SkPathWriter wrapper(*result);
     if (builder.xorMask() == kWinding_PathOpsMask ? !bridgeWinding(contourList, &wrapper)
             : !bridgeXor(contourList, &wrapper)) {
@@ -222,7 +216,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
     return true;
 }
 
-bool Simplify(const SkPath& path, SkPath* result) {
+bool Simplify(const SkPath& path, SkPathSink* result) {
 #if DEBUG_DUMP_VERIFY
     if (SkPathOpsDebug::gVerifyOp) {
         if (!SimplifyDebug(path, result  SkDEBUGPARAMS(false) SkDEBUGPARAMS(nullptr))) {
@@ -234,4 +228,16 @@ bool Simplify(const SkPath& path, SkPath* result) {
     }
 #endif
     return SimplifyDebug(path, result  SkDEBUGPARAMS(true) SkDEBUGPARAMS(nullptr));
+}
+
+bool Simplify(const SkPath& path, SkPath* result) {
+    if (path.isConvex()) {
+        if (result != &path) {
+            *result = path;
+        }
+        result->setFillType(matching_evenodd(path));
+        return true;
+    }
+    SkPathSinker sinker(result);
+    return Simplify(path, &sinker);
 }

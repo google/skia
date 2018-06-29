@@ -9,6 +9,7 @@
 
 #include "../private/SkTArray.h"
 #include "../private/SkTDArray.h"
+#include "SkPathSink.h"
 #include "SkPreConfig.h"
 
 class SkPath;
@@ -58,6 +59,8 @@ bool SK_API Op(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     @return True if simplification succeeded.
   */
 bool SK_API Simplify(const SkPath& path, SkPath* result);
+
+bool SK_API Simplify(const SkPath& path, SkPathSink* result);
 
 /** Set the resulting rectangle to the tight bounds of the path.
 
