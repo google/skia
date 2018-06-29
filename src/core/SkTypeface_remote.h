@@ -83,7 +83,8 @@ protected:
         return 0;
     }
     void onGetFamilyName(SkString* familyName) const override {
-        SK_ABORT("Should never be called.");
+        // Used by SkStrikeCache::DumpMemoryStatistics.
+        *familyName = "";
     }
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         SK_ABORT("Should never be called.");
