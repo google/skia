@@ -356,7 +356,8 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
                     return kAdreno3xx_GrGLRenderer;
                 }
                 if (adrenoNumber < 500) {
-                    return kAdreno4xx_GrGLRenderer;
+                    return adrenoNumber >= 430
+                            ? kAdreno430_GrGLRenderer : kAdreno4xx_other_GrGLRenderer;
                 }
                 if (adrenoNumber < 600) {
                     return kAdreno5xx_GrGLRenderer;
