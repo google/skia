@@ -61,13 +61,17 @@
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
 
 #include <cutils/trace.h>
-struct SkAndroidFrameworkTraceUtil {
 
+extern bool gEnableAndroidTracing;
+
+struct SkAndroidFrameworkTraceUtil {
     SkAndroidFrameworkTraceUtil(const char* name) {
-        ATRACE_BEGIN(name);
+        if (CC_UNLIKELY(gEnableAndroidTracing)) {
+            ATRACE_BEGIN(name);
+        }
     }
     SkAndroidFrameworkTraceUtil(bool, const char* fmt, ...) {
-        if (CC_LIKELY(!ATRACE_ENABLED())) return;
+        if (CC_LIKELY((!gEnableAndroidTracing) || (!ATRACE_ENABLED()))) return;
 
         const int BUFFER_SIZE = 256;
         va_list ap;
@@ -79,7 +83,11 @@ struct SkAndroidFrameworkTraceUtil {
 
         ATRACE_BEGIN(buf);
     }
-    ~SkAndroidFrameworkTraceUtil() { ATRACE_END(); }
+    ~SkAndroidFrameworkTraceUtil() {
+        if (CC_UNLIKELY(gEnableAndroidTracing)) {
+            ATRACE_END();
+        }
+    }
 };
 
 #define ATRACE_ANDROID_FRAMEWORK(fmt, ...) SkAndroidFrameworkTraceUtil __trace(true, fmt, ##__VA_ARGS__)
@@ -87,7 +95,7 @@ struct SkAndroidFrameworkTraceUtil {
 // If profiling Skia within the Android framework, setting this to 1 will route all Skia
 // tracing events to ATrace.
 #ifndef SK_TRACE_EVENTS_IN_FRAMEWORK
-#define SK_TRACE_EVENTS_IN_FRAMEWORK 0
+#define SK_TRACE_EVENTS_IN_FRAMEWORK 1
 #endif
 
 #if SK_TRACE_EVENTS_IN_FRAMEWORK

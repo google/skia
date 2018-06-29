@@ -70,3 +70,17 @@ const uint8_t* SkATrace::getCategoryGroupEnabled(const char* name) {
     return &yes;
 }
 
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+bool gEnableAndroidTracing = false;
+
+void SkATrace::setEnableTracing(bool enableAndroidTracing) {
+    gEnableAndroidTracing = enableAndroidTracing;
+}
+
+
+#endif //SK_BUILD_FOR_ANDROID_FRAMEWORK
+
+
+

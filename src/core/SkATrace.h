@@ -20,6 +20,11 @@
  */
 class SkATrace : public SkEventTracer {
 public:
+
+#ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
+    static void setEnableTracing(bool enableAndroidTracing);
+#endif //SK_BUILD_FOR_ANDROID_FRAMEWORK
+
     SkATrace();
 
     SkEventTracer::Handle addTraceEvent(char phase,
