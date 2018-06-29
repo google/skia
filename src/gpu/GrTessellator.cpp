@@ -1055,16 +1055,16 @@ void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, 
     for (;;) {
         if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
                                      !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
-            merge_edges_above(edge, edge->fPrevEdgeAbove, activeEdges, current, c);
+            merge_edges_above(edge->fPrevEdgeAbove, edge, activeEdges, current, c);
         } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
                                             !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
-            merge_edges_above(edge, edge->fNextEdgeAbove, activeEdges, current, c);
+            merge_edges_above(edge->fNextEdgeAbove, edge, activeEdges, current, c);
         } else if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
                                      !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
-            merge_edges_below(edge, edge->fPrevEdgeBelow, activeEdges, current, c);
+            merge_edges_below(edge->fPrevEdgeBelow, edge, activeEdges, current, c);
         } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
                                             !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
-            merge_edges_below(edge, edge->fNextEdgeBelow, activeEdges, current, c);
+            merge_edges_below(edge->fNextEdgeBelow, edge, activeEdges, current, c);
         } else {
             break;
         }
@@ -1755,7 +1755,7 @@ void reconnect_all_overlap_edges(Vertex* src, Vertex* dst, Edge* current, Compar
 }
 
 void Event::apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
-    if (!fEdge) {
+    if (!fEdge || !fEdge->fTop || !fEdge->fBottom) {
         return;
     }
     Vertex* top = fEdge->fTop;
