@@ -36,12 +36,20 @@ static int compute_side(const SkPoint& s0, const SkPoint& s1, const SkPoint& p) 
 }
 
 // returns 1 for ccw, -1 for cw and 0 if degenerate
+//**** make external and add test?
 static int get_winding(const SkPoint* polygonVerts, int polygonSize) {
+    if (polygonSize < 3) {
+        return 0;
+    }
+
     // compute area and use sign to determine winding
     SkScalar quadArea = 0;
-    for (int curr = 0; curr < polygonSize; ++curr) {
+    SkVector v0 = polygonVerts[1] - polygonVerts[0];
+    for (int curr = 1; curr < polygonSize; ++curr) {
         int next = (curr + 1) % polygonSize;
-        quadArea += polygonVerts[curr].cross(polygonVerts[next]);
+        SkVector v1 = polygonVerts[next] - polygonVerts[0];
+        quadArea += v0.cross(v1);
+        v0 = v1;
     }
     if (SkScalarNearlyZero(quadArea)) {
         return 0;
@@ -207,25 +215,50 @@ static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetS
     return localS;
 }
 
-static bool is_convex(const SkTDArray<SkPoint>& poly) {
-    if (poly.count() <= 3) {
-        return true;
+//*** we could have this output the winding as well
+bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
+    if (polygonSize <= 3) {
+        return false;
     }
 
-    SkVector v0 = poly[0] - poly[poly.count() - 1];
-    SkVector v1 = poly[1] - poly[poly.count() - 1];
-    SkScalar winding = v0.cross(v1);
+    SkScalar lastArea = 0;
+    int areaSignFlips = 0;
+    SkScalar lastPerpDot = 0;
 
-    for (int i = 0; i < poly.count() - 1; ++i) {
-        int j = i + 1;
-        int k = (i + 2) % poly.count();
-
-        SkVector v0 = poly[j] - poly[i];
-        SkVector v1 = poly[k] - poly[i];
+    int prevIndex = polygonSize - 1;
+    int currIndex = 0;
+    int nextIndex = 1;
+    SkPoint origin = polygonVerts[0];
+    SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
+    SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
+    SkVector w0 = polygonVerts[currIndex] - origin;
+    SkVector w1 = polygonVerts[nextIndex] - origin;
+    //*** shouldn't this be i < polygonSize? Check on Monday.
+    for (int i = 0; i < polygonSize - 1; ++i) {
+        // Check that winding direction is always the same (otherwise we have a reflex vertex)
         SkScalar perpDot = v0.cross(v1);
-        if (winding*perpDot < 0) {
+        if (lastPerpDot*perpDot < 0) {
             return false;
         }
+        lastPerpDot = perpDot;
+
+        // Check that signed area of the vertices only flips twice (otherwise it self-intersects)
+        SkScalar quadArea = w0.cross(w1);
+        if (quadArea*lastArea < 0) {
+            ++areaSignFlips;
+            if (areaSignFlips > 2) {
+                return false;
+            }
+        }
+        lastArea = quadArea;
+
+        prevIndex = currIndex;
+        currIndex = nextIndex;
+        nextIndex = (currIndex + 1) % polygonSize;
+        v0 = v1;
+        v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
+        w0 = w1;
+        w1 = polygonVerts[nextIndex] - origin;
     }
 
     return true;
@@ -395,7 +428,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         insetPolygon->pop();
     }
 
-    return (insetPolygon->count() >= 3 && is_convex(*insetPolygon));
+    return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -415,6 +448,8 @@ void SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
     *rotSin = SkScalarSinCos(dTheta, rotCos);
     *n = steps;
 }
+
+///////////////////////////////////////////////////////////////////////////////////////////
 
 // tolerant less-than comparison
 static inline bool nearly_lt(SkScalar a, SkScalar b, SkScalar tolerance = SK_ScalarNearlyZero) {
