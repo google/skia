@@ -3850,7 +3850,7 @@ This has the effect of replacing all pixels contained by <a href='#Clip'>Clip</a
 
 ### Example
 
-<div><fiddle-embed name="8c4499e322f10153dcd9b0b9806233b9"></fiddle-embed></div>
+<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
 
 ### See Also
 
@@ -6507,7 +6507,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 
 ### Example
 
-<div><fiddle-embed name="94e32538646d5f1299c427e473f9ec87"></fiddle-embed></div>
+<div><fiddle-embed name="bf0b2402533a23b6392e0676b7a8414c"></fiddle-embed></div>
 
 ### See Also
 
