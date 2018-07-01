@@ -3433,7 +3433,7 @@ and curves from the end <a href='SkPoint_Reference#Point'>Point</a> towards the 
 
 ### Example
 
-<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
+<div><fiddle-embed name="466445ed991d86de08587066392d654a"></fiddle-embed></div>
 
 <a name='SkPath_cubicTo'></a>
 ## cubicTo
