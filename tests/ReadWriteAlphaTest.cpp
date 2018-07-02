@@ -191,12 +191,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
                 continue;
             }
 
-            sk_sp<SkColorSpace> colorSpace;
-            if (GrPixelConfigIsSRGB(proxy->config())) {
-                colorSpace = SkColorSpace::MakeSRGB();
-            }
             sk_sp<GrSurfaceContext> sContext = context->contextPriv().makeWrappedSurfaceContext(
-                    std::move(proxy), std::move(colorSpace));
+                    std::move(proxy));
 
             for (auto rowBytes : kRowBytes) {
                 size_t nonZeroRowBytes = rowBytes ? rowBytes : X_SIZE;
