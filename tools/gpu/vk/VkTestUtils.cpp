@@ -82,12 +82,60 @@ const uint32_t kGrVkMinimumVersion = VK_MAKE_VERSION(1, 0, 8);
         reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
     if (grVk##name == nullptr) {                                               \
         SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+        if (device != VK_NULL_HANDLE) {                                        \
+            destroy_instance(getProc, inst, debugCallback, hasDebugExtension); \
+        }                                                                      \
         return false;                                                          \
     }
+
+#ifdef SK_ENABLE_VK_LAYERS
+VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
+    VkDebugReportFlagsEXT       flags,
+    VkDebugReportObjectTypeEXT  objectType,
+    uint64_t                    object,
+    size_t                      location,
+    int32_t                     messageCode,
+    const char*                 pLayerPrefix,
+    const char*                 pMessage,
+    void*                       pUserData) {
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
+        SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        return VK_TRUE; // skip further layers
+    } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
+        SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    } else {
+        SkDebugf("Vulkan info/debug [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+    }
+    return VK_FALSE;
+}
+#endif
+
+#define ACQUIRE_VK_PROC_LOCAL(name, instance, device)                          \
+    PFN_vk##name grVk##name =                                                  \
+        reinterpret_cast<PFN_vk##name>(getProc("vk" #name, instance, device)); \
+    if (grVk##name == nullptr) {                                               \
+        SkDebugf("Function ptr for vk%s could not be acquired\n", #name);      \
+        return;                                                                \
+    }
+
+static void destroy_instance(GrVkInterface::GetProc getProc, VkInstance inst,
+                             VkDebugReportCallbackEXT* debugCallback,
+                             bool hasDebugExtension) {
+    if (hasDebugExtension && *debugCallback != VK_NULL_HANDLE) {
+        ACQUIRE_VK_PROC_LOCAL(DestroyDebugReportCallbackEXT, inst, VK_NULL_HANDLE);
+        grVkDestroyDebugReportCallbackEXT(inst, *debugCallback, nullptr);
+        *debugCallback = VK_NULL_HANDLE;
+    }
+    ACQUIRE_VK_PROC_LOCAL(DestroyInstance, inst, VK_NULL_HANDLE);
+    grVkDestroyInstance(inst, nullptr);
+}
 
 bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstanceProc,
                             const GrVkInterface::GetDeviceProc& getDeviceProc,
                             GrVkBackendContext* ctx,
+                            VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent) {
     auto getProc = [&getInstanceProc, &getDeviceProc](const char* proc_name,
@@ -119,6 +167,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     SkTArray<const char*> instanceLayerNames;
     SkTArray<const char*> instanceExtensionNames;
     uint32_t extensionFlags = 0;
+    bool hasDebugExtension = false;
 #ifdef SK_ENABLE_VK_LAYERS
     for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
         if (extensions.hasInstanceLayer(kDebugLayerNames[i])) {
@@ -128,6 +177,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     if (extensions.hasInstanceExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
         instanceExtensionNames.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
         extensionFlags |= kEXT_debug_report_GrVkExtensionFlag;
+        hasDebugExtension = true;
     }
 #endif
 
@@ -174,6 +224,32 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         return false;
     }
 
+#ifdef SK_ENABLE_VK_LAYERS
+    *debugCallback = VK_NULL_HANDLE;
+    for (int i = 0; i < instanceExtensionNames.count() && !hasDebugExtension; ++i) {
+        if (!strcmp(instanceExtensionNames[i], VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
+            hasDebugExtension = true;
+        }
+    }
+    if (hasDebugExtension) {
+        // Setup callback creation information
+        VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
+        callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+        callbackCreateInfo.pNext = nullptr;
+        callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
+                                   VK_DEBUG_REPORT_WARNING_BIT_EXT |
+                                   // VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
+                                   // VK_DEBUG_REPORT_DEBUG_BIT_EXT |
+                                   VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+        callbackCreateInfo.pfnCallback = &DebugReportCallback;
+        callbackCreateInfo.pUserData = nullptr;
+
+        ACQUIRE_VK_PROC(CreateDebugReportCallbackEXT, inst, VK_NULL_HANDLE);
+        // Register the callback
+        grVkCreateDebugReportCallbackEXT(inst, &callbackCreateInfo, nullptr, debugCallback);
+    }
+#endif
+
     ACQUIRE_VK_PROC(DestroyInstance, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(EnumeratePhysicalDevices, inst, VK_NULL_HANDLE);
     ACQUIRE_VK_PROC(GetPhysicalDeviceQueueFamilyProperties, inst, VK_NULL_HANDLE);
@@ -187,12 +263,12 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     err = grVkEnumeratePhysicalDevices(inst, &gpuCount, nullptr);
     if (err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
     if (!gpuCount) {
         SkDebugf("vkEnumeratePhysicalDevices returned no supported devices.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
     // Just returning the first physical device instead of getting the whole array.
@@ -202,7 +278,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     // VK_INCOMPLETE is returned when the count we provide is less than the total device count.
     if (err && VK_INCOMPLETE != err) {
         SkDebugf("vkEnumeratePhysicalDevices failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -211,7 +287,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     grVkGetPhysicalDeviceQueueFamilyProperties(physDev, &queueCount, nullptr);
     if (!queueCount) {
         SkDebugf("vkGetPhysicalDeviceQueueFamilyProperties returned no queues.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -231,7 +307,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     }
     if (graphicsQueueIndex == queueCount) {
         SkDebugf("Could not find any supported graphics queues.\n");
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -246,7 +322,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         }
         if (presentQueueIndex == queueCount) {
             SkDebugf("Could not find any supported present queues.\n");
-            grVkDestroyInstance(inst, nullptr);
+            destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
             return false;
         }
         *presentQueueIndexPtr = presentQueueIndex;
@@ -260,13 +336,6 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
 
     SkTArray<const char*> deviceLayerNames;
     SkTArray<const char*> deviceExtensionNames;
-#ifdef SK_ENABLE_VK_LAYERS
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (extensions.hasDeviceLayer(kDebugLayerNames[i])) {
-            deviceLayerNames.push_back(kDebugLayerNames[i]);
-        }
-    }
-#endif
     if (extensions.hasDeviceExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
         deviceExtensionNames.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
         extensionFlags |= kKHR_swapchain_GrVkExtensionFlag;
@@ -333,7 +402,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -343,7 +412,7 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         SkDebugf("Vulkan interface validation failed\n");
         grVkDeviceWaitIdle(device);
         grVkDestroyDevice(device, nullptr);
-        grVkDestroyInstance(inst, nullptr);
+        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
         return false;
     }
 
@@ -362,8 +431,6 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     ctx->fOwnsInstanceAndDevice = false;
 
     return true;
-
-
 }
 
 }
