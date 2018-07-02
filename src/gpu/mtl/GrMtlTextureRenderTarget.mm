@@ -20,6 +20,16 @@ GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
     this->registerWithCache(budgeted);
 }
 
+GrMtlTextureRenderTarget::GrMtlTextureRenderTarget(GrMtlGpu* gpu,
+                                                   const GrSurfaceDesc& desc,
+                                                   id<MTLTexture> renderTexture,
+                                                   GrMipMapsStatus mipMapsStatus)
+        : GrSurface(gpu, desc)
+        , GrMtlTexture(gpu, desc, renderTexture, mipMapsStatus)
+        , GrMtlRenderTarget(gpu, desc, renderTexture) {
+    this->registerWithCacheWrapped();
+}
+
 sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
                                const GrSurfaceDesc& desc,
@@ -41,7 +51,10 @@ GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
                                                                             renderTexture,
                                                                             mipMapsStatus));
     } else {
-        return nullptr; // Currently don't support wrapped TextureRenderTargets
+        return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(gpu,
+                                                                            desc,
+                                                                            renderTexture,
+                                                                            mipMapsStatus));
     }
 }
 
@@ -80,6 +93,10 @@ GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(GrMtlGpu* gpu,
 sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(GrMtlGpu* gpu,
                                                          const GrSurfaceDesc& desc,
-                                                         GrWrapOwnership wrapOwnership) {
-    return nullptr;
+                                                         id<MTLTexture> texture) {
+
+    SkASSERT(nil != texture);
+    SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
+    return Make(gpu, desc, texture, texture.mipmapLevelCount, SkBudgeted::kNo, true);
 }
+
