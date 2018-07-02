@@ -6,7 +6,7 @@
  */
 
 #include "../skcms.h"
-#include "PortableMath.h"
+#include "../skcms_internal.h"
 #include <limits.h>
 #include <string.h>
 

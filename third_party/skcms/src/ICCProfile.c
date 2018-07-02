@@ -6,12 +6,7 @@
  */
 
 #include "../skcms.h"
-#include "ICCProfile.h"
-#include "LinearAlgebra.h"
-#include "Macros.h"
-#include "PortableMath.h"
-#include "RandomBytes.h"
-#include "TransferFunction.h"
+#include "../skcms_internal.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
