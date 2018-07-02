@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package org.skia.arcore;
+package org.skia.skar;
 
 import android.app.Activity;
-import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -27,20 +26,16 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.PopupMenu;
 import android.widget.Toast;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -51,7 +46,7 @@ import javax.microedition.khronos.opengles.GL10;
  * ARCore C API.
  */
 public class HelloArActivity extends AppCompatActivity
-        implements GLSurfaceView.Renderer, DisplayManager.DisplayListener {
+        implements GLSurfaceView.Renderer, DisplayManager.DisplayListener, RotationGestureDetector.OnRotationGestureListener{
     private static final String TAG = HelloArActivity.class.getSimpleName();
     private static final int SNACKBAR_UPDATE_INTERVAL_MILLIS = 1000; // In milliseconds.
 
@@ -63,14 +58,14 @@ public class HelloArActivity extends AppCompatActivity
     private View contextView = null;
     private int mCurrentObjectRotation = 0;
     private float mCurrentValue = 0;
-    private float X = 0;
-    private float Y = 0;
 
     private boolean toEdit = false;
 
     // Opaque native pointer to the native application instance.
     private long mNativeApplication;
     private GestureDetector mGestureDetector;
+    private ScaleGestureDetector mScaleGestureDetector;
+    private RotationGestureDetector mRotationGestureDetector;
 
     private Snackbar mLoadingMessageSnackbar;
     private Handler mPlaneStatusCheckingHandler;
@@ -95,6 +90,7 @@ public class HelloArActivity extends AppCompatActivity
                 }
             };
     private int mDrawMode = -1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,9 +114,7 @@ public class HelloArActivity extends AppCompatActivity
                             public boolean onSingleTapUp(final MotionEvent e) {
                                 toEdit = JniInterface.onTouchedFirst(mNativeApplication, e.getX(), e.getY(), mDrawMode);
 
-                                Log.i(TAG, "toEdit: " + toEdit);
-                                X = e.getX();
-                                Y = e.getY();
+                                Log.i(TAG, "JAVA: Editing Anchor: " + toEdit);
                                 contextView.showContextMenu(e.getX(), e.getY());
                                 return true;
                             }
@@ -128,7 +122,10 @@ public class HelloArActivity extends AppCompatActivity
                             @Override
                             public boolean onScroll (MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
                                 Log.i(TAG, "Scrolling!");
-                                JniInterface.onTouchTranslate(mNativeApplication, e2.getX(), e2.getY());
+                                if (e2.getPointerCount() == 1 && e1.getPointerCount() == 1) {
+                                    JniInterface.onTouchTranslate(mNativeApplication, e2.getX(), e2.getY());
+                                }
+
                                 return true;
                             }
 
@@ -138,11 +135,20 @@ public class HelloArActivity extends AppCompatActivity
                             }
                         });
 
+        mScaleGestureDetector =
+                new ScaleGestureDetector(this,
+                        new ScaleGestureListener());
+
+        mRotationGestureDetector = new RotationGestureDetector(this);
+
         mSurfaceView.setOnTouchListener(
                 new View.OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
-                        return mGestureDetector.onTouchEvent(event);
+                        mGestureDetector.onTouchEvent(event);
+                        mScaleGestureDetector.onTouchEvent(event);
+                        mRotationGestureDetector.onTouchEvent(event);
+                        return true;
                     }
                 });
 
@@ -360,5 +366,34 @@ public class HelloArActivity extends AppCompatActivity
     @Override
     public void onDisplayChanged(int displayId) {
         mViewportChanged = true;
+    }
+
+    public class ScaleGestureListener extends
+            ScaleGestureDetector.SimpleOnScaleGestureListener {
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+
+            float scaleFactor = detector.getScaleFactor();
+            JniInterface.onTouchScale(mNativeApplication, scaleFactor);
+            return true;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+
+        }
+    }
+
+    @Override
+    public void OnRotation(RotationGestureDetector rotationDetector) {
+        float angle = rotationDetector.getAngle();
+        JniInterface.onTouchRotate(mNativeApplication, angle);
+        Log.d("RotationGestureDetector", "Rotation: " + Float.toString(angle));
     }
 }

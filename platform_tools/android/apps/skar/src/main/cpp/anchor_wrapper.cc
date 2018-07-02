@@ -15,52 +15,55 @@
  */
 
 #include "hello_ar_application.h"
-#include "plane_renderer.h"
-#include "util.h"
-#include "SkCanvas.h"
+#include "arcore_c_api.h"
+#include "anchor_wrapper.h"
+#include <memory>
 
 namespace hello_ar {
-    PendingAnchor::PendingAnchor(SkPoint touchLocation) : touchLocation(touchLocation) {}
 
-    PendingAnchor::~PendingAnchor() {}
+    AnchorWrapper::AnchorWrapper() :
+            anchor(nullptr), matrixInfo(nullptr) {}
 
-    SkPoint PendingAnchor::GetTouchLocation() {
-        return touchLocation;
+    AnchorWrapper::AnchorWrapper(ArAnchor* anchor) :
+            anchor(anchor), matrixInfo(nullptr) {}
+
+    AnchorWrapper::~AnchorWrapper() {
+        //Matrix info will be deleted
     }
 
-    bool PendingAnchor::GetEditMode() {
-        return editMode;
+    ArAnchor* AnchorWrapper::GetArAnchor() const {
+        return anchor;
     }
 
-    ArPlane* PendingAnchor::GetContainingPlane() {
-        return containingPlane;
-    }
-
-    glm::vec4 PendingAnchor::GetAnchorPos(ArSession* arSession) {
+    glm::vec4 AnchorWrapper::GetAnchorPos(ArSession* arSession) {
         float poseRaw[] = {0, 0, 0, 0, 0, 0, 0};
         ArPose* anchorPose = nullptr;
         ArPose_create(arSession, poseRaw, &anchorPose);
-        ArAnchor_getPose(arSession, this->anchor, anchorPose);
+        ArAnchor_getPose(arSession, GetArAnchor(), anchorPose);
         ArPose_getPoseRaw(arSession, anchorPose, poseRaw);
         ArPose_destroy(anchorPose);
         glm::vec4 anchorPos = glm::vec4(poseRaw[4], poseRaw[5], poseRaw[6], 1);
         return anchorPos;
     }
 
-    ArAnchor* PendingAnchor::GetArAnchor() {
-        return anchor;
+    util::MatrixComputationInfo* AnchorWrapper::GetMatrixInfo() {
+        return matrixInfo.get();
     }
 
-    void PendingAnchor::SetArAnchor(ArAnchor* anchor) {
-        this->anchor = anchor;
+    DrawableType AnchorWrapper::GetDrawableType() {
+        return drawableType;
     }
 
-    void PendingAnchor::SetEditMode(bool editMode) {
-        this->editMode = editMode;
+    void AnchorWrapper::SetArAnchor(ArAnchor* a) {
+        anchor = a;
     }
 
-    void PendingAnchor::SetContainingPlane(ArPlane* plane) {
-        this->containingPlane = plane;
+    void AnchorWrapper::SetMatrixInfo(std::unique_ptr<util::MatrixComputationInfo> info) {
+        matrixInfo = std::move(info);
+    }
+
+    void AnchorWrapper::SetDrawableType(DrawableType d) {
+        drawableType = d;
     }
 
 

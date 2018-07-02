@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.skia.arcore">
+    package="org.skia.skar">
 
   <uses-permission android:name="android.permission.CAMERA"/>
   <!-- This tag indicates that this application requires ARCore.  This results in the application
@@ -19,7 +19,7 @@
     <meta-data android:name="com.google.ar.core" android:value="required" />
 
     <activity
-        android:name=".HelloArActivity"
+        android:name="org.skia.skar.HelloArActivity"
         android:label="@string/app_name"
         android:configChanges="orientation|screenSize"
         android:exported="true"
