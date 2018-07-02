@@ -39,7 +39,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
         SkASSERT(primProc.hasInstanceAttributes() == meshes[i].isInstanced());
     }
 #endif
-    SkASSERT(!pipeline.isScissorEnabled() || fixedDynamicState ||
+    SkASSERT(pipeline.scissorTest() == GrScissorTest::kDisabled || fixedDynamicState ||
              (dynamicStateArrays && dynamicStateArrays->fScissorRects));
 
     auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();

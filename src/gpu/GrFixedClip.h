@@ -21,14 +21,15 @@ public:
     explicit GrFixedClip(const SkIRect& scissorRect) : fScissorState(scissorRect) {}
 
     const GrScissorState& scissorState() const { return fScissorState; }
-    bool scissorEnabled() const { return fScissorState.enabled(); }
-    const SkIRect& scissorRect() const { SkASSERT(scissorEnabled()); return fScissorState.rect(); }
+    GrScissorTest scissorTest() const { return fScissorState.scissorTest(); }
+    const SkIRect& scissorRect() const {
+        SkASSERT(this->scissorTest() == GrScissorTest::kEnabled);
+        return fScissorState.rect();
+    }
 
     void disableScissor() { fScissorState.setDisabled(); }
 
-    void setScissor(const SkIRect& irect) {
-        fScissorState.set(irect);
-    }
+    void setScissor(const SkIRect& irect) { fScissorState = GrScissorState(irect); }
     bool SK_WARN_UNUSED_RESULT intersect(const SkIRect& irect) {
         return fScissorState.intersect(irect);
     }
