@@ -1711,7 +1711,7 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
 }
 
-void SkCanvas::drawVertices(const sk_sp<SkVertices> vertices, const SkMatrix* bones, int boneCount,
+void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, const SkMatrix* bones, int boneCount,
                             SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);

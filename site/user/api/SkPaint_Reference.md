@@ -5443,9 +5443,7 @@ Returns true if <a href='#SkPaint_containsText_byteLength'>byteLength</a> is zer
 
 true if all <a href='#SkPaint_containsText_text'>text</a> corresponds to a non-zero glyph index
 
-### Example
-
-<div><fiddle-embed name="71b417d6651cbcecae1a05067c94ab3e"><div><a href='#SkPaint_containsText'>containsText</a> succeeds for degree symbol, but cannot find a glyph index
+<div><a href='#SkPaint_containsText'>containsText</a> succeeds for degree symbol, but cannot find a glyph index
 corresponding to the Unicode surrogate code point.
 </div>
 
@@ -5455,8 +5453,6 @@ corresponding to the Unicode surrogate code point.
 0x00b0 == has char
 0xd800 != has char
 ~~~~
-
-</fiddle-embed></div>
 
 ### Example
 

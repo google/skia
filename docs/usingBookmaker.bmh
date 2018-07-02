@@ -122,7 +122,7 @@ Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
 #Code
-$ go get go.skia.org/infra/fiddle/go/fiddlecli
+$ go get go.skia.org/infra/fiddlek/go/fiddlecli
 ##
 
 Build Bookmaker.

@@ -161,7 +161,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
     if (fReturnOnWrite) {
         return true;
     }
-    SkASSERT(size < 16000);
+    SkASSERT(size < 20000);
     if (size > 3 && !strncmp("#end", data, 4)) {
         fMaxLF = 1;
     }

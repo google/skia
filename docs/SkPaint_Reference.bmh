@@ -4394,7 +4394,7 @@ text contains an invalid UTF-8 sequence, zero is returned.
 
     #Return  true if all text corresponds to a non-zero glyph index ##
 
-    #Example
+    #NoExample
     #Description
     containsText succeeds for degree symbol, but cannot find a glyph index
     corresponding to the Unicode surrogate code point.
