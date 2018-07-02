@@ -6,8 +6,7 @@
  */
 
 #include "../skcms.h"
-#include "LinearAlgebra.h"
-#include "PortableMath.h"
+#include "../skcms_internal.h"
 #include <float.h>
 
 bool skcms_Matrix3x3_invert(const skcms_Matrix3x3* src, skcms_Matrix3x3* dst) {
