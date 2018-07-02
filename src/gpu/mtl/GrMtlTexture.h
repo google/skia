@@ -20,7 +20,7 @@ public:
                                                 const GrSurfaceDesc&, int mipLevels);
 
     static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&,
-                                                  GrWrapOwnership);
+                                                  id<MTLTexture>);
 
     ~GrMtlTexture() override;
 
@@ -57,8 +57,10 @@ protected:
 
 private:
     enum Wrapped { kWrapped };
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
-   // GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, GrMtlImage::Wrapped wrapped);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
+                 GrMipMapsStatus);
+
+    GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
 
     id<MTLTexture> fTexture;
 
