@@ -5,9 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "Curve.h"
-#include "PortableMath.h"
-#include "TransferFunction.h"
+#include "../skcms_internal.h"
 #include <assert.h>
 
 static float minus_1_ulp(float x) {

@@ -7,7 +7,7 @@
 
 // Intentionally NO #pragma once
 
-#include "Transform.h"
+#include "../skcms_internal.h"
 
 // This file is included from src/Transform.c, with some values and types pre-defined:
 //    N:    depth of all vectors, 1,4,8, or 16
