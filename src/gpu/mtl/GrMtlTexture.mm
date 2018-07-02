@@ -54,43 +54,26 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted budgeted,
-                                                   const GrSurfaceDesc& desc, int mipLevels) {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-
+                                                   const GrSurfaceDesc& desc,
+                                                   MTLTextureDescriptor* texDesc,
+                                                   GrMipMapsStatus mipMapsStatus) {
     if (desc.fSampleCnt > 1) {
         SkASSERT(false); // Currently we don't support msaa
         return nullptr;
     }
-
-    MTLTextureDescriptor* descriptor = [[MTLTextureDescriptor alloc] init];
-    descriptor.textureType = MTLTextureType2D;
-    descriptor.pixelFormat = format;
-    descriptor.width = desc.fWidth;
-    descriptor.height = desc.fHeight;
-    descriptor.depth = 1;
-    descriptor.mipmapLevelCount = mipLevels;
-    descriptor.sampleCount = 1;
-    descriptor.arrayLength = 1;
-    // descriptor.resourceOptions This looks to be set by setting cpuCacheMode and storageModes
-    descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    // Make all textures have private gpu only access. We can use transfer buffers to copy to them.
-    descriptor.storageMode = MTLStorageModePrivate;
-    descriptor.usage = MTLTextureUsageShaderRead;
-
-    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:descriptor];
-
-    GrMipMapsStatus mipMapsStatus = mipLevels > 1 ? GrMipMapsStatus::kValid
-                                                  : GrMipMapsStatus::kNotAllocated;
-
+    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
+    SkASSERT(nil != texture);
+    SkASSERT(MTLTextureUsageShaderRead & texture.usage);
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
 }
 
 sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
                                                      const GrSurfaceDesc& desc,
                                                      id<MTLTexture> texture) {
+    if (desc.fSampleCnt > 1) {
+        SkASSERT(false); // Currently we don't support msaa
+        return nullptr;
+    }
     SkASSERT(nil != texture);
     SkASSERT(MTLTextureUsageShaderRead & texture.usage);
     GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid

@@ -34,7 +34,7 @@ sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
                                const GrSurfaceDesc& desc,
                                id<MTLTexture> renderTexture,
-                               int mipLevels,
+                               GrMipMapsStatus mipMapsStatus,
                                SkBudgeted budgeted,
                                bool isWrapped) {
     SkASSERT(nil != renderTexture);
@@ -42,8 +42,7 @@ GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
         SkASSERT(false); // Currently don't support MSAA
         return nullptr;
     }
-    GrMipMapsStatus mipMapsStatus = mipLevels > 1 ? GrMipMapsStatus::kValid
-                                                  : GrMipMapsStatus::kNotAllocated;
+    SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & renderTexture.usage);
     if (!isWrapped) {
         return sk_sp<GrMtlTextureRenderTarget>(new GrMtlTextureRenderTarget(gpu,
                                                                             budgeted,
@@ -63,31 +62,10 @@ sk_sp<GrMtlTextureRenderTarget>
 GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(GrMtlGpu* gpu,
                                                        SkBudgeted budgeted,
                                                        const GrSurfaceDesc& desc,
-                                                       int mipLevels) {
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
-        return nullptr;
-    }
-
-    MTLTextureDescriptor* descriptor = [[MTLTextureDescriptor alloc] init];
-    descriptor.textureType = MTLTextureType2D;
-    descriptor.pixelFormat = format;
-    descriptor.width = desc.fWidth;
-    descriptor.height = desc.fHeight;
-    descriptor.depth = 1;
-    descriptor.mipmapLevelCount = mipLevels;
-    descriptor.sampleCount = 1;
-    descriptor.arrayLength = 1;
-    // descriptor.resourceOptions This looks to be set by setting cpuCacheMode and storageModes
-    descriptor.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    // RenderTargets never need to be mapped so their storage mode is set to private
-    descriptor.storageMode = MTLStorageModePrivate;
-
-    descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-
-    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:descriptor];
-
-    return Make(gpu, desc, texture, mipLevels, budgeted, false);
+                                                       MTLTextureDescriptor* texDesc,
+                                                       GrMipMapsStatus mipMapsStatus) {
+    id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
+    return Make(gpu, desc, texture, mipMapsStatus, budgeted, false);
 }
 
 sk_sp<GrMtlTextureRenderTarget>
@@ -96,7 +74,8 @@ GrMtlTextureRenderTarget::MakeWrappedTextureRenderTarget(GrMtlGpu* gpu,
                                                          id<MTLTexture> texture) {
 
     SkASSERT(nil != texture);
-    SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & texture.usage);
-    return Make(gpu, desc, texture, texture.mipmapLevelCount, SkBudgeted::kNo, true);
+    GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kDirty
+                                                                 : GrMipMapsStatus::kNotAllocated;
+    return Make(gpu, desc, texture, mipMapsStatus, SkBudgeted::kNo, true);
 }
 

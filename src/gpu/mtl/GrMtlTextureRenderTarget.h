@@ -16,7 +16,8 @@ public:
     static sk_sp<GrMtlTextureRenderTarget> CreateNewTextureRenderTarget(GrMtlGpu*,
                                                                         SkBudgeted,
                                                                         const GrSurfaceDesc&,
-                                                                        int mipLevels);
+                                                                        MTLTextureDescriptor*,
+                                                                        GrMipMapsStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
@@ -61,7 +62,7 @@ private:
     static sk_sp<GrMtlTextureRenderTarget> Make(GrMtlGpu*,
                                                 const GrSurfaceDesc&,
                                                 id<MTLTexture> resolveTexture,
-                                                int mipLevels,
+                                                GrMipMapsStatus,
                                                 SkBudgeted budgeted,
                                                 bool isWrapped);
 

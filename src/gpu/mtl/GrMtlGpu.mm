@@ -127,15 +127,48 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     if (!fMtlCaps->isConfigTexturable(desc.fConfig)) {
         return nullptr;
     }
+    MTLPixelFormat format;
+    if (!GrPixelConfigToMTLFormat(desc.fConfig, &format)) {
+        return nullptr;
+    }
 
     bool renderTarget = SkToBool(desc.fFlags & kRenderTarget_GrSurfaceFlag);
+
+    // This TexDesc refers to the texture that will be read by the client. Thus even if msaa is
+    // requested, this TexDesc describes the resolved texture. Therefore we always have samples set
+    // to 1.
+    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+    texDesc.textureType = MTLTextureType2D;
+    texDesc.pixelFormat = format;
+    texDesc.width = desc.fWidth;
+    texDesc.height = desc.fHeight;
+    texDesc.depth = 1;
+    texDesc.mipmapLevelCount = mipLevels;
+    texDesc.sampleCount = 1;
+    texDesc.arrayLength = 1;
+    texDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+    // Make all textures have private gpu only access. We can use transfer buffers or textures
+    // to copy to them.
+    texDesc.storageMode = MTLStorageModePrivate;
+    texDesc.usage = MTLTextureUsageShaderRead | renderTarget ? MTLTextureUsageRenderTarget : 0;
+
+    GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
+    if (mipLevels > 1) {
+        mipMapsStatus = GrMipMapsStatus::kValid;
+        for (int i = 0; i < mipLevels; ++i) {
+            if (!texels[i].fPixels) {
+                mipMapsStatus = GrMipMapsStatus::kDirty;
+                break;
+            }
+        }
+    }
 
     sk_sp<GrMtlTexture> tex;
     if (renderTarget) {
         tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
-                                                                     desc, mipLevels);
+                                                                     desc, texDesc, mipMapsStatus);
     } else {
-        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, mipLevels);
+        tex = GrMtlTexture::CreateNewTexture(this, budgeted, desc, texDesc, mipMapsStatus);
     }
 
     if (!tex) {
