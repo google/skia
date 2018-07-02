@@ -821,7 +821,7 @@ corner radii to zero and sets type to <a href='#SkRRect_kEmpty_Type'>kEmpty Type
 
 ### Example
 
-<div><fiddle-embed name="59c1025b8116ec1d3b55f4f6306d1e37"><div>Nothing blue is drawn because rrect is set to empty.
+<div><fiddle-embed name="8b128e067881f9251357653692fa28da"><div>Nothing blue is drawn because rrect is set to empty.
 </div></fiddle-embed></div>
 
 ### See Also
