@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "56d87a4d_f02b3847",
+        "filename": "BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-02T15:19:21Z",
+      "side": 1,
+      "message": "I\u0027m not able to use ColorFilter if I don\u0027t include those source files. I discussed this with Ben and he told me it\u0027s fine, since we don\u0027t have a good way to build this for now.",
+      "parentUuid": "d22e5473_d0327c7d",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d7be311_b013697a",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
         "patchSetId": 9
