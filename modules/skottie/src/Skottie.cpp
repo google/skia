@@ -35,6 +35,7 @@
 #include "SkStream.h"
 #include "SkTArray.h"
 #include "SkTHash.h"
+#include "SkTLazy.h"
 #include "SkTime.h"
 #include "SkTo.h"
 #include "SkottieAdapter.h"
@@ -63,7 +64,8 @@ using AssetMap = SkTHashMap<SkString, AssetInfo>;
 struct AttachContext {
     const ResourceProvider& fResources;
     const AssetMap&         fAssets;
-    const float             fDuration;
+    const float             fDuration,
+                            fFrameRate;
     sksg::AnimatorList&     fAnimators;
 };
 
@@ -778,20 +780,23 @@ sk_sp<sksg::RenderNode> AttachAssetRef(const skjson::ObjectValue& jlayer, Attach
 }
 
 sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx) {
+    const skjson::ObjectValue* time_remap = jlayer["tm"];
     const auto start_time = ParseDefault<float>(jlayer["st"], 0.0f),
              stretch_time = ParseDefault<float>(jlayer["sr"], 1.0f);
     const auto requires_time_mapping = !SkScalarNearlyEqual(start_time  , 0) ||
-                                       !SkScalarNearlyEqual(stretch_time, 1);
+                                       !SkScalarNearlyEqual(stretch_time, 1) ||
+                                       time_remap;
 
     sksg::AnimatorList local_animators;
     AttachContext local_ctx = { ctx->fResources,
                                 ctx->fAssets,
                                 ctx->fDuration,
+                                ctx->fFrameRate,
                                 requires_time_mapping ? local_animators : ctx->fAnimators };
 
     auto comp_layer = AttachAssetRef(jlayer, &local_ctx, AttachComposition);
 
-    // Applies a bias/scale t-adjustment to child animators.
+    // Applies a bias/scale/remap t-adjustment to child animators.
     class CompTimeMapper final : public sksg::GroupAnimator {
     public:
         CompTimeMapper(sksg::AnimatorList&& layer_animators, float time_bias, float time_scale)
@@ -800,11 +805,20 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, Attac
             , fTimeScale(time_scale) {}
 
         void onTick(float t) override {
+            // When time remapping is active, |t| is driven externally.
+            if (fRemappedTime.isValid()) {
+                t = *fRemappedTime.get();
+            }
+
             this->INHERITED::onTick((t + fTimeBias) * fTimeScale);
         }
+
+        void remapTime(float t) { fRemappedTime.set(t); }
+
     private:
-        const float fTimeBias,
-                    fTimeScale;
+        const float    fTimeBias,
+                       fTimeScale;
+        SkTLazy<float> fRemappedTime;
 
         using INHERITED = sksg::GroupAnimator;
     };
@@ -812,8 +826,19 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, Attac
     if (requires_time_mapping) {
         const auto t_bias  = -start_time,
                    t_scale = sk_ieee_float_divide(1, stretch_time);
-        ctx->fAnimators.push_back(skstd::make_unique<CompTimeMapper>(std::move(local_animators),
-                                                                     t_bias, t_scale));
+        auto time_mapper = skstd::make_unique<CompTimeMapper>(std::move(local_animators),
+                                                              t_bias, t_scale);
+        if (time_remap) {
+            // The lambda below captures a raw pointer to the mapper object.  That should be safe,
+            // because both the lambda and the mapper are scoped/owned by ctx->fAnimators.
+            auto* raw_mapper = time_mapper.get();
+            auto  frame_rate = ctx->fFrameRate;
+            BindProperty<ScalarValue>(*time_remap, &ctx->fAnimators,
+                    [raw_mapper, frame_rate](const ScalarValue& t) {
+                        raw_mapper->remapTime(t * frame_rate);
+                    });
+        }
+        ctx->fAnimators.push_back(std::move(time_mapper));
     }
 
     return comp_layer;
@@ -1073,6 +1098,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
     AttachContext local_ctx = { layerCtx->fCtx->fResources,
                                 layerCtx->fCtx->fAssets,
                                 layerCtx->fCtx->fDuration,
+                                layerCtx->fCtx->fFrameRate,
                                 layer_animators};
 
     // Layer content.
@@ -1132,10 +1158,6 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
     auto controller_node = sksg::OpacityEffect::Make(std::move(layer));
     const auto        in = ParseDefault<float>((*jlayer)["ip"], 0.0f),
                      out = ParseDefault<float>((*jlayer)["op"], in);
-
-    if (!(*jlayer)["tm"].is<skjson::NullValue>()) {
-        LogFail((*jlayer)["tm"], "Unsupported time remapping");
-    }
 
     if (in >= out || !controller_node)
         return nullptr;
@@ -1299,7 +1321,7 @@ Animation::Animation(const ResourceProvider& resources,
     }
 
     sksg::AnimatorList animators;
-    AttachContext ctx = { resources, assets, this->duration(), animators };
+    AttachContext ctx = { resources, assets, this->duration(), fFrameRate, animators };
     auto root = AttachComposition(json, &ctx);
 
     stats->fAnimatorCount = animators.size();
