@@ -116,6 +116,24 @@
     },
     {
       "key": {
+        "uuid": "c4f620f4_f563c9d3",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "Having different parts use a different number of bones would mean gp.boneCount() is different for each one of those parts, and so we would have to generate multiple vertex shaders that are all only slightly different. Would that be better than a single shader that has a reasonable limit to the number of bone matrices (which would have to applied either way)?",
+      "parentUuid": "26e24a3b_834fd244",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "532f237f_fbd8f50c",
         "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
         "patchSetId": 8
@@ -201,6 +219,24 @@
     },
     {
       "key": {
+        "uuid": "e2a8844e_224105e9",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "I\u0027m not sure what the best way to do this is. bones[0][0] is an rvalue, so we can\u0027t take a pointer to it.",
+      "parentUuid": "1eac2115_497752ff",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7277b81a_d9c86102",
         "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
         "patchSetId": 8
@@ -212,6 +248,24 @@
       "writtenOn": "2018-07-02T19:58:33Z",
       "side": 1,
       "message": "Seems like this could be \"std::unique_ptr\u003cfloat\u003e fBones\". Do we need the power of std::vector?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f01dccb_1beed9b4",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "Are we guaranteed that the data passed into the factory still exists when the data is uploaded to the GPU?",
+      "parentUuid": "7277b81a_d9c86102",
       "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -343,6 +397,24 @@
     },
     {
       "key": {
+        "uuid": "1fc7b501_9f05f613",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "It might be possible to make this faster if we can guarantee that the structs are packed how we want them. That being said, an optimization I\u0027m planning on is shrinking the data down to bytes to avoid uploading 32 bytes of data per vertex to the GPU, in which case, I believe this is still the fastest option.",
+      "parentUuid": "e620c36a_1b7edf2a",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "3cc99d7a_9fba1ecc",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 8
@@ -360,6 +432,24 @@
     },
     {
       "key": {
+        "uuid": "dfe573f7_0573496d",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "We can\u0027t allow meshes with bones to batch, because different meshes use different bones, and so then we would have to combine the bone matrices as well as alter the vertex attributes, which we would then be unable to cache.",
+      "parentUuid": "3cc99d7a_9fba1ecc",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2417029f_b24b9faf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 8
@@ -371,6 +461,24 @@
       "writtenOn": "2018-07-02T20:26:04Z",
       "side": 1,
       "message": "// non-volatile meshes are never allowed to batch\n\n?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43027909_6457ce52",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-02T21:15:40Z",
+      "side": 1,
+      "message": "If a non volatile mesh batches with another mesh, then the next time the mesh is drawn, it will draw the previous mesh that it batched with, which isn\u0027t necessarily there anymore.",
+      "parentUuid": "2417029f_b24b9faf",
       "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
