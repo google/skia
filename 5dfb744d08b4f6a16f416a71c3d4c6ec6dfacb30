@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cad2cc7d_6335ac12",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-02T20:03:36Z",
+      "side": 1,
+      "message": "Just FYI we don\u0027t require Yoda notation anymore.",
+      "range": {
+        "startLine": 117,
+        "startChar": 8,
+        "endLine": 117,
+        "endChar": 43
+      },
+      "revId": "5dfb744d08b4f6a16f416a71c3d4c6ec6dfacb30",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
