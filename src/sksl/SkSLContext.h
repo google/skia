@@ -355,6 +355,10 @@ private:
             return "<defined>";
         }
 
+        std::unique_ptr<Expression> clone() const override {
+            return std::unique_ptr<Expression>(new Defined(fType));
+        }
+
         typedef Expression INHERITED;
     };
 };
