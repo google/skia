@@ -77,7 +77,6 @@ public:
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
      * operator.
-     * If one were to add a new function to this struct, one should also clear it in abandon.
      */
     struct Functions {
         GrGLFunction<GrGLActiveTextureProc> fActiveTexture;
