@@ -206,7 +206,7 @@ public:
      * using isConfigVerifiedColorAttachment().
      */
     void markConfigAsValidColorAttachment(GrPixelConfig config) {
-        fConfigTable[config].fFlags |= ConfigInfo::kVerifiedColorAttachment_Flag;
+        fConfigTable[config].fVerifiedColorAttachment = true;
     }
 
     /**
@@ -214,7 +214,7 @@ public:
      * attachment.
      */
     bool isConfigVerifiedColorAttachment(GrPixelConfig config) const {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kVerifiedColorAttachment_Flag);
+        return fConfigTable[config].fVerifiedColorAttachment;
     }
 
     /**
@@ -588,17 +588,20 @@ private:
         SkTDArray<int> fColorSampleCounts;
 
         enum {
-            kVerifiedColorAttachment_Flag = 0x1,
-            kTextureable_Flag             = 0x2,
-            kRenderable_Flag              = 0x4,
-            kRenderableWithMSAA_Flag      = 0x8,
+            kTextureable_Flag             = 0x1,
+            kRenderable_Flag              = 0x2,
+            kRenderableWithMSAA_Flag      = 0x4,
             /** kFBOColorAttachment means that even if the config cannot be a GrRenderTarget, we can
                 still attach it to a FBO for blitting or reading pixels. */
-            kFBOColorAttachment_Flag      = 0x10,
-            kCanUseTexStorage_Flag        = 0x20,
-            kCanUseWithTexelBuffer_Flag   = 0x40,
+            kFBOColorAttachment_Flag      = 0x8,
+            kCanUseTexStorage_Flag        = 0x10,
+            kCanUseWithTexelBuffer_Flag   = 0x20,
         };
         uint32_t fFlags;
+
+        // verification of color attachment validity is done while flushing. Although only ever
+        // used in the (sole) rendering thread it can cause races if it is glommed into fFlags.
+        bool fVerifiedColorAttachment = false;
 
         GrSwizzle fSwizzle;
     };
