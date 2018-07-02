@@ -22,7 +22,7 @@
 
 #define JNI_METHOD(return_type, method_name) \
   JNIEXPORT return_type JNICALL              \
-      Java_org_skia_arcore_JniInterface_##method_name
+      Java_org_skia_skar_JniInterface_##method_name
 
 extern "C" {
 
@@ -98,6 +98,16 @@ JNI_METHOD(void, onGlSurfaceDrawFrame)
 JNI_METHOD(void, onTouchTranslate)
 (JNIEnv *, jclass, jlong native_application, jfloat x, jfloat y) {
     return native(native_application)->OnTouchTranslate(x, y);
+}
+
+JNI_METHOD(void, onTouchScale)
+(JNIEnv *, jclass, jlong native_application, jfloat scale) {
+    return native(native_application)->OnTouchScale(scale);
+}
+
+JNI_METHOD(void, onTouchRotate)
+(JNIEnv *, jclass, jlong native_application, jfloat angle) {
+    return native(native_application)->OnTouchRotate(angle);
 }
 
 JNI_METHOD(bool, onTouchedFirst)

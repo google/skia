@@ -11,7 +11,7 @@ The arcore aar library contains the native shared libraries.  These are
 extracted before building to a temporary directory.
  */
 def arcore_libpath = "${buildDir}/arcore-native"
-
+def skar_libname = "libskar"
 // Create a configuration to mark which aars to extract .so files from
 configurations { natives }
 
@@ -20,7 +20,7 @@ android {
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { arm64 {} }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "libarcore")
+    setupSkiaLibraryBuild(project, applicationVariants, skar_libname)
 
     compileSdkVersion 27
     defaultConfig {

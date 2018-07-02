@@ -25,6 +25,8 @@
 #include <cstdlib>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <SkColor.h>
 
 #include "arcore_c_api.h"
 #include "glm.h"
@@ -38,32 +40,37 @@ namespace hello_ar {
 
         ~PlaneRenderer() = default;
 
-        // Sets up OpenGL state used by the plane renderer.  Must be called on the
-        // OpenGL thread.
+        // Loads plane texture
         void InitializeGlContent(AAssetManager *asset_manager);
 
-        // Draws the provided plane.
-        void Draw(const glm::mat4 &projection_mat, const glm::mat4 &view_mat,
-                  const ArSession *ar_session, const ArPlane *ar_plane,
-                  const glm::vec3 &color);
+        // Main function called by app to draw all planes
+        void Draw(ArSession* arSession, ArFrame* arFrame, GrContext* context, SkSurface* surface,
+                  SkMatrix44& vpv, int& planeCount);
 
     private:
-        void UpdateForPlane(const ArSession *ar_session, const ArPlane *ar_plane);
+        // Get plane mesh info
+        void UpdateForPlane(const ArSession* arSession, ArPlane* arPlane, ArTrackable* trackable);
 
-        std::vector<glm::vec3> vertices_;
-        std::vector<GLushort> triangles_;
-        glm::mat4 model_mat_ = glm::mat4(1.0f);
-        glm::vec3 normal_vec_ = glm::vec3(0.0f);
+        // Draws one plane after calling UpdateForPlane
+        void DrawSinglePlane(ArSession* arSession, ArPlane* arPlane, SkCanvas* canvas, SkPaint& paint);
 
-        GLuint texture_id_;
+        // Randomly picks a color for a plane
+        void SetPlaneColor(ArPlane* arPlane, ArTrackable* trackable, SkColor& outColor);
 
-        GLuint shader_program_;
-        GLint attri_vertices_;
-        GLint uniform_mvp_mat_;
-        GLint uniform_texture_;
-        GLint uniform_model_mat_;
-        GLint uniform_normal_vec_;
-        GLint uniform_color_;
+        // True if plane is behing camera
+        bool CullPlane(ArSession* arSession, ArFrame* arFrame, ArPlane* arPlane);
+
+        // Mesh data
+        std::vector<SkPoint> positions_;
+        std::vector<SkColor> colors_;
+        std::vector<uint16_t> triangles_;
+
+        // Stores the randomly-selected color each plane is drawn with
+        std::unordered_map<ArPlane *, SkColor> plane_color_map_;
+        bool firstPlaneFound = false;
+
+        // Shader that holds plane texture
+        sk_sp<SkShader> shader_;
     };
 }  // namespace hello_ar
 

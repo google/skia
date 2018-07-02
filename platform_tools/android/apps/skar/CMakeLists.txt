@@ -21,8 +21,8 @@ add_library(arcore SHARED IMPORTED)
 set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
                       "${ARCORE_LIBPATH}/${ANDROID_ABI}/libarcore_sdk_c.so")
 
-add_library(sk_skia SHARED IMPORTED)
-set_target_properties(sk_skia PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/src/main/libs/${ANDROID_ABI}/libarcore.so")
+add_library(skar SHARED IMPORTED)
+set_target_properties(skar PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/src/main/libs/${ANDROID_ABI}/libskar.so")
 
 # This is the main app library.
 add_library(hello_ar_native SHARED
@@ -71,4 +71,4 @@ target_link_libraries(hello_ar_native
                       log
                       GLESv2
                       arcore
-                      sk_skia)
+                      skar)
