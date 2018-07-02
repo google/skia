@@ -73,24 +73,35 @@ private:
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                      const GrMipLevel texels[], int mipLevelCount) override;
 
-    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override {
-        return nullptr;
+    static inline void InitSurfaceDesc(GrSurfaceDesc* surfaceDesc,
+                                       const GrBackendTexture& backendTex,
+                                       bool isRenderTarget) {
+        surfaceDesc->fFlags = isRenderTarget ? kRenderTarget_GrSurfaceFlag : kNone_GrSurfaceFlags;
+        surfaceDesc->fWidth = backendTex.width();
+        surfaceDesc->fHeight = backendTex.height();
+        surfaceDesc->fConfig = backendTex.config();
+        surfaceDesc->fSampleCnt = 1;
     }
+
+    static inline void InitSurfaceDesc(GrSurfaceDesc* surfaceDesc,
+                                       const GrBackendRenderTarget& backendRT) {
+        surfaceDesc->fFlags = kRenderTarget_GrSurfaceFlag;
+        surfaceDesc->fWidth = backendRT.width();
+        surfaceDesc->fHeight = backendRT.height();
+        surfaceDesc->fConfig = backendRT.config();
+        surfaceDesc->fSampleCnt = 1;
+    }
+
+    sk_sp<GrTexture> onWrapBackendTexture(const GrBackendTexture&, GrWrapOwnership) override;
 
     sk_sp<GrTexture> onWrapRenderableBackendTexture(const GrBackendTexture&,
                                                     int sampleCnt,
-                                                    GrWrapOwnership) override {
-        return nullptr;
-    }
+                                                    GrWrapOwnership) override;
 
-    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override {
-        return nullptr;
-    }
+    sk_sp<GrRenderTarget> onWrapBackendRenderTarget(const GrBackendRenderTarget&) override;
 
     sk_sp<GrRenderTarget> onWrapBackendTextureAsRenderTarget(const GrBackendTexture&,
-                                                             int sampleCnt) override {
-        return nullptr;
-    }
+                                                             int sampleCnt) override;
 
     GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override {
         return nullptr;
