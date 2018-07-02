@@ -1,0 +1,261 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "469c1d30_bf820912",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "just remove ?",
+      "range": {
+        "startLine": 165,
+        "startChar": 85,
+        "endLine": 165,
+        "endChar": 96
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce46622f_fc4ef688",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "Do we need setPixelConfig ?",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b303886_417a4996",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "again",
+      "range": {
+        "startLine": 281,
+        "startChar": 89,
+        "endLine": 281,
+        "endChar": 100
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b6917bc_21e9819b",
+        "filename": "include/gpu/GrBackendSurface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48495141_56e33b61",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3991,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "Skia\u0027s\n\nCan we fix the tests ?",
+      "range": {
+        "startLine": 3991,
+        "startChar": 38,
+        "endLine": 3991,
+        "endChar": 43
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5d4d2ad_45b4f029",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3993,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "Shouldn\u0027t the GrBackendTexture ctor be setting this for us ?",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d32cd93_8d44a942",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4089,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 4089,
+        "startChar": 38,
+        "endLine": 4089,
+        "endChar": 42
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d98be867_bc3e280f",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 4091,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c04c54da_71a33c01",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1319,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 1319,
+        "startChar": 38,
+        "endLine": 1319,
+        "endChar": 44
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0f97cfc_f7ac81aa",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30f5c76a_6db53c90",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1373,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 1373,
+        "startChar": 38,
+        "endLine": 1373,
+        "endChar": 43
+      },
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a0795e4_341e34df",
+        "filename": "src/gpu/vk/GrVkGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1375,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "same",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c9db5bf_0881140f",
+        "filename": "tools/gpu/ProxyUtils.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T18:59:11Z",
+      "side": 1,
+      "message": "?? needed",
+      "revId": "3333cffe566e2a09c329240b12cc766b83f4fb7f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
