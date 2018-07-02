@@ -48,20 +48,6 @@ protected:
      */
     virtual sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) = 0;
 
-    /**
-     *  Return a new (uncached) texture that is the stretch of the maker's original.
-     *
-     *  The base-class handles general logic for this, and only needs access to the following
-     *  method:
-     *  - refOriginalTextureProxy()
-     *
-     *  Subclass may override this if they can handle creating the texture more directly than
-     *  by copying.
-     */
-    virtual sk_sp<GrTextureProxy> generateTextureProxyForParams(const CopyParams&,
-                                                                bool willBeMipped,
-                                                                SkColorSpace* dstColorSpace);
-
     GrContext* context() const { return fContext; }
 
 private:
