@@ -102,6 +102,8 @@ inline bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPol
 bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar d1,
                      int side, SkPoint* offset0, SkPoint* offset1);
 
+//**** Need unit tests for everything that follows
+
 /**
  * Compute the number of points needed for a circular join when offsetting a vertex.
  * The lengths of offset0 and offset1 don't have to equal r -- only the direction matters.
@@ -116,6 +118,24 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
  */
 void SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar r,
                           SkScalar* rotSin, SkScalar* rotCos, int* n);
+
+/**
+ * Determine winding direction for a polygon
+ *
+ * @param polygonVerts  Array of points representing the vertices of the polygon.
+ * @param polygonSize  Number of vertices in the polygon.
+ * @return 1 for ccw, -1 for cw, and 0 if zero signed area (either degenerate or self-intersecting)
+ */
+int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize);
+
+/**
+ * Determine whether a polygon is convex or not.
+ *
+ * @param polygonVerts  Array of points representing the vertices of the polygon.
+ * @param polygonSize  Number of vertices in the polygon.
+ * @return true if the polygon is convex, false otherwise.
+ */
+bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize);
 
 /**
  * Determine whether a polygon is simple (i.e., not self-intersecting) or not.
