@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d22e5473_d0327c7d",
+        "filename": "BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "What\u0027s this all about ?",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d7be311_b013697a",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "This seems like a badly named file.\n\nMaybe SkARUtils.h ?",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "138c2fa8_c4976876",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "setArAnchor - not a static method",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ed40e28_5e0e1ec4",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "So, I\u0027m assuming this was an example file provided w/ ARCore ?\n\nIt would be nice to have all the Skia contributed stuff in its own file w/ Skia\u0027s license.",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5620ff31_c8ccdacc",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "Might as well use Skia\u0027s naming conventions. \u0027f\u0027 before all member variables.\n\nDocument what this is: // These capture the coordinate frame used be Skia to ...",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31784866_80cfcf02",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "// Document what all these are",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3dd68278_f7a56edf",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "This should be lined up with the \u0027(\u0027\n\nYou don\u0027t want all these matrices passed by const\u0026 ?",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e83ca6ec_27c3bfe7",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "overlength - Skia line breaks at 100 chars.",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a52b50b_c3f63336",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "In Skia this capitalization pattern is for static class member functions.\n\nIn Skia if something is going to change we pass it by pointer. We pretty much only use \u0027\u0026\u0027 in the context of \u0027const\u0026\u0027",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d875d1a_674f280a",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "100 chars - here and below",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7baf513_1169b9e9",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/util.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T14:13:52Z",
+      "side": 1,
+      "message": "const\u0026 here ?",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
