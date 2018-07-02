@@ -31,6 +31,7 @@ sk_sp<GrTextureProxy> MakeTextureProxyFromData(GrContext* context, bool isRT, in
         if (!backendTex.isValid()) {
             return nullptr;
         }
+        backendTex.setPixelConfig(config);
         // Adopt ownership so our caller doesn't have to worry about deleting the backend texture.
         if (isRT) {
             proxy = context->contextPriv().proxyProvider()->wrapRenderableBackendTexture(
