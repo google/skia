@@ -158,15 +158,3 @@ std::unique_ptr<GrFragmentProcessor> GrTextureMaker::createFragmentProcessor(
                                                         domainMode, domain, filterOrNullForBicubic);
     return GrColorSpaceXformEffect::Make(std::move(fp), texColorSpace.get(), dstColorSpace);
 }
-
-sk_sp<GrTextureProxy> GrTextureMaker::generateTextureProxyForParams(const CopyParams& copyParams,
-                                                                    bool willBeMipped,
-                                                                    SkColorSpace* dstColorSpace) {
-    sk_sp<GrTextureProxy> original(this->refOriginalTextureProxy(willBeMipped, dstColorSpace,
-                                                                 AllowedTexGenType::kAny));
-    if (!original) {
-        return nullptr;
-    }
-
-    return CopyOnGpu(fContext, std::move(original), copyParams, willBeMipped);
-}
