@@ -49,7 +49,6 @@ struct SK_API GrVkBackendContext {
     uint32_t                   fFeatures;
     sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
-
     // This is deprecated and should be set to false. The client is responsible for managing the
     // lifetime of the VkInstance and VkDevice objects.
     bool                       fOwnsInstanceAndDevice = false;
