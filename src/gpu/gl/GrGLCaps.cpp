@@ -2612,7 +2612,7 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     // that the interpolation of vertex shader outputs is quite inaccurate.
     if (kAdreno3xx_GrGLRenderer == ctxInfo.renderer()) {
         shaderCaps->fCanUseFragCoord = false;
-        shaderCaps->fInterpolantsAreInaccurate = true;
+        //shaderCaps->fInterpolantsAreInaccurate = true;
     }
 
     // gl_FragCoord has an incorrect subpixel offset on legacy Tegra hardware.
