@@ -145,7 +145,7 @@ var (
 		&specs.CipdPackage{
 			Name:    "infra/tools/luci/vpython/${platform}",
 			Path:    "cipd_bin_packages",
-			Version: "git_revision:ad60019cb66a75b59991d43b95a43f68e3fff81b",
+			Version: "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303",
 		},
 	}
 
