@@ -31,6 +31,13 @@ public:
 
     id<MTLDevice> device() const { return fDevice; }
 
+    id<MTLCommandBuffer> commandBuffer() const { return fCmdBuffer; }
+
+    enum SyncQueue {
+        kForce_SyncQueue,
+        kSkip_SyncQueue
+    };
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
@@ -89,9 +96,7 @@ private:
     }
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
-                      void* buffer, size_t rowBytes) override {
-        return false;
-    }
+                      void* buffer, size_t rowBytes) override;
 
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel[], int) override {
@@ -110,6 +115,11 @@ private:
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
     void onFinishFlush(bool insertedSemaphores) override {}
+
+    // Commits the current command buffer to the queue and then creates a new command buffer. If
+    // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
+    // command buffer to finish before creating a new buffer and returning.
+    void submitCommandBuffer(SyncQueue sync);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
@@ -142,6 +152,7 @@ private:
     id<MTLDevice> fDevice;
     id<MTLCommandQueue> fQueue;
 
+    id<MTLCommandBuffer> fCmdBuffer;
 
     typedef GrGpu INHERITED;
 };
