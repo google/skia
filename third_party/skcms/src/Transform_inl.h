@@ -5,11 +5,9 @@
  * found in the LICENSE file.
  */
 
-// Intentionally NO #pragma once
+// Intentionally NO #pragma once... included multiple times.
 
-#include "../skcms_internal.h"
-
-// This file is included from src/Transform.c, with some values and types pre-defined:
+// This file is included from skcms.c with some values and types pre-defined:
 //    N:    depth of all vectors, 1,4,8, or 16
 //
 //    F:    a vector of N float
@@ -573,7 +571,7 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                          const char* src, char* dst, int i) {
     F r = F0, g = F0, b = F0, a = F0;
     while (true) {
-        switch (profile_next_op(*ops++)) {
+        switch (*ops++) {
             case Op_noop: break;
 
             case Op_load_a8:{
