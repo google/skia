@@ -379,7 +379,7 @@ Returns y-axis value of <a href='#Point'>Point</a> or <a href='#Vector'>Vector</
 
 ### Example
 
-<div><fiddle-embed name="4c962850c2dbea4d2325df469400680e">
+<div><fiddle-embed name="17547129251dd9607c381a3cc30cff15">
 
 #### Example Output
 
@@ -805,7 +805,7 @@ straight-line distance to origin
 
 ### Example
 
-<div><fiddle-embed name="812cf26d91b1cdcd2c6b9438a8172518"></fiddle-embed></div>
+<div><fiddle-embed name="6a614faa0fbcf19958b5559c19b02d0f"></fiddle-embed></div>
 
 ### See Also
 

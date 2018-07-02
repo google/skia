@@ -246,7 +246,7 @@ results are undefined.
 
 ### Example
 
-<div><fiddle-embed name="79146a1a41d58d22582fdc567c6ffe4e"><div><a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to 255, its maximum value, and is interpreted
+<div><fiddle-embed name="505a6d9458394b1deb5d2f6c44e1cd76"><div><a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to 255, its maximum value, and is interpreted
 as <a href='SkColor_Reference#Alpha'>Color Alpha</a> of 1.0. <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a> may be set to improve performance.
 If <a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to a value smaller than 255,
 <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a> must be used instead to avoid undefined results.

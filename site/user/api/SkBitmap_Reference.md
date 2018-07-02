@@ -764,7 +764,7 @@ copy of <a href='#SkBitmap_move_operator_src'>src</a>
 
 ### Example
 
-<div><fiddle-embed name="35ea3fed27d8db22dc00f48670de64de">
+<div><fiddle-embed name="e9f70cbc9827097449a386ec7a8a8188">
 
 #### Example Output
 
@@ -2674,7 +2674,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> was set to pix
 
 ### Example
 
-<div><fiddle-embed name="6e2a8c9358b34aebd2ec586815fe9d3a"><div><a href='#Draw'>Draw</a> a five by five bitmap, and draw it again with a center white pixel.
+<div><fiddle-embed name="17547129251dd9607c381a3cc30cff15"><div><a href='#Draw'>Draw</a> a five by five bitmap, and draw it again with a center white pixel.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2954,7 +2954,7 @@ pixel origin within <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 
 ### Example
 
-<div><fiddle-embed name="6d31686c6c0829c70f284ae716526d6a">
+<div><fiddle-embed name="505a6d9458394b1deb5d2f6c44e1cd76">
 
 #### Example Output
 
