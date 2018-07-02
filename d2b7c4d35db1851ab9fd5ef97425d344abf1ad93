@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "f66fec02_141853a8",
+        "filename": "BUILD.gn",
+        "patchSetId": 9
+      },
+      "lineNbr": 2010,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T15:37:55Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "56d87a4d_f02b3847",
+      "revId": "d2b7c4d35db1851ab9fd5ef97425d344abf1ad93",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1d7be311_b013697a",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/anchor_wrapper.h",
         "patchSetId": 9
