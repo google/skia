@@ -14,207 +14,219 @@
  * limitations under the License.
  */
 
+#include <SkSurface.h>
+#include <SkCanvas.h>
+#include <SkVertices.h>
+#include "gl/GrGLTypes.h"
 #include "plane_renderer.h"
 #include "util.h"
+#include "SkImage.h"
+#include "GrBackendSurface.h"
+#include "SkPicture.h"
+#include "SkStream.h"
 
 namespace hello_ar {
     namespace {
-        constexpr char kVertexShader[] = R"(
-    precision highp float;
-    precision highp int;
-    attribute vec3 vertex;
-    varying vec2 v_textureCoords;
-    varying float v_alpha;
+        constexpr float kPlaneTexScale = 0.0005f;
+        constexpr U8CPU kPlaneAlpha = 100;
+        constexpr int32_t kPlaneColorRgbaSize = 6;
+        constexpr std::array<SkColor, kPlaneColorRgbaSize> kPlaneColorRgba = {
+                {SkColorSetARGB(kPlaneAlpha, 255, 0, 0), SkColorSetARGB(kPlaneAlpha, 0, 255, 0),
+                SkColorSetARGB(kPlaneAlpha, 0, 0, 255), SkColorSetARGB(kPlaneAlpha, 255, 255, 0),
+                SkColorSetARGB(kPlaneAlpha, 0, 255, 255), SkColorSetARGB(kPlaneAlpha, 255, 0, 255)}
+        };
 
-    uniform mat4 mvp;
-    uniform mat4 model_mat;
-    uniform vec3 normal;
-
-    void main() {
-      // Vertex Z value is used as the alpha in this shader.
-      v_alpha = vertex.z;
-
-      vec4 local_pos = vec4(vertex.x, 0.0, vertex.y, 1.0);
-      gl_Position = mvp * local_pos;
-      vec4 world_pos = model_mat * local_pos;
-
-      // Construct two vectors that are orthogonal to the normal.
-      // This arbitrary choice is not co-linear with either horizontal
-      // or vertical plane normals.
-      const vec3 arbitrary = vec3(1.0, 1.0, 0.0);
-      vec3 vec_u = normalize(cross(normal, arbitrary));
-      vec3 vec_v = normalize(cross(normal, vec_u));
-
-      // Project vertices in world frame onto vec_u and vec_v.
-      v_textureCoords = vec2(
-         dot(world_pos.xyz, vec_u), dot(world_pos.xyz, vec_v));
-    })";
-
-        constexpr char kFragmentShader[] = R"(
-    precision highp float;
-    precision highp int;
-    uniform sampler2D texture;
-    uniform vec3 color;
-    varying vec2 v_textureCoords;
-    varying float v_alpha;
-    void main() {
-      float r = texture2D(texture, v_textureCoords).r;
-      gl_FragColor = vec4(color.xyz, r * v_alpha);
-    })";
+        inline SkColor GetRandomPlaneColor() {
+            const SkColor colorRgba = kPlaneColorRgba[std::rand() % kPlaneColorRgbaSize];
+            return colorRgba;
+        }
     }  // namespace
 
     void PlaneRenderer::InitializeGlContent(AAssetManager *asset_manager) {
-        shader_program_ = util::CreateProgram(kVertexShader, kFragmentShader);
+        //Open asset texture: get buffer + size
+        AAsset* a = AAssetManager_open(asset_manager, "models/trigrid.png", AASSET_MODE_UNKNOWN);
+        const void* buffer = AAsset_getBuffer(a);
+        size_t size = (size_t) AAsset_getLength(a);
 
-        if (!shader_program_) {
-            LOGE("Could not create program.");
-        }
+        sk_sp<SkData> data = SkData::MakeWithCopy(buffer, size);
+        sk_sp<SkImage> image = SkImage::MakeFromEncoded(data, nullptr);
 
-        uniform_mvp_mat_ = glGetUniformLocation(shader_program_, "mvp");
-        uniform_texture_ = glGetUniformLocation(shader_program_, "texture");
-        uniform_model_mat_ = glGetUniformLocation(shader_program_, "model_mat");
-        uniform_normal_vec_ = glGetUniformLocation(shader_program_, "normal");
-        uniform_color_ = glGetUniformLocation(shader_program_, "color");
-        attri_vertices_ = glGetAttribLocation(shader_program_, "vertex");
-
-        glGenTextures(1, &texture_id_);
-        glBindTexture(GL_TEXTURE_2D, texture_id_);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                        GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        if (!util::LoadPngFromAssetManager(GL_TEXTURE_2D, "models/trigrid.png")) {
-            LOGE("Could not load png texture for planes.");
-        }
-
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        util::CheckGlError("plane_renderer::InitializeGlContent()");
+        //Set up shader
+        SkMatrix textureScale;
+        textureScale.setScale(kPlaneTexScale, kPlaneTexScale);
+        shader_ = image->makeShader(SkShader::TileMode::kRepeat_TileMode, SkShader::TileMode::kRepeat_TileMode,
+                                    &textureScale);
+        //Close asset
+        AAsset_close(a);
     }
 
-    void PlaneRenderer::Draw(const glm::mat4 &projection_mat,
-                             const glm::mat4 &view_mat, const ArSession *ar_session,
-                             const ArPlane *ar_plane, const glm::vec3 &color) {
-        if (!shader_program_) {
-            LOGE("shader_program is null.");
-            return;
+    void PlaneRenderer::Draw(ArSession* arSession, ArFrame* arFrame, GrContext* context, SkSurface* surface,
+                             SkMatrix44& vpv, int& planeCount) {
+        ArTrackableList* planeList = nullptr;
+        ArTrackableList_create(arSession, &planeList);
+        CHECK(planeList != nullptr);
+        ArSession_getAllTrackables(arSession, AR_TRACKABLE_PLANE, planeList);
+
+        int32_t planeListSize = 0;
+        ArTrackableList_getSize(arSession, planeList, &planeListSize);
+
+        for (int i = 0; i < planeListSize; ++i) {
+            ArTrackable* trackable = nullptr;
+            ArTrackableList_acquireItem(arSession, planeList, i, &trackable);
+            ArPlane *arPlane = ArAsPlane(trackable);
+            ArTrackingState ouTrackingState;
+            ArTrackable_getTrackingState(arSession, trackable,
+                                         &ouTrackingState);
+
+            //Check if plane is subsumed by another one. If so, skip plane
+            ArPlane* subsumePlane;
+            ArPlane_acquireSubsumedBy(arSession, arPlane, &subsumePlane);
+            if (subsumePlane != nullptr) {
+                ArTrackable_release(ArAsTrackable(subsumePlane));
+                continue;
+            }
+
+            //Check if plane isn't tracking. If so, skip plane
+            if (ArTrackingState::AR_TRACKING_STATE_TRACKING != ouTrackingState) {
+                continue;
+            }
+
+            //Check if need to cull plane (behind camera). If so, skip plane
+            /*if (CullPlane(arSession, arFrame, ar_plane)) {
+                continue;
+            }*/
+
+            ArTrackingState planeTrackingState;
+            ArTrackable_getTrackingState(arSession, ArAsTrackable(arPlane),
+                                         &planeTrackingState);
+            if (planeTrackingState == AR_TRACKING_STATE_TRACKING) {
+                if (surface != nullptr) {
+                    LOGI("Drawing plane");
+                    SkCanvas* planeCanvas = surface->getCanvas();
+                    planeCanvas->save();
+                    glm::mat4 model(1);
+                    util::GetPlaneModelMatrix(model, arSession, arPlane);
+                    glm::mat4 initRotation(1);
+                    util::SetSkiaInitialRotation(initRotation);
+
+                    SkMatrix44 mvpv = vpv * util::GlmMatToSkMat(model) * util::GlmMatToSkMat(initRotation);
+                    planeCanvas->setMatrix(mvpv);
+
+                    SkPaint paint;
+                    DrawSinglePlane(arSession, arPlane, planeCanvas, paint);
+                    planeCanvas->flush();
+                    planeCanvas->restore();
+                    planeCount++;
+                }
+            }
         }
-
-        UpdateForPlane(ar_session, ar_plane);
-
-        glUseProgram(shader_program_);
-        glDepthMask(GL_FALSE);
-
-        glActiveTexture(GL_TEXTURE0);
-        glUniform1i(uniform_texture_, 0);
-        glBindTexture(GL_TEXTURE_2D, texture_id_);
-
-        // Compose final mvp matrix for this plane renderer.
-        glUniformMatrix4fv(uniform_mvp_mat_, 1, GL_FALSE,
-                           glm::value_ptr(projection_mat * view_mat * model_mat_));
-
-        glUniformMatrix4fv(uniform_model_mat_, 1, GL_FALSE,
-                           glm::value_ptr(model_mat_));
-        glUniform3f(uniform_normal_vec_, normal_vec_.x, normal_vec_.y, normal_vec_.z);
-        glUniform3f(uniform_color_, color.x, color.y, color.z);
-
-        glEnableVertexAttribArray(attri_vertices_);
-        glVertexAttribPointer(attri_vertices_, 3, GL_FLOAT, GL_FALSE, 0,
-                              vertices_.data());
-
-        glDrawElements(GL_TRIANGLES, triangles_.size(), GL_UNSIGNED_SHORT,
-                       triangles_.data());
-
-        glUseProgram(0);
-        glDepthMask(GL_TRUE);
-        util::CheckGlError("plane_renderer::Draw()");
+        ArTrackableList_destroy(planeList);
+        planeList = nullptr;
     }
 
-    void PlaneRenderer::UpdateForPlane(const ArSession *ar_session,
-                                       const ArPlane *ar_plane) {
-        // The following code generates a triangle mesh filling a convex polygon,
-        // including a feathered edge for blending.
-        //
-        // The indices shown in the diagram are used in comments below.
-        // _______________     0_______________1
-        // |             |      |4___________5|
-        // |             |      | |         | |
-        // |             | =>   | |         | |
-        // |             |      | |         | |
-        // |             |      |7-----------6|
-        // ---------------     3---------------2
+    /*********** HELPERS ********************/
 
-        vertices_.clear();
+    void PlaneRenderer::SetPlaneColor(ArPlane* arPlane, ArTrackable* trackable, SkColor& outColor) {
+        //Pick a color
+        const auto iter = plane_color_map_.find(arPlane);
+        if (iter != plane_color_map_.end()) {
+            outColor = iter->second;
+
+            // If this is an already observed trackable release it
+            ArTrackable_release(trackable);
+        } else {
+            // The first plane is always white.
+            if (!firstPlaneFound) {
+                firstPlaneFound = true;
+                outColor = SkColorSetARGB(170, 255, 255, 255);
+            } else {
+                outColor = GetRandomPlaneColor();
+            }
+            plane_color_map_.insert({arPlane, outColor});
+        }
+    }
+
+    void PlaneRenderer::UpdateForPlane(const ArSession* arSession, ArPlane* arPlane, ArTrackable* trackable) {
+        positions_.clear();
+        colors_.clear();
         triangles_.clear();
 
+        //Grab polygon info
         int32_t polygon_length;
-        ArPlane_getPolygonSize(ar_session, ar_plane, &polygon_length);
-
+        ArPlane_getPolygonSize(arSession, arPlane, &polygon_length);
         if (polygon_length == 0) {
             LOGE("PlaneRenderer::UpdatePlane, no valid plane polygon is found");
             return;
         }
-
         const int32_t vertices_size = polygon_length / 2;
         std::vector<glm::vec2> raw_vertices(vertices_size);
-        ArPlane_getPolygon(ar_session, ar_plane,
-                           glm::value_ptr(raw_vertices.front()));
+        ArPlane_getPolygon(arSession, arPlane, glm::value_ptr(raw_vertices.front()));
 
-        // Fill vertex 0 to 3. Note that the vertex.xy are used for x and z
-        // position. vertex.z is used for alpha. The outter polygon's alpha
-        // is 0.
+
+        //Populate vertices
         for (int32_t i = 0; i < vertices_size; ++i) {
-            vertices_.push_back(glm::vec3(raw_vertices[i].x, raw_vertices[i].y, 0.0f));
+            positions_.push_back(SkPoint::Make(raw_vertices[i].x, raw_vertices[i].y));
         }
 
-        util::ScopedArPose scopedArPose(ar_session);
-        ArPlane_getCenterPose(ar_session, ar_plane, scopedArPose.GetArPose());
-        ArPose_getMatrix(ar_session, scopedArPose.GetArPose(),
-                         glm::value_ptr(model_mat_));
-        normal_vec_ = util::GetPlaneNormal(ar_session, *scopedArPose.GetArPose());
-
-        // Feather distance 0.2 meters.
-        const float kFeatherLength = 0.2f;
-        // Feather scale over the distance between plane center and vertices.
-        const float kFeatherScale = 0.2f;
-
-        // Fill vertex 4 to 7, with alpha set to 1.
+        //Populate colors
+        SkColor color;
+        SetPlaneColor(arPlane, trackable, color);
         for (int32_t i = 0; i < vertices_size; ++i) {
-            // Vector from plane center to current point.
-            glm::vec2 v = raw_vertices[i];
-            const float scale =
-                    1.0f - std::min((kFeatherLength / glm::length(v)), kFeatherScale);
-            const glm::vec2 result_v = scale * v;
-
-            vertices_.push_back(glm::vec3(result_v.x, result_v.y, 1.0f));
+            colors_.push_back(color);
         }
 
-        const int32_t vertices_length = vertices_.size();
-        const int32_t half_vertices_length = vertices_length / 2;
-
-        // Generate triangle (4, 5, 6) and (4, 6, 7).
-        for (int i = half_vertices_length + 1; i < vertices_length - 1; ++i) {
-            triangles_.push_back(half_vertices_length);
+        //Populate triangles
+        const int32_t vertices_length = positions_.size();
+        for (int i = 0; i < vertices_length - 1; ++i) {
+            triangles_.push_back(0);
             triangles_.push_back(i);
             triangles_.push_back(i + 1);
         }
+    }
 
-        // Generate triangle (0, 1, 4), (4, 1, 5), (5, 1, 2), (5, 2, 6),
-        // (6, 2, 3), (6, 3, 7), (7, 3, 0), (7, 0, 4)
-        for (int i = 0; i < half_vertices_length; ++i) {
-            triangles_.push_back(i);
-            triangles_.push_back((i + 1) % half_vertices_length);
-            triangles_.push_back(i + half_vertices_length);
+    void PlaneRenderer::DrawSinglePlane(ArSession* arSession, ArPlane* arPlane, SkCanvas* canvas, SkPaint& paint) {
+        UpdateForPlane(arSession, arPlane, ArAsTrackable(arPlane));
 
-            triangles_.push_back(i + half_vertices_length);
-            triangles_.push_back((i + 1) % half_vertices_length);
-            triangles_.push_back((i + half_vertices_length + 1) % half_vertices_length +
-                                 half_vertices_length);
-        }
+        //Populate mesh vertices
+        SkPoint pos[positions_.size()];
+        std::copy(positions_.begin(), positions_.end(), pos);
+
+
+        //Populate colors
+        SkColor col[positions_.size()];
+        std::copy(colors_.begin(), colors_.end(), col);
+
+
+        //Populate triangle indices
+        uint16_t indices[triangles_.size()];
+        std::copy(triangles_.begin(), triangles_.end(), indices);
+
+
+        paint.setShader(shader_);
+        paint.setAlpha(kPlaneAlpha);
+        sk_sp<SkVertices> vertices = SkVertices::MakeCopy(
+                SkVertices::VertexMode::kTriangleFan_VertexMode,
+                positions_.size(), pos, pos, col,
+                triangles_.size(), indices);
+        canvas->drawVertices(vertices.get(), SkBlendMode::kDstATop, paint);
+    }
+
+    bool PlaneRenderer::CullPlane(ArSession* arSession, ArFrame* arFrame, ArPlane* arPlane) {
+        glm::mat4 cameraRot(1);
+        glm::vec3 camPos(1);
+        util::GetCameraInfo(arSession, arFrame, camPos, cameraRot);
+        glm::vec4 camZ(0, 0, 1, 1);
+        camZ = camZ * cameraRot;
+
+        glm::vec3 planePos(1);
+        util::GetPlanePosition(planePos, arSession, arPlane);
+
+        glm::vec3 directionToPlane = glm::normalize(planePos - camPos);
+        glm::vec3 proj = util::ProjectOntoVector(directionToPlane, glm::vec3(camZ));
+
+        float dot = util::Dot(glm::normalize(proj), glm::normalize(glm::vec3(camZ)));
+        LOGI("Cull plane dot: %.6f", dot);
+        return (dot < 0);
     }
 
 }  // namespace hello_ar

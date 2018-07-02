@@ -35,8 +35,6 @@ namespace hello_ar {
         // Default deconstructor of PointCloudRenderer.
         ~PointCloudRenderer() = default;
 
-        // Initialize the GL content, needs to be called on GL thread.
-        void InitializeGlContent();
 
         // Render the AR point cloud.
         //
@@ -44,13 +42,7 @@ namespace hello_ar {
         // @param ar_session, the session that is used to query point cloud points
         //     from ar_point_cloud.
         // @param ar_point_cloud, point cloud data to for rendering.
-        void Draw(glm::mat4 mvp_matrix, ArSession *ar_session,
-                  ArPointCloud *ar_point_cloud) const;
-
-    private:
-        GLuint shader_program_;
-        GLint attribute_vertices_;
-        GLint uniform_mvp_mat_;
+        void Draw(ArSession* arSession, ArFrame* arFrame, SkSurface* surface, SkMatrix44& vpv) const;
     };
 }  // namespace hello_ar
 
