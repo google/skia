@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "82198cf6_e31ec612",
+        "filename": "src/gpu/GrReducedClip.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T13:53:31Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 86,
+        "startChar": 66,
+        "endLine": 86,
+        "endChar": 72
+      },
+      "revId": "cb7eb97cc4dd889c430d983515d71efa7f393a0a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
