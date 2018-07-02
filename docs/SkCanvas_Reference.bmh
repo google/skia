@@ -5752,7 +5752,105 @@ void draw(SkCanvas* canvas) {
             SkShader::kClamp_TileMode));
     auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
             SK_ARRAY_COUNT(points), points, texs, colors);
-    canvas->drawVertices(vertices.get(), SkBlendMode::kDarken, paint);
+    canvas->drawVertices(vertices, SkBlendMode::kDarken, paint);
+}
+##
+
+#SeeAlso drawPatch drawPicture
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+                          SkBlendMode mode, const SkPaint& paint)
+
+Draw Vertices vertices, a triangle mesh, using Clip and Matrix. Bone data is used to
+deform vertices with bone weights.
+If Vertices_Texs and Vertices_Colors are defined in vertices, and Paint paint
+contains Shader, Blend_Mode mode combines Vertices_Colors with Shader.
+The first element of bones should be an object to world space transformation matrix that
+will be applied before performing mesh deformations. If no such transformation is needed,
+it should be the identity matrix.
+
+#Param  vertices  triangle mesh to draw ##
+#Param  bones     bone matrix data ##
+#Param  boneCount number of bone matrices ##
+#Param  mode      combines Vertices_Colors with Shader, if both are present ##
+#Param  paint     specifies the Shader, used as Vertices texture, may be nullptr ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };
+    SkPoint texs[] = { { 0, 0 }, { 0, 250 }, { 250, 250 }, { 250, 0 } };
+    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };
+    SkVertices::BoneIndices boneIndices[] = { { 0, 0, 0, 0 },
+                                              { 1, 0, 0, 0 },
+                                              { 2, 0, 0, 0 },
+                                              { 3, 0, 0, 0 } };
+    SkVertices::BoneWeights boneWeights[] = { { 0.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f } };
+    SkMatrix bones[] = { SkMatrix::I(),
+                         SkMatrix::MakeTrans(0, 20),
+                         SkMatrix::MakeTrans(50, 50),
+                         SkMatrix::MakeTrans(20, 0) };
+    paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 4,
+            SkShader::kClamp_TileMode));
+    auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
+            SK_ARRAY_COUNT(points), points, texs, colors, boneIndices, boneWeights);
+    canvas->drawVertices(vertices.get(), bones, SK_ARRAY_COUNT(bones), SkBlendMode::kDarken, paint);
+}
+##
+
+#SeeAlso drawPatch drawPicture
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method void drawVertices(const sk_sp<SkVertices>& vertices, const SkMatrix* bones, int boneCount,
+                          SkBlendMode mode, const SkPaint& paint)
+
+Draw Vertices vertices, a triangle mesh, using Clip and Matrix. Bone data is used to
+deform vertices with bone weights.
+If Vertices_Texs and Vertices_Colors are defined in vertices, and Paint paint
+contains Shader, Blend_Mode mode combines Vertices_Colors with Shader.
+The first element of bones should be an object to world space transformation matrix that
+will be applied before performing mesh deformations. If no such transformation is needed,
+it should be the identity matrix.
+
+#Param  vertices  triangle mesh to draw ##
+#Param  bones     bone matrix data ##
+#Param  boneCount number of bone matrices ##
+#Param  mode      combines Vertices_Colors with Shader, if both are present ##
+#Param  paint     specifies the Shader, used as Vertices texture, may be nullptr ##
+
+#Example
+void draw(SkCanvas* canvas) {
+    SkPaint paint;
+    SkPoint points[] = { { 0, 0 }, { 250, 0 }, { 100, 100 }, { 0, 250 } };
+    SkPoint texs[] = { { 0, 0 }, { 0, 250 }, { 250, 250 }, { 250, 0 } };
+    SkColor colors[] = { SK_ColorRED, SK_ColorBLUE, SK_ColorYELLOW, SK_ColorCYAN };
+    SkVertices::BoneIndices boneIndices[] = { { 0, 0, 0, 0 },
+                                              { 1, 0, 0, 0 },
+                                              { 2, 0, 0, 0 },
+                                              { 3, 0, 0, 0 } };
+    SkVertices::BoneWeights boneWeights[] = { { 0.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f },
+                                              { 1.0f, 0.0f, 0.0f, 0.0f } };
+    SkMatrix bones[] = { SkMatrix::I(),
+                         SkMatrix::MakeTrans(0, 20),
+                         SkMatrix::MakeTrans(50, 50),
+                         SkMatrix::MakeTrans(20, 0) };
+    paint.setShader(SkGradientShader::MakeLinear(points, colors, nullptr, 4,
+            SkShader::kClamp_TileMode));
+    auto vertices = SkVertices::MakeCopy(SkVertices::kTriangleFan_VertexMode,
+            SK_ARRAY_COUNT(points), points, texs, colors, boneIndices, boneWeights);
+    canvas->drawVertices(vertices, bones, SK_ARRAY_COUNT(bones), SkBlendMode::kDarken, paint);
 }
 ##
 
