@@ -328,9 +328,14 @@ private:
 
     void flushColorWrite(bool writeColor);
 
-    void flushScissorTest(GrScissorTest);
-    void flushScissorRect(const SkIRect& scissorRect, const GrGLIRect& viewport, GrSurfaceOrigin);
-    void flushScissorState(const GrScissorState&, const GrGLIRect& viewport, GrSurfaceOrigin);
+    // flushes the scissor. see the note on flushBoundTextureAndParams about
+    // flushing the scissor after that function is called.
+    void flushScissor(const GrScissorState&,
+                      const GrGLIRect& rtViewport,
+                      GrSurfaceOrigin rtOrigin);
+
+    // disables the scissor
+    void disableScissor();
 
     void flushWindowRectangles(const GrWindowRectsState&, const GrGLRenderTarget*, GrSurfaceOrigin);
     void disableWindowRectangles();
