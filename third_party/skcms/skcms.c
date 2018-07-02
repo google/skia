@@ -13,6 +13,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+// sizeof(x) will return size_t, which is 32-bit on some machines and 64-bit on others.
+// We have better testing on 64-bit machines, so force 32-bit machines to behave like 64-bit.
+//
+// Please do not use sizeof() directly, and size_t only when required.
+// (We have no way of enforcing these requests...)
+#define SAFE_SIZEOF(x) ((uint64_t)sizeof(x))
+
+static const union {
+    uint32_t bits;
+    float    f;
+} inf_ = { 0x7f800000 };
+#define INFINITY_ inf_.f
+
+static float fmaxf_(float x, float y) { return x > y ? x : y; }
+static float fminf_(float x, float y) { return x < y ? x : y; }
+
+static bool isfinitef_(float x) { return 0 == x*0; }
+
 static float minus_1_ulp(float x) {
     int32_t bits;
     memcpy(&bits, &x, sizeof(bits));
@@ -21,7 +39,7 @@ static float minus_1_ulp(float x) {
     return x;
 }
 
-float skcms_eval_curve(const skcms_Curve* curve, float x) {
+static float eval_curve(const skcms_Curve* curve, float x) {
     if (curve->table_entries == 0) {
         return skcms_TransferFunction_eval(&curve->parametric, x);
     }
@@ -47,20 +65,20 @@ float skcms_eval_curve(const skcms_Curve* curve, float x) {
     return l + (h-l)*t;
 }
 
-float skcms_MaxRoundtripError(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
+static float max_roundtrip_error(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
     uint32_t N = curve->table_entries > 256 ? curve->table_entries : 256;
     const float dx = 1.0f / (N - 1);
     float err = 0;
     for (uint32_t i = 0; i < N; i++) {
         float x = i * dx,
-              y = skcms_eval_curve(curve, x);
+              y = eval_curve(curve, x);
         err = fmaxf_(err, fabsf_(x - skcms_TransferFunction_eval(inv_tf, y)));
     }
     return err;
 }
 
 bool skcms_AreApproximateInverses(const skcms_Curve* curve, const skcms_TransferFunction* inv_tf) {
-    return skcms_MaxRoundtripError(curve, inv_tf) < (1/512.0f);
+    return max_roundtrip_error(curve, inv_tf) < (1/512.0f);
 }
 
 // Additional ICC signature values that are only used internally
@@ -215,6 +233,20 @@ static bool read_to_XYZD50(const skcms_ICCTag* rXYZ, const skcms_ICCTag* gXYZ,
            read_tag_xyz(bXYZ, &toXYZ->vals[0][2], &toXYZ->vals[1][2], &toXYZ->vals[2][2]);
 }
 
+static bool tf_is_valid(const skcms_TransferFunction* tf) {
+    // Reject obviously malformed inputs
+    if (!isfinitef_(tf->a + tf->b + tf->c + tf->d + tf->e + tf->f + tf->g)) {
+        return false;
+    }
+
+    // All of these parameters should be non-negative
+    if (tf->a < 0 || tf->c < 0 || tf->d < 0 || tf->g < 0) {
+        return false;
+    }
+
+    return true;
+}
+
 typedef struct {
     uint8_t type          [4];
     uint8_t reserved_a    [4];
@@ -289,7 +321,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = read_big_fixed(paraTag->parameters + 24);
             break;
     }
-    return skcms_TransferFunction_isValid(&curve->parametric);
+    return tf_is_valid(&curve->parametric);
 }
 
 typedef struct {
@@ -679,6 +711,50 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
     return true;
 }
 
+static int fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
+    assert(N > 1);
+    // We iteratively fit the first points to the TF's linear piece.
+    // We want the cx + f line to pass through the first and last points we fit exactly.
+    //
+    // As we walk along the points we find the minimum and maximum slope of the line before the
+    // error would exceed our tolerance.  We stop when the range [slope_min, slope_max] becomes
+    // emtpy, when we definitely can't add any more points.
+    //
+    // Some points' error intervals may intersect the running interval but not lie fully
+    // within it.  So we keep track of the last point we saw that is a valid end point candidate,
+    // and once the search is done, back up to build the line through *that* point.
+    const float dx = 1.0f / (N - 1);
+
+    int lin_points = 1;
+    *f = eval_curve(curve, 0);
+
+    float slope_min = -INFINITY_;
+    float slope_max = +INFINITY_;
+    for (int i = 1; i < N; ++i) {
+        float x = i * dx;
+        float y = eval_curve(curve, x);
+
+        float slope_max_i = (y + tol - *f) / x,
+              slope_min_i = (y - tol - *f) / x;
+        if (slope_max_i < slope_min || slope_max < slope_min_i) {
+            // Slope intervals would no longer overlap.
+            break;
+        }
+        slope_max = fminf_(slope_max, slope_max_i);
+        slope_min = fmaxf_(slope_min, slope_min_i);
+
+        float cur_slope = (y - *f) / x;
+        if (slope_min <= cur_slope && cur_slope <= slope_max) {
+            lin_points = i + 1;
+            *c = cur_slope;
+        }
+    }
+
+    // Set D to the last point that met our tolerance.
+    *d = (lin_points - 1) * dx;
+    return lin_points;
+}
+
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
     bool ok = false;
     if (tag->type == skcms_Signature_mft1) {
@@ -713,7 +789,7 @@ static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
             int N = (int)curve->table_entries;
 
             float c,d,f;
-            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
+            if (N == fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
                 && c == 1.0f
                 && f == 0.0f) {
                 curve->table_entries = 0;
@@ -1035,6 +1111,18 @@ static bool is_zero_to_one(float x) {
     return 0 <= x && x <= 1;
 }
 
+typedef struct { float vals[3]; } skcms_Vector3;
+
+static skcms_Vector3 mv_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
+    skcms_Vector3 dst = {{0,0,0}};
+    for (int row = 0; row < 3; ++row) {
+        dst.vals[row] = m->vals[row][0] * v->vals[0]
+                      + m->vals[row][1] * v->vals[1]
+                      + m->vals[row][2] * v->vals[2];
+    }
+    return dst;
+}
+
 bool skcms_PrimariesToXYZD50(float rx, float ry,
                              float gx, float gy,
                              float bx, float by,
@@ -1061,7 +1149,7 @@ bool skcms_PrimariesToXYZD50(float rx, float ry,
 
     // Assumes that Y is 1.0f.
     skcms_Vector3 wXYZ = { { wx / wy, 1, (1 - wx - wy) / wy } };
-    skcms_Vector3 XYZ = skcms_MV_mul(&primaries_inv, &wXYZ);
+    skcms_Vector3 XYZ = mv_mul(&primaries_inv, &wXYZ);
 
     skcms_Matrix3x3 toXYZ = {{
         { XYZ.vals[0],           0,           0 },
@@ -1087,8 +1175,8 @@ bool skcms_PrimariesToXYZD50(float rx, float ry,
         { -0.0085287f,  0.0400428f, 0.9684867f },
     }};
 
-    skcms_Vector3 srcCone = skcms_MV_mul(&xyz_to_lms, &wXYZ);
-    skcms_Vector3 dstCone = skcms_MV_mul(&xyz_to_lms, &wXYZD50);
+    skcms_Vector3 srcCone = mv_mul(&xyz_to_lms, &wXYZ);
+    skcms_Vector3 dstCone = mv_mul(&xyz_to_lms, &wXYZD50);
 
     skcms_Matrix3x3 DXtoD50 = {{
         { dstCone.vals[0] / srcCone.vals[0], 0, 0 },
@@ -1171,23 +1259,13 @@ skcms_Matrix3x3 skcms_Matrix3x3_concat(const skcms_Matrix3x3* A, const skcms_Mat
     return m;
 }
 
-skcms_Vector3 skcms_MV_mul(const skcms_Matrix3x3* m, const skcms_Vector3* v) {
-    skcms_Vector3 dst = {{0,0,0}};
-    for (int row = 0; row < 3; ++row) {
-        dst.vals[row] = m->vals[row][0] * v->vals[0]
-                      + m->vals[row][1] * v->vals[1]
-                      + m->vals[row][2] * v->vals[2];
-    }
-    return dst;
-}
-
 #if defined(__clang__) || defined(__GNUC__)
     #define small_memcpy __builtin_memcpy
 #else
     #define small_memcpy memcpy
 #endif
 
-float log2f_(float x) {
+static float log2f_(float x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     int32_t bits;
     small_memcpy(&bits, &x, sizeof(bits));
@@ -1204,7 +1282,7 @@ float log2f_(float x) {
               -   1.725879990f/(0.3520887068f + m));
 }
 
-float exp2f_(float x) {
+static float exp2f_(float x) {
     float fract = x - floorf_(x);
 
     float fbits = (1.0f * (1<<23)) * (x + 121.274057500f
@@ -1233,20 +1311,6 @@ float skcms_TransferFunction_eval(const skcms_TransferFunction* tf, float x) {
                              : powf_(tf->a * x + tf->b, tf->g) + tf->e);
 }
 
-bool skcms_TransferFunction_isValid(const skcms_TransferFunction* tf) {
-    // Reject obviously malformed inputs
-    if (!isfinitef_(tf->a + tf->b + tf->c + tf->d + tf->e + tf->f + tf->g)) {
-        return false;
-    }
-
-    // All of these parameters should be non-negative
-    if (tf->a < 0 || tf->c < 0 || tf->d < 0 || tf->g < 0) {
-        return false;
-    }
-
-    return true;
-}
-
 // TODO: Adjust logic here? This still assumes that purely linear inputs will have D > 1, which
 // we never generate. It also emits inverted linear using the same formulation. Standardize on
 // G == 1 here, too?
@@ -1269,7 +1333,7 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
     skcms_TransferFunction tf_inv = { 0, 0, 0, 0, 0, 0, 0 };
 
     // This rejects obviously malformed inputs, as well as decreasing functions
-    if (!skcms_TransferFunction_isValid(src)) {
+    if (!tf_is_valid(src)) {
         return false;
     }
 
@@ -1341,10 +1405,10 @@ bool skcms_TransferFunction_invert(const skcms_TransferFunction* src, skcms_Tran
 //
 // Our overall strategy is then:
 //    For a couple tolerances,
-//       - skcms_fit_linear(): fit c,d,f iteratively to as many points as our tolerance allows
+//       - fit_linear():    fit c,d,f iteratively to as many points as our tolerance allows
 //       - invert c,d,f
-//       - fit_nonlinear():    fit g,a,b using Gauss-Newton given those inverted c,d,f
-//                             (and by constraint, inverted e) to the inverse of the table.
+//       - fit_nonlinear(): fit g,a,b using Gauss-Newton given those inverted c,d,f
+//                          (and by constraint, inverted e) to the inverse of the table.
 //    Return the parameters with least maximum error.
 //
 // To run Gauss-Newton to find g,a,b, we'll also need the gradient of the residuals
@@ -1367,7 +1431,7 @@ static float rg_nonlinear(float x,
                           const skcms_TransferFunction* tf,
                           const float P[3],
                           float dfdP[3]) {
-    const float y = skcms_eval_curve(curve, x);
+    const float y = eval_curve(curve, x);
 
     const float g = P[0],  a = P[1],  b = P[2],
                 c = tf->c, d = tf->d, f = tf->f;
@@ -1389,50 +1453,6 @@ static float rg_nonlinear(float x,
                       - powf_(D, g)
                       + c*d + f;
     return x - f_inv;
-}
-
-int skcms_fit_linear(const skcms_Curve* curve, int N, float tol, float* c, float* d, float* f) {
-    assert(N > 1);
-    // We iteratively fit the first points to the TF's linear piece.
-    // We want the cx + f line to pass through the first and last points we fit exactly.
-    //
-    // As we walk along the points we find the minimum and maximum slope of the line before the
-    // error would exceed our tolerance.  We stop when the range [slope_min, slope_max] becomes
-    // emtpy, when we definitely can't add any more points.
-    //
-    // Some points' error intervals may intersect the running interval but not lie fully
-    // within it.  So we keep track of the last point we saw that is a valid end point candidate,
-    // and once the search is done, back up to build the line through *that* point.
-    const float dx = 1.0f / (N - 1);
-
-    int lin_points = 1;
-    *f = skcms_eval_curve(curve, 0);
-
-    float slope_min = -INFINITY_;
-    float slope_max = +INFINITY_;
-    for (int i = 1; i < N; ++i) {
-        float x = i * dx;
-        float y = skcms_eval_curve(curve, x);
-
-        float slope_max_i = (y + tol - *f) / x,
-              slope_min_i = (y - tol - *f) / x;
-        if (slope_max_i < slope_min || slope_max < slope_min_i) {
-            // Slope intervals would no longer overlap.
-            break;
-        }
-        slope_max = fminf_(slope_max, slope_max_i);
-        slope_min = fmaxf_(slope_min, slope_min_i);
-
-        float cur_slope = (y - *f) / x;
-        if (slope_min <= cur_slope && cur_slope <= slope_max) {
-            lin_points = i + 1;
-            *c = cur_slope;
-        }
-    }
-
-    // Set D to the last point that met our tolerance.
-    *d = (lin_points - 1) * dx;
-    return lin_points;
 }
 
 static bool gauss_newton_step(const skcms_Curve* curve,
@@ -1508,7 +1528,7 @@ static bool gauss_newton_step(const skcms_Curve* curve,
     }
 
     // 4) multiply inverse lhs by rhs
-    skcms_Vector3 dP = skcms_MV_mul(&lhs_inv, &rhs);
+    skcms_Vector3 dP = mv_mul(&lhs_inv, &rhs);
     P[0] += dP.vals[0];
     P[1] += dP.vals[1];
     P[2] += dP.vals[2];
@@ -1584,7 +1604,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     for (int t = 0; t < ARRAY_COUNT(kTolerances); t++) {
         skcms_TransferFunction tf,
                                tf_inv;
-        int L = skcms_fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d, &tf.f);
+        int L = fit_linear(curve, N, kTolerances[t], &tf.c, &tf.d, &tf.f);
 
         if (L == N) {
             // If the entire data set was linear, move the coefficients to the nonlinear portion
@@ -1596,17 +1616,17 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
         } else if (L == N - 1) {
             // Degenerate case with only two points in the nonlinear segment. Solve directly.
             tf.g = 1;
-            tf.a = (skcms_eval_curve(curve, (N-1)*dx) -
-                    skcms_eval_curve(curve, (N-2)*dx))
+            tf.a = (eval_curve(curve, (N-1)*dx) -
+                    eval_curve(curve, (N-2)*dx))
                  / dx;
-            tf.b = skcms_eval_curve(curve, (N-2)*dx)
+            tf.b = eval_curve(curve, (N-2)*dx)
                  - tf.a * (N-2)*dx;
             tf.e = 0;
         } else {
             // Start by guessing a gamma-only curve through the midpoint.
             int mid = (L + N) / 2;
             float mid_x = mid / (N - 1.0f);
-            float mid_y = skcms_eval_curve(curve, mid_x);
+            float mid_y = eval_curve(curve, mid_x);
             tf.g = log2f_(mid_y) / log2f_(mid_x);;
             tf.a = 1;
             tf.b = 0;
@@ -1636,7 +1656,7 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
             continue;
         }
 
-        float err = skcms_MaxRoundtripError(curve, &tf_inv);
+        float err = max_roundtrip_error(curve, &tf_inv);
         if (*max_error > err) {
             *max_error = err;
             *approx    = tf;
@@ -1645,6 +1665,70 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     return isfinitef_(*max_error);
 }
 
+// ~~~~ Impl. of skcms_Transform() ~~~~
+
+typedef enum {
+    Op_noop,
+
+    Op_load_a8,
+    Op_load_g8,
+    Op_load_4444,
+    Op_load_565,
+    Op_load_888,
+    Op_load_8888,
+    Op_load_1010102,
+    Op_load_161616,
+    Op_load_16161616,
+    Op_load_hhh,
+    Op_load_hhhh,
+    Op_load_fff,
+    Op_load_ffff,
+
+    Op_swap_rb,
+    Op_clamp,
+    Op_invert,
+    Op_force_opaque,
+    Op_premul,
+    Op_unpremul,
+    Op_matrix_3x3,
+    Op_matrix_3x4,
+    Op_lab_to_xyz,
+
+    Op_tf_r,
+    Op_tf_g,
+    Op_tf_b,
+    Op_tf_a,
+
+    Op_table_8_r,
+    Op_table_8_g,
+    Op_table_8_b,
+    Op_table_8_a,
+
+    Op_table_16_r,
+    Op_table_16_g,
+    Op_table_16_b,
+    Op_table_16_a,
+
+    Op_clut_3D_8,
+    Op_clut_3D_16,
+    Op_clut_4D_8,
+    Op_clut_4D_16,
+
+    Op_store_a8,
+    Op_store_g8,
+    Op_store_4444,
+    Op_store_565,
+    Op_store_888,
+    Op_store_8888,
+    Op_store_1010102,
+    Op_store_161616,
+    Op_store_16161616,
+    Op_store_hhh,
+    Op_store_hhhh,
+    Op_store_fff,
+    Op_store_ffff,
+} Op;
+
 // Without this wasm would try to use the N=4 128-bit vector code path,
 // which while ideal, causes tons of compiler problems.  This would be
 // a good thing to revisit as emcc matures (currently 1.38.5).
@@ -1652,63 +1736,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
     #if !defined(SKCMS_PORTABLE)
         #define  SKCMS_PORTABLE
     #endif
-#endif
-
-extern bool g_skcms_dump_profile;
-bool g_skcms_dump_profile = false;
-
-#if !defined(NDEBUG) && defined(__clang__)
-    // Basic profiling tools to time each Op.  Not at all thread safe.
-
-    #include <stdio.h>
-    #include <stdlib.h>
-
-    #if defined(__arm__) || defined(__aarch64__)
-        #include <time.h>
-        static const char* now_units = "ticks";
-        static uint64_t now() { return (uint64_t)clock(); }
-    #else
-        static const char* now_units = "cycles";
-        static uint64_t now() { return __builtin_readcyclecounter(); }
-    #endif
-
-    #define M(op) +1
-    static uint64_t counts[FOREACH_Op(M)];
-    #undef M
-
-    static void profile_dump_stats() {
-    #define M(op) #op,
-        static const char* names[] = { FOREACH_Op(M) };
-    #undef M
-        for (int i = 0; i < ARRAY_COUNT(counts); i++) {
-            if (counts[i]) {
-                fprintf(stderr, "%16s: %12llu %s\n",
-                        names[i], (unsigned long long)counts[i], now_units);
-            }
-        }
-    }
-
-    static inline Op profile_next_op(Op op) {
-        if (__builtin_expect(g_skcms_dump_profile, false)) {
-            static uint64_t start    = 0;
-            static uint64_t* current = NULL;
-
-            if (!current) {
-                atexit(profile_dump_stats);
-            } else {
-                *current += now() - start;
-            }
-
-            current = &counts[op];
-            start   = now();
-        }
-        return op;
-    }
-#else
-    static inline Op profile_next_op(Op op) {
-        (void)g_skcms_dump_profile;
-        return op;
-    }
 #endif
 
 #if defined(__clang__)
@@ -2309,7 +2336,7 @@ bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
 
         float err = 0;
         for (int j = 0; j < 3; ++j) {
-            err = fmaxf_(err, skcms_MaxRoundtripError(&profile->trc[j], &inv));
+            err = fmaxf_(err, max_roundtrip_error(&profile->trc[j], &inv));
         }
         if (min_max_error > err) {
             min_max_error = err;
