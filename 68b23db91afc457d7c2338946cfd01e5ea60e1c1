@@ -275,6 +275,108 @@
     },
     {
       "key": {
+        "uuid": "58bec337_ddf0bfae",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "check this-\u003eisIndexed() and if indexBuffer exists ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1bfe19c9_1ab6eeb6",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "if (indexBuffer) ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77fdd401_f7c4a11a",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "extra \u0027 \u0027 ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e620c36a_1b7edf2a",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "I don\u0027t think these are interleaved - is there a faster way to do this ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cc99d7a_9fba1ecc",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "??\n\nNot: \"if (this-\u003ehasBones() !\u003d that-\u003ehasBones())\" ?\n\nIf this is right: // We never allow meshes w/ bones to batch ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2417029f_b24b9faf",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T20:26:04Z",
+      "side": 1,
+      "message": "// non-volatile meshes are never allowed to batch\n\n?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f1df28e6_be4c4d04",
         "filename": "src/gpu/ops/GrDrawVerticesOp.h",
         "patchSetId": 8
