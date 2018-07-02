@@ -49,30 +49,6 @@
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
 #define VK_CALL_ERRCHECK(X) GR_VK_CALL_ERRCHECK(this->vkInterface(), X)
 
-#ifdef SK_ENABLE_VK_LAYERS
-VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
-    VkDebugReportFlagsEXT       flags,
-    VkDebugReportObjectTypeEXT  objectType,
-    uint64_t                    object,
-    size_t                      location,
-    int32_t                     messageCode,
-    const char*                 pLayerPrefix,
-    const char*                 pMessage,
-    void*                       pUserData) {
-    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) {
-        SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
-        return VK_TRUE; // skip further layers
-    } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
-    } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
-        SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
-    } else {
-        SkDebugf("Vulkan info/debug [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
-    }
-    return VK_FALSE;
-}
-#endif
-
 sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
                            const GrContextOptions& options, GrContext* context) {
     if (backendContext.fInstance == VK_NULL_HANDLE ||
@@ -102,27 +78,6 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fResourceProvider(this)
         , fDisconnected(false) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);
-#ifdef SK_ENABLE_VK_LAYERS
-    fCallback = VK_NULL_HANDLE;
-    if (backendContext.fExtensions & kEXT_debug_report_GrVkExtensionFlag) {
-        // Setup callback creation information
-        VkDebugReportCallbackCreateInfoEXT callbackCreateInfo;
-        callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
-        callbackCreateInfo.pNext = nullptr;
-        callbackCreateInfo.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT |
-                                   VK_DEBUG_REPORT_WARNING_BIT_EXT |
-                                   //VK_DEBUG_REPORT_INFORMATION_BIT_EXT |
-                                   //VK_DEBUG_REPORT_DEBUG_BIT_EXT |
-                                   VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
-        callbackCreateInfo.pfnCallback = &DebugReportCallback;
-        callbackCreateInfo.pUserData = nullptr;
-
-        // Register the callback
-        GR_VK_CALL_ERRCHECK(this->vkInterface(),
-                            CreateDebugReportCallbackEXT(backendContext.fInstance,
-                                                         &callbackCreateInfo, nullptr, &fCallback));
-    }
-#endif
 
     if (!fMemoryAllocator) {
         // We were not given a memory allocator at creation
@@ -204,12 +159,6 @@ void GrVkGpu::destroyResources() {
         VK_CALL(DestroyCommandPool(fDevice, fCmdPool, nullptr));
     }
 
-#ifdef SK_ENABLE_VK_LAYERS
-    if (fCallback) {
-        VK_CALL(DestroyDebugReportCallbackEXT(fInstance, fCallback, nullptr));
-    }
-#endif
-
     fMemoryAllocator.reset();
 
     fQueue = VK_NULL_HANDLE;
@@ -245,9 +194,6 @@ void GrVkGpu::disconnect(DisconnectType type) {
         }
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();
-#ifdef SK_ENABLE_VK_LAYERS
-        fCallback = VK_NULL_HANDLE;
-#endif
         fCurrentCmdBuffer = nullptr;
         fCmdPool = VK_NULL_HANDLE;
         fDisconnected = true;
