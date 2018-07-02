@@ -55,14 +55,16 @@ public:
                                       const BoneIndices boneIndices[],
                                       const BoneWeights boneWeights[],
                                       int indexCount,
-                                      const uint16_t indices[]);
+                                      const uint16_t indices[],
+                                      bool isVolatile = true);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       const BoneIndices boneIndices[],
-                                      const BoneWeights boneWeights[]) {
+                                      const BoneWeights boneWeights[],
+                                      bool isVolatile = true) {
         return MakeCopy(mode,
                         vertexCount,
                         positions,
@@ -71,7 +73,8 @@ public:
                         boneIndices,
                         boneWeights,
                         0,
-                        nullptr);
+                        nullptr,
+                        isVolatile);
     }
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
@@ -79,7 +82,8 @@ public:
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
-                                      const uint16_t indices[]) {
+                                      const uint16_t indices[],
+                                      bool isVolatile = true) {
         return MakeCopy(mode,
                         vertexCount,
                         positions,
@@ -88,14 +92,16 @@ public:
                         nullptr,
                         nullptr,
                         indexCount,
-                        indices);
+                        indices,
+                        isVolatile);
     }
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
-                                      const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, nullptr);
+                                      const SkColor colors[],
+                                      bool isVolatile = true) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, nullptr, isVolatile);
     }
 
     struct Sizes;
@@ -120,6 +126,9 @@ public:
         BoneIndices* boneIndices(); // returns null if there are no bone indices
         BoneWeights* boneWeights(); // returns null if there are no bone weights
         uint16_t* indices();        // returns null if there are no indices
+
+        bool isVolatile() const;
+        void setIsVolatile(bool isVolatile);
 
         // Detach the built vertices object. After the first call, this will always return null.
         sk_sp<SkVertices> detach();
@@ -157,6 +166,8 @@ public:
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
+
+    bool isVolatile() const { return fIsVolatile; }
 
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
@@ -198,6 +209,8 @@ private:
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCnt;
     int     fIndexCnt;
+
+    bool fIsVolatile;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.

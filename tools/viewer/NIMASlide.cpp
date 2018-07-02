@@ -62,7 +62,7 @@ public:
         this->updateBones();
 
         // Update the vertices object.
-        this->updateVerticesObject(false);
+        this->updateVerticesObject(false, false);
     }
 
     void renderBackend(SkCanvas* canvas) {
@@ -70,16 +70,13 @@ public:
         if (fRenderMode != kBackend_RenderMode) {
             fRenderMode = kBackend_RenderMode;
             this->updateVertices();
-            this->updateVerticesObject(false);
+            this->updateVerticesObject(false, false);
         }
 
-        canvas->save();
-
         // Update the vertex data.
-        if (fActorImage->doesAnimationVertexDeform() && fActorImage->isVertexDeformDirty()) {
+        if (fActorImage->doesAnimationVertexDeform()) {
             this->updateVertices();
-            this->updateVerticesObject(false);
-            fActorImage->isVertexDeformDirty(false);
+            this->updateVerticesObject(false, true);
         }
 
         // Update the bones.
@@ -87,8 +84,6 @@ public:
 
         // Draw the vertices object.
         this->drawVerticesObject(canvas, true);
-
-        canvas->restore();
     }
 
     void renderImmediate(SkCanvas* canvas) {
@@ -96,7 +91,7 @@ public:
         if (fRenderMode != kImmediate_RenderMode) {
             fRenderMode = kImmediate_RenderMode;
             this->updateVertices();
-            this->updateVerticesObject(true);
+            this->updateVerticesObject(true, true);
         }
 
         // Update the vertex data.
@@ -106,7 +101,7 @@ public:
         }
 
         // Update the vertices object.
-        this->updateVerticesObject(true);
+        this->updateVerticesObject(true, true);
 
         // Draw the vertices object.
         this->drawVerticesObject(canvas, false);
@@ -198,7 +193,7 @@ private:
         nima_to_skmatrix(fActorImage->worldTransform().values(), fBones[0]);
     }
 
-    void updateVerticesObject(bool applyDeforms) {
+    void updateVerticesObject(bool applyDeforms, bool isVolatile) {
         std::vector<SkPoint>* positions = &fPositions;
 
         // Apply deforms if requested.
@@ -229,7 +224,8 @@ private:
                                          fBoneIdx.data(),
                                          fBoneWgt.data(),
                                          fIndices.size(),
-                                         fIndices.data());
+                                         fIndices.data(),
+                                         isVolatile);
     }
 
     void drawVerticesObject(SkCanvas* canvas, bool useBones) const {
@@ -421,11 +417,19 @@ NIMASlide::~NIMASlide() {}
 void NIMASlide::draw(SkCanvas* canvas) {
     canvas->save();
 
-    canvas->translate(500, 500);
-    canvas->scale(1, -1);
+    for (int i = 0; i < 10; i ++) {
+        for (int j = 0; j < 10; j ++) {
+            canvas->save();
 
-    // Render the actor.
-    fActor->render(canvas, fRenderMode);
+            canvas->translate(1250 - 250 * i, 1250 - 250 * j);
+            canvas->scale(0.5, -0.5);
+
+            // Render the actor.
+            fActor->render(canvas, fRenderMode);
+
+            canvas->restore();
+        }
+    }
 
     canvas->restore();
 
