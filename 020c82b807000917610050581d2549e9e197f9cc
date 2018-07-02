@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5ed24e1c_d09909a7",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-02T17:58:59Z",
+      "side": 1,
+      "message": "There is only one GrContextThreadSafeProxy created per context, so I think this was safe enough. But you\u0027re right that it would probably be better API-wise to create it in the context and pass it in, so I made the change.",
+      "parentUuid": "d01994c7_bf9f295b",
+      "range": {
+        "startLine": 174,
+        "startChar": 26,
+        "endLine": 174,
+        "endChar": 52
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a8d878f_76371a36",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-26T19:52:26Z",
       "side": 1,
       "message": "Am I correct that this is now thread safe because we only add entries in this function, this function is called by onCreateGLSLInstance and onGetGLSLProcessorKey which in turn are only called on the GrDirectContext (rather than the DDL context)?\n\nRob, are you ok with that? Seems like that might not always be true in the future. But maybe we can cross that bridge when we come to it.",
+      "range": {
+        "startLine": 157,
+        "startChar": 0,
+        "endLine": 165,
+        "endChar": 1
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2c1da5f_7e98acc9",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-02T17:58:59Z",
+      "side": 1,
+      "message": "That\u0027s the idea. I did this on Rob\u0027s suggestion, but I\u0027d like his confirmation that he\u0027s ok with the way this is structured.",
+      "parentUuid": "9a8d878f_76371a36",
       "range": {
         "startLine": 157,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9b318299_2d872101",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-02T17:58:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "183f6031_fc9b6932",
+      "range": {
+        "startLine": 11,
+        "startChar": 9,
+        "endLine": 11,
+        "endChar": 20
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4031699b_26fc3aa8",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 3
@@ -91,6 +163,30 @@
       "revId": "020c82b807000917610050581d2549e9e197f9cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3292e558_7fa622c8",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-02T17:58:59Z",
+      "side": 1,
+      "message": "...a sign that C++ needs better error reporting? Removed.",
+      "parentUuid": "4031699b_26fc3aa8",
+      "range": {
+        "startLine": 82,
+        "startChar": 4,
+        "endLine": 82,
+        "endChar": 25
+      },
+      "revId": "020c82b807000917610050581d2549e9e197f9cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
