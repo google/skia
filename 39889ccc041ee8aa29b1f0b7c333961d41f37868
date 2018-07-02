@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c6caf708_ddc4d419",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-02T18:57:19Z",
+      "side": 1,
+      "message": "The spec has the following requirements:\n\n\"The stride in bytes between rows of the source texture memory. The value must be a multiple of the source texture\u0027s pixel size, in bytes. The value must be less than or equal to 32,767 multiplied by the source texture’s pixel size\"\n\nCan we add asserts and or checks to make sure we meet these requirements.",
+      "range": {
+        "startLine": 290,
+        "startChar": 13,
+        "endLine": 290,
+        "endChar": 56
+      },
+      "revId": "39889ccc041ee8aa29b1f0b7c333961d41f37868",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
