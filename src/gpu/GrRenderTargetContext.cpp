@@ -894,7 +894,9 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawRRect", fContext);
-    if (rrect.isEmpty()) {
+
+    const SkStrokeRec& stroke = style.strokeRec();
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && rrect.isEmpty()) {
        return;
     }
 
@@ -914,7 +916,6 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
     SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
 
     AutoCheckFlush acf(this->drawingManager());
-    const SkStrokeRec stroke = style.strokeRec();
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
