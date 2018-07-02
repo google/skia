@@ -64,6 +64,11 @@ public:
         return flags;
     }
 
+    enum ScissorState : bool {
+        kEnabled = true,
+        kDisabled = false
+    };
+
     struct InitArgs {
         uint32_t fFlags = 0;
         const GrUserStencilSettings* fUserStencil = &GrUserStencilSettings::kUnused;
@@ -98,7 +103,7 @@ public:
      * must be "Porter Duff" (<= kLastCoeffMode). If using ScissorState::kEnabled, the caller must
      * specify a scissor rectangle through the DynamicState struct.
      **/
-    GrPipeline(GrRenderTargetProxy*, GrScissorTest, SkBlendMode);
+    GrPipeline(GrRenderTargetProxy*, ScissorState, SkBlendMode);
 
     GrPipeline(const InitArgs&, GrProcessorSet&&, GrAppliedClip&&);
 
@@ -174,8 +179,8 @@ public:
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 
-    GrScissorTest scissorTest() const {
-        return GrScissorTest(SkToBool(fFlags & kScissorEnabled_Flag));
+    ScissorState isScissorEnabled() const {
+        return ScissorState(SkToBool(fFlags & kScissorEnabled_Flag));
     }
 
     const GrWindowRectsState& getWindowRectsState() const { return fWindowRectsState; }

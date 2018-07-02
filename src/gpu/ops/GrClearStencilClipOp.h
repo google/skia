@@ -27,7 +27,7 @@ public:
 
     SkString dumpInfo() const override {
         SkString string("Scissor [");
-        if (fClip.scissorTest() == GrScissorTest::kEnabled) {
+        if (fClip.scissorEnabled()) {
             const SkIRect& r = fClip.scissorRect();
             string.appendf("L: %d, T: %d, R: %d, B: %d", r.fLeft, r.fTop, r.fRight, r.fBottom);
         } else {
@@ -46,9 +46,9 @@ private:
             : INHERITED(ClassID())
             , fClip(clip)
             , fInsideStencilMask(insideStencilMask) {
-        const SkRect& bounds = fClip.scissorTest() == GrScissorTest::kEnabled
-                                       ? SkRect::Make(fClip.scissorRect())
-                                       : SkRect::MakeIWH(proxy->width(), proxy->height());
+        const SkRect& bounds = fClip.scissorEnabled()
+                                            ? SkRect::Make(fClip.scissorRect())
+                                            : SkRect::MakeIWH(proxy->width(), proxy->height());
         this->setBounds(bounds, HasAABloat::kNo, IsZeroArea::kNo);
     }
 

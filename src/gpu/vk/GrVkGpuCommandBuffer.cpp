@@ -305,7 +305,7 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     VkClearRect clearRect;
     // Flip rect if necessary
     SkIRect vkRect;
-    if (clip.scissorTest() == GrScissorTest::kDisabled) {
+    if (!clip.scissorEnabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
     } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
         vkRect = clip.scissorRect();
@@ -333,7 +333,7 @@ void GrVkGpuRTCommandBuffer::onClearStencilClip(const GrFixedClip& clip, bool in
     cbInfo.fIsEmpty = false;
 
     // Update command buffer bounds
-    if (clip.scissorTest() == GrScissorTest::kDisabled) {
+    if (!clip.scissorEnabled()) {
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
     } else {
         cbInfo.fBounds.join(SkRect::Make(clip.scissorRect()));
@@ -351,7 +351,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     VkClearColorValue vkColor;
     GrColorToRGBAFloat(color, vkColor.float32);
 
-    if (cbInfo.fIsEmpty && clip.scissorTest() == GrScissorTest::kDisabled) {
+    if (cbInfo.fIsEmpty && !clip.scissorEnabled()) {
         // Change the render pass to do a clear load
         GrVkRenderPass::LoadStoreOps vkColorOps(VK_ATTACHMENT_LOAD_OP_CLEAR,
                                                 VK_ATTACHMENT_STORE_OP_STORE);
@@ -390,7 +390,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     VkClearRect clearRect;
     // Flip rect if necessary
     SkIRect vkRect;
-    if (clip.scissorTest() == GrScissorTest::kDisabled) {
+    if (!clip.scissorEnabled()) {
         vkRect.setXYWH(0, 0, fRenderTarget->width(), fRenderTarget->height());
     } else if (kBottomLeft_GrSurfaceOrigin != fOrigin) {
         vkRect = clip.scissorRect();
@@ -416,7 +416,7 @@ void GrVkGpuRTCommandBuffer::onClear(const GrFixedClip& clip, GrColor color) {
     cbInfo.fIsEmpty = false;
 
     // Update command buffer bounds
-    if (clip.scissorTest() == GrScissorTest::kDisabled) {
+    if (!clip.scissorEnabled()) {
         cbInfo.fBounds.join(fRenderTarget->getBoundsRect());
     } else {
         cbInfo.fBounds.join(SkRect::Make(clip.scissorRect()));
@@ -591,7 +591,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
 
     GrRenderTarget* rt = pipeline.renderTarget();
 
-    if (pipeline.scissorTest() == GrScissorTest::kDisabled) {
+    if (!pipeline.isScissorEnabled()) {
         GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(),
                                                  rt, pipeline.proxy()->origin(),
                                                  SkIRect::MakeWH(rt->width(), rt->height()));
@@ -663,8 +663,8 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         return;
     }
 
-    bool dynamicScissor = (pipeline.scissorTest() == GrScissorTest::kEnabled) &&
-                          dynamicStateArrays && dynamicStateArrays->fScissorRects;
+    bool dynamicScissor =
+            pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];

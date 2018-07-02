@@ -348,7 +348,8 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
         }
     }
 
-    GrPipeline pipeline(state->drawOpArgs().fProxy, GrScissorTest::kDisabled, SkBlendMode::kPlus);
+    GrPipeline pipeline(state->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
+                        SkBlendMode::kPlus);
 
     if (glGpu) {
         glGpu->handleDirtyContext();
