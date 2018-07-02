@@ -91,16 +91,8 @@ static void convolve_gaussian_1d(GrRenderTargetContext* renderTargetContext,
                                                  SkRect::Make(dstRect), localMatrix);
 }
 
-static GrPixelConfig get_blur_config(GrTextureProxy* proxy, SkColorSpace* cs) {
+static GrPixelConfig get_blur_config(GrTextureProxy* proxy) {
     GrPixelConfig config = proxy->config();
-
-    if (GrPixelConfigIsSRGB(config) && !cs) {
-        // If the context doesn't have sRGB write control, and we make an sRGB RTC, we won't be
-        // able to suppress the linear -> sRGB conversion out of the shader. Not all GL drivers
-        // have that feature, and Vulkan is missing it entirely. To keep things simple, switch to
-        // a non-sRGB destination, to ensure correct blurring behavior.
-        config = kRGBA_8888_GrPixelConfig;
-    }
 
     SkASSERT(kBGRA_8888_GrPixelConfig == config || kRGBA_8888_GrPixelConfig == config ||
              kRGB_888_GrPixelConfig == config || kRGBA_4444_GrPixelConfig == config ||
@@ -123,7 +115,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
                                                          const SkImageInfo& dstII,
                                                          SkBackingFit dstFit) {
 
-    GrPixelConfig config = get_blur_config(proxy.get(), dstII.colorSpace());
+    GrPixelConfig config = get_blur_config(proxy.get());
 
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
@@ -163,7 +155,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                       SkBackingFit fit) {
     SkASSERT(srcRect.width() <= dstII.width() && srcRect.height() <= dstII.height());
 
-    GrPixelConfig config = get_blur_config(proxy.get(), dstII.colorSpace());
+    GrPixelConfig config = get_blur_config(proxy.get());
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext;
     dstRenderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
@@ -262,7 +254,7 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
     SkASSERT(SkIsPow2(scaleFactorX) && SkIsPow2(scaleFactorY));
     SkASSERT(scaleFactorX > 1 || scaleFactorY > 1);
 
-    GrPixelConfig config = get_blur_config(src.get(), dstII.colorSpace());
+    GrPixelConfig config = get_blur_config(src.get());
 
     SkIRect srcRect;
     if (GrTextureDomain::kIgnore_Mode == mode) {
@@ -381,7 +373,7 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
 
     srcRenderTargetContext = nullptr; // no longer needed
 
-    GrPixelConfig config = get_blur_config(srcProxy.get(), dstII.colorSpace());
+    GrPixelConfig config = get_blur_config(srcProxy.get());
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
         context->contextPriv().makeDeferredRenderTargetContext(fit, dstII.width(), dstII.height(),
@@ -436,7 +428,7 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           SkBackingFit fit) {
     SkASSERT(context);
 
-    const GrPixelConfig config = get_blur_config(srcProxy.get(), colorSpace.get());
+    const GrPixelConfig config = get_blur_config(srcProxy.get());
     SkColorType ct;
     if (!GrPixelConfigToColorType(config, &ct)) {
         return nullptr;
