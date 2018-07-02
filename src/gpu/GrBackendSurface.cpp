@@ -78,35 +78,13 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
+        , fConfig(kUnknown_GrPixelConfig)
         , fMipMapped(GrMipMapped(vkInfo.fLevelCount > 1))
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo, layout.release()) {
 }
 #endif
 
-#if GR_TEST_UTILS
-
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   GrPixelConfig config,
-                                   const GrGLTextureInfo& glInfo)
-        : GrBackendTexture(width, height, config, GrMipMapped::kNo, glInfo) {}
-
-GrBackendTexture::GrBackendTexture(int width,
-                                   int height,
-                                   GrPixelConfig config,
-                                   GrMipMapped mipMapped,
-                                   const GrGLTextureInfo& glInfo)
-        : fIsValid(true)
-        , fWidth(width)
-        , fHeight(height)
-        , fConfig(config)
-        , fMipMapped(mipMapped)
-        , fBackend(kOpenGL_GrBackend)
-        , fGLInfo(glInfo) {}
-#endif
-
 GrBackendTexture::GrBackendTexture(int width,
                                    int height,
                                    GrMipMapped mipMapped,
@@ -114,7 +92,7 @@ GrBackendTexture::GrBackendTexture(int width,
         : fIsValid(true)
         , fWidth(width)
         , fHeight(height)
-        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
+        , fConfig(kUnknown_GrPixelConfig)
         , fMipMapped(mipMapped)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
@@ -314,29 +292,11 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(0)  // We always create stencil buffers internally for vulkan
-        , fConfig(GrVkFormatToPixelConfig(vkInfo.fFormat))
+        , fConfig(kUnknown_GrPixelConfig)
         , fBackend(kVulkan_GrBackend)
         , fVkInfo(vkInfo, layout.release()) {}
 #endif
 
-#if GR_TEST_UTILS
-
-GrBackendRenderTarget::GrBackendRenderTarget(int width,
-                                             int height,
-                                             int sampleCnt,
-                                             int stencilBits,
-                                             GrPixelConfig config,
-                                             const GrGLFramebufferInfo& glInfo)
-        : fIsValid(true)
-        , fWidth(width)
-        , fHeight(height)
-        , fSampleCnt(SkTMax(1, sampleCnt))
-        , fStencilBits(stencilBits)
-        , fConfig(config)
-        , fBackend(kOpenGL_GrBackend)
-        , fGLInfo(glInfo) {}
-#endif
-
 GrBackendRenderTarget::GrBackendRenderTarget(int width,
                                              int height,
                                              int sampleCnt,
@@ -347,7 +307,7 @@ GrBackendRenderTarget::GrBackendRenderTarget(int width,
         , fHeight(height)
         , fSampleCnt(SkTMax(1, sampleCnt))
         , fStencilBits(stencilBits)
-        , fConfig(GrGLSizedFormatToPixelConfig(glInfo.fFormat))
+        , fConfig(kUnknown_GrPixelConfig)
         , fBackend(kOpenGL_GrBackend)
         , fGLInfo(glInfo) {}
 
