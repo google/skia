@@ -1,0 +1,186 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "603d0b52_dafa7586",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "You don\u0027t think this should come in via the ctor ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4f8fc98_78bbaced",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "replace 9 w/ kNumFloatsPerSkMatrix ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c98c528_cddda91a",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "Add \"Name\" suffix ?",
+      "range": {
+        "startLine": 109,
+        "startChar": 24,
+        "endLine": 109,
+        "endChar": 43
+      },
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b796ef2_8121e381",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "vertBonesUniformName ? Some better name ?",
+      "range": {
+        "startLine": 111,
+        "startChar": 28,
+        "endLine": 111,
+        "endChar": 37
+      },
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26e24a3b_834fd244",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "Why not gp.boneCount() ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfb0667e_08f4376a",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "9 -\u003e kNumFloatsPerSkMatrix ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5fc9151_175b88e4",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "Is this *9 correct ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1eac2115_497752ff",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "This seems super tedious. Don\u0027t we really want something like:\n\nmemcpy(\u0026fBones[0], \u0026bones[0][0], ...)\n\n?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7277b81a_d9c86102",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "Seems like this could be \"std::unique_ptr\u003cfloat\u003e fBones\". Do we need the power of std::vector?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1df28e6_be4c4d04",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T19:58:33Z",
+      "side": 1,
+      "message": "names \u0026 restore viewMatrix ?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
