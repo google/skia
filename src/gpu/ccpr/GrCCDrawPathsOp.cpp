@@ -65,7 +65,6 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape,
                                  GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
-        , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
         , fDraws(m, shape, shapeDevIBounds, maskDevIBounds, maskVisibility, paint.getColor())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
@@ -125,7 +124,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
     SkASSERT(!that->fOwningPerOpListPaths || that->fOwningPerOpListPaths == fOwningPerOpListPaths);
     SkASSERT(that->fNumDraws);
 
-    if (fSRGBFlags != that->fSRGBFlags || fProcessors != that->fProcessors ||
+    if (fProcessors != that->fProcessors ||
         fViewMatrixIfUsingLocalCoords != that->fViewMatrixIfUsingLocalCoords) {
         return false;
     }
@@ -332,7 +331,6 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
     }
 
     GrPipeline::InitArgs initArgs;
-    initArgs.fFlags = fSRGBFlags;
     initArgs.fProxy = flushState->drawOpArgs().fProxy;
     initArgs.fCaps = &flushState->caps();
     initArgs.fResourceProvider = flushState->resourceProvider();

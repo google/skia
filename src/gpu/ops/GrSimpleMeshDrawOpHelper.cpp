@@ -14,7 +14,7 @@
 GrSimpleMeshDrawOpHelper::GrSimpleMeshDrawOpHelper(const MakeArgs& args, GrAAType aaType,
                                                    Flags flags)
         : fProcessors(args.fProcessorSet)
-        , fPipelineFlags(args.fSRGBFlags)
+        , fPipelineFlags(0)
         , fAAType((int)aaType)
         , fRequiresDstTexture(false)
         , fUsesLocalCoords(false)

@@ -99,7 +99,6 @@ public:
         MakeArgs() = default;
 
         GrProcessorSet* fProcessorSet;
-        uint32_t fSRGBFlags;
 
         friend class GrSimpleMeshDrawOpHelper;
     };
@@ -181,7 +180,6 @@ std::unique_ptr<GrDrawOp> GrSimpleMeshDrawOpHelper::FactoryHelper(GrContext* con
     GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
     MakeArgs makeArgs;
-    makeArgs.fSRGBFlags = GrPipeline::SRGBFlagsFromPaint(paint);
     GrColor color = paint.getColor();
 
     if (paint.isTrivial()) {

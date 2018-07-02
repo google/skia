@@ -101,7 +101,6 @@ private:
     GrAtlasTextOp(GrPaint&& paint)
             : INHERITED(ClassID())
             , fGeoDataAllocSize(kMinGeometryAllocated)
-            , fSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
             , fProcessors(std::move(paint)) {}
 
     struct FlushInfo {
@@ -158,7 +157,6 @@ private:
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
     int fGeoDataAllocSize;
-    uint32_t fSRGBFlags;
     GrProcessorSet fProcessors;
     struct {
         uint32_t fUsesLocalCoords : 1;

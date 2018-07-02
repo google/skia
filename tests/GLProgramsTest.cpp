@@ -248,12 +248,6 @@ static void set_random_color_coverage_stages(GrPaint* paint,
     }
 }
 
-static void set_random_state(GrPaint* paint, SkRandom* random) {
-    if (random->nextBool()) {
-        paint->setDisableOutputConversionToSRGB(true);
-    }
-}
-
 #endif
 
 #if !GR_TEST_UTILS
@@ -310,7 +304,6 @@ bool GrDrawingManager::ProgramUnitTest(GrContext* context, int maxStages, int ma
         GrProcessorTestData ptd(&random, context, renderTargetContext.get(), proxies);
         set_random_color_coverage_stages(&paint, &ptd, maxStages, maxLevels);
         set_random_xpf(&paint, &ptd);
-        set_random_state(&paint, &random);
         GrDrawRandomOp(&random, renderTargetContext.get(), std::move(paint));
     }
     // Flush everything, test passes if flush is successful(ie, no asserts are hit, no crashes)

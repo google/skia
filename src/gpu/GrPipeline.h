@@ -52,17 +52,7 @@ public:
          * Modifies the vertex shader so that vertices will be positioned at pixel centers.
          */
         kSnapVerticesToPixelCenters_Flag = 0x2,
-        /** Disables conversion to sRGB from linear when writing to a sRGB destination. */
-        kDisableOutputConversionToSRGB_Flag = 0x4,
     };
-
-    static uint32_t SRGBFlagsFromPaint(const GrPaint& paint) {
-        uint32_t flags = 0;
-        if (paint.getDisableOutputConversionToSRGB()) {
-            flags |= kDisableOutputConversionToSRGB_Flag;
-        }
-        return flags;
-    }
 
     enum ScissorState : bool {
         kEnabled = true,
@@ -189,9 +179,6 @@ public:
     bool snapVerticesToPixelCenters() const {
         return SkToBool(fFlags & kSnapVerticesToPixelCenters_Flag);
     }
-    bool getDisableOutputConversionToSRGB() const {
-        return SkToBool(fFlags & kDisableOutputConversionToSRGB_Flag);
-    }
     bool hasStencilClip() const {
         return SkToBool(fFlags & kHasStencilClip_Flag);
     }
@@ -210,9 +197,6 @@ public:
             }
             if (flags & GrPipeline::kHWAntialias_Flag) {
                 result.append("HW Antialiasing enabled.\n");
-            }
-            if (flags & GrPipeline::kDisableOutputConversionToSRGB_Flag) {
-                result.append("Disable output conversion to sRGB.\n");
             }
             return result;
         }

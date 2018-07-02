@@ -230,29 +230,8 @@ bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size
         flags = GrContextPriv::kUnpremul_PixelOpsFlag;
     }
 
-    // This hack allows us to call makeNonTextureImage on images with arbitrary color spaces.
-    // Otherwise, we'll be unable to create a render target context.
-    // TODO: This shouldn't be necessary - we need more robust support for images (and surfaces)
-    // with arbitrary color spaces. Unfortunately, this is one spot where we go from image to
-    // surface (rather than the opposite), and our lenient image rules break our (currently) more
-    // strict surface rules.
-    // GrSurfaceContext::readPixels does not make use of the context's color space. However, we
-    // don't allow creating a surface context for a sRGB GrPixelConfig unless the color space has
-    // sRGB gamma. So we choose null for non-SRGB GrPixelConfigs and sRGB for sRGB GrPixelConfigs.
-    sk_sp<SkColorSpace> surfaceColorSpace = fColorSpace;
-    if (!flags) {
-        if (!dstInfo.colorSpace() ||
-            SkColorSpace::Equals(fColorSpace.get(), dstInfo.colorSpace())) {
-            if (GrPixelConfigIsSRGB(fProxy->config())) {
-                surfaceColorSpace = SkColorSpace::MakeSRGB();
-            } else {
-                surfaceColorSpace = nullptr;
-            }
-        }
-    }
-
     sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-            fProxy, surfaceColorSpace);
+            fProxy, fColorSpace);
     if (!sContext) {
         return false;
     }
