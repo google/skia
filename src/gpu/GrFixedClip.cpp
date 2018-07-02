@@ -14,13 +14,12 @@ bool GrFixedClip::quickContains(const SkRect& rect) const {
     if (fWindowRectsState.enabled()) {
         return false;
     }
-    return fScissorState.scissorTest() == GrScissorTest::kDisabled ||
-           GrClip::IsInsideClip(fScissorState.rect(), rect);
+    return !fScissorState.enabled() || GrClip::IsInsideClip(fScissorState.rect(), rect);
 }
 
 void GrFixedClip::getConservativeBounds(int w, int h, SkIRect* devResult, bool* iior) const {
     devResult->setXYWH(0, 0, w, h);
-    if (fScissorState.scissorTest() == GrScissorTest::kEnabled) {
+    if (fScissorState.enabled()) {
         if (!devResult->intersect(fScissorState.rect())) {
             devResult->setEmpty();
         }
@@ -34,7 +33,7 @@ bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
     if (fWindowRectsState.enabled()) {
         return false;
     }
-    if (fScissorState.scissorTest() == GrScissorTest::kEnabled) {
+    if (fScissorState.enabled()) {
         SkRect rect = SkRect::Make(fScissorState.rect());
         if (!rect.intersects(rtBounds)) {
             return false;
@@ -47,7 +46,7 @@ bool GrFixedClip::isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const {
 };
 
 bool GrFixedClip::apply(int rtWidth, int rtHeight, GrAppliedHardClip* out, SkRect* bounds) const {
-    if (fScissorState.scissorTest() == GrScissorTest::kEnabled) {
+    if (fScissorState.enabled()) {
         SkIRect tightScissor = SkIRect::MakeWH(rtWidth, rtHeight);
         if (!tightScissor.intersect(fScissorState.rect())) {
             return false;

@@ -530,7 +530,7 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
 
     const PrimitiveTallies& batchTotalCounts = fCoverageCountBatches[batchID].fTotalPrimitiveCounts;
 
-    GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrScissorTest::kEnabled,
+    GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kEnabled,
                         SkBlendMode::kPlus);
 
     if (batchTotalCounts.fTriangles) {
@@ -564,7 +564,7 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
                                     GrCCCoverageProcessor::PrimitiveType primitiveType,
                                     int PrimitiveTallies::*instanceType,
                                     const SkIRect& drawBounds) const {
-    SkASSERT(pipeline.scissorTest() == GrScissorTest::kEnabled);
+    SkASSERT(pipeline.isScissorEnabled());
 
     // Don't call reset(), as that also resets the reserve count.
     fMeshesScratchBuffer.pop_back_n(fMeshesScratchBuffer.count());

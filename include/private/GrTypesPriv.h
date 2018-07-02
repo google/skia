@@ -73,11 +73,6 @@ static const GrPixelConfig kSkia8888_GrPixelConfig = kRGBA_8888_GrPixelConfig;
     #error "SK_*32_SHIFT values must correspond to GL_BGRA or GL_RGBA format."
 #endif
 
-enum class GrScissorTest : bool {
-    kDisabled = false,
-    kEnabled = true
-};
-
 /**
  * Geometric primitives used for drawing.
  */
