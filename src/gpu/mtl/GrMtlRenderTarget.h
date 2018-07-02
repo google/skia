@@ -39,6 +39,8 @@ public:
         return true;
     }
 
+    id<MTLTexture> mtlRenderTexture() const { return fRenderTexture; }
+
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
 protected:

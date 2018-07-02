@@ -10,6 +10,7 @@
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
+#include "SkConvertPixels.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -92,6 +93,8 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
 
+    fCmdBuffer = [fQueue commandBuffer];
+
     MTLTextureDescriptor* txDesc = [[MTLTextureDescriptor alloc] init];
     txDesc.textureType = MTLTextureType3D;
     txDesc.height = 64;
@@ -106,6 +109,15 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     SkDebugf("width: %d\n", width);
     // Unused queue warning fix
     SkDebugf("ptr to queue: %p\n", fQueue);
+}
+
+void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
+    SkASSERT(fCmdBuffer);
+    [fCmdBuffer commit];
+    if (SyncQueue::kForce_SyncQueue == sync) {
+        [fCmdBuffer waitUntilCompleted];
+    }
+    fCmdBuffer = [fQueue commandBuffer];
 }
 
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -234,3 +246,59 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
     return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
 }
 
+bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
+                            GrColorType dstColorType, void* buffer, size_t rowBytes) {
+    static const int MAX_BLIT_WIDTH = 32767; // in pixels
+    SkASSERT(surface);
+    if (width > MAX_BLIT_WIDTH) {
+        SkASSERT(false); // A texture/RT shouldn't be this wide anyway.
+        return false;
+    }
+    if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
+        return false;
+    }
+
+    id<MTLTexture> mtlTexture = nil;
+    GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
+    GrMtlTexture* texture;
+    if (renderTarget) {
+        // TODO: Handle resolving rt here when MSAA is supported. Right now we just grab the render
+        // texture since we cannot currently have a multi-sampled rt.
+        mtlTexture = renderTarget->mtlRenderTexture();
+    } else {
+        texture = static_cast<GrMtlTexture*>(surface->asTexture());
+        if (texture) {
+            mtlTexture = texture->mtlTexture();
+        }
+    }
+
+    if (!mtlTexture) {
+        return false;
+    }
+
+    int bpp = GrColorTypeBytesPerPixel(dstColorType);
+    size_t transBufferRowBytes = bpp * width;
+    size_t transBufferImageBytes = transBufferRowBytes * height;
+
+    // TODO: implement some way of reusing buffers instead of making a new one every time.
+    id<MTLBuffer> transferBuffer = [fDevice newBufferWithLength: transBufferImageBytes
+                                                        options: MTLResourceStorageModeShared];
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
+    [blitCmdEncoder copyFromTexture: mtlTexture
+                        sourceSlice: 0
+                        sourceLevel: 0
+                       sourceOrigin: MTLOriginMake(left, top, 0)
+                         sourceSize: MTLSizeMake(width, height, 1)
+                           toBuffer: transferBuffer
+                  destinationOffset: 0
+             destinationBytesPerRow: transBufferRowBytes
+           destinationBytesPerImage: transBufferImageBytes];
+    [blitCmdEncoder endEncoding];
+
+    this->submitCommandBuffer(kForce_SyncQueue);
+    const void* mappedMemory = transferBuffer.contents;
+
+    SkRectMemcpy(buffer, rowBytes, mappedMemory, transBufferRowBytes, transBufferRowBytes, height);
+    return true;
+}
