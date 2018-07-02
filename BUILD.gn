@@ -2194,3 +2194,15 @@ if (skia_enable_tools) {
     }
   }
 }
+
+if (target_cpu == "wasm") {
+  executable("wasm_hello") {
+    sources = [
+      "experimental/wasm/wasm_main.cpp",
+    ]
+    configs += [ ":skia_private" ]
+
+    #cflags = ["-o wasm_hello.html"]
+    output_name = "wasm_hello.html"
+  }
+}
