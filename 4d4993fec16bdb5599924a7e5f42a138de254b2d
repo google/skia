@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0d70d5f_55dc4efd",
+        "filename": "src/gpu/gl/GrGLCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-02T15:39:00Z",
+      "side": 1,
+      "message": "if we\u0027re pulling this out, why not a bool?",
+      "range": {
+        "startLine": 600,
+        "startChar": 8,
+        "endLine": 600,
+        "endChar": 46
+      },
+      "revId": "4d4993fec16bdb5599924a7e5f42a138de254b2d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
