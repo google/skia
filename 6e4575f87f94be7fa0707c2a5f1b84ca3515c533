@@ -22,6 +22,30 @@
       "revId": "6e4575f87f94be7fa0707c2a5f1b84ca3515c533",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7448d86_b446b572",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 19
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-02T17:50:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ecd4c977_996372bf",
+      "range": {
+        "startLine": 161,
+        "startChar": 58,
+        "endLine": 161,
+        "endChar": 85
+      },
+      "revId": "6e4575f87f94be7fa0707c2a5f1b84ca3515c533",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
