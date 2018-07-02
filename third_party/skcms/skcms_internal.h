@@ -14,7 +14,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#if defined(__cpluscplus)
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -46,6 +46,6 @@ extern "C" {
     static inline float fabsf_(float x) { return x < 0 ? -x : x; }
     float powf_(float, float);
 
-#if defined(__cpluscplus)
-}  // extern "C"
+#ifdef __cplusplus
+}
 #endif
