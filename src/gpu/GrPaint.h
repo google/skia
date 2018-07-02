@@ -55,13 +55,6 @@ public:
      */
     GrColor getColor() const { return fColor.toGrColor(); }
 
-    /**
-     * Should shader output conversion from linear to sRGB be disabled.
-     * Only relevant if the destination is sRGB. Defaults to false.
-     */
-    void setDisableOutputConversionToSRGB(bool srgb) { fDisableOutputConversionToSRGB = srgb; }
-    bool getDisableOutputConversionToSRGB() const { return fDisableOutputConversionToSRGB; }
-
     void setXPFactory(const GrXPFactory* xpFactory) {
         fXPFactory = xpFactory;
         fTrivial &= !SkToBool(xpFactory);
@@ -138,7 +131,6 @@ private:
     const GrXPFactory* fXPFactory = nullptr;
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fColorFragmentProcessors;
     SkSTArray<2, std::unique_ptr<GrFragmentProcessor>> fCoverageFragmentProcessors;
-    bool fDisableOutputConversionToSRGB = false;
     bool fTrivial = true;
     GrColor4f fColor = GrColor4f::OpaqueWhite();
 };

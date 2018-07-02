@@ -18,7 +18,6 @@
 #include "SkRefCnt.h"
 #include "SkResourceCache.h"
 #include "SkYUVPlanesCache.h"
-#include "effects/GrSRGBEffect.h"
 #include "effects/GrYUVtoRGBEffect.h"
 
 sk_sp<SkCachedData> init_provider(GrYUVProvider* provider, SkYUVPlanesCache::Info* yuvInfo,
@@ -127,21 +126,6 @@ sk_sp<GrTextureProxy> GrYUVProvider::refAsTextureProxy(GrContext* ctx, const GrS
                                    std::move(yuvTextureProxies[2]),
                                    yuvInfo.fSizeInfo.fSizes, yuvInfo.fColorSpace, false);
     paint.addColorFragmentProcessor(std::move(yuvToRgbProcessor));
-
-    // If we're decoding an sRGB image, the result of our linear math on the YUV planes is already
-    // in sRGB. (The encoding is just math on bytes, with no concept of color spaces.) So, we need
-    // to output the results of that math directly to the buffer that we will then consider sRGB.
-    // If we have sRGB write control, we can just tell the HW not to do the Linear -> sRGB step.
-    // Otherwise, we do our shader math to go from YUV -> sRGB, manually convert sRGB -> Linear,
-    // then let the HW convert Linear -> sRGB.
-    if (GrPixelConfigIsSRGB(desc.fConfig)) {
-        if (ctx->contextPriv().caps()->srgbWriteControl()) {
-            paint.setDisableOutputConversionToSRGB(true);
-        } else {
-            paint.addColorFragmentProcessor(GrSRGBEffect::Make(GrSRGBEffect::Mode::kSRGBToLinear,
-                                                               GrSRGBEffect::Alpha::kOpaque));
-        }
-    }
 
     // If the caller expects the pixels in a different color space than the one from the image,
     // apply a color conversion to do this.

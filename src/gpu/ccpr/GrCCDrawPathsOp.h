@@ -84,7 +84,6 @@ private:
     void recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
-    const uint32_t fSRGBFlags;
 
     struct SingleDraw {
         SingleDraw(const SkMatrix&, const GrShape&, const SkIRect& shapeDevIBounds,

@@ -407,12 +407,8 @@ public:
         if (!rec) {
             return false;
         }
-        sk_sp<SkColorSpace> colorSpace;
-        if (GrPixelConfigIsSRGB(fTextureProxy->config())) {
-            colorSpace = SkColorSpace::MakeSRGB();
-        }
         sk_sp<GrSurfaceContext> sContext = fContext->contextPriv().makeWrappedSurfaceContext(
-                fTextureProxy, std::move(colorSpace));
+                fTextureProxy, fColorSpace);
         if (!sContext) {
             return false;
         }

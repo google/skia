@@ -1733,7 +1733,7 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, pipeline.getDisableOutputConversionToSRGB());
+    this->flushRenderTarget(glRT);
 
     return true;
 }
@@ -2156,17 +2156,17 @@ GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,
-                                const SkIRect& bounds, bool disableSRGB) {
-    this->flushRenderTargetNoColorWrites(target, disableSRGB);
+                                const SkIRect& bounds) {
+    this->flushRenderTargetNoColorWrites(target);
     this->didWriteToSurface(target, origin, &bounds);
 }
 
-void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, bool disableSRGB) {
-    this->flushRenderTargetNoColorWrites(target, disableSRGB);
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target) {
+    this->flushRenderTargetNoColorWrites(target);
     this->didWriteToSurface(target, kTopLeft_GrSurfaceOrigin, nullptr);
 }
 
-void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disableSRGB) {
+void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
     SkASSERT(target);
     GrGpuResource::UniqueID rtID = target->uniqueID();
     if (fHWBoundRenderTargetUniqueID != rtID) {
@@ -2192,7 +2192,7 @@ void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target, bool disa
     }
 
     if (this->glCaps().srgbWriteControl()) {
-        this->flushFramebufferSRGB(GrPixelConfigIsSRGB(target->config()) && !disableSRGB);
+        this->flushFramebufferSRGB(GrPixelConfigIsSRGB(target->config()));
     }
 }
 

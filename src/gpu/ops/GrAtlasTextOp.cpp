@@ -297,8 +297,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
     SkASSERT(proxies[0]);
 
-    auto pipe =
-            target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
+    static const uint32_t kPipelineFlags = 0;
+    auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
+                                     target->detachAppliedClip());
 
     FlushInfo flushInfo;
     flushInfo.fPipeline = pipe.fPipeline;

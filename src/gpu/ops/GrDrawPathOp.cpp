@@ -19,7 +19,6 @@ GrDrawPathOpBase::GrDrawPathOpBase(uint32_t classID, const SkMatrix& viewMatrix,
         , fInputColor(paint.getColor())
         , fFillType(fill)
         , fAAType(aaType)
-        , fPipelineSRGBFlags(GrPipeline::SRGBFlagsFromPaint(paint))
         , fProcessorSet(std::move(paint)) {}
 
 SkString GrDrawPathOp::dumpInfo() const {
@@ -40,7 +39,6 @@ GrPipeline::InitArgs GrDrawPathOpBase::pipelineInitArgs(const GrOpFlushState& st
                     0xffff>()
     };
     GrPipeline::InitArgs args;
-    args.fFlags = fPipelineSRGBFlags;
     if (GrAATypeIsHW(fAAType)) {
         args.fFlags |= GrPipeline::kHWAntialias_Flag;
     }
