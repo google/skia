@@ -99,6 +99,40 @@
     },
     {
       "key": {
+        "uuid": "ae3e6406_e6c07052",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "Probably ought to have kMaxBones somewhere (in the GP factory?).",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "532f237f_fbd8f50c",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "Assert that the attribute flags are present iff the bones are also present?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dfb0667e_08f4376a",
         "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
         "patchSetId": 8
@@ -133,6 +167,23 @@
     },
     {
       "key": {
+        "uuid": "a6585b82_c1b49ab9",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "Isn\u0027t this iterating 9x too much? (And reading past the end of the array?)",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1eac2115_497752ff",
         "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
         "patchSetId": 8
@@ -161,6 +212,63 @@
       "writtenOn": "2018-07-02T19:58:33Z",
       "side": 1,
       "message": "Seems like this could be \"std::unique_ptr\u003cfloat\u003e fBones\". Do we need the power of std::vector?",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fb92dd52_37eac06b",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "It would be good to randomly include bones here. Basically, randomly add the attributes up above, and if that happens, then at least supply a couple random matrices. (These create functions are never used to draw anything, but the resulting GP is stitched together with other random processors to stress test the shader compiler).",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1257e8b1_ef13bea9",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "I don\u0027t think any of these are used, right? (And the layouts would be incorrect anyway - they should be 4x indices and weights.) Better to just omit these? The other structs are typically used by internal code that emits vertices using one of the standard layouts, but for drawVertices, I think everything is custom based on which attributes are present in the specific SkVertices.",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 0
+      },
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce1623eb_6385fd9c",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-02T20:05:04Z",
+      "side": 1,
+      "message": "\u003d SkRect::MakeEmpty()",
       "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
