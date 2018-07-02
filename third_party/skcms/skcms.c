@@ -846,8 +846,8 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     }
 
     // Byte-swap all header fields
-    const header_Layout* header = buf;
-    profile->buffer              = buf;
+    const header_Layout* header  = (const header_Layout*)buf;
+    profile->buffer              = (const uint8_t*)buf;
     profile->size                = read_big_u32(header->size);
     uint32_t version             = read_big_u32(header->version);
     profile->data_color_space    = read_big_u32(header->data_color_space);
@@ -960,57 +960,121 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
 
 const skcms_ICCProfile* skcms_sRGB_profile() {
     static const skcms_ICCProfile sRGB_profile = {
-        // These fields are moot when not a skcms_Parse()'d profile.
-        .buffer    = NULL,
-        .size      =    0,
-        .tag_count =    0,
+        NULL,                  // buffer, moot here
+
+        0,                     // size, moot here
+        skcms_Signature_RGB,   // data_color_space
+        skcms_Signature_XYZ,   // pcs
+        0,                     // tag count, moot here
 
         // We choose to represent sRGB with its canonical transfer function,
         // and with its canonical XYZD50 gamut matrix.
-        .data_color_space = skcms_Signature_RGB,
-        .pcs              = skcms_Signature_XYZ,
-        .has_trc      = true,
-        .has_toXYZD50 = true,
-        .has_A2B      = false,
-
-        .trc = {
-            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+        true,  // has_trc, followed by the 3 trc curves
+        {
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0}}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0}}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0}}},
         },
 
-        .toXYZD50 = {{
+        true,  // has_toXYZD50, followed by 3x3 toXYZD50 matrix
+        {{
             { 0.436065674f, 0.385147095f, 0.143066406f },
             { 0.222488403f, 0.716873169f, 0.060607910f },
             { 0.013916016f, 0.097076416f, 0.714096069f },
         }},
+
+        false, // has_A2B, followed by a2b itself which we don't care about.
+        {
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+            {0,0,0,0},
+            NULL,
+            NULL,
+
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+            {{
+                { 1,0,0,0 },
+                { 0,1,0,0 },
+                { 0,0,1,0 },
+            }},
+
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+        },
     };
     return &sRGB_profile;
 }
 
 const skcms_ICCProfile* skcms_XYZD50_profile() {
+    // Just like sRGB above, but with identity transfer functions and toXYZD50 matrix.
     static const skcms_ICCProfile XYZD50_profile = {
-        .buffer           = NULL,
-        .size             = 0,
-        .tag_count        = 0,
+        NULL,                  // buffer, moot here
 
-        .data_color_space = skcms_Signature_RGB,
-        .pcs              = skcms_Signature_XYZ,
-        .has_trc          = true,
-        .has_toXYZD50     = true,
-        .has_A2B          = false,
+        0,                     // size, moot here
+        skcms_Signature_RGB,   // data_color_space
+        skcms_Signature_XYZ,   // pcs
+        0,                     // tag count, moot here
 
-        .trc = {
-            {{0, {1,1,0,0,0,0,0}}},
-            {{0, {1,1,0,0,0,0,0}}},
-            {{0, {1,1,0,0,0,0,0}}},
+        true,  // has_trc, followed by the 3 trc curves
+        {
+            {{0, {1,1, 0,0,0,0,0}}},
+            {{0, {1,1, 0,0,0,0,0}}},
+            {{0, {1,1, 0,0,0,0,0}}},
         },
 
-        .toXYZD50 = {{
-            {1,0,0},
-            {0,1,0},
-            {0,0,1},
+        true,  // has_toXYZD50, followed by 3x3 toXYZD50 matrix
+        {{
+            { 1,0,0 },
+            { 0,1,0 },
+            { 0,0,1 },
         }},
+
+        false, // has_A2B, followed by a2b itself which we don't care about.
+        {
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+            {0,0,0,0},
+            NULL,
+            NULL,
+
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+            {{
+                { 1,0,0,0 },
+                { 0,1,0,0 },
+                { 0,0,1,0 },
+            }},
+
+            0,
+            {
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+                {{0, {1,1, 0,0,0,0,0}}},
+            },
+        },
     };
 
     return &XYZD50_profile;
@@ -2275,7 +2339,7 @@ bool skcms_Transform(const void*             src,
         run = run_program_hsw;
     }
 #endif
-    run(program, arguments, src, dst, n, src_bpp,dst_bpp);
+    run(program, arguments, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
 }
 

@@ -229,7 +229,7 @@ SI ATTR F NS(approx_pow_)(F x, float y) {
 #define approx_pow NS(approx_pow_)
 
 // Return tf(x).
-SI ATTR F NS(apply_transfer_function_)(const skcms_TransferFunction* tf, F x) {
+SI ATTR F NS(apply_tf_)(const skcms_TransferFunction* tf, F x) {
     F sign = (F)if_then_else(x < 0, -F1, F1);
     x *= sign;
 
@@ -238,7 +238,7 @@ SI ATTR F NS(apply_transfer_function_)(const skcms_TransferFunction* tf, F x) {
 
     return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
 }
-#define apply_transfer_function NS(apply_transfer_function_)
+#define apply_tf NS(apply_tf_)
 
 // Strided loads and stores of N values, starting from p.
 #if N == 1
@@ -600,9 +600,9 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 U16 rgb;
                 small_memcpy(&rgb, src + 2*i, 2*N);
 
-                r = CAST(F, rgb & (31<< 0)) * (1.0f / (31<< 0));
-                g = CAST(F, rgb & (63<< 5)) * (1.0f / (63<< 5));
-                b = CAST(F, rgb & (31<<11)) * (1.0f / (31<<11));
+                r = CAST(F, rgb & (uint16_t)(31<< 0)) * (1.0f / (31<< 0));
+                g = CAST(F, rgb & (uint16_t)(63<< 5)) * (1.0f / (63<< 5));
+                b = CAST(F, rgb & (uint16_t)(31<<11)) * (1.0f / (31<<11));
                 a = F1;
             } break;
 
@@ -812,7 +812,7 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             } break;
 
             case Op_matrix_3x3:{
-                const skcms_Matrix3x3* matrix = *args++;
+                const skcms_Matrix3x3* matrix = (const skcms_Matrix3x3*) *args++;
                 const float* m = &matrix->vals[0][0];
 
                 F R = m[0]*r + m[1]*g + m[2]*b,
@@ -825,7 +825,7 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             } break;
 
             case Op_matrix_3x4:{
-                const skcms_Matrix3x4* matrix = *args++;
+                const skcms_Matrix3x4* matrix = (const skcms_Matrix3x4*) *args++;
                 const float* m = &matrix->vals[0][0];
 
                 F R = m[0]*r + m[1]*g + m[ 2]*b + m[ 3],
@@ -858,40 +858,40 @@ static void NS(exec_ops)(const Op* ops, const void** args,
                 b = Z * 0.8249f;
             } break;
 
-            case Op_tf_r:{ r = apply_transfer_function(*args++, r); } break;
-            case Op_tf_g:{ g = apply_transfer_function(*args++, g); } break;
-            case Op_tf_b:{ b = apply_transfer_function(*args++, b); } break;
-            case Op_tf_a:{ a = apply_transfer_function(*args++, a); } break;
+            case Op_tf_r:{ r = apply_tf((const skcms_TransferFunction*)*args++, r); } break;
+            case Op_tf_g:{ g = apply_tf((const skcms_TransferFunction*)*args++, g); } break;
+            case Op_tf_b:{ b = apply_tf((const skcms_TransferFunction*)*args++, b); } break;
+            case Op_tf_a:{ a = apply_tf((const skcms_TransferFunction*)*args++, a); } break;
 
-            case Op_table_8_r: { r = NS(table_8_ )(*args++, r); } break;
-            case Op_table_8_g: { g = NS(table_8_ )(*args++, g); } break;
-            case Op_table_8_b: { b = NS(table_8_ )(*args++, b); } break;
-            case Op_table_8_a: { a = NS(table_8_ )(*args++, a); } break;
+            case Op_table_8_r: { r = NS(table_8_ )((const skcms_Curve*)*args++, r); } break;
+            case Op_table_8_g: { g = NS(table_8_ )((const skcms_Curve*)*args++, g); } break;
+            case Op_table_8_b: { b = NS(table_8_ )((const skcms_Curve*)*args++, b); } break;
+            case Op_table_8_a: { a = NS(table_8_ )((const skcms_Curve*)*args++, a); } break;
 
-            case Op_table_16_r:{ r = NS(table_16_)(*args++, r); } break;
-            case Op_table_16_g:{ g = NS(table_16_)(*args++, g); } break;
-            case Op_table_16_b:{ b = NS(table_16_)(*args++, b); } break;
-            case Op_table_16_a:{ a = NS(table_16_)(*args++, a); } break;
+            case Op_table_16_r:{ r = NS(table_16_)((const skcms_Curve*)*args++, r); } break;
+            case Op_table_16_g:{ g = NS(table_16_)((const skcms_Curve*)*args++, g); } break;
+            case Op_table_16_b:{ b = NS(table_16_)((const skcms_Curve*)*args++, b); } break;
+            case Op_table_16_a:{ a = NS(table_16_)((const skcms_Curve*)*args++, a); } break;
 
             case Op_clut_3D_8:{
-                const skcms_A2B* a2b = *args++;
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 NS(clut_3_8_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_16:{
-                const skcms_A2B* a2b = *args++;
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 NS(clut_3_16_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_4D_8:{
-                const skcms_A2B* a2b = *args++;
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 NS(clut_4_8_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
 
             case Op_clut_4D_16:{
-                const skcms_A2B* a2b = *args++;
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 NS(clut_4_16_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
