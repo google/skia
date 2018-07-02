@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dba4b699_42ca02ec",
+        "filename": "tools/skpbench/skpbench.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-02T13:57:41Z",
+      "side": 1,
+      "message": "I think we will want DDL support eventually though.",
+      "revId": "58be85f47a947db459671a871fa0c4e1499655a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
