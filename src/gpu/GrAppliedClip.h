@@ -11,9 +11,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrScissorState.h"
 #include "GrWindowRectsState.h"
-
 #include "SkClipStack.h"
-
 
 /**
  * Produced by GrHardClip. It provides a set of modifications to the hardware drawing state that
@@ -55,7 +53,8 @@ public:
     }
 
     bool doesClip() const {
-        return fScissorState.enabled() || this->hasStencilClip() || fWindowRectsState.enabled();
+        return fScissorState.scissorTest() == GrScissorTest::kEnabled || this->hasStencilClip() ||
+               fWindowRectsState.enabled();
     }
 
     bool operator==(const GrAppliedHardClip& that) const {

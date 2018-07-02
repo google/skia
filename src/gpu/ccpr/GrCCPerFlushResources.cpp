@@ -64,8 +64,7 @@ public:
 
     void onExecute(GrOpFlushState* flushState) override {
         SkASSERT(fStashedAtlasProxy);
-        GrPipeline pipeline(flushState->proxy(), GrPipeline::ScissorState::kDisabled,
-                            SkBlendMode::kSrc);
+        GrPipeline pipeline(flushState->proxy(), GrScissorTest::kDisabled, SkBlendMode::kSrc);
         GrCCPathProcessor pathProc(flushState->resourceProvider(), std::move(fStashedAtlasProxy));
         pathProc.drawPaths(flushState, pipeline, nullptr, *fResources, fBaseInstance, fEndInstance,
                            this->bounds());

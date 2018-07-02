@@ -28,8 +28,6 @@
  * scissor rectangles then reads back the result to verify a successful test.
  */
 
-using ScissorState = GrPipeline::ScissorState;
-
 static constexpr int kScreenSize = 6;
 static constexpr int kNumMeshes = 4;
 static constexpr int kScreenSplitX = kScreenSize/2;
@@ -113,20 +111,18 @@ public:
     DEFINE_OP_CLASS_ID
 
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
-                                          ScissorState scissorState,
+                                          GrScissorTest scissorTest,
                                           sk_sp<const GrBuffer> vbuff) {
         GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
-        return pool->allocate<GrPipelineDynamicStateTestOp>(scissorState, std::move(vbuff));
+        return pool->allocate<GrPipelineDynamicStateTestOp>(scissorTest, std::move(vbuff));
     }
 
 private:
     friend class GrOpMemoryPool;
 
-    GrPipelineDynamicStateTestOp(ScissorState scissorState, sk_sp<const GrBuffer> vbuff)
-        : INHERITED(ClassID())
-        , fScissorState(scissorState)
-        , fVertexBuffer(std::move(vbuff)) {
+    GrPipelineDynamicStateTestOp(GrScissorTest scissorTest, sk_sp<const GrBuffer> vbuff)
+            : INHERITED(ClassID()), fScissorTest(scissorTest), fVertexBuffer(std::move(vbuff)) {
         this->setBounds(SkRect::MakeIWH(kScreenSize, kScreenSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -141,7 +137,7 @@ private:
     void onPrepare(GrOpFlushState*) override {}
     void onExecute(GrOpFlushState* state) override {
         GrRenderTargetProxy* proxy = state->drawOpArgs().fProxy;
-        GrPipeline pipeline(proxy, fScissorState, SkBlendMode::kSrc);
+        GrPipeline pipeline(proxy, fScissorTest, SkBlendMode::kSrc);
         SkSTArray<kNumMeshes, GrMesh> meshes;
         for (int i = 0; i < kNumMeshes; ++i) {
             GrMesh& mesh = meshes.emplace_back(GrPrimitiveType::kTriangleStrip);
@@ -155,7 +151,7 @@ private:
                                        SkRect::MakeIWH(kScreenSize, kScreenSize));
     }
 
-    ScissorState                fScissorState;
+    GrScissorTest               fScissorTest;
     const sk_sp<const GrBuffer> fVertexBuffer;
 
     typedef GrDrawOp INHERITED;
@@ -208,17 +204,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
 
     uint32_t resultPx[kScreenSize * kScreenSize];
 
-    for (ScissorState scissorState : {ScissorState::kEnabled, ScissorState::kDisabled}) {
+    for (GrScissorTest scissorTest : {GrScissorTest::kEnabled, GrScissorTest::kDisabled}) {
         rtc->clear(nullptr, 0xbaaaaaad, GrRenderTargetContext::CanClearFullscreen::kYes);
         rtc->priv().testingOnly_addDrawOp(
-            GrPipelineDynamicStateTestOp::Make(context, scissorState, vbuff));
+                GrPipelineDynamicStateTestOp::Make(context, scissorTest, vbuff));
         rtc->readPixels(SkImageInfo::Make(kScreenSize, kScreenSize,
                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType),
                         resultPx, 4 * kScreenSize, 0, 0, 0);
         for (int y = 0; y < kScreenSize; ++y) {
             for (int x = 0; x < kScreenSize; ++x) {
                 int expectedColorIdx;
-                if (ScissorState::kEnabled == scissorState) {
+                if (scissorTest == GrScissorTest::kEnabled) {
                     expectedColorIdx = (x < kScreenSplitX ? 0 : 2) + (y < kScreenSplitY ? 0 : 1);
                 } else {
                     expectedColorIdx = kNumMeshes - 1;
@@ -227,7 +223,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrPipelineDynamicStateTest, reporter, ctxInfo
                 uint32_t actual = resultPx[y * kScreenSize + x];
                 if (expected != actual) {
                     ERRORF(reporter, "[scissor=%s] pixel (%i,%i): got 0x%x expected 0x%x",
-                           ScissorState::kEnabled == scissorState ? "enabled" : "disabled", x, y,
+                           scissorTest == GrScissorTest::kEnabled ? "enabled" : "disabled", x, y,
                            actual, expected);
                     return;
                 }
