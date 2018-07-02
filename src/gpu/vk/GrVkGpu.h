@@ -244,11 +244,6 @@ private:
 
     GrVkCopyManager                        fCopyManager;
 
-#ifdef SK_ENABLE_VK_LAYERS
-    // For reporting validation layer errors
-    VkDebugReportCallbackEXT               fCallback;
-#endif
-
     // compiler used for compiling sksl into spirv. We only want to create the compiler once since
     // there is significant overhead to the first compile of any compiler.
     SkSL::Compiler*                        fCompiler;
