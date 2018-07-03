@@ -10,6 +10,7 @@
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
+#include "GrTexturePriv.h"
 #include "SkConvertPixels.h"
 
 #if !__has_feature(objc_arc)
@@ -120,6 +121,66 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     fCmdBuffer = [fQueue commandBuffer];
 }
 
+bool GrMtlGpu::uploadToPrivateTex(GrMtlTexture* tex, int left, int top, int width, int height,
+                                  GrColorType dataColorType, const GrMipLevel texels[],
+                                  int mipLevelCount) {
+    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+
+    if (width == 0 || height == 0) {
+        return false;
+    }
+    if (GrPixelConfigToColorType(tex->config()) != dataColorType) {
+        return false;
+    }
+
+    id<MTLTexture> privateTexture = tex->mtlTexture();
+    SkASSERT(privateTexture);
+    MTLTextureDescriptor* managedDesc = GrGetMTLTextureDescriptor(privateTexture);
+    managedDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+    managedDesc.storageMode = MTLStorageModeManaged;
+    id<MTLTexture> managedTexture = [fDevice newTextureWithDescriptor:managedDesc];
+
+    SkASSERT(managedTexture);
+    SkASSERT(privateTexture.pixelFormat == managedTexture.pixelFormat);
+    SkASSERT(privateTexture.sampleCount == managedTexture.sampleCount);
+    if (mipLevelCount > (int) managedTexture.mipmapLevelCount) {
+        return false;
+    }
+
+    int currentWidth = width;
+    int currentHeight = height;
+    int texelsIndex;
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
+    MTLOrigin origin = MTLOriginMake(left, top, 0);
+    for (int currentMipLevel = 1; currentMipLevel <= mipLevelCount; currentMipLevel++) {
+        texelsIndex = currentMipLevel - 1;
+        if (texels[texelsIndex].fPixels) {
+            [managedTexture replaceRegion: MTLRegionMake2D(left, top, currentWidth, currentHeight)
+                              mipmapLevel: currentMipLevel
+                                withBytes: texels[texelsIndex].fPixels
+                              bytesPerRow: texels[texelsIndex].fRowBytes];
+
+            [blitCmdEncoder copyFromTexture: managedTexture
+                                sourceSlice: 0
+                                sourceLevel: currentMipLevel
+                               sourceOrigin: origin
+                                 sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
+                                  toTexture: privateTexture
+                           destinationSlice: 0
+                           destinationLevel: currentMipLevel
+                          destinationOrigin: origin];
+        }
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+    }
+    [blitCmdEncoder endEncoding];
+
+    if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
+        tex->texturePriv().markMipMapsDirty();
+    }
+    return true;
+}
+
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                            const GrMipLevel texels[], int mipLevelCount) {
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
@@ -175,14 +236,19 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         return nullptr;
     }
 
+    auto colorType = GrPixelConfigToColorType(desc.fConfig);
     if (mipLevelCount) {
-        // Perform initial data upload here
+        if (!this->uploadToPrivateTex(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType, texels,
+                                      mipLevelCount)) {
+            tex->unref();
+            return nullptr;
+        }
     }
 
     if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
         // Do initial clear of the texture
     }
-    return tex;
+    return std::move(tex);
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex,
