@@ -26,3 +26,4 @@ steps:
 images:
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
+timeout: 7200s
