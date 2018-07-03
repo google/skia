@@ -1305,7 +1305,14 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawOval", fContext);
 
+    const SkStrokeRec& stroke = style.strokeRec();
+
     if (oval.isEmpty() && !style.pathEffect()) {
+        if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+            return;
+        }
+
+        this->drawRect(clip, std::move(paint), aa, viewMatrix, oval, &style);
         return;
     }
 
