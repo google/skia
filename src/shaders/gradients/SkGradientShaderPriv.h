@@ -12,6 +12,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkMatrix.h"
+#include "SkPM4fPriv.h"
 #include "SkShaderBase.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -63,17 +64,9 @@ public:
 
     bool isOpaque() const override;
 
-    enum class GradientBitmapType : uint8_t {
-        kLegacy,
-        kSRGB,
-        kHalfFloat,
-    };
-
-    void getGradientTableBitmap(SkBitmap*, GradientBitmapType bitmapType) const;
+    void getGradientTableBitmap(const SkColor4f* colors, SkBitmap*, SkColorType) const;
 
     uint32_t getGradFlags() const { return fGradFlags; }
-
-    SkColor4f getXformedColor(size_t index, SkColorSpace*) const;
 
 protected:
     class GradientShaderBase4fContext;
@@ -85,7 +78,7 @@ protected:
 
     bool onAsLuminanceColor(SkColor*) const override;
 
-    void initLinearBitmap(SkBitmap* bitmap, GradientBitmapType) const;
+    void initLinearBitmap(const SkColor4f* colors, SkBitmap* bitmap, SkColorType colorType) const;
 
     bool onAppendStages(const StageRec&) const override;
 
@@ -119,7 +112,7 @@ public:
 
     SkColor getLegacyColor(int i) const {
         SkASSERT(i < fColorCount);
-        return fOrigColors4f[i].toSkColor();
+        return Sk4f_toL32(swizzle_rb(Sk4f::Load(fOrigColors4f[i].vec())));
     }
 
     SkColor4f*          fOrigColors4f; // original colors, as linear floats
@@ -141,6 +134,15 @@ private:
     bool                                        fColorsAreOpaque;
 
     typedef SkShaderBase INHERITED;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct SkColor4fXformer {
+    SkColor4fXformer(const SkColor4f* colors, int colorCount, SkColorSpace* src, SkColorSpace* dst);
+
+    const SkColor4f*              fColors;
+    SkSTArray<4, SkColor4f, true> fStorage;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -188,11 +190,11 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    SkShader::TileMode tileMode,
-                   SkColorSpace* dstColorSpace)
+                   const GrColorSpaceInfo* dstColorSpaceInfo)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
-                , fDstColorSpace(dstColorSpace) {
+                , fDstColorSpaceInfo(dstColorSpaceInfo) {
             switch (tileMode) {
                 case SkShader::kClamp_TileMode:
                     fWrapMode = GrSamplerState::WrapMode::kClamp;
@@ -214,18 +216,18 @@ public:
                    const SkGradientShaderBase* shader,
                    const SkMatrix* matrix,
                    GrSamplerState::WrapMode wrapMode,
-                   SkColorSpace* dstColorSpace)
+                   const GrColorSpaceInfo* dstColorSpaceInfo)
                 : fContext(context)
                 , fShader(shader)
                 , fMatrix(matrix)
                 , fWrapMode(wrapMode)
-                , fDstColorSpace(dstColorSpace) {}
+                , fDstColorSpaceInfo(dstColorSpaceInfo) {}
 
         GrContext*                  fContext;
         const SkGradientShaderBase* fShader;
         const SkMatrix*             fMatrix;
         GrSamplerState::WrapMode    fWrapMode;
-        SkColorSpace*               fDstColorSpace;
+        const GrColorSpaceInfo*     fDstColorSpaceInfo;
     };
 
     class GLSLProcessor;
@@ -255,29 +257,13 @@ protected:
 
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
 
-    // Helper function used by derived class factories to handle color space transformation and
-    // modulation by input alpha.
+    // Helper function used by derived class factories to handle modulation by input alpha.
     static std::unique_ptr<GrFragmentProcessor> AdjustFP(
             std::unique_ptr<GrGradientEffect> gradientFP, const CreateArgs& args) {
         if (!gradientFP->isValid()) {
             return nullptr;
         }
-        std::unique_ptr<GrFragmentProcessor> fp;
-        // With analytic gradients, we pre-convert the stops to the destination color space, so no
-        // xform is needed. With texture-based gradients, we leave the data in the source color
-        // space (to avoid clamping if we can't use F16)... Add an extra FP to do the xform.
-        if (gradientFP->fStrategy == InterpolationStrategy::kTexture) {
-            // Our texture is always either F16 or sRGB, so the data is "linear" in the shader.
-            // Create our xform assuming float inputs, which will suppress any extra sRGB work.
-            // We do support having a transfer function on the color space of the stops, so
-            // this FP may include that transformation.
-            fp = GrColorSpaceXformEffect::Make(std::move(gradientFP),
-                                               args.fShader->fColorSpace.get(),
-                                               args.fDstColorSpace);
-        } else {
-            fp = std::move(gradientFP);
-        }
-        return GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
+        return GrFragmentProcessor::MulChildByInputAlpha(std::move(gradientFP));
     }
 
 #if GR_TEST_UTILS
@@ -313,7 +299,8 @@ protected:
     }
 
 private:
-    void addInterval(const SkGradientShaderBase&, size_t idx0, size_t idx1, SkColorSpace*);
+    void addInterval(const SkGradientShaderBase&, const SkColor4f* colors,
+                     size_t idx0, size_t idx1);
 
     static OptimizationFlags OptFlags(bool isOpaque);
 

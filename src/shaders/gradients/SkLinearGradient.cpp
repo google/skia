@@ -201,7 +201,7 @@ std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
     matrix.postConcat(fPtsToUnit);
 
     return GrLinearGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, args.fDstColorSpaceInfo->colorSpace()));
+            args.fContext, this, &matrix, fTileMode, args.fDstColorSpaceInfo));
 }
 
 

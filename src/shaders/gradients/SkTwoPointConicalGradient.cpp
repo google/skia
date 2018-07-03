@@ -190,7 +190,7 @@ std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProces
 
     return Gr2PtConicalGradientEffect::Make(
             GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         args.fDstColorSpaceInfo->colorSpace()));
+                                         args.fDstColorSpaceInfo));
 }
 
 #endif
