@@ -1359,11 +1359,7 @@ GrBackendTexture GrVkGpu::createTestingOnlyBackendTexture(const void* srcData, i
                                         &info)) {
         return {};
     }
-    GrBackendTexture beTex = GrBackendTexture(w, h, info);
-    // Lots of tests don't go through Skia's public interface which will set the config so for
-    // testing we make sure we set a config here.
-    beTex.setPixelConfig(config);
-    return beTex;
+    return GrBackendTexture(w, h, info);
 }
 
 bool GrVkGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
@@ -1413,11 +1409,7 @@ GrBackendRenderTarget GrVkGpu::createTestingOnlyBackendRenderTarget(int w, int h
                                         &info)) {
         return {};
     }
-    GrBackendRenderTarget beRT = GrBackendRenderTarget(w, h, 1, 0, info);
-    // Lots of tests don't go through Skia's public interface which will set the config so for
-    // testing we make sure we set a config here.
-    beRT.setPixelConfig(config);
-    return beRT;
+    return {w, h, 1, 0, info};
 }
 
 void GrVkGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {

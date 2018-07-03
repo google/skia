@@ -106,7 +106,6 @@ static sk_sp<GrTextureProxy> create_wrapped_backend(GrContext* context, SkBackin
     }
 
     GrBackendTexture backendTex = (*backingSurface)->getBackendTexture();
-    backendTex.setPixelConfig(desc.fConfig);
 
     return proxyProvider->wrapBackendTexture(backendTex, kBottomLeft_GrSurfaceOrigin);
 }
