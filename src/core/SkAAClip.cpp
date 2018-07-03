@@ -308,38 +308,6 @@ static void count_left_right_zeros(const uint8_t* row, int width,
     *riteZ = zeros;
 }
 
-#ifdef SK_DEBUG
-static void test_count_left_right_zeros() {
-    static bool gOnce;
-    if (gOnce) {
-        return;
-    }
-    gOnce = true;
-
-    const uint8_t data0[] = {  0, 0,     10, 0xFF };
-    const uint8_t data1[] = {  0, 0,     5, 0xFF, 2, 0, 3, 0xFF };
-    const uint8_t data2[] = {  7, 0,     5, 0, 2, 0, 3, 0xFF };
-    const uint8_t data3[] = {  0, 5,     5, 0xFF, 2, 0, 3, 0 };
-    const uint8_t data4[] = {  2, 3,     2, 0, 5, 0xFF, 3, 0 };
-    const uint8_t data5[] = { 10, 10,    10, 0 };
-    const uint8_t data6[] = {  2, 2,     2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-
-    const uint8_t* array[] = {
-        data0, data1, data2, data3, data4, data5, data6
-    };
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
-        const uint8_t* data = array[i];
-        const int expectedL = *data++;
-        const int expectedR = *data++;
-        int L = 12345, R = 12345;
-        count_left_right_zeros(data, 10, &L, &R);
-        SkASSERT(expectedL == L);
-        SkASSERT(expectedR == R);
-    }
-}
-#endif
-
 // modify row in place, trimming off (zeros) from the left and right sides.
 // return the number of bytes that were completely eliminated from the left
 static int trim_row_left_right(uint8_t* row, int width, int leftZ, int riteZ) {
@@ -386,62 +354,7 @@ static int trim_row_left_right(uint8_t* row, int width, int leftZ, int riteZ) {
     return trim;
 }
 
-#ifdef SK_DEBUG
-// assert that this row is exactly this width
-static void assert_row_width(const uint8_t* row, int width) {
-    while (width > 0) {
-        int n = row[0];
-        SkASSERT(n > 0);
-        SkASSERT(n <= width);
-        width -= n;
-        row += 2;
-    }
-    SkASSERT(0 == width);
-}
-
-static void test_trim_row_left_right() {
-    static bool gOnce;
-    if (gOnce) {
-        return;
-    }
-    gOnce = true;
-
-    uint8_t data0[] = {  0, 0, 0,   10,    10, 0xFF };
-    uint8_t data1[] = {  2, 0, 0,   10,    5, 0, 2, 0, 3, 0xFF };
-    uint8_t data2[] = {  5, 0, 2,   10,    5, 0, 2, 0, 3, 0xFF };
-    uint8_t data3[] = {  6, 0, 2,   10,    5, 0, 2, 0, 3, 0xFF };
-    uint8_t data4[] = {  0, 0, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data5[] = {  1, 0, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data6[] = {  0, 1, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data7[] = {  1, 1, 0,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data8[] = {  2, 2, 2,   10,    2, 0, 2, 0xFF, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data9[] = {  5, 2, 4,   10,    2, 0, 2, 0, 2, 0, 2, 0xFF, 2, 0 };
-    uint8_t data10[] ={  74, 0, 4, 150,    9, 0, 65, 0, 76, 0xFF };
-
-    uint8_t* array[] = {
-        data0, data1, data2, data3, data4,
-        data5, data6, data7, data8, data9,
-        data10
-    };
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(array); ++i) {
-        uint8_t* data = array[i];
-        const int trimL = *data++;
-        const int trimR = *data++;
-        const int expectedSkip = *data++;
-        const int origWidth = *data++;
-        assert_row_width(data, origWidth);
-        int skip = trim_row_left_right(data, origWidth, trimL, trimR);
-        SkASSERT(expectedSkip == skip);
-        int expectedWidth = origWidth - trimL - trimR;
-        assert_row_width(data + skip, expectedWidth);
-    }
-}
-#endif
-
 bool SkAAClip::trimLeftRight() {
-    SkDEBUGCODE(test_trim_row_left_right();)
-
     if (this->isEmpty()) {
         return false;
     }
@@ -1156,9 +1069,6 @@ public:
 
     void validate() {
 #ifdef SK_DEBUG
-        if (false) { // avoid bit rot, suppress warning
-            test_count_left_right_zeros();
-        }
         int prevY = -1;
         for (int i = 0; i < fRows.count(); ++i) {
             const Row& row = fRows[i];
