@@ -370,6 +370,10 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     bool nv12 = (yuvaIndices[1].fIndex == yuvaIndices[2].fIndex);
     auto ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
 
+    // This isn't a direct copy of the yuvaTextures array, but instead it matches the order given by
+    // yuvaIndices. Thus we may have duplicate copies of the GrBackendTexture in this array.
+    GrBackendTexture yuvaTexturesCopy[4];
+
     for (int i = 0; i < 4; ++i) {
         // Validate that the yuvaIndices refer to valid backend textures.
         SkYUVAIndex& yuvaIndex = yuvaIndices[i];
@@ -382,11 +386,11 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
             // at most 4 images sources being passed in, could not have a index more than 3.
             return nullptr;
         }
-        auto texture = yuvaTextures[yuvaIndex.fIndex];
+        yuvaTexturesCopy[i] = yuvaTextures[yuvaIndex.fIndex];
         // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
         // actually use channel information here.
-        if (!validate_backend_texture(ctx, texture, &texture.fConfig, ct, kPremul_SkAlphaType,
-                                      nullptr)) {
+        if (!validate_backend_texture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig, ct,
+                                      kPremul_SkAlphaType, nullptr)) {
             return nullptr;
         }
 
@@ -406,8 +410,9 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
         }
 
         if (!tempTextureProxies[textureIndex]) {
+            SkASSERT(yuvaTexturesCopy[i].isValid());
             tempTextureProxies[textureIndex] =
-                    proxyProvider->wrapBackendTexture(yuvaTextures[textureIndex], origin);
+                    proxyProvider->wrapBackendTexture(yuvaTexturesCopy[i], origin);
         }
     }
     sk_sp<GrTextureProxy> yProxy = tempTextureProxies[yuvaIndices[0].fIndex];
