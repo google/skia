@@ -16,6 +16,24 @@
       "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b13180ff_6f6f0b62",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-03T18:21:59Z",
+      "side": 1,
+      "message": "I believe that is still the case here. My addition shouldn\u0027t have changed the logic at all. The tempTextureProxies check above should catch that. All this change did was remove the indirection of going from yuvaIndices[i].fIndex to a GrBackendTexture.",
+      "parentUuid": "505002ab_d00fb1f2",
+      "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
