@@ -866,6 +866,24 @@
     },
     {
       "key": {
+        "uuid": "07977397_7a170334",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 16
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T20:02:16Z",
+      "side": 1,
+      "message": "So, it is setBackendTextureFromCamera?\n\nAnd the dox would be something like:\n\n// Give the session a handle to the image from the camera. All draws will be composited on top of this image and then displayed on the screen\n\nHaving \"Name\" in the function name doesn\u0027t seem to make sense to me.",
+      "parentUuid": "5058fc2e_d10395bf",
+      "revId": "a644f4df408b7e1b8f745db55443ad0fdeb59847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b4e669c6_51033419",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
         "patchSetId": 16
