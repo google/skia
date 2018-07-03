@@ -150,7 +150,10 @@ sk_sp<sksg::Path> AttachPath(const skjson::Value& jpath, AttachContext* ctx) {
     auto path_node = sksg::Path::Make();
     return BindProperty<ShapeValue>(jpath, &ctx->fAnimators,
         [path_node](const ShapeValue& p) {
-            path_node->setPath(ValueTraits<ShapeValue>::As<SkPath>(p));
+            // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
+            auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
+            path.setFillType(path_node->getFillType());
+            path_node->setPath(path);
         })
         ? path_node
         : nullptr;
