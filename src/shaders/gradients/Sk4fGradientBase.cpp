@@ -21,19 +21,19 @@ Sk4f pack_color(const SkColor4f& c4f, bool premul, const Sk4f& component_scale) 
 
 class IntervalIterator {
 public:
-    IntervalIterator(const SkGradientShaderBase& shader, SkColorSpace* dstCS, bool reverse)
+    IntervalIterator(const SkGradientShaderBase& shader, bool reverse)
         : fShader(shader)
-        , fDstCS(dstCS)
         , fFirstPos(reverse ? SK_Scalar1 : 0)
         , fBegin(reverse ? shader.fColorCount - 1 : 0)
         , fAdvance(reverse ? -1 : 1) {
         SkASSERT(shader.fColorCount > 0);
     }
 
-    void iterate(std::function<void(const SkColor4f&, const SkColor4f&,
+    void iterate(const SkColor4f* colors,
+                 std::function<void(const SkColor4f&, const SkColor4f&,
                                     SkScalar, SkScalar)> func) const {
         if (!fShader.fOrigPos) {
-            this->iterateImplicitPos(func);
+            this->iterateImplicitPos(colors, func);
             return;
         }
 
@@ -48,8 +48,7 @@ public:
             const SkScalar currPos = fShader.fOrigPos[curr];
             if (currPos != prevPos) {
                 SkASSERT((currPos - prevPos > 0) == (fAdvance > 0));
-                func(fShader.getXformedColor(prev, fDstCS), fShader.getXformedColor(curr, fDstCS),
-                     prevPos, currPos);
+                func(colors[prev], colors[curr], prevPos, currPos);
             }
 
             prev = curr;
@@ -58,7 +57,8 @@ public:
     }
 
 private:
-    void iterateImplicitPos(std::function<void(const SkColor4f&, const SkColor4f&,
+    void iterateImplicitPos(const SkColor4f* colors,
+                            std::function<void(const SkColor4f&, const SkColor4f&,
                                                SkScalar, SkScalar)> func) const {
         // When clients don't provide explicit color stop positions (fPos == nullptr),
         // the color stops are distributed evenly across the unit interval
@@ -73,33 +73,28 @@ private:
             SkASSERT(curr >= 0 && curr < fShader.fColorCount);
 
             const SkScalar currPos = prevPos + dt;
-            func(fShader.getXformedColor(prev, fDstCS),
-                 fShader.getXformedColor(curr, fDstCS),
-                 prevPos, currPos);
+            func(colors[prev], colors[curr], prevPos, currPos);
             prev = curr;
             prevPos = currPos;
         }
 
         // emit the last interval with a pinned end position, to avoid precision issues
-        func(fShader.getXformedColor(prev, fDstCS),
-             fShader.getXformedColor(prev + fAdvance, fDstCS),
-             prevPos, 1 - fFirstPos);
+        func(colors[prev], colors[prev + fAdvance], prevPos, 1 - fFirstPos);
     }
 
     const SkGradientShaderBase& fShader;
-    SkColorSpace*               fDstCS;
     const SkScalar              fFirstPos;
     const int                   fBegin;
     const int                   fAdvance;
 };
 
 void addMirrorIntervals(const SkGradientShaderBase& shader,
-                        SkColorSpace* dstCS,
+                        const SkColor4f* colors,
                         const Sk4f& componentScale,
                         bool premulColors, bool reverse,
                         Sk4fGradientIntervalBuffer::BufferType* buffer) {
-    const IntervalIterator iter(shader, dstCS, reverse);
-    iter.iterate([&] (const SkColor4f& c0, const SkColor4f& c1, SkScalar t0, SkScalar t1) {
+    const IntervalIterator iter(shader, reverse);
+    iter.iterate(colors, [&] (const SkColor4f& c0, const SkColor4f& c1, SkScalar t0, SkScalar t1) {
         SkASSERT(buffer->empty() || buffer->back().fT1 == 2 - t0);
 
         const auto mirror_t0 = 2 - t0;
@@ -193,20 +188,25 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
     const SkScalar first_pos = reverse ? SK_Scalar1 : 0;
     const SkScalar last_pos = SK_Scalar1 - first_pos;
 
+    // Transform all of the colors to destination color space
+    SkColor4fXformer xformedColors(shader.fOrigColors4f, count, shader.fColorSpace.get(), dstCS);
+
     if (tileMode == SkShader::kClamp_TileMode) {
         // synthetic edge interval: -/+inf .. P0
-        const Sk4f clamp_color = pack_color(shader.getXformedColor(first_index, dstCS),
+        const Sk4f clamp_color = pack_color(xformedColors.fColors[first_index],
                                             premulColors, componentScale);
         const SkScalar clamp_pos = reverse ? SK_ScalarInfinity : SK_ScalarNegativeInfinity;
         fIntervals.emplace_back(clamp_color, clamp_pos,
                                 clamp_color, first_pos);
     } else if (tileMode == SkShader::kMirror_TileMode && reverse) {
         // synthetic mirror intervals injected before main intervals: (2 .. 1]
-        addMirrorIntervals(shader, dstCS, componentScale, premulColors, false, &fIntervals);
+        addMirrorIntervals(shader, xformedColors.fColors, componentScale, premulColors, false,
+                           &fIntervals);
     }
 
-    const IntervalIterator iter(shader, dstCS, reverse);
-    iter.iterate([&] (const SkColor4f& c0, const SkColor4f& c1, SkScalar t0, SkScalar t1) {
+    const IntervalIterator iter(shader, reverse);
+    iter.iterate(xformedColors.fColors,
+                 [&] (const SkColor4f& c0, const SkColor4f& c1, SkScalar t0, SkScalar t1) {
         SkASSERT(fIntervals.empty() || fIntervals.back().fT1 == t0);
 
         fIntervals.emplace_back(pack_color(c0, premulColors, componentScale), t0,
@@ -215,14 +215,15 @@ void Sk4fGradientIntervalBuffer::init(const SkGradientShaderBase& shader, SkColo
 
     if (tileMode == SkShader::kClamp_TileMode) {
         // synthetic edge interval: Pn .. +/-inf
-        const Sk4f clamp_color = pack_color(shader.getXformedColor(last_index, dstCS),
+        const Sk4f clamp_color = pack_color(xformedColors.fColors[last_index],
                                             premulColors, componentScale);
         const SkScalar clamp_pos = reverse ? SK_ScalarNegativeInfinity : SK_ScalarInfinity;
         fIntervals.emplace_back(clamp_color, last_pos,
                                 clamp_color, clamp_pos);
     } else if (tileMode == SkShader::kMirror_TileMode && !reverse) {
         // synthetic mirror intervals injected after main intervals: [1 .. 2)
-        addMirrorIntervals(shader, dstCS, componentScale, premulColors, true, &fIntervals);
+        addMirrorIntervals(shader, xformedColors.fColors, componentScale, premulColors, true,
+                           &fIntervals);
     }
 }
 
