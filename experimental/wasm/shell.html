@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Skia and WASM</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; width: 80%; }
+      div.emscripten { text-align: center; }
+      div.emscripten_border { border: 1px solid black; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; background-color: black; }
+
+      .spinner {
+        height: 50px;
+        width: 50px;
+        margin: 0px auto;
+        -webkit-animation: rotation .8s linear infinite;
+        -moz-animation: rotation .8s linear infinite;
+        -o-animation: rotation .8s linear infinite;
+        animation: rotation 0.8s linear infinite;
+        border-left: 10px solid rgb(0,150,240);
+        border-right: 10px solid rgb(0,150,240);
+        border-bottom: 10px solid rgb(0,150,240);
+        border-top: 10px solid rgb(100,0,200);
+        border-radius: 100%;
+        background-color: rgb(200,100,250);
+      }
+      @-webkit-keyframes rotation {
+        from {-webkit-transform: rotate(0deg);}
+        to {-webkit-transform: rotate(360deg);}
+      }
+      @-moz-keyframes rotation {
+        from {-moz-transform: rotate(0deg);}
+        to {-moz-transform: rotate(360deg);}
+      }
+      @-o-keyframes rotation {
+        from {-o-transform: rotate(0deg);}
+        to {-o-transform: rotate(360deg);}
+      }
+      @keyframes rotation {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+      }
+
+    </style>
+  </head>
+  <body>
+    <hr/>
+    <figure style="overflow:visible;" id="spinner"><div class="spinner"></div><center style="margin-top:0.5em"><strong>emscripten</strong></center></figure>
+    <div class="emscripten" id="status">Downloading...</div>
+    <div class="emscripten">
+      <progress value="0" max="100" id="progress" hidden=1></progress>
+    </div>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    </div>
+    <hr/>
+    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked,
+                                                                                document.getElementById('resize').checked)">
+    </div>
+
+    <hr/>
+    <textarea class="emscripten" id="output" rows="8"></textarea>
+    <hr>
+    <script type='text/javascript'>
+      function entryPoint() {
+        // See https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/Interacting-with-code.html#call-compiled-c-c-code-directly-from-javascript
+        const TIMES = 10000 + 11 /*warmups*/;
+
+        var path;
+        for (let i = 0; i< TIMES; i++){
+          if (i === 10) {
+            // let it "warm up"
+            console.time('Path_with_calls'); // about 77 ms
+          }
+          path = new Module.SkPath();
+          path.moveTo(0,0);
+          path.lineTo(40,0);
+          path.lineTo(20,20);
+          path.close();
+          path.moveTo(20,0);
+          path.lineTo(60,0);
+          path.lineTo(40,20);
+          path.close();
+          if (i < TIMES - 1) {
+            path.delete();
+          }
+        }
+        console.timeEnd('Path_with_calls');
+
+        var result;
+        for(let i = 0; i < TIMES; i++) {
+          if (i === 10) {
+            console.time('simplify');     // about 704 ms
+          }
+          result = Module.SimplifyPath(path);
+          if (i < TIMES - 1) {
+            result.delete();
+          }
+        }
+        console.timeEnd('simplify');
+
+        var p2d;
+        for(let i = 0; i < TIMES; i++) {
+          if (i === 10) {
+            console.time('ToPath2D');     // about 57 ms
+          }
+          p2d = Module.ToPath2D(result, new Path2D());
+        }
+        console.timeEnd('ToPath2D');
+
+        let ctx = Module.canvas.getContext('2d')
+        ctx.strokeStyle = 'red';
+        ctx.stroke(p2d);
+
+        var svgPtr;
+        for(let i=0; i < TIMES; i++) {
+          if (i === 10) {
+            console.time('ToSVGString');   // about 70 ms
+          }
+          svgPtr = Module.ToSVGString(result);
+        }
+        console.timeEnd('ToSVGString');
+        Module.print('Got SVG Data: ' + svgPtr);
+
+        path.delete();
+        result.delete();
+        //===========================================================
+
+        var path2, verbs, args;
+        for (let i = 0; i< TIMES; i++) {
+          if (i === 10) {
+            console.time('path_with_vector'); // about 104 ms
+          }
+          verbs = new Module.VectorVerb();
+          args = new Module.VectorFloat();
+
+          verbs.push_back(Module.Verb.MOVE);
+          args.push_back(100); args.push_back(0);
+          verbs.push_back(Module.Verb.LINE);
+          args.push_back(140); args.push_back(0);
+          verbs.push_back(Module.Verb.LINE);
+          args.push_back(120); args.push_back(20);
+          verbs.push_back(Module.Verb.CLOSE);
+
+          verbs.push_back(Module.Verb.MOVE);
+          args.push_back(120); args.push_back(0);
+          verbs.push_back(Module.Verb.LINE);
+          args.push_back(160); args.push_back(0);
+          verbs.push_back(Module.Verb.LINE);
+          args.push_back(140); args.push_back(20);
+          verbs.push_back(Module.Verb.CLOSE);
+
+          path2 = Module.SkPathFromVerbsArgsVector(verbs, args);
+          if (i < TIMES - 1) {
+            path2.delete();
+            verbs.delete();
+            args.delete();
+          }
+        }
+        console.timeEnd('path_with_vector');
+
+        var v2, a2;
+        for (let i = 0; i< TIMES; i++) {
+          if (i === 10) {
+            console.time('to_verbs_args_vector');  // about 37 ms
+          }
+          v2 = new Module.VectorVerb();
+          a2 = new Module.VectorFloat();
+          Module.SkPathToVerbsArgsVector(path2, v2, a2);
+          if (i < TIMES - 1) {
+            v2.delete();
+            a2.delete();
+          }
+        }
+        console.timeEnd('to_verbs_args_vector');
+
+        Module.print(`Got path with ${v2.size()} verbs and ${a2.size()} args`);
+        Module.print(v2.get(0).value + ' (0 for value is MoveTo, 1 for LineTo, etc)');
+        Module.print(a2.get(0), a2.get(1) + ' (coordinates)');
+
+        p2d = Module.ToPath2D(path2, new Path2D());
+        ctx.strokeStyle = 'blue';
+        ctx.stroke(p2d);
+
+        verbs.delete();
+        args.delete();
+        path2.delete();
+        v2.delete();
+        a2.delete();
+
+        //=============================================================================
+
+        var path3;
+        for (let i = 0; i< TIMES; i++) {
+          if (i === 10) {
+            console.time('path_with_array');  // about 152 ms
+          }
+          let verbs = [];
+          let args = [];
+
+          verbs.push(Module.Verb.MOVE);
+          args.push(100); args.push(0);
+          verbs.push(Module.Verb.LINE);
+          args.push(140); args.push(0);
+          verbs.push(Module.Verb.LINE);
+          args.push(120); args.push(20);
+          verbs.push(Module.Verb.CLOSE);
+
+          verbs.push(Module.Verb.MOVE);
+          args.push(120); args.push(0);
+          verbs.push(Module.Verb.LINE);
+          args.push(160); args.push(0);
+          verbs.push(Module.Verb.LINE);
+          args.push(140); args.push(20);
+          verbs.push(Module.Verb.CLOSE);
+
+          path3 = Module.SkPathFromVerbsArgsArray(verbs, args);
+          if (i < TIMES - 1) {
+            path3.delete();
+          }
+        }
+        console.timeEnd('path_with_array');
+
+        var v3, a3;
+        for (let i = 0; i< TIMES; i++) {
+          if (i === 10) {
+            console.time('to_verbs_args_array'); // about 59 ms
+          }
+          v3 = [];
+          a3 = [];
+          Module.SkPathToVerbsArgsArray(path3, v3, a3);
+        }
+        console.timeEnd('to_verbs_args_array');
+
+        Module.print(`Got path with ${v3.length} verbs and ${a3.length} args`);
+        Module.print(v3[0].value + ' (0 for value is MoveTo, 1 for LineTo, etc)');
+        Module.print(a3[0], a3[1] + ' (coordinates)');
+
+        path3.delete();
+
+        //==============================================================================
+
+        function uint8TypedArray(arr) {
+          const ta = new Uint8ClampedArray(arr.length);
+          for (let i = 0; i < arr.length; i++){
+            ta[i] = arr[i];
+          }
+
+          retVal = Module._malloc(ta.length * ta.BYTES_PER_ELEMENT);
+          Module.HEAPU8.set(ta, retVal / ta.BYTES_PER_ELEMENT);
+          return retVal;
+        }
+
+        function floatTypedArray(arr) {
+          const ta = new Float32Array(arr.length);
+          for (let i = 0; i < arr.length; i++){
+            ta[i] = arr[i];
+          }
+
+          retVal = Module._malloc(ta.length * ta.BYTES_PER_ELEMENT);
+          Module.HEAPF32.set(ta, retVal / ta.BYTES_PER_ELEMENT);
+          return retVal;
+        }
+        var path4;
+        for (let i = 0; i< TIMES; i++) {
+          if (i === 10) {
+            console.time('path_with_typed_array'); // about 60 ms
+          }
+          let verbs = [];
+          let args = [];
+
+          verbs.push(Module.MOVE_VERB);
+          args.push(100); args.push(0);
+          verbs.push(Module.LINE_VERB);
+          args.push(140); args.push(0);
+          verbs.push(Module.LINE_VERB);
+          args.push(120); args.push(20);
+          verbs.push(Module.CLOSE_VERB);
+
+          verbs.push(Module.MOVE_VERB);
+          args.push(120); args.push(0);
+          verbs.push(Module.LINE_VERB);
+          args.push(160); args.push(0);
+          verbs.push(Module.LINE_VERB);
+          args.push(140); args.push(20);
+          verbs.push(Module.CLOSE_VERB);
+
+          let tVerbs = uint8TypedArray(verbs);
+          let tArgs =  floatTypedArray(args);
+
+          path4 = Module.SkPathFromVerbsArgsTyped(tVerbs, verbs.length,
+                                                  tArgs, args.length);
+          if (i < TIMES - 1) {
+            path4.delete();
+          }
+          Module._free(tVerbs);
+          Module._free(tArgs);
+        }
+        console.timeEnd('path_with_typed_array');
+        path4.dump();
+        path4.delete();
+
+      }
+
+    </script>
+    <script type='text/javascript'>
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+      var spinnerElement = document.getElementById('spinner');
+
+      var Module = {
+        preRun: [],
+        postRun: [entryPoint],
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = ''; // clear browser cache
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          if (0) { // XXX disabled for safety typeof dump == 'function') {
+            dump(text + '\n'); // fast, straight to the real console
+          } else {
+            console.error(text);
+          }
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+          canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+            spinnerElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+            if (!text) spinnerElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        spinnerElement.style.display = 'none';
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+    </script>
+    {{{ SCRIPT }}}
+  </body>
+</html>
