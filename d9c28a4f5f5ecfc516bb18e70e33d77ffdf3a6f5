@@ -34,6 +34,24 @@
       "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abf4e7d7_7bf14c13",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T19:25:02Z",
+      "side": 1,
+      "message": "You\u0027re right. The \"Thus we may have duplicate copies of the GrBackendTexture in this array\" comment is a bit scary though.\n\nMaybe we can have a comment above this loop saying \"Although we potentially made copies of the GrBackendTextures in yuvaTexturesCopy, this loop will dedupe them\".\n\nAlthough now that I write that, that seems like an odd way to do things.",
+      "parentUuid": "b13180ff_6f6f0b62",
+      "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
