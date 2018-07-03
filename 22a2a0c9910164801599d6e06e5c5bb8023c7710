@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "adb185d9_8afdcad1",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-03T20:22:57Z",
+      "side": 1,
+      "message": "It doesn\u0027t need to be normalized -- v and d have the same relative scale. And it\u0027s only used in compute_intersection, in cases where we know at least one is non-zero. And I thought about naming it compute_projection, but it\u0027s not really a dot product, it\u0027s just computing a ratio.",
+      "parentUuid": "a7064f1e_918170f0",
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb1dbf7d_0f129e90",
         "filename": "src/utils/SkPolyUtils.cpp",
         "patchSetId": 11
@@ -195,6 +213,24 @@
       "writtenOn": "2018-07-03T20:16:43Z",
       "side": 1,
       "message": "Can\u0027t you just assert this here ?",
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5010c3cd_e84322e5",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-03T20:22:57Z",
+      "side": 1,
+      "message": "You could have two collinear segments, and you don\u0027t want the sign you\u0027re tracking to change in that case.",
+      "parentUuid": "1bd9b9b4_7f266a4b",
       "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
