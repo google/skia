@@ -29,8 +29,6 @@ extern void WhitelistSerializeTypeface(const SkTypeface*, SkWStream* );
 #define SK_TYPEFACE_DELEGATE nullptr
 #endif
 
-sk_sp<SkTypeface> (*gCreateTypefaceDelegate)(const char[], SkFontStyle) = nullptr;
-
 void (*gSerializeTypefaceDelegate)(const SkTypeface*, SkWStream* ) = SK_TYPEFACE_DELEGATE;
 sk_sp<SkTypeface> (*gDeserializeTypefaceDelegate)(SkStream* ) = nullptr;
 
@@ -129,12 +127,6 @@ bool SkTypeface::Equal(const SkTypeface* facea, const SkTypeface* faceb) {
 
 sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
                                            SkFontStyle fontStyle) {
-    if (gCreateTypefaceDelegate) {
-        sk_sp<SkTypeface> result = (*gCreateTypefaceDelegate)(name, fontStyle);
-        if (result) {
-            return result;
-        }
-    }
     if (nullptr == name && (fontStyle.slant() == SkFontStyle::kItalic_Slant ||
                             fontStyle.slant() == SkFontStyle::kUpright_Slant) &&
                            (fontStyle.weight() == SkFontStyle::kBold_Weight ||
