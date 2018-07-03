@@ -218,12 +218,16 @@ public:
      * @param   paint            describes how to color pixels.
      * @param   viewMatrix       transformation matrix
      * @param   vertices         specifies the mesh to draw.
+     * @param   bones            bone deformation matrices.
+     * @param   boneCount        number of bone matrices.
      * @param   overridePrimType primitive type to draw. If NULL, derive prim type from vertices.
      */
     void drawVertices(const GrClip&,
                       GrPaint&& paint,
                       const SkMatrix& viewMatrix,
                       sk_sp<SkVertices> vertices,
+                      const SkMatrix bones[],
+                      int boneCount,
                       GrPrimitiveType* overridePrimType = nullptr);
 
     /**
