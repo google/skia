@@ -2452,7 +2452,7 @@ making assignment as efficient as <a href='#SkPath_swap'>swap</a>.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7">
+<div><fiddle-embed name="4c5ebee2b5039e5faefa07ae63a15467">
 
 #### Example Output
 
@@ -2634,7 +2634,7 @@ tight bounds of curves in <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7">
+<div><fiddle-embed name="9a39c56e95b19a657133b7ad1fe0cf03">
 
 #### Example Output
 
@@ -4566,7 +4566,7 @@ modulo 360, and <a href='#Arc'>Arc</a> may or may not draw depending on numeric 
 
 ### Example
 
-<div><fiddle-embed name="983e2a71ba72d4ba8c945420040b8f1c"><div>The middle row of the left and right columns draw differently from the entries
+<div><fiddle-embed name="9cf5122475624e4cf39f06c698f80b1a"><div>The middle row of the left and right columns draw differently from the entries
 above and below because <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> is outside of the range of +/-360,
 and <a href='#SkPath_addArc_startAngle'>startAngle</a> modulo 90 is not zero.
 </div></fiddle-embed></div>
@@ -5570,7 +5570,7 @@ The format used for <a href='#Path'>Path</a> in memory is not guaranteed.
 
 ### Example
 
-<div><fiddle-embed name="2c6aff73608cd198659db6d1eeaaae4f">
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7">
 
 #### Example Output
 
@@ -5753,7 +5753,7 @@ degenerate data.
 
 ### Example
 
-<div><fiddle-embed name="2f53df9201769ab7e7c0e164a1334309"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
+<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
 path of the glyph.
 </div></fiddle-embed></div>
 

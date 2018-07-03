@@ -2609,7 +2609,7 @@ Sets <a href='SkColor_Reference#Alpha'>Alpha</a> and RGB used when stroking and 
 
 ### Example
 
-<div><fiddle-embed name="6e70f18300bd676a3c056ceb6b62f8df">
+<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91">
 
 #### Example Output
 
@@ -4477,7 +4477,7 @@ typographic height of text
 
 ### Example
 
-<div><fiddle-embed name="983e2a71ba72d4ba8c945420040b8f1c"></fiddle-embed></div>
+<div><fiddle-embed name="29b98ebf58aa9fd1edfaabf9f4490b3a"></fiddle-embed></div>
 
 ---
 
