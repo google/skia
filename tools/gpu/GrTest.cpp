@@ -294,17 +294,6 @@ void GrDrawingManager::testingOnly_removeOnFlushCallbackObject(GrOnFlushCallback
 
 //////////////////////////////////////////////////////////////////////////////
 
-GrPixelConfig GrBackendTexture::testingOnly_getPixelConfig() const {
-    return fConfig;
-}
-
-GrPixelConfig GrBackendRenderTarget::testingOnly_getPixelConfig() const {
-    return fConfig;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
 void GrCoverageCountingPathRenderer::testingOnly_drawPathDirectly(const DrawPathArgs& args) {
     // Call onDrawPath() directly: We want to test paths that might fail onCanDrawPath() simply for
     // performance reasons, and GrPathRenderer::drawPath() assert that this call returns true.
