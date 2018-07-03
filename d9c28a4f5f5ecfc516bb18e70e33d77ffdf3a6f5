@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "505002ab_d00fb1f2",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T18:15:44Z",
+      "side": 1,
+      "message": "We only ever want a given GrBackendTexture wrapped in one texture proxy.",
+      "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
