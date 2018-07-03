@@ -72,12 +72,12 @@
 #elif defined(__clang__)
     #define CAST(T, v) __builtin_convertvector((v), T)
 #elif N == 4
-    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3]}
+    #define CAST(T, v) T{(v)[0],(v)[1],(v)[2],(v)[3]}
 #elif N == 8
-    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[2],(v)[3], (v)[4],(v)[5],(v)[6],(v)[7]}
+    #define CAST(T, v) T{(v)[0],(v)[1],(v)[2],(v)[3], (v)[4],(v)[5],(v)[6],(v)[7]}
 #elif N == 16
-    #define CAST(T, v) (T){(v)[0],(v)[1],(v)[ 2],(v)[ 3], (v)[ 4],(v)[ 5],(v)[ 6],(v)[ 7], \
-                           (v)[8],(v)[9],(v)[10],(v)[11], (v)[12],(v)[13],(v)[14],(v)[15]}
+    #define CAST(T, v) T{(v)[0],(v)[1],(v)[ 2],(v)[ 3], (v)[ 4],(v)[ 5],(v)[ 6],(v)[ 7], \
+                         (v)[8],(v)[9],(v)[10],(v)[11], (v)[12],(v)[13],(v)[14],(v)[15]}
 #endif
 
 // When we convert from float to fixed point, it's very common to want to round,
@@ -247,28 +247,28 @@ SI ATTR F NS(apply_tf_)(const skcms_TransferFunction* tf, F x) {
     #define STORE_3(p, v) (p)[0] = v
     #define STORE_4(p, v) (p)[0] = v
 #elif N == 4 && !defined(USING_NEON)
-    #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9]}
-    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12]};
+    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9]}
+    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12]};
     #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
     #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
 #elif N == 8
-    #define LOAD_3(T, p) (T){(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
-    #define LOAD_4(T, p) (T){(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
+    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
+    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
     #define STORE_3(p, v) (p)[ 0] = (v)[0]; (p)[ 3] = (v)[1]; (p)[ 6] = (v)[2]; (p)[ 9] = (v)[3]; \
                           (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
     #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
                           (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
 #elif N == 16
     // TODO: revisit with AVX-512 gathers and scatters?
-    #define LOAD_3(T, p) (T){(p)[ 0], (p)[ 3], (p)[ 6], (p)[ 9], \
-                             (p)[12], (p)[15], (p)[18], (p)[21], \
-                             (p)[24], (p)[27], (p)[30], (p)[33], \
-                             (p)[36], (p)[39], (p)[42], (p)[45]}
+    #define LOAD_3(T, p) T{(p)[ 0], (p)[ 3], (p)[ 6], (p)[ 9], \
+                           (p)[12], (p)[15], (p)[18], (p)[21], \
+                           (p)[24], (p)[27], (p)[30], (p)[33], \
+                           (p)[36], (p)[39], (p)[42], (p)[45]}
 
-    #define LOAD_4(T, p) (T){(p)[ 0], (p)[ 4], (p)[ 8], (p)[12], \
-                             (p)[16], (p)[20], (p)[24], (p)[28], \
-                             (p)[32], (p)[36], (p)[40], (p)[44], \
-                             (p)[48], (p)[52], (p)[56], (p)[60]}
+    #define LOAD_4(T, p) T{(p)[ 0], (p)[ 4], (p)[ 8], (p)[12], \
+                           (p)[16], (p)[20], (p)[24], (p)[28], \
+                           (p)[32], (p)[36], (p)[40], (p)[44], \
+                           (p)[48], (p)[52], (p)[56], (p)[60]}
 
     #define STORE_3(p, v) \
         (p)[ 0] = (v)[ 0]; (p)[ 3] = (v)[ 1]; (p)[ 6] = (v)[ 2]; (p)[ 9] = (v)[ 3]; \
@@ -389,11 +389,11 @@ SI ATTR U32 NS(gather_24_)(const uint8_t* p, I32 ix) {
     #if N == 1
         *v = load_48_64(p,ix);
     #elif N == 4
-        *v = (U64){
+        *v = U64{
             load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
         };
     #elif N == 8 && !defined(__AVX2__)
-        *v = (U64){
+        *v = U64{
             load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
             load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7]),
         };
