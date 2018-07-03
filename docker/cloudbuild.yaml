@@ -1,0 +1,25 @@
+# Builds both skia-release:prod and a new fiddler using Google Container
+# Builder: https://cloud.google.com/container-builder/docs/
+#
+steps:
+  # To test locally, first uncomment the last two lines, then submit with:
+  #
+  #    gcloud container builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=e01683e81de03caf5a2f9a23a5ae9f644908b56f
+  #
+  # Where COMMIT_SHA is updated to the last commit into Skia.
+  #
+  #  - name: 'gcr.io/cloud-builders/git'
+  #    args: ['clone', 'https://github.com/google/skia.git', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/fiddlek'
+    env:
+      - 'ROOT=/workspace/__staging'
+      - 'SKIP_BUILD=1'
+    args: ['./build_fiddler_release']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__staging']
+images:
+  - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/skia-release:prod'
