@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecbe18a0_af278d1f",
+        "filename": "src/utils/SkPolyUtils.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-03T19:12:42Z",
+      "side": 1,
+      "message": "So not all self-intersecting polygons will actually return zero from this function (actually very few will), same with degenerate polygons (assuming that means coincident vertices). So maybe this function should either return a bool for CWs or not (or enum for CW/CCW), and maybe a better comment is to say if the polygon is self-interesting or degenerate the returned value has no real meaning, so this call should really only be used when the input polygon is expected to be simple.",
+      "range": {
+        "startLine": 125,
+        "startChar": 81,
+        "endLine": 125,
+        "endChar": 98
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
