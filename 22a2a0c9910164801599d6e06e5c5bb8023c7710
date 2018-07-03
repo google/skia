@@ -198,6 +198,29 @@
       "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df785bdd_31570332",
+        "filename": "tests/PolyUtilsTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T20:20:55Z",
+      "side": 1,
+      "message": "Dunno if it would be worth to have a test method that takes the expected outcomes and calls these four ops.",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 28,
+        "endChar": 76
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
