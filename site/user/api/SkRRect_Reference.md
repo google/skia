@@ -626,7 +626,7 @@ true if has identical geometry to <a href='undocumented#Oval'>Oval</a>
 
 ### Example
 
-<div><fiddle-embed name="6ac569e40fb68c758319e85428b9ae95"><div>The first radii are scaled down proportionately until both x-axis and y-axis fit
+<div><fiddle-embed name="ab9b3aef7896aee80b780789848fbba4"><div>The first radii are scaled down proportionately until both x-axis and y-axis fit
 within the bounds. After scaling, x-axis radius is smaller than half the width;
 left round rect is not an oval. The second radii are equal to half the
 dimensions; right round rect is an oval.
@@ -1042,7 +1042,7 @@ Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="a7958a4e0668f5cf805a8e78eb57f51d"></fiddle-embed></div>
+<div><fiddle-embed name="6ac569e40fb68c758319e85428b9ae95"></fiddle-embed></div>
 
 ### See Also
 
@@ -1292,7 +1292,7 @@ bounding box
 
 ### Example
 
-<div><fiddle-embed name="a7958a4e0668f5cf805a8e78eb57f51d"></fiddle-embed></div>
+<div><fiddle-embed name="4577e2dcb086b241bb43d8b89ee0b0dd"></fiddle-embed></div>
 
 ### See Also
 
