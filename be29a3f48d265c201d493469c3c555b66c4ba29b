@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9976bb4e_befe1b84",
+        "filename": "src/gpu/SkGr.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-03T14:25:09Z",
+      "side": 1,
+      "message": "what\u0027s the thought here?",
+      "range": {
+        "startLine": 423,
+        "startChar": 4,
+        "endLine": 424,
+        "endChar": 46
+      },
+      "revId": "be29a3f48d265c201d493469c3c555b66c4ba29b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
