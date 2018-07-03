@@ -52,6 +52,24 @@
       "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7209059a_0478b90c",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-03T20:01:19Z",
+      "side": 1,
+      "message": "Okay I rewrote it so that the copy array should be an exact copy of the original. Let me know what you think of this version",
+      "parentUuid": "abf4e7d7_7bf14c13",
+      "revId": "d9c28a4f5f5ecfc516bb18e70e33d77ffdf3a6f5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
