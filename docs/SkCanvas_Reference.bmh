@@ -5772,7 +5772,6 @@ contains Shader, Blend_Mode mode combines Vertices_Colors with Shader.
 The first element of bones should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
-boneCount must be at most 100, and thus the size of bones should be at most 100.
 
 #Param  vertices  triangle mesh to draw ##
 #Param  bones     bone matrix data ##
@@ -5822,7 +5821,6 @@ contains Shader, Blend_Mode mode combines Vertices_Colors with Shader.
 The first element of bones should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
-boneCount must be at most 100, and thus the size of bones should be at most 100.
 
 #Param  vertices  triangle mesh to draw ##
 #Param  bones     bone matrix data ##

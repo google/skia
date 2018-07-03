@@ -3203,7 +3203,7 @@ Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
+<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2"></fiddle-embed></div>
 
 ### See Also
 

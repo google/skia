@@ -1207,7 +1207,7 @@ Returns <a href='#Point'>Point</a> multiplied by scale.
 
 ### Example
 
-<div><fiddle-embed name="35b3bc675779de043706ae4817ee950c"></fiddle-embed></div>
+<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca"></fiddle-embed></div>
 
 ### See Also
 
