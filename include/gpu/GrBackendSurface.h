@@ -128,6 +128,23 @@ public:
     // Creates an invalid backend texture.
     GrBackendTexture() : fIsValid(false) {}
 
+#if GR_TEST_UTILS
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     const GrGLTextureInfo& glInfo);
+
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
+    GrBackendTexture(int width,
+                     int height,
+                     GrPixelConfig config,
+                     GrMipMapped,
+                     const GrGLTextureInfo& glInfo);
+#endif
+
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendTexture(int width,
                      int height,
@@ -192,12 +209,7 @@ public:
     bool isValid() const { return fIsValid; }
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig getter and setter once we remove the GrPixelConfig from the
-    // GrBackendTexture and plumb the GrPixelconfig manually throughout our code (or remove all use
-    // of GrPixelConfig in general).
-    GrPixelConfig pixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-
+    GrPixelConfig testingOnly_getPixelConfig() const;
     static bool TestingOnly_Equals(const GrBackendTexture& , const GrBackendTexture&);
 #endif
 
@@ -206,7 +218,6 @@ private:
     friend class SkImage;
     friend class SkImage_Gpu;
     friend class SkSurface;
-    friend class GrAHardwareBufferImageGenerator;
     friend class GrBackendTextureImageGenerator;
     friend class GrProxyProvider;
     friend class GrGpu;
@@ -254,6 +265,17 @@ class SK_API GrBackendRenderTarget {
 public:
     // Creates an invalid backend texture.
     GrBackendRenderTarget() : fIsValid(false) {}
+
+#if GR_TEST_UTILS
+    // GrGLTextureInfo::fFormat is ignored
+    // Deprecated: Should use version that does not take a GrPixelConfig instead
+    GrBackendRenderTarget(int width,
+                          int height,
+                          int sampleCnt,
+                          int stencilBits,
+                          GrPixelConfig config,
+                          const GrGLFramebufferInfo& glInfo);
+#endif
 
     // The GrGLTextureInfo must have a valid fFormat.
     GrBackendRenderTarget(int width,
@@ -326,12 +348,7 @@ public:
 
 
 #if GR_TEST_UTILS
-    // We can remove the pixelConfig getter and setter once we remove the pixel config from the
-    // GrBackendRenderTarget and plumb the pixel config manually throughout our code (or remove all
-    // use of GrPixelConfig in general).
-    GrPixelConfig pixelConfig() const { return fConfig; }
-    void setPixelConfig(GrPixelConfig config) { fConfig = config; }
-
+    GrPixelConfig testingOnly_getPixelConfig() const;
     static bool TestingOnly_Equals(const GrBackendRenderTarget&, const GrBackendRenderTarget&);
 #endif
 
