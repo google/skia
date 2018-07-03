@@ -3203,7 +3203,7 @@ Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
+<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2"></fiddle-embed></div>
 
 ### See Also
 
@@ -3574,7 +3574,7 @@ S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O
 
 ### Example
 
-<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2"></fiddle-embed></div>
+<div><fiddle-embed name="ed3aa18ba0ea95c85cc49aa3829fe384"></fiddle-embed></div>
 
 ### See Also
 
@@ -5645,7 +5645,7 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="cfe4016241074477809dd45435be9cf4"><div><a href='#SkMatrix_setPolyToPoly'>setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
+<div><fiddle-embed name="6b4562c7052da94f3d5b2412dca41946"><div><a href='#SkMatrix_setPolyToPoly'>setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
 Multiplying the matrix by its inverse turns into an identity matrix.
 </div></fiddle-embed></div>
 

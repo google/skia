@@ -492,7 +492,7 @@ reference to ImageInfo
 
 ### Example
 
-<div><fiddle-embed name="6e0f558bf7fabc655041116288559134">
+<div><fiddle-embed name="ab9b3aef7896aee80b780789848fbba4">
 
 #### Example Output
 
@@ -1109,7 +1109,7 @@ readable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91">
+<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca">
 
 #### Example Output
 

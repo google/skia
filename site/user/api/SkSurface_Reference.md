@@ -1014,7 +1014,7 @@ has no effect. Calling <a href='#SkSurface_makeImageSnapshot'>makeImageSnapshot<
 
 ### Example
 
-<div><fiddle-embed name="99a54b814ccab7d2b1143c88581649ff">
+<div><fiddle-embed name="8b8a4cd8a29d22bb9c5e63b70357bd65">
 
 #### Example Output
 
