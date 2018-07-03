@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d2cec339_444388ec",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "// Basically reprise your earlier comments about the shaders here.\n\n?\n\nShouldn\u0027t this limit be enforced somewhere - at the very least with asserts ?",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f263cff4_963f0afe",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "extra \u0027 \u0027 ?",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6547b3b7_0212593c",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "100 -\u003e kMaxBones ?",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b119d11d_23b6afa0",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "xtra \u0027 \u0027 - here and below",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0489db3b_11dcabf4",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "We don\u0027t have any limit on the matrices - like not-perspective ?",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "defd0417_77faba82",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "xtra \u0027 \u0027",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e8332e6_365e58f8",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "Shouldn\u0027t instanceCount always be one here? If so, assert that?",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1bc6764_04a6b62b",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "this-\u003e",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d56579ba_7dc69055",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T14:35:46Z",
+      "side": 1,
+      "message": "Should probably keep \u0027bones\u0027, \u0027boneCount\u0027 and \u0027viewMatrix\u0027 parameter names.",
+      "revId": "24919826a73d8b52d86ea70299d753c71ea14b12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
