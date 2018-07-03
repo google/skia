@@ -38,15 +38,13 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&&,
                                           sk_sp<SkVertices>,
-                                          const SkMatrix bones[],
-                                          int boneCount,
                                           const SkMatrix& viewMatrix,
                                           GrAAType,
                                           sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
-    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>, const SkMatrix bones[],
-                     int boneCount, GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>,
+    GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor, sk_sp<SkVertices>,
+                     GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>,
                      const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
@@ -70,26 +68,7 @@ private:
 
     void onPrepareDraws(Target*) override;
 
-    void drawVolatile(Target*);
-    void drawNonVolatile(Target*);
-
-    void fillBuffers(bool hasColorAttribute,
-                     bool hasLocalCoordsAttribute,
-                     bool hasBoneAttribute,
-                     size_t vertexStride,
-                     void* verts,
-                     uint16_t* indices) const;
-
-    void drawVertices(Target*,
-                      GrGeometryProcessor*,
-                      const GrBuffer* vertexBuffer,
-                      int firstVertex,
-                      const GrBuffer* indexBuffer,
-                      int firstIndex);
-
-    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute,
-                                      bool* hasLocalCoordAttribute,
-                                      bool* hasBoneAttribute) const;
+    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute, bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -103,11 +82,9 @@ private:
     struct Mesh {
         GrColor fColor;  // Used if this->hasPerVertexColors() is false.
         sk_sp<SkVertices> fVertices;
-        std::vector<SkMatrix> fBones;
         SkMatrix fViewMatrix;
         bool fIgnoreTexCoords;
         bool fIgnoreColors;
-        bool fIgnoreBones;
 
         bool hasExplicitLocalCoords() const {
             return fVertices->hasTexCoords() && !fIgnoreTexCoords;
@@ -115,10 +92,6 @@ private:
 
         bool hasPerVertexColors() const {
             return fVertices->hasColors() && !fIgnoreColors;
-        }
-
-        bool hasBones() const {
-            return fVertices->hasBones() && fBones.size() && !fIgnoreBones;
         }
     };
 
@@ -132,22 +105,18 @@ private:
     }
 
     bool anyMeshHasExplicitLocalCoords() const {
-        return SkToBool(kAnyMeshHasExplicitLocalCoords_Flag & fFlags);
+        return SkToBool(kAnyMeshHasExplicitLocalCoords & fFlags);
     }
 
     bool hasMultipleViewMatrices() const {
         return SkToBool(kHasMultipleViewMatrices_Flag & fFlags);
     }
 
-    bool hasBones() const {
-        return SkToBool(kHasBones_Flag & fFlags);
-    }
-
     enum Flags {
-        kRequiresPerVertexColors_Flag       = 0x1,
-        kAnyMeshHasExplicitLocalCoords_Flag = 0x2,
-        kHasMultipleViewMatrices_Flag       = 0x4,
-        kHasBones_Flag                      = 0x8,
+        kRequiresPerVertexColors_Flag = 0x1,
+        kAnyMeshHasExplicitLocalCoords = 0x2,
+        kHasMultipleViewMatrices_Flag = 0x4
+
     };
 
     Helper fHelper;
