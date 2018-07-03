@@ -1512,11 +1512,14 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 SkScalerContextFlags SkDraw::scalerContextFlags() const {
-    SkScalerContextFlags flags = SkScalerContextFlags::kBoostContrast;
-    if (!fDst.colorSpace()) {
-        flags = kFakeGammaAndBoostContrast;
+    // If we're doing linear blending, then we can disable the gamma hacks.
+    // Otherwise, leave them on. In either case, we still want the contrast boost:
+    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+    if (fDst.colorSpace() && fDst.colorSpace()->gammaIsLinear()) {
+        return SkScalerContextFlags::kBoostContrast;
+    } else {
+        return SkScalerContextFlags::kFakeGammaAndBoostContrast;
     }
-    return flags;
 }
 
 //////////////////////////////////////////////////////////////////////////////

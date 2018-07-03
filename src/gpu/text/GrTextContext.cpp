@@ -75,9 +75,10 @@ SkColor GrTextContext::ComputeCanonicalColor(const SkPaint& paint, bool lcd) {
 
 SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(
         const GrColorSpaceInfo& colorSpaceInfo) {
-    // If we're doing gamma-correct rendering, then we can disable the gamma hacks.
+    // If we're doing linear blending, then we can disable the gamma hacks.
     // Otherwise, leave them on. In either case, we still want the contrast boost:
-    if (colorSpaceInfo.isGammaCorrect()) {
+    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+    if (colorSpaceInfo.isLinearlyBlended()) {
         return SkScalerContextFlags::kBoostContrast;
     } else {
         return SkScalerContextFlags::kFakeGammaAndBoostContrast;
