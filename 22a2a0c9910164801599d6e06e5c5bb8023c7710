@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "fb1dbf7d_0f129e90",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-03T19:55:10Z",
+      "side": 1,
+      "message": "I\u0027m not sure this check is actually needed if you just check the sign of the signed area (bassed from the origin)",
+      "range": {
+        "startLine": 267,
+        "startChar": 7,
+        "endLine": 271,
+        "endChar": 9
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2a4bcb5_196da5a5",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-03T19:55:10Z",
+      "side": 1,
+      "message": "as discussed offline I htink we can just check if it ever flips",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 97
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ecbe18a0_af278d1f",
         "filename": "src/utils/SkPolyUtils.h",
         "patchSetId": 11
