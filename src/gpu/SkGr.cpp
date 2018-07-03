@@ -421,7 +421,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     SkColorType ct = SkColorType::kRGB_565_SkColorType;
     GrPixelConfigToColorType(colorSpaceInfo.config(), &ct);
     if (SkPaintPriv::ShouldDither(skPaint, ct) && grPaint->numColorFragmentProcessors() > 0 &&
-        !colorSpaceInfo.isGammaCorrect()) {
+        !colorSpaceInfo.isLinearlyBlended()) {
         auto ditherFP = GrDitherEffect::Make(colorSpaceInfo.config());
         if (ditherFP) {
             grPaint->addColorFragmentProcessor(std::move(ditherFP));

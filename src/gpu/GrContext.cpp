@@ -478,7 +478,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     // that are premultiplied on the GPU. This is kept as narrow as possible for now.
     bool canvas2DFastPath =
             premul &&
-            !dst->colorSpaceInfo().isGammaCorrect() &&
+            !dst->colorSpaceInfo().colorSpace() &&
             (srcColorType == GrColorType::kRGBA_8888 || srcColorType == GrColorType::kBGRA_8888) &&
             SkToBool(dst->asRenderTargetContext()) &&
             (dstProxy->config() == kRGBA_8888_GrPixelConfig ||
@@ -656,7 +656,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     // fContext->vaildaPMUPMConversionExists()).
     bool canvas2DFastPath =
             unpremul &&
-            !src->colorSpaceInfo().isGammaCorrect() &&
+            !src->colorSpaceInfo().colorSpace() &&
             (GrColorType::kRGBA_8888 == dstColorType || GrColorType::kBGRA_8888 == dstColorType) &&
             SkToBool(srcProxy->asTextureProxy()) &&
             (srcProxy->config() == kRGBA_8888_GrPixelConfig ||
