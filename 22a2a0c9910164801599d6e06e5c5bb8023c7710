@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "a7064f1e_918170f0",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T20:16:43Z",
+      "side": 1,
+      "message": "Is \u0027v\u0027 guaranteed to be normalized? If not what if both fX \u0026 fY are nearly zero?\n\nMaybe \u0027project\u0027 somewhere in the function name?",
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fb1dbf7d_0f129e90",
         "filename": "src/utils/SkPolyUtils.cpp",
         "patchSetId": 11
@@ -164,6 +181,23 @@
       "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1bd9b9b4_7f266a4b",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T20:16:43Z",
+      "side": 1,
+      "message": "Can\u0027t you just assert this here ?",
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
