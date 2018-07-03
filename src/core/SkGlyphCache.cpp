@@ -225,6 +225,8 @@ const SkPath* SkGlyphCache::findPath(const SkGlyph& glyph) {
             pathData->fIntercept = nullptr;
             SkPath* path = new SkPath;
             if (fScalerContext->getPath(glyph.getPackedID(), path)) {
+                path->updateBoundsCache();
+                path->getGenerationID();
                 pathData->fPath = path;
                 fMemoryUsed += compute_path_size(*path);
             } else {
