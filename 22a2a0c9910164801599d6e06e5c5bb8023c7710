@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "78b5255c_525ffee4",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-03T20:00:08Z",
+      "side": 1,
+      "message": "I just looked at that -- if P0 is a reflex point, then all the areas computed with that as origin could have the same sign even though the polygon is concave. I think you need both the area sign change check and the \"always turning left (or right)\" check.",
+      "parentUuid": "fb1dbf7d_0f129e90",
+      "range": {
+        "startLine": 267,
+        "startChar": 7,
+        "endLine": 271,
+        "endChar": 9
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c2a4bcb5_196da5a5",
         "filename": "src/utils/SkPolyUtils.cpp",
         "patchSetId": 11
@@ -45,6 +69,30 @@
       "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8db9ffc8_e40673b0",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-03T20:00:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c2a4bcb5_196da5a5",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 97
+      },
+      "revId": "22a2a0c9910164801599d6e06e5c5bb8023c7710",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
