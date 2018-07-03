@@ -118,7 +118,28 @@ void SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkSc
                           SkScalar* rotSin, SkScalar* rotCos, int* n);
 
 /**
+ * Determine winding direction for a polygon.
+ * The input polygon must be simple or the result will be meaningless.
+ *
+ * @param polygonVerts  Array of points representing the vertices of the polygon.
+ * @param polygonSize  Number of vertices in the polygon.
+ * @return 1 for cw, -1 for ccw, and 0 if zero signed area (either degenerate or self-intersecting).
+ *         The y-axis is assumed to be pointing down.
+ */
+int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize);
+
+/**
+ * Determine whether a polygon is convex or not.
+ *
+ * @param polygonVerts  Array of points representing the vertices of the polygon.
+ * @param polygonSize  Number of vertices in the polygon.
+ * @return true if the polygon is convex, false otherwise.
+ */
+bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize);
+
+/**
  * Determine whether a polygon is simple (i.e., not self-intersecting) or not.
+ * The input polygon must have no coincident vertices or the test will fail.
  *
  * @param polygonVerts  Array of points representing the vertices of the polygon.
  * @param polygonSize  Number of vertices in the polygon.
