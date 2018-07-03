@@ -5570,7 +5570,7 @@ The format used for <a href='#Path'>Path</a> in memory is not guaranteed.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7">
+<div><fiddle-embed name="2c6aff73608cd198659db6d1eeaaae4f">
 
 #### Example Output
 
@@ -5753,7 +5753,7 @@ degenerate data.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
+<div><fiddle-embed name="2f53df9201769ab7e7c0e164a1334309"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
 path of the glyph.
 </div></fiddle-embed></div>
 

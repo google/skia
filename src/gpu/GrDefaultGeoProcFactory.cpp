@@ -27,7 +27,12 @@ enum GPFlag {
     kColorAttributeIsSkColor_GPFlag = 0x2,
     kLocalCoordAttribute_GPFlag     = 0x4,
     kCoverageAttribute_GPFlag       = 0x8,
+    kBonesAttribute_GPFlag          = 0x10,
 };
+
+static constexpr int kNumFloatsPerSkMatrix = 9;
+static constexpr int kMaxBones = 100; // Due to GPU memory limitations, only up to 100 bone
+                                      // matrices are accepted.
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
@@ -37,10 +42,12 @@ public:
                                            const SkMatrix& viewMatrix,
                                            const SkMatrix& localMatrix,
                                            bool localCoordsWillBeRead,
-                                           uint8_t coverage) {
+                                           uint8_t coverage,
+                                           const SkMatrix bones[],
+                                           int boneCount) {
         return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
                 gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix, coverage,
-                localCoordsWillBeRead));
+                localCoordsWillBeRead, bones, boneCount));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -52,6 +59,9 @@ public:
     bool localCoordsWillBeRead() const { return fLocalCoordsWillBeRead; }
     uint8_t coverage() const { return fCoverage; }
     bool hasVertexCoverage() const { return fInCoverage.isInitialized(); }
+    const float* bones() const { return fBones.data(); }
+    int boneCount() const { return fBones.size() / kNumFloatsPerSkMatrix; }
+    bool hasBones() const { return fBones.size() > 0; }
 
     class GLSLProcessor : public GrGLSLGeometryProcessor {
     public:
@@ -99,11 +109,37 @@ public:
                                         &fColorUniform);
             }
 
+            // Setup bone transforms
+            const char* transformedPositionName = gp.fInPosition.name();
+            if (gp.hasBones()) {
+                const char* vertBonesUniformName;
+                fBonesUniform = uniformHandler->addUniformArray(kVertex_GrShaderFlag,
+                                                                kFloat3x3_GrSLType,
+                                                                "Bones",
+                                                                kMaxBones,
+                                                                &vertBonesUniformName);
+                vertBuilder->codeAppendf(
+                        "float2 transformedPosition = (%s[0] * float3(%s, 1)).xy;"
+                        "float3x3 influence = float3x3(0);"
+                        "for (int i = 0; i < 4; i++) {"
+                        "   int index = %s[i];"
+                        "   float weight = %s[i];"
+                        "   influence += %s[index] * weight;"
+                        "}"
+                        "transformedPosition = (influence * float3(transformedPosition, 1)).xy;",
+                        vertBonesUniformName,
+                        gp.fInPosition.name(),
+                        gp.fInBoneIndices.name(),
+                        gp.fInBoneWeights.name(),
+                        vertBonesUniformName);
+                transformedPositionName = "transformedPosition";
+            }
+
             // Setup position
             this->writeOutputPosition(vertBuilder,
                                       uniformHandler,
                                       gpArgs,
-                                      gp.fInPosition.name(),
+                                      transformedPositionName,
                                       gp.viewMatrix(),
                                       &fViewMatrixUniform);
 
@@ -147,8 +183,8 @@ public:
                                   GrProcessorKeyBuilder* b) {
             const DefaultGeoProc& def = gp.cast<DefaultGeoProc>();
             uint32_t key = def.fFlags;
-            key |= (def.coverage() == 0xff) ? 0x10 : 0;
-            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x20 : 0x0;
+            key |= (def.coverage() == 0xff) ? 0x20 : 0;
+            key |= (def.localCoordsWillBeRead() && def.localMatrix().hasPerspective()) ? 0x40 : 0x0;
             key |= ComputePosKey(def.viewMatrix()) << 20;
             b->add32(key);
             b->add32(GrColorSpaceXform::XformKey(def.fColorSpaceXform.get()));
@@ -180,6 +216,10 @@ public:
             this->setTransformDataHelper(dgp.fLocalMatrix, pdman, &transformIter);
 
             fColorSpaceHelper.setData(pdman, dgp.fColorSpaceXform.get());
+
+            if (dgp.hasBones()) {
+                pdman.setMatrix3fv(fBonesUniform, dgp.boneCount(), dgp.bones());
+            }
         }
 
     private:
@@ -189,6 +229,7 @@ public:
         UniformHandle fViewMatrixUniform;
         UniformHandle fColorUniform;
         UniformHandle fCoverageUniform;
+        UniformHandle fBonesUniform;
         GrGLSLColorSpaceXformHelper fColorSpaceHelper;
 
         typedef GrGLSLGeometryProcessor INHERITED;
@@ -209,7 +250,9 @@ private:
                    const SkMatrix& viewMatrix,
                    const SkMatrix& localMatrix,
                    uint8_t coverage,
-                   bool localCoordsWillBeRead)
+                   bool localCoordsWillBeRead,
+                   const SkMatrix* bones,
+                   int boneCount)
             : INHERITED(kDefaultGeoProc_ClassID)
             , fColor(color)
             , fViewMatrix(viewMatrix)
@@ -217,7 +260,8 @@ private:
             , fCoverage(coverage)
             , fFlags(gpTypeFlags)
             , fLocalCoordsWillBeRead(localCoordsWillBeRead)
-            , fColorSpaceXform(std::move(colorSpaceXform)) {
+            , fColorSpaceXform(std::move(colorSpaceXform))
+            , fBones() {
         fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
         int cnt = 1;
         if (fFlags & kColorAttribute_GPFlag) {
@@ -232,17 +276,49 @@ private:
             fInCoverage = {"inCoverage", kHalf_GrVertexAttribType};
             ++cnt;
         }
+        if (fFlags & kBonesAttribute_GPFlag) {
+            SkASSERT(bones && (boneCount > 0));
+            fInBoneIndices = {"inBoneIndices", kInt4_GrVertexAttribType};
+            ++cnt;
+            fInBoneWeights = {"inBoneWeights", kFloat4_GrVertexAttribType};
+            ++cnt;
+        }
         this->setVertexAttributeCnt(cnt);
+
+        // Set bone data
+        if (bones) {
+            fBones.reserve(boneCount * kNumFloatsPerSkMatrix);
+            for (int i = 0; i < boneCount; i ++) {
+                const SkMatrix& matrix = bones[i];
+                fBones.push_back(matrix.get(SkMatrix::kMScaleX));
+                fBones.push_back(matrix.get(SkMatrix::kMSkewY));
+                fBones.push_back(matrix.get(SkMatrix::kMPersp0));
+                fBones.push_back(matrix.get(SkMatrix::kMSkewX));
+                fBones.push_back(matrix.get(SkMatrix::kMScaleY));
+                fBones.push_back(matrix.get(SkMatrix::kMPersp1));
+                fBones.push_back(matrix.get(SkMatrix::kMTransX));
+                fBones.push_back(matrix.get(SkMatrix::kMTransY));
+                fBones.push_back(matrix.get(SkMatrix::kMPersp2));
+            }
+        }
     }
 
     const Attribute& onVertexAttribute(int i) const override {
-        return IthInitializedAttribute(i, fInPosition, fInColor, fInLocalCoords, fInCoverage);
+        return IthInitializedAttribute(i,
+                                       fInPosition,
+                                       fInColor,
+                                       fInLocalCoords,
+                                       fInCoverage,
+                                       fInBoneIndices,
+                                       fInBoneWeights);
     }
 
     Attribute fInPosition;
     Attribute fInColor;
     Attribute fInLocalCoords;
     Attribute fInCoverage;
+    Attribute fInBoneIndices;
+    Attribute fInBoneWeights;
     GrColor fColor;
     SkMatrix fViewMatrix;
     SkMatrix fLocalMatrix;
@@ -250,6 +326,7 @@ private:
     uint32_t fFlags;
     bool fLocalCoordsWillBeRead;
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
+    std::vector<float> fBones;
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -273,6 +350,17 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
     if (d->fRandom->nextBool()) {
         flags |= kLocalCoordAttribute_GPFlag;
     }
+    if (d->fRandom->nextBool()) {
+        flags |= kBonesAttribute_GPFlag;
+    }
+
+    int numBones = d->fRandom->nextRangeU(0, kMaxBones);
+    std::vector<SkMatrix> bones(numBones);
+    for (int i = 0; i < numBones; i++) {
+        for (int j = 0; j < kNumFloatsPerSkMatrix; j++) {
+            bones[i][j] = d->fRandom->nextF();
+        }
+    }
 
     return DefaultGeoProc::Make(flags,
                                 GrRandomColor(d->fRandom),
@@ -280,7 +368,9 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
                                 GrTest::TestMatrix(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
                                 d->fRandom->nextBool(),
-                                GrRandomCoverage(d->fRandom));
+                                GrRandomCoverage(d->fRandom),
+                                bones.data(),
+                                numBones);
 }
 #endif
 
@@ -307,7 +397,9 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
                                 viewMatrix,
                                 localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
                                 localCoordsWillBeRead,
-                                inCoverage);
+                                inCoverage,
+                                nullptr,
+                                0);
 }
 
 sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
@@ -329,4 +421,34 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
 
     LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
     return Make(color, coverage, inverted, SkMatrix::I());
+}
+
+sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const Color& color,
+                                                                  const Coverage& coverage,
+                                                                  const LocalCoords& localCoords,
+                                                                  const Bones& bones,
+                                                                  const SkMatrix& viewMatrix) {
+    uint32_t flags = 0;
+    if (Color::kPremulGrColorAttribute_Type == color.fType) {
+        flags |= kColorAttribute_GPFlag;
+    } else if (Color::kUnpremulSkColorAttribute_Type == color.fType) {
+        flags |= kColorAttribute_GPFlag | kColorAttributeIsSkColor_GPFlag;
+    }
+    flags |= coverage.fType == Coverage::kAttribute_Type ? kCoverageAttribute_GPFlag : 0;
+    flags |= localCoords.fType == LocalCoords::kHasExplicit_Type ? kLocalCoordAttribute_GPFlag : 0;
+    flags |= kBonesAttribute_GPFlag;
+
+    uint8_t inCoverage = coverage.fCoverage;
+    bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
+
+    GrColor inColor = color.fColor;
+    return DefaultGeoProc::Make(flags,
+                                inColor,
+                                color.fColorSpaceXform,
+                                viewMatrix,
+                                localCoords.fMatrix ? *localCoords.fMatrix : SkMatrix::I(),
+                                localCoordsWillBeRead,
+                                inCoverage,
+                                bones.fBones,
+                                bones.fBoneCount);
 }

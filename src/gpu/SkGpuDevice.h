@@ -91,7 +91,7 @@ public:
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
     void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y,
                       const SkPaint& paint, SkDrawFilter* drawFilter) override;
-    void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+    void drawVertices(const SkVertices*, const SkMatrix bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
@@ -248,7 +248,8 @@ private:
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
-                           SkBlendMode, const uint16_t indices[], int indexCount, const SkPaint&);
+                           const SkMatrix bones[], int boneCount, SkBlendMode,
+                           const uint16_t indices[], int indexCount, const SkPaint&);
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,
                                                                 SkBudgeted,

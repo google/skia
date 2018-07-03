@@ -2684,7 +2684,7 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="53c212c4f2449df0b0eedbc6227b6ab7"><div><a href='#SkCanvas_scale'>scale</a> followed by <a href='#SkCanvas_translate'>translate</a> produces different results from <a href='#SkCanvas_translate'>translate</a> followed
+<div><fiddle-embed name="eb93d5fa66a5f7a10f4f9210494d7222"><div><a href='#SkCanvas_scale'>scale</a> followed by <a href='#SkCanvas_translate'>translate</a> produces different results from <a href='#SkCanvas_translate'>translate</a> followed
 by <a href='#SkCanvas_scale'>scale</a>.
 
 The blue stroke follows translate of (50, 50); a black
@@ -4662,7 +4662,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="185746dc0faa6f1df30c4afe098646ff"></fiddle-embed></div>
+<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
 
 ### See Also
 
@@ -6412,7 +6412,7 @@ void <a href='#SkCanvas_drawPicture'>drawPicture</a>(const <a href='SkPicture_Re
 
 ### Example
 
-<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91"></fiddle-embed></div>
+<div><fiddle-embed name="759e4e5bac680838added8f70884dcdc"></fiddle-embed></div>
 
 ### See Also
 
@@ -6537,6 +6537,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_3_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be at most 100.
 
 ### Parameters
 
@@ -6581,6 +6582,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_4_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be at most 100.
 
 ### Parameters
 
@@ -6773,7 +6775,7 @@ If <a href='#SkCanvas_drawAtlas_cullRect'>cullRect</a> is outside of <a href='#C
 
 ### Example
 
-<div><fiddle-embed name="fe79a9c1ec350264eb9c7b2509dd3638"></fiddle-embed></div>
+<div><fiddle-embed name="1df575f9b8132306ce0552a2554ed132"></fiddle-embed></div>
 
 ### See Also
 

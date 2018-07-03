@@ -55,14 +55,16 @@ public:
                                       const BoneIndices boneIndices[],
                                       const BoneWeights boneWeights[],
                                       int indexCount,
-                                      const uint16_t indices[]);
+                                      const uint16_t indices[],
+                                      bool isVolatile = true);
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       const BoneIndices boneIndices[],
-                                      const BoneWeights boneWeights[]) {
+                                      const BoneWeights boneWeights[],
+                                      bool isVolatile = true) {
         return MakeCopy(mode,
                         vertexCount,
                         positions,
@@ -71,7 +73,8 @@ public:
                         boneIndices,
                         boneWeights,
                         0,
-                        nullptr);
+                        nullptr,
+                        isVolatile);
     }
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
@@ -79,7 +82,8 @@ public:
                                       const SkPoint texs[],
                                       const SkColor colors[],
                                       int indexCount,
-                                      const uint16_t indices[]) {
+                                      const uint16_t indices[],
+                                      bool isVolatile = true) {
         return MakeCopy(mode,
                         vertexCount,
                         positions,
@@ -88,14 +92,16 @@ public:
                         nullptr,
                         nullptr,
                         indexCount,
-                        indices);
+                        indices,
+                        isVolatile);
     }
 
     static sk_sp<SkVertices> MakeCopy(VertexMode mode, int vertexCount,
                                       const SkPoint positions[],
                                       const SkPoint texs[],
-                                      const SkColor colors[]) {
-        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, nullptr);
+                                      const SkColor colors[],
+                                      bool isVolatile = true) {
+        return MakeCopy(mode, vertexCount, positions, texs, colors, nullptr, nullptr, isVolatile);
     }
 
     struct Sizes;
@@ -104,6 +110,7 @@ public:
         kHasTexCoords_BuilderFlag   = 1 << 0,
         kHasColors_BuilderFlag      = 1 << 1,
         kHasBones_BuilderFlag       = 1 << 2,
+        kIsVolatile_BuilderFlag     = 1 << 3,
     };
     class Builder {
     public:
@@ -114,6 +121,7 @@ public:
         // if the builder is invalid, these will return 0
         int vertexCount() const;
         int indexCount() const;
+        bool isVolatile() const;
         SkPoint* positions();
         SkPoint* texCoords();       // returns null if there are no texCoords
         SkColor* colors();          // returns null if there are no colors
@@ -125,9 +133,9 @@ public:
         sk_sp<SkVertices> detach();
 
     private:
-        Builder(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        Builder(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
 
-        void init(VertexMode mode, int vertexCount, int indexCount, const Sizes&);
+        void init(VertexMode mode, int vertexCount, int indexCount, bool isVolatile, const Sizes&);
 
         // holds a partially complete object. only completed in detach()
         sk_sp<SkVertices> fVertices;
@@ -157,6 +165,8 @@ public:
 
     int indexCount() const { return fIndexCnt; }
     const uint16_t* indices() const { return fIndices; }
+
+    bool isVolatile() const { return fIsVolatile; }
 
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;
@@ -198,6 +208,8 @@ private:
     SkRect  fBounds;    // computed to be the union of the fPositions[]
     int     fVertexCnt;
     int     fIndexCnt;
+
+    bool fIsVolatile;
 
     VertexMode fMode;
     // below here is where the actual array data is stored.

@@ -4765,7 +4765,7 @@
     "code": "void draw(SkCanvas* canvas) {\n   // sk_sp<SkImage> image;\n   SkImage* imagePtr = image.get();\n   canvas->drawImage(imagePtr, 0, 0);\n   SkPaint paint;\n   canvas->drawImage(imagePtr, 80, 0, &paint);\n   paint.setAlpha(0x80);\n   canvas->drawImage(imagePtr, 160, 0, &paint);\n}\n",
     "width": 256,
     "height": 64,
-    "hash": "185746dc0faa6f1df30c4afe098646ff",
+    "hash": "ac93f30dff13f8a8bb31398de370863b",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawImage"
 },
@@ -5469,7 +5469,7 @@
     "code": "void draw(SkCanvas* canvas) {\n    canvas->scale(.5f, .5f);\n    SkImageInfo imageInfo = source.info();\n    SkIRect bounds = imageInfo.bounds();\n    for (int x : { 0, bounds.width() } ) {\n        for (int y : { 0, bounds.height() } ) {\n            canvas->drawBitmap(source, x, y);\n        }\n    }\n}",
     "width": 256,
     "height": 64,
-    "hash": "a818be8945cd0c18f99ffe53e90afa48",
+    "hash": "3ce3db36235d80dbac4d39504cf756da",
     "file": "SkImageInfo_Reference",
     "name": "SkImageInfo::bounds()"
 },

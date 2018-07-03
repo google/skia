@@ -2035,7 +2035,7 @@ integral rectangle from origin to <a href='#SkImageInfo_width'>width</a> and <a 
 
 ### Example
 
-<div><fiddle-embed name="a818be8945cd0c18f99ffe53e90afa48"></fiddle-embed></div>
+<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
 
 ### See Also
 
