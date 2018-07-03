@@ -450,6 +450,24 @@
     },
     {
       "key": {
+        "uuid": "10f4f6c8_8b0b1413",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T12:00:25Z",
+      "side": 1,
+      "message": "That would make a great comment.",
+      "parentUuid": "dfe573f7_0573496d",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2417029f_b24b9faf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 8
@@ -479,6 +497,24 @@
       "side": 1,
       "message": "If a non volatile mesh batches with another mesh, then the next time the mesh is drawn, it will draw the previous mesh that it batched with, which isn\u0027t necessarily there anymore.",
       "parentUuid": "2417029f_b24b9faf",
+      "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6cde5a88_71499f95",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-03T12:00:25Z",
+      "side": 1,
+      "message": "Right, that would make a great comment.",
+      "parentUuid": "43027909_6457ce52",
       "revId": "68b23db91afc457d7c2338946cfd01e5ea60e1c1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
