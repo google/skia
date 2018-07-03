@@ -75,53 +75,57 @@ bool LogFail(const skjson::Value& json, const char* msg) {
     return false;
 }
 
-sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ctx,
-                                 sk_sp<sksg::Matrix> parentMatrix) {
-    auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
-    auto adapter = sk_make_sp<TransformAdapter>(matrix);
-    auto anchor_attached = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
+bool AttachTransform(const skjson::ObjectValue* t, AttachContext* ctx,
+                     sk_sp<TransformAdapter> adapter) {
+    if (!t) return false;
+
+    // For no-op checks.
+    static const VectorValue vec_0_0     {   0,   0 },
+                             vec_100_100 { 100, 100 };
+    static constexpr ScalarValue scal_0 = 0;
+
+    bool attached = BindProperty<VectorValue>((*t)["a"], &ctx->fAnimators,
             [adapter](const VectorValue& a) {
                 adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
-            });
-    auto position_attached = BindProperty<VectorValue>(t["p"], &ctx->fAnimators,
+            }, &vec_0_0);
+    attached |= BindProperty<VectorValue>((*t)["p"], &ctx->fAnimators,
             [adapter](const VectorValue& p) {
                 adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-            });
-    auto scale_attached = BindProperty<VectorValue>(t["s"], &ctx->fAnimators,
+            }, &vec_0_0);
+    attached |= BindProperty<VectorValue>((*t)["s"], &ctx->fAnimators,
             [adapter](const VectorValue& s) {
                 adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
-            });
+            }, &vec_100_100);
 
-    const auto* jrotation = &t["r"];
+    const auto* jrotation = &(*t)["r"];
     if (jrotation->is<skjson::NullValue>()) {
         // 3d rotations have separate rx,ry,rz components.  While we don't fully support them,
         // we can still make use of rz.
-        jrotation = &t["rz"];
+        jrotation = &(*t)["rz"];
     }
-    auto rotation_attached = BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
+    attached |= BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
             [adapter](const ScalarValue& r) {
                 adapter->setRotation(r);
-            });
-    auto skew_attached = BindProperty<ScalarValue>(t["sk"], &ctx->fAnimators,
+            }, &scal_0);
+    attached |= BindProperty<ScalarValue>((*t)["sk"], &ctx->fAnimators,
             [adapter](const ScalarValue& sk) {
                 adapter->setSkew(sk);
-            });
-    auto skewaxis_attached = BindProperty<ScalarValue>(t["sa"], &ctx->fAnimators,
+            }, &scal_0);
+    attached |= BindProperty<ScalarValue>((*t)["sa"], &ctx->fAnimators,
             [adapter](const ScalarValue& sa) {
                 adapter->setSkewAxis(sa);
-            });
+            }, &scal_0);
 
-    if (!anchor_attached &&
-        !position_attached &&
-        !scale_attached &&
-        !rotation_attached &&
-        !skew_attached &&
-        !skewaxis_attached) {
-        LogFail(t, "Could not parse transform");
-        return nullptr;
-    }
+    return attached;
+}
 
-    return matrix;
+sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ctx,
+                                 sk_sp<sksg::Matrix> parentMatrix) {
+    auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
+    auto adapter = sk_make_sp<MatrixAdapter>(matrix);
+
+    // If all properties are static and no-ops we don't need a matrix node.
+    return AttachTransform(&t, ctx, std::move(adapter)) ? matrix : nullptr;
 }
 
 sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, AttachContext* ctx,
@@ -456,6 +460,41 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachRoundGeometryEffect(
     return rounded;
 }
 
+std::vector<sk_sp<sksg::RenderNode>> AttachRepeaterDrawEffect(
+        const skjson::ObjectValue& jrepeater, AttachContext* ctx,
+        std::vector<sk_sp<sksg::RenderNode>>&& draws) {
+
+    // TODO: skip the group if single draw.
+    auto group = sksg::Group::Make();
+    for (const auto& draw : draws) {
+        group->addChild(draw);
+    }
+
+    auto adapter = sk_make_sp<RepeaterAdapter>(std::move(group));
+
+    auto attached = AttachTransform(jrepeater["tr"], ctx, adapter);
+
+    static constexpr SkScalar s_0 = 0;
+    attached |= BindProperty<ScalarValue>(jrepeater["c"], &ctx->fAnimators,
+        [adapter](const ScalarValue& c) {
+            adapter->setCopyCount(c);
+        }, &s_0);
+
+    attached |= BindProperty<ScalarValue>(jrepeater["o"], &ctx->fAnimators,
+        [adapter](const ScalarValue& o) {
+            adapter->setOffset(o);
+        }, &s_0);
+
+    if (!attached) {
+        return draws;
+    }
+
+    std::vector<sk_sp<sksg::RenderNode>> repeated_group;
+    repeated_group.push_back(adapter->root());
+
+    return repeated_group;
+}
+
 using GeometryAttacherT = sk_sp<sksg::GeometryNode> (*)(const skjson::ObjectValue&, AttachContext*);
 static constexpr GeometryAttacherT gGeometryAttachers[] = {
     AttachPathGeometry,
@@ -482,12 +521,21 @@ static constexpr GeometryEffectAttacherT gGeometryEffectAttachers[] = {
     AttachRoundGeometryEffect,
 };
 
+using DrawEffectAttacherT =
+    std::vector<sk_sp<sksg::RenderNode>> (*)(const skjson::ObjectValue&,
+                                             AttachContext*,
+                                             std::vector<sk_sp<sksg::RenderNode>>&&);
+static constexpr DrawEffectAttacherT gDrawEffectAttachers[] = {
+    AttachRepeaterDrawEffect,
+};
+
 enum class ShapeType {
     kGeometry,
     kGeometryEffect,
     kPaint,
     kGroup,
     kTransform,
+    kDrawEffect,
 };
 
 struct ShapeInfo {
@@ -506,6 +554,7 @@ const ShapeInfo* FindShapeInfo(const skjson::ObjectValue& jshape) {
         { "mm", ShapeType::kGeometryEffect, 0 }, // merge     -> AttachMergeGeometryEffect
         { "rc", ShapeType::kGeometry      , 1 }, // rrect     -> AttachRRectGeometry
         { "rd", ShapeType::kGeometryEffect, 2 }, // round     -> AttachRoundGeometryEffect
+        { "rp", ShapeType::kDrawEffect    , 0 }, // repeater  -> AttachRepeaterDrawEffect
         { "sh", ShapeType::kGeometry      , 0 }, // shape     -> AttachPathGeometry
         { "sr", ShapeType::kGeometry      , 3 }, // polystar  -> AttachPolyStarGeometry
         { "st", ShapeType::kPaint         , 1 }, // stroke    -> AttachColorStroke
@@ -664,6 +713,14 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
             SkASSERT(geo);
             draws.push_back(sksg::Draw::Make(std::move(geo), std::move(paint)));
             shapeCtx->fCommittedAnimators = shapeCtx->fCtx->fAnimators.size();
+        } break;
+        case ShapeType::kDrawEffect: {
+            SkASSERT(rec->fInfo.fAttacherIndex < SK_ARRAY_COUNT(gDrawEffectAttachers));
+            if (!draws.empty()) {
+                draws = gDrawEffectAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
+                                                                        shapeCtx->fCtx,
+                                                                        std::move(draws));
+            }
         } break;
         default:
             break;

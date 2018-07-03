@@ -8,6 +8,7 @@
 #ifndef SkottieAdapter_DEFINED
 #define SkottieAdapter_DEFINED
 
+#include "SkMatrix.h"
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
@@ -17,26 +18,32 @@
 namespace sksg {
 
 class Gradient;
+class Group;
 class LinearGradient;
 class Matrix;
 class Path;
 class RadialGradient;
+class RenderNode;
 class RRect;
 class TrimEffect;
+class Transform;
 
 };
 
 namespace skottie {
 
-#define ADAPTER_PROPERTY(p_name, p_type, p_default) \
-    void set##p_name(const p_type& p) {             \
-        if (p == f##p_name) return;                 \
-        f##p_name = p;                              \
-        this->apply();                              \
-    }                                               \
-  private:                                          \
-    p_type f##p_name = p_default;                   \
+#define ADAPTER_PROPERTY_FUNC(p_name, p_type, p_default, func) \
+    void set##p_name(const p_type& p) {                        \
+        if (p == f##p_name) return;                            \
+        f##p_name = p;                                         \
+        this->func();                                          \
+    }                                                          \
+  private:                                                     \
+    p_type f##p_name = p_default;                              \
   public:
+
+#define ADAPTER_PROPERTY(p_name, p_type, p_default) \
+    ADAPTER_PROPERTY_FUNC(p_name, p_type, p_default, apply)
 
 class RRectAdapter final : public SkRefCnt {
 public:
@@ -79,10 +86,8 @@ private:
     using INHERITED = SkRefCnt;
 };
 
-class TransformAdapter final : public SkRefCnt {
+class TransformAdapter : public SkRefCnt {
 public:
-    explicit TransformAdapter(sk_sp<sksg::Matrix>);
-
     ADAPTER_PROPERTY(AnchorPoint, SkPoint , SkPoint::Make(0, 0))
     ADAPTER_PROPERTY(Position   , SkPoint , SkPoint::Make(0, 0))
     ADAPTER_PROPERTY(Scale      , SkVector, SkPoint::Make(100, 100))
@@ -90,12 +95,26 @@ public:
     ADAPTER_PROPERTY(Skew       , SkScalar, 0)
     ADAPTER_PROPERTY(SkewAxis   , SkScalar, 0)
 
+protected:
+    virtual void onApplyTransform(const SkMatrix&) = 0;
+
 private:
     void apply();
 
+    using INHERITED = SkRefCnt;
+};
+
+class MatrixAdapter final : public TransformAdapter {
+public:
+    explicit MatrixAdapter(sk_sp<sksg::Matrix>);
+
+protected:
+    void onApplyTransform(const SkMatrix&) override;
+
+private:
     sk_sp<sksg::Matrix> fMatrixNode;
 
-    using INHERITED = SkRefCnt;
+    using INHERITED = TransformAdapter;
 };
 
 class GradientAdapter : public SkRefCnt {
@@ -157,6 +176,32 @@ private:
     using INHERITED = SkRefCnt;
 };
 
+class RepeaterAdapter final : public TransformAdapter {
+public:
+    explicit RepeaterAdapter(sk_sp<sksg::RenderNode>);
+
+    ADAPTER_PROPERTY_FUNC(CopyCount, SkScalar,             0, applyRepeater)
+    ADAPTER_PROPERTY_FUNC(Offset   , SkScalar,             0, applyRepeater)
+    ADAPTER_PROPERTY_FUNC(Transform, SkMatrix, SkMatrix::I(), applyRepeater)
+
+    const sk_sp<sksg::Group>& root() const { return fInstanceGroup; }
+
+protected:
+    void onApplyTransform(const SkMatrix&) override;
+
+private:
+    void applyRepeater();
+
+    const sk_sp<sksg::RenderNode>       fRepeatedNode;
+    const sk_sp<sksg::Group>            fInstanceGroup;
+
+    std::vector<sk_sp<sksg::Transform>> fInstances;
+
+
+    using INHERITED = TransformAdapter;
+};
+
+#undef ADAPTER_PROPERTY_FUNC
 #undef ADAPTER_PROPERTY
 
 } // namespace skottie

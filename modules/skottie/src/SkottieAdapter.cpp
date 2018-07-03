@@ -7,10 +7,10 @@
 
 #include "SkottieAdapter.h"
 
-#include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRRect.h"
 #include "SkSGGradient.h"
+#include "SkSGGroup.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
@@ -36,9 +36,6 @@ void RRectAdapter::apply() {
    fRRectNode->setRRect(rr);
 }
 
-TransformAdapter::TransformAdapter(sk_sp<sksg::Matrix> matrix)
-    : fMatrixNode(std::move(matrix)) {}
-
 void TransformAdapter::apply() {
     SkMatrix t = SkMatrix::MakeTrans(-fAnchorPoint.x(), -fAnchorPoint.y());
 
@@ -47,7 +44,14 @@ void TransformAdapter::apply() {
     t.postTranslate(fPosition.x(), fPosition.y());
     // TODO: skew
 
-    fMatrixNode->setMatrix(t);
+    this->onApplyTransform(t);
+}
+
+MatrixAdapter::MatrixAdapter(sk_sp<sksg::Matrix> matrix)
+    : fMatrixNode(std::move(matrix)) {}
+
+void MatrixAdapter::onApplyTransform(const SkMatrix& m) {
+    fMatrixNode->setMatrix(m);
 }
 
 PolyStarAdapter::PolyStarAdapter(sk_sp<sksg::Path> wrapped_node, Type t)
@@ -164,6 +168,41 @@ void TrimEffectAdapter::apply() {
     fTrimEffect->setStart(startT);
     fTrimEffect->setStop(stopT);
     fTrimEffect->setMode(mode);
+}
+
+RepeaterAdapter::RepeaterAdapter(sk_sp<sksg::RenderNode> node)
+    : fRepeatedNode(std::move(node))
+    , fInstanceGroup(sksg::Group::Make()) {}
+
+void RepeaterAdapter::onApplyTransform(const SkMatrix& t) {
+    this->setTransform(t);
+}
+
+void RepeaterAdapter::applyRepeater() {
+    const auto count = SkToSizeT(1 + SkScalarRoundToInt(SkTMax(fCopyCount, 0.0f)));
+
+    // Sync the instance count.
+    SkASSERT(fInstanceGroup->size() == fInstances.size());
+    while (count < fInstances.size()) {
+        fInstanceGroup->removeChild(fInstances.back());
+        fInstances.pop_back();
+    }
+    while (count > fInstances.size()) {
+        auto instance = sksg::Transform::Make(fRepeatedNode, sksg::Matrix::Make(SkMatrix::I()));
+        fInstanceGroup->addChild(instance);
+        fInstances.push_back(std::move(instance));
+    }
+
+    printf("*** count: %lu, offset: %f\n", count, fOffset);
+    // TODO: offset
+    SkMatrix m = SkMatrix::I();
+
+    // Sync all instance transforms.
+    for (const auto& instance : fInstances) {
+        m.dump();
+        instance->getMatrix()->setMatrix(m);
+        m.postConcat(fTransform);
+    }
 }
 
 } // namespace skottie
