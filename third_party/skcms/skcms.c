@@ -45,8 +45,8 @@ static float eval_curve(const skcms_Curve* curve, float x) {
     }
 
     float ix = fmaxf_(0, fminf_(x, 1)) * (curve->table_entries - 1);
-    int   lo = (int)            ix,
-          hi = (int)minus_1_ulp(ix + 1.0f);
+    int   lo = (int)                   ix        ,
+          hi = (int)(float)minus_1_ulp(ix + 1.0f);
     float t = ix - (float)lo;
 
     float l, h;
