@@ -364,7 +364,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
 
 std::unique_ptr<GrFragmentProcessor> SkHighContrast_Filter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo& csi) const {
-    bool linearize = !csi.isGammaCorrect();
+    bool linearize = !csi.isLinearlyBlended();
     return HighContrastFilterEffect::Make(fConfig, linearize);
 }
 #endif
