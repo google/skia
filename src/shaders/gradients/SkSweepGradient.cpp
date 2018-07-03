@@ -224,7 +224,7 @@ std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
 
     return GrSweepGradient::Make(
             GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         args.fDstColorSpaceInfo->colorSpace()),
+                                         args.fDstColorSpaceInfo),
             fTBias, fTScale);
 }
 
