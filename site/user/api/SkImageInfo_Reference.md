@@ -1806,7 +1806,7 @@ Returns <a href='#Color_Type'>Color Type</a>, one of: <a href='#kUnknown_SkColor
 
 ### Example
 
-<div><fiddle-embed name="06ecc3ce7f35cc7f930cbc2a662e3105">
+<div><fiddle-embed name="a98993a66616ae406d8bdc54adfb1411">
 
 #### Example Output
 
@@ -2638,7 +2638,7 @@ true if <a href='#SkImageInfo_validRowBytes_rowBytes'>rowBytes</a> is large enou
 
 ### Example
 
-<div><fiddle-embed name="c6b0f6a3f493cb08d9abcdefe12de245">
+<div><fiddle-embed name="60ee3eb747474f5781b0f0dd3a17a866">
 
 #### Example Output
 

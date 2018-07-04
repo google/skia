@@ -845,7 +845,7 @@ and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="6ea461e71f7fc80605818fbf493caa63">
+<div><fiddle-embed name="df8160dd7ac8aa4b40fce7286fe49952">
 
 #### Example Output
 
@@ -1504,7 +1504,7 @@ If <a href='#SkIRect_makeInset_dy'>dy</a> is positive, <a href='#IRect'>IRect</a
 
 ### Example
 
-<div><fiddle-embed name="a7958a4e0668f5cf805a8e78eb57f51d">
+<div><fiddle-embed name="1db94b2c76e0a7a71856532335fa56b6">
 
 #### Example Output
 
@@ -2277,7 +2277,7 @@ true if <a href='#SkIRect_intersectNoEmptyCheck_a'>a</a> and <a href='#SkIRect_i
 
 ### Example
 
-<div><fiddle-embed name="a98993a66616ae406d8bdc54adfb1411">
+<div><fiddle-embed name="d35fbc9fdea71df8b8a12fd3da50d11c">
 
 #### Example Output
 

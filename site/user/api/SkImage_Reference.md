@@ -1540,7 +1540,7 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#Surf
 
 ### Example
 
-<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"></fiddle-embed></div>
+<div><fiddle-embed name="daacf43394ce4045a362a48b5774deed"></fiddle-embed></div>
 
 ### See Also
 
@@ -1707,7 +1707,7 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
 
 ### Example
 
-<div><fiddle-embed name="10172fca71b9dbdcade772513ffeb27e"></fiddle-embed></div>
+<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="4eb2d95c9e9a66f05296e345bb68bd51"></fiddle-embed></div>
+<div><fiddle-embed name="13bbc5fa5597a6cd4d704b419dbc66d9"></fiddle-embed></div>
 
 ### See Also
 

@@ -900,7 +900,7 @@ making destination lighter or darker, depending on source.
 
 ### Example
 
-<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
+<div><fiddle-embed name="6e0be0766b8ca320da51640326e608b3"></fiddle-embed></div>
 
 ## <a name='Difference'>Difference</a>
 

@@ -2684,7 +2684,7 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="53c212c4f2449df0b0eedbc6227b6ab7"><div><a href='#SkCanvas_scale'>scale</a> followed by <a href='#SkCanvas_translate'>translate</a> produces different results from <a href='#SkCanvas_translate'>translate</a> followed
+<div><fiddle-embed name="eb93d5fa66a5f7a10f4f9210494d7222"><div><a href='#SkCanvas_scale'>scale</a> followed by <a href='#SkCanvas_translate'>translate</a> produces different results from <a href='#SkCanvas_translate'>translate</a> followed
 by <a href='#SkCanvas_scale'>scale</a>.
 
 The blue stroke follows translate of (50, 50); a black
@@ -2726,7 +2726,7 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="7d0d801ef13c6c6da51e840c22ac15b0"></fiddle-embed></div>
+<div><fiddle-embed name="faa5dfa466f6e16c07c124d971f32679"></fiddle-embed></div>
 
 ### See Also
 
@@ -2799,7 +2799,7 @@ transforming the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="bcf5baea1c66a957d5ffd7b54bbbfeff"></fiddle-embed></div>
+<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"></fiddle-embed></div>
 
 ### See Also
 
@@ -3049,7 +3049,7 @@ Resulting <a href='#Clip'>Clip</a> is <a href='undocumented#Alias'>Aliased</a>; 
 
 ### Example
 
-<div><fiddle-embed name="13bbc5fa5597a6cd4d704b419dbc66d9"></fiddle-embed></div>
+<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"></fiddle-embed></div>
 
 ### See Also
 
@@ -3359,7 +3359,7 @@ Resulting <a href='#Clip'>Clip</a> is <a href='undocumented#Alias'>Aliased</a>; 
 
 ### Example
 
-<div><fiddle-embed name="7bb57c0e456c5fda2c2cca4abb68b19e"><div>region is unaffected by canvas rotation; iRect is affected by canvas rotation.
+<div><fiddle-embed name="20571cc23e3146deaa09046b64cc0aef"><div>region is unaffected by canvas rotation; iRect is affected by canvas rotation.
 Both clips are <a href='undocumented#Alias'>Aliased</a>; this is not noticeable on <a href='undocumented#Region'>Region</a> clip because it
 aligns to pixel boundaries.
 </div></fiddle-embed></div>
@@ -5448,7 +5448,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="e99e7be0d8f67dfacbecf85df585433d"><div>The two leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draws has four corners and sides to the left and right of <a href='#SkCanvas_drawBitmapNine_center'>center</a>.
+<div><fiddle-embed name="95ccfc2a89ce593e6b7a9f992a844bc0"><div>The two leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draws has four corners and sides to the left and right of <a href='#SkCanvas_drawBitmapNine_center'>center</a>.
 The leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides and <a href='#SkCanvas_drawBitmapNine_center'>center</a> are scaled to
 fill the remaining space.
@@ -5686,7 +5686,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="c5bfa944e17ba4a4400dc799f032069c"><div>The two leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draws has four corners and sides to the left and right of center.
+<div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>The two leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draws has four corners and sides to the left and right of center.
 The leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides are scaled to
 fill the remaining space; the center is transparent.
@@ -6412,7 +6412,7 @@ void <a href='#SkCanvas_drawPicture'>drawPicture</a>(const <a href='SkPicture_Re
 
 ### Example
 
-<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91"></fiddle-embed></div>
+<div><fiddle-embed name="759e4e5bac680838added8f70884dcdc"></fiddle-embed></div>
 
 ### See Also
 
@@ -6773,7 +6773,7 @@ If <a href='#SkCanvas_drawAtlas_cullRect'>cullRect</a> is outside of <a href='#C
 
 ### Example
 
-<div><fiddle-embed name="fe79a9c1ec350264eb9c7b2509dd3638"></fiddle-embed></div>
+<div><fiddle-embed name="1df575f9b8132306ce0552a2554ed132"></fiddle-embed></div>
 
 ### See Also
 
