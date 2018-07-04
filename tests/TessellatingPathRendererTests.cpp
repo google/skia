@@ -622,6 +622,7 @@ static void test_path(GrContext* ctx,
                                       &matrix,
                                       &shape,
                                       aaType,
+                                      false,
                                       false};
     tess.drawPath(args);
 }

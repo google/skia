@@ -53,6 +53,7 @@ static void draw_path(GrContext* ctx,
                                       &matrix,
                                       &shape,
                                       aaType,
+                                      false,
                                       false};
     pr->drawPath(args);
 }

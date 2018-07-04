@@ -904,6 +904,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                           &SkMatrix::I(),
                                                           &shape,
                                                           aaType,
+                                                          false,
                                                           false};
                         pr->drawPath(args);
                     } else {
@@ -942,6 +943,7 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
                                                       &SkMatrix::I(),
                                                       &shape,
                                                       aaType,
+                                                      false,
                                                       false};
                     pr->drawPath(args);
                 }

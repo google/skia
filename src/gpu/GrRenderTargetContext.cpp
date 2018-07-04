@@ -1605,7 +1605,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
-                                      fRenderTargetContext->colorSpaceInfo().isLinearlyBlended()};
+                                      fRenderTargetContext->colorSpaceInfo().isLinearlyBlended(),
+                                      false};
     pr->drawPath(args);
     return true;
 }
@@ -1701,7 +1702,8 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       &viewMatrix,
                                       canDrawArgs.fShape,
                                       aaType,
-                                      this->colorSpaceInfo().isLinearlyBlended()};
+                                      this->colorSpaceInfo().isLinearlyBlended(),
+                                      false};
     pr->drawPath(args);
 }
 

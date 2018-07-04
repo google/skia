@@ -127,6 +127,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
                                              GrAllowMixedSamples::kYes,
                                              *context->contextPriv().caps());
         canDrawArgs.fHasUserStencilSettings = hasUserStencilSettings;
+        canDrawArgs.fIsClipPath = true;
 
         // the 'false' parameter disallows use of the SW path renderer
         GrPathRenderer* pr =
