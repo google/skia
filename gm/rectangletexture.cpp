@@ -73,7 +73,8 @@ protected:
         }
 
         if (!(kGL_GrGLStandard == glCtx->standard() && glCtx->version() >= GR_GL_VER(3, 1)) &&
-            !glCtx->hasExtension("GL_ARB_texture_rectangle")) {
+            !(glCtx->hasExtension("GL_ARB_texture_rectangle") ||
+              glCtx->hasExtension("GL_ANGLE_texture_rectangle"))) {
             return nullptr;
         }
 
@@ -102,6 +103,7 @@ protected:
                                      GR_GL_CLAMP_TO_EDGE));
         GR_GL_CALL(gl, TexParameteri(TARGET, GR_GL_TEXTURE_WRAP_T,
                                      GR_GL_CLAMP_TO_EDGE));
+        SkDebugf("format:%u v.s. internal format:%u\n", format, GR_GL_RGBA);
         GR_GL_CALL(gl, TexImage2D(TARGET, 0, GR_GL_RGBA, width, height, 0,
                                   format, GR_GL_UNSIGNED_BYTE, pixels));
 

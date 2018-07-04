@@ -146,13 +146,16 @@ sk_sp<GrTexture> GrGpu::createTexture(const GrSurfaceDesc& desc, SkBudgeted budg
 sk_sp<GrTexture> GrGpu::wrapBackendTexture(const GrBackendTexture& backendTex,
                                            GrWrapOwnership ownership) {
     this->handleDirtyContext();
+    SkDebugf("enters wrap texture\n");
     if (!this->caps()->isConfigTexturable(backendTex.config())) {
         return nullptr;
     }
+    SkDebugf("istexturable\n");
     if (backendTex.width() > this->caps()->maxTextureSize() ||
         backendTex.height() > this->caps()->maxTextureSize()) {
         return nullptr;
     }
+    SkDebugf("texture size ok\n");
     return this->onWrapBackendTexture(backendTex, ownership);
 }
 
