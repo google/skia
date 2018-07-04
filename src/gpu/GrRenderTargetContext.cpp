@@ -1606,6 +1606,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &shape,
                                       aaType,
                                       fRenderTargetContext->colorSpaceInfo().isLinearlyBlended()};
+                                      false};
     pr->drawPath(args);
     return true;
 }
@@ -1702,6 +1703,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       canDrawArgs.fShape,
                                       aaType,
                                       this->colorSpaceInfo().isLinearlyBlended()};
+                                      false};
     pr->drawPath(args);
 }
 

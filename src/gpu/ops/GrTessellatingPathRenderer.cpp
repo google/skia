@@ -149,6 +149,14 @@ GrTessellatingPathRenderer::onCanDrawPath(const CanDrawPathArgs& args) const {
         return CanDrawPath::kNo;
     }
     if (GrAAType::kCoverage == args.fAAType) {
+#ifdef SK_BUILD_FOR_ANDROID
+        // On tilers, the FBO switching costs for clip paths outweigh the benefits of doing
+        // GPU-based path drawing. So we're better off letting the software-and-upload path
+        // renderer do clip paths.
+        if (args.fIsClipPath) {
+            return CanDrawPath::kNo;
+        }
+#endif
         SkPath path;
         args.fShape->asPath(&path);
         if (path.countVerbs() > GR_AA_TESSELLATOR_MAX_VERB_COUNT) {

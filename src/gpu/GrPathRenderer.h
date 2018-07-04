@@ -81,6 +81,7 @@ public:
         const SkMatrix*             fViewMatrix;
         const GrShape*              fShape;
         GrAAType                    fAAType;
+        bool                        fIsClipPath;
 
         // These next two are only used by GrStencilAndCoverPathRenderer
         bool                        fHasUserStencilSettings;
@@ -116,6 +117,7 @@ public:
         const GrShape*               fShape;
         GrAAType                     fAAType;
         bool                         fGammaCorrect;
+        bool                         fIsClipPath;
 #ifdef SK_DEBUG
         void validate() const {
             SkASSERT(fContext);
@@ -142,6 +144,7 @@ public:
         canArgs.fViewMatrix = args.fViewMatrix;
         canArgs.fShape = args.fShape;
         canArgs.fAAType = args.fAAType;
+        canArgs.fIsClipPath = args.fIsClipPath;
         canArgs.validate();
 
         canArgs.fHasUserStencilSettings = !args.fUserStencilSettings->isUnused();
@@ -173,6 +176,7 @@ public:
         const SkMatrix*        fViewMatrix;
         GrAAType               fAAType;
         const GrShape*         fShape;
+        bool                   fIsClipPath;
 
 #ifdef SK_DEBUG
         void validate() const {
@@ -270,6 +274,7 @@ private:
                               args.fViewMatrix,
                               args.fShape,
                               args.fAAType,
+                              args.fIsClipPath,
                               false};
         this->drawPath(drawArgs);
     }
