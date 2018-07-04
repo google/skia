@@ -2409,7 +2409,7 @@ the actual number of <a href='#SkPath_getVerbs_verbs'>verbs</a> in the path
 
 ### Example
 
-<div><fiddle-embed name="2ec66880966a6133ddd9331ce7323438">
+<div><fiddle-embed name="c989cf16c7f8849874eb008cd701af76">
 
 #### Example Output
 
@@ -2955,7 +2955,7 @@ Function name stands for "relative move to".
 
 ### Example
 
-<div><fiddle-embed name="63e32dec4b2d8440b427f368bf8313a4"></fiddle-embed></div>
+<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"></fiddle-embed></div>
 
 ### See Also
 
@@ -3052,7 +3052,7 @@ Function name stands for "relative line to".
 
 ### Example
 
-<div><fiddle-embed name="6e0be0766b8ca320da51640326e608b3"></fiddle-embed></div>
+<div><fiddle-embed name="379fc375e011050b54ed9df83c0996a7"></fiddle-embed></div>
 
 ### See Also
 
@@ -3562,7 +3562,7 @@ Function name stands for "relative cubic to".
 
 ### Example
 
-<div><fiddle-embed name="19f0cfc7eeba8937fe19446ec0b5f932"></fiddle-embed></div>
+<div><fiddle-embed name="31bf751d0a8ddf176b871810820d8199"></fiddle-embed></div>
 
 ### See Also
 
@@ -3664,7 +3664,7 @@ of <a href='#Arc'>Arc</a>. Angles greater than -360 and less than 360 are treate
 
 ### Example
 
-<div><fiddle-embed name="5f02890edaa10cb5e1a4243a82b6a382"><div><a href='#SkPath_arcTo'>arcTo</a> continues a previous contour when <a href='#SkPath_arcTo_forceMoveTo'>forceMoveTo</a> is false and when <a href='#Path'>Path</a>
+<div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b"><div><a href='#SkPath_arcTo'>arcTo</a> continues a previous contour when <a href='#SkPath_arcTo_forceMoveTo'>forceMoveTo</a> is false and when <a href='#Path'>Path</a>
 is not empty.
 </div></fiddle-embed></div>
 
@@ -4974,7 +4974,7 @@ Reversed <a href='#SkPath_reverseAddPath_src'>src</a> always appends a new <a hr
 
 ### Example
 
-<div><fiddle-embed name="5e8513f073db09acde3ff616f6426e3d"></fiddle-embed></div>
+<div><fiddle-embed name="862cc026601a41a58df49c0b9f0d7777"></fiddle-embed></div>
 
 ### See Also
 
@@ -5570,7 +5570,7 @@ The format used for <a href='#Path'>Path</a> in memory is not guaranteed.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7">
+<div><fiddle-embed name="2c6aff73608cd198659db6d1eeaaae4f">
 
 #### Example Output
 
@@ -5753,7 +5753,7 @@ degenerate data.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
+<div><fiddle-embed name="2f53df9201769ab7e7c0e164a1334309"><div>Ignoring the actual <a href='#Verb'>Verbs</a> and replacing them with <a href='#Quad'>Quads</a> rounds the
 path of the glyph.
 </div></fiddle-embed></div>
 

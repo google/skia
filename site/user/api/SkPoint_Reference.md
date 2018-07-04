@@ -277,7 +277,7 @@ Sets <a href='#SkPoint_fX'>fX</a> to x, <a href='#SkPoint_fY'>fY</a> to y. Used 
 
 ### Example
 
-<div><fiddle-embed name="d266e70977847001f7c42f8a2513bee7">
+<div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b">
 
 #### Example Output
 
@@ -1207,7 +1207,7 @@ Returns <a href='#Point'>Point</a> multiplied by scale.
 
 ### Example
 
-<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca"></fiddle-embed></div>
+<div><fiddle-embed name="35b3bc675779de043706ae4817ee950c"></fiddle-embed></div>
 
 ### See Also
 

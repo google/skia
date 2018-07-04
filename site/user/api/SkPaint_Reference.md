@@ -993,7 +993,7 @@ shallow copy of <a href='#SkPaint_copy_const_SkPaint_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="b99971ad0ef243d617925289d963b62d">
+<div><fiddle-embed name="8b26507690b71462f44642b911890bbf">
 
 #### Example Output
 
@@ -1739,7 +1739,7 @@ Some platform implementations may ignore dithering. SetSK_IGNORE_GPU_DITHERto ig
 
 ### Example
 
-<div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>Dithering in the bottom half more closely approximates the requested color by
+<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808"><div>Dithering in the bottom half more closely approximates the requested color by
 alternating nearby colors from pixel to pixel.
 </div></fiddle-embed></div>
 
@@ -2609,7 +2609,7 @@ Sets <a href='SkColor_Reference#Alpha'>Alpha</a> and RGB used when stroking and 
 
 ### Example
 
-<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91">
+<div><fiddle-embed name="6e70f18300bd676a3c056ceb6b62f8df">
 
 #### Example Output
 
@@ -3360,7 +3360,7 @@ one of: <a href='#SkPaint_kMiter_Join'>kMiter Join</a>, <a href='#SkPaint_kRound
 
 ### Example
 
-<div><fiddle-embed name="31bf751d0a8ddf176b871810820d8199">
+<div><fiddle-embed name="756345484fd48ca0ea7b6cec350f73b8">
 
 #### Example Output
 
@@ -4114,7 +4114,7 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 
 ### Example
 
-<div><fiddle-embed name="ece04ee3d3761e3425f37c8f06f054c1"></fiddle-embed></div>
+<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
 
 <a name='SkPaint_getImageFilter'></a>
 ## getImageFilter
@@ -4477,7 +4477,7 @@ typographic height of text
 
 ### Example
 
-<div><fiddle-embed name="29b98ebf58aa9fd1edfaabf9f4490b3a"></fiddle-embed></div>
+<div><fiddle-embed name="983e2a71ba72d4ba8c945420040b8f1c"></fiddle-embed></div>
 
 ---
 
@@ -4500,7 +4500,7 @@ Has no effect if <a href='#SkPaint_setTextSize_textSize'>textSize</a> is not gre
 
 ### Example
 
-<div><fiddle-embed name="6510c9e2f57b83c47e67829e7a68d493"></fiddle-embed></div>
+<div><fiddle-embed name="257c9473db7a2b3a0fb2b9e2431e59a6"></fiddle-embed></div>
 
 ---
 
@@ -4514,7 +4514,7 @@ is not available.
 
 ### Example
 
-<div><fiddle-embed name="d13d787c1e36f515319fc998411c1d91"></fiddle-embed></div>
+<div><fiddle-embed name="59c1025b8116ec1d3b55f4f6306d1e37"></fiddle-embed></div>
 
 <a name='SkPaint_getTextScaleX'></a>
 ## getTextScaleX
@@ -5317,7 +5317,7 @@ union of bounds of all <a href='undocumented#Glyph'>Glyphs</a>
 
 ### Example
 
-<div><fiddle-embed name="facaddeec7943bc491988e345e27e65f">
+<div><fiddle-embed name="b14d9debfe87295373b44a179992a999">
 
 #### Example Output
 
@@ -5970,7 +5970,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="f2229dd5c8e76f9e12fafe59b61353c8"></fiddle-embed></div>
+<div><fiddle-embed name="c989cf16c7f8849874eb008cd701af76"></fiddle-embed></div>
 
 ---
 

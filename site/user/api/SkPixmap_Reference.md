@@ -492,7 +492,7 @@ reference to ImageInfo
 
 ### Example
 
-<div><fiddle-embed name="ab9b3aef7896aee80b780789848fbba4">
+<div><fiddle-embed name="6e0f558bf7fabc655041116288559134">
 
 #### Example Output
 
@@ -597,7 +597,7 @@ pixel width in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="f68617b7153a20b2ed3d7f9ed5c6e5e4">
+<div><fiddle-embed name="babd0e12db21a88c74d4e88aa40268ab">
 
 #### Example Output
 
@@ -963,7 +963,7 @@ true if all pixels have opaque values or <a href='SkImageInfo_Reference#Color_Ty
 
 ### Example
 
-<div><fiddle-embed name="6ef37d5be03d0bfaec992dbb5a94c66f">
+<div><fiddle-embed name="55e0431adc6c5b1987ebb8123cc10342">
 
 #### Example Output
 
@@ -1109,7 +1109,7 @@ readable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="2bffb6384cc20077e632e7d01da045ca">
+<div><fiddle-embed name="9adda80b2dd1b08ec5ccf66da7c8bd91">
 
 #### Example Output
 
