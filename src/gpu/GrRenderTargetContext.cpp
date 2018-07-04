@@ -1598,7 +1598,8 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
                                       &viewMatrix,
                                       &shape,
                                       aaType,
-                                      fRenderTargetContext->colorSpaceInfo().isGammaCorrect()};
+                                      fRenderTargetContext->colorSpaceInfo().isGammaCorrect(),
+                                      false};
     pr->drawPath(args);
     return true;
 }
@@ -1694,7 +1695,8 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                       &viewMatrix,
                                       canDrawArgs.fShape,
                                       aaType,
-                                      this->colorSpaceInfo().isGammaCorrect()};
+                                      this->colorSpaceInfo().isGammaCorrect(),
+                                      false};
     pr->drawPath(args);
 }
 

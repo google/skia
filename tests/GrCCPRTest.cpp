@@ -90,7 +90,7 @@ public:
 
         fCCPR->testingOnly_drawPathDirectly({
                 fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
-                &clipBounds, &matrix, &shape, GrAAType::kCoverage, false});
+                &clipBounds, &matrix, &shape, GrAAType::kCoverage, false, false});
     }
 
     void clipFullscreenRect(SkPath clipPath, GrColor4f color = GrColor4f(0, 1, 0, 1)) {
