@@ -473,7 +473,7 @@ bounds (0, 0, 0, 0)
 
 ### Example
 
-<div><fiddle-embed name="2e262d0ac4b8ef51695e0525fc3ecdf6">
+<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
 
 #### Example Output
 
@@ -1105,7 +1105,7 @@ and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> a
 
 ### Example
 
-<div><fiddle-embed name="3cfc24b011aef1ca8ccb57c05711620c">
+<div><fiddle-embed name="7145dc17ebce4f54e892102f6c98e811">
 
 #### Example Output
 
@@ -2428,7 +2428,7 @@ If <a href='#SkRect_outset_dy'>dy</a> is negative, makes <a href='#Rect'>Rect</a
 
 ### Example
 
-<div><fiddle-embed name="861f873ba660af8c8bf8b0b83d829cf4">
+<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808">
 
 #### Example Output
 

@@ -895,7 +895,7 @@ set if <a href='#Matrix'>Matrix</a> has perspective</td>
 
 ### Example
 
-<div><fiddle-embed name="ba19b36df8cd78586f3dff54e2d4c093">
+<div><fiddle-embed name="5acc77eba0cb4d00bbf3a8f4db0c0aee">
 
 #### Example Output
 
@@ -2316,7 +2316,7 @@ Sets vertical skew factor.
 
 ### Example
 
-<div><fiddle-embed name="b418d15df9829aefcc6aca93a37428bb"></fiddle-embed></div>
+<div><fiddle-embed name="31a4c575499e76def651eb65994876f0"></fiddle-embed></div>
 
 ### See Also
 
@@ -2342,7 +2342,7 @@ Sets horizontal skew factor.
 
 ### Example
 
-<div><fiddle-embed name="c7177a6fbc1545be95a5ebca87e0cd0d"></fiddle-embed></div>
+<div><fiddle-embed name="c2fec0746f88ca34d7dce59dd9bdef9e"></fiddle-embed></div>
 
 ### See Also
 
@@ -4633,7 +4633,7 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
 
 ### Example
 
-<div><fiddle-embed name="9e50185d502dc6903783679a84106089"></fiddle-embed></div>
+<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"></fiddle-embed></div>
 
 ### See Also
 
@@ -5266,7 +5266,7 @@ true if <a href='#Matrix'>Matrix</a> <a href='#SkMatrix_equal_operator_a'>a</a> 
 
 ### Example
 
-<div><fiddle-embed name="3902859150b0f0c4aeb1f25d00434baa">
+<div><fiddle-embed name="897230ecfb36095486beca324fd369f9">
 
 #### Example Output
 
@@ -5588,7 +5588,7 @@ const invalid <a href='#Matrix'>Matrix</a>
 
 ### Example
 
-<div><fiddle-embed name="af0b72360c1c7a25b4754bfa47011dd5">
+<div><fiddle-embed name="13adba0ecf5f82247cf051b4fa4d8a9c">
 
 #### Example Output
 

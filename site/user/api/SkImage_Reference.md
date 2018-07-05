@@ -996,7 +996,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="45bca8747b8f49b5be34b520897ef048"></fiddle-embed></div>
+<div><fiddle-embed name="374e245d91cd729eca48fd20e631fdf3"></fiddle-embed></div>
 
 ### See Also
 
@@ -1540,7 +1540,7 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#Surf
 
 ### Example
 
-<div><fiddle-embed name="daacf43394ce4045a362a48b5774deed"></fiddle-embed></div>
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1707,7 +1707,7 @@ transforming <a href='#Image'>Image</a> before <a href='SkCanvas_Reference#Matri
 
 ### Example
 
-<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"></fiddle-embed></div>
+<div><fiddle-embed name="10172fca71b9dbdcade772513ffeb27e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="13bbc5fa5597a6cd4d704b419dbc66d9"></fiddle-embed></div>
+<div><fiddle-embed name="b26119f9312d5f5d4011bf2dac94fafe"></fiddle-embed></div>
 
 ### See Also
 
@@ -2582,7 +2582,7 @@ true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="78374702fa113076ddc6070053ab5cd4" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="54e8525a592f05623c33b375aebc90c1" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

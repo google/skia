@@ -993,7 +993,7 @@ shallow copy of <a href='#SkPaint_copy_const_SkPaint_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="8b26507690b71462f44642b911890bbf">
+<div><fiddle-embed name="b99971ad0ef243d617925289d963b62d">
 
 #### Example Output
 
@@ -1671,7 +1671,7 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkP
 
 ### Example
 
-<div><fiddle-embed name="d7d5f4f7da7acd5104a652f490c6f7b8">
+<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
 
 #### Example Output
 
@@ -1706,7 +1706,7 @@ Clears <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a> if <a href='#SkPai
 
 ### Example
 
-<div><fiddle-embed name="c2ff148374d01cbef845b223e725905c">
+<div><fiddle-embed name="c40979a3b92a30cfb7bae36abcc1d805">
 
 #### Example Output
 
@@ -1739,7 +1739,7 @@ Some platform implementations may ignore dithering. SetSK_IGNORE_GPU_DITHERto ig
 
 ### Example
 
-<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808"><div>Dithering in the bottom half more closely approximates the requested color by
+<div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>Dithering in the bottom half more closely approximates the requested color by
 alternating nearby colors from pixel to pixel.
 </div></fiddle-embed></div>
 
@@ -2936,7 +2936,7 @@ zero for <a href='#Style_Hairline'>Hairline</a>, greater than zero for pen thick
 
 ### Example
 
-<div><fiddle-embed name="99aa73f64df8bbf06e656cd891a81b9e">
+<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
 
 #### Example Output
 
@@ -3071,7 +3071,7 @@ Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="700b284dbc97785c6a9c9636088713ad">
+<div><fiddle-embed name="897230ecfb36095486beca324fd369f9">
 
 #### Example Output
 
@@ -3360,7 +3360,7 @@ one of: <a href='#SkPaint_kMiter_Join'>kMiter Join</a>, <a href='#SkPaint_kRound
 
 ### Example
 
-<div><fiddle-embed name="756345484fd48ca0ea7b6cec350f73b8">
+<div><fiddle-embed name="31bf751d0a8ddf176b871810820d8199">
 
 #### Example Output
 
@@ -3844,7 +3844,7 @@ Does not alter <a href='undocumented#Path_Effect'>Path Effect</a> <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="211a1b14bfa6c4332082c8eab4fbc5fd">
+<div><fiddle-embed name="a654fd0b73f424859ae6c95e03f55099">
 
 #### Example Output
 
@@ -4114,7 +4114,7 @@ can operate on all channels of <a href='SkColor_Reference#Color'>Color</a>, whil
 
 ### Example
 
-<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
+<div><fiddle-embed name="ece04ee3d3761e3425f37c8f06f054c1"></fiddle-embed></div>
 
 <a name='SkPaint_getImageFilter'></a>
 ## getImageFilter
@@ -4132,7 +4132,7 @@ Does not alter <a href='undocumented#Image_Filter'>Image Filter</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="c11f8eaa1dd149bc18db21e23ce26904">
+<div><fiddle-embed name="6a614faa0fbcf19958b5559c19b02d0f">
 
 #### Example Output
 
@@ -4500,7 +4500,7 @@ Has no effect if <a href='#SkPaint_setTextSize_textSize'>textSize</a> is not gre
 
 ### Example
 
-<div><fiddle-embed name="257c9473db7a2b3a0fb2b9e2431e59a6"></fiddle-embed></div>
+<div><fiddle-embed name="6510c9e2f57b83c47e67829e7a68d493"></fiddle-embed></div>
 
 ---
 
@@ -4514,7 +4514,7 @@ is not available.
 
 ### Example
 
-<div><fiddle-embed name="59c1025b8116ec1d3b55f4f6306d1e37"></fiddle-embed></div>
+<div><fiddle-embed name="d13d787c1e36f515319fc998411c1d91"></fiddle-embed></div>
 
 <a name='SkPaint_getTextScaleX'></a>
 ## getTextScaleX
@@ -5317,7 +5317,7 @@ union of bounds of all <a href='undocumented#Glyph'>Glyphs</a>
 
 ### Example
 
-<div><fiddle-embed name="b14d9debfe87295373b44a179992a999">
+<div><fiddle-embed name="facaddeec7943bc491988e345e27e65f">
 
 #### Example Output
 
@@ -5505,7 +5505,7 @@ Only supported on platforms that use FreeType as the <a href='undocumented#Engin
 
 ### Example
 
-<div><fiddle-embed name="c12686b0b3e0a87d0a248bbfc57e9492"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code points.
+<div><fiddle-embed name="febdbfac6cf4cde69837643be2e1f6dd"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code points.
 </div></fiddle-embed></div>
 
 ---
@@ -5970,7 +5970,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="c989cf16c7f8849874eb008cd701af76"></fiddle-embed></div>
+<div><fiddle-embed name="f2229dd5c8e76f9e12fafe59b61353c8"></fiddle-embed></div>
 
 ---
 
