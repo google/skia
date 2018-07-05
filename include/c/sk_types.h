@@ -655,30 +655,8 @@ typedef enum {
 
 typedef intptr_t gr_backendobject_t;
 
-typedef struct {
-    int fWidth;
-    int fHeight;
-    gr_pixelconfig_t fConfig;
-    gr_surfaceorigin_t fOrigin;
-    int fSampleCnt;
-    int fStencilBits;
-    gr_backendobject_t fRenderTargetHandle;
-} gr_backend_rendertarget_desc_t;
-
-typedef enum {
-    NONE_GR_BACKEND_TEXTURE_FLAGS = 0,
-    RENDER_TARGET_GR_BACKEND_TEXTURE_FLAGS = 1,
-} gr_backendtexture_flags_t;
-
-typedef struct {
-    gr_backendtexture_flags_t fFlags;
-    gr_surfaceorigin_t fOrigin;
-    int fWidth;
-    int fHeight;
-    gr_pixelconfig_t fConfig;
-    int fSampleCnt;
-    gr_backendobject_t fTextureHandle;
-} gr_backend_texture_desc_t;
+typedef struct gr_backendrendertarget_t gr_backendrendertarget_t;
+typedef struct gr_backendtexture_t gr_backendtexture_t;
 
 typedef struct gr_context_t gr_context_t;
 
@@ -686,7 +664,6 @@ typedef enum {
     METAL_GR_BACKEND,
     OPENGL_GR_BACKEND,
     VULKAN_GR_BACKEND,
-    MOCK_GR_BACKEND,
 } gr_backend_t;
 
 typedef intptr_t gr_backendcontext_t;
@@ -695,6 +672,17 @@ typedef struct gr_glinterface_t gr_glinterface_t;
 
 typedef void (*gr_gl_func_ptr)(void);
 typedef gr_gl_func_ptr (*gr_gl_get_proc)(void* ctx, const char* name);
+
+typedef struct {
+    unsigned int fTarget;
+    unsigned int fID;
+    unsigned int fFormat;
+} gr_gl_textureinfo_t;
+
+typedef struct {
+    unsigned int fFBOID;
+    unsigned int fFormat;
+} gr_gl_framebufferinfo_t;
 
 typedef enum {
     DIFFERENCE_SK_PATHOP,
@@ -742,6 +730,8 @@ typedef void (*sk_data_release_proc)(const void* ptr, void* context);
 
 typedef void (*sk_image_raster_release_proc)(const void* addr, void* context);
 typedef void (*sk_image_texture_release_proc)(void* context);
+
+typedef void (*sk_surface_raster_release_proc)(void* addr, void* context);
 
 typedef enum {
     ALLOW_SK_IMAGE_CACHING_HINT,
@@ -876,6 +866,7 @@ typedef struct {
     sk_pngencoder_filterflags_t fFilterFlags;
     int fZLibLevel;
     sk_transfer_function_behavior_t fUnpremulBehavior;
+    void* fComments;
 } sk_pngencoder_options_t;
 
 typedef enum {

@@ -872,7 +872,6 @@ component("skia") {
     sources += [
       "src/fonts/SkFontMgr_indirect.cpp",
       "src/ports/SkDebug_win.cpp",
-      "src/ports/SkFontHost_win.cpp",
       "src/ports/SkFontMgr_win_dw.cpp",
       "src/ports/SkFontMgr_win_dw_factory.cpp",
       "src/ports/SkImageEncoder_WIC.cpp",
@@ -883,6 +882,9 @@ component("skia") {
       "src/ports/SkTLS_win.cpp",
       "src/ports/SkTypeface_win_dw.cpp",
     ]
+    if (!is_winrt) {
+      sources += [ "src/ports/SkFontHost_win.cpp" ]
+    }
     libs += [
       "FontSub.lib",
       "Gdi32.lib",

@@ -100,6 +100,8 @@ DEF_CLASS_MAP(SkXMLStreamWriter, sk_xmlstreamwriter_t, XMLStreamWriter)
 DEF_CLASS_MAP(SkXMLWriter, sk_xmlwriter_t, XMLWriter)
 
 DEF_CLASS_MAP(GrContext, gr_context_t, GrContext)
+DEF_CLASS_MAP(GrBackendTexture, gr_backendtexture_t, GrBackendTexture)
+DEF_CLASS_MAP(GrBackendRenderTarget, gr_backendrendertarget_t, GrBackendRenderTarget)
 
 DEF_STRUCT_MAP(SkColorSpacePrimaries, sk_colorspaceprimaries_t, ColorSpacePrimaries)
 DEF_STRUCT_MAP(SkColorSpaceTransferFn, sk_colorspace_transfer_fn_t, ColorSpaceTransferFn)
@@ -113,8 +115,8 @@ DEF_STRUCT_MAP(SkPoint3, sk_point3_t, Point3)
 DEF_STRUCT_MAP(SkRect, sk_rect_t, Rect)
 DEF_STRUCT_MAP(SkSize, sk_size_t, Size)
 
-DEF_STRUCT_MAP(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t, GrBackendRenderTargetDesc)
-DEF_STRUCT_MAP(GrBackendTextureDesc, gr_backend_texture_desc_t, GrBackendTextureDesc)
+DEF_STRUCT_MAP(GrGLTextureInfo, gr_gl_textureinfo_t, GrGLTextureInfo)
+DEF_STRUCT_MAP(GrGLFramebufferInfo, gr_gl_framebufferinfo_t, GrGLFramebufferInfo)
 DEF_STRUCT_MAP(GrGLInterface, gr_glinterface_t, GrGLInterface)
 
 #include "SkCanvas.h"

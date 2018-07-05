@@ -415,7 +415,6 @@ static_assert ((int)GrPixelConfig::kRGBA_half_GrPixelConfig        == (int)RGBA_
 static_assert ((int)GrBackend::kMetal_GrBackend    == (int)METAL_GR_BACKEND,    ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kOpenGL_GrBackend   == (int)OPENGL_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
 static_assert ((int)GrBackend::kVulkan_GrBackend   == (int)VULKAN_GR_BACKEND,   ASSERT_MSG(GrBackend, gr_backend_t));
-static_assert ((int)GrBackend::kMock_GrBackend     == (int)MOCK_GR_BACKEND,     ASSERT_MSG(GrBackend, gr_backend_t));
 
 #endif
 

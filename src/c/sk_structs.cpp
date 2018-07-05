@@ -26,6 +26,7 @@
 
 #if SK_SUPPORT_GPU
 #include "GrTypes.h"
+#include "gl/GrGLTypes.h"
 #include "GrContextOptions.h"
 #endif
 
@@ -62,8 +63,8 @@ static_assert (sizeof (sk_jpegencoder_options_t) == sizeof (SkJpegEncoder::Optio
 static_assert (sizeof (sk_webpencoder_options_t) == sizeof (SkWebpEncoder::Options), ASSERT_MSG(SkWebpEncoder::Options, sk_webpencoder_options_t));
 
 #if SK_SUPPORT_GPU
-static_assert (sizeof (gr_backend_rendertarget_desc_t) == sizeof (GrBackendRenderTargetDesc), ASSERT_MSG(GrBackendRenderTargetDesc, gr_backend_rendertarget_desc_t));
-static_assert (sizeof (gr_backend_texture_desc_t) == sizeof (GrBackendTextureDesc), ASSERT_MSG(GrBackendTextureDesc, gr_backend_texture_desc_t));
+static_assert (sizeof (gr_gl_framebufferinfo_t) == sizeof (GrGLFramebufferInfo), ASSERT_MSG(GrGLFramebufferInfo, gr_gl_framebufferinfo_t));
+static_assert (sizeof (gr_gl_textureinfo_t) == sizeof (GrGLTextureInfo), ASSERT_MSG(GrGLTextureInfo, gr_gl_textureinfo_t));
 #endif
 
 #endif

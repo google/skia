@@ -53,12 +53,12 @@ sk_image_t* sk_image_new_from_encoded(sk_data_t* cdata, const sk_irect_t* subset
     return ToImage(SkImage::MakeFromEncoded(sk_ref_sp(AsData(cdata)), AsIRect(subset)).release());
 }
 
-sk_image_t* sk_image_new_from_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
-    return ToImage(SkImage::MakeFromTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
+sk_image_t* sk_image_new_from_texture(gr_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace, sk_image_texture_release_proc releaseProc, void* releaseContext) {
+    return ToImage(SkImage::MakeFromTexture(AsGrContext(context), AsGrBackendTexture(*texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace)), releaseProc, releaseContext).release());
 }
 
-sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_backend_texture_desc_t* desc, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
-    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrContext(context), AsGrBackendTextureDesc(*desc), (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
+sk_image_t* sk_image_new_from_adopted_texture(gr_context_t* context, const gr_backendtexture_t* texture, gr_surfaceorigin_t origin, sk_colortype_t colorType, sk_alphatype_t alpha, sk_colorspace_t* colorSpace) {
+    return ToImage(SkImage::MakeFromAdoptedTexture(AsGrContext(context), AsGrBackendTexture(*texture), (GrSurfaceOrigin)origin, (SkColorType)colorType, (SkAlphaType)alpha, sk_ref_sp(AsColorSpace(colorSpace))).release());
 }
 
 sk_image_t* sk_image_new_from_picture(sk_picture_t* picture, const sk_isize_t* dimensions, const sk_matrix_t* cmatrix, const sk_paint_t* paint) {

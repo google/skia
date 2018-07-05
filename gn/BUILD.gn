@@ -118,13 +118,13 @@ config("default") {
     }
   }
 
-  if (current_cpu == "arm") {
+  if (current_cpu == "arm" && !is_win) {
     cflags += [
       "-march=armv7-a",
       "-mfpu=neon",
       "-mthumb",
     ]
-  } else if (current_cpu == "loongson3a") {
+  } else if (current_cpu == "loongson3a" && !is_win) {
     asmflags += [ "-march=loongson3a" ]
     cflags += [
       "-march=loongson3a",
@@ -132,7 +132,7 @@ config("default") {
       # Causes an internal compiler error.
       "-DSKCMS_PORTABLE",
     ]
-  } else if (current_cpu == "mips64el") {
+  } else if (current_cpu == "mips64el" && !is_win) {
     asmflags += [ "-march=mips64" ]
     cflags += [ "-march=mips64" ]
   } else if (current_cpu == "x86" && !is_win) {
