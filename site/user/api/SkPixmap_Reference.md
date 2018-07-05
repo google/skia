@@ -597,7 +597,7 @@ pixel width in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="babd0e12db21a88c74d4e88aa40268ab">
+<div><fiddle-embed name="f68617b7153a20b2ed3d7f9ed5c6e5e4">
 
 #### Example Output
 
@@ -694,7 +694,7 @@ Returns <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="070b1a60232be499eb10c6ea62371804">
+<div><fiddle-embed name="374e245d91cd729eca48fd20e631fdf3">
 
 #### Example Output
 
@@ -963,7 +963,7 @@ true if all pixels have opaque values or <a href='SkImageInfo_Reference#Color_Ty
 
 ### Example
 
-<div><fiddle-embed name="55e0431adc6c5b1987ebb8123cc10342">
+<div><fiddle-embed name="6ef37d5be03d0bfaec992dbb5a94c66f">
 
 #### Example Output
 

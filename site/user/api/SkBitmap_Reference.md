@@ -1299,7 +1299,7 @@ maximum pixels per row
 
 ### Example
 
-<div><fiddle-embed name="03a9e08082a23a98de17c3e24871d61a">
+<div><fiddle-embed name="e09a6a12869a8ac21e9c2af98a5bb686">
 
 #### Example Output
 
@@ -1453,7 +1453,7 @@ true if drawing has no effect
 
 ### Example
 
-<div><fiddle-embed name="95cb08b8c8db3af3b2c9ad56ae7d6bc1">
+<div><fiddle-embed name="daacf43394ce4045a362a48b5774deed">
 
 #### Example Output
 
@@ -1872,7 +1872,7 @@ true if all pixels have opaque values or <a href='SkImageInfo_Reference#Color_Ty
 
 ### Example
 
-<div><fiddle-embed name="8b26507690b71462f44642b911890bbf">
+<div><fiddle-embed name="9df1baa17658fbd0c419780f26fd854f">
 
 #### Example Output
 
@@ -1980,7 +1980,7 @@ integral size of <a href='#SkBitmap_width'>width</a> and <a href='#SkBitmap_heig
 
 ### Example
 
-<div><fiddle-embed name="d13d787c1e36f515319fc998411c1d91"></fiddle-embed></div>
+<div><fiddle-embed name="647056bcc12c27fb4413f212f33a2898"></fiddle-embed></div>
 
 ### See Also
 
@@ -3303,7 +3303,7 @@ pixel converted to <a href='undocumented#Unpremultiply'>Unpremultiplied</a> <a h
 
 ### Example
 
-<div><fiddle-embed name="a1af7696ae0cdd6f379546dd1f211b7a">
+<div><fiddle-embed name="193d1f6d8a43b7a8e9f27ba21de38617">
 
 #### Example Output
 

@@ -838,7 +838,7 @@ storage of <a href='undocumented#Raster_Surface'>Raster Surface</a></td>
 
 ### Example
 
-<div><fiddle-embed name="dd92db963af190e849894038f39b598a"><div>The actual output depends on the installed fonts.
+<div><fiddle-embed name="ca37b4231b21eb8296cb19ba9e0c781b"><div>The actual output depends on the installed fonts.
 </div>
 
 #### Example Output
@@ -2422,7 +2422,7 @@ contents of the previous <a href='#Layer'>Layer</a>.
 
 ### Example
 
-<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
+<div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
 up by four. After drawing another red circle without scaling on top, the <a href='#Layer'>Layer</a> is
 transferred to the main canvas.
 </div></fiddle-embed></div>
@@ -2543,7 +2543,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="9b7fa2fe855642ffff6538829db15328">
+<div><fiddle-embed name="30d70aec4de17c831dba71e03dc9664a">
 
 #### Example Output
 
@@ -2726,7 +2726,7 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="faa5dfa466f6e16c07c124d971f32679"></fiddle-embed></div>
+<div><fiddle-embed name="7d0d801ef13c6c6da51e840c22ac15b0"></fiddle-embed></div>
 
 ### See Also
 
@@ -2799,7 +2799,7 @@ transforming the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"></fiddle-embed></div>
+<div><fiddle-embed name="bcf5baea1c66a957d5ffd7b54bbbfeff"></fiddle-embed></div>
 
 ### See Also
 
@@ -3019,7 +3019,7 @@ before it is combined with <a href='#Clip'>Clip</a>.
 
 ### Example
 
-<div><fiddle-embed name="6a614faa0fbcf19958b5559c19b02d0f"></fiddle-embed></div>
+<div><fiddle-embed name="babd0e12db21a88c74d4e88aa40268ab"></fiddle-embed></div>
 
 ### See Also
 
@@ -3049,7 +3049,7 @@ Resulting <a href='#Clip'>Clip</a> is <a href='undocumented#Alias'>Aliased</a>; 
 
 ### Example
 
-<div><fiddle-embed name="00ae8984856486bdb626d0ed6587855a"></fiddle-embed></div>
+<div><fiddle-embed name="13bbc5fa5597a6cd4d704b419dbc66d9"></fiddle-embed></div>
 
 ### See Also
 
@@ -3359,7 +3359,7 @@ Resulting <a href='#Clip'>Clip</a> is <a href='undocumented#Alias'>Aliased</a>; 
 
 ### Example
 
-<div><fiddle-embed name="20571cc23e3146deaa09046b64cc0aef"><div>region is unaffected by canvas rotation; iRect is affected by canvas rotation.
+<div><fiddle-embed name="7bb57c0e456c5fda2c2cca4abb68b19e"><div>region is unaffected by canvas rotation; iRect is affected by canvas rotation.
 Both clips are <a href='undocumented#Alias'>Aliased</a>; this is not noticeable on <a href='undocumented#Region'>Region</a> clip because it
 aligns to pixel boundaries.
 </div></fiddle-embed></div>
@@ -5448,7 +5448,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="95ccfc2a89ce593e6b7a9f992a844bc0"><div>The two leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draws has four corners and sides to the left and right of <a href='#SkCanvas_drawBitmapNine_center'>center</a>.
+<div><fiddle-embed name="e99e7be0d8f67dfacbecf85df585433d"><div>The two leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draws has four corners and sides to the left and right of <a href='#SkCanvas_drawBitmapNine_center'>center</a>.
 The leftmost <a href='#SkCanvas_drawBitmapNine_bitmap'>bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides and <a href='#SkCanvas_drawBitmapNine_center'>center</a> are scaled to
 fill the remaining space.
@@ -5686,7 +5686,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="8b26507690b71462f44642b911890bbf"><div>The two leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draws has four corners and sides to the left and right of center.
+<div><fiddle-embed name="c5bfa944e17ba4a4400dc799f032069c"><div>The two leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draws has four corners and sides to the left and right of center.
 The leftmost <a href='#SkCanvas_drawBitmapLattice_bitmap'>bitmap</a> draw scales the width of corners proportionately to fit.
 The third and fourth draw corners are not scaled; the sides are scaled to
 fill the remaining space; the center is transparent.

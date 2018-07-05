@@ -760,7 +760,7 @@ Each component encodes a floating point value using <a href='https://en.wikipedi
 Meaningful colors are represented by the range 0.0 to 1.0, although smaller
 and larger values may be useful when used in combination with <a href='undocumented#Transfer_Mode'>Transfer Mode</a>.
 
-![Color_Type_RGBA_F32](https://fiddle.skia.org/i/b26119f9312d5f5d4011bf2dac94fafe_raster.png "")
+![Color_Type_RGBA_F32](https://fiddle.skia.org/i/812cf26d91b1cdcd2c6b9438a8172518_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
@@ -1380,7 +1380,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="9f47f9c2a99473f5b1113db48096d586"></fiddle-embed></div>
+<div><fiddle-embed name="9c6edd836c573a0fd232d2b8aa11a678"></fiddle-embed></div>
 
 ### See Also
 
@@ -1806,7 +1806,7 @@ Returns <a href='#Color_Type'>Color Type</a>, one of: <a href='#kUnknown_SkColor
 
 ### Example
 
-<div><fiddle-embed name="a98993a66616ae406d8bdc54adfb1411">
+<div><fiddle-embed name="06ecc3ce7f35cc7f930cbc2a662e3105">
 
 #### Example Output
 
@@ -2163,7 +2163,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="3ac267b08b12dc83c95f91d8dd5d70ee"></fiddle-embed></div>
+<div><fiddle-embed name="9a85bb62fe3d877b18fb7f952c4fa7f7"></fiddle-embed></div>
 
 ### See Also
 
@@ -2493,7 +2493,7 @@ true if <a href='#Image_Info'>Image Info</a> is not equal to <a href='#SkImageIn
 
 ### Example
 
-<div><fiddle-embed name="8c039fde0a476ac1aa62bf9de5d61c77">
+<div><fiddle-embed name="963789ac8498d4e505748ab3b15cdaa5">
 
 #### Example Output
 
@@ -2638,7 +2638,7 @@ true if <a href='#SkImageInfo_validRowBytes_rowBytes'>rowBytes</a> is large enou
 
 ### Example
 
-<div><fiddle-embed name="60ee3eb747474f5781b0f0dd3a17a866">
+<div><fiddle-embed name="c6b0f6a3f493cb08d9abcdefe12de245">
 
 #### Example Output
 
