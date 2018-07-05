@@ -9,6 +9,7 @@ files = [
     "third_party/externals/dng_sdk/source/dng_string.cpp",
     "third_party/externals/dng_sdk/source/dng_utils.cpp",
     "third_party/externals/dng_sdk/source/dng_pthread.cpp",
+    "third_party/externals/zlib/deflate.c",
     "third_party/externals/libpng/pngpriv.h",
     "third_party/externals/libjpeg-turbo/simd/jsimd_x86_64.c",
     "third_party/externals/libjpeg-turbo/simd/jsimd_i386.c",

@@ -12,6 +12,15 @@
 
 #include <windows.h>
 
+#ifdef _M_ARM
+
+unsigned int _mm_crc32_u32Compat(unsigned int crc, unsigned int v)
+{
+	return 0;
+}
+
+#endif // _M_ARM
+
 DWORD WINAPI TlsAllocCompat(VOID)
 {
 	return ::FlsAlloc(NULL);
