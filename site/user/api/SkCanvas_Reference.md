@@ -4662,7 +4662,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="185746dc0faa6f1df30c4afe098646ff"></fiddle-embed></div>
+<div><fiddle-embed name="ac93f30dff13f8a8bb31398de370863b"></fiddle-embed></div>
 
 ### See Also
 
@@ -6537,6 +6537,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_3_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be at most 100.
 
 ### Parameters
 
@@ -6581,6 +6582,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_4_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be at most 100.
 
 ### Parameters
 

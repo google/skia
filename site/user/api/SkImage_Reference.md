@@ -1540,7 +1540,7 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#Surf
 
 ### Example
 
-<div><fiddle-embed name="73092d4d06faecea3c204d852a4dd8a8"></fiddle-embed></div>
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b2479df0d9cf296ff64ac31e36684557"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 
