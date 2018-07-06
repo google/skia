@@ -247,7 +247,7 @@ sk_sp<SkSpecialImage> SkImageFilter::DrawWithFP(GrContext* context,
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
 
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
+    GrPixelConfig config = SkColorType2GrPixelConfig(outputProperties.colorType());
     sk_sp<GrRenderTargetContext> renderTargetContext(
         context->contextPriv().makeDeferredRenderTargetContext(
                                 SkBackingFit::kApprox, bounds.width(), bounds.height(),
