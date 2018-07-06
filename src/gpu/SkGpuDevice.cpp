@@ -183,8 +183,12 @@ sk_sp<SkSpecialImage> SkGpuDevice::filterTexture(SkSpecialImage* srcImg,
     matrix.postTranslate(SkIntToScalar(-left), SkIntToScalar(-top));
     const SkIRect clipBounds = this->devClipBounds().makeOffset(-left, -top);
     sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
+    SkColorType colorType;
+    if (!GrPixelConfigToColorType(fRenderTargetContext->colorSpaceInfo().config(), &colorType)) {
+        colorType = kN32_SkColorType;
+    }
     SkImageFilter::OutputProperties outputProperties(
-            fRenderTargetContext->colorSpaceInfo().colorSpace());
+            colorType, fRenderTargetContext->colorSpaceInfo().colorSpace());
     SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
 
     return filter->filterImage(srcImg, ctx, offset);

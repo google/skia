@@ -243,7 +243,8 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
     // With a more complex DAG attached to this input, it's not clear that working in ANY specific
     // color space makes sense, so we ignore color spaces (and gamma) entirely. This may not be
     // ideal, but it's at least consistent and predictable.
-    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(), OutputProperties(nullptr));
+    Context displContext(ctx.ctm(), ctx.clipBounds(), ctx.cache(),
+                         OutputProperties(kN32_SkColorType, nullptr));
     sk_sp<SkSpecialImage> displ(this->filterInput(0, source, displContext, &displOffset));
     if (!displ) {
         return nullptr;
@@ -308,12 +309,12 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
         paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
         SkMatrix matrix;
         matrix.setTranslate(-SkIntToScalar(colorBounds.x()), -SkIntToScalar(colorBounds.y()));
+        GrPixelConfig config = SkColorType2GrPixelConfig(ctx.outputProperties().colorType());
 
         sk_sp<GrRenderTargetContext> renderTargetContext(
             context->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                      bounds.width(), bounds.height(),
-                                                     GrRenderableConfigForColorSpace(colorSpace),
-                                                     sk_ref_sp(colorSpace)));
+                                                     config, sk_ref_sp(colorSpace)));
         if (!renderTargetContext) {
             return nullptr;
         }

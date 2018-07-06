@@ -466,7 +466,7 @@ static sk_sp<SkSpecialImage> apply_morphology(
     sk_sp<GrTextureProxy> srcTexture(input->asTextureProxyRef(context));
     SkASSERT(srcTexture);
     sk_sp<SkColorSpace> colorSpace = sk_ref_sp(outputProperties.colorSpace());
-    GrPixelConfig config = GrRenderableConfigForColorSpace(colorSpace.get());
+    GrPixelConfig config = SkColorType2GrPixelConfig(outputProperties.colorType());
 
     // setup new clip
     const GrFixedClip clip(SkIRect::MakeWH(srcTexture->width(), srcTexture->height()));

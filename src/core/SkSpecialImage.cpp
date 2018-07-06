@@ -432,10 +432,9 @@ public:
             return nullptr;
         }
 
-        SkColorSpace* colorSpace = outProps.colorSpace();
         return SkSpecialSurface::MakeRenderTarget(
             fContext, size.width(), size.height(),
-            GrRenderableConfigForColorSpace(colorSpace), sk_ref_sp(colorSpace));
+            SkColorType2GrPixelConfig(outProps.colorType()), sk_ref_sp(outProps.colorSpace()));
     }
 
     sk_sp<SkSpecialImage> onMakeSubset(const SkIRect& subset) const override {

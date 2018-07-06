@@ -245,12 +245,4 @@ void GrMakeKeyFromImageID(GrUniqueKey* key, uint32_t imageID, const SkIRect& ima
     removed should the bitmap's contents change or be destroyed. */
 void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pixelRef);
 
-//////////////////////////////////////////////////////////////////////////////
-
-/** When image filter code needs to construct a render target context to do intermediate rendering,
-    we need a renderable pixel config. The source (SkSpecialImage) may not be in a renderable
-    format, but we want to preserve the color space of that source. This picks an appropriate format
-    to use. */
-GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace*);
-
 #endif
