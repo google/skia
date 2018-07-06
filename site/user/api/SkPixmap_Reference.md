@@ -694,7 +694,7 @@ Returns <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="374e245d91cd729eca48fd20e631fdf3">
+<div><fiddle-embed name="070b1a60232be499eb10c6ea62371804">
 
 #### Example Output
 

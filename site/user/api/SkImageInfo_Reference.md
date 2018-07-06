@@ -246,7 +246,7 @@ results are undefined.
 
 ### Example
 
-<div><fiddle-embed name="79146a1a41d58d22582fdc567c6ffe4e"><div><a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to 255, its maximum value, and is interpreted
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"><div><a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to 255, its maximum value, and is interpreted
 as <a href='SkColor_Reference#Alpha'>Color Alpha</a> of 1.0. <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a> may be set to improve performance.
 If <a href='SkColor_Reference#SkPreMultiplyARGB'>SkPreMultiplyARGB</a> parameter a is set to a value smaller than 255,
 <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a> must be used instead to avoid undefined results.
@@ -760,7 +760,7 @@ Each component encodes a floating point value using <a href='https://en.wikipedi
 Meaningful colors are represented by the range 0.0 to 1.0, although smaller
 and larger values may be useful when used in combination with <a href='undocumented#Transfer_Mode'>Transfer Mode</a>.
 
-![Color_Type_RGBA_F32](https://fiddle.skia.org/i/812cf26d91b1cdcd2c6b9438a8172518_raster.png "")
+![Color_Type_RGBA_F32](https://fiddle.skia.org/i/b26119f9312d5f5d4011bf2dac94fafe_raster.png "")
 
 If paired with <a href='#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>: blue, green, and red components are
 <a href='undocumented#Premultiply'>Premultiplied</a> by the alpha value. If blue, green, or red is greater than alpha,
@@ -1380,7 +1380,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="9c6edd836c573a0fd232d2b8aa11a678"></fiddle-embed></div>
+<div><fiddle-embed name="9f47f9c2a99473f5b1113db48096d586"></fiddle-embed></div>
 
 ### See Also
 
@@ -2163,7 +2163,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="9a85bb62fe3d877b18fb7f952c4fa7f7"></fiddle-embed></div>
+<div><fiddle-embed name="3ac267b08b12dc83c95f91d8dd5d70ee"></fiddle-embed></div>
 
 ### See Also
 
@@ -2493,7 +2493,7 @@ true if <a href='#Image_Info'>Image Info</a> is not equal to <a href='#SkImageIn
 
 ### Example
 
-<div><fiddle-embed name="963789ac8498d4e505748ab3b15cdaa5">
+<div><fiddle-embed name="8c039fde0a476ac1aa62bf9de5d61c77">
 
 #### Example Output
 

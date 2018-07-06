@@ -473,7 +473,7 @@ bounds (0, 0, 0, 0)
 
 ### Example
 
-<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
+<div><fiddle-embed name="2e262d0ac4b8ef51695e0525fc3ecdf6">
 
 #### Example Output
 
@@ -1105,7 +1105,7 @@ and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> a
 
 ### Example
 
-<div><fiddle-embed name="7145dc17ebce4f54e892102f6c98e811">
+<div><fiddle-embed name="3cfc24b011aef1ca8ccb57c05711620c">
 
 #### Example Output
 
@@ -1307,7 +1307,7 @@ midpoint in y
 
 ### Example
 
-<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2">
 
 #### Example Output
 
@@ -2428,7 +2428,7 @@ If <a href='#SkRect_outset_dy'>dy</a> is negative, makes <a href='#Rect'>Rect</a
 
 ### Example
 
-<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808">
+<div><fiddle-embed name="861f873ba660af8c8bf8b0b83d829cf4">
 
 #### Example Output
 
@@ -3062,7 +3062,7 @@ May produce incorrect results if <a href='#Rect'>Rect</a> or <a href='#SkRect_jo
 
 ### Example
 
-<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href='#Rect'>Rect</a> is not sorted, first result is not useful.
+<div><fiddle-embed name="102d014d7f753db2a9b9ee08893aaf11"><div>Since <a href='#Rect'>Rect</a> is not sorted, first result is not useful.
 </div>
 
 #### Example Output
