@@ -865,7 +865,7 @@ true if (x, y) length is not zero or nearly zero
 
 ### Example
 
-<div><fiddle-embed name="3e4f147d143a388802484bf0d26534c2"></fiddle-embed></div>
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"></fiddle-embed></div>
 
 ### See Also
 

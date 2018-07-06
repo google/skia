@@ -1671,7 +1671,7 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkP
 
 ### Example
 
-<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
+<div><fiddle-embed name="d7d5f4f7da7acd5104a652f490c6f7b8">
 
 #### Example Output
 
@@ -1706,7 +1706,7 @@ Clears <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a> if <a href='#SkPai
 
 ### Example
 
-<div><fiddle-embed name="c40979a3b92a30cfb7bae36abcc1d805">
+<div><fiddle-embed name="c2ff148374d01cbef845b223e725905c">
 
 #### Example Output
 
@@ -2936,7 +2936,7 @@ zero for <a href='#Style_Hairline'>Hairline</a>, greater than zero for pen thick
 
 ### Example
 
-<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
+<div><fiddle-embed name="99aa73f64df8bbf06e656cd891a81b9e">
 
 #### Example Output
 
@@ -3071,7 +3071,7 @@ Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="897230ecfb36095486beca324fd369f9">
+<div><fiddle-embed name="700b284dbc97785c6a9c9636088713ad">
 
 #### Example Output
 
@@ -3844,7 +3844,7 @@ Does not alter <a href='undocumented#Path_Effect'>Path Effect</a> <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="a654fd0b73f424859ae6c95e03f55099">
+<div><fiddle-embed name="211a1b14bfa6c4332082c8eab4fbc5fd">
 
 #### Example Output
 
@@ -4132,7 +4132,7 @@ Does not alter <a href='undocumented#Image_Filter'>Image Filter</a> <a href='und
 
 ### Example
 
-<div><fiddle-embed name="6a614faa0fbcf19958b5559c19b02d0f">
+<div><fiddle-embed name="c11f8eaa1dd149bc18db21e23ce26904">
 
 #### Example Output
 
@@ -5505,7 +5505,7 @@ Only supported on platforms that use FreeType as the <a href='undocumented#Engin
 
 ### Example
 
-<div><fiddle-embed name="febdbfac6cf4cde69837643be2e1f6dd"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code points.
+<div><fiddle-embed name="c12686b0b3e0a87d0a248bbfc57e9492"><div>Convert UTF-8 <a href='#SkPaint_glyphsToUnichars_text'>text</a> to <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a>; then convert <a href='#SkPaint_glyphsToUnichars_glyphs'>glyphs</a> to Unichar code points.
 </div></fiddle-embed></div>
 
 ---

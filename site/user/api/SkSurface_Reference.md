@@ -1856,7 +1856,7 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 
 ### Example
 
-<div><fiddle-embed name="7481a948e34672720337a631830586dd"></fiddle-embed></div>
+<div><fiddle-embed name="d77790dd3bc9f678fa4f582347fb8fba"></fiddle-embed></div>
 
 ### See Also
 

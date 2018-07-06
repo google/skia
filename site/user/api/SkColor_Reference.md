@@ -396,7 +396,7 @@ blue byte
 
 ### Example
 
-<div><fiddle-embed name="7481a948e34672720337a631830586dd"></fiddle-embed></div>
+<div><fiddle-embed name="9ee27675284faea375611dc88123a2c5"></fiddle-embed></div>
 
 ### See Also
 
@@ -428,7 +428,7 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
 
 ### Example
 
-<div><fiddle-embed name="18f6f376f771f5ffa56d5e5b2ebd20fb"></fiddle-embed></div>
+<div><fiddle-embed name="9baf247cfcd8272c0ddf6ce93f676b37"></fiddle-embed></div>
 
 ### See Also
 
@@ -954,7 +954,7 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ### Example
 
-<div><fiddle-embed name="756345484fd48ca0ea7b6cec350f73b8"></fiddle-embed></div>
+<div><fiddle-embed name="05be7844e9afdd7b9bfc31c5423a70a2"></fiddle-embed></div>
 
 ### See Also
 

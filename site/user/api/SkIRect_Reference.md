@@ -713,7 +713,7 @@ and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="cbec1ae6530e95943775450b1d11f19e">
+<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
 
 #### Example Output
 
@@ -1010,7 +1010,7 @@ or if result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="8b3224641cb3053a7b8a5798b6cd1cf6">
+<div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d">
 
 #### Example Output
 
@@ -1378,7 +1378,7 @@ width or height may be negative.
 
 ### Example
 
-<div><fiddle-embed name="0e1db8c86678c004e504f47641b44b17">
+<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
 
 #### Example Output
 

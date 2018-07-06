@@ -838,7 +838,7 @@ storage of <a href='undocumented#Raster_Surface'>Raster Surface</a></td>
 
 ### Example
 
-<div><fiddle-embed name="ca37b4231b21eb8296cb19ba9e0c781b"><div>The actual output depends on the installed fonts.
+<div><fiddle-embed name="dd92db963af190e849894038f39b598a"><div>The actual output depends on the installed fonts.
 </div>
 
 #### Example Output
@@ -2138,7 +2138,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="a17aec3aa4909527be039e26a7eda694"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
 The red rectangle is clipped; it does not fully fit on <a href='#Layer'>Layer</a>.
 <a href='undocumented#Image_Filter'>Image Filter</a> blurs past edge of <a href='#Layer'>Layer</a> so red rectangle is blurred on all sides.
 </div></fiddle-embed></div>
@@ -2422,7 +2422,7 @@ contents of the previous <a href='#Layer'>Layer</a>.
 
 ### Example
 
-<div><fiddle-embed name="fe80fd80b98a20823db7fb9a077243c7"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
+<div><fiddle-embed name="ee8c0b120234e27364f8c9a786cf8f89"><div><a href='#Canvas'>Canvas</a> <a href='#Layer'>Layer</a> captures a red <a href='SkPaint_Reference#Anti_Alias'>Anti Aliased</a> circle and a blue <a href='undocumented#Alias'>Aliased</a> circle scaled
 up by four. After drawing another red circle without scaling on top, the <a href='#Layer'>Layer</a> is
 transferred to the main canvas.
 </div></fiddle-embed></div>
@@ -2543,7 +2543,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="30d70aec4de17c831dba71e03dc9664a">
+<div><fiddle-embed name="9b7fa2fe855642ffff6538829db15328">
 
 #### Example Output
 
@@ -3019,7 +3019,7 @@ before it is combined with <a href='#Clip'>Clip</a>.
 
 ### Example
 
-<div><fiddle-embed name="babd0e12db21a88c74d4e88aa40268ab"></fiddle-embed></div>
+<div><fiddle-embed name="6a614faa0fbcf19958b5559c19b02d0f"></fiddle-embed></div>
 
 ### See Also
 
@@ -4187,7 +4187,7 @@ In <a href='#SkCanvas_drawLine_2_paint'>paint</a>: <a href='SkPaint_Reference#St
 
 ### Example
 
-<div><fiddle-embed name="f8525816cb596dde1a3855446792c8e0"></fiddle-embed></div>
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"></fiddle-embed></div>
 
 ### See Also
 
@@ -5747,7 +5747,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href='#SkCanvas_drawImageLattice_image'>image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="91c9a3e498bb9412e4522a95d076ed5f"><div>The leftmost <a href='#SkCanvas_drawImageLattice_image'>image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href='#SkCanvas_drawImageLattice_image'>image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.

@@ -62,7 +62,7 @@ remains open. An open <a href='#Contour'>Contour</a>, stroked, draws <a href='Sk
 
 ### Example
 
-<div><fiddle-embed name="35915a2273be1076f00f2e47998ce808"><div><a href='#Path'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
+<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href='#Path'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
 </div></fiddle-embed></div>
 
 ## <a name='Contour_Zero_Length'>Contour Zero Length</a>
@@ -1458,7 +1458,7 @@ that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href
 
 ### Example
 
-<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1518,7 +1518,7 @@ unmodified by the original <a href='#SkPath_FillType'>FillType</a>.
 
 ### Example
 
-<div><fiddle-embed name="5449f65fd7673273b0b57807fd3117ff"><div><a href='#Path'>Path</a> drawn normally and through its inverse touches every pixel once.
+<div><fiddle-embed name="400facce23d417bc5043c5f58404afbd"><div><a href='#Path'>Path</a> drawn normally and through its inverse touches every pixel once.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1939,7 +1939,7 @@ true if caller will alter <a href='#Path'>Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="af4c5acc7a91e7f23c2af48018903ad4">
+<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
 
 #### Example Output
 
@@ -2409,7 +2409,7 @@ the actual number of <a href='#SkPath_getVerbs_verbs'>verbs</a> in the path
 
 ### Example
 
-<div><fiddle-embed name="f1fedbb89da9c2a33a91805175663012">
+<div><fiddle-embed name="2ec66880966a6133ddd9331ce7323438">
 
 #### Example Output
 
@@ -2988,7 +2988,7 @@ Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point<
 
 ### Example
 
-<div><fiddle-embed name="01ad6be9b7d15a2217daea273eb3d466"></fiddle-embed></div>
+<div><fiddle-embed name="e311cdd451edacec33b50cc22a4dd5dc"></fiddle-embed></div>
 
 ### See Also
 
@@ -3017,7 +3017,7 @@ Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point<
 
 ### Example
 
-<div><fiddle-embed name="41001546a7f7927d08e5a818bcc304f5"></fiddle-embed></div>
+<div><fiddle-embed name="9f046f407b01b759cb737d702a994620"></fiddle-embed></div>
 
 ### See Also
 
@@ -3068,7 +3068,7 @@ and then curves to an end <a href='SkPoint_Reference#Point'>Point</a>.
 
 ### Example
 
-<div><fiddle-embed name="94ad244056dc80ecd87daae004266334"></fiddle-embed></div>
+<div><fiddle-embed name="78ad51fa1cd33eb84a6f99061e56e067"></fiddle-embed></div>
 
 <a href='#Quad'>Quad</a> is a special case of <a href='#Conic'>Conic</a> where <a href='#Conic_Weight'>Conic Weight</a> is set to one.
 
@@ -3694,7 +3694,7 @@ The length of <a href='SkPoint_Reference#Vector'>Vector</a> from (<a href='#SkPa
 
 ### Example
 
-<div><fiddle-embed name="daacf43394ce4045a362a48b5774deed"></fiddle-embed></div>
+<div><fiddle-embed name="01d2ddfd539ab86a86989e210640dffc"></fiddle-embed></div>
 
 <a href='#Arc'>Arc</a> sweep is always less than 180 degrees. If <a href='#SkPath_arcTo_2_radius'>radius</a> is zero, or if
 tangents are nearly parallel, <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_2_x1'>x1</a>, <a href='#SkPath_arcTo_2_y1'>y1</a>).
@@ -3830,7 +3830,7 @@ larger of Arc pair</td>
 
 ### Example
 
-<div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom. <a href='#Arc'>Arc</a> can take four routes to get there.
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom. <a href='#Arc'>Arc</a> can take four routes to get there.
 Two routes are large, and two routes are counterclockwise. The one route both large
 and counterclockwise is blue.
 </div></fiddle-embed></div>
@@ -4791,7 +4791,7 @@ Has no effect if <a href='#SkPath_addPoly_count'>count</a> is less than one.
 
 ### Example
 
-<div><fiddle-embed name="3476b553e7b547b604a3f6969f02d933"></fiddle-embed></div>
+<div><fiddle-embed name="182b3999772f330f3b0b891b492634ae"></fiddle-embed></div>
 
 ### See Also
 
@@ -5067,7 +5067,7 @@ Offset <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'>
 
 ### Example
 
-<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
+<div><fiddle-embed name="5188d77585715db30bef228f2dfbcccd"></fiddle-embed></div>
 
 ### See Also
 
@@ -5322,7 +5322,7 @@ Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'
 
 ### Example
 
-<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
+<div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9">
 
 #### Example Output
 
