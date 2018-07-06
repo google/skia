@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d47715a5_d01e5089",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-06T18:48:33Z",
+      "side": 1,
+      "message": "It\u0027s possible that the vertex buffer is in the cache, but the index buffer has been evicted (and needs to be re-generated)?",
+      "range": {
+        "startLine": 230,
+        "startChar": 0,
+        "endLine": 234,
+        "endChar": 5
+      },
+      "revId": "cf4cc887fbb2051e7982f5fc5c43196a599e498c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

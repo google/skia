@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9f7c2402_0fa0262a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-06T18:48:33Z",
+      "side": 1,
+      "message": "Can you add a note that this is pulled out of https://skia-review.googlesource.com/c/skia/+/138596",
+      "revId": "d27e1ed654b291dccdc8db53e1419d3cce84a9ce",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
