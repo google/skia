@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5be36f90_facb88e4",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "Instead of hardcoding your local path, how about just using the environment $EMSDK (plus throw an error if not set)?",
+      "range": {
+        "startLine": 5,
+        "startChar": 7,
+        "endLine": 5,
+        "endChar": 44
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ab373c3_45dfea6f",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "I don\u0027t think this is needed (see below).",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "200ee2b4_86c6b255",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "emsdk_env.sh above should have added this to PATH, so you can invoke directly.\n\n(also sets \u0027EMSCRIPTEN\u0027 to point to the right place if you prefer to use that)",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 33
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28ef1966_d62ae416",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "mnkdir -p out/wasm\n\n(before this)",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a85a419_9d48e8a3",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "How about \u0027case SkPath::kDone_Verb\u0027 instead?\n\n(see comment one default case below)",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "08a60590_032a42d1",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c478172_3c3e336d",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "Is this inherently safe in Emscripten (ptrs always 32bit)?",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 47
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ca0feda_fec063bd",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "I don\u0027t think we need all these default cases: if you miss an enum value, the compiler should make unhappy noises.",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "232f3064_2367b768",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 227,
+        "startChar": 12,
+        "endLine": 227,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53c6374f_cfe8961f",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "case SkPath::kDone_Verb?",
+      "range": {
+        "startLine": 310,
+        "startChar": 12,
+        "endLine": 310,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cad3993d_9828c611",
+        "filename": "src/ports/SkDebug_stdio.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-06T17:43:45Z",
+      "side": 1,
+      "message": "Are the SkDebugfs left interesting enough to warrant this change?  We should at least make the guard more specific (SK_DEBUG_STDOUT?).",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 17,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
