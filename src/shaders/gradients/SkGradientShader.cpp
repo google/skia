@@ -461,8 +461,10 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
                                    SkColorSpace* src, SkColorSpace* dst) {
     // Transform all of the colors to destination color space
     fColors = colors;
+
+    // Treat null destinations as sRGB (safe because sRGB is a global singleton)
     if (!dst) {
-        return;
+        dst = SkColorSpace::MakeSRGB().get();
     }
 
     // Treat null sources as sRGB (safe because sRGB is a global singleton)
