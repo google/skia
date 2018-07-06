@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "17be215a_a13bfb70",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5be36f90_facb88e4",
+      "range": {
+        "startLine": 5,
+        "startChar": 7,
+        "endLine": 5,
+        "endChar": 44
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ab373c3_45dfea6f",
         "filename": "experimental/wasm/compile.sh",
         "patchSetId": 24
@@ -45,6 +69,30 @@
       "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2da5f13c_e88409b4",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ab373c3_45dfea6f",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d437c2f2_1f4631eb",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "200ee2b4_86c6b255",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 33
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28ef1966_d62ae416",
         "filename": "experimental/wasm/compile.sh",
         "patchSetId": 24
@@ -91,6 +163,30 @@
       "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2dc8eaf5_256d4389",
+        "filename": "experimental/wasm/compile.sh",
+        "patchSetId": 24
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28ef1966_d62ae416",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 31,
+        "endChar": 11
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "e62020f4_5a797a32",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Default cases replaced in enum switch statements.  I kept it for when we take inputs from the user because those are ints.",
+      "parentUuid": "2a85a419_9d48e8a3",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "08a60590_032a42d1",
         "filename": "experimental/wasm/wasm_main.cpp",
         "patchSetId": 24
@@ -137,6 +257,30 @@
       "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50fe6957_5af18368",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08a60590_032a42d1",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "3c9b8a14_24c28092",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "I believe so, but if this proves to be problematic, we can just go back to normal arrays (which are passed in as enscriptem:val",
+      "parentUuid": "5c478172_3c3e336d",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 47
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5ca0feda_fec063bd",
         "filename": "experimental/wasm/wasm_main.cpp",
         "patchSetId": 24
@@ -183,6 +351,30 @@
       "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f196f2f8_03d3ab3c",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5ca0feda_fec063bd",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 175,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "43edc924_deddfc3e",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "232f3064_2367b768",
+      "range": {
+        "startLine": 227,
+        "startChar": 12,
+        "endLine": 227,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "53c6374f_cfe8961f",
         "filename": "experimental/wasm/wasm_main.cpp",
         "patchSetId": 24
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "5c50a607_0d643168",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "53c6374f_cfe8961f",
+      "range": {
+        "startLine": 310,
+        "startChar": 12,
+        "endLine": 310,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cad3993d_9828c611",
         "filename": "src/ports/SkDebug_stdio.cpp",
         "patchSetId": 24
@@ -252,6 +492,30 @@
       "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2dd58a6_34f88d67",
+        "filename": "src/ports/SkDebug_stdio.cpp",
+        "patchSetId": 24
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-06T18:32:48Z",
+      "side": 1,
+      "message": "Removed, this was just for testing.",
+      "parentUuid": "cad3993d_9828c611",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 17,
+        "endChar": 19
+      },
+      "revId": "ebe9ccecad89aa27beca7d8a688c41645b620cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
