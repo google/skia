@@ -2138,7 +2138,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
+<div><fiddle-embed name="a17aec3aa4909527be039e26a7eda694"><div>Rectangles are blurred by <a href='undocumented#Image_Filter'>Image Filter</a> when <a href='#SkCanvas_restore'>restore</a> draws <a href='#Layer'>Layer</a> to main <a href='#Canvas'>Canvas</a>.
 The red rectangle is clipped; it does not fully fit on <a href='#Layer'>Layer</a>.
 <a href='undocumented#Image_Filter'>Image Filter</a> blurs past edge of <a href='#Layer'>Layer</a> so red rectangle is blurred on all sides.
 </div></fiddle-embed></div>
@@ -4187,7 +4187,7 @@ In <a href='#SkCanvas_drawLine_2_paint'>paint</a>: <a href='SkPaint_Reference#St
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"></fiddle-embed></div>
+<div><fiddle-embed name="f8525816cb596dde1a3855446792c8e0"></fiddle-embed></div>
 
 ### See Also
 
@@ -5747,7 +5747,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="91c9a3e498bb9412e4522a95d076ed5f"><div>The leftmost <a href='#SkCanvas_drawImageLattice_image'>image</a> is smaller than center; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href='#SkCanvas_drawImageLattice_image'>image</a> is smaller than center; only corners are drawn, all scaled to fit.
 The second <a href='#SkCanvas_drawImageLattice_image'>image</a> equals the size of center; only corners are drawn without scaling.
 The remaining images are larger than center. All corners draw without scaling. The sides
 are scaled if needed to take up the remaining space; the center is transparent.
@@ -6537,6 +6537,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_3_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_3_bones'>bones</a> should be at most 100.
 
 ### Parameters
 
@@ -6581,6 +6582,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 The first element of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be an object to world space transformation matrix that
 will be applied before performing mesh deformations. If no such transformation is needed,
 it should be the identity matrix.
+<a href='#SkCanvas_drawVertices_4_boneCount'>boneCount</a> must be at most 100, and thus the size of <a href='#SkCanvas_drawVertices_4_bones'>bones</a> should be at most 100.
 
 ### Parameters
 
