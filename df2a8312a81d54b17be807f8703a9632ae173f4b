@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a2f6ef9c_6bf8691e",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-06T14:34:22Z",
+      "side": 1,
+      "message": "Where does SkGradientShaderBase::fColorSpace factor into this?  Is it impossible for one of these two things to not be null?",
+      "range": {
+        "startLine": 464,
+        "startChar": 0,
+        "endLine": 471,
+        "endChar": 5
+      },
+      "revId": "df2a8312a81d54b17be807f8703a9632ae173f4b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
