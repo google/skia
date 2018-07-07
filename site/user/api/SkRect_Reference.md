@@ -1307,7 +1307,7 @@ midpoint in y
 
 ### Example
 
-<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2">
+<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
 
 #### Example Output
 
@@ -1642,7 +1642,7 @@ contains infinity or NaN, all <a href='#Rect'>Rect</a> dimensions are set to NaN
 
 ### Example
 
-<div><fiddle-embed name="be10cb1411dbcf7e38e0198e8a9b8b0e"></fiddle-embed></div>
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"></fiddle-embed></div>
 
 ### See Also
 
@@ -2015,7 +2015,7 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Example
 
-<div><fiddle-embed name="18532f1aa90b76364fb8d7ea072f1892">
+<div><fiddle-embed name="229057023515224358a36acf15508cf6">
 
 #### Example Output
 
@@ -2985,7 +2985,7 @@ Has no effect if <a href='#SkRect_join_2_r'>r</a> is empty. Otherwise, if <a hre
 
 ### Example
 
-<div><fiddle-embed name="26500032494cf93c5fa3423110fe82af">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3062,7 +3062,7 @@ May produce incorrect results if <a href='#Rect'>Rect</a> or <a href='#SkRect_jo
 
 ### Example
 
-<div><fiddle-embed name="102d014d7f753db2a9b9ee08893aaf11"><div>Since <a href='#Rect'>Rect</a> is not sorted, first result is not useful.
+<div><fiddle-embed name="a476548d0001296afd8e58c1eba1b70b"><div>Since <a href='#Rect'>Rect</a> is not sorted, first result is not useful.
 </div>
 
 #### Example Output
@@ -3380,7 +3380,7 @@ sorted <a href='#Rect'>Rect</a>
 
 ### Example
 
-<div><fiddle-embed name="f59567042b87f6b26f9bfeeb04468032">
+<div><fiddle-embed name="">
 
 #### Example Output
 

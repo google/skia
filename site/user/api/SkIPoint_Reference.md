@@ -357,7 +357,7 @@ Sets <a href='#SkIPoint_fX'>fX</a> to x and <a href='#SkIPoint_fY'>fY</a> to y.
 
 ### Example
 
-<div><fiddle-embed name="165418b5718d79d8f1682a8a0ee32ba0">
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83">
 
 #### Example Output
 

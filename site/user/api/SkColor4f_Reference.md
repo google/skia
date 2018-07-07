@@ -167,7 +167,7 @@ true if <a href='#Color4f'>Color4f</a> equals <a href='#SkColor4f_equal1_operato
 
 ### Example
 
-<div><fiddle-embed name="e5b34bcb7f80f2ed890cdacaa059db0d">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -237,7 +237,7 @@ components as read-only array
 
 ### Example
 
-<div><fiddle-embed name="229057023515224358a36acf15508cf6">
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83">
 
 #### Example Output
 

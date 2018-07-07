@@ -428,7 +428,7 @@ from <a href='#SkColorSetA_a'>a</a>. <a href='#Alpha'>Alpha</a> component of <a 
 
 ### Example
 
-<div><fiddle-embed name="9baf247cfcd8272c0ddf6ce93f676b37"></fiddle-embed></div>
+<div><fiddle-embed name="18f6f376f771f5ffa56d5e5b2ebd20fb"></fiddle-embed></div>
 
 ### See Also
 
@@ -868,7 +868,7 @@ ARGB equivalent to <a href='#HSV'>HSV</a>
 
 ### Example
 
-<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"></fiddle-embed></div>
 
 ### See Also
 
@@ -954,7 +954,7 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ### Example
 
-<div><fiddle-embed name="05be7844e9afdd7b9bfc31c5423a70a2"></fiddle-embed></div>
+<div><fiddle-embed name="756345484fd48ca0ea7b6cec350f73b8"></fiddle-embed></div>
 
 ### See Also
 

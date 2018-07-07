@@ -1232,7 +1232,7 @@ true if <a href='#Paint'>Paint</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="b6c8484b1187f555b435ad5369833be4">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -3071,7 +3071,7 @@ Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="700b284dbc97785c6a9c9636088713ad">
+<div><fiddle-embed name="d4ca1f23809b6835c4ba46ea98a86900">
 
 #### Example Output
 
@@ -4064,7 +4064,7 @@ Increases <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
+<div><fiddle-embed name="">
 
 #### Example Output
 
