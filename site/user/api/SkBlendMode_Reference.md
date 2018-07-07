@@ -241,7 +241,7 @@ Modes <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a>, <a href='#SkBlendMode_k
 <a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a> convert source and destination pixels using all
 components color information, using <a href='https://www.w3.org/TR/compositing-1/#blendingnonseparable'>non-separable blend modes</a></a> .
 
-![Color_Blends](https://fiddle.skia.org/i/03710c1770728da885fa4ac24a19d5d1_raster.png "")
+![Color_Blends](https://fiddle.skia.org/i/a18bc2e3607ac3a8e438bcb61fb13130_raster.png "")
 
 ## <a name='SkBlendMode'>Enum SkBlendMode</a>
 

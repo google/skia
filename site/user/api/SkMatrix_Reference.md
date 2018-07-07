@@ -2228,7 +2228,7 @@ defined. Safer than operator[]; internal cache is always maintained.
 
 ### Example
 
-<div><fiddle-embed name="1d400a92ca826cc89bcb88ea051f28c8">
+<div><fiddle-embed name="a75bbdb8bb866b125c4c1dd5e967d470">
 
 #### Example Output
 
@@ -3316,7 +3316,7 @@ Matrix * R(degrees, px, py) = | D E F | | s  c 0 | = | Dc+Es -Ds+Ec F |
 
 ### Example
 
-<div><fiddle-embed name="c43d70606b4ee464d2befbcf448c5e73"></fiddle-embed></div>
+<div><fiddle-embed name="5acd49bd931c79a808dd6c7cc0e92f72"></fiddle-embed></div>
 
 ### See Also
 
@@ -4240,7 +4240,7 @@ Affine 3x2 matrices in column major order are used by OpenGL and XPS.
 
 ### Example
 
-<div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9">
+<div><fiddle-embed name="e10adbd0bcc940c5d4d872db0e78e892">
 
 #### Example Output
 
@@ -4981,7 +4981,7 @@ mapped bounds
 
 ### Example
 
-<div><fiddle-embed name="3b7b1f884437ab450f986234e4aec27f"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -5667,7 +5667,7 @@ modifications to <a href='#Matrix'>Matrix</a> element reference returned by <a h
 
 ### Example
 
-<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2">
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83">
 
 #### Example Output
 

@@ -1458,7 +1458,7 @@ that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href
 
 ### Example
 
-<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
+<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -1757,7 +1757,7 @@ true if <a href='#Path'>Path</a> contains only <a href='SkRRect_Reference#RRect'
 
 ### Example
 
-<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.
+<div><fiddle-embed name=""><div>Draw rounded rectangle and its bounds.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2037,7 +2037,7 @@ true if <a href='undocumented#Line'>Line</a> is degenerate; its length is effect
 
 ### Example
 
-<div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
+<div><fiddle-embed name="a18bc2e3607ac3a8e438bcb61fb13130"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
 and are exactly equal. 100 and 100.0001 have different bit representations, and
 are not exactly equal, but are nearly equal.
 </div>
@@ -3017,7 +3017,7 @@ Adds <a href='undocumented#Line'>Line</a> from <a href='#Last_Point'>Last Point<
 
 ### Example
 
-<div><fiddle-embed name="9f046f407b01b759cb737d702a994620"></fiddle-embed></div>
+<div><fiddle-embed name="41001546a7f7927d08e5a818bcc304f5"></fiddle-embed></div>
 
 ### See Also
 
@@ -3314,7 +3314,7 @@ If <a href='#SkPath_conicTo_w'>w</a> is not finite, appends <a href='#SkPath_kLi
 
 ### Example
 
-<div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases, curve is pulled towards control point.
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div>As weight increases, curve is pulled towards control point.
 The bottom two curves are elliptical; the next is parabolic; the
 top curve is hyperbolic.
 </div></fiddle-embed></div>
@@ -3830,7 +3830,7 @@ larger of Arc pair</td>
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom. <a href='#Arc'>Arc</a> can take four routes to get there.
+<div><fiddle-embed name="8e40c546eecd9cc213200717240898ba"><div><a href='#Arc'>Arc</a> begins at top of <a href='undocumented#Oval'>Oval</a> pair and ends at bottom. <a href='#Arc'>Arc</a> can take four routes to get there.
 Two routes are large, and two routes are counterclockwise. The one route both large
 and counterclockwise is blue.
 </div></fiddle-embed></div>
@@ -4911,7 +4911,7 @@ added unaltered. If <a href='#SkPath_addPath_2_mode'>mode</a> is <a href='#SkPat
 
 ### Example
 
-<div><fiddle-embed name="84b2d1c0fc29f1b35e855b6fc6672f9e"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -5099,7 +5099,7 @@ is replaced.
 
 ### Example
 
-<div><fiddle-embed name="99761add116ce3b0730557224c1b0105"></fiddle-embed></div>
+<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"></fiddle-embed></div>
 
 ### See Also
 
@@ -5322,7 +5322,7 @@ Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'
 
 ### Example
 
-<div><fiddle-embed name="4606ae1be792d6bc46d496432f050ee9">
+<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
 
 #### Example Output
 

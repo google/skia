@@ -1459,7 +1459,7 @@ are not captured. <a href='SkImage_Reference#Image'>Image</a> allocation is acco
 
 ### Example
 
-<div><fiddle-embed name="46f1fa0d95e590a64bed0140407ce5f7"></fiddle-embed></div>
+<div><fiddle-embed name="a18bc2e3607ac3a8e438bcb61fb13130"></fiddle-embed></div>
 
 ### See Also
 

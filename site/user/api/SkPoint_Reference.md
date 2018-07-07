@@ -865,7 +865,7 @@ true if (x, y) length is not zero or nearly zero
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca"></fiddle-embed></div>
+<div><fiddle-embed name="3e4f147d143a388802484bf0d26534c2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1207,7 +1207,7 @@ Returns <a href='#Point'>Point</a> multiplied by scale.
 
 ### Example
 
-<div><fiddle-embed name="35b3bc675779de043706ae4817ee950c"></fiddle-embed></div>
+<div><fiddle-embed name="f4ce93f6c5e7335436a985377fd980c0"></fiddle-embed></div>
 
 ### See Also
 
@@ -1305,7 +1305,7 @@ true if <a href='#Point'>Point</a> equals (x, y)
 
 ### Example
 
-<div><fiddle-embed name="4cecb878c8b66beffda051f26c00f817">
+<div><fiddle-embed name="f4ce93f6c5e7335436a985377fd980c0">
 
 #### Example Output
 

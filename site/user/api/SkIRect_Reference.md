@@ -486,7 +486,7 @@ bounds (0, 0, size.<a href='#SkIRect_width'>width</a>, size.<a href='#SkIRect_he
 
 ### Example
 
-<div><fiddle-embed name="c6586ff8d24869c780169b0d19c75df6">
+<div><fiddle-embed name="">
 
 #### Example Output
 
@@ -713,7 +713,7 @@ and <a href='#SkIRect_sort'>sort</a> to reverse <a href='#SkIRect_fTop'>fTop</a>
 
 ### Example
 
-<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
+<div><fiddle-embed name="cbec1ae6530e95943775450b1d11f19e">
 
 #### Example Output
 
@@ -1010,7 +1010,7 @@ or if result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="0f841e4eaebb613b5069800567917c2d">
+<div><fiddle-embed name="8b3224641cb3053a7b8a5798b6cd1cf6">
 
 #### Example Output
 
@@ -1330,7 +1330,7 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Example
 
-<div><fiddle-embed name="ead6bdcf2ae77ec19a1c5a96f5b31af8">
+<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2">
 
 #### Example Output
 
@@ -1378,7 +1378,7 @@ width or height may be negative.
 
 ### Example
 
-<div><fiddle-embed name="ebeeafafeb8fe39d5ffc9115b02c2340">
+<div><fiddle-embed name="0e1db8c86678c004e504f47641b44b17">
 
 #### Example Output
 

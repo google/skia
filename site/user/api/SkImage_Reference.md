@@ -1540,7 +1540,7 @@ is drawn, depending on the capabilities of the <a href='SkSurface_Reference#Surf
 
 ### Example
 
-<div><fiddle-embed name="73092d4d06faecea3c204d852a4dd8a8"></fiddle-embed></div>
+<div><fiddle-embed name="4468d573f42af6f5e234be10a5453bb2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1820,7 +1820,7 @@ true if <a href='#Image'>Image</a> is a <a href='undocumented#GPU_Texture'>GPU T
 
 ### Example
 
-<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2188,7 +2188,7 @@ encoded <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="7a3bf8851bb7160e4e49c48f8c09639d"></fiddle-embed></div>
+<div><fiddle-embed name=""></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="b2479df0d9cf296ff64ac31e36684557"></fiddle-embed></div>
+<div><fiddle-embed name="0d17085a4698a8a2e2235fad9041b4b4"></fiddle-embed></div>
 
 ### See Also
 
@@ -2582,7 +2582,7 @@ true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="78374702fa113076ddc6070053ab5cd4" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="f4ce93f6c5e7335436a985377fd980c0" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
