@@ -32,6 +32,7 @@ SK_C_API int sk_typeface_get_table_tags(sk_typeface_t* typeface, sk_font_table_t
 SK_C_API size_t sk_typeface_get_table_size(sk_typeface_t* typeface, sk_font_table_tag_t tag);
 SK_C_API size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t tag, size_t offset, size_t length, void* data);
 
+SK_C_API sk_fontmgr_t* sk_fontmgr_create_default(void);
 SK_C_API sk_fontmgr_t* sk_fontmgr_ref_default(void);
 SK_C_API void sk_fontmgr_unref(sk_fontmgr_t*);
 SK_C_API int sk_fontmgr_count_families(sk_fontmgr_t*);

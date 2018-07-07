@@ -97,6 +97,11 @@ size_t sk_typeface_get_table_data(sk_typeface_t* typeface, sk_font_table_tag_t t
     return AsTypeface(typeface)->getTableData(tag, offset, length, data);
 }
 
+sk_fontmgr_t* sk_fontmgr_create_default()
+{
+    return ToFontMgr(SkFontMgr::MakeDefault().release());
+}
+
 sk_fontmgr_t* sk_fontmgr_ref_default()
 {
     return ToFontMgr(SkFontMgr::RefDefault().release());

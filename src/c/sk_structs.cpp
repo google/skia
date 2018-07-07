@@ -21,7 +21,6 @@
 #include "SkCanvas.h"
 #include "SkTime.h"
 #include "SkDocument.h"
-#include "SkEncodedInfo.h"
 #include "SkHighContrastFilter.h"
 
 #if SK_SUPPORT_GPU

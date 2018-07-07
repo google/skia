@@ -63,6 +63,10 @@ void gr_context_reset_context(gr_context_t* context, uint32_t state) {
     AsGrContext(context)->resetContext(state);
 }
 
+gr_backend_t gr_context_get_backend(gr_context_t* context) {
+    return (gr_backend_t)AsGrContext(context)->backend();
+}
+
 
 // GrGLInterface
 
@@ -164,7 +168,7 @@ gr_backend_t gr_backendrendertarget_get_backend(const gr_backendrendertarget_t* 
     return (gr_backend_t)AsGrBackendRenderTarget(rendertarget)->backend();
 }
 
-bool gr_backendrendertarget_get_gl_rendertargetinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo) {
+bool gr_backendrendertarget_get_gl_framebufferinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo) {
     return AsGrBackendRenderTarget(rendertarget)->getGLFramebufferInfo(AsGrGLFramebufferInfo(glInfo));
 }
 
@@ -304,7 +308,7 @@ gr_backend_t gr_backendrendertarget_get_backend(const gr_backendrendertarget_t* 
     return (gr_backend_t)0;
 }
 
-bool gr_backendrendertarget_get_gl_rendertargetinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo) {
+bool gr_backendrendertarget_get_gl_framebufferinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo) {
     return false;
 }
 

@@ -82,7 +82,15 @@ uint32_t sk_image_get_unique_id(const sk_image_t* cimage) {
 }
 
 sk_alphatype_t sk_image_get_alpha_type(const sk_image_t* image) {
-    return (sk_alphatype_t) AsImage(image)->alphaType();
+    return (sk_alphatype_t)AsImage(image)->alphaType();
+}
+
+sk_colortype_t sk_image_get_color_type(const sk_image_t* image) {
+    return (sk_colortype_t)AsImage(image)->colorType();
+}
+
+sk_colorspace_t* sk_image_get_colorspace(const sk_image_t* image) {
+    return ToColorSpace(AsImage(image)->refColorSpace().release());
 }
 
 bool sk_image_is_alpha_only(const sk_image_t* image) {
@@ -125,6 +133,10 @@ bool sk_image_read_pixels_into_pixmap(const sk_image_t* image, const sk_pixmap_t
 
 bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_filter_quality_t quality, sk_image_caching_hint_t cachingHint) {
     return AsImage(image)->scalePixels(AsPixmap(*dst), (SkFilterQuality)quality, (SkImage::CachingHint)cachingHint);
+}
+
+sk_data_t* sk_image_ref_encoded(const sk_image_t* cimage) {
+    return ToData(AsImage(cimage)->refEncodedData().release());
 }
 
 sk_data_t* sk_image_encode(const sk_image_t* cimage) {

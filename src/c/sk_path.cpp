@@ -126,7 +126,7 @@ sk_path_verb_t sk_path_rawiter_next (sk_path_rawiterator_t *iterator, sk_point_t
 
 sk_path_verb_t sk_path_rawiter_peek (sk_path_rawiterator_t *iterator)
 {
-    return (sk_path_verb_t) AsPathRawIter(iterator)->peek ();
+    return (sk_path_verb_t)AsPathRawIter(iterator)->peek ();
 }
 
 float sk_path_rawiter_conic_weight (sk_path_rawiterator_t *iterator)

@@ -111,6 +111,10 @@ bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dst
     return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
 }
 
+bool sk_pixmap_scale_pixels(const sk_pixmap_t* cpixmap, const sk_pixmap_t* dst, sk_filter_quality_t quality) {
+    return AsPixmap(cpixmap)->scalePixels(*AsPixmap(dst), (SkFilterQuality)quality);
+}
+
 void sk_swizzle_swap_rb(uint32_t* dest, const uint32_t* src, int count)
 {
     SkSwapRB(dest, src, count);

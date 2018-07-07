@@ -127,6 +127,10 @@ public:
     /** Return the default fontmgr. */
     static sk_sp<SkFontMgr> RefDefault();
 
+    static sk_sp<SkFontMgr> MakeDefault() {
+        return SkFontMgr::Factory();
+    }
+
 protected:
     virtual int onCountFamilies() const = 0;
     virtual void onGetFamilyName(int index, SkString* familyName) const = 0;

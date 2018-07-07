@@ -30,6 +30,7 @@ SK_C_API void gr_context_get_resource_cache_usage(gr_context_t* context, int* ma
 SK_C_API int gr_context_get_max_surface_sample_count_for_color_type(gr_context_t* context, sk_colortype_t colorType);
 SK_C_API void gr_context_flush(gr_context_t* context);
 SK_C_API void gr_context_reset_context(gr_context_t* context, uint32_t state);
+SK_C_API gr_backend_t gr_context_get_backend(gr_context_t* context);
 
 
 // GrGLInterface
@@ -68,7 +69,7 @@ SK_C_API int gr_backendrendertarget_get_height(const gr_backendrendertarget_t* r
 SK_C_API int gr_backendrendertarget_get_samples(const gr_backendrendertarget_t* rendertarget);
 SK_C_API int gr_backendrendertarget_get_stencils(const gr_backendrendertarget_t* rendertarget);
 SK_C_API gr_backend_t gr_backendrendertarget_get_backend(const gr_backendrendertarget_t* rendertarget);
-SK_C_API bool gr_backendrendertarget_get_gl_rendertargetinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo);
+SK_C_API bool gr_backendrendertarget_get_gl_framebufferinfo(const gr_backendrendertarget_t* rendertarget, gr_gl_framebufferinfo_t* glInfo);
 
 
 SK_C_PLUS_PLUS_END_GUARD

@@ -34,6 +34,8 @@ SK_C_API int sk_image_get_width(const sk_image_t*);
 SK_C_API int sk_image_get_height(const sk_image_t*);
 SK_C_API uint32_t sk_image_get_unique_id(const sk_image_t*);
 SK_C_API sk_alphatype_t sk_image_get_alpha_type(const sk_image_t*);
+SK_C_API sk_colortype_t sk_image_get_color_type(const sk_image_t*);
+SK_C_API sk_colorspace_t* sk_image_get_colorspace(const sk_image_t*);
 SK_C_API bool sk_image_is_alpha_only(const sk_image_t*);
 SK_C_API sk_shader_t* sk_image_make_shader(const sk_image_t*, sk_shader_tilemode_t tileX, sk_shader_tilemode_t tileY, const sk_matrix_t* localMatrix);
 SK_C_API bool sk_image_peek_pixels(const sk_image_t* image, sk_pixmap_t* pixmap);
@@ -42,6 +44,7 @@ SK_C_API bool sk_image_is_lazy_generated(const sk_image_t* image);
 SK_C_API bool sk_image_read_pixels(const sk_image_t* image, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_image_caching_hint_t cachingHint);
 SK_C_API bool sk_image_read_pixels_into_pixmap(const sk_image_t* image, const sk_pixmap_t* dst, int srcX, int srcY, sk_image_caching_hint_t cachingHint);
 SK_C_API bool sk_image_scale_pixels(const sk_image_t* image, const sk_pixmap_t* dst, sk_filter_quality_t quality, sk_image_caching_hint_t cachingHint);
+SK_C_API sk_data_t* sk_image_ref_encoded(const sk_image_t*);
 SK_C_API sk_data_t* sk_image_encode(const sk_image_t*);
 SK_C_API sk_data_t* sk_image_encode_specific(const sk_image_t* cimage, sk_encoded_image_format_t encoder, int quality);
 
