@@ -868,7 +868,7 @@ ARGB equivalent to <a href='#HSV'>HSV</a>
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"></fiddle-embed></div>
+<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
 
 ### See Also
 

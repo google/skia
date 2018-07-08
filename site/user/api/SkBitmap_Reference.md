@@ -1016,7 +1016,7 @@ reference to <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="ec47c4dc23e2925ad565eaba55a91553">
+<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b">
 
 #### Example Output
 
@@ -1419,7 +1419,7 @@ true if no <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is associated
 
 ### Example
 
-<div><fiddle-embed name="1d400a92ca826cc89bcb88ea051f28c8">
+<div><fiddle-embed name="211ec89418011aa6e54aa2cc9567e003">
 
 #### Example Output
 

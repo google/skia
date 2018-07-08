@@ -486,7 +486,7 @@ bounds (0, 0, size.<a href='#SkIRect_width'>width</a>, size.<a href='#SkIRect_he
 
 ### Example
 
-<div><fiddle-embed name="">
+<div><fiddle-embed name="c6586ff8d24869c780169b0d19c75df6">
 
 #### Example Output
 
@@ -1330,7 +1330,7 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Example
 
-<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2">
+<div><fiddle-embed name="ead6bdcf2ae77ec19a1c5a96f5b31af8">
 
 #### Example Output
 

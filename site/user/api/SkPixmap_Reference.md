@@ -963,7 +963,7 @@ true if all pixels have opaque values or <a href='SkImageInfo_Reference#Color_Ty
 
 ### Example
 
-<div><fiddle-embed name="6ef37d5be03d0bfaec992dbb5a94c66f">
+<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca">
 
 #### Example Output
 

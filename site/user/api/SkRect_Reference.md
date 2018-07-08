@@ -1642,7 +1642,7 @@ contains infinity or NaN, all <a href='#Rect'>Rect</a> dimensions are set to NaN
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"></fiddle-embed></div>
+<div><fiddle-embed name="be10cb1411dbcf7e38e0198e8a9b8b0e"></fiddle-embed></div>
 
 ### See Also
 
@@ -1701,7 +1701,7 @@ Very large values in <a href='#SkRect_set_src'>src</a> may lose precision.
 
 ### Example
 
-<div><fiddle-embed name="a10ad8d97062bc3f40942f47e5108917">
+<div><fiddle-embed name="cf0da15f48aa54fd1889e7f913601710">
 
 #### Example Output
 
@@ -2015,7 +2015,7 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Example
 
-<div><fiddle-embed name="229057023515224358a36acf15508cf6">
+<div><fiddle-embed name="18532f1aa90b76364fb8d7ea072f1892">
 
 #### Example Output
 
@@ -2985,7 +2985,7 @@ Has no effect if <a href='#SkRect_join_2_r'>r</a> is empty. Otherwise, if <a hre
 
 ### Example
 
-<div><fiddle-embed name="">
+<div><fiddle-embed name="26500032494cf93c5fa3423110fe82af">
 
 #### Example Output
 
@@ -3380,7 +3380,7 @@ sorted <a href='#Rect'>Rect</a>
 
 ### Example
 
-<div><fiddle-embed name="">
+<div><fiddle-embed name="f59567042b87f6b26f9bfeeb04468032">
 
 #### Example Output
 

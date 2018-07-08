@@ -2228,7 +2228,7 @@ defined. Safer than operator[]; internal cache is always maintained.
 
 ### Example
 
-<div><fiddle-embed name="a75bbdb8bb866b125c4c1dd5e967d470">
+<div><fiddle-embed name="33b029064e8d1928e42a587c953d0e4e">
 
 #### Example Output
 
@@ -3097,7 +3097,7 @@ Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
 
 ### Example
 
-<div><fiddle-embed name="f75a9b629aa6c51ed888f8799b5ba5f7"></fiddle-embed></div>
+<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
 
 ### See Also
 
@@ -3203,7 +3203,7 @@ Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
+<div><fiddle-embed name="e37a94a53c959951b059fcd624639ef6"></fiddle-embed></div>
 
 ### See Also
 
@@ -4981,7 +4981,7 @@ mapped bounds
 
 ### Example
 
-<div><fiddle-embed name=""></fiddle-embed></div>
+<div><fiddle-embed name="3b7b1f884437ab450f986234e4aec27f"></fiddle-embed></div>
 
 ### See Also
 
@@ -5667,7 +5667,7 @@ modifications to <a href='#Matrix'>Matrix</a> element reference returned by <a h
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83">
+<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2">
 
 #### Example Output
 

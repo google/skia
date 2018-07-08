@@ -241,7 +241,7 @@ Modes <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a>, <a href='#SkBlendMode_k
 <a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a> convert source and destination pixels using all
 components color information, using <a href='https://www.w3.org/TR/compositing-1/#blendingnonseparable'>non-separable blend modes</a></a> .
 
-![Color_Blends](https://fiddle.skia.org/i/a18bc2e3607ac3a8e438bcb61fb13130_raster.png "")
+![Color_Blends](https://fiddle.skia.org/i/03710c1770728da885fa4ac24a19d5d1_raster.png "")
 
 ## <a name='SkBlendMode'>Enum SkBlendMode</a>
 
@@ -883,7 +883,7 @@ making destination lighter or darker, depending on source.
 
 ### Example
 
-<div><fiddle-embed name="ac2fe555e2196e15863ea4ce74db3d54"></fiddle-embed></div>
+<div><fiddle-embed name="e91dbe45974489b8962c815017b7914f"></fiddle-embed></div>
 
 ## <a name='Soft_Light'>Soft Light</a>
 
