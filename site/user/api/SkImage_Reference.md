@@ -1382,7 +1382,7 @@ pixel height in <a href='#Image'>Image</a>
 
 ### Example
 
-<div><fiddle-embed name="6e563cb8351d34bd8af555a51bcd7a96"></fiddle-embed></div>
+<div><fiddle-embed name="187e1d9228e2e4341ef820bd77b6fda9"></fiddle-embed></div>
 
 ### See Also
 
@@ -1820,7 +1820,7 @@ true if <a href='#Image'>Image</a> is a <a href='undocumented#GPU_Texture'>GPU T
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2188,7 +2188,7 @@ encoded <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name=""></fiddle-embed></div>
+<div><fiddle-embed name="7a3bf8851bb7160e4e49c48f8c09639d"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="0d17085a4698a8a2e2235fad9041b4b4"></fiddle-embed></div>
+<div><fiddle-embed name="4082f66a42df11bb20462b232b156bb6"></fiddle-embed></div>
 
 ### See Also
 
@@ -2582,7 +2582,7 @@ true if <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> was created
 
 ### Example
 
-<div><fiddle-embed name="f4ce93f6c5e7335436a985377fd980c0" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="78374702fa113076ddc6070053ab5cd4" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

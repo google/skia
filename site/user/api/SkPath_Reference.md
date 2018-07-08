@@ -1757,7 +1757,7 @@ true if <a href='#Path'>Path</a> contains only <a href='SkRRect_Reference#RRect'
 
 ### Example
 
-<div><fiddle-embed name=""><div>Draw rounded rectangle and its bounds.
+<div><fiddle-embed name="2aa939b90d96aff436b145a96305132c"><div>Draw rounded rectangle and its bounds.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -2037,7 +2037,7 @@ true if <a href='undocumented#Line'>Line</a> is degenerate; its length is effect
 
 ### Example
 
-<div><fiddle-embed name="a18bc2e3607ac3a8e438bcb61fb13130"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
+<div><fiddle-embed name="97a031f9186ade586928563840ce9116"><div>As single precision floats, 100 and 100.000001 have the same bit representation,
 and are exactly equal. 100 and 100.0001 have different bit representations, and
 are not exactly equal, but are nearly equal.
 </div>
@@ -2279,7 +2279,7 @@ Returns the number of points in <a href='#Path'>Path</a>.
 
 ### Example
 
-<div><fiddle-embed name="bca6379ccef62cb081b10db7381deb27">
+<div><fiddle-embed name="187a7ae77a8176e417181411988534b6">
 
 #### Example Output
 
@@ -3314,7 +3314,7 @@ If <a href='#SkPath_conicTo_w'>w</a> is not finite, appends <a href='#SkPath_kLi
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div>As weight increases, curve is pulled towards control point.
+<div><fiddle-embed name="358d9b6060b528b0923c007420f09c13"><div>As weight increases, curve is pulled towards control point.
 The bottom two curves are elliptical; the next is parabolic; the
 top curve is hyperbolic.
 </div></fiddle-embed></div>
@@ -4911,7 +4911,7 @@ added unaltered. If <a href='#SkPath_addPath_2_mode'>mode</a> is <a href='#SkPat
 
 ### Example
 
-<div><fiddle-embed name=""></fiddle-embed></div>
+<div><fiddle-embed name="84b2d1c0fc29f1b35e855b6fc6672f9e"></fiddle-embed></div>
 
 ### See Also
 
@@ -5099,7 +5099,7 @@ is replaced.
 
 ### Example
 
-<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"></fiddle-embed></div>
+<div><fiddle-embed name="99761add116ce3b0730557224c1b0105"></fiddle-embed></div>
 
 ### See Also
 
@@ -6242,7 +6242,7 @@ next <a href='#SkPath_Verb'>Verb</a> from <a href='#Verb_Array'>Verb Array</a>
 
 ### Example
 
-<div><fiddle-embed name="eb5fa5bea23059ce538e883502f828f5">
+<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b">
 
 #### Example Output
 

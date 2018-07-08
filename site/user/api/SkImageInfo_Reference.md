@@ -841,7 +841,7 @@ true if <a href='SkColor_Reference#Alpha'>Color Alpha</a> is always set to 1.0
 
 ### Example
 
-<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
+<div><fiddle-embed name="9b3eb5aaa0dfea9feee54e7650fa5446"><a href='#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
 <a href='#kGray_8_SkColorType'>kGray_8_SkColorType</a>, <a href='#kRGBA_F16_SkColorType'>kRGBA_F16_SkColorType</a> </fiddle-embed></div>
@@ -2194,7 +2194,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="6a63dfdd62ab77ff57783af8c33d7b78"></fiddle-embed></div>
+<div><fiddle-embed name="454add968099811053e2b372238472e3"></fiddle-embed></div>
 
 ### See Also
 
@@ -2596,7 +2596,7 @@ true if <a href='#SkImageInfo_computeByteSize'>computeByteSize</a> or <a href='#
 
 ### Example
 
-<div><fiddle-embed name="27a0ab44659201f1aa2ac7fea73368c2">
+<div><fiddle-embed name="6a63dfdd62ab77ff57783af8c33d7b78">
 
 #### Example Output
 

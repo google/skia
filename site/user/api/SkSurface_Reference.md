@@ -547,7 +547,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
+<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b">
 
 #### Example Output
 
@@ -1459,7 +1459,7 @@ are not captured. <a href='SkImage_Reference#Image'>Image</a> allocation is acco
 
 ### Example
 
-<div><fiddle-embed name="a18bc2e3607ac3a8e438bcb61fb13130"></fiddle-embed></div>
+<div><fiddle-embed name="46f1fa0d95e590a64bed0140407ce5f7"></fiddle-embed></div>
 
 ### See Also
 
@@ -1584,7 +1584,7 @@ true if <a href='#Surface'>Surface</a> has direct access to pixels
 
 ### Example
 
-<div><fiddle-embed name="8c6184f22cfe068f021704cf92a147a1"></fiddle-embed></div>
+<div><fiddle-embed name="a7ac9c21bbabcdeeca00f72a61cd0f3e"></fiddle-embed></div>
 
 ### See Also
 

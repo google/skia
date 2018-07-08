@@ -1275,7 +1275,7 @@ Returns <a href='undocumented#GPU_Context'>GPU Context</a> of the <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="c4ea949e5fa5a0630dcb6b0204bd498f"></fiddle-embed></div>
+<div><fiddle-embed name="7cdea37741d50f0594c6244eb07fd175"></fiddle-embed></div>
 
 ### See Also
 
@@ -2195,7 +2195,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="8460bf8b013f46c67e0bd96e13451aff"></fiddle-embed></div>
+<div><fiddle-embed name="cf0da15f48aa54fd1889e7f913601710"></fiddle-embed></div>
 
 ### See Also
 
@@ -2835,7 +2835,7 @@ the result with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div>Black text mimics an oblique text style by using a negative skew on x-axis
+<div><fiddle-embed name="2e2acc21d7774df7e0940a30ad2ca99e"><div>Black text mimics an oblique text style by using a negative skew on x-axis
 that shifts the geometry to the right as the y-axis values decrease.
 Red text uses a positive skew on y-axis to shift the geometry down
 as the x-axis values increase.
@@ -3960,7 +3960,7 @@ draw the array of points as a open polygon</td>
 
 ### Example
 
-<div><fiddle-embed name="6a63dfdd62ab77ff57783af8c33d7b78"><div>The upper left corner shows three squares when drawn as points.
+<div><fiddle-embed name="292b4b2008961b6f612434d3121fc4ce"><div>The upper left corner shows three squares when drawn as points.
 The upper right corner shows one line; when drawn as lines, two points are required per line.
 The lower right corner shows two lines; when draw as polygon, no miter is drawn at the corner.
 The lower left corner shows two lines with a miter when path contains polygon.
@@ -4219,7 +4219,7 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ### Example
 
-<div><fiddle-embed name="56d01ccfedd71d3c504b09afa2875d38"></fiddle-embed></div>
+<div><fiddle-embed name="871b0da9b4a23de11ae7a772ce14aed3"></fiddle-embed></div>
 
 ### See Also
 

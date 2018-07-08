@@ -1232,7 +1232,7 @@ true if <a href='#Paint'>Paint</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="">
+<div><fiddle-embed name="b6c8484b1187f555b435ad5369833be4">
 
 #### Example Output
 
@@ -2002,7 +2002,7 @@ Returns true if <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderT
 
 ### Example
 
-<div><fiddle-embed name="68e1fd95dd2fd06a333899d2bd2396b9">
+<div><fiddle-embed name="bca6379ccef62cb081b10db7381deb27">
 
 #### Example Output
 
@@ -3071,7 +3071,7 @@ Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than 
 
 ### Example
 
-<div><fiddle-embed name="d4ca1f23809b6835c4ba46ea98a86900">
+<div><fiddle-embed name="700b284dbc97785c6a9c9636088713ad">
 
 #### Example Output
 
@@ -3873,7 +3873,7 @@ Increases <a href='undocumented#Path_Effect'>Path Effect</a> <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca">
+<div><fiddle-embed name="7cdea37741d50f0594c6244eb07fd175">
 
 #### Example Output
 
@@ -4064,7 +4064,7 @@ Increases <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="">
+<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
 
 #### Example Output
 
