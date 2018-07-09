@@ -24,8 +24,9 @@ template <typename T>
 class SkSpan {
 public:
     SkSpan() : fPtr{nullptr}, fSize{0} {}
-    SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} {}
-    explicit SkSpan(std::vector<T>& v) : fPtr{v.data()}, fSize{v.size()} {}
+    SkSpan(T* ptr, ptrdiff_t size) : fPtr{ptr}, fSize{size} { SkASSERT(size >= 0); }
+    explicit SkSpan(std::vector<T>& v) : fPtr{v.data()}, fSize{SkTo<ptrdiff_t>(v.size())} {}
+    SkSpan(const SkSpan<T>& o) = default;
     SkSpan& operator=( const SkSpan& other ) = default;
     T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
     T* begin() const { return fPtr; }
@@ -38,7 +39,7 @@ public:
 
 private:
     T* fPtr;
-    size_t fSize;
+    ptrdiff_t fSize;
 };
 
 struct SkIndexedRunInfo {
