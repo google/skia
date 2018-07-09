@@ -137,7 +137,7 @@ void SkRegion::freeRuns() {
         if (--fRunHead->fRefCnt == 0) {
             //SkASSERT(gRgnAllocCounter > 0);
             //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
-            //SkDEBUGF(("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter));
+            //SkDEBUGF("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter);
             sk_free(fRunHead);
         }
     }
@@ -278,7 +278,7 @@ bool SkRegion::setRuns(RunType runs[], int count) {
     SkASSERT(count > 0);
 
     if (isRunCountEmpty(count)) {
-    //  SkDEBUGF(("setRuns: empty\n"));
+    //  SkDEBUGF("setRuns: empty\n");
         assert_sentinel(runs[count-1], true);
         return this->setEmpty();
     }

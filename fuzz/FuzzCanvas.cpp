@@ -904,7 +904,7 @@ static SkBitmap make_fuzz_bitmap(Fuzz* fuzz) {
     fuzz->nextRange(&w, 1, 1024);
     fuzz->nextRange(&h, 1, 1024);
     if (!bitmap.tryAllocN32Pixels(w, h)) {
-        SkDEBUGF(("Could not allocate pixels %d x %d", w, h));
+        SkDEBUGF("Could not allocate pixels %d x %d", w, h);
         return bitmap;
     }
     for (int y = 0; y < h; ++y) {
