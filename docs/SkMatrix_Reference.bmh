@@ -44,6 +44,7 @@ Sets Matrix to scale by (sx, sy). Returned matrix is:
 |  0 sy  0 |
 |  0  0  1 |
 ##
+.
 
 #Param sx  horizontal scale factor ##
 #Param sy  vertical scale factor ##
@@ -72,6 +73,7 @@ Sets Matrix to scale by (scale, scale). Returned matrix is:
 |   0   scale 0 |
 |   0     0   1 |
 ##
+.
 
 #Param scale  horizontal and vertical scale factor ##
 
@@ -100,6 +102,7 @@ Sets Matrix to translate by (dx, dy). Returned matrix is:
 | 0 1 dy |
 | 0 0  1 |
 ##
+.
 
 #Param dx  horizontal translation ##
 #Param dy  vertical translation ##
@@ -136,6 +139,7 @@ Sets Matrix to:
 |  skewY scaleY transY |
 |  pers0  pers1  pers2 |
 ##
+.
 
 #Param scaleX  horizontal scale factor ##
 #Param skewX   horizontal skew factor ##
@@ -288,6 +292,7 @@ Returns true if Matrix is identity.  Identity matrix is:
 | 0 1 0 |
 | 0 0 1 |
 ##
+.
 
 #Return  true if Matrix has no effect ##
 
@@ -321,6 +326,7 @@ contain only scale elements, only translate elements, or both. Matrix form is:
 |    0    scale-y translate-y |
 |    0       0         1      |
 ##
+.
 
 #Return  true if Matrix is identity; or scales, translates, or both ##
 
@@ -357,6 +363,7 @@ Returns true if Matrix is identity, or translates. Matrix form is:
 | 0 1 translate-y |
 | 0 0      1      |
 ##
+.
 
 #Return  true if Matrix is identity, or translates ##
 
@@ -1308,6 +1315,7 @@ Sets all values from parameters. Sets matrix to:
 |  skewY scaleY transY |
 | persp0 persp1 persp2 |
 ##
+.
 
 #Param scaleX  horizontal scale factor to store ##
 #Param skewX  horizontal skew factor to store ##
@@ -1386,6 +1394,7 @@ Sets matrix to:
 | buffer[3] buffer[4] buffer[5] |
 | buffer[6] buffer[7] buffer[8] |
 ##
+.
 
 In the future, set9 followed by get9 may not return the same values. Since Matrix
 maps non-homogeneous coordinates, scaling all nine values produces an equivalent
@@ -1420,6 +1429,7 @@ Sets Matrix to identity; which has no effect on mapped Points. Sets Matrix to:
 | 0 1 0 |
 | 0 0 1 |
 ##
+.
 
 Also called setIdentity(); use the one that provides better inline
 documentation.
@@ -1451,6 +1461,7 @@ Sets Matrix to identity; which has no effect on mapped Points. Sets Matrix to:
 | 0 1 0 |
 | 0 0 1 |
 ##
+.
 
 Also called reset(); use the one that provides better inline
 documentation.
@@ -1842,6 +1853,7 @@ sets Matrix to:
 a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
         | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 ##
+.
 
 #Param a  Matrix on left side of multiply expression ##
 #Param b  Matrix on right side of multiply expression ##
@@ -1892,6 +1904,7 @@ sets Matrix to:
 Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
                      | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |
 ##
+.
 
 #Param dx  x-axis translation before applying Matrix ##
 #Param dy  y-axis translation before applying Matrix ##
@@ -1959,6 +1972,7 @@ sets Matrix to:
 Matrix * S(sx, sy, px, py) = | D E F | |  0 sy dy | = | D*sx E*sy D*dx+E*dy+F |
                              | G H I | |  0  0  1 |   | G*sx H*sy G*dx+H*dy+I |
 ##
+.
 
 #Param sx  horizontal scale factor ##
 #Param sy  vertical scale factor ##
@@ -2006,6 +2020,7 @@ sets Matrix to:
 Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
                      | G H I | |  0  0  1 |   | G*sx H*sy I |
 ##
+.
 
 #Param sx  horizontal scale factor ##
 #Param sy  vertical scale factor ##
@@ -2064,6 +2079,7 @@ sets Matrix to:
 Matrix * R(degrees, px, py) = | D E F | | s  c dy | = | Dc+Es -Ds+Ec D*dx+E*dy+F |
                               | G H I | | 0  0  1 |   | Gc+Hs -Gs+Hc G*dx+H*dy+I |
 ##
+.
 
 #Param degrees  angle of axes relative to upright axes ##
 #Param px  pivot x ##
@@ -2119,6 +2135,7 @@ sets Matrix to:
 Matrix * R(degrees, px, py) = | D E F | | s  c 0 | = | Dc+Es -Ds+Ec F |
                               | G H I | | 0  0 1 |   | Gc+Hs -Gs+Hc I |
 ##
+.
 
 #Param degrees  angle of axes relative to upright axes ##
 
@@ -2172,6 +2189,7 @@ sets Matrix to:
 Matrix * K(kx, ky, px, py) = | D E F | | ky  1 dy | = | D+E*ky D*kx+E D*dx+E*dy+F |
                              | G H I | |  0  0  1 |   | G+H*ky G*kx+H G*dx+H*dy+I |
 ##
+.
 
 #Param kx  horizontal skew factor ##
 #Param ky  vertical skew factor ##
@@ -2218,6 +2236,7 @@ sets Matrix to:
 Matrix * K(kx, ky) = | D E F | | ky  1 0 | = | D+E*ky D*kx+E F |
                      | G H I | |  0  0 1 |   | G+H*ky G*kx+H I |
 ##
+.
 
 #Param kx  horizontal skew factor ##
 #Param ky  vertical skew factor ##
@@ -2263,6 +2282,7 @@ sets Matrix to:
 Matrix * other = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
                  | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 ##
+.
 
 #Param other  Matrix on right side of multiply expression ##
 
@@ -2312,6 +2332,7 @@ sets Matrix to:
 T(dx, dy) * Matrix = | 0 1 dy | | M N O | = | M+dy*P N+dy*Q O+dy*R |
                      | 0 0  1 | | P Q R |   |      P      Q      R |
 ##
+.
 
 #Param dx  x-axis translation after applying Matrix ##
 #Param dy  y-axis translation after applying Matrix ##
@@ -2382,6 +2403,7 @@ sets Matrix to:
 S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O+dy*R |
                              |  0  0  1 | | P Q R |   |         P         Q         R |
 ##
+.
 
 #Param sx  horizontal scale factor ##
 #Param sy  vertical scale factor ##
@@ -2428,6 +2450,7 @@ sets Matrix to:
 S(sx, sy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
                      |  0  0  1 | | P Q R |   |    P    Q    R |
 ##
+.
 
 #Param sx  horizontal scale factor ##
 #Param sy  vertical scale factor ##
@@ -2486,6 +2509,7 @@ sets Matrix to:
 I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
                          |  0  0  1 | | P Q R |   |    P    Q    R |
 ##
+.
 
 #Param divx  integer divisor for inverse scale in x ##
 #Param divy  integer divisor for inverse scale in y ##
@@ -2546,6 +2570,7 @@ sets Matrix to:
 R(degrees, px, py) * Matrix = |s  c dy| |M N O| = |sJ+cM+dy*P sK+cN+dy*Q sL+cO+dy*R|
                               |0  0  1| |P Q R|   |         P          Q          R|
 ##
+.
 
 #Param degrees  angle of axes relative to upright axes ##
 #Param px  pivot x ##
@@ -2601,6 +2626,7 @@ sets Matrix to:
 R(degrees, px, py) * Matrix = | s  c dy | | M N O | = | sJ+cM sK+cN sL+cO |
                               | 0  0  1 | | P Q R |   |     P     Q     R |
 ##
+.
 
 #Param degrees  angle of axes relative to upright axes ##
 
@@ -2654,6 +2680,7 @@ sets Matrix to:
 K(kx, ky, px, py) * Matrix = |ky  1 dy| |M N O| = |ky*J+M+dy*P ky*K+N+dy*Q ky*L+O+dy*R|
                              | 0  0  1| |P Q R|   |          P           Q           R|
 ##
+.
 
 #Param kx  horizontal skew factor ##
 #Param ky  vertical skew factor ##
@@ -2700,6 +2727,7 @@ sets Matrix to:
 K(kx, ky) * Matrix = | ky  1 0 | | M N O | = | ky*J+M ky*K+N ky*L+O |
                      |  0  0 1 | | P Q R |   |      P      Q      R |
 ##
+.
 
 #Param kx  horizontal skew factor ##
 #Param ky  vertical skew factor ##
@@ -2745,6 +2773,7 @@ sets Matrix to:
 other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
                  | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 ##
+.
 
 #Param other  Matrix on left side of multiply expression ##
 
@@ -2851,6 +2880,7 @@ Returns true if dst is empty, and sets Matrix to:
 | 0 0 0 |
 | 0 0 1 |
 ##
+.
 
 #Param src  Rect to map from ##
 #Param dst  Rect to map to ##
@@ -2906,6 +2936,7 @@ empty, returns Matrix set to:
 | 0 0 0 |
 | 0 0 1 |
 ##
+.
 
 #Param src  Rect to map from ##
 #Param dst  Rect to map to ##
@@ -3045,6 +3076,7 @@ Sets affine to:
 | 1 0 0 |
 | 0 1 0 |
 ##
+.
 
 Affine 3x2 matrices in column major order are used by OpenGL and XPS.
 
@@ -3079,6 +3111,7 @@ Fills affine in column major order. Sets affine to:
 | scale-x  skew-x translate-x |
 | skew-y  scale-y translate-y |
 ##
+.
 
 If Matrix contains perspective, returns false and leaves affine unchanged.
 
@@ -3129,6 +3162,7 @@ Matrix is set, row, then column, to:
 |  skew-y scale-y translate-y |
 |       0       0           1 |
 ##
+.
 
 #Param affine  3x2 affine matrix ##
 
@@ -3193,6 +3227,7 @@ each dst Point is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 src and dst may point to the same storage.
 
@@ -3252,6 +3287,7 @@ each resulting pts Point is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 #Param pts  storage for mapped Points ##
 #Param count  number of Points to transform ##
@@ -3297,6 +3333,7 @@ each resulting dst Point is computed as:
 Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
                |G H I| |z|
 ##
+.
 
 #Param dst  storage for mapped Point3 array ##
 #Param src  Point3 array to transform ##
@@ -3354,6 +3391,7 @@ result is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 #Param x  x-axis value of Point to map ##
 #Param y  y-axis value of Point to map ##
@@ -3399,6 +3437,7 @@ result is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 #Param x  x-axis value of Point to map ##
 #Param y  y-axis value of Point to map ##
@@ -3522,6 +3561,7 @@ each result Vector is computed as:
 Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
                |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 #Param vecs  Vectors to transform, and storage for mapped Vectors ##
 #Param count  number of Vectors to transform ##
@@ -3570,6 +3610,7 @@ each result Vector is computed as:
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 ##
+.
 
 #Param dx  x-axis value of Vector to map ##
 #Param dy  y-axis value of Vector to map ##
@@ -3619,6 +3660,7 @@ each result Vector is computed as:
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 ##
+.
 
 #Param dx  x-axis value of Vector to map ##
 #Param dy  y-axis value of Vector to map ##
@@ -3768,6 +3810,7 @@ each dst Point is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 ##
+.
 
 #Param dst  storage for mapped corner Points ##
 #Param rect  Rect to map ##
@@ -4212,6 +4255,7 @@ On success
 #Formula
 Matrix = scale * Remaining
 ##
+.
 
 #Param scale  axes scaling factors; may be nullptr  ##
 #Param remaining  Matrix without scaling; may be nullptr ##
@@ -4258,6 +4302,7 @@ Returns reference to const identity Matrix. Returned Matrix is set to:
 | 0 1 0 |
 | 0 0 1 |
 ##
+.
 
 #Return  const identity Matrix ##
 
@@ -4292,6 +4337,7 @@ to:
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 ##
+.
 
 #Return  const invalid Matrix ##
 
@@ -4330,6 +4376,7 @@ sets Matrix to:
 a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
         | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 ##
+.
 
 #Param a  Matrix on left side of multiply expression ##
 #Param b  Matrix on right side of multiply expression ##
@@ -4402,6 +4449,7 @@ Initializes Matrix with scale and translate elements.
 |  0 sy ty |
 |  0  0  1 |
 ##
+.
 
 #Param sx  horizontal scale factor to store ##
 #Param sy  vertical scale factor to store ##

@@ -2373,6 +2373,20 @@
     "name": "SkPath::writeToMemory",
         "stdout": "path is equal to copy\\n"
     },
+        "SkPicture_MakePlaceholder": {
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkPicture> pict1 = SkPicture::MakePlaceholder({10, 40, 80, 110});\n    sk_sp<SkPicture> pict2 = SkPicture::MakePlaceholder({10, 40, 80, 110});\n    for (auto pict : { pict1, pict2 } ) {\n        SkRect bounds = pict->cullRect();\n        SkDebugf(\"id:%d bounds:{%g, %g, %g, %g}\\n\", pict->uniqueID(), \n                 bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    }\n}",
+    "hash": "32f84819483a906ede9c5525801845ef",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakePlaceholder",
+        "stdout": "id:1 bounds:{10, 40, 80, 110}\\nid:2 bounds:{10, 40, 80, 110}\\n"
+    },
+        "SkPicture_uniqueID": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    recorder.beginRecording({0, 0, 0, 0});\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDebugf(\"empty picture id = %d\\n\", picture->uniqueID());\n    sk_sp<SkPicture> placeholder = SkPicture::MakePlaceholder({0, 0, 0, 0});\n    SkDebugf(\"placeholder id = %d\\n\", placeholder->uniqueID());\n}",
+    "hash": "8e4257245c988c600410fe4fd7293f07",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::uniqueID",
+        "stdout": "empty picture id = 1\\nplaceholder id = 2\\n"
+    },
         "SkPixmap_addr": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    pixels.resize(image->height() * image->width() * 4);\n    SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,\n            image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n    image->readPixels(pixmap, 0, 0);\n    SkDebugf(\"pixels address: 0x%llx\\n\", pixmap.addr());\n    SkPixmap inset;\n    if (pixmap.extractSubset(&inset, {128, 128, 512, 512})) {\n         SkDebugf(\"inset address:  0x%llx\\n\", inset.addr());\n    }\n}",
     "hash": "17bcabaaee2dbb7beba562e9ca50b55e",
@@ -7153,117 +7167,85 @@
     "file": "SkPath_Reference",
     "name": "SkPath::transform_2"
 },
-    "SkPicture_AbortCallback_abort": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "SkPicture_AbortCallback": {
+    "code": "class JustOneDraw : public SkPicture::AbortCallback {\npublic:\n    bool abort() override { return fCalls++ > 0; }\nprivate:\n    int fCalls = 0;\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    JustOneDraw callback;\n    picture->playback(canvas, &callback);\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "56ed920dadbf2b2967ac45fb5a9bded6",
     "file": "SkPicture_Reference",
-    "name": "SkPicture::AbortCallback::abort()"
-},
-    "SkPicture_AbortCallback_empty_constructor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkPicture_Reference",
-    "name": "SkPicture::AbortCallback::AbortCallback()"
+    "name": "SkPicture::AbortCallback"
 },
     "SkPicture_MakeFromData": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDynamicMemoryWStream writableStream;\n    picture->serialize(&writableStream);\n    sk_sp<SkData> readableData = writableStream.detachAsData();\n    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData.get());\n    copy->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "58b44bf47d8816782066618700afdecb",
     "file": "SkPicture_Reference",
     "name": "SkPicture::MakeFromData"
 },
     "SkPicture_MakeFromData_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDynamicMemoryWStream writableStream;\n    picture->serialize(&writableStream);\n    sk_sp<SkData> readableData = writableStream.detachAsData();\n    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());\n    copy->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "30b9f1b310187db6aff720a5d67591e2",
     "file": "SkPicture_Reference",
     "name": "SkPicture::MakeFromData_2"
 },
     "SkPicture_MakeFromStream": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDynamicMemoryWStream writableStream;\n    picture->serialize(&writableStream);\n    std::unique_ptr<SkStreamAsset> readableStream = writableStream.detachAsStream();\n    sk_sp<SkPicture> copy = SkPicture::MakeFromStream(readableStream.get());\n    copy->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "404fb42560a289c2004cad1caf3b96de",
     "file": "SkPicture_Reference",
     "name": "SkPicture::MakeFromStream"
 },
-    "SkPicture_MakePlaceholder": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkPicture_Reference",
-    "name": "SkPicture::MakePlaceholder"
-},
     "SkPicture_approximateBytesUsed": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    picture->playback(canvas);\n    std::string opCount = \"approximate bytes used: \" + std::to_string(picture->approximateBytesUsed());\n    canvas->drawString(opCount.c_str(), 20, 220, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "ececbda21218bd732394a305dba393a2",
     "file": "SkPicture_Reference",
     "name": "SkPicture::approximateBytesUsed"
 },
     "SkPicture_approximateOpCount": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    picture->playback(canvas);\n    std::string opCount = \"approximate op count: \" + std::to_string(picture->approximateOpCount());\n    canvas->drawString(opCount.c_str(), 50, 220, SkPaint());\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "4b3d879118ef770d1f11a23c6493b2c4",
     "file": "SkPicture_Reference",
     "name": "SkPicture::approximateOpCount"
 },
     "SkPicture_cullRect": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({64, 64, 192, 192});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    picture->playback(canvas);\n    paint.setBlendMode(SkBlendMode::kModulate);\n    paint.setColor(0x40404040);\n    canvas->drawRect(picture->cullRect(), paint);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "15bb9a9596b40c5e2045f76e8c1dcf8e",
     "file": "SkPicture_Reference",
     "name": "SkPicture::cullRect"
 },
-    "SkPicture_destructor": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkPicture_Reference",
-    "name": "SkPicture::AbortCallback::~AbortCallback()"
-},
     "SkPicture_playback": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    picture->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "6b0ffb03ba05f526b345dc65a1c73fe4",
     "file": "SkPicture_Reference",
     "name": "SkPicture::playback()"
 },
     "SkPicture_serialize": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    sk_sp<SkData> readableData = picture->serialize();\n    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());\n    copy->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "dacdebe1355c884ebd3c2ea038cc7a20",
     "file": "SkPicture_Reference",
     "name": "SkPicture::serialize()"
 },
     "SkPicture_serialize_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDynamicMemoryWStream writableStream;\n    picture->serialize(&writableStream);\n    sk_sp<SkData> readableData = writableStream.detachAsData();\n    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());\n    copy->playback(canvas);\n}",
     "width": 256,
     "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "hash": "30b9f1b310187db6aff720a5d67591e2",
     "file": "SkPicture_Reference",
     "name": "SkPicture::serialize_2"
-},
-    "SkPicture_uniqueID": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkPicture_Reference",
-    "name": "SkPicture::uniqueID"
 },
     "SkPixmap_erase": {
     "code": "void draw(SkCanvas* canvas) {\n    uint32_t storage[2];\n    SkImageInfo info = SkImageInfo::MakeN32Premul(1, 2);\n    SkPixmap pixmap(info, storage, info.minRowBytes());\n    pixmap.erase(SK_ColorBLUE, {0, 0, 1, 1});\n    pixmap.erase(SK_ColorRED, {0, 1, 1, 2});\n    SkBitmap bitmap;\n    canvas->scale(20, 20);\n    bitmap.installPixels(pixmap);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
@@ -7658,26 +7640,26 @@
     "name": "SkRRect::Type"
 },
     "SkRRect_contains": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRect test = {10, 10, 110, 80};\n    SkRRect rrect = SkRRect::MakeRect(test);\n    SkRRect oval = SkRRect::MakeOval(test);\n    test.inset(10, 10);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(rrect.contains(test) ? \"contains\" : \"does not contain\", 55, 100, paint);\n    canvas->drawString(oval.contains(test) ? \"contains\" : \"does not contain\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawRect(test, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(oval, paint);\n    canvas->drawRect(test, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "884447c809921cfaebc87aeb63dedd48",
     "file": "SkRRect_Reference",
     "name": "SkRRect::contains()"
 },
     "SkRRect_copy_const_SkRRect": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});\n    SkRRect rrect2(rrect);\n    rrect2.inset(20, 20);\n    SkPaint p;\n    p.setStyle(SkPaint::kStroke_Style);\n    p.setStrokeWidth(10);\n    canvas->drawRRect(rrect, p);\n    canvas->drawRRect(rrect2, p);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "9be9adb06c26dac75a5a5a7c1ceca681",
+    "height": 60,
+    "hash": "ad8f5d49edfcee60eddfe2a955b6c5f5",
     "file": "SkRRect_Reference",
     "name": "SkRRect::SkRRect(const SkRRect& rrect)"
 },
     "SkRRect_copy_operator": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({40, 40, 100, 70});\n    SkRRect rrect2 = rrect;\n    rrect2.inset(-20, -20);\n    SkPaint p;\n    p.setStyle(SkPaint::kStroke_Style);\n    p.setStrokeWidth(10);\n    canvas->drawRRect(rrect, p);\n    canvas->drawRRect(rrect2, p);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "94c298c404fff922ec53a3d7567852a2",
+    "height": 110,
+    "hash": "52926c98c1cca00606d3ea99f23fea3d",
     "file": "SkRRect_Reference",
     "name": "SkRRect::operator=(const SkRRect& rrect)"
 },
@@ -7708,16 +7690,16 @@
     "SkRRect_getSimpleRadii": {
     "code": "void draw(SkCanvas* canvas) {\n    auto drawDetails = [=](const SkRRect& rrect) {\n        SkPaint paint;\n        paint.setAntiAlias(true);\n        paint.setTextAlign(SkPaint::kCenter_Align);\n        paint.setTextSize(12);\n        canvas->drawRRect(rrect, paint);\n        SkVector corner = rrect.getSimpleRadii();\n        std::string label = \"corner: \" + std::to_string(corner.fX).substr(0, 3) + \", \" +\n                        std::to_string(corner.fY).substr(0, 3);\n        canvas->drawString(label.c_str(), 64, 90, paint);\n        canvas->translate(128, 0);\n    };\n    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});\n    drawDetails(rrect);\n    rrect.setRectXY(rrect.getBounds(), 5, 8);\n    drawDetails(rrect);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "f0e02101ecbdb5a2963ec82e7832afb1",
+    "height": 100,
+    "hash": "ebcc50ed30240e94de8439d21dd8171c",
     "file": "SkRRect_Reference",
     "name": "SkRRect::getSimpleRadii"
 },
     "SkRRect_getType": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});\n    SkRRect rrect2(rrect);\n    rrect2.inset(20, 20);\n    SkPaint p;\n    p.setStyle(SkPaint::kStroke_Style);\n    p.setStrokeWidth(10);\n    std::string str(\"Type \");\n    str += SkRRect::kRect_Type == rrect2.getType() ? \"=\" : \"!\"; \n    str += \"= SkRRect::kRect_Type\";\n    canvas->drawString(str.c_str(), 20, 80, SkPaint());\n    canvas->drawRRect(rrect2, p);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "53634cc0794c0fa6c0c2b3ac4cc69490",
+    "height": 100,
+    "hash": "ace8f4aebf90527d43e4b7291375c9ad",
     "file": "SkRRect_Reference",
     "name": "SkRRect::getType"
 },
@@ -7740,8 +7722,8 @@
     "SkRRect_isComplex": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    paint.setTextSize(16);\n    SkVector radii[] = {{25, 30}, {40, 30}, {40, 30}, {20, 30}};\n    SkRRect rrect;\n    rrect.setRectRadii({30, 10, 100, 60}, radii);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawString(rrect.isComplex() ? \"complex\" : \"not complex\", 64, 90, paint);\n    radii[0].fX = 20;\n    rrect.setRectRadii(rrect.getBounds(), radii);\n    canvas->translate(128, 0);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawString(rrect.isComplex() ? \"complex\" : \"not complex\", 64, 90, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "75db3f4e4757478bca641bccf89b9398",
+    "height": 100,
+    "hash": "e4ba9346ee5c2d37d5e504f8cc678544",
     "file": "SkRRect_Reference",
     "name": "SkRRect::isComplex"
 },
@@ -7786,20 +7768,12 @@
     "name": "SkRRect::isSimple"
 },
     "SkRRect_isValid": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 110, 80});\n    SkRRect corrupt = rrect;\n    *((float*) &corrupt) = 120;\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(rrect.isValid() ? \"is valid\" : \"is corrupted\", 55, 100, paint);\n    canvas->drawString(corrupt.isValid() ? \"is valid\" : \"is corrupted\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(corrupt, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "d28709aa457742391842a9ab1f21b5fa",
     "file": "SkRRect_Reference",
     "name": "SkRRect::isValid"
-},
-    "SkRRect_kSizeInMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
-    "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
-    "file": "SkRRect_Reference",
-    "name": "SkRRect::kSizeInMemory"
 },
     "SkRRect_makeOffset": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkRRect rrect = SkRRect::MakeRectXY({100, 20, 140, 220}, 50, 100);\n    for (int index = 0; index < 25; ++index) {\n       canvas->drawRRect(rrect, paint);\n       rrect = rrect.makeOffset(-3, 3);\n    }\n}",
@@ -7842,18 +7816,18 @@
     "name": "SkRRect::outset_2"
 },
     "SkRRect_readFromMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkVector radii[] = {{5, 5},  {10, 10}, {15, 15}, {5, 5}};\n    SkRRect rrect;\n    rrect.setRectRadii({10, 10, 110, 80}, radii);\n    char storage[SkRRect::kSizeInMemory];\n    rrect.writeToMemory(storage);\n    SkRRect copy;\n    copy.readFromMemory(storage, sizeof(storage));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(\"copy\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(copy, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "b877c0adff35470865a57aa150bf5329",
     "file": "SkRRect_Reference",
     "name": "SkRRect::readFromMemory"
 },
     "SkRRect_setEmpty": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkRRect rrect = SkRRect::MakeRect({30, 10, 100, 60});\n    canvas->drawRRect(rrect, paint);\n    rrect.setEmpty();\n    paint.setColor(SK_ColorBLUE);\n    canvas->drawRRect(rrect, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "59c1025b8116ec1d3b55f4f6306d1e37",
+    "height": 80,
+    "hash": "44e9a9c2c5ef1af2a616086ff46a9037",
     "file": "SkRRect_Reference",
     "name": "SkRRect::setEmpty"
 },
@@ -7884,8 +7858,8 @@
     "SkRRect_setRectRadii": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStrokeWidth(15);\n    paint.setStrokeCap(SkPaint::kSquare_Cap);\n    paint.setAntiAlias(true);\n    float intervals[] = { 5, 21.75f };\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));\n    SkPath path;\n    SkRRect rrect;\n    SkVector corners[] = {{15, 17}, {17, 19}, {19, 15}, {15, 15}};\n    rrect.setRectRadii({20, 20, 100, 100}, corners);\n    path.addRRect(rrect, SkPath::kCW_Direction);\n    canvas->drawPath(path, paint);\n    path.rewind();\n    path.addRRect(rrect, SkPath::kCCW_Direction, 1);\n    canvas->translate(120, 0);\n    canvas->drawPath(path, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "4589dd49da291f8cd414db96c12851c7",
+    "height": 128,
+    "hash": "340d6c51efaa1f7f3d0dcaf8b0e90696",
     "file": "SkRRect_Reference",
     "name": "SkRRect::setRectRadii"
 },
@@ -7898,26 +7872,26 @@
     "name": "SkRRect::setRectXY"
 },
     "SkRRect_transform": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkVector radii[] = {{5, 5},  {10, 10}, {15, 15}, {5, 5}};\n    SkRRect rrect;\n    rrect.setRectRadii({10, 10, 110, 80}, radii);\n    SkRRect transformed;\n    SkMatrix matrix = SkMatrix::MakeRectToRect(rrect.rect(), {140, 30, 220, 80},\n                                               SkMatrix::kCenter_ScaleToFit);\n    bool success = rrect.transform(matrix, &transformed);\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(success ? \"transformed\" : \"transform failed\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->drawRRect(transformed, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "99ccc6862bb9fe3ca35228eee9f9725d",
     "file": "SkRRect_Reference",
     "name": "SkRRect::transform()"
 },
     "SkRRect_type": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 100, 50});\n    SkRRect rrect2(rrect);\n    rrect2.inset(20, 20);\n    SkPaint p;\n    p.setStyle(SkPaint::kStroke_Style);\n    p.setStrokeWidth(10);\n    std::string str(\"Type \");\n    str += SkRRect::kEmpty_Type == rrect2.type() ? \"=\" : \"!\"; \n    str += \"= SkRRect::kEmpty_Type\";\n    canvas->drawString(str.c_str(), 20, 80, SkPaint());\n    canvas->drawRRect(rrect2, p);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "02b03d651c4b5d18018c6f75fa88b8ce",
+    "height": 100,
+    "hash": "1080805c8449406a4e26d694bc56d2dc",
     "file": "SkRRect_Reference",
     "name": "SkRRect::type()"
 },
     "SkRRect_writeToMemory": {
-    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    SkRRect rrect = SkRRect::MakeRect({10, 10, 110, 80});\n    char storage[SkRRect::kSizeInMemory];\n    rrect.writeToMemory(storage);\n    SkRRect copy;\n    copy.readFromMemory(storage, sizeof(storage));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->drawString(\"rrect\", 55, 100, paint);\n    canvas->drawString(\"copy\", 185, 100, paint);    \n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRRect(rrect, paint);\n    canvas->translate(120, 0);\n    canvas->drawRRect(copy, paint);\n}",
     "width": 256,
-    "height": 256,
-    "hash": "882e8e0103048009a25cfc20400492f7",
+    "height": 110,
+    "hash": "1466c844a78fd05a7362537347e360ca",
     "file": "SkRRect_Reference",
     "name": "SkRRect::writeToMemory"
 },
