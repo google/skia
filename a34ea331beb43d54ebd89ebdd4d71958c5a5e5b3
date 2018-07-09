@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f9fa975d_4acee8fc",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-09T18:08:21Z",
+      "side": 1,
+      "message": "instanceCount must be 1, so this loop can go away, and all this indexing can be [0] and [1] ?",
+      "range": {
+        "startLine": 218,
+        "startChar": 0,
+        "endLine": 223,
+        "endChar": 1
+      },
+      "revId": "a34ea331beb43d54ebd89ebdd4d71958c5a5e5b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1d1161e_854884ea",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-09T18:08:21Z",
+      "side": 1,
+      "message": "If !this-\u003eisIndexed(), then we\u0027ll never find indexBuffer in the cache, right? Need to handle that case, or we can\u0027t successfully cache non-indexed vertex buffers?",
+      "revId": "a34ea331beb43d54ebd89ebdd4d71958c5a5e5b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
