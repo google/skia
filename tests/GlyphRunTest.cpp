@@ -24,7 +24,7 @@ DEF_TEST(GlyphRunGlyphIDSetBasic, reporter) {
     std::vector<SkGlyphID> test{uniqueGlyphIDs.begin(), uniqueGlyphIDs.end()};
     std::sort(test.begin(), test.end());
     auto newEnd = std::unique(test.begin(), test.end());
-    REPORTER_ASSERT(reporter, uniqueGlyphIDs.size() == newEnd - test.begin());
+    REPORTER_ASSERT(reporter, uniqueGlyphIDs.size() == (size_t)(newEnd - test.begin()));
     REPORTER_ASSERT(reporter, uniqueGlyphIDs.size() == 4);
     {
         uint16_t answer[] = {0, 1, 2, 1, 3};
