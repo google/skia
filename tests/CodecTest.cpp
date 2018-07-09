@@ -514,7 +514,8 @@ DEF_TEST(Codec_png, r) {
     // half-transparent-white-pixel.png is too small to test incomplete
     check(r, "images/half-transparent-white-pixel.png", SkISize::Make(1, 1), false, false, false, true);
     check(r, "images/mandrill_128.png", SkISize::Make(128, 128), false, false, true, true);
-    check(r, "images/mandrill_16.png", SkISize::Make(16, 16), false, false, true, true);
+    // mandrill_16.png is too small (relative to embedded sRGB profile) to test incomplete
+    check(r, "images/mandrill_16.png", SkISize::Make(16, 16), false, false, false, true);
     check(r, "images/mandrill_256.png", SkISize::Make(256, 256), false, false, true, true);
     check(r, "images/mandrill_32.png", SkISize::Make(32, 32), false, false, true, true);
     check(r, "images/mandrill_512.png", SkISize::Make(512, 512), false, false, true, true);
