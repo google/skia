@@ -351,8 +351,9 @@ public:
             { 0, 0 }, { 10, 0 }, { 10, 10 }, { 0, 10 },
         };
 
+        auto cs = fLinearInterp ? SkColorSpace::MakeSRGBLinear() : nullptr;
         for (int i = 0; i < 100*loops; ++i) {
-            SkPatchUtils::MakeVertices(pts, colors, tex, 20, 20, fLinearInterp);
+            SkPatchUtils::MakeVertices(pts, colors, tex, 20, 20, cs.get());
         }
     }
 };
