@@ -215,7 +215,6 @@ void SkPatchUtils::GetRightCubic(const SkPoint cubics[12], SkPoint points[4]) {
 }
 
 #include "SkPM4fPriv.h"
-#include "SkColorSpaceXform.h"
 
 struct SkRGBAf {
     float fVec[4];
@@ -252,37 +251,18 @@ struct SkRGBAf {
     }
 };
 
-static void skcolor_to_linear(SkRGBAf dst[], const SkColor src[], int count, SkColorSpace* cs,
-                              bool doPremul) {
-    if (cs) {
-        auto srcCS = SkColorSpace::MakeSRGB();
-        auto dstCS = cs->makeLinearGamma();
-        auto op = doPremul ? SkColorSpaceXform::kPremul_AlphaOp
-                           : SkColorSpaceXform::kPreserve_AlphaOp;
-        SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  dst,
-                                 srcCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, src,
-                                 count, op);
-    } else {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = SkRGBAf::FromBGRA32(src[i]);
-            if (doPremul) {
-                dst[i] = dst[i].premul();
-            }
+static void skcolor_to_float(SkRGBAf dst[], const SkColor src[], int count, bool doPremul) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = SkRGBAf::FromBGRA32(src[i]);
+        if (doPremul) {
+            dst[i] = dst[i].premul();
         }
     }
 }
 
-static void linear_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkColorSpace* cs) {
-    if (cs) {
-        auto srcCS = cs->makeLinearGamma();
-        auto dstCS = SkColorSpace::MakeSRGB();
-        SkColorSpaceXform::Apply(dstCS.get(), SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
-                                 srcCS.get(), SkColorSpaceXform::kRGBA_F32_ColorFormat,  src,
-                                 count, SkColorSpaceXform::kPreserve_AlphaOp);
-    } else {
-        for (int i = 0; i < count; ++i) {
-            dst[i] = src[i].toBGRA32();
-        }
+static void float_to_skcolor(SkColor dst[], const SkRGBAf src[], int count) {
+    for (int i = 0; i < count; ++i) {
+        dst[i] = src[i].toBGRA32();
     }
 }
 
@@ -293,8 +273,7 @@ static void unpremul(SkRGBAf array[], int count) {
 }
 
 sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkColor srcColors[4],
-                                             const SkPoint srcTexCoords[4], int lodX, int lodY,
-                                             bool interpColorsLinearly) {
+                                             const SkPoint srcTexCoords[4], int lodX, int lodY) {
     if (lodX < 1 || lodY < 1 || nullptr == cubics) {
         return nullptr;
     }
@@ -333,7 +312,6 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
     SkSTArenaAlloc<2048> alloc;
     SkRGBAf* cornerColors = srcColors ? alloc.makeArray<SkRGBAf>(4) : nullptr;
     SkRGBAf* tmpColors = srcColors ? alloc.makeArray<SkRGBAf>(vertexCount) : nullptr;
-    auto convertCS = interpColorsLinearly ? SkColorSpace::MakeSRGB() : nullptr;
 
     SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, vertexCount, indexCount, flags);
     SkPoint* pos = builder.positions();
@@ -357,7 +335,7 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
             doPremul = false;   // no need
         }
 
-        skcolor_to_linear(cornerColors, srcColors, kNumCorners, convertCS.get(), doPremul);
+        skcolor_to_float(cornerColors, srcColors, kNumCorners, doPremul);
     }
 
     SkPoint pts[kNumPtsCubic];
@@ -440,7 +418,7 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
         if (doPremul) {
             unpremul(tmpColors, vertexCount);
         }
-        linear_to_skcolor(builder.colors(), tmpColors, vertexCount, convertCS.get());
+        float_to_skcolor(builder.colors(), tmpColors, vertexCount);
     }
     return builder.detach();
 }

@@ -48,8 +48,7 @@ public:
     static SkISize GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix* matrix);
 
     static sk_sp<SkVertices> MakeVertices(const SkPoint cubics[12], const SkColor colors[4],
-                                          const SkPoint texCoords[4], int lodX, int lodY,
-                                          bool interpColorsLinearly = false);
+                                          const SkPoint texCoords[4], int lodX, int lodY);
 };
 
 #endif
