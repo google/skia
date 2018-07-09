@@ -519,7 +519,7 @@ private:
     bool      fLCDIsVert;
 
     FT_Error setupSize();
-    void getBBoxForCurrentGlyph(SkGlyph* glyph, FT_BBox* bbox,
+    void getBBoxForCurrentGlyph(const SkGlyph* glyph, FT_BBox* bbox,
                                 bool snapToPixelBoundary = false);
     bool getCBoxForLetter(char letter, FT_BBox* bbox);
     // Caller must lock gFTMutex before calling this function.
@@ -968,6 +968,10 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     fMatrix22.yx = SkScalarToFixed(-fMatrix22Scalar.getSkewY());
     fMatrix22.yy = SkScalarToFixed(fMatrix22Scalar.getScaleY());
 
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION > 0x02090100
+    FT_Palette_Select(fFaceRec->fFace.get(), 0, nullptr);
+#endif
+
     fFTSize = ftSize.release();
     fFace = fFaceRec->fFace.get();
     fDoLinearMetrics = linearMetrics;
@@ -1054,7 +1058,7 @@ void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
     return;
 }
 
-void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
+void SkScalerContext_FreeType::getBBoxForCurrentGlyph(const SkGlyph* glyph,
                                                       FT_BBox* bbox,
                                                       bool snapToPixelBoundary) {
 
@@ -1153,24 +1157,66 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     emboldenIfNeeded(fFace, fFace->glyph, glyph->getGlyphID());
 
     switch ( fFace->glyph->format ) {
-      case FT_GLYPH_FORMAT_OUTLINE:
-        if (0 == fFace->glyph->outline.n_contours) {
-            glyph->fWidth = 0;
-            glyph->fHeight = 0;
-            glyph->fTop = 0;
-            glyph->fLeft = 0;
-        } else {
-            FT_BBox bbox;
-            getBBoxForCurrentGlyph(glyph, &bbox, true);
+      case FT_GLYPH_FORMAT_OUTLINE: {
+        FT_BBox bbox;
+        getBBoxForCurrentGlyph(glyph, &bbox, true);
+        glyph->fWidth = SkFDot6ToScalar(bbox.xMax - bbox.xMin);
+        glyph->fHeight = SkFDot6ToScalar(bbox.yMax - bbox.yMin);
+        glyph->fTop = SkFDot6ToScalar(-bbox.yMax);
+        glyph->fLeft = SkFDot6ToScalar(bbox.xMin);
 
-            glyph->fWidth   = SkToU16(SkFDot6Floor(bbox.xMax - bbox.xMin));
-            glyph->fHeight  = SkToU16(SkFDot6Floor(bbox.yMax - bbox.yMin));
-            glyph->fTop     = -SkToS16(SkFDot6Floor(bbox.yMax));
-            glyph->fLeft    = SkToS16(SkFDot6Floor(bbox.xMin));
+#if SK_FREETYPE_MINIMUM_RUNTIME_VERSION >= 0x02080000
 
-            updateGlyphIfLCD(glyph);
+        SkRect bounds = SkRect::MakeEmpty();
+
+        FT_LayerIterator layer_iterator;
+        layer_iterator.p  = NULL;
+        FT_Bool have_layers = false;
+        FT_UInt layer_glyph_index;
+        FT_UInt layer_color_index;
+        while (FT_Get_Color_Glyph_Layer(fFace,
+                                        glyph->getGlyphID(),
+                                        &layer_glyph_index,
+                                        &layer_color_index,
+                                        &layer_iterator)) {
+            have_layers = true;
+            err = FT_Load_Glyph(fFace, layer_glyph_index,
+                                fLoadGlyphFlags | FT_LOAD_BITMAP_METRICS_ONLY);
+            if (err != 0) {
+                glyph->zeroMetrics();
+                return;
+            }
+            emboldenIfNeeded(fFace, fFace->glyph, layer_glyph_index);
+
+            if (0 < fFace->glyph->outline.n_contours) {
+                getBBoxForCurrentGlyph(glyph, &bbox, true);
+
+                SkRect layerBounds = SkRect::MakeLTRB(SkFDot6ToScalar(bbox.xMin),
+                                                      SkFDot6ToScalar(bbox.yMax),
+                                                      SkFDot6ToScalar(bbox.xMax),
+                                                      SkFDot6ToScalar(bbox.yMin)
+                );
+
+                bounds.join(layerBounds);
+            }
         }
-        break;
+
+        SkIRect ibounds = bounds.roundOut();
+        if (have_layers) {
+            glyph->fMaskFormat = SkMask::kARGB32_Format;
+        }
+
+        if (!ibounds.isEmpty()) {
+            updateGlyphIfLCD(glyph);
+            glyph->fWidth = ibounds.width();
+            glyph->fHeight = -ibounds.height();
+            glyph->fTop = ibounds.top();
+            glyph->fLeft = ibounds.left();
+        }
+
+#endif
+
+      } break;
 
       case FT_GLYPH_FORMAT_BITMAP:
         if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
