@@ -735,7 +735,7 @@ Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsi
 
 ### Example
 
-<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"></fiddle-embed></div>
+<div><fiddle-embed name="5188d77585715db30bef228f2dfbcccd"></fiddle-embed></div>
 
 ### See Also
 
@@ -798,7 +798,7 @@ Converts RGB to its <a href='#HSV'>HSV</a> components.
 
 ### Example
 
-<div><fiddle-embed name="4fb2da4a3d9b14ca4ac24eefb0f5126a"></fiddle-embed></div>
+<div><fiddle-embed name="7a234c96608fb7cb8135b9940b0b15f7"></fiddle-embed></div>
 
 ### See Also
 

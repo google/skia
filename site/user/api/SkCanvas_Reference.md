@@ -1047,7 +1047,7 @@ storage that can be read from and written to
 
 ### Example
 
-<div><fiddle-embed name="1598396056045e8d0c583b748293d652">
+<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01">
 
 #### Example Output
 
@@ -1275,7 +1275,7 @@ Returns <a href='undocumented#GPU_Context'>GPU Context</a> of the <a href='undoc
 
 ### Example
 
-<div><fiddle-embed name="7cdea37741d50f0594c6244eb07fd175"></fiddle-embed></div>
+<div><fiddle-embed name="c4ea949e5fa5a0630dcb6b0204bd498f"></fiddle-embed></div>
 
 ### See Also
 
@@ -1888,7 +1888,7 @@ previous state.
 
 ### Example
 
-<div><fiddle-embed name="bb1dbfdca3aedf716beb6f07e2aab065"><div><a href='#Draw'>Draw</a> to ever smaller clips; then restore drawing to full canvas.
+<div><fiddle-embed name="23c4543ac6cdd0e8fe762816a0dc2e03"><div><a href='#Draw'>Draw</a> to ever smaller clips; then restore drawing to full canvas.
 Note that the second <a href='#SkCanvas_clipRect'>clipRect</a> is not permitted to enlarge <a href='#Clip'>Clip</a>.
 </div></fiddle-embed></div>
 
@@ -2019,7 +2019,7 @@ Restores state to initial values if <a href='#SkCanvas_restoreToCount_saveCount'
 
 ### Example
 
-<div><fiddle-embed name="9ed0d56436e114c7097fd49eed1aea47">
+<div><fiddle-embed name="535d38b2c019299d915170f7b03d5fea">
 
 #### Example Output
 
@@ -2195,7 +2195,7 @@ depth of saved stack
 
 ### Example
 
-<div><fiddle-embed name="cf0da15f48aa54fd1889e7f913601710"></fiddle-embed></div>
+<div><fiddle-embed name="8460bf8b013f46c67e0bd96e13451aff"></fiddle-embed></div>
 
 ### See Also
 
@@ -5184,7 +5184,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="d597d9af8d17fd93e634dd12017058e2"><div>The two leftmost images has four corners and sides to the left and right of <a href='#SkCanvas_drawImageNine_2_center'>center</a>.
+<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01"><div>The two leftmost images has four corners and sides to the left and right of <a href='#SkCanvas_drawImageNine_2_center'>center</a>.
 The leftmost <a href='#SkCanvas_drawImageNine_2_image'>image</a> scales the width of corners proportionately to fit.
 The third and fourth <a href='#SkCanvas_drawImageNine_2_image'>image</a> corners are not scaled; the sides and <a href='#SkCanvas_drawImageNine_2_center'>center</a> are scaled to
 fill the remaining space.
@@ -6004,7 +6004,7 @@ rather than using the font advance widths.
 
 ### Example
 
-<div><fiddle-embed name="bf0b2402533a23b6392e0676b7a8414c"></fiddle-embed></div>
+<div><fiddle-embed name="9fb7459b097d713f5f1fe5675afe14f5"></fiddle-embed></div>
 
 ### See Also
 
@@ -6059,7 +6059,7 @@ baseline.
 
 ### Example
 
-<div><fiddle-embed name="95c6a7ef82993a8d2add676080e9438a"></fiddle-embed></div>
+<div><fiddle-embed name="0bcc0f86a2aefc899f3500503dce6968"></fiddle-embed></div>
 
 ### See Also
 
@@ -6315,7 +6315,7 @@ Elements of <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a>: <a href='undocum
 
 ### Example
 
-<div><fiddle-embed name="af4c69fbbd165c8b0eb0c9bd49ccbd8d"><div><a href='SkPaint_Reference#Paint'>Paint</a> attributes unrelated to text, like color, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> in allocated <a href='undocumented#Text_Blob'>Text Blob</a>.
+<div><fiddle-embed name="fe2294131f422b8d6752f6a880f98ad9"><div><a href='SkPaint_Reference#Paint'>Paint</a> attributes unrelated to text, like color, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> in allocated <a href='undocumented#Text_Blob'>Text Blob</a>.
 <a href='SkPaint_Reference#Paint'>Paint</a> attributes related to text, like text size, have no effect on <a href='#SkCanvas_drawTextBlob_2_paint'>paint</a> passed to <a href='#SkCanvas_drawTextBlob'>drawTextBlob</a>.
 </div></fiddle-embed></div>
 
@@ -6347,7 +6347,7 @@ void <a href='#SkCanvas_drawPicture'>drawPicture</a>(const <a href='SkPicture_Re
 
 ### Example
 
-<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
+<div><fiddle-embed name="40afd4f1fa69e02d69d92b38252088ef"></fiddle-embed></div>
 
 ### See Also
 

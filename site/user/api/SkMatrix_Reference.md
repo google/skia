@@ -1044,7 +1044,7 @@ other bits are set.
 
 ### Example
 
-<div><fiddle-embed name="8e45fe2dd52731bb2d4318686257e1d7">
+<div><fiddle-embed name="cc1fc7f3462abc79ec6dec3405e2812d">
 
 #### Example Output
 
@@ -2228,7 +2228,7 @@ defined. Safer than operator[]; internal cache is always maintained.
 
 ### Example
 
-<div><fiddle-embed name="33b029064e8d1928e42a587c953d0e4e">
+<div><fiddle-embed name="1d400a92ca826cc89bcb88ea051f28c8">
 
 #### Example Output
 
@@ -2611,7 +2611,7 @@ documentation.
 
 ### Example
 
-<div><fiddle-embed name="ca94f7922bc37ef03bbc51ad70536fcf">
+<div><fiddle-embed name="63977f97999bbd6eecfdcc7575d75492">
 
 #### Example Output
 
@@ -2745,7 +2745,7 @@ The pivot point is unchanged when mapped with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="4565a0792058178c88e0a129a87272d6"></fiddle-embed></div>
+<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"></fiddle-embed></div>
 
 ### See Also
 
@@ -3097,7 +3097,7 @@ Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
+<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a"></fiddle-embed></div>
 
 ### See Also
 
@@ -3203,7 +3203,7 @@ Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
 
 ### Example
 
-<div><fiddle-embed name="e37a94a53c959951b059fcd624639ef6"></fiddle-embed></div>
+<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b"></fiddle-embed></div>
 
 ### See Also
 

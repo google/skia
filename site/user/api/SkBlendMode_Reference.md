@@ -883,7 +883,7 @@ making destination lighter or darker, depending on source.
 
 ### Example
 
-<div><fiddle-embed name="e91dbe45974489b8962c815017b7914f"></fiddle-embed></div>
+<div><fiddle-embed name="ac2fe555e2196e15863ea4ce74db3d54"></fiddle-embed></div>
 
 ## <a name='Soft_Light'>Soft Light</a>
 
