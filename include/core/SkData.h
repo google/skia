@@ -169,7 +169,7 @@ private:
     ~SkData();
 
     // Ensure the unsized delete is called.
-    void operator delete(void* p) { ::operator delete(p); }
+    void operator delete(void* p);
 
     // shared internal factory
     static sk_sp<SkData> PrivateNewWithCopy(const void* srcOrNull, size_t length);
