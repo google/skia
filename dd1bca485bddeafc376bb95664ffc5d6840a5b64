@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "28655906_9ccaf34c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a423a02_9593368c",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "65fb31ec_0b016aaf",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
         "patchSetId": 22
@@ -33,6 +51,24 @@
       "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f099929b_d6981f5f",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65fb31ec_0b016aaf",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "0b382b26_dcb6e392",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18178dc1_c1c26a08",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f0928d95_8212650d",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
         "patchSetId": 22
@@ -67,6 +121,24 @@
       "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e70fbaf0_e9421f4d",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0928d95_8212650d",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "b5afecc1_11732329",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b0ca3db_2768fd47",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "484800e5_395ead02",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
         "patchSetId": 22
@@ -101,6 +191,24 @@
       "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8826d0d_a9e25259",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "484800e5_395ead02",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "d2b40e7b_57c1d75b",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f397488d_b809977b",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49841f77_8bebd669",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
         "patchSetId": 22
@@ -135,6 +261,24 @@
       "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "007d0f6a_400777ab",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49841f77_8bebd669",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "eec506e8_d2bf4cac",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "07731ece_08a0217c",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b1e59d0_720e5b94",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.h",
         "patchSetId": 22
@@ -169,6 +331,24 @@
       "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "513b27cd_60b3cf14",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-09T19:19:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8b1e59d0_720e5b94",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
