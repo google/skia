@@ -81,7 +81,7 @@ static void init_bitmap(Fuzz* fuzz, SkBitmap* bmp) {
                                          (SkColorType)colorType,
                                          b ? kOpaque_SkAlphaType : kPremul_SkAlphaType);
     if (!bmp->tryAllocPixels(info)) {
-        SkDEBUGF(("Bitmap not allocated\n"));
+        SkDEBUGF("Bitmap not allocated\n");
     }
     SkColor c;
     fuzz->next(&c);
@@ -318,36 +318,36 @@ DEF_FUZZ(DrawFunctions, fuzz) {
               SkDebugf("Could not initialize font.\n");
               fuzz->signalBug();
             }
-            SkDEBUGF(("Fuzz DrawText\n"));
+            SkDEBUGF("Fuzz DrawText\n");
             fuzz_drawText(fuzz, f);
             return;
         }
         case 1:
-            SkDEBUGF(("Fuzz DrawRect\n"));
+            SkDEBUGF("Fuzz DrawRect\n");
             fuzz_drawRect(fuzz);
             return;
         case 2:
-            SkDEBUGF(("Fuzz DrawCircle\n"));
+            SkDEBUGF("Fuzz DrawCircle\n");
             fuzz_drawCircle(fuzz);
             return;
         case 3:
-            SkDEBUGF(("Fuzz DrawLine\n"));
+            SkDEBUGF("Fuzz DrawLine\n");
             fuzz_drawLine(fuzz);
             return;
         case 4:
-            SkDEBUGF(("Fuzz DrawPath\n"));
+            SkDEBUGF("Fuzz DrawPath\n");
             fuzz_drawPath(fuzz);
             return;
         case 5:
-            SkDEBUGF(("Fuzz DrawImage/DrawImageRect\n"));
+            SkDEBUGF("Fuzz DrawImage/DrawImageRect\n");
             fuzz_drawImage(fuzz);
             return;
         case 6:
-            SkDEBUGF(("Fuzz DrawBitmap\n"));
+            SkDEBUGF("Fuzz DrawBitmap\n");
             fuzz_drawBitmap(fuzz);
             return;
         case 7:
-            SkDEBUGF(("Fuzz DrawPaint\n"));
+            SkDEBUGF("Fuzz DrawPaint\n");
             fuzz_drawPaint(fuzz);
             return;
     }

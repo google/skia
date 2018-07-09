@@ -64,7 +64,7 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkS
     fInitialOffset = phase;
 
     if ((unsigned)style > kMorph_Style) {
-        SkDEBUGF(("SkPath1DPathEffect style enum out of range %d\n", style));
+        SkDEBUGF("SkPath1DPathEffect style enum out of range %d\n", style);
     }
     fStyle = style;
 }
