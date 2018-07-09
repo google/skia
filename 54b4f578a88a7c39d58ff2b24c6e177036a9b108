@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cc715e9_8efc244a",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T14:36:39Z",
+      "side": 1,
+      "message": "Should this return true if fVertices is null? Does it matter?",
+      "revId": "54b4f578a88a7c39d58ff2b24c6e177036a9b108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6f5515b9_51c45ee7",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T14:36:39Z",
+      "side": 1,
+      "message": "Does there have to be some versioning on this ?",
+      "revId": "54b4f578a88a7c39d58ff2b24c6e177036a9b108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
