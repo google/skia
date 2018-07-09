@@ -361,7 +361,7 @@ static HRESULT subset_typeface(SkXPSDevice::TypefaceUse* current) {
         nullptr);
     SkAutoTMalloc<unsigned char> fontPackageBuffer(fontPackageBufferRaw);
     if (result != NO_ERROR) {
-        SkDEBUGF(("CreateFontPackage Error %lu", result));
+        SkDEBUGF("CreateFontPackage Error %lu", result);
         return E_UNEXPECTED;
     }
 
@@ -1654,7 +1654,7 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
                 pathIsMutable = true;
             }
             if (!Simplify(*fillablePath, xpsCompatiblePath)) {
-                SkDEBUGF(("Could not simplify inverse winding path."));
+                SkDEBUGF("Could not simplify inverse winding path.");
                 return;
             }
         }
@@ -1818,7 +1818,7 @@ void SkXPSDevice::drawBitmap(const SkBitmap& bitmap,
 
 void SkXPSDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint& paint) {
     //TODO: override this for XPS
-    SkDEBUGF(("XPS drawSprite not yet implemented."));
+    SkDEBUGF("XPS drawSprite not yet implemented.");
 }
 
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
