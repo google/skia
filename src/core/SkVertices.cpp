@@ -95,16 +95,17 @@ SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
     bool hasTexs = SkToBool(builderFlags & SkVertices::kHasTexCoords_BuilderFlag);
     bool hasColors = SkToBool(builderFlags & SkVertices::kHasColors_BuilderFlag);
     bool hasBones = SkToBool(builderFlags & SkVertices::kHasBones_BuilderFlag);
-    this->init(mode, vertexCount, indexCount,
+    bool isVolatile = !SkToBool(builderFlags & SkVertices::kIsNonVolatile_BuilderFlag);
+    this->init(mode, vertexCount, indexCount, isVolatile,
                SkVertices::Sizes(mode, vertexCount, indexCount, hasTexs, hasColors, hasBones));
 }
 
-SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount,
+SkVertices::Builder::Builder(VertexMode mode, int vertexCount, int indexCount, bool isVolatile,
                              const SkVertices::Sizes& sizes) {
-    this->init(mode, vertexCount, indexCount, sizes);
+    this->init(mode, vertexCount, indexCount, isVolatile, sizes);
 }
 
-void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
+void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount, bool isVolatile,
                                const SkVertices::Sizes& sizes) {
     if (!sizes.isValid()) {
         return; // fVertices will already be null
@@ -128,6 +129,7 @@ void SkVertices::Builder::init(VertexMode mode, int vertexCount, int indexCount,
     fVertices->fIndices = sizes.fISize ? (uint16_t*)ptr : nullptr;
     fVertices->fVertexCnt = vertexCount;
     fVertices->fIndexCnt = indexCount;
+    fVertices->fIsVolatile = isVolatile;
     fVertices->fMode = mode;
 
     // We defer assigning fBounds and fUniqueID until detach() is called
@@ -171,6 +173,10 @@ int SkVertices::Builder::indexCount() const {
     return fVertices ? fVertices->indexCount() : 0;
 }
 
+bool SkVertices::Builder::isVolatile() const {
+    return fVertices ? fVertices->isVolatile() : true;
+}
+
 SkPoint* SkVertices::Builder::positions() {
     return fVertices ? const_cast<SkPoint*>(fVertices->positions()) : nullptr;
 }
@@ -208,7 +214,8 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
                                        const SkColor colors[],
                                        const BoneIndices boneIndices[],
                                        const BoneWeights boneWeights[],
-                                       int indexCount, const uint16_t indices[]) {
+                                       int indexCount, const uint16_t indices[],
+                                       bool isVolatile) {
     SkASSERT((!boneIndices && !boneWeights) || (boneIndices && boneWeights));
     Sizes sizes(mode,
                 vertexCount,
@@ -220,7 +227,7 @@ sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, vertexCount, indexCount, isVolatile, sizes);
     SkASSERT(builder.isValid());
 
     sk_careful_memcpy(builder.positions(), pos, sizes.fVSize);
@@ -255,6 +262,7 @@ size_t SkVertices::approximateSize() const {
 #define kHasTexs_Mask       0x100
 #define kHasColors_Mask     0x200
 #define kHasBones_Mask      0x400
+#define kIsNonVolatile_Mask 0x800
 #define kHeaderSize         (3 * sizeof(uint32_t))
 
 sk_sp<SkData> SkVertices::encode() const {
@@ -269,6 +277,9 @@ sk_sp<SkData> SkVertices::encode() const {
     }
     if (this->hasBones()) {
         packed |= kHasBones_Mask;
+    }
+    if (!this->isVolatile()) {
+        packed |= kIsNonVolatile_Mask;
     }
 
     Sizes sizes(fMode,
@@ -318,6 +329,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
     const bool hasTexs = SkToBool(packed & kHasTexs_Mask);
     const bool hasColors = SkToBool(packed & kHasColors_Mask);
     const bool hasBones = SkToBool(packed & kHasBones_Mask);
+    const bool isVolatile = !SkToBool(packed & kIsNonVolatile_Mask);
     Sizes sizes(mode, vertexCount, indexCount, hasTexs, hasColors, hasBones);
     if (!sizes.isValid()) {
         return nullptr;
@@ -327,7 +339,7 @@ sk_sp<SkVertices> SkVertices::Decode(const void* data, size_t length) {
         return nullptr;
     }
 
-    Builder builder(mode, vertexCount, indexCount, sizes);
+    Builder builder(mode, vertexCount, indexCount, isVolatile, sizes);
 
     reader.read(builder.positions(), sizes.fVSize);
     reader.read(builder.texCoords(), sizes.fTSize);
