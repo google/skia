@@ -43,9 +43,8 @@ public:
                                           sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
-    GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor, sk_sp<SkVertices>,
-                     GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>,
-                     const SkMatrix& viewMatrix);
+    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>, GrPrimitiveType, GrAAType,
+                     sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -68,7 +67,24 @@ private:
 
     void onPrepareDraws(Target*) override;
 
-    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute, bool* hasLocalCoordAttribute) const;
+    void drawVolatile(Target*);
+    void drawNonVolatile(Target*);
+
+    void fillBuffers(bool hasColorAttribute,
+                     bool hasLocalCoordsAttribute,
+                     size_t vertexStride,
+                     void* verts,
+                     uint16_t* indices) const;
+
+    void drawVertices(Target*,
+                      GrGeometryProcessor*,
+                      const GrBuffer* vertexBuffer,
+                      int firstVertex,
+                      const GrBuffer* indexBuffer,
+                      int firstIndex);
+
+    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute,
+                                      bool* hasLocalCoordAttribute) const;
 
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
     bool combinablePrimitive() const {
@@ -105,7 +121,7 @@ private:
     }
 
     bool anyMeshHasExplicitLocalCoords() const {
-        return SkToBool(kAnyMeshHasExplicitLocalCoords & fFlags);
+        return SkToBool(kAnyMeshHasExplicitLocalCoords_Flag & fFlags);
     }
 
     bool hasMultipleViewMatrices() const {
@@ -113,10 +129,9 @@ private:
     }
 
     enum Flags {
-        kRequiresPerVertexColors_Flag = 0x1,
-        kAnyMeshHasExplicitLocalCoords = 0x2,
-        kHasMultipleViewMatrices_Flag = 0x4
-
+        kRequiresPerVertexColors_Flag       = 0x1,
+        kAnyMeshHasExplicitLocalCoords_Flag = 0x2,
+        kHasMultipleViewMatrices_Flag       = 0x4,
     };
 
     Helper fHelper;
