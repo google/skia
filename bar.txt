@@ -1,0 +1,1032 @@
+commit 5d04f7092c7df15eec250d2459a67608f58bab65
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Apr 29 11:45:37 2018 -0400
+
+    Implement bind group cache.
+
+commit c7c80fba3aa569bdfe51d0509856a4044139f885
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Apr 29 13:03:51 2018 -0400
+
+    Revert "Use mapwrite/uniform buffer for uniforms (flex)."
+    
+    This reverts commit 8d830ae290e8b0c63075e4620e679eb640f14a26.
+
+commit 50da71120b792ff6fdb58a052e772e2b5351ca45
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Apr 27 09:24:03 2018 -0400
+
+    Fix leak in MTL swap chain.
+    
+    Also simplify it a bit.
+
+commit 002d0acb3eddf17934d4d5498e111b70bb2aab50
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Apr 26 15:24:10 2018 -0400
+
+    Update to NXT latest.
+
+commit 887ba9e8e200c9d86cdbbd3b859b71312232d35d
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Apr 26 10:45:18 2018 -0400
+
+    Fix swap chain texture ownership.
+
+commit 157c0a79a9df71e0b107b27a1fa057dbc6b706a9
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Apr 24 15:05:01 2018 -0400
+
+    Implement Framebuffer cache.
+
+commit 944d794b1df755427046968aab08e493eeabd93c
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Apr 25 08:03:19 2018 -0400
+
+    Fix sampler insertion call.
+
+commit ce1c7a02d66ffde686047f0d8845c26e8939fd88
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Apr 24 10:17:48 2018 -0400
+
+    Add Sampler caching.
+
+commit b2e4995bed5d6f17afc042d66b358d3f1d84c29b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Apr 23 09:31:19 2018 -0400
+
+    Use mapwrite/uniform buffer for uniforms (flex).
+
+commit 6520aecc525560ecca99aa76624b3d7d0a3eb3d7
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Apr 23 09:12:14 2018 -0400
+
+    Make staging buffers explicitly request usage.
+
+commit 546d41a6731169013a4f1a1b7e7080b1967cbd33
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Apr 20 10:57:01 2018 -0400
+
+    Submit all copy commands up front.
+
+commit b08c737af4fd49daa93eb84efbd1d3a2c059a388
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Apr 19 16:53:48 2018 -0400
+
+    Append all command buffers, then submit them.
+
+commit 2ab214e6c83847e134bb1a563cf28cf24970abe7
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Apr 19 13:42:48 2018 -0400
+
+    Submit copy and main cmd buffers simultaneously.
+
+commit 16166c75cb4773f7a3d10f8ff6a6c13010176685
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Apr 18 09:15:37 2018 -0400
+
+    Use staging buffer for GrNXTBuffer map/unmap.
+
+commit dc7ca7a3ba423188c81035a8c3a0839f0d16740e
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Apr 17 16:25:19 2018 -0400
+
+    First draft: use staging manager for uniforms, too.
+
+commit 144fd6b5efc564cb5ffb1963fe1b4810b9a5709b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Apr 13 23:40:55 2018 -0400
+
+    First draft: use tracked staging buffers in texture uploads.
+
+commit 096474ade5927ca87c61d64d3abee132534d512b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Apr 13 12:29:06 2018 -0400
+
+    Implement staging buffer manager.
+
+commit 889455334f1321385b91bd126e8d939c71fa6f42
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Apr 18 11:08:27 2018 -0400
+
+    First draft: NXT Vulkan backend for Linux.
+
+commit 21247af4ba39951ea6eb2213052dde092662c631
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Apr 5 11:46:33 2018 -0400
+
+    Remove GrNXTResourceProvider (unused).
+
+commit 440d0dab4790d02323903560fc521614648c1333
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Apr 4 17:16:13 2018 -0400
+
+    Update spirv-tools to latest.
+
+commit 364cdb18a68080bfa15e74f892cf54469e5d3447
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Tue Mar 27 13:59:08 2018 -0400
+
+    Check for null src texture on cmd buffer copy().
+
+commit 273b7f1489123a13f9a5e04f7f533106bf4a0907
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Mar 24 13:06:25 2018 -0400
+
+    Fix buffer overflow in texture uploads.
+    
+    Copy only the original width to the staging buffer, not the
+    aligned width.
+
+commit 2e1dc76e94737e06c68a8bd0b3853a84520acdd1
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 23 18:51:32 2018 -0400
+
+    Try to use proper hashing for renderpass, pipeline.
+
+commit 9fec04d7e1cbfb1b29d30bd267afedcb7174d932
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 23 11:46:04 2018 -0400
+
+    First draft: read pixels implementation.
+
+commit 7ec78dbf9678de0e0783630a1c69dce8f38f8f08
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Fri Mar 23 10:42:30 2018 -0400
+
+    Fix saveLayer texture origin.
+    
+    Add a caps entry to specify render target origin.
+    Set it top TopLeft for NXT.
+
+commit 5eb8784ff305e7db10ca5b1f38daa7ee9f799f19
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Thu Mar 22 14:48:20 2018 -0400
+
+    Add support for Int (1) vertex format.
+
+commit 098f1bf462cd30f5a5cdae72aa29abf38a8fc3e8
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Thu Mar 22 14:22:56 2018 -0400
+
+    Fix for multiple meshes, cleanup.
+    
+    Always call applyState() prior to drawing a mesh, in case the primitive
+    type changed.
+    Clean up GrNXTGpuCommandBuffer::copy().
+    Remove endDraw() (empty).
+
+commit a3f18a68f38f0cee04ec18210912c05491657342
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 22 13:03:40 2018 -0400
+
+    Clean up BUILD.gn a bit.
+
+commit 278ff3c2db837940a35d062d08734a900bad5fdc
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Wed Mar 21 10:29:19 2018 -0400
+
+    Fix dst texture sampling.
+    
+    If present, put the dst texture in the BindGroupBuilder.
+    Also create a sampler and texture2D for pipeline's dst texture.
+    Refactor sampler/texture2D creation.
+
+commit 61675fc97b2980a188f0345450a4f576de33aa08
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Mar 20 14:07:31 2018 -0400
+
+    First draft: implement command buffer copy().
+
+commit 33182ff2a2db6df438f67f31d43652c93b303b30
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 21 20:06:39 2018 -0400
+
+    Fix for large tiled bitmaps.
+    
+    Copy only the specified subrect to the staging buffer.
+    Simplify the alignment checks.
+    Fix formatting.
+
+commit c01d7955e41bfceae0364df899feadbfb8269288
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Mar 20 14:33:49 2018 -0400
+
+    Fix copyright.
+
+commit 557417a9b5d2b2ee5007ff94915712dac4acfa2d
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Mar 17 12:10:42 2018 -0400
+
+    Fix NXTTestContext compile on Mac OpenGL backend.
+
+commit 6f609a0f3703ef3fc48380cce693e3f51af5e784
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Mar 17 10:47:01 2018 -0400
+
+    Fix memory error in Metal window init.
+    
+    Initialize window info with SDL version before calling
+    SDL_GetWindowWMInfo.
+
+commit f0699916282d1a1a883fbcb963485e4ca3758c1f
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Fri Mar 16 16:31:29 2018 -0400
+
+    Optimize texture uploads and draws.
+    
+    Force software path renderer to use 256 rowbytes.
+
+commit 9147ceaeb06fceeca75e97be7cafe236623db5df
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Thu Mar 15 13:42:50 2018 -0400
+
+    Optimize buffer -> texture copies.
+    
+    Use a single copy command buffer for all buffer -> texture copies,
+    and submit it just prior to starting a command buffer.
+    
+    (Maybe we could insert it into the new command buffer instead?)
+
+commit 9f2a8e3e6f76a48a59ba15de346383045d74045a
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Thu Mar 15 13:09:04 2018 -0400
+
+    Use persistent staging for texture upload.
+
+commit 74195b3f9d72405d75df17ab06bf2adc900b60ee
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 14 12:16:05 2018 -0400
+
+    Implement a uniform ring buffer.
+
+commit 95a326e42d50642d08e912f90f1120a56dba8eee
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Mar 12 11:46:14 2018 -0400
+
+    First draft of psuedo-fences for NXT.
+    
+    Implemented with MapReadAsync.
+
+commit d386a1c1c7884eedcf5a7e6a6dee49bd4a441a12
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Mar 11 15:43:35 2018 -0400
+
+    Fix render pipeline hashing.
+    
+    It should include stencil and blend state.
+
+commit 7c37c9842c42579350ea195e988d4e7fc77f4137
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Mar 11 14:26:25 2018 -0400
+
+    Use a full-size staging buffer for speed.
+    
+    When uploading textures, and rounding to 256 rowBytes, use a full-sized
+    staging buffer. This is unfortunate, but gives a 10X speedup.
+    It would probably not be necessary with Buffer.MapWriteSync().
+
+commit 00b12a6c8f6ccef180297e6c266720b41801cf5e
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Mar 10 22:38:24 2018 -0500
+
+    First draft of NXTTestContext.
+    
+    For Metal, we have to make the NXT init call from its own file, since
+    it's obj-C.  For Unix and D3D12, we call it inline.
+
+commit 7d7bb66a1ad08b3392bdd38e2ebbe505164950ff
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 9 17:31:17 2018 -0500
+
+    Centralize all NXT references in GrNXTProgram.
+    
+    Create everything (RenderPipeline, blend state etc) in one place.
+
+commit 07b34f8f2666b64807e8fc8f0651b145ceabaf5d
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 9 14:04:34 2018 -0500
+
+    Cleanup swap chain texture format handling.
+    
+    Pass swap chain texture format as a constructor param to NXTWindowContext.
+    Change NXTGLWindowContext to pass RGBA8 (since that's what it uses for
+    its render target format).
+    Set the D3D12 swap chain format to RGBA8.
+    Set the metal swap chain format to BGRA8.
+
+commit 8e13733d58c652eb1d9b52c355001cabb8194426
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 9 09:49:41 2018 -0500
+
+    First draft of RenderPipeline caching.
+    
+    This first version always creates new UBOs, which means
+    we also always have to upload, since the UBO is always
+    new.
+
+commit 231e8fc635ce316c06b9c2a4563dbd9246be0514
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 8 10:52:43 2018 -0500
+
+    Move render pass creation to a cache.
+
+commit d0854d4ef65aa62473f7ef9c3c357213fc9b27e9
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 8 10:48:20 2018 -0500
+
+    Revert "Use BGRA format for swap chain configure."
+    
+    This reverts commit 183eab836b77e43f1c0963f89b70734144b3fcce.
+
+commit e0c469adc8cbee949a86fd97cd042737b6838aa3
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 8 10:05:47 2018 -0500
+
+    Remove GrNXTResourceProvider (unused).
+
+commit fc75c0fa8bd44f0cf7d6519424980d83bebd8e29
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 8 09:53:52 2018 -0500
+
+    Use BGRA format for swap chain configure.
+
+commit 311d73dee30d50e92f2f6df1525ccf5c343f6d32
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 21:48:20 2018 -0500
+
+    Enable flat interpolation support in NXT.
+
+commit 6174af32e7e1c3c4a4778ff2c21549312f55f9e7
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 21:45:25 2018 -0500
+
+    Factor out RenderPass and Framebuffer creation.
+
+commit 6e0e25746f75ccefdc5d8ea04224e025fca9ff7a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 21:28:22 2018 -0500
+
+    Fix red/blue color swap in NXT MTL backend.
+
+commit 7e4255a7643bd071d896a71c42aa2c2f76abbc6a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 17:41:22 2018 -0500
+
+    Fixes.
+    
+    Set integer support on in shader caps.
+    Pass shader caps to SkSL.
+
+commit 2a0855e558902f45c1a0d2d392f221925efd6bd6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 15:45:08 2018 -0500
+
+    Implement sampler wrap modes.
+    
+    Also refactor sampler creation.
+
+commit 7121b94d8fe5c9b6c57f54ac95d8dd5b93a44c86
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 13:03:04 2018 -0500
+
+    Clamp MSAA sample count to 1 in NXT backends.
+
+commit 5e6df56b642e0307df37866622eabf03f4cc83cf
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Mar 7 13:01:57 2018 -0500
+
+    Revert "Fix flicker when changing backend on Mac viewer"
+    
+    This reverts commit 4013db8e081644b14aba5ab7f3ae08daaddb4405.
+
+commit d7357409d67b0770b10d66b83179db65d6115381
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Mar 6 16:35:20 2018 -0500
+
+    Add a "use draw for clear" caps, and use it in RTContext.
+
+commit 29f1afe7c3cd323e6f64f0ccb6e9f7db622e7656
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Mar 6 15:23:20 2018 -0500
+
+    Fixes after rebase.
+
+commit 12d5c8d870060061b56a3c24ad5b735d0f72290d
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Mar 5 10:27:50 2018 -0500
+
+    Use Clear for Discard load op (for now).
+
+commit 24c8790e705b1275e3314fcb5cad86b789f1f21f
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Fri Mar 2 16:26:45 2018 -0500
+
+    Use BottomLeft orientation *only* for OpenGL.
+
+commit 8f594b342e3a41621350e78491029ea2d570e7ed
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 2 16:10:27 2018 -0500
+
+    Implement scissor rect.
+
+commit fb98cbd9a19dccc71c37468fbdf3d559dcfcb6bc
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Mar 2 14:59:31 2018 -0500
+
+    Fix D3D12 texture bug.
+    
+    (It's actually a SPIRV output bug that only affects D3D12).
+    
+    Separate sampler and texture*D variables need to be marked as
+    SpvStorageClassUniformConstant, not SpvStorageClassUniform.
+
+commit f2df3aea977800a4a376d281fd2e9e54eed6f9f6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 1 22:13:43 2018 -0500
+
+    First draft of texture render targets.
+    
+    Also move all cache registration into Make functions.
+
+commit 9de8e6bcd92eb30ad3319529ed223391876c0ac5
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 1 20:57:02 2018 -0500
+
+    Set blend color in command buffer.
+
+commit eab27e9eb1486dfec3bff03702d1d68ccb1964d3
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 1 19:25:02 2018 -0500
+
+    Add a texture swizzle for R8-as-A8 textures.
+
+commit 7ac557a5b84c58af90a61a581e5feec0fedb01ec
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 28 20:42:04 2018 -0500
+
+    Add support for ushort2 vertex format.
+
+commit b7444ff46ee415df4af9e6fc3f7cd161d4b57f1f
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 28 10:55:47 2018 -0500
+
+    Continued work on samplers and textures.
+    
+    Store samplers & textures in a single bind group with uniforms.
+    Transition the textures to Sampled usage in the cmd buffer prior to use.
+    Create complete bind group layout before creating UBOs.
+    Set samplers and textures in bind group.
+
+commit dc14772ab17a61d277267e28e7686ab0671ce1c4
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 27 14:10:16 2018 -0500
+
+    Separate tex2d & sampler uniforms; makeSampler().
+    
+    Create separate uniforms for texture2d and sampler.
+    Create a makeSampler2D() to turn that pair into a sampler2D.
+
+commit c9e0614c7da7e2f09e68ecae624b0b1950bcdc5a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 27 09:52:45 2018 -0500
+
+    Change samplerVariable() to return a const char *.
+    
+    This will allow the NXT backend to return a sampler() expression.
+
+commit d49eca95db600da63a1a5a01e07b1e5f39de6a8b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 26 16:10:53 2018 -0500
+
+    First draft of splitting combined sampler/texture variables.
+
+commit 606a8680d513bb296868b0441d0350e264654037
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 26 11:52:45 2018 -0500
+
+    Create actual nxt::Sampler objects.
+    
+    Convert the filter mode from Gr to nxt.
+    Rename fUniformBindGroup to fBindGroup (since it does more than uniforms now).
+
+commit f64d30bcc0fbc29f487eedc2edefa2bb7c145ed7
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 26 10:09:55 2018 -0500
+
+    Add samplers to NXT binding group layout.
+    
+    Also fix some bugs in uniforms for bind groups.
+
+commit 63b7c2eb02fdb022c336e85a938b7951adc1aed9
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Feb 25 15:58:33 2018 -0500
+
+    First draft of samplers.
+
+commit d4032d6e840de46003b8ea62bae6afc1770d5ef5
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 18:04:58 2018 -0500
+
+    First draft of texture uploads.
+
+commit 0a028ca2edd06e9370799a05393e513779bf397f
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 16:26:41 2018 -0500
+
+    Fix mip levels to 1, not zero.
+
+commit 66c5e584333321851fd43f9b814e372d40b4bdbc
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 16:26:41 2018 -0500
+
+    First draft of textures.
+    
+    Also switch NXTImageInfo to use nxt::TextureFormat instead of nxtTextureFormat.
+
+commit f84fec5094866e742f2f80096e18adbc8fe804a6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Mar 6 15:30:17 2018 -0500
+
+    Add NXT to viewer UI.
+
+commit 06087ce5bdb1ba9251e7bd19aa2117ce2b4360ef
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 1 15:44:04 2018 -0500
+
+    Set color mask in the blend state.
+
+commit 7bbe95b6ca8ebf22bd36da6dff7547cbcd1460ef
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Mar 1 13:41:22 2018 -0500
+
+    Add support for reverse-subtract blend equation.
+
+commit 77c0c211376fa08126f581585ce389c13f1576f6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Feb 25 12:50:34 2018 -0500
+
+    Add support for backends without triangle fans.
+    
+    Add triangle fan support to caps.
+    If backend doesn't have support, use indexed triangles in
+    default path renderer.
+
+commit b119f2307bd58fbcf8571c1fede1b448f5b947a1
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 22 09:34:48 2018 -0500
+
+    First draft of primitive types.
+    
+    NOTE: only works for first mesh.
+
+commit c28b28dee3922b837a5509ed2f46faa033ef8d6e
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Feb 9 13:23:09 2018 -0500
+
+    First draft of depth/stencil.
+
+commit cc34562b8b536c06e676fcd52603cc87701bbaae
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 21 17:16:25 2018 -0500
+
+    Fix non-uploaded data bug in buffer unmapping.
+    
+    Do the BufferSubData() call in GrNXTBuffer::onUnmap().
+
+commit b792c0520dc636155ca0bd76a1afb6284dd49d04
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 22:00:42 2018 -0500
+
+    Fix GN formatting.
+
+commit 5cce25475f842338f856dabef70658f591896501
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 21:59:49 2018 -0500
+
+    Fix whitespace and copyrights.
+
+commit e415b7f8104a72b310e717849eb21b449a8caf3e
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 21:35:08 2018 -0500
+
+    Workarounds for null textures in GrAtlasTextOp.
+
+commit e4119a3b337bc4a99e12a9c6e0a2b55ecb1eb39a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 11:52:27 2018 -0500
+
+    Apply options overrides in caps initialization.
+
+commit 0c23183d62b9a1e85fd3d0aa454273070cf36c52
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 8 10:14:55 2018 -0500
+
+    Add width & height parameters to initializeContext().
+
+commit c19b255c76081fadb00b22557f2aad1917b44a01
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 7 17:30:42 2018 -0500
+
+    Add a flip-y workaround for the D3D12 swap chain.
+
+commit def1db5141522fc095e5c3f97be158d2529cbde6
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Wed Feb 7 16:15:54 2018 -0500
+
+    Add "half" vertex attrib types.
+    
+    They're actually aliases for float, apparently. :/
+
+commit 3465aea5d691cb3fd4723f767522a6c68100c310
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 7 14:34:07 2018 -0500
+
+    D3D12 debugging stuff, and BUILD file cleanup.
+    
+    Put common nxt stuff in a (new) common file, third_party/nxt/features.gni.
+    Enable asserts in D3D12 backend.
+
+commit 28c236ef0a2b121aee8cbe0714390c1a264687b8
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 7 13:53:39 2018 -0500
+
+    First draft of the D3D12 backend.
+
+commit 17cba0925a30eb7d5b3e6ec07b4bf931e5d59ddc
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Wed Feb 7 11:19:18 2018 -0500
+
+    Fix Metal backend after update.
+
+commit 1217587eee7768b2bbacf254f4ad855079171db8
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 7 10:29:40 2018 -0500
+
+    Add D3D12 backend files.
+
+commit d07f59281fa336126920a4707e7ce9abc2904820
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 6 17:28:14 2018 -0500
+
+    Fix indexed draws (I think..).
+
+commit 1c3321d1c1f12a22482d89b381b4e116698914ea
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 6 17:07:49 2018 -0500
+
+    Fix draws from a non-zero base vertex.
+    
+    Pass the baseVertex to DrawArrays, DrawElements.
+
+commit 2b5b522fdfb126c192e4a28a0c79da0a6357d459
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 6 16:31:05 2018 -0500
+
+    Command buffer fix and cleanup.
+    
+    Create only one render pass + subpass (in constructor).
+    Don't store the framebuffer as a member var (needed only in cons).
+    Don't store the command buffer as a member var; create it on
+    the fly just prior to submit.
+    Don't store the clear color as a member var (needed only in cons).
+
+commit c5c3e766084ca77a84af1fc4f5afdaa7aa427068
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 6 14:53:52 2018 -0500
+
+    More cleanup.
+
+commit b8c25280bb1daeda2a3ade5653db3ed9845ce212
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Feb 6 14:50:09 2018 -0500
+
+    Fix Windows GL NXT backend startup.
+    
+    Use GetProcAddress + wglGetProcAddress.
+    Cleanup.
+
+commit 3852b2c1873f2c7fb27db7b1f9c3394f0147b200
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 17:47:52 2018 -0500
+
+    Fix Windows build.
+    
+    Seems unfortunate that we have to add default cases for things
+    that won't happen. Oh well.
+
+commit 1b0b12dcef07969a65d8dab50c70a6b2f32c3550
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 17:47:23 2018 -0500
+
+    First draft of an NXT GL window context for Windows.
+
+commit f2e524f624f4285573c0fba71a638610d14693af
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 17:13:18 2018 -0500
+
+    Fix build for Windows: add some warnings, enable GL backend.
+
+commit 874c96ea517462017f8c13379c481fa025c30cc3
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Mon Feb 5 13:17:46 2018 -0500
+
+    Call destroyContext() only from concrete subclasses.
+    
+    Don't call it from NXTWindowContext (which is abstract).
+
+commit 8a94c86fcdf1a9e928e857a40f5bc289f4c44419
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 10:27:24 2018 -0500
+
+    First draft of blend state.
+
+commit ced58d8fbbcc0b6c5c95e631c68b894b32adba14
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 09:58:21 2018 -0500
+
+    Create SK_NXT_METAL and SK_NXT_OPENGL defines.
+
+commit 747283682044bf92d816af848241b54df3904afa
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Feb 5 09:49:06 2018 -0500
+
+    Fix OpenGL backend post-Metal.
+
+commit d688a0b84f51ee0731881828083c72e7c2afc035
+Author: Stephen White <senorblanco@senorblanco-macpro9.roam.corp.google.com>
+Date:   Fri Feb 2 10:28:14 2018 -0500
+
+    First draft of Metal window system support for NXT.
+
+commit beb3187fb45489dcf5d70836038476591ea473c0
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Feb 4 13:54:40 2018 -0500
+
+    Implement buffer map/unmap with a malloc'ed buffer.
+
+commit a2b4e96813d80014fa3909374fa13d73266f7d84
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Feb 4 08:16:35 2018 -0500
+
+    Handle the cases where we have zero fragment or geometry uniforms.
+
+commit 919346f0962afd4663cabdd9b6da194e613b9a7a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Feb 4 08:16:35 2018 -0500
+
+    Make buffer sizes in bytes, not uints.
+
+commit 26409f48dce70bbadc39deed31ab495b3211db37
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Feb 3 22:31:30 2018 -0500
+
+    Implement unorm8 vertex format.
+    
+    Also fix attributes.
+
+commit 025b7320646815bf8a25be5afd49a7cdd17cc9d6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Feb 3 22:31:30 2018 -0500
+
+    Fix vertex attributes.
+    
+    Only call SetInput() twice: once for vertex, once for instance.
+    Don't do it once per attribute.
+
+commit 46c597f38583cfc67c3613baf6af8691373eea38
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Feb 2 20:23:58 2018 -0500
+
+    Fix NXT varying handler.
+
+commit 7d6a7350b5fbf98b3f6615e65aeb82d6d50e4a7d
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 1 14:21:10 2018 -0500
+
+    Fix uninitialized GrProgramDesc.
+    
+    This fixes the hello triangle colour. \o/
+
+commit b7a8860b81a39cb3a0c63a110ff3fd539441e920
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 1 10:57:50 2018 -0500
+
+    Cleanup.
+
+commit ff199c442ac433f4cf75f4c320c34cf3435a901a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 1 09:49:48 2018 -0500
+
+    Fix render target origin for backbuffer surface.
+
+commit b8089563d88d7313e4fdfaf8cf01e348caa1edbb
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 1 08:27:48 2018 -0500
+
+    Enable the RTAdjustment uniform, which does the viewing transform.
+
+commit 356846c9aa9b1dfa6ca82cdbb76ab6fcbf027f42
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Feb 1 07:56:07 2018 -0500
+
+    Don't mangle names beginning with sk_.
+    
+    The other backends do the same.
+
+commit 78aa61f0c548d9ed2347b4763322e7f8c6a8524b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 23:22:52 2018 -0500
+
+    Implement GrNXTProgram::setData().
+    
+    Also actually set the bind group in the cmd buffer, and transition
+    the UBOs before use.
+
+commit fc37cdb358ef3b524be3286f6c3cfb43838c48fe
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 22:39:39 2018 -0500
+
+    Create a new GrNXTProgram class.
+    
+    This is the return value of GrNXTProgramBuilder::Build().
+    Moved lots of NXT calls into the builder.
+    (Eventually, should be in GrNXTProgram itself.)
+
+commit 016d2ce5813900f7eae89714efcc6075e8942561
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Feb 7 11:15:55 2018 -0500
+
+    Update to latest NXT.
+    
+    Fix swap chains,
+    Use SetIndexFormat.
+    Use common CreateSwapChainImplementation fn.
+
+commit 4109a099cdd6762fbfbc6abe2ee22f51f746bee9
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 16:10:31 2018 -0500
+
+    First draft of a program data manager (uniform uploads).
+
+commit 1c7a3d9f798e0a04e8b4fc767f9788af96efbdc7
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 15:51:19 2018 -0500
+
+    First draft of bind group layouts, offsets, etc.
+
+commit fe0c0175670d78ee1ee94fc28e9c7938db604e4c
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 11:51:01 2018 -0500
+
+    Fix name mangling in GrNXTUniformHandler.
+
+commit 6954573b9a3fbc2d2136c840b8e5c32370627d93
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 30 19:13:39 2018 -0500
+
+    First draft at compiling actual produced SkSL shaders.
+
+commit 7b701003e99e77463bc190c754be42fa04c31831
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 09:20:10 2018 -0500
+
+    Add NXT program builder and friends as friends.
+
+commit 841c690ca163d8ffe63b98e74a704a89198ccd54
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 31 09:17:27 2018 -0500
+
+    Transition buffer just prior to setSubData().
+    
+    onMap/onUnmap are unimplemented; assert in those case.
+
+commit 47e70d6036fdfd8046c54bea6e24bc40d8f2c32b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 30 15:46:35 2018 -0500
+
+    Add actual attributes from primitive processor to input state.
+    
+    Do proper vertex format conversions, step modes.
+
+commit 74a7218b77553a44d334435c47833e9dcb894f4f
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 30 14:46:19 2018 -0500
+
+    Kludge the shader to simulate geom proc.
+
+commit 1a663fe8e7ca403c31fb5e2dfd1f843142d08770
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 30 13:58:30 2018 -0500
+
+    Lots of hacking, not a lot of progress.
+    
+    Change vertex buffers to be 2x float.
+    Stub out lots of things in SkNXTGpu and SkNXTGpuCommandBuffer with asserts.
+    Stub out lots of things in GrNXTUniformHandler and GrNXTVaryingHandler.
+
+commit 2660349ef73ffa62ba25e37204114040f3c17507
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 30 13:14:18 2018 -0500
+
+    Add vertex and index buffer tansitions to cmd buffer.
+
+commit ad802a2124dc0f80d47d54a5e96679bceed680ca
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Jan 29 17:57:06 2018 -0500
+
+    First draft of bogus shaders.
+
+commit 0672bbbff555237d6a1f02fe09caf489d836dd65
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Mon Jan 29 14:13:24 2018 -0500
+
+    First draft of NXT program builder object.
+    
+    All stubbed out for now.
+
+commit b9b206adfd0940d7f7354e15127ad54e9708f2f6
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sun Jan 28 08:02:47 2018 -0500
+
+    First draft of NXT buffers.
+
+commit 981ca8bc4e31daafaf7ba1e551eac8e40f68e59e
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Sat Jan 27 13:24:37 2018 -0500
+
+    More swap chain fixes.
+    
+    Move SwapChainImplGL to NXTGLWindowContext.
+    Fix/virtualize onDestroyContext.
+    Also make onSwapBuffers() for just the swap.
+    Present will be handled by NXTWindowContext.
+    Remove SwapChainImplGL from NXTGLWindowContext_unix.
+    Fix the spurious width/height in NXTGLWindowContext_unix.
+
+commit 3ea9cf59675c7fb4f63a422b3b8c5026a8d22508
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Jan 26 19:42:43 2018 -0500
+
+    Clears are working! \o/
+    
+    Build an actual command buffer in GrNXTGpuCommandBuffer.
+    Also build a TextureView, RenderPass and Framebuffer.
+    Add a subpass to get the clears.
+    Submit the created command buffer in CB::submit().
+    Add a device error callback.
+    Don't free the returned texture from GetNextTexture(); Release it instead.
+    Transition the backbuffer to PRESENT usage before Present().
+
+commit d129e2843ff964c561874351ea9e62dcaf3585da
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Jan 26 17:04:06 2018 -0500
+
+    First draft of GpuCommandBuffer.
+
+commit a0374c6ba525558c0f4dba4fdd14de21d64eefb8
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Jan 26 15:39:36 2018 -0500
+
+    First draft of render targets.
+
+commit 83bb94f4c8770107459add76f54936b41c19b6ac
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Thu Jan 25 18:46:27 2018 -0500
+
+    First stab at a mac port of NXTGL.
+
+commit 32003b583067debfab4e7850c6bd06dcd075c01a
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Wed Jan 24 17:15:16 2018 -0500
+
+    First draft of swap chains, external textures, WSI.
+
+commit 29247c054643d639aaafdf7b46b516dff8d3b5b0
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 23 16:54:43 2018 -0500
+
+    First stab at a window context for NXT GL.
+
+commit 6e2e9af5ddfbd3b71ac4083b0faefd8e12680afc
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Tue Jan 23 11:21:00 2018 -0500
+
+    First draft of stubbed-out GrNXTGpu.
+    
+    Also includes a skeleton GrNXTResourceProvider and
+    GrNXTBackendContext, and some plumbing to get NXT limping.
+
+commit 00f6f361e7e42ef135ac8434d8378faca93a750b
+Author: Stephen White <senorblanco@chromium.org>
+Date:   Fri Jan 19 12:50:52 2018 -0500
+
+    First NXT stuff.
+    
+    Add nxt repo to DEPS.
+    Add BUILD.gn to third_party.
+    Add a dependency on the NXT static library.
+    Point nxt's BUILD.gn at the third_party/externals/nxt dir.
+    Add BUILD.gn for nxt/third_party stuff.
+    Disable GL for now.
+    Add defines for GLFW_COCOA on Mac.
+    Fix all the things.

@@ -1,0 +1,6 @@
+declare_args() {
+  skia_nxt_enable_opengl = false
+  skia_nxt_enable_vulkan = is_linux
+  skia_nxt_enable_metal = is_mac
+  skia_nxt_enable_d3d12 = is_win
+}

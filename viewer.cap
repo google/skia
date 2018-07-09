@@ -1,0 +1,26 @@
+{
+    "rdocCaptureSettings": 1,
+    "settings": {
+        "autoStart": false,
+        "commandLine": "--skps ../skps --match techcrunch -b nxt",
+        "environment": [
+        ],
+        "executable": "/usr/local/google/home/senorblanco/src/skia-nxt/out/Release/viewer",
+        "inject": false,
+        "options": {
+            "allowFullscreen": true,
+            "allowVSync": true,
+            "apiValidation": false,
+            "captureAllCmdLists": false,
+            "captureCallstacks": false,
+            "captureCallstacksOnlyDraws": false,
+            "debugOutputMute": true,
+            "delayForDebugger": 0,
+            "hookIntoChildren": false,
+            "refAllResources": false,
+            "saveAllInitials": false,
+            "verifyMapWrites": false
+        },
+        "workingDir": "/usr/local/google/home/senorblanco/src/skia-nxt"
+    }
+}
