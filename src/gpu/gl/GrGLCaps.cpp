@@ -600,7 +600,7 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     }
     if (fProgramBinarySupport) {
         GrGLint count;
-        GR_GL_GetIntegerv(gli, GR_GL_NUM_SHADER_BINARY_FORMATS, &count);
+        GR_GL_GetIntegerv(gli, GR_GL_NUM_PROGRAM_BINARY_FORMATS, &count);
         fProgramBinarySupport = count > 0;
     }
 
