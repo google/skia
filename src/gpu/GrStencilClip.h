@@ -44,7 +44,7 @@ public:
             return false;
         }
         if (this->hasStencilClip()) {
-            out->addStencilClip();
+            out->addStencilClip(fStencilStackID);
         }
         return true;
     }
