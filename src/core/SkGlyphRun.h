@@ -83,26 +83,14 @@ private:
     const SkPaint fRunPaint;
 };
 
-// A faster set implementation that does not need any initialization, and reading the set items
-// is order the number of items, and not the size of the universe.
-// This implementation is based on the paper by Briggs and Torczon, "An Efficient Representation
-// for Sparse Sets"
-//
-// This implementation assumes that the unique glyphs added are appended to a vector that may
-// already have unique glyph from a previous computation. This allows the packing of multiple
-// UniqueID sequences in a single vector.
-class SkGlyphSet {
+class SkGlyphIDSet {
 public:
-    SkGlyphSet() = default;
-    uint16_t add(SkGlyphID glyphID);
-    void reuse(uint32_t glyphUniverseSize, std::vector<SkGlyphID>* uniqueGlyphIDs);
-
+    SkSpan<const SkGlyphID> uniquifyGlyphIDs(
+            uint32_t universeSize, SkSpan<const SkGlyphID> glyphIDs,
+            SkGlyphID* uniqueGlyphIDs, uint16_t* denseindices);
 private:
-    uint32_t uniqueSize();
-    uint32_t                    fUniverseSize{0};
-    size_t                      fStartOfUniqueIDs{0};
-    std::vector<uint16_t>       fIndices;
-    std::vector<SkGlyphID>*     fUniqueGlyphIDs{nullptr};
+    size_t fUniverseToUniqueSize{0};
+    SkAutoTMalloc<uint16_t> fUniverseToUnique;
 };
 
 class SkGlyphRunBuilder {
@@ -115,25 +103,31 @@ public:
             const SkScalar xpos[], SkScalar constY);
     void prepareDrawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint pos[]);
-    void prepareTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
 
     SkGlyphRun* useGlyphRun();
 
 private:
-    void initialize();
-    void addDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
+    void initialize(size_t totalRunSize);
+    SkSpan<const SkGlyphID> textToGlyphIDs(
+            const SkPaint& paint, const void* bytes, size_t byteLength);
+
+    // Returns the span of unique glyph IDs.
+    SkSpan<const SkGlyphID> addDenseAndUnique(
+            const SkPaint& paint,
+            SkSpan<const SkGlyphID> glyphIDs);
+
     void makeGlyphRun(
             const SkPaint& runPaint, SkSpan<const char> text, SkSpan<const uint32_t> clusters);
 
     void drawText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin,
+            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin,
             SkSpan<const char> text, SkSpan<const uint32_t> clusters);
     void drawPosTextH(
-            const SkPaint& paint, const void* bytes, size_t byteLength,
+            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs,
             const SkScalar* xpos, SkScalar constY,
             SkSpan<const char> text, SkSpan<const uint32_t> clusters);
     void drawPosText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos,
+            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
             SkSpan<const char> text, SkSpan<const uint32_t> clusters);
 
     uint64_t fUniqueID{0};
@@ -154,7 +148,7 @@ private:
     SkGlyphRun fScratchGlyphRun;
 
     // Used for collecting the set of unique glyphs.
-    SkGlyphSet fGlyphSet;
+    SkGlyphIDSet fGlyphIDSet;
 };
 
 #endif  // SkGlyphRunInfo_DEFINED
