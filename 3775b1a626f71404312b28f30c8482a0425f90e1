@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e61c4612_e19616db",
+        "filename": "src/utils/SkPatchUtils.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-09T23:03:10Z",
+      "side": 1,
+      "message": "aww geez, another?",
+      "range": {
+        "startLine": 255,
+        "startChar": 29,
+        "endLine": 255,
+        "endChar": 36
+      },
+      "revId": "3775b1a626f71404312b28f30c8482a0425f90e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
