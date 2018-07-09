@@ -30,6 +30,7 @@ declare_args() {
   skia_use_piex = !is_win
   skia_use_zlib = true
   skia_use_metal = false
+  skia_use_nxt = true
   skia_use_libheif = is_skia_dev_build
 
   skia_android_serial = ""
@@ -56,6 +57,11 @@ declare_args() {
 
   skia_tools_require_resources = false
 }
+
+if (skia_use_nxt) {
+  import("third_party/nxt/features.gni")
+}
+
 declare_args() {
   skia_use_dng_sdk = !is_fuchsia && skia_use_libjpeg_turbo && skia_use_zlib
   skia_use_sfntly = skia_use_icu
@@ -104,6 +110,9 @@ skia_public_includes = [
 
 if (skia_enable_atlas_text) {
   skia_public_includes += [ "include/atlastext" ]
+}
+if (skia_use_nxt) {
+  skia_public_includes += [ "include/gpu/nxt" ]
 }
 
 # Skia public API, generally provided by :skia.
@@ -631,12 +640,44 @@ optional("gpu") {
     public_defines += [ "SK_ENABLE_SPIRV_VALIDATION" ]
   }
 
+  if (skia_use_nxt) {
+    public_defines += [ "SK_NXT" ]
+    sources += skia_nxt_sources
+    deps += [
+      "//third_party/nxt:nxt_backend",
+      "//third_party/nxt:nxtcpp",
+    ]
+    if (skia_nxt_enable_opengl) {
+      public_defines += [ "SK_NXT_OPENGL" ]
+    }
+    if (skia_nxt_enable_metal) {
+      public_defines += [ "SK_NXT_METAL" ]
+      libs += [ "Metal.framework" ]
+    }
+    if (skia_nxt_enable_d3d12) {
+      public_defines += [ "SK_NXT_D3D12" ]
+      libs += [
+        "d3d12.lib",
+        "dxgi.lib",
+        "d3dcompiler.lib",
+      ]
+      if (is_debug) {
+        libs += [ "dxguid.lib" ]
+      }
+    }
+    if (skia_nxt_enable_vulkan) {
+      public_defines += [ "SK_NXT_VULKAN" ]
+    }
+  }
+
   cflags_objcc = []
   if (skia_use_metal) {
     public_defines += [ "SK_METAL" ]
     sources += skia_metal_sources
     libs += [ "Metal.framework" ]
-    cflags_objcc += [ "-fobjc-arc" ]
+    if (!skia_use_nxt) {
+      cflags_objcc = [ "-fobjc-arc" ]
+    }
   }
 
   if (skia_enable_atlas_text) {
@@ -847,6 +888,9 @@ component("skia") {
   public_deps = [
     ":gpu",
   ]
+  if (skia_use_nxt) {
+    public_deps += [ "//third_party/nxt:nxt" ]
+  }
 
   # This file (and all GN files in Skia) are designed to work with an
   # empty sources assignment filter; we handle all that explicitly.
@@ -1277,7 +1321,9 @@ if (skia_enable_tools) {
       ]
     }
 
-    cflags_objcc = [ "-fobjc-arc" ]
+    if (!skia_use_nxt) {
+      cflags_objcc = [ "-fobjc-arc" ]
+    }
 
     if (skia_use_angle) {
       deps += [ "//third_party/angle2" ]
@@ -1289,6 +1335,12 @@ if (skia_enable_tools) {
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+    }
+    if (skia_use_nxt) {
+      sources += [ "tools/gpu/nxt/NXTTestContext.cpp" ]
+    }
+    if (skia_nxt_enable_metal) {
+      sources += [ "tools/gpu/nxt/NXTMTLUtils.mm" ]
     }
   }
 
@@ -1900,6 +1952,11 @@ if (skia_enable_tools) {
     ]
     libs = []
 
+    if (skia_use_nxt) {
+      sources += [ "tools/sk_app/NXTWindowContext.cpp" ]
+      sources += [ "tools/sk_app/NXTGLWindowContext.cpp" ]
+    }
+
     if (is_android) {
       sources += [
         "tools/sk_app/android/GLWindowContext_android.cpp",
@@ -1917,6 +1974,17 @@ if (skia_enable_tools) {
         "tools/sk_app/unix/keysym2ucs.c",
         "tools/sk_app/unix/main_unix.cpp",
       ]
+      if (skia_use_nxt) {
+        if (skia_nxt_enable_opengl) {
+          sources += [ "tools/sk_app/unix/NXTGLWindowContext_unix.cpp" ]
+        }
+        if (skia_nxt_enable_vulkan) {
+          sources += [ "tools/sk_app/unix/NXTVulkanWindowContext_unix.cpp" ]
+          defines = [ "VK_USE_PLATFORM_XCB_KHR" ]
+          libs += [ "X11-xcb" ]
+          include_dirs = [ "third_party/externals/nxt/third_party" ]
+        }
+      }
       libs += [
         "GL",
         "X11",
@@ -1931,6 +1999,14 @@ if (skia_enable_tools) {
       if (skia_use_angle) {
         sources += [ "tools/sk_app/win/ANGLEWindowContext_win.cpp" ]
       }
+      if (skia_use_nxt) {
+        if (skia_nxt_enable_opengl) {
+          sources += [ "tools/sk_app/win/NXTGLWindowContext_win.cpp" ]
+        }
+        if (skia_nxt_enable_d3d12) {
+          sources += [ "tools/sk_app/win/NXTD3D12WindowContext_win.cpp" ]
+        }
+      }
     } else if (is_mac) {
       sources += [
         "tools/sk_app/mac/GLWindowContext_mac.cpp",
@@ -1938,6 +2014,14 @@ if (skia_enable_tools) {
         "tools/sk_app/mac/Window_mac.cpp",
         "tools/sk_app/mac/main_mac.cpp",
       ]
+      if (skia_use_nxt) {
+        if (skia_nxt_enable_metal) {
+          sources += [ "tools/sk_app/mac/NXTMTLWindowContext_mac.mm" ]
+        }
+        if (skia_nxt_enable_opengl) {
+          sources += [ "tools/sk_app/mac/NXTGLWindowContext_mac.cpp" ]
+        }
+      }
       libs += [
         "QuartzCore.framework",
         "Cocoa.framework",

@@ -265,6 +265,17 @@ void GrRenderTargetContext::discard() {
 void GrRenderTargetContext::clear(const SkIRect* rect,
                                   const GrColor color,
                                   CanClearFullscreen canClearFullscreen) {
+    if (this->caps()->useDrawForClear()) {
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        GrFixedClip clip;
+        if (rect) {
+            clip.setScissor(*rect);
+        }
+        this->drawPaint(clip, std::move(paint), SkMatrix::I());
+        return;
+    }
+
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -276,6 +287,18 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
 }
 
 void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
+
+    if (fRenderTargetContext->caps()->useDrawForClear()) {
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        GrFixedClip clip;
+        if (clearRect) {
+            clip.setScissor(*clearRect);
+        }
+        fRenderTargetContext->drawPaint(clip, std::move(paint), SkMatrix::I());
+        return;
+    }
+
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)
@@ -511,7 +534,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 rect_contains_inclusive(rect, quad.point(3))) {
                 // Will it blend?
                 GrColor clearColor;
-                if (paint.isConstantBlendedColor(&clearColor)) {
+                if (paint.isConstantBlendedColor(&clearColor) && !caps()->useDrawForClear()) {
                     this->clear(nullptr, clearColor,
                                 GrRenderTargetContext::CanClearFullscreen::kYes);
                     return;
