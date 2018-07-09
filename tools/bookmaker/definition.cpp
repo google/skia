@@ -852,6 +852,9 @@ bool Definition::methodHasReturn(string name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
         methodParser->skipWhiteSpace();
     }
+    if (methodParser->skipExact("virtual")) {
+        methodParser->skipWhiteSpace();
+    }
     const char* lastStart = methodParser->fChar;
     const char* nameInParser = methodParser->strnstr(name.c_str(), methodParser->fEnd);
     methodParser->skipTo(nameInParser);

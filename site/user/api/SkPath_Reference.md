@@ -837,7 +837,7 @@ for consecutive entries.
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
+<div><fiddle-embed name="799096fdc1298aa815934a74e76570ca">
 
 #### Example Output
 
@@ -1939,7 +1939,7 @@ true if caller will alter <a href='#Path'>Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="005f2b207e078baac596681924fe591e">
+<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
 
 #### Example Output
 
@@ -5665,7 +5665,7 @@ non-zero, globally unique value
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
+<div><fiddle-embed name="a0f166715d6479f91258d854e63e586d">
 
 #### Example Output
 

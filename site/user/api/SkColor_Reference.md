@@ -477,7 +477,7 @@ opaque colors and masks. Their use is not required.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaTRANSPARENT'><code>SK_AlphaTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Constants_Transparent'>Alpha&nbsp;Constants&nbsp;Transparent</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Transparent'>Transparent</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully transparent <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
 fully transparent; to 255, fully opaque.
@@ -486,7 +486,7 @@ fully transparent; to 255, fully opaque.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_AlphaOPAQUE'><code>SK_AlphaOPAQUE</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Alpha_Constants_Opaque'>Alpha&nbsp;Constants&nbsp;Opaque</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Opaque'>Opaque</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque <a href='#SkAlpha'>SkAlpha</a> value. <a href='#SkAlpha'>SkAlpha</a> ranges from zero,
 fully transparent; to 255, fully opaque.
@@ -621,7 +621,7 @@ The values chosen for names may not be the same as values used by
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorTRANSPARENT'><code>SK_ColorTRANSPARENT</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x00000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Constants_Transparent'>Color&nbsp;Constants&nbsp;Transparent</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Transparent'>Transparent</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully transparent <a href='#SkColor'>SkColor</a>. May be used to initialize a destination
 containing a mask or a non-rectangular image.
@@ -630,7 +630,7 @@ containing a mask or a non-rectangular image.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SK_ColorBLACK'><code>SK_ColorBLACK</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0xFF000000</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Constants_Black'>Color&nbsp;Constants&nbsp;Black</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Black'>Black</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Represents fully opaque black.
 </td>
@@ -735,7 +735,7 @@ Represents fully opaque magenta. <a href='undocumented#HTML_Fuchsia'>HTML Fuchsi
 
 ### Example
 
-<div><fiddle-embed name="5188d77585715db30bef228f2dfbcccd"></fiddle-embed></div>
+<div><fiddle-embed name="6971489f28291f08e429cc6ccc73b09b"></fiddle-embed></div>
 
 ### See Also
 
@@ -798,7 +798,7 @@ Converts RGB to its <a href='#HSV'>HSV</a> components.
 
 ### Example
 
-<div><fiddle-embed name="7a234c96608fb7cb8135b9940b0b15f7"></fiddle-embed></div>
+<div><fiddle-embed name="4fb2da4a3d9b14ca4ac24eefb0f5126a"></fiddle-embed></div>
 
 ### See Also
 

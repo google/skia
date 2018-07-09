@@ -118,6 +118,12 @@ which will be ignored.
 Install
 #A Go # https://golang.org/doc/install ##
  if needed.
+Check the version. The resuls should be 1.10 or greater.
+
+#Code
+$ go version
+##
+
 Get the fiddle command line interface tool.
 By default this will appear in your home directory.
 
