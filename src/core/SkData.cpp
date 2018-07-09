@@ -59,6 +59,10 @@ size_t SkData::copyRange(size_t offset, size_t length, void* buffer) const {
     return length;
 }
 
+void SkData::operator delete(void* p) {
+    ::operator delete(p);
+}
+
 sk_sp<SkData> SkData::PrivateNewWithCopy(const void* srcOrNull, size_t length) {
     if (0 == length) {
         return SkData::MakeEmpty();
