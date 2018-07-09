@@ -12,6 +12,7 @@
 #include "SkGlyphCache.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
+#include "SkTemplates.h"
 #include "SkTraceMemoryDump.h"
 #include "SkTypeface.h"
 #include "SkPaintPriv.h"
