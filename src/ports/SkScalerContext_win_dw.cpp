@@ -599,14 +599,8 @@ void SkScalerContext_DW::generateMetrics(SkGlyph* glyph) {
 
     if (fIsColorFont && isColorGlyph(*glyph)) {
         glyph->fMaskFormat = SkMask::kARGB32_Format;
-
-#ifndef SK_IGNORE_WIN_EMOJI_FIX
-
         generateColorMetrics(glyph);
         return;
-
-#endif
-
     }
 
     RECT bbox;
