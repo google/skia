@@ -69,6 +69,24 @@
       "revId": "54b4f578a88a7c39d58ff2b24c6e177036a9b108",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e13b3fb4_12e4a3a5",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-09T15:42:58Z",
+      "side": 1,
+      "message": "Looks like there\u0027s a comment at the start of encode() indicating there are free bits in \u0027packed\u0027. So, you could set another bit, there to do the versioning. Even better, just set a bit in the packed indicating if the vertices are (non?) volatile. Any pre-existing serialized data won\u0027t have that bit set, so they\u0027ll just continue to function as before.",
+      "parentUuid": "643177e2_c25e4bb6",
+      "revId": "54b4f578a88a7c39d58ff2b24c6e177036a9b108",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
