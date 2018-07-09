@@ -165,7 +165,7 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             SkGlyphRunBuilder builder;
             builder.prepareDrawText(runPaint, (const char*) it.glyphs(), textLen, origin);
             auto glyphRun = builder.useGlyphRun();
-            glyphRun->temporaryShuntToDrawPosText(runPaint, this);
+            glyphRun->temporaryShuntToDrawPosText(this);
         }
         break;
         case SkTextBlob::kHorizontal_Positioning:
@@ -255,7 +255,7 @@ void SkBaseDevice::drawGlyphRun(const SkPaint& paint, SkGlyphRun* glyphRun) {
     SkPaint glyphPaint(paint);
     glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    glyphRun->temporaryShuntToDrawPosText(glyphPaint, this);
+    glyphRun->temporaryShuntToDrawPosText(this);
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
