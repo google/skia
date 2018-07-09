@@ -36,8 +36,13 @@ public:
         kXOR,
     };
 
-    static sk_sp<Merge> Make(std::vector<sk_sp<GeometryNode>>&& geos, Mode mode) {
-        return sk_sp<Merge>(new Merge(std::move(geos), mode));
+    struct Rec {
+        sk_sp<GeometryNode> fGeo;
+        Mode                fMode;
+    };
+
+    static sk_sp<Merge> Make(std::vector<Rec>&& recs) {
+        return sk_sp<Merge>(new Merge(std::move(recs)));
     }
 
     ~Merge() override;
@@ -50,11 +55,10 @@ protected:
     SkPath onAsPath() const override;
 
 private:
-    Merge(std::vector<sk_sp<GeometryNode>>&& geos, Mode);
+    Merge(std::vector<Rec>&& recs);
 
-    std::vector<sk_sp<GeometryNode>> fGeos;
-    SkPath                           fMerged;
-    Mode                             fMode;
+    const std::vector<Rec> fRecs;
+    SkPath                 fMerged;
 
     using INHERITED = GeometryNode;
 };

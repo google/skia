@@ -12,17 +12,16 @@
 
 namespace sksg {
 
-Merge::Merge(std::vector<sk_sp<GeometryNode>>&& geos, Mode mode)
-    : fGeos(std::move(geos))
-    , fMode(mode) {
-    for (const auto& geo : fGeos) {
-        this->observeInval(geo);
+Merge::Merge(std::vector<Rec>&& recs)
+    : fRecs(std::move(recs)) {
+    for (const auto& rec : fRecs) {
+        this->observeInval(rec.fGeo);
     }
 }
 
 Merge::~Merge() {
-    for (const auto& geo : fGeos) {
-        this->unobserveInval(geo);
+    for (const auto& rec : fRecs) {
+        this->unobserveInval(rec.fGeo);
     }
 }
 
@@ -60,21 +59,34 @@ static SkPathOp mode_to_op(Merge::Mode mode) {
 SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     SkASSERT(this->hasInval());
 
-    const auto op = mode_to_op(fMode);
     SkOpBuilder builder;
 
     fMerged.reset();
+    bool in_builder = false;
 
-    for (const auto& geo : fGeos) {
-        geo->revalidate(ic, ctm);
-        if (fMode == Mode::kMerge) {
-            fMerged.addPath(geo->asPath());
-        } else {
-            builder.add(geo->asPath(), geo == fGeos.front() ? kUnion_SkPathOp : op);
+    for (const auto& rec : fRecs) {
+        rec.fGeo->revalidate(ic, ctm);
+
+        // Merge is not currently supported by SkOpBuidler.
+        if (rec.fMode == Mode::kMerge) {
+            if (in_builder) {
+                builder.resolve(&fMerged);
+                in_builder = false;
+            }
+
+            fMerged.addPath(rec.fGeo->asPath());
+            continue;
         }
+
+        if (!in_builder) {
+            builder.add(fMerged, kUnion_SkPathOp);
+            in_builder = true;
+        }
+
+        builder.add(rec.fGeo->asPath(), mode_to_op(rec.fMode));
     }
 
-    if (fMode != Mode::kMerge) {
+    if (in_builder) {
         builder.resolve(&fMerged);
     }
 
