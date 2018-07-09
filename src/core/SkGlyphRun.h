@@ -25,7 +25,8 @@ class SkSpan {
 public:
     SkSpan() : fPtr{nullptr}, fSize{0} {}
     SkSpan(T* ptr, ptrdiff_t size) : fPtr{ptr}, fSize{size} { SkASSERT(size >= 0); }
-    explicit SkSpan(std::vector<T>& v) : fPtr{v.data()}, fSize{SkTo<ptrdiff_t>(v.size())} {}
+    template <typename U>
+    explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{SkTo<ptrdiff_t>(v.size())} {}
     SkSpan(const SkSpan<T>& o) = default;
     SkSpan& operator=( const SkSpan& other ) = default;
     T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
@@ -42,70 +43,44 @@ private:
     ptrdiff_t fSize;
 };
 
-struct SkIndexedRunInfo {
-    SkIndexedRunInfo(const std::vector<uint16_t>* denseIndex,
-                     const std::vector<SkPoint>* positions,
-                     const std::vector<SkGlyphID>* uniqueGlyphIDs)
-    : fDenseIndex{denseIndex}
-    , fPositions{positions}
-    , fUniqueGlyphIDs{uniqueGlyphIDs} {}
-
-    SkSpan<const uint16_t> denseIndex(size_t start, size_t size) {
-        return SkSpan<const uint16_t>(&(*fDenseIndex)[start], size);
-    }
-
-    SkSpan<const SkPoint> positions(size_t start, size_t size) const {
-        return SkSpan<const SkPoint>(&(*fPositions)[start], size);
-    }
-
-    SkSpan<const SkGlyphID> uniqueGlyphIDs(size_t start, size_t size) const {
-        return SkSpan<const SkGlyphID>(&(*fUniqueGlyphIDs)[start], size);
-    }
-
-private:
-    const std::vector<uint16_t>*  fDenseIndex;
-    const std::vector<SkPoint>*   fPositions;
-    const std::vector<SkGlyphID>* fUniqueGlyphIDs;
-};
-
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
-    SkGlyphRun(const SkIndexedRunInfo* runInfo,
-               size_t denseOffset, size_t denseSize,
-               size_t fUniqueOffset, uint16_t fUniqueSize,
-               SkSpan<SkGlyphID>  scratchGlyphs,
+    SkGlyphRun(SkPaint&& runPaint,
+               SkSpan<const uint16_t> denseIndices,
+               SkSpan<const SkPoint> positions,
+               SkSpan<const SkGlyphID> glyphIDs,
+               SkSpan<const SkGlyphID> uniqueGlyphIDs,
                SkSpan<const char> text,
-               SkSpan<uint32_t>   clusters);
+               SkSpan<const uint32_t> clusters);
 
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
-    void temporaryShuntToDrawPosText(const SkPaint& paint, SkBaseDevice* device);
+    void temporaryShuntToDrawPosText(SkBaseDevice* device);
     using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
 
-    size_t runSize() const { return fDenseSize; }
-    uint16_t uniqueSize() const { return fUniqueSize; }
-    SkSpan<const SkPoint> positions() const {
-        return fRunInfo->positions(fDenseOffset, fDenseSize);
-    }
-    SkSpan<const SkGlyphID> uniqueGlyphIDs() const {
-        return fRunInfo->uniqueGlyphIDs(fUniqueOffset, fUniqueSize);
-    }
+    size_t runSize() const { return fUniqueGlyphIDIndices.size(); }
+    uint16_t uniqueSize() const { return fUniqueGlyphIDs.size(); }
+    SkSpan<const SkPoint> positions() const { return fPositions; }
+    SkSpan<const SkGlyphID> uniqueGlyphIDs() const { return fUniqueGlyphIDs; }
+    SkSpan<const SkGlyphID> shuntGlyphsIDs() const { return fTemporaryShuntGlyphIDs; }
 
 private:
-    const SkIndexedRunInfo* fRunInfo;
-    size_t fDenseOffset;
-    size_t fDenseSize;
-    size_t fUniqueOffset;
-    uint16_t fUniqueSize;
-
+    //
+    const SkSpan<const uint16_t> fUniqueGlyphIDIndices;
+    //
+    const SkSpan<const SkPoint> fPositions;
     // This is temporary while converting from the old per glyph code to the bulk code.
-    const SkSpan<SkGlyphID>  fTemporaryShuntGlyphIDs;
+    const SkSpan<const SkGlyphID> fTemporaryShuntGlyphIDs;
+    // The unique glyphs from fTemporaryShuntGlyphIDs.
+    const SkSpan<const SkGlyphID> fUniqueGlyphIDs;
     // Original text from SkTextBlob if present. Will be empty of not present.
     const SkSpan<const char> fText;
     // Original clusters from SkTextBlob if present. Will be empty if not present.
-    const SkSpan<uint32_t>   fClusters;
+    const SkSpan<const uint32_t>   fClusters;
+    // Paint for this run modified to have glyph encoding and left alignment.
+    const SkPaint fRunPaint;
 };
 
 // A faster set implementation that does not need any initialization, and reading the set items
@@ -145,41 +120,34 @@ public:
     SkGlyphRun* useGlyphRun();
 
 private:
-    size_t runSize() const;
-    size_t uniqueSize() const;
     void initialize();
-    SkGlyphID* addDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
+    void addDenseAndUnique(const SkPaint& paint, const void* bytes, size_t byteLength);
     void makeGlyphRun(
-            SkGlyphID* temporaryShuntGlyphIDs, SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            const SkPaint& runPaint, SkSpan<const char> text, SkSpan<const uint32_t> clusters);
 
     void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin,
-            SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
     void drawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
             const SkScalar* xpos, SkScalar constY,
-            SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
     void drawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos,
-            SkSpan<const char> text, SkSpan<uint32_t> clusters);
+            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
 
-    uint64_t               fUniqueID{0};
+    uint64_t fUniqueID{0};
 
-    std::vector<uint16_t>  fDenseIndex;
-    std::vector<SkPoint>   fPositions;
+    std::vector<uint16_t> fDenseIndex;
+    std::vector<SkPoint> fPositions;
     std::vector<SkGlyphID> fUniqueGlyphIDs;
-
-    SkIndexedRunInfo       fIndexed{&fDenseIndex, &fPositions, &fUniqueGlyphIDs};
-
-    size_t                 fLastDenseIndex{0};
-    size_t                 fLastUniqueIndex{0};
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
     std::vector<SkGlyphID> fScratchGlyphIDs;
 
     // Used as temporary storage for calculating positions for drawText.
-    std::vector<SkPoint>   fScratchAdvances;
+    std::vector<SkPoint> fScratchAdvances;
 
 
     // Used as temporary glyph run for the rest of the Text stack.
