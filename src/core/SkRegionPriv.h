@@ -66,7 +66,7 @@ public:
 
     static RunHead* Alloc(int count) {
         //SkDEBUGCODE(sk_atomic_inc(&gRgnAllocCounter);)
-        //SkDEBUGF(("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter));
+        //SkDEBUGF("************** gRgnAllocCounter::alloc %d\n", gRgnAllocCounter);
 
         if (count < SkRegion::kRectRegionRuns) {
             return nullptr;
