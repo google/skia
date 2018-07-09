@@ -20,6 +20,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
+#ifdef FT_COLOR_H
+#   include FT_COLOR_H
+#endif
 #include FT_IMAGE_H
 #include FT_OUTLINE_H
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
@@ -32,8 +35,6 @@
 #    define FT_LOAD_COLOR ( 1L << 20 )
 #    define FT_PIXEL_MODE_BGRA 7
 #endif
-
-//#define SK_SHOW_TEXT_BLIT_COVERAGE
 
 #ifdef SK_DEBUG
 const char* SkTraceFtrGetError(int e) {
@@ -390,6 +391,70 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
 
+//            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+//                size_t bitmapRowBytes = glyph.rowBytes();
+//                SkMask::Format maskFormat = static_cast<SkMask::Format>(glyph.fMaskFormat);
+//                SkBitmap dstBitmap;
+//                // TODO: mark this as sRGB when the blits will be sRGB.
+//                dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+//                                                    SkColorType_for_SkMaskFormat(maskFormat),
+//                                                    kPremul_SkAlphaType),
+//                                                    bitmapRowBytes);
+//                if (SkMask::kBW_Format == maskFormat || SkMask::kLCD16_Format == maskFormat) {
+//                    dstBitmap.allocPixels();
+//                } else {
+//                    dstBitmap.setPixels(glyph.fImage);
+//                }
+//
+//                // Scale unscaledBitmap into dstBitmap.
+//                SkCanvas canvas(dstBitmap);
+//#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+//                canvas.clear(0x33FF0000);
+//#else
+//                canvas.clear(SK_ColorTRANSPARENT);
+//#endif
+//                canvas.translate(-glyph.fLeft, -glyph.fTop);
+//
+//                SkPaint paint;
+//                paint.setAntiAlias(true);
+//
+//                FT_Color *palette;
+//                FT_Error err = FT_Palette_Select(face, 0, &palette);
+//                if (err) {
+//                    SK_TRACEFTR(err, "Could not get palette from %s fontFace.", face->family_name);
+//                    return;
+//                }
+//                FT_LayerIterator layer_iterator;
+//                layer_iterator.p  = NULL;
+//                FT_Bool have_layers = false;
+//                FT_UInt layer_glyph_index;
+//                FT_UInt layer_color_index;
+//
+//                while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layer_glyph_index,
+//                                                &layer_color_index,
+//                                                &layer_iterator)) {
+//                    have_layers = true;
+//                    if (layer_color_index == 0xFFFF) {
+//                        paint.setColor(SK_ColorBLACK);
+//                    } else {
+//                        SkColor color = SkColorSetARGB(palette[layer_color_index].alpha,
+//                                                       palette[layer_color_index].red,
+//                                                       palette[layer_color_index].green,
+//                                                       palette[layer_color_index].blue);
+//                        paint.setColor(color);
+//                    }
+//                    SkPath path;
+//                    if (this->generateFacePath(face, layer_glyph_index, &path)) {
+//                        canvas.drawPath(path, paint);
+//                    }
+//                }
+//
+//                if (!have_layers) {
+//                    SK_TRACEFTR(err, "Could not get layers from %s fontFace.", face->family_name);
+//                    return;
+//                }
+//            }
+
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Outline_Translate(outline, dx, dy);
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
@@ -676,5 +741,23 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     }
 
     path->close();
+    return true;
+}
+
+bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path) {
+    uint32_t flags = 0; //fLoadGlyphFlags;
+    flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
+    flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
+
+    FT_Error err = FT_Load_Glyph(face, glyphID, flags);
+    if (err != 0) {
+        path->reset();
+        return false;
+    }
+
+    if (!generateGlyphPath(face, path)) {
+        path->reset();
+        return false;
+    }
     return true;
 }
