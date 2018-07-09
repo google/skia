@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e40047f9_47144d00",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-09T12:18:24Z",
+      "side": 1,
+      "message": "Should we be fixing these instead?",
+      "range": {
+        "startLine": 312,
+        "startChar": 4,
+        "endLine": 313,
+        "endChar": 18
+      },
+      "revId": "4c1eaef352541215cfe64fa93c9ac377e327e50a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
