@@ -516,7 +516,9 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
             return false;
         }
     } else if (GR_GL_TEXTURE_RECTANGLE == idDesc->fInfo.fTarget) {
+      SkDebugf("check for texture rectangle at address %p\n", (void*)&caps);
         if (!caps.rectangleTextureSupport()) {
+          SkDebugf("not supported from caps :(");
             return false;
         }
     } else if (GR_GL_TEXTURE_2D != idDesc->fInfo.fTarget) {
@@ -528,9 +530,11 @@ static bool check_backend_texture(const GrBackendTexture& backendTex, const GrGL
 sk_sp<GrTexture> GrGLGpu::onWrapBackendTexture(const GrBackendTexture& backendTex,
                                                GrWrapOwnership ownership) {
     GrGLTexture::IDDesc idDesc;
+    SkDebugf("caps supported????\n");
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
         return nullptr;
     }
+    SkDebugf("caps supported\n");
     if (!idDesc.fInfo.fFormat) {
         idDesc.fInfo.fFormat = this->glCaps().configSizedInternalFormat(backendTex.config());
     }
