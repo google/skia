@@ -547,7 +547,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b">
+<div><fiddle-embed name="8e45fe2dd52731bb2d4318686257e1d7">
 
 #### Example Output
 
@@ -1584,7 +1584,7 @@ true if <a href='#Surface'>Surface</a> has direct access to pixels
 
 ### Example
 
-<div><fiddle-embed name="a7ac9c21bbabcdeeca00f72a61cd0f3e"></fiddle-embed></div>
+<div><fiddle-embed name="8c6184f22cfe068f021704cf92a147a1"></fiddle-embed></div>
 
 ### See Also
 

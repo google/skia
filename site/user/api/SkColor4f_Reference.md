@@ -237,7 +237,7 @@ components as read-only array
 
 ### Example
 
-<div><fiddle-embed name="229057023515224358a36acf15508cf6">
+<div><fiddle-embed name="37ffe2817d720f99e6c252332ce70460">
 
 #### Example Output
 
@@ -268,7 +268,7 @@ components as writable array
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
+<div><fiddle-embed name="7420bf0a7cae5c6577c4c4a4613e7e7e">
 
 #### Example Output
 

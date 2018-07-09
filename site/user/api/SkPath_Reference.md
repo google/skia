@@ -837,7 +837,7 @@ for consecutive entries.
 
 ### Example
 
-<div><fiddle-embed name="799096fdc1298aa815934a74e76570ca">
+<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
 
 #### Example Output
 
@@ -1939,7 +1939,7 @@ true if caller will alter <a href='#Path'>Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
+<div><fiddle-embed name="005f2b207e078baac596681924fe591e">
 
 #### Example Output
 
@@ -2279,7 +2279,7 @@ Returns the number of points in <a href='#Path'>Path</a>.
 
 ### Example
 
-<div><fiddle-embed name="187a7ae77a8176e417181411988534b6">
+<div><fiddle-embed name="bca6379ccef62cb081b10db7381deb27">
 
 #### Example Output
 
@@ -5665,7 +5665,7 @@ non-zero, globally unique value
 
 ### Example
 
-<div><fiddle-embed name="a0f166715d6479f91258d854e63e586d">
+<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
 
 #### Example Output
 
@@ -6242,7 +6242,7 @@ next <a href='#SkPath_Verb'>Verb</a> from <a href='#Verb_Array'>Verb Array</a>
 
 ### Example
 
-<div><fiddle-embed name="3edbdea8e43d06086abf33ec4a9b415b">
+<div><fiddle-embed name="eb5fa5bea23059ce538e883502f828f5">
 
 #### Example Output
 

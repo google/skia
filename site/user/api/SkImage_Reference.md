@@ -1382,7 +1382,7 @@ pixel height in <a href='#Image'>Image</a>
 
 ### Example
 
-<div><fiddle-embed name="187e1d9228e2e4341ef820bd77b6fda9"></fiddle-embed></div>
+<div><fiddle-embed name="6e563cb8351d34bd8af555a51bcd7a96"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="4082f66a42df11bb20462b232b156bb6"></fiddle-embed></div>
+<div><fiddle-embed name="f1139a5ddd17fd47c2f45f6e642cac76"></fiddle-embed></div>
 
 ### See Also
 

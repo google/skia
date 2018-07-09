@@ -1642,7 +1642,7 @@ contains infinity or NaN, all <a href='#Rect'>Rect</a> dimensions are set to NaN
 
 ### Example
 
-<div><fiddle-embed name="be10cb1411dbcf7e38e0198e8a9b8b0e"></fiddle-embed></div>
+<div><fiddle-embed name="39016b3cfc6bbabb09348a53822ce508"></fiddle-embed></div>
 
 ### See Also
 
@@ -1701,7 +1701,7 @@ Very large values in <a href='#SkRect_set_src'>src</a> may lose precision.
 
 ### Example
 
-<div><fiddle-embed name="cf0da15f48aa54fd1889e7f913601710">
+<div><fiddle-embed name="a10ad8d97062bc3f40942f47e5108917">
 
 #### Example Output
 
@@ -3239,7 +3239,7 @@ discarding the fractional portion of <a href='#SkRect_fRight'>fRight</a> and <a 
 
 ### Example
 
-<div><fiddle-embed name="abb337da8fc1891f016c61258681c64c">
+<div><fiddle-embed name="ad696b39c915803d566e96896ec3a36c">
 
 #### Example Output
 
