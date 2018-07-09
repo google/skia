@@ -179,7 +179,7 @@ bool VulkanWindowContext::createSwapchain(int width, int height,
                                         VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR :
                                         VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
 
-    // Pick our surface format. For now, just make sure it matches our sRGB request:
+    // Pick our surface format.
     VkFormat surfaceFormat = VK_FORMAT_UNDEFINED;
     VkColorSpaceKHR colorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
     for (uint32_t i = 0; i < surfaceFormatCount; ++i) {
