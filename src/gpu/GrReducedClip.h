@@ -23,8 +23,22 @@ class GrRenderTargetContext;
  */
 class SK_API GrReducedClip {
 public:
-    using Element = SkClipStack::Element;
-    using ElementList = SkTLList<SkClipStack::Element, 16>;
+    /**
+     * Elements that contribute to the mask are not always directly copied from SkClipStack and
+     * may instead be synthesized by GrReducedClip. Therefore, we store the "original" gen ID of
+     * the element that corresponds to the MaskElement. If the MaskElement does not correspond to
+     * a single SkClipStack element then this ID will be SK_InvalidGenID.
+     */
+    struct MaskElement {
+        MaskElement(const SkClipStack::Element& element)
+                : fElement(element), fOriginalGenID(element.getGenID()) {}
+        MaskElement(const SkRect& rect, SkClipOp op, bool doAA, uint32_t genID = SK_InvalidGenID)
+                : fElement(rect, SkMatrix::I(), op, doAA), fOriginalGenID(genID) {}
+        SkClipStack::Element fElement;
+        uint32_t fOriginalGenID;
+    };
+
+    using ElementList = SkTLList<MaskElement, 16>;
 
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrCaps* caps,
                   int maxWindowRectangles = 0, int maxAnalyticFPs = 0, int maxCCPRClipPaths = 0);
@@ -65,17 +79,13 @@ public:
      */
     const ElementList& maskElements() const { return fMaskElements; }
 
+    const GrUniqueKey& maskUniqueKey() const;
+
     /**
-     * If maskElements() are nonempty, uniquely identifies the region of the clip mask that falls
-     * inside of scissor().
-     *
-     * NOTE: since clip elements might fall outside the query bounds, different regions of the same
-     * clip stack might have more or less restrictive IDs.
-     *
-     * FIXME: this prevents us from reusing a sub-rect of a perfectly good mask when that rect has
-     * been assigned a less restrictive ID.
+     * Returns the unique ID of the top most element that contributes to the mask. If this element
+     * is popped then any cached mask with maskUniqueKey() can be purged.
      */
-    uint32_t maskGenID() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskGenID; }
+    uint32_t topMaskElementID() const;
 
     /**
      * Indicates whether antialiasing is required to process any of the mask elements.
@@ -100,6 +110,8 @@ public:
                                                                     uint32_t opListID, int rtWidth,
                                                                     int rtHeight);
 
+    static constexpr char kMaskTestTag[] = "clip_mask";
+
 private:
     void walkStack(const SkClipStack&, const SkRect& queryBounds);
 
@@ -111,11 +123,11 @@ private:
 
     // Intersects the clip with the element's interior, regardless of inverse fill type.
     // NOTE: do not call for elements followed by ops that can grow the clip.
-    ClipResult clipInsideElement(const Element*);
+    ClipResult clipInsideElement(const SkClipStack::Element*);
 
     // Intersects the clip with the element's exterior, regardless of inverse fill type.
     // NOTE: do not call for elements followed by ops that can grow the clip.
-    ClipResult clipOutsideElement(const Element*);
+    ClipResult clipOutsideElement(const SkClipStack::Element*);
 
     void addWindowRectangle(const SkRect& elementInteriorRect, bool elementIsAA);
 
@@ -140,11 +152,11 @@ private:
     SkIRect fScissor;
     bool fHasScissor;
     SkRect fAAClipRect;
-    uint32_t fAAClipRectGenID; // GenID the mask will have if includes the AA clip rect.
+    uint32_t fAAClipRectGenID;  // top most GenID that contributed to fAAClipRect.
     GrWindowRectangles fWindowRects;
     ElementList fMaskElements;
-    uint32_t fMaskGenID;
     bool fMaskRequiresAA;
+    mutable GrUniqueKey fMaskUniqueKey;
     SkSTArray<4, std::unique_ptr<GrFragmentProcessor>> fAnalyticFPs;
     SkSTArray<4, SkPath> fCCPRClipPaths; // Will convert to FPs once we have an opList ID for CCPR.
 };
