@@ -263,6 +263,10 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     SkVector w0 = polygonVerts[currIndex] - origin;
     SkVector w1 = polygonVerts[nextIndex] - origin;
     for (int i = 0; i < polygonSize; ++i) {
+        if (!polygonVerts[i].isFinite()) {
+            return false;
+        }
+
         // Check that winding direction is always the same (otherwise we have a reflex vertex)
         SkScalar perpDot = v0.cross(v1);
         if (lastPerpDot*perpDot < 0) {
@@ -354,6 +358,9 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     for (int i = 0; i < inputPolygonSize; ++i) {
         int j = (i + 1) % inputPolygonSize;
         int k = (i + 2) % inputPolygonSize;
+        if (!inputPolygonVerts[i].isFinite()) {
+            return false;
+        }
         // check for convexity just to be sure
         if (compute_side(inputPolygonVerts[i], inputPolygonVerts[j],
                          inputPolygonVerts[k])*winding < 0) {
@@ -481,15 +488,10 @@ void SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-// tolerant less-than comparison
-static inline bool nearly_lt(SkScalar a, SkScalar b, SkScalar tolerance = SK_ScalarNearlyZero) {
-    return a < b - tolerance;
-}
-
 // a point is "left" to another if its x coordinate is less, or if equal, its y coordinate
 static bool left(const SkPoint& p0, const SkPoint& p1) {
-    return nearly_lt(p0.fX, p1.fX) ||
-           (SkScalarNearlyEqual(p0.fX, p1.fX) && nearly_lt(p0.fY, p1.fY));
+    return p0.fX < p1.fX ||
+           (!(p0.fX > p1.fX) && p0.fY < p1.fY);
 }
 
 struct Vertex {
@@ -512,7 +514,7 @@ enum VertexFlags {
 struct Edge {
     // returns true if "this" is above "that"
     bool above(const Edge& that, SkScalar tolerance = SK_ScalarNearlyZero) {
-        SkASSERT(nearly_lt(this->fSegment.fP0.fX, that.fSegment.fP0.fX, tolerance) ||
+        SkASSERT(this->fSegment.fP0.fX < that.fSegment.fP0.fX ||
                  SkScalarNearlyEqual(this->fSegment.fP0.fX, that.fSegment.fP0.fX, tolerance));
         // The idea here is that if the vector between the origins of the two segments (dv)
         // rotates counterclockwise up to the vector representing the "this" segment (u),
@@ -624,12 +626,19 @@ private:
 // should be added or removed from an edge list. If any intersections are detected in the edge
 // list, then we know the polygon is self-intersecting and hence not simple.
 bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
+    if (polygonSize < 3) {
+        return false;
+    }
+
     SkTDPQueue <Vertex, Vertex::Left> vertexQueue;
     EdgeList sweepLine;
 
     sweepLine.reserve(polygonSize);
     for (int i = 0; i < polygonSize; ++i) {
         Vertex newVertex;
+        if (!polygon[i].isFinite()) {
+            return false;
+        }
         newVertex.fPosition = polygon[i];
         newVertex.fIndex = i;
         newVertex.fPrevIndex = (i - 1 + polygonSize) % polygonSize;
@@ -701,6 +710,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
     SkScalar currOffset = offsetDistanceFunc(inputPolygonVerts[0]);
     for (int curr = 0; curr < inputPolygonSize; ++curr) {
+        if (!inputPolygonVerts[curr].isFinite()) {
+            return false;
+        }
         int next = (curr + 1) % inputPolygonSize;
         SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[next]);
         if (!compute_offset_vectors(inputPolygonVerts[curr], inputPolygonVerts[next],
