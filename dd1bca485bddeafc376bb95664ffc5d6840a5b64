@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a423a02_9593368c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "line up",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65fb31ec_0b016aaf",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "tab over",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18178dc1_c1c26a08",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "Move to above \"class SkArCamera\"",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0928d95_8212650d",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "Do we take a ref on frame ?",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b0ca3db_2768fd47",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "If it is going to change we always pass it by pointer. So this should be \"SkArTrackingState*\".\n\n(We pretty much only ever use const\u0026).",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "484800e5_395ead02",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "spacing ?",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f397488d_b809977b",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "space after \"//\" ?",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49841f77_8bebd669",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.cpp",
+        "patchSetId": 22
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "Here too ?\n\nand below",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "07731ece_08a0217c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "// This class encapsulates the results from a hit test. It ...\n\n?",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b1e59d0_720e5b94",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArHit.h",
+        "patchSetId": 22
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-09T13:56:34Z",
+      "side": 1,
+      "message": "Do we take a ref on this ?",
+      "revId": "dd1bca485bddeafc376bb95664ffc5d6840a5b64",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
