@@ -20,6 +20,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
+#ifdef FT_COLOR_H
+#   include FT_COLOR_H
+#endif
 #include FT_IMAGE_H
 #include FT_OUTLINE_H
 // In the past, FT_GlyphSlot_Own_Bitmap was defined in this header file.
@@ -32,8 +35,6 @@
 #    define FT_LOAD_COLOR ( 1L << 20 )
 #    define FT_PIXEL_MODE_BGRA 7
 #endif
-
-//#define SK_SHOW_TEXT_BLIT_COVERAGE
 
 #ifdef SK_DEBUG
 const char* SkTraceFtrGetError(int e) {
@@ -390,6 +391,65 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 
             memset(glyph.fImage, 0, glyph.rowBytes() * glyph.fHeight);
 
+#ifdef FT_COLOR_H
+            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
+                SkBitmap dstBitmap;
+                // TODO: mark this as sRGB when the blits will be sRGB.
+                dstBitmap.setInfo(SkImageInfo::Make(glyph.fWidth, glyph.fHeight,
+                                                    kN32_SkColorType,
+                                                    kPremul_SkAlphaType),
+                                                    glyph.rowBytes());
+                dstBitmap.setPixels(glyph.fImage);
+
+                // Scale unscaledBitmap into dstBitmap.
+                SkCanvas canvas(dstBitmap);
+#ifdef SK_SHOW_TEXT_BLIT_COVERAGE
+                canvas.clear(0x33FF0000);
+#else
+                canvas.clear(SK_ColorTRANSPARENT);
+#endif
+                canvas.translate(-glyph.fLeft, -glyph.fTop);
+
+                SkPaint paint;
+                paint.setAntiAlias(true);
+
+                FT_Color *palette;
+                FT_Error err = FT_Palette_Select(face, 0, &palette);
+                if (err) {
+                    SK_TRACEFTR(err, "Could not get palette from %s fontFace.", face->family_name);
+                    return;
+                }
+                FT_LayerIterator layerIterator;
+                layerIterator.p  = NULL;
+                FT_Bool haveLayers = false;
+                FT_UInt layerGlyphIndex;
+                FT_UInt layerColorIndex;
+
+                while (FT_Get_Color_Glyph_Layer(face, glyph.getGlyphID(), &layerGlyphIndex,
+                                                &layerColorIndex,
+                                                &layerIterator)) {
+                    haveLayers = true;
+                    if (layerColorIndex == 0xFFFF) {
+                        paint.setColor(SK_ColorBLACK);
+                    } else {
+                        SkColor color = SkColorSetARGB(palette[layerColorIndex].alpha,
+                                                       palette[layerColorIndex].red,
+                                                       palette[layerColorIndex].green,
+                                                       palette[layerColorIndex].blue);
+                        paint.setColor(color);
+                    }
+                    SkPath path;
+                    if (this->generateFacePath(face, layerGlyphIndex, &path)) {
+                        canvas.drawPath(path, paint);
+                    }
+                }
+
+                if (!haveLayers) {
+                    SK_TRACEFTR(err, "Could not get layers from %s fontFace.", face->family_name);
+                    return;
+                }
+            } else
+#endif
             if (SkMask::kLCD16_Format == glyph.fMaskFormat) {
                 FT_Outline_Translate(outline, dx, dy);
                 FT_Error err = FT_Render_Glyph(face->glyph, doVert ? FT_RENDER_MODE_LCD_V :
@@ -676,5 +736,23 @@ bool SkScalerContext_FreeType_Base::generateGlyphPath(FT_Face face, SkPath* path
     }
 
     path->close();
+    return true;
+}
+
+bool SkScalerContext_FreeType_Base::generateFacePath(FT_Face face, SkGlyphID glyphID, SkPath* path) {
+    uint32_t flags = 0; //fLoadGlyphFlags;
+    flags |= FT_LOAD_NO_BITMAP; // ignore embedded bitmaps so we're sure to get the outline
+    flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
+
+    FT_Error err = FT_Load_Glyph(face, glyphID, flags);
+    if (err != 0) {
+        path->reset();
+        return false;
+    }
+
+    if (!generateGlyphPath(face, path)) {
+        path->reset();
+        return false;
+    }
     return true;
 }
