@@ -27,10 +27,11 @@
 #include "effects/GrRRectEffect.h"
 #include "effects/GrTextureDomain.h"
 
-using MaskElement = GrReducedClip::MaskElement;
-using Element = SkClipStack::Element;
-using InitialState = GrReducedClip::InitialState;
-using ElementList = GrReducedClip::ElementList;
+typedef SkClipStack::Element Element;
+typedef GrReducedClip::InitialState InitialState;
+typedef GrReducedClip::ElementList ElementList;
+
+const char GrClipStackClip::kMaskTestTag[] = "clip_mask";
 
 bool GrClipStackClip::quickContains(const SkRect& rect) const {
     if (!fStack || fStack->isWideOpen()) {
@@ -90,10 +91,10 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
                                           bool hasUserStencilSettings,
                                           const GrRenderTargetContext* renderTargetContext,
                                           const SkMatrix& viewMatrix,
-                                          const Element& element,
+                                          const Element* element,
                                           GrPathRenderer** prOut,
                                           bool needsStencil) {
-    if (Element::DeviceSpaceType::kRect == element.getDeviceSpaceType()) {
+    if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
         // rects can always be drawn directly w/o using the software path
         // TODO: skip rrects once we're drawing them directly.
         if (prOut) {
@@ -102,11 +103,11 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         return false;
     } else {
         // We shouldn't get here with an empty clip element.
-        SkASSERT(Element::DeviceSpaceType::kEmpty != element.getDeviceSpaceType());
+        SkASSERT(Element::DeviceSpaceType::kEmpty != element->getDeviceSpaceType());
 
         // the gpu alpha mask will draw the inverse paths as non-inverse to a temp buffer
         SkPath path;
-        element.asDeviceSpacePath(&path);
+        element->asDeviceSpacePath(&path);
         if (path.isInverseFillType()) {
             path.toggleInverseFillType();
         }
@@ -121,7 +122,7 @@ bool GrClipStackClip::PathNeedsSWRenderer(GrContext* context,
         canDrawArgs.fClipConservativeBounds = &scissorRect;
         canDrawArgs.fViewMatrix = &viewMatrix;
         canDrawArgs.fShape = &shape;
-        canDrawArgs.fAAType = GrChooseAAType(GrAA(element.isAA()),
+        canDrawArgs.fAAType = GrChooseAAType(GrAA(element->isAA()),
                                              renderTargetContext->fsaaType(),
                                              GrAllowMixedSamples::kYes,
                                              *context->contextPriv().caps());
@@ -161,10 +162,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
     translate.setTranslate(SkIntToScalar(-reducedClip.left()), SkIntToScalar(-reducedClip.top()));
 
     for (ElementList::Iter iter(reducedClip.maskElements()); iter.get(); iter.next()) {
-        const Element& element = iter.get()->fElement;
+        const Element* element = iter.get();
 
-        SkClipOp op = element.getOp();
-        bool invert = element.isInverseFilled();
+        SkClipOp op = element->getOp();
+        bool invert = element->isInverseFilled();
         bool needsStencil = invert ||
                             kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op;
 
@@ -280,25 +281,38 @@ bool GrClipStackClip::applyClipMask(GrContext* context, GrRenderTargetContext* r
 
     renderTargetContext->setNeedsStencil();
 
-    if (!renderTargetContext->priv().lastStencilClipKey().isValid() ||
-        !reducedClip.maskUniqueKey().isValid() ||
-        renderTargetContext->priv().lastStencilClipKey() != reducedClip.maskUniqueKey()) {
+    // This relies on the property that a reduced sub-rect of the last clip will contain all the
+    // relevant window rectangles that were in the last clip. This subtle requirement will go away
+    // after clipping is overhauled.
+    if (renderTargetContext->priv().mustRenderClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                   reducedClip.numAnalyticFPs())) {
         reducedClip.drawStencilClipMask(context, renderTargetContext);
-        renderTargetContext->priv().setLastStencilClipKey(reducedClip.maskUniqueKey());
+        renderTargetContext->priv().setLastClip(reducedClip.maskGenID(), reducedClip.scissor(),
+                                                reducedClip.numAnalyticFPs());
     }
-    // The enables the stencil test against the clip bit in the applied clip.
-    out->hardClip().addStencilClip();
+    // GrAppliedClip doesn't need to figure numAnalyticFPs into its key (used by operator==) because
+    // it verifies the FPs are also equal.
+    out->hardClip().addStencilClip(reducedClip.maskGenID());
     return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create a 8-bit clip mask in alpha
 
+static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int numAnalyticFPs,
+                                 GrUniqueKey* key) {
+    static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+    GrUniqueKey::Builder builder(key, kDomain, 4, GrClipStackClip::kMaskTestTag);
+    builder[0] = clipGenID;
+    // SkToS16 because image filters outset layers to a size indicated by the filter, which can
+    // sometimes result in negative coordinates from device space.
+    builder[1] = SkToS16(bounds.fLeft) | (SkToS16(bounds.fRight) << 16);
+    builder[2] = SkToS16(bounds.fTop) | (SkToS16(bounds.fBottom) << 16);
+    builder[3] = numAnalyticFPs;
+}
+
 static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t clipGenID,
                                           const GrUniqueKey& clipMaskKey) {
-    if (clipGenID == SK_InvalidGenID || !clipMaskKey.isValid()) {
-        return;
-    }
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     while (const Element* element = iter.prev()) {
         if (element->getGenID() == clipGenID) {
@@ -314,7 +328,10 @@ static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t cli
 sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
                                                            const GrReducedClip& reducedClip) const {
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    const GrUniqueKey& key = reducedClip.maskUniqueKey();
+    GrUniqueKey key;
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+                         reducedClip.numAnalyticFPs(), &key);
+
     sk_sp<GrTextureProxy> proxy(proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin));
     if (proxy) {
@@ -345,7 +362,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
 
     SkASSERT(result->origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, result.get());
-    add_invalidate_on_pop_message(*fStack, reducedClip.topMaskElementID(), key);
+    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
 
     return result;
 }
@@ -389,9 +406,9 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
     helper.clear(InitialState::kAllIn == initialState ? 0xFF : 0x00);
 
     for (ElementList::Iter iter(elements); iter.get(); iter.next()) {
-        const Element& element = iter.get()->fElement;
-        SkClipOp op = element.getOp();
-        GrAA aa = GrAA(element.isAA());
+        const Element* element = iter.get();
+        SkClipOp op = element->getOp();
+        GrAA aa = GrAA(element->isAA());
 
         if (kIntersect_SkClipOp == op || kReverseDifference_SkClipOp == op) {
             // Intersect and reverse difference require modifying pixels outside of the geometry
@@ -404,7 +421,7 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
                 helper.drawRect(temp, translate, SkRegion::kXOR_Op, GrAA::kNo, 0xFF);
             }
             SkPath clipPath;
-            element.asDeviceSpacePath(&clipPath);
+            element->asDeviceSpacePath(&clipPath);
             clipPath.toggleInverseFillType();
             GrShape shape(clipPath, GrStyle::SimpleFill());
             helper.drawShape(shape, translate, SkRegion::kReplace_Op, aa, 0x00);
@@ -413,11 +430,11 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 
         // The other ops (union, xor, diff) only affect pixels inside
         // the geometry so they can just be drawn normally
-        if (Element::DeviceSpaceType::kRect == element.getDeviceSpaceType()) {
-            helper.drawRect(element.getDeviceSpaceRect(), translate, (SkRegion::Op)op, aa, 0xFF);
+        if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
+            helper.drawRect(element->getDeviceSpaceRect(), translate, (SkRegion::Op)op, aa, 0xFF);
         } else {
             SkPath path;
-            element.asDeviceSpacePath(&path);
+            element->asDeviceSpacePath(&path);
             GrShape shape(path, GrStyle::SimpleFill());
             helper.drawShape(shape, translate, (SkRegion::Op)op, aa, 0xFF);
         }
@@ -427,7 +444,9 @@ static void draw_clip_elements_to_mask_helper(GrSWMaskHelper& helper, const Elem
 sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
         GrContext* context, const GrReducedClip& reducedClip,
         GrRenderTargetContext* renderTargetContext) const {
-    const GrUniqueKey& key = reducedClip.maskUniqueKey();
+    GrUniqueKey key;
+    create_clip_mask_key(reducedClip.maskGenID(), reducedClip.scissor(),
+                         reducedClip.numAnalyticFPs(), &key);
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
 
@@ -484,7 +503,6 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
-    add_invalidate_on_pop_message(*fStack, reducedClip.topMaskElementID(), key);
-
+    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
     return proxy;
 }

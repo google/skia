@@ -23,11 +23,24 @@ struct GrUserStencilSettings;
     additional data members or virtual methods. */
 class GrRenderTargetContextPriv {
 public:
-    const GrUniqueKey& lastStencilClipKey() const {
-        return fRenderTargetContext->getRTOpList()->lastStencilClipKey();
+    // called to note the last clip drawn to the stencil buffer.
+    // TODO: remove after clipping overhaul.
+    void setLastClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
+                     int numClipAnalyticFPs) {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
+        opList->fLastClipStackGenID = clipStackGenID;
+        opList->fLastDevClipBounds = devClipBounds;
+        opList->fLastClipNumAnalyticFPs = numClipAnalyticFPs;
     }
-    void setLastStencilClipKey(const GrUniqueKey& key) {
-        fRenderTargetContext->getRTOpList()->setLastStencilClipKey(key);
+
+    // called to determine if we have to render the clip into SB.
+    // TODO: remove after clipping overhaul.
+    bool mustRenderClip(uint32_t clipStackGenID, const SkIRect& devClipBounds,
+                        int numClipAnalyticFPs) const {
+        GrRenderTargetOpList* opList = fRenderTargetContext->getRTOpList();
+        return opList->fLastClipStackGenID != clipStackGenID ||
+               !opList->fLastDevClipBounds.contains(devClipBounds) ||
+               opList->fLastClipNumAnalyticFPs != numClipAnalyticFPs;
     }
 
     using CanClearFullscreen = GrRenderTargetContext::CanClearFullscreen;

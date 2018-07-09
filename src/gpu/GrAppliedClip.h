@@ -27,7 +27,8 @@ public:
 
     const GrScissorState& scissorState() const { return fScissorState; }
     const GrWindowRectsState& windowRectsState() const { return fWindowRectsState; }
-    bool hasStencilClip() const { return fHasStencilClip; }
+    uint32_t stencilStackID() const { return fStencilStackID; }
+    bool hasStencilClip() const { return SkClipStack::kInvalidGenID != fStencilStackID; }
 
     /**
      * Intersects the applied clip with the provided rect. Returns false if the draw became empty.
@@ -48,9 +49,9 @@ public:
         fWindowRectsState.set(windows, mode);
     }
 
-    void addStencilClip() {
-        SkASSERT(!fHasStencilClip);
-        fHasStencilClip = true;
+    void addStencilClip(uint32_t stencilStackID) {
+        SkASSERT(SkClipStack::kInvalidGenID == fStencilStackID);
+        fStencilStackID = stencilStackID;
     }
 
     bool doesClip() const {
@@ -58,15 +59,16 @@ public:
     }
 
     bool operator==(const GrAppliedHardClip& that) const {
-        return fScissorState == that.fScissorState && fWindowRectsState == that.fWindowRectsState &&
-               fHasStencilClip == that.fHasStencilClip;
+        return fScissorState == that.fScissorState &&
+               fWindowRectsState == that.fWindowRectsState &&
+               fStencilStackID == that.fStencilStackID;
     }
     bool operator!=(const GrAppliedHardClip& that) const { return !(*this == that); }
 
 private:
     GrScissorState             fScissorState;
     GrWindowRectsState         fWindowRectsState;
-    bool                       fHasStencilClip = false;
+    uint32_t                   fStencilStackID = SkClipStack::kInvalidGenID;
 };
 
 /**
@@ -80,6 +82,7 @@ public:
 
     const GrScissorState& scissorState() const { return fHardClip.scissorState(); }
     const GrWindowRectsState& windowRectsState() const { return fHardClip.windowRectsState(); }
+    uint32_t stencilStackID() const { return fHardClip.stencilStackID(); }
     bool hasStencilClip() const { return fHardClip.hasStencilClip(); }
     int numClipCoverageFragmentProcessors() const { return fClipCoverageFPs.count(); }
     const GrFragmentProcessor* clipCoverageFragmentProcessor(int i) const {

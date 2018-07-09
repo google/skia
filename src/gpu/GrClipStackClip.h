@@ -34,6 +34,7 @@ public:
     bool isRRect(const SkRect& rtBounds, SkRRect* rr, GrAA* aa) const override;
 
     sk_sp<GrTextureProxy> testingOnly_createClipMask(GrContext*) const;
+    static const char kMaskTestTag[];
 
 private:
     static bool PathNeedsSWRenderer(GrContext* context,
@@ -41,7 +42,7 @@ private:
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext*,
                                     const SkMatrix& viewMatrix,
-                                    const SkClipStack::Element& element,
+                                    const SkClipStack::Element* element,
                                     GrPathRenderer** prOut,
                                     bool needsStencil);
 

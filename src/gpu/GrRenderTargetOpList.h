@@ -120,10 +120,9 @@ public:
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
     SkDEBUGCODE(void visitProxies_debugOnly(const GrOp::VisitProxyFunc&) const;)
 
-    const GrUniqueKey& lastStencilClipKey() const { return fLastStencilClipKey; }
-    void setLastStencilClipKey(const GrUniqueKey& key) { fLastStencilClipKey = key; }
-
 private:
+    friend class GrRenderTargetContextPriv; // for stencil clip state. TODO: this is invasive
+
     void deleteOps();
 
     struct RecordedOp {
@@ -173,7 +172,9 @@ private:
     bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
                            const DstProxy* bDstTexture, const GrCaps&);
 
-    GrUniqueKey                    fLastStencilClipKey;
+    uint32_t                       fLastClipStackGenID;
+    SkIRect                        fLastDevClipBounds;
+    int                            fLastClipNumAnalyticFPs;
 
     // For ops/opList we have mean: 5 stdDev: 28
     SkSTArray<5, RecordedOp, true> fRecordedOps;
