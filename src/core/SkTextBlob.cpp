@@ -347,6 +347,19 @@ unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
     return pos;
 }
 
+void SkTextBlob::operator delete(void* p) {
+    sk_free(p);
+}
+
+void* SkTextBlob::operator new(size_t) {
+    SK_ABORT("All blobs are created by placement new.");
+    return sk_malloc_throw(0);
+}
+
+void* SkTextBlob::operator new(size_t, void* p) {
+    return p;
+}
+
 SkTextBlobRunIterator::SkTextBlobRunIterator(const SkTextBlob* blob)
     : fCurrentRun(SkTextBlob::RunRecord::First(blob)) {
     SkDEBUGCODE(fStorageTop = (uint8_t*)blob + blob->fStorageSize;)
