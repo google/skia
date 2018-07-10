@@ -22,6 +22,30 @@
       "revId": "f34aa28cc4c58e7b549b8a6352b32999c026b773",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5311c406_51a5876c",
+        "filename": "src/core/SkWriteBuffer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-10T21:03:04Z",
+      "side": 1,
+      "message": "This destructor isn\u0027t trivial so I\u0027d like to not make it inline since it isn\u0027t that interesting. So it needs to be not defined at its declaration, so it needs to go in some TU. This one seems good. So it could be, but in this case I think we prefer small over \u0027fast\u0027.",
+      "parentUuid": "2fc1a122_87e773c5",
+      "range": {
+        "startLine": 34,
+        "startChar": 22,
+        "endLine": 34,
+        "endChar": 41
+      },
+      "revId": "f34aa28cc4c58e7b549b8a6352b32999c026b773",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
