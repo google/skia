@@ -125,14 +125,14 @@ public:
     bool writeToStream(SkWStream*);
     void writeToMemory(void* dst) { fWriter.flatten(dst); }
 
-    SkFactorySet* setFactoryRecorder(SkFactorySet*);
-    SkRefCntSet* setTypefaceRecorder(SkRefCntSet*);
+    void setFactoryRecorder(sk_sp<SkFactorySet>);
+    void setTypefaceRecorder(sk_sp<SkRefCntSet>);
 
 private:
-    SkFactorySet* fFactorySet;
-    SkWriter32 fWriter;
+    sk_sp<SkFactorySet> fFactorySet;
+    sk_sp<SkRefCntSet> fTFSet;
 
-    SkRefCntSet*    fTFSet;
+    SkWriter32 fWriter;
 
     // Only used if we do not have an fFactorySet
     SkTHashMap<SkString, uint32_t> fFlattenableDict;
