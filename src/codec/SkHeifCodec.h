@@ -58,8 +58,7 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(int width, int height, const SkEncodedInfo&,
-            HeifDecoder*, sk_sp<SkColorSpace>, SkEncodedOrigin);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin);
 
     /*
      * Checks if the conversion between the input image and the requested output

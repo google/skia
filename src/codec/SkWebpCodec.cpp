@@ -87,15 +87,17 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
         }
     }
 
-    sk_sp<SkColorSpace> colorSpace = nullptr;
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
     {
         WebPChunkIterator chunkIterator;
         SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
         if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-            colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            // FIXME: I think this could be MakeWithoutCopy
+            auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
         }
-        if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
-            colorSpace = SkColorSpace::MakeSRGB();
+        if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = SkEncodedInfo::ICCProfile::MakeSRGB();
         }
     }
 
@@ -169,10 +171,9 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 
     *result = kSuccess;
-    SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return std::unique_ptr<SkCodec>(new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                           std::move(stream), demux.release(), std::move(data),
-                                           origin));
+    SkEncodedInfo info = SkEncodedInfo::Make(width, height, color, alpha, 8, std::move(profile));
+    return std::unique_ptr<SkCodec>(new SkWebpCodec(std::move(info), std::move(stream),
+                                                    demux.release(), std::move(data), origin));
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -663,14 +664,14 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     return result;
 }
 
-SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
-                         sk_sp<SkColorSpace> colorSpace, std::unique_ptr<SkStream> stream,
+SkWebpCodec::SkWebpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          WebPDemuxer* demux, sk_sp<SkData> data, SkEncodedOrigin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, std::move(stream),
-                std::move(colorSpace), origin)
+    : INHERITED(std::move(info), SkColorSpaceXform::kBGRA_8888_ColorFormat, std::move(stream),
+                origin)
     , fDemux(demux)
     , fData(std::move(data))
     , fFailed(false)
 {
-    fFrameHolder.setScreenSize(width, height);
+    const auto& eInfo = this->getEncodedInfo();
+    fFrameHolder.setScreenSize(eInfo.width(), eInfo.height());
 }

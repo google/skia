@@ -668,19 +668,7 @@ protected:
 
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
-    SkCodec(int width,
-            int height,
-            const SkEncodedInfo&,
-            XformFormat srcFormat,
-            std::unique_ptr<SkStream>,
-            sk_sp<SkColorSpace>,
-            SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
-
-    /**
-     *  Allows the subclass to set the recommended SkImageInfo
-     */
-    SkCodec(const SkEncodedInfo&,
-            const SkImageInfo&,
+    SkCodec(SkEncodedInfo&&,
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
