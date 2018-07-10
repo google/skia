@@ -6,7 +6,7 @@
  */
 
 #include "GrTessellatingPathRenderer.h"
-
+#include <stdio.h>
 #include "GrAuditTrail.h"
 #include "GrClip.h"
 #include "GrDefaultGeoProcFactory.h"
@@ -16,13 +16,12 @@
 #include "GrPathUtils.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
+#include "GrShape.h"
+#include "GrSimpleMeshDrawOpHelper.h"
+#include "GrStyle.h"
 #include "GrTessellator.h"
 #include "SkGeometry.h"
-
-#include "GrSimpleMeshDrawOpHelper.h"
 #include "ops/GrMeshDrawOp.h"
-
-#include <stdio.h>
 
 #ifndef GR_AA_TESSELLATOR_MAX_VERB_COUNT
 #define GR_AA_TESSELLATOR_MAX_VERB_COUNT 10

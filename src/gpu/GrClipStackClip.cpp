@@ -6,7 +6,6 @@
  */
 
 #include "GrClipStackClip.h"
-
 #include "GrAppliedClip.h"
 #include "GrContextPriv.h"
 #include "GrDeferredProxyUploader.h"
@@ -16,7 +15,9 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrSWMaskHelper.h"
+#include "GrShape.h"
 #include "GrStencilAttachment.h"
+#include "GrStyle.h"
 #include "GrTextureProxy.h"
 #include "SkClipOpPriv.h"
 #include "SkMakeUnique.h"
