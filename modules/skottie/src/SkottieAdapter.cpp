@@ -68,7 +68,7 @@ void PolyStarAdapter::apply() {
 
     SkPath poly;
 
-    auto angle = SkDegreesToRadians(fRotation);
+    auto angle = SkDegreesToRadians(fRotation - 90);
     poly.moveTo(pt_on_circle(fPosition, fOuterRadius, angle));
     poly.incReserve(fType == Type::kStar ? count * 2 : count);
 
