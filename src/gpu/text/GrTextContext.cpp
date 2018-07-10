@@ -224,8 +224,7 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                             [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
                                 this->drawDFPosText(
                                     cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
-                                    viewMatrix, glyphIDs, 2 * runSize, pos, 2,
-                                    SkPoint::Make(0,0));
+                                    viewMatrix, glyphIDs, 2 * runSize, pos, 2, SkPoint::Make(0, 0));
                             });
                     break;
                 }

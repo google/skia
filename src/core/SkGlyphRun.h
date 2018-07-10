@@ -141,6 +141,7 @@ private:
     std::vector<uint16_t> fDenseIndex;
     std::vector<SkPoint> fPositions;
     std::vector<SkGlyphID> fUniqueGlyphIDs;
+    SkGlyphID* fGlyphIDs{nullptr};
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
