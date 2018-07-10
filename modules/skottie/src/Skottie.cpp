@@ -1109,6 +1109,10 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer) return nullptr;
 
+    if (!(*jlayer)["ef"].is<skjson::NullValue>()) {
+        LOG("?? Unsupported layer effect.\n");
+    }
+
     using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const skjson::ObjectValue&, AttachContext*);
     static constexpr LayerAttacher gLayerAttachers[] = {
         AttachCompLayer,  // 'ty': 0
