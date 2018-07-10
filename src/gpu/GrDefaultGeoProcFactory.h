@@ -54,7 +54,7 @@ namespace GrDefaultGeoProcFactory {
         SkPoint fLocalCoord;
     };
 
-    struct PositionColorLocalCoordCoverage {
+    struct PositionColorLocalCoordCoverageAttr {
         SkPoint fPosition;
         GrColor fColor;
         SkPoint fLocalCoord;
@@ -118,6 +118,15 @@ namespace GrDefaultGeoProcFactory {
         const SkMatrix* fMatrix;
     };
 
+    struct Bones {
+        Bones(const float bones[], int boneCount)
+            : fBones(bones)
+            , fBoneCount(boneCount) {}
+
+        const float* fBones;
+        int fBoneCount;
+    };
+
     sk_sp<GrGeometryProcessor> Make(const Color&,
                                     const Coverage&,
                                     const LocalCoords&,
@@ -132,6 +141,17 @@ namespace GrDefaultGeoProcFactory {
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);
+
+    /*
+     * Use this factory to create a GrGeometryProcessor that supports skeletal animation through
+     * deformation of vertices using matrices that are passed in. This should only be called from
+     * GrDrawVerticesOp.
+     */
+    sk_sp<GrGeometryProcessor> MakeWithBones(const Color&,
+                                             const Coverage&,
+                                             const LocalCoords&,
+                                             const Bones&,
+                                             const SkMatrix& viewMatrix);
 };
 
 #endif
