@@ -123,14 +123,13 @@ sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, Att
     if (!childNode)
         return nullptr;
 
-    static constexpr ScalarValue kNoopOpacity = 100;
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
 
     if (!BindProperty<ScalarValue>(jtransform["o"], &ctx->fAnimators,
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
             opacityNode->setOpacity(o * 0.01f);
-        }, &kNoopOpacity)) {
+        }, 100.0f)) {
         // We can ignore static full opacity.
         return childNode;
     }
@@ -164,7 +163,7 @@ sk_sp<sksg::GeometryNode> AttachRRectGeometry(const skjson::ObjectValue& jrect,
 
     auto p_attached = BindProperty<VectorValue>(jrect["p"], &ctx->fAnimators,
         [adapter](const VectorValue& p) {
-                adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
+            adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
         });
     auto s_attached = BindProperty<VectorValue>(jrect["s"], &ctx->fAnimators,
         [adapter](const VectorValue& s) {
@@ -1021,7 +1020,6 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
 
     SkSTArray<4, MaskRecord, true> mask_stack;
 
-    const SkScalar full_opacity = 100;
     bool has_opacity = false;
 
     for (const skjson::ObjectValue* m : *jmask) {
@@ -1065,7 +1063,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         has_opacity |= BindProperty<ScalarValue>((*m)["o"], &ctx->fAnimators,
             [mask_paint](const ScalarValue& o) {
                 mask_paint->setOpacity(o * 0.01f);
-        }, &full_opacity);
+        }, 100.0f);
 
         mask_stack.push_back({mask_path, mask_paint, mask_info->fMergeMode});
     }
