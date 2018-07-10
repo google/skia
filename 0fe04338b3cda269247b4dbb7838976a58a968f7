@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "59286fb2_87dd27e4",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Can this be limited to the .cpp file ?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "628662e0_f11f140c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "mv these over one \u0027 \u0027 ?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8db49dd0_dbef78d6",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "What\u0027s with the @c\u0027s ?\n\nSo, should we have an enum for this field?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "045cb07f_49eb1330",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Could probably just be ints.",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c67a14d_22d1ca3e",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Maybe:\n\n* TODO: switch this over to using a GrBackendTexture\n\n?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86ec3048_b4a64110",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Given our earlier discussion, does the SkArSession keep ownership of the SkArTrackables?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1949969e_4894540b",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Hide this one and the following one ?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d84e7c4_10420ac0",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Remove this file ?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fdab9c6_4c382751",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Why the odd-ball numbers ?\nAlso, what is a BaseTrackable ?",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

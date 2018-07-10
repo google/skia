@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3600152_0a3bb45a",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Which part of STL are using here?",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c16f2564_c90712ac",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "just use \"if (!outSession-\u003efArSession) {\"\n\nThis is a bit weird (vs. trying to create the session in the factor) but will work.",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f1449207_1ef3bcd1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Move this up a line ?",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a72cee34_e064ec17",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "overlength",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "326c4856_7e93e1f9",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "currSkArHit -\u003e currSkArTrackable ?",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

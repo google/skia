@@ -1,0 +1,429 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ad70f32_0b8acae6",
+        "filename": "platform_tools/android/apps/skar/CMakeLists.txt",
+        "patchSetId": 25
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "alphabetize these ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a85c07b_666b7058",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 25
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Move this to the factory function and return nullptr ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2d29b86_845317c5",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "API\u0027s ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28a6338a_379da39e",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "* There are two types of SkArAnchor: free floating and attached to a trackable.\n* Free floating anchors define their own coordinate frame while those attached\n* to a trackable define a coordinate frame relative to the trackable.\n\nIf the trackable is moved do anchors attached to it also move? Do trackables even move?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02ae1724_80e97aff",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "not unique ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d6315cd1_74bd6aaa",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "SkVector ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a2353f85_805a2d87",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "SkMatrix ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e08d27a_7d32ab29",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "rm the \u0027const\u0027 ? Do we even need the session parameter ?\n\nWe usually pass parameters that are going to change by pointer. We pretty much only use const\u0026 when we pass by reference.",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0748f621_2e948b03",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.cc",
+        "patchSetId": 25
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Make this a .cpp file ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c6f2a6e_3aeabcf2",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.cc",
+        "patchSetId": 25
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "add a \u0027 \u0027 ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78c6b07e_eed87307",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.cc",
+        "patchSetId": 25
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Should this take an SkArSession ?\nCould/should this return an SkVector4 ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14059b49_b0ee7627",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Can this go in AnchorWrapper ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63b2263e_00447e71",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "kText, kCircle ... ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0d605689_1b5cb02c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "// dox ? esp. why do we need this class when we have SkArAnchor? Also how we use it esp wrt the MatrixComputationInfo.",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19b5e8bc_4c9d9287",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/anchor_wrapper.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Is this comment still correct ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "90d7a099_1dba64d6",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.cc",
+        "patchSetId": 25
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": ".cpp file ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d627eb5_9c97165e",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "PendingAnchor_DEFINED ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a4be74c2_7e502123",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "// dox",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d43fbbf6_1a90e6ec",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "SkVector4 ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a36fd390_41a0d2c4",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Why both an AnchorWrapper and an SkArAnchor ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eef7c5c_40e1b6c3",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "overlength - here \u0026 below",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be9bcd70_4875b10e",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Switch to Skia member variable style - here and below ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64a136b0_d118a424",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/pending_anchor.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Missing spaces after \"//\"",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2fb5b2ed_2a3a6be1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/plane_renderer.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "Switch to Skia member variable style ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cc9c1b4_fc5e3589",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/plane_renderer.h",
+        "patchSetId": 25
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T16:55:03Z",
+      "side": 1,
+      "message": "fPlaneColorMap ?",
+      "revId": "16feffd9f22fb74a7793463bdef2e757c7c08370",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
