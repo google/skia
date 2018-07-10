@@ -31,9 +31,8 @@ protected:
 
     void makeBitmap() {
         // Draw our bitmap in N32, so legacy devices get "premul" values they understand
-        SkBitmap n32Bitmap;
-        n32Bitmap.allocN32Pixels(80, 80);
-        SkCanvas canvas(n32Bitmap);
+        fBitmap.allocN32Pixels(80, 80);
+        SkCanvas canvas(fBitmap);
         canvas.clear(0x00000000);
         SkPaint paint;
         paint.setAntiAlias(true);
@@ -47,10 +46,6 @@ protected:
             pts, fColors, pos, 2, SkShader::kClamp_TileMode));
         const char* str = "e";
         canvas.drawString(str, SkIntToScalar(-10), SkIntToScalar(80), paint);
-
-        // ... tag the data as sRGB, so color-aware devices do gamut adjustment, etc...
-        fBitmap.setInfo(SkImageInfo::MakeS32(80, 80, kPremul_SkAlphaType));
-        fBitmap.setPixelRef(sk_ref_sp(n32Bitmap.pixelRef()), 0, 0);
     }
 
     SkISize onISize() override {
@@ -67,19 +62,6 @@ protected:
         };
         SkISize kernelSize = SkISize::Make(3, 3);
         SkScalar gain = 0.3f, bias = SkIntToScalar(100);
-        if (canvas->imageInfo().colorSpace()) {
-            // TODO: Gain and bias are poorly specified (in the feConvolveMatrix SVG documentation,
-            // there is obviously no mention of gamma or color spaces). Eventually, we need to
-            // decide what to do with these (they generally have an extreme brightening effect).
-            // For now, I'm modifying this GM to use values tuned to preserve luminance across the
-            // range of input values (compared to the legacy math and values).
-            //
-            // It's impossible to match the results exactly, because legacy math produces a flat
-            // response (when looking at sRGB encoded results), while gamma-correct math produces
-            // a curve.
-            gain = 0.25f;
-            bias = 16.5f;
-        }
         SkPaint paint;
         paint.setImageFilter(SkMatrixConvolutionImageFilter::Make(kernelSize,
                                                                   kernel,
