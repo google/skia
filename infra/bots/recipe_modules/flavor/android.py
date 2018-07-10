@@ -18,8 +18,7 @@ class AndroidFlavor(default.DefaultFlavor):
     self._ever_ran_adb = False
     self.ADB_BINARY = '/usr/bin/adb.1.0.35'
     self.ADB_PUB_KEY = '/home/chrome-bot/.android/adbkey'
-    self._golo_devices = ['Nexus5x']
-    if self.m.vars.builder_cfg.get('model') in self._golo_devices:
+    if 'skia' not in self.m.vars.swarming_bot_id:
       self.ADB_BINARY = '/opt/infra-android/tools/adb'
       self.ADB_PUB_KEY = ('/home/chrome-bot/.android/'
                           'chrome_infrastructure_adbkey')

@@ -16,7 +16,21 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -24,7 +38,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -35,7 +49,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skia/resources",
       "/sdcard/revenge_of_the_skiabot/resources"
     ],
@@ -58,7 +72,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -94,14 +108,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -111,7 +125,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -119,7 +133,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -128,7 +142,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -136,7 +150,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -145,7 +159,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -153,7 +167,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -164,7 +178,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skp",
       "/sdcard/revenge_of_the_skiabot/skps"
     ],
@@ -187,7 +201,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -195,14 +209,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SKP_VERSION",
       "/sdcard/revenge_of_the_skiabot/SKP_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -239,14 +253,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -256,7 +270,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -264,7 +278,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -273,7 +287,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -281,7 +295,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -290,7 +304,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -298,7 +312,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -309,7 +323,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/skimage",
       "/sdcard/revenge_of_the_skiabot/images"
     ],
@@ -332,7 +346,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -340,14 +354,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SK_IMAGE_VERSION",
       "/sdcard/revenge_of_the_skiabot/SK_IMAGE_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -384,14 +398,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "cat",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -401,7 +415,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-f",
@@ -409,7 +423,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -418,7 +432,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -426,7 +440,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -435,7 +449,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -443,7 +457,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -454,7 +468,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
+      "\nimport os\nimport subprocess\nimport sys\nhost   = sys.argv[1]\ndevice = sys.argv[2]\nfor d, _, fs in os.walk(host):\n  p = os.path.relpath(d, host)\n  if p != '.' and p.startswith('.'):\n    continue\n  for f in fs:\n    print os.path.join(p,f)\n    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',\n                           os.path.realpath(os.path.join(host, p, f)),\n                           os.path.join(device, p, f)])\n",
       "[START_DIR]/svg",
       "/sdcard/revenge_of_the_skiabot/svgs"
     ],
@@ -477,7 +491,7 @@
       "@@@STEP_LOG_LINE@python.inline@    continue@@@",
       "@@@STEP_LOG_LINE@python.inline@  for f in fs:@@@",
       "@@@STEP_LOG_LINE@python.inline@    print os.path.join(p,f)@@@",
-      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/usr/bin/adb.1.0.35', 'push',@@@",
+      "@@@STEP_LOG_LINE@python.inline@    subprocess.check_call(['/opt/infra-android/tools/adb', 'push',@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.realpath(os.path.join(host, p, f)),@@@",
       "@@@STEP_LOG_LINE@python.inline@                           os.path.join(device, p, f)])@@@",
       "@@@STEP_LOG_END@python.inline@@@"
@@ -485,14 +499,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/SVG_VERSION",
       "/sdcard/revenge_of_the_skiabot/SVG_VERSION"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -529,7 +543,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "rm",
       "-rf",
@@ -537,7 +551,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -546,7 +560,7 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "shell",
       "mkdir",
       "-p",
@@ -554,7 +568,7 @@
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -610,14 +624,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "/sdcard/revenge_of_the_skiabot/uninteresting_hashes.txt"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -630,7 +644,7 @@
       "-u",
       "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
     ],
-    "name": "get swarming bot id",
+    "name": "get swarming bot id (2)",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -657,7 +671,7 @@
       "python",
       "-u",
       "\nimport os\nimport subprocess\nimport sys\nimport time\nADB = sys.argv[1]\ncpu = int(sys.argv[2])\ngov = sys.argv[3]\n\nlog = subprocess.check_output([ADB, 'root'])\n# check for message like 'adbd cannot run as root in production builds'\nprint log\nif 'cannot' in log:\n  raise Exception('adb root failed')\n\nsubprocess.check_output([ADB, 'shell', 'echo \"%s\" > '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % (gov, cpu)])\nactual_gov = subprocess.check_output([ADB, 'shell', 'cat '\n    '/sys/devices/system/cpu/cpu%d/cpufreq/scaling_governor' % cpu]).strip()\nif actual_gov != gov:\n  raise Exception('(actual, expected) (%s, %s)'\n                  % (actual_gov, gov))\n",
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "0",
       "ondemand"
     ],
@@ -696,14 +710,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/build/dm",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -730,14 +744,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "push",
       "[START_DIR]/tmp/dm.sh",
       "/data/local/tmp/"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -746,13 +760,13 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "logcat",
       "-c"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -763,7 +777,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
+      "\nimport subprocess\nimport sys\nbin_dir = sys.argv[1]\nsh      = sys.argv[2]\nsubprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])\ntry:\n  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',\n                                        bin_dir + 'rc'])))\nexcept ValueError:\n  print \"Couldn't read the return code.  Probably killed for OOM.\"\n  sys.exit(1)\n",
       "/data/local/tmp/",
       "dm.sh"
     ],
@@ -779,9 +793,9 @@
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@bin_dir = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@sh      = sys.argv[2]@@@",
-      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/usr/bin/adb.1.0.35', 'shell', 'sh', bin_dir + sh])@@@",
+      "@@@STEP_LOG_LINE@python.inline@subprocess.check_call(['/opt/infra-android/tools/adb', 'shell', 'sh', bin_dir + sh])@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
-      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/usr/bin/adb.1.0.35', 'shell', 'cat',@@@",
+      "@@@STEP_LOG_LINE@python.inline@  sys.exit(int(subprocess.check_output(['/opt/infra-android/tools/adb', 'shell', 'cat',@@@",
       "@@@STEP_LOG_LINE@python.inline@                                        bin_dir + 'rc'])))@@@",
       "@@@STEP_LOG_LINE@python.inline@except ValueError:@@@",
       "@@@STEP_LOG_LINE@python.inline@  print \"Couldn't read the return code.  Probably killed for OOM.\"@@@",
@@ -796,14 +810,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
       "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -817,12 +831,12 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -835,12 +849,12 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -853,14 +867,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
       "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -874,12 +888,12 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -892,12 +906,12 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "wait-for-device"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -910,14 +924,14 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "pull",
       "/sdcard/revenge_of_the_skiabot/dm_out",
       "[TMP_BASE]/adb_pull_tmp_1"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
@@ -949,7 +963,7 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
+      "\nimport os\nimport subprocess\nimport sys\nout = sys.argv[1]\nlog = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])\nfor line in log.split('\\n'):\n  tokens = line.split()\n  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':\n    addr, path = tokens[-2:]\n    local = os.path.join(out, os.path.basename(path))\n    if os.path.exists(local):\n      sym = subprocess.check_output(['addr2line', '-Cfpe', local, addr])\n      line = line.replace(addr, addr + ' ' + sym.strip())\n  print line\n",
       "[START_DIR]/build"
     ],
     "env": {
@@ -965,7 +979,7 @@
       "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
       "@@@STEP_LOG_LINE@python.inline@import sys@@@",
       "@@@STEP_LOG_LINE@python.inline@out = sys.argv[1]@@@",
-      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/usr/bin/adb.1.0.35', 'logcat', '-d'])@@@",
+      "@@@STEP_LOG_LINE@python.inline@log = subprocess.check_output(['/opt/infra-android/tools/adb', 'logcat', '-d'])@@@",
       "@@@STEP_LOG_LINE@python.inline@for line in log.split('\\n'):@@@",
       "@@@STEP_LOG_LINE@python.inline@  tokens = line.split()@@@",
       "@@@STEP_LOG_LINE@python.inline@  if len(tokens) == 11 and tokens[-7] == 'F' and tokens[-3] == 'pc':@@@",
@@ -980,12 +994,12 @@
   },
   {
     "cmd": [
-      "/usr/bin/adb.1.0.35",
+      "/opt/infra-android/tools/adb",
       "kill-server"
     ],
     "cwd": "[START_DIR]/skia",
     "env": {
-      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/adbkey",
+      "ADB_VENDOR_KEYS": "/home/chrome-bot/.android/chrome_infrastructure_adbkey",
       "CHROME_HEADLESS": "1",
       "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
