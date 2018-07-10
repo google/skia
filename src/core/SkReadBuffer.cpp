@@ -379,7 +379,7 @@ sk_sp<SkTypeface> SkReadBuffer::readTypeface() {
         if (!this->validate(index <= fTFCount)) {
             return nullptr;
         }
-        return sk_ref_sp(fTFArray[index - 1]);
+        return fTFArray[index - 1];
     } else {    // custom
         size_t size = sk_negate_to_size_t(index);
         const void* data = this->skip(size);

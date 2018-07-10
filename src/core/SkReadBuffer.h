@@ -180,7 +180,7 @@ public:
     sk_sp<SkImage> readImage();
     sk_sp<SkTypeface> readTypeface();
 
-    void setTypefaceArray(SkTypeface* array[], int count) {
+    void setTypefaceArray(sk_sp<SkTypeface> array[], int count) {
         fTFArray = array;
         fTFCount = count;
     }
@@ -282,8 +282,8 @@ private:
 
     void* fMemoryPtr;
 
-    SkTypeface** fTFArray;
-    int        fTFCount;
+    sk_sp<SkTypeface>* fTFArray;
+    int                fTFCount;
 
     SkFlattenable::Factory* fFactoryArray;
     int                     fFactoryCount;
