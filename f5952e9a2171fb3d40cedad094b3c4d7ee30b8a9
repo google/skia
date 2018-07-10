@@ -50,6 +50,23 @@
       "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc7ef899_e6b0b725",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T21:04:53Z",
+      "side": 1,
+      "message": "inline SkArSessionPriv SkArSession::priv() { return SkArSessionPriv (this); }\n\ninline const SkArSessionPriv SkArSession::priv () const {\n    return SkArSessionPriv (const_cast\u003cSkArSession*\u003e(this));\n}\n\nand remove SkArSessionPriv::Make",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
