@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aec4b0cb_0edda6ba",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-10T16:55:15Z",
+      "side": 1,
+      "message": "Per discussion, I think these bones ought to just be a small static array here.",
+      "revId": "0731029a9c1e291a564108352e01b9b1fcca1cea",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
