@@ -8,6 +8,7 @@
 #define SkPathOpsDebug_DEFINED
 
 #include "SkPathOps.h"
+#include "SkString.h"
 #include "SkTypes.h"
 
 #include <stdlib.h>
