@@ -16,6 +16,24 @@
       "revId": "5e0aa0764af3d05aa05f0466675811997d821f9e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db90a4c4_723d7a28",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-10T17:02:04Z",
+      "side": 1,
+      "message": "Hmm.  Yeah, these Steps should be commonly used and stable over a long time.  I\u0027ll start looking for where to store them and how to plumb them all through.",
+      "parentUuid": "671d02ed_76c19aa3",
+      "revId": "5e0aa0764af3d05aa05f0466675811997d821f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
