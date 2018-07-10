@@ -1289,6 +1289,7 @@ if (skia_enable_tools) {
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
+      sources += [ "tools/gpu/mtl/MtlTestGpu.mm" ]
     }
   }
 
