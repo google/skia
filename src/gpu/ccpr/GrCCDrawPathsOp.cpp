@@ -252,7 +252,8 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 GrCCAtlas* atlas =
                         resources->copyPathToCachedAtlas(*cacheEntry, doEvenOddFill, &newOffset);
                 cacheEntry->updateToCachedAtlas(atlas->getOrAssignUniqueKey(onFlushRP),
-                                                newOffset, atlas->refOrMakeCachedAtlasInfo());
+                                                onFlushRP->contextUniqueID(), newOffset,
+                                                atlas->refOrMakeCachedAtlasInfo());
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
                                                         draw.fColor);
@@ -297,8 +298,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
 
                 const GrUniqueKey& atlasKey =
                         resources->nextAtlasToStash()->getOrAssignUniqueKey(onFlushRP);
-                cacheEntry->initAsStashedAtlas(atlasKey, devToAtlasOffset, devBounds, devBounds45,
-                                               devIBounds, draw.fCachedMaskShift);
+                cacheEntry->initAsStashedAtlas(atlasKey, onFlushRP->contextUniqueID(),
+                                               devToAtlasOffset, devBounds, devBounds45, devIBounds,
+                                               draw.fCachedMaskShift);
                 // Remember this atlas in case we encounter the path again during the same flush.
                 cacheEntry->setCurrFlushAtlas(atlas);
             }
