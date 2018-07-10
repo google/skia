@@ -11,6 +11,7 @@
 #include "GrPathRenderer.h"
 
 class GrProxyProvider;
+class GrTextureProxy;
 
 /**
  * This class uses the software side to render a path to an SkBitmap and

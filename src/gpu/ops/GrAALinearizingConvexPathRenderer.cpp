@@ -14,6 +14,8 @@
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrRenderTargetContext.h"
+#include "GrShape.h"
 #include "GrStyle.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"

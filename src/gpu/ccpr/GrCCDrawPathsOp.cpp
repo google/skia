@@ -6,7 +6,8 @@
  */
 
 #include "GrCCDrawPathsOp.h"
-
+#include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrMemoryPool.h"
 #include "GrOpFlushState.h"
 #include "ccpr/GrCCPathCache.h"
