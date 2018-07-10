@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f6acd274_9405b9ee",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T21:01:53Z",
+      "side": 1,
+      "message": "switch to formatting for file local static method (convert_display_rotation)",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85805a1b_53113639",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T21:01:53Z",
+      "side": 1,
+      "message": "So, ARCore doesn\u0027t have its own #defines for these values?",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f88c447f_80cec3e4",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T21:01:53Z",
+      "side": 1,
+      "message": "use \u0027\"\u0027 style include for SkRefCnt",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
