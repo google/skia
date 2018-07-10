@@ -110,9 +110,8 @@ public:
     };
 
     // Used with SkMessageBus
-    struct PurgeSharedIDMessage {
+    struct PurgeSharedIDMessage : public SkAllInboxesMessage {
         PurgeSharedIDMessage(uint64_t sharedID) : fSharedID(sharedID) {}
-
         uint64_t    fSharedID;
     };
 

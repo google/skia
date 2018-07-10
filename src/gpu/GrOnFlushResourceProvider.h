@@ -8,14 +8,14 @@
 #ifndef GrOnFlushResourceProvider_DEFINED
 #define GrOnFlushResourceProvider_DEFINED
 
-#include "GrTypes.h"
+#include "GrContext.h"
 #include "GrDeferredUpload.h"
+#include "GrDrawingManager.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 
-class GrDrawingManager;
 class GrOpList;
 class GrOnFlushResourceProvider;
 class GrRenderTargetOpList;
@@ -91,6 +91,7 @@ public:
     sk_sp<const GrBuffer> findOrMakeStaticBuffer(GrBufferType, size_t, const void* data,
                                                  const GrUniqueKey&);
 
+    uint32_t contextUniqueID() const { return fDrawingMgr->getContext()->uniqueID(); }
     const GrCaps* caps() const;
 
 private:
