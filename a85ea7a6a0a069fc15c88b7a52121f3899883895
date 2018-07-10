@@ -22,6 +22,30 @@
       "revId": "a85ea7a6a0a069fc15c88b7a52121f3899883895",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92d7a99c_c8a4401d",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-07-10T19:18:08Z",
+      "side": 1,
+      "message": "Creation of the GPU clip mask still may Fail?",
+      "parentUuid": "f4940a6d_364f553c",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 22
+      },
+      "revId": "a85ea7a6a0a069fc15c88b7a52121f3899883895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
