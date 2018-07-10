@@ -1977,69 +1977,45 @@ typedef enum {
 
     #define TEST_FOR_HSW
 
-    static bool hsw_ok_ = false;
-    static void check_hsw_ok() {
-        // See http://www.sandpile.org/x86/cpuid.htm
+    static bool hsw_ok() {
+        static const bool ok = []{
+            // See http://www.sandpile.org/x86/cpuid.htm
 
-        // First, a basic cpuid(1).
-        uint32_t eax, ebx, ecx, edx;
-        __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                                     : "0"(1), "2"(0));
+            // First, a basic cpuid(1).
+            uint32_t eax, ebx, ecx, edx;
+            __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                                         : "0"(1), "2"(0));
 
-        // Sanity check for prerequisites.
-        if ((edx & (1<<25)) != (1<<25)) { return; }   // SSE
-        if ((edx & (1<<26)) != (1<<26)) { return; }   // SSE2
-        if ((ecx & (1<< 0)) != (1<< 0)) { return; }   // SSE3
-        if ((ecx & (1<< 9)) != (1<< 9)) { return; }   // SSSE3
-        if ((ecx & (1<<19)) != (1<<19)) { return; }   // SSE4.1
-        if ((ecx & (1<<20)) != (1<<20)) { return; }   // SSE4.2
+            // Sanity check for prerequisites.
+            if ((edx & (1<<25)) != (1<<25)) { return false; }   // SSE
+            if ((edx & (1<<26)) != (1<<26)) { return false; }   // SSE2
+            if ((ecx & (1<< 0)) != (1<< 0)) { return false; }   // SSE3
+            if ((ecx & (1<< 9)) != (1<< 9)) { return false; }   // SSSE3
+            if ((ecx & (1<<19)) != (1<<19)) { return false; }   // SSE4.1
+            if ((ecx & (1<<20)) != (1<<20)) { return false; }   // SSE4.2
 
-        if ((ecx & (3<<26)) != (3<<26)) { return; }   // XSAVE + OSXSAVE
+            if ((ecx & (3<<26)) != (3<<26)) { return false; }   // XSAVE + OSXSAVE
 
-        {
-            uint32_t eax_xgetbv, edx_xgetbv;
-            __asm__ __volatile__("xgetbv" : "=a"(eax_xgetbv), "=d"(edx_xgetbv) : "c"(0));
-            if ((eax_xgetbv & (3<<1)) != (3<<1)) { return; }  // XMM+YMM state saved?
-        }
+            {
+                uint32_t eax_xgetbv, edx_xgetbv;
+                __asm__ __volatile__("xgetbv" : "=a"(eax_xgetbv), "=d"(edx_xgetbv) : "c"(0));
+                if ((eax_xgetbv & (3<<1)) != (3<<1)) { return false; }  // XMM+YMM state saved?
+            }
 
-        if ((ecx & (1<<28)) != (1<<28)) { return; }   // AVX
-        if ((ecx & (1<<29)) != (1<<29)) { return; }   // F16C
-        if ((ecx & (1<<12)) != (1<<12)) { return; }   // FMA  (TODO: not currently used)
+            if ((ecx & (1<<28)) != (1<<28)) { return false; }   // AVX
+            if ((ecx & (1<<29)) != (1<<29)) { return false; }   // F16C
+            if ((ecx & (1<<12)) != (1<<12)) { return false; }   // FMA  (TODO: not currently used)
 
-        // Call cpuid(7) to check for our final AVX2 feature bit!
-        __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                                     : "0"(7), "2"(0));
-        if ((ebx & (1<< 5)) != (1<< 5)) { return; }   // AVX2
+            // Call cpuid(7) to check for our final AVX2 feature bit!
+            __asm__ __volatile__("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
+                                         : "0"(7), "2"(0));
+            if ((ebx & (1<< 5)) != (1<< 5)) { return false; }   // AVX2
 
-        hsw_ok_ = true;
+            return true;
+        }();
+
+        return ok;
     }
-
-    #if defined(_MSC_VER)
-        #include <Windows.h>
-        INIT_ONCE check_hsw_ok_once = INIT_ONCE_STATIC_INIT;
-
-        static BOOL check_hsw_ok_InitOnce_wrapper(INIT_ONCE* once, void* param, void** ctx) {
-            (void)once;
-            (void)param;
-            (void)ctx;
-            check_hsw_ok();
-            return TRUE;
-        }
-
-        static bool hsw_ok() {
-            InitOnceExecuteOnce(&check_hsw_ok_once, check_hsw_ok_InitOnce_wrapper,
-                                nullptr, nullptr);
-            return hsw_ok_;
-        }
-    #else
-        #include <pthread.h>
-        static pthread_once_t check_hsw_ok_once = PTHREAD_ONCE_INIT;
-
-        static bool hsw_ok() {
-            pthread_once(&check_hsw_ok_once, check_hsw_ok);
-            return hsw_ok_;
-        }
-    #endif
 
 #endif
 
