@@ -1638,6 +1638,7 @@ bool SkMatrix::decomposeScale(SkSize* scale, SkMatrix* remaining) const {
     }
     if (remaining) {
         *remaining = *this;
+        // As per skbug.com/7211, this should actually be preScale
         remaining->postScale(SkScalarInvert(sx), SkScalarInvert(sy));
     }
     return true;
