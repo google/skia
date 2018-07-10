@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "56b0d565_1856b823",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "just call this uploadToTex since it doesn\u0027t matter what the texture is that we are uploading to.",
+      "range": {
+        "startLine": 155,
+        "startChar": 15,
+        "endLine": 155,
+        "endChar": 34
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dff8216_d6439e0f",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "no neet to call this private. maybe just mtlTexture to distinguish it from the \"tex\" passed in",
+      "range": {
+        "startLine": 169,
+        "startChar": 19,
+        "endLine": 169,
+        "endChar": 26
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ae5c29e_f18e925c",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "This will create a texture that has the same number of mip levels as the passed in texture. But if we\u0027re only uploading 1 mip level (which we allow) then we wasting time and space allocating the others.",
+      "range": {
+        "startLine": 171,
+        "startChar": 26,
+        "endLine": 171,
+        "endChar": 37
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc6fcdd9_40a93b36",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "This makes me think that somehow we\u0027d want to cache these textures somehow so we don\u0027t need to allocate the duplicate texture every time, but I won\u0027t worry about this for this change just a thought.",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 83
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ef34bfe_247fc0d6",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "instead of \"managed\" lets us the term transfer to match how to refer to this type of thing in the rest of our backends",
+      "range": {
+        "startLine": 174,
+        "startChar": 19,
+        "endLine": 174,
+        "endChar": 33
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ac26c53d_6d0b611d",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T20:11:23Z",
+      "side": 1,
+      "message": "Should we be asserting that the passed in texture either has 1 mip level or an amount equal to mipLevelCount and the transferTexture has exactly mipLevelCount?",
+      "range": {
+        "startLine": 176,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 21
+      },
+      "revId": "b5f9c07a86ce38bc5ecdb2c13cce88344e2e75c1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
