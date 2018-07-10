@@ -21,7 +21,8 @@ void SkRasterPipeline::reset() {
 }
 
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
-    SkASSERT(stage != uniform_color);  // Please use append_constant_color().
+    SkASSERT(stage !=           uniform_color);  // Please use append_constant_color().
+    SkASSERT(stage != unbounded_uniform_color);  // Please use append_constant_color().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -90,9 +91,7 @@ void SkRasterPipeline::dump() const {
 #endif
 
 void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rgba[4]) {
-    SkASSERT(0 <= rgba[0] && rgba[0] <= 1);
-    SkASSERT(0 <= rgba[1] && rgba[1] <= 1);
-    SkASSERT(0 <= rgba[2] && rgba[2] <= 1);
+    // r,g,b might be outside [0,1], but alpha should probably always be in [0,1].
     SkASSERT(0 <= rgba[3] && rgba[3] <= 1);
 
     if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 1) {
@@ -106,14 +105,22 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         Sk4f color = Sk4f::Load(rgba);
         color.store(&ctx->r);
 
-        // To make loads more direct, we store 8-bit values in 16-bit slots.
-        color = color * 255.0f + 0.5f;
-        ctx->rgba[0] = (uint16_t)color[0];
-        ctx->rgba[1] = (uint16_t)color[1];
-        ctx->rgba[2] = (uint16_t)color[2];
-        ctx->rgba[3] = (uint16_t)color[3];
+        // uniform_color requires colors in range and can go lowp,
+        // while unbounded_uniform_color supports out-of-range colors too but not lowp.
+        if (0 <= rgba[0] && rgba[0] <= 1 &&
+            0 <= rgba[1] && rgba[1] <= 1 &&
+            0 <= rgba[2] && rgba[2] <= 1) {
+            // To make loads more direct, we store 8-bit values in 16-bit slots.
+            color = color * 255.0f + 0.5f;
+            ctx->rgba[0] = (uint16_t)color[0];
+            ctx->rgba[1] = (uint16_t)color[1];
+            ctx->rgba[2] = (uint16_t)color[2];
+            ctx->rgba[3] = (uint16_t)color[3];
+            this->unchecked_append(uniform_color, ctx);
+        } else {
+            this->unchecked_append(unbounded_uniform_color, ctx);
+        }
 
-        this->unchecked_append(uniform_color, ctx);
         INC_COLOR;
     }
 
