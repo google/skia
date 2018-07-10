@@ -258,17 +258,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
                                    uint32_t size,
                                    const SkDeserialProcs& procs,
                                    SkTypefacePlayback* topLevelTFPlayback) {
-    /*
-     *  By the time we encounter BUFFER_SIZE_TAG, we need to have already seen
-     *  its dependents: FACTORY_TAG and TYPEFACE_TAG. These two are not required
-     *  but if they are present, they need to have been seen before the buffer.
-     *
-     *  We assert that if/when we see either of these, that we have not yet seen
-     *  the buffer tag, because if we have, then its too-late to deal with the
-     *  factories or typefaces.
-     */
-    SkDEBUGCODE(bool haveBuffer = false;)
-
     switch (tag) {
         case SK_PICT_READER_TAG:
             SkASSERT(nullptr == fOpData);
@@ -278,7 +267,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
             break;
         case SK_PICT_FACTORY_TAG: {
-            SkASSERT(!haveBuffer);
             if (!stream->readU32(&size)) { return false; }
             fFactoryPlayback = skstd::make_unique<SkFactoryPlayback>(size);
             for (size_t i = 0; i < size; i++) {
@@ -293,17 +281,15 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             }
         } break;
         case SK_PICT_TYPEFACE_TAG: {
-            SkASSERT(!haveBuffer);
-            const int count = SkToInt(size);
-            fTFPlayback.setCount(count);
-            for (int i = 0; i < count; i++) {
+            fTFPlayback.setCount(size);
+            for (uint32_t i = 0; i < size; ++i) {
                 sk_sp<SkTypeface> tf(SkTypeface::MakeDeserialize(stream));
                 if (!tf.get()) {    // failed to deserialize
                     // fTFPlayback asserts it never has a null, so we plop in
                     // the default here.
                     tf = SkTypeface::MakeDefault();
                 }
-                fTFPlayback.set(i, tf.get());
+                fTFPlayback[i] = std::move(tf);
             }
         } break;
         case SK_PICT_PICTURE_TAG: {
@@ -349,7 +335,6 @@ bool SkPictureData::parseStreamTag(SkStream* stream,
             if (!buffer.isValid()) {
                 return false;
             }
-            SkDEBUGCODE(haveBuffer = true;)
         } break;
     }
     return true;    // success
