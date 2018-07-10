@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f85d728_b1e44a8e",
+        "filename": "include/core/SkImageGenerator.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-10T20:59:26Z",
+      "side": 1,
+      "message": "Can\u0027t remove this entirely (yet). Chromium has their own derived generators implementing the onGetPixels API.",
+      "revId": "8f6ce092f26ced08c86b23ffea700ae6b8262e07",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
