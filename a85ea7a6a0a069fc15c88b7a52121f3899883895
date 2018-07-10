@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f4940a6d_364f553c",
+        "filename": "src/gpu/GrClipStackClip.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-10T19:11:45Z",
+      "side": 1,
+      "message": "} else {\n\n?",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 168,
+        "endChar": 22
+      },
+      "revId": "a85ea7a6a0a069fc15c88b7a52121f3899883895",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
