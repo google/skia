@@ -547,7 +547,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="8e45fe2dd52731bb2d4318686257e1d7">
+<div><fiddle-embed name="b932a2bd68455fb0af2e7a1ed19e36b3">
 
 #### Example Output
 
@@ -774,7 +774,7 @@ fonts; may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="5e87093b9cbe95124ae14cbe77091eb7" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="d9c6435f26f37b3d63c664a99028f77f" gpu="true"></fiddle-embed></div>
 
 ### See Also
 

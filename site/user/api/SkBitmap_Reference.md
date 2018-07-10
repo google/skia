@@ -764,7 +764,7 @@ copy of <a href='#SkBitmap_move_operator_src'>src</a>
 
 ### Example
 
-<div><fiddle-embed name="9be9adb06c26dac75a5a5a7c1ceca681">
+<div><fiddle-embed name="35ea3fed27d8db22dc00f48670de64de">
 
 #### Example Output
 
@@ -1382,7 +1382,7 @@ true if dimensions do not enclose area
 
 ### Example
 
-<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01">
+<div><fiddle-embed name="a3762c2722b56ba55e42689c527f146c">
 
 #### Example Output
 
@@ -2924,7 +2924,7 @@ If <a href='undocumented#Pixel_Ref'>Pixel Ref</a> has not been set, returns null
 
 ### Example
 
-<div><fiddle-embed name="2d991a231e49d1de13eeb2ba9b440e01"></fiddle-embed></div>
+<div><fiddle-embed name="5db2d30870a7cc45f28e22578d1880c3"></fiddle-embed></div>
 
 ### See Also
 
@@ -3809,7 +3809,7 @@ true if pixels are copied to <a href='#SkBitmap_readPixels_3_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="e9f70cbc9827097449a386ec7a8a8188"></fiddle-embed></div>
+<div><fiddle-embed name="45bca8747b8f49b5be34b520897ef048"></fiddle-embed></div>
 
 ### See Also
 

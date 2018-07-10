@@ -62,7 +62,7 @@ remains open. An open <a href='#Contour'>Contour</a>, stroked, draws <a href='Sk
 
 ### Example
 
-<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div><a href='#Path'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
+<div><fiddle-embed name="a01e533dc7ab34ed728dc4e7a5f1f0ee"><div><a href='#Path'>Path</a> is drawn stroked, with an open <a href='#Contour'>Contour</a> and a closed <a href='#Contour'>Contour</a>.
 </div></fiddle-embed></div>
 
 ## <a name='Contour_Zero_Length'>Contour Zero Length</a>
@@ -837,7 +837,7 @@ for consecutive entries.
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
+<div><fiddle-embed name="799096fdc1298aa815934a74e76570ca">
 
 #### Example Output
 
@@ -1422,7 +1422,7 @@ one of: <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>, <a href='#SkP
 
 ### Example
 
-<div><fiddle-embed name="019af90e778914e8a109d6305ede4fc4">
+<div><fiddle-embed name="a17aec3aa4909527be039e26a7eda694">
 
 #### Example Output
 
@@ -1723,7 +1723,7 @@ true if <a href='#Path'>Path</a> is recognized as an oval or circle
 
 ### Example
 
-<div><fiddle-embed name="a51256952b183ee0f7004f2c87cbbf5b"></fiddle-embed></div>
+<div><fiddle-embed name="af4c5acc7a91e7f23c2af48018903ad4"></fiddle-embed></div>
 
 ### See Also
 
@@ -1939,7 +1939,7 @@ true if caller will alter <a href='#Path'>Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="005f2b207e078baac596681924fe591e">
+<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
 
 #### Example Output
 
@@ -3113,7 +3113,7 @@ to <a href='#Point_Array'>Point Array</a>.
 
 ### Example
 
-<div><fiddle-embed name="60ee3eb747474f5781b0f0dd3a17a866"></fiddle-embed></div>
+<div><fiddle-embed name="ca3de7e5e292b3ad3633b1c39a31d3ab"></fiddle-embed></div>
 
 ### See Also
 
@@ -5450,7 +5450,7 @@ from output.
 
 ### Example
 
-<div><fiddle-embed name="92e0032f85181795d1f8b5a2c8e4e4b7">
+<div><fiddle-embed name="0fc85dd916cc1a5896d36c80b9847391">
 
 #### Example Output
 
@@ -5618,7 +5618,7 @@ number of bytes read, or zero on failure
 
 ### Example
 
-<div><fiddle-embed name="9c6edd836c573a0fd232d2b8aa11a678">
+<div><fiddle-embed name="c0d5fa544759704768f47cac91ae3832">
 
 #### Example Output
 
@@ -5665,7 +5665,7 @@ non-zero, globally unique value
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
+<div><fiddle-embed name="a0f166715d6479f91258d854e63e586d">
 
 #### Example Output
 
@@ -5777,7 +5777,7 @@ Call <a href='#SkPath_Iter_setPath'>setPath</a> to initialize <a href='#SkPath_I
 
 ### Example
 
-<div><fiddle-embed name="01648775cb9b354b2f1836dad82a25ab">
+<div><fiddle-embed name="8dc0d0fdeab20bbc21cac6874ddbefcd">
 
 #### Example Output
 

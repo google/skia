@@ -1188,7 +1188,7 @@ true if <a href='#Paint'>Paint</a> pair are equivalent
 
 ### Example
 
-<div><fiddle-embed name="7481a948e34672720337a631830586dd">
+<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2">
 
 #### Example Output
 
@@ -2036,7 +2036,7 @@ Clears <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> if <a href
 
 ### Example
 
-<div><fiddle-embed name="50dedf8450159571a3edaf4f0050defe">
+<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2">
 
 #### Example Output
 
@@ -2574,7 +2574,7 @@ a color component.
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
+<div><fiddle-embed name="72d41f890203109a41f589a7403acae9">
 
 #### Example Output
 
@@ -2718,7 +2718,7 @@ The color is <a href='undocumented#Unpremultiply'>Unpremultiplied</a>; <a href='
 
 ### Example
 
-<div><fiddle-embed name="abb337da8fc1891f016c61258681c64c">
+<div><fiddle-embed name="cb62e4755789ed32f7120dc55984959d">
 
 #### Example Output
 
@@ -3707,7 +3707,7 @@ Increments filter <a href='undocumented#Reference_Count'>Reference Count</a> by 
 
 ### Example
 
-<div><fiddle-embed name="cea049ffff702a5923da41fe0ae0763b"></fiddle-embed></div>
+<div><fiddle-embed name="c7b786dc9b3501cd0eaba47494b6fa31"></fiddle-embed></div>
 
 ---
 
@@ -3907,7 +3907,7 @@ Increments <a href='#SkPaint_setPathEffect_pathEffect'>pathEffect</a> <a href='u
 
 ### Example
 
-<div><fiddle-embed name="52dd55074ca0b7d520d04e750ca2a0d7"></fiddle-embed></div>
+<div><fiddle-embed name="e9f70cbc9827097449a386ec7a8a8188"></fiddle-embed></div>
 
 ---
 
@@ -4018,7 +4018,7 @@ implementation.
 
 ### Example
 
-<div><fiddle-embed name="c98773d8b4509969d78cb8121e4b77f6"></fiddle-embed></div>
+<div><fiddle-embed name="1a7a5062725139760962582f599f1b97"></fiddle-embed></div>
 
 <a name='SkPaint_getTypeface'></a>
 ## getTypeface
@@ -4064,7 +4064,7 @@ Increases <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="9be9adb06c26dac75a5a5a7c1ceca681">
+<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
 
 #### Example Output
 
@@ -4610,7 +4610,7 @@ Default value is zero.
 
 ### Example
 
-<div><fiddle-embed name="882e8e0103048009a25cfc20400492f7"></fiddle-embed></div>
+<div><fiddle-embed name="6bd705a6e0c5f8ee24f302fe531bfabc"></fiddle-embed></div>
 
 ---
 
@@ -5456,7 +5456,7 @@ corresponding to the Unicode surrogate code point.
 
 ### Example
 
-<div><fiddle-embed name="a3762c2722b56ba55e42689c527f146c"><div><a href='#SkPaint_containsText'>containsText</a> returns true that glyph index is greater than zero, not
+<div><fiddle-embed name="083557b6f653d6fc00a34e01f87b74ff"><div><a href='#SkPaint_containsText'>containsText</a> returns true that glyph index is greater than zero, not
 that it corresponds to an entry in <a href='undocumented#Typeface'>Typeface</a>.
 </div>
 
@@ -5822,7 +5822,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="2a0b80ed20d193c688085b79deb5bdc9"><div>Underline uses intercepts to draw on either side of the glyph Descender.
+<div><fiddle-embed name="4a996d32122f469d51ddd0186efb48cc"><div>Underline uses intercepts to draw on either side of the glyph Descender.
 </div></fiddle-embed></div>
 
 ---
@@ -5872,7 +5872,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09"><div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
+<div><fiddle-embed name="98b2dfc552d0540a7c041fe7a2839bd7"><div><a href='undocumented#Text'>Text</a> intercepts draw on either side of, but not inside, <a href='undocumented#Glyph'>Glyphs</a> in a run.
 </div></fiddle-embed></div>
 
 ---

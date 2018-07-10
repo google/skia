@@ -379,7 +379,7 @@ Returns y-axis value of <a href='#Point'>Point</a> or <a href='#Vector'>Vector</
 
 ### Example
 
-<div><fiddle-embed name="4c962850c2dbea4d2325df469400680e">
+<div><fiddle-embed name="6236f7f2b91aff977a66ba2ee2558ca4">
 
 #### Example Output
 
