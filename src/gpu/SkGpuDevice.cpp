@@ -369,7 +369,7 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
                                                       nullptr);
 
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), *viewMatrix,
-                                       std::move(vertices), nullptr, 0, &primitiveType);
+                                       std::move(vertices), &primitiveType);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1486,9 +1486,7 @@ static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colo
 }
 
 void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCount,
-                                    const SkPoint vertices[],
-                                    const SkMatrix bones[], int boneCount,
-                                    SkBlendMode bmode,
+                                    const SkPoint vertices[], SkBlendMode bmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
@@ -1546,13 +1544,12 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        std::move(grPaint),
                                        this->ctm(),
                                        builder.detach(),
-                                       bones,
-                                       boneCount,
                                        &primitiveType);
 }
 
-void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix bones[], int boneCount,
+void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
                                SkBlendMode mode, const SkPaint& paint) {
+    // TODO: GPU ANIMATION
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
 
@@ -1563,8 +1560,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix bones[
     if ((!hasTexs || !paint.getShader()) && !hasColors) {
         // The dreaded wireframe mode. Fallback to drawVertices and go so slooooooow.
         this->wireframeVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
-                                bones, boneCount, mode, vertices->indices(), vertices->indexCount(),
-                                paint);
+                                mode, vertices->indices(), vertices->indexCount(), paint);
         return;
     }
     if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
@@ -1572,8 +1568,7 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix bones[
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),
-                                       sk_ref_sp(const_cast<SkVertices*>(vertices)),
-                                       bones, boneCount);
+                                       sk_ref_sp(const_cast<SkVertices*>(vertices)));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
