@@ -90,9 +90,7 @@ void SkRasterPipeline::dump() const {
 #endif
 
 void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rgba[4]) {
-    SkASSERT(0 <= rgba[0] && rgba[0] <= 1);
-    SkASSERT(0 <= rgba[1] && rgba[1] <= 1);
-    SkASSERT(0 <= rgba[2] && rgba[2] <= 1);
+    // r,g,b might be outside [0,1], but alpha should probably always be in [0,1].
     SkASSERT(0 <= rgba[3] && rgba[3] <= 1);
 
     if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 1) {
@@ -105,6 +103,10 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
         auto ctx = alloc->make<SkJumper_UniformColorCtx>();
         Sk4f color = Sk4f::Load(rgba);
         color.store(&ctx->r);
+
+        // TODO: if any channel is out of [0,1], append a float-only stage
+        // that can handle that, instead of this uniform_color that assumes
+        // in-range values so it can work in lowp.
 
         // To make loads more direct, we store 8-bit values in 16-bit slots.
         color = color * 255.0f + 0.5f;
