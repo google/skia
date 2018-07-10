@@ -31,15 +31,9 @@ public:
 
     enum CachedFormat {
         kLegacy_CachedFormat,    // The format from the generator, with any color space stripped out
-        kLinearF16_CachedFormat, // Half float RGBA with linear gamma
-        kSRGB8888_CachedFormat,  // sRGB bytes
-        kSBGR8888_CachedFormat,  // sRGB bytes, in BGR order
-
         kNumCachedFormats,
     };
 
-    virtual CachedFormat chooseCacheFormat(SkColorSpace* dstColorSpace,
-                                           const GrCaps* = nullptr) const = 0;
     virtual SkImageInfo buildCacheInfo(CachedFormat) const = 0;
 
 #if SK_SUPPORT_GPU

@@ -82,13 +82,7 @@ public:
      *
      *  @return true on success.
      */
-    struct Options {
-        Options()
-            : fBehavior(SkTransferFunctionBehavior::kIgnore)
-        {}
-
-        SkTransferFunctionBehavior fBehavior;
-    };
+    struct Options {};
     bool getPixels(const SkImageInfo& info, void* pixels, size_t rowBytes, const Options* options);
 
     /**
@@ -148,7 +142,6 @@ public:
      */
     sk_sp<GrTextureProxy> generateTexture(GrContext*, const SkImageInfo& info,
                                           const SkIPoint& origin,
-                                          SkTransferFunctionBehavior behavior,
                                           bool willNeedMipMaps);
 #endif
 
@@ -189,7 +182,6 @@ protected:
 
     virtual TexGenType onCanGenerateTexture() const { return TexGenType::kNone; }
     virtual sk_sp<GrTextureProxy> onGenerateTexture(GrContext*, const SkImageInfo&, const SkIPoint&,
-                                                    SkTransferFunctionBehavior,
                                                     bool willNeedMipMaps);  // returns nullptr
 #endif
 

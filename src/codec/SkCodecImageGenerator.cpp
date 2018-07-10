@@ -45,7 +45,7 @@ bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* re
 
     auto decode = [this, &opts](const SkPixmap& pm) {
         SkCodec::Options codecOpts;
-        codecOpts.fPremulBehavior = opts.fBehavior;
+        codecOpts.fPremulBehavior = SkTransferFunctionBehavior::kIgnore;
         SkCodec::Result result = fCodec->getPixels(pm, &codecOpts);
         switch (result) {
             case SkCodec::kSuccess:

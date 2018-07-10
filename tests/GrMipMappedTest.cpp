@@ -149,14 +149,10 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
             }
 
             SkIPoint origin = SkIPoint::Make(0,0);
-            // The transfer function behavior isn't used in the generator so set we set it
-            // arbitrarily here.
-            SkTransferFunctionBehavior behavior = SkTransferFunctionBehavior::kIgnore;
             SkImageInfo imageInfo = SkImageInfo::Make(kSize, kSize, kRGBA_8888_SkColorType,
                                                       kPremul_SkAlphaType);
             sk_sp<GrTextureProxy> genProxy = imageGen->generateTexture(context, imageInfo,
-                                                                       origin, behavior,
-                                                                       willUseMips);
+                                                                       origin, willUseMips);
 
             REPORTER_ASSERT(reporter, genProxy);
             if (!genProxy) {
