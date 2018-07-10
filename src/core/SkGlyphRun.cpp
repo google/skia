@@ -179,6 +179,9 @@ void SkGlyphRunBuilder::addDenseAndUnique(
         glyphIDs = (SkGlyphID*)bytes;
     }
 
+    // TODO: Remove when glyphIds are passed back.
+    fGlyphIDs = glyphIDs;
+
     SkASSERT(glyphIDs != nullptr);
 
     if (runSize > 0) {
@@ -203,7 +206,7 @@ void SkGlyphRunBuilder::makeGlyphRun(
                 std::move(glyphRunPaint),
                 SkSpan<const uint16_t>{fDenseIndex},
                 SkSpan<const SkPoint>{fPositions},
-                SkSpan<const SkGlyphID>{fScratchGlyphIDs},
+                SkSpan<const SkGlyphID>{fGlyphIDs, SkTo<ptrdiff_t>(fDenseIndex.size())},
                 SkSpan<const SkGlyphID>{fUniqueGlyphIDs},
                 text,
                 clusters
