@@ -890,6 +890,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                         return nullptr;
                 }
                 break;
+            case SkEncodedInfo::kAlpha_Color:
+                // FIXME: Falling through for now, since previously this would
+                // have been kGrayAlpha, but I'm not sure this is correct for
+                // all dstInfos...
             case SkEncodedInfo::kGrayAlpha_Color:
                 switch (dstInfo.colorType()) {
                     case kRGBA_8888_SkColorType:
@@ -963,6 +967,10 @@ SkSwizzler* SkSwizzler::CreateSwizzler(const SkEncodedInfo& encodedInfo,
                         return nullptr;
                 }
                 break;
+            case SkEncodedInfo::k565_Color:
+                // Treat 565 exactly like RGB (since it's still encoded as 8 bit s per component).
+                // We just mark as 565 when we have a hint that there are only 5/6/5 "significant"
+                // bits in each channel.
             case SkEncodedInfo::kRGB_Color:
                 switch (dstInfo.colorType()) {
                     case kRGBA_8888_SkColorType:

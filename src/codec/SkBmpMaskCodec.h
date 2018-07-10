@@ -31,7 +31,7 @@ public:
      * @param masks color masks for certain bmp formats
      * @param rowOrder indicates whether rows are ordered top-down or bottom-up
      */
-    SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
+    SkBmpMaskCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, SkMasks* masks,
             SkCodec::SkScanlineOrder rowOrder);
 

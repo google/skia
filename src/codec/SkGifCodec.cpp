@@ -91,18 +91,10 @@ std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Use kPalette since Gifs are encoded with a color table.
     // FIXME: Gifs can actually be encoded with 4-bits per pixel. Using 8 works, but we could skip
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
-    const auto encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
-
-    // The choice of unpremul versus premul is arbitrary, since all colors are either fully
-    // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
-    // zeroes, which is arguably premultiplied.
-    const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
-                                                        : kOpaque_SkAlphaType;
-
-    const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             kN32_SkColorType, alphaType,
-                                             SkColorSpace::MakeSRGB());
-    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, imageInfo, reader.release()));
+    auto encodedInfo = SkEncodedInfo::Make(reader->screenWidth(), reader->screenHeight(),
+                                           SkEncodedInfo::kPalette_Color, alpha, 8,
+                                           SkEncodedInfo::ICCProfile::MakeSRGB());
+    return std::unique_ptr<SkCodec>(new SkGifCodec(std::move(encodedInfo), reader.release()));
 }
 
 bool SkGifCodec::onRewind() {
@@ -110,9 +102,8 @@ bool SkGifCodec::onRewind() {
     return true;
 }
 
-SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
+SkGifCodec::SkGifCodec(SkEncodedInfo&& encodedInfo, SkGifImageReader* reader)
+    : INHERITED(std::move(encodedInfo), SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
     , fReader(reader)
     , fTmpBuffer(nullptr)
     , fSwizzler(nullptr)
