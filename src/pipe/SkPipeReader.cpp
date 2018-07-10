@@ -51,14 +51,14 @@ public:
         return index ? fFactories->getAt(index - 1) : nullptr;
     }
 
-    bool setImage(int index, SkImage* img) {
-        return fImages->set(index - 1, img);
+    bool setImage(int index, sk_sp<SkImage> img) {
+        return fImages->set(index - 1, std::move(img));
     }
-    bool setPicture(int index, SkPicture* pic) {
-        return fPictures->set(index - 1, pic);
+    bool setPicture(int index, sk_sp<SkPicture> pic) {
+        return fPictures->set(index - 1, std::move(pic));
     }
-    bool setTypeface(int index, SkTypeface* face) {
-        return fTypefaces->set(index - 1, face);
+    bool setTypeface(int index, sk_sp<SkTypeface> face) {
+        return fTypefaces->set(index - 1, std::move(face));
     }
     bool setFactory(int index, SkFlattenable::Factory factory) {
         SkASSERT(index > 0);
@@ -645,7 +645,7 @@ static void defineImage_handler(SkPipeReader& reader, uint32_t packedVerb, SkCan
         if (!image) {
             SkDebugf("-- failed to decode\n");
         }
-        inflator->setImage(index, image.get());
+        inflator->setImage(index, std::move(image));
     }
 }
 
@@ -671,7 +671,7 @@ static void defineTypeface_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
         sk_sp<SkData> data = reader.readByteArrayAsData();
         // TODO: seems like we could "peek" to see the array, and not need to copy it.
         sk_sp<SkTypeface> tf = data ? inflator->makeTypeface(data->data(), data->size()) : nullptr;
-        inflator->setTypeface(index, tf.get());
+        inflator->setTypeface(index, std::move(tf));
     }
 }
 
@@ -707,7 +707,7 @@ static void definePicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkC
         do_playback(reader, recorder.beginRecording(*cull), &pictureIndex);
         SkASSERT(pictureIndex > 0);
         sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
-        inflator->setPicture(pictureIndex, picture.get());
+        inflator->setPicture(pictureIndex, std::move(picture));
     }
 }
 

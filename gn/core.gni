@@ -363,6 +363,7 @@ skia_core_sources = [
 
   "$_src/pipe/SkPipeCanvas.cpp",
   "$_src/pipe/SkPipeReader.cpp",
+  "$_src/pipe/SkRefSet.h",
 
   "$_src/shaders/SkBitmapProcShader.cpp",
   "$_src/shaders/SkBitmapProcShader.h",

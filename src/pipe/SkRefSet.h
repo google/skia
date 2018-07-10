@@ -9,24 +9,22 @@
 #define SkRefSet_DEFINED
 
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
+#include "SkTArray.h"
 
 template <typename T> class SkRefSet {
 public:
-    ~SkRefSet() { fArray.unrefAll(); }
-
     T* get(int index) const {
         SkASSERT((unsigned)index < (unsigned)fArray.count());
-        return fArray[index];
+        return fArray[index].get();
     }
 
-    bool set(int index, T* value) {
-        if ((unsigned)index < (unsigned)fArray.count()) {
-            SkRefCnt_SafeAssign(fArray[index], value);
+    bool set(int index, sk_sp<T> value) {
+        if (index < fArray.count()) {
+            fArray[index] = std::move(value);
             return true;
         }
         if (fArray.count() == index && value) {
-            *fArray.append() = SkRef(value);
+            fArray.emplace_back(std::move(value));
             return true;
         }
         SkDebugf("SkRefSet: index [%d] out of range %d\n", index, fArray.count());
@@ -34,7 +32,7 @@ public:
     }
 
 private:
-    SkTDArray<T*> fArray;
+    SkTArray<sk_sp<T>, true> fArray;
 };
 
 #endif
