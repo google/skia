@@ -5751,6 +5751,55 @@ static void testRect1_u(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
+// this test fails for now; it generates partial paths that are incorrectly
+// connected to form an area where it should not. The fix is to connect the
+// pieces using only contours that are part of the input data set.
+static void filinmangust14(skiatest::Reporter* reporter, const char* filename) {
+    return;
+SkPath path, path1;
+path.setFillType(SkPath::kWinding_FillType);
+        path.moveTo(SkBits2Float(0x440bc02c), SkBits2Float(0x4409c000));  // 559.003f, 551
+        path.lineTo(SkBits2Float(0x440bc02c), SkBits2Float(0x440e8000));  // 559.003f, 570
+        path.lineTo(SkBits2Float(0x440bbfda), SkBits2Float(0x440e8000));  // 558.998f, 570
+        path.lineTo(SkBits2Float(0x440bbfda), SkBits2Float(0x4409c000));  // 558.998f, 551
+        path.lineTo(SkBits2Float(0x440bc02c), SkBits2Float(0x4409c000));  // 559.003f, 551
+        path.close();
+path1 = path;
+path.reset();
+        path.setFillType(SkPath::kWinding_FillType);
+        path.moveTo(SkBits2Float(0x45582000), SkBits2Float(0x45be9805));  // 3458, 6099
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x45be9805));  // 3403.4f, 6099
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x45be97fb));  // 3403.4f, 6099
+        path.lineTo(SkBits2Float(0x45582000), SkBits2Float(0x45be97fb));  // 3458, 6099
+        path.lineTo(SkBits2Float(0x45582000), SkBits2Float(0x45be9805));  // 3458, 6099
+        path.close();
+        path.moveTo(SkBits2Float(0x43b60000), SkBits2Float(0x443dffd7));  // 364, 759.997f
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x443dffd7));  // 3403.4f, 759.997f
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x443e0029));  // 3403.4f, 760.003f
+        path.lineTo(SkBits2Float(0x43b60000), SkBits2Float(0x443e0029));  // 364, 760.003f
+        path.lineTo(SkBits2Float(0x43b60000), SkBits2Float(0x443dffd7));  // 364, 759.997f
+        path.close();
+        path.moveTo(SkBits2Float(0x4554b65d), SkBits2Float(0x45be9800));  // 3403.4f, 6099
+        path.lineTo(SkBits2Float(0x4554b65d), SkBits2Float(0x443e0000));  // 3403.4f, 760
+        path.lineTo(SkBits2Float(0x4554b671), SkBits2Float(0x443e0000));  // 3403.4f, 760
+        path.lineTo(SkBits2Float(0x4554b671), SkBits2Float(0x45be9800));  // 3403.4f, 6099
+        path.lineTo(SkBits2Float(0x4554b65d), SkBits2Float(0x45be9800));  // 3403.4f, 6099
+        path.close();
+        path.moveTo(SkBits2Float(0x449f4000), SkBits2Float(0x43bdffae));  // 1274, 379.997f
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x43bdffae));  // 3403.4f, 379.997f
+        path.lineTo(SkBits2Float(0x4554b667), SkBits2Float(0x43be0052));  // 3403.4f, 380.003f
+        path.lineTo(SkBits2Float(0x449f4000), SkBits2Float(0x43be0052));  // 1274, 380.003f
+        path.lineTo(SkBits2Float(0x449f4000), SkBits2Float(0x43bdffae));  // 1274, 379.997f
+        path.close();
+        path.moveTo(SkBits2Float(0x4554b65d), SkBits2Float(0x443e0000));  // 3403.4f, 760
+        path.lineTo(SkBits2Float(0x4554b65d), SkBits2Float(0x43be0000));  // 3403.4f, 380
+        path.lineTo(SkBits2Float(0x4554b671), SkBits2Float(0x43be0000));  // 3403.4f, 380
+        path.lineTo(SkBits2Float(0x4554b671), SkBits2Float(0x443e0000));  // 3403.4f, 760
+        path.lineTo(SkBits2Float(0x4554b65d), SkBits2Float(0x443e0000));  // 3403.4f, 760
+        path.close();
+            testPathOp(reporter, path1, path, kUnion_SkPathOp, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = 0;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
@@ -5758,6 +5807,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(filinmangust14),
     TEST(testRect1_u),
     TEST(halbug),
     TEST(seanbug),
