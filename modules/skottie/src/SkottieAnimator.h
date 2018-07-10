@@ -22,7 +22,15 @@ template <typename T>
 bool BindProperty(const skjson::Value&,
                   sksg::AnimatorList*,
                   std::function<void(const T&)>&&,
-                  const T* noop = nullptr);
+                  const T* default_igore = nullptr);
+
+template <typename T>
+bool BindProperty(const skjson::Value& jv,
+                  sksg::AnimatorList* animators,
+                  std::function<void(const T&)>&& apply,
+                  const T& default_ignore) {
+    return BindProperty(jv, animators, std::move(apply), &default_ignore);
+}
 
 } // namespace skottie
 
