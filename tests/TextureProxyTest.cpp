@@ -255,7 +255,8 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     SkAssertResult(proxyProvider->assignUniqueKeyToProxy(key, proxy.get()));
 
     // Send an invalidation message, which will be sitting in the cache's inbox
-    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(GrUniqueKeyInvalidatedMessage(key));
+    SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
+            GrUniqueKeyInvalidatedMessage(key, context->uniqueID()));
 
     REPORTER_ASSERT(reporter, 1 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());

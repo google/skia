@@ -33,7 +33,7 @@ void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyK
     MakeCopyKeyFromOrigKey(baseKey, params, copyKey);
 }
 
-void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey) {
+void GrTextureAdjuster::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) {
     // We don't currently have a mechanism for notifications on Images!
 }
 
@@ -67,7 +67,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
                 proxyProvider->removeUniqueKeyFromProxy(key, cachedCopy.get());
             }
             proxyProvider->assignUniqueKeyToProxy(key, copy.get());
-            this->didCacheCopy(key);
+            this->didCacheCopy(key, proxyProvider->contextUniqueID());
         }
     }
     return copy;
