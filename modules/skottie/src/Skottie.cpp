@@ -77,20 +77,24 @@ bool LogFail(const skjson::Value& json, const char* msg) {
 
 sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ctx,
                                  sk_sp<sksg::Matrix> parentMatrix) {
+    static const VectorValue g_default_vec_0   = {  0,   0},
+                             g_default_vec_100 = {100, 100};
+
     auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
     auto adapter = sk_make_sp<TransformAdapter>(matrix);
-    auto anchor_attached = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
+
+    auto bound = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
             [adapter](const VectorValue& a) {
                 adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
-            });
-    auto position_attached = BindProperty<VectorValue>(t["p"], &ctx->fAnimators,
+            }, g_default_vec_0);
+    bound |= BindProperty<VectorValue>(t["p"], &ctx->fAnimators,
             [adapter](const VectorValue& p) {
                 adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
-            });
-    auto scale_attached = BindProperty<VectorValue>(t["s"], &ctx->fAnimators,
+            }, g_default_vec_0);
+    bound |= BindProperty<VectorValue>(t["s"], &ctx->fAnimators,
             [adapter](const VectorValue& s) {
                 adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
-            });
+            }, g_default_vec_100);
 
     const auto* jrotation = &t["r"];
     if (jrotation->is<skjson::NullValue>()) {
@@ -98,30 +102,20 @@ sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ct
         // we can still make use of rz.
         jrotation = &t["rz"];
     }
-    auto rotation_attached = BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
+    bound |= BindProperty<ScalarValue>(*jrotation, &ctx->fAnimators,
             [adapter](const ScalarValue& r) {
                 adapter->setRotation(r);
-            });
-    auto skew_attached = BindProperty<ScalarValue>(t["sk"], &ctx->fAnimators,
+            }, 0.0f);
+    bound |= BindProperty<ScalarValue>(t["sk"], &ctx->fAnimators,
             [adapter](const ScalarValue& sk) {
                 adapter->setSkew(sk);
-            });
-    auto skewaxis_attached = BindProperty<ScalarValue>(t["sa"], &ctx->fAnimators,
+            }, 0.0f);
+    bound |= BindProperty<ScalarValue>(t["sa"], &ctx->fAnimators,
             [adapter](const ScalarValue& sa) {
                 adapter->setSkewAxis(sa);
-            });
+            }, 0.0f);
 
-    if (!anchor_attached &&
-        !position_attached &&
-        !scale_attached &&
-        !rotation_attached &&
-        !skew_attached &&
-        !skewaxis_attached) {
-        LogFail(t, "Could not parse transform");
-        return nullptr;
-    }
-
-    return matrix;
+    return bound ? matrix : nullptr;
 }
 
 sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, AttachContext* ctx,
