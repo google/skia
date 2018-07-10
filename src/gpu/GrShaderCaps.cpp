@@ -38,7 +38,6 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMustObfuscateUniformColor = false;
     fMustGuardDivisionEvenAfterExplicitZeroCheck = false;
     fCanUseFragCoord = true;
-    fInterpolantsAreInaccurate = false;
     fIncompleteShortIntPrecision = false;
     fFlatInterpolationSupport = false;
     fPreferFlatInterpolation = false;
@@ -112,7 +111,6 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Must guard division even after explicit zero check",
                        fMustGuardDivisionEvenAfterExplicitZeroCheck);
     writer->appendBool("Can use gl_FragCoord", fCanUseFragCoord);
-    writer->appendBool("Interpolants are inaccurate", fInterpolantsAreInaccurate);
     writer->appendBool("Incomplete short int precision", fIncompleteShortIntPrecision);
     writer->appendBool("Flat interpolation support", fFlatInterpolationSupport);
     writer->appendBool("Prefer flat interpolation", fPreferFlatInterpolation);
@@ -148,7 +146,6 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
         SkASSERT(!fMustObfuscateUniformColor);
         SkASSERT(!fMustGuardDivisionEvenAfterExplicitZeroCheck);
         SkASSERT(fCanUseFragCoord);
-        SkASSERT(!fInterpolantsAreInaccurate);
         SkASSERT(!fIncompleteShortIntPrecision);
     }
 #if GR_TEST_UTILS
