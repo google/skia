@@ -112,8 +112,8 @@ void SkXfermodeImageFilter_Base::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* source,
-                                                           const Context& ctx,
-                                                           SkIPoint* offset) const {
+                                                                const Context& ctx,
+                                                                SkIPoint* offset) const {
     SkIPoint backgroundOffset = SkIPoint::Make(0, 0);
     sk_sp<SkSpecialImage> background(this->filterInput(0, source, ctx, &backgroundOffset));
 
@@ -129,7 +129,7 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
     SkIRect srcBounds = SkIRect::EmptyIRect();
     if (background) {
         srcBounds = SkIRect::MakeXYWH(backgroundOffset.x(), backgroundOffset.y(),
-                                       background->width(), background->height());
+                                      background->width(), background->height());
     }
 
     srcBounds.join(foregroundBounds);
