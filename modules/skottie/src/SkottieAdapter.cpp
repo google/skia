@@ -94,7 +94,10 @@ void GradientAdapter::apply() {
     // |fColorStops| holds |fStopCount| x [ pos, r, g, g ] + ? x [ pos, alpha ]
 
     if (fColorStops.size() < fStopCount * 4 || ((fColorStops.size() - fStopCount * 4) % 2)) {
-        SkDebugf("!! Invalid gradient stop array size: %zu", fColorStops.size());
+        // apply() may get called before the stops are set, so only log when we have some stops.
+        if (!fColorStops.empty()) {
+            SkDebugf("!! Invalid gradient stop array size: %zu\n", fColorStops.size());
+        }
         return;
     }
 
