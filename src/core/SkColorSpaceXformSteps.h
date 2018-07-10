@@ -11,6 +11,8 @@
 #include "SkColorSpace.h"
 #include "SkImageInfo.h"
 
+class SkRasterPipeline;
+
 struct SkColorSpaceXformSteps {
     struct Flags {
         bool unpremul;
@@ -39,6 +41,7 @@ struct SkColorSpaceXformSteps {
     }
 
     void apply(float rgba[4]) const;
+    void apply(SkRasterPipeline*) const;
 
     Flags flags;
 

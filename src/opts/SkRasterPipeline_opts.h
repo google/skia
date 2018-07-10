@@ -1803,6 +1803,14 @@ STAGE(matrix_2x3, const float* m) {
     r = R;
     g = G;
 }
+STAGE(matrix_3x3, const float* m) {
+    auto R = mad(r,m[0], mad(g,m[3], b*m[6])),
+         G = mad(r,m[1], mad(g,m[4], b*m[7])),
+         B = mad(r,m[2], mad(g,m[5], b*m[8]));
+    r = R;
+    g = G;
+    b = B;
+}
 STAGE(matrix_3x4, const float* m) {
     auto R = mad(r,m[0], mad(g,m[3], mad(b,m[6], m[ 9]))),
          G = mad(r,m[1], mad(g,m[4], mad(b,m[7], m[10]))),
@@ -3204,7 +3212,7 @@ static NotImplemented
         store_u16_be,
         byte_tables,
         colorburn, colordodge, softlight, hue, saturation, color, luminosity,
-        matrix_3x4, matrix_4x5, matrix_4x3,
+        matrix_3x3, matrix_3x4, matrix_4x5, matrix_4x3,
         parametric_r, parametric_g, parametric_b, parametric_a,
         gamma, gamma_dst,
         rgb_to_hsl, hsl_to_rgb,

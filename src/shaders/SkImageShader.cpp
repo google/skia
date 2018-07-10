@@ -9,6 +9,7 @@
 #include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
 #include "SkImageShader.h"
@@ -314,8 +315,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         SkColor4f paint_color;
     };
     auto misc = alloc->make<MiscCtx>();
-    misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
-    misc->paint_color = SkColor4f_from_SkColor(rec.fPaint.getColor(), rec.fDstCS);
+    misc->state = std::move(state);  // Extend lifetime to match the pipeline's.
+    swizzle_rb(Sk4f_fromL32(rec.fPaint.getColor())).store(misc->paint_color.vec());  // sRGBA floats
     p->append_matrix(alloc, matrix);
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
@@ -330,8 +331,6 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     limit_x->invScale = 1.0f / pm.width();
     limit_y->scale = pm.height();
     limit_y->invScale = 1.0f / pm.height();
-
-    bool is_srgb = rec.fDstCS && (!info.colorSpace() || info.gammaCloseToSRGB());
 
     SkJumper_DecalTileCtx* decal_ctx = nullptr;
     bool decal_x_and_y = fTileModeX == kDecal_TileMode && fTileModeY == kDecal_TileMode;
@@ -381,40 +380,49 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         if (decal_ctx) {
             p->append(SkRasterPipeline::check_decal_mask, decal_ctx);
         }
-        if (is_srgb) {
-            p->append(SkRasterPipeline::from_srgb);
-        }
     };
 
     auto append_misc = [&] {
+        // TODO: if ref.fDstCS isn't null, we'll premul here then immediately unpremul
+        // to do the color space transformation.  Might be possible to streamline.
         if (info.colorType() == kAlpha_8_SkColorType) {
+            // The color for A8 images comes from the (sRGB) paint color.
             p->append(SkRasterPipeline::set_rgb, &misc->paint_color);
-        }
-        if (info.colorType() == kAlpha_8_SkColorType ||
-            info.alphaType() == kUnpremul_SkAlphaType) {
+            p->append(SkRasterPipeline::premul);
+        } else if (info.alphaType() == kUnpremul_SkAlphaType) {
+            // Convert unpremul images to premul before we carry on with the rest of the pipeline.
             p->append(SkRasterPipeline::premul);
         }
+
         if (quality > kLow_SkFilterQuality) {
             // Bicubic filtering naturally produces out of range values on both sides.
             p->append(SkRasterPipeline::clamp_0);
             p->append(fClampAsIfUnpremul ? SkRasterPipeline::clamp_1
                                          : SkRasterPipeline::clamp_a);
         }
-        append_gamut_transform(p, alloc,
-                               info.colorSpace(),
-                               rec.fDstCS,
-                               fClampAsIfUnpremul ? kUnpremul_SkAlphaType : kPremul_SkAlphaType);
+
+        if (rec.fDstCS) {
+            // If color managed, convert from premul source all the way to premul dst color space.
+            auto srcCS = info.colorSpace();
+            if (!srcCS || info.colorType() == kAlpha_8_SkColorType) {
+                // We treat untagged images as sRGB.
+                // A8 images get their r,g,b from the paint color, so they're also sRGB.
+                srcCS = SkColorSpace::MakeSRGB().get();
+            }
+            alloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType, rec.fDstCS)
+                ->apply(p);
+        }
+
         return true;
     };
 
-    // We've got a fast path for 8888 bilinear clamp/clamp non-color-managed sampling.
+    // We've got a fast path for 8888 bilinear clamp/clamp sampling.
     auto ct = info.colorType();
     if (true
         && (ct == kRGBA_8888_SkColorType || ct == kBGRA_8888_SkColorType)
         && quality == kLow_SkFilterQuality
         && fTileModeX == SkShader::kClamp_TileMode
-        && fTileModeY == SkShader::kClamp_TileMode
-        && !is_srgb) {
+        && fTileModeY == SkShader::kClamp_TileMode) {
 
         p->append(SkRasterPipeline::bilerp_clamp_8888, gather);
         if (ct == kBGRA_8888_SkColorType) {
