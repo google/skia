@@ -126,6 +126,10 @@ const void* GrGetPtrFromId(id idObject) {
     return (__bridge const void*)idObject;
 }
 
+const void* GrReleaseId(id idObject) {
+    return (__bridge_retained const void*)idObject;
+}
+
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
     texDesc.textureType = mtlTexture.textureType;
