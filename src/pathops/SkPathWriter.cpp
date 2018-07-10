@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkOpContour.h"
 #include "SkOpSpan.h"
 #include "SkPathOpsPoint.h"
 #include "SkPathWriter.h"
@@ -103,6 +104,10 @@ void SkPathWriter::finishContour() {
     }
 }
 
+SkPoint SkPathWriter::getLastStart() const {
+    return fFirstPtT->fPt;
+}
+
 void SkPathWriter::init() {
     fCurrent.reset();
     fFirstPtT = fDefer[0] = fDefer[1] = nullptr;
@@ -190,7 +195,7 @@ public:
         connect closest
         reassemble contour pieces into new path
     */
-void SkPathWriter::assemble() {
+void SkPathWriter::assemble(SkOpContourHead* contourList) {
 #if DEBUG_SHOW_TEST_NAME
     SkDebugf("</div>\n");
 #endif
@@ -301,19 +306,32 @@ void SkPathWriter::assemble() {
 #endif
         do {
             const SkPath& contour = fPartials[rIndex];
-            if (!first) {
-                SkPoint prior, next;
+            if (!first && contourList) {
+                SkPoint prior, next, last;
                 SkAssertResult(fPathPtr->getLastPt(&prior));
                 if (forward) {
                     next = contour.getPoint(0);
+                     SkAssertResult(contour.getLastPt(&last));
                 } else {
                     SkAssertResult(contour.getLastPt(&next));
+                    last = contour.getPoint(0);
                 }
                 if (prior != next) {
                     /* TODO: if there is a gap between open path written so far and path to come,
                        connect by following segments from one to the other, rather than introducing
                        a diagonal to connect the two.
-                     */
+                       Or, see if closing the current path adds an existing segment and extending
+                       the path does not add an existing segment
+                    */
+                    int hops = 1;
+                    float priorDist, gapDist, nextDist;
+                    SkPoint priorStart = this->getLastStart();
+                    do {
+                        priorDist = contourList->distHops(priorStart, prior, hops);
+                        gapDist = contourList->distHops(prior, next, hops);
+                        nextDist = contourList->distHops(next, last, hops);
+                        hops += 1;
+                    } while (priorDist < 0 && gapDist < 0 && nextDist < 0);
                     SkDebugf("");
                 }
             }

@@ -19,6 +19,7 @@ class SkOpContour {
 public:
     SkOpContour() {
         reset();
+        fHopID = -1;
     }
 
     bool operator<(const SkOpContour& rh) const {
@@ -169,6 +170,17 @@ public:
 
     const SkPoint& end() const {
         return fTail->pts()[SkPathOpsVerbToPoints(fTail->verb())];
+    }
+
+    SkOpSpanBase* findPt(const SkPoint& pt) {
+        SkOpSegment* segment = &fHead;
+        do {
+            SkOpSpanBase* result = segment->findPt(pt);
+            if (result) {
+                return result;
+            }
+        } while ((segment = segment->next()));
+        return nullptr;
     }
 
     SkOpSpan* findSortableTop(SkOpContour* );
@@ -379,6 +391,7 @@ protected:
     int fCcw;
     int fCount;
     int fFirstSorted;
+    int fHopID;
     bool fDone;  // set by find top segment
     bool fOperand;  // true for the second argument to a binary operator
     bool fReverse;  // true if contour should be reverse written to path (used only by fix winding)
@@ -401,6 +414,10 @@ public:
         prev->setNext(contour);
         return contour;
     }
+
+    float distHops(const SkPoint& start, const SkPoint& end, int hops);
+
+    SkOpSpanBase* find(const SkPoint& );
 
     void joinAllSegments() {
         SkOpContour* next = this;
@@ -427,7 +444,6 @@ public:
         SkASSERT(prev);
         prev->setNext(nullptr);
     }
-
 };
 
 class SkOpContourBuilder {

@@ -18,7 +18,7 @@ void SkOpContour::toPath(SkPathWriter* path) const {
         SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
     } while ((segment = segment->next()));
     path->finishContour();
-    path->assemble();
+    path->assemble(nullptr);
 }
 
 void SkOpContour::toReversePath(SkPathWriter* path) const {
@@ -27,7 +27,7 @@ void SkOpContour::toReversePath(SkPathWriter* path) const {
         SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
     } while ((segment = segment->prev()));
     path->finishContour();
-    path->assemble();
+    path->assemble(nullptr);
 }
 
 SkOpSpan* SkOpContour::undoneSpan() {
@@ -106,4 +106,51 @@ void SkOpContourBuilder::flush() {
     memcpy(ptStorage, fLastLine, sizeof(fLastLine));
     (void) fContour->addLine(ptStorage);
     fLastIsLine = false;
+}
+
+float SkOpContourHead::distHops(const SkPoint& start, const SkPoint& end, int hops) {
+    --fHopID;
+    SkOpSpanBase* ptT = this->find(start);
+    SkOpSpanBase* ptTEnd = this->find(end);
+    float closest = FLT_MAX;
+    do {
+        SkOpSpanBase* hop;
+        if (ptT->t() > 0) {
+            hop = ptT->prev();
+            if (end == hop->pt()) {
+                // check to see if this dist is the closest
+            }
+        }
+        if (ptT->t() < 1) {
+            hop = ptT->upCast()->next();
+        }
+        if (ptT == ptTEnd) {
+            break;
+        }
+        ptT = ptT->upCast()->next();
+    } while (true);
+    // find connection from start to end not exceeding hops
+    // maybe can reuse fSpanAdds as follows
+    // fHopID is a unique negative available to distHops
+    // check that fHopID is always smaller than SkOpSpanBase::fSpanAdds
+    // store fHopID in fSpanAdds, so that same dist node is only visited once
+    // track traversal on local stack
+    // if start -> end is found, stack shows the way
+    // return Euclidean distance from start to end (may be debugging only)
+    return 0;
+}
+
+SkOpSpanBase* SkOpContourHead::find(const SkPoint& pt) {
+    SkOpContour* next = this;
+    do {
+        if (!next->count()) {
+            continue;
+        }
+        SkOpSpanBase* result = next->findPt(pt);
+        if (result) {
+            return result;
+        }
+    } while ((next = next->next()));
+    SkASSERT(0);
+    return nullptr;
 }
