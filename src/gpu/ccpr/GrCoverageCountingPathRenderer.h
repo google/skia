@@ -8,11 +8,12 @@
 #ifndef GrCoverageCountingPathRenderer_DEFINED
 #define GrCoverageCountingPathRenderer_DEFINED
 
+#include <map>
 #include "GrCCPerOpListPaths.h"
+#include "GrOnFlushResourceProvider.h"
 #include "GrPathRenderer.h"
 #include "GrRenderTargetOpList.h"
 #include "ccpr/GrCCPerFlushResources.h"
-#include <map>
 
 class GrCCDrawPathsOp;
 class GrCCPathCache;

@@ -14,6 +14,7 @@
 #include "GrPath.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
+#include "GrShape.h"
 #include "GrStencilClip.h"
 #include "GrStencilPathOp.h"
 #include "GrStyle.h"

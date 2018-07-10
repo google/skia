@@ -10,7 +10,6 @@
 
 #include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
-#include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
 #include "SkTArray.h"
 #include "text/GrTextContext.h"
@@ -21,9 +20,11 @@ class GrOnFlushCallbackObject;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
 class GrSingleOWner;
+class GrRenderTargetOpList;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;
+class SkDeferredDisplayList;
 
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
@@ -65,12 +66,7 @@ public:
     // supported and turned on.
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();
 
-    void flushIfNecessary() {
-        GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
-        if (resourceCache && resourceCache->requestsFlush()) {
-            this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
-        }
-    }
+    void flushIfNecessary();
 
     static bool ProgramUnitTest(GrContext* context, int maxStages, int maxLevels);
 

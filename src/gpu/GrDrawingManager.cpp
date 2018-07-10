@@ -528,6 +528,13 @@ GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRendere
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }
 
+void GrDrawingManager::flushIfNecessary() {
+    GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
+    if (resourceCache && resourceCache->requestsFlush()) {
+        this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
+    }
+}
+
 sk_sp<GrRenderTargetContext> GrDrawingManager::makeRenderTargetContext(
                                                             sk_sp<GrSurfaceProxy> sProxy,
                                                             sk_sp<SkColorSpace> colorSpace,

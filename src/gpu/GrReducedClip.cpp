@@ -6,18 +6,18 @@
  */
 
 #include "GrReducedClip.h"
-
 #include "GrAppliedClip.h"
 #include "GrClip.h"
 #include "GrColor.h"
 #include "GrContextPriv.h"
-#include "GrRenderTargetContext.h"
-#include "GrRenderTargetContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrFixedClip.h"
 #include "GrPathRenderer.h"
-#include "GrStencilSettings.h"
+#include "GrRenderTargetContext.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrShape.h"
 #include "GrStencilClip.h"
+#include "GrStencilSettings.h"
 #include "GrStyle.h"
 #include "GrUserStencilSettings.h"
 #include "SkClipOpPriv.h"

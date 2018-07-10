@@ -6,9 +6,10 @@
  */
 
 #include "GrDashLinePathRenderer.h"
-
 #include "GrAuditTrail.h"
 #include "GrGpu.h"
+#include "GrRenderTargetContext.h"
+#include "GrShape.h"
 #include "ops/GrDashOp.h"
 #include "ops/GrMeshDrawOp.h"
 
