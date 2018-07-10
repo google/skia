@@ -298,6 +298,14 @@ enum class GrPixelConfigIsClamped : bool {
 enum GrSLType {
     kVoid_GrSLType,
     kBool_GrSLType,
+    kByte_GrSLType,
+    kByte2_GrSLType,
+    kByte3_GrSLType,
+    kByte4_GrSLType,
+    kUByte_GrSLType,
+    kUByte2_GrSLType,
+    kUByte3_GrSLType,
+    kUByte4_GrSLType,
     kShort_GrSLType,
     kShort2_GrSLType,
     kShort3_GrSLType,
@@ -398,6 +406,14 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kTexture2DRectSampler_GrSLType:
         case kBufferSampler_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kByte2_GrSLType:
+        case kByte3_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte_GrSLType:
+        case kUByte2_GrSLType:
+        case kUByte3_GrSLType:
+        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -426,6 +442,8 @@ static inline int GrSLTypeVecLength(GrSLType type) {
         case kFloat_GrSLType:
         case kHalf_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kUByte_GrSLType:
         case kShort_GrSLType:
         case kUShort_GrSLType:
         case kInt_GrSLType:
@@ -434,6 +452,8 @@ static inline int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat2_GrSLType:
         case kHalf2_GrSLType:
+        case kByte2_GrSLType:
+        case kUByte2_GrSLType:
         case kShort2_GrSLType:
         case kUShort2_GrSLType:
         case kInt2_GrSLType:
@@ -442,6 +462,8 @@ static inline int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat3_GrSLType:
         case kHalf3_GrSLType:
+        case kByte3_GrSLType:
+        case kUByte3_GrSLType:
         case kShort3_GrSLType:
         case kUShort3_GrSLType:
         case kInt3_GrSLType:
@@ -449,6 +471,8 @@ static inline int GrSLTypeVecLength(GrSLType type) {
 
         case kFloat4_GrSLType:
         case kHalf4_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte4_GrSLType:
         case kShort4_GrSLType:
         case kUShort4_GrSLType:
         case kInt4_GrSLType:
@@ -503,6 +527,14 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kUint2_GrSLType:
         case kBufferSampler_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kByte2_GrSLType:
+        case kByte3_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte_GrSLType:
+        case kUByte2_GrSLType:
+        case kUByte3_GrSLType:
+        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -549,6 +581,14 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kUint_GrSLType:
         case kUint2_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kByte2_GrSLType:
+        case kByte3_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte_GrSLType:
+        case kUByte2_GrSLType:
+        case kUByte3_GrSLType:
+        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -577,6 +617,14 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
 
         case kVoid_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kByte2_GrSLType:
+        case kByte3_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte_GrSLType:
+        case kUByte2_GrSLType:
+        case kUByte3_GrSLType:
+        case kUByte4_GrSLType:
         case kShort_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
@@ -647,6 +695,14 @@ static inline bool GrSLTypeTemporarilyAcceptsPrecision(GrSLType type) {
 
         case kVoid_GrSLType:
         case kBool_GrSLType:
+        case kByte_GrSLType:
+        case kByte2_GrSLType:
+        case kByte3_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte_GrSLType:
+        case kUByte2_GrSLType:
+        case kUByte3_GrSLType:
+        case kUByte4_GrSLType:
         case kShort2_GrSLType:
         case kShort3_GrSLType:
         case kShort4_GrSLType:
@@ -677,6 +733,9 @@ enum GrVertexAttribType {
     kInt2_GrVertexAttribType,   // vector of 2 32-bit ints
     kInt3_GrVertexAttribType,   // vector of 3 32-bit ints
     kInt4_GrVertexAttribType,   // vector of 4 32-bit ints
+
+    kUByte_GrVertexAttribType,  // unsigned byte
+    kUByte4_GrVertexAttribType, // vector of 4 8-bit unsigned bytes
 
     kUByte_norm_GrVertexAttribType,  // unsigned byte, e.g. coverage, 0 -> 0.0f, 255 -> 1.0f.
     kUByte4_norm_GrVertexAttribType, // vector of 4 unsigned bytes, e.g. colors, 0 -> 0.0f,
@@ -728,6 +787,10 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
             return kInt3_GrSLType;
         case kInt4_GrVertexAttribType:
             return kInt4_GrSLType;
+        case kUByte_GrVertexAttribType:
+            return kUByte_GrSLType;
+        case kUByte4_GrVertexAttribType:
+            return kUByte4_GrSLType;
         case kInt_GrVertexAttribType:
             return kInt_GrSLType;
         case kUint_GrVertexAttribType:
