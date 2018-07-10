@@ -6,9 +6,7 @@
  */
 
 #include "GrOnFlushResourceProvider.h"
-
 #include "GrContextPriv.h"
-#include "GrDrawingManager.h"
 #include "GrProxyProvider.h"
 #include "GrSurfaceProxy.h"
 

@@ -18,6 +18,7 @@
 #include "GrXferProcessor.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
+#include "SkCanvas.h"
 #include "text/GrTextUtils.h"
 
 class GrBackendSemaphore;

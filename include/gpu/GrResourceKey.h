@@ -15,6 +15,7 @@
 #include "SkData.h"
 #include "SkString.h"
 #include <new>
+#include <SkMessageBus.h>
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 
@@ -313,20 +314,18 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueK
 }
 
 // The cache listens for these messages to purge junk resources proactively.
-class GrUniqueKeyInvalidatedMessage {
+class GrUniqueKeyInvalidatedMessage : public SkOneInboxMessage {
 public:
-    explicit GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key) : fKey(key) {}
+    explicit GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID) : INHERITED(contextUniqueID), fKey(key) {}
 
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage& that) : fKey(that.fKey) {}
-
-    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage& that) {
-        fKey = that.fKey;
-        return *this;
-    }
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
+    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
 
     const GrUniqueKey& key() const { return fKey; }
 
 private:
     GrUniqueKey fKey;
+
+    typedef SkOneInboxMessage INHERITED;
 };
 #endif

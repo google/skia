@@ -82,6 +82,8 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
     , fPurgeableBytes(0)
     , fRequestFlush(false)
     , fExternalFlushCnt(0)
+    , fInvalidUniqueKeyInbox(contextUniqueID)
+    , fFreedGpuResourceInbox(contextUniqueID)
     , fContextUniqueID(contextUniqueID)
     , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkDEBUGCODE(fCount = 0;)
@@ -604,9 +606,8 @@ void GrResourceCache::processFreedGpuResources() {
     SkTArray<GrGpuResourceFreedMessage> msgs;
     fFreedGpuResourceInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
-        if (msgs[i].fOwningUniqueID == fContextUniqueID) {
-            msgs[i].fResource->unref();
-        }
+        SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
+        msgs[i].fResource->unref();
     }
 }
 

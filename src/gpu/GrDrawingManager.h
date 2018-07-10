@@ -8,7 +8,6 @@
 #ifndef GrDrawingManager_DEFINED
 #define GrDrawingManager_DEFINED
 
-#include "GrPathRenderer.h"
 #include "GrPathRendererChain.h"
 #include "GrRenderTargetOpList.h"
 #include "GrResourceCache.h"
@@ -20,7 +19,6 @@ class GrCoverageCountingPathRenderer;
 class GrOnFlushCallbackObject;
 class GrRenderTargetContext;
 class GrRenderTargetProxy;
-class GrSingleOWner;
 class GrSoftwarePathRenderer;
 class GrTextureContext;
 class GrTextureOpList;

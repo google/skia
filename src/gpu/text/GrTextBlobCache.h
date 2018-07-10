@@ -98,8 +98,9 @@ public:
         this->checkPurge();
     }
 
-    struct PurgeBlobMessage {
-        uint32_t fID;
+    struct PurgeBlobMessage : public SkOneInboxMessage {
+        PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID) : SkOneInboxMessage(contextUniqueID) {}
+        uint32_t fBlobID;
     };
 
     static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);

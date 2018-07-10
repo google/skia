@@ -251,6 +251,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
                 GrCCAtlas* atlas =
                         resources->copyPathToCachedAtlas(*cacheEntry, doEvenOddFill, &newOffset);
                 cacheEntry->updateToCachedAtlas(atlas->getOrAssignUniqueKey(onFlushRP),
+                                                onFlushRP.contextUniqueID(),
                                                 newOffset, atlas->refOrMakeCachedAtlasInfo());
                 this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
                 resources->appendDrawPathInstance().set(*cacheEntry, draw.fCachedMaskShift,
