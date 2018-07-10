@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpaceXformSteps.h"
+#include "SkRasterPipeline.h"
 
 // TODO: explain
 
@@ -66,7 +67,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
 
 void SkColorSpaceXformSteps::apply(float* rgba) const {
     if (flags.unpremul) {
-        float invA = isfinite(1.0f / rgba[3]) ? 1.0f / rgba[3] : 0;
+        // I don't know why isfinite(x) stopped working on the Chromecast bots...
+        auto is_finite = [](float x) { return x*0 == 0; };
+
+        float invA = is_finite(1.0f / rgba[3]) ? 1.0f / rgba[3] : 0;
         rgba[0] *= invA;
         rgba[1] *= invA;
         rgba[2] *= invA;
@@ -94,4 +98,24 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         rgba[1] *= rgba[3];
         rgba[2] *= rgba[3];
     }
+}
+
+void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
+    if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
+    if (flags.linearize) {
+        // TODO: missing an opportunity to use from_srgb here.
+        p->append(SkRasterPipeline::parametric_r, &srcTF);
+        p->append(SkRasterPipeline::parametric_g, &srcTF);
+        p->append(SkRasterPipeline::parametric_b, &srcTF);
+    }
+    if (flags.gamut_transform) {
+        p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
+    }
+    if (flags.encode) {
+        // TODO: missing an opportunity to use to_srgb here.
+        p->append(SkRasterPipeline::parametric_r, &dstTFInv);
+        p->append(SkRasterPipeline::parametric_g, &dstTFInv);
+        p->append(SkRasterPipeline::parametric_b, &dstTFInv);
+    }
+    if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
