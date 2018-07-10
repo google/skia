@@ -30,7 +30,6 @@ enum GPFlag {
     kBonesAttribute_GPFlag          = 0x10,
 };
 
-static constexpr int kNumFloatsPerSkMatrix = 9;
 static constexpr int kMaxBones = 100; // Due to GPU memory limitations, only up to 100 bone
                                       // matrices are accepted.
 
@@ -320,6 +319,7 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
 #if GR_TEST_UTILS
+static constexpr int kNumFloatsPerSkMatrix = 9;
 static constexpr int kTestBoneCount = 4;
 static constexpr float kTestBones[kTestBoneCount * kNumFloatsPerSkMatrix] = {
     1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
