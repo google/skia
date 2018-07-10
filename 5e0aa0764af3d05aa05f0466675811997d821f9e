@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "671d02ed_76c19aa3",
+        "filename": "src/core/SkRasterPipelineBlitter.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-10T16:57:57Z",
+      "side": 1,
+      "message": "Thought: This is going to happen often. Is there a way to hoist the common case (sRGB to dst) work up higher? Can it be stored on raster device?",
+      "revId": "5e0aa0764af3d05aa05f0466675811997d821f9e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
