@@ -976,6 +976,12 @@ STAGE(uniform_color, const SkJumper_UniformColorCtx* c) {
     b = c->b;
     a = c->a;
 }
+STAGE(unbounded_uniform_color, const SkJumper_UniformColorCtx* c) {
+    r = c->r;
+    g = c->g;
+    b = c->b;
+    a = c->a;
+}
 
 // splats opaque-black into r,g,b,a
 STAGE(black_color, Ctx::None) {
@@ -3204,6 +3210,7 @@ using NotImplemented = void(*)(void);
 static NotImplemented
         callback, load_rgba, store_rgba,
         clamp_0, clamp_1,
+        unbounded_uniform_color,
         unpremul, dither,
         from_srgb, from_srgb_dst, to_srgb,
         load_f16    , load_f16_dst    , store_f16    , gather_f16,
