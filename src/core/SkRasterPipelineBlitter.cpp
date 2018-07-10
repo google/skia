@@ -12,6 +12,7 @@
 #include "SkColor.h"
 #include "SkColorFilter.h"
 #include "SkColorSpaceXformer.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
@@ -85,12 +86,36 @@ private:
     typedef SkBlitter INHERITED;
 };
 
+static SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS) {
+    float rgba[4];
+    swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(rgba);
+
+    // SkColors are always sRGB.
+    auto srcCS = SkColorSpace::MakeSRGB().get();
+
+    // If dstCS is null, no color space transformation is needed (and apply() will just premul).
+    if (!dstCS) { dstCS = srcCS; }
+
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType, dstCS)
+        .apply(rgba);
+
+    return {{rgba[0], rgba[1], rgba[2], rgba[3]}};
+}
+
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
                                          SkArenaAlloc* alloc) {
+    // For legacy/SkColorSpaceXformCanvas to keep working,
+    // we need to sometimes still need to distinguish null dstCS from sRGB.
+#if 0
+    SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
+                                           : SkColorSpace::MakeSRGB().get();
+#else
     SkColorSpace* dstCS = dst.colorSpace();
-    SkPM4f paintColor = SkPM4f_from_SkColor(paint.getColor(), dstCS);
+#endif
+    SkPM4f paintColor = premul_in_dst_colorspace(paint.getColor(), dstCS);
+
     auto shader = as_SB(paint.getShader());
 
     SkRasterPipeline_<256> shaderPipeline;

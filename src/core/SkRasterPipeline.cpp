@@ -90,9 +90,7 @@ void SkRasterPipeline::dump() const {
 #endif
 
 void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rgba[4]) {
-    SkASSERT(0 <= rgba[0] && rgba[0] <= 1);
-    SkASSERT(0 <= rgba[1] && rgba[1] <= 1);
-    SkASSERT(0 <= rgba[2] && rgba[2] <= 1);
+    // r,g,b might be outside [0,1], but alpha should probably always be in [0,1].
     SkASSERT(0 <= rgba[3] && rgba[3] <= 1);
 
     if (rgba[0] == 0 && rgba[1] == 0 && rgba[2] == 0 && rgba[3] == 1) {
