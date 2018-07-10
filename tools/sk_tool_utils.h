@@ -73,9 +73,6 @@ namespace sk_tool_utils {
      */
     sk_sp<SkTypeface> create_portable_typeface(const char* name, SkFontStyle style);
 
-    /** Call to clean up portable font references. */
-    void release_portable_typefaces();
-
     /**
      *  Call writePixels() by using the pixels from bitmap, but with an info that claims
      *  the pixels are colorType + alphaType
@@ -97,9 +94,6 @@ namespace sk_tool_utils {
                       bool respectColorSpaces = false);
     bool equal_pixels(const SkImage* a, const SkImage* b, unsigned maxDiff = 0,
                       bool respectColorSpaces = false);
-
-    // private to sk_tool_utils
-    sk_sp<SkTypeface> create_font(const char* name, SkFontStyle);
 
     /** Returns a newly created CheckerboardShader. */
     sk_sp<SkShader> create_checkerboard_shader(SkColor c1, SkColor c2, int size);
