@@ -16,6 +16,24 @@
       "revId": "555174a93f2bf4728e219b89efacaeef2a8e9be8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddb89467_da440298",
+        "filename": "src/gpu/ops/GrTessellatingPathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5290
+      },
+      "writtenOn": "2018-07-10T14:43:44Z",
+      "side": 1,
+      "message": "The reason I didn\u0027t do it for all PRs initially is because Brian mentioned that there was some special atlasing sauce in CCPR that I thought might kick in in this case.\n\nAlso, it seems that performance is not worse for the MSAA path renderers (MSAA clip paths don\u0027t regress). Although I\u0027m not sure why, I\u0027d prefer to keep that behaviour for now.",
+      "parentUuid": "b8289410_07ac3931",
+      "revId": "555174a93f2bf4728e219b89efacaeef2a8e9be8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
