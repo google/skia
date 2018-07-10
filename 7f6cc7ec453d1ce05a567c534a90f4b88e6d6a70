@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b05fd1e1_6124e210",
+        "filename": "tests/MtlUploadPixelsTests.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T19:01:12Z",
+      "side": 1,
+      "message": "Is there anything here that is actually metal specific? Like above instead of going through the MtlGpu could we not just go through the GrGpu object? I believe this was just copied from the VkUploadPixelsTest. Maybe we can just take that test and make if DEF_GPUTEST_FOR_ALL_RENDERING_CONTEXTS, and that will cover this guy.",
+      "range": {
+        "startLine": 86,
+        "startChar": 0,
+        "endLine": 86,
+        "endChar": 72
+      },
+      "revId": "7f6cc7ec453d1ce05a567c534a90f4b88e6d6a70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dc082db_35a6ab8d",
+        "filename": "tools/gpu/mtl/MtlTestGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T19:01:12Z",
+      "side": 1,
+      "message": "Move this comment to above the \"class MtlTestGpu\" line. We typically don\u0027t but comments like this at the top of header files.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 97
+      },
+      "revId": "7f6cc7ec453d1ce05a567c534a90f4b88e6d6a70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7577607_9a55a3ef",
+        "filename": "tools/gpu/mtl/MtlTestGpu.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-10T19:01:12Z",
+      "side": 1,
+      "message": "is this needed? Will we ever include this header from somewhere where we don\u0027t have metal?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 15
+      },
+      "revId": "7f6cc7ec453d1ce05a567c534a90f4b88e6d6a70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
