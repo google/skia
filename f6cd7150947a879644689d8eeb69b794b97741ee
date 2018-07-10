@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "12e6238e_e1be53d5",
+        "filename": "src/gpu/GrDefaultGeoProcFactory.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-10T14:04:37Z",
+      "side": 1,
+      "message": "This next patchset gets rid of one set of copies. This whole conversion from SkMatrix to floats is done in GrDrawVerticesOp now so that the GP can just use the pointer passed in, getting rid of one set of copies.",
+      "parentUuid": "6c202bbf_35a33ed6",
+      "revId": "f6cd7150947a879644689d8eeb69b794b97741ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57fbd03a_e46576bf",
         "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
         "patchSetId": 8
