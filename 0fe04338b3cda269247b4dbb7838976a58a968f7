@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "672e695b_3686b0ff",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "That\u0027s the best I could do with all the issues that come with forward declaring",
+      "parentUuid": "59286fb2_87dd27e4",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "628662e0_f11f140c",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
         "patchSetId": 26
@@ -33,6 +51,24 @@
       "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b34889b_f1de7d01",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "628662e0_f11f140c",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "458e194a_0cbb7b6f",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8db49dd0_dbef78d6",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "045cb07f_49eb1330",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
         "patchSetId": 26
@@ -67,6 +121,24 @@
       "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3123200d_26ca2ab1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "045cb07f_49eb1330",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "61233149_bf468279",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c67a14d_22d1ca3e",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86ec3048_b4a64110",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
         "patchSetId": 26
@@ -101,6 +191,24 @@
       "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64eb8545_7de3929f",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "No. In ARCore, when you ask for trackables, you\u0027re supposed to allocate space for them and release them when you\u0027re done. I\u0027m doing the same here. The session does not own the trackables.",
+      "parentUuid": "86ec3048_b4a64110",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "72a2d99c_bc5791a1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1949969e_4894540b",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d84e7c4_10420ac0",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.cpp",
         "patchSetId": 26
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "9af0a9cb_3d7d6ed0",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.cpp",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d84e7c4_10420ac0",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4fdab9c6_4c382751",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.h",
         "patchSetId": 26
@@ -152,6 +296,24 @@
       "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce61d60a_d4542f93",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArTrackableType.h",
+        "patchSetId": 26
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-10T19:00:54Z",
+      "side": 1,
+      "message": "It\u0027s what ARCore has for their enums. I needed to hide their enums, right? I don\u0027t want to have too many conversion functions. Not sure, it is not documented well enough on ARCore\u0027s side, but it\u0027s part of their enum.",
+      "parentUuid": "4fdab9c6_4c382751",
+      "revId": "0fe04338b3cda269247b4dbb7838976a58a968f7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
