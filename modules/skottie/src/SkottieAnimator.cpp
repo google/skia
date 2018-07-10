@@ -245,6 +245,10 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
     const auto& jpropA = (*jprop)["a"];
     const auto& jpropK = (*jprop)["k"];
 
+    if (!(*jprop)["x"].is<skjson::NullValue>()) {
+        LOG("?? Unsupported expression.\n");
+    }
+
     // Older Json versions don't have an "a" animation marker.
     // For those, we attempt to parse both ways.
     if (!ParseDefault<bool>(jpropA, false)) {
