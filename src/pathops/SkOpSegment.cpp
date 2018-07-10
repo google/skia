@@ -796,6 +796,20 @@ SkOpSegment* SkOpSegment::findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** n
     return nextSegment;
 }
 
+const SkOpSpanBase* SkOpSegment::findPt(const SkPoint& pt) const {
+    const SkOpSpanBase* spanBase = &fHead;
+    do {
+        if (spanBase->pt() == pt) {
+            return spanBase;
+        }
+        if (spanBase == &fTail) {
+            break;
+        }
+        spanBase = spanBase->upCast()->next();
+    } while (true);
+    return nullptr;
+}
+
 SkOpGlobalState* SkOpSegment::globalState() const {
     return contour()->globalState();
 }

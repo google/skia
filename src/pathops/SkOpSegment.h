@@ -217,6 +217,7 @@ public:
     SkOpSegment* findNextWinding(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
                                   SkOpSpanBase** nextEnd, bool* unsortable);
     SkOpSegment* findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** nextEnd, bool* unsortable);
+    const SkOpSpanBase* findPt(const SkPoint& pt) const;
     SkOpSpan* findSortableTop(SkOpContour* );
     SkOpGlobalState* globalState() const;
 

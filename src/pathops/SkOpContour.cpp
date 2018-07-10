@@ -18,7 +18,7 @@ void SkOpContour::toPath(SkPathWriter* path) const {
         SkAssertResult(segment->addCurveTo(segment->head(), segment->tail(), path));
     } while ((segment = segment->next()));
     path->finishContour();
-    path->assemble();
+    path->assemble(nullptr);
 }
 
 void SkOpContour::toReversePath(SkPathWriter* path) const {
@@ -27,7 +27,7 @@ void SkOpContour::toReversePath(SkPathWriter* path) const {
         SkAssertResult(segment->addCurveTo(segment->tail(), segment->head(), path));
     } while ((segment = segment->prev()));
     path->finishContour();
-    path->assemble();
+    path->assemble(nullptr);
 }
 
 SkOpSpan* SkOpContour::undoneSpan() {
@@ -106,4 +106,32 @@ void SkOpContourBuilder::flush() {
     memcpy(ptStorage, fLastLine, sizeof(fLastLine));
     (void) fContour->addLine(ptStorage);
     fLastIsLine = false;
+}
+
+float SkOpContourHead::distHops(const SkPoint& start, const SkPoint& end, int hops) const {
+    const SkOpSpanBase* ptTStart = this->find(start);
+    const SkOpSpanBase* ptTEnd = this->find(end);
+    // find connection from start to end not exceeding hops
+    // maybe can reuse fSpanAdds as follows
+    // pass a unique negative into distHops
+    // store it in fSpanAdds, so that same dist node is only visited once
+    // track traversal on local stack
+    // if start -> end is found, stack shows the way
+    // return Euclidean distance from start to end (may be debugging only)
+    return 0;
+}
+
+const SkOpSpanBase* SkOpContourHead::find(const SkPoint& pt) const {
+    const SkOpContour* next = this;
+    do {
+        if (!next->count()) {
+            continue;
+        }
+        const SkOpSpanBase* result = next->findPt(pt);
+        if (result) {
+            return result;
+        }
+    } while ((next = next->next()));
+    SkASSERT(0);
+    return nullptr;
 }

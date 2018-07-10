@@ -346,7 +346,7 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     if (!bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper)) {
         return false;
     }
-    wrapper.assemble();  // if some edges could not be resolved, assemble remaining
+    wrapper.assemble(contourList);  // if some edges could not be resolved, assemble remaining
 #if DEBUG_T_SECT_LOOP_COUNT
     {
         SkAutoMutexAcquire autoM(debugWorstLoop);

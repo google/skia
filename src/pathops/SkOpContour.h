@@ -171,6 +171,17 @@ public:
         return fTail->pts()[SkPathOpsVerbToPoints(fTail->verb())];
     }
 
+    const SkOpSpanBase* findPt(const SkPoint& pt) const {
+        const SkOpSegment* segment = &fHead;
+        do {
+            const SkOpSpanBase* result = segment->findPt(pt);
+            if (result) {
+                return result;
+            }
+        } while ((segment = segment->next()));
+        return nullptr;
+    }
+
     SkOpSpan* findSortableTop(SkOpContour* );
 
     SkOpSegment* first() {
@@ -401,6 +412,10 @@ public:
         prev->setNext(contour);
         return contour;
     }
+
+    float distHops(const SkPoint& start, const SkPoint& end, int hops) const;
+
+    const SkOpSpanBase* find(const SkPoint& ) const;
 
     void joinAllSegments() {
         SkOpContour* next = this;

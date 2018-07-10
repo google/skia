@@ -49,7 +49,7 @@ DummyClasses(Cubic, Cubic);
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 0

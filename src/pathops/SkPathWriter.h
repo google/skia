@@ -11,6 +11,7 @@
 #include "SkTArray.h"
 #include "SkTDArray.h"
 
+class SkOpContourHead;
 class SkOpPtT;
 
 // Construct the path one contour at a time.
@@ -20,12 +21,13 @@ class SkOpPtT;
 class SkPathWriter {
 public:
     SkPathWriter(SkPath& path);
-    void assemble();
+    void assemble(const SkOpContourHead* contours);
     void conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight);
     void cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3);
     bool deferredLine(const SkOpPtT* pt);
     void deferredMove(const SkOpPtT* pt);
     void finishContour();
+    SkPoint getLastStart() const;
     bool hasMove() const { return !fFirstPtT; }
     void init();
     bool isClosed() const;

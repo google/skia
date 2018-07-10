@@ -219,7 +219,7 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
             : !bridgeXor(contourList, &wrapper)) {
         return false;
     }
-    wrapper.assemble();  // if some edges could not be resolved, assemble remaining
+    wrapper.assemble(contourList);  // if some edges could not be resolved, assemble remaining
     if (scaleFactor > 1) {
         ScalePath(*result, scaleFactor, result);
     }
