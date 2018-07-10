@@ -121,6 +121,9 @@ public:
     // If false, SkSL uses a workaround so that sk_FragCoord doesn't actually query gl_FragCoord
     bool canUseFragCoord() const { return fCanUseFragCoord; }
 
+    // If true interpolated vertex shader outputs are inaccurate.
+    bool interpolantsAreInaccurate() const { return fInterpolantsAreInaccurate; }
+
     // If true, short ints can't represent every integer in the 16-bit two's complement range as
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
@@ -274,6 +277,7 @@ private:
     bool fMustObfuscateUniformColor                   : 1;
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord                             : 1;
+    bool fInterpolantsAreInaccurate                   : 1;
     bool fIncompleteShortIntPrecision                 : 1;
 
     const char* fVersionDeclString;

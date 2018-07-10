@@ -203,38 +203,69 @@ public:
                 }
                 args.fFragBuilder->codeAppend(";");
                 if (textureGP.usesCoverageEdgeAA()) {
+                    const char* aaDistName = nullptr;
                     bool mulByFragCoordW = false;
-                    GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
-                                                GrGLSLVarying::Scope::kVertToFrag);
-                    if (kFloat3_GrVertexAttribType == textureGP.fPositions.type()) {
-                        args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
-                        // The distance from edge equation e to homogenous point p=sk_Position
-                        // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
-                        // interpolation of this distance. We can do this by multiplying the
-                        // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
-                        // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
-                        args.fVertBuilder->codeAppendf(
-                                R"(%s = float4(dot(aaEdge0, %s), dot(aaEdge1, %s),
-                                               dot(aaEdge2, %s), dot(aaEdge3, %s));)",
-                                aaDistVarying.vsOut(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name());
-                        mulByFragCoordW = true;
+                    // When interpolation is inaccurate we perform the evaluation of the edge
+                    // equations in the fragment shader rather than interpolating values computed
+                    // in the vertex shader.
+                    if (!args.fShaderCaps->interpolantsAreInaccurate()) {
+                        GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
+                                                    GrGLSLVarying::Scope::kVertToFrag);
+                        if (kFloat3_GrVertexAttribType == textureGP.fPositions.type()) {
+                            args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
+                            // The distance from edge equation e to homogenous point p=sk_Position
+                            // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
+                            // interpolation of this distance. We can do this by multiplying the
+                            // varying in the VS by p.w and then multiplying by sk_FragCoord.w in
+                            // the FS. So we output e.x*p.x + e.y*p.y + e.z * p.w
+                            args.fVertBuilder->codeAppendf(
+                                    R"(%s = float4(dot(aaEdge0, %s), dot(aaEdge1, %s),
+                                                   dot(aaEdge2, %s), dot(aaEdge3, %s));)",
+                                    aaDistVarying.vsOut(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name());
+                            mulByFragCoordW = true;
+                        } else {
+                            args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
+                            args.fVertBuilder->codeAppendf(
+                                    R"(%s = float4(dot(aaEdge0.xy, %s.xy) + aaEdge0.z,
+                                                   dot(aaEdge1.xy, %s.xy) + aaEdge1.z,
+                                                   dot(aaEdge2.xy, %s.xy) + aaEdge2.z,
+                                                   dot(aaEdge3.xy, %s.xy) + aaEdge3.z);)",
+                                    aaDistVarying.vsOut(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name(), textureGP.fPositions.name(),
+                                    textureGP.fPositions.name());
+                        }
+                        aaDistName = aaDistVarying.fsIn();
                     } else {
-                        args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
-                        args.fVertBuilder->codeAppendf(
-                                R"(%s = float4(dot(aaEdge0.xy, %s.xy) + aaEdge0.z,
-                                               dot(aaEdge1.xy, %s.xy) + aaEdge1.z,
-                                               dot(aaEdge2.xy, %s.xy) + aaEdge2.z,
-                                               dot(aaEdge3.xy, %s.xy) + aaEdge3.z);)",
-                                aaDistVarying.vsOut(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name(), textureGP.fPositions.name(),
-                                textureGP.fPositions.name());
+                        GrGLSLVarying aaEdgeVarying[4]{
+                                {kFloat3_GrSLType, GrGLSLVarying::Scope::kVertToFrag},
+                                {kFloat3_GrSLType, GrGLSLVarying::Scope::kVertToFrag},
+                                {kFloat3_GrSLType, GrGLSLVarying::Scope::kVertToFrag},
+                                {kFloat3_GrSLType, GrGLSLVarying::Scope::kVertToFrag}
+                        };
+                        for (int i = 0; i < 4; ++i) {
+                            SkString name;
+                            name.printf("aaEdge%d", i);
+                            args.fVaryingHandler->addVarying(name.c_str(), &aaEdgeVarying[i],
+                                                             Interpolation::kCanBeFlat);
+                            args.fVertBuilder->codeAppendf(
+                                    "%s = aaEdge%d;", aaEdgeVarying[i].vsOut(), i);
+                        }
+                        args.fFragBuilder->codeAppendf(
+                                R"(float4 aaDists = float4(dot(%s.xy, sk_FragCoord.xy) + %s.z,
+                                                           dot(%s.xy, sk_FragCoord.xy) + %s.z,
+                                                           dot(%s.xy, sk_FragCoord.xy) + %s.z,
+                                                           dot(%s.xy, sk_FragCoord.xy) + %s.z);)",
+                        aaEdgeVarying[0].fsIn(), aaEdgeVarying[0].fsIn(),
+                        aaEdgeVarying[1].fsIn(), aaEdgeVarying[1].fsIn(),
+                        aaEdgeVarying[2].fsIn(), aaEdgeVarying[2].fsIn(),
+                        aaEdgeVarying[3].fsIn(), aaEdgeVarying[3].fsIn());
+                        aaDistName = "aaDists";
                     }
                     args.fFragBuilder->codeAppendf(
                             "float mindist = min(min(%s.x, %s.y), min(%s.z, %s.w));",
-                            aaDistVarying.fsIn(), aaDistVarying.fsIn(), aaDistVarying.fsIn(),
-                            aaDistVarying.fsIn());
+                            aaDistName, aaDistName, aaDistName, aaDistName);
                     if (mulByFragCoordW) {
                         args.fFragBuilder->codeAppend("mindist *= sk_FragCoord.w;");
                     }
