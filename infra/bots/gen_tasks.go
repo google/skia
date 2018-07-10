@@ -438,7 +438,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 		if d["os"] == DEFAULT_OS_MAC && (parts["model"] == "MacBook10.1" || parts["model"] == "MacBookAir7.2") {
 			// TODO(dogben): Get all Mac bots on the same version.
-			d["os"] = "Mac-10.13.5"
+			d["os"] = "Mac-10.13.6"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
