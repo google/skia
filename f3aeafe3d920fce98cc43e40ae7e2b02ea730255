@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c9ddeb30_db57cbc8",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "static int32_t convert_display_rotation( ...\n\nI thought this would convert to ARCore\u0027s values",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93e66b13_fed828bf",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "So we can\u0027t move this header?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729c8601_8abef1b4",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "Move into SkArSession ?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3fc98ec4_03f41441",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "This always goes last",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9640b5c2_1389e194",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be ref counted",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b4d39d10_ad9f88af",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "Probably don\u0027t need this.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63835445_aec73e59",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "explicit SkArSessionPriv(SkArSession* session) : fSkArSession(session) {}",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7bceb49_ed448fa0",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "SkArSessionPriv(const SkArSessionPriv\u0026); // unimpl\n    SkArSessionPriv\u0026 operator\u003d(const SkArSessionPriv\u0026); // unimpl\n\n    // No taking addresses of this type.\n    const SkArSessionPriv* operator\u0026() const;\n    SkArSessionPriv* operator\u0026();",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7d410c6b_b1a58df7",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "Just a raw pointer.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f21f50d1_68cce13e",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-10T19:14:18Z",
+      "side": 1,
+      "message": "rm",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
