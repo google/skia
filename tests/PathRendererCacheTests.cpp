@@ -7,13 +7,14 @@
 
 #include "Test.h"
 
-#include "SkPath.h"
-
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrResourceCache.h"
+#include "GrShape.h"
 #include "GrSoftwarePathRenderer.h"
+#include "GrStyle.h"
+#include "SkPath.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "ops/GrTessellatingPathRenderer.h"
 

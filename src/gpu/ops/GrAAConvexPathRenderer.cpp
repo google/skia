@@ -6,7 +6,6 @@
  */
 
 #include "GrAAConvexPathRenderer.h"
-
 #include "GrAAConvexTessellator.h"
 #include "GrCaps.h"
 #include "GrContext.h"
@@ -16,6 +15,8 @@
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrProcessor.h"
+#include "GrRenderTargetContext.h"
+#include "GrShape.h"
 #include "GrSimpleMeshDrawOpHelper.h"
 #include "SkGeometry.h"
 #include "SkPathPriv.h"
