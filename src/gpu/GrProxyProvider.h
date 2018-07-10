@@ -27,6 +27,7 @@ class SkImage;
 class GrProxyProvider {
 public:
     GrProxyProvider(GrResourceProvider*, GrResourceCache*, sk_sp<const GrCaps>, GrSingleOwner*);
+    GrProxyProvider(uint32_t contextUniqueID, sk_sp<const GrCaps>, GrSingleOwner*);
 
     ~GrProxyProvider();
 
@@ -211,6 +212,7 @@ public:
      */
     void processInvalidProxyUniqueKey(const GrUniqueKey&, GrTextureProxy*, bool invalidateSurface);
 
+    uint32_t contextUniqueID() const { return fContextUniqueID; }
     const GrCaps* caps() const { return fCaps.get(); }
     sk_sp<const GrCaps> refCaps() const { return fCaps; }
 
@@ -258,6 +260,7 @@ private:
     GrResourceCache*       fResourceCache;
     bool                   fAbandoned;
     sk_sp<const GrCaps>    fCaps;
+    uint32_t               fContextUniqueID;
 
     // In debug builds we guard against improper thread handling
     SkDEBUGCODE(mutable GrSingleOwner* fSingleOwner;)
