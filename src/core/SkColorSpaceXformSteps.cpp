@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpaceXformSteps.h"
+#include "SkRasterPipeline.h"
 
 // TODO: explain
 
@@ -94,4 +95,24 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
         rgba[1] *= rgba[3];
         rgba[2] *= rgba[3];
     }
+}
+
+void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
+    if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
+    if (flags.linearize) {
+        // TODO: missing an opportunity to use from_srgb here.
+        p->append(SkRasterPipeline::parametric_r, &srcTF);
+        p->append(SkRasterPipeline::parametric_g, &srcTF);
+        p->append(SkRasterPipeline::parametric_b, &srcTF);
+    }
+    if (flags.gamut_transform) {
+        p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
+    }
+    if (flags.encode) {
+        // TODO: missing an opportunity to use to_srgb here.
+        p->append(SkRasterPipeline::parametric_r, &dstTFInv);
+        p->append(SkRasterPipeline::parametric_g, &dstTFInv);
+        p->append(SkRasterPipeline::parametric_b, &dstTFInv);
+    }
+    if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
