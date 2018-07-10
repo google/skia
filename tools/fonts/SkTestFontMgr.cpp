@@ -5,89 +5,57 @@
  * found in the LICENSE file.
  */
 
-#include <vector>
-
 #include "SkFontDescriptor.h"
 #include "SkTestFontMgr.h"
-#include "sk_tool_utils.h"
 #include "SkTestTypeface.h"
+#include "sk_tool_utils.h"
 
 #ifdef SK_XML
 #include "SkTestSVGTypeface.h"
 #endif
 
+#include <vector>
+
 namespace {
 
-static constexpr const char* kFamilyNames[] = {
-    "Toy Liberation Sans",
-    "Toy Liberation Serif",
-    "Toy Liberation Mono",
-    "Emoji",
-};
-
-class JustOneTypefaceStyleSet final : public SkFontStyleSet {
-public:
-    explicit JustOneTypefaceStyleSet(sk_sp<SkTypeface> typeface) : fTypeface(std::move(typeface)) {}
-    int count() override { return 1; }
-
-    void getStyle(int index, SkFontStyle* style, SkString* name) override {
-        if (style) { *style = SkFontStyle::Normal(); }
-        if (name)  { *name = "Normal"; }
-    }
-
-    SkTypeface* createTypeface(int index) override {
-        return SkRef(fTypeface.get());
-    }
-
-    SkTypeface* matchStyle(const SkFontStyle& pattern) override {
-        return this->matchStyleCSS3(pattern);
-    }
-private:
-    sk_sp<SkTypeface> fTypeface;
-};
+#include "test_font_monospace.inc"
+#include "test_font_sans_serif.inc"
+#include "test_font_serif.inc"
+#include "test_font_index.inc"
 
 class FontStyleSet final : public SkFontStyleSet {
 public:
-    explicit FontStyleSet(int familyIndex) {
-        using sk_tool_utils::create_portable_typeface;
-        const char* familyName = kFamilyNames[familyIndex];
+    FontStyleSet(const char* familyName) : fFamilyName(familyName) { }
+    struct TypefaceEntry {
+        TypefaceEntry(sk_sp<SkTypeface> typeface, SkFontStyle style, const char* styleName)
+            : fTypeface(std::move(typeface))
+            , fStyle(style)
+            , fStyleName(styleName)
+        {}
+        sk_sp<SkTypeface> fTypeface;
+        SkFontStyle fStyle;
+        const char* fStyleName;
+    };
 
-        fTypefaces[0] = create_portable_typeface(familyName, SkFontStyle::Normal());
-        fTypefaces[1] = create_portable_typeface(familyName, SkFontStyle::Bold());
-        fTypefaces[2] = create_portable_typeface(familyName, SkFontStyle::Italic());
-        fTypefaces[3] = create_portable_typeface(familyName, SkFontStyle::BoldItalic());
-    }
-
-    int count() override { return 4; }
+    int count() override { return fTypefaces.size(); }
 
     void getStyle(int index, SkFontStyle* style, SkString* name) override {
-        switch (index) {
-            default:
-            case  0: if (style) { *style = SkFontStyle::Normal(); }
-                     if (name)  { *name = "Normal"; }
-                     break;
-            case  1: if (style) { *style = SkFontStyle::Bold(); }
-                     if (name)  { *name = "Bold"; }
-                     break;
-            case  2: if (style) { *style = SkFontStyle::Italic(); }
-                     if (name)  { *name = "Italic"; }
-                     break;
-            case  3: if (style) { *style = SkFontStyle::BoldItalic(); }
-                     if (name)  { *name = "BoldItalic"; }
-                     break;
-        }
+        if (style) { *style = fTypefaces[index].fStyle; }
+        if (name) { *name = fTypefaces[index].fStyleName; }
     }
 
     SkTypeface* createTypeface(int index) override {
-        return SkRef(fTypefaces[index].get());
+        return SkRef(fTypefaces[index].fTypeface.get());
     }
 
     SkTypeface* matchStyle(const SkFontStyle& pattern) override {
         return this->matchStyleCSS3(pattern);
     }
 
-private:
-    sk_sp<SkTypeface> fTypefaces[4];
+    SkString getFamilyName() { return fFamilyName; }
+
+    std::vector<TypefaceEntry> fTypefaces;
+    SkString fFamilyName;
 };
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -95,18 +63,42 @@ private:
 class FontMgr final : public SkFontMgr {
 public:
     FontMgr() {
-        fFamilies.push_back(sk_make_sp<FontStyleSet>(0));
-        fFamilies.push_back(sk_make_sp<FontStyleSet>(1));
-        fFamilies.push_back(sk_make_sp<FontStyleSet>(2));
+        for (const auto& sub : gSubFonts) {
+            sk_sp<SkTestTypeface> typeface =
+                    sk_make_sp<SkTestTypeface>(sk_make_sp<SkTestFont>(sub.fFont), sub.fStyle);
+            bool defaultFamily = false;
+            if (&sub - gSubFonts == gDefaultFontIndex) {
+                defaultFamily = true;
+                fDefaultTypeface = typeface;
+            }
+            bool found = false;
+            for (const auto& family : fFamilies) {
+                if (family->getFamilyName().equals(sub.fFamilyName)) {
+                    family->fTypefaces.emplace_back(std::move(typeface), sub.fStyle, sub.fStyleName);
+                    found = true;
+                    if (defaultFamily) {
+                        fDefaultFamily = family;
+                    }
+                }
+            }
+            if (!found) {
+                fFamilies.emplace_back(sk_make_sp<FontStyleSet>(sub.fFamilyName));
+                fFamilies.back()->fTypefaces.emplace_back(std::move(typeface), sub.fStyle, sub.fStyleName);
+                if (defaultFamily) {
+                    fDefaultFamily = fFamilies.back();
+                }
+            }
+        }
         #ifdef SK_XML
-        fFamilies.push_back(sk_make_sp<JustOneTypefaceStyleSet>(SkTestSVGTypeface::Default()));
+        fFamilies.emplace_back(sk_make_sp<FontStyleSet>("Emoji"));
+        fFamilies.back()->fTypefaces.emplace_back(SkTestSVGTypeface::Default(), SkFontStyle::Normal(), "Normal");
         #endif
     }
 
     int onCountFamilies() const override { return fFamilies.size(); }
 
     void onGetFamilyName(int index, SkString* familyName) const override {
-        *familyName = kFamilyNames[index];
+        *familyName = fFamilies[index]->getFamilyName();
     }
 
     SkFontStyleSet* onCreateStyleSet(int index) const override {
@@ -116,14 +108,14 @@ public:
 
     SkFontStyleSet* onMatchFamily(const char familyName[]) const override {
         if (familyName) {
-            if (strstr(familyName,  "ans")) { return this->createStyleSet(0); }
-            if (strstr(familyName, "erif")) { return this->createStyleSet(1); }
-            if (strstr(familyName,  "ono")) { return this->createStyleSet(2); }
+            if (strstr(familyName,  "ono")) { return this->createStyleSet(0); }
+            if (strstr(familyName,  "ans")) { return this->createStyleSet(1); }
+            if (strstr(familyName, "erif")) { return this->createStyleSet(2); }
             #ifdef SK_XML
-            if (strstr(familyName,  "oji")) { return this->createStyleSet(3); }
+            if (strstr(familyName,  "oji")) { return this->createStyleSet(6); }
             #endif
         }
-        return this->createStyleSet(0);
+        return nullptr;
     }
 
 
@@ -170,11 +162,20 @@ public:
 
     sk_sp<SkTypeface> onLegacyMakeTypeface(const char familyName[],
                                            SkFontStyle style) const override {
-        return sk_sp<SkTypeface>(this->matchFamilyStyle(familyName, style));
+        if (familyName == nullptr) {
+            return sk_sp<SkTypeface>(fDefaultFamily->matchStyle(style));
+        }
+        sk_sp<SkTypeface> typeface = sk_sp<SkTypeface>(this->matchFamilyStyle(familyName, style));
+        if (!typeface) {
+            typeface = fDefaultTypeface;
+        }
+        return typeface;
     }
 
 private:
-    std::vector<sk_sp<SkFontStyleSet>> fFamilies;
+    std::vector<sk_sp<FontStyleSet>> fFamilies;
+    sk_sp<FontStyleSet> fDefaultFamily;
+    sk_sp<SkTypeface> fDefaultTypeface;
 };
 }
 

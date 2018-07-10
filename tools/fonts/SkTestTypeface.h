@@ -40,7 +40,6 @@ struct SkTestFontData {
     const SkPaint::FontMetrics& fMetrics;
     const char* fName;
     SkFontStyle fStyle;
-    sk_sp<SkTestFont> fCachedFont;
 };
 
 class SkTestFont : public SkRefCnt {

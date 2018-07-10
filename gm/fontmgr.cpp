@@ -180,7 +180,7 @@ protected:
         paint.setTextSize(17);
 
         const char* gNames[] = {
-            "Helvetica Neue", "Arial"
+            "Helvetica Neue", "Arial", "sans"
         };
 
         sk_sp<SkFontStyleSet> fset;

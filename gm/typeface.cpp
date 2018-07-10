@@ -89,10 +89,7 @@ class TypefaceStylesGM : public skiagm::GM {
     bool fApplyKerning;
 
 public:
-    TypefaceStylesGM(bool applyKerning)
-        : fApplyKerning(applyKerning) {
-        memset(fFaces, 0, sizeof(fFaces));
-    }
+    TypefaceStylesGM(bool applyKerning) : fApplyKerning(applyKerning) {}
 
 protected:
     void onOnceBeforeDraw() override {

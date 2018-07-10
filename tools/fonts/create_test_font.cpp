@@ -387,7 +387,7 @@ static void generate_index(const char* defaultName) {
         fprintf(out,
                 "    {    %sPoints, %sVerbs, %sCharCodes,\n"
                 "         %sCharCodesCount, %sWidths,\n"
-                "         %sMetrics, \"Toy %s\", SkFontStyle(%d,%d,%s), nullptr\n"
+                "         %sMetrics, \"Toy %s\", SkFontStyle(%d,%d,%s)\n"
                 "    },\n",
                 strip, strip, strip, strip, strip, strip, name,
                 writ.fNamedStyle.fStyle.weight(), writ.fNamedStyle.fStyle.width(),
@@ -397,7 +397,8 @@ static void generate_index(const char* defaultName) {
     fprintf(out, "const int gTestFontsCount = (int) SK_ARRAY_COUNT(gTestFonts);\n\n");
     fprintf(out,
                 "struct SubFont {\n"
-                "    const char* fName;\n"
+                "    const char* fFamilyName;\n"
+                "    const char* fStyleName;\n"
                 "    SkFontStyle fStyle;\n"
                 "    SkTestFontData& fFont;\n"
                 "    const char* fFile;\n"
@@ -410,16 +411,16 @@ static void generate_index(const char* defaultName) {
             defaultIndex = subIndex;
         }
         fprintf(out,
-                "    { \"%s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
-                desc.fGenericName,
+                "    { \"%s\", \"%s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
+                desc.fGenericName, desc.fNamedStyle.fName,
                 desc.fNamedStyle.fStyle.weight(), desc.fNamedStyle.fStyle.width(),
                 slant_to_string(desc.fNamedStyle.fStyle.slant()), desc.fFontIndex, desc.fFile);
     }
     for (int subIndex = 0; subIndex < gFontsCount; subIndex++) {
         const FontDesc& desc = gFonts[subIndex];
         fprintf(out,
-                "    { \"Toy %s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
-                desc.fFontName,
+                "    { \"Toy %s\", \"%s\", SkFontStyle(%d,%d,%s), gTestFonts[%d], \"%s\" },\n",
+                desc.fFontName, desc.fNamedStyle.fName,
                 desc.fNamedStyle.fStyle.weight(), desc.fNamedStyle.fStyle.width(),
                 slant_to_string(desc.fNamedStyle.fStyle.slant()), desc.fFontIndex, desc.fFile);
     }
