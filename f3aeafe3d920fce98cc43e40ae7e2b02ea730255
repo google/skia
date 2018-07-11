@@ -2,6 +2,210 @@
   "comments": [
     {
       "key": {
+        "uuid": "8d9dbf52_81d12865",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Alphabetize this guy",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "78dea07b_4e2076a1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "std::move(session)",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "afdb869c_e80ee289",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Just use \"if (ptr) {\"\n\nMaybe rename \"ptr\" to be anchor - \"ptr\" is a very bad name.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30c68430_3f48d5d8",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "This one you probably should have each member variable on its own line.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eaf492e2_6e8689f2",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Probably just \"return SkVector3::Make(poseRaw[4], poseRaw[5], poseRaw[6]);\"",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ece8fe58_2b182157",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Just return arTrackingState since it is an enum.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f644282_67acdc87",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Move to cpp ?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "01f558bb_0dbc1b4c",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Move up 1 line",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81942d79_320b70a1",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "rm this \u0027to\u0027",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d509fb7_2633ee78",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "Just return the tracking state enum ?\n\nDo we need the \u0027session\u0027 pointer, since we have a fSkArSession member variable ?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee23cf2f_9eb182e9",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "So, this should only ever be used when fSkArTrackable is null, right ?\n\nMaybe add an assert in the method.",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27630b7b_36a67ab6",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArAnchor.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:37:13Z",
+      "side": 1,
+      "message": "// It is guaranteed that SkArTrackable outlines this object however because, ...",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "af468f44_ed56800f",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
         "patchSetId": 28
