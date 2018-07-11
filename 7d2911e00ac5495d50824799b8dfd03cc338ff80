@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "0f62e820_6aa43ecf",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:31:48Z",
+      "side": 1,
+      "message": "Do we need this header? We have SkArSession predeclared below.",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ebc2d329_229cce4a",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:31:48Z",
+      "side": 1,
+      "message": "Neither this field nor the next are shared pointers",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a3600152_0a3bb45a",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
         "patchSetId": 27

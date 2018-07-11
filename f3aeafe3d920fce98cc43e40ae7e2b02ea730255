@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "af468f44_ed56800f",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:31:48Z",
+      "side": 1,
+      "message": "Might as well move this up a line",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af17d678_f6a04979",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:31:48Z",
+      "side": 1,
+      "message": "Since SkArTrackingState is just an enum, can we just return it ?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9ddeb30_db57cbc8",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
         "patchSetId": 28
