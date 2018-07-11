@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "889ab846_7b150ac9",
+        "filename": "src/gpu/gl/builders/GrGLProgramBuilder.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T17:29:07Z",
+      "side": 1,
+      "message": "Do we need to do this after loading a cached shader? I would think the bindings would be saved.",
+      "range": {
+        "startLine": 146,
+        "startChar": 8,
+        "endLine": 146,
+        "endChar": 60
+      },
+      "revId": "1bda69ae39036b8a4d9307892acca59f8f7db083",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
