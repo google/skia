@@ -47,5 +47,5 @@ DEF_TEST(GlyphRunBasic, reporter) {
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
     SkGlyphRunBuilder builder;
-    builder.prepareDrawText(paint, glyphs, count, SkPoint::Make(0, 0));
+    builder.drawText(paint, glyphs, count, SkPoint::Make(0, 0));
 }
