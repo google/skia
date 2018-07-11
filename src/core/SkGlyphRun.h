@@ -24,23 +24,23 @@ template <typename T>
 class SkSpan {
 public:
     SkSpan() : fPtr{nullptr}, fSize{0} {}
-    SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} { }
+    SkSpan(T* ptr, ptrdiff_t size) : fPtr{ptr}, fSize{size} { SkASSERT(size >= 0); }
     template <typename U>
-    explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{v.size()} {}
+    explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{SkTo<ptrdiff_t>(v.size())} {}
     SkSpan(const SkSpan<T>& o) = default;
     SkSpan& operator=( const SkSpan& other ) = default;
-    T& operator [] (size_t i) const { return fPtr[i]; }
+    T& operator [] (ptrdiff_t i) const { return fPtr[i]; }
     T* begin() const { return fPtr; }
     T* end() const { return fPtr + fSize; }
     const T* cbegin() const { return fPtr; }
     const T* cend() const { return fPtr + fSize; }
     T* data() const { return fPtr; }
-    size_t size() const { return fSize; }
+    ptrdiff_t size() const { return fSize; }
     bool empty() const { return fSize == 0; }
 
 private:
     T* fPtr;
-    size_t fSize;
+    ptrdiff_t fSize;
 };
 
 class SkGlyphRun {
@@ -120,8 +120,6 @@ private:
             const SkPaint& runPaint,
             SkSpan<const SkGlyphID> glyphIDs,
             SkSpan<const SkPoint> positions,
-            SkSpan<const uint16_t> uniqueGlyphIDIndices,
-            SkSpan<const SkGlyphID> uniqueGlyphIDs,
             SkSpan<const char> text,
             SkSpan<const uint32_t> clusters);
 
@@ -138,10 +136,9 @@ private:
 
     uint64_t fUniqueID{0};
 
-    size_t fMaxTotalRunSize{0};
-    SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
-    SkAutoTMalloc<SkPoint> fPositions;
-    SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
+    std::vector<uint16_t> fDenseIndex;
+    std::vector<SkPoint> fPositions;
+    std::vector<SkGlyphID> fUniqueGlyphIDs;
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
