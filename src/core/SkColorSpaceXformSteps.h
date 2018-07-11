@@ -45,6 +45,8 @@ struct SkColorSpaceXformSteps {
 
     Flags flags;
 
+    bool srcTF_is_sRGB,
+         dstTF_is_sRGB;
     SkColorSpaceTransferFn srcTF,     // Apply for linearize.
                            dstTFInv;  // Apply for encode.
     float src_to_dst_matrix[9];       // Apply this 3x3 column-major matrix for gamut_transform.
