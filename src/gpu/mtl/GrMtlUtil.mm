@@ -126,3 +126,16 @@ const void* GrGetPtrFromId(id idObject) {
     return (__bridge const void*)idObject;
 }
 
+MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
+    MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];
+    texDesc.textureType = mtlTexture.textureType;
+    texDesc.pixelFormat = mtlTexture.pixelFormat;
+    texDesc.width = mtlTexture.width;
+    texDesc.height = mtlTexture.height;
+    texDesc.depth = mtlTexture.depth;
+    texDesc.mipmapLevelCount = mtlTexture.mipmapLevelCount;
+    texDesc.arrayLength = mtlTexture.arrayLength;
+    texDesc.sampleCount = mtlTexture.sampleCount;
+    texDesc.usage = mtlTexture.usage;
+    return texDesc;
+}

@@ -17,6 +17,7 @@
 
 #import <Metal/Metal.h>
 
+class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
 
@@ -120,6 +121,10 @@ private:
     // sync is set to kForce_SyncQueue, the function will wait for all work in the committed
     // command buffer to finish before creating a new buffer and returning.
     void submitCommandBuffer(SyncQueue sync);
+
+    // Function that uploads data onto textures with private storage mode (GPU access only).
+    bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
+                         GrColorType dataColorType, const GrMipLevel texels[], int mipLevels);
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,
