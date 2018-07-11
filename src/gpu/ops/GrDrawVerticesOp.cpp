@@ -224,7 +224,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     size_t vertexStride = sizeof(SkPoint) +
                           (hasColorAttribute ? sizeof(uint32_t) : 0) +
                           (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(uint32_t) + sizeof(float)) : 0);
+                          (hasBoneAttribute ? 4 * (sizeof(uint8_t) + sizeof(uint8_t)) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
     // Allocate buffers.
@@ -300,7 +300,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     size_t vertexStride = sizeof(SkPoint) +
                           (hasColorAttribute ? sizeof(uint32_t) : 0) +
                           (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(uint32_t) + sizeof(float)) : 0);
+                          (hasBoneAttribute ? 4 * (sizeof(uint8_t) + sizeof(uint8_t)) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
     // Allocate vertex buffer.
@@ -417,7 +417,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
             }
             size_t boneIndexOffset = offset;
             if (hasBoneAttribute) {
-                offset += 4 * sizeof(uint32_t);
+                offset += 4 * sizeof(uint8_t);
             }
             size_t boneWeightOffset = offset;
 
@@ -445,10 +445,10 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
                     const SkVertices::BoneIndices& indices = boneIndices[j];
                     const SkVertices::BoneWeights& weights = boneWeights[j];
                     for (int k = 0; k < 4; k++) {
-                        size_t indexOffset = boneIndexOffset + sizeof(uint32_t) * k;
-                        size_t weightOffset = boneWeightOffset + sizeof(float) * k;
-                        *(uint32_t*)((intptr_t)verts + indexOffset) = indices.indices[k];
-                        *(float*)((intptr_t)verts + weightOffset) = weights.weights[k];
+                        size_t indexOffset = boneIndexOffset + sizeof(uint8_t) * k;
+                        size_t weightOffset = boneWeightOffset + sizeof(uint8_t) * k;
+                        *(uint8_t*)((intptr_t)verts + indexOffset) = indices.indices[k];
+                        *(uint8_t*)((intptr_t)verts + weightOffset) = weights.weights[k] * 255.0f;
                     }
                 }
                 verts = (void*)((intptr_t)verts + vertexStride);

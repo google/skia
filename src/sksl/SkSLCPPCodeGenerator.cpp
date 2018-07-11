@@ -177,7 +177,9 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
     } else if (type.kind() == Type::kEnum_Kind) {
         this->write("%d");
         fFormatArgs.push_back("(int) " + cppCode);
-    } else if (type == *fContext.fInt4_Type || type == *fContext.fShort4_Type) {
+    } else if (type == *fContext.fInt4_Type ||
+               type == *fContext.fShort4_Type ||
+               type == *fContext.fByte4_Type) {
         this->write(type.name() + "(%d, %d, %d, %d)");
         fFormatArgs.push_back(cppCode + ".left()");
         fFormatArgs.push_back(cppCode + ".top()");
