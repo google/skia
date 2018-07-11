@@ -40,7 +40,7 @@ struct skc_styling_impl
 {
   struct skc_styling         * styling;
   struct skc_runtime         * runtime;
-  
+
   SKC_ASSERT_STATE_DECLARE(skc_styling_state_e);
 
   skc_int                      lock_count;  // # of wip renders

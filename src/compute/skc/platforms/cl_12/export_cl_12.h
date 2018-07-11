@@ -15,7 +15,7 @@
 #include "skc.h"
 
 //
-// 
+//
 //
 
 skc_err
@@ -23,7 +23,7 @@ skc_path_builder_cl_12_create(struct skc_context        * const context,
                               struct skc_path_builder * * const path_builder);
 
 //
-// 
+//
 //
 
 skc_err

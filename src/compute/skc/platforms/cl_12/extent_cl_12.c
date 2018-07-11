@@ -127,7 +127,7 @@ skc_extent_phr_pdrw_read(struct skc_extent_phr_pdrw * const extent,
   if (extent->size == 0)
     return;
 
-  cl(EnqueueReadBuffer(cq, 
+  cl(EnqueueReadBuffer(cq,
                        extent->drw,
                        CL_FALSE,
                        0,
@@ -191,7 +191,7 @@ skc_extent_thr_tdrw_read(struct skc_extent_thr_tdrw * const extent,
   if (extent->size == 0)
     return;
 
-  cl(EnqueueReadBuffer(cq, 
+  cl(EnqueueReadBuffer(cq,
                        extent->drw,
                        CL_FALSE,
                        0,

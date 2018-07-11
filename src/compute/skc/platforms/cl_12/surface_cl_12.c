@@ -80,7 +80,7 @@ static
 void
 skc_surface_debug_clear(struct skc_surface_impl * const impl,
                         skc_framebuffer_t               fb,
-                        float                     const rgba[4], 
+                        float                     const rgba[4],
                         uint32_t                  const rect[4])
 {
   size_t const origin[3] = { rect[0], rect[1], 0 };
@@ -150,11 +150,11 @@ skc_surface_pfn_release(struct skc_surface_impl * const impl)
   //
   // otherwise, release all resources
   //
-  
+
   // drain the command queue
   cl(Finish(impl->cq));
 
-  struct skc_runtime * const runtime = impl->runtime;  
+  struct skc_runtime * const runtime = impl->runtime;
 
   // release the kernel
   cl(ReleaseKernel(impl->kernels.render));
@@ -167,7 +167,7 @@ skc_surface_pfn_release(struct skc_surface_impl * const impl)
 
   // release fb
   // skc_extent_phrN_pdwN_free(runtime,&impl->fb);
-  
+
   // free surface impl
   skc_runtime_host_perm_free(runtime,impl);
 }
@@ -200,7 +200,7 @@ skc_surface_render_complete(struct skc_surface_render * const render)
   // grid is now complete
   skc_grid_complete(render->grid);
 
-  struct skc_surface_impl * const impl    = render->impl;  
+  struct skc_surface_impl * const impl    = render->impl;
   struct skc_runtime      * const runtime = impl->runtime;
 
   // release the surface
@@ -341,7 +341,7 @@ skc_surface_pfn_render(struct skc_surface_impl * const impl,
   // them here.
   //
 
-  // retain and lock the styling and composition 
+  // retain and lock the styling and composition
   skc_styling_retain_and_lock(styling);
   skc_composition_retain_and_lock(composition);
 

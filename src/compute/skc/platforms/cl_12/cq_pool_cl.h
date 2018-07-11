@@ -14,7 +14,7 @@
 // Why we need to wrap command queue creation:
 //
 // - command queue creation is expensive
-// 
+//
 // - the CL 1.2 function is deprecated in 2.0
 //
 

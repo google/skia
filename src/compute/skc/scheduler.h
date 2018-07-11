@@ -18,12 +18,12 @@
 #include "types.h"
 
 //
-// 
+//
 //
 
 #define SKC_SCHEDULER_SCHEDULE(s,c,d) skc_scheduler_schedule(s,c,d,#c)
 
-#ifndef NDEBUG 
+#ifndef NDEBUG
 
 #include <stdio.h>
 
@@ -70,7 +70,7 @@ skc_scheduler_create(struct skc_runtime * const runtime, skc_uint const size);
 void
 skc_scheduler_dispose(struct skc_runtime   * const runtime,
                       struct skc_scheduler * const scheduler);
-                      
+
 
 //
 //

@@ -19,13 +19,13 @@
 //
 //
 
-char const * 
+char const *
 cl_get_error_string(cl_int const err);
 
-cl_int 
-assert_cl(cl_int       const code, 
-          char const * const file, 
-          int          const line, 
+cl_int
+assert_cl(cl_int       const code,
+          char const * const file,
+          int          const line,
           bool         const abort);
 
 //
@@ -40,14 +40,14 @@ assert_cl(cl_int       const code,
 //
 
 void
-cl_get_event_info(cl_event                event, 
+cl_get_event_info(cl_event                event,
                   cl_int          * const status,
                   cl_command_type * const type);
 
-char const * 
+char const *
 cl_get_event_command_status_string(cl_int const status);
 
-char const * 
+char const *
 cl_get_event_command_type_string(cl_command_type const type);
 
 //

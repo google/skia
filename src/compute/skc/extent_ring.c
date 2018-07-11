@@ -99,17 +99,17 @@ skc_extent_ring_snap_alloc(struct skc_runtime     * const runtime,
 {
   skc_subbuf_id_t id;
 
-  struct skc_extent_ring_snap * snap = 
+  struct skc_extent_ring_snap * snap =
     skc_runtime_host_temp_alloc(runtime,
                                 SKC_MEM_FLAGS_READ_WRITE,
                                 sizeof(*snap),&id,NULL);
   // save the id
   snap->id      = id;
-  
+
   // back point to parent
   snap->ring    = ring;
   snap->next    = NULL;
-  
+
   // save the inner boundaries of the ring to the snapshot
   snap->reads   = ring->inner.reads;
   snap->writes  = ring->inner.reads = ring->inner.writes;
@@ -123,7 +123,7 @@ skc_extent_ring_snap_alloc(struct skc_runtime     * const runtime,
       ring->head = snap;
       ring->last = snap;
     }
-  else 
+  else
     {
       ring->last->next = snap;
       ring->last       = snap;
@@ -156,7 +156,7 @@ skc_extent_ring_snap_free(struct skc_runtime          * const runtime,
   do {
     // increment read counter
     ring->outer.reads = curr->writes;
-    
+
     struct skc_extent_ring_snap * const next = curr->next;
 
     skc_runtime_host_temp_free(runtime,curr,curr->id);
@@ -164,7 +164,7 @@ skc_extent_ring_snap_free(struct skc_runtime          * const runtime,
     curr = next;
 
     // this was the last snap...
-    if (curr == NULL) 
+    if (curr == NULL)
       {
         ring->last = NULL;
         break;

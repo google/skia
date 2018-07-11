@@ -155,7 +155,7 @@ skc_raster_builder_transforms_append(struct skc_raster_builder * const raster_bu
 static
 skc_bool
 skc_raster_builder_clips_append(struct skc_raster_builder * const raster_builder,
-                                union skc_cmd_fill        * const cmd,                                
+                                union skc_cmd_fill        * const cmd,
                                 skc_raster_clip_weakref_t * const raster_clip_weakref,
                                 skc_float           const * const raster_clip)
 {
@@ -183,7 +183,7 @@ skc_raster_builder_cmds_append(struct skc_raster_builder * const raster_builder,
   cmd->cohort = skc_extent_ring_wip_count(&raster_builder->raster_ids.ring);
 
   skc_uint const base = skc_extent_ring_wip_index_inc(&raster_builder->fill_cmds.ring);
-  
+
   raster_builder->fill_cmds.extent[base] = *cmd;
 
 #if 0
@@ -292,7 +292,7 @@ skc_raster_add_filled(skc_raster_builder_t        raster_builder,
   // mask off the guard bits
   path = SKC_TYPED_HANDLE_TO_HANDLE(path);
 
-  // 
+  //
   // build the command...
   //
   union skc_cmd_fill cmd;

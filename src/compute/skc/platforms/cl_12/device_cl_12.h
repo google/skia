@@ -33,7 +33,7 @@ typedef enum skc_device_kernel_id {
 
   SKC_DEVICE_KERNEL_ID_FILLS_EXPAND,
 
-  SKC_DEVICE_KERNEL_ID_RASTERIZE_ALL,  
+  SKC_DEVICE_KERNEL_ID_RASTERIZE_ALL,
   SKC_DEVICE_KERNEL_ID_RASTERIZE_LINES,
   SKC_DEVICE_KERNEL_ID_RASTERIZE_QUADS,
   SKC_DEVICE_KERNEL_ID_RASTERIZE_CUBICS,
@@ -69,12 +69,12 @@ void
 skc_device_dispose(struct skc_runtime * const runtime);
 
 
-// 
+//
 // multi-threading/context/device requires multiple kernel instances
 //
 
 cl_kernel
-skc_device_acquire_kernel(struct skc_device  * const device, 
+skc_device_acquire_kernel(struct skc_device  * const device,
                           skc_device_kernel_id const type);
 
 void
@@ -85,13 +85,13 @@ skc_device_release_kernel(struct skc_device  * const device,
 // grid shape can vary greatly by target platform
 //
 void
-skc_device_enqueue_kernel(struct skc_device  * const device, 
+skc_device_enqueue_kernel(struct skc_device  * const device,
                           skc_device_kernel_id const type,
                           cl_command_queue           cq,
                           cl_kernel                  kernel,
-                          size_t               const work_size,                          
+                          size_t               const work_size,
                           cl_uint                    num_events_in_wait_list,
-                          cl_event const     * const event_wait_list, 
+                          cl_event const     * const event_wait_list,
                           cl_event           * const event);
 
 //

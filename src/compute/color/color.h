@@ -59,7 +59,7 @@ void color_linear_to_srgb_rgb_f32(float rgb[3]);
 //
 //
 
-void color_linear_lerp_rgba_f32(float       rgba_m[4], 
+void color_linear_lerp_rgba_f32(float       rgba_m[4],
                                 float const rgba_a[4],
                                 float const rgba_b[4],
                                 float const t);

@@ -21,15 +21,15 @@
 //
 //
 
-static 
+static
 char
 hsg_transpose_reg_prefix(uint32_t const cols_log2)
 {
   return 'a' + (('r' + cols_log2 - 'a') % 26);
 }
 
-static 
-void 
+static
+void
 hsg_transpose_blend(uint32_t const cols_log2,
                     uint32_t const row_ll, // lower-left
                     uint32_t const row_ur, // upper-right
@@ -41,10 +41,10 @@ hsg_transpose_blend(uint32_t const cols_log2,
           hsg_transpose_reg_prefix(cols_log2-1),
           hsg_transpose_reg_prefix(cols_log2),
           cols_log2,row_ll+1,row_ur+1);
-}  
+}
 
-static 
-void 
+static
+void
 hsg_transpose_remap(uint32_t const row_from,
                     uint32_t const row_to,
                     FILE *         file)
@@ -54,7 +54,7 @@ hsg_transpose_remap(uint32_t const row_from,
           "  HS_TRANSPOSE_REMAP( %c, %3u, %3u )        \\\n",
           hsg_transpose_reg_prefix(msb_idx_u32(hsg_config.warp.lanes)),
           row_from+1,row_to+1);
-}  
+}
 
 //
 //
@@ -89,7 +89,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
         uint32_t const warp_lanes_log2 = msb_idx_u32(hsg_config.warp.lanes);
 
         fprintf(files[HSG_FILE_TYPE_HEADER].file,
-                "//                                                            \n"                
+                "//                                                            \n"
                 "// Copyright 2016 Google Inc.                                 \n"
                 "//                                                            \n"
                 "// Use of this source code is governed by a BSD-style         \n"
@@ -125,7 +125,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
 
         fprintf(files[HSG_FILE_TYPE_HEADER].file,
                 "#define HS_SLAB_ROWS()    \\\n");
-        
+
         for (uint32_t ii=1; ii<=hsg_config.thread.regs; ii++)
           fprintf(files[HSG_FILE_TYPE_HEADER].file,
                   "  HS_SLAB_ROW( %3u, %3u ) \\\n",ii,ii-1);
@@ -147,13 +147,13 @@ hsg_target_igp_genx(struct hsg_file        * const files,
                       files[HSG_FILE_TYPE_HEADER].file,
                       hsg_transpose_blend,
                       hsg_transpose_remap);
-        
+
         fprintf(files[HSG_FILE_TYPE_HEADER].file,
                 "  HS_EMPTY\n"
                 "          \n");
 
         fprintf(files[HSG_FILE_TYPE_SOURCE].file,
-                "//                                                      \n"                
+                "//                                                      \n"
                 "// Copyright 2016 Google Inc.                           \n"
                 "//                                                      \n"
                 "// Use of this source code is governed by a BSD-style   \n"
@@ -215,11 +215,11 @@ hsg_target_igp_genx(struct hsg_file        * const files,
                 "HS_TRANSPOSE_SLAB()\n");
       }
       break;
-      
+
     case HSG_OP_TYPE_BS_KERNEL_PROTO:
       {
         struct hsg_merge const * const m = merge + ops->a;
-        
+
         uint32_t const tpb = m->warps * hsg_config.warp.lanes;
         uint32_t const bs  = pow2_ru_u32(m->warps);
         uint32_t const msb = msb_idx_u32(bs);
@@ -236,7 +236,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
                 msb);
       }
       break;
-      
+
     case HSG_OP_TYPE_BS_KERNEL_PREAMBLE:
       {
         fprintf(files[HSG_FILE_TYPE_SOURCE].file,
@@ -466,12 +466,12 @@ hsg_target_igp_genx(struct hsg_file        * const files,
       break;
 
     case HSG_OP_TYPE_CMP_FLIP:
-      fprintf(files[HSG_FILE_TYPE_SOURCE].file,      
+      fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "HS_CMP_FLIP(%-3u,r%-3u,r%-3u)\n",ops->a,ops->b,ops->c);
       break;
 
     case HSG_OP_TYPE_CMP_HALF:
-      fprintf(files[HSG_FILE_TYPE_SOURCE].file,      
+      fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "HS_CMP_HALF(%-3u,r%-3u)\n",ops->a,ops->b);
       break;
 
@@ -523,7 +523,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
               ops->c,
               ops->a);
       break;
-      
+
     case HSG_OP_TYPE_BS_REG_SHARED_LOAD_LEFT:
       fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "HS_KEY_TYPE r%u_%-3u = (shared.m + smem_l_idx)[%u];\n",
@@ -598,7 +598,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
 #endif
       }
       break;
-      
+
     case HSG_OP_TYPE_BC_MERGE_H_PREAMBLE:
       {
         struct hsg_merge const * const m = merge + ops->a;
@@ -613,7 +613,7 @@ hsg_target_igp_genx(struct hsg_file        * const files,
 
       }
       break;
-      
+
     case HSG_OP_TYPE_BX_MERGE_H_PRED:
       fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "if (get_sub_group_id() < %u)\n",
