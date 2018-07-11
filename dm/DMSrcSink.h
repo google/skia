@@ -386,6 +386,26 @@ private:
     typedef GPUSink INHERITED;
 };
 
+class GPUPersistentCacheTestingSink : public GPUSink {
+public:
+    GPUPersistentCacheTestingSink(sk_gpu_test::GrContextFactory::ContextType,
+                                  sk_gpu_test::GrContextFactory::ContextOverrides,
+                                  SkCommandLineConfigGpu::SurfType surfType, int samples,
+                                  bool diText, SkColorType colorType, SkAlphaType alphaType,
+                                  sk_sp<SkColorSpace> colorSpace, bool threaded,
+                                  const GrContextOptions& grCtxOptions);
+
+    Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
+
+    const char* fileExtension() const override {
+        // Suppress writing out results from this config - we just want to do our matching test
+        return nullptr;
+    }
+
+private:
+    typedef GPUSink INHERITED;
+};
+
 class PDFSink : public Sink {
 public:
     PDFSink(bool pdfa, SkScalar rasterDpi) : fPDFA(pdfa), fRasterDpi(rasterDpi) {}
