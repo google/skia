@@ -41,8 +41,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     SkColorSpaceTransferFn srcTF, dstTF;
     SkAssertResult(src->isNumericalTransferFn(&srcTF));
     SkAssertResult(dst->isNumericalTransferFn(&dstTF));
-    this->srcTF    = srcTF;
-    this->dstTFInv = dstTF.invert();
+    this->srcTF         = srcTF;
+    this->dstTFInv      = dstTF.invert();
+    this->srcTF_is_sRGB = src->gammaCloseToSRGB();
+    this->dstTF_is_sRGB = dst->gammaCloseToSRGB();
 
     // If we linearize then immediately reencode with the same transfer function, skip both.
     if ( this->flags.linearize       &&
@@ -103,19 +105,25 @@ void SkColorSpaceXformSteps::apply(float* rgba) const {
 void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
     if (flags.unpremul) { p->append(SkRasterPipeline::unpremul); }
     if (flags.linearize) {
-        // TODO: missing an opportunity to use from_srgb here.
-        p->append(SkRasterPipeline::parametric_r, &srcTF);
-        p->append(SkRasterPipeline::parametric_g, &srcTF);
-        p->append(SkRasterPipeline::parametric_b, &srcTF);
+        if (srcTF_is_sRGB) {
+            p->append(SkRasterPipeline::from_srgb);
+        } else {
+            p->append(SkRasterPipeline::parametric_r, &srcTF);
+            p->append(SkRasterPipeline::parametric_g, &srcTF);
+            p->append(SkRasterPipeline::parametric_b, &srcTF);
+        }
     }
     if (flags.gamut_transform) {
         p->append(SkRasterPipeline::matrix_3x3, &src_to_dst_matrix);
     }
     if (flags.encode) {
-        // TODO: missing an opportunity to use to_srgb here.
-        p->append(SkRasterPipeline::parametric_r, &dstTFInv);
-        p->append(SkRasterPipeline::parametric_g, &dstTFInv);
-        p->append(SkRasterPipeline::parametric_b, &dstTFInv);
+        if (dstTF_is_sRGB) {
+            p->append(SkRasterPipeline::to_srgb);
+        } else {
+            p->append(SkRasterPipeline::parametric_r, &dstTFInv);
+            p->append(SkRasterPipeline::parametric_g, &dstTFInv);
+            p->append(SkRasterPipeline::parametric_b, &dstTFInv);
+        }
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
 }
