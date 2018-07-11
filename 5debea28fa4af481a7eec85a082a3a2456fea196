@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b91af772_fd42ff48",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-11T21:19:08Z",
+      "side": 1,
+      "message": "It\u0027s probably harmless to leave in... just wanted to make sure you knew it wouldn\u0027t affect libc++ if anything switches away to it.  E.g. if I remember right, the bots all or at least mostly use libc++ and this won\u0027t do anything to them.",
+      "range": {
+        "startLine": 212,
+        "startChar": 17,
+        "endLine": 212,
+        "endChar": 34
+      },
+      "revId": "5debea28fa4af481a7eec85a082a3a2456fea196",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
