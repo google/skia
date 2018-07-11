@@ -90,9 +90,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     sk_gpu_test::GLTestContext* glContext = ctxInfo.glContext();
+    GrGpu* glGpu = context->contextPriv().getGpu();
+    const GrCaps* glCaps = glGpu? glGpu->caps() : nullptr;
+    SkDebugf("context caps %p and proxy provider caps %p\n", (void*)glCaps, (void*)proxyProvider->caps());
     static const int kWidth = 13;
     static const int kHeight = 13;
-
+    SkDebugf("start test\n");
     GrColor pixels[kWidth * kHeight];
     for (int y = 0; y < kHeight; ++y) {
         for (int x = 0; x < kWidth; ++x) {
@@ -103,6 +106,10 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
     for (auto origin : { kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin }) {
         bool useBLOrigin = kBottomLeft_GrSurfaceOrigin == origin;
 
+        if (useBLOrigin)
+          SkDebugf("bottom left origin\n");
+        else
+          SkDebugf("top left origin\n");
         GrGLuint rectTexID = glContext->createTextureRectangle(kWidth, kHeight, GR_GL_RGBA,
                                                                GR_GL_RGBA, GR_GL_UNSIGNED_BYTE,
                                                                pixels);
