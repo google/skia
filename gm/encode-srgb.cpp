@@ -70,19 +70,12 @@ static sk_sp<SkData> encode_data(const SkBitmap& bitmap, SkEncodedImageFormat fo
     }
     SkDynamicMemoryWStream buf;
 
-    SkPngEncoder::Options pngOptions;
-    SkWebpEncoder::Options webpOptions;
-    SkTransferFunctionBehavior behavior = bitmap.colorSpace()
-            ? SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
-    pngOptions.fUnpremulBehavior = behavior;
-    webpOptions.fUnpremulBehavior = behavior;
-
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkAssertResult(SkPngEncoder::Encode(&buf, src, pngOptions));
+            SkAssertResult(SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options()));
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkAssertResult(SkWebpEncoder::Encode(&buf, src, webpOptions));
+            SkAssertResult(SkWebpEncoder::Encode(&buf, src, SkWebpEncoder::Options()));
             break;
         case SkEncodedImageFormat::kJPEG:
             SkAssertResult(SkJpegEncoder::Encode(&buf, src, SkJpegEncoder::Options()));
