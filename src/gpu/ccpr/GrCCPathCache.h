@@ -121,14 +121,15 @@ public:
     // Called once our path has been rendered into the mainline CCPR (fp16, coverage count) atlas.
     // The caller will stash this atlas texture away after drawing, and during the next flush,
     // recover it and attempt to copy any paths that got reused into permanent 8-bit atlases.
-    void initAsStashedAtlas(const GrUniqueKey& atlasKey, const SkIVector& atlasOffset,
-                            const SkRect& devBounds, const SkRect& devBounds45,
-                            const SkIRect& devIBounds, const SkIVector& maskShift);
+    void initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+                            const SkIVector& atlasOffset, const SkRect& devBounds,
+                            const SkRect& devBounds45, const SkIRect& devIBounds,
+                            const SkIVector& maskShift);
 
     // Called once our path mask has been copied into a permanent, 8-bit atlas. This method points
     // the entry at the new atlas and updates the CachedAtlasInfo data.
-    void updateToCachedAtlas(const GrUniqueKey& atlasKey, const SkIVector& newAtlasOffset,
-                             sk_sp<GrCCAtlas::CachedAtlasInfo>);
+    void updateToCachedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+                             const SkIVector& newAtlasOffset, sk_sp<GrCCAtlas::CachedAtlasInfo>);
 
     const GrUniqueKey& atlasKey() const { return fAtlasKey; }
 
@@ -162,6 +163,7 @@ private:
     // Called when our corresponding path is modified or deleted.
     void onChange() override;
 
+    uint32_t fContextUniqueID;
     GrCCPathCache* fCacheWeakPtr;  // Gets manually reset to null by the path cache upon eviction.
     MaskTransform fMaskTransform;
     int fHitCount = 1;

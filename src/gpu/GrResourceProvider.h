@@ -251,6 +251,7 @@ public:
         fGpu = nullptr;
     }
 
+    uint32_t contextUniqueID() const { return fCache->contextUniqueID(); }
     const GrCaps* caps() const { return fCaps.get(); }
     bool overBudget() const { return fCache->overBudget(); }
 

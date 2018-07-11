@@ -27,6 +27,10 @@ class SkTraceMemoryDump;
 struct GrGpuResourceFreedMessage {
     GrGpuResource* fResource;
     uint32_t fOwningUniqueID;
+    bool shouldSend(uint32_t inboxID) const {
+        // The inbox's ID is the unique ID of the owning GrContext.
+        return inboxID == fOwningUniqueID;
+    }
 };
 
 /**
@@ -66,6 +70,9 @@ public:
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
     ResourceAccess resourceAccess();
+
+    /** Unique ID of the owning GrContext. */
+    uint32_t contextUniqueID() const { return fContextUniqueID; }
 
     /**
      * Sets the cache limits in terms of number of resources, max gpu memory byte size, and number

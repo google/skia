@@ -37,11 +37,32 @@ GrProxyProvider::GrProxyProvider(GrResourceProvider* resourceProvider,
         , fResourceCache(resourceCache)
         , fAbandoned(false)
         , fCaps(caps)
+        , fContextUniqueID(resourceCache->contextUniqueID())
 #ifdef SK_DEBUG
         , fSingleOwner(owner)
 #endif
 {
+    SkASSERT(fResourceProvider);
+    SkASSERT(fResourceCache);
+    SkASSERT(fCaps);
+    SkASSERT(fSingleOwner);
+}
 
+GrProxyProvider::GrProxyProvider(uint32_t contextUniqueID,
+                                 sk_sp<const GrCaps> caps,
+                                 GrSingleOwner* owner)
+        : fResourceProvider(nullptr)
+        , fResourceCache(nullptr)
+        , fAbandoned(false)
+        , fCaps(caps)
+        , fContextUniqueID(contextUniqueID)
+#ifdef SK_DEBUG
+        , fSingleOwner(owner)
+#endif
+{
+    SkASSERT(fContextUniqueID != SK_InvalidUniqueID);
+    SkASSERT(fCaps);
+    SkASSERT(fSingleOwner);
 }
 
 GrProxyProvider::~GrProxyProvider() {
