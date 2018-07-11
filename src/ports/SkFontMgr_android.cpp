@@ -187,8 +187,8 @@ public:
 
             std::unique_ptr<SkStreamAsset> stream = SkStream::MakeFromFile(pathName.c_str());
             if (!stream) {
-                SkDEBUGF("Requested font file %s does not exist or cannot be opened.\n",
-                         pathName.c_str());
+                SkDEBUGF(("Requested font file %s does not exist or cannot be opened.\n",
+                          pathName.c_str()));
                 continue;
             }
 
@@ -200,8 +200,8 @@ public:
             if (!scanner.scanFont(stream.get(), ttcIndex,
                                   &familyName, &style, &isFixedWidth, &axisDefinitions))
             {
-                SkDEBUGF("Requested font file %s exists, but is not a valid font.\n",
-                         pathName.c_str());
+                SkDEBUGF(("Requested font file %s exists, but is not a valid font.\n",
+                          pathName.c_str()));
                 continue;
             }
 
@@ -577,11 +577,11 @@ sk_sp<SkFontMgr> SkFontMgr_New_Android(const SkFontMgr_Android_CustomFonts* cust
     if (custom) {
         SkASSERT(0 <= custom->fSystemFontUse);
         SkASSERT(custom->fSystemFontUse < SK_ARRAY_COUNT(gSystemFontUseStrings));
-        SkDEBUGF("SystemFontUse: %s BasePath: %s Fonts: %s FallbackFonts: %s\n",
-                 gSystemFontUseStrings[custom->fSystemFontUse],
-                 custom->fBasePath,
-                 custom->fFontsXml,
-                 custom->fFallbackFontsXml);
+        SkDEBUGF(("SystemFontUse: %s BasePath: %s Fonts: %s FallbackFonts: %s\n",
+                  gSystemFontUseStrings[custom->fSystemFontUse],
+                  custom->fBasePath,
+                  custom->fFontsXml,
+                  custom->fFallbackFontsXml));
     }
     return sk_make_sp<SkFontMgr_Android>(custom);
 }

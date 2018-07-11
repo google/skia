@@ -430,7 +430,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
             !exists ||
             FAILED(sk_get_locale_string(postScriptNames.get(), nullptr, &info->fPostScriptName)))
         {
-            SkDEBUGF("Unable to get postscript name for typeface %p\n", this);
+            SkDEBUGF(("Unable to get postscript name for typeface %p\n", this));
         }
     }
 
@@ -439,7 +439,7 @@ std::unique_ptr<SkAdvancedTypefaceMetrics> DWriteFontTypeface::onGetAdvancedMetr
     if (FAILED(fDWriteFontFamily->GetFamilyNames(&familyNames)) ||
         FAILED(sk_get_locale_string(familyNames.get(), nullptr, &info->fFontName)))
     {
-        SkDEBUGF("Unable to get family name for typeface 0x%p\n", this);
+        SkDEBUGF(("Unable to get family name for typeface 0x%p\n", this));
     }
     if (info->fPostScriptName.isEmpty()) {
         info->fPostScriptName = info->fFontName;

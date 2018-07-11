@@ -301,15 +301,15 @@ static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
     SkDEBUGCODE(
         FT_MM_Var* variations = nullptr;
         if (FT_Get_MM_Var(rec->fFace.get(), &variations)) {
-            SkDEBUGF("INFO: font %s claims variations, but none found.\n",
-                     rec->fFace->family_name);
+            SkDEBUGF(("INFO: font %s claims variations, but none found.\n",
+                      rec->fFace->family_name));
             return;
         }
         SkAutoFree autoFreeVariations(variations);
 
         if (static_cast<FT_UInt>(data.getAxisCount()) != variations->num_axis) {
-            SkDEBUGF("INFO: font %s has %d variations, but %d were specified.\n",
-                     rec->fFace->family_name, variations->num_axis, data.getAxisCount());
+            SkDEBUGF(("INFO: font %s has %d variations, but %d were specified.\n",
+                      rec->fFace->family_name, variations->num_axis, data.getAxisCount()));
             return;
         }
     )
@@ -319,8 +319,8 @@ static void ft_face_setup_axes(SkFaceRec* rec, const SkFontData& data) {
         coords[i] = data.getAxis()[i];
     }
     if (FT_Set_Var_Design_Coordinates(rec->fFace.get(), data.getAxisCount(), coords.get())) {
-        SkDEBUGF("INFO: font %s has variations, but specified variations could not be set.\n",
-                 rec->fFace->family_name);
+        SkDEBUGF(("INFO: font %s has variations, but specified variations could not be set.\n",
+                  rec->fFace->family_name));
         return;
     }
 
@@ -738,7 +738,7 @@ bool SkTypeface_FreeType::onGetKerningPairAdjustments(const uint16_t glyphs[],
 /** Returns the bitmap strike equal to or just larger than the requested size. */
 static FT_Int chooseBitmapStrike(FT_Face face, FT_F26Dot6 scaleY) {
     if (face == nullptr) {
-        SkDEBUGF("chooseBitmapStrike aborted due to nullptr face.\n");
+        SkDEBUGF(("chooseBitmapStrike aborted due to nullptr face.\n"));
         return -1;
     }
 
@@ -782,7 +782,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
 
     // load the font file
     if (nullptr == fFaceRec) {
-        SkDEBUGF("Could not create FT_Face.\n");
+        SkDEBUGF(("Could not create FT_Face.\n"));
         return;
     }
 
@@ -866,7 +866,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         return size;
     }());
     if (nullptr == ftSize) {
-        SkDEBUGF("Could not create FT_Size.\n");
+        SkDEBUGF(("Could not create FT_Size.\n"));
         return;
     }
 
@@ -904,8 +904,8 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     } else if (FT_HAS_FIXED_SIZES(fFaceRec->fFace)) {
         fStrikeIndex = chooseBitmapStrike(fFaceRec->fFace.get(), scaleY);
         if (fStrikeIndex == -1) {
-            SkDEBUGF("No glyphs for font \"%s\" size %f.\n",
-                     fFaceRec->fFace->family_name, fScale.fY);
+            SkDEBUGF(("No glyphs for font \"%s\" size %f.\n",
+                      fFaceRec->fFace->family_name, fScale.fY));
             return;
         }
 
@@ -933,7 +933,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         // Force this flag off for bitmap only fonts.
         fLoadGlyphFlags &= ~FT_LOAD_NO_BITMAP;
     } else {
-        SkDEBUGF("Unknown kind of font \"%s\" size %f.\n", fFaceRec->fFace->family_name, fScale.fY);
+        SkDEBUGF(("Unknown kind of font \"%s\" size %f.\n", fFaceRec->fFace->family_name, fScale.fY));
         return;
     }
 
@@ -1205,7 +1205,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     }
 
 #ifdef ENABLE_GLYPH_SPEW
-    SkDEBUGF("Metrics(glyph:%d flags:0x%x) w:%d\n", glyph->getGlyphID(), fLoadGlyphFlags, glyph->fWidth);
+    SkDEBUGF(("Metrics(glyph:%d flags:0x%x) w:%d\n", glyph->getGlyphID(), fLoadGlyphFlags, glyph->fWidth));
 #endif
 }
 
@@ -1780,7 +1780,7 @@ bool SkTypeface_FreeType::Scanner::scanFont(
         if (index >= 0) {
             weight = commonWeights[index].weight;
         } else {
-            SkDEBUGF("Do not know weight for: %s (%s) \n", face->family_name, psFontInfo.weight);
+            SkDEBUGF(("Do not know weight for: %s (%s) \n", face->family_name, psFontInfo.weight));
         }
     }
 
@@ -1804,8 +1804,8 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
         FT_MM_Var* variations = nullptr;
         FT_Error err = FT_Get_MM_Var(face, &variations);
         if (err) {
-            SkDEBUGF("INFO: font %s claims to have variations, but none found.\n",
-                     face->family_name);
+            SkDEBUGF(("INFO: font %s claims to have variations, but none found.\n",
+                      face->family_name));
             return false;
         }
         SkAutoFree autoFreeVariations(variations);
@@ -1840,15 +1840,15 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
             if (axisDefinition.fTag == coordinate.axis) {
                 const SkScalar axisValue = SkTPin(coordinate.value, axisMin, axisMax);
                 if (coordinate.value != axisValue) {
-                    SkDEBUGF("Requested font axis value out of range: "
-                             "%s '%c%c%c%c' %f; pinned to %f.\n",
-                             name.c_str(),
-                             (axisDefinition.fTag >> 24) & 0xFF,
-                             (axisDefinition.fTag >> 16) & 0xFF,
-                             (axisDefinition.fTag >>  8) & 0xFF,
-                             (axisDefinition.fTag      ) & 0xFF,
-                             SkScalarToDouble(coordinate.value),
-                             SkScalarToDouble(axisValue));
+                    SkDEBUGF(("Requested font axis value out of range: "
+                              "%s '%c%c%c%c' %f; pinned to %f.\n",
+                              name.c_str(),
+                              (axisDefinition.fTag >> 24) & 0xFF,
+                              (axisDefinition.fTag >> 16) & 0xFF,
+                              (axisDefinition.fTag >>  8) & 0xFF,
+                              (axisDefinition.fTag      ) & 0xFF,
+                              SkScalarToDouble(coordinate.value),
+                              SkScalarToDouble(axisValue)));
                 }
                 axisValues[i] = SkScalarToFixed(axisValue);
                 break;
@@ -1869,12 +1869,12 @@ bool SkTypeface_FreeType::Scanner::GetAxes(FT_Face face, AxisDefinitions* axes) 
                 }
             }
             if (!found) {
-                SkDEBUGF("Requested font axis not found: %s '%c%c%c%c'\n",
-                         name.c_str(),
-                         (skTag >> 24) & 0xFF,
-                         (skTag >> 16) & 0xFF,
-                         (skTag >>  8) & 0xFF,
-                         (skTag)       & 0xFF);
+                SkDEBUGF(("Requested font axis not found: %s '%c%c%c%c'\n",
+                          name.c_str(),
+                          (skTag >> 24) & 0xFF,
+                          (skTag >> 16) & 0xFF,
+                          (skTag >>  8) & 0xFF,
+                          (skTag)       & 0xFF));
             }
         }
     )
