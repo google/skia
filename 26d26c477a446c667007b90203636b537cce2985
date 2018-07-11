@@ -165,6 +165,24 @@
     },
     {
       "key": {
+        "uuid": "03230024_402a2dca",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T20:09:11Z",
+      "side": 1,
+      "message": "That sounds good but, yeah, that would a separate CL.",
+      "parentUuid": "81d128ac_738786c4",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "56e706ec_41bedfb1",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 7
@@ -194,6 +212,24 @@
       "side": 1,
       "message": "Eh, feels superfluous to me. We don\u0027t comment on why most data members exist and this doesn\u0027t seem like a special case to me.",
       "parentUuid": "56e706ec_41bedfb1",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0e0e186_144256be",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T20:09:11Z",
+      "side": 1,
+      "message": "It is a bit odd to have a context ID sitting in a CCPR cache entry.",
+      "parentUuid": "615ae882_b957adae",
       "revId": "26d26c477a446c667007b90203636b537cce2985",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
