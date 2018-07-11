@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ef1f4d4_10ea6577",
+        "filename": "include/private/GrSkSLFPFactoryCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "// This is a cache of SkSL\u0027s Factory methods ...\n\nesp. about how it is thread safe\n\n?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e517a137_7aaa88f7",
+        "filename": "include/private/GrSkSLFPFactoryCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "// Maybe some words about \u0027index\u0027 esp. where it comes from\n\n?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cc64401_6359d0c5",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "std::move ?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "310d19d8_d53f23a5",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we never get in here ?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc3a086e_2f8411d3",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "tab over twice ?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94476656_febff97d",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "So, IIUC, if two DDLs threads are both creating the same FP at the same time it seems like two factories could be created and the second one added would win (and the first one added would become orphaned).\n\nAm I missing something?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4960644f_8d9c5be4",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "NewIndex ?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7be37c7a_4ec15253",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T18:23:51Z",
+      "side": 1,
+      "message": "This is ref counted too",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
