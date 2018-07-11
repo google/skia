@@ -56,27 +56,27 @@ SKC_STATIC_ASSERT(sizeof(union skc_weakref) == sizeof(skc_ulong));
 //
 //
 
-void 
+void
 skc_weakref_epoch_init(skc_epoch_t * const epoch)
 {
   *epoch = SKC_WEAKREF_EPOCH_INIT;
 }
 
-void 
+void
 skc_weakref_epoch_inc(skc_epoch_t * const epoch)
 {
   *epoch += SKC_WEAKREF_EPOCH_ONE;
 }
 
-void 
-skc_weakref_init(skc_weakref_t * const weakref, 
+void
+skc_weakref_init(skc_weakref_t * const weakref,
                  skc_epoch_t   * const epoch,
                  skc_uint        const index)
 {
   *weakref = *epoch | (index & SKC_WEAKREF_INDEX_MASK);
 }
 
-bool 
+bool
 skc_weakref_is_invalid(skc_weakref_t const * const weakref,
                        skc_epoch_t   const * const epoch)
 {

@@ -882,7 +882,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
                         uint32_t                 const level,
                         uint32_t                 const s_pairs)
 {
-  // 
+  //
   // Note there are a number of ways to flip merge these warps.  There
   // is a magic number in the merge structure that indicates which
   // warp to activate as well as what network size to invoke.
@@ -917,7 +917,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
 
   uint32_t       s_rows = s_pairs * 2;
   uint32_t       base   = 0;
-  
+
   while (s_rows > 0)
     {
       uint32_t active = merge->warps;
@@ -934,7 +934,7 @@ hsg_bs_flip_merge_level(struct hsg_op          *       ops,
       // how many equal number of rows to merge?
       uint32_t loops = s_rows / active;
 
-      // decrement 
+      // decrement
       s_rows -= loops * active;
 
       for (uint32_t ss=0; ss<loops; ss++)
@@ -998,7 +998,7 @@ hsg_bs_flip_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
     {
       uint32_t const count = merge->levels[level].count;
 
-      if (count == 0) 
+      if (count == 0)
         continue;
 
       uint32_t const r_mid       = hsg_config.thread.regs/2 + 1;

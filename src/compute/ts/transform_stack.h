@@ -70,21 +70,21 @@ skc_transform_stack_top_weakref(struct skc_transform_stack * const ts);
 //
 //
 
-void 
+void
 skc_transform_stack_drop(struct skc_transform_stack * const ts);
 
-void 
+void
 skc_transform_stack_dup(struct skc_transform_stack * const ts);
 
 //
 //
 //
 
-void 
+void
 skc_transform_stack_transform_affine(struct skc_transform_stack * const ts,
-                                     skc_transform_float_t        const x_pre,  
+                                     skc_transform_float_t        const x_pre,
                                      skc_transform_float_t        const y_pre,
-                                     skc_transform_float_t      * const x_post, 
+                                     skc_transform_float_t      * const x_post,
                                      skc_transform_float_t      * const y_post);
 
 //
@@ -93,14 +93,14 @@ skc_transform_stack_transform_affine(struct skc_transform_stack * const ts,
 
 void
 skc_transform_stack_push_matrix(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const sx, 
+                                skc_transform_float_t        const sx,
                                 skc_transform_float_t        const shx,
                                 skc_transform_float_t        const tx,
                                 skc_transform_float_t        const shy,
-                                skc_transform_float_t        const sy, 
+                                skc_transform_float_t        const sy,
                                 skc_transform_float_t        const ty,
-                                skc_transform_float_t        const w0, 
-                                skc_transform_float_t        const w1, 
+                                skc_transform_float_t        const w0,
+                                skc_transform_float_t        const w1,
                                 skc_transform_float_t        const w2);
 
 void
@@ -108,26 +108,26 @@ skc_transform_stack_push_identity(struct skc_transform_stack * const ts);
 
 void
 skc_transform_stack_push_affine(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const sx,  
+                                skc_transform_float_t        const sx,
                                 skc_transform_float_t        const shx,
                                 skc_transform_float_t        const tx,
-                                skc_transform_float_t        const shy, 
+                                skc_transform_float_t        const shy,
                                 skc_transform_float_t        const sy,
                                 skc_transform_float_t        const ty);
 
 void
 skc_transform_stack_push_translate(struct skc_transform_stack * const ts,
-                                   skc_transform_float_t        const tx, 
+                                   skc_transform_float_t        const tx,
                                    skc_transform_float_t        const ty);
 
 void
 skc_transform_stack_push_scale(struct skc_transform_stack * const ts,
-                               skc_transform_float_t        const sx, 
+                               skc_transform_float_t        const sx,
                                skc_transform_float_t        const sy);
 
 void
 skc_transform_stack_push_shear(struct skc_transform_stack * const ts,
-                               skc_transform_float_t        const shx, 
+                               skc_transform_float_t        const shx,
                                skc_transform_float_t        const shy);
 
 
@@ -148,7 +148,7 @@ skc_transform_stack_push_rotate_xy2(struct skc_transform_stack * const ts,
                                     skc_transform_float_t        const theta,
                                     skc_transform_float_t        const cx,
                                     skc_transform_float_t        const cy,
-                                    skc_transform_float_t        const tx, 
+                                    skc_transform_float_t        const tx,
                                     skc_transform_float_t        const ty);
 
 void

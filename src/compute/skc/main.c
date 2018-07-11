@@ -194,7 +194,7 @@ main(int argc, char** argv)
   // rasterize, render and reclaim svg until escape
   //
   skc_pipeline_start_at_e pipeline_start_at_base = SKC_PIPELINE_START_AT_DEFINE_PATHS;
-  skc_pipeline_start_at_e pipeline_start_at_loop = SKC_PIPELINE_START_AT_DEFINE_PATHS;  
+  skc_pipeline_start_at_e pipeline_start_at_loop = SKC_PIPELINE_START_AT_DEFINE_PATHS;
   skc_path_t            * paths;
   skc_raster_t          * rasters;
 
@@ -269,7 +269,7 @@ main(int argc, char** argv)
       // do we only want to run part of the pipeline?
       if ((key >= SKC_PIPELINE_START_AT_DEFINE_PATHS) && (key <= SKC_PIPELINE_START_AT_RENDER))
         pipeline_start_at_base = key;
-      
+
       // valid for a loop
       pipeline_start_at_loop = pipeline_start_at_base;
 

@@ -33,7 +33,7 @@ hsg_transpose(uint32_t                   const cols_log2,
 {
   // get mapping array
   uint32_t * map_curr = ALLOCA(rows * sizeof(*map_curr));
-  uint32_t * map_next = ALLOCA(rows * sizeof(*map_next));  
+  uint32_t * map_next = ALLOCA(rows * sizeof(*map_next));
 
   // init the mapping array
   for (uint32_t ii=0; ii<rows; ii++)
@@ -53,7 +53,7 @@ hsg_transpose(uint32_t                   const cols_log2,
             {
               for (uint32_t jj=0; jj<rows; jj++)
                 {
-                  if (map_curr[jj] == stay) 
+                  if (map_curr[jj] == stay)
                     {
                       map_next[jj] = stay;
                       map_next[ii] = stay + (rows << (cc-1));
@@ -88,7 +88,7 @@ hsg_transpose(uint32_t                   const cols_log2,
 static uint32_t cols; // implicit on SIMD/GPU
 
 static
-void 
+void
 hsg_debug_remap(uint32_t   const row_from,
                 uint32_t   const row_to,
                 uint32_t * const r)
@@ -99,9 +99,9 @@ hsg_debug_remap(uint32_t   const row_from,
 }
 
 static
-void 
+void
 hsg_debug_blend(uint32_t const cols_log2,
-                uint32_t const row_ll, // lower-left 
+                uint32_t const row_ll, // lower-left
                 uint32_t const row_ur, // upper-right
                 uint32_t *     m)
 {

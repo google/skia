@@ -127,7 +127,7 @@ SKC_STATIC_ASSERT(sizeof(struct skc_group_node) == sizeof(skc_uint2) * 3); // 6 
 union skc_gradient_slope
 {
   skc_float  slope;
-  skc_half   color_pair[2];  
+  skc_half   color_pair[2];
 };
 
 SKC_STATIC_ASSERT(sizeof(union skc_gradient_slope) == sizeof(skc_float));
@@ -174,7 +174,7 @@ SKC_STATIC_ASSERT(sizeof(union skc_gradient_vector) == sizeof(skc_float4));
 // +------------+---------------------------------+--------+-------------------------+
 //
 // COLOR LAYOUT:
-// 
+//
 //   R[0]R[1], R[1]R[2], ... R[N-1]R[N-1]
 //   G[0]G[1], G[1]G[2], ... G[N-1]G[N-1]
 //   B[0]B[1], B[1]B[2], ... B[N-1]B[N-1]
@@ -203,7 +203,7 @@ SKC_STATIC_ASSERT(sizeof(union skc_gradient_vector) == sizeof(skc_float4));
 // +------------+--------------------------------+--------+
 //
 // COLOR LAYOUT:
-// 
+//
 //   R[0]R[1], R[1]R[2], ... R[N-1]R[N-1] <-------------------------- FIXME -- USE HERB'S SINGLE FMA REPRESENTATION
 //   G[0]G[1], G[1]G[2], ... G[N-1]G[N-1] <-------------------------- FIXME -- USE HERB'S SINGLE FMA REPRESENTATION
 //   B[0]B[1], B[1]B[2], ... B[N-1]B[N-1] <-------------------------- FIXME -- USE HERB'S SINGLE FMA REPRESENTATION
@@ -222,7 +222,7 @@ SKC_STATIC_ASSERT(sizeof(union skc_gradient_vector) == sizeof(skc_float4));
 // This will require that the colors are laid out in sampler-friendly
 // order:
 //
-//    RGBA[0]RGBA[1], RGBA[1]RGBA[2], ..., RGBA[N-1]RGBA[N-1] 
+//    RGBA[0]RGBA[1], RGBA[1]RGBA[2], ..., RGBA[N-1]RGBA[N-1]
 //
 //
 
@@ -247,4 +247,4 @@ SKC_STATIC_ASSERT(sizeof(union skc_gradient_vector) == sizeof(skc_float4));
 //
 //
 
-  
+

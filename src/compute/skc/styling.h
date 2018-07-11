@@ -27,7 +27,7 @@ struct skc_styling
   void                   (* seal   )(struct skc_styling_impl * const impl);
   void                   (* unseal )(struct skc_styling_impl * const impl, skc_bool const block);
   void                   (* release)(struct skc_styling_impl * const impl);
-                                     
+
   skc_int                   ref_count;
 
   struct {

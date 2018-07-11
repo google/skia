@@ -40,7 +40,7 @@
 // DURABLE R/W HOST EXTENT -- STANDARD CACHED MEMORY
 //
 
-struct skc_extent_phrw 
+struct skc_extent_phrw
 {
   void * hrw;
 };
@@ -58,7 +58,7 @@ skc_extent_phrw_free(struct skc_runtime     * const runtime,
 // DURABLE R/W DEVICE EXTENT -- ALLOCATED FROM DEVICE HEAP
 //
 
-struct skc_extent_pdrw 
+struct skc_extent_pdrw
 {
   cl_mem drw;
 };
@@ -76,7 +76,7 @@ skc_extent_pdrw_free(struct skc_runtime     * const runtime,
 // EPHEMERAL DEVICE R/W EXTENT -- ALLOCATED QUICKLY FROM A MANAGED RING
 //
 
-struct skc_extent_tdrw 
+struct skc_extent_tdrw
 {
   size_t          size;
   cl_mem          drw;

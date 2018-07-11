@@ -57,7 +57,7 @@ skc_runtime_device_temp_alloc(struct skc_runtime * const runtime,
 
       if (subbuf_size != NULL)
         *subbuf_size = 0;
-      
+
       return NULL;
     }
 
@@ -83,7 +83,7 @@ skc_runtime_device_temp_alloc(struct skc_runtime * const runtime,
 
 
 void
-skc_runtime_device_temp_free(struct skc_runtime * const runtime, 
+skc_runtime_device_temp_free(struct skc_runtime * const runtime,
                              cl_mem               const mem,
                              skc_subbuf_id_t      const subbuf_id)
 {
@@ -92,7 +92,7 @@ skc_runtime_device_temp_free(struct skc_runtime * const runtime,
 
   skc_suballocator_subbuf_free(&runtime->allocator.device.temp.suballocator,subbuf_id);
 
-  cl(ReleaseMemObject(mem));  
+  cl(ReleaseMemObject(mem));
 }
 
 //
@@ -116,7 +116,7 @@ skc_allocator_device_create(struct skc_runtime * const runtime)
   cl_mem_flags const flags = CL_MEM_READ_WRITE;
 #endif
 
-  runtime->allocator.device.temp.extent = 
+  runtime->allocator.device.temp.extent =
     skc_runtime_device_perm_alloc(runtime,
                                   flags,
                                   runtime->config->suballocator.device.size);

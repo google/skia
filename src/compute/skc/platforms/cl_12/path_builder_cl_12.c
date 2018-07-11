@@ -256,7 +256,7 @@ struct skc_path_builder_impl
 
 static
 union skc_ringdex_expand
-skc_ringdex_expand(struct skc_path_builder_impl * const impl, 
+skc_ringdex_expand(struct skc_path_builder_impl * const impl,
                    skc_ringdex_t                  const ringdex)
 {
   return (union skc_ringdex_expand){
@@ -322,7 +322,7 @@ skc_ringdex_prev_is_equal(struct skc_path_builder_impl * const impl)
 
 static
 skc_uint
-skc_ringdex_dont_map_last(struct skc_path_builder_impl * const impl, 
+skc_ringdex_dont_map_last(struct skc_path_builder_impl * const impl,
                           skc_uint                       const to_block)
 {
   // no blocks acquired OR this is last block in subbuf
@@ -509,7 +509,7 @@ skc_path_builder_impl_unmap(struct skc_path_builder_impl * const impl,
 #if 0
   fprintf(stderr,"unmap: [%2u,%2u)\n",from,to);
 #endif
-  
+
   while (from != to) // 'to' might be out of range
     {
       // bring 'from' back in range
@@ -647,9 +647,9 @@ void
 skc_path_builder_paths_copy_cb(cl_event event, cl_int status, skc_grid_t grid)
 {
   SKC_CL_CB(status);
-  
+
   struct skc_release_record * const release = skc_grid_get_data(grid);
-  
+
   SKC_SCHEDULER_SCHEDULE(release->impl->runtime->scheduler,skc_path_builder_complete,grid);
 }
 
@@ -802,7 +802,7 @@ skc_path_builder_grid_pfn_waiting(skc_grid_t const grid)
       // if there was no wip then round up to the next subbuf
       //
       skc_ringdex_wip_to_subbuf_inc(impl);
-    
+
       //
       // update prev/curr with with incremented wip
       //
