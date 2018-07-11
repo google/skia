@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "b421b658_201aad36",
+        "filename": "bench/PolyUtilsBench.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:25:23Z",
+      "side": 1,
+      "message": "// Evaluate SkTriangulateSimplePolygon\u0027s performance (via derived classes) on:\n//   a non-self-intersecting star, a circle of tiny line segments and a self-intersecting star\n\n?",
+      "revId": "a8a86801ad45f36efae6251a8287991249741d72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dab48b39_4fb51c39",
         "filename": "fuzz/FuzzPolyUtils.cpp",
         "patchSetId": 8
@@ -19,6 +36,40 @@
         "endLine": 2,
         "endChar": 29
       },
+      "revId": "a8a86801ad45f36efae6251a8287991249741d72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76ef5c34_cf8dc770",
+        "filename": "fuzz/FuzzPolyUtils.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:25:23Z",
+      "side": 1,
+      "message": "use \u0027offset\u0027 here ?",
+      "revId": "a8a86801ad45f36efae6251a8287991249741d72",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "16126987_2634526c",
+        "filename": "tests/PolyUtilsTest.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T12:25:23Z",
+      "side": 1,
+      "message": "We could have a helper routine to create this (and share w/ the other instance)",
       "revId": "a8a86801ad45f36efae6251a8287991249741d72",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
