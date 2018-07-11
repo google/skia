@@ -112,7 +112,9 @@ public:
     // Used with SkMessageBus
     struct PurgeSharedIDMessage {
         PurgeSharedIDMessage(uint64_t sharedID) : fSharedID(sharedID) {}
-
+        // SkResourceCache is typically used as a singleton and we don't label Inboxes so all
+        // messages go to all inboxes.
+        bool shouldSend(uint32_t inboxID) const { return true; }
         uint64_t    fSharedID;
     };
 

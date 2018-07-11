@@ -30,7 +30,7 @@ void GrTextBlobCache::freeAll() {
 
 void GrTextBlobCache::PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID) {
     SkASSERT(blobID != SK_InvalidGenID);
-    SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage({blobID}), cacheID);
+    SkMessageBus<PurgeBlobMessage>::Post(PurgeBlobMessage(blobID, cacheID));
 }
 
 void GrTextBlobCache::purgeStaleBlobs() {
@@ -38,7 +38,7 @@ void GrTextBlobCache::purgeStaleBlobs() {
     fPurgeBlobInbox.poll(&msgs);
 
     for (const auto& msg : msgs) {
-        auto* idEntry = fBlobIDCache.find(msg.fID);
+        auto* idEntry = fBlobIDCache.find(msg.fBlobID);
         if (!idEntry) {
             // no cache entries for id
             continue;
@@ -51,7 +51,7 @@ void GrTextBlobCache::purgeStaleBlobs() {
         }
 
         // drop the idEntry itself (unrefs all blobs)
-        fBlobIDCache.remove(msg.fID);
+        fBlobIDCache.remove(msg.fBlobID);
     }
 }
 
