@@ -39,7 +39,7 @@ typedef enum skc_typed_handle_type_e
   SKC_TYPED_HANDLE_TYPE_IS_PATH   = 0x40000000,
   SKC_TYPED_HANDLE_TYPE_IS_RASTER = 0x80000000
 } skc_typed_handle_type_e;
-  
+
 typedef skc_uint skc_typed_handle_t;
 typedef skc_uint skc_handle_t;
 

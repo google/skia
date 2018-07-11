@@ -329,7 +329,7 @@ skc_raster_builder_pfn_release(struct skc_raster_builder_impl * const impl)
 //
 //
 
-static 
+static
 void
 skc_raster_builder_rasters_release(struct skc_runtime * const runtime,
                                    skc_raster_t const * const rasters,
@@ -344,12 +344,12 @@ skc_raster_builder_rasters_release(struct skc_runtime * const runtime,
 
       skc_grid_deps_unmap(runtime->deps,rasters_from,count_from);
       skc_runtime_raster_device_release(runtime,rasters_from,count_from);
-    } 
+    }
   else // from > to implies wrap
     {
       skc_raster_t const * rasters_lo = rasters + from;
       skc_uint             count_lo   = size    - from;
-      
+
       skc_grid_deps_unmap(runtime->deps,rasters_lo,count_lo);
       skc_runtime_raster_device_release(runtime,rasters_lo,count_lo);
 
@@ -358,7 +358,7 @@ skc_raster_builder_rasters_release(struct skc_runtime * const runtime,
     }
 }
 
-static 
+static
 void
 skc_raster_builder_paths_release(struct skc_runtime                 * const runtime,
                                  struct skc_extent_phrwg_thr1s_snap * const snap)
@@ -401,7 +401,7 @@ skc_raster_builder_cohort_grid_pfn_dispose(skc_grid_t const grid)
 
   // snap alloc the paths -- this host snap simply sets up pointers
   skc_extent_phrwg_thr1s_snap_alloc(runtime,&impl->path_ids,&cohort->path_ids);
-  
+
   // unmap and release raster ids
   skc_raster_builder_paths_release(runtime,&cohort->path_ids);
 
@@ -418,7 +418,7 @@ skc_raster_builder_cohort_grid_pfn_dispose(skc_grid_t const grid)
   // unmap and release raster ids
   skc_raster_builder_rasters_release(runtime,impl->raster_ids.hrw,size,from,to);
 
-  // release cohort's remaining allocated resources 
+  // release cohort's remaining allocated resources
   skc_extent_phrwg_tdrNs_snap_free(runtime,&cohort->raster_ids);
   skc_runtime_release_cq_in_order(runtime,cohort->cq);
   skc_extent_thr_tdrw_free(runtime,&cohort->atomics);
@@ -458,7 +458,7 @@ skc_raster_cohort_prefix_release(skc_grid_t const grid)
   // FIXME -- note that pfn_dispose can be accomplished here
 
   // release the grid
-  skc_grid_complete(grid); 
+  skc_grid_complete(grid);
 }
 
 static
@@ -466,7 +466,7 @@ void
 skc_raster_cohort_prefix_cb(cl_event event, cl_int status, skc_grid_t const grid)
 {
   SKC_CL_CB(status);
-  
+
   struct skc_raster_cohort * const cohort    = skc_grid_get_data(grid);
   struct skc_scheduler     * const scheduler = cohort->impl->runtime->scheduler;
 
@@ -599,7 +599,7 @@ skc_raster_cohort_sort_prefix(skc_grid_t const grid)
       // DELETE ALL THIS WHEN READY
       //
 
-#if 0    
+#if 0
       //
       //
       //
@@ -625,7 +625,7 @@ skc_raster_cohort_sort_prefix(skc_grid_t const grid)
       //
       // some counters
       //
-      union skc_raster_cohort_meta_in meta_in = { 
+      union skc_raster_cohort_meta_in meta_in = {
         .blocks = 0,
         .offset = 0,
         .pk     = 0,
@@ -665,10 +665,10 @@ skc_raster_cohort_sort_prefix(skc_grid_t const grid)
 
               // store back to buffer
               metas->inout[curr.cohort].in = meta_in;
-            
+
               // update meta_in
               meta_in.blocks = 0;
-              meta_in.offset = ii; 
+              meta_in.offset = ii;
               meta_in.pk     = 0;
               meta_in.rk     = 0;
             }
@@ -699,7 +699,7 @@ skc_raster_cohort_sort_prefix(skc_grid_t const grid)
       // store back to buffer
       metas->inout[curr.cohort].in = meta_in;
 
-    
+
       // unmap
       skc_extent_thrw_tdrw_unmap(&cohort->keys,
                                  keys,
@@ -795,7 +795,7 @@ void
 skc_raster_cohort_rasterize_cb(cl_event event, cl_int status, skc_grid_t const grid)
 {
   SKC_CL_CB(status);
-  
+
   struct skc_raster_cohort * const cohort = skc_grid_get_data(grid);
 
   // as quickly as possible, enqueue next stage in pipeline to context command scheduler
@@ -1079,7 +1079,7 @@ skc_raster_builder_cohort_grid_pfn_waiting(skc_grid_t const grid)
   // allocate the ephemeral/temp cohort
   skc_subbuf_id_t id;
 
-  struct skc_raster_cohort * const cohort = 
+  struct skc_raster_cohort * const cohort =
     skc_runtime_host_temp_alloc(runtime,
                                 SKC_MEM_FLAGS_READ_WRITE,
                                 sizeof(*cohort),
@@ -1145,7 +1145,7 @@ skc_raster_builder_cohort_create(struct skc_raster_builder_impl * const impl)
 
 static
 skc_err
-skc_raster_builder_pfn_add(struct skc_raster_builder_impl * const impl, 
+skc_raster_builder_pfn_add(struct skc_raster_builder_impl * const impl,
                            skc_path_t               const *       paths,
                            skc_uint                               count)
 {
@@ -1329,7 +1329,7 @@ skc_raster_builder_cl_12_create(struct skc_context          * const context,
   // acquire kernels
   //
   impl->kernels.fills_expand     = skc_device_acquire_kernel(runtime->device, SKC_DEVICE_KERNEL_ID_FILLS_EXPAND);
-  impl->kernels.rasterize_all    = skc_device_acquire_kernel(runtime->device, SKC_DEVICE_KERNEL_ID_RASTERIZE_ALL);  
+  impl->kernels.rasterize_all    = skc_device_acquire_kernel(runtime->device, SKC_DEVICE_KERNEL_ID_RASTERIZE_ALL);
 
 #if 0
   impl->kernels.rasterize_lines  = skc_device_acquire_kernel(runtime->device, SKC_DEVICE_KERNEL_ID_RASTERIZE_LINES);

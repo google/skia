@@ -63,8 +63,8 @@ struct skc_scheduler_command
   void *                      data;
   skc_scheduler_command_pfn   pfn;
   skc_scheduler_command_state state;
-  char const *                name; 
-};                                 
+  char const *                name;
+};
 
 #if 0
 struct skc_scheduler_command

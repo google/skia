@@ -33,7 +33,7 @@
 //
 
 void *
-skc_runtime_host_perm_alloc(struct skc_runtime * const runtime, 
+skc_runtime_host_perm_alloc(struct skc_runtime * const runtime,
                             skc_mem_flags_e      const flags,
                             size_t               const size)
 {
@@ -42,7 +42,7 @@ skc_runtime_host_perm_alloc(struct skc_runtime * const runtime,
 }
 
 void
-skc_runtime_host_perm_free(struct skc_runtime * const runtime, 
+skc_runtime_host_perm_free(struct skc_runtime * const runtime,
                            void               * const mem)
 {
   SKC_ALIGNED_FREE(mem);
@@ -65,11 +65,11 @@ skc_runtime_host_temp_alloc(struct skc_runtime * const runtime,
 
       if (subbuf_size != NULL)
         *subbuf_size = 0;
-      
+
       return NULL;
     }
 
-  return runtime->allocator.host.temp.extent + 
+  return runtime->allocator.host.temp.extent +
     skc_suballocator_subbuf_alloc(&runtime->allocator.host.temp.suballocator,
                                   runtime->scheduler,
                                   size,subbuf_id,subbuf_size);
@@ -101,7 +101,7 @@ skc_allocator_host_create(struct skc_runtime * const runtime)
                           SKC_RUNTIME_HOST_CACHELINE_SIZE,
                           runtime->config->suballocator.host.size);
 
-  runtime->allocator.host.temp.extent = 
+  runtime->allocator.host.temp.extent =
     skc_runtime_host_perm_alloc(runtime,
                                 SKC_MEM_FLAGS_READ_WRITE,
                                 runtime->config->suballocator.host.size);

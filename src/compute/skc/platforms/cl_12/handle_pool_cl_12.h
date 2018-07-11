@@ -88,7 +88,7 @@ union skc_handle_reclaim_rec
 {
   // ELEMENT  0
   struct skc_runtime * runtime;
-  
+
   // ELEMENT  1
   struct {
     skc_uint           rem;   // # of available records

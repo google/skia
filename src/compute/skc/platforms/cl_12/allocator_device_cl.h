@@ -28,7 +28,7 @@ struct skc_allocator_device
 {
 #if 0
   struct {
-    
+
   } perm;
 #endif
 

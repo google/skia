@@ -55,10 +55,10 @@ struct skc_coords_rem_count_cubic
 struct skc_path_builder
 {
   struct skc_context              * context;
-  
+
   struct skc_path_builder_impl    * impl;
 
-  void                           (* begin    )(struct skc_path_builder_impl * const impl); 
+  void                           (* begin    )(struct skc_path_builder_impl * const impl);
   void                           (* end      )(struct skc_path_builder_impl * const impl, skc_path_t * const path);
   void                           (* new_line )(struct skc_path_builder_impl * const impl);
   void                           (* new_quad )(struct skc_path_builder_impl * const impl);

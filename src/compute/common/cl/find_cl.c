@@ -42,7 +42,7 @@ clFindIdsByName(char const     * const target_platform_substring,
   // get number of platforms
   //
   cl_uint platform_count;
-  
+
   cl(GetPlatformIDs(0,NULL,&platform_count));
 
   cl_platform_id * const platform_ids = ALLOCA(sizeof(*platform_ids) * platform_count);
@@ -94,13 +94,13 @@ clFindIdsByName(char const     * const target_platform_substring,
                               &device_count);
 
       cl_device_id * const device_ids = ALLOCA(sizeof(*device_ids) * device_count);
-      
+
       cl_err = clGetDeviceIDs(platform_ids[ii],
                               CL_DEVICE_TYPE_ALL,
                               device_count,
                               device_ids,
                               NULL);
-      
+
       if (cl_err != CL_DEVICE_NOT_FOUND)
         cl_ok(cl_err);
 
@@ -135,7 +135,7 @@ clFindIdsByName(char const     * const target_platform_substring,
                            driver_version_size,
                            driver_version,
                            NULL));
-          
+
           if (!match_device && match_platform && (strstr(device_name,target_device_substring) != NULL))
             {
               match_device = true;
@@ -148,7 +148,7 @@ clFindIdsByName(char const     * const target_platform_substring,
                   if (matched_device_name_size >= 1)
                     matched_device_name[matched_device_name_size-1] = 0;
 
-                  if (matched_device_name_size > 1)                  
+                  if (matched_device_name_size > 1)
                     {
                       bytes = MIN_MACRO(device_name_size,matched_device_name_size-1);
 
@@ -202,7 +202,7 @@ clFindIdsByName(char const     * const target_platform_substring,
     }
 
   return CL_SUCCESS;
-} 
+}
 
 //
 //

@@ -113,7 +113,7 @@ struct skc_grid
   struct skc_grid_pfn_name  waiting; // optional - if defined, typically used to yank the grid away from host
   struct skc_grid_pfn_name  execute; // optional - starts execution of waiting grid
   struct skc_grid_pfn_name  dispose; // optional - invoked when grid is complete
-  
+
   struct {
     skc_uint                words[SKC_GRID_SIZE_WORDS]; // 0:inactive, 1:active
     skc_uint                count;
@@ -535,7 +535,7 @@ skc_grid_clear_dependency(skc_grid_t const after, skc_uint const before)
 
   after->before.count -= 1;
 
-  if ((after->before.count == 0) && ((after->state == SKC_GRID_STATE_WAITING) || 
+  if ((after->before.count == 0) && ((after->state == SKC_GRID_STATE_WAITING) ||
                                      (after->state == SKC_GRID_STATE_FORCED)))
     {
       // schedule grid for execution

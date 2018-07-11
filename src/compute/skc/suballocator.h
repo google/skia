@@ -39,7 +39,7 @@
 
 typedef skc_ushort skc_subbuf_id_t;
 typedef skc_uint   skc_subbuf_size_t; // <4GB
-// typedef size_t  skc_subbuf_size_t; // >4GB 
+// typedef size_t  skc_subbuf_size_t; // >4GB
 
 //
 //
@@ -49,7 +49,7 @@ struct skc_subbuf
 {
   struct skc_subbuf * prev;
   struct skc_subbuf * next;
-  
+
   skc_subbuf_size_t   size;
   skc_subbuf_size_t   origin;
 

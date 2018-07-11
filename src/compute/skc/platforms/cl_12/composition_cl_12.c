@@ -118,7 +118,7 @@ struct skc_composition_place
 
 static
 void
-skc_composition_unseal_block(struct skc_composition_impl * const impl, 
+skc_composition_unseal_block(struct skc_composition_impl * const impl,
                              skc_bool                      const block);
 
 //
@@ -140,7 +140,7 @@ skc_composition_pfn_release(struct skc_composition_impl * const impl)
   skc_composition_unseal_block(impl,true); // block
 
   struct skc_runtime * const runtime = impl->runtime;
-  
+
   // free host composition
   skc_runtime_host_perm_free(runtime,impl->composition);
 
@@ -149,7 +149,7 @@ skc_composition_pfn_release(struct skc_composition_impl * const impl)
 
   // release kernels
   cl(ReleaseKernel(impl->kernels.place));
-  cl(ReleaseKernel(impl->kernels.segment));  
+  cl(ReleaseKernel(impl->kernels.segment));
 
   // release extents
   skc_extent_phw1g_tdrNs_free(runtime,&impl->cmds.extent);
@@ -158,7 +158,7 @@ skc_composition_pfn_release(struct skc_composition_impl * const impl)
 
   skc_extent_pdrw_free       (runtime,&impl->keys);
   skc_extent_pdrw_free       (runtime,&impl->offsets);
-      
+
   // free composition impl
   skc_runtime_host_perm_free(runtime,impl);
 }
@@ -204,7 +204,7 @@ void
 skc_composition_place_read_cb(cl_event event, cl_int status, skc_grid_t const grid)
 {
   SKC_CL_CB(status);
-  
+
   struct skc_composition_place * const place     = skc_grid_get_data(grid);
   struct skc_composition_impl  * const impl      = place->impl;
   struct skc_runtime           * const runtime   = impl->runtime;
@@ -288,7 +288,7 @@ skc_composition_snap(struct skc_composition_impl * const impl)
 
   // set grid data
   skc_grid_set_data(impl->grids.place,place);
-  
+
   // acquire command queue
   place->cq = skc_runtime_acquire_cq_in_order(impl->runtime);
 
@@ -297,7 +297,7 @@ skc_composition_snap(struct skc_composition_impl * const impl)
 
   // make a snapshot
   skc_extent_phw1g_tdrNs_snap_init(impl->runtime,&impl->cmds.ring,&place->cmds);
-  
+
   // unmap the snapshot (could be a copy)
   skc_extent_phw1g_tdrNs_snap_alloc(impl->runtime,
                                     &impl->cmds.extent,
@@ -382,7 +382,7 @@ skc_composition_sort_grid_pfn_execute(skc_grid_t const grid)
 {
   struct skc_composition_impl * const impl = skc_grid_get_data(grid);
 
-  // we should be sealing 
+  // we should be sealing
   assert(impl->state == SKC_COMPOSITION_STATE_SEALING);
 
   struct skc_place_atomics * const atomics = impl->atomics.hr;
@@ -422,7 +422,7 @@ skc_composition_sort_grid_pfn_execute(skc_grid_t const grid)
 
   // next stage needs to know number of key segments
   skc_extent_phr_pdrw_read(&impl->atomics,impl->cq,&complete);
-  
+
   // register a callback
   cl(SetEventCallback(complete,CL_COMPLETE,skc_composition_sort_execute_cb,impl));
   cl(ReleaseEvent(complete));
@@ -456,7 +456,7 @@ skc_composition_raster_release(struct skc_composition_impl * const impl)
 
 static
 void
-skc_composition_unseal_block(struct skc_composition_impl * const impl, 
+skc_composition_unseal_block(struct skc_composition_impl * const impl,
                              skc_bool                      const block)
 {
   // return if already unsealed
@@ -526,7 +526,7 @@ skc_composition_reset(struct skc_composition_impl * const impl)
 
 static
 void
-skc_composition_unseal_block_reset(struct skc_composition_impl * const impl, 
+skc_composition_unseal_block_reset(struct skc_composition_impl * const impl,
                                    skc_bool                      const block,
                                    skc_bool                      const reset)
 {
@@ -590,7 +590,7 @@ skc_composition_pfn_place(struct skc_composition_impl * const impl,
                                                   SKC_TYPED_HANDLE_TYPE_IS_RASTER,
                                                   rasters,
                                                   count);
-  if (err) 
+  if (err)
     return err;
 
   skc_runtime_handle_device_retain(impl->runtime,rasters,count);
@@ -614,7 +614,7 @@ skc_composition_pfn_place(struct skc_composition_impl * const impl,
   do {
     skc_uint rem;
 
-    // find out how much room is left in then ring's snap    
+    // find out how much room is left in then ring's snap
     // if the place ring is full -- let it drain
     SKC_SCHEDULER_WAIT_WHILE(impl->runtime->scheduler,(rem = skc_extent_ring_wip_rem(&impl->cmds.ring)) == 0);
 

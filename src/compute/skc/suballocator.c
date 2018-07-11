@@ -178,7 +178,7 @@ skc_suballocator_subbuf_alloc(struct skc_suballocator * const suballocator,
                 }
 
               assert(suballocator->rem.avail > 0);
-              
+
               // return origin
               return avail->origin;
             }
@@ -189,7 +189,7 @@ skc_suballocator_subbuf_alloc(struct skc_suballocator * const suballocator,
               skc_uint                  spare_idx = suballocator->count - spare_rem;
               skc_subbuf_id_t     const spare_id  = ids[spare_idx];
               struct skc_subbuf * const spare     = suballocator->subbufs + spare_id;
-              
+
               assert(spare->inuse == 0);
 
               // simple -- we're popping the top-of-stack of spares
@@ -199,7 +199,7 @@ skc_suballocator_subbuf_alloc(struct skc_suballocator * const suballocator,
               *subbuf_id = spare_id;
 
               SKC_SUBALLOCATOR_DEBUG_ALLOC(suballocator,spare_id,size_ru);
-              
+
               // get prev
               struct skc_subbuf * const prev = avail->prev;
 

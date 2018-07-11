@@ -774,7 +774,7 @@ hs_fm_launcher(struct hs_state * const state,
   // how many full-sized scaled flip-merge spans are there?
   state->fm.full = state->bx.ru / full_span_warps;
   state->fm.frac = 0;
-  
+
   // initialize down_warps
   *down_warps    = state->fm.full * full_span_warps;
 
@@ -787,10 +787,10 @@ hs_fm_launcher(struct hs_state * const state,
       uint32_t const frac_rem      = span_rem - half_span_warps;
       uint32_t const frac_rem_pow2 = pow2_ru_u32(frac_rem);
 
-      if (frac_rem_pow2 >= half_span_warps) 
+      if (frac_rem_pow2 >= half_span_warps)
         {
           *down_warps    += full_span_warps;
-          state->fm.full += 1;      
+          state->fm.full += 1;
         }
       else
         {
@@ -895,7 +895,7 @@ hs_pad(uint32_t   const count,
 
 void
 hs_sort(cl_command_queue cq, // out-of-order cq
-        cl_mem           vin,        
+        cl_mem           vin,
         cl_mem           vout,
         uint32_t   const count,
         uint32_t   const count_padded_in,
@@ -1019,7 +1019,7 @@ hs_sort(cl_command_queue cq, // out-of-order cq
         }
     }
 
-  if (linearize) 
+  if (linearize)
     {
       // launch linearize;
       hs_transpose_launcher(&state,cq);
@@ -1113,7 +1113,7 @@ hs_create(cl_context             context,
   HS_CREATE_KERNELS(bc_kernels);
   HS_CREATE_KERNELS(fm_kernels);
   HS_CREATE_KERNELS(hm_kernels);
-  HS_CREATE_KERNELS(transpose_kernels);  
+  HS_CREATE_KERNELS(transpose_kernels);
 
   cl(ReleaseProgram(program));
 }

@@ -52,7 +52,7 @@ void
 skc_interop_blit(struct skc_interop * interop);
 
 void
-skc_interop_get_size(struct skc_interop * interop, 
+skc_interop_get_size(struct skc_interop * interop,
                      uint32_t           * width,
                      uint32_t           * height);
 //

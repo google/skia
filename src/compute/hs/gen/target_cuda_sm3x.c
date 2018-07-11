@@ -51,7 +51,7 @@ hsg_target_cuda_sm3x(struct hsg_file        * const files,
         uint32_t const bc_max = msb_idx_u32(pow2_rd_u32(merge[0].warps));
 
         fprintf(files[HSG_FILE_TYPE_HEADER].file,
-                "//                                                      \n"                
+                "//                                                      \n"
                 "// Copyright 2016 Google Inc.                           \n"
                 "//                                                      \n"
                 "// Use of this source code is governed by a BSD-style   \n"
@@ -86,7 +86,7 @@ hsg_target_cuda_sm3x(struct hsg_file        * const files,
                 files[HSG_FILE_TYPE_SOURCE].name);
 
         fprintf(files[HSG_FILE_TYPE_SOURCE].file,
-                "//                                                      \n"                
+                "//                                                      \n"
                 "// Copyright 2016 Google Inc.                           \n"
                 "//                                                      \n"
                 "// Use of this source code is governed by a BSD-style   \n"
@@ -461,12 +461,12 @@ hsg_target_cuda_sm3x(struct hsg_file        * const files,
       break;
 
     case HSG_OP_TYPE_CMP_FLIP:
-      fprintf(files[HSG_FILE_TYPE_SOURCE].file,      
+      fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "HS_CMP_FLIP(r%-3u,r%-3u,r%-3u)\n",ops->a,ops->b,ops->c);
       break;
 
     case HSG_OP_TYPE_CMP_HALF:
-      fprintf(files[HSG_FILE_TYPE_SOURCE].file,      
+      fprintf(files[HSG_FILE_TYPE_SOURCE].file,
               "HS_CMP_HALF(r%-3u,r%-3u)\n",ops->a,ops->b);
       break;
 

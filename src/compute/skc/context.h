@@ -49,7 +49,7 @@ struct skc_context
   skc_err             (* path_flush     )(struct skc_runtime * const runtime,
                                           skc_path_t   const *       paths,
                                           uint32_t                   count);
-  
+
   //
   //
   //

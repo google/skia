@@ -132,7 +132,7 @@ void
 skc_interop_key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
   struct skc_interop * interop = glfwGetWindowUserPointer(window);
-  
+
   if (action == GLFW_RELEASE)
     return;
 
@@ -182,7 +182,7 @@ void
 skc_interop_window_size_callback(GLFWwindow * window, int width, int height)
 {
   struct skc_interop * interop = glfwGetWindowUserPointer(window);
-  
+
   interop->width        = width;
   interop->height       = height;
   interop->is_resized   = true;
@@ -217,7 +217,7 @@ skc_interop_scroll_callback(GLFWwindow * window, double xoffset, double yoffset)
   if (!ctrl)
     return;
 
-  struct skc_interop * interop = glfwGetWindowUserPointer(window);  
+  struct skc_interop * interop = glfwGetWindowUserPointer(window);
 
   skc_interop_scale(interop,yoffset);
 
@@ -242,7 +242,7 @@ static
 void
 skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 {
-  
+
   int const state = glfwGetMouseButton(window,GLFW_MOUSE_BUTTON_LEFT);
 
   static bool  is_mouse_dragging = false;
@@ -253,8 +253,8 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
 
   if (state == GLFW_PRESS)
     {
-      struct skc_interop * interop = glfwGetWindowUserPointer(window);  
-      
+      struct skc_interop * interop = glfwGetWindowUserPointer(window);
+
       if (is_mouse_dragging)
         {
           const bool ctrl =
@@ -294,7 +294,7 @@ skc_interop_cursor_position_callback(GLFWwindow * window, double x, double y)
                                     mx - x_prev,
                                     my - y_prev);
             }
-          
+
           interop->is_transform = true;
         }
       else
@@ -417,7 +417,7 @@ skc_interop_create()
 
   // save back pointer
   glfwSetWindowUserPointer(interop->window,interop);
-  
+
   glfwMakeContextCurrent(interop->window);
 
   // set up GLAD
@@ -519,7 +519,7 @@ skc_interop_transform(struct skc_interop         * interop,
   // spinner...
   if (interop->is_spinning)
     interop->rotate_theta = fmodf(interop->rotate_theta + SKC_ROTATE_STEP,(float)(M_PI*2.0));
-  
+
   // always rotate and scale around surface center point
   skc_transform_stack_push_rotate_scale_xy(ts,
                                            interop->rotate_theta,
@@ -673,7 +673,7 @@ skc_interop_poll(struct skc_interop * interop, int * key)
   bool const is_transform = interop->is_transform || interop->is_spinning;
 
   interop->is_transform = false;
-  
+
   return is_transform;
 }
 
@@ -736,7 +736,7 @@ skc_interop_should_exit(struct skc_interop * interop)
 //
 
 void
-skc_interop_get_size(struct skc_interop * interop, 
+skc_interop_get_size(struct skc_interop * interop,
                      uint32_t           * width,
                      uint32_t           * height)
 {

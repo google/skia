@@ -147,7 +147,7 @@ assert_cl(cl_int const code, char const * const file, int const line, bool const
 //
 
 void
-cl_get_event_info(cl_event                event, 
+cl_get_event_info(cl_event                event,
                   cl_int          * const status,
                   cl_command_type * const type)
 {
@@ -169,7 +169,7 @@ cl_get_event_info(cl_event                event,
 }
 
 
-char const * 
+char const *
 cl_get_event_command_status_string(cl_int const status)
 {
   switch (status)
@@ -177,14 +177,14 @@ cl_get_event_command_status_string(cl_int const status)
       CL_VAL_TO_STRING(CL_QUEUED);
       CL_VAL_TO_STRING(CL_SUBMITTED);
       CL_VAL_TO_STRING(CL_RUNNING);
-      CL_VAL_TO_STRING(CL_COMPLETE);                       
+      CL_VAL_TO_STRING(CL_COMPLETE);
 
     default:
       return "UNKNOWN COMMAND STATUS";
-    } 
+    }
 }
 
-char const * 
+char const *
 cl_get_event_command_type_string(cl_command_type const type)
 {
   switch (type)

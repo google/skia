@@ -31,7 +31,7 @@
 //
 //
 
-static 
+static
 void
 skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
 {
@@ -41,7 +41,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   // create block extent
   skc_extent_pdrw_alloc(runtime,
                         &runtime->block_pool.blocks,
-                        runtime->block_pool.size->pool_size * 
+                        runtime->block_pool.size->pool_size *
                         runtime->config->block.bytes);
 
   // allocate block pool ids
@@ -84,7 +84,7 @@ skc_block_pool_create(struct skc_runtime * const runtime, cl_command_queue cq)
   cl(ReleaseKernel(k1));
 }
 
-static 
+static
 void
 skc_block_pool_dispose(struct skc_runtime * const runtime)
 {
@@ -105,7 +105,7 @@ skc_runtime_yield(struct skc_runtime * const runtime)
 }
 
 static
-void 
+void
 skc_runtime_wait(struct skc_runtime * const runtime)
 {
   skc_scheduler_wait(runtime->scheduler);
@@ -122,7 +122,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 {
   // allocate the runtime
   struct skc_runtime * const runtime = malloc(sizeof(*runtime));
-  
+
   // save off CL objects
   runtime->cl.context   = context_cl;
   runtime->cl.device_id = device_id_cl;
@@ -135,7 +135,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
                    sizeof(align_bits),
                    &align_bits,
                    NULL));
-          
+
   runtime->cl.align_bytes = align_bits / 8;
 
   // create device
@@ -183,7 +183,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->yield          = skc_runtime_yield;
   context->wait           = skc_runtime_wait;
-  
+
   context->path_builder   = skc_path_builder_cl_12_create;
   context->path_retain    = skc_runtime_path_host_retain;
   context->path_release   = skc_runtime_path_host_release;
@@ -196,7 +196,7 @@ skc_runtime_cl_12_create(struct skc_context * const context,
 
   context->composition    = skc_composition_cl_12_create;
   context->styling        = skc_styling_cl_12_create;
-  
+
   context->surface        = skc_surface_cl_12_create;
 
   // block on pool creation
@@ -234,7 +234,7 @@ skc_runtime_cl_12_dispose(struct skc_context * const context)
   skc_block_pool_dispose(context->runtime);
 
   // skc_handle_pool_dispose(context->runtime);
-  
+
   return SKC_ERR_SUCCESS;
 }
 
@@ -246,7 +246,7 @@ void
 skc_runtime_cl_12_debug(struct skc_context * const context)
 {
   struct skc_runtime * const runtime = context->runtime;
-  
+
   // acquire out-of-order cq
   cl_command_queue cq = skc_runtime_acquire_cq_in_order(runtime);
 

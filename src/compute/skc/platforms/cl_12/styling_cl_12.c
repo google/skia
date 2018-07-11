@@ -32,7 +32,7 @@ void
 skc_styling_unmap_complete(skc_grid_t const grid)
 {
   struct skc_styling_impl * const impl = skc_grid_get_data(grid);
-  
+
   impl->state = SKC_STYLING_STATE_SEALED;
 
   skc_grid_complete(grid);
@@ -65,7 +65,7 @@ skc_styling_grid_pfn_execute(skc_grid_t const grid)
 
   skc_extent_phwN_pdrN_unmap(&impl->layers,styling->layers.extent,impl->cq,NULL);
   skc_extent_phwN_pdrN_unmap(&impl->groups,styling->groups.extent,impl->cq,NULL);
-  skc_extent_phwN_pdrN_unmap(&impl->extras,styling->extras.extent,impl->cq,&complete);  
+  skc_extent_phwN_pdrN_unmap(&impl->extras,styling->extras.extent,impl->cq,&complete);
 
   // set the event
   cl(SetEventCallback(complete,CL_COMPLETE,skc_styling_unmap_cb,grid));
@@ -97,7 +97,7 @@ skc_styling_pfn_seal(struct skc_styling_impl * const impl)
     {
       SKC_SCHEDULER_WAIT_WHILE(scheduler,impl->state != SKC_STYLING_STATE_UNSEALED);
     }
-  
+
   //
   // we're unsealed so we need to seal and start the grid
   //
@@ -121,7 +121,7 @@ void
 skc_styling_unseal_complete(struct skc_styling_impl * const impl)
 {
   struct skc_runtime * const runtime = impl->runtime;
-  
+
   // we're now unsealed
   impl->state = SKC_STYLING_STATE_UNSEALED;
 }
@@ -131,7 +131,7 @@ void
 skc_styling_unseal_cb(cl_event event, cl_int status, struct skc_styling_impl * const impl)
 {
   SKC_CL_CB(status);
-  
+
   // as quickly as possible, enqueue next stage in pipeline to context command scheduler
   SKC_SCHEDULER_SCHEDULE(impl->runtime->scheduler,skc_styling_unseal_complete,impl);
 }
@@ -166,10 +166,10 @@ skc_styling_pfn_unseal(struct skc_styling_impl * const impl, skc_bool const bloc
   //
   if (impl->state == SKC_STYLING_STATE_SEALING)
     {
-      // wait if sealing 
+      // wait if sealing
       SKC_SCHEDULER_WAIT_WHILE(scheduler,impl->state != SKC_STYLING_STATE_SEALED);
     }
-  
+
   // wait for rendering locks to be released
   SKC_SCHEDULER_WAIT_WHILE(scheduler,impl->lock_count > 0);
 
@@ -183,7 +183,7 @@ skc_styling_pfn_unseal(struct skc_styling_impl * const impl, skc_bool const bloc
   cl_event complete;
 
   struct skc_styling * const styling = impl->styling;
-  
+
   styling->layers.extent = skc_extent_phwN_pdrN_map(&impl->layers,impl->cq,NULL);
   styling->groups.extent = skc_extent_phwN_pdrN_map(&impl->groups,impl->cq,NULL);
   styling->extras.extent = skc_extent_phwN_pdrN_map(&impl->extras,impl->cq,&complete);
@@ -239,7 +239,7 @@ skc_styling_pfn_release(struct skc_styling_impl * const impl)
 
   // release the cq
   skc_runtime_release_cq_in_order(runtime,impl->cq);
-  
+
   // free extents
   skc_extent_phwN_pdrN_free(runtime,&impl->layers);
   skc_extent_phwN_pdrN_free(runtime,&impl->groups);
@@ -301,7 +301,7 @@ skc_styling_cl_12_create(struct skc_context   * const context,
   impl->lock_count    = 0;
 
   impl->cq            = skc_runtime_acquire_cq_in_order(runtime);
-  
+
   //
   // The styling object is unique in that the API lets the user
   // specify resource limits

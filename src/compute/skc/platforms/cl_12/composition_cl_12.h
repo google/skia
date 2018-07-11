@@ -38,15 +38,15 @@ typedef enum skc_composition_state_e {
 //
 
 struct skc_composition_impl
-{  
+{
   struct skc_composition        * composition;
   struct skc_runtime            * runtime;
-  
+
   SKC_ASSERT_STATE_DECLARE(skc_composition_state_e);
 
   skc_int                         lock_count; // wip renders
 
-  struct { 
+  struct {
     skc_grid_t                    place;
     skc_grid_t                    sort;
   } grids;
