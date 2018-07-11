@@ -299,10 +299,11 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
 }
 
 struct EdgeData {
+    EdgeData*     fPrev;
+    EdgeData*     fNext;
     OffsetSegment fInset;
     SkPoint       fIntersection;
     SkScalar      fTValue;
-    uint16_t      fStart;
     uint16_t      fEnd;
     uint16_t      fIndex;
     bool          fValid;
@@ -310,7 +311,6 @@ struct EdgeData {
     void init() {
         fIntersection = fInset.fP0;
         fTValue = SK_ScalarMin;
-        fStart = 0;
         fEnd = 0;
         fIndex = 0;
         fValid = true;
@@ -319,12 +319,20 @@ struct EdgeData {
     void init(uint16_t start, uint16_t end) {
         fIntersection = fInset.fP0;
         fTValue = SK_ScalarMin;
-        fStart = start;
         fEnd = end;
         fIndex = start;
         fValid = true;
     }
 };
+
+static void remove_node(const EdgeData& node, EdgeData** head) {
+    // remove from linked list
+    node.fPrev->fNext = node.fNext;
+    node.fNext->fPrev = node.fPrev;
+    if (&node == *head) {
+        *head = node.fNext;
+    }
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -355,31 +363,34 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     // set up
     SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
-    for (int i = 0; i < inputPolygonSize; ++i) {
-        int j = (i + 1) % inputPolygonSize;
-        int k = (i + 2) % inputPolygonSize;
-        if (!inputPolygonVerts[i].isFinite()) {
+    int prev = inputPolygonSize - 1;
+    for (int curr = 0; curr < inputPolygonSize; ++curr) {
+        int next = (curr + 1) % inputPolygonSize;
+        if (!inputPolygonVerts[curr].isFinite()) {
             return false;
         }
         // check for convexity just to be sure
-        if (compute_side(inputPolygonVerts[i], inputPolygonVerts[j],
-                         inputPolygonVerts[k])*winding < 0) {
+        if (compute_side(inputPolygonVerts[prev], inputPolygonVerts[curr],
+                         inputPolygonVerts[next])*winding < 0) {
             return false;
         }
-        if (!SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
-                             insetDistanceFunc(inputPolygonVerts[i]),
-                             insetDistanceFunc(inputPolygonVerts[j]),
+        edgeData[curr].fPrev = &edgeData[prev];
+        edgeData[curr].fNext = &edgeData[next];
+        if (!SkOffsetSegment(inputPolygonVerts[curr], inputPolygonVerts[next],
+                             insetDistanceFunc(inputPolygonVerts[curr]),
+                             insetDistanceFunc(inputPolygonVerts[next]),
                              winding,
-                             &edgeData[i].fInset.fP0, &edgeData[i].fInset.fP1)) {
+                             &edgeData[curr].fInset.fP0, &edgeData[curr].fInset.fP1)) {
             return false;
         }
-        edgeData[i].init();
+        edgeData[curr].init();
     }
 
     int prevIndex = inputPolygonSize - 1;
     int currIndex = 0;
     int insetVertexCount = inputPolygonSize;
     int iterations = 0;
+    EdgeData* head = &edgeData[0];
     while (prevIndex != currIndex) {
         ++iterations;
         // we should check each edge against each other edge at most once
@@ -400,6 +411,8 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
             if (s < edgeData[prevIndex].fTValue) {
                 // no point in considering this one again
                 edgeData[prevIndex].fValid = false;
+                // remove from linked list
+                remove_node(edgeData[prevIndex], &head);
                 --insetVertexCount;
                 // go back one segment
                 prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
@@ -428,12 +441,16 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
                                                          edgeData[prevIndex].fInset.fP0)) {
                 // no point in considering this one again
                 edgeData[prevIndex].fValid = false;
+                // remove from linked list
+                remove_node(edgeData[prevIndex], &head);
                 --insetVertexCount;
                 // go back one segment
                 prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
             } else {
                 // move to next segment
                 edgeData[currIndex].fValid = false;
+                // remove from linked list
+                remove_node(edgeData[currIndex], &head);
                 --insetVertexCount;
                 currIndex = (currIndex + 1) % inputPolygonSize;
             }
@@ -448,17 +465,20 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     if (insetVertexCount >= 0) {
         insetPolygon->setReserve(insetVertexCount);
     }
-    currIndex = -1;
-    for (int i = 0; i < inputPolygonSize; ++i) {
-        if (edgeData[i].fValid && (currIndex == -1 ||
-            !SkPointPriv::EqualsWithinTolerance(edgeData[i].fIntersection,
-                                                (*insetPolygon)[currIndex],
-                                                kCleanupTolerance))) {
-            *insetPolygon->push() = edgeData[i].fIntersection;
+    currIndex = 0;
+    EdgeData* currEdge = head;
+    *insetPolygon->push() = currEdge->fIntersection;
+    currEdge = currEdge->fNext;
+    while (currEdge != head) {
+        if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection, (*insetPolygon)[currIndex],
+                                                kCleanupTolerance)) {
+            *insetPolygon->push() = currEdge->fIntersection;
             currIndex++;
         }
+        currEdge = currEdge->fNext;
     }
     // make sure the first and last points aren't coincident
+    //*** seems like we could avoid this above
     if (currIndex >= 1 &&
        SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
                                           kCleanupTolerance)) {
@@ -501,8 +521,8 @@ static bool left(const SkPoint& p0, const SkPoint& p1) {
 }
 
 struct Vertex {
-    static bool Left(const Vertex& qv0, const Vertex& qv1) {
-        return left(qv0.fPosition, qv1.fPosition);
+    bool operator<(const Vertex& that) const {
+        return left(this->fPosition, that.fPosition);
     }
     // packed to fit into 16 bytes (one cache line)
     SkPoint  fPosition;
@@ -622,6 +642,8 @@ public:
     }
 
 private:
+    //**** change to std::set<Edge, Edge::above>
+    //**** implement operator< as above() (or !above(), not sure)
     SkSTArray<1, Edge> fEdges;
 };
 
@@ -636,44 +658,42 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
         return false;
     }
 
-    SkTDPQueue <Vertex, Vertex::Left> vertexQueue;
-    EdgeList sweepLine;
-
-    sweepLine.reserve(polygonSize);
+    SkAutoSTMalloc<64, Vertex> vertexList(polygonSize);
     for (int i = 0; i < polygonSize; ++i) {
-        Vertex newVertex;
         if (!polygon[i].isFinite()) {
             return false;
         }
-        newVertex.fPosition = polygon[i];
-        newVertex.fIndex = i;
-        newVertex.fPrevIndex = (i - 1 + polygonSize) % polygonSize;
-        newVertex.fNextIndex = (i + 1) % polygonSize;
-        newVertex.fFlags = 0;
-        if (left(polygon[newVertex.fPrevIndex], polygon[i])) {
-            newVertex.fFlags |= kPrevLeft_VertexFlag;
+        vertexList[i].fPosition = polygon[i];
+        vertexList[i].fIndex = i;
+        vertexList[i].fPrevIndex = (i - 1 + polygonSize) % polygonSize;
+        vertexList[i].fNextIndex = (i + 1) % polygonSize;
+        vertexList[i].fFlags = 0;
+        if (left(polygon[vertexList[i].fPrevIndex], polygon[i])) {
+            vertexList[i].fFlags |= kPrevLeft_VertexFlag;
         }
-        if (left(polygon[newVertex.fNextIndex], polygon[i])) {
-            newVertex.fFlags |= kNextLeft_VertexFlag;
+        if (left(polygon[vertexList[i].fNextIndex], polygon[i])) {
+            vertexList[i].fFlags |= kNextLeft_VertexFlag;
         }
-        vertexQueue.insert(newVertex);
     }
+    SkTQSort(&vertexList[0], &vertexList[polygonSize - 1]);
 
-    // pop each vertex from the queue and generate events depending on
+    // iterate through each vertex in the sorted list and generate events depending on
     // where it lies relative to its neighboring edges
-    while (vertexQueue.count() > 0) {
-        const Vertex& v = vertexQueue.peek();
+    EdgeList sweepLine;
+    sweepLine.reserve(polygonSize);
+    for (int i = 0; i < polygonSize; ++i) {
+        const Vertex& v = vertexList[i];
 
         // check edge to previous vertex
         if (v.fFlags & kPrevLeft_VertexFlag) {
             Edge edge{ { polygon[v.fPrevIndex], v.fPosition }, v.fPrevIndex, v.fIndex };
             if (!sweepLine.remove(edge)) {
-                break;
+                return false;
             }
         } else {
             Edge edge{ { v.fPosition, polygon[v.fPrevIndex] }, v.fIndex, v.fPrevIndex };
             if (!sweepLine.insert(edge)) {
-                break;
+                return false;
             }
         }
 
@@ -681,19 +701,17 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
         if (v.fFlags & kNextLeft_VertexFlag) {
             Edge edge{ { polygon[v.fNextIndex], v.fPosition }, v.fNextIndex, v.fIndex };
             if (!sweepLine.remove(edge)) {
-                break;
+                return false;
             }
         } else {
             Edge edge{ { v.fPosition, polygon[v.fNextIndex] }, v.fIndex, v.fNextIndex };
             if (!sweepLine.insert(edge)) {
-                break;
+                return false;
             }
         }
-
-        vertexQueue.pop();
     }
 
-    return (vertexQueue.count() == 0);
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -754,19 +772,19 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
+            auto edges = edgeData.push_back_n(SkTMax(numSteps, 1));
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
                                                      prevNormal.fY*rotCos + prevNormal.fX*rotSin);
-                EdgeData& edge = edgeData.push_back();
-                edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
-                edge.fInset.fP1 = inputPolygonVerts[currIndex] + currNormal;
-                edge.init(currIndex, currIndex);
+                edges->fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
+                edges->fInset.fP1 = inputPolygonVerts[currIndex] + currNormal;
+                edges->init(currIndex, currIndex);
                 prevNormal = currNormal;
+                ++edges;
             }
-            EdgeData& edge = edgeData.push_back();
-            edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
-            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normal0[currIndex];
-            edge.init(currIndex, currIndex);
+            edges->fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
+            edges->fInset.fP1 = inputPolygonVerts[currIndex] + normal0[currIndex];
+            edges->init(currIndex, currIndex);
         }
 
         // Add the edge
