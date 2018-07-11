@@ -1044,7 +1044,7 @@ other bits are set.
 
 ### Example
 
-<div><fiddle-embed name="cc1fc7f3462abc79ec6dec3405e2812d">
+<div><fiddle-embed name="8e45fe2dd52731bb2d4318686257e1d7">
 
 #### Example Output
 
@@ -2611,7 +2611,7 @@ documentation.
 
 ### Example
 
-<div><fiddle-embed name="63977f97999bbd6eecfdcc7575d75492">
+<div><fiddle-embed name="ca94f7922bc37ef03bbc51ad70536fcf">
 
 #### Example Output
 
@@ -2745,7 +2745,7 @@ The pivot point is unchanged when mapped with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"></fiddle-embed></div>
+<div><fiddle-embed name="4565a0792058178c88e0a129a87272d6"></fiddle-embed></div>
 
 ### See Also
 
@@ -3097,7 +3097,7 @@ Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a"></fiddle-embed></div>
+<div><fiddle-embed name="f75a9b629aa6c51ed888f8799b5ba5f7"></fiddle-embed></div>
 
 ### See Also
 

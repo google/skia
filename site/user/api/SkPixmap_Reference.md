@@ -762,7 +762,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> has opaque <a 
 
 ### Example
 
-<div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b"><div><a href='#SkPixmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
+<div><fiddle-embed name="efd083f121e888a523455ea8a49e50d1"><div><a href='#SkPixmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
 </div>
 
 #### Example Output
@@ -1725,7 +1725,7 @@ writable unsigned 64-bit pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="d84cd32b0bfd9ad2714f753120ed0ee1"></fiddle-embed></div>
+<div><fiddle-embed name="de14d8d30e4a7b6462103d0e0dd96b0b"></fiddle-embed></div>
 
 ### See Also
 
