@@ -121,6 +121,24 @@
       "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2d1589af_619bc6fc",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:04:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc7ef899_e6b0b725",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
