@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aa25dfe_90aa6997",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-11T21:40:18Z",
+      "side": 1,
+      "message": "// We can\u0027t call uniquifyGlyphIDs() without any glyphs.",
+      "range": {
+        "startLine": 207,
+        "startChar": 8,
+        "endLine": 207,
+        "endChar": 50
+      },
+      "revId": "8f0705b6f5d29f796dfcc3275951650fbae4bb74",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
