@@ -8,13 +8,13 @@
 #ifndef GrResourceKey_DEFINED
 #define GrResourceKey_DEFINED
 
+#include <new>
 #include "../private/SkOnce.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkTo.h"
 #include "GrTypes.h"
 #include "SkData.h"
 #include "SkString.h"
-#include <new>
 
 uint32_t GrResourceKeyHash(const uint32_t* data, size_t size);
 
@@ -315,18 +315,22 @@ static inline void gr_init_static_unique_key_once(SkAlignedSTStorage<1,GrUniqueK
 // The cache listens for these messages to purge junk resources proactively.
 class GrUniqueKeyInvalidatedMessage {
 public:
-    explicit GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key) : fKey(key) {}
-
-    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage& that) : fKey(that.fKey) {}
-
-    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage& that) {
-        fKey = that.fKey;
-        return *this;
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKey& key, uint32_t contextUniqueID)
+            : fKey(key), fContextID(contextUniqueID) {
+        SkASSERT(SK_InvalidUniqueID != contextUniqueID);
     }
+
+    GrUniqueKeyInvalidatedMessage(const GrUniqueKeyInvalidatedMessage&) = default;
+
+    GrUniqueKeyInvalidatedMessage& operator=(const GrUniqueKeyInvalidatedMessage&) = default;
 
     const GrUniqueKey& key() const { return fKey; }
 
+    bool shouldSend(uint32_t inboxID) const { return fContextID == inboxID; }
+
 private:
     GrUniqueKey fKey;
+    uint32_t fContextID;
 };
+
 #endif

@@ -8,10 +8,15 @@
 #include "SkMessageBus.h"
 #include "Test.h"
 
+namespace {
 struct TestMessage {
+    bool shouldSend(uint32_t inboxID) const { return true; }
+    TestMessage(int i, float f) : x(i), y(f) {}
+
     int x;
     float y;
 };
+}
 DECLARE_SKMESSAGEBUS_MESSAGE(TestMessage)
 
 DEF_TEST(MessageBus, r) {
@@ -48,6 +53,44 @@ DEF_TEST(MessageBus, r) {
     REPORTER_ASSERT(r, 5 == messages[0].x);
     REPORTER_ASSERT(r, 6 == messages[1].x);
     REPORTER_ASSERT(r, 1 == messages[2].x);
+}
+
+namespace {
+struct AddressedMessage {
+    uint32_t fInboxID;
+
+    bool shouldSend(uint32_t inboxID) const {
+        SkASSERT(inboxID);
+        if (!fInboxID) {
+            return true;
+        }
+        return inboxID == fInboxID;
+    }
+};
+}
+DECLARE_SKMESSAGEBUS_MESSAGE(AddressedMessage)
+
+DEF_TEST(MessageBus_shouldSend, r) {
+    SkMessageBus<AddressedMessage>::Inbox inbox1(1), inbox2(2);
+
+    SkMessageBus<AddressedMessage>::Post({0});  // Should go to both
+    SkMessageBus<AddressedMessage>::Post({1});  // Should go to inbox1
+    SkMessageBus<AddressedMessage>::Post({2});  // Should go to inbox2
+    SkMessageBus<AddressedMessage>::Post({3});  // Should go nowhere
+
+    SkTArray<AddressedMessage> messages;
+    inbox1.poll(&messages);
+    REPORTER_ASSERT(r, messages.count() == 2);
+    if (messages.count() == 2) {
+        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
+        REPORTER_ASSERT(r, messages[1].fInboxID == 1);
+    }
+    inbox2.poll(&messages);
+    REPORTER_ASSERT(r, messages.count() == 2);
+    if (messages.count() == 2) {
+        REPORTER_ASSERT(r, messages[0].fInboxID == 0);
+        REPORTER_ASSERT(r, messages[1].fInboxID == 2);
+    }
 }
 
 // Multithreaded tests tbd.
