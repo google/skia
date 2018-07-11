@@ -2051,6 +2051,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
             return this->reportError<bool>("expected fileName.h");
         }
         string skClassName = fileName.substr(0, fileName.length() - 2);
+        this->reset();
         fOut = fopen(fileName.c_str(), "wb");
         if (!fOut) {
             SkDebugf("could not open output file %s\n", fileName.c_str());

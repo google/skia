@@ -1354,7 +1354,7 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
                     if (fBmhParser.fTopicMap.end() == fBmhParser.fTopicMap.find(fullName)) {
                         (*subtopic)->reportError<void>("missing #Details subtopic");
                     }
-                    subtopicName = parentSubtopic->fName + '_' + subtopicName;
+             //       subtopicName = parentSubtopic->fName + '_' + subtopicName;
                     string noUnderscores = subtopicName;
                     replace_all(noUnderscores, "_", "&nbsp;");
                     details = this->anchorLocalRef(subtopicName, noUnderscores) + "&nbsp;";

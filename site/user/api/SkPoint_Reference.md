@@ -1224,6 +1224,7 @@ Returns <a href='#Point'>Point</a> multiplied by scale.
 
 Multiplies <a href='#Point'>Point</a> by scale. Sets <a href='#Point'>Point</a> to:
 (<a href='#SkPoint_fX'>fX</a> * scale, <a href='#SkPoint_fY'>fY</a> * scale)
+.
 
 ### Parameters
 

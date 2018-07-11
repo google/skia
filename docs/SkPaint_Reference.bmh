@@ -718,7 +718,7 @@ at compile time.
 #In Anti_alias
 #Line # returns true if Anti_Alias is set ##
 
-    If true, pixels on the active edges of Path may be drawn with partial transparency.
+    Returns true if pixels on the active edges of Path may be drawn with partial transparency.
 
     Equivalent to getFlags masked with kAntiAlias_Flag.
 
@@ -850,7 +850,7 @@ void draw(SkCanvas* canvas) {
 
 #In Dither
 #Line # returns true if Dither is set ##
-    If true, color error may be distributed to smooth color transition.
+    Returns true if color error may be distributed to smooth color transition.
 
     Equivalent to getFlags masked with kDither_Flag.
 
@@ -962,7 +962,7 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 
 #Line # returns true if text is converted to Path ##
 #In Linear_Text
-    If true, text is converted to Path before drawing and measuring.
+    Returns true if text is converted to Path before drawing and measuring.
 
     Equivalent to getFlags masked with kLinearText_Flag.
 
@@ -994,7 +994,7 @@ If kLinearText_Flag is clear, it is the same as setting Hinting to kNo_Hinting.
 
 #Line # converts to Path before draw or measure ##
 #In Linear_Text
-    If true, text is converted to Path before drawing and measuring.
+    Returns true if text is converted to Path before drawing and measuring.
     By default, kLinearText_Flag is clear.
 
     Sets kLinearText_Flag if linearText is true.
@@ -1039,7 +1039,7 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 
 #In Subpixel_Text
 #Line # returns true if Subpixel_Text is set ##
-    If true, Glyphs at different sub-pixel positions may differ on pixel edge coverage.
+    Returns true if Glyphs at different sub-pixel positions may differ on pixel edge coverage.
 
     Equivalent to getFlags masked with kSubpixelText_Flag.
 
@@ -1105,7 +1105,7 @@ the color components as RGB or BGR.
 
 #In LCD_Text
 #Line # returns true if LCD_Text is set ##
-    If true, Glyphs may use LCD striping to improve glyph edges.
+    Returns true if Glyphs may use LCD striping to improve glyph edges.
 
     Returns true if Flags kLCDRenderText_Flag is set.
 
@@ -1205,7 +1205,7 @@ kEmbeddedBitmapText_Flag at compile time.
 
 #In Font_Embedded_Bitmaps
 #Line # returns true if Font_Embedded_Bitmaps is set ##
-    If true, Font_Engine may return Glyphs from font bitmaps instead of from outlines.
+    Returns true if Font_Engine may return Glyphs from font bitmaps instead of from outlines.
 
     Equivalent to getFlags masked with kEmbeddedBitmapText_Flag.
 
@@ -1272,9 +1272,9 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 #In Automatic_Hinting
 #Line # returns true if Glyphs are always hinted ##
-    If true, and if Hinting is set to kNormal_Hinting or kFull_Hinting, and if
-    platform uses FreeType as the Font_Manager, instruct the Font_Manager to always hint
-    Glyphs.
+    Returns true if Hinting is set to kNormal_Hinting or kFull_Hinting, and if
+    platform uses FreeType as the Font_Manager. If true, instructs
+    the Font_Manager to always hint Glyphs.
 
     Equivalent to getFlags masked with kAutoHinting_Flag.
 
@@ -1303,8 +1303,9 @@ Automatic_Hinting only affects platforms that use FreeType as the Font_Manager.
 
 #In Automatic_Hinting
 #Line # sets Glyphs to always be hinted ##
+    Sets whether to always hint Glyphs.
     If Hinting is set to kNormal_Hinting or kFull_Hinting and useAutohinter is set,
-    instruct the Font_Manager to always hint Glyphs.
+    instructs the Font_Manager to always hint Glyphs.
     Automatic_Hinting has no effect if Hinting is set to kNo_Hinting or
     kSlight_Hinting.
 
@@ -1382,7 +1383,7 @@ void draw(SkCanvas* canvas) {
 
 #In Vertical_Text
 #Line # returns true if Vertical_Text is set ##
-    If true, Glyphs are drawn top to bottom instead of left to right.
+    Returns true if Glyphs are drawn top to bottom instead of left to right.
 
     Equivalent to getFlags masked with kVerticalText_Flag.
 
@@ -1408,7 +1409,7 @@ void draw(SkCanvas* canvas) {
 
 #In Vertical_Text
 #Line # sets or clears Vertical_Text ##
-    If true, text advance positions the next glyph below the previous glyph instead of to the
+    Returns true if text advance positions the next glyph below the previous glyph instead of to the
     right of previous glyph.
 
     Sets kVerticalText_Flag if vertical is true.
@@ -1469,7 +1470,7 @@ void draw(SkCanvas* canvas) {
 
 #In Fake_Bold
 #Line # returns true if Fake_Bold is set ##
-    If true, approximate bold by increasing the stroke width when creating glyph bitmaps
+    Returns true if approximate bold by increasing the stroke width when creating glyph bitmaps
     from outlines.
 
     Equivalent to getFlags masked with kFakeBoldText_Flag.
@@ -1496,7 +1497,7 @@ void draw(SkCanvas* canvas) {
 
 #In Fake_Bold
 #Line # sets or clears Fake_Bold ##
-    Use increased stroke width when creating glyph bitmaps to approximate a bold typeface.
+    Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
 
     Sets kFakeBoldText_Flag if fakeBoldText is true.
     Clears kFakeBoldText_Flag if fakeBoldText is false.
@@ -1912,7 +1913,7 @@ May be used to verify that Style is a legal value.
 
 #In Style
 #Line # returns Style: stroke, fill, or both ##
-    Whether the geometry is filled, stroked, or filled and stroked.
+    Returns whether the geometry is filled, stroked, or filled and stroked.
 
     #Return  one of:kFill_Style, kStroke_Style, kStrokeAndFill_Style ##
 
@@ -2142,7 +2143,7 @@ Here are some miter limits and the angles that triggers them.
 
 #In Miter_Limit
 #Line # returns Miter_Limit, angles with sharp corners ##
-    The limit at which a sharp corner is drawn beveled.
+    Returns the limit at which a sharp corner is drawn beveled.
 
     #Return  zero and greater Miter_Limit ##
 
@@ -2163,7 +2164,7 @@ Here are some miter limits and the angles that triggers them.
 
 #In Miter_Limit
 #Line # sets Miter_Limit, angles with sharp corners ##
-    The limit at which a sharp corner is drawn beveled.
+    Sets the limit at which a sharp corner is drawn beveled.
     Valid values are zero and greater.
     Has no effect if miter is less than zero.
 
@@ -2275,7 +2276,7 @@ Stroke_Cap is kButt_Cap by default.
 
 #In Stroke_Cap
 #Line # returns Cap, the area drawn at path ends ##
-    The geometry drawn at the beginning and end of strokes.
+    Returns the geometry drawn at the beginning and end of strokes.
 
     #Return  one of: kButt_Cap, kRound_Cap, kSquare_Cap ##
 
@@ -2296,7 +2297,7 @@ Stroke_Cap is kButt_Cap by default.
 
 #In Stroke_Cap
 #Line # sets Cap, the area drawn at path ends ##
-    The geometry drawn at the beginning and end of strokes.
+    Sets the geometry drawn at the beginning and end of strokes.
 
     #Param cap  one of: kButt_Cap, kRound_Cap, kSquare_Cap;
                 has no effect if cap is not valid
@@ -2433,7 +2434,7 @@ void draw(SkCanvas* canvas) {
 
 #In Stroke_Join
 #Line # returns Join, geometry on path corners ##
-    The geometry drawn at the corners of strokes.
+    Returns the geometry drawn at the corners of strokes.
 
     #Return  one of: kMiter_Join, kRound_Join, kBevel_Join ##
 
@@ -2454,7 +2455,7 @@ void draw(SkCanvas* canvas) {
 
 #In Stroke_Join
 #Line # sets Join, geometry on path corners ##
-    The geometry drawn at the corners of strokes.
+    Sets the geometry drawn at the corners of strokes.
 
     #Param join  one of: kMiter_Join, kRound_Join, kBevel_Join;
                  otherwise, has no effect
@@ -2505,7 +2506,7 @@ returns false since Hairline has no filled equivalent.
 #In Fill_Path
 #Line # returns fill path equivalent to stroke ##
 
-    The filled equivalent of the stroked path.
+    Returns the filled equivalent of the stroked path.
 
     #Param src       Path read to create a filled version ##
     #Param dst       resulting Path; may be the same as src, but may not be nullptr ##
@@ -2552,7 +2553,7 @@ returns false since Hairline has no filled equivalent.
 #Method bool getFillPath(const SkPath& src, SkPath* dst) const
 
 #In Fill_Path
-    The filled equivalent of the stroked path.
+    Returns the filled equivalent of the stroked path.
 
     Replaces dst with the src path modified by Path_Effect and Style_Stroke.
     Path_Effect, if any, is not culled. Stroke_Width is created with default precision.
@@ -2637,7 +2638,7 @@ void draw(SkCanvas* canvas) {
 
 #In Shader_Methods
 #Line # returns Shader, multiple drawing colors; gradients ##
-    Optional colors used when filling a path, such as a gradient.
+    Returns optional colors used when filling a path, such as a gradient.
 
     Does not alter Shader Reference_Count.
 
@@ -2663,7 +2664,7 @@ void draw(SkCanvas* canvas) {
 
 #In Shader_Methods
 #Line # references Shader, multiple drawing colors; gradients ##
-    Optional colors used when filling a path, such as a gradient.
+    Returns optional colors used when filling a path, such as a gradient.
 
     Increases Shader Reference_Count by one.
 
@@ -2690,7 +2691,7 @@ void draw(SkCanvas* canvas) {
 
 #In Shader_Methods
 #Line # sets Shader, multiple drawing colors; gradients ##
-    Optional colors used when filling a path, such as a gradient.
+    Sets optional colors used when filling a path, such as a gradient.
 
     Sets Shader to shader, decreasing Reference_Count of the previous Shader.
     Increments shader Reference_Count by one.
@@ -4147,7 +4148,7 @@ void draw(SkCanvas* canvas) {
     #Method bool hasUnderlineThickness(SkScalar* thickness) const
     #Line # returns underline thickness if set ##
 
-        If Font_Metrics has a valid underline thickness, return true, and set
+        Returns true if Font_Metrics has a valid underline thickness, and sets
         thickness to that value. If the underline thickness is not valid,
         return false, and ignore thickness.
 
@@ -4162,7 +4163,7 @@ void draw(SkCanvas* canvas) {
     #Method bool hasUnderlinePosition(SkScalar* position) const
     #Line # returns underline position if set ##
 
-        If Font_Metrics has a valid underline position, return true, and set
+        Returns true if Font_Metrics has a valid underline position, and sets
         position to that value. If the underline position is not valid,
         return false, and ignore position.
 
@@ -4177,7 +4178,7 @@ void draw(SkCanvas* canvas) {
     #Method bool hasStrikeoutThickness(SkScalar* thickness) const
     #Line # returns strikeout thickness if set ##
 
-        If Font_Metrics has a valid strikeout thickness, return true, and set
+        Returns true if Font_Metrics has a valid strikeout thickness, and sets
         thickness to that value. If the underline thickness is not valid,
         return false, and ignore thickness.
 
@@ -4192,7 +4193,7 @@ void draw(SkCanvas* canvas) {
     #Method bool hasStrikeoutPosition(SkScalar* position) const
     #Line # returns strikeout position if set ##
 
-        If Font_Metrics has a valid strikeout position, return true, and set
+        Returns true if Font_Metrics has a valid strikeout position, and sets
         position to that value. If the underline position is not valid,
         return false, and ignore position.
 

@@ -1661,7 +1661,7 @@ The lines are drawn into <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>, then dr
 bool <a href='#SkPaint_isAntiAlias'>isAntiAlias</a>() const
 </pre>
 
-If true, pixels on the active edges of <a href='SkPath_Reference#Path'>Path</a> may be drawn with partial transparency.
+Returns true if pixels on the active edges of <a href='SkPath_Reference#Path'>Path</a> may be drawn with partial transparency.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kAntiAlias_Flag'>kAntiAlias Flag</a>.
 
@@ -1757,7 +1757,7 @@ dither, making it easier to see.
 bool <a href='#SkPaint_isDither'>isDither</a>() const
 </pre>
 
-If true, color error may be distributed to smooth color transition.
+Returns true if color error may be distributed to smooth color transition.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kDither_Flag'>kDither Flag</a>.
 
@@ -1860,7 +1860,7 @@ If <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> is clear, it is the 
 bool <a href='#SkPaint_isLinearText'>isLinearText</a>() const
 </pre>
 
-If true, text is converted to <a href='SkPath_Reference#Path'>Path</a> before drawing and measuring.
+Returns true if text is converted to <a href='SkPath_Reference#Path'>Path</a> before drawing and measuring.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a>.
 
@@ -1885,7 +1885,7 @@ Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkP
 void <a href='#SkPaint_setLinearText'>setLinearText</a>(bool linearText)
 </pre>
 
-If true, text is converted to <a href='SkPath_Reference#Path'>Path</a> before drawing and measuring.
+Returns true if text is converted to <a href='SkPath_Reference#Path'>Path</a> before drawing and measuring.
 By default, <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> is clear.
 
 Sets <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> if <a href='#SkPaint_setLinearText_linearText'>linearText</a> is true.
@@ -1921,7 +1921,7 @@ of the color increases, the edge of the glyph appears to move towards the outsid
 bool <a href='#SkPaint_isSubpixelText'>isSubpixelText</a>() const
 </pre>
 
-If true, <a href='undocumented#Glyph'>Glyphs</a> at different sub-pixel positions may differ on pixel edge coverage.
+Returns true if <a href='undocumented#Glyph'>Glyphs</a> at different sub-pixel positions may differ on pixel edge coverage.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kSubpixelText_Flag'>kSubpixelText Flag</a>.
 
@@ -1992,7 +1992,7 @@ the color components as RGB or BGR.
 bool <a href='#SkPaint_isLCDRenderText'>isLCDRenderText</a>() const
 </pre>
 
-If true, <a href='undocumented#Glyph'>Glyphs</a> may use LCD striping to improve glyph edges.
+Returns true if <a href='undocumented#Glyph'>Glyphs</a> may use LCD striping to improve glyph edges.
 
 Returns true if <a href='#SkPaint_Flags'>Flags</a> <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> is set.
 
@@ -2095,7 +2095,7 @@ Windows may select the bitmap glyph but is not required to do so.
 bool <a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a>() const
 </pre>
 
-If true, <a href='undocumented#Engine'>Font Engine</a> may return <a href='undocumented#Glyph'>Glyphs</a> from font bitmaps instead of from outlines.
+Returns true if <a href='undocumented#Engine'>Font Engine</a> may return <a href='undocumented#Glyph'>Glyphs</a> from font bitmaps instead of from outlines.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kEmbeddedBitmapText_Flag'>kEmbeddedBitmapText Flag</a>.
 
@@ -2167,9 +2167,9 @@ instructs the <a href='undocumented#Font_Manager'>Font Manager</a> to always hin
 bool <a href='#SkPaint_isAutohinted'>isAutohinted</a>() const
 </pre>
 
-If true, and if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a> or <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a>, and if
-platform uses FreeType as the <a href='undocumented#Font_Manager'>Font Manager</a>, instruct the <a href='undocumented#Font_Manager'>Font Manager</a> to always hint
-<a href='undocumented#Glyph'>Glyphs</a>.
+Returns true if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a> or <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a>, and if
+platform uses FreeType as the <a href='undocumented#Font_Manager'>Font Manager</a>. If true, instructs
+the <a href='undocumented#Font_Manager'>Font Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kAutoHinting_Flag'>kAutoHinting Flag</a>.
 
@@ -2203,8 +2203,9 @@ paint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)
 void <a href='#SkPaint_setAutohinted'>setAutohinted</a>(bool useAutohinter)
 </pre>
 
+Sets whether to always hint <a href='undocumented#Glyph'>Glyphs</a>.
 If <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='#SkPaint_kNormal_Hinting'>kNormal Hinting</a> or <a href='#SkPaint_kFull_Hinting'>kFull Hinting</a> and <a href='#SkPaint_setAutohinted_useAutohinter'>useAutohinter</a> is set,
-instruct the <a href='undocumented#Font_Manager'>Font Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
+instructs the <a href='undocumented#Font_Manager'>Font Manager</a> to always hint <a href='undocumented#Glyph'>Glyphs</a>.
 <a href='#Automatic_Hinting'>Automatic Hinting</a> has no effect if <a href='#SkPaint_Hinting'>Hinting</a> is set to <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a> or
 <a href='#SkPaint_kSlight_Hinting'>kSlight Hinting</a>.
 
@@ -2263,7 +2264,7 @@ into glyph series.
 bool <a href='#SkPaint_isVerticalText'>isVerticalText</a>() const
 </pre>
 
-If true, <a href='undocumented#Glyph'>Glyphs</a> are drawn top to bottom instead of left to right.
+Returns true if <a href='undocumented#Glyph'>Glyphs</a> are drawn top to bottom instead of left to right.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a>.
 
@@ -2293,7 +2294,7 @@ paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)
 void <a href='#SkPaint_setVerticalText'>setVerticalText</a>(bool verticalText)
 </pre>
 
-If true, text advance positions the next glyph below the previous glyph instead of to the
+Returns true if text advance positions the next glyph below the previous glyph instead of to the
 right of previous glyph.
 
 Sets <a href='#SkPaint_kVerticalText_Flag'>kVerticalText Flag</a> if vertical is true.
@@ -2346,7 +2347,7 @@ by increasing the stroke width and setting the <a href='#SkPaint_Style'>Style</a
 bool <a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a>() const
 </pre>
 
-If true, approximate bold by increasing the stroke width when creating glyph bitmaps
+Returns true if approximate bold by increasing the stroke width when creating glyph bitmaps
 from outlines.
 
 Equivalent to <a href='#SkPaint_getFlags'>getFlags</a> masked with <a href='#SkPaint_kFakeBoldText_Flag'>kFakeBoldText Flag</a>.
@@ -2377,7 +2378,7 @@ paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)
 void <a href='#SkPaint_setFakeBoldText'>setFakeBoldText</a>(bool fakeBoldText)
 </pre>
 
-Use increased stroke width when creating glyph bitmaps to approximate a bold typeface.
+Increases stroke width when creating glyph bitmaps to approximate a bold typeface.
 
 Sets <a href='#SkPaint_kFakeBoldText_Flag'>kFakeBoldText Flag</a> if <a href='#SkPaint_setFakeBoldText_fakeBoldText'>fakeBoldText</a> is true.
 Clears <a href='#SkPaint_kFakeBoldText_Flag'>kFakeBoldText Flag</a> if <a href='#SkPaint_setFakeBoldText_fakeBoldText'>fakeBoldText</a> is false.
@@ -2844,7 +2845,7 @@ May be used to verify that <a href='#SkPaint_Style'>Style</a> is a legal value.
 <a href='#SkPaint_Style'>Style</a> <a href='#SkPaint_getStyle'>getStyle</a>() const
 </pre>
 
-Whether the geometry is filled, stroked, or filled and stroked.
+Returns whether the geometry is filled, stroked, or filled and stroked.
 
 ### Return Value
 
@@ -3027,7 +3028,7 @@ by a bevel join.
 <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a>() const
 </pre>
 
-The limit at which a sharp corner is drawn beveled.
+Returns the limit at which a sharp corner is drawn beveled.
 
 ### Return Value
 
@@ -3058,7 +3059,7 @@ default miter limit == 4
 void <a href='#SkPaint_setStrokeMiter'>setStrokeMiter</a>(<a href='undocumented#SkScalar'>SkScalar</a> miter)
 </pre>
 
-The limit at which a sharp corner is drawn beveled.
+Sets the limit at which a sharp corner is drawn beveled.
 Valid values are zero and greater.
 Has no effect if <a href='#SkPaint_setStrokeMiter_miter'>miter</a> is less than zero.
 
@@ -3186,7 +3187,7 @@ at the contour point.
 <a href='#SkPaint_Cap'>Cap</a> <a href='#SkPaint_getStrokeCap'>getStrokeCap</a>() const
 </pre>
 
-The geometry drawn at the beginning and end of strokes.
+Returns the geometry drawn at the beginning and end of strokes.
 
 ### Return Value
 
@@ -3217,7 +3218,7 @@ kButt_Cap == default stroke cap
 void <a href='#SkPaint_setStrokeCap'>setStrokeCap</a>(<a href='#SkPaint_Cap'>Cap</a> cap)
 </pre>
 
-The geometry drawn at the beginning and end of strokes.
+Sets the geometry drawn at the beginning and end of strokes.
 
 ### Parameters
 
@@ -3352,7 +3353,7 @@ May be used to verify that <a href='#Stroke_Join'>Stroke Join</a> is a legal val
 <a href='#SkPaint_Join'>Join</a> <a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a>() const
 </pre>
 
-The geometry drawn at the corners of strokes.
+Returns the geometry drawn at the corners of strokes.
 
 ### Return Value
 
@@ -3383,7 +3384,7 @@ kMiter_Join == default stroke join
 void <a href='#SkPaint_setStrokeJoin'>setStrokeJoin</a>(<a href='#SkPaint_Join'>Join</a> join)
 </pre>
 
-The geometry drawn at the corners of strokes.
+Sets the geometry drawn at the corners of strokes.
 
 ### Parameters
 
@@ -3442,7 +3443,7 @@ returns false since <a href='#Style_Hairline'>Hairline</a> has no filled equival
 bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst, const <a href='SkRect_Reference#SkRect'>SkRect</a>* cullRect, <a href='undocumented#SkScalar'>SkScalar</a> resScale = 1) const
 </pre>
 
-The filled equivalent of the stroked path.
+Returns the filled equivalent of the stroked path.
 
 ### Parameters
 
@@ -3480,7 +3481,7 @@ At the highest precision, the filled path has high fidelity compared to the orig
 bool <a href='#SkPaint_getFillPath'>getFillPath</a>(const <a href='SkPath_Reference#SkPath'>SkPath</a>& src, <a href='SkPath_Reference#SkPath'>SkPath</a>* dst) const
 </pre>
 
-The filled equivalent of the stroked path.
+Returns the filled equivalent of the stroked path.
 
 Replaces <a href='#SkPaint_getFillPath_2_dst'>dst</a> with the <a href='#SkPaint_getFillPath_2_src'>src</a> path modified by <a href='undocumented#Path_Effect'>Path Effect</a> and <a href='#Style_Stroke'>Style Stroke</a>.
 <a href='undocumented#Path_Effect'>Path Effect</a>, if any, is not culled. <a href='#Stroke_Width'>Stroke Width</a> is created with default precision.
@@ -3538,7 +3539,7 @@ If <a href='undocumented#Shader'>Shader</a> generates only <a href='SkColor_Refe
 <a href='undocumented#SkShader'>SkShader</a>* <a href='#SkPaint_getShader'>getShader</a>() const
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+Returns optional colors used when filling a path, such as a gradient.
 
 Does not alter <a href='undocumented#Shader'>Shader</a> <a href='undocumented#Reference_Count'>Reference Count</a>.
 
@@ -3568,7 +3569,7 @@ nullptr != shader
 <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; <a href='#SkPaint_refShader'>refShader</a>() const
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+Returns optional colors used when filling a path, such as a gradient.
 
 Increases <a href='undocumented#Shader'>Shader</a> <a href='undocumented#Reference_Count'>Reference Count</a> by one.
 
@@ -3598,7 +3599,7 @@ shader unique: false
 void <a href='#SkPaint_setShader'>setShader</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkShader'>SkShader</a>&gt; shader)
 </pre>
 
-Optional colors used when filling a path, such as a gradient.
+Sets optional colors used when filling a path, such as a gradient.
 
 Sets <a href='undocumented#Shader'>Shader</a> to <a href='#SkPaint_setShader_shader'>shader</a>, decreasing <a href='undocumented#Reference_Count'>Reference Count</a> of the previous <a href='undocumented#Shader'>Shader</a>.
 Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#Reference_Count'>Reference Count</a> by one.
@@ -5131,7 +5132,7 @@ If <a href='#SkPaint_FontMetrics_kStrikeoutPositionIsValid_Flag'>kStrikeoutPosit
 bool <a href='#SkPaint_FontMetrics_hasUnderlineThickness'>hasUnderlineThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
 </pre>
 
-If <a href='#Font_Metrics'>Font Metrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a>, return true, and set
+Returns true if <a href='#Font_Metrics'>Font Metrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a>, and sets
 <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a> is not valid,
 return false, and ignore <a href='#SkPaint_FontMetrics_hasUnderlineThickness_thickness'>thickness</a>.
 
@@ -5155,7 +5156,7 @@ true if font specifies underline width
 bool <a href='#SkPaint_FontMetrics_hasUnderlinePosition'>hasUnderlinePosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
 </pre>
 
-If <a href='#Font_Metrics'>Font Metrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>, return true, and set
+Returns true if <a href='#Font_Metrics'>Font Metrics</a> has a valid underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>, and sets
 <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a> is not valid,
 return false, and ignore <a href='#SkPaint_FontMetrics_hasUnderlinePosition_position'>position</a>.
 
@@ -5179,7 +5180,7 @@ true if font specifies underline <a href='#SkPaint_FontMetrics_hasUnderlinePosit
 bool <a href='#SkPaint_FontMetrics_hasStrikeoutThickness'>hasStrikeoutThickness</a>(<a href='undocumented#SkScalar'>SkScalar</a>* thickness) const
 </pre>
 
-If <a href='#Font_Metrics'>Font Metrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a>, return true, and set
+Returns true if <a href='#Font_Metrics'>Font Metrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a>, and sets
 <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a> is not valid,
 return false, and ignore <a href='#SkPaint_FontMetrics_hasStrikeoutThickness_thickness'>thickness</a>.
 
@@ -5203,7 +5204,7 @@ true if font specifies strikeout width
 bool <a href='#SkPaint_FontMetrics_hasStrikeoutPosition'>hasStrikeoutPosition</a>(<a href='undocumented#SkScalar'>SkScalar</a>* position) const
 </pre>
 
-If <a href='#Font_Metrics'>Font Metrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>, return true, and set
+Returns true if <a href='#Font_Metrics'>Font Metrics</a> has a valid strikeout <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>, and sets
 <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a> to that value. If the underline <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a> is not valid,
 return false, and ignore <a href='#SkPaint_FontMetrics_hasStrikeoutPosition_position'>position</a>.
 
@@ -5925,7 +5926,7 @@ number of intersections; may be zero
 
 ### Example
 
-<div><fiddle-embed name="48d963ad4286eddf680f9c511eb6da91"><div><a href='undocumented#Text'>Text</a> intercepts do not take stroke thickness into consideration.
+<div><fiddle-embed name="dc9851c43acc3716aca8c9a4d40d452d"><div><a href='undocumented#Text'>Text</a> intercepts do not take stroke thickness into consideration.
 </div></fiddle-embed></div>
 
 ---

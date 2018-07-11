@@ -20,7 +20,10 @@ if word is camel cased, look for :: matches on suffix
 when function crosses lines, whole thing isn't seen as a 'word' e.g., search for largeArc in path
 
 words in external not seen
+
+look for x-bit but allow x bits
  */
+
 struct CheckEntry {
     string fFile;
     int fLine;
@@ -389,6 +392,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
     int inParens = 0;
     bool inQuotes = false;
     bool allLower = true;
+    char prePriorCh = 0;
     char priorCh = 0;
     char lastCh = 0;
     const char* wordStart = nullptr;
@@ -400,7 +404,10 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
             if (!allLower || (!inQuotes && '\"' != lastCh && !inParens
                     && ')' != lastCh && !inAngles && '>' != lastCh)) {
                 string word(wordStart, (possibleEnd ? possibleEnd : wordEnd) - wordStart);
-                wordCheck(word);
+                if ("e" != word || !isdigit(prePriorCh) || ('+' != lastCh &&
+                        '-' != lastCh && !isdigit(lastCh))) {
+                    this->wordCheck(word);
+                }
             }
             wordStart = nullptr;
         }
@@ -469,6 +476,7 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
                 wordEnd = chPtr;
                 break;
         }
+        prePriorCh = priorCh;
         priorCh = lastCh;
         lastCh = *chPtr;
     } while (++chPtr <= end);
@@ -655,6 +663,9 @@ void SpellCheck::wordCheck(string str) {
         }
         iter->second.fCount += 1;
     } else {
+    if ("e" == str) {
+        SkDebugf("");
+    }
         CheckEntry* entry = &mappy[str];
         entry->fFile = fFileName;
         entry->fLine = fLineCount + fLocalLine;

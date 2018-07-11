@@ -751,7 +751,7 @@ Da as destination Alpha, Dc as destination Color component
 , scaling Alpha and Color components by the lesser of the values.
 SkBlendMode::kModulate differs from SkBlendMode::kMultiply in two ways.
 SkBlendMode::kModulate like SkBlendMode::kSrcATop alters the destination inside
-the destination area, as if the destination Alpha defined the boudaries of a
+the destination area, as if the destination Alpha defined the boundaries of a
 soft clip. SkBlendMode::kMultiply like SkBlendMode::kSrcOver can alter the
 destination where the destination is transparent.
 SkBlendMode::kModulate computes the product of the source and destination using

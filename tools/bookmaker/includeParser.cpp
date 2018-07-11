@@ -2469,9 +2469,12 @@ bool IncludeParser::parseChar() {
                 // find token on start of line
                 auto lineIter = fParent->fTokens.end();
                 do {
+                    if (fParent->fTokens.begin() == lineIter) {
+                        break;
+                    }
                     --lineIter;
                 } while (lineIter->fContentStart > fLine);
-                if (lineIter->fContentStart < fLine) {
+                if (lineIter->fContentStart < fLine && fParent->fTokens.end() != lineIter) {
                     ++lineIter;
                 }
                 Definition* lineStart = &*lineIter;
@@ -2571,7 +2574,8 @@ bool IncludeParser::parseChar() {
                 list<Definition>::iterator baseIter = fParent->fTokens.end();
                 list<Definition>::iterator namedIter  = fParent->fTokens.end();
                 for (auto tokenIter = fParent->fTokens.end();
-                        fParent->fTokens.begin() != tokenIter--; ) {
+                        fParent->fTokens.begin() != tokenIter; ) {
+                    --tokenIter;
                     if (tokenIter->fLineCount == fLineCount) {
                         if ('f' == tokenIter->fStart[0] && isupper(tokenIter->fStart[1])) {
                             if (namedIter != fParent->fTokens.end()) {
