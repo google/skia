@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "9fb5fb2a_9b52cd58",
+        "filename": "src/core/SkResourceCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T19:59:58Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "aaee8cf7_f64961dc",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e1c97153_38c3d462",
         "filename": "src/gpu/GrProxyProvider.cpp",
         "patchSetId": 7
@@ -56,6 +74,24 @@
       "revId": "26d26c477a446c667007b90203636b537cce2985",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30b71e9e_cb639728",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T19:59:58Z",
+      "side": 1,
+      "message": "Will do in a separate change",
+      "parentUuid": "e1c97153_38c3d462",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "34b44f2f_83b47013",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T19:59:58Z",
+      "side": 1,
+      "message": "Ditto",
+      "parentUuid": "0051fd62_d0831286",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "612b645a_529391f7",
         "filename": "src/gpu/GrProxyProvider.h",
         "patchSetId": 7
@@ -93,6 +147,24 @@
     },
     {
       "key": {
+        "uuid": "81d128ac_738786c4",
+        "filename": "src/gpu/GrProxyProvider.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T19:59:58Z",
+      "side": 1,
+      "message": "Done. I think we should probably make the IDs be a Real Type and give them a name like DirectContextID so it\u0027s clear what we\u0027re IDing. I thought about doing that in this CL but I think it\u0027s a separate task.",
+      "parentUuid": "612b645a_529391f7",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "56e706ec_41bedfb1",
         "filename": "src/gpu/ccpr/GrCCPathCache.h",
         "patchSetId": 7
@@ -104,6 +176,24 @@
       "writtenOn": "2018-07-11T17:48:28Z",
       "side": 1,
       "message": "// This is the context ID of the context used to create the CCPR atlases. Invalidation of a CCPR atlas will post a message to just this context.\n\n?",
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "615ae882_b957adae",
+        "filename": "src/gpu/ccpr/GrCCPathCache.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T19:59:58Z",
+      "side": 1,
+      "message": "Eh, feels superfluous to me. We don\u0027t comment on why most data members exist and this doesn\u0027t seem like a special case to me.",
+      "parentUuid": "56e706ec_41bedfb1",
       "revId": "26d26c477a446c667007b90203636b537cce2985",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
