@@ -500,7 +500,10 @@ bool SkBaseShadowTessellator::addArc(const SkVector& nextNormal, bool finishArc)
     // fill in fan from previous quad
     SkScalar rotSin, rotCos;
     int numSteps;
-    SkComputeRadialSteps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps);
+    if (!SkComputeRadialSteps(fPrevOutset, nextNormal, fRadius, &rotSin, &rotCos, &numSteps)) {
+        // recover as best we can
+        numSteps = 0;
+    }
     SkVector prevNormal = fPrevOutset;
     for (int i = 0; i < numSteps-1; ++i) {
         SkVector currNormal;
