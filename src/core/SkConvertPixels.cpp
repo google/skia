@@ -308,9 +308,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         if (is_just_gamma(srcFn)) {
             pipeline.append(SkRasterPipeline::gamma, &srcFn.fG);
         } else {
-            pipeline.append(SkRasterPipeline::parametric_r, &srcFn);
-            pipeline.append(SkRasterPipeline::parametric_g, &srcFn);
-            pipeline.append(SkRasterPipeline::parametric_b, &srcFn);
+            pipeline.append(SkRasterPipeline::parametric, &srcFn);
         }
     }
 
@@ -340,9 +338,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         if (is_just_gamma(dstFn)) {
             pipeline.append(SkRasterPipeline::gamma, &dstFn.fG);
         } else {
-            pipeline.append(SkRasterPipeline::parametric_r, &dstFn);
-            pipeline.append(SkRasterPipeline::parametric_g, &dstFn);
-            pipeline.append(SkRasterPipeline::parametric_b, &dstFn);
+            pipeline.append(SkRasterPipeline::parametric, &dstFn);
         }
     }
 

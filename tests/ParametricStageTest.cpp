@@ -22,10 +22,7 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
 
     SkRasterPipeline_<256> p;
     p.append(SkRasterPipeline::load_f32, &ip);
-    p.append(SkRasterPipeline::parametric_r, &fn);
-    p.append(SkRasterPipeline::parametric_g, &fn);
-    p.append(SkRasterPipeline::parametric_b, &fn);
-    p.append(SkRasterPipeline::parametric_a, &fn);
+    p.append(SkRasterPipeline::parametric, &fn);
     p.append(SkRasterPipeline::store_f32, &op);
 
     p.run(0,0, 256/4,1);
@@ -34,6 +31,9 @@ static void check_error(skiatest::Reporter* r, float limit, SkColorSpaceTransfer
     for (int i = 0; i < 256; i++) {
         float want = (in[i] <= fn.fD) ? fn.fC * in[i] + fn.fF
                                       : powf(in[i] * fn.fA + fn.fB, fn.fG) + fn.fE;
+        if (i % 4 == 3) {  // alpha should stay unchanged.
+            want = in[i];
+        }
         float err = fabsf(out[i] - want);
         if (err > limit) {
             ERRORF(r, "At %d, error was %g (got %g, want %g)", i, err, out[i], want);
