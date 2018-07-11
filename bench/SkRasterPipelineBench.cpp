@@ -130,12 +130,8 @@ public:
         SkRasterPipeline p(&alloc);
         p.append_constant_color(&alloc, c);
         if (fParametric) {
-            p.append(SkRasterPipeline::parametric_r, &from_2dot2);
-            p.append(SkRasterPipeline::parametric_g, &from_2dot2);
-            p.append(SkRasterPipeline::parametric_b, &from_2dot2);
-            p.append(SkRasterPipeline::parametric_r, &  to_2dot2);
-            p.append(SkRasterPipeline::parametric_g, &  to_2dot2);
-            p.append(SkRasterPipeline::parametric_b, &  to_2dot2);
+            p.append(SkRasterPipeline::parametric, &from_2dot2);
+            p.append(SkRasterPipeline::parametric, &  to_2dot2);
         } else {
             p.append(SkRasterPipeline::gamma, &from_2dot2.fG);
             p.append(SkRasterPipeline::gamma, &  to_2dot2.fG);

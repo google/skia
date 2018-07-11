@@ -69,8 +69,7 @@
     M(matrix_translate) M(matrix_scale_translate)                  \
     M(matrix_2x3) M(matrix_3x3) M(matrix_3x4) M(matrix_4x5) M(matrix_4x3) \
     M(matrix_perspective)                                          \
-    M(parametric_r) M(parametric_g) M(parametric_b)                \
-    M(parametric_a) M(gamma) M(gamma_dst)                          \
+    M(parametric) M(gamma)                                         \
     M(mirror_x)   M(repeat_x)                                      \
     M(mirror_y)   M(repeat_y)                                      \
     M(decal_x)    M(decal_y)   M(decal_x_and_y)                    \
