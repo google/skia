@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "99f8a4b5_2683e7b9",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 11
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-11T15:44:09Z",
+      "side": 1,
+      "message": "The compiler should remove this code for us, but just to be safe/document lets sourround this in #ifdef SK_DEBUG",
+      "range": {
+        "startLine": 236,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 9
+      },
+      "revId": "3c7ef733c50f989023a17c778afa5d9e2c7283ac",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
