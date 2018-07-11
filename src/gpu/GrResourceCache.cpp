@@ -63,29 +63,27 @@ private:
 
  //////////////////////////////////////////////////////////////////////////////
 
+
 GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
-        : fProxyProvider(nullptr)
-        , fTimestamp(0)
-        , fMaxCount(kDefaultMaxCount)
-        , fMaxBytes(kDefaultMaxSize)
-        , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
+    : fProxyProvider(nullptr)
+    , fTimestamp(0)
+    , fMaxCount(kDefaultMaxCount)
+    , fMaxBytes(kDefaultMaxSize)
+    , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
 #if GR_CACHE_STATS
-        , fHighWaterCount(0)
-        , fHighWaterBytes(0)
-        , fBudgetedHighWaterCount(0)
-        , fBudgetedHighWaterBytes(0)
+    , fHighWaterCount(0)
+    , fHighWaterBytes(0)
+    , fBudgetedHighWaterCount(0)
+    , fBudgetedHighWaterBytes(0)
 #endif
-        , fBytes(0)
-        , fBudgetedCount(0)
-        , fBudgetedBytes(0)
-        , fPurgeableBytes(0)
-        , fRequestFlush(false)
-        , fExternalFlushCnt(0)
-        , fInvalidUniqueKeyInbox(contextUniqueID)
-        , fFreedGpuResourceInbox(contextUniqueID)
-        , fContextUniqueID(contextUniqueID)
-        , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
+    , fBytes(0)
+    , fBudgetedCount(0)
+    , fBudgetedBytes(0)
+    , fPurgeableBytes(0)
+    , fRequestFlush(false)
+    , fExternalFlushCnt(0)
+    , fContextUniqueID(contextUniqueID)
+    , fPreferVRAMUseOverFlushes(caps->preferVRAMUseOverFlushes()) {
     SkDEBUGCODE(fCount = 0;)
     SkDEBUGCODE(fNewlyPurgeableResourceForValidation = nullptr;)
 }
@@ -606,8 +604,9 @@ void GrResourceCache::processFreedGpuResources() {
     SkTArray<GrGpuResourceFreedMessage> msgs;
     fFreedGpuResourceInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
-        SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
-        msgs[i].fResource->unref();
+        if (msgs[i].fOwningUniqueID == fContextUniqueID) {
+            msgs[i].fResource->unref();
+        }
     }
 }
 

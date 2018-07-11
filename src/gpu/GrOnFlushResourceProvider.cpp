@@ -6,7 +6,6 @@
  */
 
 #include "GrOnFlushResourceProvider.h"
-#include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrProxyProvider.h"
@@ -129,10 +128,6 @@ sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBuffer
     // Static buffers should never have pending IO.
     SkASSERT(!buffer->resourcePriv().hasPendingIO_debugOnly());
     return buffer;
-}
-
-uint32_t GrOnFlushResourceProvider::contextUniqueID() const {
-    return fDrawingMgr->getContext()->uniqueID();
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {

@@ -99,12 +99,7 @@ public:
     }
 
     struct PurgeBlobMessage {
-        PurgeBlobMessage(uint32_t blobID, uint32_t contextUniqueID)
-                : fBlobID(blobID), fContextID(contextUniqueID) {}
-        bool shouldSend(uint32_t inboxID) const { return fContextID == inboxID; }
-
-        uint32_t fBlobID;
-        uint32_t fContextID;
+        uint32_t fID;
     };
 
     static void PostPurgeBlobMessage(uint32_t blobID, uint32_t cacheID);

@@ -42,7 +42,7 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
     }
 }
 
-void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) {
+void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey) {
     as_IB(fClient)->notifyAddedToCache();
 }
 

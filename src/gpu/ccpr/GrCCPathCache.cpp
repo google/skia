@@ -149,15 +149,12 @@ GrCCPathCacheEntry::~GrCCPathCacheEntry() {
     this->invalidateAtlas();
 }
 
-void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey,
                                             const SkIVector& atlasOffset, const SkRect& devBounds,
                                             const SkRect& devBounds45, const SkIRect& devIBounds,
                                             const SkIVector& maskShift) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
-
-    fContextUniqueID = contextUniqueID;
 
     fAtlasKey = atlasKey;
     fAtlasOffset = atlasOffset + maskShift;
@@ -169,14 +166,11 @@ void GrCCPathCacheEntry::initAsStashedAtlas(const GrUniqueKey& atlasKey, uint32_
     fDevIBounds = devIBounds.makeOffset(-maskShift.fX, -maskShift.fY);
 }
 
-void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey, uint32_t contextUniqueID,
+void GrCCPathCacheEntry::updateToCachedAtlas(const GrUniqueKey& atlasKey,
                                              const SkIVector& newAtlasOffset,
                                              sk_sp<GrCCAtlas::CachedAtlasInfo> info) {
-    SkASSERT(contextUniqueID != SK_InvalidUniqueID);
     SkASSERT(atlasKey.isValid());
     SkASSERT(!fCurrFlushAtlas);  // Otherwise we should reuse the atlas from last time.
-
-    fContextUniqueID = contextUniqueID;
 
     fAtlasKey = atlasKey;
     fAtlasOffset = newAtlasOffset;
@@ -194,7 +188,7 @@ void GrCCPathCacheEntry::invalidateAtlas() {
             fCachedAtlasInfo->fNumInvalidatedPathPixels >= fCachedAtlasInfo->fNumPathPixels / 2) {
             // Too many invalidated pixels: purge the atlas texture from the resource cache.
             SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(
-                    GrUniqueKeyInvalidatedMessage(fAtlasKey, fContextUniqueID));
+                    GrUniqueKeyInvalidatedMessage(fAtlasKey));
             fCachedAtlasInfo->fIsPurgedFromResourceCache = true;
         }
     }
