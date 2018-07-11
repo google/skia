@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "395b3378_887f3894",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:28:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0f62e820_6aa43ecf",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ebc2d329_229cce4a",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
         "patchSetId": 27
@@ -33,6 +51,24 @@
       "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6953655b_975cd085",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArCamera.h",
+        "patchSetId": 27
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:28:43Z",
+      "side": 1,
+      "message": "Sorry about this silly mistake. I went through many iterations of this to decide what type of factory to make, and I forgot to change the dox",
+      "parentUuid": "ebc2d329_229cce4a",
+      "revId": "7d2911e00ac5495d50824799b8dfd03cc338ff80",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
