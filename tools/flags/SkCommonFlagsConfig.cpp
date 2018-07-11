@@ -67,6 +67,7 @@ static const struct {
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
+    { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=true" },
     { "debuggl",               "gpu", "api=debuggl" },
     { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
@@ -165,6 +166,8 @@ static const char configExtendedHelp[] =
     "\t    Allow the use of stencil buffers.\n"
     "\ttestThreading\ttype: bool\tdefault: false.\n"
     "\t    Run with and without worker threads, check that results match.\n"
+    "\ttestPersistentCache\ttype: bool\tdefault: false.\n"
+    "\t    Run using a pre-warmed GrContextOption::fPersistentCache.\n"
     "\tsurf\ttype: string\tdefault: default.\n"
     "\t    Controls the type of backing store for SkSurfaces.\n"
     "\t    Options:\n"
@@ -423,7 +426,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType,
         bool useNVPR, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading,
-        SurfType surfType)
+        bool testPersistentCache, SurfType surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -433,6 +436,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
         , fTestThreading(testThreading)
+        , fTestPersistentCache(testPersistentCache)
         , fSurfType(surfType) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
@@ -459,6 +463,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     sk_sp<SkColorSpace> colorSpace = nullptr;
     bool useStencils = true;
     bool testThreading = false;
+    bool testPersistentCache = false;
     SkCommandLineConfigGpu::SurfType surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool parseSucceeded = false;
@@ -475,16 +480,17 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
             extendedOptions.get_option_bool("testThreading", &testThreading) &&
-            extendedOptions.get_option_bool("testThreading", &testThreading) &&
+            extendedOptions.get_option_bool("testPersistentCache", &testPersistentCache) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
-    if (!validOptions) {
+    // testing threading and the persistent cache are mutually exclusive.
+    if (!validOptions || (testThreading && testPersistentCache)) {
         return nullptr;
     }
 
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
                                       colorType, alphaType, colorSpace, useStencils, testThreading,
-                                      surfType);
+                                      testPersistentCache, surfType);
 }
 
 SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString& tag,

@@ -183,6 +183,33 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             cached = false;
         }
     }
+    bool useNvpr = primProc.isPathRendering();
+    if (!useNvpr) {
+        fVertexAttributeCnt = primProc.numVertexAttributes();
+        fInstanceAttributeCnt = primProc.numInstanceAttributes();
+        fAttributes.reset(
+                new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
+        auto addAttr = [&](int i, const auto& a, size_t* stride) {
+            fAttributes[i].fType = a.type();
+            fAttributes[i].fOffset = *stride;
+            *stride += a.sizeAlign4();
+            fAttributes[i].fLocation = i;
+        };
+        fVertexStride = 0;
+        int i = 0;
+        for (; i < fVertexAttributeCnt; i++) {
+            addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
+            SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
+        }
+        SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
+        fInstanceStride = 0;
+        for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
+            addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
+            SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
+        }
+        SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
+    }
+
     if (!cached) {
         // cache miss, compile shaders
         if (fFS.fForceHighPrecision) {
@@ -225,33 +252,14 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             return nullptr;
         }
 
-        // NVPR actually requires a vertex shader to compile
-        bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            fVertexAttributeCnt = primProc.numVertexAttributes();
-            fInstanceAttributeCnt = primProc.numInstanceAttributes();
-            fAttributes.reset(
-                    new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
-            auto addAttr = [&](int i, const auto& a, size_t* stride) {
-                fAttributes[i].fType = a.type();
-                fAttributes[i].fOffset = *stride;
-                *stride += a.sizeAlign4();
-                fAttributes[i].fLocation = i;
-                GL_CALL(BindAttribLocation(programID, i, a.name()));
-            };
-            fVertexStride = 0;
             int i = 0;
             for (; i < fVertexAttributeCnt; i++) {
-                addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
+                GL_CALL(BindAttribLocation(programID, i, primProc.vertexAttribute(i).name()));
             }
-            SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
-            fInstanceStride = 0;
             for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
-                addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
+                GL_CALL(BindAttribLocation(programID, i, primProc.instanceAttribute(j).name()));
             }
-            SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
         }
 
         if (primProc.willUseGeoShader()) {
