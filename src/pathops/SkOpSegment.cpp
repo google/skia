@@ -524,13 +524,14 @@ double SkOpSegment::distSq(double t, const SkOpAngle* oppAngle) const {
  Opposite values result from combining coincident spans.
  */
 SkOpSegment* SkOpSegment::findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
-        SkOpSpanBase** nextEnd, bool* unsortable, SkPathOp op, int xorMiMask, int xorSuMask) {
+        SkOpSpanBase** nextEnd, bool* unsortable, bool* simple,
+        SkPathOp op, int xorMiMask, int xorSuMask) {
     SkOpSpanBase* start = *nextStart;
     SkOpSpanBase* end = *nextEnd;
     SkASSERT(start != end);
     int step = start->step(end);
     SkOpSegment* other = this->isSimple(nextStart, &step);  // advances nextStart
-    if (other) {
+    if ((*simple = other)) {
     // mark the smaller of startIndex, endIndex done, and all adjacent
     // spans with the same T value (but not 'other' spans)
 #if DEBUG_WINDING
