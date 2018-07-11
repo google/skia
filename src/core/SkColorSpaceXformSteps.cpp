@@ -108,9 +108,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
         if (srcTF_is_sRGB) {
             p->append(SkRasterPipeline::from_srgb);
         } else {
-            p->append(SkRasterPipeline::parametric_r, &srcTF);
-            p->append(SkRasterPipeline::parametric_g, &srcTF);
-            p->append(SkRasterPipeline::parametric_b, &srcTF);
+            p->append(SkRasterPipeline::parametric, &srcTF);
         }
     }
     if (flags.gamut_transform) {
@@ -120,9 +118,7 @@ void SkColorSpaceXformSteps::apply(SkRasterPipeline* p) const {
         if (dstTF_is_sRGB) {
             p->append(SkRasterPipeline::to_srgb);
         } else {
-            p->append(SkRasterPipeline::parametric_r, &dstTFInv);
-            p->append(SkRasterPipeline::parametric_g, &dstTFInv);
-            p->append(SkRasterPipeline::parametric_b, &dstTFInv);
+            p->append(SkRasterPipeline::parametric, &dstTFInv);
         }
     }
     if (flags.premul) { p->append(SkRasterPipeline::premul); }
