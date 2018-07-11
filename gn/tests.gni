@@ -259,6 +259,7 @@ tests_sources = [
   "$_tests/TessellatingPathRendererTests.cpp",
   "$_tests/Test.cpp",
   "$_tests/TestTest.cpp",
+  "$_tests/TestTextureDataUploadTest.cpp",
   "$_tests/TestUtils.h",
   "$_tests/TestUtils.cpp",
   "$_tests/TextBlobCacheTest.cpp",
