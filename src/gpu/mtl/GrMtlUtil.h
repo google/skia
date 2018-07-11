@@ -34,4 +34,10 @@ id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
  */
 const void* GrGetPtrFromId(id idObject);
 
+/**
+ * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
+ * MTLTexture without the same storage allocation.
+ */
+MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture);
+
 #endif
