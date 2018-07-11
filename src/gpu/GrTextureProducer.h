@@ -158,8 +158,7 @@ protected:
     *  makeCopyKey() returns true). In that case, the maker is notified in case it
     *  wants to note that for when the maker is destroyed.
     */
-    virtual void didCacheCopy(const GrUniqueKey& copyKey) = 0;
-
+    virtual void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) = 0;
 
     enum DomainMode {
         kNoDomain_DomainMode,
