@@ -21,11 +21,10 @@ static inline void read_into_pixmap(SkPixmap* dst, SkImageInfo dstInfo, void* ds
 }
 
 static inline sk_sp<SkImage> encode_pixmap_and_make_image(const SkPixmap& src,
-        SkJpegEncoder::AlphaOption alphaOption, SkTransferFunctionBehavior blendBehavior) {
+        SkJpegEncoder::AlphaOption alphaOption) {
     SkDynamicMemoryWStream dst;
     SkJpegEncoder::Options options;
     options.fAlphaOption = alphaOption;
-    options.fBlendBehavior = blendBehavior;
     SkJpegEncoder::Encode(&dst, src, options);
     return SkImage::MakeFromEncoded(dst.detachAsData());
 }
@@ -53,23 +52,17 @@ protected:
                 canvas->imageInfo().colorSpace() ? SkColorSpace::MakeSRGB() : nullptr);
         read_into_pixmap(&src, info, fStorage.get(), srcImg);
 
-        SkTransferFunctionBehavior behavior = canvas->imageInfo().colorSpace() ?
-                SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
-
         // Encode 8888 premul.
-        sk_sp<SkImage> img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore,
-                behavior);
-        sk_sp<SkImage> img1 = encode_pixmap_and_make_image(src,
-                SkJpegEncoder::AlphaOption::kBlendOnBlack, behavior);
+        auto img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+        auto img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
         canvas->drawImage(img0, 0.0f, 0.0f);
         canvas->drawImage(img1, 0.0f, 100.0f);
 
         // Encode 8888 unpremul
         info = info.makeAlphaType(kUnpremul_SkAlphaType);
         read_into_pixmap(&src, info, fStorage.get(), srcImg);
-        img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore, behavior);
-        img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack,
-                behavior);
+        img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+        img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
         canvas->drawImage(img0, 100.0f, 0.0f);
         canvas->drawImage(img1, 100.0f, 100.0f);
 
@@ -78,18 +71,16 @@ protected:
             info = SkImageInfo::Make(srcImg->width(), srcImg->height(), kRGBA_F16_SkColorType,
                     kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear());
             read_into_pixmap(&src, info, fStorage.get(), srcImg);
-            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore, behavior);
-            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack,
-                    behavior);
+            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
             canvas->drawImage(img0, 200.0f, 0.0f);
             canvas->drawImage(img1, 200.0f, 100.0f);
 
             // Encode F16 unpremul
             info = info.makeAlphaType(kUnpremul_SkAlphaType);
             read_into_pixmap(&src, info, fStorage.get(), srcImg);
-            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore, behavior);
-            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack,
-                    behavior);
+            img0 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kIgnore);
+            img1 = encode_pixmap_and_make_image(src, SkJpegEncoder::AlphaOption::kBlendOnBlack);
             canvas->drawImage(img0, 300.0f, 0.0f);
             canvas->drawImage(img1, 300.0f, 100.0f);
         }

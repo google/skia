@@ -253,7 +253,7 @@ sk_sp<SkShader> SkPictureShader::refBitmapShader(const SkMatrix& viewMatrix,
         }
 
         if (fColorSpace) {
-            tileImage = tileImage->makeColorSpace(fColorSpace, SkTransferFunctionBehavior::kIgnore);
+            tileImage = tileImage->makeColorSpace(fColorSpace);
         }
 
         tileShader = tileImage->makeShader(fTmx, fTmy);
