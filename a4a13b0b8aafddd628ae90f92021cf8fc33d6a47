@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c18d4078_87111ea5",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-11T14:05:24Z",
+      "side": 1,
+      "message": "nit: lets make this uploadToTexture",
+      "range": {
+        "startLine": 132,
+        "startChar": 15,
+        "endLine": 132,
+        "endChar": 26
+      },
+      "revId": "a4a13b0b8aafddd628ae90f92021cf8fc33d6a47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "998ab0ce_4ce6d72e",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-11T14:05:24Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "range": {
+        "startLine": 148,
+        "startChar": 4,
+        "endLine": 148,
+        "endChar": 5
+      },
+      "revId": "a4a13b0b8aafddd628ae90f92021cf8fc33d6a47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57b940c9_cc638106",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 7
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-11T14:05:24Z",
+      "side": 1,
+      "message": "lets add an assert that fPixels is not null if currentMipLevel is \u003e 1. And add a similar check in vulkan :)",
+      "range": {
+        "startLine": 171,
+        "startChar": 10,
+        "endLine": 171,
+        "endChar": 46
+      },
+      "revId": "a4a13b0b8aafddd628ae90f92021cf8fc33d6a47",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
