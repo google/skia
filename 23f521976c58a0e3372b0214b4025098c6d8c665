@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "87cafb90_c2e8b41c",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-11T15:18:13Z",
+      "side": 1,
+      "message": "Do we need to zero here too?",
+      "range": {
+        "startLine": 126,
+        "startChar": 7,
+        "endLine": 126,
+        "endChar": 38
+      },
+      "revId": "23f521976c58a0e3372b0214b4025098c6d8c665",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
