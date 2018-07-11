@@ -777,6 +777,7 @@ Multiplies Point by scale. Sets Point to:
 #Formula
 (fX * scale, fY * scale)
 ##
+.
 
 #Param scale  Scalar to multiply by ##
 

@@ -530,6 +530,67 @@ bool Definition::checkMethod() const {
             return paramError.reportError<bool>("#Param without param in #Method");
         }
     }
+    // check after end of #Line and before next child for description
+    const char* descStart = fContentStart;
+    const char* descEnd = nullptr;
+    for (auto& child : fChildren) {
+        if (MarkType::kAnchor == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kCode == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kDeprecated == child->fMarkType) {
+            return true;
+        }
+        if (MarkType::kExperimental == child->fMarkType) {
+            return true;
+        }
+        if (MarkType::kFormula == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kList == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kMarkChar == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kPhraseRef == child->fMarkType) {
+            continue;
+        }
+        if (MarkType::kPrivate == child->fMarkType) {
+            return true;
+        }
+        TextParser emptyCheck(fFileName, descStart, child->fStart, child->fLineCount);
+        if (!emptyCheck.eof() && emptyCheck.skipWhiteSpace()) {
+            descStart = emptyCheck.fChar;
+            emptyCheck.trimEnd();
+            descEnd = emptyCheck.fEnd;
+            break;
+        }
+        descStart = child->fTerminator;
+    }
+    if (!descEnd) {
+        return methodParser.reportError<bool>("missing description");
+    }
+    TextParser description(fFileName, descStart, descEnd, fLineCount);
+    // expect first word capitalized and pluralized. expect a trailing period
+    SkASSERT(descStart < descEnd);
+    if (!isupper(descStart[0])) {
+        description.reportWarning("expected capital");
+    } else if ('.' != descEnd[-1]) {
+        description.reportWarning("expected period");
+    } else {
+        if (!description.startsWith("For use by Android")) {
+            description.skipToSpace();
+            if (',' == description.fChar[-1]) {
+                --description.fChar;
+            }
+            if ('s' != description.fChar[-1]) {
+                description.reportWarning("expected plural");
+            }
+        }
+    }
     return true;
 }
 
@@ -850,6 +911,9 @@ bool Definition::isStructOrClass() const {
 
 bool Definition::methodHasReturn(string name, TextParser* methodParser) const {
     if (methodParser->skipExact("static")) {
+        methodParser->skipWhiteSpace();
+    }
+    if (methodParser->skipExact("virtual")) {
         methodParser->skipWhiteSpace();
     }
     const char* lastStart = methodParser->fChar;
