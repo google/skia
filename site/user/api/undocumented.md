@@ -284,15 +284,11 @@ void <a href='#GrContext_flush'>flush</a>()
 
 ## <a name='ArcTo'>ArcTo</a>
 
-# <a name='HTML_DarkGray'>HTML DarkGray</a>
-
 # <a name='HTML_Fuchsia'>HTML Fuchsia</a>
 
 # <a name='HTML_Gray'>HTML Gray</a>
 
 # <a name='HTML_Green'>HTML Green</a>
-
-# <a name='HTML_LightGray'>HTML LightGray</a>
 
 # <a name='HTML_Lime'>HTML Lime</a>
 

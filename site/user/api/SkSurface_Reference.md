@@ -1627,6 +1627,8 @@ Does not copy, and returns false if:
   </tr>
 </table>
 
+.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkSurface_readPixels_dst'><code><strong>dst</strong></code></a></td>
@@ -1687,6 +1689,8 @@ Does not copy, and returns false if:
     <td><a href='#SkSurface_readPixels_2_dstRowBytes'>dstRowBytes</a> is too small to contain one row of pixels.</td>
   </tr>
 </table>
+
+.
 
 ### Parameters
 
@@ -1759,6 +1763,8 @@ Does not copy, and returns false if:
     <td><a href='#SkSurface_readPixels_3_dst'>dst</a>.rowBytes() is too small to contain one row of pixels.</td>
   </tr>
 </table>
+
+.
 
 ### Parameters
 
