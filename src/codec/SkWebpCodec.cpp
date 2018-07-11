@@ -514,14 +514,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     const bool blendWithPrevFrame = !independent && frame.blend_method == WEBP_MUX_BLEND
         && frame.has_alpha;
-    if (blendWithPrevFrame && options.fPremulBehavior == SkTransferFunctionBehavior::kRespect) {
-        // Blending is done with SkRasterPipeline, which requires a color space that is valid for
-        // rendering.
-        const auto* cs = dstInfo.colorSpace();
-        if (!cs || (!cs->gammaCloseToSRGB() && !cs->gammaIsLinear())) {
-            return kInvalidConversion;
-        }
-    }
 
     SkBitmap webpDst;
     auto webpInfo = dstInfo;
