@@ -14,13 +14,17 @@
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
+/**
+ * Message must implement bool Message::shouldSend(uint32_t inboxID) const. Perhaps someday we
+ * can use std::experimental::is_detected to avoid this requirement by sending to all inboxes when
+ * the method is not detected on Message.
+ */
 template <typename Message>
 class SkMessageBus : SkNoncopyable {
 public:
-    // Post a message to be received by Inboxes for this Message type.  Threadsafe.
-    // If id is SK_InvalidUniqueID then it will be sent to all inboxes.
-    // Otherwise it will be sent to the inbox with that id.
-    static void Post(const Message& m, uint32_t destID = SK_InvalidUniqueID);
+    // Post a message to be received by Inboxes for this Message type. Checks
+    // Message::shouldSend() for each inbox. Threadsafe.
+    static void Post(const Message& m);
 
     class Inbox {
     public:
@@ -102,11 +106,11 @@ template <typename Message>
 SkMessageBus<Message>::SkMessageBus() {}
 
 template <typename Message>
-/*static*/ void SkMessageBus<Message>::Post(const Message& m, uint32_t destID) {
+/*static*/ void SkMessageBus<Message>::Post(const Message& m) {
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexAcquire lock(bus->fInboxesMutex);
     for (int i = 0; i < bus->fInboxes.count(); i++) {
-        if (SK_InvalidUniqueID == destID || bus->fInboxes[i]->fUniqueID == destID) {
+        if (m.shouldSend(bus->fInboxes[i]->fUniqueID)) {
             bus->fInboxes[i]->receive(m);
         }
     }
