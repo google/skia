@@ -22,6 +22,30 @@
       "revId": "0975e42d75a0b3e07ad677e477c5be6fbead294d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54f8e739_4eba00a1",
+        "filename": "gn/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-07-11T21:11:52Z",
+      "side": 1,
+      "message": "good point; I added a condition to omit this for sanitizers",
+      "parentUuid": "80a89114_d27e5f9b",
+      "range": {
+        "startLine": 277,
+        "startChar": 6,
+        "endLine": 278,
+        "endChar": 37
+      },
+      "revId": "0975e42d75a0b3e07ad677e477c5be6fbead294d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
