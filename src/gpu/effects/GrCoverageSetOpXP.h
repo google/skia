@@ -37,13 +37,11 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&,
-                                          GrPixelConfigIsClamped) const override {
+                                          const GrCaps&) const override {
         return AnalysisProperties::kIgnoresInputColor;
     }
 

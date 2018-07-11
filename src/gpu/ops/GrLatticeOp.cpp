@@ -187,14 +187,13 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                GrPixelConfigIsClamped dstIsClamped) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         auto opaque = GrColorIsOpaque(fPatches[0].fColor) && GrPixelConfigIsOpaque(fProxy->config())
                               ? GrProcessorAnalysisColor::Opaque::kYes
                               : GrProcessorAnalysisColor::Opaque::kNo;
         auto analysisColor = GrProcessorAnalysisColor(opaque);
         auto result = fHelper.xpRequiresDstTexture(
-                caps, clip, dstIsClamped, GrProcessorAnalysisCoverage::kNone, &analysisColor);
+                caps, clip, GrProcessorAnalysisCoverage::kNone, &analysisColor);
         analysisColor.isConstant(&fPatches[0].fColor);
         return result;
     }

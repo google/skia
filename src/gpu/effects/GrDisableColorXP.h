@@ -30,8 +30,7 @@ private:
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&,
-                                          GrPixelConfigIsClamped) const override {
+                                          const GrCaps&) const override {
         return AnalysisProperties::kCompatibleWithAlphaAsCoverage |
                AnalysisProperties::kIgnoresInputColor;
     }
@@ -39,8 +38,7 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
 

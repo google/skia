@@ -202,7 +202,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
                                                                      rtc.get(), paint,
                                                                      SkMatrix::I(), text,
                                                                      16, 16);
-    op->finalize(*context->contextPriv().caps(), nullptr, GrPixelConfigIsClamped::kNo);
+    op->finalize(*context->contextPriv().caps(), nullptr);
 
     TestingUploadTarget uploadTarget;
 

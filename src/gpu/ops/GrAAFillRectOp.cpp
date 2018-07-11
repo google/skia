@@ -229,11 +229,10 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                GrPixelConfigIsClamped dstIsClamped) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         GrColor color = this->first()->color();
         auto result = fHelper.xpRequiresDstTexture(
-                caps, clip, dstIsClamped, GrProcessorAnalysisCoverage::kSingleChannel, &color);
+                caps, clip, GrProcessorAnalysisCoverage::kSingleChannel, &color);
         this->first()->setColor(color);
         return result;
     }

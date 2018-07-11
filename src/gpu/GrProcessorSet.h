@@ -141,8 +141,7 @@ public:
      */
     Analysis finalize(const GrProcessorAnalysisColor& colorInput,
                       const GrProcessorAnalysisCoverage coverageInput, const GrAppliedClip*,
-                      bool isMixedSamples, const GrCaps&, GrPixelConfigIsClamped,
-                      GrColor* inputColorOverride);
+                      bool isMixedSamples, const GrCaps&, GrColor* inputColorOverride);
 
     bool isFinalized() const { return SkToBool(kFinalized_Flag & fFlags); }
 

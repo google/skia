@@ -24,8 +24,9 @@ namespace {
 class AtlasOp : public GrDrawOp {
 public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*,
-                                GrPixelConfigIsClamped) override { return RequiresDstTexture::kNo; }
+    RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
+        return RequiresDstTexture::kNo;
+    }
     bool onCombineIfPossible(GrOp* other, const GrCaps&) override {
         SK_ABORT("Only expected one Op per CCPR atlas.");
         return true;

@@ -683,8 +683,7 @@ public:
         return str;
     }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                GrPixelConfigIsClamped dstIsClamped) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         SkASSERT(!fFinalized);
         SkASSERT(1 == fProxyCnt);
         fFinalized = true;
