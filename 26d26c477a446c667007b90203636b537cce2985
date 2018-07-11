@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0519e7d_3f81a82e",
+        "filename": "include/private/SkMessageBus.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-11T17:17:41Z",
+      "side": 1,
+      "message": "I don\u0027t love requiring this method rather than making it optional. However, all but one \u003cMessage\u003e is used in the GPU backend where we do want to direct to a specific Inbox (not including the \u003cMessage\u003e classes used in test code). Carying around {message, inbox_id} everywhere feels more cumbersome given this breakdown. I tried making helper base classes for all-inboxes and one-inbox but it was more noise than signal.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 3
+      },
+      "revId": "26d26c477a446c667007b90203636b537cce2985",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
