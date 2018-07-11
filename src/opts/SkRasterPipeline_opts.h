@@ -1483,25 +1483,23 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
 
-SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
-    F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
-                                  , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
-    return min(max(r, 0), 1.0f);  // Clamp to [0,1], with argument order mattering to handle NaN.
+STAGE(parametric, const SkJumper_ParametricTransferFunction* ctx) {
+    auto fn = [&](F v) {
+        F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
+                                      , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
+        // Clamp to [0,1], with argument order mattering to handle NaN.
+        // TODO: should we really be clamping here?
+        return min(max(r, 0), 1.0f);
+    };
+    r = fn(r);
+    g = fn(g);
+    b = fn(b);
 }
-STAGE(parametric_r, const SkJumper_ParametricTransferFunction* ctx) { r = parametric(r, ctx); }
-STAGE(parametric_g, const SkJumper_ParametricTransferFunction* ctx) { g = parametric(g, ctx); }
-STAGE(parametric_b, const SkJumper_ParametricTransferFunction* ctx) { b = parametric(b, ctx); }
-STAGE(parametric_a, const SkJumper_ParametricTransferFunction* ctx) { a = parametric(a, ctx); }
 
 STAGE(gamma, const float* G) {
     r = approx_powf(r, *G);
     g = approx_powf(g, *G);
     b = approx_powf(b, *G);
-}
-STAGE(gamma_dst, const float* G) {
-    dr = approx_powf(dr, *G);
-    dg = approx_powf(dg, *G);
-    db = approx_powf(db, *G);
 }
 
 STAGE(load_a8, const SkJumper_MemoryCtx* ctx) {
@@ -3220,8 +3218,7 @@ static NotImplemented
         byte_tables,
         colorburn, colordodge, softlight, hue, saturation, color, luminosity,
         matrix_3x3, matrix_3x4, matrix_4x5, matrix_4x3,
-        parametric_r, parametric_g, parametric_b, parametric_a,
-        gamma, gamma_dst,
+        parametric, gamma,
         rgb_to_hsl, hsl_to_rgb,
         gauss_a_to_rgba,
         mirror_x, repeat_x,

@@ -73,9 +73,7 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
         square->G = 2.0f; square->A = 1.0f;
         square->B = square->C = square->D = square->E = square->F = 0;
 
-        p->append(SkRasterPipeline::parametric_r, square);
-        p->append(SkRasterPipeline::parametric_g, square);
-        p->append(SkRasterPipeline::parametric_b, square);
+        p->append(SkRasterPipeline::parametric, square);
     }
 
     if (fConfig.fGrayscale) {
@@ -122,9 +120,7 @@ void SkHighContrast_Filter::onAppendStages(SkRasterPipeline* p,
         sqrt->G = 0.5f; sqrt->A = 1.0f;
         sqrt->B = sqrt->C = sqrt->D = sqrt->E = sqrt->F = 0;
 
-        p->append(SkRasterPipeline::parametric_r, sqrt);
-        p->append(SkRasterPipeline::parametric_g, sqrt);
-        p->append(SkRasterPipeline::parametric_b, sqrt);
+        p->append(SkRasterPipeline::parametric, sqrt);
     }
 
     if (!shaderIsOpaque) {
