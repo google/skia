@@ -132,6 +132,34 @@ bool GrGLProgramBuilder::compileAndAttachShaders(GrGLSLShaderBuilder& shader,
                                          *outInputs);
 }
 
+void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
+                                                 const GrPrimitiveProcessor& primProc) {
+    fVertexAttributeCnt = primProc.numVertexAttributes();
+    fInstanceAttributeCnt = primProc.numInstanceAttributes();
+    fAttributes.reset(
+            new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
+    auto addAttr = [&](int i, const auto& a, size_t* stride) {
+        fAttributes[i].fType = a.type();
+        fAttributes[i].fOffset = *stride;
+        *stride += a.sizeAlign4();
+        fAttributes[i].fLocation = i;
+        GL_CALL(BindAttribLocation(programID, i, a.name()));
+    };
+    fVertexStride = 0;
+    int i = 0;
+    for (; i < fVertexAttributeCnt; i++) {
+        addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
+        SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
+    }
+    SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
+    fInstanceStride = 0;
+    for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
+        addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
+        SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
+    }
+    SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
+}
+
 GrGLProgram* GrGLProgramBuilder::finalize() {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
@@ -175,10 +203,13 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
                               ProgramBinary(programID, binaryFormat, (void*) (bytes + offset),
                                             fCached->size() - offset));
         if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
-            if (inputs.fRTHeight) {
-                this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-            }
             cached = this->checkLinkStatus(programID);
+            if (cached) {
+                if (inputs.fRTHeight) {
+                    this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+                }
+                this->computeCountsAndStrides(programID, primProc);
+            }
         } else {
             cached = false;
         }
@@ -228,30 +259,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         // NVPR actually requires a vertex shader to compile
         bool useNvpr = primProc.isPathRendering();
         if (!useNvpr) {
-            fVertexAttributeCnt = primProc.numVertexAttributes();
-            fInstanceAttributeCnt = primProc.numInstanceAttributes();
-            fAttributes.reset(
-                    new GrGLProgram::Attribute[fVertexAttributeCnt + fInstanceAttributeCnt]);
-            auto addAttr = [&](int i, const auto& a, size_t* stride) {
-                fAttributes[i].fType = a.type();
-                fAttributes[i].fOffset = *stride;
-                *stride += a.sizeAlign4();
-                fAttributes[i].fLocation = i;
-                GL_CALL(BindAttribLocation(programID, i, a.name()));
-            };
-            fVertexStride = 0;
-            int i = 0;
-            for (; i < fVertexAttributeCnt; i++) {
-                addAttr(i, primProc.vertexAttribute(i), &fVertexStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_vertexAttributeOffset(i));
-            }
-            SkASSERT(fVertexStride == primProc.debugOnly_vertexStride());
-            fInstanceStride = 0;
-            for (int j = 0; j < fInstanceAttributeCnt; j++, ++i) {
-                addAttr(i, primProc.instanceAttribute(j), &fInstanceStride);
-                SkASSERT(fAttributes[i].fOffset == primProc.debugOnly_instanceAttributeOffset(j));
-            }
-            SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
+            this->computeCountsAndStrides(programID, primProc);
         }
 
         if (primProc.willUseGeoShader()) {

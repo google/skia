@@ -62,6 +62,7 @@ private:
                                  SkTDArray<GrGLuint>* shaderIds,
                                  const SkSL::Program::Settings& settings,
                                  SkSL::Program::Inputs* outInputs);
+    void computeCountsAndStrides(GrGLuint programID, const GrPrimitiveProcessor& primProc);
     GrGLProgram* finalize();
     void bindProgramResourceLocations(GrGLuint programID);
     bool checkLinkStatus(GrGLuint programID);
