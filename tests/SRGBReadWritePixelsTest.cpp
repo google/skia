@@ -188,7 +188,7 @@ static std::unique_ptr<uint32_t[]> make_data() {
     std::unique_ptr<uint32_t[]> data(new uint32_t[kW * kH]);
     for (int j = 0; j < kH; ++j) {
         for (int i = 0; i < kW; ++i) {
-            data[j * kW + i] = (j << 24) | (i << 16) | (i << 8) | i;
+            data[j * kW + i] = (SkTMax(j, i) << 24) | (i << 16) | (i << 8) | i;
         }
     }
     return data;
