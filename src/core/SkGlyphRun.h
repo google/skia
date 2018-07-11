@@ -95,14 +95,15 @@ private:
 
 class SkGlyphRunBuilder {
 public:
-    SkGlyphRunBuilder() = default;
-    void prepareDrawText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
-    void prepareDrawPosTextH(
+    void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkScalar xpos[], SkScalar constY);
-    void prepareDrawPosText(
-            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint pos[]);
+            SkPoint origin);
+    void drawPosTextH(
+            const SkPaint& paint, const void* bytes, size_t byteLength,
+            const SkScalar* xpos, SkScalar constY);
+    void drawPosText(
+            const SkPaint& paint, const void* bytes, size_t byteLength,
+            const SkPoint* pos);
 
     SkGlyphRun* useGlyphRun();
 
@@ -114,7 +115,9 @@ private:
     // Returns the span of unique glyph IDs.
     SkSpan<const SkGlyphID> addDenseAndUnique(
             const SkPaint& paint,
-            SkSpan<const SkGlyphID> glyphIDs);
+            SkSpan<const SkGlyphID> glyphIDs,
+            uint16_t* uniqueGlyphIDIndices,
+            SkGlyphID* uniqueGlyphIDs);
 
     void makeGlyphRun(
             const SkPaint& runPaint,
@@ -125,16 +128,22 @@ private:
             SkSpan<const char> text,
             SkSpan<const uint32_t> clusters);
 
-    void drawText(
+    void simplifyDrawText(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin,
-            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
-    void drawPosTextH(
+            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
+            SkSpan<const char> text = SkSpan<const char>{},
+            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
+    void simplifyDrawPosTextH(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs,
             const SkScalar* xpos, SkScalar constY,
-            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
-    void drawPosText(
+            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
+            SkSpan<const char> text = SkSpan<const char>{},
+            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
+    void simplifyDrawPosText(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
-            SkSpan<const char> text, SkSpan<const uint32_t> clusters);
+            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
+            SkSpan<const char> text = SkSpan<const char>{},
+            SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
     uint64_t fUniqueID{0};
 
