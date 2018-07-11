@@ -663,7 +663,7 @@ protected:
             canvas->drawCircle(storage[i].fX, storage[i].fY, 4, paint);
         }
     }
-    
+
     void showFlattness(SkCanvas* canvas) {
         SkPaint paint;
         paint.setStyle(SkPaint::kStroke_Style);

@@ -37,7 +37,7 @@ protected:
 
         std::unique_ptr<SkStreamAsset> distortableStream(GetResourceAsStream("fonts/Distortable.ttf"));
         sk_sp<SkTypeface> distortable(MakeResourceAsTypeface("fonts/Distortable.ttf"));
-        
+
         if (!distortableStream) {
             return;
         }

@@ -63,7 +63,7 @@ bool SkPathOpsDebug::ChaseContains(const SkTDArray<SkOpSpanBase* >& chaseArray,
     return false;
 }
 #endif
- 
+
 #if DEBUG_ACTIVE_SPANS
 SkString SkPathOpsDebug::gActiveSpans;
 #endif
