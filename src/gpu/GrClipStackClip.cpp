@@ -313,13 +313,12 @@ static void create_clip_mask_key(uint32_t clipGenID, const SkIRect& bounds, int 
 }
 
 static void add_invalidate_on_pop_message(const SkClipStack& stack, uint32_t clipGenID,
-                                          const GrUniqueKey& clipMaskKey,
-                                          uint32_t contextUniqueID) {
+                                          const GrUniqueKey& clipMaskKey) {
     SkClipStack::Iter iter(stack, SkClipStack::Iter::kTop_IterStart);
     while (const Element* element = iter.prev()) {
         if (element->getGenID() == clipGenID) {
             std::unique_ptr<GrUniqueKeyInvalidatedMessage> msg(
-                    new GrUniqueKeyInvalidatedMessage(clipMaskKey, contextUniqueID));
+                    new GrUniqueKeyInvalidatedMessage(clipMaskKey));
             element->addResourceInvalidationMessage(std::move(msg));
             return;
         }
@@ -364,7 +363,7 @@ sk_sp<GrTextureProxy> GrClipStackClip::createAlphaClipMask(GrContext* context,
 
     SkASSERT(result->origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, result.get());
-    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key, context->uniqueID());
+    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
 
     return result;
 }
@@ -505,6 +504,6 @@ sk_sp<GrTextureProxy> GrClipStackClip::createSoftwareClipMask(
 
     SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
     proxyProvider->assignUniqueKeyToProxy(key, proxy.get());
-    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key, context->uniqueID());
+    add_invalidate_on_pop_message(*fStack, reducedClip.maskGenID(), key);
     return proxy;
 }
