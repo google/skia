@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c98bac4b_4215af58",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-11T19:43:59Z",
+      "side": 1,
+      "message": "Is this used anywhere?",
+      "range": {
+        "startLine": 72,
+        "startChar": 29,
+        "endLine": 72,
+        "endChar": 38
+      },
+      "revId": "7cd2e02eb825496ff3caa96fe3f2f19f708a6419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5427b3f_e001d4ca",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-11T19:43:59Z",
+      "side": 1,
+      "message": "I know we want to make this filter smarter in the long term, but for now:\n\nSkRasterPipeline::gamma, \u0026square-\u003eG ?\n\n... or, make a helper function to append parametric, and move the gamma-only check there?",
+      "revId": "7cd2e02eb825496ff3caa96fe3f2f19f708a6419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
