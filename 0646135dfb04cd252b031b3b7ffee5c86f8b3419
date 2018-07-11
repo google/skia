@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c52d7221_5eadb830",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:08:56Z",
+      "side": 1,
+      "message": "make static",
+      "revId": "0646135dfb04cd252b031b3b7ffee5c86f8b3419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5b1de590_ec9eb160",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSessionPriv.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:08:56Z",
+      "side": 1,
+      "message": "rm this header ?",
+      "revId": "0646135dfb04cd252b031b3b7ffee5c86f8b3419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

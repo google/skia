@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "3818488d_3940b2ae",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:08:56Z",
+      "side": 1,
+      "message": "It is fine. It is just lame they don\u0027t have symbolic values in their C API.",
+      "parentUuid": "b4289b0b_cf9f76ff",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f88c447f_80cec3e4",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.h",
         "patchSetId": 2
