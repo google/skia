@@ -10,6 +10,7 @@
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
+#include "GrTexturePriv.h"
 #include "SkConvertPixels.h"
 
 #if !__has_feature(objc_arc)
@@ -120,6 +121,82 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
     fCmdBuffer = [fQueue commandBuffer];
 }
 
+static bool check_max_blit_width(int widthInPixels) {
+    if (widthInPixels > 32767) {
+        SkASSERT(false); // surfaces should not be this wide anyway
+        return false;
+    }
+    return true;
+}
+
+bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
+                               GrColorType dataColorType, const GrMipLevel texels[],
+                               int mipLevelCount) {
+    SkASSERT(this->caps()->isConfigTexturable(tex->config()));
+    if (!check_max_blit_width(width)) {
+        return false;
+    }
+    if (width == 0 || height == 0) {
+        return false;
+    }
+    if (GrPixelConfigToColorType(tex->config()) != dataColorType) {
+        return false;
+    }
+
+    id<MTLTexture> mtlTexture = tex->mtlTexture();
+    SkASSERT(mtlTexture);
+    // Either upload only the first miplevel or all miplevels
+    SkASSERT(1 == mipLevelCount || mipLevelCount == (int)mtlTexture.mipmapLevelCount);
+
+    MTLTextureDescriptor* transferDesc = GrGetMTLTextureDescriptor(mtlTexture);
+    transferDesc.mipmapLevelCount = mipLevelCount;
+    transferDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+    transferDesc.storageMode = MTLStorageModeManaged;
+    // TODO: implement some way of reusing transfer textures
+    id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor:transferDesc];
+    SkASSERT(transferTexture);
+
+    int currentWidth = width;
+    int currentHeight = height;
+    size_t bpp = GrColorTypeBytesPerPixel(dataColorType);
+    MTLOrigin origin = MTLOriginMake(left, top, 0);
+
+    SkASSERT(mtlTexture.pixelFormat == transferTexture.pixelFormat);
+    SkASSERT(mtlTexture.sampleCount == transferTexture.sampleCount);
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
+    for (int currentMipLevel = 0; currentMipLevel < mipLevelCount; currentMipLevel++) {
+        size_t rowBytes = texels[currentMipLevel].fRowBytes ? texels[currentMipLevel].fRowBytes
+                                                            : bpp * currentWidth;
+        SkASSERT(texels[currentMipLevel].fPixels);
+        if (rowBytes < bpp * currentWidth || rowBytes % bpp) {
+            return false;
+        }
+        [transferTexture replaceRegion: MTLRegionMake2D(left, top, width, height)
+                           mipmapLevel: currentMipLevel
+                             withBytes: texels[currentMipLevel].fPixels
+                           bytesPerRow: rowBytes];
+
+        [blitCmdEncoder copyFromTexture: transferTexture
+                            sourceSlice: 0
+                            sourceLevel: currentMipLevel
+                           sourceOrigin: origin
+                             sourceSize: MTLSizeMake(width, height, 1)
+                              toTexture: mtlTexture
+                       destinationSlice: 0
+                       destinationLevel: currentMipLevel
+                      destinationOrigin: origin];
+        currentWidth = SkTMax(1, currentWidth/2);
+        currentHeight = SkTMax(1, currentHeight/2);
+    }
+    [blitCmdEncoder endEncoding];
+
+    if (mipLevelCount < (int) tex->mtlTexture().mipmapLevelCount) {
+        tex->texturePriv().markMipMapsDirty();
+    }
+    return true;
+}
+
 sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                            const GrMipLevel texels[], int mipLevelCount) {
     int mipLevels = !mipLevelCount ? 1 : mipLevelCount;
@@ -150,19 +227,22 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
     // Make all textures have private gpu only access. We can use transfer buffers or textures
     // to copy to them.
     texDesc.storageMode = MTLStorageModePrivate;
-    texDesc.usage = MTLTextureUsageShaderRead | renderTarget ? MTLTextureUsageRenderTarget : 0;
+    texDesc.usage = MTLTextureUsageShaderRead;
+    texDesc.usage |= renderTarget ? MTLTextureUsageRenderTarget : 0;
 
     GrMipMapsStatus mipMapsStatus = GrMipMapsStatus::kNotAllocated;
     if (mipLevels > 1) {
-        mipMapsStatus = GrMipMapsStatus::kValid;
-        for (int i = 0; i < mipLevels; ++i) {
-            if (!texels[i].fPixels) {
-                mipMapsStatus = GrMipMapsStatus::kDirty;
-                break;
+        mipMapsStatus = texels[0].fPixels ? GrMipMapsStatus::kValid : GrMipMapsStatus::kDirty;
+#ifdef SK_DEBUG
+        for (int i = 1; i < mipLevels; ++i) {
+            if (mipMapsStatus == GrMipMapsStatus::kValid) {
+                SkASSERT(texels[i].fPixels);
+            } else {
+                SkASSERT(!texels[i].fPixels);
             }
         }
+#endif
     }
-
     sk_sp<GrMtlTexture> tex;
     if (renderTarget) {
         tex = GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this, budgeted,
@@ -175,14 +255,19 @@ sk_sp<GrTexture> GrMtlGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted
         return nullptr;
     }
 
-    if (mipLevelCount) {
-        // Perform initial data upload here
+    auto colorType = GrPixelConfigToColorType(desc.fConfig);
+    if (mipLevelCount && texels[0].fPixels) {
+        if (!this->uploadToTexture(tex.get(), 0, 0, desc.fWidth, desc.fHeight, colorType, texels,
+                                   mipLevelCount)) {
+            tex->unref();
+            return nullptr;
+        }
     }
 
     if (desc.fFlags & kPerformInitialClear_GrSurfaceFlag) {
         // Do initial clear of the texture
     }
-    return tex;
+    return std::move(tex);
 }
 
 static id<MTLTexture> get_texture_from_backend(const GrBackendTexture& backendTex,
@@ -281,10 +366,8 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                             GrColorType dstColorType, void* buffer, size_t rowBytes) {
-    static const int MAX_BLIT_WIDTH = 32767; // in pixels
     SkASSERT(surface);
-    if (width > MAX_BLIT_WIDTH) {
-        SkASSERT(false); // A texture/RT shouldn't be this wide anyway.
+    if (!check_max_blit_width(width)) {
         return false;
     }
     if (GrPixelConfigToColorType(surface->config()) != dstColorType) {
