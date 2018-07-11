@@ -176,7 +176,7 @@ void copyFT2LCD16(const FT_Bitmap& bitmap, const SkMask& mask, int lcdIsBGR,
             }
             break;
         default:
-            SkDEBUGF("FT_Pixel_Mode %d", bitmap.pixel_mode);
+            SkDEBUGF(("FT_Pixel_Mode %d", bitmap.pixel_mode));
             SkDEBUGFAIL("unsupported FT_Pixel_Mode for LCD16");
             break;
     }
@@ -276,7 +276,7 @@ void copyFTBitmap(const FT_Bitmap& srcFTBitmap, SkMask& dstMask) {
             dst += dstRowBytes;
         }
     } else {
-        SkDEBUGF("FT_Pixel_Mode %d, SkMask::Format %d\n", srcFormat, dstFormat);
+        SkDEBUGF(("FT_Pixel_Mode %d, SkMask::Format %d\n", srcFormat, dstFormat));
         SkDEBUGFAIL("unsupported combination of FT_Pixel_Mode and SkMask::Format");
     }
 }
