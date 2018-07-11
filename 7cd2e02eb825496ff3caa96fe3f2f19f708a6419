@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5dac982e_c437e266",
+        "filename": "src/core/SkRasterPipeline.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-07-11T19:47:09Z",
+      "side": 1,
+      "message": "Nope!  Gone.",
+      "parentUuid": "c98bac4b_4215af58",
+      "range": {
+        "startLine": 72,
+        "startChar": 29,
+        "endLine": 72,
+        "endChar": 38
+      },
+      "revId": "7cd2e02eb825496ff3caa96fe3f2f19f708a6419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c5427b3f_e001d4ca",
         "filename": "src/effects/SkHighContrastFilter.cpp",
         "patchSetId": 3
@@ -36,6 +60,24 @@
       "writtenOn": "2018-07-11T19:43:59Z",
       "side": 1,
       "message": "I know we want to make this filter smarter in the long term, but for now:\n\nSkRasterPipeline::gamma, \u0026square-\u003eG ?\n\n... or, make a helper function to append parametric, and move the gamma-only check there?",
+      "revId": "7cd2e02eb825496ff3caa96fe3f2f19f708a6419",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5c66ae_66276c02",
+        "filename": "src/effects/SkHighContrastFilter.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5010
+      },
+      "writtenOn": "2018-07-11T19:47:09Z",
+      "side": 1,
+      "message": "Yeah, I was thinking about that, but figured I\u0027d just put that off until fixing the code in here for real.  I was going to add an append_transfer_function() to SkRasterPipeline, but am dithering about whether to/from_srgb should go in there or not.",
+      "parentUuid": "c5427b3f_e001d4ca",
       "revId": "7cd2e02eb825496ff3caa96fe3f2f19f708a6419",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
