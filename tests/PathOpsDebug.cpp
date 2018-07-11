@@ -1639,6 +1639,10 @@ namespace SkOpDebug {
         point.dump();
     }
 
+    void Dump(const SkOpAngle& angle) {
+        angle.dump();
+    }
+
 // dummy definitions to fool msvs Visual Studio 2018 Immediate Window
 #define DummyDefinitions(a, b)                                                                     \
                                                                                                    \

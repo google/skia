@@ -481,6 +481,8 @@ namespace SkOpDebug {
 
     void Dump(const SkDPoint& );
 
+    void Dump(const SkOpAngle& );
+
 // dummy declarations to fool msvs Visual Studio 2018 Immediate Window
 #define DummyDeclarations(a, b)                                      \
     void Dump(const SkDebugTCoincident##a##b& );                     \

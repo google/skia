@@ -212,8 +212,8 @@ public:
 
     const SkOpPtT* existing(double t, const SkOpSegment* opp) const;
     SkOpSegment* findNextOp(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
-                             SkOpSpanBase** nextEnd, bool* unsortable, SkPathOp op,
-                             int xorMiMask, int xorSuMask);
+                             SkOpSpanBase** nextEnd, bool* unsortable, bool* simple,
+                             SkPathOp op, int xorMiMask, int xorSuMask);
     SkOpSegment* findNextWinding(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** nextStart,
                                   SkOpSpanBase** nextEnd, bool* unsortable);
     SkOpSegment* findNextXor(SkOpSpanBase** nextStart, SkOpSpanBase** nextEnd, bool* unsortable);
