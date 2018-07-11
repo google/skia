@@ -1250,6 +1250,7 @@ Does not copy, and returns false if:
 # Pixmap pixels could not be allocated. ##
 # dst.rowBytes() is too small to contain one row of pixels. ##
 ##
+.
 
 #Param dst  storage for pixels copied from Surface ##
 #Param srcX  offset into readable pixels on x-axis; may be negative ##
@@ -1309,6 +1310,7 @@ Does not copy, and returns false if:
 # Surface pixels could not be converted to dstInfo.colorType() or dstInfo.alphaType(). ##
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
+.
 
 #Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
@@ -1375,6 +1377,7 @@ Does not copy, and returns false if:
 # dst pixels could not be allocated. ##
 # dst.rowBytes() is too small to contain one row of pixels. ##
 ##
+.
 
 #Param dst  storage for pixels copied from Surface ##
 #Param srcX  offset into readable pixels on x-axis; may be negative ##
@@ -1417,6 +1420,7 @@ Destination Rect corners are (dstX, dstY) and
 (dstX + Surface width(), dstY + Surface height())
 ##
 .
+
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 
@@ -1457,6 +1461,7 @@ Destination Rect corners are (dstX, dstY) and
 (dstX + Surface width(), dstY + Surface height())
 ##
 .
+
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
 

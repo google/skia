@@ -292,7 +292,7 @@ components color information, using <a href='https://www.w3.org/TR/compositing-1
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kClear'><code>SkBlendMode::kClear</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Clear'>Blend&nbsp;Mode&nbsp;Clear</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Clear'>Clear</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Color</a> components set to zero;
 a fully transparent pixel.
@@ -301,7 +301,7 @@ a fully transparent pixel.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSrc'><code>SkBlendMode::kSrc</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Src'>Blend&nbsp;Mode&nbsp;Src</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src'>Src</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source. Destination alpha and color component values
 are ignored.
@@ -310,7 +310,7 @@ are ignored.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDst'><code>SkBlendMode::kDst</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>2</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Dst'>Blend&nbsp;Mode&nbsp;Dst</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst'>Dst</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Preserves destination, ignoring source. Drawing with <a href='SkPaint_Reference#Paint'>Paint</a> set to <a href='#SkBlendMode_kDst'>kDst</a> has
 no effect.
@@ -319,7 +319,7 @@ no effect.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSrcOver'><code>SkBlendMode::kSrcOver</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>3</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Src_Over'>Blend&nbsp;Mode&nbsp;Src&nbsp;Over</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Over'>Src&nbsp;Over</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source blended with destination. If source is opaque,
 replaces destination with source. Used as the default <a href='#Blend_Mode'>Blend Mode</a> for <a href='SkPaint_Reference#SkPaint'>SkPaint</a>.
@@ -328,7 +328,7 @@ replaces destination with source. Used as the default <a href='#Blend_Mode'>Blen
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDstOver'><code>SkBlendMode::kDstOver</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>4</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Dst_Over'>Blend&nbsp;Mode&nbsp;Dst&nbsp;Over</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Over'>Dst&nbsp;Over</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with destination blended with source. If destination is opaque,
 has no effect.
@@ -337,7 +337,7 @@ has no effect.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSrcIn'><code>SkBlendMode::kSrcIn</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>5</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Src_In'>Blend&nbsp;Mode&nbsp;Src&nbsp;In</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_In'>Src&nbsp;In</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source using destination opacity.
 </td>
@@ -345,7 +345,7 @@ Replaces destination with source using destination opacity.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDstIn'><code>SkBlendMode::kDstIn</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>6</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Dst_In'>Blend&nbsp;Mode&nbsp;Dst&nbsp;In</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_In'>Dst&nbsp;In</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Scales destination opacity by source opacity.
 </td>
@@ -353,7 +353,7 @@ Scales destination opacity by source opacity.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSrcOut'><code>SkBlendMode::kSrcOut</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>7</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Src_Out'>Blend&nbsp;Mode&nbsp;Src&nbsp;Out</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Out'>Src&nbsp;Out</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source using the inverse of destination opacity,
 drawing source fully where destination opacity is zero.
@@ -362,7 +362,7 @@ drawing source fully where destination opacity is zero.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDstOut'><code>SkBlendMode::kDstOut</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Dst_Out'>Blend&nbsp;Mode&nbsp;Dst&nbsp;Out</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Out'>Dst&nbsp;Out</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination opacity with inverse of source opacity. If source is
 transparent, has no effect.
@@ -371,7 +371,7 @@ transparent, has no effect.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSrcATop'><code>SkBlendMode::kSrcATop</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>9</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Src_Atop'>Blend&nbsp;Mode&nbsp;Src&nbsp;Atop</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Src_Atop'>Src&nbsp;Atop</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Blends destination with source using read destination opacity.
 </td>
@@ -379,7 +379,7 @@ Blends destination with source using read destination opacity.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDstATop'><code>SkBlendMode::kDstATop</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>10</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Dst_Atop'>Blend&nbsp;Mode&nbsp;Dst&nbsp;Atop</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Dst_Atop'>Dst&nbsp;Atop</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Blends destination with source using source opacity.
 </td>
@@ -387,7 +387,7 @@ Blends destination with source using source opacity.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kXor'><code>SkBlendMode::kXor</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>11</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Xor'>Blend&nbsp;Mode&nbsp;Xor</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Xor'>Xor</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Blends destination by exchanging transparency of the source and destination.
 </td>
@@ -395,7 +395,7 @@ Blends destination by exchanging transparency of the source and destination.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kPlus'><code>SkBlendMode::kPlus</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>12</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Plus'>Blend&nbsp;Mode&nbsp;Plus</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Plus'>Plus</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source and destination added together.
 </td>
@@ -403,7 +403,7 @@ Replaces destination with source and destination added together.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kModulate'><code>SkBlendMode::kModulate</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>13</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Modulate'>Blend&nbsp;Mode&nbsp;Modulate</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Modulate'>Modulate</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with source and destination multiplied together.
 </td>
@@ -411,7 +411,7 @@ Replaces destination with source and destination multiplied together.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kScreen'><code>SkBlendMode::kScreen</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>14</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Screen'>Blend&nbsp;Mode&nbsp;Screen</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Screen'>Screen</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with inverted source and destination multiplied together.
 </td>
@@ -426,7 +426,7 @@ last Porter_Duff blend mode</td>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kOverlay'><code>SkBlendMode::kOverlay</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>15</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Overlay'>Blend&nbsp;Mode&nbsp;Overlay</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Overlay'>Overlay</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with multiply or screen, depending on destination.
 </td>
@@ -434,7 +434,7 @@ Replaces destination with multiply or screen, depending on destination.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDarken'><code>SkBlendMode::kDarken</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>16</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Darken'>Blend&nbsp;Mode&nbsp;Darken</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Darken'>Darken</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with darker of source and destination.
 </td>
@@ -442,7 +442,7 @@ Replaces destination with darker of source and destination.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kLighten'><code>SkBlendMode::kLighten</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>17</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Lighten'>Blend&nbsp;Mode&nbsp;Lighten</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Lighten'>Lighten</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces destination with lighter of source and destination.
 </td>
@@ -450,7 +450,7 @@ Replaces destination with lighter of source and destination.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kColorDodge'><code>SkBlendMode::kColorDodge</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>18</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Color_Dodge'>Blend&nbsp;Mode&nbsp;Color&nbsp;Dodge</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Dodge'>Color&nbsp;Dodge</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Makes destination brighter to reflect source.
 </td>
@@ -458,7 +458,7 @@ Makes destination brighter to reflect source.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kColorBurn'><code>SkBlendMode::kColorBurn</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>19</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Color_Burn'>Blend&nbsp;Mode&nbsp;Color&nbsp;Burn</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color_Burn'>Color&nbsp;Burn</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Makes destination darker to reflect source.
 </td>
@@ -466,7 +466,7 @@ Makes destination darker to reflect source.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kHardLight'><code>SkBlendMode::kHardLight</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>20</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Hard_Light'>Blend&nbsp;Mode&nbsp;Hard&nbsp;Light</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Hard_Light'>Hard&nbsp;Light</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Makes destination lighter or darker, depending on source.
 </td>
@@ -474,7 +474,7 @@ Makes destination lighter or darker, depending on source.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSoftLight'><code>SkBlendMode::kSoftLight</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>21</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Soft_Light'>Blend&nbsp;Mode&nbsp;Soft&nbsp;Light</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Soft_Light'>Soft&nbsp;Light</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Makes destination lighter or darker, depending on source.
 </td>
@@ -482,7 +482,7 @@ Makes destination lighter or darker, depending on source.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kDifference'><code>SkBlendMode::kDifference</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>22</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Difference'>Blend&nbsp;Mode&nbsp;Difference</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Difference'>Difference</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Subtracts darker from lighter with higher contrast.
 </td>
@@ -490,7 +490,7 @@ Subtracts darker from lighter with higher contrast.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kExclusion'><code>SkBlendMode::kExclusion</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>23</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Exclusion'>Blend&nbsp;Mode&nbsp;Exclusion</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Exclusion'>Exclusion</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Subtracts darker from lighter with lower contrast.
 </td>
@@ -498,7 +498,7 @@ Subtracts darker from lighter with lower contrast.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kMultiply'><code>SkBlendMode::kMultiply</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>24</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Multiply'>Blend&nbsp;Mode&nbsp;Multiply</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Multiply'>Multiply</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Multiplies source with destination, darkening image.
 </td>
@@ -514,7 +514,7 @@ Last blend mode operating separately on components.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kHue'><code>SkBlendMode::kHue</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>25</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Hue'>Blend&nbsp;Mode&nbsp;Hue</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Hue'>Hue</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces hue of destination with hue of source, leaving saturation and luminosity
 unchanged.
@@ -523,7 +523,7 @@ unchanged.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kSaturation'><code>SkBlendMode::kSaturation</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>26</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Saturation'>Blend&nbsp;Mode&nbsp;Saturation</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Saturation'>Saturation</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces saturation of destination saturation hue of source, leaving hue and
 luminosity unchanged.
@@ -532,7 +532,7 @@ luminosity unchanged.
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kColor'><code>SkBlendMode::kColor</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>27</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Color'>Blend&nbsp;Mode&nbsp;Color</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Color'>Color</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces hue and saturation of destination with hue and saturation of source,
 leaving luminosity unchanged.
@@ -541,7 +541,7 @@ leaving luminosity unchanged.
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkBlendMode_kLuminosity'><code>SkBlendMode::kLuminosity</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>28</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Blend_Mode_Luminosity'>Blend&nbsp;Mode&nbsp;Luminosity</a>&nbsp;</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Luminosity'>Luminosity</a>&nbsp;</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Replaces luminosity of destination with luminosity of source, leaving hue and
 saturation unchanged.
@@ -770,7 +770,7 @@ Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination
 scaling <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Color</a> components by the lesser of the values.
 <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> differs from <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> in two ways.
 <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> like <a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a> alters the destination inside
-the destination area, as if the destination <a href='SkColor_Reference#Alpha'>Alpha</a> defined the boudaries of a
+the destination area, as if the destination <a href='SkColor_Reference#Alpha'>Alpha</a> defined the boundaries of a
 soft clip. <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> like <a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> can alter the
 destination where the destination is transparent.
 <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> computes the product of the source and destination using

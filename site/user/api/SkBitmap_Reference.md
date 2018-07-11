@@ -1043,7 +1043,7 @@ Returns pixel count in each row. Should be equal or less than:
 
 <a href='#SkBitmap_rowBytes'>rowBytes</a> / <a href='#SkBitmap_info'>info</a>.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>.
 
-Maybe be less than <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a>. Will not exceed <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a> less
+May be less than <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a>. Will not exceed <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a> less
 <a href='#SkBitmap_pixelRefOrigin'>pixelRefOrigin</a>.fX.
 
 ### Return Value
@@ -1408,7 +1408,7 @@ width: 2 height: 2 empty: false
 bool <a href='#SkBitmap_isNull'>isNull</a>() const
 </pre>
 
-Return true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr.
+Returns true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr.
 
 Does not check if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> are zero; call <a href='#SkBitmap_drawsNothing'>drawsNothing</a> to check
 <a href='#SkBitmap_width'>width</a>, <a href='#SkBitmap_height'>height</a>, and <a href='undocumented#Pixel_Ref'>Pixel Ref</a>.
@@ -1444,7 +1444,7 @@ allocated bitmap does have pixels
 bool <a href='#SkBitmap_drawsNothing'>drawsNothing</a>() const
 </pre>
 
-Return true if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> are zero, or if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr.
+Returns true if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> are zero, or if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr.
 If true, <a href='#Bitmap'>Bitmap</a> has no effect when drawn or drawn into.
 
 ### Return Value
@@ -1744,8 +1744,8 @@ isOpaque: true
 bool <a href='#SkBitmap_isVolatile'>isVolatile</a>() const
 </pre>
 
-If true, provides a hint to caller that pixels should not
-be cached. Only true if <a href='#SkBitmap_setIsVolatile'>setIsVolatile</a> has been called to mark as volatile.
+Provides a hint to caller that pixels should not be cached. Only true if
+<a href='#SkBitmap_setIsVolatile'>setIsVolatile</a> has been called to mark as volatile.
 
 Volatile state is not shared by other bitmaps sharing the same <a href='undocumented#Pixel_Ref'>Pixel Ref</a>.
 
@@ -2057,6 +2057,8 @@ Calls <a href='#SkBitmap_reset'>reset</a> and returns false if:
     <td><a href='#SkBitmap_rowBytes'>rowBytes</a> is positive and less than <a href='#SkBitmap_setInfo_imageInfo'>imageInfo</a>.<a href='#SkBitmap_width'>width</a> times <a href='#SkBitmap_setInfo_imageInfo'>imageInfo</a>.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a></td>
   </tr>
 </table>
+
+.
 
 ### Parameters
 
@@ -3398,6 +3400,8 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
   </tr>
 </table>
 
+.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBitmap_getAddr32_x'><code><strong>x</strong></code></a></td>
@@ -3452,6 +3456,8 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
   </tr>
 </table>
 
+.
+
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBitmap_getAddr16_x'><code><strong>x</strong></code></a></td>
@@ -3505,6 +3511,8 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
     <td><a href='#SkBitmap_getAddr8_y'>y</a> is negative, or not less than <a href='#SkBitmap_height'>height</a></td>
   </tr>
 </table>
+
+.
 
 ### Parameters
 
@@ -3564,6 +3572,8 @@ Return false if:
     <td><a href='#SkBitmap_extractSubset_subset'>subset</a> does not intersect <a href='#SkBitmap_bounds'>bounds</a></td>
   </tr>
 </table>
+
+.
 
 ### Parameters
 
@@ -3632,6 +3642,8 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
   </tr>
 </table>
+
+.
 
 <a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_colorType'>colorType</a> is
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkBitmap_readPixels_dstInfo'>dstInfo</a>.<a href='#SkBitmap_colorType'>colorType</a> must match.
