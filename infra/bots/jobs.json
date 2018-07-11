@@ -311,7 +311,6 @@
   "Perf-Win2016-Clang-GCE-CPU-AVX2-x86_64-Release-All-UBSAN",
   "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86-Debug-All",
   "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Debug-All",
-  "Perf-Win2016-MSVC-GCE-CPU-AVX2-x86_64-Release-All",
   "Perf-Win7-Clang-Golo-CPU-AVX-x86-Debug-All",
   "Perf-Win7-Clang-Golo-CPU-AVX-x86_64-Debug-All",
   "Perf-Win8-Clang-Golo-CPU-AVX-x86-Debug-All",
