@@ -837,7 +837,7 @@ for consecutive entries.
 
 ### Example
 
-<div><fiddle-embed name="8d5c88478528584913867ada423e0d59">
+<div><fiddle-embed name="799096fdc1298aa815934a74e76570ca">
 
 #### Example Output
 
@@ -1939,7 +1939,7 @@ true if caller will alter <a href='#Path'>Path</a> after drawing
 
 ### Example
 
-<div><fiddle-embed name="005f2b207e078baac596681924fe591e">
+<div><fiddle-embed name="c722ebe8ac991d77757799ce29e509e1">
 
 #### Example Output
 
@@ -4185,7 +4185,7 @@ number of <a href='#Quad'>Quad</a> curves written to <a href='#SkPath_ConvertCon
 
 ### Example
 
-<div><fiddle-embed name="3ba94448a4ba48f926e643baeb5b1016"><div>A pair of <a href='#Quad'>Quad</a> curves are drawn in red on top of the elliptical <a href='#Conic'>Conic</a> curve in black.
+<div><fiddle-embed name="00b430bd80d740e19c6d020a940f56d5"><div>A pair of <a href='#Quad'>Quad</a> curves are drawn in red on top of the elliptical <a href='#Conic'>Conic</a> curve in black.
 The middle curve is nearly circular. The top-right curve is parabolic, which can
 be drawn exactly with a single <a href='#Quad'>Quad</a>.
 </div></fiddle-embed></div>
@@ -5665,7 +5665,7 @@ non-zero, globally unique value
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a">
+<div><fiddle-embed name="a0f166715d6479f91258d854e63e586d">
 
 #### Example Output
 

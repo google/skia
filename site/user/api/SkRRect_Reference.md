@@ -1251,7 +1251,7 @@ x-axis and y-axis radii for one <a href='#SkRRect_radii_corner'>corner</a>
 
 ### Example
 
-<div><fiddle-embed name="cc1fc7f3462abc79ec6dec3405e2812d"><div>Finite values are scaled proportionately to fit; other values are set to zero.
+<div><fiddle-embed name="8d5c88478528584913867ada423e0d59"><div>Finite values are scaled proportionately to fit; other values are set to zero.
 Scaled values cannot be larger than 25, half the bounding rect width.
 Small scaled values are halved to scale in proportion to the y-axis <a href='#SkRRect_radii_corner'>corner</a>
 radius, which is twice the bounds height.
