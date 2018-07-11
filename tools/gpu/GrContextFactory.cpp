@@ -14,7 +14,6 @@
     #include "gl/angle/GLTestContext_angle.h"
 #endif
 #include "gl/command_buffer/GLTestContext_command_buffer.h"
-#include "gl/debug/DebugGLTestContext.h"
 #ifdef SK_VULKAN
 #include "vk/VkTestContext.h"
 #endif
@@ -192,9 +191,6 @@ ContextInfo GrContextFactory::getContextInfoInternal(ContextType type, ContextOv
                 case kNullGL_ContextType:
                     glCtx = CreateNullGLTestContext(
                             ContextOverrides::kRequireNVPRSupport & overrides, glShareContext);
-                    break;
-                case kDebugGL_ContextType:
-                    glCtx = CreateDebugGLTestContext(glShareContext);
                     break;
                 default:
                     return ContextInfo();

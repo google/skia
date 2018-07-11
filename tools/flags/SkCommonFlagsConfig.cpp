@@ -69,7 +69,6 @@ static const struct {
     { "glesdft",               "gpu", "api=gles,dit=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
     { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=true" },
-    { "debuggl",               "gpu", "api=debuggl" },
     { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
     { "angle_d3d11_es3",       "gpu", "api=angle_d3d11_es3" },
@@ -130,7 +129,6 @@ static const char configExtendedHelp[] =
         "\t    Options:\n"
         "\t\tgl    \t\t\tUse OpenGL.\n"
         "\t\tgles  \t\t\tUse OpenGL ES.\n"
-        "\t\tdebuggl \t\tUse debug OpenGL.\n"
         "\t\tnullgl \t\t\tUse null OpenGL.\n"
         "\t\tangle_d3d9_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
         "\t\tangle_d3d11_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
@@ -232,10 +230,6 @@ static bool parse_option_gpu_api(const SkString& value,
     }
     if (value.equals("gles")) {
         *outContextType = GrContextFactory::kGLES_ContextType;
-        return true;
-    }
-    if (value.equals("debuggl")) {
-        *outContextType = GrContextFactory::kDebugGL_ContextType;
         return true;
     }
     if (value.equals("nullgl")) {
