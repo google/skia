@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "366c9e86_cfc66812",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:04:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6acd274_9405b9ee",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85805a1b_53113639",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "b4289b0b_cf9f76ff",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:04:29Z",
+      "side": 1,
+      "message": "The values I put down here are not arbitrary. They just do not exist in any C code because it\u0027s all on the Java side. The enum is on the Java side (https://developer.android.com/reference/android/view/Surface#ROTATION_90). Is this not a suitable workaround?",
+      "parentUuid": "85805a1b_53113639",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f88c447f_80cec3e4",
         "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.h",
         "patchSetId": 2
@@ -50,6 +86,24 @@
       "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6073ebe_e0043b9e",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-11T14:04:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f88c447f_80cec3e4",
+      "revId": "f5952e9a2171fb3d40cedad094b3c4d7ee30b8a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
