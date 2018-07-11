@@ -72,6 +72,74 @@
     },
     {
       "key": {
+        "uuid": "e6c8614c_45562191",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArFrame.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:20:10Z",
+      "side": 1,
+      "message": "move up a line",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7adfa16a_2baebbaf",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArFrame.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:20:10Z",
+      "side": 1,
+      "message": "Can this header be moved to the cpp file ?",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7eb5deb4_b993f805",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArFrame.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:20:10Z",
+      "side": 1,
+      "message": "add space before \u0027{\u0027",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65b2357e_a09d89b7",
+        "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArFrame.h",
+        "patchSetId": 28
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-11T16:20:10Z",
+      "side": 1,
+      "message": "// Describe lifetime",
+      "revId": "f3aeafe3d920fce98cc43e40ae7e2b02ea730255",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c9ddeb30_db57cbc8",
         "filename": "platform_tools/android/apps/skar/src/main/cpp/SkArSession.cpp",
         "patchSetId": 28
