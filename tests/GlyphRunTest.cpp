@@ -11,32 +11,25 @@
 
 #include "Test.h"
 
-DEF_TEST(GlyphRunGlyphIDSetBasic, reporter) {
-    SkGlyphID glyphs[] = {100, 3, 240, 3, 234};
-    auto glyphIDs = SkSpan<const SkGlyphID>(glyphs, SK_ARRAY_COUNT(glyphs));
-    int universeSize = 1000;
-    SkGlyphID uniqueGlyphs[SK_ARRAY_COUNT(glyphs)];
-    uint16_t denseIndices[SK_ARRAY_COUNT(glyphs)];
+DEF_TEST(GlyphSetBasic, reporter) {
+    SkGlyphSet set;
 
-    SkGlyphIDSet gs;
-    auto uniqueGlyphIDs = gs.uniquifyGlyphIDs(universeSize, glyphIDs, uniqueGlyphs, denseIndices);
+    std::vector<SkGlyphID> unique;
 
-    std::vector<SkGlyphID> test{uniqueGlyphIDs.begin(), uniqueGlyphIDs.end()};
-    std::sort(test.begin(), test.end());
-    auto newEnd = std::unique(test.begin(), test.end());
-    REPORTER_ASSERT(reporter, uniqueGlyphIDs.size() == newEnd - test.begin());
-    REPORTER_ASSERT(reporter, uniqueGlyphIDs.size() == 4);
-    {
-        uint16_t answer[] = {0, 1, 2, 1, 3};
-        REPORTER_ASSERT(reporter,
-                        std::equal(answer, std::end(answer), denseIndices));
-    }
+    set.reuse(10, &unique);
+    REPORTER_ASSERT(reporter, set.add(7) == 0);
+    REPORTER_ASSERT(reporter, set.add(3) == 1);
+    set.reuse(10, &unique);
+    REPORTER_ASSERT(reporter, set.add(5) == 0);
+    REPORTER_ASSERT(reporter, set.add(8) == 1);
+    REPORTER_ASSERT(reporter, set.add(3) == 2);
 
-    {
-        SkGlyphID answer[] = {100, 3, 240, 234};
-        REPORTER_ASSERT(reporter,
-                        std::equal(answer, std::end(answer), uniqueGlyphs));
-    }
+    REPORTER_ASSERT(reporter, unique.size() == 5);
+    REPORTER_ASSERT(reporter, unique[0] == 7);
+    REPORTER_ASSERT(reporter, unique[1] == 3);
+    REPORTER_ASSERT(reporter, unique[2] == 5);
+    REPORTER_ASSERT(reporter, unique[3] == 8);
+    REPORTER_ASSERT(reporter, unique[4] == 3);
 }
 
 DEF_TEST(GlyphRunBasic, reporter) {
