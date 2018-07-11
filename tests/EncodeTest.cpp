@@ -336,5 +336,5 @@ DEF_TEST(Encode_WebpOptions, r) {
     SkImage::MakeFromEncoded(data3)->asLegacyBitmap(&bm3);
     REPORTER_ASSERT(r, almost_equals(bm0, bm1, 0));
     REPORTER_ASSERT(r, almost_equals(bm0, bm2, 90));
-    REPORTER_ASSERT(r, almost_equals(bm2, bm3, 45));
+    REPORTER_ASSERT(r, almost_equals(bm2, bm3, 50));
 }
