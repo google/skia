@@ -85,8 +85,7 @@ void GrBackendTextureImageGenerator::ReleaseRefHelper_TextureReleaseProc(void* c
 }
 
 sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin,
-        SkTransferFunctionBehavior, bool willNeedMipMaps) {
+        GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
     SkASSERT(context);
 
     if (context->contextPriv().getBackend() != fBackendTexture.backend()) {

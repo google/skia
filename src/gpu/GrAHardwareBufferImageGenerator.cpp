@@ -96,8 +96,7 @@ void GrAHardwareBufferImageGenerator::deleteImageTexture(void* context) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin,
-        SkTransferFunctionBehavior, bool willNeedMipMaps) {
+        GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
     auto proxy = this->makeProxy(context);
     if (!proxy) {
         return nullptr;
