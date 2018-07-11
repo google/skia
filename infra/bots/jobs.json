@@ -215,7 +215,6 @@
   "Perf-Debian9-Clang-ShuttleA-GPU-IntelHD2000-x86_64-Release-All",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86-Debug-All",
   "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug-All",
-  "Perf-Debian9-GCC-GCE-CPU-AVX2-x86_64-Release-All",
   "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Debug-All",
   "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All",
   "Perf-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-CommandBuffer",
