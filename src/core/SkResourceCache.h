@@ -112,7 +112,7 @@ public:
     // Used with SkMessageBus
     struct PurgeSharedIDMessage {
         PurgeSharedIDMessage(uint64_t sharedID) : fSharedID(sharedID) {}
-
+        bool shouldSend(uint32_t inboxID) const { return true; }
         uint64_t    fSharedID;
     };
 

@@ -16,6 +16,7 @@
 #include "GrSurfaceContext.h"
 #include "GrTypesPriv.h"
 #include "GrXferProcessor.h"
+#include "SkCanvas.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
 #include "text/GrTextUtils.h"
