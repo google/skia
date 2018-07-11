@@ -41,8 +41,7 @@ public:
 
     static AnalysisProperties SrcOverAnalysisProperties(const GrProcessorAnalysisColor&,
                                                         const GrProcessorAnalysisCoverage&,
-                                                        const GrCaps&,
-                                                        GrPixelConfigIsClamped);
+                                                        const GrCaps&);
 
 private:
     constexpr GrPorterDuffXPFactory(SkBlendMode);
@@ -50,13 +49,11 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&,
-                                          GrPixelConfigIsClamped) const override;
+                                          const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
     static void TestGetXPOutputTypes(const GrXferProcessor*, int* outPrimary, int* outSecondary);

@@ -389,12 +389,11 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                GrPixelConfigIsClamped dstIsClamped) override {
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
         GrProcessorAnalysisCoverage gpCoverage =
                 this->coverage() == 0xFF ? GrProcessorAnalysisCoverage::kNone
                                          : GrProcessorAnalysisCoverage::kSingleChannel;
-        return fHelper.xpRequiresDstTexture(caps, clip, dstIsClamped, gpCoverage, &fColor);
+        return fHelper.xpRequiresDstTexture(caps, clip, gpCoverage, &fColor);
     }
 
 private:

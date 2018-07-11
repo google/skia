@@ -1761,11 +1761,8 @@ uint32_t GrRenderTargetContext::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
         this->setNeedsStencil();
     }
 
-    GrPixelConfigIsClamped dstIsClamped =
-            GrGetPixelConfigIsClamped(this->colorSpaceInfo().config());
     GrXferProcessor::DstProxy dstProxy;
-    if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip,
-                                                           dstIsClamped)) {
+    if (GrDrawOp::RequiresDstTexture::kYes == op->finalize(*this->caps(), &appliedClip)) {
         if (!this->setupDstProxy(this->asRenderTargetProxy(), clip, op->bounds(), &dstProxy)) {
             fContext->contextPriv().opMemoryPool()->release(std::move(op));
             return SK_InvalidUniqueID;

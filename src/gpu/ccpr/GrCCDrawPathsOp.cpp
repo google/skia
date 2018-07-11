@@ -109,12 +109,11 @@ GrCCDrawPathsOp::SingleDraw::~SingleDraw() {
 }
 
 GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
-                                                       const GrAppliedClip* clip,
-                                                       GrPixelConfigIsClamped dstIsClamped) {
+                                                       const GrAppliedClip* clip) {
     SkASSERT(1 == fNumDraws);  // There should only be one single path draw in this Op right now.
     GrProcessorSet::Analysis analysis =
             fProcessors.finalize(fDraws.head().fColor, GrProcessorAnalysisCoverage::kSingleChannel,
-                                 clip, false, caps, dstIsClamped, &fDraws.head().fColor);
+                                 clip, false, caps, &fDraws.head().fColor);
     return RequiresDstTexture(analysis.requiresDstTexture());
 }
 

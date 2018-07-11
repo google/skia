@@ -29,9 +29,8 @@ protected:
         }
         return FixedFunctionFlags::kUsesStencil;
     }
-    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip,
-                                GrPixelConfigIsClamped dstIsClamped) override {
-        return this->doProcessorAnalysis(caps, clip, dstIsClamped).requiresDstTexture()
+    RequiresDstTexture finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+        return this->doProcessorAnalysis(caps, clip).requiresDstTexture()
                 ? RequiresDstTexture::kYes : RequiresDstTexture::kNo;
     }
 
@@ -47,11 +46,10 @@ protected:
     GrProcessorSet detachProcessors() { return std::move(fProcessorSet); }
     inline GrPipeline::InitArgs pipelineInitArgs(const GrOpFlushState&);
     const GrProcessorSet::Analysis& doProcessorAnalysis(const GrCaps& caps,
-                                                        const GrAppliedClip* clip,
-                                                        GrPixelConfigIsClamped dstIsClamped) {
+                                                        const GrAppliedClip* clip) {
         bool isMixedSamples = GrAAType::kMixedSamples == fAAType;
         fAnalysis = fProcessorSet.finalize(fInputColor, GrProcessorAnalysisCoverage::kNone, clip,
-                                           isMixedSamples, caps, dstIsClamped, &fInputColor);
+                                           isMixedSamples, caps, &fInputColor);
         return fAnalysis;
     }
     const GrProcessorSet::Analysis& processorAnalysis() const {

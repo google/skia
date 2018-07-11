@@ -202,7 +202,7 @@ void GrAtlasTextOp::finalizeForTextTarget(uint32_t color, const GrCaps& caps) {
     for (int i = 0; i < fGeoCount; ++i) {
         fGeoData[i].fColor = color;
     }
-    this->finalize(caps, nullptr /* applied clip */, GrPixelConfigIsClamped::kNo);
+    this->finalize(caps, nullptr /* applied clip */);
 }
 
 void GrAtlasTextOp::executeForTextTarget(SkAtlasTextTarget* target) {

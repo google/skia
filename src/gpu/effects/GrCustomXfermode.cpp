@@ -217,13 +217,11 @@ private:
     sk_sp<const GrXferProcessor> makeXferProcessor(const GrProcessorAnalysisColor&,
                                                    GrProcessorAnalysisCoverage,
                                                    bool hasMixedSamples,
-                                                   const GrCaps&,
-                                                   GrPixelConfigIsClamped) const override;
+                                                   const GrCaps&) const override;
 
     AnalysisProperties analysisProperties(const GrProcessorAnalysisColor&,
                                           const GrProcessorAnalysisCoverage&,
-                                          const GrCaps&,
-                                          GrPixelConfigIsClamped) const override;
+                                          const GrCaps&) const override;
 
     GR_DECLARE_XP_FACTORY_TEST
 
@@ -243,8 +241,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
         const GrProcessorAnalysisColor&,
         GrProcessorAnalysisCoverage coverage,
         bool hasMixedSamples,
-        const GrCaps& caps,
-        GrPixelConfigIsClamped dstIsClamped) const {
+        const GrCaps& caps) const {
     SkASSERT(GrCustomXfermode::IsSupportedMode(fMode));
     if (can_use_hw_blend_equation(fHWBlendEquation, coverage, caps)) {
         return sk_sp<GrXferProcessor>(new CustomXP(fMode, fHWBlendEquation));
@@ -254,7 +251,7 @@ sk_sp<const GrXferProcessor> CustomXPFactory::makeXferProcessor(
 
 GrXPFactory::AnalysisProperties CustomXPFactory::analysisProperties(
         const GrProcessorAnalysisColor&, const GrProcessorAnalysisCoverage& coverage,
-        const GrCaps& caps, GrPixelConfigIsClamped dstIsClamped) const {
+        const GrCaps& caps) const {
     /*
       The general SVG blend equation is defined in the spec as follows:
 
