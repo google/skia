@@ -979,14 +979,10 @@ Error ImageGenSrc::draw(SkCanvas* canvas) const {
     // Test various color and alpha types on CPU
     SkImageInfo decodeInfo = gen->getInfo().makeAlphaType(fDstAlphaType);
 
-    SkImageGenerator::Options options;
-    options.fBehavior = canvas->imageInfo().colorSpace() ?
-            SkTransferFunctionBehavior::kRespect : SkTransferFunctionBehavior::kIgnore;
-
     int bpp = decodeInfo.bytesPerPixel();
     size_t rowBytes = decodeInfo.width() * bpp;
     SkAutoMalloc pixels(decodeInfo.height() * rowBytes);
-    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes, &options)) {
+    if (!gen->getPixels(decodeInfo, pixels.get(), rowBytes)) {
         SkString err =
                 SkStringPrintf("Image generator could not getPixels() for %s\n", fPath.c_str());
 
