@@ -1749,6 +1749,7 @@ if (skia_enable_tools) {
       "fuzz/FuzzParsePath.cpp",
       "fuzz/FuzzPathMeasure.cpp",
       "fuzz/FuzzPathop.cpp",
+      "fuzz/FuzzPolyUtils.cpp",
       "fuzz/FuzzRegionOp.cpp",
       "fuzz/fuzz.cpp",
       "fuzz/oss_fuzz/FuzzAnimatedImage.cpp",

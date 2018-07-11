@@ -113,8 +113,9 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
  * @param rotSin  Sine of rotation delta per step.
  * @param rotCos  Cosine of rotation delta per step.
  * @param n  Number of steps to fill out the arc.
+ * @return true for success, false otherwise
  */
-void SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar r,
+bool SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar r,
                           SkScalar* rotSin, SkScalar* rotCos, int* n);
 
 /**
