@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkCoreBlitters.h"
 #include "SkOpts.h"
 #include "SkPM4fPriv.h"
@@ -110,7 +111,8 @@ public:
         fLeft = left;
         fTop  = top;
 
-        fPaintColor = SkColor4f_from_SkColor(paint.getColor(), fDst.colorSpace());
+        // Just like in SkImageShader, we'll keep the paint color as floats in sRGB.
+        swizzle_rb(Sk4f_fromL32(paint.getColor())).store(fPaintColor.vec());
 
         SkRasterPipeline p(fAlloc);
         void* ctx = &fSrcPtr;
@@ -131,16 +133,21 @@ public:
                                             p.append(SkRasterPipeline::force_opaque     ); break;
             default: SkASSERT(false);
         }
-        if (fDst.colorSpace() &&
-                (!fSource.colorSpace() || fSource.colorSpace()->gammaCloseToSRGB())) {
-            p.append(SkRasterPipeline::from_srgb);
-        }
         if (fSource.colorType() == kAlpha_8_SkColorType) {
+            // The color for A8 images comes from the (sRGB) paint color.
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);
             p.append(SkRasterPipeline::premul);
         }
-        append_gamut_transform(&p, fAlloc,
-                               fSource.colorSpace(), fDst.colorSpace(), kPremul_SkAlphaType);
+        if (auto dstCS = fDst.colorSpace()) {
+            auto srcCS = fSource.colorSpace();
+            if (!srcCS || fSource.colorType() == kAlpha_8_SkColorType) {
+                // We treat untagged images as sRGB.
+                // A8 images get their r,g,b from the paint color, so they're also sRGB.
+                srcCS = SkColorSpace::MakeSRGB().get();
+            }
+            fAlloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType, dstCS)
+                ->apply(&p);
+        }
         if (fPaintColor.fA != 1.0f) {
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
