@@ -23,8 +23,6 @@ public:
         return fVk;
     }
 
-    const GrVkInterface* vk() const { return fVk.fInterface.get(); }
-
 protected:
     VkTestContext(const GrVkBackendContext& vk, bool ownsContext,
                   VkDebugReportCallbackEXT debugCallback)

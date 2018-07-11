@@ -66,7 +66,8 @@ void VulkanWindowContext::initializeContext() {
     fDevice = backendContext.fDevice;
     fGraphicsQueueIndex = backendContext.fGraphicsQueueIndex;
     fGraphicsQueue = backendContext.fQueue;
-    fInterface = backendContext.fInterface;
+    fInterface.reset(new GrVkInterface(backendContext.fGetProc, fInstance, fDevice,
+                                       backendContext.fExtensions));
 
     GET_PROC(DestroyInstance);
     GET_PROC(DestroySurfaceKHR);
