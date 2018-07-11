@@ -283,13 +283,12 @@ public:
 
     ~TestResource() override {
         --fNumAlive;
-        SkSafeUnref(fToDelete);
     }
 
     static int NumAlive() { return fNumAlive; }
 
-    void setUnrefWhenDestroyed(TestResource* resource) {
-        SkRefCnt_SafeAssign(fToDelete, resource);
+    void setUnrefWhenDestroyed(sk_sp<TestResource> resource) {
+        fToDelete = std::move(resource);
     }
 
     static void ComputeScratchKey(SimulatedProperty property, GrScratchKey* key) {
@@ -337,7 +336,7 @@ private:
     size_t onGpuMemorySize() const override { return fSize; }
     const char* getResourceType() const override { return "Test"; }
 
-    TestResource* fToDelete;
+    sk_sp<TestResource> fToDelete;
     size_t fSize;
     static int fNumAlive;
     SimulatedProperty fProperty;
@@ -1051,8 +1050,8 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
     make_unique_key<0>(&key1, 1);
     make_unique_key<0>(&key2, 2);
 
-    TestResource* a = new TestResource(gpu);
-    TestResource* b = new TestResource(gpu);
+    sk_sp<TestResource> a(new TestResource(gpu));
+    sk_sp<TestResource> b(new TestResource(gpu));
     a->resourcePriv().setUniqueKey(key1);
     b->resourcePriv().setUniqueKey(key2);
 
@@ -1062,8 +1061,9 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
-    a->unref();
-    b->unref();
+    TestResource* unownedA = a.release();
+    unownedA->unref();
+    b.reset();
 
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
@@ -1071,7 +1071,7 @@ static void test_cache_chained_purge(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
     // Break the cycle
-    a->setUnrefWhenDestroyed(nullptr);
+    unownedA->setUnrefWhenDestroyed(nullptr);
     REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
 
     cache->purgeAllUnlocked();

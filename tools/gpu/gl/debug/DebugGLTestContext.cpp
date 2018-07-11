@@ -789,7 +789,7 @@ public:
     GrGLvoid bindVertexArray(GrGLuint id) override {
         GrVertexArrayObj* array = FIND(id, GrVertexArrayObj, kVertexArray_ObjTypes);
         GrAlwaysAssert((0 == id) || array);
-        this->setVertexArray(array);
+        this->setVertexArray(sk_ref_sp(array));
     }
 
     GrGLvoid bindBuffer(GrGLenum target, GrGLuint bufferID) override {
@@ -939,7 +939,7 @@ private:
     GrGLuint                    fCurrTextureUnit;
     GrTextureUnitObj*           fTextureUnits[kDefaultMaxTextureUnits];
     GrBufferObj*                fBoundBuffers[kNumBufferTargets];
-    GrVertexArrayObj*           fVertexArray;
+    sk_sp<GrVertexArrayObj>     fVertexArray;
     GrGLint                     fPackRowLength;
     GrGLint                     fUnpackRowLength;
     GrGLint                     fPackAlignment;
@@ -1089,14 +1089,14 @@ private:
         fBoundBuffers[buffIdx] = buffer;
     }
 
-    void setVertexArray(GrVertexArrayObj* vertexArray) {
+    void setVertexArray(sk_sp<GrVertexArrayObj> vertexArray) {
         if (vertexArray) {
             SkASSERT(!vertexArray->getDeleted());
         }
-        SkRefCnt_SafeAssign(fVertexArray, vertexArray);
+        fVertexArray = std::move(vertexArray);
     }
 
-    GrVertexArrayObj* getVertexArray() { return fVertexArray; }
+    GrVertexArrayObj* getVertexArray() { return fVertexArray.get(); }
 
     void setTexture(GrTextureObj *texture) {
         fTextureUnits[fCurrTextureUnit]->setTexture(texture);
