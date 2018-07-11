@@ -26,7 +26,7 @@ SkColorSpaceXformer::~SkColorSpaceXformer() {}
 
 std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
     std::unique_ptr<SkColorSpaceXform> fromSRGB = SkMakeColorSpaceXform(
-            SkColorSpace::MakeSRGB().get(), dst.get(), SkTransferFunctionBehavior::kIgnore);
+            SkColorSpace::MakeSRGB().get(), dst.get());
 
     return fromSRGB
         ? std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer(std::move(dst),
@@ -98,7 +98,7 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkImage* src) {
     const AutoCachePurge autoPurge(this);
     return this->cachedApply<SkImage>(src, &fImageCache,
         [](const SkImage* img, SkColorSpaceXformer* xformer) {
-            return img->makeColorSpace(xformer->fDst, SkTransferFunctionBehavior::kIgnore);
+            return img->makeColorSpace(xformer->fDst);
         });
 }
 
@@ -109,7 +109,7 @@ sk_sp<SkImage> SkColorSpaceXformer::apply(const SkBitmap& src) {
         return nullptr;
     }
 
-    sk_sp<SkImage> xformed = image->makeColorSpace(fDst, SkTransferFunctionBehavior::kIgnore);
+    sk_sp<SkImage> xformed = image->makeColorSpace(fDst);
     // We want to be sure we don't let the kNever_SkCopyPixelsMode image escape this stack frame.
     SkASSERT(xformed != image);
     return xformed;

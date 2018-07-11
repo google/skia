@@ -12,7 +12,7 @@
 #include "../../third_party/skcms/skcms.h"
 
 std::unique_ptr<SkColorSpaceXform> SkColorSpaceXform::New(SkColorSpace* src, SkColorSpace* dst) {
-    return SkMakeColorSpaceXform(src, dst, SkTransferFunctionBehavior::kRespect);
+    return SkMakeColorSpaceXform(src, dst);
 }
 
 bool SkColorSpaceXform::Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* dst,
@@ -30,11 +30,9 @@ bool SkColorSpaceXform::Apply(SkColorSpace* dstCS, ColorFormat dstFormat, void* 
 class SkColorSpaceXform_skcms : public SkColorSpaceXform {
 public:
     SkColorSpaceXform_skcms(const skcms_ICCProfile& srcProfile,
-                            const skcms_ICCProfile& dstProfile,
-                            skcms_AlphaFormat premulFormat)
+                            const skcms_ICCProfile& dstProfile)
         : fSrcProfile(srcProfile)
-        , fDstProfile(dstProfile)
-        , fPremulFormat(premulFormat) {
+        , fDstProfile(dstProfile) {
     }
 
     bool apply(ColorFormat, void*, ColorFormat, const void*, int, SkAlphaType) const override;
@@ -42,7 +40,6 @@ public:
 private:
     skcms_ICCProfile  fSrcProfile;
     skcms_ICCProfile  fDstProfile;
-    skcms_AlphaFormat fPremulFormat;
 };
 
 static skcms_PixelFormat get_skcms_format(SkColorSpaceXform::ColorFormat fmt) {
@@ -71,7 +68,8 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
                                     ColorFormat srcFormat, const void* src,
                                     int count, SkAlphaType alphaType) const {
     skcms_AlphaFormat srcAlpha = skcms_AlphaFormat_Unpremul;
-    skcms_AlphaFormat dstAlpha = kPremul_SkAlphaType == alphaType ? fPremulFormat
+    skcms_AlphaFormat dstAlpha = kPremul_SkAlphaType == alphaType
+        ? skcms_AlphaFormat_PremulAsEncoded
         : skcms_AlphaFormat_Unpremul;
 
     return skcms_Transform(src, get_skcms_format(srcFormat), srcAlpha, &fSrcProfile,
@@ -98,12 +96,10 @@ void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
     }
 }
 
-std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkColorSpace* dst,
-                                                         SkTransferFunctionBehavior premul) {
+std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkColorSpace* dst) {
     if (src && dst && dst->toXYZD50()) {
         // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
-        // Eventually, only need to support XYZ. Map premul to one of the two premul formats
-        // in skcms.
+        // Eventually, only need to support XYZ.
         skcms_ICCProfile srcProfile, dstProfile;
 
         src->toProfile(&srcProfile);
@@ -113,10 +109,7 @@ std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkCo
             return nullptr;
         }
 
-        skcms_AlphaFormat premulFormat = SkTransferFunctionBehavior::kRespect == premul
-            ? skcms_AlphaFormat_PremulLinear
-            : skcms_AlphaFormat_PremulAsEncoded;
-        return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile, premulFormat);
+        return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile);
     }
     return nullptr;
 }
