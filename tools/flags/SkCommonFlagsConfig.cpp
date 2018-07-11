@@ -29,6 +29,7 @@ static const char defaultConfigs[] =
 
 #undef DEFAULT_GPU_CONFIG
 
+// clang-format off
 static const struct {
     const char* predefinedConfig;
     const char* backend;
@@ -67,6 +68,7 @@ static const struct {
     { "gldft",                 "gpu", "api=gl,dit=true" },
     { "glesdft",               "gpu", "api=gles,dit=true" },
     { "gltestthreading",       "gpu", "api=gl,testThreading=true" },
+    { "gltestpersistentcache", "gpu", "api=gl,testPersistentCache=true" },
     { "debuggl",               "gpu", "api=debuggl" },
     { "nullgl",                "gpu", "api=nullgl" },
     { "angle_d3d11_es2",       "gpu", "api=angle_d3d11_es2" },
@@ -103,6 +105,7 @@ static const struct {
     ,{ "mtlmsaa8",              "gpu", "api=metal,samples=8" }
 #endif
 };
+// clang-format on
 
 static const char configHelp[] =
     "Options: 565 8888 srgb f16 nonrendering null pdf pdfa skp pipe svg xps";
@@ -118,63 +121,65 @@ static const char* config_help_fn() {
 }
 
 static const char configExtendedHelp[] =
-    "Extended form: 'backend(option=value,...)'\n\n"
-    "Possible backends and options:\n"
-    "\n"
-    "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
-    "\tapi\ttype: string\trequired\n"
-    "\t    Select graphics API to use with gpu backend.\n"
-    "\t    Options:\n"
-    "\t\tgl    \t\t\tUse OpenGL.\n"
-    "\t\tgles  \t\t\tUse OpenGL ES.\n"
-    "\t\tdebuggl \t\tUse debug OpenGL.\n"
-    "\t\tnullgl \t\t\tUse null OpenGL.\n"
-    "\t\tangle_d3d9_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
-    "\t\tangle_d3d11_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
-    "\t\tangle_d3d11_es3\t\tUse OpenGL ES3 on the ANGLE Direct3D11 backend.\n"
-    "\t\tangle_gl_es2\t\tUse OpenGL ES2 on the ANGLE OpenGL backend.\n"
-    "\t\tangle_gl_es3\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
-    "\t\tcommandbuffer\t\tUse command buffer.\n"
-    "\t\tmock\t\t\tUse mock context.\n"
+        "Extended form: 'backend(option=value,...)'\n\n"
+        "Possible backends and options:\n"
+        "\n"
+        "gpu[api=string,color=string,dit=bool,nvpr=bool,inst=bool,samples=int]\n"
+        "\tapi\ttype: string\trequired\n"
+        "\t    Select graphics API to use with gpu backend.\n"
+        "\t    Options:\n"
+        "\t\tgl    \t\t\tUse OpenGL.\n"
+        "\t\tgles  \t\t\tUse OpenGL ES.\n"
+        "\t\tdebuggl \t\tUse debug OpenGL.\n"
+        "\t\tnullgl \t\t\tUse null OpenGL.\n"
+        "\t\tangle_d3d9_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D9 backend.\n"
+        "\t\tangle_d3d11_es2\t\tUse OpenGL ES2 on the ANGLE Direct3D11 backend.\n"
+        "\t\tangle_d3d11_es3\t\tUse OpenGL ES3 on the ANGLE Direct3D11 backend.\n"
+        "\t\tangle_gl_es2\t\tUse OpenGL ES2 on the ANGLE OpenGL backend.\n"
+        "\t\tangle_gl_es3\t\tUse OpenGL ES3 on the ANGLE OpenGL backend.\n"
+        "\t\tcommandbuffer\t\tUse command buffer.\n"
+        "\t\tmock\t\t\tUse mock context.\n"
 #ifdef SK_VULKAN
-    "\t\tvulkan\t\t\tUse Vulkan.\n"
+        "\t\tvulkan\t\t\tUse Vulkan.\n"
 #endif
 #ifdef SK_METAL
-    "\t\tmetal\t\t\tUse Metal.\n"
+        "\t\tmetal\t\t\tUse Metal.\n"
 #endif
-    "\tcolor\ttype: string\tdefault: 8888.\n"
-    "\t    Select framebuffer color format.\n"
-    "\t    Options:\n"
-    "\t\t8888\t\t\tLinear 8888.\n"
-    "\t\t888x\t\t\tLinear 888x.\n"
-    "\t\t4444\t\t\tLinear 4444.\n"
-    "\t\t565\t\t\tLinear 565.\n"
-    "\t\t1010102\t\t\tLinear 1010102.\n"
-    "\t\tsrgb\t\t\tsRGB 8888.\n"
-    "\t\tesrgb\t\t\tsRGB 16-bit floating point.\n"
-    "\t\tnarrow\t\t\tNarrow gamut 8888.\n"
-    "\t\tenarrow\t\t\tNarrow gamut 16-bit floating point.\n"
-    "\t\tf16\t\t\tLinearly blended 16-bit floating point.\n"
-    "\tdit\ttype: bool\tdefault: false.\n"
-    "\t    Use device independent text.\n"
-    "\tnvpr\ttype: bool\tdefault: false.\n"
-    "\t    Use NV_path_rendering OpenGL and OpenGL ES extension.\n"
-    "\tsamples\ttype: int\tdefault: 0.\n"
-    "\t    Use multisampling with N samples.\n"
-    "\tstencils\ttype: bool\tdefault: true.\n"
-    "\t    Allow the use of stencil buffers.\n"
-    "\ttestThreading\ttype: bool\tdefault: false.\n"
-    "\t    Run with and without worker threads, check that results match.\n"
-    "\tsurf\ttype: string\tdefault: default.\n"
-    "\t    Controls the type of backing store for SkSurfaces.\n"
-    "\t    Options:\n"
-    "\t\tdefault\t\t\tA renderable texture created in Skia's resource cache.\n"
-    "\t\tbetex\t\t\tA wrapped backend texture.\n"
-    "\t\tbert\t\t\tA wrapped backend render target\n"
-    "\n"
-    "Predefined configs:\n\n"
-    // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
-    ;
+        "\tcolor\ttype: string\tdefault: 8888.\n"
+        "\t    Select framebuffer color format.\n"
+        "\t    Options:\n"
+        "\t\t8888\t\t\tLinear 8888.\n"
+        "\t\t888x\t\t\tLinear 888x.\n"
+        "\t\t4444\t\t\tLinear 4444.\n"
+        "\t\t565\t\t\tLinear 565.\n"
+        "\t\t1010102\t\t\tLinear 1010102.\n"
+        "\t\tsrgb\t\t\tsRGB 8888.\n"
+        "\t\tesrgb\t\t\tsRGB 16-bit floating point.\n"
+        "\t\tnarrow\t\t\tNarrow gamut 8888.\n"
+        "\t\tenarrow\t\t\tNarrow gamut 16-bit floating point.\n"
+        "\t\tf16\t\t\tLinearly blended 16-bit floating point.\n"
+        "\tdit\ttype: bool\tdefault: false.\n"
+        "\t    Use device independent text.\n"
+        "\tnvpr\ttype: bool\tdefault: false.\n"
+        "\t    Use NV_path_rendering OpenGL and OpenGL ES extension.\n"
+        "\tsamples\ttype: int\tdefault: 0.\n"
+        "\t    Use multisampling with N samples.\n"
+        "\tstencils\ttype: bool\tdefault: true.\n"
+        "\t    Allow the use of stencil buffers.\n"
+        "\ttestThreading\ttype: bool\tdefault: false.\n"
+        "\t    Run with and without worker threads, check that results match.\n"
+        "\ttestPersistentCache\ttype: bool\tdefault: false.\n"
+        "\t    Run using a pre-warmed GrContextOption::fPersistentCache.\n"
+        "\tsurf\ttype: string\tdefault: default.\n"
+        "\t    Controls the type of backing store for SkSurfaces.\n"
+        "\t    Options:\n"
+        "\t\tdefault\t\t\tA renderable texture created in Skia's resource cache.\n"
+        "\t\tbetex\t\t\tA wrapped backend texture.\n"
+        "\t\tbert\t\t\tA wrapped backend render target\n"
+        "\n"
+        "Predefined configs:\n\n"
+        // Help text for pre-defined configs is auto-generated from gPredefinedConfigs
+        ;
 
 static const char* config_extended_help_fn() {
     static SkString helpString;
@@ -423,7 +428,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         const SkString& tag, const SkTArray<SkString>& viaParts, ContextType contextType,
         bool useNVPR, bool useDIText, int samples, SkColorType colorType, SkAlphaType alphaType,
         sk_sp<SkColorSpace> colorSpace, bool useStencilBuffers, bool testThreading,
-        SurfType surfType)
+        bool testPersistentCache, SurfType surfType)
         : SkCommandLineConfig(tag, SkString("gpu"), viaParts)
         , fContextType(contextType)
         , fContextOverrides(ContextOverrides::kNone)
@@ -433,6 +438,7 @@ SkCommandLineConfigGpu::SkCommandLineConfigGpu(
         , fAlphaType(alphaType)
         , fColorSpace(std::move(colorSpace))
         , fTestThreading(testThreading)
+        , fTestPersistentCache(testPersistentCache)
         , fSurfType(surfType) {
     if (useNVPR) {
         fContextOverrides |= ContextOverrides::kRequireNVPRSupport;
@@ -459,6 +465,7 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
     sk_sp<SkColorSpace> colorSpace = nullptr;
     bool useStencils = true;
     bool testThreading = false;
+    bool testPersistentCache = false;
     SkCommandLineConfigGpu::SurfType surfType = SkCommandLineConfigGpu::SurfType::kDefault;
 
     bool parseSucceeded = false;
@@ -475,16 +482,17 @@ SkCommandLineConfigGpu* parse_command_line_config_gpu(const SkString& tag,
             extendedOptions.get_option_gpu_color("color", &colorType, &alphaType, &colorSpace) &&
             extendedOptions.get_option_bool("stencils", &useStencils) &&
             extendedOptions.get_option_bool("testThreading", &testThreading) &&
-            extendedOptions.get_option_bool("testThreading", &testThreading) &&
+            extendedOptions.get_option_bool("testPersistentCache", &testPersistentCache) &&
             extendedOptions.get_option_gpu_surf_type("surf", &surfType);
 
-    if (!validOptions) {
+    // testing threading and the persistent cache are mutually exclusive.
+    if (!validOptions || (testThreading && testPersistentCache)) {
         return nullptr;
     }
 
     return new SkCommandLineConfigGpu(tag, vias, contextType, useNVPR, useDIText, samples,
                                       colorType, alphaType, colorSpace, useStencils, testThreading,
-                                      surfType);
+                                      testPersistentCache, surfType);
 }
 
 SkCommandLineConfigSvg::SkCommandLineConfigSvg(const SkString& tag,
