@@ -263,6 +263,10 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     SkVector w0 = polygonVerts[currIndex] - origin;
     SkVector w1 = polygonVerts[nextIndex] - origin;
     for (int i = 0; i < polygonSize; ++i) {
+        if (!polygonVerts[i].isFinite()) {
+            return false;
+        }
+
         // Check that winding direction is always the same (otherwise we have a reflex vertex)
         SkScalar perpDot = v0.cross(v1);
         if (lastPerpDot*perpDot < 0) {
@@ -354,6 +358,9 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     for (int i = 0; i < inputPolygonSize; ++i) {
         int j = (i + 1) % inputPolygonSize;
         int k = (i + 2) % inputPolygonSize;
+        if (!inputPolygonVerts[i].isFinite()) {
+            return false;
+        }
         // check for convexity just to be sure
         if (compute_side(inputPolygonVerts[i], inputPolygonVerts[j],
                          inputPolygonVerts[k])*winding < 0) {
@@ -464,32 +471,33 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 // compute the number of points needed for a circular join when offsetting a reflex vertex
-void SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
+bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
                           SkScalar* rotSin, SkScalar* rotCos, int* n) {
     const SkScalar kRecipPixelsPerArcSegment = 0.25f;
 
     SkScalar rCos = v1.dot(v2);
+    if (!SkScalarIsFinite(rCos)) {
+        return false;
+    }
     SkScalar rSin = v1.cross(v2);
+    if (!SkScalarIsFinite(rSin)) {
+        return false;
+    }
     SkScalar theta = SkScalarATan2(rSin, rCos);
 
     int steps = SkScalarRoundToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
 
-    SkScalar dTheta = theta / steps;
+    SkScalar dTheta = steps > 0 ? theta / steps : 0;
     *rotSin = SkScalarSinCos(dTheta, rotCos);
     *n = steps;
+    return true;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-// tolerant less-than comparison
-static inline bool nearly_lt(SkScalar a, SkScalar b, SkScalar tolerance = SK_ScalarNearlyZero) {
-    return a < b - tolerance;
-}
-
 // a point is "left" to another if its x coordinate is less, or if equal, its y coordinate
 static bool left(const SkPoint& p0, const SkPoint& p1) {
-    return nearly_lt(p0.fX, p1.fX) ||
-           (SkScalarNearlyEqual(p0.fX, p1.fX) && nearly_lt(p0.fY, p1.fY));
+    return p0.fX < p1.fX || (!(p0.fX > p1.fX) && p0.fY < p1.fY);
 }
 
 struct Vertex {
@@ -512,7 +520,7 @@ enum VertexFlags {
 struct Edge {
     // returns true if "this" is above "that"
     bool above(const Edge& that, SkScalar tolerance = SK_ScalarNearlyZero) {
-        SkASSERT(nearly_lt(this->fSegment.fP0.fX, that.fSegment.fP0.fX, tolerance) ||
+        SkASSERT(this->fSegment.fP0.fX < that.fSegment.fP0.fX ||
                  SkScalarNearlyEqual(this->fSegment.fP0.fX, that.fSegment.fP0.fX, tolerance));
         // The idea here is that if the vector between the origins of the two segments (dv)
         // rotates counterclockwise up to the vector representing the "this" segment (u),
@@ -624,12 +632,19 @@ private:
 // should be added or removed from an edge list. If any intersections are detected in the edge
 // list, then we know the polygon is self-intersecting and hence not simple.
 bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
+    if (polygonSize < 3) {
+        return false;
+    }
+
     SkTDPQueue <Vertex, Vertex::Left> vertexQueue;
     EdgeList sweepLine;
 
     sweepLine.reserve(polygonSize);
     for (int i = 0; i < polygonSize; ++i) {
         Vertex newVertex;
+        if (!polygon[i].isFinite()) {
+            return false;
+        }
         newVertex.fPosition = polygon[i];
         newVertex.fIndex = i;
         newVertex.fPrevIndex = (i - 1 + polygonSize) % polygonSize;
@@ -700,9 +715,18 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
     SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
     SkScalar currOffset = offsetDistanceFunc(inputPolygonVerts[0]);
+    if (!SkScalarIsFinite(currOffset)) {
+        return false;
+    }
     for (int curr = 0; curr < inputPolygonSize; ++curr) {
+        if (!inputPolygonVerts[curr].isFinite()) {
+            return false;
+        }
         int next = (curr + 1) % inputPolygonSize;
         SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[next]);
+        if (!SkScalarIsFinite(nextOffset)) {
+            return false;
+        }
         if (!compute_offset_vectors(inputPolygonVerts[curr], inputPolygonVerts[next],
                                     currOffset, nextOffset, winding,
                                     &normal0[curr], &normal1[next])) {
@@ -726,8 +750,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             SkScalar rotSin, rotCos;
             int numSteps;
             SkVector prevNormal = normal1[currIndex];
-            SkComputeRadialSteps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
-                                 &rotSin, &rotCos, &numSteps);
+            if (!SkComputeRadialSteps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
+                                      &rotSin, &rotCos, &numSteps)) {
+                return false;
+            }
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
                                                      prevNormal.fY*rotCos + prevNormal.fX*rotSin);
@@ -910,11 +936,13 @@ public:
         fReflexList.remove(v);
     }
 
-    bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2) {
+    bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
+                       uint16_t ignoreIndex0, uint16_t ignoreIndex1) {
         for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fReflexList.begin();
              reflexIter != fReflexList.end(); ++reflexIter) {
             TriangulationVertex* reflexVertex = *reflexIter;
-            if (point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
+            if (reflexVertex->fIndex != ignoreIndex0 && reflexVertex->fIndex != ignoreIndex1 &&
+                point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
                 return true;
             }
         }
@@ -934,7 +962,7 @@ static void reclassify_vertex(TriangulationVertex* p, const SkPoint* polygonVert
     if (TriangulationVertex::VertexType::kReflex == p->fVertexType) {
         SkVector v0 = p->fPosition - polygonVerts[p->fPrevIndex];
         SkVector v1 = polygonVerts[p->fNextIndex] - p->fPosition;
-        if (winding*v0.cross(v1) > SK_ScalarNearlyZero) {
+        if (winding*v0.cross(v1) > SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
             p->fVertexType = TriangulationVertex::VertexType::kConvex;
             reflexHash->remove(p);
             p->fPrev = p->fNext = nullptr;
@@ -977,7 +1005,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         triangulationVertices[currIndex].fIndex = currIndex;
         triangulationVertices[currIndex].fPrevIndex = prevIndex;
         triangulationVertices[currIndex].fNextIndex = nextIndex;
-        if (winding*v0.cross(v1) > SK_ScalarNearlyZero) {
+        if (winding*v0.cross(v1) > SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
             triangulationVertices[currIndex].fVertexType = TriangulationVertex::VertexType::kConvex;
             convexList.addToTail(&triangulationVertices[currIndex]);
         } else {
@@ -1018,7 +1046,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
 
             // see if any reflex vertices are inside the ear
             bool failed = reflexHash.checkTriangle(p0->fPosition, earVertex->fPosition,
-                                                   p2->fPosition);
+                                                   p2->fPosition, p0->fIndex, p2->fIndex);
             if (failed) {
                 continue;
             }

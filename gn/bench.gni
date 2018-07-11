@@ -86,6 +86,7 @@ bench_sources = [
   "$_bench/PictureNestingBench.cpp",
   "$_bench/PictureOverheadBench.cpp",
   "$_bench/PicturePlaybackBench.cpp",
+  "$_bench/PolyUtilsBench.cpp",
   "$_bench/PremulAndUnpremulAlphaOpsBench.cpp",
   "$_bench/QuickRejectBench.cpp",
   "$_bench/ReadPixBench.cpp",
