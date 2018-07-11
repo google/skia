@@ -148,6 +148,10 @@ bool GrClipStackClip::UseSWOnlyPath(GrContext* context,
                                     bool hasUserStencilSettings,
                                     const GrRenderTargetContext* renderTargetContext,
                                     const GrReducedClip& reducedClip) {
+    // TODO: right now it appears that GPU clip masks are strictly slower than software. We may
+    // want to revisit this assumption once we can test with render target sorting.
+    return true;
+
     // TODO: generalize this function so that when
     // a clip gets complex enough it can just be done in SW regardless
     // of whether it would invoke the GrSoftwarePathRenderer.
