@@ -48,10 +48,9 @@ trouble with aliases, plurals
 deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
-     would rather keep links for boby above #Literal, and/or make it a block and not a one-liner
+     would rather keep links for body above #Literal, and/or make it a block and not a one-liner
 add check to require #Const to contain #Code block if defining const or constexpr (enum consts have
-     #Code blocks inside the #Enum def
-add spelling rule to look for x-bit but allow x bits
+     #Code blocks inside the #Enum def)
 
 There are a number of formatting bugs with ad hoc patches where a substitution doesn't keep
 the space before or after, or the linefeeds before or after. The rules are not very good either.
@@ -72,8 +71,6 @@ there is special case code to skip phrase def when looking for additional substi
 phrase def. Could put it in the token list instead I guess, or make a definition subclass used
 by phrase def with an additional slot...
 
-
-
 #Deprecated soon
 ##
 should emit the text "To be deprecated soon." (right now you get just "soon")
@@ -86,9 +83,8 @@ has #Const children. If so, generate a summary table first.
 Or, only allow #Line and moderate text description in #Const. Put more verbose text, example,
 seealso, in subsequent #SubTopic. Alpha_Type does this and it looks good.
 
-more spelling: x-value y-value
-
 see head of selfCheck.cpp for additional todos
+see head of spellCheck.cpp for additional todos
  */
 
 /*

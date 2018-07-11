@@ -22,10 +22,15 @@ This base class handles serialization and a few other miscellany.
 # ------------------------------------------------------------------------------
 
 #Class AbortCallback
-#Line # incomplete ##
+#Line # utility to stop picture playback ##
 
 #Code
-#ToDo fill this in manually ##
+    class AbortCallback {
+    public:
+        AbortCallback() {}
+        virtual ~AbortCallback() {}
+        virtual bool abort() = 0;
+    };
 ##
 
 Subclasses of this can be passed to playback(). During the playback
@@ -39,16 +44,16 @@ to the same level it was before the playback call was made.
 # ------------------------------------------------------------------------------
 
 #Method AbortCallback()
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # defines default constructor ##
+Has no effect.
 
-#Return incomplete ##
+#Return abstract class cannot be instantiated ##
 
-#Example
-// incomplete
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso playback
 
 #Method ##
 
@@ -56,31 +61,62 @@ to the same level it was before the playback call was made.
 
 #Method virtual ~AbortCallback()
 #In Constructor
-#Line # incomplete ##
+#Line # defines default destructor ##
+Has no effect.
 
-#Example
-// incomplete
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso playback
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual bool abort() = 0
-#In incomplete
-#Line # incomplete ##
+#In Utility
+#Line # aborts playback by callback ##
 
-#Return incomplete ##
+Stops Picture playback when some condition is met. A subclass of
+AbortCallback provides an override for abort() that can stop playback() from
+drawing the entire picture.
 
-#Example
-// incomplete
+#Return true to stop playback ##
+
+#NoExample
 ##
 
-#SeeAlso incomplete
+#SeeAlso playback
 
 #Method ##
+
+#Example
+#Description
+JustOneDraw allows the black rectangle to draw but stops playback before the
+white rectangle appears.
+##
+#Function
+class JustOneDraw : public SkPicture::AbortCallback {
+public:
+    bool abort() override { return fCalls++ > 0; }
+private:
+    int fCalls = 0;
+};
+##
+
+void draw(SkCanvas* canvas) {
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    JustOneDraw callback;
+    picture->playback(canvas, &callback);
+}
+
+##
 
 #Class AbortCallback ##
 
@@ -88,21 +124,32 @@ to the same level it was before the playback call was made.
 
 #Method static sk_sp<SkPicture> MakeFromStream(SkStream* stream,
                                            const SkDeserialProcs* procs = nullptr)
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # constructs Picture from stream ##
 
-Recreate a picture that was serialized into a stream or data.
+Recreates a picture that was serialized into a stream.
 
-#Param stream  incomplete ##
-#Param procs  incomplete ##
+#Param stream  container for serial data ##
+#Param procs  custom serial data decoders; may be nullptr ##
 
-#Return incomplete ##
+#Return Picture constructed from stream data ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    SkDynamicMemoryWStream writableStream;
+    picture->serialize(&writableStream);
+    std::unique_ptr<SkStreamAsset> readableStream = writableStream.detachAsStream();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromStream(readableStream.get());
+    copy->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromData SkPictureRecorder
 
 #Method ##
 
@@ -110,19 +157,32 @@ Recreate a picture that was serialized into a stream or data.
 
 #Method static sk_sp<SkPicture> MakeFromData(const SkData* data,
                                          const SkDeserialProcs* procs = nullptr)
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # constructs Picture from data ##
 
-#Param data  incomplete ##
-#Param procs  incomplete ##
+Recreates a picture that was serialized into data.
 
-#Return incomplete ##
+#Param data  container for serial data ##
+#Param procs  custom serial data decoders; may be nullptr ##
+
+#Return Picture constructed from data ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    SkDynamicMemoryWStream writableStream;
+    picture->serialize(&writableStream);
+    sk_sp<SkData> readableData = writableStream.detachAsData();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData.get());
+    copy->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromStream SkPictureRecorder
 
 #Method ##
 
@@ -130,180 +190,266 @@ Recreate a picture that was serialized into a stream or data.
 
 #Method static sk_sp<SkPicture> MakeFromData(const void* data, size_t size,
                                          const SkDeserialProcs* procs = nullptr)
-#In incomplete
-#Line # incomplete ##
 
-#Param data  incomplete ##
-#Param size  incomplete ##
-#Param procs  incomplete ##
+#Param data  pointer to serial data ##
+#Param size  size of data ##
+#Param procs  custom serial data decoders; may be nullptr ##
 
-#Return incomplete ##
+Recreates a picture that was serialized into data.
+
+#Return Picture constructed from data ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    SkDynamicMemoryWStream writableStream;
+    picture->serialize(&writableStream);
+    sk_sp<SkData> readableData = writableStream.detachAsData();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
+    copy->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromStream SkPictureRecorder
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual void playback(SkCanvas* canvas, AbortCallback* callback = nullptr) const = 0
-#In incomplete
-#Line # incomplete ##
+#In Action
+#Line # replays drawing commands on canvas ##
 
 Replays the drawing commands on the specified canvas. Note that
 this has the effect of unfurling this picture into the destination
 canvas. Using the SkCanvas::drawPicture entry point gives the destination
 canvas the option of just taking a ref.
 
-#Param canvas  the canvas receiving the drawing commands.
-##
-#Param callback  a callback that allows interruption of playback
-##
-
-#Return incomplete ##
+#Param canvas  receiver of drawing commands ##
+#Param callback  allows interruption of playback ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    picture->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkCanvas::drawPicture
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual SkRect cullRect() const = 0
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns bounds used to record Picture ##
 
-Return a cull rect for this picture.
+Returns cull Rect for this picture.
 Ops recorded into this picture that attempt to draw outside the cull might not be drawn.
 
-#Return incomplete ##
+#Return bounds passed when Picture was created ##
 
 #Example
-// incomplete
+#Description
+Picture recorded bounds are smaller than contents; contents outside recorded
+bounds may be drawn, and are drawn in this example.
+##
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({64, 64, 192, 192});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    picture->playback(canvas);
+    paint.setBlendMode(SkBlendMode::kModulate);
+    paint.setColor(0x40404040);
+    canvas->drawRect(picture->cullRect(), paint);
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkCanvas::clipRect
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method uint32_t uniqueID() const
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns identifier for Picture ##
 
 Returns a non-zero value unique among all pictures.
 
-#Return incomplete ##
+#Return identifier for Picture ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    recorder.beginRecording({0, 0, 0, 0});
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    SkDebugf("empty picture id = %d\n", picture->uniqueID());
+    sk_sp<SkPicture> placeholder = SkPicture::MakePlaceholder({0, 0, 0, 0});
+    SkDebugf("placeholder id = %d\n", placeholder->uniqueID());
+#StdOut
+empty picture id = 1
+placeholder id = 2
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso SkRefCnt
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkData> serialize(const SkSerialProcs* procs = nullptr) const
-#In incomplete
-#Line # incomplete ##
+#In Utility
+#Line # writes Picture to data ##
+Returns storage containing data describing Picture, using optional custom encoders.
 
-#Param procs  incomplete ##
+#Param procs  custom serial data encoders; may be nullptr ##
 
-#Return incomplete ##
+#Return storage containing serialized Picture ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    sk_sp<SkData> readableData = picture->serialize();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
+    copy->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromData SkData SkSerialProcs
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method void serialize(SkWStream* stream, const SkSerialProcs* procs = nullptr) const
-#In incomplete
-#Line # incomplete ##
+Writes picture to stream, using optional custom encoders.
 
-#Param stream  incomplete ##
-#Param procs  incomplete ##
+#Param stream  writable serial data stream ##
+#Param procs  custom serial data encoders; may be nullptr ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    SkDynamicMemoryWStream writableStream;
+    picture->serialize(&writableStream);
+    sk_sp<SkData> readableData = writableStream.detachAsData();
+    sk_sp<SkPicture> copy = SkPicture::MakeFromData(readableData->data(), readableData->size());
+    copy->playback(canvas);
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromStream SkWStream SkSerialProcs
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method static sk_sp<SkPicture> MakePlaceholder(SkRect cull)
-#In incomplete
-#Line # incomplete ##
+#In Constructor
+#Line # constructs placeholder with unique identifier ##
 
-Return a placeholder SkPicture.
+Returns a placeholder SkPicture.
 This placeholder does not draw anything itself.  It has a distinct uniqueID()
 (just like all Pictures) and will always be visible to SkSerialProcs.
 
-#Param cull  the placeholder's dimensions
+#Param cull  placeholder dimensions
 ##
 
-#Return incomplete ##
+#Return placeholder with unique identifier ##
 
 #Example
-// incomplete
+sk_sp<SkPicture> pict1 = SkPicture::MakePlaceholder({10, 40, 80, 110});
+sk_sp<SkPicture> pict2 = SkPicture::MakePlaceholder({10, 40, 80, 110});
+for (auto pict : { pict1, pict2 } ) {
+    SkRect bounds = pict->cullRect();
+    SkDebugf("id:%d bounds:{%g, %g, %g, %g}\n", pict->uniqueID(), 
+             bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);
+}
+#StdOut
+id:1 bounds:{10, 40, 80, 110}
+id:2 bounds:{10, 40, 80, 110}
+##
 ##
 
-#SeeAlso incomplete
+#SeeAlso MakeFromStream MakeFromData
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual int approximateOpCount() const = 0
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns approximate operation count ##
 
-Return the approximate number of operations in this picture.  This
+Returns the approximate number of operations in this picture.  This
 number may be greater or less than the number of SkCanvas calls
 recorded: some calls may be recorded as more than one operation, or some
 calls may be optimized away.
 
-#Return incomplete ##
+#Return approximate operation count ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    picture->playback(canvas);
+    std::string opCount = "approximate op count: " + std::to_string(picture->approximateOpCount());
+    canvas->drawString(opCount.c_str(), 50, 220, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso approximateBytesUsed
 
 #Method ##
 
 # ------------------------------------------------------------------------------
 
 #Method virtual size_t approximateBytesUsed() const = 0
-#In incomplete
-#Line # incomplete ##
+#In Property
+#Line # returns approximate size ##
 
-Returns the approximate byte size of this picture, not including large ref'd objects.
+Returns the approximate byte size of Picture. Does not include large objects
+referenced Picture.
 
-#Return incomplete ##
+#Return approximate size ##
 
 #Example
-// incomplete
+    SkPictureRecorder recorder;
+    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});
+    SkPaint paint;
+    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);
+    paint.setColor(SK_ColorWHITE);
+    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);
+    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();
+    picture->playback(canvas);
+    std::string opCount = "approximate bytes used: " + std::to_string(picture->approximateBytesUsed());
+    canvas->drawString(opCount.c_str(), 20, 220, SkPaint());
 ##
 
-#SeeAlso incomplete
+#SeeAlso approximateOpCount
 
 #Method ##
 
