@@ -211,8 +211,8 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                 case SkTextBlob::kDefault_Positioning: {
                     auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
                     SkGlyphRunBuilder builder;
-                    builder.prepareDrawText(runPaint.skPaint(),
-                                            (const char*)it.glyphs(), textLen, origin);
+                    builder.drawText(runPaint.skPaint(),
+                                     (const char*) it.glyphs(), textLen, origin);
 
                     auto glyphRun = builder.useGlyphRun();
 
@@ -246,8 +246,8 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                 case SkTextBlob::kDefault_Positioning: {
                     auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
                     SkGlyphRunBuilder builder;
-                    builder.prepareDrawText(runPaint.skPaint(),
-                                            (const char*)it.glyphs(), textLen, origin);
+                    builder.drawText(runPaint.skPaint(),
+                                     (const char*) it.glyphs(), textLen, origin);
 
                     auto glyphRun = builder.useGlyphRun();
 
@@ -780,7 +780,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
 
     auto origin = SkPoint::Make(x, y);
     SkGlyphRunBuilder builder;
-    builder.prepareDrawText(skPaint, text, textLen, origin);
+    builder.drawText(skPaint, text, textLen, origin);
     sk_sp<GrTextBlob> blob;
 
     auto glyphRun = builder.useGlyphRun();
