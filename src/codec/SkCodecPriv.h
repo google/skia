@@ -272,12 +272,7 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
-    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
-}
-
-static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS,
-                                     bool needsColorCorrectPremul) {
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS) {
     // We never perform a color xform in legacy mode.
     if (!dstInfo.colorSpace()) {
         return false;
@@ -289,7 +284,7 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSp
     // Need a color xform when dst space does not match the src.
     bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
 
-    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
+    return isF16 || srcDstNotEqual;
 }
 
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
