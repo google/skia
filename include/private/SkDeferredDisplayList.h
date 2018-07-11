@@ -40,12 +40,23 @@ public:
     class LazyProxyData : public SkRefCnt {};
 #endif
 
-    SkDeferredDisplayList(const SkSurfaceCharacterization& characterization,
+    SkDeferredDisplayList(const SkSurfaceCharacterization&,
+                          sk_sp<SkImage>,
                           sk_sp<LazyProxyData>);
 
     const SkSurfaceCharacterization& characterization() const {
         return fCharacterization;
     }
+
+    /*
+     * Access the future contents of the DDLs rendering as an SkImage. The SkImage will only
+     * be valid after the DDL has been replayed into a textureable SkSurface.
+     * DDL TODO: should this be tightened up so that the returned SkImage is only valid after
+     * the destination SkSurface has been snapped into its own SkImage? At that point we would
+     * get the copy-on-write semantics of the destination SkSurface/SkImage pair. Is that
+     * even possible?
+     */
+    sk_sp<SkImage> futureImage() { return fImage; }
 
 private:
     friend class GrDrawingManager; // for access to 'fOpLists' and 'fLazyProxyData'
@@ -56,6 +67,7 @@ private:
 #if SK_SUPPORT_GPU
     SkTArray<sk_sp<GrOpList>>    fOpLists;
 #endif
+    sk_sp<SkImage>               fImage;
     sk_sp<LazyProxyData>         fLazyProxyData;
 };
 
