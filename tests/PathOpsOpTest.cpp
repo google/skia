@@ -5751,11 +5751,7 @@ static void testRect1_u(skiatest::Reporter* reporter, const char* filename) {
     testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 
-// this test fails for now; it generates partial paths that are incorrectly
-// connected to form an area where it should not. The fix is to connect the
-// pieces using only contours that are part of the input data set.
 static void filinmangust14(skiatest::Reporter* reporter, const char* filename) {
-    return;
 SkPath path, path1;
 path.setFillType(SkPath::kWinding_FillType);
         path.moveTo(SkBits2Float(0x440bc02c), SkBits2Float(0x4409c000));  // 559.003f, 551
