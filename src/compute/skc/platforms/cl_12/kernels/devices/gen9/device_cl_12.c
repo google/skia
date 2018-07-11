@@ -90,7 +90,7 @@
 // FIXME -- move these to log2 values where appropriate
 //
 
-static 
+static
 struct skc_config const config =
   {
     .suballocator = {
@@ -102,7 +102,7 @@ struct skc_config const config =
         .size       = 128 * 1024 * 1024,
         .subbufs    = 1024 // must be <= (1 << (8 * sizeof(skc_subbuf_id_t)))
       }
-    }, 
+    },
 
     .scheduler = {
       .size         = 4096 // 128 // FIXME -- this is just for testing -- way too big -- schedulees should bring their own state
@@ -382,7 +382,7 @@ skc_device_shaper_paths_copy(size_t    const work_size,
   work_local [0] = SKC_PATHS_COPY_SUBGROUP_SIZE;
 
   return work_local;
-#else  
+#else
   return NULL; // let runtime figure out local work size
 #endif
 }
@@ -659,7 +659,7 @@ struct skc_device
 {
   //
   // FIXME -- an OpenCL 2.1+ device would clone these kernels in a
-  // multithreaded system.  
+  // multithreaded system.
   //
   // Not having the ability to clone kernels (yet set their sticky
   // args) was an oversight in previous versions of OpenCL.

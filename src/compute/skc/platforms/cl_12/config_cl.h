@@ -27,10 +27,10 @@ struct skc_config
     } host;   // alignment determined by compiler
     struct {
       skc_uint               size;
-      skc_uint               subbufs; 
+      skc_uint               subbufs;
     } device; // alignment determined by device
   } suballocator;
-  
+
   struct {
     skc_uint                 size;
   } scheduler;
@@ -58,7 +58,7 @@ struct skc_config
   struct {
     skc_uint                 size;      // a large fraction of block pool size
     skc_uint                 width;     // determines number of launched reclamation subgroups
-    skc_uint                 recs;      // how many in-flight width-subgroup reclamation grids 
+    skc_uint                 recs;      // how many in-flight width-subgroup reclamation grids
   } handle_pool;
 
   struct {

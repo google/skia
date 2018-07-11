@@ -84,11 +84,11 @@ hs_cpu_sort_u32(uint32_t * a, uint32_t const count)
 }
 
 extern "C"
-char const * 
+char const *
 hs_cpu_sort_u64(uint64_t * a, uint32_t const count)
 {
 #if   defined ( HS_USE_PARALLEL_SORT )
-  std::sort(std::execution::par_unseq,a,a+count);  
+  std::sort(std::execution::par_unseq,a,a+count);
   return "std::sort(std::execution::par_unseq)()";
 #elif defined ( HS_USE_STD_SORT )
   std::sort(a,a+count);
