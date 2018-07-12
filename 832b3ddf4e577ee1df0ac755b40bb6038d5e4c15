@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e57389e3_fe527d4b",
+        "filename": "include/private/GrSkSLFPFactoryCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2ef1f4d4_10ea6577",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e517a137_7aaa88f7",
         "filename": "include/private/GrSkSLFPFactoryCache.h",
         "patchSetId": 4
@@ -33,6 +51,24 @@
       "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5ff4038_22211b6d",
+        "filename": "include/private/GrSkSLFPFactoryCache.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e517a137_7aaa88f7",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "310230f2_56c1f733",
+        "filename": "src/gpu/GrContext.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2cc64401_6359d0c5",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "310d19d8_d53f23a5",
         "filename": "src/gpu/GrContextPriv.h",
         "patchSetId": 4
@@ -67,6 +121,24 @@
       "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab21a185_17e085c8",
+        "filename": "src/gpu/GrContextPriv.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Leftover code from an older revision which should have gotten removed. Fixed.",
+      "parentUuid": "310d19d8_d53f23a5",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7ed74463_09e3e4fa",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc3a086e_2f8411d3",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94476656_febff97d",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2018-07-11T18:23:51Z",
       "side": 1,
       "message": "So, IIUC, if two DDLs threads are both creating the same FP at the same time it seems like two factories could be created and the second one added would win (and the first one added would become orphaned).\n\nAm I missing something?",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "686be404_5a0a4fc5",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "I was under the impression that onCreateGLSLInstance and onGetGLSLProcessorKey (the only spots where this method should be getting called from) are only called from single-threaded code. Did I misunderstand something?",
+      "parentUuid": "94476656_febff97d",
       "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "31f092de_817966ec",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4960644f_8d9c5be4",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7be37c7a_4ec15253",
         "filename": "src/gpu/effects/GrSkSLFP.h",
         "patchSetId": 4
@@ -135,6 +261,24 @@
       "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3b1e4ce_23a99634",
+        "filename": "src/gpu/effects/GrSkSLFP.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-12T18:02:45Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "7be37c7a_4ec15253",
+      "revId": "832b3ddf4e577ee1df0ac755b40bb6038d5e4c15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
