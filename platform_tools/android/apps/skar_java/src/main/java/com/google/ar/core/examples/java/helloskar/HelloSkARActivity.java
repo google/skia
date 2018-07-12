@@ -46,8 +46,6 @@ import com.google.ar.core.examples.java.common.helpers.FullScreenHelper;
 import com.google.ar.core.examples.java.common.helpers.SnackbarHelper;
 import com.google.ar.core.examples.java.common.helpers.TapHelper;
 import com.google.ar.core.examples.java.common.rendering.BackgroundRenderer;
-import com.google.ar.core.examples.java.common.rendering.PlaneRenderer;
-import com.google.ar.core.examples.java.common.rendering.PointCloudRenderer;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
@@ -66,6 +64,7 @@ import javax.microedition.khronos.opengles.GL10;
  * ARCore API. The application will display any detected planes and will allow the user to tap on a
  * plane to place 2D objects
  */
+
 public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
     private static final String TAG = HelloSkARActivity.class.getSimpleName();
 
@@ -83,12 +82,10 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     private DisplayRotationHelper displayRotationHelper;
     private TapHelper tapHelper;
 
-    //Renderers
+    // OpenGL background renderer
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
-    private final PlaneRenderer planeRenderer = new PlaneRenderer();
-    private final PointCloudRenderer pointCloudRenderer = new PointCloudRenderer();
 
-    //2D Renderer
+    // 2D Renderer
     private DrawManager drawManager = new DrawManager();
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
@@ -222,9 +219,8 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         // Prepare the rendering objects. This involves reading shaders, so may throw an IOException.
         try {
             // Create the texture and pass it to ARCore session to be filled during update().
-            backgroundRenderer.createOnGlThread(/*context=*/ this);
-            planeRenderer.createOnGlThread(/*context=*/ this, "models/trigrid.png");
-            pointCloudRenderer.createOnGlThread(/*context=*/ this);
+            backgroundRenderer.createOnGlThread( this);
+            drawManager.initializePlaneShader(this, "models/trigrid.png");
         } catch (IOException e) {
             Log.e(TAG, "Failed to read an asset file", e);
         }
@@ -236,7 +232,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         GLES20.glViewport(0, 0, width, height);
 
         // Send viewport information to 2D AR drawing manager
-        drawManager.updateViewportMatrix(width, height);
+        drawManager.updateViewport(width, height);
     }
 
     @Override
@@ -264,7 +260,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                     // Creates an anchor if a plane or an oriented point was hit.
                     if ((trackable instanceof Plane
                             && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                            && (PlaneRenderer.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
                             > 0))
                             || (trackable instanceof Point
                             && ((Point) trackable).getOrientationMode()
@@ -279,7 +275,8 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                 }
             }
 
-            // Draw background.
+            // Draw background with OpenGL.
+            // TODO: possibly find a way to extract texture and draw on Canvas
             backgroundRenderer.draw(frame);
 
             // If not tracking, don't draw objects
@@ -301,30 +298,39 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
             drawManager.updateLightColorFilter(colorCorrectionRgba);
 
-            PointCloud pointCloud = frame.acquirePointCloud();
-            pointCloudRenderer.update(pointCloud);
-            pointCloudRenderer.draw(viewmtx, projmtx);
-            pointCloud.release();
+            // Drawing on Canvas (SurfaceView)
+            if (arSurfaceView.isRunning()) {
+                // Lock canvas
+                SurfaceHolder holder = arSurfaceView.getHolder();
+                Canvas canvas = holder.lockHardwareCanvas();
+                canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
-            // Check if we detected at least one plane. If so, hide the loading message.
-            if (messageSnackbarHelper.isShowing()) {
-                for (Plane plane : session.getAllTrackables(Plane.class)) {
-                    if (plane.getType() == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING
-                            && plane.getTrackingState() == TrackingState.TRACKING) {
-                        messageSnackbarHelper.hide(this);
-                        break;
+                // Draw point cloud
+                PointCloud pointCloud = frame.acquirePointCloud();
+                drawPointCloud(canvas, pointCloud);
+                pointCloud.release();
+
+                // Draw planes
+                // Check if we detected at least one plane. If so, hide the loading message.
+                if (messageSnackbarHelper.isShowing()) {
+                    for (Plane plane : session.getAllTrackables(Plane.class)) {
+                        if (plane.getType() == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING
+                                && plane.getTrackingState() == TrackingState.TRACKING) {
+                            messageSnackbarHelper.hide(this);
+                            break;
+                        }
                     }
                 }
-            }
-            // Visualize planes.
-            planeRenderer.drawPlanes(
-                    session.getAllTrackables(Plane.class), camera.getDisplayOrientedPose(), projmtx);
 
-            // Draw models using Canvas
-            if (arSurfaceView.isRunning()) {
-                drawModels();
-            }
+                // Draw planes
+                drawPlanes(canvas, camera);
 
+                // Draw models
+                drawModels(canvas);
+
+                // Unlock canvas
+                holder.unlockCanvasAndPost(canvas);
+            }
 
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
@@ -332,10 +338,16 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         }
     }
 
-    private void drawModels() {
-        SurfaceHolder holder = arSurfaceView.getHolder();
-        Canvas canvas = holder.lockHardwareCanvas();
-        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
+    // Helper drawing functions that invoke drawManager
+    private void drawPlanes(Canvas canvas, Camera camera) {
+        drawManager.drawPlanes(canvas, camera.getPose(), session.getAllTrackables(Plane.class));
+    }
+
+    private void drawPointCloud(Canvas canvas, PointCloud cloud) {
+        drawManager.drawPointCloud(canvas, cloud);
+    }
+
+    private void drawModels(Canvas canvas) {
         for (Anchor anchor : anchors) {
             if (anchor.getTrackingState() != TrackingState.TRACKING) {
                 continue;
@@ -349,7 +361,5 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             drawManager.drawCircle(canvas);
             drawManager.drawText(canvas, "HelloSkAR");
         }
-        holder.unlockCanvasAndPost(canvas);
-
     }
 }
