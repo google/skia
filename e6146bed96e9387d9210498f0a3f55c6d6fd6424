@@ -22,6 +22,30 @@
       "revId": "e6146bed96e9387d9210498f0a3f55c6d6fd6424",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ca23f23_beeeab46",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-12T17:23:33Z",
+      "side": 1,
+      "message": "Ah, good catch. Yup.",
+      "parentUuid": "b0ff82bf_7e68b3ff",
+      "range": {
+        "startLine": 362,
+        "startChar": 46,
+        "endLine": 362,
+        "endChar": 81
+      },
+      "revId": "e6146bed96e9387d9210498f0a3f55c6d6fd6424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
