@@ -584,6 +584,22 @@ static SkPath create_path_40() {
     return path;
 }
 
+// Reduction from crbug.com/860453. Tests a case where a "missing" intersection
+// requires the active edge list to go out-of-order.
+static SkPath create_path_41() {
+    SkPath path;
+    path.moveTo(72154931603311689728.0,   330.95965576171875);
+    path.lineTo(24053266013925408768.0,       78.11376953125);
+    path.lineTo(1.2031099003292404941e+20,  387.168731689453125);
+    path.lineTo(68859835992355373056.0,   346.55047607421875);
+    path.lineTo(76451708695451009024.0,     337.780029296875);
+    path.moveTo(-20815817797613387776.0, 18065700622522384384.0);
+    path.lineTo(-72144121204987396096.0,  142.855804443359375);
+    path.lineTo(72144121204987396096.0,  325.184783935546875);
+    path.lineTo(1.2347242901040791552e+20, 18065700622522384384.0);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -684,4 +700,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_38(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_39());
     test_path(ctx, rtc.get(), create_path_40());
+    test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
 }
