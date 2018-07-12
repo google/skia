@@ -211,7 +211,6 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
     return surfaceContext;
 }
 
-#ifndef SK_LEGACY_GPU_PIXEL_OPS
 static void text_write_fails(Encoding contextEncoding, Encoding writeEncoding, GrContext* context,
                              skiatest::Reporter* reporter) {
     auto surfaceContext = make_surface_context(contextEncoding, context, reporter);
@@ -226,7 +225,6 @@ static void text_write_fails(Encoding contextEncoding, Encoding writeEncoding, G
                encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
     }
 }
-#endif
 
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,
                             float error, CheckFn check, GrContext* context,
@@ -274,54 +272,25 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     // back to sRGB - no conversion.
     test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kSRGB, smallError,
                     check_no_conversion, context, reporter);
-#ifdef SK_LEGACY_GPU_PIXEL_OPS
-    // Untagged read from sRGB is treated as a conversion back to linear. TODO: Fail or don't
-    // convert?
-    test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kUntagged, error,
-                    check_srgb_to_linear_conversion, context, reporter);
-#else
     // Reading back to untagged should be a pass through with no conversion.
     test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kUntagged, error,
                     check_no_conversion, context, reporter);
-#endif
 
     // Converts back to linear
     test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kLinear, error,
                     check_srgb_to_linear_conversion, context, reporter);
 
-#ifdef SK_LEGACY_GPU_PIXEL_OPS
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Write untagged data to a sRGB context - Currently this treats the untagged data as
-    // linear and converts to sRGB during the write. TODO: Fail or passthrough?
-
-    // read back to srgb, no additional conversion
-    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kSRGB, error,
-                    check_linear_to_srgb_conversion, context, reporter);
-    // read back to untagged. Currently converts back to linear. TODO: Fail or don't convert?
-    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kUntagged, error,
-                    check_linear_to_srgb_to_linear_conversion, context, reporter);
-    // Converts back to linear.
-    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kLinear, error,
-                    check_linear_to_srgb_to_linear_conversion, context, reporter);
-#else
     // Currently writing untagged data to kSRGB fails because SkImageInfoValidConversion fails.
     text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
-#endif
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write linear data to a sRGB context. It gets converted to sRGB on write. The reads
     // are all the same as the above cases where the original data was untagged.
     test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kSRGB, error,
                     check_linear_to_srgb_conversion, context, reporter);
-#ifdef SK_LEGACY_GPU_PIXEL_OPS
-    // TODO: Fail or don't convert?
-    test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kUntagged, error,
-                    check_linear_to_srgb_to_linear_conversion, context, reporter);
-#else
     // When the dst buffer is untagged there should be no conversion on the read.
     test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kUntagged, error,
                     check_linear_to_srgb_conversion, context, reporter);
-#endif
     test_write_read(Encoding::kSRGB, Encoding::kLinear, Encoding::kLinear, error,
                     check_linear_to_srgb_to_linear_conversion, context, reporter);
 
@@ -353,24 +322,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     test_write_read(Encoding::kLinear, Encoding::kSRGB, Encoding::kLinear, error,
                     check_srgb_to_linear_conversion, context, reporter);
 
-#ifdef SK_LEGACY_GPU_PIXEL_OPS
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Write untagged data to a linear context. Currently does no conversion. TODO: Should this
-    // fail?
-
-    // Reading to sRGB does a conversion.
-    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kSRGB, error,
-                    check_linear_to_srgb_conversion, context, reporter);
-    // Reading to untagged does no conversion. TODO: Should it fail?
-    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kUntagged, error,
-                    check_no_conversion, context, reporter);
-    // Stays linear when read.
-    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kLinear, error,
-                    check_no_conversion, context, reporter);
-#else
     // Currently writing untagged data to kLinear fails because SkImageInfoValidConversion fails.
     text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
-#endif
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write linear data to a linear context. Does no conversion.
