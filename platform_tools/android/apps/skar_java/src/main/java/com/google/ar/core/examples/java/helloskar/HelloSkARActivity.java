@@ -16,6 +16,8 @@
 
 package com.google.ar.core.examples.java.helloskar;
 
+import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -94,6 +96,11 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
 
+    // Animation fields
+    float radius;
+    String PROPERTY_RADIUS = "radius";
+    ValueAnimator animator;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,6 +122,21 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         installRequested = false;
+
+        // Animator set up
+        PropertyValuesHolder propertyRadius = PropertyValuesHolder.ofFloat(PROPERTY_RADIUS, 0, 0.5f);
+        animator = new ValueAnimator();
+        animator.setValues(propertyRadius);
+        animator.setDuration(1000);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                radius = (float) animation.getAnimatedValue(PROPERTY_RADIUS);
+            }
+        });
+        animator.start();
     }
 
     @Override
@@ -359,6 +381,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
             drawManager.drawRect(canvas);
             drawManager.drawCircle(canvas);
+            drawManager.drawAnimatedRoundRect(canvas, radius);
             drawManager.drawText(canvas, "HelloSkAR");
         }
     }
