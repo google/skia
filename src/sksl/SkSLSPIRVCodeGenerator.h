@@ -96,7 +96,6 @@ private:
         kMix_SpecialIntrinsic,
         kMod_SpecialIntrinsic,
         kSubpassLoad_SpecialIntrinsic,
-        kTexelFetch_SpecialIntrinsic,
         kTexture_SpecialIntrinsic,
     };
 

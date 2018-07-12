@@ -235,8 +235,6 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 
     shaderCaps->fIntegerSupport = true;
-    shaderCaps->fTexelBufferSupport = false;
-    shaderCaps->fTexelFetchSupport = false;
     shaderCaps->fVertexIDSupport = false;
     shaderCaps->fImageLoadStoreSupport = false;
 

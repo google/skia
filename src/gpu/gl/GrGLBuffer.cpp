@@ -139,7 +139,6 @@ void GrGLBuffer::onRelease() {
             GL_CALL(DeleteBuffers(1, &fBufferID));
             fBufferID = 0;
             fGLSizeInBytes = 0;
-            this->glGpu()->notifyBufferReleased(this);
         }
         fMapPtr = nullptr;
         VALIDATE();
