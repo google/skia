@@ -920,6 +920,7 @@ public:
         return (int) (fContentEnd - fContentStart);
     }
 
+    const char* methodEnd() const;
     bool methodHasReturn(string name, TextParser* methodParser) const;
     string methodName() const;
     bool nextMethodParam(TextParser* methodParser, const char** nextEndPtr,

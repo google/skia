@@ -1497,8 +1497,6 @@ Does not copy, and returns false if:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_readPixels_dstInfo'><code><strong>dstInfo</strong></code></a></td>
@@ -1595,8 +1593,6 @@ Does not copy, and returns false if:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_readPixels_2_pixmap'><code><strong>pixmap</strong></code></a></td>
@@ -1677,8 +1673,6 @@ Does not copy, and returns false if:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_readPixels_3_bitmap'><code><strong>bitmap</strong></code></a></td>
@@ -1758,8 +1752,6 @@ Does not copy, and returns false if:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkCanvas_writePixels_info'><code><strong>info</strong></code></a></td>
@@ -1835,8 +1827,6 @@ Does not copy, and returns false if:
     <td><a href='#SkCanvas_writePixels_2_bitmap'>bitmap</a> pixels are inaccessible; for instance, <a href='#SkCanvas_writePixels_2_bitmap'>bitmap</a> wraps a texture.</td>
   </tr>
 </table>
-
-.
 
 ### Parameters
 

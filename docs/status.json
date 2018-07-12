@@ -3,6 +3,7 @@
         "include": {
             "core": [
                 "SkBitmap.h",
+                "SkBlendMode.h",
                 "SkCanvas.h",
                 "SkColor.h",
                 "SkImage.h",
@@ -10,14 +11,17 @@
                 "SkMatrix.h",
                 "SkPaint.h",
                 "SkPath.h",
+                "SkPicture.h",
                 "SkPixmap.h",
                 "SkPoint.h",
+                "SkRRect.h",
                 "SkRect.h",
                 "SkSurface.h"
             ]
         },
         "docs": [
             "SkAutoCanvasRestore_Reference.bmh",
+            "SkBlendMode_Reference.bmh",
             "SkCanvas_Reference.bmh",
             "SkColor_Reference.bmh",
             "SkColor4f_Reference.bmh",
@@ -27,6 +31,8 @@
             "SkImage_Reference.bmh",
             "SkImageInfo_Reference.bmh",
             "SkPath_Reference.bmh",
+            "SkPicture_Reference.bmh",
+            "SkRRect_Reference.bmh",
             "SkRect_Reference.bmh",
             "SkBitmap_Reference.bmh",
             "SkIPoint_Reference.bmh",
@@ -40,15 +46,9 @@
     "InProgress": {
         "include": {
             "core": [
-                "SkBlendMode.h",
-                "SkPicture.h",
-                "SkRRect.h"
             ]
         },
         "docs": [
-            "SkBlendMode_Reference.bmh",
-            "SkPicture_Reference.bmh",
-            "SkRRect_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

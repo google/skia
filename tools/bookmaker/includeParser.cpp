@@ -305,9 +305,10 @@ bool IncludeParser::crossCheck(BmhParser& bmhParser) {
                     if (!def) {
                         int skip = !strncmp(token.fContentStart, "explicit ", 9) ? 9 : 0;
                         skip = !strncmp(token.fContentStart, "virtual ", 8) ? 8 : skip;
+                        const char* tokenEnd = token.methodEnd();
                         string constructorName = className + "::";
                         constructorName += string(token.fContentStart + skip,
-                                token.fContentEnd - token.fContentStart - skip);
+                                tokenEnd - token.fContentStart - skip);
                         def = root->find(constructorName, RootDefinition::AllowParens::kYes);
                     }
                     if (!def && 0 == token.fName.find("SK_")) {
@@ -1860,6 +1861,9 @@ bool IncludeParser::parseMethod(Definition* child, Definition* markupDef) {
         tokenIter = operatorCheck;
     }
     string nameStr(tokenIter->fStart, nameEnd - tokenIter->fStart);
+    if (string::npos != nameStr.find("sizeof")) {
+        SkDebugf("");
+    }
     if (addConst) {
         nameStr += "_const";
     }
@@ -2076,6 +2080,9 @@ bool IncludeParser::parseObject(Definition* child, Definition* markupDef) {
                             if (previousToken.startsWith("defined")) {
                                 break;
                             }
+                        }
+                        if (previousToken.startsWith("sizeof") && 6 == previousToken.lineLength()) {
+                            break;
                         }
                     }
                     if (fPriorObject && MarkType::kConst == fPriorObject->fMarkType) {
