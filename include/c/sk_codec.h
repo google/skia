@@ -25,7 +25,6 @@ SK_C_API void sk_codec_get_scaled_dimensions(sk_codec_t* codec, float desiredSca
 SK_C_API bool sk_codec_get_valid_subset(sk_codec_t* codec, sk_irect_t* desiredSubset);
 SK_C_API sk_encoded_image_format_t sk_codec_get_encoded_format(sk_codec_t* codec);
 SK_C_API sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options);
-SK_C_API sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes);
 SK_C_API sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* info, void* pixels, size_t rowBytes, const sk_codec_options_t* options);
 SK_C_API sk_codec_result_t sk_codec_incremental_decode(sk_codec_t* codec, int* rowsDecoded);
 SK_C_API sk_codec_result_t sk_codec_start_scanline_decode(sk_codec_t* codec, const sk_imageinfo_t* info, const sk_codec_options_t* options);

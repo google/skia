@@ -66,13 +66,6 @@ sk_codec_result_t sk_codec_get_pixels(sk_codec_t* codec, const sk_imageinfo_t* c
     return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes, AsCodecOptions(coptions));
 }
 
-sk_codec_result_t sk_codec_get_pixels_using_defaults(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes)
-{
-    SkImageInfo info;
-    from_c(*cinfo, &info);
-    return (sk_codec_result_t)AsCodec(codec)->getPixels(info, pixels, rowBytes);
-}
-
 sk_codec_result_t sk_codec_start_incremental_decode(sk_codec_t* codec, const sk_imageinfo_t* cinfo, void* pixels, size_t rowBytes, const sk_codec_options_t* coptions)
 {
     SkImageInfo info;
