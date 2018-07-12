@@ -158,7 +158,6 @@ public:
         const SkString* begin() const { return fStrings.begin(); }
         const SkString*   end() const { return fStrings.end(); }
 
-    private:
         void reset() { fStrings.reset(); }
 
         void append(const char* string) {

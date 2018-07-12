@@ -1303,6 +1303,15 @@ int main(int argc, char** argv) {
 #endif
     SkCommandLineFlags::Parse(argc, argv);
 
+    FLAGS_match.reset();
+    FLAGS_match.append("image-cacherator-from-texture");
+
+    FLAGS_config.reset();
+    FLAGS_config.append("glmsaa8");
+
+    FLAGS_src.reset();
+    FLAGS_src.append("gm");
+
     if (!FLAGS_nativeFonts) {
         gSkFontMgr_DefaultFactory = &sk_tool_utils::MakePortableFontMgr;
     }

@@ -134,6 +134,10 @@ public:
             : fMemoryPool(preallocSize, minAllocSize) {
     }
 
+    ~GrOpMemoryPool() {
+        SkDebugf("~GrOpMemoryPool %x\n", this);
+    }
+
     template <typename Op, typename... OpArgs>
     std::unique_ptr<Op> allocate(OpArgs&&... opArgs) {
         char* mem = (char*) fMemoryPool.allocate(sizeof(Op));

@@ -33,7 +33,9 @@ void GrTextureOpList::deleteOp(int index) {
 }
 
 void GrTextureOpList::deleteOps() {
+    SkDebugf("deleteOps %x\n", this);
     for (int i = 0; i < fRecordedOps.count(); ++i) {
+        SkDebugf("deleting op: %x\n", fRecordedOps[i].get());
         fOpMemoryPool->release(std::move(fRecordedOps[i]));
     }
     fRecordedOps.reset();
