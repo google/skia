@@ -26,50 +26,52 @@ static const int CLOSE = 5;
 // Creating/Exporting Paths
 // =================================================================================
 
-void EMSCRIPTEN_KEEPALIVE SkPathToVerbsArgsArray(SkPath path, emscripten::val /*Array*/ verbs,
-                                                 emscripten::val /*Array*/ args) {
-    SkPath::Iter iter(path, false);
+template <typename VisitFunc>
+void VisitPath(const SkPath& p, VisitFunc&& f) {
+    SkPath::RawIter iter(p);
     SkPoint pts[4];
     SkPath::Verb verb;
-    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
-        switch (verb) {
-            case SkPath::kMove_Verb:
-                verbs.call<void>("push", MOVE);
-                args.call<void>("push", pts[0].x());
-                args.call<void>("push", pts[0].y());
-                break;
-            case SkPath::kLine_Verb:
-                verbs.call<void>("push", LINE);
-                args.call<void>("push", pts[1].x());
-                args.call<void>("push", pts[1].y());
-                break;
-            case SkPath::kQuad_Verb:
-                verbs.call<void>("push", QUAD);
-                args.call<void>("push", pts[1].x());
-                args.call<void>("push", pts[1].y());
-                args.call<void>("push", pts[2].x());
-                args.call<void>("push", pts[2].y());
-                break;
-            case SkPath::kConic_Verb:
-                printf("unsupported conic verb\n");
-                // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
-                break;
-            case SkPath::kCubic_Verb:
-                verbs.call<void>("push", CUBIC);
-                args.call<void>("push", pts[1].x());
-                args.call<void>("push", pts[1].y());
-                args.call<void>("push", pts[2].x());
-                args.call<void>("push", pts[2].y());
-                args.call<void>("push", pts[3].x());
-                args.call<void>("push", pts[3].y());
-                break;
-            case SkPath::kClose_Verb:
-                verbs.call<void>("push", CLOSE);
-                break;
-            case SkPath::kDone_Verb:
-                break;
-        }
+    while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
+        f(verb, pts);
     }
+}
+
+void EMSCRIPTEN_KEEPALIVE SkPathToVerbsArgsArray(const SkPath& path,
+                                                 emscripten::val /*Array*/ verbs,
+                                                 emscripten::val /*Array*/ args) {
+    VisitPath(path, [&verbs, &args](SkPath::Verb verb, const SkPoint pts[4]) {
+        switch (verb) {
+        case SkPath::kMove_Verb:
+            verbs.call<void>("push", MOVE);
+            args.call<void>("push", pts[0].x(), pts[0].y());
+            break;
+        case SkPath::kLine_Verb:
+            verbs.call<void>("push", LINE);
+            args.call<void>("push", pts[1].x(), pts[1].y());
+            break;
+        case SkPath::kQuad_Verb:
+            verbs.call<void>("push", QUAD);
+            args.call<void>("push", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
+            break;
+        case SkPath::kConic_Verb:
+            printf("unsupported conic verb\n");
+            // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
+            break;
+        case SkPath::kCubic_Verb:
+            verbs.call<void>("push", CUBIC);
+            args.call<void>("push",
+                            pts[1].x(), pts[1].y(),
+                            pts[2].x(), pts[2].y(),
+                            pts[3].x(), pts[3].y());
+            break;
+        case SkPath::kClose_Verb:
+            verbs.call<void>("push", CLOSE);
+            break;
+        case SkPath::kDone_Verb:
+            SkASSERT(false);
+            break;
+        }
+    });
 }
 
 emscripten::val JSArray = emscripten::val::global("Array");
@@ -77,50 +79,37 @@ emscripten::val JSArray = emscripten::val::global("Array");
 emscripten::val EMSCRIPTEN_KEEPALIVE SkPathToCmdArray(SkPath path) {
     val cmds = JSArray.new_();
 
-    SkPath::Iter iter(path, false);
-    SkPoint pts[4];
-    SkPath::Verb verb;
-    while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
+    VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4]) {
         val cmd = JSArray.new_();
         switch (verb) {
-            case SkPath::kMove_Verb:
-                cmd.call<void>("push", MOVE);
-                cmd.call<void>("push", pts[0].x());
-                cmd.call<void>("push", pts[0].y());
-                break;
-            case SkPath::kLine_Verb:
-                cmd.call<void>("push", LINE);
-                cmd.call<void>("push", pts[1].x());
-                cmd.call<void>("push", pts[1].y());
-                break;
-            case SkPath::kQuad_Verb:
-                cmd.call<void>("push", QUAD);
-                cmd.call<void>("push", pts[1].x());
-                cmd.call<void>("push", pts[1].y());
-                cmd.call<void>("push", pts[2].x());
-                cmd.call<void>("push", pts[2].y());
-                break;
-            case SkPath::kConic_Verb:
-                printf("unsupported conic verb\n");
-                // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
-                break;
-            case SkPath::kCubic_Verb:
-                cmd.call<void>("push", CUBIC);
-                cmd.call<void>("push", pts[1].x());
-                cmd.call<void>("push", pts[1].y());
-                cmd.call<void>("push", pts[2].x());
-                cmd.call<void>("push", pts[2].y());
-                cmd.call<void>("push", pts[3].x());
-                cmd.call<void>("push", pts[3].y());
-                break;
-            case SkPath::kClose_Verb:
-                cmd.call<void>("push", CLOSE);
-                break;
-            case SkPath::kDone_Verb:
-                break;
+        case SkPath::kMove_Verb:
+            cmd.call<void>("push", MOVE, pts[0].x(), pts[0].y());
+            break;
+        case SkPath::kLine_Verb:
+            cmd.call<void>("push", LINE, pts[1].x(), pts[1].y());
+            break;
+        case SkPath::kQuad_Verb:
+            cmd.call<void>("push", QUAD, pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
+            break;
+        case SkPath::kConic_Verb:
+            printf("unsupported conic verb\n");
+            // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
+            break;
+        case SkPath::kCubic_Verb:
+            cmd.call<void>("push", CUBIC,
+                           pts[1].x(), pts[1].y(),
+                           pts[2].x(), pts[2].y(),
+                           pts[3].x(), pts[3].y());
+            break;
+        case SkPath::kClose_Verb:
+            cmd.call<void>("push", CLOSE);
+            break;
+        case SkPath::kDone_Verb:
+            SkASSERT(false);
+            break;
         }
         cmds.call<void>("push", cmd);
-    }
+    });
     return cmds;
 }
 
@@ -134,10 +123,10 @@ emscripten::val EMSCRIPTEN_KEEPALIVE SkPathToCmdArray(SkPath path) {
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
-SkPath EMSCRIPTEN_KEEPALIVE SkPathFromVerbsArgsTyped(int /* uint8_t* */  vptr, int numVerbs,
-                                                     int /* float* */aptr, int numArgs) {
-    auto verbs = reinterpret_cast<uint8_t*>(vptr);
-    auto args = reinterpret_cast<float*>(aptr);
+SkPath EMSCRIPTEN_KEEPALIVE SkPathFromVerbsArgsTyped(uintptr_t /* uint8_t* */ vptr, int numVerbs,
+                                                     uintptr_t /* float*   */ aptr, int numArgs) {
+    const auto* verbs = reinterpret_cast<const uint8_t*>(vptr);
+    const auto* args = reinterpret_cast<const float*>(aptr);
     SkPath path;
     int argsIndex = 0;
     float x1, y1, x2, y2, x3, y3;
@@ -189,8 +178,8 @@ SkPath EMSCRIPTEN_KEEPALIVE SkPathFromVerbsArgsTyped(int /* uint8_t* */  vptr, i
 }
 
 // See above comment for rational of pointer mess
-SkPath EMSCRIPTEN_KEEPALIVE SkPathFromCmdTyped(int /* float* */cptr, int numCmds) {
-    auto cmds = reinterpret_cast<float*>(cptr);
+SkPath EMSCRIPTEN_KEEPALIVE SkPathFromCmdTyped(uintptr_t /* float* */ cptr, int numCmds) {
+    const auto* cmds = reinterpret_cast<const float*>(cptr);
     SkPath path;
     float x1, y1, x2, y2, x3, y3;
 
