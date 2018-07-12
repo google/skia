@@ -82,10 +82,14 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (component == *fContext.fDouble_Type) {
                 result = "dvec";
             }
-            else if (component == *fContext.fInt_Type || component == *fContext.fShort_Type) {
+            else if (component == *fContext.fInt_Type ||
+                     component == *fContext.fShort_Type ||
+                     component == *fContext.fByte_Type) {
                 result = "ivec";
             }
-            else if (component == *fContext.fUInt_Type || component == *fContext.fUShort_Type) {
+            else if (component == *fContext.fUInt_Type ||
+                     component == *fContext.fUShort_Type ||
+                     component == *fContext.fUByte_Type) {
                 result = "uvec";
             }
             else if (component == *fContext.fBool_Type) {
@@ -132,6 +136,12 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
                 return "int";
             }
             else if (type == *fContext.fUShort_Type) {
+                return "uint";
+            }
+            else if (type == *fContext.fByte_Type) {
+                return "int";
+            }
+            else if (type == *fContext.fUByte_Type) {
                 return "uint";
             }
             else {
