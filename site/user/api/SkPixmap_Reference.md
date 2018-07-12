@@ -332,7 +332,7 @@ memory if desired.
 
 ### Example
 
-<div><fiddle-embed name="f4365ef332f51f7fd25040e0771ba9a2">
+<div><fiddle-embed name="d9eb583c39f4f0baea79896b89245c98">
 
 #### Example Output
 
@@ -910,7 +910,7 @@ size in bytes of image buffer
 
 ### Example
 
-<div><fiddle-embed name="e9411d676d1fa13b46331abe9e14ad3e">
+<div><fiddle-embed name="410d14ddc45d272598c5a4e52bb047de">
 
 #### Example Output
 
