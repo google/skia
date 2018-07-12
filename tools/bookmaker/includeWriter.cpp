@@ -436,6 +436,9 @@ void IncludeWriter::enumHeaderOut(RootDefinition* root, const Definition& child)
                 enumDef = &mapEntry->second;
             }
         }
+        if (!enumDef && enumName == root->fName) {
+            enumDef = root;
+        }
         SkASSERT(enumDef);
         // child[0] should be #Code comment starts at child[0].fTerminator
             // though skip until #Code is found (in case there's a #ToDo, etc)
@@ -1464,7 +1467,13 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                 while (continueEnd > fContinuation && isspace(continueEnd[-1])) {
                     --continueEnd;
                 }
-                methodName += string(fContinuation, continueEnd - fContinuation);
+                const char defaultTag[] = " = default";
+                size_t tagSize = sizeof(defaultTag) - 1;
+                const char* tokenEnd = continueEnd - tagSize;
+                if (tokenEnd <= fContinuation || strncmp(tokenEnd, defaultTag, tagSize)) {
+                    tokenEnd = continueEnd;
+                }
+                methodName += string(fContinuation, tokenEnd - fContinuation);
                 if (string::npos != methodName.find('\n')) {
                     methodName.erase(std::remove(methodName.begin(), methodName.end(), '\n'),
                                     methodName.end());

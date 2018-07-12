@@ -533,11 +533,14 @@ bool Definition::checkMethod() const {
     // check after end of #Line and before next child for description
     const char* descStart = fContentStart;
     const char* descEnd = nullptr;
+    const Definition* defEnd = nullptr;
+    const Definition* priorDef = nullptr;
     for (auto& child : fChildren) {
         if (MarkType::kAnchor == child->fMarkType) {
             continue;
         }
         if (MarkType::kCode == child->fMarkType) {
+            priorDef = child;
             continue;
         }
         if (MarkType::kDeprecated == child->fMarkType) {
@@ -550,6 +553,7 @@ bool Definition::checkMethod() const {
             continue;
         }
         if (MarkType::kList == child->fMarkType) {
+            priorDef = child;
             continue;
         }
         if (MarkType::kMarkChar == child->fMarkType) {
@@ -565,10 +569,12 @@ bool Definition::checkMethod() const {
         if (!emptyCheck.eof() && emptyCheck.skipWhiteSpace()) {
             descStart = emptyCheck.fChar;
             emptyCheck.trimEnd();
+            defEnd = priorDef;
             descEnd = emptyCheck.fEnd;
             break;
         }
         descStart = child->fTerminator;
+        priorDef = nullptr;
     }
     if (!descEnd) {
         return methodParser.reportError<bool>("missing description");
@@ -579,7 +585,9 @@ bool Definition::checkMethod() const {
     if (!isupper(descStart[0])) {
         description.reportWarning("expected capital");
     } else if ('.' != descEnd[-1]) {
-        description.reportWarning("expected period");
+        if (!defEnd || defEnd->fTerminator != descEnd) {
+            description.reportWarning("expected period");
+        }
     } else {
         if (!description.startsWith("For use by Android")) {
             description.skipToSpace();
@@ -619,10 +627,21 @@ bool Definition::crossCheck(const Definition& includeToken) const {
     return crossCheckInside(fContentStart, fContentEnd, includeToken);
 }
 
+const char* Definition::methodEnd() const {
+    const char defaultTag[] = " = default";
+    size_t tagSize = sizeof(defaultTag) - 1;
+    const char* tokenEnd = fContentEnd - tagSize;
+    if (tokenEnd <= fContentStart || strncmp(tokenEnd, defaultTag, tagSize)) {
+        tokenEnd = fContentEnd;
+    }
+    return tokenEnd;
+}
+
 bool Definition::crossCheckInside(const char* start, const char* end,
         const Definition& includeToken) const {
     TextParser def(fFileName, start, end, fLineCount);
-    TextParser inc("", includeToken.fContentStart, includeToken.fContentEnd, 0);
+    const char* tokenEnd = includeToken.methodEnd();
+    TextParser inc("", includeToken.fContentStart, tokenEnd, 0);
     if (inc.startsWith("SK_API")) {
         inc.skipWord("SK_API");
     }

@@ -1404,7 +1404,6 @@ Calls reset() and returns false if:
 # imageInfo.height() is negative ##
 # rowBytes is positive and less than imageInfo.width() times imageInfo.bytesPerPixel ##
 ##
-.
 
 #Param imageInfo  contains width, height, Alpha_Type, Color_Type, Color_Space ##
 #Param rowBytes   imageInfo.minRowBytes or larger; or zero ##
@@ -2573,7 +2572,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 # x is negative, or not less than width() ##
 # y is negative, or not less than height() ##
 ##
-.
 
 #Param x  column index, zero or greater, and less than width() ##
 #Param y  row index, zero or greater, and less than height() ##
@@ -2609,7 +2607,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 # x is negative, or not less than width() ##
 # y is negative, or not less than height() ##
 ##
-.
 
 #Param x  column index, zero or greater, and less than width() ##
 #Param y  row index, zero or greater, and less than height() ##
@@ -2651,7 +2648,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
 # x is negative, or not less than width() ##
 # y is negative, or not less than height() ##
 ##
-.
 
 #Param x  column index, zero or greater, and less than width() ##
 #Param y  row index, zero or greater, and less than height() ##
@@ -2697,7 +2693,6 @@ Return false if:
 # Pixel_Ref is nullptr ##
 # subset does not intersect bounds() ##
 ##
-.
 
 #Param dst  Bitmap set to subset ##
 #Param subset  rectangle of pixels to reference ##
@@ -2763,7 +2758,6 @@ row to the next. Returns true if pixels are copied. Returns false if:
 # dstRowBytes is less than dstInfo.minRowBytes ##
 # Pixel_Ref is nullptr ##
 ##
-.
 
 Pixels are copied only if pixel conversion is possible. If Bitmap colorType is
 kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType must match.
