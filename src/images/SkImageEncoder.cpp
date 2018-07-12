@@ -40,19 +40,16 @@ bool SkEncodeImage(SkWStream* dst, const SkPixmap& src,
             case SkEncodedImageFormat::kJPEG: {
                 SkJpegEncoder::Options opts;
                 opts.fQuality = quality;
-                opts.fBlendBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkJpegEncoder::Encode(dst, src, opts);
             }
             case SkEncodedImageFormat::kPNG: {
                 SkPngEncoder::Options opts;
-                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkPngEncoder::Encode(dst, src, opts);
             }
             case SkEncodedImageFormat::kWEBP: {
                 SkWebpEncoder::Options opts;
                 opts.fCompression = SkWebpEncoder::Compression::kLossy;
                 opts.fQuality = quality;
-                opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
                 return SkWebpEncoder::Encode(dst, src, opts);
             }
             default:

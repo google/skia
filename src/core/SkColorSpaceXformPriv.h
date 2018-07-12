@@ -10,13 +10,7 @@
 
 #include "SkColorSpaceXform.h"
 
-std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src,
-                                                         SkColorSpace* dst,
-                                                         SkTransferFunctionBehavior);
-
-std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform_skcms(SkColorSpace* src,
-                                                              SkColorSpace* dst,
-                                                              SkTransferFunctionBehavior);
+std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform(SkColorSpace* src, SkColorSpace* dst);
 
 static inline SkColorSpaceXform::ColorFormat select_xform_format(SkColorType colorType) {
     switch (colorType) {

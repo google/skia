@@ -877,8 +877,9 @@ public:
                                SkTransferFunctionBehavior::kIgnore
         @return                created SkImage in target SkColorSpace
     */
-    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
-                                  SkTransferFunctionBehavior premulBehavior) const;
+    sk_sp<SkImage> makeColorSpace(
+            sk_sp<SkColorSpace> target,
+            SkTransferFunctionBehavior premulBehavior = SkTransferFunctionBehavior::kIgnore) const;
 
 private:
     SkImage(int width, int height, uint32_t uniqueID);

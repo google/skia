@@ -252,7 +252,7 @@ public:
             , fSubset(nullptr)
             , fFrameIndex(0)
             , fPriorFrame(kNone)
-            , fPremulBehavior(SkTransferFunctionBehavior::kRespect)
+            , fPremulBehavior(SkTransferFunctionBehavior::kIgnore)
         {}
 
         ZeroInitialized            fZeroInitialized;
@@ -803,8 +803,7 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha,
-                              SkTransferFunctionBehavior premulBehavior);
+    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White

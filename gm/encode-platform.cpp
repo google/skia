@@ -72,9 +72,7 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
     #else
         switch (type) {
             case SkEncodedImageFormat::kPNG: {
-                SkPngEncoder::Options options;
-                options.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-                bool success = SkPngEncoder::Encode(&buf, src, options);
+                bool success = SkPngEncoder::Encode(&buf, src, SkPngEncoder::Options());
                 return success ? buf.detachAsData() : nullptr;
             }
             case SkEncodedImageFormat::kJPEG: {
@@ -82,9 +80,7 @@ static sk_sp<SkData> encode_data(SkEncodedImageFormat type, const SkBitmap& bitm
                 return success ? buf.detachAsData() : nullptr;
             }
             case SkEncodedImageFormat::kWEBP: {
-                SkWebpEncoder::Options options;
-                options.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-                bool success = SkWebpEncoder::Encode(&buf, src, options);
+                bool success = SkWebpEncoder::Encode(&buf, src, SkWebpEncoder::Options());
                 return success ? buf.detachAsData() : nullptr;
             }
             default:

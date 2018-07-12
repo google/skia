@@ -1457,21 +1457,16 @@ DEF_TEST(Codec_InvalidAnimated, r) {
 }
 
 static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap,
-                          SkTransferFunctionBehavior unpremulBehavior,
                           SkEncodedImageFormat format) {
-    SkPngEncoder::Options pngOptions;
-    SkWebpEncoder::Options webpOptions;
-    pngOptions.fUnpremulBehavior = unpremulBehavior;
-    webpOptions.fUnpremulBehavior = unpremulBehavior;
     switch (format) {
         case SkEncodedImageFormat::kPNG:
-            SkPngEncoder::Encode(stream, pixmap, pngOptions);
+            SkPngEncoder::Encode(stream, pixmap, SkPngEncoder::Options());
             break;
         case SkEncodedImageFormat::kJPEG:
             SkJpegEncoder::Encode(stream, pixmap, SkJpegEncoder::Options());
             break;
         case SkEncodedImageFormat::kWEBP:
-            SkWebpEncoder::Encode(stream, pixmap, webpOptions);
+            SkWebpEncoder::Encode(stream, pixmap, SkWebpEncoder::Options());
             break;
         default:
             SkASSERT(false);
@@ -1479,8 +1474,7 @@ static void encode_format(SkDynamicMemoryWStream* stream, const SkPixmap& pixmap
     }
 }
 
-static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
-                            SkTransferFunctionBehavior unpremulBehavior) {
+static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) {
     // Test with sRGB color space.
     SkBitmap srgbBitmap;
     SkImageInfo srgbInfo = SkImageInfo::MakeS32(1, 1, kOpaque_SkAlphaType);
@@ -1489,7 +1483,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     SkPixmap pixmap;
     srgbBitmap.peekPixels(&pixmap);
     SkDynamicMemoryWStream srgbBuf;
-    encode_format(&srgbBuf, pixmap, unpremulBehavior, format);
+    encode_format(&srgbBuf, pixmap, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::MakeFromData(srgbData));
     REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
@@ -1499,7 +1493,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
     sk_sp<SkColorSpace> p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                                    SkColorSpace::kDCIP3_D65_Gamut);
     pixmap.setColorSpace(p3);
-    encode_format(&p3Buf, pixmap, unpremulBehavior, format);
+    encode_format(&p3Buf, pixmap, format);
     sk_sp<SkData> p3Data = p3Buf.detachAsData();
     std::unique_ptr<SkCodec> p3Codec(SkCodec::MakeFromData(p3Data));
     REPORTER_ASSERT(r, p3Codec->getInfo().colorSpace()->gammaCloseToSRGB());
@@ -1518,12 +1512,9 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format,
 }
 
 DEF_TEST(Codec_EncodeICC, r) {
-    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kRespect);
-    test_encode_icc(r, SkEncodedImageFormat::kPNG, SkTransferFunctionBehavior::kIgnore);
-    test_encode_icc(r, SkEncodedImageFormat::kJPEG, SkTransferFunctionBehavior::kIgnore);
-    test_encode_icc(r, SkEncodedImageFormat::kWEBP, SkTransferFunctionBehavior::kIgnore);
+    test_encode_icc(r, SkEncodedImageFormat::kPNG);
+    test_encode_icc(r, SkEncodedImageFormat::kJPEG);
+    test_encode_icc(r, SkEncodedImageFormat::kWEBP);
 }
 
 DEF_TEST(Codec_webp_rowsDecoded, r) {

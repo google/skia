@@ -992,7 +992,7 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
                     int srcX, int srcY) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                SkTransferFunctionBehavior::kRespect);
+                SkTransferFunctionBehavior::kIgnore);
     }
 
     /** Copies a SkRect of pixels from SkBitmap to dst. Copy starts at (srcX, srcY), and
@@ -1074,7 +1074,7 @@ public:
         @return      true if src pixels are copied to SkBitmap
     */
     bool writePixels(const SkPixmap& src, int dstX, int dstY) {
-        return this->writePixels(src, dstX, dstY, SkTransferFunctionBehavior::kRespect);
+        return this->writePixels(src, dstX, dstY, SkTransferFunctionBehavior::kIgnore);
     }
 
     /** Copies a SkRect of pixels from src. Copy starts at (0, 0), and does not exceed

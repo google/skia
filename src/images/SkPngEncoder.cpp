@@ -55,7 +55,7 @@ public:
     bool setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::Options& options);
     bool setColorSpace(const SkImageInfo& info);
     bool writeInfo(const SkImageInfo& srcInfo);
-    void chooseProc(const SkImageInfo& srcInfo, SkTransferFunctionBehavior unpremulBehavior);
+    void chooseProc(const SkImageInfo& srcInfo);
 
     png_structp pngPtr() { return fPngPtr; }
     png_infop infoPtr() { return fInfoPtr; }
@@ -230,10 +230,7 @@ bool SkPngEncoderMgr::setHeader(const SkImageInfo& srcInfo, const SkPngEncoder::
     return true;
 }
 
-static transform_scanline_proc choose_proc(const SkImageInfo& info,
-                                           SkTransferFunctionBehavior unpremulBehavior) {
-    const bool isSRGBTransferFn =
-            (SkTransferFunctionBehavior::kRespect == unpremulBehavior) && info.gammaCloseToSRGB();
+static transform_scanline_proc choose_proc(const SkImageInfo& info) {
     switch (info.colorType()) {
         case kRGBA_8888_SkColorType:
             switch (info.alphaType()) {
@@ -242,8 +239,7 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                 case kUnpremul_SkAlphaType:
                     return transform_scanline_memcpy;
                 case kPremul_SkAlphaType:
-                    return isSRGBTransferFn ? transform_scanline_srgbA :
-                                              transform_scanline_rgbA;
+                    return transform_scanline_rgbA;
                 default:
                     SkASSERT(false);
                     return nullptr;
@@ -255,8 +251,7 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
                 case kUnpremul_SkAlphaType:
                     return transform_scanline_BGRA;
                 case kPremul_SkAlphaType:
-                    return isSRGBTransferFn ? transform_scanline_sbgrA :
-                                              transform_scanline_bgrA;
+                    return transform_scanline_bgrA;
                 default:
                     SkASSERT(false);
                     return nullptr;
@@ -369,9 +364,8 @@ bool SkPngEncoderMgr::writeInfo(const SkImageInfo& srcInfo) {
     return true;
 }
 
-void SkPngEncoderMgr::chooseProc(const SkImageInfo& srcInfo,
-                                 SkTransferFunctionBehavior unpremulBehavior) {
-    fProc = choose_proc(srcInfo, unpremulBehavior);
+void SkPngEncoderMgr::chooseProc(const SkImageInfo& srcInfo) {
+    fProc = choose_proc(srcInfo);
 }
 
 std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& src,
@@ -397,7 +391,7 @@ std::unique_ptr<SkEncoder> SkPngEncoder::Make(SkWStream* dst, const SkPixmap& sr
         return nullptr;
     }
 
-    encoderMgr->chooseProc(src.info(), options.fUnpremulBehavior);
+    encoderMgr->chooseProc(src.info());
 
     return std::unique_ptr<SkPngEncoder>(new SkPngEncoder(std::move(encoderMgr), src));
 }

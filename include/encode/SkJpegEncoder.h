@@ -61,7 +61,7 @@ public:
          *  In the second case, the encoder supports linear or legacy blending.
          */
         AlphaOption fAlphaOption = AlphaOption::kIgnore;
-        SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kRespect;
+        SkTransferFunctionBehavior fBlendBehavior = SkTransferFunctionBehavior::kIgnore;
     };
 
     /**

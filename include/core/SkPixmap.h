@@ -616,7 +616,7 @@ public:
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
                     int srcY) const {
         return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                                SkTransferFunctionBehavior::kRespect);
+                                SkTransferFunctionBehavior::kIgnore);
     }
 
     /** Copies a SkRect of pixels to dst. Copy starts at (srcX, srcY), and does not

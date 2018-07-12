@@ -56,7 +56,6 @@ static bool encode_webp_lossy(SkWStream* dst, const SkPixmap& src) {
     SkWebpEncoder::Options opts;
     opts.fCompression = SkWebpEncoder::Compression::kLossy;
     opts.fQuality = 90;
-    opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
     return SkWebpEncoder::Encode(dst, src, opts);
 }
 
@@ -64,7 +63,6 @@ static bool encode_webp_lossless(SkWStream* dst, const SkPixmap& src) {
     SkWebpEncoder::Options opts;
     opts.fCompression = SkWebpEncoder::Compression::kLossless;
     opts.fQuality = 90;
-    opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
     return SkWebpEncoder::Encode(dst, src, opts);
 }
 
@@ -74,7 +72,6 @@ static bool encode_png(SkWStream* dst,
                        int zlibLevel) {
     SkPngEncoder::Options opts;
     opts.fFilterFlags = filters;
-    opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
     opts.fZLibLevel = zlibLevel;
     return SkPngEncoder::Encode(dst, src, opts);
 }

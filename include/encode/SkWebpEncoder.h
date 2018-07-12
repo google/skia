@@ -40,7 +40,7 @@ namespace SkWebpEncoder {
          *  The encoder can convert to linear before unpremultiplying or ignore the transfer
          *  function and unpremultiply the input as is.
          */
-        SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kRespect;
+        SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
     };
 
     /**

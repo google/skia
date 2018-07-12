@@ -94,8 +94,7 @@ public:
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
     bool onIsLazyGenerated() const override { return true; }
     bool onCanLazyGenerateOnGPU() const override;
-    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType,
-                                    SkTransferFunctionBehavior) const override;
+    sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType) const override;
 
     bool onIsValid(GrContext*) const override;
 
@@ -451,8 +450,7 @@ sk_sp<SkImage> SkImage_Lazy::onMakeSubset(const SkIRect& subset) const {
 }
 
 sk_sp<SkImage> SkImage_Lazy::onMakeColorSpace(sk_sp<SkColorSpace> target,
-                                              SkColorType targetColorType,
-                                              SkTransferFunctionBehavior premulBehavior) const {
+                                              SkColorType targetColorType) const {
     SkAutoExclusive autoAquire(fOnMakeColorSpaceMutex);
     if (target && fOnMakeColorSpaceTarget &&
         SkColorSpace::Equals(target.get(), fOnMakeColorSpaceTarget.get())) {

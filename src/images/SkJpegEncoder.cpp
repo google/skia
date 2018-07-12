@@ -74,15 +74,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             return (transform_scanline_proc) nullptr;
         }
 
-        // Note that kRespect mode is only supported with sRGB or linear transfer functions.
-        // The legacy code path is incidentally correct when the transfer function is linear.
-        const bool isSRGBTransferFn = srcInfo.gammaCloseToSRGB() &&
-                (SkTransferFunctionBehavior::kRespect == options.fBlendBehavior);
-        if (isSRGBTransferFn) {
-            return transform_scanline_to_premul_linear;
-        } else {
-            return transform_scanline_to_premul_legacy;
-        }
+        return transform_scanline_to_premul_legacy;
     };
 
     J_COLOR_SPACE jpegColorType = JCS_EXT_RGBA;
@@ -118,8 +110,7 @@ bool SkJpegEncoderMgr::setParams(const SkImageInfo& srcInfo, const SkJpegEncoder
             numComponents = 1;
             break;
         case kRGBA_F16_SkColorType:
-            if (!srcInfo.colorSpace() ||
-                    SkTransferFunctionBehavior::kRespect != options.fBlendBehavior) {
+            if (!srcInfo.colorSpace()) {
                 return false;
             }
 

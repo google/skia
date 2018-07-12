@@ -119,9 +119,7 @@ static float set_error_code(gmkb::Error* error_out, gmkb::Error error) {
 
 static bool WritePixmapToFile(const SkPixmap& pixmap, const char* path) {
     SkFILEWStream wStream(path);
-    SkPngEncoder::Options options;
-    options.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-    return wStream.isValid() && SkPngEncoder::Encode(&wStream, pixmap, options);
+    return wStream.isValid() && SkPngEncoder::Encode(&wStream, pixmap, SkPngEncoder::Options());
 }
 
 constexpr SkColorType kColorType = kRGBA_8888_SkColorType;

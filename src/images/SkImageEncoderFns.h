@@ -163,24 +163,6 @@ static inline void transform_scanline_bgrA(char* SK_RESTRICT dst, const char* SK
     SkUnpremultiplyRow<true>((uint32_t*) dst, (const uint32_t*) src, width);
 }
 
-template <bool kIsRGBA>
-static inline void transform_scanline_unpremultiply_sRGB(void* dst, const void* src, int width) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
-    SkRasterPipeline_<256> p;
-    if (kIsRGBA) {
-        p.append(SkRasterPipeline::load_8888, &src_ctx);
-    } else {
-        p.append(SkRasterPipeline::load_bgra, &src_ctx);
-    }
-
-    p.append(SkRasterPipeline::from_srgb);
-    p.append(SkRasterPipeline::unpremul);
-    p.append(SkRasterPipeline::to_srgb);
-    p.append(SkRasterPipeline::store_8888, &dst_ctx);
-    p.run(0,0, width,1);
-}
-
 /**
  * Premultiply RGBA to rgbA.
  */
@@ -188,39 +170,6 @@ static inline void transform_scanline_to_premul_legacy(char* SK_RESTRICT dst,
                                                        const char* SK_RESTRICT src,
                                                        int width, int, const SkPMColor*) {
     SkOpts::RGBA_to_rgbA((uint32_t*)dst, (const uint32_t*)src, width);
-}
-
-/**
- * Premultiply RGBA to rgbA linearly.
- */
-static inline void transform_scanline_to_premul_linear(char* SK_RESTRICT dst,
-                                                       const char* SK_RESTRICT src,
-                                                       int width, int, const SkPMColor*) {
-    SkJumper_MemoryCtx src_ctx = { (void*)src, 0 },
-                       dst_ctx = { (void*)dst, 0 };
-    SkRasterPipeline_<256> p;
-    p.append(SkRasterPipeline::load_8888, &src_ctx);
-    p.append(SkRasterPipeline::from_srgb);
-    p.append(SkRasterPipeline::premul);
-    p.append(SkRasterPipeline::to_srgb);
-    p.append(SkRasterPipeline::store_8888, &dst_ctx);
-    p.run(0,0, width,1);
-}
-
-/**
- * Transform from kPremul, kRGBA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
- */
-static inline void transform_scanline_srgbA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                            int width, int, const SkPMColor*) {
-    transform_scanline_unpremultiply_sRGB<true>(dst, src, width);
-}
-
-/**
- * Transform from kPremul, kBGRA_8888_SkColorType to 4-bytes-per-pixel unpremultiplied RGBA.
- */
-static inline void transform_scanline_sbgrA(char* SK_RESTRICT dst, const char* SK_RESTRICT src,
-                                            int width, int, const SkPMColor*) {
-    transform_scanline_unpremultiply_sRGB<false>(dst, src, width);
 }
 
 /**
@@ -336,7 +285,6 @@ static inline void transform_scanline_F16(char* SK_RESTRICT dst, const char* SK_
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -353,7 +301,6 @@ static inline void transform_scanline_F16_premul(char* SK_RESTRICT dst, const ch
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -370,7 +317,6 @@ static inline void transform_scanline_F16_to_8888(char* SK_RESTRICT dst,
     p.append(SkRasterPipeline::load_f16, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -388,7 +334,6 @@ static inline void transform_scanline_F16_premul_to_8888(char* SK_RESTRICT dst,
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -405,7 +350,6 @@ static inline void transform_scanline_F16_to_premul_8888(char* SK_RESTRICT dst,
     p.append(SkRasterPipeline::clamp_0);  // F16 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
     p.append(SkRasterPipeline::premul);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_8888, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -421,7 +365,6 @@ static inline void transform_scanline_F32(char* SK_RESTRICT dst, const char* SK_
     p.append(SkRasterPipeline::load_f32, &src_ctx);
     p.append(SkRasterPipeline::clamp_0);  // F32 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -438,7 +381,6 @@ static inline void transform_scanline_F32_premul(char* SK_RESTRICT dst, const ch
     p.append(SkRasterPipeline::unpremul);
     p.append(SkRasterPipeline::clamp_0);  // F32 values may be out of [0,1] range, so clamp.
     p.append(SkRasterPipeline::clamp_1);
-    p.append(SkRasterPipeline::to_srgb);
     p.append(SkRasterPipeline::store_u16_be, &dst_ctx);
     p.run(0,0, width,1);
 }
@@ -447,13 +389,6 @@ static inline sk_sp<SkData> icc_from_color_space(const SkImageInfo& info) {
     SkColorSpace* cs = info.colorSpace();
     if (!cs) {
         return nullptr;
-    }
-
-    sk_sp<SkColorSpace> owned;
-    if (kRGBA_F16_SkColorType == info.colorType() ||
-        kRGBA_F32_SkColorType == info.colorType()) {
-        owned = cs->makeSRGBGamma();
-        cs = owned.get();
     }
 
     SkColorSpaceTransferFn fn;
