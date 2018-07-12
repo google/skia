@@ -53,24 +53,15 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
     return {{color4f.fR, color4f.fG, color4f.fB, color4f.fA}};
 }
 
-static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
-    SkColor4f color4f;
-    swizzle_rb(Sk4f_fromL32(c)).store(color4f.vec());
-
+static inline SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS) {
     // SkColors are always sRGB.
-    return premul_in_dst_colorspace(color4f, SkColorSpace::MakeSRGB().get(), dstCS);
+    return premul_in_dst_colorspace(SkColor4f::FromColor(color),
+                                    SkColorSpace::MakeSRGB().get(), dstCS);
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 // Functions below this line are probably totally broken as far as color space management goes.
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-static inline Sk4f Sk4f_fromS32(uint32_t px) {
-    return { sk_linear_from_srgb[(px >>  0) & 0xff],
-             sk_linear_from_srgb[(px >>  8) & 0xff],
-             sk_linear_from_srgb[(px >> 16) & 0xff],
-                    (1/255.0f) * (px >> 24)          };
-}
 
 static inline uint32_t Sk4f_toS32(const Sk4f& px) {
     Sk4i  rgb = sk_linear_to_srgb(px),
