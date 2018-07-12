@@ -132,16 +132,9 @@ void GrResourceIOProcessor::addTextureSampler(const TextureSampler* access) {
     fTextureSamplers.push_back(access);
 }
 
-void GrResourceIOProcessor::addBufferAccess(const BufferAccess* access) {
-    fBufferAccesses.push_back(access);
-}
-
 void GrResourceIOProcessor::addPendingIOs() const {
     for (const auto& sampler : fTextureSamplers) {
         sampler->programProxy()->markPendingIO();
-    }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->markPendingIO();
     }
 }
 
@@ -149,17 +142,11 @@ void GrResourceIOProcessor::removeRefs() const {
     for (const auto& sampler : fTextureSamplers) {
         sampler->programProxy()->removeRef();
     }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->removeRef();
-    }
 }
 
 void GrResourceIOProcessor::pendingIOComplete() const {
     for (const auto& sampler : fTextureSamplers) {
         sampler->programProxy()->pendingIOComplete();
-    }
-    for (const auto& buffer : fBufferAccesses) {
-        buffer->programBuffer()->pendingIOComplete();
     }
 }
 
@@ -170,23 +157,15 @@ bool GrResourceIOProcessor::instantiate(GrResourceProvider* resourceProvider) co
         }
     }
 
-    // MDB TODO: instantiate 'fBufferAccesses' here as well
-
     return true;
 }
 
-bool GrResourceIOProcessor::hasSameSamplersAndAccesses(const GrResourceIOProcessor& that) const {
-    if (this->numTextureSamplers() != that.numTextureSamplers() ||
-        this->numBuffers() != that.numBuffers()) {
+bool GrResourceIOProcessor::hasSameSamplers(const GrResourceIOProcessor& that) const {
+    if (this->numTextureSamplers() != that.numTextureSamplers()) {
         return false;
     }
     for (int i = 0; i < this->numTextureSamplers(); ++i) {
         if (this->textureSampler(i) != that.textureSampler(i)) {
-            return false;
-        }
-    }
-    for (int i = 0; i < this->numBuffers(); ++i) {
-        if (this->bufferAccess(i) != that.bufferAccess(i)) {
             return false;
         }
     }

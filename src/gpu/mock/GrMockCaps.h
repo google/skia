@@ -25,7 +25,6 @@ public:
 
         fShaderCaps.reset(new GrShaderCaps(contextOptions));
         fShaderCaps->fGeometryShaderSupport = options.fGeometryShaderSupport;
-        fShaderCaps->fTexelBufferSupport = options.fTexelBufferSupport;
         fShaderCaps->fIntegerSupport = options.fIntegerSupport;
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxVertexSamplers = options.fMaxVertexSamplers;

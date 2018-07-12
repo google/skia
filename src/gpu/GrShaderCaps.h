@@ -48,7 +48,6 @@ public:
     bool dstReadInShaderSupport() const { return fDstReadInShaderSupport; }
     bool dualSourceBlendingSupport() const { return fDualSourceBlendingSupport; }
     bool integerSupport() const { return fIntegerSupport; }
-    bool texelBufferSupport() const { return fTexelBufferSupport; }
     int imageLoadStoreSupport() const { return fImageLoadStoreSupport; }
 
     /**
@@ -75,8 +74,6 @@ public:
     bool noperspectiveInterpolationSupport() const { return fNoPerspectiveInterpolationSupport; }
 
     bool externalTextureSupport() const { return fExternalTextureSupport; }
-
-    bool texelFetchSupport() const { return fTexelFetchSupport; }
 
     bool vertexIDSupport() const { return fVertexIDSupport; }
 
@@ -190,11 +187,6 @@ public:
         return fSecondExternalTextureExtensionString;
     }
 
-    const char* texelBufferExtensionString() const {
-        SkASSERT(this->texelBufferSupport());
-        return fTexelBufferExtensionString;
-    }
-
     const char* noperspectiveInterpolationExtensionString() const {
         SkASSERT(this->noperspectiveInterpolationSupport());
         return fNoPerspectiveInterpolationExtensionString;
@@ -250,7 +242,6 @@ private:
     bool fDstReadInShaderSupport            : 1;
     bool fDualSourceBlendingSupport         : 1;
     bool fIntegerSupport                    : 1;
-    bool fTexelBufferSupport                : 1;
     bool fImageLoadStoreSupport             : 1;
     bool fDropsTileOnZeroDivide             : 1;
     bool fFBFetchSupport                    : 1;
@@ -260,7 +251,6 @@ private:
     bool fPreferFlatInterpolation           : 1;
     bool fNoPerspectiveInterpolationSupport : 1;
     bool fExternalTextureSupport            : 1;
-    bool fTexelFetchSupport                 : 1;
     bool fVertexIDSupport                   : 1;
     bool fFPManipulationSupport             : 1;
     bool fFloatIs32Bits                     : 1;
@@ -289,7 +279,6 @@ private:
     const char* fSecondaryOutputExtensionString;
     const char* fExternalTextureExtensionString;
     const char* fSecondExternalTextureExtensionString;
-    const char* fTexelBufferExtensionString;
     const char* fNoPerspectiveInterpolationExtensionString;
     const char* fImageLoadStoreExtensionString;
 

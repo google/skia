@@ -56,8 +56,6 @@ public:
     // Used by GrGLProgram to configure OpenGL state.
     void bindTexture(int unitIdx, const GrSamplerState& samplerState, GrGLTexture* texture);
 
-    void bindTexelBuffer(int unitIdx, GrPixelConfig, GrGLBuffer*);
-
     // These functions should be used to bind GL objects. They track the GL state and skip redundant
     // bindings. Making the equivalent glBind calls directly will confuse the state tracking.
     void bindVertexArray(GrGLuint id) {
@@ -75,9 +73,6 @@ public:
     // When 'type' is kIndex_GrBufferType, this function will also implicitly bind the default VAO.
     // If the caller wishes to bind an index buffer to a specific VAO, it can call glBind directly.
     GrGLenum bindBuffer(GrBufferType type, const GrBuffer*);
-
-    // Called by GrGLBuffer after its buffer object has been destroyed.
-    void notifyBufferReleased(const GrGLBuffer*);
 
     // The GrGLGpuRTCommandBuffer does not buffer up draws before submitting them to the gpu.
     // Thus this is the implementation of the draw call for the corresponding passthrough function
@@ -572,21 +567,6 @@ private:
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
 
     GrGLuint fBoundDrawFramebuffer = 0;
-
-    struct BufferTexture {
-        BufferTexture() : fTextureID(0), fKnownBound(false),
-                          fAttachedBufferUniqueID(SK_InvalidUniqueID),
-                          fSwizzle(GrSwizzle::RGBA()) {}
-
-        GrGLuint                fTextureID;
-        bool                    fKnownBound;
-        GrPixelConfig           fTexelConfig;
-        GrGpuResource::UniqueID fAttachedBufferUniqueID;
-        GrSwizzle               fSwizzle;
-    };
-
-    SkTArray<BufferTexture, true>           fHWBufferTextures;
-    int                                     fHWMaxUsedBufferTextureUnit;
 
     // EXT_raster_multisample.
     TriState                                fHWRasterMultisampleEnabled;

@@ -106,12 +106,6 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
     dsLayout[GrVkUniformHandler::kSamplerDescSet] =
             resourceProvider.getSamplerDSLayout(samplerDSHandle);
 
-    GrVkDescriptorSetManager::Handle texelBufferDSHandle;
-    resourceProvider.getSamplerDescriptorSetHandle(VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,
-                                                   fUniformHandler, &texelBufferDSHandle);
-    dsLayout[GrVkUniformHandler::kTexelBufferDescSet] =
-            resourceProvider.getSamplerDSLayout(texelBufferDSHandle);
-
     // Create the VkPipelineLayout
     VkPipelineLayoutCreateInfo layoutCreateInfo;
     memset(&layoutCreateInfo, 0, sizeof(VkPipelineLayoutCreateFlags));
@@ -197,13 +191,11 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
                                  pipeline,
                                  pipelineLayout,
                                  samplerDSHandle,
-                                 texelBufferDSHandle,
                                  fUniformHandles,
                                  fUniformHandler.fUniforms,
                                  fUniformHandler.fCurrentGeometryUBOOffset,
                                  fUniformHandler.fCurrentFragmentUBOOffset,
                                  (uint32_t)fUniformHandler.numSamplers(),
-                                 (uint32_t)fUniformHandler.numTexelBuffers(),
                                  std::move(fGeometryProcessor),
                                  std::move(fXferProcessor),
                                  std::move(fFragmentProcessors),
