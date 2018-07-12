@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0ff82bf_7e68b3ff",
+        "filename": "src/image/SkImage_Raster.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-12T16:56:05Z",
+      "side": 1,
+      "message": "If you just leave this blank, won\u0027t it default to kIgnore?",
+      "range": {
+        "startLine": 362,
+        "startChar": 46,
+        "endLine": 362,
+        "endChar": 81
+      },
+      "revId": "e6146bed96e9387d9210498f0a3f55c6d6fd6424",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
