@@ -153,7 +153,7 @@ void SkPM4f::assertIsUnit() const {
 
 SkColor4f SkColor4f::FromColor(SkColor bgra) {
     SkColor4f rgba;
-    swizzle_rb(Sk4f_fromS32(bgra)).store(rgba.vec());
+    swizzle_rb(Sk4f_fromL32(bgra)).store(rgba.vec());
     return rgba;
 }
 
