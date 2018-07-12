@@ -378,13 +378,10 @@ $gfloat4 textureOffset($gsampler2DArray sampler, float3 P, int2 offset, float bi
 float textureOffset(sampler1DArrayShadow sampler, float3 P, int offset);
 float textureOffset(sampler1DArrayShadow sampler, float3 P, int offset, float bias);
 float textureOffset(sampler2DArrayShadow sampler, float4 P, int2 offset);
-*/
 float4 texelFetch(samplerBuffer sampler, int P);
-
 $gfloat4 texelFetch($gsampler1D sampler, int P, int lod);
 $gfloat4 texelFetch($gsampler2D sampler, int2 P, int lod);
 $gfloat4 texelFetch($gsampler2DRect sampler, int2 P);
-/*
 $gfloat4 texelFetch($gsampler3D sampler, int3 P, int lod);
 $gfloat4 texelFetch($gsampler1DArray sampler, int2 P, int lod);
 $gfloat4 texelFetch($gsampler2DArray sampler, int3 P, int lod);

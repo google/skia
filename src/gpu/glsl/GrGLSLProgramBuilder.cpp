@@ -97,8 +97,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     fGeometryProcessor.reset(proc.createGLSLInstance(*this->shaderCaps()));
 
     SkSTArray<4, SamplerHandle>      texSamplers(proc.numTextureSamplers());
-    SkSTArray<2, TexelBufferHandle>  texelBuffers(proc.numBuffers());
-    this->emitSamplers(proc, &texSamplers, &texelBuffers);
+    this->emitSamplers(proc, &texSamplers);
 
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
                                                                        &fTransformedCoordVars);
@@ -113,7 +112,6 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            outputCoverage->c_str(),
                                            rtAdjustName,
                                            texSamplers.begin(),
-                                           texelBuffers.begin(),
                                            &transformHandler);
     fGeometryProcessor->emitCode(args);
 
@@ -171,16 +169,14 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
     SkSTArray<4, SamplerHandle> textureSamplerArray(fp.numTextureSamplers());
-    SkSTArray<2, TexelBufferHandle> texelBufferArray(fp.numBuffers());
     GrFragmentProcessor::Iter iter(&fp);
     while (const GrFragmentProcessor* subFP = iter.next()) {
-        this->emitSamplers(*subFP, &textureSamplerArray, &texelBufferArray);
+        this->emitSamplers(*subFP, &textureSamplerArray);
     }
 
     const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
     GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, textureSamplerArray.begin());
-    GrGLSLFragmentProcessor::TexelBuffers texelBuffers(&fp, texelBufferArray.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
@@ -188,8 +184,7 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
                                            output.c_str(),
                                            input.c_str(),
                                            coords,
-                                           textureSamplers,
-                                           texelBuffers);
+                                           textureSamplers);
 
     fragProc->emitCode(args);
 
@@ -257,8 +252,7 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
 
 void GrGLSLProgramBuilder::emitSamplers(
         const GrResourceIOProcessor& processor,
-        SkTArray<SamplerHandle>* outTexSamplerHandles,
-        SkTArray<TexelBufferHandle>* outTexelBufferHandles) {
+        SkTArray<SamplerHandle>* outTexSamplerHandles) {
     SkString name;
     int numTextureSamplers = processor.numTextureSamplers();
     for (int t = 0; t < numTextureSamplers; ++t) {
@@ -267,24 +261,6 @@ void GrGLSLProgramBuilder::emitSamplers(
         GrSLType samplerType = sampler.peekTexture()->texturePriv().samplerType();
         outTexSamplerHandles->emplace_back(this->emitSampler(
                 samplerType, sampler.peekTexture()->config(), name.c_str(), sampler.visibility()));
-    }
-    if (int numBuffers = processor.numBuffers()) {
-        SkASSERT(this->shaderCaps()->texelBufferSupport());
-        GrShaderFlags texelBufferVisibility = kNone_GrShaderFlags;
-
-        for (int b = 0; b < numBuffers; ++b) {
-            const GrResourceIOProcessor::BufferAccess& access = processor.bufferAccess(b);
-            name.printf("TexelBuffer_%d", outTexelBufferHandles->count());
-            outTexelBufferHandles->emplace_back(
-                    this->emitTexelBuffer(access.texelConfig(), name.c_str(), access.visibility()));
-            texelBufferVisibility |= access.visibility();
-        }
-
-        if (const char* extension = this->shaderCaps()->texelBufferExtensionString()) {
-            this->addFeature(texelBufferVisibility,
-                             1 << GrGLSLShaderBuilder::kTexelBuffer_GLSLPrivateFeature,
-                             extension);
-        }
     }
 }
 
@@ -309,13 +285,6 @@ GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrSLType s
     GrSLPrecision precision = GrSLSamplerPrecision(config);
     GrSwizzle swizzle = this->shaderCaps()->configTextureSwizzle(config);
     return this->uniformHandler()->addSampler(visibility, swizzle, samplerType, precision, name);
-}
-
-GrGLSLProgramBuilder::TexelBufferHandle GrGLSLProgramBuilder::emitTexelBuffer(
-        GrPixelConfig config, const char* name, GrShaderFlags visibility) {
-    this->updateSamplerCounts(visibility);
-    GrSLPrecision precision = GrSLSamplerPrecision(config);
-    return this->uniformHandler()->addTexelBuffer(visibility, precision, name);
 }
 
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {

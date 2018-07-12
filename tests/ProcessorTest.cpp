@@ -95,29 +95,22 @@ public:
 
 private:
     TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies, const SkTArray<sk_sp<GrBuffer>>& buffers)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4) {
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
         for (const auto& proxy : proxies) {
             this->addTextureSampler(&fSamplers.emplace_back(proxy));
-        }
-        for (const auto& buffer : buffers) {
-            this->addBufferAccess(&fBuffers.emplace_back(kRGBA_8888_GrPixelConfig, buffer.get()));
         }
     }
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
-            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4), fBuffers(4) {
+            : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
         this->registerChildProcessor(std::move(child));
     }
 
     explicit TestFP(const TestFP& that)
-            : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4), fBuffers(4) {
+            : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4) {
         for (int i = 0; i < that.fSamplers.count(); ++i) {
             fSamplers.emplace_back(that.fSamplers[i]);
             this->addTextureSampler(&fSamplers.back());
-        }
-        for (int i = 0; i < that.fBuffers.count(); ++i) {
-            fBuffers.emplace_back(that.fBuffers[i]);
-            this->addBufferAccess(&fBuffers.back());
         }
         for (int i = 0; i < that.numChildProcessors(); ++i) {
             this->registerChildProcessor(that.childProcessor(i).clone());
@@ -141,7 +134,6 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
 
     GrTAllocator<TextureSampler> fSamplers;
-    GrTAllocator<BufferAccess> fBuffers;
     typedef GrFragmentProcessor INHERITED;
 };
 }
@@ -162,7 +154,6 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
 
     GrSurfaceDesc desc;
     desc.fWidth = 10;
@@ -176,8 +167,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                                                              SkBackingFit::kApprox, 1, 1,
                                                              kRGBA_8888_GrPixelConfig, nullptr));
             {
-                bool texelBufferSupport =
-                        context->contextPriv().caps()->shaderCaps()->texelBufferSupport();
                 sk_sp<GrTextureProxy> proxy1 = proxyProvider->createProxy(
                         desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
                 sk_sp<GrTextureProxy> proxy2 = proxyProvider->createProxy(
@@ -186,18 +175,10 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                         desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
                 sk_sp<GrTextureProxy> proxy4 = proxyProvider->createProxy(
                         desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, SkBudgeted::kYes);
-                sk_sp<GrBuffer> buffer(texelBufferSupport
-                        ? resourceProvider->createBuffer(
-                                  1024, GrBufferType::kTexel_GrBufferType,
-                                  GrAccessPattern::kStatic_GrAccessPattern, 0)
-                        : nullptr);
                 {
                     SkTArray<sk_sp<GrTextureProxy>> proxies;
                     SkTArray<sk_sp<GrBuffer>> buffers;
                     proxies.push_back(proxy1);
-                    if (texelBufferSupport) {
-                        buffers.push_back(buffer);
-                    }
                     auto fp = TestFP::Make(std::move(proxies), std::move(buffers));
                     for (int i = 0; i < parentCnt; ++i) {
                         fp = TestFP::Make(std::move(fp));
@@ -222,13 +203,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
                 REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
-                if (texelBufferSupport) {
-                    testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul *  0 == writeCnt);
-                }
-
                 context->flush();
 
                 testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
@@ -236,29 +210,6 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
                 REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 
-                if (texelBufferSupport) {
-                    testingOnly_getIORefCnts(buffer.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-                }
-
-                if (texelBufferSupport) {
-                    testingOnly_getIORefCnts(proxy2.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-
-                    testingOnly_getIORefCnts(proxy3.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-
-                    testingOnly_getIORefCnts(proxy4.get(), &refCnt, &readCnt, &writeCnt);
-                    REPORTER_ASSERT(reporter, 1 == refCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == readCnt);
-                    REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
-                }
             }
         }
     }

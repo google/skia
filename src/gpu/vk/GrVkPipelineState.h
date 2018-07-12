@@ -43,13 +43,11 @@ public:
             GrVkPipeline* pipeline,
             VkPipelineLayout layout,
             const GrVkDescriptorSetManager::Handle& samplerDSHandle,
-            const GrVkDescriptorSetManager::Handle& texelBufferDSHandle,
             const GrGLSLBuiltinUniformHandles& builtinUniformHandles,
             const UniformInfoArray& uniforms,
             uint32_t geometryUniformSize,
             uint32_t fragmentUniformSize,
             uint32_t numSamplers,
-            uint32_t numTexelBuffers,
             std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
             std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
             std::unique_ptr<std::unique_ptr<GrGLSLFragmentProcessor>[]> fragmentProcessors,
@@ -77,10 +75,6 @@ private:
     void writeSamplers(
             GrVkGpu* gpu,
             const SkTArray<const GrResourceIOProcessor::TextureSampler*>& textureBindings);
-
-    void writeTexelBuffers(
-            GrVkGpu* gpu,
-            const SkTArray<const GrResourceIOProcessor::BufferAccess*>& bufferAccesses);
 
     /**
     * We use the RT's size and origin to adjust from Skia device space to vulkan normalized device
@@ -137,10 +131,8 @@ private:
 
     const GrVkDescriptorSet* fUniformDescriptorSet;
     const GrVkDescriptorSet* fSamplerDescriptorSet;
-    const GrVkDescriptorSet* fTexelBufferDescriptorSet;
 
     const GrVkDescriptorSetManager::Handle fSamplerDSHandle;
-    const GrVkDescriptorSetManager::Handle fTexelBufferDSHandle;
 
     std::unique_ptr<GrVkUniformBuffer> fGeometryUniformBuffer;
     std::unique_ptr<GrVkUniformBuffer> fFragmentUniformBuffer;
@@ -149,10 +141,6 @@ private:
     SkTDArray<GrVkSampler*> fSamplers;
     SkTDArray<const GrVkImageView*> fTextureViews;
     SkTDArray<const GrVkResource*> fTextures;
-
-    // GrVkResource used for TexelBuffers
-    SkTDArray<const GrVkBufferView*> fBufferViews;
-    SkTDArray<const GrVkResource*> fTexelBuffers;
 
     // Tracks the current render target uniforms stored in the vertex buffer.
     RenderTargetState fRenderTargetState;
@@ -167,7 +155,6 @@ private:
     GrVkPipelineStateDataManager fDataManager;
 
     int fNumSamplers;
-    int fNumTexelBuffers;
 };
 
 #endif
