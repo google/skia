@@ -276,20 +276,20 @@ static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedA
     return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
 }
 
-static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS,
-                                     bool needsColorCorrectPremul) {
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS) {
     // We never perform a color xform in legacy mode.
     if (!dstInfo.colorSpace()) {
         return false;
     }
 
-    // F16 is by definition a linear space, so we always must perform a color xform.
+    // None of the codecs we have output F16 natively, so if we're trying to decode to F16,
+    // we'll have to use SkColorSpaceXform to get there.
     bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
 
     // Need a color xform when dst space does not match the src.
     bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
 
-    return needsColorCorrectPremul || isF16 || srcDstNotEqual;
+    return isF16 || srcDstNotEqual;
 }
 
 static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
