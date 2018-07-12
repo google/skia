@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f2b1e43_600d1a9d",
+        "filename": "src/gpu/GrRenderTarget.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-07-12T20:03:41Z",
+      "side": 1,
+      "message": "\u003d default;\n?",
+      "range": {
+        "startLine": 32,
+        "startChar": 17,
+        "endLine": 32,
+        "endChar": 31
+      },
+      "revId": "e73f94c4b7a794aebf10656202ff3f0a8b05ef0b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
