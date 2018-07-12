@@ -16,7 +16,7 @@
 
 class SkBitmap;
 struct SkDrawShadowRec;
-class SkGlyphRun;
+class SkGlyphRunList;
 class SkGlyphRunBuilder;
 class SkImageFilterCache;
 struct SkIRect;
@@ -222,7 +222,7 @@ protected:
      *  Does not handle text decoration.
      *  Decorations (underline and stike-thru) will be handled by SkCanvas.
      */
-    virtual void drawGlyphRun(const SkPaint& paint, SkGlyphRun* glyphRun);
+    virtual void drawGlyphRunList(const SkPaint& paint, SkGlyphRunList* glyphRunList);
     virtual void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                               const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
