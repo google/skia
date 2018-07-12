@@ -699,7 +699,7 @@ string Definition::formatFunction(Format format) const {
     methodParser.skipName("#Method");
     methodParser.skipSpace();
     const char* lastStart = methodParser.fChar;
-    const int limit = 100;  // todo: allow this to be set by caller or in global or something
+    const int limit = 120;  // todo: allow this to be set by caller or in global or something
     string name = this->methodName();
     const char* nameInParser = methodParser.strnstr(name.c_str(), methodParser.fEnd);
     methodParser.skipTo(nameInParser);

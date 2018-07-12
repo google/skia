@@ -114,8 +114,7 @@ static bool <a href='#SkColorSpace_Equals'>Equals</a>(const <a href='#SkColorSpa
 ## SkCreateColorSpaceXformCanvas
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; SK_API <a href='#SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* target,
-                                                     <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkColorSpace'>SkColorSpace</a>&gt; targetCS)
+std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; SK_API <a href='#SkCreateColorSpaceXformCanvas'>SkCreateColorSpaceXformCanvas</a>(<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* target, <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkColorSpace'>SkColorSpace</a>&gt; targetCS)
 </pre>
 
 ---
@@ -391,8 +390,7 @@ bool SK_API <a href='#Op'>Op</a>(const <a href='SkPath_Reference#SkPath'>SkPath<
 ## beginRecording
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkPictureRecorder_beginRecording'>beginRecording</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& bounds, <a href='#SkBBHFactory'>SkBBHFactory</a>* bbhFactory = NULL,
-                         uint32_t recordFlags = 0)
+<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>* <a href='#SkPictureRecorder_beginRecording'>beginRecording</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& bounds, <a href='#SkBBHFactory'>SkBBHFactory</a>* bbhFactory = NULL, uint32_t recordFlags = 0)
 </pre>
 
 ---
@@ -471,8 +469,8 @@ void <a href='#SkPixelRef_setImmutable'>setImmutable</a>()
 ## MakeCanvas
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; <a href='#SkRasterHandleAllocator_MakeCanvas'>MakeCanvas</a>(std::unique_ptr&lt;<a href='#SkRasterHandleAllocator'>SkRasterHandleAllocator</a>&gt;,
-                                            const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>&, const <a href='#SkRasterHandleAllocator_Rec'>Rec</a>* rec = nullptr)
+static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt; <a href='#SkRasterHandleAllocator_MakeCanvas'>MakeCanvas</a>(std::unique_ptr&lt;<a href='#SkRasterHandleAllocator'>SkRasterHandleAllocator</a>&gt;, const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>&,
+                                            const <a href='#SkRasterHandleAllocator_Rec'>Rec</a>* rec = nullptr)
 </pre>
 
 ---
@@ -572,8 +570,7 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 ## MakeCompose
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a href='#SkShader_MakeCompose'>MakeCompose</a>(<a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; dst, <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; src, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode,
-                                   float lerp = 1)
+static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a href='#SkShader_MakeCompose'>MakeCompose</a>(<a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; dst, <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; src, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode, float lerp = 1)
 </pre>
 
 ---

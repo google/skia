@@ -272,8 +272,7 @@ Recreates a picture that was serialized into <a href='#SkPicture_MakeFromData_da
 <a name='SkPicture_MakeFromData_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const void* data, size_t size,
-                                     const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkPicture'>SkPicture</a>&gt; <a href='#SkPicture_MakeFromData'>MakeFromData</a>(const void* data, size_t size, const <a href='undocumented#SkDeserialProcs'>SkDeserialProcs</a>* procs = nullptr)
 </pre>
 
 ### Parameters

@@ -2540,8 +2540,8 @@ the platform. <a href='#Bitmap'>Bitmap</a> drawn to output device skips converti
 ## installPixels
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>, void (*releaseProc)
-                   (void* addr, void* context) , void* context)
+bool <a href='#SkBitmap_installPixels'>installPixels</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& info, void* pixels, size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>, void (*releaseProc) (void* addr, void* context) ,
+                   void* context)
 </pre>
 
 Sets <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> to info following the rules in <a href='#SkBitmap_setInfo'>setInfo</a>, and creates <a href='undocumented#Pixel_Ref'>Pixel Ref</a>

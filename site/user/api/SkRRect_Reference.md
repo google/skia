@@ -1054,8 +1054,7 @@ Otherwise, sets to <a href='#SkRRect_kSimple_Type'>kSimple Type</a>.
 ## setNinePatch
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> leftRad, <a href='undocumented#SkScalar'>SkScalar</a> topRad, <a href='undocumented#SkScalar'>SkScalar</a> rightRad,
-                  <a href='undocumented#SkScalar'>SkScalar</a> bottomRad)
+void <a href='#SkRRect_setNinePatch'>setNinePatch</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& rect, <a href='undocumented#SkScalar'>SkScalar</a> leftRad, <a href='undocumented#SkScalar'>SkScalar</a> topRad, <a href='undocumented#SkScalar'>SkScalar</a> rightRad, <a href='undocumented#SkScalar'>SkScalar</a> bottomRad)
 </pre>
 
 Sets bounds to rect. Sets radii to (<a href='#SkRRect_setNinePatch_leftRad'>leftRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>), (<a href='#SkRRect_setNinePatch_rightRad'>rightRad</a>, <a href='#SkRRect_setNinePatch_topRad'>topRad</a>),

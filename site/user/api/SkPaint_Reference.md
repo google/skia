@@ -5598,8 +5598,7 @@ double width = 10
 ## breakText
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPaint_breakText'>breakText</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth,
-                 <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const
+size_t <a href='#SkPaint_breakText'>breakText</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> maxWidth, <a href='undocumented#SkScalar'>SkScalar</a>* measuredWidth = nullptr) const
 </pre>
 
 Returns the bytes of <a href='#SkPaint_breakText_text'>text</a> that fit within <a href='#SkPaint_breakText_maxWidth'>maxWidth</a>.
@@ -5779,8 +5778,8 @@ underline that skips <a href='undocumented#Descenders'>Descenders</a>.
 ## getTextIntercepts
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y,
-                      const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+int <a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a>(const void* text, size_t length, <a href='undocumented#SkScalar'>SkScalar</a> x, <a href='undocumented#SkScalar'>SkScalar</a> y, const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
+                      <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
 </pre>
 
 Returns the number of <a href='#SkPaint_getTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getTextIntercepts_bounds'>bounds</a>.
@@ -5832,8 +5831,8 @@ number of intersections; may be zero
 ## getPosTextIntercepts
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* text, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[],
-                         const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2], <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
+int <a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a>(const void* text, size_t length, const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> pos[], const <a href='undocumented#SkScalar'>SkScalar</a> bounds[2],
+                         <a href='undocumented#SkScalar'>SkScalar</a>* intervals) const
 </pre>
 
 Returns the number of <a href='#SkPaint_getPosTextIntercepts_intervals'>intervals</a> that intersect <a href='#SkPaint_getPosTextIntercepts_bounds'>bounds</a>.

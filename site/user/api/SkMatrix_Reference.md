@@ -788,9 +788,9 @@ Sets <a href='#Matrix'>Matrix</a> to translate by (<a href='#SkMatrix_MakeTrans_
 ## MakeAll
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkMatrix'>SkMatrix</a> SK_WARN_UNUSED_RESULT <a href='#SkMatrix_MakeAll'>MakeAll</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX, <a href='undocumented#SkScalar'>SkScalar</a> transX,
-                                              <a href='undocumented#SkScalar'>SkScalar</a> skewY, <a href='undocumented#SkScalar'>SkScalar</a> scaleY, <a href='undocumented#SkScalar'>SkScalar</a> transY,
-                                              <a href='undocumented#SkScalar'>SkScalar</a> pers0, <a href='undocumented#SkScalar'>SkScalar</a> pers1, <a href='undocumented#SkScalar'>SkScalar</a> pers2)
+static <a href='#SkMatrix'>SkMatrix</a> SK_WARN_UNUSED_RESULT <a href='#SkMatrix_MakeAll'>MakeAll</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX, <a href='undocumented#SkScalar'>SkScalar</a> transX, <a href='undocumented#SkScalar'>SkScalar</a> skewY,
+                                              <a href='undocumented#SkScalar'>SkScalar</a> scaleY, <a href='undocumented#SkScalar'>SkScalar</a> transY, <a href='undocumented#SkScalar'>SkScalar</a> pers0, <a href='undocumented#SkScalar'>SkScalar</a> pers1,
+                                              <a href='undocumented#SkScalar'>SkScalar</a> pers2)
 </pre>
 
 Sets <a href='#Matrix'>Matrix</a> to:
@@ -2474,8 +2474,8 @@ inversely proportional to input x-axis values.
 ## setAll
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkMatrix_setAll'>setAll</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX, <a href='undocumented#SkScalar'>SkScalar</a> transX, <a href='undocumented#SkScalar'>SkScalar</a> skewY, <a href='undocumented#SkScalar'>SkScalar</a> scaleY,
-            <a href='undocumented#SkScalar'>SkScalar</a> transY, <a href='undocumented#SkScalar'>SkScalar</a> persp0, <a href='undocumented#SkScalar'>SkScalar</a> persp1, <a href='undocumented#SkScalar'>SkScalar</a> persp2)
+void <a href='#SkMatrix_setAll'>setAll</a>(<a href='undocumented#SkScalar'>SkScalar</a> scaleX, <a href='undocumented#SkScalar'>SkScalar</a> skewX, <a href='undocumented#SkScalar'>SkScalar</a> transX, <a href='undocumented#SkScalar'>SkScalar</a> skewY, <a href='undocumented#SkScalar'>SkScalar</a> scaleY, <a href='undocumented#SkScalar'>SkScalar</a> transY,
+            <a href='undocumented#SkScalar'>SkScalar</a> persp0, <a href='undocumented#SkScalar'>SkScalar</a> persp1, <a href='undocumented#SkScalar'>SkScalar</a> persp2)
 </pre>
 
 Sets all values from parameters. Sets matrix to:
