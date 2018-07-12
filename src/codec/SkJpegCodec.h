@@ -65,12 +65,11 @@ protected:
     }
 
 private:
-
     /*
      * Allows SkRawCodec to communicate the color space from the exif data.
      */
     static std::unique_ptr<SkCodec> MakeFromStream(std::unique_ptr<SkStream>, Result*,
-                                                   sk_sp<SkColorSpace> defaultColorSpace);
+            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
 
     /*
      * Read enough of the stream to initialize the SkJpegCodec.
@@ -90,12 +89,13 @@ private:
      * codecOut will take ownership of it in the case where we created a codec.
      * Ownership is unchanged when we set decoderMgrOut.
      *
-     * @param defaultColorSpace
-     * If the jpeg does not have an embedded color space, the image data should
+     * @param defaultColorProfile
+     * If the jpeg does not have an embedded color profile, the image data should
      * be tagged with this color space.
      */
     static Result ReadHeader(SkStream* stream, SkCodec** codecOut,
-            JpegDecoderMgr** decoderMgrOut, sk_sp<SkColorSpace> defaultColorSpace);
+            JpegDecoderMgr** decoderMgrOut,
+            std::unique_ptr<SkEncodedInfo::ICCProfile> defaultColorProfile);
 
     /*
      * Creates an instance of the decoder
@@ -106,8 +106,8 @@ private:
      * @param decoderMgr holds decompress struct, src manager, and error manager
      *                   takes ownership
      */
-    SkJpegCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream> stream,
-            JpegDecoderMgr* decoderMgr, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin);
+    SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
+            JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin);
 
     /*
      * Checks if the conversion between the input image and the requested output
