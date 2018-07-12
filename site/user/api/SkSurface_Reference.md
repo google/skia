@@ -334,10 +334,9 @@ may be nullptr</td>
 ## MakeRasterDirectReleaseProc
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirectReleaseProc'>MakeRasterDirectReleaseProc</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels,
-                                           size_t rowBytes, void (*releaseProc) (void* pixels,
-                                           void* context) , void* context,
-                                           const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterDirectReleaseProc'>MakeRasterDirectReleaseProc</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, void* pixels, size_t rowBytes,
+                                                    void (*releaseProc) (void* pixels, void* context) , void* context,
+                                                    const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
 </pre>
 
 Allocates raster <a href='#Surface'>Surface</a>. <a href='SkCanvas_Reference#Canvas'>Canvas</a> returned by <a href='#Surface'>Surface</a> draws directly into <a href='#SkSurface_MakeRasterDirectReleaseProc_pixels'>pixels</a>.
@@ -407,8 +406,7 @@ expected release context
 ## MakeRaster
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, size_t rowBytes,
-                                   const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, size_t rowBytes, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
 Allocates raster <a href='#Surface'>Surface</a>. <a href='SkCanvas_Reference#Canvas'>Canvas</a> returned by <a href='#Surface'>Surface</a> draws directly into pixels.
@@ -467,8 +465,7 @@ may be nullptr</td>
 <a name='SkSurface_MakeRaster_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo,
-                                   const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props = nullptr)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRaster'>MakeRaster</a>(const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props = nullptr)
 </pre>
 
 Allocates raster <a href='#Surface'>Surface</a>. <a href='SkCanvas_Reference#Canvas'>Canvas</a> returned by <a href='#Surface'>Surface</a> draws directly into pixels.
@@ -511,8 +508,7 @@ may be nullptr</td>
 ## MakeRasterN32Premul
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterN32Premul'>MakeRasterN32Premul</a>(int width, int height,
-                                            const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRasterN32Premul'>MakeRasterN32Premul</a>(int width, int height, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps = nullptr)
 </pre>
 
 Allocates raster <a href='#Surface'>Surface</a>. <a href='SkCanvas_Reference#Canvas'>Canvas</a> returned by <a href='#Surface'>Surface</a> draws directly into pixels.
@@ -569,12 +565,9 @@ fonts; may be nullptr</td>
 ## MakeFromBackendTexture
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTexture'>MakeFromBackendTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
-                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt,
-                                               <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
-                                               <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
-                                               const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTexture'>MakeFromBackendTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
+                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
+                                               <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
 Wraps a GPU-backed texture into <a href='#Surface'>Surface</a>. Caller must ensure the texture is
@@ -638,10 +631,9 @@ fonts; may be nullptr</td>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendRenderTarget'>MakeFromBackendRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                                   const <a href='undocumented#GrBackendRenderTarget'>GrBackendRenderTarget</a>& backendRenderTarget,
-                                                   <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
-                                                   <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
-                                                   const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
+                                                    const <a href='undocumented#GrBackendRenderTarget'>GrBackendRenderTarget</a>& backendRenderTarget,
+                                                    <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType,
+                                                    <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
 Wraps a GPU-backed buffer into <a href='#Surface'>Surface</a>. Caller must ensure <a href='#SkSurface_MakeFromBackendRenderTarget_backendRenderTarget'>backendRenderTarget</a>
@@ -717,11 +709,10 @@ fonts; may be nullptr</td>
 ## MakeFromBackendTextureAsRenderTarget
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTextureAsRenderTarget'>MakeFromBackendTextureAsRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                            const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
-                                            <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt,
-                                            <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
-                                            const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeFromBackendTextureAsRenderTarget'>MakeFromBackendTextureAsRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
+                                                             <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, int sampleCnt,
+                                                             <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> colorType, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; colorSpace,
+                                                             const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps)
 </pre>
 
 Wraps a GPU-backed texture into <a href='#Surface'>Surface</a>. Caller must ensure <a href='#SkSurface_MakeFromBackendTextureAsRenderTarget_backendTexture'>backendTexture</a> is
@@ -786,11 +777,9 @@ fonts; may be nullptr</td>
 ## MakeRenderTarget
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
-                                         const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, int sampleCount,
-                                         <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
-                                         const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps,
-                                         bool shouldCreateWithMips = false)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted, const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo,
+                                         int sampleCount, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
+                                         const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* surfaceProps, bool shouldCreateWithMips = false)
 </pre>
 
 Returns <a href='#Surface'>Surface</a> on GPU indicated by <a href='#SkSurface_MakeRenderTarget_context'>context</a>. Allocates memory for
@@ -854,9 +843,8 @@ fonts; may be nullptr</td>
 <a name='SkSurface_MakeRenderTarget_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
-                                         const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo, int sampleCount,
-                                         const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted, const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo,
+                                         int sampleCount, const <a href='undocumented#SkSurfaceProps'>SkSurfaceProps</a>* props)
 </pre>
 
 Returns <a href='#Surface'>Surface</a> on GPU indicated by <a href='#SkSurface_MakeRenderTarget_2_context'>context</a>. Allocates memory for
@@ -914,8 +902,7 @@ or red green blue.
 <a name='SkSurface_MakeRenderTarget_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted,
-                                         const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted, const <a href='SkImageInfo_Reference#SkImageInfo'>SkImageInfo</a>& imageInfo)
 </pre>
 
 Returns <a href='#Surface'>Surface</a> on GPU indicated by <a href='#SkSurface_MakeRenderTarget_3_context'>context</a>. Allocates memory for
@@ -957,8 +944,7 @@ of <a href='undocumented#Raster_Surface'>Raster Surface</a>; width, or height, o
 <a name='SkSurface_MakeRenderTarget_4'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                         const <a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>& characterization,
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkSurface'>SkSurface</a>&gt; <a href='#SkSurface_MakeRenderTarget'>MakeRenderTarget</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#SkSurfaceCharacterization'>SkSurfaceCharacterization</a>& characterization,
                                          <a href='undocumented#SkBudgeted'>SkBudgeted</a> budgeted)
 </pre>
 
@@ -1961,8 +1947,7 @@ GPU calls.
 ## flushAndSignalSemaphores
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#GrSemaphoresSubmitted'>GrSemaphoresSubmitted</a> <a href='#SkSurface_flushAndSignalSemaphores'>flushAndSignalSemaphores</a>(int numSemaphores,
-                                               <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a> signalSemaphores[])
+<a href='undocumented#GrSemaphoresSubmitted'>GrSemaphoresSubmitted</a> <a href='#SkSurface_flushAndSignalSemaphores'>flushAndSignalSemaphores</a>(int numSemaphores, <a href='undocumented#GrBackendSemaphore'>GrBackendSemaphore</a> signalSemaphores[])
 </pre>
 
 Issues pending <a href='#Surface'>Surface</a> commands to the GPU-backed API and resolves any <a href='#Surface'>Surface</a> MSAA.

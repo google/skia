@@ -856,8 +856,7 @@ true if <a href='SkColor_Reference#Alpha'>Color Alpha</a> is always set to 1.0
 ## SkColorTypeValidateAlphaType
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkColorTypeValidateAlphaType'>SkColorTypeValidateAlphaType</a>(<a href='#SkColorType'>SkColorType</a> <a href='#SkImageInfo_colorType'>colorType</a>, <a href='#SkAlphaType'>SkAlphaType</a> <a href='#SkImageInfo_alphaType'>alphaType</a>,
-                                  <a href='#SkAlphaType'>SkAlphaType</a>* canonical = nullptr)
+bool <a href='#SkColorTypeValidateAlphaType'>SkColorTypeValidateAlphaType</a>(<a href='#SkColorType'>SkColorType</a> <a href='#SkImageInfo_colorType'>colorType</a>, <a href='#SkAlphaType'>SkAlphaType</a> <a href='#SkImageInfo_alphaType'>alphaType</a>, <a href='#SkAlphaType'>SkAlphaType</a>* canonical = nullptr)
 </pre>
 
 Returns true if <a href='#SkColorTypeValidateAlphaType_canonical'>canonical</a> can be set to a valid <a href='#Alpha_Type'>Alpha Type</a> for <a href='#SkImageInfo_colorType'>colorType</a>. If
@@ -1338,8 +1337,7 @@ for the <a href='SkCanvas_Reference#Canvas'>Canvas</a> actual <a href='#Image_In
 ## Make
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_Make'>Make</a>(int width, int height, <a href='#SkColorType'>SkColorType</a> ct, <a href='#SkAlphaType'>SkAlphaType</a> at,
-                        <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; cs = nullptr)
+static <a href='#SkImageInfo'>SkImageInfo</a> <a href='#SkImageInfo_Make'>Make</a>(int width, int height, <a href='#SkColorType'>SkColorType</a> ct, <a href='#SkAlphaType'>SkAlphaType</a> at, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; cs = nullptr)
 </pre>
 
 Creates <a href='#Image_Info'>Image Info</a> from integral dimensions width and height, <a href='#Color_Type'>Color Type</a> <a href='#SkImageInfo_Make_ct'>ct</a>,

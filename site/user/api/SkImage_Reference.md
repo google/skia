@@ -676,7 +676,7 @@ memory does not alter the second <a href='#Image'>Image</a>.
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromGenerator'>MakeFromGenerator</a>(std::unique_ptr&lt;<a href='undocumented#SkImageGenerator'>SkImageGenerator</a>&gt; imageGenerator,
-                                 const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* subset = nullptr)
+                                        const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* subset = nullptr)
 </pre>
 
 Creates <a href='#Image'>Image</a> from data returned by <a href='#SkImage_MakeFromGenerator_imageGenerator'>imageGenerator</a>. Generated data is owned by <a href='#Image'>Image</a> and may not
@@ -769,9 +769,8 @@ User function called when supplied texture may be deleted.
 ## MakeFromTexture
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
-                                      <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>,
-                                      <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a>, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin,
+                                      <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a>, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>)
 </pre>
 
 Creates <a href='#Image'>Image</a> from <a href='undocumented#GPU_Texture'>GPU Texture</a> associated with <a href='#SkImage_MakeFromTexture_context'>context</a>. Caller is responsible for
@@ -824,11 +823,9 @@ created <a href='#Image'>Image</a>, or nullptr
 <a name='SkImage_MakeFromTexture_2'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
-                                      <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>,
-                                      <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a>, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>,
-                                      <a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a> textureReleaseProc,
-                                      <a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture, <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> origin,
+                                      <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>, <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a>, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>,
+                                      <a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a> textureReleaseProc, <a href='#SkImage_ReleaseContext'>ReleaseContext</a> releaseContext)
 </pre>
 
 Creates <a href='#Image'>Image</a> from <a href='undocumented#GPU_Texture'>GPU Texture</a> associated with <a href='#SkImage_MakeFromTexture_2_context'>context</a>. <a href='undocumented#GPU_Texture'>GPU Texture</a> must stay
@@ -888,9 +885,8 @@ created <a href='#Image'>Image</a>, or nullptr
 ## MakeCrossContextFromEncoded
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeCrossContextFromEncoded'>MakeCrossContextFromEncoded</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; data,
-                                                  bool buildMips, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace,
-                                                  bool limitToMaxTextureSize = false)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeCrossContextFromEncoded'>MakeCrossContextFromEncoded</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkData'>SkData</a>&gt; data, bool buildMips,
+                                                  <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace, bool limitToMaxTextureSize = false)
 </pre>
 
 Creates <a href='#Image'>Image</a> from encoded <a href='#SkImage_MakeCrossContextFromEncoded_data'>data</a>. <a href='#Image'>Image</a> is uploaded to GPU back-end using <a href='#SkImage_MakeCrossContextFromEncoded_context'>context</a>.
@@ -948,9 +944,8 @@ created <a href='#Image'>Image</a>, or nullptr
 ## MakeCrossContextFromPixmap
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeCrossContextFromPixmap'>MakeCrossContextFromPixmap</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& pixmap,
-                                                 bool buildMips, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace,
-                                                 bool limitToMaxTextureSize = false)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeCrossContextFromPixmap'>MakeCrossContextFromPixmap</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& pixmap, bool buildMips,
+                                                 <a href='undocumented#SkColorSpace'>SkColorSpace</a>* dstColorSpace, bool limitToMaxTextureSize = false)
 </pre>
 
 Creates <a href='#Image'>Image</a> from <a href='#SkImage_MakeCrossContextFromPixmap_pixmap'>pixmap</a>. <a href='#Image'>Image</a> is uploaded to GPU back-end using <a href='#SkImage_MakeCrossContextFromPixmap_context'>context</a>.
@@ -1008,8 +1003,7 @@ created <a href='#Image'>Image</a>, or nullptr
 ## MakeFromAdoptedTexture
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromAdoptedTexture'>MakeFromAdoptedTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context,
-                                             const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromAdoptedTexture'>MakeFromAdoptedTexture</a>(<a href='undocumented#GrContext'>GrContext</a>* context, const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>& backendTexture,
                                              <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin, <a href='SkImageInfo_Reference#SkColorType'>SkColorType</a> <a href='#SkImage_colorType'>colorType</a>,
                                              <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a> = <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
                                              <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a> = nullptr)
@@ -1066,8 +1060,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromYUVTexturesCopy'>MakeFromYUVTexturesCopy</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
-                                              const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvTextures[3],
-                                              <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
+                                              const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> yuvTextures[3], <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
                                               <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a> = nullptr)
 </pre>
 
@@ -1110,8 +1103,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromNV12TexturesCopy'>MakeFromNV12TexturesCopy</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='SkImageInfo_Reference#SkYUVColorSpace'>SkYUVColorSpace</a> yuvColorSpace,
-                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> nv12Textures[2],
-                                               <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
+                                               const <a href='undocumented#GrBackendTexture'>GrBackendTexture</a> nv12Textures[2], <a href='undocumented#GrSurfaceOrigin'>GrSurfaceOrigin</a> surfaceOrigin,
                                                <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a> = nullptr)
 </pre>
 
@@ -1191,9 +1183,8 @@ Use 16 bits per ARGB component using half-precision floating point format.
 ## MakeFromPicture
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkPicture_Reference#SkPicture'>SkPicture</a>&gt; picture, const <a href='undocumented#SkISize'>SkISize</a>& dimensions,
-                                      const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* matrix, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint,
-                                      <a href='#SkImage_BitDepth'>BitDepth</a> bitDepth, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>)
+static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='SkPicture_Reference#SkPicture'>SkPicture</a>&gt; picture, const <a href='undocumented#SkISize'>SkISize</a>& dimensions, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* matrix,
+                                      const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint, <a href='#SkImage_BitDepth'>BitDepth</a> bitDepth, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a>)
 </pre>
 
 Creates <a href='#Image'>Image</a> from <a href='#SkImage_MakeFromPicture_picture'>picture</a>. Returned <a href='#Image'>Image</a> width and height are set by dimensions.
@@ -1243,8 +1234,8 @@ created <a href='#Image'>Image</a>, or nullptr
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
 static <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_MakeFromAHardwareBuffer'>MakeFromAHardwareBuffer</a>(AHardwareBuffer* hardwareBuffer,
-                                            <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a> = <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
-                                            <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a> = nullptr)
+                                              <a href='SkImageInfo_Reference#SkAlphaType'>SkAlphaType</a> <a href='#SkImage_alphaType'>alphaType</a> = <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
+                                              <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; <a href='#SkImage_colorSpace'>colorSpace</a> = nullptr)
 </pre>
 
 Creates <a href='#Image'>Image</a> from Android hardware buffer.
@@ -2094,8 +2085,7 @@ true if pixels are copied to <a href='#SkImage_readPixels_2_dst'>dst</a>
 ## scalePixels
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-bool <a href='#SkImage_scalePixels'>scalePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> filterQuality,
-                 <a href='#SkImage_CachingHint'>CachingHint</a> cachingHint = <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>) const
+bool <a href='#SkImage_scalePixels'>scalePixels</a>(const <a href='SkPixmap_Reference#SkPixmap'>SkPixmap</a>& dst, <a href='undocumented#SkFilterQuality'>SkFilterQuality</a> filterQuality, <a href='#SkImage_CachingHint'>CachingHint</a> cachingHint = <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>) const
 </pre>
 
 Copies <a href='#Image'>Image</a> to <a href='#SkImage_scalePixels_dst'>dst</a>, scaling pixels to fit <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_width'>width</a> and <a href='#SkImage_scalePixels_dst'>dst</a>.<a href='#SkImage_height'>height</a>, and
@@ -2410,8 +2400,8 @@ Returns nullptr if copy, decode, or pixel read fails.
 ## makeWithFilter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeWithFilter'>makeWithFilter</a>(const <a href='undocumented#SkImageFilter'>SkImageFilter</a>* filter, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset,
-                              const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& clipBounds, <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* outSubset, <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* offset) const
+<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeWithFilter'>makeWithFilter</a>(const <a href='undocumented#SkImageFilter'>SkImageFilter</a>* filter, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& subset, const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& clipBounds,
+                              <a href='SkIRect_Reference#SkIRect'>SkIRect</a>* outSubset, <a href='SkIPoint_Reference#SkIPoint'>SkIPoint</a>* offset) const
 </pre>
 
 Creates filtered <a href='#Image'>Image</a>. <a href='#SkImage_makeWithFilter_filter'>filter</a> processes original <a href='#Image'>Image</a>, potentially changing
@@ -2478,8 +2468,7 @@ no return value. Function is called when back-end texture is to be released.
 ## MakeBackendTextureFromSkImage
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-static bool <a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; image,
-                                          <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>* backendTexture,
+static bool <a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a>(<a href='undocumented#GrContext'>GrContext</a>* context, <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; image, <a href='undocumented#GrBackendTexture'>GrBackendTexture</a>* backendTexture,
                                           <a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a>* backendTextureReleaseProc)
 </pre>
 
@@ -2622,7 +2611,9 @@ true if <a href='#Image'>Image</a> is created as needed
 ## makeColorSpace
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; target, <a href='undocumented#SkTransferFunctionBehavior'>SkTransferFunctionBehavior</a> premulBehavior) const
+<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(
+        <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; target,
+                              <a href='undocumented#SkTransferFunctionBehavior'>SkTransferFunctionBehavior</a> premulBehavior = <a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a>) const
 </pre>
 
 Creates <a href='#Image'>Image</a> in <a href='#SkImage_makeColorSpace_target'>target</a> <a href='undocumented#Color_Space'>Color Space</a>.
@@ -2640,7 +2631,8 @@ and <a href='undocumented#Color_Space'>Color Space</a>.
 
 Set <a href='#SkImage_makeColorSpace_premulBehavior'>premulBehavior</a> to <a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a> to treat <a href='#Image'>Image</a>
 pixels as linear, when converting to destination <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>
-and <a href='undocumented#Color_Space'>Color Space</a>, ignoring pixel encoding.
+and <a href='undocumented#Color_Space'>Color Space</a>, ignoring pixel encoding. <a href='#SkImage_makeColorSpace_premulBehavior'>premulBehavior</a> is
+<a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a> by default.
 
 ### Parameters
 
