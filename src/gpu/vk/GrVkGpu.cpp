@@ -21,6 +21,7 @@
 #include "GrVkGpuCommandBuffer.h"
 #include "GrVkImage.h"
 #include "GrVkIndexBuffer.h"
+#include "GrVkInterface.h"
 #include "GrVkMemory.h"
 #include "GrVkPipeline.h"
 #include "GrVkPipelineState.h"
@@ -36,7 +37,6 @@
 #include "SkMipMap.h"
 #include "SkSLCompiler.h"
 #include "SkTo.h"
-#include "vk/GrVkInterface.h"
 #include "vk/GrVkTypes.h"
 
 #include <utility>
@@ -57,19 +57,15 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         backendContext.fQueue == VK_NULL_HANDLE) {
         return nullptr;
     }
-    sk_sp<const GrVkInterface> interface;
     if (backendContext.fGetProc) {
-        interface.reset(new GrVkInterface(backendContext.fGetProc,
-                                          backendContext.fInstance,
-                                          backendContext.fDevice,
-                                          backendContext.fExtensions));
-    } else {
-        if (!backendContext.fInterface) {
-            return nullptr;
-        }
-        interface = backendContext.fInterface;
+        return nullptr;
     }
-    SkASSERT(interface);
+
+    sk_sp<const GrVkInterface> interface(new GrVkInterface(backendContext.fGetProc,
+                                         backendContext.fInstance,
+                                         backendContext.fDevice,
+                                         backendContext.fExtensions));
+
     if (!interface->validate(backendContext.fExtensions)) {
         return nullptr;
     }

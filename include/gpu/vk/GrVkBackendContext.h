@@ -10,8 +10,7 @@
 
 #include "SkRefCnt.h"
 
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkInterface.h"
+#include "GrVkTypes.h"
 #include "vk/GrVkMemoryAllocator.h"
 
 enum GrVkExtensionFlags {
@@ -30,12 +29,6 @@ enum GrVkFeatureFlags {
     kSampleRateShading_GrVkFeatureFlag = 0x0004,
 };
 
-using GrVkGetProc = std::function<PFN_vkVoidFunction(
-        const char*, // function name
-        VkInstance,  // instance or VK_NULL_HANDLE
-        VkDevice     // device or VK_NULL_HANDLE
-        )>;
-
 // The BackendContext contains all of the base Vulkan objects needed by the GrVkGpu. The assumption
 // is that the client will set these up and pass them to the GrVkGpu constructor. The VkDevice
 // created must support at least one graphics queue, which is passed in as well.
@@ -53,7 +46,6 @@ struct SK_API GrVkBackendContext {
     uint32_t                   fMinAPIVersion;
     uint32_t                   fExtensions;
     uint32_t                   fFeatures;
-    sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
     GrVkGetProc                fGetProc = nullptr;
 
