@@ -1110,21 +1110,28 @@ bool intersect_edge_pair(Edge* left, Edge* right, EdgeList* activeEdges, Vertex*
     if (!left->fTop || !left->fBottom || !right->fTop || !right->fBottom) {
         return false;
     }
+    if (left->fTop == right->fTop || left->fBottom == right->fBottom) {
+        return false;
+    }
     if (c.sweep_lt(left->fTop->fPoint, right->fTop->fPoint)) {
         if (!left->isLeftOf(right->fTop)) {
+            rewind(activeEdges, current, right->fTop, c);
             return split_edge(left, right->fTop, activeEdges, current, c, alloc);
         }
     } else {
         if (!right->isRightOf(left->fTop)) {
+            rewind(activeEdges, current, left->fTop, c);
             return split_edge(right, left->fTop, activeEdges, current, c, alloc);
         }
     }
     if (c.sweep_lt(right->fBottom->fPoint, left->fBottom->fPoint)) {
         if (!left->isLeftOf(right->fBottom)) {
+            rewind(activeEdges, current, right->fBottom, c);
             return split_edge(left, right->fBottom, activeEdges, current, c, alloc);
         }
     } else {
         if (!right->isRightOf(left->fBottom)) {
+            rewind(activeEdges, current, left->fBottom, c);
             return split_edge(right, left->fBottom, activeEdges, current, c, alloc);
         }
     }
