@@ -1285,63 +1285,13 @@ static inline bool checkForZero(float x) {
     return x*x == 0;
 }
 
-static inline bool poly_to_point(SkPoint* pt, const SkPoint poly[], int count) {
-    float   x = 1, y = 1;
-    SkPoint pt1, pt2;
-
-    if (count > 1) {
-        pt1.fX = poly[1].fX - poly[0].fX;
-        pt1.fY = poly[1].fY - poly[0].fY;
-        y = SkPoint::Length(pt1.fX, pt1.fY);
-        if (checkForZero(y)) {
-            return false;
-        }
-        switch (count) {
-            case 2:
-                break;
-            case 3:
-                pt2.fX = poly[0].fY - poly[2].fY;
-                pt2.fY = poly[2].fX - poly[0].fX;
-                goto CALC_X;
-            default:
-                pt2.fX = poly[0].fY - poly[3].fY;
-                pt2.fY = poly[3].fX - poly[0].fX;
-            CALC_X:
-                x = sdot(pt1.fX, pt2.fX, pt1.fY, pt2.fY) / y;
-                break;
-        }
-    }
-    pt->set(x, y);
-    return true;
-}
-
-bool SkMatrix::Poly2Proc(const SkPoint srcPt[], SkMatrix* dst,
-                         const SkPoint& scale) {
-    float invScale = 1 / scale.fY;
-
-    dst->fMat[kMScaleX] = (srcPt[1].fY - srcPt[0].fY) * invScale;
-    dst->fMat[kMSkewY] = (srcPt[0].fX - srcPt[1].fX) * invScale;
-    dst->fMat[kMPersp0] = 0;
-    dst->fMat[kMSkewX] = (srcPt[1].fX - srcPt[0].fX) * invScale;
-    dst->fMat[kMScaleY] = (srcPt[1].fY - srcPt[0].fY) * invScale;
-    dst->fMat[kMPersp1] = 0;
-    dst->fMat[kMTransX] = srcPt[0].fX;
-    dst->fMat[kMTransY] = srcPt[0].fY;
-    dst->fMat[kMPersp2] = 1;
-    dst->setTypeMask(kUnknown_Mask);
-    return true;
-}
-
-bool SkMatrix::Poly3Proc(const SkPoint srcPt[], SkMatrix* dst,
-                         const SkPoint& scale) {
-    float invScale = 1 / scale.fX;
-    dst->fMat[kMScaleX] = (srcPt[2].fX - srcPt[0].fX) * invScale;
-    dst->fMat[kMSkewY] = (srcPt[2].fY - srcPt[0].fY) * invScale;
+bool SkMatrix::Poly2Proc(const SkPoint srcPt[], SkMatrix* dst) {
+    dst->fMat[kMScaleX] = srcPt[1].fY - srcPt[0].fY;
+    dst->fMat[kMSkewY]  = srcPt[0].fX - srcPt[1].fX;
     dst->fMat[kMPersp0] = 0;
 
-    invScale = 1 / scale.fY;
-    dst->fMat[kMSkewX] = (srcPt[1].fX - srcPt[0].fX) * invScale;
-    dst->fMat[kMScaleY] = (srcPt[1].fY - srcPt[0].fY) * invScale;
+    dst->fMat[kMSkewX]  = srcPt[1].fX - srcPt[0].fX;
+    dst->fMat[kMScaleY] = srcPt[1].fY - srcPt[0].fY;
     dst->fMat[kMPersp1] = 0;
 
     dst->fMat[kMTransX] = srcPt[0].fX;
@@ -1351,8 +1301,23 @@ bool SkMatrix::Poly3Proc(const SkPoint srcPt[], SkMatrix* dst,
     return true;
 }
 
-bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst,
-                         const SkPoint& scale) {
+bool SkMatrix::Poly3Proc(const SkPoint srcPt[], SkMatrix* dst) {
+    dst->fMat[kMScaleX] = srcPt[2].fX - srcPt[0].fX;
+    dst->fMat[kMSkewY]  = srcPt[2].fY - srcPt[0].fY;
+    dst->fMat[kMPersp0] = 0;
+
+    dst->fMat[kMSkewX]  = srcPt[1].fX - srcPt[0].fX;
+    dst->fMat[kMScaleY] = srcPt[1].fY - srcPt[0].fY;
+    dst->fMat[kMPersp1] = 0;
+
+    dst->fMat[kMTransX] = srcPt[0].fX;
+    dst->fMat[kMTransY] = srcPt[0].fY;
+    dst->fMat[kMPersp2] = 1;
+    dst->setTypeMask(kUnknown_Mask);
+    return true;
+}
+
+bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst) {
     float   a1, a2;
     float   x0, y0, x1, y1, x2, y2;
 
@@ -1393,15 +1358,13 @@ bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst,
         a2 = (sk_ieee_float_divide((y0 - y2) * x1, y1) - x0 + x2) / denom;
     }
 
-    float invScale = SkScalarInvert(scale.fX);
-    dst->fMat[kMScaleX] = (a2 * srcPt[3].fX + srcPt[3].fX - srcPt[0].fX) * invScale;
-    dst->fMat[kMSkewY]  = (a2 * srcPt[3].fY + srcPt[3].fY - srcPt[0].fY) * invScale;
-    dst->fMat[kMPersp0] = a2 * invScale;
+    dst->fMat[kMScaleX] = a2 * srcPt[3].fX + srcPt[3].fX - srcPt[0].fX;
+    dst->fMat[kMSkewY]  = a2 * srcPt[3].fY + srcPt[3].fY - srcPt[0].fY;
+    dst->fMat[kMPersp0] = a2;
 
-    invScale = SkScalarInvert(scale.fY);
-    dst->fMat[kMSkewX]  = (a1 * srcPt[1].fX + srcPt[1].fX - srcPt[0].fX) * invScale;
-    dst->fMat[kMScaleY] = (a1 * srcPt[1].fY + srcPt[1].fY - srcPt[0].fY) * invScale;
-    dst->fMat[kMPersp1] = a1 * invScale;
+    dst->fMat[kMSkewX]  = a1 * srcPt[1].fX + srcPt[1].fX - srcPt[0].fX;
+    dst->fMat[kMScaleY] = a1 * srcPt[1].fY + srcPt[1].fY - srcPt[0].fY;
+    dst->fMat[kMPersp1] = a1;
 
     dst->fMat[kMTransX] = srcPt[0].fX;
     dst->fMat[kMTransY] = srcPt[0].fY;
@@ -1410,12 +1373,11 @@ bool SkMatrix::Poly4Proc(const SkPoint srcPt[], SkMatrix* dst,
     return true;
 }
 
-typedef bool (*PolyMapProc)(const SkPoint[], SkMatrix*, const SkPoint&);
+typedef bool (*PolyMapProc)(const SkPoint[], SkMatrix*);
 
-/*  Taken from Rob Johnson's original sample code in QuickDraw GX
+/*  Adapted from Rob Johnson's original sample code in QuickDraw GX
 */
-bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
-                             int count) {
+bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[], int count) {
     if ((unsigned)count > 4) {
         SkDebugf("--- SkMatrix::setPolyToPoly count out of range %d\n", count);
         return false;
@@ -1430,28 +1392,20 @@ bool SkMatrix::setPolyToPoly(const SkPoint src[], const SkPoint dst[],
         return true;
     }
 
-    SkPoint scale;
-    if (!poly_to_point(&scale, src, count) ||
-            SkScalarNearlyZero(scale.fX) ||
-            SkScalarNearlyZero(scale.fY)) {
-        return false;
-    }
-
-    static const PolyMapProc gPolyMapProcs[] = {
+    const PolyMapProc gPolyMapProcs[] = {
         SkMatrix::Poly2Proc, SkMatrix::Poly3Proc, SkMatrix::Poly4Proc
     };
     PolyMapProc proc = gPolyMapProcs[count - 2];
 
     SkMatrix tempMap, result;
-    tempMap.setTypeMask(kUnknown_Mask);
 
-    if (!proc(src, &tempMap, scale)) {
+    if (!proc(src, &tempMap)) {
         return false;
     }
     if (!tempMap.invert(&result)) {
         return false;
     }
-    if (!proc(dst, &tempMap, scale)) {
+    if (!proc(dst, &tempMap)) {
         return false;
     }
     this->setConcat(tempMap, result);

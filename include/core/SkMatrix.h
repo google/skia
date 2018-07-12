@@ -1816,9 +1816,9 @@ private:
 
     bool SK_WARN_UNUSED_RESULT invertNonIdentity(SkMatrix* inverse) const;
 
-    static bool Poly2Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
-    static bool Poly3Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
-    static bool Poly4Proc(const SkPoint[], SkMatrix*, const SkPoint& scale);
+    static bool Poly2Proc(const SkPoint[], SkMatrix*);
+    static bool Poly3Proc(const SkPoint[], SkMatrix*);
+    static bool Poly4Proc(const SkPoint[], SkMatrix*);
 
     static void Identity_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
     static void Trans_xy(const SkMatrix&, SkScalar, SkScalar, SkPoint*);
