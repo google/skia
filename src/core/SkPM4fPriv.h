@@ -10,27 +10,59 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
 #include "SkSRGB.h"
 #include "../jumper/SkJumper.h"
 
+// This file is mostly helper routines for doing color space management.
+// It probably wants a new name, and they likely don't need to be inline.
+//
+// There are two generations of routines in here, the old ones that assumed linear blending,
+// and the new ones assuming as-encoded blending.  We're trying to move to the new as-encoded
+// ones and will hopefully eventually remove all the linear routines.
+//
+// We'll start with the new as-encoded routines first,
+// and shove all the old broken routines towards the bottom.
+
 static inline Sk4f Sk4f_fromL32(uint32_t px) {
     return SkNx_cast<float>(Sk4b::Load(&px)) * (1/255.0f);
-}
-
-static inline Sk4f Sk4f_fromS32(uint32_t px) {
-    return { sk_linear_from_srgb[(px >>  0) & 0xff],
-             sk_linear_from_srgb[(px >>  8) & 0xff],
-             sk_linear_from_srgb[(px >> 16) & 0xff],
-                    (1/255.0f) * (px >> 24)          };
 }
 
 static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     uint32_t l32;
     SkNx_cast<uint8_t>(Sk4f_round(px * 255.0f)).store(&l32);
     return l32;
+}
+
+static inline SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS) {
+    float rgba[4];
+    swizzle_rb(Sk4f_fromL32(color)).store(rgba);
+
+    // SkColors are always sRGB.
+    auto srcCS = SkColorSpace::MakeSRGB().get();
+
+    // If dstCS is null, no color space transformation is needed (and apply() will just premul).
+    if (!dstCS) { dstCS = srcCS; }
+
+    // TODO: Can we use a precomputed sRGB -> dstCS SkColorSpaceXformSteps for each device?
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType, dstCS)
+        .apply(rgba);
+
+    return {{rgba[0], rgba[1], rgba[2], rgba[3]}};
+}
+
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// Functions below this line are probably totally broken as far as color space management goes.
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+static inline Sk4f Sk4f_fromS32(uint32_t px) {
+    return { sk_linear_from_srgb[(px >>  0) & 0xff],
+             sk_linear_from_srgb[(px >>  8) & 0xff],
+             sk_linear_from_srgb[(px >> 16) & 0xff],
+                    (1/255.0f) * (px >> 24)          };
 }
 
 static inline uint32_t Sk4f_toS32(const Sk4f& px) {
@@ -105,5 +137,6 @@ static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst)
 static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
     return SkColor4f_from_SkColor(color, dst).premul();
 }
+
 
 #endif

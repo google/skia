@@ -86,22 +86,6 @@ private:
     typedef SkBlitter INHERITED;
 };
 
-static SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS) {
-    float rgba[4];
-    swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(rgba);
-
-    // SkColors are always sRGB.
-    auto srcCS = SkColorSpace::MakeSRGB().get();
-
-    // If dstCS is null, no color space transformation is needed (and apply() will just premul).
-    if (!dstCS) { dstCS = srcCS; }
-
-    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType, dstCS)
-        .apply(rgba);
-
-    return {{rgba[0], rgba[1], rgba[2], rgba[3]}};
-}
-
 SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
                                          const SkPaint& paint,
                                          const SkMatrix& ctm,
