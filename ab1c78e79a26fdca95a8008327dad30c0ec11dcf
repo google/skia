@@ -22,6 +22,30 @@
       "revId": "ab1c78e79a26fdca95a8008327dad30c0ec11dcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89a58657_1c3ceb63",
+        "filename": "tools/fonts/sk_tool_utils_font.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-12T20:19:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "67871e6d_3bcf78a8",
+      "range": {
+        "startLine": 73,
+        "startChar": 3,
+        "endLine": 73,
+        "endChar": 58
+      },
+      "revId": "ab1c78e79a26fdca95a8008327dad30c0ec11dcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
