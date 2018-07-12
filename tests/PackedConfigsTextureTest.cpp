@@ -104,8 +104,8 @@ static void run_test(skiatest::Reporter* reporter, GrContext* context, int array
     readBuffer.setCount(arraySize);
 
     for (int i = 0; i < arraySize; i += 2) {
-        controlPixelData[i] = 0xFF00;
-        controlPixelData[i + 1] = 0xFA62;
+        controlPixelData[i] = 0xF00F;
+        controlPixelData[i + 1] = 0xA62F;
     }
 
     const SkImageInfo dstInfo =
