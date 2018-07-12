@@ -33,7 +33,9 @@ String HCodeGenerator::ParameterType(const Context& context, const Type& type,
         return "float";
     } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
         return "SkPoint";
-    } else if (type == *context.fInt4_Type || type == *context.fShort4_Type) {
+    } else if (type == *context.fInt4_Type ||
+               type == *context.fShort4_Type ||
+               type == *context.fByte4_Type) {
         return "SkIRect";
     } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
         return "SkRect";
