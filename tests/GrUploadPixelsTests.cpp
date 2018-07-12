@@ -9,8 +9,6 @@
 
 #include "SkTypes.h"
 
-#if defined(SK_VULKAN)
-
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrSurfaceProxy.h"
@@ -19,7 +17,6 @@
 #include "SkGr.h"
 #include "Test.h"
 #include "TestUtils.h"
-#include "vk/GrVkGpu.h"
 
 using sk_gpu_test::GrContextFactory;
 
@@ -94,7 +91,7 @@ void basic_texture_test(skiatest::Reporter* reporter, GrContext* context, SkColo
     }
 }
 
-DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrUploadPixelsTests, reporter, ctxInfo) {
     // RGBA
     basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, false);
     basic_texture_test(reporter, ctxInfo.grContext(), kRGBA_8888_SkColorType, true);
@@ -103,5 +100,3 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkUploadPixelsTests, reporter, ctxInfo) {
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, false);
     basic_texture_test(reporter, ctxInfo.grContext(), kBGRA_8888_SkColorType, true);
 }
-
-#endif
