@@ -125,8 +125,8 @@ private:
 
     std::unique_ptr<GrTextContext>    fTextContext;
 
-    GrPathRendererChain*              fPathRendererChain;
-    GrSoftwarePathRenderer*           fSoftwarePathRenderer;
+    std::unique_ptr<GrPathRendererChain> fPathRendererChain;
+    sk_sp<GrSoftwarePathRenderer>     fSoftwarePathRenderer;
 
     GrTokenTracker                    fTokenTracker;
     bool                              fFlushing;
