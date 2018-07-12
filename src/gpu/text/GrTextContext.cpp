@@ -214,15 +214,17 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                     builder.drawText(runPaint.skPaint(),
                                      (const char*) it.glyphs(), textLen, origin);
 
-                    auto glyphRun = builder.useGlyphRun();
-
-                    glyphRun->temporaryShuntToCallback(
+                    auto glyphRunList = builder.useGlyphRunList();
+                    if (!glyphRunList->empty()) {
+                        auto glyphRun = (*glyphRunList)[0];
+                        glyphRun.temporaryShuntToCallback(
                             [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
                                 this->drawDFPosText(
-                                    cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
-                                    viewMatrix, glyphIDs, 2 * runSize, pos, 2,
-                                    SkPoint::Make(0,0));
+                                    cacheBlob, run, glyphCache, props, runPaint,
+                                    scalerContextFlags, viewMatrix, glyphIDs, 2 * runSize,
+                                    pos, 2, SkPoint::Make(0, 0));
                             });
+                    }
                     break;
                 }
 
@@ -249,15 +251,18 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                     builder.drawText(runPaint.skPaint(),
                                      (const char*) it.glyphs(), textLen, origin);
 
-                    auto glyphRun = builder.useGlyphRun();
+                    auto glyphRunList = builder.useGlyphRunList();
+                    if (!glyphRunList->empty()) {
+                        auto glyphRun = (*glyphRunList)[0];
 
-                    glyphRun->temporaryShuntToCallback(
+                        glyphRun.temporaryShuntToCallback(
                             [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
                                 this->DrawBmpPosText(
-                                    cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
-                                    viewMatrix, glyphIDs, 2 * runSize,
+                                    cacheBlob, run, glyphCache, props, runPaint,
+                                    scalerContextFlags, viewMatrix, glyphIDs, 2 * runSize,
                                     pos, 2, SkPoint::Make(0, 0));
                             });
+                    }
                     break;
                 }
                 case SkTextBlob::kHorizontal_Positioning:
@@ -783,16 +788,20 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
     builder.drawText(skPaint, text, textLen, origin);
     sk_sp<GrTextBlob> blob;
 
-    auto glyphRun = builder.useGlyphRun();
-    // Use the text and textLen below, because we don't want to mess with the paint.
-    glyphRun->temporaryShuntToCallback(
+    auto glyphRunList = builder.useGlyphRunList();
+    if (!glyphRunList->empty()) {
+        auto glyphRun = (*glyphRunList)[0];
+        // Use the text and textLen below, because we don't want to mess with the paint.
+        glyphRun.temporaryShuntToCallback(
             [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {
                 blob = textContext->makeDrawPosTextBlob(
                     context->contextPriv().getTextBlobCache(), glyphCache,
                     *context->contextPriv().caps()->shaderCaps(), utilsPaint,
-                    GrTextContext::kTextBlobOpScalerContextFlags, viewMatrix, surfaceProps, text,
+                    GrTextContext::kTextBlobOpScalerContextFlags, viewMatrix, surfaceProps,
+                    text,
                     textLen, pos, 2, origin);
             });
+    }
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, surfaceProps,
                              textContext->dfAdjustTable(), rtc->textTarget());
