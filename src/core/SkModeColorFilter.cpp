@@ -27,8 +27,6 @@
 SkModeColorFilter::SkModeColorFilter(SkColor color, SkBlendMode mode) {
     fColor = color;
     fMode = mode;
-    // cache
-    fPMColor = SkPreMultiplyColor(fColor);
 }
 
 bool SkModeColorFilter::asColorMode(SkColor* color, SkBlendMode* mode) const {
