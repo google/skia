@@ -2278,7 +2278,7 @@ Sets horizontal scale factor.
 
 ### Example
 
-<div><fiddle-embed name="e9411d676d1fa13b46331abe9e14ad3e"></fiddle-embed></div>
+<div><fiddle-embed name="a39dfed98c3c3c3a56be9ad59fe4e21e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2998,7 +2998,7 @@ The pivot point is unchanged when mapped with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="56ed920dadbf2b2967ac45fb5a9bded6"></fiddle-embed></div>
+<div><fiddle-embed name="55e0431adc6c5b1987ebb8123cc10342"></fiddle-embed></div>
 
 ### See Also
 
