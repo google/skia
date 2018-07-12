@@ -169,6 +169,17 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                 }
             default: ABORT("unsupported row count (%d)", rows);
         }
+    } else if (*this == *context.fByte_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fByte2_Type;
+                    case 3: return *context.fByte3_Type;
+                    case 4: return *context.fByte4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
     } else if (*this == *context.fUInt_Type) {
         switch (rows) {
             case 1:
@@ -187,6 +198,17 @@ const Type& Type::toCompound(const Context& context, int columns, int rows) cons
                     case 2: return *context.fUShort2_Type;
                     case 3: return *context.fUShort3_Type;
                     case 4: return *context.fUShort4_Type;
+                    default: ABORT("unsupported vector column count (%d)", columns);
+                }
+            default: ABORT("unsupported row count (%d)", rows);
+        }
+    } else if (*this == *context.fUByte_Type) {
+        switch (rows) {
+            case 1:
+                switch (columns) {
+                    case 2: return *context.fUByte2_Type;
+                    case 3: return *context.fUByte3_Type;
+                    case 4: return *context.fUByte4_Type;
                     default: ABORT("unsupported vector column count (%d)", columns);
                 }
             default: ABORT("unsupported row count (%d)", rows);
