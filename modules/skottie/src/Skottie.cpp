@@ -80,7 +80,7 @@ sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ct
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
 
-    auto matrix = sksg::Matrix::Make(SkMatrix::I(), std::move(parentMatrix));
+    auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
     auto adapter = sk_make_sp<TransformAdapter>(matrix);
 
     auto bound = BindProperty<VectorValue>(t["a"], &ctx->fAnimators,
@@ -115,7 +115,7 @@ sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AttachContext* ct
                 adapter->setSkewAxis(sa);
             }, 0.0f);
 
-    return bound ? matrix : nullptr;
+    return bound ? matrix : parentMatrix;
 }
 
 sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, AttachContext* ctx,
