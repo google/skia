@@ -62,7 +62,7 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
     int xTiles = SkScalarCeilToInt(bounds.width()  / SkIntToScalar(tileW));
     int yTiles = SkScalarCeilToInt(bounds.height() / SkIntToScalar(tileH));
 
-    fSurfaces.setReserve(xTiles * yTiles);
+    fSurfaces.reserve(xTiles * yTiles);
     fTileRects.setReserve(xTiles * yTiles);
 
     SkImageInfo ii = canvas->imageInfo().makeWH(tileW, tileH);
@@ -71,16 +71,16 @@ void SKPBench::onPerCanvasPreDraw(SkCanvas* canvas) {
         for (int x = bounds.fLeft; x < bounds.fRight; x += tileW) {
             const SkIRect tileRect = SkIRect::MakeXYWH(x, y, tileW, tileH);
             *fTileRects.append() = tileRect;
-            *fSurfaces.push() = canvas->makeSurface(ii).release();
+            fSurfaces.emplace_back(canvas->makeSurface(ii));
 
             // Never want the contents of a tile to include stuff the parent
             // canvas clips out
             SkRect clip = SkRect::Make(bounds);
             clip.offset(-SkIntToScalar(tileRect.fLeft), -SkIntToScalar(tileRect.fTop));
-            fSurfaces.top()->getCanvas()->clipRect(clip);
+            fSurfaces.back()->getCanvas()->clipRect(clip);
 
-            fSurfaces.top()->getCanvas()->setMatrix(canvas->getTotalMatrix());
-            fSurfaces.top()->getCanvas()->scale(fScale, fScale);
+            fSurfaces.back()->getCanvas()->setMatrix(canvas->getTotalMatrix());
+            fSurfaces.back()->getCanvas()->scale(fScale, fScale);
         }
     }
 }
@@ -92,10 +92,9 @@ void SKPBench::onPerCanvasPostDraw(SkCanvas* canvas) {
         sk_sp<SkImage> image(fSurfaces[i]->makeImageSnapshot());
         canvas->drawImage(image,
                           SkIntToScalar(fTileRects[i].fLeft), SkIntToScalar(fTileRects[i].fTop));
-        SkSafeSetNull(fSurfaces[i]);
     }
 
-    fSurfaces.rewind();
+    fSurfaces.reset();
     fTileRects.rewind();
 }
 

@@ -110,6 +110,7 @@ public:
 
 protected:
     GrRenderTarget(GrGpu*, const GrSurfaceDesc&, GrStencilAttachment* = nullptr);
+    ~GrRenderTarget() override;
 
     // override of GrResource
     void onAbandon() override;
@@ -125,7 +126,7 @@ private:
     friend class GrRenderTargetPriv;
 
     int                  fSampleCnt;
-    GrStencilAttachment* fStencilAttachment;
+    sk_sp<GrStencilAttachment> fStencilAttachment;
 
     SkIRect              fResolveRect;
 
