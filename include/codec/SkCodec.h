@@ -668,19 +668,7 @@ protected:
 
     using XformFormat = SkColorSpaceXform::ColorFormat;
 
-    SkCodec(int width,
-            int height,
-            const SkEncodedInfo&,
-            XformFormat srcFormat,
-            std::unique_ptr<SkStream>,
-            sk_sp<SkColorSpace>,
-            SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
-
-    /**
-     *  Allows the subclass to set the recommended SkImageInfo
-     */
-    SkCodec(const SkEncodedInfo&,
-            const SkImageInfo&,
+    SkCodec(SkEncodedInfo&&,
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
@@ -803,7 +791,6 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White
@@ -852,6 +839,8 @@ private:
      */
     virtual bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
                                      bool srcIsOpaque, const SkColorSpace* srcCS) const;
+
+    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
     /**
      *  Return whether these dimensions are supported as a scale.
      *
