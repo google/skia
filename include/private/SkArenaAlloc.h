@@ -134,7 +134,10 @@ public:
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
     static uint32_t ToU32(size_t v) {
-        assert(v <= 0xffffffff);
+        if (sizeof(size_t) > sizeof(uint32_t)) {
+            // need this explicit sizeof check, to avoid a compiler complaint about always-true
+            AssertRelease(v <= 0xffffffff);
+        }
         return (uint32_t)v;
     }
 
