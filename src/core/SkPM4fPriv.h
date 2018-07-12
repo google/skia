@@ -63,15 +63,6 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS
 // Functions below this line are probably totally broken as far as color space management goes.
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-static inline uint32_t Sk4f_toS32(const Sk4f& px) {
-    Sk4i  rgb = sk_linear_to_srgb(px),
-         srgb = { rgb[0], rgb[1], rgb[2], (int)(255.0f * px[3] + 0.5f) };
-
-    uint32_t s32;
-    SkNx_cast<uint8_t>(srgb).store(&s32);
-    return s32;
-}
-
 static inline void append_gamut_transform(SkRasterPipeline* p,
                                           SkArenaAlloc* alloc,
                                           SkColorSpace* src,
@@ -102,6 +93,5 @@ static inline void append_gamut_transform(SkRasterPipeline* p,
     *ptr++ = m44.get(0,3); *ptr++ = m44.get(1,3); *ptr++ = m44.get(2,3);
     p->append(SkRasterPipeline::matrix_3x4, ptr-12);
 }
-
 
 #endif

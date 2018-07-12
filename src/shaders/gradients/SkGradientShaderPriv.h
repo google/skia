@@ -112,7 +112,7 @@ public:
 
     SkColor getLegacyColor(int i) const {
         SkASSERT(i < fColorCount);
-        return Sk4f_toL32(swizzle_rb(Sk4f::Load(fOrigColors4f[i].vec())));
+        return fOrigColors4f[i].toSkColor();
     }
 
     SkColor4f*          fOrigColors4f; // original colors, as linear floats

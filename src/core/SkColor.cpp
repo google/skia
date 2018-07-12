@@ -158,7 +158,7 @@ SkColor4f SkColor4f::FromColor(SkColor bgra) {
 }
 
 SkColor SkColor4f::toSkColor() const {
-    return Sk4f_toS32(swizzle_rb(Sk4f::Load(this->vec())));
+    return Sk4f_toL32(swizzle_rb(Sk4f::Load(this->vec())));
 }
 
 SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
