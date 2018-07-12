@@ -115,6 +115,10 @@ struct Swizzle : public Expression {
         return fBase->hasSideEffects();
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new Swizzle(fType, fBase->clone(), fComponents));
+    }
+
     String description() const override {
         String result = fBase->description() + ".";
         for (int x : fComponents) {
@@ -127,6 +131,16 @@ struct Swizzle : public Expression {
     const std::vector<int> fComponents;
 
     typedef Expression INHERITED;
+
+private:
+    Swizzle(const Type& type, std::unique_ptr<Expression> base, std::vector<int> components)
+    : INHERITED(base->fOffset, kSwizzle_Kind, type)
+    , fBase(std::move(base))
+    , fComponents(std::move(components)) {
+        SkASSERT(fComponents.size() >= 1 && fComponents.size() <= 4);
+    }
+
+
 };
 
 } // namespace
