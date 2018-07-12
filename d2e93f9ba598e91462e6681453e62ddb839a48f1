@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "069dd0a2_a4d707c8",
+        "filename": "include/gpu/vk/GrVkInterface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-12T13:22:45Z",
+      "side": 1,
+      "message": "clients",
+      "range": {
+        "startLine": 38,
+        "startChar": 85,
+        "endLine": 38,
+        "endChar": 92
+      },
+      "revId": "d2e93f9ba598e91462e6681453e62ddb839a48f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
