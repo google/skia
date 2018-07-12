@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "90d3352c_a7c5f01f",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-12T14:17:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0313b91_b3a977db",
+      "range": {
+        "startLine": 408,
+        "startChar": 47,
+        "endLine": 408,
+        "endChar": 58
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ffc968a3_972d64be",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 10
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2647076e_125e528d",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-12T14:17:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffc968a3_972d64be",
+      "range": {
+        "startLine": 416,
+        "startChar": 24,
+        "endLine": 416,
+        "endChar": 38
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ea0b04d8_694fadb7",
         "filename": "src/gpu/mtl/GrMtlGpu.mm",
         "patchSetId": 10
@@ -68,6 +116,30 @@
       "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5dd69882_fb3753d5",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-12T14:17:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea0b04d8_694fadb7",
+      "range": {
+        "startLine": 423,
+        "startChar": 3,
+        "endLine": 423,
+        "endChar": 33
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
