@@ -1298,6 +1298,15 @@ static void run_test(skiatest::Test test, const GrContextOptions& grCtxOptions) 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 int main(int argc, char** argv) {
+    FLAGS_match.reset();
+    FLAGS_match.append("image-cacherator-from-texture");
+
+    FLAGS_config.reset();
+    FLAGS_config.append("glmsaa8");
+
+    FLAGS_src.reset();
+    FLAGS_src.append("gm");
+
 #if defined(SK_BUILD_FOR_ANDROID_FRAMEWORK) && defined(SK_HAS_HEIF_LIBRARY)
     android::ProcessState::self()->startThreadPool();
 #endif
