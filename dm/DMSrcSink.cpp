@@ -1653,7 +1653,7 @@ Error GPUPersistentCacheTestingSink::draw(const Src& src, SkBitmap* dst, SkWStre
     if (!refErr.isEmpty()) {
         return refErr;
     }
-    SkASSERT(memoryCache.numCacheMisses());
+    SkASSERT(!memoryCache.numCacheMisses());
 
     return compare_bitmaps(reference, *dst);
 }

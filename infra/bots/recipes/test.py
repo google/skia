@@ -246,16 +246,19 @@ def dm_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
 
-    # Test 1010102 on our Linux/NVIDIA bots
+    # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
+    # on the GL bots.
     if 'QuadroP400' in bot and api.vars.is_linux:
       if 'Vulkan' in bot:
         configs.append('vk1010102')
         # Decoding transparent images to 1010102 just looks bad
         blacklist('vk1010102 image _ _')
       else:
-        configs.append('gl1010102')
+        configs.extend(['gl1010102', 'gltestpersistentcache'])
         # Decoding transparent images to 1010102 just looks bad
         blacklist('gl1010102 image _ _')
+        # This test produces slightly different pixels run to run on NV.
+        blacklist('gltestpersistentcache gm _ atlastext')
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
