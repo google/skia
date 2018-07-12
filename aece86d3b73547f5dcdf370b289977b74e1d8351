@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "633ad883_93534e9d",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-12T17:06:56Z",
+      "side": 1,
+      "message": "Is this now something more like,\n\n// None of the codecs we have output F16 natively, so if we\u0027re trying to decode to F16,\n// we\u0027ll have to use SkColorSpaceXform to get there.\n\n?  I\u0027m imagining codecs have a color space xform step that we can sometimes skip when we know it\u0027s trivial or just a format conversion we can handle some other way?",
+      "range": {
+        "startLine": 285,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 62
+      },
+      "revId": "aece86d3b73547f5dcdf370b289977b74e1d8351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1cf6834e_4e8aded0",
+        "filename": "src/core/SkConvertPixels.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-12T17:06:56Z",
+      "side": 1,
+      "message": "This doesn\u0027t really have to be true any longer.\n\nI guess the real next step here is to get rid of this color space xform \"fast path\" and just use the next one in line, presumably an SkRasterPipeline that does basically the same thing?",
+      "revId": "aece86d3b73547f5dcdf370b289977b74e1d8351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5cc1066_693c5b70",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-12T17:06:56Z",
+      "side": 1,
+      "message": "don\u0027t forget to cut this F16 bit",
+      "range": {
+        "startLine": 314,
+        "startChar": 4,
+        "endLine": 316,
+        "endChar": 5
+      },
+      "revId": "aece86d3b73547f5dcdf370b289977b74e1d8351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
