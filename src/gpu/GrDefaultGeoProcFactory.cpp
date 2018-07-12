@@ -118,14 +118,13 @@ public:
                                                                 kMaxBones,
                                                                 &vertBonesUniformName);
                 vertBuilder->codeAppendf(
-                        "float2 transformedPosition = (%s[0] * float3(%s, 1)).xy;"
-                        "float3x3 influence = float3x3(0);"
+                        "float3 originalPosition = %s[0] * float3(%s, 1);"
+                        "float2 transformedPosition = float2(0);"
                         "for (int i = 0; i < 4; i++) {"
-                        "   int index = %s[i];"
-                        "   float weight = %s[i];"
-                        "   influence += %s[index] * weight;"
-                        "}"
-                        "transformedPosition = (influence * float3(transformedPosition, 1)).xy;",
+                        "    byte index = %s[i];"
+                        "    float weight = %s[i];"
+                        "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
+                        "}",
                         vertBonesUniformName,
                         gp.fInPosition.name(),
                         gp.fInBoneIndices.name(),
@@ -278,9 +277,9 @@ private:
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
-            fInBoneIndices = {"inBoneIndices", kInt4_GrVertexAttribType};
+            fInBoneIndices = {"inBoneIndices", kByte4_GrVertexAttribType};
             ++cnt;
-            fInBoneWeights = {"inBoneWeights", kFloat4_GrVertexAttribType};
+            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType};
             ++cnt;
         }
         this->setVertexAttributeCnt(cnt);
