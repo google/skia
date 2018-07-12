@@ -70,6 +70,8 @@ DEF_CLASS_MAP(SkDynamicMemoryWStream, sk_wstream_dynamicmemorystream_t, DynamicM
 DEF_CLASS_MAP(SkFILEStream, sk_stream_filestream_t, FileStream)
 DEF_CLASS_MAP(SkFILEWStream, sk_wstream_filestream_t, FileWStream)
 DEF_CLASS_MAP(SkFontMgr, sk_fontmgr_t, FontMgr)
+DEF_CLASS_MAP(SkFontStyle, sk_fontstyle_t, FontStyle)
+DEF_CLASS_MAP(SkFontStyleSet, sk_fontstyleset_t, FontStyleSet)
 DEF_CLASS_MAP(SkImage, sk_image_t, Image)
 DEF_CLASS_MAP(SkImageFilter, sk_imagefilter_t, ImageFilter)
 DEF_CLASS_MAP(SkMaskFilter, sk_maskfilter_t, MaskFilter)

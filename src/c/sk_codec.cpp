@@ -122,6 +122,10 @@ void sk_codec_get_frame_info(sk_codec_t* codec, sk_codec_frameinfo_t* frameInfo)
         cframes[i] = frames[i];
 }
 
+bool sk_codec_get_frame_info_for_index(sk_codec_t* codec, int index, sk_codec_frameinfo_t* frameInfo) {
+    return AsCodec(codec)->getFrameInfo(index, AsFrameInfo(frameInfo));
+}
+
 int sk_codec_get_repetition_count(sk_codec_t* codec) {
     return AsCodec(codec)->getRepetitionCount();
 }

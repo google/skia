@@ -311,7 +311,7 @@ bool sk_bitmap_try_alloc_pixels_with_flags(sk_bitmap_t* cbitmap, const sk_imagei
     SkImageInfo info;
     from_c(*requestedInfo, &info);
 
-    return bmp->tryAllocPixels(info, flags);
+    return bmp->tryAllocPixelsFlags(info, flags);
 }
 
 void sk_bitmap_set_pixels(sk_bitmap_t* cbitmap, void* pixels)

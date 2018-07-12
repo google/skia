@@ -51,19 +51,39 @@ void sk_pixmap_reset_with_params(sk_pixmap_t* cpixmap, const sk_imageinfo_t* cin
     AsPixmap(cpixmap)->reset(info, addr, rowBytes);
 }
 
-void sk_pixmap_get_info(sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo)
+void sk_pixmap_get_info(const sk_pixmap_t* cpixmap, sk_imageinfo_t* cinfo)
 {
     from_sk(AsPixmap(cpixmap)->info(), cinfo);
 }
 
-size_t sk_pixmap_get_row_bytes(sk_pixmap_t* cpixmap)
+size_t sk_pixmap_get_row_bytes(const sk_pixmap_t* cpixmap)
 {
     return AsPixmap(cpixmap)->rowBytes();
 }
 
-const void* sk_pixmap_get_pixels(sk_pixmap_t* cpixmap)
+const void* sk_pixmap_get_pixels(const sk_pixmap_t* cpixmap)
 {
     return AsPixmap(cpixmap)->addr();
+}
+
+const void* sk_pixmap_get_pixels_with_xy(const sk_pixmap_t* cpixmap, int x, int y)
+{
+    return AsPixmap(cpixmap)->addr(x, y);
+}
+
+sk_color_t sk_pixmap_get_pixel_color(const sk_pixmap_t* cpixmap, int x, int y)
+{
+    return AsPixmap(cpixmap)->getColor(x, y);
+}
+
+bool sk_pixmap_extract_subset(const sk_pixmap_t* cpixmap, sk_pixmap_t* result, const sk_irect_t* subset)
+{
+    return AsPixmap(cpixmap)->extractSubset(AsPixmap(result), *AsIRect(subset));
+}
+
+bool sk_pixmap_erase_color (const sk_pixmap_t* cpixmap, sk_color_t color, const sk_irect_t* subset)
+{
+    return AsPixmap(cpixmap)->erase((SkColor)color, *AsIRect(subset));
 }
 
 sk_color_t sk_color_unpremultiply(const sk_pmcolor_t pmcolor)
@@ -103,12 +123,12 @@ bool sk_pixmap_encode_image(sk_wstream_t* dst, const sk_pixmap_t* src, sk_encode
     return SkEncodeImage(AsWStream(dst), AsPixmap(*src), (SkEncodedImageFormat)encoder, quality);
 }
 
-bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY)
+bool sk_pixmap_read_pixels(const sk_pixmap_t* cpixmap, const sk_imageinfo_t* dstInfo, void* dstPixels, size_t dstRowBytes, int srcX, int srcY, sk_transfer_function_behavior_t behavior)
 {
     SkImageInfo info;
     from_c(*dstInfo, &info);
 
-    return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY);
+    return AsPixmap(cpixmap)->readPixels(info, dstPixels, dstRowBytes, srcX, srcY, (SkTransferFunctionBehavior)behavior);
 }
 
 bool sk_pixmap_scale_pixels(const sk_pixmap_t* cpixmap, const sk_pixmap_t* dst, sk_filter_quality_t quality) {

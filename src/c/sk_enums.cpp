@@ -252,6 +252,10 @@ static_assert ((int)SkCodec::Result::kUnimplemented       == (int)UNIMPLEMENTED_
 static_assert ((int)SkCodec::ZeroInitialized::kYes_ZeroInitialized   == (int)YES_SK_CODEC_ZERO_INITIALIZED,   ASSERT_MSG(SkCodec::ZeroInitialized, sk_codec_zero_initialized_t));
 static_assert ((int)SkCodec::ZeroInitialized::kNo_ZeroInitialized    == (int)NO_SK_CODEC_ZERO_INITIALIZED,    ASSERT_MSG(SkCodec::ZeroInitialized, sk_codec_zero_initialized_t));
 
+// sk_transfer_function_behavior_t
+static_assert ((int)SkTransferFunctionBehavior::kRespect   == (int)RESPECT_SK_TRANSFER_FUNCTION_BEHAVIOR,   ASSERT_MSG(SkTransferFunctionBehavior, sk_transfer_function_behavior_t));
+static_assert ((int)SkTransferFunctionBehavior::kIgnore    == (int)IGNORE_SK_TRANSFER_FUNCTION_BEHAVIOR,    ASSERT_MSG(SkTransferFunctionBehavior, sk_transfer_function_behavior_t));
+
 // sk_codec_scanline_order_t
 static_assert ((int)SkCodec::SkScanlineOrder::kTopDown_SkScanlineOrder    == (int)TOP_DOWN_SK_CODEC_SCANLINE_ORDER,    ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codec_scanline_order_t));
 static_assert ((int)SkCodec::SkScanlineOrder::kBottomUp_SkScanlineOrder   == (int)BOTTOM_UP_SK_CODEC_SCANLINE_ORDER,   ASSERT_MSG(SkCodec::SkScanlineOrder, sk_codec_scanline_order_t));
