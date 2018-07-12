@@ -61,10 +61,8 @@ public:
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
 
     size_t runSize() const { return fUniqueGlyphIDIndices.size(); }
-    uint16_t uniqueSize() const { return fUniqueGlyphIDs.size(); }
     SkSpan<const SkPoint> positions() const { return fPositions; }
-    SkSpan<const SkGlyphID> uniqueGlyphIDs() const { return fUniqueGlyphIDs; }
-    SkSpan<const SkGlyphID> shuntGlyphsIDs() const { return fTemporaryShuntGlyphIDs; }
+    const SkPaint& paint() const { return fRunPaint; }
 
 private:
     //
@@ -83,6 +81,53 @@ private:
     const SkPaint fRunPaint;
 };
 
+class SkGlyphRunList {
+    const SkPaint* fOriginalPaint{nullptr};
+    // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
+    // should be used for nothing else
+    const SkTextBlob*  fOriginalTextBlob{nullptr};
+    SkPoint fOrigin = {0, 0};
+    SkSpan<SkGlyphRun> fGlyphRuns;
+
+public:
+    SkGlyphRunList() = default;
+    // Blob maybe null.
+    SkGlyphRunList(
+            const SkPaint& paint,
+            const SkTextBlob* blob,
+            SkPoint origin,
+            SkSpan<SkGlyphRun> glyphRunList);
+
+    uint64_t uniqueID() const;
+    bool anyRunsLCD() const;
+    void temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) const;
+
+    bool canCache() const { return fOriginalTextBlob != nullptr; }
+    size_t runCount() const { return fGlyphRuns.size(); }
+    size_t totalGlyphCount() const {
+        size_t glyphCount = 0;
+        for(const auto& run : fGlyphRuns) {
+            glyphCount += run.runSize();
+        }
+        return glyphCount;
+    }
+
+    SkPoint origin() const { return fOrigin; }
+    const SkPaint& paint() const { return *fOriginalPaint; }
+
+    auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin(); }
+    auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();   }
+    auto size()  -> decltype(fGlyphRuns.size())                { return fGlyphRuns.size();  }
+    auto empty() -> decltype(fGlyphRuns.empty())               { return fGlyphRuns.empty(); }
+    auto operator [] (size_t i) -> decltype(fGlyphRuns[i])     { return fGlyphRuns[i];      }
+    void temporaryShuntToDrawPosText(SkBaseDevice* device) {
+        for (auto& run : fGlyphRuns) {
+            run.temporaryShuntToDrawPosText(device);
+        }
+    }
+
+};
+
 class SkGlyphIDSet {
 public:
     SkSpan<const SkGlyphID> uniquifyGlyphIDs(
@@ -96,16 +141,16 @@ private:
 class SkGlyphRunBuilder {
 public:
     void drawText(
-            const SkPaint& paint, const void* bytes, size_t byteLength,
-            SkPoint origin);
+            const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
     void drawPosTextH(
             const SkPaint& paint, const void* bytes, size_t byteLength,
             const SkScalar* xpos, SkScalar constY);
     void drawPosText(
-            const SkPaint& paint, const void* bytes, size_t byteLength,
-            const SkPoint* pos);
+            const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos);
+    void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
 
     SkGlyphRun* useGlyphRun();
+    SkGlyphRunList* useGlyphRunList();
 
 private:
     void initialize(size_t totalRunSize);
@@ -128,29 +173,34 @@ private:
             SkSpan<const char> text,
             SkSpan<const uint32_t> clusters);
 
-    void simplifyDrawText(
+    void makeGlyphRunList(const SkPaint& paint, const SkTextBlob* blob, SkPoint origin);
+
+    size_t simplifyDrawText(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, SkPoint origin,
             uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
-    void simplifyDrawPosTextH(
+    size_t simplifyDrawPosTextH(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs,
             const SkScalar* xpos, SkScalar constY,
             uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
-    void simplifyDrawPosText(
+    size_t simplifyDrawPosText(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
             uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
-    uint64_t fUniqueID{0};
 
     size_t fMaxTotalRunSize{0};
     SkAutoTMalloc<uint16_t> fUniqueGlyphIDIndices;
     SkAutoTMalloc<SkPoint> fPositions;
     SkAutoTMalloc<SkGlyphID> fUniqueGlyphIDs;
+
+    std::vector<SkGlyphRun> fGlyphRunListStorage;
+    SkGlyphRunList fGlyphRunList;
+
 
     // Used as a temporary for preparing using utfN text. This implies that only one run of
     // glyph ids will ever be needed because blobs are already glyph based.
@@ -158,10 +208,6 @@ private:
 
     // Used as temporary storage for calculating positions for drawText.
     std::vector<SkPoint> fScratchAdvances;
-
-
-    // Used as temporary glyph run for the rest of the Text stack.
-    SkGlyphRun fScratchGlyphRun;
 
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
