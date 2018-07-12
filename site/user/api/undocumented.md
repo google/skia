@@ -176,10 +176,6 @@ SK_API void <a href='#SkDebugf'>SkDebugf</a>(const char format[], ...)
 
 ## <a name='PDF'>PDF</a>
 
-# <a name='Draw_Filter'>Draw Filter</a>
-
-# <a name='SkDrawFilter'>Class SkDrawFilter</a>
-
 # <a name='Draw_Layer'>Draw Layer</a>
 
 # <a name='Draw_Looper'>Draw Looper</a>

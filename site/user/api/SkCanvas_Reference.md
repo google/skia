@@ -689,7 +689,7 @@ times <a href='#SkCanvas_MakeRasterDirectN32_rowBytes'>rowBytes</a></td>
 
 ### Example
 
-<div><fiddle-embed name="e9411d676d1fa13b46331abe9e14ad3e"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
+<div><fiddle-embed name="4cacf302830e644234d522f6e2f8f580"><div>Allocates a three by three bitmap, clears it to white, and draws a black pixel
 in the center.
 </div>
 
@@ -1872,10 +1872,9 @@ to implement windows and views. The initial state has an identity matrix and and
 an infinite clip. Even with a wide-open clip, drawing is constrained by the
 bounds of the <a href='#Canvas'>Canvas</a> <a href='SkSurface_Reference#Surface'>Surface</a> or <a href='undocumented#Device'>Device</a>.
 
-<a href='#Canvas'>Canvas</a> savable state consists of <a href='#Clip'>Clip</a>, <a href='#Matrix'>Matrix</a>, and Draw_Filter.
+<a href='#Canvas'>Canvas</a> savable state consists of <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>.
 <a href='#Clip'>Clip</a> describes the area that may be drawn to.
 <a href='#Matrix'>Matrix</a> transforms the geometry.
-Draw_Filter (deprecated on most platforms) modifies the paint before drawing.
 
 <a href='#SkCanvas_save'>save</a>, <a href='#SkCanvas_saveLayer'>saveLayer</a>, <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a>, and <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a>
 save state and return the depth of the stack.
@@ -1920,9 +1919,9 @@ Each <a href='#Clip'>Clip</a> uses the current <a href='#Matrix'>Matrix</a> for 
 int <a href='#SkCanvas_save'>save</a>()
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms).
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
-restoring the <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and to their state when <a href='#SkCanvas_save'>save</a> was called.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>.
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>,
+restoring the <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a> to their state when <a href='#SkCanvas_save'>save</a> was called.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>, <a href='#SkCanvas_setMatrix'>setMatrix</a>,
 and <a href='#SkCanvas_resetMatrix'>resetMatrix</a>. <a href='#Clip'>Clip</a> may be changed by <a href='#SkCanvas_clipRect'>clipRect</a>, <a href='#SkCanvas_clipRRect'>clipRRect</a>, <a href='#SkCanvas_clipPath'>clipPath</a>, <a href='#SkCanvas_clipRegion'>clipRegion</a>.
@@ -1956,7 +1955,7 @@ the red square is not translated, and is drawn at the origin.
 void <a href='#SkCanvas_restore'>restore</a>()
 </pre>
 
-Removes changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and since <a href='#Canvas'>Canvas</a> state was
+Removes changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a> since <a href='#Canvas'>Canvas</a> state was
 last saved. The state is removed from the stack.
 
 Does nothing if the stack is empty.
@@ -1978,7 +1977,7 @@ Does nothing if the stack is empty.
 int <a href='#SkCanvas_getSaveCount'>getSaveCount</a>() const
 </pre>
 
-Returns the number of saved states, each containing: <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter.
+Returns the number of saved states, each containing: <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>.
 Equals the number of <a href='#SkCanvas_save'>save</a> calls less the number of <a href='#SkCanvas_restore'>restore</a> calls plus one.
 The save count of a new canvas is one.
 
@@ -2013,7 +2012,7 @@ depth = 1
 void <a href='#SkCanvas_restoreToCount'>restoreToCount</a>(int saveCount)
 </pre>
 
-Restores state to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and values when <a href='#SkCanvas_save'>save</a>, <a href='#SkCanvas_saveLayer'>saveLayer</a>,
+Restores state to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a> values when <a href='#SkCanvas_save'>save</a>, <a href='#SkCanvas_saveLayer'>saveLayer</a>,
 <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a>, or <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a> returned <a href='#SkCanvas_restoreToCount_saveCount'>saveCount</a>.
 
 Does nothing if <a href='#SkCanvas_restoreToCount_saveCount'>saveCount</a> is greater than state stack count.
@@ -2065,10 +2064,8 @@ restored, its <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> can be modified by 
 int <a href='#SkCanvas_saveLayer'>saveLayer</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms),
-and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
-and draws the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and draws the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>,
 <a href='#SkCanvas_setMatrix'>setMatrix</a>, and <a href='#SkCanvas_resetMatrix'>resetMatrix</a>. <a href='#Clip'>Clip</a> may be changed by <a href='#SkCanvas_clipRect'>clipRect</a>, <a href='#SkCanvas_clipRRect'>clipRRect</a>,
@@ -2114,10 +2111,8 @@ depth of saved stack
 int <a href='#SkCanvas_saveLayer'>saveLayer</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>& bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms),
-and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
-and draws the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and draws the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a>.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>,
 <a href='#SkCanvas_setMatrix'>setMatrix</a>, and <a href='#SkCanvas_resetMatrix'>resetMatrix</a>. <a href='#Clip'>Clip</a> may be changed by <a href='#SkCanvas_clipRect'>clipRect</a>, <a href='#SkCanvas_clipRRect'>clipRRect</a>,
@@ -2165,12 +2160,10 @@ The red rectangle is clipped; it does not fully fit on <a href='#Layer'>Layer</a
 int <a href='#SkCanvas_saveLayerPreserveLCDTextRequests'>saveLayerPreserveLCDTextRequests</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>* paint)
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms),
-and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and allocates a <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
 <a href='SkPaint_Reference#LCD_Text'>LCD Text</a> is preserved when the <a href='#Layer'>Layer</a> is drawn to the prior <a href='#Layer'>Layer</a>.
 
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
-and draws <a href='#Layer'>Layer</a>.
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and draws <a href='#Layer'>Layer</a>.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>,
 <a href='#SkCanvas_setMatrix'>setMatrix</a>, and <a href='#SkCanvas_resetMatrix'>resetMatrix</a>. <a href='#Clip'>Clip</a> may be changed by <a href='#SkCanvas_clipRect'>clipRect</a>, <a href='#SkCanvas_clipRRect'>clipRRect</a>,
@@ -2219,10 +2212,9 @@ depth of saved stack
 int <a href='#SkCanvas_saveLayerAlpha'>saveLayerAlpha</a>(const <a href='SkRect_Reference#SkRect'>SkRect</a>* bounds, <a href='undocumented#U8CPU'>U8CPU</a> alpha)
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms),
-and allocates <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and allocates <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
 
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>,
 and blends <a href='#Layer'>Layer</a> with <a href='#SkCanvas_saveLayerAlpha_alpha'>alpha</a> opacity onto prior <a href='#Layer'>Layer</a>.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>,
@@ -2625,10 +2617,9 @@ identity matrix</td>
 int <a href='#SkCanvas_saveLayer'>saveLayer</a>(const <a href='#SkCanvas_SaveLayerRec'>SaveLayerRec</a>& layerRec)
 </pre>
 
-Saves <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and ( deprecated on most platforms),
-and allocates <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
+Saves <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>, and allocates <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> for subsequent drawing.
 
-Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a>, <a href='#Clip'>Clip</a>, and Draw_Filter,
+Calling <a href='#SkCanvas_restore'>restore</a> discards changes to <a href='#Matrix'>Matrix</a> and <a href='#Clip'>Clip</a>,
 and blends <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> with <a href='SkColor_Reference#Alpha'>Color Alpha</a> opacity onto the prior <a href='#Layer'>Layer</a>.
 
 <a href='#Matrix'>Matrix</a> may be changed by <a href='#SkCanvas_translate'>translate</a>, <a href='#SkCanvas_scale'>scale</a>, <a href='#SkCanvas_rotate'>rotate</a>, <a href='#SkCanvas_skew'>skew</a>, <a href='#SkCanvas_concat'>concat</a>,
@@ -3246,7 +3237,7 @@ itself or another <a href='SkPath_Reference#Contour'>Path Contour</a>, whether t
 
 ### Example
 
-<div><fiddle-embed name="bd5286cb9a5e5c32cd980f72b8f400fb"><div>Top figure uses <a href='SkPath_Reference#SkPath_kInverseWinding_FillType'>SkPath::kInverseWinding FillType</a> and <a href='undocumented#SkClipOp_kDifference'>SkClipOp::kDifference</a>;
+<div><fiddle-embed name="ee47ae6b813bfaa55e1a7b7c053ed60d"><div>Top figure uses <a href='SkPath_Reference#SkPath_kInverseWinding_FillType'>SkPath::kInverseWinding FillType</a> and <a href='undocumented#SkClipOp_kDifference'>SkClipOp::kDifference</a>;
 area outside clip is subtracted from circle.
 
 Bottom figure uses <a href='SkPath_Reference#SkPath_kWinding_FillType'>SkPath::kWinding FillType</a> and <a href='undocumented#SkClipOp_kIntersect'>SkClipOp::kIntersect</a>;
