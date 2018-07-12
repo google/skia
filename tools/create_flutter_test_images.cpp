@@ -51,7 +51,6 @@ int main(int argc, char** argv) {
     image->readPixels(src, 0, 0, SkImage::kDisallow_CachingHint);
     SkFILEWStream dst0("gbr.png");
     SkPngEncoder::Options opts;
-    opts.fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore; // Does not matter for opaque src
     SkAssertResult(SkPngEncoder::Encode(&dst0, src, opts));
 
     // Encode an image with steep transfer function.

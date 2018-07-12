@@ -87,13 +87,10 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
 }
 
 // Fast Path 3: Color space xform.
-static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo,
-                                         SkTransferFunctionBehavior behavior) {
+static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
     // Unpremultiplication is unsupported by SkColorSpaceXform.  Note that if |src| is non-linearly
     // premultiplied, we're always going to have to unpremultiply before doing anything.
-    if (kPremul_SkAlphaType == srcInfo.alphaType() &&
-            (kUnpremul_SkAlphaType == dstInfo.alphaType() ||
-             SkTransferFunctionBehavior::kIgnore == behavior)) {
+    if (kPremul_SkAlphaType == srcInfo.alphaType()) {
         return false;
     }
 
@@ -119,7 +116,7 @@ static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkIma
 
 static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      const SkImageInfo& srcInfo, const void* srcPixels,
-                                     size_t srcRB, SkTransferFunctionBehavior behavior) {
+                                     size_t srcRB) {
     SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
     SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(srcInfo.colorType());
     SkAlphaType xformAlpha;
@@ -146,8 +143,8 @@ static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
             break;
     }
 
-    std::unique_ptr<SkColorSpaceXform> xform =
-            SkMakeColorSpaceXform(srcInfo.colorSpace(), dstInfo.colorSpace(), behavior);
+    std::unique_ptr<SkColorSpaceXform> xform = SkMakeColorSpaceXform(srcInfo.colorSpace(),
+                                                                     dstInfo.colorSpace());
     if (!xform) {
         return false;
     }
@@ -250,7 +247,7 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
                                   const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
-                                  bool isColorAware, SkTransferFunctionBehavior behavior) {
+                                  bool isColorAware) {
 
     SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
                        dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
@@ -295,7 +292,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
     }
 
     SkAlphaType premulState = srcInfo.alphaType();
-    if (kPremul_SkAlphaType == premulState && SkTransferFunctionBehavior::kIgnore == behavior) {
+    if (kPremul_SkAlphaType == premulState) {
         pipeline.append(SkRasterPipeline::unpremul);
         premulState = kUnpremul_SkAlphaType;
     }
@@ -318,17 +315,6 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
                                srcInfo.colorSpace(), dstInfo.colorSpace(), premulState);
     }
 
-    SkAlphaType dat = dstInfo.alphaType();
-    if (SkTransferFunctionBehavior::kRespect == behavior) {
-        if (kPremul_SkAlphaType == premulState && kUnpremul_SkAlphaType == dat) {
-            pipeline.append(SkRasterPipeline::unpremul);
-            premulState = kUnpremul_SkAlphaType;
-        } else if (kUnpremul_SkAlphaType == premulState && kPremul_SkAlphaType == dat) {
-            pipeline.append(SkRasterPipeline::premul);
-            premulState = kPremul_SkAlphaType;
-        }
-    }
-
     SkColorSpaceTransferFn dstFn;
     if (isColorAware && dstInfo.gammaCloseToSRGB()) {
         pipeline.append(SkRasterPipeline::to_srgb);
@@ -342,8 +328,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         }
     }
 
-    if (kUnpremul_SkAlphaType == premulState && kPremul_SkAlphaType == dat &&
-        SkTransferFunctionBehavior::kIgnore == behavior)
+    SkAlphaType dat = dstInfo.alphaType();
+    if (kUnpremul_SkAlphaType == premulState && kPremul_SkAlphaType == dat)
     {
         pipeline.append(SkRasterPipeline::premul);
         premulState = kPremul_SkAlphaType;
@@ -415,8 +401,7 @@ static bool swizzle_and_multiply_color_type(SkColorType ct) {
 }
 
 void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB,
-                     SkTransferFunctionBehavior behavior) {
+                     const SkImageInfo& srcInfo, const void* srcPixels, size_t srcRB) {
     SkASSERT(dstInfo.dimensions() == srcInfo.dimensions());
     SkASSERT(SkImageInfoValidConversion(dstInfo, srcInfo));
 
@@ -437,8 +422,8 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
     }
 
     // Fast Path 3: Color space xform.
-    if (isColorAware && optimized_color_xform(dstInfo, srcInfo, behavior)) {
-        if (apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, behavior)) {
+    if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
+        if (apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB)) {
             return;
         }
     }
@@ -450,6 +435,5 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
     }
 
     // Default: Use the pipeline.
-    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, isColorAware,
-                          behavior);
+    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, isColorAware);
 }
