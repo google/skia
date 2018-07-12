@@ -34,7 +34,9 @@ void GrTextureOpList::deleteOp(int index) {
 
 void GrTextureOpList::deleteOps() {
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        fOpMemoryPool->release(std::move(fRecordedOps[i]));
+        if (fRecordedOps[i]) {
+            fOpMemoryPool->release(std::move(fRecordedOps[i]));
+        }
     }
     fRecordedOps.reset();
     fOpMemoryPool = nullptr;
