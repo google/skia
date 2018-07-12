@@ -56,6 +56,12 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 3: return *context.fShort3_Type;
             case 4: return *context.fShort4_Type;
         }
+    } else if (base == *context.fByte_Type) {
+        switch (count) {
+            case 2: return *context.fByte2_Type;
+            case 3: return *context.fByte3_Type;
+            case 4: return *context.fByte4_Type;
+        }
     } else if (base == *context.fUInt_Type) {
         switch (count) {
             case 2: return *context.fUInt2_Type;
@@ -67,6 +73,12 @@ static const Type& get_type(const Context& context, Expression& value, size_t co
             case 2: return *context.fUShort2_Type;
             case 3: return *context.fUShort3_Type;
             case 4: return *context.fUShort4_Type;
+        }
+    } else if (base == *context.fUByte_Type) {
+        switch (count) {
+            case 2: return *context.fUByte2_Type;
+            case 3: return *context.fUByte3_Type;
+            case 4: return *context.fUByte4_Type;
         }
     } else if (base == *context.fBool_Type) {
         switch (count) {
