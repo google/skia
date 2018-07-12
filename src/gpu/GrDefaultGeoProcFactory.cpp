@@ -118,10 +118,12 @@ public:
                                                                 kMaxBones,
                                                                 &vertBonesUniformName);
                 vertBuilder->codeAppendf(
+                        "uint4 test = uint4(0);"
                         "float3 originalPosition = %s[0] * float3(%s, 1);"
                         "float2 transformedPosition = float2(0);"
                         "for (int i = 0; i < 4; i++) {"
-                        "    ubyte index = %s[i];"
+                        "    ubyte index = %s[i] + test.x;"
+                        "    test.y += index;"
                         "    float weight = %s[i];"
                         "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
                         "}",
