@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpaceXformSteps.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
 #include "SkReadBuffer.h"
@@ -20,30 +21,9 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkColorSpace* /*dst color space*/,
                                          SkArenaAlloc* alloc,
                                          bool shaderIsOpaque) const {
-    // Step 1: Linearize by undoing the src transfer function.
-    // Linear and sRGB will return true to isNumericalTransferFn(), so we check them first.
-    SkColorSpaceTransferFn srcFn;
-    if (fSrcColorSpace->gammaIsLinear()) {
-        // Nothing to do.
-    } else if (fSrcColorSpace->gammaCloseToSRGB()) {
-        p->append(SkRasterPipeline::from_srgb);
-    } else if (fSrcColorSpace->isNumericalTransferFn(&srcFn)) {
-        auto copy = alloc->make<SkColorSpaceTransferFn>(srcFn);
-        p->append(SkRasterPipeline::parametric, copy);
-    } else {
-        SkDEBUGFAIL("Looks like we got a table transfer function here, quite unexpectedly.");
-        // TODO: If we really need to handle this, we can, but I don't think Ganesh does.
-    }
-
-    // Step 2: Transform to sRGB gamut (without clamping).
-    append_gamut_transform(p,
-                           alloc,
-                           fSrcColorSpace.get(),
-                           SkColorSpace::MakeSRGB().get(),
-                           kPremul_SkAlphaType);
-
-    // Step 3: Back to sRGB encoding.
-    p->append(SkRasterPipeline::to_srgb);
+    alloc->make<SkColorSpaceXformSteps>(fSrcColorSpace.get(), kPremul_SkAlphaType,
+                                        SkColorSpace::MakeSRGB().get())
+        ->apply(p);
 }
 
 sk_sp<SkColorFilter> SkToSRGBColorFilter::Make(sk_sp<SkColorSpace> srcColorSpace) {
