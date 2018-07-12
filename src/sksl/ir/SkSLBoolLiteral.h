@@ -38,9 +38,18 @@ struct BoolLiteral : public Expression {
         return fValue == b.fValue;
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new BoolLiteral(fOffset, fValue, &fType));
+    }
+
     const bool fValue;
 
     typedef Expression INHERITED;
+
+private:
+    BoolLiteral(int offset, bool value, const Type* type)
+    : INHERITED(offset, kBoolLiteral_Kind, *type)
+    , fValue(value) {}
 };
 
 } // namespace
