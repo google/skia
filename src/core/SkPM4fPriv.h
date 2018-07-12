@@ -37,21 +37,28 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
     return l32;
 }
 
-static inline SkPM4f premul_in_dst_colorspace(SkColor color, SkColorSpace* dstCS) {
-    float rgba[4];
-    swizzle_rb(Sk4f_fromL32(color)).store(rgba);
-
-    // SkColors are always sRGB.
-    auto srcCS = SkColorSpace::MakeSRGB().get();
+static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
+                                              SkColorSpace* srcCS, SkColorSpace* dstCS) {
+    // We treat untagged sources as sRGB.
+    if (!srcCS) { srcCS = SkColorSpace::MakeSRGB().get(); }
 
     // If dstCS is null, no color space transformation is needed (and apply() will just premul).
     if (!dstCS) { dstCS = srcCS; }
 
-    // TODO: Can we use a precomputed sRGB -> dstCS SkColorSpaceXformSteps for each device?
+    // TODO: In the very common case of srcCS being sRGB,
+    // can we precompute an sRGB -> dstCS SkColorSpaceXformSteps for each device and use it here?
     SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType, dstCS)
-        .apply(rgba);
+        .apply(color4f.vec());
 
-    return {{rgba[0], rgba[1], rgba[2], rgba[3]}};
+    return {{color4f.fR, color4f.fG, color4f.fB, color4f.fA}};
+}
+
+static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
+    SkColor4f color4f;
+    swizzle_rb(Sk4f_fromL32(c)).store(color4f.vec());
+
+    // SkColors are always sRGB.
+    return premul_in_dst_colorspace(color4f, SkColorSpace::MakeSRGB().get(), dstCS);
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
