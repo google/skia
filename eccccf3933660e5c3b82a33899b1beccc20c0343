@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c38c60ba_d5048015",
+        "filename": "platform_tools/android/apps/arcore/src/main/cpp/SkArSession.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-12T17:13:01Z",
+      "side": 1,
+      "message": "Move this either up or down - out of the Sk*.h files ?",
+      "revId": "eccccf3933660e5c3b82a33899b1beccc20c0343",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
