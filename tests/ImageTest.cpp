@@ -1206,7 +1206,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     *srgbBitmap.getAddr32(0, 0) = SkSwizzle_RGBA_to_PMColor(0xFF604020);
     srgbBitmap.setImmutable();
     sk_sp<SkImage> srgbImage = SkImage::MakeFromBitmap(srgbBitmap);
-    sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
+    sk_sp<SkImage> p3Image = srgbImage->makeColorSpace(p3);
     SkBitmap p3Bitmap;
     bool success = p3Image->asLegacyBitmap(&p3Bitmap);
 
@@ -1217,8 +1217,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x40, SkGetPackedG32(*p3Bitmap.getAddr32(0, 0))));
     REPORTER_ASSERT(r, almost_equal(0x5E, SkGetPackedB32(*p3Bitmap.getAddr32(0, 0))));
 
-    sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(adobeGamut,
-                                                          SkTransferFunctionBehavior::kIgnore);
+    sk_sp<SkImage> adobeImage = srgbImage->makeColorSpace(adobeGamut);
     SkBitmap adobeBitmap;
     success = adobeImage->asLegacyBitmap(&adobeBitmap);
     REPORTER_ASSERT(r, success);
@@ -1227,7 +1226,7 @@ DEF_TEST(Image_makeColorSpace, r) {
     REPORTER_ASSERT(r, almost_equal(0x4C, SkGetPackedB32(*adobeBitmap.getAddr32(0, 0))));
 
     srgbImage = GetResourceAsImage("images/1x1.png");
-    p3Image = srgbImage->makeColorSpace(p3, SkTransferFunctionBehavior::kIgnore);
+    p3Image = srgbImage->makeColorSpace(p3);
     success = p3Image->asLegacyBitmap(&p3Bitmap);
     REPORTER_ASSERT(r, success);
     REPORTER_ASSERT(r, almost_equal(0x8B, SkGetPackedR32(*p3Bitmap.getAddr32(0, 0))));
