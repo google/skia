@@ -185,6 +185,7 @@
       "glsrgb",
       "glmsaa8",
       "gl1010102",
+      "gltestpersistentcache",
       "--src",
       "tests",
       "gm",
