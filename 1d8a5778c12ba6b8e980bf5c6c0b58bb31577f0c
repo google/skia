@@ -22,6 +22,30 @@
       "revId": "1d8a5778c12ba6b8e980bf5c6c0b58bb31577f0c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "09f78566_451f739c",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-12T15:14:43Z",
+      "side": 1,
+      "message": "Good question, I have no clue.  Adding mostly to document that we shouldn\u0027t see this verb here.",
+      "parentUuid": "96cbe42c_1d8b06ef",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 28
+      },
+      "revId": "1d8a5778c12ba6b8e980bf5c6c0b58bb31577f0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
