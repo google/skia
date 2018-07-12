@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3822e9b3_72607aca",
+        "filename": "tools/gpu/gl/GLTestContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T20:39:43Z",
+      "side": 1,
+      "message": "nit can we just make this !\u003d",
+      "range": {
+        "startLine": 320,
+        "startChar": 8,
+        "endLine": 320,
+        "endChar": 45
+      },
+      "revId": "3125239718ee1bb24ef0fa2e9b9d914442b65699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4574928b_0c57921b",
+        "filename": "tools/gpu/gl/GLTestContext.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T20:39:43Z",
+      "side": 1,
+      "message": "just make this \u0027\u003c\u0027",
+      "range": {
+        "startLine": 320,
+        "startChar": 49,
+        "endLine": 320,
+        "endChar": 96
+      },
+      "revId": "3125239718ee1bb24ef0fa2e9b9d914442b65699",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
