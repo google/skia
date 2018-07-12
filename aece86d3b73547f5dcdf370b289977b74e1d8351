@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "dae50b74_397c8aad",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-12T17:30:47Z",
+      "side": 1,
+      "message": "\u003e I\u0027m imagining codecs have a color space xform step that we can sometimes skip when we know it\u0027s trivial or just a format conversion we can handle some other way?\n\nCorrect",
+      "parentUuid": "daeef845_29dae92b",
+      "range": {
+        "startLine": 285,
+        "startChar": 4,
+        "endLine": 286,
+        "endChar": 62
+      },
+      "revId": "aece86d3b73547f5dcdf370b289977b74e1d8351",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1cf6834e_4e8aded0",
         "filename": "src/core/SkConvertPixels.cpp",
         "patchSetId": 5
