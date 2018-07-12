@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0313b91_b3a977db",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T13:37:55Z",
+      "side": 1,
+      "message": "In general we try to keep this code independent of our internal stuff to most similarly mimic a client creating a texture and passing it to us. So I wouldn\u0027t use our command buffer here. Things like fDevice and fQueue are fine since those are things a client gives us and would be using themselves anyways.",
+      "range": {
+        "startLine": 408,
+        "startChar": 47,
+        "endLine": 408,
+        "endChar": 58
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffc968a3_972d64be",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T13:37:55Z",
+      "side": 1,
+      "message": "even though we\u0027re uploading all zero\u0027s, if its mipped we still want to setup all the levels with zero",
+      "range": {
+        "startLine": 416,
+        "startChar": 24,
+        "endLine": 416,
+        "endChar": 38
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea0b04d8_694fadb7",
+        "filename": "src/gpu/mtl/GrMtlGpu.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T13:37:55Z",
+      "side": 1,
+      "message": "In connection to the comment above, since we are treating this like a client provided texture we\u0027ll want to submit this CmdEncoder/associated cmd buffer to the gpu along with any needed synchronization that is needed for skia to just start using the texture however it wants.",
+      "range": {
+        "startLine": 423,
+        "startChar": 3,
+        "endLine": 423,
+        "endChar": 33
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f24172ce_71c11895",
+        "filename": "tests/GpuTestTextureUploadTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-12T13:37:55Z",
+      "side": 1,
+      "message": "lets name this GrTestingBackendTextureUploadTest",
+      "range": {
+        "startLine": 53,
+        "startChar": 35,
+        "endLine": 53,
+        "endChar": 59
+      },
+      "revId": "40a434a6306740e694dd1bdbf3c7b31ca755220e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
