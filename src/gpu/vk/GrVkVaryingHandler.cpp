@@ -30,14 +30,20 @@ static inline int grsltype_to_location_size(GrSLType type) {
         case kInt2_GrSLType:
         case kShort2_GrSLType:
         case kUShort2_GrSLType:
+        case kByte2_GrSLType:
+        case kUByte2_GrSLType:
             return 1;
         case kInt3_GrSLType:
         case kShort3_GrSLType:
         case kUShort3_GrSLType:
+        case kByte3_GrSLType:
+        case kUByte3_GrSLType:
             return 1;
         case kInt4_GrSLType:
         case kShort4_GrSLType:
         case kUShort4_GrSLType:
+        case kByte4_GrSLType:
+        case kUByte4_GrSLType:
             return 1;
         case kFloat2x2_GrSLType:
         case kHalf2x2_GrSLType:
@@ -60,9 +66,11 @@ static inline int grsltype_to_location_size(GrSLType type) {
              return 1;
         case kInt_GrSLType: // fall through
         case kShort_GrSLType:
+        case kByte_GrSLType:
              return 1;
-        case kUint_GrSLType:
-        case kUShort_GrSLType: // fall through
+        case kUint_GrSLType: // fall through
+        case kUShort_GrSLType:
+        case kUByte_GrSLType:
              return 1;
         case kTexture2D_GrSLType:
              return 0;
