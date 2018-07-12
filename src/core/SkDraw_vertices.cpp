@@ -141,7 +141,9 @@ static SkPM4f* convert_colors(const SkColor src[], int count, SkColorSpace* devi
     SkPM4f* dst = alloc->makeArray<SkPM4f>(count);
     if (!deviceCS) {
         for (int i = 0; i < count; ++i) {
-            dst[i] = SkPM4f_from_SkColor(src[i], nullptr);
+            SkColor4f color4f;
+            swizzle_rb(Sk4f_fromL32(src[i])).store(&color4f);
+            dst[i] = color4f.premul();
         }
     } else {
         auto srcCS = SkColorSpace::MakeSRGB();

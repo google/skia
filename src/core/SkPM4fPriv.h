@@ -112,38 +112,5 @@ static inline void append_gamut_transform(SkRasterPipeline* p,
     p->append(SkRasterPipeline::matrix_3x4, ptr-12);
 }
 
-static inline SkColor4f to_colorspace(const SkColor4f& c, SkColorSpace* src, SkColorSpace* dst) {
-    SkColor4f color4f = c;
-    if (src && dst && !SkColorSpace::Equals(src, dst)) {
-        SkJumper_MemoryCtx color4f_ptr = { &color4f, 0 };
-
-        SkSTArenaAlloc<256> alloc;
-        SkRasterPipeline p(&alloc);
-        p.append_constant_color(&alloc, color4f);
-        append_gamut_transform(&p, &alloc, src, dst, kUnpremul_SkAlphaType);
-        p.append(SkRasterPipeline::store_f32, &color4f_ptr);
-
-        p.run(0,0,1,1);
-    }
-    return color4f;
-}
-
-static inline SkColor4f SkColor4f_from_SkColor(SkColor color, SkColorSpace* dst) {
-    SkColor4f color4f;
-    if (dst) {
-        // sRGB gamma, sRGB gamut.
-        color4f = to_colorspace(SkColor4f::FromColor(color),
-                                SkColorSpace::MakeSRGB().get(), dst);
-    } else {
-        // Linear gamma, dst gamut.
-        swizzle_rb(SkNx_cast<float>(Sk4b::Load(&color)) * (1/255.0f)).store(&color4f);
-    }
-    return color4f;
-}
-
-static inline SkPM4f SkPM4f_from_SkColor(SkColor color, SkColorSpace* dst) {
-    return SkColor4f_from_SkColor(color, dst).premul();
-}
-
 
 #endif
