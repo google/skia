@@ -70,42 +70,32 @@ private:
     VkDevice fDevice = VK_NULL_HANDLE;
     VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
 
-    // simple wrapper class that exists only to initialize a pointer to NULL
-    template <typename FNPTR_TYPE> class VkPtr {
-    public:
-        VkPtr() : fPtr(NULL) {}
-        VkPtr operator=(FNPTR_TYPE ptr) { fPtr = ptr; return *this; }
-        operator FNPTR_TYPE() const { return fPtr; }
-    private:
-        FNPTR_TYPE fPtr;
-    };
-
     // Create functions
     CreateVkSurfaceFn fCreateVkSurfaceFn;
     CanPresentFn      fCanPresentFn;
 
     // Vulkan GetProcAddr functions
-    VkPtr<PFN_vkGetInstanceProcAddr> fGetInstanceProcAddr;
-    VkPtr<PFN_vkGetDeviceProcAddr> fGetDeviceProcAddr;
+    PFN_vkGetInstanceProcAddr fGetInstanceProcAddr = nullptr;
+    PFN_vkGetDeviceProcAddr fGetDeviceProcAddr = nullptr;
 
     // WSI interface functions
-    VkPtr<PFN_vkDestroySurfaceKHR> fDestroySurfaceKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceSupportKHR> fGetPhysicalDeviceSurfaceSupportKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR> fGetPhysicalDeviceSurfaceCapabilitiesKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfaceFormatsKHR> fGetPhysicalDeviceSurfaceFormatsKHR;
-    VkPtr<PFN_vkGetPhysicalDeviceSurfacePresentModesKHR> fGetPhysicalDeviceSurfacePresentModesKHR;
+    PFN_vkDestroySurfaceKHR fDestroySurfaceKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceSupportKHR fGetPhysicalDeviceSurfaceSupportKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR fGetPhysicalDeviceSurfaceCapabilitiesKHR =nullptr;
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR fGetPhysicalDeviceSurfaceFormatsKHR = nullptr;
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR fGetPhysicalDeviceSurfacePresentModesKHR =nullptr;
 
-    VkPtr<PFN_vkCreateSwapchainKHR> fCreateSwapchainKHR;
-    VkPtr<PFN_vkDestroySwapchainKHR> fDestroySwapchainKHR;
-    VkPtr<PFN_vkGetSwapchainImagesKHR> fGetSwapchainImagesKHR;
-    VkPtr<PFN_vkAcquireNextImageKHR> fAcquireNextImageKHR;
-    VkPtr<PFN_vkQueuePresentKHR> fQueuePresentKHR;
+    PFN_vkCreateSwapchainKHR fCreateSwapchainKHR = nullptr;
+    PFN_vkDestroySwapchainKHR fDestroySwapchainKHR = nullptr;
+    PFN_vkGetSwapchainImagesKHR fGetSwapchainImagesKHR = nullptr;
+    PFN_vkAcquireNextImageKHR fAcquireNextImageKHR = nullptr;
+    PFN_vkQueuePresentKHR fQueuePresentKHR = nullptr;
 
-    VkPtr<PFN_vkDestroyInstance> fDestroyInstance;
-    VkPtr<PFN_vkDeviceWaitIdle> fDeviceWaitIdle;
-    VkPtr<PFN_vkQueueWaitIdle> fQueueWaitIdle;
-    VkPtr<PFN_vkDestroyDevice> fDestroyDevice;
-    VkPtr<PFN_vkGetDeviceQueue> fGetDeviceQueue;
+    PFN_vkDestroyInstance fDestroyInstance = nullptr;
+    PFN_vkDeviceWaitIdle fDeviceWaitIdle = nullptr;
+    PFN_vkQueueWaitIdle fQueueWaitIdle = nullptr;
+    PFN_vkDestroyDevice fDestroyDevice = nullptr;
+    PFN_vkGetDeviceQueue fGetDeviceQueue = nullptr;
 
     sk_sp<const GrVkInterface> fInterface;
 
