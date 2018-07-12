@@ -1,6 +1,7 @@
 package com.google.skar;
 
 import android.graphics.Matrix;
+import android.graphics.PointF;
 
 /**
  * Provides static methods for matrix manipulation. Input matrices are assumed to be 4x4
@@ -119,7 +120,7 @@ public class SkARMatrix {
      * to rotate them from the XY plane to the XZ plane.
      */
 
-    private static float[] createXYtoXZRotationMatrix() {
+    public static float[] createXYtoXZRotationMatrix() {
         float[] rotation = new float[16];
         android.opengl.Matrix.setIdentityM(rotation, 0);
         android.opengl.Matrix.rotateM(rotation, 0, 90, 1, 0, 0);
@@ -166,6 +167,24 @@ public class SkARMatrix {
     }
 
     /**
+     * Returns an android.graphics.PointF resulting from the multiplication of a Vector of 4 floats
+     * with a 4x4 float Matrix. The return PointF is the (x, y) values of m4 * v4
+     * @param m4                16-float matrix in column-major order
+     * @param v4                4-float vector
+     * @param perspectiveDivide if true, divide return value by the w-coordinate
+     * @return                  PointF resulting from taking the (x, y) values of m4 * v4
+     */
+    public static PointF multiplyMatrixVector(float[] m4, float[] v4, boolean perspectiveDivide) {
+        float[] result = new float[4];
+        android.opengl.Matrix.multiplyMV(result, 0, m4, 0, v4, 0);
+        if (perspectiveDivide) {
+            return new PointF(result[0] / result[3], result[1] / result[3]);
+        }
+
+        return new PointF(result[0], result[1]);
+    }
+
+    /**
      * Returns a 9-float matrix in row-major order given a 16-float matrix in column-major order.
      * This will drop the Z column and row.
      * Undefined behavior when the array is not of size 9 or is null.
@@ -197,7 +216,7 @@ public class SkARMatrix {
      * @param m4Array array of 16-float matrices in column-major order
      */
 
-    private static float[] multiplyMatrices4x4(float[][] m4Array) {
+    public static float[] multiplyMatrices4x4(float[][] m4Array) {
         float[] result = new float[16];
         android.opengl.Matrix.setIdentityM(result, 0);
         float[] rhs = result;
