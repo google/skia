@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96cbe42c_1d8b06ef",
+        "filename": "experimental/wasm/wasm_main.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-07-12T15:09:48Z",
+      "side": 1,
+      "message": "Does assert work well in WASM?",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 28
+      },
+      "revId": "1d8a5778c12ba6b8e980bf5c6c0b58bb31577f0c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
