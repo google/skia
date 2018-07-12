@@ -757,7 +757,9 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
         if (!SkImageInfoValidConversion(finalII, tempII)) {
             return false;
         }
-        tempPixmap.alloc(tempII);
+        if (!tempPixmap.tryAlloc(tempII)) {
+            return false;
+        }
         finalPixmap.reset(finalII, buffer, rowBytes);
         buffer = tempPixmap.writable_addr();
         rowBytes = tempPixmap.rowBytes();
