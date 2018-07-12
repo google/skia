@@ -75,6 +75,22 @@ public class DrawManager {
         canvas.restore();
     }
 
+    // Sample function for drawing an animated round rect
+    public void drawAnimatedRoundRect(Canvas canvas, float radius) {
+        if (modelMatrices.isEmpty()) {
+            return;
+        }
+        Paint p = new Paint();
+        p.setColorFilter(lightFilter);
+        p.setARGB(180, 100, 0, 100);
+
+        canvas.save();
+        canvas.setMatrix(SkARMatrix.createPerspectiveMatrix(modelMatrices.get(0),
+                viewMatrix, projectionMatrix, viewportWidth, viewportHeight));
+        canvas.drawRoundRect(0,0, 0.5f, 0.5f, radius, radius, p);
+        canvas.restore();
+    }
+
     // Sample function for drawing a rect
     public void drawRect(Canvas canvas) {
         if (modelMatrices.isEmpty()) {
