@@ -423,7 +423,6 @@ GrGLProgram* GrGLProgramBuilder::createProgram(GrGLuint programID) {
                            programID,
                            fUniformHandler.fUniforms,
                            fUniformHandler.fSamplers,
-                           fUniformHandler.fTexelBuffers,
                            fVaryingHandler.fPathProcVaryingInfos,
                            std::move(fGeometryProcessor),
                            std::move(fXferProcessor),

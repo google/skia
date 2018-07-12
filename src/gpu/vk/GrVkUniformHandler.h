@@ -19,7 +19,6 @@ public:
     enum {
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
-        kTexelBufferDescSet = 2,
     };
     enum {
         kGeometryBinding = 0,
@@ -47,7 +46,6 @@ private:
         : INHERITED(program)
         , fUniforms(kUniformsPerBlock)
         , fSamplers(kUniformsPerBlock)
-        , fTexelBuffers(kUniformsPerBlock)
         , fCurrentGeometryUBOOffset(0)
         , fCurrentFragmentUBOOffset(0) {
     }
@@ -77,17 +75,6 @@ private:
         return fSamplers[handle.toIndex()].fVisibility;
     }
 
-    TexelBufferHandle addTexelBuffer(uint32_t visibility, GrSLPrecision,
-                                     const char* name) override;
-
-    int numTexelBuffers() const { return fTexelBuffers.count(); }
-    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const override {
-        return fTexelBuffers[handle.toIndex()].fVariable;
-    }
-    uint32_t texelBufferVisibility(TexelBufferHandle handle) const {
-        return fTexelBuffers[handle.toIndex()].fVisibility;
-    }
-
     void appendUniformDecls(GrShaderFlags, SkString*) const override;
 
     bool hasGeometryUniforms() const { return fCurrentGeometryUBOOffset > 0; }
@@ -102,7 +89,6 @@ private:
     UniformInfoArray    fUniforms;
     UniformInfoArray    fSamplers;
     SkTArray<GrSwizzle> fSamplerSwizzles;
-    UniformInfoArray    fTexelBuffers;
 
     uint32_t            fCurrentGeometryUBOOffset;
     uint32_t            fCurrentFragmentUBOOffset;

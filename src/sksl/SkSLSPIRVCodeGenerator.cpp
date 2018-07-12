@@ -102,7 +102,6 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("dFdy")]        = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDPdy,
                                                            SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
-    fIntrinsicMap[String("texelFetch")]  = SPECIAL(TexelFetch);
     fIntrinsicMap[String("subpassLoad")] = SPECIAL(SubpassLoad);
 
     fIntrinsicMap[String("any")]              = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpUndef,
@@ -831,22 +830,6 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
                                        sample,
                                        out);
             }
-            break;
-        }
-        case kTexelFetch_SpecialIntrinsic: {
-            SkASSERT(c.fArguments.size() == 2);
-            SpvId image = this->nextId();
-            this->writeInstruction(SpvOpImage,
-                                   this->getImageType(c.fArguments[0]->fType),
-                                   image,
-                                   this->writeExpression(*c.fArguments[0], out),
-                                   out);
-            this->writeInstruction(SpvOpImageFetch,
-                                   this->getType(c.fType),
-                                   result,
-                                   image,
-                                   this->writeExpression(*c.fArguments[1], out),
-                                   out);
             break;
         }
         case kTexture_SpecialIntrinsic: {

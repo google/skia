@@ -58,10 +58,8 @@ static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShader
 static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourceIOProcessor& proc,
                                        const GrShaderCaps& caps) {
     int numTextureSamplers = proc.numTextureSamplers();
-    int numBuffers = proc.numBuffers();
-    int numUniforms = numTextureSamplers + numBuffers;
     // Need two bytes per key.
-    int word32Count = (numUniforms + 1) / 2;
+    int word32Count = (numTextureSamplers + 1) / 2;
     if (0 == word32Count) {
         return;
     }
@@ -74,14 +72,9 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
         k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
                              caps);
     }
-    for (int i = 0; i < numBuffers; ++i, ++j) {
-        const GrResourceIOProcessor::BufferAccess& access = proc.bufferAccess(i);
-        k16[j] = sampler_key(kBufferSampler_GrSLType, access.texelConfig(), access.visibility(),
-                             caps);
-    }
-    // zero the last 16 bits if the number of uniforms for samplers and image storages is odd.
-    if (numUniforms & 0x1) {
-        k16[numUniforms] = 0;
+    // zero the last 16 bits if the number of uniforms for samplers is odd.
+    if (numTextureSamplers & 0x1) {
+        k16[numTextureSamplers] = 0;
     }
 }
 

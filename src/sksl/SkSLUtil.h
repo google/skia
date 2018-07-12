@@ -105,10 +105,6 @@ public:
         return true;
     }
 
-    bool texelFetchSupport() const {
-        return true;
-    }
-
     bool imageLoadStoreSupport() const {
         return true;
     }
@@ -306,7 +302,6 @@ public:
         result->fExternalTextureSupport = true;
         result->fFBFetchSupport = false;
         result->fDropsTileOnZeroDivide = true;
-        result->fTexelFetchSupport = true;
         result->fCanUseAnyFunctionInShader = false;
         return result;
     }

@@ -392,8 +392,6 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
 
     shaderCaps->fIntegerSupport = true;
-    shaderCaps->fTexelBufferSupport = true;
-    shaderCaps->fTexelFetchSupport = true;
     shaderCaps->fVertexIDSupport = true;
     shaderCaps->fFPManipulationSupport = true;
 

@@ -29,15 +29,9 @@ GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateUniformManager(GrVkGpu
 GrVkDescriptorSetManager* GrVkDescriptorSetManager::CreateSamplerManager(
         GrVkGpu* gpu, VkDescriptorType type, const GrVkUniformHandler& uniformHandler) {
     SkSTArray<4, uint32_t> visibilities;
-    if (VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER == type) {
-        for (int i = 0 ; i < uniformHandler.numSamplers(); ++i) {
-            visibilities.push_back(uniformHandler.samplerVisibility(i));
-        }
-    } else {
-        SkASSERT(type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER);
-        for (int i = 0 ; i < uniformHandler.numTexelBuffers(); ++i) {
-            visibilities.push_back(uniformHandler.texelBufferVisibility(i));
-        }
+    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    for (int i = 0 ; i < uniformHandler.numSamplers(); ++i) {
+        visibilities.push_back(uniformHandler.samplerVisibility(i));
     }
     return CreateSamplerManager(gpu, type, visibilities);
 }
@@ -103,23 +97,13 @@ bool GrVkDescriptorSetManager::isCompatible(VkDescriptorType type,
         return false;
     }
 
-    if (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
-        if (fBindingVisibilities.count() != uniHandler->numSamplers()) {
+    SkASSERT(type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER);
+    if (fBindingVisibilities.count() != uniHandler->numSamplers()) {
+        return false;
+    }
+    for (int i = 0; i < uniHandler->numSamplers(); ++i) {
+        if (uniHandler->samplerVisibility(i) != fBindingVisibilities[i]) {
             return false;
-        }
-        for (int i = 0; i < uniHandler->numSamplers(); ++i) {
-            if (uniHandler->samplerVisibility(i) != fBindingVisibilities[i]) {
-                return false;
-            }
-        }
-    } else if (VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER == type) {
-        if (fBindingVisibilities.count() != uniHandler->numTexelBuffers()) {
-            return false;
-        }
-        for (int i = 0; i < uniHandler->numTexelBuffers(); ++i) {
-            if (uniHandler->texelBufferVisibility(i) != fBindingVisibilities[i]) {
-                return false;
-            }
         }
     }
     return true;

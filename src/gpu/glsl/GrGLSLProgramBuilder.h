@@ -28,7 +28,6 @@ class GrGLSLProgramBuilder {
 public:
     using UniformHandle      = GrGLSLUniformHandler::UniformHandle;
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
 
     virtual ~GrGLSLProgramBuilder() {}
 
@@ -48,10 +47,6 @@ public:
 
     GrSwizzle samplerSwizzle(SamplerHandle handle) const {
         return this->uniformHandler()->samplerSwizzle(handle);
-    }
-
-    const GrShaderVar& texelBufferVariable(TexelBufferHandle handle) const {
-        return this->uniformHandler()->texelBufferVariable(handle);
     }
 
     // Used to add a uniform for the RenderTarget height (used for frag position) without mangling
@@ -141,11 +136,9 @@ private:
                                     SkTArray<std::unique_ptr<GrGLSLFragmentProcessor>>*);
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     void emitSamplers(const GrResourceIOProcessor& processor,
-                      SkTArray<SamplerHandle>* outTexSamplerHandles,
-                      SkTArray<TexelBufferHandle>* outTexelBufferHandles);
+                      SkTArray<SamplerHandle>* outTexSamplerHandles);
     SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
-    TexelBufferHandle emitTexelBuffer(GrPixelConfig, const char* name, GrShaderFlags visibility);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     void updateSamplerCounts(GrShaderFlags visibility);
     bool checkSamplerCounts();
@@ -157,7 +150,6 @@ private:
 #endif
 
     // These are used to check that we don't excede the allowable number of resources in a shader.
-    // The sampler counts include both normal texure samplers as well as texel buffers.
     int                         fNumVertexSamplers;
     int                         fNumGeometrySamplers;
     int                         fNumFragmentSamplers;

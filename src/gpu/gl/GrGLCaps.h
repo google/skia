@@ -133,10 +133,6 @@ public:
         return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseTexStorage_Flag);
     }
 
-    bool canUseConfigWithTexelBuffer(GrPixelConfig config) const {
-        return SkToBool(fConfigTable[config].fFlags & ConfigInfo::kCanUseWithTexelBuffer_Flag);
-    }
-
     /** Returns the mapping between GrPixelConfig components and GL internal format components. */
     const GrSwizzle& configSwizzle(GrPixelConfig config) const {
         return fConfigTable[config].fSwizzle;
@@ -595,7 +591,6 @@ private:
                 still attach it to a FBO for blitting or reading pixels. */
             kFBOColorAttachment_Flag      = 0x8,
             kCanUseTexStorage_Flag        = 0x10,
-            kCanUseWithTexelBuffer_Flag   = 0x20,
         };
         uint32_t fFlags;
 

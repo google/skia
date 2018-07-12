@@ -131,7 +131,6 @@ static void fill_caps(const SKSL_CAPS_CLASS& caps,
     CAP(flatInterpolationSupport);
     CAP(noperspectiveInterpolationSupport);
     CAP(externalTextureSupport);
-    CAP(texelFetchSupport);
     CAP(imageLoadStoreSupport);
     CAP(mustEnableAdvBlendEqs);
     CAP(mustEnableSpecificAdvBlendEqs);

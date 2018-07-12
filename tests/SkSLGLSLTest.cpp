@@ -923,8 +923,8 @@ DEF_TEST(SkSLCaps, r) {
          "int w = 0;"
          "if (sk_Caps.externalTextureSupport) x = 1;"
          "if (sk_Caps.fbFetchSupport) y = 1;"
-         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.texelFetchSupport) z = 1;"
-         "if (sk_Caps.dropsTileOnZeroDivide && sk_Caps.canUseAnyFunctionInShader) w = 1;"
+         "if (sk_Caps.dropsTileOnZeroDivide) z = 1;"
+         "if (sk_Caps.canUseAnyFunctionInShader) w = 1;"
          "sk_FragColor = half4(x, y, z, w);"
          "}",
          *SkSL::ShaderCapsFactory::VariousCaps(),

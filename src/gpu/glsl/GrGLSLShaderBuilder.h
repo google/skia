@@ -26,7 +26,6 @@ public:
     virtual ~GrGLSLShaderBuilder() {}
 
     using SamplerHandle      = GrGLSLUniformHandler::SamplerHandle;
-    using TexelBufferHandle  = GrGLSLUniformHandler::TexelBufferHandle;
 
     /** Appends a 2D texture sample with projection if necessary. coordType must either be Vec2f or
         Vec3f. The latter is interpreted as projective texture coords. The vec length and swizzle
@@ -64,14 +63,6 @@ public:
 
     /** Version of above that appends the result to the shader code instead. */
     void appendColorGamutXform(const char* srcColor, GrGLSLColorSpaceXformHelper* colorXformHelper);
-
-    /** Fetches an unfiltered texel from a sampler at integer coordinates. coordExpr must match the
-        dimensionality of the sampler and must be within the sampler's range. coordExpr is emitted
-        exactly once, so expressions like "idx++" are acceptable. */
-    void appendTexelFetch(SkString* out, TexelBufferHandle, const char* coordExpr) const;
-
-    /** Version of above that appends the result to the shader code instead.*/
-    void appendTexelFetch(TexelBufferHandle, const char* coordExpr);
 
     /**
     * Adds a constant declaration to the top of the shader.
@@ -169,7 +160,6 @@ protected:
         kFragCoordConventions_GLSLPrivateFeature,
         kBlendEquationAdvanced_GLSLPrivateFeature,
         kBlendFuncExtended_GLSLPrivateFeature,
-        kTexelBuffer_GLSLPrivateFeature,
         kFramebufferFetch_GLSLPrivateFeature,
         kNoPerspectiveInterpolation_GLSLPrivateFeature,
         kLastGLSLPrivateFeature = kNoPerspectiveInterpolation_GLSLPrivateFeature

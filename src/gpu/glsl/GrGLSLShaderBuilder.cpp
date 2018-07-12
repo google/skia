@@ -194,20 +194,6 @@ void GrGLSLShaderBuilder::appendColorGamutXform(const char* srcColor,
     this->codeAppend(xform.c_str());
 }
 
-void GrGLSLShaderBuilder::appendTexelFetch(SkString* out,
-                                           TexelBufferHandle texelBufferHandle,
-                                           const char* coordExpr) const {
-    const GrShaderVar& texelBuffer = fProgramBuilder->texelBufferVariable(texelBufferHandle);
-    SkASSERT(fProgramBuilder->shaderCaps()->texelFetchSupport());
-
-    out->appendf("texelFetch(%s, %s)", texelBuffer.c_str(), coordExpr);
-}
-
-void GrGLSLShaderBuilder::appendTexelFetch(TexelBufferHandle texelBufferHandle,
-                                           const char* coordExpr) {
-    this->appendTexelFetch(&this->code(), texelBufferHandle, coordExpr);
-}
-
 bool GrGLSLShaderBuilder::addFeature(uint32_t featureBit, const char* extensionName) {
     if (featureBit & fFeaturesAddedMask) {
         return false;
