@@ -51,7 +51,6 @@ public:
                 GrGLuint programID,
                 const UniformInfoArray& uniforms,
                 const UniformInfoArray& textureSamplers,
-                const UniformInfoArray& texelBuffers,
                 const VaryingInfoArray&, // used for NVPR only currently
                 std::unique_ptr<GrGLSLPrimitiveProcessor> geometryProcessor,
                 std::unique_ptr<GrGLSLXferProcessor> xferProcessor,
@@ -141,14 +140,13 @@ public:
 
 private:
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx,
-                         int* nextTexelBufferIdx);
+    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTargetProxy*);
 
-    // Helper for setData() that binds textures and texel buffers to the appropriate texture units
-    void bindTextures(const GrResourceIOProcessor&, int* nextSamplerIdx, int* nextTexelBufferIdx);
+    // Helper for setData() that binds textures to the appropriate texture units
+    void bindTextures(const GrResourceIOProcessor&, int* nextSamplerIdx);
 
     // Helper for generateMipmaps() that ensures mipmaps are up to date
     void generateMipmaps(const GrResourceIOProcessor&);
@@ -174,7 +172,6 @@ private:
     GrGLProgramDataManager fProgramDataManager;
 
     int fNumTextureSamplers;
-    int fNumTexelBuffers;
 
     typedef SkRefCnt INHERITED;
 };

@@ -62,7 +62,6 @@ struct GrMockOptions {
 
     // GrShaderCaps options.
     bool fGeometryShaderSupport = false;
-    bool fTexelBufferSupport = false;
     bool fIntegerSupport = false;
     bool fFlatInterpolationSupport = false;
     int fMaxVertexSamplers = 0;
