@@ -138,8 +138,8 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent) {
-    auto getProc = [&getInstanceProc, &getDeviceProc](const char* proc_name,
-                                                      VkInstance instance, VkDevice device) {
+    auto getProc = [getInstanceProc, getDeviceProc](const char* proc_name,
+                                                    VkInstance instance, VkDevice device) {
         if (device != VK_NULL_HANDLE) {
             return getDeviceProc(device, proc_name);
         }
@@ -406,16 +406,6 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
         return false;
     }
 
-    auto interface =
-        sk_make_sp<GrVkInterface>(getProc, inst, device, extensionFlags);
-    if (!interface->validate(extensionFlags)) {
-        SkDebugf("Vulkan interface validation failed\n");
-        grVkDeviceWaitIdle(device);
-        grVkDestroyDevice(device, nullptr);
-        destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
-        return false;
-    }
-
     VkQueue queue;
     grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
 
@@ -427,7 +417,8 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
-    ctx->fInterface.reset(interface.release());
+    ctx->fInterface = nullptr;
+    ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
 
     return true;

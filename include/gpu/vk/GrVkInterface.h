@@ -35,6 +35,8 @@ private:
     typedef SkRefCnt INHERITED;
 
 public:
+    // TODO: This matches the definition of GrVkGetProc in GrVkTypes. Once we switch clients to
+    // using that and make GrVkInterface private, we can remove this GetProc.
     using GetProc = std::function<PFN_vkVoidFunction(
         const char*, // function name
         VkInstance,  // instance or VK_NULL_HANDLE

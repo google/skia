@@ -57,20 +57,32 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         backendContext.fQueue == VK_NULL_HANDLE) {
         return nullptr;
     }
-    if (!backendContext.fInterface ||
-        !backendContext.fInterface->validate(backendContext.fExtensions)) {
+    sk_sp<const GrVkInterface> interface;
+    if (backendContext.fGetProc) {
+        interface.reset(new GrVkInterface(backendContext.fGetProc,
+                                          backendContext.fInstance,
+                                          backendContext.fDevice,
+                                          backendContext.fExtensions));
+    } else {
+        if (!backendContext.fInterface) {
+            return nullptr;
+        }
+        interface = backendContext.fInterface;
+    }
+    SkASSERT(interface);
+    if (!interface->validate(backendContext.fExtensions)) {
         return nullptr;
     }
 
-    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext));
+    return sk_sp<GrGpu>(new GrVkGpu(context, options, backendContext, interface));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
-                 const GrVkBackendContext& backendContext)
+                 const GrVkBackendContext& backendContext, sk_sp<const GrVkInterface> interface)
         : INHERITED(context)
-        , fInterface(std::move(backendContext.fInterface))
+        , fInterface(std::move(interface))
         , fMemoryAllocator(backendContext.fMemoryAllocator)
         , fInstance(backendContext.fInstance)
         , fDevice(backendContext.fDevice)
@@ -82,7 +94,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     if (!fMemoryAllocator) {
         // We were not given a memory allocator at creation
         fMemoryAllocator.reset(new GrVkAMDMemoryAllocator(backendContext.fPhysicalDevice,
-                                                          fDevice, backendContext.fInterface));
+                                                          fDevice, fInterface));
     }
 
     fCompiler = new SkSL::Compiler();
