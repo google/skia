@@ -4,24 +4,6 @@
 
 #Class SkRRect
 
-#Private
-Path forward:
-   core work
-      add contains(SkRect&)  - for clip stack
-      add contains(SkRRect&) - for clip stack
-      add heart rect computation (max rect inside RR)
-      add 9patch rect computation
-      add growToInclude(SkPath&)
-   analysis
-      use growToInclude to fit skp round rects & generate stats (RRs vs. real paths)
-      check on # of rectorus's the RRs could handle
-   rendering work
-      update SkPath.addRRect() to only use quads
-      add GM and bench
-   further out
-      detect and triangulate RRectorii rather than falling back to SW in Ganesh
-##
-
 SkRRect describes a rounded rectangle with a bounds and a pair of radii for each corner.
 The bounds and radii can be set so that SkRRect describes a rectangle with sharp corners,
 a Circle, an Oval, or a rectangle with one or more rounded corners.

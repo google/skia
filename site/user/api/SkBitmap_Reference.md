@@ -2058,8 +2058,6 @@ Calls <a href='#SkBitmap_reset'>reset</a> and returns false if:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBitmap_setInfo_imageInfo'><code><strong>imageInfo</strong></code></a></td>
@@ -3400,8 +3398,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBitmap_getAddr32_x'><code><strong>x</strong></code></a></td>
@@ -3456,8 +3452,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
   </tr>
 </table>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkBitmap_getAddr16_x'><code><strong>x</strong></code></a></td>
@@ -3511,8 +3505,6 @@ Input is not validated. Triggers an assert() if built with SK_DEBUG defined and:
     <td><a href='#SkBitmap_getAddr8_y'>y</a> is negative, or not less than <a href='#SkBitmap_height'>height</a></td>
   </tr>
 </table>
-
-.
 
 ### Parameters
 
@@ -3572,8 +3564,6 @@ Return false if:
     <td><a href='#SkBitmap_extractSubset_subset'>subset</a> does not intersect <a href='#SkBitmap_bounds'>bounds</a></td>
   </tr>
 </table>
-
-.
 
 ### Parameters
 
@@ -3642,8 +3632,6 @@ row to the next. Returns true if pixels are copied. Returns false if:
     <td><a href='undocumented#Pixel_Ref'>Pixel Ref</a> is nullptr</td>
   </tr>
 </table>
-
-.
 
 <a href='#Pixels'>Pixels</a> are copied only if pixel conversion is possible. If <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_colorType'>colorType</a> is
 <a href='SkImageInfo_Reference#kGray_8_SkColorType'>kGray_8_SkColorType</a>, or <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>; <a href='#SkBitmap_readPixels_dstInfo'>dstInfo</a>.<a href='#SkBitmap_colorType'>colorType</a> must match.

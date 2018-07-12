@@ -943,7 +943,6 @@ Does not copy, and returns false if:
 # Canvas pixels are not readable; for instance, Canvas is document-based. ##
 # dstRowBytes is too small to contain one row of pixels. ##
 ##
-.
 
 #Param dstInfo  width, height, Color_Type, and Alpha_Type of dstPixels ##
 #Param dstPixels  storage for pixels; dstInfo.height() times dstRowBytes, or larger ##
@@ -1037,7 +1036,6 @@ Does not copy, and returns false if:
 # Pixmap pixels could not be allocated. ##
 # pixmap.rowBytes() is too small to contain one row of pixels. ##
 ##
-.
 
 #Param pixmap  storage for pixels copied from Canvas ##
 #Param srcX    offset into readable pixels on x-axis; may be negative ##
@@ -1101,7 +1099,6 @@ Does not copy, and returns false if:
 # bitmap pixels could not be allocated. ##
 # bitmap.rowBytes() is too small to contain one row of pixels. ##
 ##
-.
 
 #Param bitmap  storage for pixels copied from Canvas ##
 #Param srcX    offset into readable pixels on x-axis; may be negative ##
@@ -1165,7 +1162,6 @@ Does not copy, and returns false if:
 # Canvas pixels are not writable; for instance, Canvas is document-based. ##
 # rowBytes is too small to contain one row of pixels. ##
 ##
-.
 
 #Param info  width, height, Color_Type, and Alpha_Type of pixels ##
 #Param pixels  pixels to copy, of size info.height() times rowBytes, or larger ##
@@ -1225,7 +1221,6 @@ Does not copy, and returns false if:
 # Canvas pixels are not writable; for instance, Canvas is document based. ##
 # bitmap pixels are inaccessible; for instance, bitmap wraps a texture. ##
 ##
-.
 
 #Param bitmap  contains pixels copied to Canvas ##
 #Param x       offset into Canvas writable pixels in x; may be negative ##

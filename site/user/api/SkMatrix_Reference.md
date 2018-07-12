@@ -680,8 +680,6 @@ Sets <a href='#Matrix'>Matrix</a> to scale by (<a href='#SkMatrix_MakeScale_sx'>
 |  0  0  1 |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_MakeScale_sx'><code><strong>sx</strong></code></a></td>
@@ -720,8 +718,6 @@ Sets <a href='#Matrix'>Matrix</a> to <a href='#SkMatrix_MakeScale_2_scale'>scale
 |   0     0   1 |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_MakeScale_2_scale'><code><strong>scale</strong></code></a></td>
@@ -757,8 +753,6 @@ Sets <a href='#Matrix'>Matrix</a> to translate by (<a href='#SkMatrix_MakeTrans_
 | 0 1 dy |
 | 0 0  1 |
 </pre>
-
-.
 
 ### Parameters
 
@@ -800,8 +794,6 @@ Sets <a href='#Matrix'>Matrix</a> to:
 |  skewY scaleY transY |
 |  pers0  pers1  pers2 |
 </pre>
-
-.
 
 ### Parameters
 
@@ -1084,8 +1076,6 @@ Returns true if <a href='#Matrix'>Matrix</a> is identity.  Identity matrix is:
 | 0 0 1 |
 </pre>
 
-.
-
 ### Return Value
 
 true if <a href='#Matrix'>Matrix</a> has no effect
@@ -1124,8 +1114,6 @@ contain only scale elements, only translate elements, or both. <a href='#Matrix'
 |    0    scale-y translate-y |
 |    0       0         1      |
 </pre>
-
-.
 
 ### Return Value
 
@@ -1166,8 +1154,6 @@ Returns true if <a href='#Matrix'>Matrix</a> is identity, or translates. <a href
 | 0 1 translate-y |
 | 0 0      1      |
 </pre>
-
-.
 
 ### Return Value
 
@@ -2486,8 +2472,6 @@ Sets all values from parameters. Sets matrix to:
 | persp0 persp1 persp2 |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_setAll_scaleX'><code><strong>scaleX</strong></code></a></td>
@@ -2586,8 +2570,6 @@ Sets matrix to:
 | buffer[6] buffer[7] buffer[8] |
 </pre>
 
-.
-
 In the future, <a href='#SkMatrix_set9'>set9</a> followed by <a href='#SkMatrix_get9'>get9</a> may not return the same values. Since <a href='#Matrix'>Matrix</a>
 maps non-homogeneous coordinates, scaling all nine values produces an equivalent
 transformation, possibly improving precision.
@@ -2624,8 +2606,6 @@ Sets <a href='#Matrix'>Matrix</a> to identity; which has no effect on mapped <a 
 | 0 0 1 |
 </pre>
 
-.
-
 Also called <a href='#SkMatrix_setIdentity'>setIdentity</a>; use the one that provides better inline
 documentation.
 
@@ -2661,8 +2641,6 @@ Sets <a href='#Matrix'>Matrix</a> to identity; which has no effect on mapped <a 
 | 0 1 0 |
 | 0 0 1 |
 </pre>
-
-.
 
 Also called <a href='#SkMatrix_reset'>reset</a>; use the one that provides better inline
 documentation.
@@ -3059,8 +3037,6 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
         | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_setConcat_a'><code><strong>a</strong></code></a></td>
@@ -3108,8 +3084,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 Matrix * T(dx, dy) = | D E F | | 0 1 dy | = | D E D*dx+E*dy+F |
                      | G H I | | 0 0  1 |   | G H G*dx+H*dy+I |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3165,8 +3139,6 @@ Matrix * S(sx, sy, px, py) = | D E F | |  0 sy dy | = | D*sx E*sy D*dx+E*dy+F |
                              | G H I | |  0  0  1 |   | G*sx H*sy G*dx+H*dy+I |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_preScale_sx'><code><strong>sx</strong></code></a></td>
@@ -3218,8 +3190,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 Matrix * S(sx, sy) = | D E F | |  0 sy  0 | = | D*sx E*sy F |
                      | G H I | |  0  0  1 |   | G*sx H*sy I |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3279,8 +3249,6 @@ Matrix * R(degrees, px, py) = | D E F | | s  c dy | = | Dc+Es -Ds+Ec D*dx+E*dy+F
                               | G H I | | 0  0  1 |   | Gc+Hs -Gs+Hc G*dx+H*dy+I |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_preRotate_degrees'><code><strong>degrees</strong></code></a></td>
@@ -3339,8 +3307,6 @@ Matrix * R(degrees, px, py) = | D E F | | s  c 0 | = | Dc+Es -Ds+Ec F |
                               | G H I | | 0  0 1 |   | Gc+Hs -Gs+Hc I |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_preRotate_2_degrees'><code><strong>degrees</strong></code></a></td>
@@ -3391,8 +3357,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 Matrix * K(kx, ky, px, py) = | D E F | | ky  1 dy | = | D+E*ky D*kx+E D*dx+E*dy+F |
                              | G H I | |  0  0  1 |   | G+H*ky G*kx+H G*dx+H*dy+I |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3446,8 +3410,6 @@ Matrix * K(kx, ky) = | D E F | | ky  1 0 | = | D+E*ky D*kx+E F |
                      | G H I | |  0  0 1 |   | G+H*ky G*kx+H I |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_preSkew_2_kx'><code><strong>kx</strong></code></a></td>
@@ -3494,8 +3456,6 @@ Matrix * other = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
                  | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_preConcat_other'><code><strong>other</strong></code></a></td>
@@ -3540,8 +3500,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 T(dx, dy) * Matrix = | 0 1 dy | | M N O | = | M+dy*P N+dy*Q O+dy*R |
                      | 0 0  1 | | P Q R |   |      P      Q      R |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3598,8 +3556,6 @@ S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O
                              |  0  0  1 | | P Q R |   |         P         Q         R |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_postScale_sx'><code><strong>sx</strong></code></a></td>
@@ -3651,8 +3607,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 S(sx, sy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
                      |  0  0  1 | | P Q R |   |    P    Q    R |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3708,8 +3662,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 I(divx, divy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
                          |  0  0  1 | | P Q R |   |    P    Q    R |
 </pre>
-
-.
 
 ### Parameters
 
@@ -3773,8 +3725,6 @@ R(degrees, px, py) * Matrix = |s  c dy| |M N O| = |sJ+cM+dy*P sK+cN+dy*Q sL+cO+d
                               |0  0  1| |P Q R|   |         P          Q          R|
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_postRotate_degrees'><code><strong>degrees</strong></code></a></td>
@@ -3833,8 +3783,6 @@ R(degrees, px, py) * Matrix = | s  c dy | | M N O | = | sJ+cM sK+cN sL+cO |
                               | 0  0  1 | | P Q R |   |     P     Q     R |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_postRotate_2_degrees'><code><strong>degrees</strong></code></a></td>
@@ -3885,8 +3833,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 K(kx, ky, px, py) * Matrix = |ky  1 dy| |M N O| = |ky*J+M+dy*P ky*K+N+dy*Q ky*L+O+dy*R|
                              | 0  0  1| |P Q R|   |          P           Q           R|
 </pre>
-
-.
 
 ### Parameters
 
@@ -3940,8 +3886,6 @@ K(kx, ky) * Matrix = | ky  1 0 | | M N O | = | ky*J+M ky*K+N ky*L+O |
                      |  0  0 1 | | P Q R |   |      P      Q      R |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_postSkew_2_kx'><code><strong>kx</strong></code></a></td>
@@ -3987,8 +3931,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 other * Matrix = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
                  | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 </pre>
-
-.
 
 ### Parameters
 
@@ -4093,8 +4035,6 @@ Returns true if <a href='#SkMatrix_setRectToRect_dst'>dst</a> is empty, and sets
 | 0 0 1 |
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_setRectToRect_src'><code><strong>src</strong></code></a></td>
@@ -4155,8 +4095,6 @@ empty, returns <a href='#Matrix'>Matrix</a> set to:
 | 0 0 0 |
 | 0 0 1 |
 </pre>
-
-.
 
 ### Parameters
 
@@ -4291,8 +4229,6 @@ Sets <a href='#SkMatrix_SetAffineIdentity_affine'>affine</a> to:
 | 0 1 0 |
 </pre>
 
-.
-
 Affine 3x2 matrices in column major order are used by OpenGL and XPS.
 
 ### Parameters
@@ -4333,8 +4269,6 @@ Fills <a href='#SkMatrix_asAffine_affine'>affine</a> in column major order. Sets
 | scale-x  skew-x translate-x |
 | skew-y  scale-y translate-y |
 </pre>
-
-.
 
 If <a href='#Matrix'>Matrix</a> contains perspective, returns false and leaves <a href='#SkMatrix_asAffine_affine'>affine</a> unchanged.
 
@@ -4389,8 +4323,6 @@ column, then row, as:
 |  skew-y scale-y translate-y |
 |       0       0           1 |
 </pre>
-
-.
 
 ### Parameters
 
@@ -4539,8 +4471,6 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 </pre>
 
-.
-
 <a href='#SkMatrix_mapPoints_src'>src</a> and <a href='#SkMatrix_mapPoints_dst'>dst</a> may point to the same storage.
 
 ### Parameters
@@ -4598,8 +4528,6 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_mapPoints_2_pts'><code><strong>pts</strong></code></a></td>
@@ -4643,8 +4571,6 @@ each resulting <a href='#SkMatrix_mapHomogeneousPoints_dst'>dst</a> <a href='SkP
 Matrix * src = |D E F| |y| = |Ax+By+Cz Dx+Ey+Fz Gx+Hy+Iz|
                |G H I| |z|
 </pre>
-
-.
 
 ### Parameters
 
@@ -4692,8 +4618,6 @@ Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_mapXY_x'><code><strong>x</strong></code></a></td>
@@ -4738,8 +4662,6 @@ result is computed as:
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 </pre>
-
-.
 
 ### Parameters
 
@@ -4856,8 +4778,6 @@ Matrix * vec = |D E 0| |y| = |Ax+By Dx+Ey Gx+Hy+I| = ------- , -------
                |G H I| |1|                           Gx+Hy+I   Gx+Hy+I
 </pre>
 
-.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkMatrix_mapVectors_2_vecs'><code><strong>vecs</strong></code></a></td>
@@ -4901,8 +4821,6 @@ each <a href='#SkMatrix_mapVector_result'>result</a> <a href='SkPoint_Reference#
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 </pre>
-
-.
 
 ### Parameters
 
@@ -4949,8 +4867,6 @@ each result <a href='SkPoint_Reference#Vector'>Vector</a> is computed as:
 Matrix * vec = |D E 0| |dy| = |A*dx+B*dy D*dx+E*dy G*dx+H*dy+I| = ----------- , -----------
                |G H I| | 1|                                       G*dx+H*dy+I   G*dx+*dHy+I
 </pre>
-
-.
 
 ### Parameters
 
@@ -5105,8 +5021,6 @@ each <a href='#SkMatrix_mapRectToQuad_dst'>dst</a> <a href='SkPoint_Reference#Po
 Matrix * pt = |D E F| |y| = |Ax+By+C Dx+Ey+F Gx+Hy+I| = ------- , -------
               |G H I| |1|                               Gx+Hy+I   Gx+Hy+I
 </pre>
-
-.
 
 ### Parameters
 
@@ -5629,8 +5543,6 @@ Returns reference to const identity <a href='#Matrix'>Matrix</a>. Returned <a hr
 | 0 0 1 |
 </pre>
 
-.
-
 ### Return Value
 
 const identity <a href='#Matrix'>Matrix</a>
@@ -5669,8 +5581,6 @@ to:
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 | SK_ScalarMax SK_ScalarMax SK_ScalarMax |
 </pre>
-
-.
 
 ### Return Value
 
@@ -5718,8 +5628,6 @@ sets <a href='#Matrix'>Matrix</a> to:
 a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
         | G H I |   | P Q R |   | GJ+HM+IP GK+HN+IQ GL+HO+IR |
 </pre>
-
-.
 
 ### Parameters
 
@@ -5792,8 +5700,6 @@ Initializes <a href='#Matrix'>Matrix</a> with scale and translate elements.
 |  0 sy ty |
 |  0  0  1 |
 </pre>
-
-.
 
 ### Parameters
 
