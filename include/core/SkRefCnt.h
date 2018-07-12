@@ -199,13 +199,6 @@ template <typename T> static inline void SkSafeUnref(T* obj) {
     }
 }
 
-template<typename T> static inline void SkSafeSetNull(T*& obj) {
-    if (obj) {
-        obj->unref();
-        obj = nullptr;
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 // This is a variant of SkRefCnt that's Not Virtual, so weighs 4 bytes instead of 8 or 16.

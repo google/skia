@@ -39,7 +39,7 @@ private:
     HDC fDeviceContext;
     HGLRC fGlRenderContext;
     static ATOM gWC;
-    SkWGLPbufferContext* fPbufferContext;
+    sk_sp<SkWGLPbufferContext> fPbufferContext;
 };
 
 ATOM WinGLTestContext::gWC = 0;
@@ -148,7 +148,7 @@ WinGLTestContext::~WinGLTestContext() {
 }
 
 void WinGLTestContext::destroyGLContext() {
-    SkSafeSetNull(fPbufferContext);
+    fPbufferContext = nullptr;
     if (fGlRenderContext) {
         // This deletes the context immediately even if it is current.
         wglDeleteContext(fGlRenderContext);

@@ -43,7 +43,7 @@ protected:
     virtual void drawPicture();
 
     const SkPicture* picture() const { return fPic.get(); }
-    const SkTDArray<SkSurface*>& surfaces() const { return fSurfaces; }
+    const SkTArray<sk_sp<SkSurface>, true>& surfaces() const { return fSurfaces; }
     const SkTDArray<SkIRect>& tileRects() const { return fTileRects; }
 
 private:
@@ -54,7 +54,7 @@ private:
     SkString fUniqueName;
 
     const bool fUseMultiPictureDraw;
-    SkTDArray<SkSurface*> fSurfaces;   // for MultiPictureDraw
+    SkTArray<sk_sp<SkSurface>, true> fSurfaces;   // for MultiPictureDraw
     SkTDArray<SkIRect> fTileRects;     // for MultiPictureDraw
 
     const bool fDoLooping;

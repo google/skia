@@ -80,9 +80,8 @@ void GrDrawingManager::cleanup() {
 
     fOpLists.reset();
 
-    delete fPathRendererChain;
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
+    fSoftwarePathRenderer = nullptr;
 
     fOnFlushCBObjects.reset();
 }
@@ -105,9 +104,8 @@ void GrDrawingManager::freeGpuResources() {
     }
 
     // a path renderer may be holding onto resources
-    delete fPathRendererChain;
     fPathRendererChain = nullptr;
-    SkSafeSetNull(fSoftwarePathRenderer);
+    fSoftwarePathRenderer = nullptr;
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
@@ -498,7 +496,7 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
                                                   GrPathRenderer::StencilSupport* stencilSupport) {
 
     if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
+        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
     }
 
     GrPathRenderer* pr = fPathRendererChain->getPathRenderer(args, drawType, stencilSupport);
@@ -514,16 +512,16 @@ GrPathRenderer* GrDrawingManager::getPathRenderer(const GrPathRenderer::CanDrawP
 
 GrPathRenderer* GrDrawingManager::getSoftwarePathRenderer() {
     if (!fSoftwarePathRenderer) {
-        fSoftwarePathRenderer =
+        fSoftwarePathRenderer.reset(
                 new GrSoftwarePathRenderer(fContext->contextPriv().proxyProvider(),
-                                           fOptionsForPathRendererChain.fAllowPathMaskCaching);
+                                           fOptionsForPathRendererChain.fAllowPathMaskCaching));
     }
-    return fSoftwarePathRenderer;
+    return fSoftwarePathRenderer.get();
 }
 
 GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRenderer() {
     if (!fPathRendererChain) {
-        fPathRendererChain = new GrPathRendererChain(fContext, fOptionsForPathRendererChain);
+        fPathRendererChain.reset(new GrPathRendererChain(fContext, fOptionsForPathRendererChain));
     }
     return fPathRendererChain->getCoverageCountingPathRenderer();
 }

@@ -21,7 +21,9 @@ public:
     /**
      * GrStencilAttachment is not part of the public API.
      */
-    GrStencilAttachment* getStencilAttachment() const { return fRenderTarget->fStencilAttachment; }
+    GrStencilAttachment* getStencilAttachment() const {
+        return fRenderTarget->fStencilAttachment.get();
+    }
 
     /**
      * Attaches the GrStencilAttachment onto the render target. If stencil is a nullptr then the
