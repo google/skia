@@ -11,6 +11,7 @@
 
 #include "GrTypes.h"
 #include "GrVkDefines.h"
+#include <functional>
 
 /**
  * KHR_debug
@@ -26,6 +27,12 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
+
+using GrVkGetProc = std::function<PFN_vkVoidFunction(
+        const char*, // function name
+        VkInstance,  // instance or VK_NULL_HANDLE
+        VkDevice     // device or VK_NULL_HANDLE
+        )>;
 
 typedef intptr_t GrVkBackendMemory;
 
