@@ -218,17 +218,12 @@ protected:
     virtual void drawImageLattice(const SkImage*, const SkCanvas::Lattice&,
                                   const SkRect& dst, const SkPaint&);
 
-    /**
-     *  Does not handle text decoration.
-     *  Decorations (underline and stike-thru) will be handled by SkCanvas.
-     */
-    virtual void drawGlyphRunList(const SkPaint& paint, SkGlyphRunList* glyphRunList);
+
     virtual void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                               const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    // default implementation unrolls the blob runs.
-    virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint& paint);
+    virtual void drawGlyphRunList(SkGlyphRunList* glyphRunList);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
@@ -346,9 +341,15 @@ private:
 
     // Temporarily friend the SkGlyphRunBuilder until drawPosText is gone.
     friend class SkGlyphRun;
+    friend class SkGlyphRunList;
     virtual void drawPosText(const void* text, size_t len,
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
+
+    // Does not handle text decoration.
+    // Decorations (underline and stike-thru) will be handled by SkCanvas.
+    // default implementation unrolls the blob runs.
+    virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint& paint);
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
