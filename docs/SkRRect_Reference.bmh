@@ -5,15 +5,15 @@
 #Class SkRRect
 
 SkRRect describes a rounded rectangle with a bounds and a pair of radii for each corner.
-The bounds and radii can be set so that SkRRect describes a rectangle with sharp corners,
-a Circle, an Oval, or a rectangle with one or more rounded corners.
+The bounds and radii can be set so that SkRRect describes: a rectangle with sharp corners;
+a Circle; an Oval; or a rectangle with one or more rounded corners.
 
 SkRRect allows implementing CSS properties that describe rounded corners.
 SkRRect may have up to eight different radii, one for each axis on each of its four
 corners.
 
 SkRRect may modify the provided parameters when initializing bounds and radii.
-If either axis radii is zero or less, radii are stored as zero; corner is square.
+If either axis radii is zero or less: radii are stored as zero; corner is square.
 If corner curves overlap, radii are proportionally reduced to fit within bounds.
 
 #Subtopic Overview
@@ -170,7 +170,7 @@ less than half the height, or both.
 #Line # non-zero width and height with axis-aligned radii ##
 Round_Rect has width and height. Left x-radii are equal, top
 y-radii are equal, right x-radii are equal, and bottom y-radii
-are equal. The radii do not describe a rect, oval, or simple type.
+are equal. The radii do not describe Rect, Oval, or simple type.
 
 The centers of the corner ellipses form an axis-aligned rectangle
 that divides the Round_Rect into nine rectangular patches; an
