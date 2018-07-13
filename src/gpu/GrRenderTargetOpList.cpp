@@ -269,7 +269,9 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     };
     for (RecordedOp& recordedOp : fRecordedOps) {
         hasUninstantiatedProxy = false;
-        recordedOp.visitProxies(checkInstantiation);
+        if (recordedOp.fOp) {
+            recordedOp.visitProxies(checkInstantiation);
+        }
         if (hasUninstantiatedProxy) {
             // When instantiation of the proxy fails we drop the Op
             recordedOp.deleteOp(fOpMemoryPool.get());
