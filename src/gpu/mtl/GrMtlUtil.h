@@ -35,6 +35,11 @@ id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership);
 const void* GrGetPtrFromId(id idObject);
 
 /**
+ * Returns a const void* to whatever the id object is pointing to. Always uses __bridge_retained.
+ */
+const void* GrReleaseId(id idObject);
+
+/**
  * Returns a MTLTextureDescriptor which describes the MTLTexture. Useful when creating a duplicate
  * MTLTexture without the same storage allocation.
  */
