@@ -1,0 +1,118 @@
+#Topic StreamSeekable
+#Alias StreamSeekable_Reference ##
+
+#Class SkStreamSeekable
+
+SkStreamSeekable is a SkStreamRewindable for which position, seek, move, and fork are required. */
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamSeekable> duplicate() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool hasPosition() const override
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t getPosition() const override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool seek(size_t position) override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Param position  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool move(long offset) override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Param offset  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamSeekable> fork() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkStreamSeekable ##
+
+#Topic StreamSeekable ##

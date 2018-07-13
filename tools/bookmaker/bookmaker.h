@@ -1573,6 +1573,8 @@ public:
     void dumpMember(const Definition& );
     bool dumpTokens();
     bool dumpTokens(string skClassName);
+    void dumpTypedef(const Definition& , string className);
+
     bool findComments(const Definition& includeDef, Definition* markupDef);
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);
