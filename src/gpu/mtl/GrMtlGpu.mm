@@ -7,6 +7,7 @@
 
 #include "GrMtlGpu.h"
 
+#include "GrMtlGpuCommandBuffer.h"
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
 #include "GrMtlUtil.h"
@@ -95,6 +96,18 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fCaps = fMtlCaps;
 
     fCmdBuffer = [fQueue commandBuffer];
+}
+
+GrGpuRTCommandBuffer* GrMtlGpu::createCommandBuffer(
+            GrRenderTarget* renderTarget, GrSurfaceOrigin origin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return new GrMtlGpuRTCommandBuffer(this, renderTarget, origin, colorInfo, stencilInfo);
+}
+
+GrGpuTextureCommandBuffer* GrMtlGpu::createCommandBuffer(GrTexture* texture,
+                                                         GrSurfaceOrigin origin) {
+    return new GrMtlGpuTextureCommandBuffer(this, texture, origin);
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
