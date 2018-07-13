@@ -1647,6 +1647,22 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                        this->devClipBounds());
 }
 
+void SkGpuDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+    ASSERT_SINGLE_OWNER
+    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
+    SkDEBUGCODE(this->validate();)
+
+    auto blob = glyphRunList->blob();
+
+    if (blob == nullptr) {
+        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+    } else {
+        auto origin = glyphRunList->origin();
+        auto paint = glyphRunList->paint();
+        this->drawTextBlob(blob, origin.x(), origin.y(), paint);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 void SkGpuDevice::flush() {
