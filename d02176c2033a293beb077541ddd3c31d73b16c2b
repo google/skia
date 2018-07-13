@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f1768d90_bacf956e",
+        "filename": "include/private/SkArenaAlloc.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-13T20:50:53Z",
+      "side": 1,
+      "message": "SkTFitsIn\u003cuint32_t\u003e(v)\n\nshould allow you not to need the ifdef (or the constant).",
+      "range": {
+        "startLine": 138,
+        "startChar": 22,
+        "endLine": 138,
+        "endChar": 37
+      },
+      "revId": "d02176c2033a293beb077541ddd3c31d73b16c2b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
