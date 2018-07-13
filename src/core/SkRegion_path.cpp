@@ -236,11 +236,11 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
             memcpy(runs, line->firstX(), count * sizeof(SkRegion::RunType));
             runs += count;
         }
-        *runs++ = SkRegion::kRunTypeSentinel;
+        *runs++ = SkRegion_kRunTypeSentinel;
         line = line->nextScanline();
     } while (line < stop);
     SkASSERT(line == stop);
-    *runs = SkRegion::kRunTypeSentinel;
+    *runs = SkRegion_kRunTypeSentinel;
 }
 
 static unsigned verb_to_initial_last_index(unsigned verb) {
