@@ -34,6 +34,7 @@ def compile_fn(api, checkout_root, out_dir):
       '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
                                 'arm-linux-gnueabihf'),
       '-DMESA_EGL_NO_X11_HEADERS',
+      '-U_GLIBCXX_DEBUG',
     ]
 
     extra_ldflags = [
