@@ -66,7 +66,8 @@ typedef float SkScalar;
 
 static inline bool SkScalarIsNaN(SkScalar x) { return x != x; }
 
-/** Returns true if x is not NaN and not infinite
+/**
+ * Returns true if x is not NaN and not infinite
  */
 static inline bool SkScalarIsFinite(SkScalar x) { return sk_float_isfinite(x); }
 
