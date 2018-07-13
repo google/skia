@@ -51,10 +51,9 @@ SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
         , fClusters{clusters}
         , fRunPaint{std::move(runPaint)} {}
 
-void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device) {
+void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) {
 
     auto pos = (const SkScalar*) this->positions().data();
-    auto origin = SkPoint::Make(0, 0);
 
     if (!fTemporaryShuntGlyphIDs.empty()) {
         device->drawPosText(
