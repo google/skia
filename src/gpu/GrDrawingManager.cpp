@@ -32,11 +32,6 @@
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
-// Turn on/off the sorting of opLists at flush time
-#ifndef SK_DISABLE_RENDER_TARGET_SORTING
-   #define SK_DISABLE_RENDER_TARGET_SORTING
-#endif
-
 GrDrawingManager::GrDrawingManager(GrContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
@@ -278,7 +273,7 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
                             startIndex, stopIndex, 0, fOpLists.count());
     for (int i = startIndex; i < stopIndex; ++i) {
-        fOpLists[i]->dump(false);
+        fOpLists[i]->dump(true);
     }
 #endif
 
@@ -434,7 +429,7 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
-    if (!fOpLists.empty()) {
+    if (!fOpLists.empty() && !fSortRenderTargets) {
         fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
     }
 
@@ -460,7 +455,7 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     // This is  a temporary fix for the partial-MDB world. In that world we're not reordering
     // so ops that (in the single opList world) would've just glommed onto the end of the single
     // opList but referred to a far earlier RT need to appear in their own opList.
-    if (!fOpLists.empty()) {
+    if (!fOpLists.empty() && !fSortRenderTargets) {
         fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
     }
 
