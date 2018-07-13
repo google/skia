@@ -69,7 +69,7 @@ public:
     : INHERITED(program, errors, out)
     , fContext(*context)
     , fDefaultLayout(MemoryLayout::k140_Standard)
-    , fCapabilities(1 << SpvCapabilityShader)
+    , fCapabilities(0)
     , fIdCount(1)
     , fBoolTrue(0)
     , fBoolFalse(0)
