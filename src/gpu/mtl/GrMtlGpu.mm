@@ -95,6 +95,21 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fCaps = fMtlCaps;
 
     fCmdBuffer = [fQueue commandBuffer];
+
+    MTLTextureDescriptor* txDesc = [[MTLTextureDescriptor alloc] init];
+    txDesc.textureType = MTLTextureType3D;
+    txDesc.height = 64;
+    txDesc.width = 64;
+    txDesc.depth = 64;
+    txDesc.pixelFormat = MTLPixelFormatRGBA8Unorm;
+    txDesc.arrayLength = 1;
+    txDesc.mipmapLevelCount = 1;
+    id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor:txDesc];
+    // To get ride of unused var warning
+    int width = [testTexture width];
+    SkDebugf("width: %d\n", width);
+    // Unused queue warning fix
+    SkDebugf("ptr to queue: %p\n", fQueue);
 }
 
 void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
@@ -348,171 +363,6 @@ sk_sp<GrRenderTarget> GrMtlGpu::onWrapBackendTextureAsRenderTarget(
 
     return GrMtlRenderTarget::MakeWrappedRenderTarget(this, surfDesc, mtlTexture);
 }
-
-#ifdef GR_TEST_UTILS
-bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
-                                                bool renderable, GrMipMapped mipMapped,
-                                                const void* srcData, GrMtlTextureInfo* info) {
-    SkASSERT(texturable || renderable);
-    if (!texturable) {
-        SkASSERT(GrMipMapped::kNo == mipMapped);
-        SkASSERT(!srcData);
-    }
-
-    MTLPixelFormat format;
-    if (!GrPixelConfigToMTLFormat(config, &format)) {
-        return false;
-    }
-    if (texturable && !fMtlCaps->isConfigTexturable(config)) {
-        return false;
-    }
-    if (renderable && !fMtlCaps->isConfigRenderable(config)) {
-        return false;
-    }
-    // Currently we don't support uploading pixel data when mipped.
-    if (srcData && GrMipMapped::kYes == mipMapped) {
-        return false;
-    }
-    if(!check_max_blit_width(w)) {
-        return false;
-    }
-
-    bool mipmapped = mipMapped == GrMipMapped::kYes ? true : false;
-    MTLTextureDescriptor* desc =
-            [MTLTextureDescriptor texture2DDescriptorWithPixelFormat: format
-                                                               width: w
-                                                              height: h
-                                                           mipmapped: mipmapped];
-    desc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
-    desc.storageMode = MTLStorageModePrivate;
-    desc.usage = texturable ? MTLTextureUsageShaderRead : 0;
-    desc.usage |= renderable ? MTLTextureUsageRenderTarget : 0;
-    id<MTLTexture> testTexture = [fDevice newTextureWithDescriptor: desc];
-
-    SkAutoTMalloc<GrColor> srcBuffer;
-    if (!srcData) {
-        srcBuffer.reset(w * h);
-        memset(srcBuffer, 0, w * h * sizeof(GrColor));
-        srcData = srcBuffer;
-    }
-    SkASSERT(srcData);
-
-    desc.storageMode = MTLStorageModeManaged;
-    id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor: desc];
-    auto colorType = GrPixelConfigToColorType(config);
-    int rowBytes = w * GrColorTypeBytesPerPixel(colorType);
-    MTLOrigin origin = MTLOriginMake(0, 0, 0);
-
-    SkASSERT(testTexture.pixelFormat == transferTexture.pixelFormat);
-    SkASSERT(testTexture.sampleCount == transferTexture.sampleCount);
-
-    id<MTLCommandBuffer> cmdBuffer = [fQueue commandBuffer];
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [cmdBuffer blitCommandEncoder];
-    int currentWidth = w;
-    int currentHeight = h;
-    for (int mipLevel = 0; mipLevel < (int)testTexture.mipmapLevelCount; mipLevel++) {
-        [transferTexture replaceRegion: MTLRegionMake2D(0, 0, currentWidth, currentHeight)
-                           mipmapLevel: mipLevel
-                             withBytes: srcData
-                           bytesPerRow: rowBytes];
-
-        [blitCmdEncoder copyFromTexture: transferTexture
-                            sourceSlice: 0
-                            sourceLevel: mipLevel
-                           sourceOrigin: origin
-                             sourceSize: MTLSizeMake(currentWidth, currentHeight, 1)
-                              toTexture: testTexture
-                       destinationSlice: 0
-                       destinationLevel: mipLevel
-                      destinationOrigin: origin];
-        currentWidth = SkTMax(1, currentWidth/2);
-        currentHeight = SkTMax(1, currentHeight/2);
-    }
-    [blitCmdEncoder endEncoding];
-    [cmdBuffer commit];
-    [cmdBuffer waitUntilCompleted];
-
-    info->fTexture = GrReleaseId(testTexture);
-    return true;
-}
-
-GrBackendTexture GrMtlGpu::createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                           GrPixelConfig config, bool isRT,
-                                                           GrMipMapped mipMapped) {
-    if (w > this->caps()->maxTextureSize() || h > this->caps()->maxTextureSize()) {
-        return GrBackendTexture();
-    }
-    GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, w, h, true, isRT, mipMapped, pixels,
-                                               &info)) {
-        return {};
-    }
-
-    GrBackendTexture backendTex(w, h, mipMapped, info);
-    backendTex.fConfig = config;
-    return backendTex;
-}
-
-bool GrMtlGpu::isTestingOnlyBackendTexture(const GrBackendTexture& tex) const {
-    SkASSERT(kMetal_GrBackend == tex.backend());
-
-    GrMtlTextureInfo info;
-    if (!tex.getMtlTextureInfo(&info)) {
-        return false;
-    }
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(info.fTexture,
-                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
-    if (!mtlTexture) {
-        return false;
-    }
-    return mtlTexture.usage & MTLTextureUsageShaderRead;
-}
-
-void GrMtlGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
-    SkASSERT(kMetal_GrBackend == tex.fBackend);
-
-    GrMtlTextureInfo info;
-    if (tex.getMtlTextureInfo(&info)) {
-        // Adopts the metal texture so that ARC will clean it up.
-        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
-    }
-}
-
-GrBackendRenderTarget GrMtlGpu::createTestingOnlyBackendRenderTarget(int w, int h, GrColorType ct,
-                                                                     GrSRGBEncoded srgbEncoded) {
-    if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
-        return GrBackendRenderTarget();
-    }
-    auto config = GrColorTypeToPixelConfig(ct, srgbEncoded);
-    if (kUnknown_GrPixelConfig == config) {
-        return {};
-    }
-    GrMtlTextureInfo info;
-    if (!this->createTestingOnlyMtlTextureInfo(config, w, h, false, true, GrMipMapped::kNo, nullptr,
-                                               &info)) {
-        return {};
-    }
-
-    GrBackendRenderTarget backendRT(w, h, 1, info);
-    backendRT.fConfig = config;
-    return backendRT;
-}
-
-void GrMtlGpu::deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget& rt) {
-    SkASSERT(kMetal_GrBackend == rt.fBackend);
-
-    GrMtlTextureInfo info;
-    if (rt.getMtlTextureInfo(&info)) {
-        this->testingOnly_flushGpuAndSync();
-        // Adopts the metal texture so that ARC will clean it up.
-        GrGetMTLTexture(info.fTexture, GrWrapOwnership::kAdopt_GrWrapOwnership);
-    }
-}
-
-void GrMtlGpu::testingOnly_flushGpuAndSync() {
-    this->submitCommandBuffer(kForce_SyncQueue);
-}
-#endif // GR_TEST_UTILS
 
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                             GrColorType dstColorType, void* buffer, size_t rowBytes) {
