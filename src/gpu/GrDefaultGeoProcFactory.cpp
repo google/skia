@@ -136,13 +136,27 @@ public:
                         gp.fInBoneIndices.name());
                 }
 
+                // ===== THE IMPORTANT PART =====================================================
+
+                // Indexing into the float3x3 matrix requires the index to be multiplied by 3 in
+                // the Vulkan backend.
+                //
+                // To see the issue in action, run `out/dir/viewer --slide GM_skinning -b vk`.
+                //
+                // The workaround can be toggled with this bool.
+                bool vulkanIndexWorkaround = false;
+
                 vertBuilder->codeAppendf(
                         "    float weight = %s[i];"
-                        "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
+                        "    float2 weighted = (%s[index * %d] * originalPosition * weight).xy;"
+                        "    transformedPosition += weighted;"
                         "}",
                         gp.fInBoneWeights.name(),
-                        vertBonesUniformName);
+                        vertBonesUniformName,
+                        vulkanIndexWorkaround ? 3 : 1);
                 transformedPositionName = "transformedPosition";
+
+                // ===== THE IMPORTANT PART =====================================================
             }
 
             // Setup position
