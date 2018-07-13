@@ -399,8 +399,11 @@ DEF_SIMPLE_GM(scalepixels_unpremul, canvas, 1080, 280) {
 
 static sk_sp<SkImage> make_lazy_image(SkSurface* surf) {
     surf->getCanvas()->drawCircle(100, 100, 100, SkPaint());
-    auto data = surf->makeImageSnapshot()->encodeToData();
-    return SkImage::MakeFromEncoded(data);
+    sk_sp<SkData> data = surf->makeImageSnapshot()->encodeToData();
+    if (!data) {
+        return nullptr;
+    }
+    return SkImage::MakeFromEncoded(std::move(data));
 }
 
 #include "SkWriteBuffer.h"
@@ -420,6 +423,9 @@ DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
     auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
     auto img = make_lazy_image(surf.get());
+    if (!img) {
+        return;
+    }
 
     canvas->drawImage(img, 10, 10, nullptr);
     auto sub = img->makeSubset({100, 100, 200, 200});
