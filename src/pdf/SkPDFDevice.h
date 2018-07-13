@@ -103,6 +103,7 @@ public:
     void drawVertices(const SkVertices*, SkBlendMode, const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
+    void setNodeId(int64_t nodeId) override;
 
     // PDF specific methods.
 
@@ -195,6 +196,7 @@ private:
     SkTDArray<SkPDFObject*> fXObjectResources;
     SkTDArray<SkPDFFont*> fFontResources;
     SkTDArray<SkPDFObject*> fShaderResources;
+    int64_t fNodeId;
 
     struct ContentEntry {
         GraphicStateEntry fState;
