@@ -127,7 +127,8 @@ sk_sp<SkImage> SkImage::MakeFromEncoded(sk_sp<SkData> encoded, const SkIRect* su
     if (nullptr == encoded || 0 == encoded->size()) {
         return nullptr;
     }
-    return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(encoded), subset);
+    return SkImage::MakeFromGenerator(SkImageGenerator::MakeFromEncoded(std::move(encoded)),
+                                      subset);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
