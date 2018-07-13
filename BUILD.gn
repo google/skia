@@ -2082,6 +2082,20 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
+        ":skia",
+      ]
+    }
+  }
+
+  if (is_linux || is_win || is_mac) {
+    test_app("MakeTaggedPDF") {
+      sources = [
+        "example/MakeTaggedPDF.cpp",
+      ]
+      libs = []
+
+      include_dirs = []
+      deps = [
         ":flags",
         ":gpu_tool_utils",
         ":sk_app",
