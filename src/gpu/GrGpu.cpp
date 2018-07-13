@@ -160,17 +160,21 @@ sk_sp<GrTexture> GrGpu::wrapRenderableBackendTexture(const GrBackendTexture& bac
                                                      int sampleCnt, GrWrapOwnership ownership) {
     this->handleDirtyContext();
     if (sampleCnt < 1) {
+        SkDebugf("failed sampleCnt < 1 in GrGpu::wrapRenderable\n");
         return nullptr;
     }
     if (!this->caps()->isConfigTexturable(backendTex.config()) ||
         !this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config())) {
+        SkDebugf("failed caps check in GrGpu::wrapRenderable\n");
         return nullptr;
     }
 
     if (backendTex.width() > this->caps()->maxRenderTargetSize() ||
         backendTex.height() > this->caps()->maxRenderTargetSize()) {
+        SkDebugf("failed maxSize check in GrGpu::wrapRenderable\n");
         return nullptr;
     }
+    SkDebugf("Calling onwrap in GrGpu::wrapRenderable\n");
     sk_sp<GrTexture> tex = this->onWrapRenderableBackendTexture(backendTex, sampleCnt, ownership);
     SkASSERT(!tex || tex->asRenderTarget());
     return tex;
