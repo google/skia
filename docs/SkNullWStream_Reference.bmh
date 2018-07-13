@@ -1,0 +1,84 @@
+#Topic NullWStream
+#Alias NullWStream_Reference ##
+
+#Class SkNullWStream
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkNullWStream()
+#In Constructor
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool write(const void*, size_t n) override
+#In incomplete
+#Line # incomplete ##
+
+#Param n  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void flush() override
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t bytesWritten() const override
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkNullWStream ##
+
+#Topic NullWStream ##
