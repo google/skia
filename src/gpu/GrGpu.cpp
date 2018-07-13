@@ -227,6 +227,7 @@ bool GrGpu::readPixels(GrSurface* surface, int left, int top, int width, int hei
                                               &left, &top, &width, &height,
                                               &buffer,
                                               &rowBytes)) {
+        SkDebugf("AdjustReadPixelParams failed in GrGpu\n");
         return false;
     }
 
