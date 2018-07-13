@@ -871,6 +871,10 @@ component("skia") {
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
+
+    # FIXME: use a gni file, so this doesn't cause problems for
+    # the Chromium roll?
+    "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
