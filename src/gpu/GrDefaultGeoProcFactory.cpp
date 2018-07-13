@@ -136,12 +136,17 @@ public:
                         gp.fInBoneIndices.name());
                 }
 
+                bool isVulkan = false;
+
                 vertBuilder->codeAppendf(
                         "    float weight = %s[i];"
-                        "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
+                        "    float2 weighted = (%s[index * %d] * originalPosition * weight).xy;"
+                        "    transformedPosition.x += weighted.x;"
+                        "    transformedPosition.y += weighted.y;"
                         "}",
                         gp.fInBoneWeights.name(),
-                        vertBonesUniformName);
+                        vertBonesUniformName,
+                        isVulkan ? 3 : 1);
                 transformedPositionName = "transformedPosition";
             }
 
