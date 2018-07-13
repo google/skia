@@ -209,6 +209,9 @@ config("default") {
 
   if (is_linux) {
     libs += [ "pthread" ]
+    if (is_debug && sanitize == "") {
+      defines += [ "_GLIBCXX_DEBUG" ]
+    }
   }
   if (is_mac) {
     # Disable linker warnings.  They're usually just annoyances like,
