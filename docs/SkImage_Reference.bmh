@@ -2188,7 +2188,7 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
-                                  SkTransferFunctionBehavior premulBehavior) const
+            SkTransferFunctionBehavior premulBehavior = SkTransferFunctionBehavior::kIgnore) const
 #In Constructor
 #Line # creates Image matching Color_Space if possible ##
 
