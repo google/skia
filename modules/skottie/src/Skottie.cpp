@@ -324,12 +324,10 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke, AttachCo
 
     stroke_node->setStyle(SkPaint::kStroke_Style);
 
-    auto width_attached = BindProperty<ScalarValue>(jstroke["w"], &ctx->fAnimators,
+    BindProperty<ScalarValue>(jstroke["w"], &ctx->fAnimators,
         [stroke_node](const ScalarValue& w) {
             stroke_node->setStrokeWidth(w);
         });
-    if (!width_attached)
-        return nullptr;
 
     stroke_node->setStrokeMiter(ParseDefault<SkScalar>(jstroke["ml"], 4.0f));
 
