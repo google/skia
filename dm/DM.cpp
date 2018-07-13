@@ -1082,6 +1082,8 @@ struct Task {
     static void Run(const Task& task) {
         SkString name = task.src->name();
 
+        const char* cName = name.c_str();
+
         SkString log;
         if (!FLAGS_dryRun) {
             SkBitmap bitmap;
@@ -1347,7 +1349,7 @@ int main(int argc, char** argv) {
 
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
-    SkTaskGroup::Enabler enabled(FLAGS_threads);
+    SkTaskGroup::Enabler enabled(0);
 
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {
         info("Some resources are missing.  Do you need to set --resourcePath?\n");

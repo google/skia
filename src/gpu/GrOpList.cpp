@@ -129,8 +129,8 @@ bool GrOpList::isInstantiated() const {
 #ifdef SK_DEBUG
 void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("opList: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()
-                                                                : -1);
+    SkDebugf("opList: %d -> RT: %x %d\n", fUniqueID, fTarget.get(),
+             fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1);
 
     if (printDependencies) {
         SkDebugf("relies On (%d): ", fDependencies.count());
