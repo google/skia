@@ -527,6 +527,25 @@ void GrMtlGpu::testingOnly_flushGpuAndSync() {
 }
 #endif // GR_TEST_UTILS
 
+bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
+                             GrColorType srcColorType, const GrMipLevel texels[],
+                             int mipLevelCount) {
+    GrMtlTexture* mtlTexture = static_cast<GrMtlTexture*>(surface->asTexture());
+    if (!mtlTexture) {
+        return false;
+    }
+    if (!mipLevelCount) {
+        return false;
+    }
+#ifdef SK_DEBUG
+    for (int i = 0; i < mipLevelCount; i++) {
+        SkASSERT(texels[i].fPixels);
+    }
+#endif
+    return this->uploadToTexture(mtlTexture, left, top, width, height, srcColorType, texels,
+                                 mipLevelCount);
+}
+
 bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,
                             GrColorType dstColorType, void* buffer, size_t rowBytes) {
     SkASSERT(surface);
