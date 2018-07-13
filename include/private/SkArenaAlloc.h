@@ -134,7 +134,9 @@ public:
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
     static uint32_t ToU32(size_t v) {
-        assert(v <= 0xffffffff);
+#if SIZE_MAX > 0xffffffff
+        AssertRelease(v <= 0xffffffff);
+#endif
         return (uint32_t)v;
     }
 
