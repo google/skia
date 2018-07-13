@@ -277,7 +277,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     SkBitmapProvider provider(fImage.get());
     SkDefaultBitmapController controller;
     std::unique_ptr<SkBitmapController::State> state {
-        controller.requestBitmap(provider, matrix, quality)
+        controller.requestBitmap(provider, matrix, quality, alloc)
     };
     if (!state) {
         return false;
