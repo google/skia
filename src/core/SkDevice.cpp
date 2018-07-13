@@ -158,7 +158,7 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             SkGlyphRunBuilder builder;
             builder.drawText(runPaint, (const char*) it.glyphs(), textLen, origin);
             auto glyphRunList = builder.useGlyphRunList();
-            glyphRunList->temporaryShuntToDrawPosText(this);
+            glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
         }
         break;
         case SkTextBlob::kHorizontal_Positioning:
@@ -239,8 +239,16 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawGlyphRunList(const SkPaint& paint, SkGlyphRunList* glyphRunList) {
-    glyphRunList->temporaryShuntToDrawPosText(this);
+void SkBaseDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+    auto blob = glyphRunList->blob();
+
+    if (blob == nullptr) {
+        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+    } else {
+        auto origin = glyphRunList->origin();
+        auto paint = glyphRunList->paint();
+        this->drawTextBlob(blob, origin.x(), origin.y(), paint);
+    }
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,

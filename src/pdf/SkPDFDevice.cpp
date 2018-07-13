@@ -1457,6 +1457,18 @@ void SkPDFDevice::drawPosText(const void* text, size_t len,
                            offset, paint, nullptr, 0, nullptr);
 }
 
+void SkPDFDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+    auto blob = glyphRunList->blob();
+
+    if (blob == nullptr) {
+        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+    } else {
+        auto origin = glyphRunList->origin();
+        auto paint = glyphRunList->paint();
+        this->drawTextBlob(blob, origin.x(), origin.y(), paint);
+    }
+}
+
 void SkPDFDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
                                const SkPaint &paint) {
     for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {

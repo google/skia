@@ -56,7 +56,7 @@ public:
 
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
-    void temporaryShuntToDrawPosText(SkBaseDevice* device);
+    void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin);
     using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
 
@@ -114,15 +114,16 @@ public:
 
     SkPoint origin() const { return fOrigin; }
     const SkPaint& paint() const { return *fOriginalPaint; }
+    const SkTextBlob* blob() const { return fOriginalTextBlob; }
 
     auto begin() -> decltype(fGlyphRuns.begin())               { return fGlyphRuns.begin(); }
     auto end()   -> decltype(fGlyphRuns.end())                 { return fGlyphRuns.end();   }
     auto size()  -> decltype(fGlyphRuns.size())                { return fGlyphRuns.size();  }
     auto empty() -> decltype(fGlyphRuns.empty())               { return fGlyphRuns.empty(); }
     auto operator [] (size_t i) -> decltype(fGlyphRuns[i])     { return fGlyphRuns[i];      }
-    void temporaryShuntToDrawPosText(SkBaseDevice* device) {
+    void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) {
         for (auto& run : fGlyphRuns) {
-            run.temporaryShuntToDrawPosText(device);
+            run.temporaryShuntToDrawPosText(device, origin);
         }
     }
 
