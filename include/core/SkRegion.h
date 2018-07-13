@@ -33,11 +33,11 @@ public:
     static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
 
     SkRegion();
-    SkRegion(const SkRegion&);
-    explicit SkRegion(const SkIRect&);
+    SkRegion(const SkRegion& region);
+    explicit SkRegion(const SkIRect& region);
     ~SkRegion();
 
-    SkRegion& operator=(const SkRegion&);
+    SkRegion& operator=(const SkRegion& region);
 
     /**
      *  Return true if the two regions are equal. i.e. The enclose exactly
@@ -65,7 +65,7 @@ public:
      *  Swap the contents of this and the specified region. This operation
      *  is gauarenteed to never fail.
      */
-    void swap(SkRegion&);
+    void swap(SkRegion& other);
 
     /** Return true if this region is empty */
     bool isEmpty() const { return fRunHead == SkRegion_gEmptyRunHeadPtr; }
@@ -109,7 +109,7 @@ public:
      *  If rect is non-empty, set this region to that rectangle and return true,
      *  otherwise set this region to empty and return false.
      */
-    bool setRect(const SkIRect&);
+    bool setRect(const SkIRect& rect);
 
     /**
      *  If left < right and top < bottom, set this region to that rectangle and
@@ -131,7 +131,7 @@ public:
      *  Set this region to the specified region, and return true if it is
      *  non-empty.
      */
-    bool setRegion(const SkRegion&);
+    bool setRegion(const SkRegion& region);
 
     /**
      *  Set this region to the area described by the path, clipped.
@@ -139,19 +139,19 @@ public:
      *  This produces a region that is identical to the pixels that would be
      *  drawn by the path (with no antialiasing) with the specified clip.
      */
-    bool setPath(const SkPath&, const SkRegion& clip);
+    bool setPath(const SkPath& path, const SkRegion& clip);
 
     /**
      *  Returns true if the specified rectangle has a non-empty intersection
      *  with this region.
      */
-    bool intersects(const SkIRect&) const;
+    bool intersects(const SkIRect& rect) const;
 
     /**
      *  Returns true if the specified region has a non-empty intersection
      *  with this region.
      */
-    bool intersects(const SkRegion&) const;
+    bool intersects(const SkRegion& other) const;
 
     /**
      *  Return true if the specified x,y coordinate is inside the region.
@@ -164,7 +164,7 @@ public:
      *  returns the correct result. Note: if either this region or the rectangle
      *  is empty, contains() returns false.
      */
-    bool contains(const SkIRect&) const;
+    bool contains(const SkIRect& other) const;
 
     /**
      *  Return true if the specified region is completely inside the region.
@@ -172,7 +172,7 @@ public:
      *  returns the correct result. Note: if either region is empty, contains()
      *  returns false.
      */
-    bool contains(const SkRegion&) const;
+    bool contains(const SkRegion& other) const;
 
     /**
      *  Return true if this region is a single rectangle (not complex) and the
@@ -245,7 +245,7 @@ public:
         kReverseDifference_Op,
         kReplace_Op,    //!< replace the dst region with the op region
 
-        kLastOp = kReplace_Op
+        kLastOp = kReplace_Op,
     };
 
     static const int kOpCnt = kLastOp + 1;
@@ -317,11 +317,11 @@ public:
     class SK_API Iterator {
     public:
         Iterator() : fRgn(nullptr), fDone(true) {}
-        Iterator(const SkRegion&);
+        Iterator(const SkRegion& region);
         // if we have a region, reset to it and return true, else return false
         bool rewind();
         // reset the iterator, using the new region
-        void reset(const SkRegion&);
+        void reset(const SkRegion& region);
         bool done() const { return fDone; }
         void next();
         const SkIRect& rect() const { return fRect; }
@@ -341,7 +341,7 @@ public:
      */
     class SK_API Cliperator {
     public:
-        Cliperator(const SkRegion&, const SkIRect& clip);
+        Cliperator(const SkRegion& region, const SkIRect& clip);
         bool done() { return fDone; }
         void  next();
         const SkIRect& rect() const { return fRect; }
@@ -359,7 +359,7 @@ public:
      */
     class Spanerator {
     public:
-        Spanerator(const SkRegion&, int y, int left, int right);
+        Spanerator(const SkRegion& region, int y, int left, int right);
         bool next(int* left, int* right);
 
     private:

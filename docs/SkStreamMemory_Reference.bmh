@@ -1,0 +1,66 @@
+#Topic StreamMemory
+#Alias StreamMemory_Reference ##
+
+#Class SkStreamMemory
+
+SkStreamMemory is a SkStreamAsset for which getMemoryBase is required. */
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method const void* getMemoryBase() override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamMemory> duplicate() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamMemory> fork() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkStreamMemory ##
+
+#Topic StreamMemory ##

@@ -578,6 +578,9 @@ void IncludeParser::dumpClassTokens(IClassDefinition& classDef) {
                 this->dumpMember(token);
                 continue;
             break;
+            case MarkType::kTypedef:
+                this->dumpTypedef(token, classDef.fName);
+            break;
             default:
                 SkASSERT(0);
         }
@@ -1258,6 +1261,15 @@ bool IncludeParser::dumpTokens(string skClassName) {
     return true;
 }
 
+void IncludeParser::dumpTypedef(const Definition& token, string className) {
+    this->writeTag("Typedef");
+    this->writeSpace();
+    this->writeString(token.fName);
+    this->writeTagTable("Line", "incomplete");
+    this->lf(2);
+    this->dumpComment(token);
+}
+
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
     // add comment preceding class, if any
     const Definition* parent = includeDef.fParent;
@@ -1402,7 +1414,7 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     const char* privateName = kKeyWords[(int) KeyWord::kPrivate].fName;
     size_t privateLen = strlen(privateName);
     auto childIter = includeDef->fChildren.begin();
-    while ((*childIter)->fPrivate) {
+    while (includeDef->fChildren.end() != childIter && (*childIter)->fPrivate) {
         std::advance(childIter, 1);
     }
     while (childIter != includeDef->fChildren.end()) {
