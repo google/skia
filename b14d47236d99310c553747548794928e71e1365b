@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98cd09f1_4133b9b5",
+        "filename": "src/core/SkDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-13T20:20:44Z",
+      "side": 1,
+      "message": "nit: spacing",
+      "range": {
+        "startLine": 350,
+        "startChar": 4,
+        "endLine": 350,
+        "endChar": 5
+      },
+      "revId": "b14d47236d99310c553747548794928e71e1365b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
