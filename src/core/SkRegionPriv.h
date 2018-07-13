@@ -14,8 +14,10 @@
 #include "SkMalloc.h"
 #include "SkTo.h"
 
+static constexpr int SkRegion_kRunTypeSentinel = 0x7FFFFFFF;
+
 inline bool SkRegionValueIsSentinel(int32_t value) {
-    return value == (int32_t)SkRegion::kRunTypeSentinel;
+    return value == (int32_t)SkRegion_kRunTypeSentinel;
 }
 
 #define assert_sentinel(value, isSentinel) \
@@ -29,9 +31,9 @@ inline bool SkRegionValueIsSentinel(int32_t value) {
 //
 static int compute_intervalcount(const SkRegion::RunType runs[]) {
     const SkRegion::RunType* curr = runs;
-    while (*curr < SkRegion::kRunTypeSentinel) {
+    while (*curr < SkRegion_kRunTypeSentinel) {
         SkASSERT(curr[0] < curr[1]);
-        SkASSERT(curr[1] < SkRegion::kRunTypeSentinel);
+        SkASSERT(curr[1] < SkRegion_kRunTypeSentinel);
         curr += 2;
     }
     return SkToInt((curr - runs) >> 1);
@@ -133,10 +135,10 @@ public:
      */
     static SkRegion::RunType* SkipEntireScanline(const SkRegion::RunType runs[]) {
         // we are not the Y Sentinel
-        SkASSERT(runs[0] < SkRegion::kRunTypeSentinel);
+        SkASSERT(runs[0] < SkRegion_kRunTypeSentinel);
 
         const int intervals = runs[1];
-        SkASSERT(runs[2 + intervals * 2] == SkRegion::kRunTypeSentinel);
+        SkASSERT(runs[2 + intervals * 2] == SkRegion_kRunTypeSentinel);
 #ifdef SK_DEBUG
         {
             int n = compute_intervalcount(&runs[2]);
@@ -168,7 +170,7 @@ public:
             int bottom = runs[0];
             // If we hit this, we've walked off the region, and our bounds check
             // failed.
-            SkASSERT(bottom < SkRegion::kRunTypeSentinel);
+            SkASSERT(bottom < SkRegion_kRunTypeSentinel);
             if (y < bottom) {
                 break;
             }
@@ -190,12 +192,12 @@ public:
 
         do {
             bot = *runs++;
-            SkASSERT(bot < SkRegion::kRunTypeSentinel);
+            SkASSERT(bot < SkRegion_kRunTypeSentinel);
             ySpanCount += 1;
 
             const int intervals = *runs++;
             SkASSERT(intervals >= 0);
-            SkASSERT(intervals < SkRegion::kRunTypeSentinel);
+            SkASSERT(intervals < SkRegion_kRunTypeSentinel);
 
             if (intervals > 0) {
 #ifdef SK_DEBUG
@@ -205,25 +207,25 @@ public:
                 }
 #endif
                 RunType L = runs[0];
-                SkASSERT(L < SkRegion::kRunTypeSentinel);
+                SkASSERT(L < SkRegion_kRunTypeSentinel);
                 if (left > L) {
                     left = L;
                 }
 
                 runs += intervals * 2;
                 RunType R = runs[-1];
-                SkASSERT(R < SkRegion::kRunTypeSentinel);
+                SkASSERT(R < SkRegion_kRunTypeSentinel);
                 if (rite < R) {
                     rite = R;
                 }
 
                 intervalCount += intervals;
             }
-            SkASSERT(SkRegion::kRunTypeSentinel == *runs);
+            SkASSERT(SkRegion_kRunTypeSentinel == *runs);
             runs += 1;  // skip x-sentinel
 
             // test Y-sentinel
-        } while (SkRegion::kRunTypeSentinel > *runs);
+        } while (SkRegion_kRunTypeSentinel > *runs);
 
 #ifdef SK_DEBUG
         // +1 to skip the last Y-sentinel
