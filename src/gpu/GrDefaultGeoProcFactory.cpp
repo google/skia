@@ -117,21 +117,37 @@ public:
                                                                 "Bones",
                                                                 kMaxBones,
                                                                 &vertBonesUniformName);
+
+                // ===== THE IMPORTANT PART =====================================================
+
+                // Indexing into the float3x3 matrix requires the index to be multiplied by 3 in
+                // the Vulkan backend.
+                //
+                // To see the issue in action, run
+                // `out/dir/viewer --nimas resources/nima --slide Robot.nima -b vk`.
+                //
+                // Change this to toggle the workaround.
+                bool vulkanWorkaround = true;
+
                 vertBuilder->codeAppendf(
                         "float2 transformedPosition = (%s[0] * float3(%s, 1)).xy;"
                         "float3x3 influence = float3x3(0);"
                         "for (int i = 0; i < 4; i++) {"
                         "   int index = %s[i];"
                         "   float weight = %s[i];"
-                        "   influence += %s[index] * weight;"
+                        "   influence += %s[index * %d] * weight;"
                         "}"
                         "transformedPosition = (influence * float3(transformedPosition, 1)).xy;",
                         vertBonesUniformName,
                         gp.fInPosition.name(),
                         gp.fInBoneIndices.name(),
                         gp.fInBoneWeights.name(),
-                        vertBonesUniformName);
+                        vertBonesUniformName,
+                        vulkanWorkaround ? 3 : 1);
                 transformedPositionName = "transformedPosition";
+
+                // ===== THE IMPORTANT PART =====================================================
+
             }
 
             // Setup position
