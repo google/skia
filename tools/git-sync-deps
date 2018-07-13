@@ -30,10 +30,11 @@ Git Config:
 """
 
 
+import multiprocessing
 import os
 import subprocess
 import sys
-import threading
+import traceback
 
 
 def git_executable():
@@ -221,17 +222,34 @@ def git_sync_deps(deps_file_path, command_line_os_requests, verbose):
   multithread(git_checkout_to_directory, list_of_arg_lists)
 
 
+class MultithreadException(Exception):
+    pass
+
+
+def multithread_helper(function_and_args):
+    # Pass arguments to function and handle exceptions.
+    # This function have to be defined in global because it can not be pickled
+    # when defined as local function of multithread.
+    try:
+        function, args = function_and_args[:]
+        return None, function(*args)
+    except:
+        return ( traceback.format_exc(), None )
+
+
 def multithread(function, list_of_arg_lists):
   # for args in list_of_arg_lists:
   #   function(*args)
   # return
-  threads = []
-  for args in list_of_arg_lists:
-    thread = threading.Thread(None, function, None, args)
-    thread.start()
-    threads.append(thread)
-  for thread in threads:
-    thread.join()
+  results = multiprocessing.Pool(len(list_of_arg_lists)).map(
+      multithread_helper, ((function, args) for args in list_of_arg_lists))
+  exceptions = [result[0] for result in results if result[0] is not None]
+  if exceptions:
+    raise MultithreadException(
+        '{} exceptions raised while multithreaded processing:\n{}'.format(
+            len(exceptions), '\n'.join(exceptions)))
+
+  return [result[1] for result in results]
 
 
 def main(argv):
