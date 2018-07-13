@@ -558,6 +558,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
                                                          GrWrapOwnership ownership) {
     GrGLTexture::IDDesc idDesc;
     if (!check_backend_texture(backendTex, this->glCaps(), &idDesc)) {
+        SkDebugf("failed check_backend_texture in GrGlGpu::onWrapRenderable...\n");
         return nullptr;
     }
     if (!idDesc.fInfo.fFormat) {
@@ -566,6 +567,7 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
 
     // We don't support rendering to a EXTERNAL texture.
     if (GR_GL_TEXTURE_EXTERNAL == idDesc.fInfo.fTarget) {
+        SkDebugf("failed GR_GL_TEXTURE_EXTERNAL in GrGlGpu::onWrapRenderable...\n");
         return nullptr;
     }
 
@@ -582,11 +584,13 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     surfDesc.fConfig = backendTex.config();
     surfDesc.fSampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, backendTex.config());
     if (surfDesc.fSampleCnt < 1) {
+        SkDebugf("failed surfDesc.fSampleCnt in GrGlGpu::onWrapRenderable...\n");
         return nullptr;
     }
 
     GrGLRenderTarget::IDDesc rtIDDesc;
     if (!this->createRenderTargetObjects(surfDesc, idDesc.fInfo, &rtIDDesc)) {
+        SkDebugf("failed createRenderTargetObjects in GrGlGpu::onWrapRenderable...\n");
         return nullptr;
     }
 
@@ -596,6 +600,9 @@ sk_sp<GrTexture> GrGLGpu::onWrapRenderableBackendTexture(const GrBackendTexture&
     sk_sp<GrGLTextureRenderTarget> texRT(
             GrGLTextureRenderTarget::MakeWrapped(this, surfDesc, idDesc, rtIDDesc, mipMapsStatus));
     texRT->baseLevelWasBoundToFBO();
+    if (!texRT) {
+        SkDebugf("failed MakeWrapped in GrGlGpu::onWrapRenderable...\n");
+    }
     return std::move(texRT);
 }
 
