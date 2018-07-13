@@ -2432,7 +2432,7 @@ void SkCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, SkSca
         fScratchGlyphRunBuilder->drawText(
                 looper.paint(), text, byteLength, SkPoint::Make(x, y));
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(looper.paint(), glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
     LOOPER_END
@@ -2446,7 +2446,7 @@ void SkCanvas::onDrawPosText(const void* text, size_t byteLength, const SkPoint 
     while (iter.next()) {
         fScratchGlyphRunBuilder->drawPosText(looper.paint(), text, byteLength, pos);
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(looper.paint(), glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
     LOOPER_END
@@ -2461,7 +2461,7 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
         fScratchGlyphRunBuilder->drawPosTextH(
                 looper.paint(), text, byteLength, xpos, constY);
         auto glyphRunList = fScratchGlyphRunBuilder->useGlyphRunList();
-        iter.fDevice->drawGlyphRunList(looper.paint(), glyphRunList);
+        iter.fDevice->drawGlyphRunList(glyphRunList);
     }
 
     LOOPER_END
@@ -2511,7 +2511,8 @@ void SkCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     LOOPER_BEGIN(paint, bounds)
 
     while (iter.next()) {
-        iter.fDevice->drawTextBlob(blob, x, y, looper.paint());
+        fScratchGlyphRunBuilder->drawTextBlob(looper.paint(), *blob, SkPoint::Make(x, y));
+        iter.fDevice->drawGlyphRunList(fScratchGlyphRunBuilder->useGlyphRunList());
     }
 
     LOOPER_END

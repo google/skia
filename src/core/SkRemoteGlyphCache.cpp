@@ -256,6 +256,17 @@ protected:
         }
     }
 
+    void drawGlyphRunList(SkGlyphRunList* glyphRunList) override {
+        auto blob = glyphRunList->blob();
+
+        if (blob != nullptr) {
+            auto origin = glyphRunList->origin();
+            auto paint = glyphRunList->paint();
+            this->drawTextBlob(blob, origin.x(), origin.y(), paint);
+        }
+    }
+
+
 private:
     void processGlyphRun(const SkPoint& position,
                          const SkTextBlobRunIterator& it,
