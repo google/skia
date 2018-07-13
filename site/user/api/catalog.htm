@@ -2847,7 +2847,7 @@
     "hash": "ebeeafafeb8fe39d5ffc9115b02c2340",
     "file": "SkRect_Reference",
     "name": "SkRect::centerY",
-        "stdout": "left: 2e+38 right: 3e+38 centerX: 2.5e+38 safe mid x: 2.5e+38\\n"
+        "stdout": "left: 2e+38 right: 3e+38 centerX: inf safe mid x: 2.5e+38\\n"
     },
         "SkRect_contains": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect rect = { 30, 50, 40, 60 };\n    SkPoint tests[] = { { 30, 50 }, { 39, 49 }, { 29, 59 } };\n    for (auto contained : tests) {\n        SkDebugf(\"rect: (%g, %g, %g, %g) %s (%g, %g)\\n\",\n                 rect.left(), rect.top(), rect.right(), rect.bottom(),\n                 rect.contains(contained.x(), contained.y()) ? \"contains\" : \"does not contain\",\n                 contained.x(), contained.y());\n    }\n}",
