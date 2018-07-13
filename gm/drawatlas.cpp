@@ -140,7 +140,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
 
         canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
     } else {
-        canvas->drawTextOnPathHV(text, length, path, 0, baseline_offset, paint);
+        canvas->drawTextOnPathHV_hidden(text, length, path, 0, baseline_offset, paint);
     }
 
     if (true) {

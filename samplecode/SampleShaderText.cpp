@@ -183,7 +183,7 @@ protected:
             ++i;
             canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),
                               SkIntToScalar((i % testsPerCol) * rowHeight));
-            canvas->drawTextOnPath(text, textLen, path, nullptr, paint);
+            canvas->drawTextOnPath_hidden(text, textLen, path, nullptr, paint);
             canvas->restore();
         }
         canvas->restore();

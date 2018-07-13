@@ -376,7 +376,7 @@ namespace {
         SkMatrix matrix = SkMatrix::I();
         SkPaint  paint;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
+            c->drawTextOnPath_hidden(pod<void>(this), bytes, path, &matrix, paint);
         }
     };
     struct DrawTextRSXform final : Op {

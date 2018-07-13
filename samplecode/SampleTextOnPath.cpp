@@ -40,7 +40,7 @@ static void textStrokePath(SkCanvas* canvas) {
     const char* text = "DRAWING STROKED TEXT WITH A BLUR ON A PATH";
     size_t      len = strlen(text);
 
-    canvas->drawTextOnPathHV(text, len, path, 0,
+    canvas->drawTextOnPathHV_hidden(text, len, path, 0,
                              -0.025f, paint);
     canvas->restore();
 }
@@ -68,21 +68,21 @@ static void textPathMatrix(SkCanvas* canvas) {
     SkPathMeasure   meas(path, false);
     SkScalar pathLen = meas.getLength();
 
-    canvas->drawTextOnPath(text, len, path, nullptr, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, nullptr, paint);
 
     paint.setColor(SK_ColorRED);
     matrix.setScale(-SK_Scalar1, SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 
     paint.setColor(SK_ColorBLUE);
     matrix.setScale(SK_Scalar1, -SK_Scalar1);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 
     paint.setColor(SK_ColorGREEN);
     matrix.setScale(-SK_Scalar1, -SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 }
 
 class TextOnPathView : public SampleView {
@@ -122,15 +122,15 @@ protected:
             SkScalar x = fHOffset;
 
             paint.setColor(SK_ColorBLACK);
-            canvas->drawTextOnPathHV(text, len, fPath,
+            canvas->drawTextOnPathHV_hidden(text, len, fPath,
                                      x, paint.getTextSize()/2, paint);
 
             paint.setColor(SK_ColorRED);
-            canvas->drawTextOnPathHV(text, len, fPath,
+            canvas->drawTextOnPathHV_hidden(text, len, fPath,
                                      x + SkIntToScalar(50), 0, paint);
 
             paint.setColor(SK_ColorBLUE);
-            canvas->drawTextOnPathHV(text, len, fPath,
+            canvas->drawTextOnPathHV_hidden(text, len, fPath,
                          x + SkIntToScalar(100), -paint.getTextSize()/2, paint);
         }
 

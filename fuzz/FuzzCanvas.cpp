@@ -1605,7 +1605,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 FuzzPath(fuzz, &path, 20);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
-                canvas->drawTextOnPathHV(text.begin(), SkToSizeT(text.count()), path, hOffset,
+                canvas->drawTextOnPathHV_hidden(text.begin(), SkToSizeT(text.count()), path, hOffset,
                                          vOffset, paint);
                 break;
             }
@@ -1621,7 +1621,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
                 FuzzPath(fuzz, &path, 20);
-                canvas->drawTextOnPath(text.begin(), SkToSizeT(text.count()), path,
+                canvas->drawTextOnPath_hidden(text.begin(), SkToSizeT(text.count()), path,
                                        useMatrix ? &matrix : nullptr, paint);
                 break;
             }

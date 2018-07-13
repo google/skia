@@ -1970,7 +1970,7 @@ public:
         @param vOffset     offset of text above (if negative) or below (if positive) the path
         @param paint       text size, blend, color, and so on, used to draw
     */
-    void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
+    void drawTextOnPathHV_hidden(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
                           SkScalar vOffset, const SkPaint& paint);
 
     /** Draws text on SkPath path, using clip, SkMatrix, and SkPaint paint.
@@ -2000,7 +2000,7 @@ public:
                            to use identity SkMatrix
         @param paint       text size, blend, color, and so on, used to draw
     */
-    void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+    void drawTextOnPath_hidden(const void* text, size_t byteLength, const SkPath& path,
                         const SkMatrix* matrix, const SkPaint& paint);
 
     /** Draws text, transforming each glyph by the corresponding SkRSXform,

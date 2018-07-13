@@ -125,7 +125,7 @@ public:
     void onDrawTextOnPath(const void* ptr, size_t len,
                           const SkPath& path, const SkMatrix* matrix,
                           const SkPaint& paint) override {
-        fTarget->drawTextOnPath(ptr, len, path, matrix, fXformer->apply(paint));
+        fTarget->drawTextOnPath_hidden(ptr, len, path, matrix, fXformer->apply(paint));
     }
     void onDrawTextRSXform(const void* ptr, size_t len,
                            const SkRSXform* xforms, const SkRect* cull,

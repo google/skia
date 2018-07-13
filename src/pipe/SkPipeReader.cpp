@@ -397,7 +397,7 @@ static void drawTextOnPath_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
         matrixStorage = read_sparse_matrix(reader, tm);
         matrix = &matrixStorage;
     }
-    canvas->drawTextOnPath(text, byteLength, path, matrix, read_paint(reader));
+    canvas->drawTextOnPath_hidden(text, byteLength, path, matrix, read_paint(reader));
 }
 
 static void drawTextBlob_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {

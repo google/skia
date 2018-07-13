@@ -2546,7 +2546,7 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
         this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
     }
 }
-void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
+void SkCanvas::drawTextOnPath_hidden(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
@@ -2728,13 +2728,13 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
     this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
 }
 
-void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
+void SkCanvas::drawTextOnPathHV_hidden(const void* text, size_t byteLength,
                                 const SkPath& path, SkScalar hOffset,
                                 SkScalar vOffset, const SkPaint& paint) {
     SkMatrix    matrix;
 
     matrix.setTranslate(hOffset, vOffset);
-    this->drawTextOnPath(text, byteLength, path, &matrix, paint);
+    this->drawTextOnPath_hidden(text, byteLength, path, &matrix, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

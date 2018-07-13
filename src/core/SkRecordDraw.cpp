@@ -122,7 +122,7 @@ DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
-DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
+DRAW(DrawTextOnPath, drawTextOnPath_hidden(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));

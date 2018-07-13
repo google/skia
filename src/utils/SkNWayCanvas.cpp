@@ -285,7 +285,7 @@ void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const S
                                     const SkMatrix* matrix, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {
-        iter->drawTextOnPath(text, byteLength, path, matrix, paint);
+        iter->drawTextOnPath_hidden(text, byteLength, path, matrix, paint);
     }
 }
 

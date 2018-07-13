@@ -159,8 +159,8 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
 
                     canvas->save();
                         canvas->concat(matrices[m].fMatrix);
-                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, paint);
-                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, outlinePaint);
+                        canvas->drawTextOnPath_hidden(kText, kTextLen, path, nullptr, paint);
+                        canvas->drawTextOnPath_hidden(kText, kTextLen, path, nullptr, outlinePaint);
                     canvas->restore();
                     SkPaint stroke;
                     stroke.setStyle(SkPaint::kStroke_Style);

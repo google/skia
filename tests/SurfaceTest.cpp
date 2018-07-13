@@ -432,7 +432,7 @@ static void test_copy_on_write(skiatest::Reporter* reporter, SkSurface* surface)
     EXPECT_COPY_ON_WRITE(drawString(testText, 0, 1, testPaint))
     EXPECT_COPY_ON_WRITE(drawPosText(testText.c_str(), testText.size(), testPoints2, \
         testPaint))
-    EXPECT_COPY_ON_WRITE(drawTextOnPath(testText.c_str(), testText.size(), testPath, nullptr, \
+    EXPECT_COPY_ON_WRITE(drawTextOnPath_hidden(testText.c_str(), testText.size(), testPath, nullptr, \
         testPaint))
 }
 DEF_TEST(SurfaceCopyOnWrite, reporter) {

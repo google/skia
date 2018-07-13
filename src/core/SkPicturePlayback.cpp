@@ -592,7 +592,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && text.text()) {
-                canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, *paint);
+                canvas->drawTextOnPath_hidden(text.text(), text.length(), path, &matrix, *paint);
             }
         } break;
         case DRAW_TEXT_RSXFORM: {

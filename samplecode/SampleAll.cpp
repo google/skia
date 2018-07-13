@@ -263,9 +263,9 @@ protected:
         paint.setColor(SK_ColorMAGENTA);
         paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
         matrix.setTranslate(SkIntToScalar(10), SkIntToScalar(10));
-        canvas->drawTextOnPath((void*) utf16, sizeof(utf16), path, &matrix, paint);
+        canvas->drawTextOnPath_hidden((void*) utf16, sizeof(utf16), path, &matrix, paint);
         canvas->translate(0, SkIntToScalar(20));
-        canvas->drawTextOnPath((void*) utf16simple, sizeof(utf16simple), path, &matrix, paint);
+        canvas->drawTextOnPath_hidden((void*) utf16simple, sizeof(utf16simple), path, &matrix, paint);
         canvas->restore();
 
         canvas->translate(0, SkIntToScalar(60));

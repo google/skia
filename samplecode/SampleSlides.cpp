@@ -262,13 +262,13 @@ static void textonpath_slide(SkCanvas* canvas) {
 
     SkScalar x = 50;
     paint.setColor(0xFF008800);
-    canvas->drawTextOnPathHV(text, len, path,
+    canvas->drawTextOnPathHV_hidden(text, len, path,
                              x, paint.getTextSize()*2/3, paint);
     paint.setColor(SK_ColorRED);
-    canvas->drawTextOnPathHV(text, len, path,
+    canvas->drawTextOnPathHV_hidden(text, len, path,
                              x + 60, 0, paint);
     paint.setColor(SK_ColorBLUE);
-    canvas->drawTextOnPathHV(text, len, path,
+    canvas->drawTextOnPathHV_hidden(text, len, path,
                              x + 120, -paint.getTextSize()*2/3, paint);
 
     path.offset(0, 200);
@@ -285,21 +285,21 @@ static void textonpath_slide(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kFill_Style);
 
     paint.setTextSize(50);
-    canvas->drawTextOnPath(text, len, path, nullptr, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, nullptr, paint);
 
     paint.setColor(SK_ColorRED);
     matrix.setScale(-SK_Scalar1, SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 
     paint.setColor(SK_ColorBLUE);
     matrix.setScale(SK_Scalar1, -SK_Scalar1);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 
     paint.setColor(0xFF008800);
     matrix.setScale(-SK_Scalar1, -SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    canvas->drawTextOnPath_hidden(text, len, path, &matrix, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

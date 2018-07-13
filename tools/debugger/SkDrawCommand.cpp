@@ -2188,7 +2188,7 @@ SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLe
     , fPaint(paint) {}
 
 void SkDrawTextOnPathCommand::execute(SkCanvas* canvas) const {
-    canvas->drawTextOnPath(fText->data(), fText->size(), fPath, fMatrix.getMaybeNull(), fPaint);
+    canvas->drawTextOnPath_hidden(fText->data(), fText->size(), fPath, fMatrix.getMaybeNull(), fPaint);
 }
 
 Json::Value SkDrawTextOnPathCommand::toJSON(UrlDataManager& urlDataManager) const {
