@@ -1,0 +1,14 @@
+#Topic TextBlob
+#Alias TextBlob_Reference ##
+
+#Class SkTextBlob
+
+SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
+
+#Subtopic Overview
+#Populate
+##
+
+#Class SkTextBlob ##
+
+#Topic TextBlob ##

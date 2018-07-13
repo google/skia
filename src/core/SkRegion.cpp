@@ -29,6 +29,9 @@
 
 SkDEBUGCODE(int32_t gRgnAllocCounter;)
 
+#define SkRegion_gEmptyRunHeadPtr   ((SkRegion::RunHead*)-1)
+#define SkRegion_gRectRunHeadPtr    nullptr
+
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 constexpr int kRunArrayStackCount = 256;
@@ -1321,6 +1324,25 @@ size_t SkRegion::readFromMemory(const void* storage, size_t length) {
 const SkRegion& SkRegion::GetEmptyRegion() {
     static SkRegion gEmpty;
     return gEmpty;
+}
+
+bool SkRegion::isEmpty() const {
+    return fRunHead == SkRegion_gEmptyRunHeadPtr;
+}
+
+bool SkRegion::isRect() const {
+    return fRunHead == SkRegion_gRectRunHeadPtr;
+}
+
+bool SkRegion::quickContains(int32_t left, int32_t top, int32_t right,
+                       int32_t bottom) const {
+    SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
+
+    return left < right && top < bottom &&
+            fRunHead == SkRegion_gRectRunHeadPtr &&  // this->isRect()
+            /* fBounds.contains(left, top, right, bottom); */
+            fBounds.fLeft <= left && fBounds.fTop <= top &&
+            fBounds.fRight >= right && fBounds.fBottom >= bottom;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
