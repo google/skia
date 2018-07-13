@@ -83,6 +83,9 @@ has #Const children. If so, generate a summary table first.
 Or, only allow #Line and moderate text description in #Const. Put more verbose text, example,
 seealso, in subsequent #SubTopic. Alpha_Type does this and it looks good.
 
+picture reference subclass AbortCallback has empty subtopics, and fails to show the full
+prototype for ~AbortCallback in the md out generation.
+
 see head of selfCheck.cpp for additional todos
 see head of spellCheck.cpp for additional todos
  */
