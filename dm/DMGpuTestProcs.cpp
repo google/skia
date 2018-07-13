@@ -19,9 +19,6 @@ bool IsGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
 bool IsVulkanContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return kVulkan_GrBackend == GrContextFactory::ContextTypeBackend(type);
 }
-bool IsMetalContextType(sk_gpu_test::GrContextFactory::ContextType type) {
-    return kMetal_GrBackend == GrContextFactory::ContextTypeBackend(type);
-}
 bool IsRenderingGLContextType(sk_gpu_test::GrContextFactory::ContextType type) {
     return IsGLContextType(type) && GrContextFactory::IsRenderingContext(type);
 }

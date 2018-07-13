@@ -113,32 +113,3 @@ void test_copy_to_surface(skiatest::Reporter* reporter, GrProxyProvider* proxyPr
         }
     }
 }
-
-void fill_pixel_data(int width, int height, GrColor* data) {
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            unsigned int red = (unsigned int)(256.f * (i / (float)width));
-            unsigned int green = (unsigned int)(256.f * (j / (float)height));
-            data[i + j * width] = GrColorPackRGBA(red - (red >> 8), green - (green >> 8),
-                                                  0xff, 0xff);
-        }
-    }
-}
-
-bool does_full_buffer_contain_correct_color(GrColor* srcBuffer,
-                                            GrColor* dstBuffer,
-                                            int width,
-                                            int height) {
-    GrColor* srcPtr = srcBuffer;
-    GrColor* dstPtr = dstBuffer;
-    for (int j = 0; j < height; ++j) {
-        for (int i = 0; i < width; ++i) {
-            if (srcPtr[i] != dstPtr[i]) {
-                return false;
-            }
-        }
-        srcPtr += width;
-        dstPtr += width;
-    }
-    return true;
-}
