@@ -971,7 +971,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="f206f698e7a8db3d84334c26b1a702dc"></fiddle-embed></div>
+<div><fiddle-embed name="a48698975d236573cef512f94a7e360b"></fiddle-embed></div>
 
 ## <a name='Color'>Color</a>
 

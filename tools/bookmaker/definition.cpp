@@ -771,7 +771,7 @@ string Definition::formatFunction(Format format) const {
     int written = 0;
     do {
         const char* nextStart = lastEnd;
-        SkASSERT(written < limit);
+//        SkASSERT(written < limit);
         const char* delimiter = methodParser.anyOf(",)");
         const char* nextEnd = delimiter ? delimiter : methodParser.fEnd;
         if (delimiter) {

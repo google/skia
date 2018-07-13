@@ -2187,8 +2187,9 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target,
-                                  SkTransferFunctionBehavior premulBehavior) const
+#Method sk_sp<SkImage> makeColorSpace(
+              sk_sp<SkColorSpace> target,
+              SkTransferFunctionBehavior premulBehavior = SkTransferFunctionBehavior::kIgnore) const
 #In Constructor
 #Line # creates Image matching Color_Space if possible ##
 
@@ -2207,7 +2208,8 @@ and Color_Space.
 
 Set premulBehavior to SkTransferFunctionBehavior::kIgnore to treat Image
 pixels as linear, when converting to destination Color_Type
-and Color_Space, ignoring pixel encoding.
+and Color_Space, ignoring pixel encoding. premulBehavior is 
+SkTransferFunctionBehavior::kIgnore by default.
 
 #Param target  Color_Space describing color range of returned Image ##
 #Param premulBehavior  one of: SkTransferFunctionBehavior::kRespect,
