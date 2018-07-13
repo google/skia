@@ -362,6 +362,9 @@ void SPIRVCodeGenerator::writeCapabilities(OutputStream& out) {
     if (fProgram.fKind == Program::kGeometry_Kind) {
         this->writeInstruction(SpvOpCapability, SpvCapabilityGeometry, out);
     }
+    else {
+        this->writeInstruction(SpvOpCapability, SpvCapabilityShader, out);
+    }
 }
 
 SpvId SPIRVCodeGenerator::nextId() {
@@ -2477,6 +2480,28 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target, int mem
     }
 }
 
+static void update_sk_in_count(const Modifiers& m, int* outSkInCount) {
+    switch (m.fLayout.fPrimitive) {
+        case Layout::kPoints_Primitive:
+            *outSkInCount = 1;
+            break;
+        case Layout::kLines_Primitive:
+            *outSkInCount = 2;
+            break;
+        case Layout::kLinesAdjacency_Primitive:
+            *outSkInCount = 4;
+            break;
+        case Layout::kTriangles_Primitive:
+            *outSkInCount = 3;
+            break;
+        case Layout::kTrianglesAdjacency_Primitive:
+            *outSkInCount = 6;
+            break;
+        default:
+            return;
+    }
+}
+
 SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     bool isBuffer = (0 != (intf.fVariable.fModifiers.fFlags & Modifiers::kBuffer_Flag));
     bool pushConstant = (0 != (intf.fVariable.fModifiers.fLayout.fFlags &
@@ -2500,12 +2525,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
         for (const auto& e : fProgram) {
             if (e.fKind == ProgramElement::kModifiers_Kind) {
                 const Modifiers& m = ((ModifiersDeclaration&) e).fModifiers;
-                if (m.fFlags & Modifiers::kIn_Flag) {
-                    if (m.fLayout.fInvocations != -1) {
-                        fSkInCount = m.fLayout.fInvocations;
-                        break;
-                    }
-                }
+                update_sk_in_count(m, &fSkInCount);
             }
         }
         typeId = this->getType(Type("sk_in", Type::kArray_Kind, intf.fVariable.fType.componentType(),
@@ -2884,7 +2904,6 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
             if (m.fFlags & Modifiers::kIn_Flag) {
                 if (m.fLayout.fInvocations != -1) {
                     invocations = m.fLayout.fInvocations;
-                    fSkInCount = invocations;
                 }
                 SpvId input;
                 switch (m.fLayout.fPrimitive) {
@@ -2907,6 +2926,7 @@ void SPIRVCodeGenerator::writeGeometryShaderExecutionMode(SpvId entryPoint, Outp
                         input = 0;
                         break;
                 }
+                update_sk_in_count(m, &fSkInCount);
                 if (input) {
                     this->writeInstruction(SpvOpExecutionMode, entryPoint, input, out);
                 }
@@ -3013,9 +3033,12 @@ void SPIRVCodeGenerator::writeInstructions(const Program& program, OutputStream&
     SkASSERT(main);
     for (auto entry : fVariableMap) {
         const Variable* var = entry.first;
+        int builtin = var->fModifiers.fLayout.fBuiltin;
         if (var->fStorage == Variable::kGlobal_Storage &&
             ((var->fModifiers.fFlags & Modifiers::kIn_Flag) ||
-             (var->fModifiers.fFlags & Modifiers::kOut_Flag))) {
+             (var->fModifiers.fFlags & Modifiers::kOut_Flag)) &&
+             builtin != SK_OUT_BUILTIN &&
+             builtin != SK_INVOCATIONID_BUILTIN) {
             interfaceVars.insert(entry.second);
         }
     }
