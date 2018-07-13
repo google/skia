@@ -1,0 +1,82 @@
+#Topic StreamAsset
+#Alias StreamAsset_Reference ##
+
+#Class SkStreamAsset
+
+SkStreamAsset is a SkStreamSeekable for which getLength is required. */
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool hasLength() const override
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t getLength() const override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamAsset> duplicate() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamAsset> fork() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkStreamAsset ##
+
+#Topic StreamAsset ##
