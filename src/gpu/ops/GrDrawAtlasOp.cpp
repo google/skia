@@ -13,7 +13,8 @@
 #include "SkRandom.h"
 #include "SkRectPriv.h"
 
-static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
+static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
+                                          bool hasColors,
                                           GrColor color,
                                           const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
@@ -22,7 +23,7 @@ static sk_sp<GrGeometryProcessor> make_gp(bool hasColors,
         gpColor.fType = Color::kPremulGrColorAttribute_Type;
     }
 
-    return GrDefaultGeoProcFactory::Make(gpColor, Coverage::kSolid_Type,
+    return GrDefaultGeoProcFactory::Make(shaderCaps, gpColor, Coverage::kSolid_Type,
                                          LocalCoords::kHasExplicit_Type, viewMatrix);
 }
 
@@ -119,7 +120,10 @@ SkString GrDrawAtlasOp::dumpInfo() const {
 
 void GrDrawAtlasOp::onPrepareDraws(Target* target) {
     // Setup geometry processor
-    sk_sp<GrGeometryProcessor> gp(make_gp(this->hasColors(), this->color(), this->viewMatrix()));
+    sk_sp<GrGeometryProcessor> gp(make_gp(target->caps().shaderCaps(),
+                                          this->hasColors(),
+                                          this->color(),
+                                          this->viewMatrix()));
 
     int instanceCount = fGeoData.count();
     size_t vertexStride =

@@ -85,6 +85,22 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "ushort3";
         case kUShort4_GrSLType:
             return "ushort4";
+        case kByte_GrSLType:
+            return "byte";
+        case kByte2_GrSLType:
+            return "byte2";
+        case kByte3_GrSLType:
+            return "byte3";
+        case kByte4_GrSLType:
+            return "byte4";
+        case kUByte_GrSLType:
+            return "ubyte";
+        case kUByte2_GrSLType:
+            return "ubyte2";
+        case kUByte3_GrSLType:
+            return "ubyte3";
+        case kUByte4_GrSLType:
+            return "ubyte4";
         case kTexture2D_GrSLType:
             return "texture2D";
         case kSampler_GrSLType:
