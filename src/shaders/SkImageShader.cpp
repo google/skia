@@ -315,8 +315,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         SkColor4f paint_color;
     };
     auto misc = alloc->make<MiscCtx>();
-    misc->state       = std::move(state);  // Extend lifetime to match the pipeline's.
-    misc->paint_color = SkColor4f::FromColor(rec.fPaint.getColor());
+    misc->state = std::move(state);  // Extend lifetime to match the pipeline's.
+    swizzle_rb(Sk4f_fromL32(rec.fPaint.getColor())).store(misc->paint_color.vec());  // sRGBA floats
     p->append_matrix(alloc, matrix);
 
     auto gather = alloc->make<SkJumper_GatherCtx>();
