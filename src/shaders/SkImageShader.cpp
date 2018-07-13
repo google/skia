@@ -276,9 +276,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
 
     SkBitmapProvider provider(fImage.get());
     SkDefaultBitmapController controller;
-    std::unique_ptr<SkBitmapController::State> state {
-        controller.requestBitmap(provider, matrix, quality)
-    };
+    SkBitmapController::State* state = controller.requestBitmap(provider, matrix, quality, alloc);
     if (!state) {
         return false;
     }
@@ -311,11 +309,9 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     p->append(SkRasterPipeline::seed_shader);
 
     struct MiscCtx {
-        std::unique_ptr<SkBitmapController::State> state;
         SkColor4f paint_color;
     };
     auto misc = alloc->make<MiscCtx>();
-    misc->state = std::move(state);  // Extend lifetime to match the pipeline's.
     swizzle_rb(Sk4f_fromL32(rec.fPaint.getColor())).store(misc->paint_color.vec());  // sRGBA floats
     p->append_matrix(alloc, matrix);
 

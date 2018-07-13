@@ -40,15 +40,11 @@ public:
     virtual ~SkBitmapController() {}
 
     State* requestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                         void* storage, size_t storageSize);
-
-    State* requestBitmap(const SkBitmapProvider& bp, const SkMatrix& inv, SkFilterQuality quality) {
-        return this->requestBitmap(bp, inv, quality, nullptr, 0);
-    }
+                         SkArenaAlloc*);
 
 protected:
     virtual State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   void* storage, size_t storageSize) = 0;
+                                   SkArenaAlloc*) = 0;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +57,7 @@ public:
 
 protected:
     State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                           void* storage, size_t storageSize) override;
+                           SkArenaAlloc*) override;
 };
 
 #endif
