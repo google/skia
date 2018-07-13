@@ -94,7 +94,8 @@ static void compute_rects(SkRect* devOutside, SkRect* devOutsideAssist, SkRect* 
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(const GrShaderCaps* shaderCaps,
+                                                        bool tweakAlphaForCoverage,
                                                         const SkMatrix& viewMatrix,
                                                         bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
@@ -107,7 +108,10 @@ static sk_sp<GrGeometryProcessor> create_stroke_rect_gp(bool tweakAlphaForCovera
     }
     LocalCoords::Type localCoordsType =
             usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type, coverageType, localCoordsType,
+    return MakeForDeviceSpace(shaderCaps,
+                              Color::kPremulGrColorAttribute_Type,
+                              coverageType,
+                              localCoordsType,
                               viewMatrix);
 }
 
@@ -258,7 +262,8 @@ private:
 }  // anonymous namespace
 
 void AAStrokeRectOp::onPrepareDraws(Target* target) {
-    sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(fHelper.compatibleWithAlphaAsCoverage(),
+    sk_sp<GrGeometryProcessor> gp(create_stroke_rect_gp(target->caps().shaderCaps(),
+                                                        fHelper.compatibleWithAlphaAsCoverage(),
                                                         this->viewMatrix(),
                                                         fHelper.usesLocalCoords()));
     if (!gp) {
