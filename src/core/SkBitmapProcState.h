@@ -8,6 +8,7 @@
 #ifndef SkBitmapProcState_DEFINED
 #define SkBitmapProcState_DEFINED
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapController.h"
 #include "SkBitmapProvider.h"
@@ -49,7 +50,7 @@ private:
     enum {
         kBMStateSize = 136  // found by inspection. if too small, we will call new/delete
     };
-    SkAlignedSStorage<kBMStateSize> fBMStateStorage;
+    SkSTArenaAlloc<kBMStateSize> fAlloc;
     SkBitmapController::State* fBMState;
 };
 

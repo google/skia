@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkArenaAlloc.h"
 #include "SkBitmap.h"
 #include "SkBitmapCache.h"
 #include "SkBitmapController.h"
@@ -18,11 +19,10 @@
 SkBitmapController::State* SkBitmapController::requestBitmap(const SkBitmapProvider& provider,
                                                              const SkMatrix& inv,
                                                              SkFilterQuality quality,
-                                                             void* storage, size_t storageSize) {
-    State* state = this->onRequestBitmap(provider, inv, quality, storage, storageSize);
+                                                             SkArenaAlloc* alloc) {
+    State* state = this->onRequestBitmap(provider, inv, quality, alloc);
     if (state) {
         if (nullptr == state->fPixmap.addr()) {
-            SkInPlaceDeleteCheck(state, storage);
             state = nullptr;
         }
     }
@@ -146,6 +146,6 @@ SkDefaultBitmapControllerState::SkDefaultBitmapControllerState(const SkBitmapPro
 SkBitmapController::State* SkDefaultBitmapController::onRequestBitmap(const SkBitmapProvider& bm,
                                                                       const SkMatrix& inverse,
                                                                       SkFilterQuality quality,
-                                                                      void* storage, size_t size) {
-    return SkInPlaceNewCheck<SkDefaultBitmapControllerState>(storage, size, bm, inverse, quality);
+                                                                      SkArenaAlloc* alloc) {
+    return alloc->make<SkDefaultBitmapControllerState>(bm, inverse, quality);
 }
