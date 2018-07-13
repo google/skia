@@ -112,7 +112,7 @@ public:
         fTop  = top;
 
         // Just like in SkImageShader, we'll keep the paint color as floats in sRGB.
-        fPaintColor = SkColor4f::FromColor(paint.getColor());
+        swizzle_rb(Sk4f_fromL32(paint.getColor())).store(fPaintColor.vec());
 
         SkRasterPipeline p(fAlloc);
         void* ctx = &fSrcPtr;
