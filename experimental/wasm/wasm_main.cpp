@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
@@ -331,6 +332,9 @@ EMSCRIPTEN_BINDINGS(skia) {
 
         .function("add", &SkOpBuilder::add);
 
+    class_<SkRegion>("SkRegion");
+    // TODO(kjlubick): Add methods and constructors as we need them.
+
     // Without this, module._ToPath2D (yes with an underscore)
     // would be exposed, but be unable to correctly handle the SkPath type.
     function("ToPath2D", &ToPath2D);
@@ -346,6 +350,8 @@ EMSCRIPTEN_BINDINGS(skia) {
     function("SimplifyPath", &SimplifyPath);
     function("ApplyPathOp", &ApplyPathOp);
     function("ResolveBuilder", &ResolveBuilder);
+
+    function("SkBits2Float", &SkBits2Float);
 
     enum_<SkPathOp>("PathOp")
         .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
