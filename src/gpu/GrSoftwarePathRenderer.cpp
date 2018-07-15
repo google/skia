@@ -263,7 +263,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return true;
     }
 
-    const SkIRect* boundsForMask = &clippedDevShapeBounds;
+    SkIRect* boundsForMask = &clippedDevShapeBounds;
     if (useCache) {
         // Use the cache only if >50% of the path is visible.
         int unclippedWidth = unclippedDevShapeBounds.width();
@@ -279,6 +279,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
             boundsForMask = &unclippedDevShapeBounds;
         }
     }
+
+    // FIXME: check some caps here
+    int w = boundsForMask->width();
+    w = (w + 0xFF) & ~0xFF;
+    boundsForMask->fRight = boundsForMask->fLeft + w;
 
     GrUniqueKey maskKey;
     if (useCache) {
