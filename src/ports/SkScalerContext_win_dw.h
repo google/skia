@@ -47,6 +47,8 @@ private:
 
     bool isColorGlyph(const SkGlyph& glyph);
 
+    bool isPngGlyph(const SkGlyph& glyph);
+
     DWriteFontTypeface* getDWriteTypeface() {
         return static_cast<DWriteFontTypeface*>(this->getTypeface());
     }
@@ -56,6 +58,11 @@ private:
     void generateColorMetrics(SkGlyph* glyph);
 
     void generateColorGlyphImage(const SkGlyph& glyph);
+
+    void generatePngMetrics(SkGlyph* glyph);
+
+    void generatePngGlyphImage(const SkGlyph& glyph);
+
 
     SkTDArray<uint8_t> fBits;
     /** The total matrix without the text height scale. */

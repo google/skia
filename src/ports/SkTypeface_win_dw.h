@@ -62,6 +62,9 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace2))) {
             SkASSERT_RELEASE(nullptr == fDWriteFontFace2.get());
         }
+        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
+        }
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
@@ -77,6 +80,7 @@ public:
     SkTScopedComPtr<IDWriteFontFace> fDWriteFontFace;
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
+    SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
 
     static DWriteFontTypeface* Create(IDWriteFactory* factory,
                                       IDWriteFontFace* fontFace,
