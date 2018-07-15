@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dbe32694_124e3ed8",
+        "filename": "src/core/SkBitmapController.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-15T04:12:45Z",
+      "side": 1,
+      "message": "This reminds me: I think SkDefaultBMC is the only subclass, we should be able to fold into base.  I had an old CL, I can take a look after this.",
+      "range": {
+        "startLine": 54,
+        "startChar": 6,
+        "endLine": 54,
+        "endChar": 59
+      },
+      "revId": "1f7305f827ec41f0b0ff52c6e4ace75be291c08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
