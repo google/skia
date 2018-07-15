@@ -72,7 +72,7 @@ sk_sp<SkTypeface> create_font(const char* name, SkFontStyle style) {
 sk_sp<SkTypeface> emoji_typeface() {
     const char* filename;
 #if defined(SK_BUILD_FOR_WIN)
-    filename = "fonts/colr.ttf";
+    filename = "fonts/sbix.ttf";
 #elif defined(SK_BUILD_FOR_MAC) || defined(SK_BUILD_FOR_IOS)
     filename = "fonts/sbix.ttf";
 #else
