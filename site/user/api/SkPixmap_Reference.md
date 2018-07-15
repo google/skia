@@ -1296,7 +1296,7 @@ readable unsigned 8-bit pointer to pixel at (<a href='#SkPixmap_addr8_2_x'>x</a>
 
 ### Example
 
-<div><fiddle-embed name="5b986272268ef2c52045c1856f8b6107">
+<div><fiddle-embed name="9894bfb476c78a8f6c8f49fbbca3d50d">
 
 #### Example Output
 
@@ -1608,7 +1608,7 @@ writable unsigned 8-bit pointer to pixels
 
 ### Example
 
-<div><fiddle-embed name="809284db136748208b3efc31cd89de29"><div>Altering pixels after drawing <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is not guaranteed to affect subsequent
+<div><fiddle-embed name="737e721c7d9e0f367d25521a1b823b9d"><div>Altering pixels after drawing <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is not guaranteed to affect subsequent
 drawing on all platforms. Adding a second <a href='SkBitmap_Reference#SkBitmap_installPixels'>SkBitmap::installPixels</a> after editing
 pixel memory is safer.
 </div></fiddle-embed></div>
@@ -2093,7 +2093,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_5_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="e18549b5ee1039cb61b0bb38c2104fc9"></fiddle-embed></div>
+<div><fiddle-embed name="e311cdd451edacec33b50cc22a4dd5dc"></fiddle-embed></div>
 
 ### See Also
 

@@ -1120,7 +1120,7 @@ Returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="ceb77fab7326b57822a147b04aa0960e">
+<div><fiddle-embed name="9f046f407b01b759cb737d702a994620">
 
 #### Example Output
 
@@ -1615,7 +1615,7 @@ size in bytes of image buffer
 
 ### Example
 
-<div><fiddle-embed name="165c8f208829fc0908e8a50da60c0076">
+<div><fiddle-embed name="9303ffae45ddd0b0a1f93d816a1762f4">
 
 #### Example Output
 
@@ -2074,7 +2074,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> set successful
 
 ### Example
 
-<div><fiddle-embed name="599ab64d0aea005498176249bbfb64eb"></fiddle-embed></div>
+<div><fiddle-embed name="2956aeb50fa862cdb13995e1e56a4bc8"></fiddle-embed></div>
 
 ### See Also
 

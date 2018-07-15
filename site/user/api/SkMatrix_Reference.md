@@ -1391,7 +1391,7 @@ true if <a href='#Matrix'>Matrix</a> only rotates, scales, translates
 
 ### Example
 
-<div><fiddle-embed name="b9becf0dc24a9f00726e24a81fb72f16"><div>Equal scale is both similar and preserves right angles.
+<div><fiddle-embed name="da61054322550a2d5ac15114da23bd23"><div>Equal scale is both similar and preserves right angles.
 Unequal scale is not similar but preserves right angles.
 Skews are not similar and do not preserve right angles.
 </div></fiddle-embed></div>
