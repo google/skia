@@ -13,7 +13,7 @@
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-
+#include <iostream>
 namespace skiagm {
 
 class ScaledEmojiGM : public GM {

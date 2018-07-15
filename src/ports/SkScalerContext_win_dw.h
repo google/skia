@@ -34,6 +34,7 @@ protected:
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyph, SkPath* path) override;
     void generateFontMetrics(SkPaint::FontMetrics*) override;
+    
 
 private:
     const void* drawDWMask(const SkGlyph& glyph,
@@ -46,6 +47,7 @@ private:
                            RECT* bbox);
 
     bool isColorGlyph(const SkGlyph& glyph);
+    bool isPngGlyph(const SkGlyph& glyph);
 
     DWriteFontTypeface* getDWriteTypeface() {
         return static_cast<DWriteFontTypeface*>(this->getTypeface());
@@ -54,8 +56,9 @@ private:
     bool getColorGlyphRun(const SkGlyph& glyph, IDWriteColorGlyphRunEnumerator** colorGlyph);
 
     void generateColorMetrics(SkGlyph* glyph);
-
+    void generatePngMetrics(SkGlyph* glyph);
     void generateColorGlyphImage(const SkGlyph& glyph);
+    void generatePngGlyphImage(const SkGlyph& glyph);
 
     SkTDArray<uint8_t> fBits;
     /** The total matrix without the text height scale. */
