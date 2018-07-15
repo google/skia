@@ -2036,7 +2036,7 @@ Clears <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> if <a href
 
 ### Example
 
-<div><fiddle-embed name="50dedf8450159571a3edaf4f0050defe">
+<div><fiddle-embed name="2a2d39f5da611545caa18bbcea873ab2">
 
 #### Example Output
 
@@ -3613,7 +3613,7 @@ Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#
 
 ### Example
 
-<div><fiddle-embed name="77e64d5bae9b1ba037fd99252bb4aa58"></fiddle-embed></div>
+<div><fiddle-embed name="7a234c96608fb7cb8135b9940b0b15f7"></fiddle-embed></div>
 
 ---
 

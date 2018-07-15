@@ -4448,7 +4448,7 @@ clockwise if <a href='#SkPath_addOval_dir'>dir</a> is <a href='#SkPath_kCW_Direc
 
 ### Example
 
-<div><fiddle-embed name="cac84cf68e63a453c2a8b64c91537704"></fiddle-embed></div>
+<div><fiddle-embed name="ace8f4aebf90527d43e4b7291375c9ad"></fiddle-embed></div>
 
 ### See Also
 
