@@ -78,6 +78,10 @@ def dm_flags(api, bot):
   if 'CPU' in bot and 'Nexus7' in bot:
     args.extend(['--threads', '2'])
 
+  # MotoG4 occasionally fails when multiple threads read the same image file.
+  if 'CPU' in bot and 'MotoG4' in bot:
+    args.extend(['--threads', '0'])
+
   if 'Chromecast' in bot:
     args.extend(['--threads', '0'])
 
@@ -990,16 +994,17 @@ def RunSteps(api):
 TEST_BUILDERS = [
   'Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Release-All-Android',
   'Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All-Android',
+  ('Test-Android-Clang-GalaxyS6-GPU-MaliT760-arm64-Debug-All'
+   '-Android_NoGPUThreads'),
   ('Test-Android-Clang-GalaxyS7_G930FD-GPU-MaliT880-arm64-Release-All'
    '-Android_Vulkan'),
+  'Test-Android-Clang-MotoG4-CPU-Snapdragon617-arm-Release-All-Android',
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
-  'Test-Android-Clang-Nexus5x-GPU-Adreno418-arm-Debug-All-Android_ASAN',
-  ('Test-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Debug-All'
-   '-Android_NoGPUThreads'),
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
   'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
+  'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
    'arm-Debug-All'),
   'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
