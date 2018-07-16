@@ -26,6 +26,54 @@ struct IXpsOMObjectFactory;
 */
 #define SK_ScalarDefaultRasterDPI           72.0f
 
+// Table 333 in PDF 32000-1:2008
+enum class SkDocumentStructureType {
+    kDocument,
+    kPart,
+    kArt,         // Article
+    kSect,        // Section
+    kDiv,
+    kBlockQuote,
+    kCaption,
+    kTOC,         // Table of Contents
+    kTOCI,        // Table of Contents Item
+    kIndex,
+    kNonStruct,
+    kPrivate,
+    kH,           // Heading
+    kH1,          // Heading level 1
+    kH2,
+    kH3,
+    kH4,
+    kH5,
+    kH6,          // Heading level 6
+    kP,           // Paragraph
+    kL,           // List
+    kLI,          // List item
+    kLbl,         // List item label
+    kLBody,       // List item body
+    kTable,
+    kTR,
+    kTH,
+    kTD,
+    kTHead,
+    kTBody,
+    kTFoot,
+    kSpan,
+    kQuote,
+    kNote,
+    kReference,
+    kBibEntry,
+    kCode,
+    kLink,
+    kAnnot,
+    kRuby,
+    kWarichu,
+    kFigure,
+    kFormula,
+    kForm,        // Form control (not like an HTML FORM element)
+};
+
 /**
  *  High-level API for creating a document-based canvas. To use..
  *
@@ -113,6 +161,18 @@ public:
     };
 
     /**
+     *  A tag in a document structure tree, giving a semantic representation
+     *  of the content in PDF files.  Each node ID is associated with content
+     *  by calling SkCanvas::setNodeId() when drawing.
+     */
+    struct SkDocumentTag {
+        int64_t fNodeId;
+        SkDocumentStructureType fType;
+        std::unique_ptr<SkDocumentTag[]> fChildren;
+        size_t fChildCount;
+    };
+
+    /**
      *  Create a PDF-backed document, writing the results into a
      *  SkWStream.
      *
@@ -154,6 +214,16 @@ public:
                                      IXpsOMObjectFactory* xpsFactory,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
 #endif
+
+    /**
+     *  Call setTagRoot to specify a tree of structured document tags
+     *  that provide a semantic representation of the content. This must
+     *  be called before beginning the first page.
+     *
+     *  A copy is made of the tag tree, so the data structure can be
+     *  freed by the caller after this function is called.
+     */
+    virtual void setTagRoot(const SkDocumentTag& tagRoot) {}
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw

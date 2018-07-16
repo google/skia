@@ -283,6 +283,8 @@ protected:
 
     virtual bool onAccessPixels(SkPixmap*) { return false; }
 
+    virtual void setNodeId(int64_t nodeId) {}
+
     struct CreateInfo {
         static SkPixelGeometry AdjustGeometry(const SkImageInfo&, TileUsage, SkPixelGeometry,
                                               bool preserveLCDText);
