@@ -18,6 +18,21 @@
 #include "GrTextureProxy.h"
 #include "GrUninstantiateProxyTracker.h"
 
+static void emit_tabs(int num) {
+    for (int i = 0; i < num; ++i) {
+        SkDebugf("    ");
+    }
+}
+
+uint32_t GrResourceAllocator::Interval::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
     fAssignedSurface = s;
@@ -42,10 +57,13 @@ GrResourceAllocator::~GrResourceAllocator() {
     SkASSERT(!fIntvlHash.count());
 }
 
-void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end
-                                      SkDEBUGCODE(, bool isDirectDstRead)) {
+void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end,
+                                      int tabs SkDEBUGCODE(, bool isDirectDstRead)) {
     SkASSERT(start <= end);
     SkASSERT(!fAssigned);      // We shouldn't be adding any intervals after (or during) assignment
+
+    unsigned int proxyID = proxy->uniqueID().asUInt();
+    int underlyingID = proxy->priv().isInstantiated() ? proxy->underlyingUniqueID().asUInt() : -1;
 
     if (Interval* intvl = fIntvlHash.find(proxy->uniqueID().asUInt())) {
         // Revise the interval for an existing use
@@ -65,6 +83,10 @@ void GrResourceAllocator::addInterval(GrSurfaceProxy* proxy, unsigned int start,
         intvl->extendEnd(end);
         return;
     }
+
+    emit_tabs(tabs);
+    SkDebugf("adding new interval for { rtpID %d, rtID %d }: [ op# %d, op# %d ]\n",
+             proxyID, underlyingID, start, end);
 
     Interval* newIntvl;
     if (fFreeIntervalList) {
@@ -152,6 +174,7 @@ void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
         return;
     }
 
+    SkDebugf("putting surface %d back into pool\n", surface->uniqueID().asUInt());
     // TODO: fix this insertion so we get a more LRU-ish behavior
     fFreePool.insert(key, surface.release());
 }
@@ -222,6 +245,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
 
     SkDEBUGCODE(fAssigned = true;)
 
+    this->dumpBeforeAssign();
     while (Interval* cur = fIntvlList.popHead()) {
         if (fEndOfOpListOpIndices[fCurOpListIndex] < cur->start()) {
             fCurOpListIndex++;
@@ -289,5 +313,72 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
 
     // expire all the remaining intervals to drain the active interval list
     this->expire(std::numeric_limits<unsigned int>::max());
+    this->dumpAfterAssign();
     return true;
 }
+
+#ifdef SK_DEBUG
+void GrResourceAllocator::dumpBeforeAssign() {
+    unsigned int min = fNumOps+1;
+    unsigned int max = 0;
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - pRef:%d rRef:%d R:%d W:%d\n",
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
+                 cur->start(), cur->end(),
+                 cur->proxy()->getProxyRefCnt_TestOnly(),
+                 cur->proxy()->getBackingRefCnt_TestOnly(),
+                 cur->proxy()->getPendingReadCnt_TestOnly(),
+                 cur->proxy()->getPendingWriteCnt_TestOnly());
+        if (min > cur->start()) {
+            min = cur->start();
+        }
+        if (max < cur->end()) {
+            max = cur->end();
+        }
+    }
+
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkDebugf("{ %3d,%3d }: ",
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1);
+        for (unsigned int i = min; i <= max; ++i) {
+            if (i >= cur->start() && i <= cur->end()) {
+                SkDebugf("x");
+            } else {
+                SkDebugf(" ");
+            }
+        }
+        SkDebugf("\n");
+    }
+}
+
+void GrResourceAllocator::dumpAfterAssign() {
+#if 0
+    unsigned int min = fNumOps+1;
+    unsigned int max = 0;
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        if (min > cur->start()) {
+            min = cur->start();
+        }
+        if (max < cur->end()) {
+            max = cur->end();
+        }
+    }
+
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkDebugf("{ %3d,%3d }: ",
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1);
+        for (unsigned int i = min; i <= max; ++i) {
+            if (i >= cur->start() && i <= cur->end()) {
+                SkDebugf("|%3d");
+            } else {
+                SkDebugf("|   ");
+            }
+        }
+        SkDebugf("|\n");
+    }
+#endif
+}
+#endif

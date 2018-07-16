@@ -55,6 +55,11 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
                 continue;
             }
         }
+
+        if (contextType != GrContextFactory::kGL_ContextType) {
+            continue;
+        }
+
         // We destroy the factory and its associated contexts after each test. This is due to the
         // fact that the command buffer sits on top of the native GL windowing (cgl, wgl, ...) but
         // also tracks which of its contexts is current above that API and gets tripped up if the
@@ -71,12 +76,17 @@ void RunWithGPUTestContexts(GrContextTestFn* test, GrContextTypeFilterFn* contex
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
         }
+
+#if 0
         ctxInfo = factory.getContextInfo(contextType,
                                          GrContextFactory::ContextOverrides::kRequireNVPRSupport);
         if (ctxInfo.grContext()) {
             (*test)(reporter, ctxInfo);
             ctxInfo.grContext()->flush();
         }
+#endif
+
+        break;
     }
 #endif
 }
