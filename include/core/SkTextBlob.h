@@ -21,9 +21,6 @@ class SkWriteBuffer;
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
-typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
-typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
-
 /** \class SkTextBlob
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
@@ -43,7 +40,7 @@ public:
     /**
      *  Serialize to a buffer.
      */
-    void flatten(SkWriteBuffer&) const;
+    void flatten(SkWriteBuffer& buffer) const;
 
     /**
      *  Recreate an SkTextBlob that was serialized into a buffer.
@@ -52,7 +49,7 @@ public:
      *  @return A new SkTextBlob representing the serialized data, or NULL if the buffer is
      *          invalid.
      */
-    static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
+    static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer& buffer);
 
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
@@ -61,29 +58,15 @@ public:
     };
 
     /**
-     *  Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
-     *  During this process, each time a typeface is encountered, it is passed to the catalog,
-     *  allowing the caller to what typeface IDs will need to be resolved in Deserialize().
-     */
-    sk_sp<SkData> serialize(SkTypefaceCatalogerProc, void* ctx) const;
-
-    /**
      *  Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
      *  if serialization failed due to insufficient size.
      */
     size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
 
-    /**
-     *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
-     *  of its typefaces, deserialization requires that the caller provide the corresponding
-     *  SkTypefaces for those IDs.
-     */
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
-                                         SkTypefaceResolverProc, void* ctx);
-
-    sk_sp<SkData> serialize(const SkSerialProcs&) const;
+    sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
     sk_sp<SkData> serialize() const;
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
+                                         const SkDeserialProcs& procs);
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size);
 
 private:
