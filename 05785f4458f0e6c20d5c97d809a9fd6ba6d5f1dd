@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d317305f_6523498a",
+        "filename": "include/private/GrOpList.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-16T18:38:54Z",
+      "side": 1,
+      "message": "closeDependents?",
+      "range": {
+        "startLine": 120,
+        "startChar": 9,
+        "endLine": 120,
+        "endChar": 32
+      },
+      "revId": "05785f4458f0e6c20d5c97d809a9fd6ba6d5f1dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b2e0e8d6_d523185c",
+        "filename": "src/gpu/GrDrawingManager.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-16T18:38:54Z",
+      "side": 1,
+      "message": "Not sure if how much this really matters but this doesn\u0027t seem that hard to solve with a genID-like system. The dependents get split if they add a new dependency on rtp and rtp\u0027s id has changed since the previous dependency link was added.",
+      "range": {
+        "startLine": 431,
+        "startChar": 0,
+        "endLine": 435,
+        "endChar": 47
+      },
+      "revId": "05785f4458f0e6c20d5c97d809a9fd6ba6d5f1dd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
