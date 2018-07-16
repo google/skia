@@ -8,6 +8,7 @@
 #ifndef SkChecksum_DEFINED
 #define SkChecksum_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkString.h"
 #include "SkTLogic.h"
 #include "SkTypes.h"

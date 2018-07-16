@@ -9,6 +9,7 @@
 #define GrGpuResourceRef_DEFINED
 
 #include "GrGpuResource.h"
+#include "SkNoncopyable.h"
 #include "SkRefCnt.h"
 
 /**

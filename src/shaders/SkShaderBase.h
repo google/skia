@@ -12,6 +12,7 @@
 #include "SkFlattenablePriv.h"
 #include "SkMask.h"
 #include "SkMatrix.h"
+#include "SkNoncopyable.h"
 #include "SkShader.h"
 #include "SkTLazy.h"
 

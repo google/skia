@@ -10,6 +10,7 @@
 #define SkGradientBitmapCache_DEFINED
 
 #include "SkBitmap.h"
+#include "SkNoncopyable.h"
 
 class SkGradientBitmapCache : SkNoncopyable {
 public:

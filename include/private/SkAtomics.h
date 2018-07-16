@@ -9,6 +9,7 @@
 #define SkAtomics_DEFINED
 
 // This file is not part of the public Skia API.
+#include "../private/SkNoncopyable.h"
 #include "SkTypes.h"
 #include <atomic>
 

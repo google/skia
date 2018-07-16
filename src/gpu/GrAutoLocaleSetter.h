@@ -9,6 +9,7 @@
 #define GrAutoLocaleSetter_DEFINED
 
 #include "GrTypes.h"
+#include "SkNoncopyable.h"
 
 #if defined(SK_BUILD_FOR_WIN)
 #include "SkString.h"

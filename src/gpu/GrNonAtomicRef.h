@@ -8,6 +8,7 @@
 #ifndef GrNonAtomicRef_DEFINED
 #define GrNonAtomicRef_DEFINED
 
+#include "SkNoncopyable.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
 

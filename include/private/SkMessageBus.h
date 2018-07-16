@@ -8,6 +8,7 @@
 #ifndef SkMessageBus_DEFINED
 #define SkMessageBus_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkMutex.h"
 #include "SkOnce.h"
 #include "SkTArray.h"

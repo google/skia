@@ -11,6 +11,7 @@
 #include "GrPathRenderer.h"
 
 #include "GrTypesPriv.h"
+#include "SkNoncopyable.h"
 #include "SkTypes.h"
 #include "SkTArray.h"
 

@@ -8,6 +8,7 @@
 #ifndef SkTInternalLList_DEFINED
 #define SkTInternalLList_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkTypes.h"
 
 /**

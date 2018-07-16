@@ -10,6 +10,7 @@
 
 #include "GrConfig.h"
 #include "GrTypes.h"
+#include "SkNoncopyable.h"
 #include "SkTArray.h"
 #include "SkTypes.h"
 #include <new>

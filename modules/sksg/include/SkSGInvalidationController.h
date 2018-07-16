@@ -21,9 +21,11 @@ namespace sksg {
  *
  * Tracks dirty regions for repaint.
  */
-class InvalidationController : public SkNoncopyable {
+class InvalidationController {
 public:
     InvalidationController();
+    InvalidationController(const InvalidationController&) = delete;
+    InvalidationController& operator=(const InvalidationController&) = delete;
 
     void inval(const SkRect&, const SkMatrix& ctm = SkMatrix::I());
 
@@ -34,8 +36,6 @@ public:
 private:
     SkTDArray<SkRect> fRects;
     SkRect            fBounds;
-
-    typedef SkNoncopyable INHERITED;
 };
 
 } // namespace sksg

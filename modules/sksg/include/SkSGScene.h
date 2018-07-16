@@ -24,9 +24,11 @@ class RenderNode;
  * Base class for animators.
  *
  */
-class Animator : public SkNoncopyable {
+class Animator {
 public:
     virtual ~Animator();
+    Animator(const Animator&) = delete;
+    Animator& operator=(const Animator&) = delete;
 
     void tick(float t);
 
@@ -34,9 +36,6 @@ protected:
     Animator();
 
     virtual void onTick(float t) = 0;
-
-private:
-    using INHERITED = SkNoncopyable;
 };
 
 using AnimatorList = std::vector<std::unique_ptr<Animator>>;
@@ -59,10 +58,12 @@ private:
  * Provides high-level mehods for driving rendering and animations.
  *
  */
-class Scene final : SkNoncopyable {
+class Scene final {
 public:
     static std::unique_ptr<Scene> Make(sk_sp<RenderNode> root, AnimatorList&& animators);
     ~Scene();
+    Scene(const Scene&) = delete;
+    Scene& operator=(const Scene&) = delete;
 
     void render(SkCanvas*) const;
     void animate(float t);
@@ -76,8 +77,6 @@ private:
     const AnimatorList      fAnimators;
 
     bool                    fShowInval = false;
-
-    using INHERITED = SkNoncopyable;
 };
 
 } // namespace sksg

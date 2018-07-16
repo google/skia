@@ -10,6 +10,7 @@
 #ifndef SkDrawLooper_DEFINED
 #define SkDrawLooper_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkBlurTypes.h"
 #include "SkFlattenable.h"
 #include "SkPoint.h"

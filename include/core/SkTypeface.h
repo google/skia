@@ -8,6 +8,7 @@
 #ifndef SkTypeface_DEFINED
 #define SkTypeface_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "../private/SkOnce.h"
 #include "../private/SkWeakRefCnt.h"
 #include "SkFontArguments.h"

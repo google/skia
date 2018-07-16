@@ -12,6 +12,7 @@
 #include "SkFlattenable.h"
 #include "SkMask.h"
 #include "SkMaskFilter.h"
+#include "SkNoncopyable.h"
 #include "SkPaint.h"
 #include "SkStrokeRec.h"
 

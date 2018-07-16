@@ -24,9 +24,12 @@ namespace sksg { class Scene;  }
 
 namespace skottie {
 
-class SK_API ResourceProvider : public SkNoncopyable {
+class SK_API ResourceProvider {
 public:
+    ResourceProvider() = default;
     virtual ~ResourceProvider() = default;
+    ResourceProvider(const ResourceProvider&) = delete;
+    ResourceProvider& operator=(const ResourceProvider&) = delete;
 
     virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
 };

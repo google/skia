@@ -8,6 +8,7 @@
 #ifndef SkJSONWriter_DEFINED
 #define SkJSONWriter_DEFINED
 
+#include "SkNoncopyable.h"
 #include "SkStream.h"
 #include "SkTArray.h"
 

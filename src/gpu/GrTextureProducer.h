@@ -11,6 +11,7 @@
 #include "GrResourceKey.h"
 #include "GrSamplerState.h"
 #include "SkImageInfo.h"
+#include "SkNoncopyable.h"
 
 class GrContext;
 class GrFragmentProcessor;

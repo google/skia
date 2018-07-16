@@ -9,6 +9,7 @@
 #define SkJSON_DEFINED
 
 #include "SkArenaAlloc.h"
+#include "SkNoncopyable.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 

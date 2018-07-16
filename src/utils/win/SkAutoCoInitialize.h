@@ -13,6 +13,7 @@
 #ifdef SK_BUILD_FOR_WIN
 
 #include "SkLeanWindows.h"
+#include "SkNoncopyable.h"
 
 /**
  * An instance of this class initializes COM on creation

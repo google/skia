@@ -10,6 +10,7 @@
 
 #include "SkLeanWindows.h"
 #include "SkMalloc.h"
+#include "SkNoncopyable.h"
 #include "SkOSFile.h"
 #include "SkStringUtils.h"
 #include "SkTFitsIn.h"
