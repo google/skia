@@ -158,8 +158,8 @@ private:
 static const size_t kPathAlignment  = 4u;
 
 bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkGlyphCache* cache) {
-    size_t pathSize = 0u;
-    if (!deserializer->read<size_t>(&pathSize)) return false;
+    uint64_t pathSize = 0u;
+    if (!deserializer->read<uint64_t>(&pathSize)) return false;
 
     if (pathSize == 0u) return true;
 
@@ -518,11 +518,11 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     if (fLockedDescs.empty() && fTypefacesToSend.empty()) return;
 
     Serializer serializer(memory);
-    serializer.emplace<size_t>(fTypefacesToSend.size());
+    serializer.emplace<uint64_t>(fTypefacesToSend.size());
     for (const auto& tf : fTypefacesToSend) serializer.write<WireTypeface>(tf);
     fTypefacesToSend.clear();
 
-    serializer.emplace<size_t>(fLockedDescs.size());
+    serializer.emplace<uint64_t>(fLockedDescs.size());
     for (const auto* desc : fLockedDescs) {
         auto it = fRemoteGlyphStateMap.find(desc);
         SkASSERT(it != fRemoteGlyphStateMap.end());
@@ -620,6 +620,18 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
     }
 }
 
+static void writeGlyph(SkGlyph* glyph, Serializer* serializer) {
+    serializer->write<SkPackedGlyphID>(glyph->getPackedID());
+    serializer->write<float>(glyph->fAdvanceX);
+    serializer->write<float>(glyph->fAdvanceY);
+    serializer->write<uint16_t>(glyph->fWidth);
+    serializer->write<uint16_t>(glyph->fHeight);
+    serializer->write<int16_t>(glyph->fTop);
+    serializer->write<int16_t>(glyph->fLeft);
+    serializer->write<int8_t>(glyph->fForceBW);
+    serializer->write<uint8_t>(glyph->fMaskFormat);
+}
+
 void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
     // TODO(khushalsagar): Write a strike only if it has any pending glyphs.
     serializer->emplace<bool>(this->hasPendingGlyphs());
@@ -639,20 +651,19 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     serializer->write<SkPaint::FontMetrics>(fontMetrics);
 
     // Write glyphs images.
-    serializer->emplace<size_t>(fPendingGlyphImages.size());
+    serializer->emplace<uint64_t>(fPendingGlyphImages.size());
     for (const auto& glyphID : fPendingGlyphImages) {
-        auto glyph = serializer->emplace<SkGlyph>();
-        glyph->initWithGlyphID(glyphID);
-        fContext->getMetrics(glyph);
-        glyph->fPathData = nullptr;
-        glyph->fImage = nullptr;
+        SkGlyph glyph;
+        glyph.initWithGlyphID(glyphID);
+        fContext->getMetrics(&glyph);
+        writeGlyph(&glyph, serializer);
 
         // Glyphs which are too large for the atlas still request images when computing the bounds
         // for the glyph, which is why its necessary to send both. See related code in
         // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
         bool tooLargeForAtlas = false;
 #if SK_SUPPORT_GPU
-        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph->fWidth, glyph->fHeight);
+        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
 #endif
         if (tooLargeForAtlas) {
             // Add this to the path cache, since we will always fall back to using paths
@@ -661,26 +672,23 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
             writeGlyphPath(glyphID, serializer);
         }
 
-        auto imageSize = glyph->computeImageSize();
+        auto imageSize = glyph.computeImageSize();
         if (imageSize == 0u) continue;
 
-        // Since the allocate can move glyph, make one that stays in one place.
-        SkGlyph stationaryGlyph = *glyph;
-        stationaryGlyph.fImage = serializer->allocate(imageSize, stationaryGlyph.formatAlignment());
-        fContext->getImage(stationaryGlyph);
+        glyph.fImage = serializer->allocate(imageSize, glyph.formatAlignment());
+        fContext->getImage(glyph);
         // TODO: Generating the image can change the mask format, do we need to update it in the
         // serialized glyph?
     }
     fPendingGlyphImages.clear();
 
     // Write glyphs paths.
-    serializer->emplace<size_t>(fPendingGlyphPaths.size());
+    serializer->emplace<uint64_t>(fPendingGlyphPaths.size());
     for (const auto& glyphID : fPendingGlyphPaths) {
-        auto glyph = serializer->emplace<SkGlyph>();
-        glyph->initWithGlyphID(glyphID);
-        fContext->getMetrics(glyph);
-        glyph->fPathData = nullptr;
-        glyph->fImage = nullptr;
+        SkGlyph glyph;
+        glyph.initWithGlyphID(glyphID);
+        fContext->getMetrics(&glyph);
+        writeGlyph(&glyph, serializer);
         writeGlyphPath(glyphID, serializer);
     }
     fPendingGlyphPaths.clear();
@@ -709,12 +717,12 @@ void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& gl
                                                        Serializer* serializer) const {
     SkPath path;
     if (!fContext->getPath(glyphID, &path)) {
-        serializer->write<size_t>(0u);
+        serializer->write<uint64_t>(0u);
         return;
     }
 
     size_t pathSize = path.writeToMemory(nullptr);
-    serializer->write<size_t>(pathSize);
+    serializer->write<uint64_t>(pathSize);
     path.writeToMemory(serializer->allocate(pathSize, kPathAlignment));
 }
 
@@ -749,12 +757,27 @@ SkStrikeClient::~SkStrikeClient() = default;
         return false;                     \
     }
 
+static bool readGlyph(SkGlyph* glyph, Deserializer* deserializer) {
+    SkPackedGlyphID glyphID;
+    if (!deserializer->read<SkPackedGlyphID>(&glyphID)) return false;
+    glyph->initWithGlyphID(glyphID);
+    if (!deserializer->read<float>(&glyph->fAdvanceX)) return false;
+    if (!deserializer->read<float>(&glyph->fAdvanceY)) return false;
+    if (!deserializer->read<uint16_t>(&glyph->fWidth)) return false;
+    if (!deserializer->read<uint16_t>(&glyph->fHeight)) return false;
+    if (!deserializer->read<int16_t>(&glyph->fTop)) return false;
+    if (!deserializer->read<int16_t>(&glyph->fLeft)) return false;
+    if (!deserializer->read<int8_t>(&glyph->fForceBW)) return false;
+    if (!deserializer->read<uint8_t>(&glyph->fMaskFormat)) return false;
+    return true;
+}
+
 bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
     SkASSERT(memorySize != 0u);
     Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
 
-    size_t typefaceSize = 0u;
-    if (!deserializer.read<size_t>(&typefaceSize)) READ_FAILURE
+    uint64_t typefaceSize = 0u;
+    if (!deserializer.read<uint64_t>(&typefaceSize)) READ_FAILURE
 
     for (size_t i = 0; i < typefaceSize; ++i) {
         WireTypeface wire;
@@ -766,8 +789,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
         addTypeface(wire);
     }
 
-    size_t strikeCount = 0u;
-    if (!deserializer.read<size_t>(&strikeCount)) READ_FAILURE
+    uint64_t strikeCount = 0u;
+    if (!deserializer.read<uint64_t>(&strikeCount)) READ_FAILURE
 
     for (size_t i = 0; i < strikeCount; ++i) {
         bool has_glyphs = false;
@@ -810,11 +833,11 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             proxyContext->initCache(strike.get(), fStrikeCache);
         }
 
-        size_t glyphImagesCount = 0u;
-        if (!deserializer.read<size_t>(&glyphImagesCount)) READ_FAILURE
+        uint64_t glyphImagesCount = 0u;
+        if (!deserializer.read<uint64_t>(&glyphImagesCount)) READ_FAILURE
         for (size_t j = 0; j < glyphImagesCount; j++) {
             SkGlyph glyph;
-            if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
+            if (!readGlyph(&glyph, &deserializer)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
 
@@ -842,11 +865,11 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
             strike->initializeImage(image, imageSize, allocatedGlyph);
         }
 
-        size_t glyphPathsCount = 0u;
-        if (!deserializer.read<size_t>(&glyphPathsCount)) READ_FAILURE
+        uint64_t glyphPathsCount = 0u;
+        if (!deserializer.read<uint64_t>(&glyphPathsCount)) READ_FAILURE
         for (size_t j = 0; j < glyphPathsCount; j++) {
             SkGlyph glyph;
-            if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
+            if (!readGlyph(&glyph, &deserializer)) READ_FAILURE
 
             SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
 
