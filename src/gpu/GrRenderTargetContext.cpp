@@ -239,17 +239,17 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
                                   clipBounds);
 }
 
-void GrRenderTargetContext::drawTextBlob(const GrClip& clip, const SkPaint& paint,
-                                         const SkMatrix& viewMatrix, const SkTextBlob* blob,
-                                         SkScalar x, SkScalar y, const SkIRect& clipBounds) {
+void GrRenderTargetContext::drawGlyphRunList(
+        const GrClip& clip, const SkMatrix& viewMatrix,
+        SkGlyphRunList* blob, const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextBlob", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawGlyphRunList", fContext);
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
-    atlasTextContext->drawTextBlob(fContext, fTextTarget.get(), clip, paint, viewMatrix,
-                                   fSurfaceProps, blob, x, y, clipBounds);
+    atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
+                                       fSurfaceProps, blob, clipBounds);
 }
 
 void GrRenderTargetContext::discard() {

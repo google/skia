@@ -56,6 +56,21 @@ public:
         return cacheBlob;
     }
 
+    sk_sp<GrTextBlob> makeBlob(SkGlyphRunList* glyphRunList) {
+        return GrTextBlob::Make(glyphRunList->totalGlyphCount(), glyphRunList->size());
+    }
+
+    sk_sp<GrTextBlob> makeCachedBlob(SkGlyphRunList* glyphRunList,
+                                     const GrTextBlob::Key& key,
+                                     const SkMaskFilterBase::BlurRec& blurRec,
+                                     const SkPaint& paint) {
+        sk_sp<GrTextBlob> cacheBlob(makeBlob(glyphRunList));
+        cacheBlob->setupKey(key, blurRec, paint);
+        this->add(cacheBlob);
+        glyphRunList->temporaryShuntBlobNotifyAddedToCache(fUniqueID);
+        return cacheBlob;
+    }
+
     sk_sp<GrTextBlob> find(const GrTextBlob::Key& key) const {
         const auto* idEntry = fBlobIDCache.find(key.fUniqueID);
         return idEntry ? idEntry->find(key) : nullptr;

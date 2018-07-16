@@ -1637,30 +1637,13 @@ void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
                                       this->devClipBounds());
 }
 
-void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                               const SkPaint& paint) {
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawTextBlob", fContext.get());
-    SkDEBUGCODE(this->validate();)
-
-    fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y,
-                                       this->devClipBounds());
-}
-
 void SkGpuDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
     SkDEBUGCODE(this->validate();)
 
-    auto blob = glyphRunList->blob();
-
-    if (blob == nullptr) {
-        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
-    } else {
-        auto origin = glyphRunList->origin();
-        auto paint = glyphRunList->paint();
-        this->drawTextBlob(blob, origin.x(), origin.y(), paint);
-    }
+    fRenderTargetContext->drawGlyphRunList(
+            this->clip(), this->ctm(), glyphRunList, this->devClipBounds());
 }
 
 ///////////////////////////////////////////////////////////////////////////////

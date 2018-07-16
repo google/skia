@@ -16,6 +16,8 @@
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkPoint.h"
+#include "SkTemplates.h"
+#include "SkTextBlob.h"
 #include "SkTypes.h"
 
 class SkBaseDevice;
@@ -67,10 +69,13 @@ public:
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
-    size_t runSize() const { return fTemporaryShuntGlyphIDs.size(); }
+    size_t runSize() const { return fGlyphIDs.size(); }
     SkSpan<const SkPoint> positions() const { return fPositions; }
+    SkSpan<const SkGlyphID> shuntGlyphsIDs() const { return fGlyphIDs; }
     const SkPaint& paint() const { return fRunPaint; }
     SkPaint* mutablePaint() { return &fRunPaint; }
+    SkSpan<const uint32_t> clusters() const { return fClusters; }
+    SkSpan<const char> text() const { return fText; }
 
 private:
     //
@@ -78,8 +83,8 @@ private:
     //
     const SkSpan<const SkPoint> fPositions;
     // This is temporary while converting from the old per glyph code to the bulk code.
-    const SkSpan<const SkGlyphID> fTemporaryShuntGlyphIDs;
-    // The unique glyphs from fTemporaryShuntGlyphIDs.
+    const SkSpan<const SkGlyphID> fGlyphIDs;
+    // The unique glyphs from fGlyphIDs.
     const SkSpan<const SkGlyphID> fUniqueGlyphIDs;
     // Original text from SkTextBlob if present. Will be empty of not present.
     const SkSpan<const char> fText;
@@ -137,6 +142,30 @@ public:
         }
     }
 
+};
+
+class SkGlyphRunListIterator {
+public:
+    explicit SkGlyphRunListIterator(SkGlyphRunList* list) : fList{*list} {}
+
+    bool done() const { return fIndex == fList.size(); }
+    void next() { fIndex += 1;}
+    uint32_t glyphCount() const { return fList[fIndex].runSize(); }
+    const uint16_t* glyphs() const { return fList[fIndex].shuntGlyphsIDs().data(); }
+    const SkScalar* pos() const { return (const SkScalar*)fList[fIndex].positions().data(); }
+    const SkPoint& offset() const { return fZero; }
+    void applyFontToPaint(SkPaint* paint) const { *paint = fList[fIndex].paint(); }
+    SkTextBlob::GlyphPositioning positioning() const { return SkTextBlob::kFull_Positioning; }
+    const uint32_t* clusters() const { return fList[fIndex].clusters().data(); }
+    uint32_t textSize() const { return fList[fIndex].text().size(); }
+    const char* text() const { return fList[fIndex].text().data(); }
+
+    bool isLCD() const { return fList[fIndex].paint().isLCDRenderText(); }
+
+private:
+    static constexpr SkPoint fZero{0, 0};
+    size_t fIndex{0};
+    SkGlyphRunList& fList;
 };
 
 class SkGlyphIDSet {
