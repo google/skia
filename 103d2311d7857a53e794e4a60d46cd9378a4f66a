@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3670be2c_2b225030",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2389,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-16T14:50:51Z",
+      "side": 1,
+      "message": "this should be virtual, so that SkPictureRecorder can see this.",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2317f91f_1a7fd07d",
+        "filename": "src/pdf/SkPDFDocument.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-16T14:50:51Z",
+      "side": 1,
+      "message": "If this is a public API, add this as a virtual to SkDocument.  Something simple like this:\n\n// SkDocument.h\nenum class SkDocumentStructureType {\n    kDocument,\n    kPart,\n    kArt,\n    kSect,\n    kDiv,\n    kBlockQuote,\n    kCaption,\n    kTOC,\n    kTOCI,\n    kIndex,\n    kNonStruct,\n    kPrivate,\n    kH,\n    kH1,\n    kH2,\n    kH3,\n    kH4,\n    kH5,\n    kH6,\n    kP,\n    kL,\n    kLI,\n    kLbl,\n    kLBody,\n    kTable,\n    kTR,\n    kTH,\n    kTD,\n    kTHead,\n    kTBody,\n    kTFoot,\n    kSpan,\n    kQuote,\n    kNote,\n    kReference,\n    kBibEntry,\n    kCode,\n    kLink,\n    kAnnot,\n    kRuby,\n    kWarichu,\n    kFigure,\n    kFormula,\n    kForm,\n};\nstruct SkDocumentTag {\n    int64_t fNodeId;\n    SkDocumentStructureType fType;\n    std::unique_ptr\u003cSkDocumentTag[]\u003e fChildren;\n};\nclass SkDocument {\n    //....\n    virtual void setTagRoot(SkDocumentTag) {}\n};",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1346f9cf_c38c702e",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-16T14:50:51Z",
+      "side": 1,
+      "message": "Style nit:  For new enums in Skia, we prefer:\n\nenum class SkPDFStructureType {\n    kDocument,\n    kPart,\n    kArt,\n    //...",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
