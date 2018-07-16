@@ -257,8 +257,9 @@ def dm_flags(api, bot):
         configs.extend(['gl1010102', 'gltestpersistentcache'])
         # Decoding transparent images to 1010102 just looks bad
         blacklist('gl1010102 image _ _')
-        # This test produces slightly different pixels run to run on NV.
+        # These tests produce slightly different pixels run to run on NV.
         blacklist('gltestpersistentcache gm _ atlastext')
+        blacklist('gltestpersistentcache gm _ dftext')
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
