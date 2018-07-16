@@ -254,12 +254,12 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
 
 sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AttachContext* ctx) {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
-    auto color_attached = BindProperty<VectorValue>(jcolor["c"], &ctx->fAnimators,
+    BindProperty<VectorValue>(jcolor["c"], &ctx->fAnimators,
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
 
-    return color_attached ? color_node : nullptr;
+    return color_node;
 }
 
 sk_sp<sksg::Gradient> AttachGradient(const skjson::ObjectValue& jgrad, AttachContext* ctx) {
