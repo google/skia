@@ -600,6 +600,22 @@ static SkPath create_path_41() {
     return path;
 }
 
+// Reduction from crbug.com/860655. Cause is three collinear edges discovered during
+// sanitize_contours pass, before the vertices have been found coincident.
+static SkPath create_path_42() {
+    SkPath path;
+    path.moveTo(   32572426382475264,    -3053391034974208);
+    path.lineTo(           521289856,            -48865776);
+    path.lineTo(           130322464,            -12215873);
+    path.moveTo(   32572426382475264,    -3053391034974208);
+    path.lineTo(           521289856,            -48865776);
+    path.lineTo(           130322464,            -12215873);
+    path.moveTo(   32572426382475264,    -3053391034974208);
+    path.lineTo(   32114477642022912,    -3010462031544320);
+    path.lineTo(   32111784697528320,    -3010209702215680);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -701,4 +717,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_39());
     test_path(ctx, rtc.get(), create_path_40());
     test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
+    test_path(ctx, rtc.get(), create_path_42());
 }
