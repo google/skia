@@ -54,13 +54,6 @@ public:
         int fZLibLevel = 6;
 
         /**
-         *  If the input is premultiplied, this controls the unpremultiplication behavior.
-         *  The encoder can convert to linear before unpremultiplying or ignore the transfer
-         *  function and unpremultiply the input as is.
-         */
-        SkTransferFunctionBehavior fUnpremulBehavior = SkTransferFunctionBehavior::kIgnore;
-
-        /**
          *  Represents comments in the tEXt ancillary chunk of the png.
          *  The 2i-th entry is the keyword for the i-th comment,
          *  and the (2i + 1)-th entry is the text for the i-th comment.

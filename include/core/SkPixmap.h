@@ -525,42 +525,6 @@ public:
         return reinterpret_cast<uint16_t*>(writable_addr64(x, y));
     }
 
-    /** Copies a SkRect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-        exceed SkPixmap (width(), height()).
-
-        dstInfo specifies width, height, SkColorType, SkAlphaType, and
-        SkColorSpace of destination. dstRowBytes specifics the gap from one destination
-        row to the next. Returns true if pixels are copied. Returns false if
-        dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes().
-
-        Pixels are copied only if pixel conversion is possible. If SkPixmap colorType() is
-        kGray_8_SkColorType, or kAlpha_8_SkColorType; dstInfo.colorType() must match.
-        If SkPixmap colorType() is kGray_8_SkColorType, dstInfo.colorSpace() must match.
-        If SkPixmap alphaType() is kOpaque_SkAlphaType, dstInfo.alphaType() must
-        match. If SkPixmap colorSpace() is nullptr, dstInfo.colorSpace() must match. Returns
-        false if pixel conversion is not possible.
-
-        srcX and srcY may be negative to copy only top or left of source. Returns
-        false if width() or height() is zero or negative. Returns false if:
-        abs(srcX) >= Pixmap width(), or if abs(srcY) >= Pixmap height().
-
-        If behavior is SkTransferFunctionBehavior::kRespect: converts source
-        pixels to a linear space before converting to dstInfo.
-        If behavior is SkTransferFunctionBehavior::kIgnore: source
-        pixels are treated as if they are linear, regardless of how they are encoded.
-
-        @param dstInfo      destination width, height, SkColorType, SkAlphaType, SkColorSpace
-        @param dstPixels    destination pixel storage
-        @param dstRowBytes  destination row length
-        @param srcX         column index whose absolute value is less than width()
-        @param srcY         row index whose absolute value is less than height()
-        @param behavior     one of: SkTransferFunctionBehavior::kRespect,
-                            SkTransferFunctionBehavior::kIgnore
-        @return             true if pixels are copied to dstPixels
-    */
-    bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes,
-                    int srcX, int srcY, SkTransferFunctionBehavior behavior) const;
-
     /** Copies a SkRect of pixels to dstPixels. Copy starts at (0, 0), and does not
         exceed SkPixmap (width(), height()).
 
@@ -614,10 +578,7 @@ public:
         @return             true if pixels are copied to dstPixels
     */
     bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
-                    int srcY) const {
-        return this->readPixels(dstInfo, dstPixels, dstRowBytes, srcX, srcY,
-                                SkTransferFunctionBehavior::kIgnore);
-    }
+                    int srcY) const;
 
     /** Copies a SkRect of pixels to dst. Copy starts at (srcX, srcY), and does not
         exceed SkPixmap (width(), height()). dst specifies width, height, SkColorType,

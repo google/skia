@@ -862,25 +862,10 @@ public:
         Otherwise, converts pixels from SkImage SkColorSpace to target SkColorSpace.
         If SkImage colorSpace() returns nullptr, SkImage SkColorSpace is assumed to be sRGB.
 
-        SkTransferFunctionBehavior is to be deprecated.
-
-        Set premulBehavior to SkTransferFunctionBehavior::kRespect to convert SkImage
-        pixels to a linear space, before converting to destination SkColorType
-        and SkColorSpace.
-
-        Set premulBehavior to SkTransferFunctionBehavior::kIgnore to treat SkImage
-        pixels as linear, when converting to destination SkColorType
-        and SkColorSpace, ignoring pixel encoding. premulBehavior is
-        SkTransferFunctionBehavior::kIgnore by default.
-
         @param target          SkColorSpace describing color range of returned SkImage
-        @param premulBehavior  one of: SkTransferFunctionBehavior::kRespect,
-                               SkTransferFunctionBehavior::kIgnore
         @return                created SkImage in target SkColorSpace
     */
-    sk_sp<SkImage> makeColorSpace(
-            sk_sp<SkColorSpace> target,
-            SkTransferFunctionBehavior premulBehavior = SkTransferFunctionBehavior::kIgnore) const;
+    sk_sp<SkImage> makeColorSpace(sk_sp<SkColorSpace> target) const;
 
 private:
     SkImage(int width, int height, uint32_t uniqueID);
