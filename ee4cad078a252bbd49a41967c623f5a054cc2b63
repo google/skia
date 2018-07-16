@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77653dc6_55d48154",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-16T19:02:13Z",
+      "side": 1,
+      "message": "For images with complex profiles (like A2B), is this the spot where we\u0027d pick a specific wide gamut, or otherwise let the caller know that we\u0027re giving them a not-perfectly-matching color space?",
+      "revId": "ee4cad078a252bbd49a41967c623f5a054cc2b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

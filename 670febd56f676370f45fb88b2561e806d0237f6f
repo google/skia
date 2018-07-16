@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce544616_6da7825f",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 811,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-16T19:02:13Z",
+      "side": 1,
+      "message": "Is this right? (Was this right before?) Looks like it\u0027s always passing sRGB as the space/profile for the SkCodec base class constructor (so that\u0027s what will be returned via getInfo), even if the image\u0027s stream describes Adobe?",
+      "revId": "670febd56f676370f45fb88b2561e806d0237f6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
