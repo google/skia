@@ -8,6 +8,7 @@
 #ifndef SkSGInvalidationController_DEFINED
 #define SkSGInvalidationController_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkMatrix.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"

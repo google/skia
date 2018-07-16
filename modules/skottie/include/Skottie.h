@@ -8,6 +8,7 @@
 #ifndef Skottie_DEFINED
 #define Skottie_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"

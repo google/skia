@@ -8,6 +8,7 @@
 #ifndef SkSGScene_DEFINED
 #define SkSGScene_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkRefCnt.h"
 #include "SkTypes.h"
 
