@@ -1745,7 +1745,7 @@ alternating nearby colors from pixel to pixel.
 
 ### Example
 
-<div><fiddle-embed name="76d4d4a7931a48495e4d5f54e073be53"><div>Dithering introduces subtle adjustments to color to smooth gradients.
+<div><fiddle-embed name="1219b38c788bf270fb20f8cd2d78cff8"><div>Dithering introduces subtle adjustments to color to smooth gradients.
 Drawing the gradient repeatedly with <a href='SkBlendMode_Reference#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> exaggerates the
 dither, making it easier to see.
 </div></fiddle-embed></div>
@@ -2036,7 +2036,7 @@ Clears <a href='#SkPaint_kLCDRenderText_Flag'>kLCDRenderText Flag</a> if <a href
 
 ### Example
 
-<div><fiddle-embed name="2a2d39f5da611545caa18bbcea873ab2">
+<div><fiddle-embed name="50dedf8450159571a3edaf4f0050defe">
 
 #### Example Output
 
@@ -3016,7 +3016,7 @@ Here are some miter limits and the angles that triggers them.
 
 ### Example
 
-<div><fiddle-embed name="5de2de0f00354e59074a9bb1a42d5a63"><div>This example draws a stroked corner and the miter length beneath.
+<div><fiddle-embed name="d13d787c1e36f515319fc998411c1d91"><div>This example draws a stroked corner and the miter length beneath.
 When the miter limit is decreased slightly, the miter join is replaced
 by a bevel join.
 </div></fiddle-embed></div>
@@ -3613,7 +3613,7 @@ Increments <a href='#SkPaint_setShader_shader'>shader</a> <a href='undocumented#
 
 ### Example
 
-<div><fiddle-embed name="7a234c96608fb7cb8135b9940b0b15f7"></fiddle-embed></div>
+<div><fiddle-embed name="77e64d5bae9b1ba037fd99252bb4aa58"></fiddle-embed></div>
 
 ---
 

@@ -1072,7 +1072,7 @@ Call <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fLeft'>fLeft</a
 
 ### Example
 
-<div><fiddle-embed name="900dc96c3549795a87036d6458c4fde6">
+<div><fiddle-embed name="30823cb4edf884d330285ea161664931">
 
 #### Example Output
 
@@ -2428,7 +2428,7 @@ If <a href='#SkRect_outset_dy'>dy</a> is negative, makes <a href='#Rect'>Rect</a
 
 ### Example
 
-<div><fiddle-embed name="82f1a9b4c2b27aa547061786d1f33dab">
+<div><fiddle-embed name="861f873ba660af8c8bf8b0b83d829cf4">
 
 #### Example Output
 
@@ -2644,7 +2644,7 @@ true if <a href='#SkRect_intersect_r'>r</a> and <a href='#Rect'>Rect</a> have ar
 
 ### Example
 
-<div><fiddle-embed name="e91dbe45974489b8962c815017b7914f"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
+<div><fiddle-embed name="5d0b12e0ef6f1c181dddded4274230ca"><div>Two <a href='undocumented#SkDebugf'>SkDebugf</a> calls are required. If the calls are combined, their arguments
 may not be evaluated in left to right order: the printed intersection may
 be before or after the call to intersect.
 </div>
@@ -2796,7 +2796,7 @@ true if construction and <a href='#Rect'>Rect</a> have area in common
 
 ### Example
 
-<div><fiddle-embed name="d10ee4a265f278d02afe11ad889b293b">
+<div><fiddle-embed name="7145dc17ebce4f54e892102f6c98e811">
 
 #### Example Output
 
@@ -2985,7 +2985,7 @@ Has no effect if <a href='#SkRect_join_2_r'>r</a> is empty. Otherwise, if <a hre
 
 ### Example
 
-<div><fiddle-embed name="9894bfb476c78a8f6c8f49fbbca3d50d">
+<div><fiddle-embed name="26500032494cf93c5fa3423110fe82af">
 
 #### Example Output
 

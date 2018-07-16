@@ -1120,7 +1120,7 @@ Returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="9f046f407b01b759cb737d702a994620">
+<div><fiddle-embed name="ceb77fab7326b57822a147b04aa0960e">
 
 #### Example Output
 
@@ -1615,7 +1615,7 @@ size in bytes of image buffer
 
 ### Example
 
-<div><fiddle-embed name="9303ffae45ddd0b0a1f93d816a1762f4">
+<div><fiddle-embed name="165c8f208829fc0908e8a50da60c0076">
 
 #### Example Output
 
@@ -2074,7 +2074,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> set successful
 
 ### Example
 
-<div><fiddle-embed name="2956aeb50fa862cdb13995e1e56a4bc8"></fiddle-embed></div>
+<div><fiddle-embed name="599ab64d0aea005498176249bbfb64eb"></fiddle-embed></div>
 
 ### See Also
 
@@ -2828,7 +2828,7 @@ time by defining SK_ABORT.
 
 ### Example
 
-<div><fiddle-embed name="1219b38c788bf270fb20f8cd2d78cff8"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
+<div><fiddle-embed name="d5547cd2b302822aa85b7b0ae3f48458"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 and erases it to black, but does not alter set1. <a href='#SkBitmap_setPixels'>setPixels</a> replaces black
 <a href='undocumented#Pixel_Ref'>Pixel Ref</a> with set2.
 </div></fiddle-embed></div>

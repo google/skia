@@ -577,7 +577,7 @@ true if <a href='#SkRRect_width'>width</a> or <a href='#SkRRect_height'>height</
 
 ### Example
 
-<div><fiddle-embed name="ba19b36df8cd78586f3dff54e2d4c093"></fiddle-embed></div>
+<div><fiddle-embed name="3afe4ea247923e06326aeb2b165c7485"></fiddle-embed></div>
 
 ### See Also
 
@@ -936,7 +936,7 @@ Otherwise, sets to <a href='#SkRRect_kOval_Type'>kOval Type</a>.
 
 ### Example
 
-<div><fiddle-embed name="0b99ee38fd154f769f6031242e02fa7a"></fiddle-embed></div>
+<div><fiddle-embed name="812cf26d91b1cdcd2c6b9438a8172518"></fiddle-embed></div>
 
 ### See Also
 
