@@ -275,8 +275,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
     auto quality = rec.fPaint.getFilterQuality();
 
     SkBitmapProvider provider(fImage.get());
-    SkDefaultBitmapController controller;
-    SkBitmapController::State* state = controller.requestBitmap(provider, matrix, quality, alloc);
+    const auto* state = SkBitmapController::RequestBitmap(provider, matrix, quality, alloc);
     if (!state) {
         return false;
     }
