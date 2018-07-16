@@ -56,6 +56,7 @@ struct skc_surface_impl
 struct skc_surface_render
 {
   skc_uint                      clip[4];
+  skc_uint                      txty[2];
 
   struct skc_surface_impl     * impl;
   struct skc_styling          * styling;
@@ -329,6 +330,7 @@ skc_surface_pfn_render(struct skc_surface_impl * const impl,
                        skc_composition_t               composition,
                        skc_framebuffer_t               fb,
                        uint32_t                  const clip[4],
+                       int32_t                   const txty[2],
                        skc_surface_render_notify       notify,
                        void                          * data)
 {
@@ -358,6 +360,9 @@ skc_surface_pfn_render(struct skc_surface_impl * const impl,
   render->clip[1]     = clip[1];
   render->clip[2]     = clip[2];
   render->clip[3]     = clip[3];
+
+  render->txty[0]     = txty[0];
+  render->txty[1]     = txty[1];
 
   render->impl        = impl;
   render->styling     = styling;

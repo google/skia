@@ -323,6 +323,7 @@ skc_surface_render(skc_surface_t             surface,
                    skc_composition_t         composition,
                    skc_framebuffer_t         fb,
                    uint32_t            const clip[4],
+                   int32_t             const txty[2],
                    skc_surface_render_notify notify,
                    void                    * data);
 

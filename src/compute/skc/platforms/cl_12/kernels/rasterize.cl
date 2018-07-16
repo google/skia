@@ -1029,8 +1029,8 @@ skc_wangs_formula_quadratic(SKC_RASTERIZE_FLOAT const t0x, SKC_RASTERIZE_FLOAT c
 {
   return max(1.0f,
              ceil(SKC_WANG_SQRT(SKC_WANG_QUADRATIC *
-                                SKC_WANG_LENGTH(fabs(t2x - 2.0f * t1x + t0x),
-                                                fabs(t2y - 2.0f * t1y + t0y)))));
+                                SKC_WANG_LENGTH(t2x - 2.0f * t1x + t0x,
+                                                t2y - 2.0f * t1y + t0y))));
 }
 
 //

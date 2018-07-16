@@ -566,15 +566,17 @@ skc_raster_cohort_sort_prefix(skc_grid_t const grid)
       //
       uint32_t keys_padded_in, keys_padded_out;
 
-      hs_pad(atomics->keys,&keys_padded_in,&keys_padded_out);
+      hs_cl_pad(runtime->hs,atomics->keys,&keys_padded_in,&keys_padded_out);
 
-      hs_sort(cohort->cq,
-              cohort->keys.drw,
-              cohort->keys.drw,
-              atomics->keys,
-              keys_padded_in,
-              keys_padded_out,
-              false);
+      hs_cl_sort(runtime->hs,
+                 cohort->cq,
+                 0,NULL,NULL,
+                 cohort->keys.drw,
+                 NULL,
+                 atomics->keys,
+                 keys_padded_in,
+                 keys_padded_out,
+                 false);
 
       cl(SetKernelArg(impl->kernels.segment,0,SKC_CL_ARG(cohort->keys.drw)));
       cl(SetKernelArg(impl->kernels.segment,1,SKC_CL_ARG(cohort->metas.drw)));

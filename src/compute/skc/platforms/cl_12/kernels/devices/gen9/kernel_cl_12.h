@@ -18,12 +18,6 @@
 #include "block.h"
 
 //
-//
-//
-
-#include <hs/cl/gen9/hs_cl_macros.h>
-
-//
 // HOW TO SELECT A SUBBLOCK AND BLOCK SIZES:
 //
 // 1) The subblock size should match the natural SIMT/SIMD width of

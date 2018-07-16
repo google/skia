@@ -20,14 +20,8 @@
 //
 
 #include "networks.h"
-#include "macros.h"
-#include "util.h"
-
-//
-//
-//
-
-#define HSG_INDENT  2
+#include "common/util.h"
+#include "common/macros.h"
 
 //
 //
@@ -36,7 +30,6 @@
 #undef  HSG_OP_EXPAND_X
 #define HSG_OP_EXPAND_X(t) #t ,
 
-static
 char const * const
 hsg_op_type_string[] =
   {
@@ -53,10 +46,8 @@ hsg_op_type_string[] =
 #define BEGIN()                           (struct hsg_op){ HSG_OP_TYPE_BEGIN                                    }
 #define ELSE()                            (struct hsg_op){ HSG_OP_TYPE_ELSE                                     }
 
-#define STORE_SLAB_EARLY_EXIT()           (struct hsg_op){ HSG_OP_TYPE_STORE_SLAB_EARLY_EXIT                    }
-
-#define FILE_HEADER()                     (struct hsg_op){ HSG_OP_TYPE_FILE_HEADER                              }
-#define FILE_FOOTER()                     (struct hsg_op){ HSG_OP_TYPE_FILE_FOOTER                              }
+#define TARGET_BEGIN()                    (struct hsg_op){ HSG_OP_TYPE_TARGET_BEGIN                             }
+#define TARGET_END()                      (struct hsg_op){ HSG_OP_TYPE_TARGET_END                               }
 
 #define TRANSPOSE_KERNEL_PROTO()          (struct hsg_op){ HSG_OP_TYPE_TRANSPOSE_KERNEL_PROTO                   }
 #define TRANSPOSE_KERNEL_PREAMBLE()       (struct hsg_op){ HSG_OP_TYPE_TRANSPOSE_KERNEL_PREAMBLE                }
@@ -68,11 +59,11 @@ hsg_op_type_string[] =
 #define BC_KERNEL_PROTO(i)                (struct hsg_op){ HSG_OP_TYPE_BC_KERNEL_PROTO,             { i       } }
 #define BC_KERNEL_PREAMBLE(i)             (struct hsg_op){ HSG_OP_TYPE_BC_KERNEL_PREAMBLE,          { i       } }
 
-#define FM_KERNEL_PROTO(l,s)              (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PROTO,             { l, s    } }
-#define FM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PREAMBLE,          { w, s    } }
+#define FM_KERNEL_PROTO(s,r)              (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PROTO,             { s, r    } }
+#define FM_KERNEL_PREAMBLE(h)             (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PREAMBLE,          { h       } }
 
-#define HM_KERNEL_PROTO(d,w)              (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PROTO,             { d, w    } }
-#define HM_KERNEL_PREAMBLE(w,s)           (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PREAMBLE,          { w, s    } }
+#define HM_KERNEL_PROTO(s)                (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PROTO,             { s       } }
+#define HM_KERNEL_PREAMBLE(h)             (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PREAMBLE,          { h       } }
 
 #define BX_REG_GLOBAL_LOAD(n,v)           (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_LOAD,          { n, v    } }
 #define BX_REG_GLOBAL_STORE(n)            (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_STORE,         { n       } }
@@ -81,12 +72,13 @@ hsg_op_type_string[] =
 #define FM_REG_GLOBAL_STORE_LEFT(n,i)     (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_STORE_LEFT,    { n, i    } }
 #define FM_REG_GLOBAL_LOAD_RIGHT(n,i)     (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_RIGHT,    { n, i    } }
 #define FM_REG_GLOBAL_STORE_RIGHT(n,i)    (struct hsg_op){ HSG_OP_TYPE_FM_REG_GLOBAL_STORE_RIGHT,   { n, i    } }
+#define FM_MERGE_RIGHT_PRED(n,s)          (struct hsg_op){ HSG_OP_TYPE_FM_MERGE_RIGHT_PRED,         { n, s    } }
 
 #define HM_REG_GLOBAL_LOAD(n,i)           (struct hsg_op){ HSG_OP_TYPE_HM_REG_GLOBAL_LOAD,          { n, i    } }
 #define HM_REG_GLOBAL_STORE(n,i)          (struct hsg_op){ HSG_OP_TYPE_HM_REG_GLOBAL_STORE,         { n, i    } }
 
-#define WARP_FLIP(f)                      (struct hsg_op){ HSG_OP_TYPE_WARP_FLIP,                   { f       } }
-#define WARP_HALF(h)                      (struct hsg_op){ HSG_OP_TYPE_WARP_HALF,                   { h       } }
+#define SLAB_FLIP(f)                      (struct hsg_op){ HSG_OP_TYPE_SLAB_FLIP,                   { f       } }
+#define SLAB_HALF(h)                      (struct hsg_op){ HSG_OP_TYPE_SLAB_HALF,                   { h       } }
 
 #define CMP_FLIP(a,b,c)                   (struct hsg_op){ HSG_OP_TYPE_CMP_FLIP,                    { a, b, c } }
 #define CMP_HALF(a,b)                     (struct hsg_op){ HSG_OP_TYPE_CMP_HALF,                    { a, b    } }
@@ -121,13 +113,12 @@ hsg_op_type_string[] =
 
 #define BS_ACTIVE_PRED(m,l)               (struct hsg_op){ HSG_OP_TYPE_BS_ACTIVE_PRED,              { m, l    } }
 
-#define FM_MERGE_RIGHT_PRED(n,s)          (struct hsg_op){ HSG_OP_TYPE_FM_MERGE_RIGHT_PRED,         { n, s    } }
-
 //
 // DEFAULTS
 //
 
-struct hsg_config hsg_config = // FIXME -- how useful is this?
+static
+struct hsg_config hsg_config =
   {
     .merge  = {
       .flip = {
@@ -138,8 +129,6 @@ struct hsg_config hsg_config = // FIXME -- how useful is this?
         .lo         = 1,
         .hi         = 1
       },
-
-      .max_log2     = 27 // 2^27th = 128m
     },
 
     .block  = {
@@ -156,6 +145,7 @@ struct hsg_config hsg_config = // FIXME -- how useful is this?
 
     .warp   = {
       .lanes        = 32,
+      .lanes_log2   = 5,
     },
 
     .thread = {
@@ -172,45 +162,11 @@ struct hsg_config hsg_config = // FIXME -- how useful is this?
 // ZERO HSG_MERGE STRUCT
 //
 
+static
 struct hsg_merge hsg_merge[MERGE_LEVELS_MAX_LOG2] = { 0 };
 
 //
-//
-//
-
-static const hsg_target_pfn hsg_target_pfns[] =
-  {
-    hsg_target_debug,
-    hsg_target_cuda_sm3x,
-    hsg_target_igp_genx,
-    // hsg_target_adreno_5xx,
-    // hsg_target_amd_gcn,
-    // hsg_target_x86_sse,
-    // hsg_target_x86_avx2,
-  };
-
-static const char * hsg_target_pfn_string[] =
-  {
-    "hs_debug",
-    "hs_cuda",
-    "hs_cl"
-  };
-
-static const char * hsg_file_type_string[][2] =
-  {
-    { ".h", ".txt" },
-    { ".h", ".cu"  },
-    { ".h", ".cl"  }
-  };
-
-//
-//
-//
-
-#define HSG_TARGET_PFN_COUNT  ARRAY_LENGTH(hsg_target_pfns)
-
-//
-//
+// STATS ON INSTRUCTIONS
 //
 
 static hsg_op_type hsg_op_type_counts[HSG_OP_TYPE_COUNT] = { 0 };
@@ -223,8 +179,18 @@ static
 void
 hsg_op_debug()
 {
+  uint32_t total = 0;
+
   for (hsg_op_type t=HSG_OP_TYPE_EXIT; t<HSG_OP_TYPE_COUNT; t++)
-    fprintf(stderr,"%-37s : %u\n",hsg_op_type_string[t],hsg_op_type_counts[t]);
+    {
+      uint32_t const count = hsg_op_type_counts[t];
+
+      total += count;
+
+      fprintf(stderr,"%-37s : %u\n",hsg_op_type_string[t],count);
+    }
+
+  fprintf(stderr,"%-37s : %u\n\n\n","TOTAL",total);
 }
 
 //
@@ -268,7 +234,7 @@ hsg_merge_levels_init_shared(struct hsg_merge * const merge)
     //
     // The provided smem_bs size will be allocated for each sorting block.
     //
-    uint32_t const bs_threads   = merge->warps * hsg_config.warp.lanes;
+    uint32_t const bs_threads   = merge->warps << hsg_config.warp.lanes_log2;
     uint32_t const bs_keys      = hsg_config.block.smem_bs / (hsg_config.type.words * sizeof(uint32_t));
     uint32_t const bs_kpt       = bs_keys / bs_threads;
     uint32_t const bs_kpt_mod   = (bs_kpt / hsg_config.block.warps_mod) * hsg_config.block.warps_mod;
@@ -282,7 +248,7 @@ hsg_merge_levels_init_shared(struct hsg_merge * const merge)
       }
 
     // clamp to number of registers
-    merge->rows_bs = min(bs_rows_even, hsg_config.thread.regs);
+    merge->rows_bs = MIN_MACRO(bs_rows_even, hsg_config.thread.regs);
   }
 
   //
@@ -297,19 +263,19 @@ hsg_merge_levels_init_shared(struct hsg_merge * const merge)
     //
     // if merge->warps is not pow2 then we're going to skip creating a bc elsewhere
     //
-    uint32_t const bc_warps_min  = max(merge->warps,hsg_config.block.warps_min);
-    uint32_t const bc_threads    = bc_warps_min * hsg_config.warp.lanes;
+    uint32_t const bc_warps_min  = MAX_MACRO(merge->warps,hsg_config.block.warps_min);
+    uint32_t const bc_threads    = bc_warps_min << hsg_config.warp.lanes_log2;
     uint32_t const bc_block_rd   = (((hsg_config.block.smem_bc * bc_warps_min) / hsg_config.block.warps_max) /
                                     hsg_config.block.smem_quantum) * hsg_config.block.smem_quantum;
-    uint32_t const bc_block_max  = max(bc_block_rd,hsg_config.block.smem_min);
-    uint32_t const bc_block_smem = min(bc_block_max,hsg_config.block.smem_bs);
+    uint32_t const bc_block_max  = MAX_MACRO(bc_block_rd,hsg_config.block.smem_min);
+    uint32_t const bc_block_smem = MIN_MACRO(bc_block_max,hsg_config.block.smem_bs);
 
     // what is the max amount of shared in each possible bc block config?
     uint32_t const bc_keys       = bc_block_smem / (hsg_config.type.words * sizeof(uint32_t));
     uint32_t const bc_kpt        = bc_keys / bc_threads;
     uint32_t const bc_kpt_mod    = (bc_kpt / hsg_config.block.warps_mod) * hsg_config.block.warps_mod;
 
-    merge->rows_bc = min(bc_kpt_mod, hsg_config.thread.regs);
+    merge->rows_bc = MIN_MACRO(bc_kpt_mod, hsg_config.thread.regs);
     merge->skpw_bc = bc_keys / bc_warps_min;
   }
 }
@@ -441,7 +407,7 @@ hsg_merge_levels_hint(struct hsg_merge * const merge, bool const autotune)
   for (uint32_t level=0; level<MERGE_LEVELS_MAX_LOG2; level++)
     {
       // max network
-      uint32_t const n_max = max(merge->levels[level].networks[0],
+      uint32_t const n_max = MAX_MACRO(merge->levels[level].networks[0],
                                  merge->levels[level].networks[1]);
 
       if (n_max <= (merge->rows_bs + hsg_config.thread.xtra))
@@ -533,7 +499,7 @@ hsg_network_copy(struct hsg_op            *       ops,
 
   for (uint32_t ii=0; ii<len; ii++)
     {
-      const struct hsg_op * const cx = cxa + ii;
+      struct hsg_op const * const cx = cxa + ii;
 
       ops = hsg_op(ops,CMP_XCHG(cx->a,cx->b,prefix));
     }
@@ -638,7 +604,7 @@ hsg_warp_half_downto(struct hsg_op * ops, uint32_t h)
     {
       ops = hsg_begin(ops);
 
-      ops = hsg_op(ops,WARP_HALF(h));
+      ops = hsg_op(ops,SLAB_HALF(h));
       ops = hsg_warp_half_network(ops);
 
       ops = hsg_end(ops);
@@ -665,7 +631,7 @@ hsg_warp_flip(struct hsg_op * ops, uint32_t f)
 {
   ops = hsg_begin(ops);
 
-  ops = hsg_op(ops,WARP_FLIP(f));
+  ops = hsg_op(ops,SLAB_FLIP(f));
   ops = hsg_warp_flip_network(ops);
 
   ops = hsg_end(ops);
@@ -782,7 +748,7 @@ hsg_bc_half_merge_level(struct hsg_op          *       ops,
   uint32_t const net_even = merge->levels[0].networks[0];
 
   // min of warps in block and remaining horizontal rows
-  uint32_t const active = min(s_count, net_even);
+  uint32_t const active = MIN_MACRO(s_count, net_even);
 
   // conditional on blockIdx.x
   if (active < merge->warps)
@@ -834,7 +800,7 @@ hsg_bc_half_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
   //
   // will only be called with merge->warps >= 2
   //
-  uint32_t const warps    = max(merge->warps,hsg_config.block.warps_min);
+  uint32_t const warps    = MAX_MACRO(merge->warps,hsg_config.block.warps_min);
 
   // guaranteed to be an even network
   uint32_t const net_even = merge->levels[0].networks[0];
@@ -851,7 +817,7 @@ hsg_bc_half_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
     {
       // compute store count
       uint32_t const r_rem   = hsg_config.thread.regs + 1 - r_lo;
-      uint32_t const s_count = min(s_max,r_rem);
+      uint32_t const s_count = MIN_MACRO(s_max,r_rem);
 
       // block sync -- can skip if first
       if (r_lo > 1)
@@ -1010,7 +976,7 @@ hsg_bs_flip_merge(struct hsg_op * ops, struct hsg_merge const * const merge)
           uint32_t r_hi = hsg_config.thread.regs + 1 - r_lo;
 
           // compute store count
-          uint32_t const s_pairs = min(s_pairs_max,r_mid - r_lo);
+          uint32_t const s_pairs = MIN_MACRO(s_pairs_max,r_mid - r_lo);
 
           // store rows to shared
           for (uint32_t c=0; c<s_pairs; c++)
@@ -1082,7 +1048,7 @@ hsg_bs_flip_merge_all(struct hsg_op * ops, const struct hsg_merge * const merge)
 
 static
 struct hsg_op *
-hsg_bs_sort(struct hsg_op * ops, const struct hsg_merge * const merge)
+hsg_bs_sort(struct hsg_op * ops, struct hsg_merge const * const merge)
 {
   // func proto
   ops = hsg_op(ops,BS_KERNEL_PROTO(merge->index));
@@ -1125,7 +1091,7 @@ hsg_bs_sort_all(struct hsg_op * ops)
 {
   for (uint32_t merge_idx=0; merge_idx<MERGE_LEVELS_MAX_LOG2; merge_idx++)
     {
-      const struct hsg_merge* const m = hsg_merge + merge_idx;
+      struct hsg_merge const * const m = hsg_merge + merge_idx;
 
       if (m->warps == 0)
         break;
@@ -1142,7 +1108,7 @@ hsg_bs_sort_all(struct hsg_op * ops)
 
 static
 struct hsg_op *
-hsg_bc_clean(struct hsg_op * ops, const struct hsg_merge * const merge)
+hsg_bc_clean(struct hsg_op * ops, struct hsg_merge const * const merge)
 {
   // func proto
   ops = hsg_op(ops,BC_KERNEL_PROTO(merge->index));
@@ -1189,7 +1155,7 @@ hsg_bc_clean_all(struct hsg_op * ops)
 {
   for (uint32_t merge_idx=0; merge_idx<MERGE_LEVELS_MAX_LOG2; merge_idx++)
     {
-      const struct hsg_merge* const m = hsg_merge + merge_idx;
+      struct hsg_merge const * const m = hsg_merge + merge_idx;
 
       if (m->warps == 0)
         break;
@@ -1215,9 +1181,7 @@ static
 struct hsg_op *
 hsg_fm_thread_load_left(struct hsg_op * ops, uint32_t const n)
 {
-  uint32_t const mid = n/2;
-
-  for (uint32_t r=1; r<=mid; r++)
+  for (uint32_t r=1; r<=n; r++)
     ops = hsg_op(ops,FM_REG_GLOBAL_LOAD_LEFT(r,r-1));
 
   return ops;
@@ -1227,9 +1191,7 @@ static
 struct hsg_op *
 hsg_fm_thread_store_left(struct hsg_op * ops, uint32_t const n)
 {
-  uint32_t const mid = n/2;
-
-  for (uint32_t r=mid; r>=1; r--)
+  for (uint32_t r=1; r<=n; r++)
     ops = hsg_op(ops,FM_REG_GLOBAL_STORE_LEFT(r,r-1));
 
   return ops;
@@ -1237,101 +1199,75 @@ hsg_fm_thread_store_left(struct hsg_op * ops, uint32_t const n)
 
 static
 struct hsg_op *
-hsg_fm_thread_load_right(struct hsg_op * ops, uint32_t const n, uint32_t const span_right)
+hsg_fm_thread_load_right(struct hsg_op * ops, uint32_t const half_span, uint32_t const half_case)
 {
-  uint32_t const mid   = n / 2;
-  uint32_t const first = mid + 1;
-  uint32_t const last  = mid + span_right;
-
-  for (uint32_t r=first; r<=last; r++)
-    ops = hsg_op(ops,FM_REG_GLOBAL_LOAD_RIGHT(r,r-first));
+  for (uint32_t r=0; r<half_case; r++)
+    ops = hsg_op(ops,FM_REG_GLOBAL_LOAD_RIGHT(r,half_span+1+r));
 
   return ops;
 }
 
 static
 struct hsg_op *
-hsg_fm_thread_store_right(struct hsg_op * ops, uint32_t const n, uint32_t const span_right)
+hsg_fm_thread_store_right(struct hsg_op * ops, uint32_t const half_span, uint32_t const half_case)
 {
-  uint32_t const mid   = n / 2;
-  uint32_t const first = mid + 1;
-  uint32_t const last  = mid + span_right;
-
-  for (uint32_t r=last; r>=first; r--)
-    ops = hsg_op(ops,FM_REG_GLOBAL_STORE_RIGHT(r,r-first));
+  for (uint32_t r=0; r<half_case; r++)
+    ops = hsg_op(ops,FM_REG_GLOBAL_STORE_RIGHT(r,half_span+1+r));
 
   return ops;
 }
 
 static
 struct hsg_op *
-hsg_fm_thread_merge_right(struct hsg_op * ops, uint32_t const n, uint32_t const span_right)
-{
-  // conditional
-  ops = hsg_op(ops,FM_MERGE_RIGHT_PRED(n/2,span_right));
-
-  // begin
-  ops = hsg_begin(ops);
-
-  // load
-  ops = hsg_fm_thread_load_right(ops,n,span_right);
-
-  // compare left and right
-  ops = hsg_thread_merge_left_right(ops,n/2,span_right);
-
-  // right merging network
-  ops = hsg_thread_merge_offset(ops,n/2,span_right);
-
-  // store
-  ops = hsg_fm_thread_store_right(ops,n,span_right);
-
-  // end
-  ops = hsg_end(ops);
-
-  return ops;
-}
-
-static
-struct hsg_op *
-hsg_fm_thread_merge_right_all(struct hsg_op * ops, uint32_t const span)
-{
-  ops = hsg_fm_thread_merge_right(ops,span,span/2);
-
-  for (uint32_t span_pow2 = pow2_ru_u32(span) / 4; span_pow2 >= 1; span_pow2 /= 2)
-    {
-      ops = hsg_fm_thread_merge_right(ops,span,span_pow2);
-    }
-
-  return ops;
-}
-
-static
-struct hsg_op *
-hsg_fm_merge(struct hsg_op * ops, uint32_t const level, uint32_t const span, uint32_t const fm_scale)
+hsg_fm_merge(struct hsg_op * ops,
+             uint32_t const scale_log2,
+             uint32_t const span_left,
+             uint32_t const span_right)
 {
   // func proto
-  ops = hsg_op(ops,FM_KERNEL_PROTO(level,fm_scale));
+  ops = hsg_op(ops,FM_KERNEL_PROTO(scale_log2,msb_idx_u32(pow2_ru_u32(span_right))));
 
   // begin
   ops = hsg_begin(ops);
 
-  // shared declare
-  ops = hsg_op(ops,FM_KERNEL_PREAMBLE(span,fm_scale));
+  // preamble for loading/storing
+  ops = hsg_op(ops,FM_KERNEL_PREAMBLE(span_left));
 
-  // load
-  ops = hsg_fm_thread_load_left(ops,span);
+  // load left span
+  ops = hsg_fm_thread_load_left(ops,span_left);
 
-  // right merging network
-  ops = hsg_fm_thread_merge_right_all(ops,span);
+  // load right span
+  ops = hsg_fm_thread_load_right(ops,span_left,span_right);
+
+  // compare left and right
+  ops = hsg_thread_merge_left_right(ops,span_left,span_right);
 
   // left merging network
-  ops = hsg_thread_merge(ops,span/2);
+  ops = hsg_thread_merge(ops,span_left);
+
+  // right merging network
+  ops = hsg_thread_merge_offset(ops,span_left,span_right);
 
   // store
-  ops = hsg_fm_thread_store_left(ops,span);
+  ops = hsg_fm_thread_store_left(ops,span_left);
+
+  // store
+  ops = hsg_fm_thread_store_right(ops,span_left,span_right);
 
   // end
   ops = hsg_end(ops);
+
+  return ops;
+}
+
+static
+struct hsg_op *
+hsg_fm_merge_all(struct hsg_op * ops, uint32_t const scale_log2, uint32_t const warps)
+{
+  uint32_t const span_left = (warps << scale_log2) / 2;
+
+  for (uint32_t span_right=span_left; span_right >= 1; span_right=pow2_ru_u32(span_right)/2)
+    ops = hsg_fm_merge(ops,scale_log2,span_left,span_right);
 
   return ops;
 }
@@ -1354,7 +1290,7 @@ static
 struct hsg_op *
 hsg_hm_thread_store(struct hsg_op * ops, uint32_t const n)
 {
-  for (uint32_t r=n; r>=1; r--)
+  for (uint32_t r=1; r<=n; r++)
     ops = hsg_op(ops,HM_REG_GLOBAL_STORE(r,r-1));
 
   return ops;
@@ -1362,16 +1298,18 @@ hsg_hm_thread_store(struct hsg_op * ops, uint32_t const n)
 
 static
 struct hsg_op *
-hsg_hm_merge(struct hsg_op * ops, uint32_t const level, uint32_t const span, uint32_t const hm_scale)
+hsg_hm_merge(struct hsg_op * ops, uint32_t const scale_log2, uint32_t const warps_pow2)
 {
+  uint32_t const span = warps_pow2 << scale_log2;
+
   // func proto
-  ops = hsg_op(ops,HM_KERNEL_PROTO(level,level-msb_idx_u32(span)));
+  ops = hsg_op(ops,HM_KERNEL_PROTO(scale_log2));
 
   // begin
   ops = hsg_begin(ops);
 
-  // declarations
-  ops = hsg_op(ops,HM_KERNEL_PREAMBLE(span,hm_scale));
+  // preamble for loading/storing
+  ops = hsg_op(ops,HM_KERNEL_PREAMBLE(span/2));
 
   // load
   ops = hsg_hm_thread_load(ops,span);
@@ -1389,55 +1327,6 @@ hsg_hm_merge(struct hsg_op * ops, uint32_t const level, uint32_t const span, uin
 }
 
 //
-//
-//
-
-static
-struct hsg_op *
-hsg_fm_merge_level(struct hsg_op * ops, uint32_t const level)
-{
-  uint32_t const bc_max      = pow2_rd_u32(hsg_merge[0].warps);
-  uint32_t const bc_max_log2 = msb_idx_u32(bc_max);
-
-  uint32_t const fm_level    = (level <= bc_max_log2) ? hsg_config.merge.flip.lo : min(level - bc_max_log2,hsg_config.merge.flip.hi);
-  uint32_t const fm_scale    = level - fm_level;
-
-  ops = hsg_fm_merge(ops,
-                     level,
-                     hsg_merge[0].warps * (1u << fm_level),
-                     fm_scale);
-
-  return ops;
-}
-
-//
-//
-//
-
-static
-struct hsg_op *
-hsg_hm_merge_level(struct hsg_op * ops, uint32_t const level)
-{
-  uint32_t const bc_max      = pow2_rd_u32(hsg_merge[0].warps);
-  uint32_t const bc_max_log2 = msb_idx_u32(bc_max);
-
-  uint32_t const fm_log2_max = bc_max_log2 + hsg_config.merge.flip.hi;
-
-  if (level > fm_log2_max)
-    {
-      uint32_t const down_warps_log2 = level - fm_log2_max;
-      uint32_t const hm_level        = max(hsg_config.merge.half.lo,min(hsg_config.merge.half.hi,down_warps_log2));
-
-      ops = hsg_hm_merge(ops,
-                         level - hsg_config.merge.flip.hi,
-                         bc_max * (1u << hm_level),
-                         down_warps_log2 - hm_level);
-    }
-
-  return ops;
-}
-
-//
 // GENERATE MERGE KERNELS
 //
 
@@ -1445,23 +1334,20 @@ static
 struct hsg_op *
 hsg_xm_merge_all(struct hsg_op * ops)
 {
-  uint32_t const keys_per_block = hsg_merge[0].warps * hsg_config.warp.lanes * hsg_config.thread.regs;
-  uint32_t const blocks         = ((1U << hsg_config.merge.max_log2) + keys_per_block - 1) / keys_per_block;
-  uint32_t const blocks_ru      = pow2_ru_u32(blocks);
-  uint32_t const blocks_log2    = msb_idx_u32(blocks_ru);
+  uint32_t const warps = hsg_merge[0].warps;
+  uint32_t const warps_pow2 = pow2_rd_u32(warps);
 
-  for (uint32_t level=1; level<=blocks_log2; level+=1)
-    {
-      //
-      // GENERATE FLIP MERGE KERNELS
-      //
-      ops = hsg_fm_merge_level(ops,level);
+  //
+  // GENERATE FLIP MERGE KERNELS
+  //
+  for (uint32_t scale_log2=hsg_config.merge.flip.lo; scale_log2<=hsg_config.merge.flip.hi; scale_log2++)
+    ops = hsg_fm_merge_all(ops,scale_log2,warps);
 
-      //
-      // GENERATE HALF MERGE KERNELS
-      //
-      ops = hsg_hm_merge_level(ops,level);
-    }
+  //
+  // GENERATE HALF MERGE KERNELS
+  //
+  for (uint32_t scale_log2=hsg_config.merge.half.lo; scale_log2<=hsg_config.merge.half.hi; scale_log2++)
+    ops = hsg_hm_merge(ops,scale_log2,warps_pow2);
 
   return ops;
 }
@@ -1470,93 +1356,30 @@ hsg_xm_merge_all(struct hsg_op * ops)
 //
 //
 
-void
-hsg_target_indent(struct hsg_file * const files, uint32_t const depth)
-{
-  fprintf(files[HSG_FILE_TYPE_SOURCE].file,
-          "%*s",
-          depth*HSG_INDENT,"");
-}
-
-void
-hsg_target_debug(struct hsg_file        * const files,
-                 const struct hsg_merge * const merge,
-                 const struct hsg_op    * const ops,
-                 uint32_t                     const depth)
-{
-
-  hsg_target_indent(files,depth);
-
-  fprintf(files[HSG_FILE_TYPE_SOURCE].file,
-          "%s\n",
-          hsg_op_type_string[ops->type]);
-}
-
-//
-//
-//
-
 static
-struct hsg_file*
-hsg_files_open(const char * prefix, const char ** suffix)
-{
-#define STR_BUF_SIZE 80
-
-  struct hsg_file * files = malloc(sizeof(struct hsg_file) * HSG_FILE_TYPE_COUNT);
-
-  for (int32_t ii=0; ii<HSG_FILE_TYPE_COUNT; ii++)
-    {
-      char * name = files[ii].name;
-
-      // save prefix
-      files[ii].prefix = prefix;
-
-      // build filename
-      strcpy_s(name,STR_BUF_SIZE,prefix);
-      strcat_s(name,STR_BUF_SIZE,suffix[ii]);
-
-      // open file
-      fopen_s(&files[ii].file,name,"w+");
-    }
-
-  return files;
-}
-
-static
-void
-hsg_files_close(struct hsg_file * files)
-{
-  for (int32_t ii=0; ii<HSG_FILE_TYPE_COUNT; ii++)
-    fclose(files[ii].file);
-}
-
-//
-//
-//
-
-static
-const struct hsg_op *
-hsg_op_translate_depth(hsg_target_pfn                 target_pfn,
-                       struct hsg_file        * const files,
-                       const struct hsg_merge * const merge,
-                       const struct hsg_op    *       ops,
-                       uint32_t                     const depth)
+struct hsg_op const *
+hsg_op_translate_depth(hsg_target_pfn                  target_pfn,
+                       struct hsg_target       * const target,
+                       struct hsg_config const * const config,
+                       struct hsg_merge  const * const merge,
+                       struct hsg_op     const *       ops,
+                       uint32_t                  const depth)
 {
   while (ops->type != HSG_OP_TYPE_EXIT)
     {
       switch (ops->type)
         {
         case HSG_OP_TYPE_END:
-          target_pfn(files,merge,ops,depth-1);
+          target_pfn(target,config,merge,ops,depth-1);
           return ops + 1;
 
         case HSG_OP_TYPE_BEGIN:
-          target_pfn(files,merge,ops,depth);
-          ops = hsg_op_translate_depth(target_pfn,files,merge,ops+1,depth+1);
+          target_pfn(target,config,merge,ops,depth);
+          ops = hsg_op_translate_depth(target_pfn,target,config,merge,ops+1,depth+1);
           break;
 
         default:
-          target_pfn(files,merge,ops++,depth);
+          target_pfn(target,config,merge,ops++,depth);
         }
     }
 
@@ -1565,12 +1388,13 @@ hsg_op_translate_depth(hsg_target_pfn                 target_pfn,
 
 static
 void
-hsg_op_translate(hsg_target_pfn                 target_pfn,
-                 struct hsg_file        * const files,
-                 const struct hsg_merge * const merge,
-                 const struct hsg_op    *       ops)
+hsg_op_translate(hsg_target_pfn                  target_pfn,
+                 struct hsg_target       * const target,
+                 struct hsg_config const * const config,
+                 struct hsg_merge  const * const merge,
+                 struct hsg_op     const *       ops)
 {
-  hsg_op_translate_depth(target_pfn,files,merge,ops,0);
+  hsg_op_translate_depth(target_pfn,target,config,merge,ops,0);
 }
 
 //
@@ -1581,37 +1405,27 @@ int
 main(int argc, char * argv[])
 {
   //
-  // INIT
-  //
-  for (uint32_t ii=0; ii<=MERGE_LEVELS_MAX_LOG2; ii++)
-    {
-      hsg_merge[ii].index = ii;
-      hsg_merge[ii].warps = 32 / (1u << ii);
-    }
-
-  //
   // PROCESS OPTIONS
   //
-  int32_t arch     = 0;
-  int32_t opt      = 0;
+  int32_t      opt       = 0;
+  bool         verbose   = false;
+  bool         autotune  = false;
+  char const * arch      = "undefined";
 
-  bool    quiet    = false;
-  bool    autotune = false;
-
-  while ((opt = getopt(argc,argv,"hqa:g:G:s:S:w:b:B:m:M:k:r:x:t:f:F:c:C:z")) != EOF)
+  while ((opt = getopt(argc,argv,"hva:g:G:s:S:w:b:B:m:M:k:r:x:t:f:F:c:C:z")) != EOF)
     {
       switch (opt)
         {
         case 'h':
           fprintf(stderr,"Help goes here...\n");
-          return -1;
+          return EXIT_FAILURE;
 
-        case 'q':
-          quiet = true;
+        case 'v':
+          verbose = true;
           break;
 
         case 'a':
-          arch = atoi(optarg);
+          arch = optarg;
           break;
 
         case 'g':
@@ -1635,30 +1449,28 @@ main(int argc, char * argv[])
           break;
 
         case 'w':
-          hsg_config.warp.lanes = atoi(optarg);
+          hsg_config.warp.lanes      = atoi(optarg);
+          hsg_config.warp.lanes_log2 = msb_idx_u32(hsg_config.warp.lanes);
           break;
 
         case 'b':
           // maximum warps in a workgroup / cta / thread block
           {
-            uint32_t const warps         = atoi(optarg);
-            uint32_t const warps_ru_pow2 = pow2_ru_u32(warps);
+            uint32_t const warps = atoi(optarg);
+
+            // must always be even
+            if ((warps & 1) != 0)
+              {
+                fprintf(stderr,"Error: -b must be even.\n");
+                return EXIT_FAILURE;
+              }
+
+            hsg_merge[0].index = 0;
+            hsg_merge[0].warps = warps;
 
             // set warps_max if not already set
             if (hsg_config.block.warps_max == UINT32_MAX)
-              hsg_config.block.warps_max = warps_ru_pow2;
-
-            // must always be even
-            if ((warps&1) != 0)
-              {
-                fprintf(stderr,"Error: -b must be even.\n");
-                exit(-1);
-              }
-
-            hsg_merge[0].warps = warps;
-
-            for (uint32_t ii=1; ii<=MERGE_LEVELS_MAX_LOG2; ii++)
-              hsg_merge[ii].warps = warps_ru_pow2 / (1u << ii);
+              hsg_config.block.warps_max = pow2_ru_u32(warps);
           }
           break;
 
@@ -1677,18 +1489,14 @@ main(int argc, char * argv[])
           hsg_config.block.warps_mod = atoi(optarg);
           break;
 
-        case 'k':
-          hsg_config.merge.max_log2 = atoi(optarg);
-          break;
-
         case 'r':
           {
             uint32_t const regs = atoi(optarg);
 
-            if ((regs&1) != 0)
+            if ((regs & 1) != 0)
               {
                 fprintf(stderr,"Error: -r must be even.\n");
-                exit(-1);
+                return EXIT_FAILURE;
               }
 
             hsg_config.thread.regs = regs;
@@ -1726,17 +1534,39 @@ main(int argc, char * argv[])
     }
 
   //
+  // INIT MERGE
+  //
+  uint32_t const warps_ru_pow2 = pow2_ru_u32(hsg_merge[0].warps);
+
+  for (uint32_t ii=1; ii<=MERGE_LEVELS_MAX_LOG2; ii++)
+    {
+      hsg_merge[ii].index = ii;
+      hsg_merge[ii].warps = warps_ru_pow2 >> ii;
+    }
+
+  //
   // WHICH ARCH TARGET?
   //
-  hsg_target_pfn hsg_target_pfn = (arch < HSG_TARGET_PFN_COUNT) ? hsg_target_pfns[arch] : hsg_target_debug;
+  hsg_target_pfn hsg_target_pfn;
+
+  if      (strcmp(arch,"debug") == 0)
+    hsg_target_pfn = hsg_target_debug;
+  else if (strcmp(arch,"cuda") == 0)
+    hsg_target_pfn = hsg_target_cuda;
+  else if (strcmp(arch,"opencl") == 0)
+    hsg_target_pfn = hsg_target_opencl;
+  else if (strcmp(arch,"glsl") == 0)
+    hsg_target_pfn = hsg_target_glsl;
+  else {
+    fprintf(stderr,"Invalid arch: %s\n",arch);
+    exit(EXIT_FAILURE);
+  }
+
+  if (verbose)
+    fprintf(stderr,"Target: %s\n",arch);
 
   //
-  // OPEN FILES
-  //
-  struct hsg_file * files = hsg_files_open(hsg_target_pfn_string[arch],hsg_file_type_string[arch]);
-
-  //
-  // INIT F_KEYS
+  // INIT SMEM KEY ALLOCATION
   //
   hsg_config_init_shared();
 
@@ -1766,27 +1596,26 @@ main(int argc, char * argv[])
       //
       // THESE ARE FOR DEBUG/INSPECTION
       //
-
-      if (!quiet)
+      if (verbose)
         {
           hsg_merge_levels_debug(merge);
         }
     }
 
-  if (!quiet)
+  if (verbose)
     fprintf(stderr,"\n\n");
 
   //
+  // GENERATE THE OPCODES
   //
-  //
-  uint32_t        const op_count  = 1024*1024; // 2^20 ops for now!
-  struct hsg_op * const ops_begin = malloc(op_count * sizeof(*ops_begin));
+  uint32_t        const op_count  = 1<<17;
+  struct hsg_op * const ops_begin = malloc(sizeof(*ops_begin) * op_count);
   struct hsg_op *       ops       = ops_begin;
 
   //
-  // APPEND HEADER
+  // OPEN INITIAL FILES AND APPEND HEADER
   //
-  ops = hsg_op(ops,FILE_HEADER());
+  ops = hsg_op(ops,TARGET_BEGIN());
 
   //
   // GENERATE TRANSPOSE KERNEL
@@ -1809,9 +1638,9 @@ main(int argc, char * argv[])
   ops = hsg_xm_merge_all(ops);
 
   //
-  // APPEND FOOTER
+  // APPEND FOOTER AND CLOSE INITIAL FILES
   //
-  ops = hsg_op(ops,FILE_FOOTER());
+  ops = hsg_op(ops,TARGET_END());
 
   //
   // ... WE'RE DONE!
@@ -1821,20 +1650,17 @@ main(int argc, char * argv[])
   //
   // APPLY TARGET TRANSLATOR TO ACCUMULATED OPS
   //
-  hsg_op_translate(hsg_target_pfn,files,hsg_merge,ops_begin);
+  struct hsg_target target;
+
+  hsg_op_translate(hsg_target_pfn,&target,&hsg_config,hsg_merge,ops_begin);
 
   //
+  // DUMP INSTRUCTION COUNTS
   //
-  //
-  if (!quiet)
+  if (verbose)
     hsg_op_debug();
 
-  //
-  //
-  //
-  hsg_files_close(files);
-
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 //

@@ -45,7 +45,7 @@ clFindIdsByName(char const     * const target_platform_substring,
 
   cl(GetPlatformIDs(0,NULL,&platform_count));
 
-  cl_platform_id * const platform_ids = ALLOCA(sizeof(*platform_ids) * platform_count);
+  cl_platform_id * const platform_ids = ALLOCA_MACRO(sizeof(*platform_ids) * platform_count);
 
   cl(GetPlatformIDs(platform_count,platform_ids,NULL));
 
@@ -62,7 +62,7 @@ clFindIdsByName(char const     * const target_platform_substring,
                          NULL,
                          &platform_name_size));
 
-      char * const platform_name = ALLOCA(platform_name_size);
+      char * const platform_name = ALLOCA_MACRO(platform_name_size);
 
       cl(GetPlatformInfo(platform_ids[ii],
                          CL_PLATFORM_NAME,
@@ -93,7 +93,7 @@ clFindIdsByName(char const     * const target_platform_substring,
                               NULL,
                               &device_count);
 
-      cl_device_id * const device_ids = ALLOCA(sizeof(*device_ids) * device_count);
+      cl_device_id * const device_ids = ALLOCA_MACRO(sizeof(*device_ids) * device_count);
 
       cl_err = clGetDeviceIDs(platform_ids[ii],
                               CL_DEVICE_TYPE_ALL,
@@ -121,8 +121,8 @@ clFindIdsByName(char const     * const target_platform_substring,
                            NULL,
                            &driver_version_size));
 
-          char * const device_name    = ALLOCA(device_name_size);
-          char * const driver_version = ALLOCA(driver_version_size);
+          char * const device_name    = ALLOCA_MACRO(device_name_size);
+          char * const driver_version = ALLOCA_MACRO(driver_version_size);
 
           cl(GetDeviceInfo(device_ids[jj],
                            CL_DEVICE_NAME,
@@ -207,4 +207,3 @@ clFindIdsByName(char const     * const target_platform_substring,
 //
 //
 //
-

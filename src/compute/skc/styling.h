@@ -52,4 +52,3 @@ struct skc_styling
 //
 //
 //
-

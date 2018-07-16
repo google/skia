@@ -11,7 +11,7 @@
 //
 
 #include "networks.h"
-#include "macros.h"
+#include "common/macros.h"
 
 //
 //
@@ -24,7 +24,7 @@
 //
 //
 
-#define LM(n)  { ARRAY_LENGTH(mn##n), mn##n }
+#define LM(n)  { ARRAY_LENGTH_MACRO(mn##n), mn##n }
 
 //
 //

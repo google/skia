@@ -246,5 +246,3 @@ SKC_STATIC_ASSERT(sizeof(union skc_gradient_vector) == sizeof(skc_float4));
 //
 //
 //
-
-

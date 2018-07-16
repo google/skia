@@ -8,17 +8,23 @@
 #ifndef HS_CL_ONCE
 #define HS_CL_ONCE
 
-#define HS_LANES_PER_WARP_LOG2  3
-#define HS_LANES_PER_WARP       (1 << HS_LANES_PER_WARP_LOG2)
-#define HS_BS_WARPS             16
-#define HS_BS_WARPS_LOG2_RU     4
-#define HS_BC_WARPS_LOG2_MAX    4
-#define HS_FM_BLOCKS_LOG2_MIN   1
-#define HS_HM_BLOCKS_LOG2_MIN   1
-#define HS_KEYS_PER_LANE        16
+#define HS_SLAB_THREADS_LOG2    3
+#define HS_SLAB_THREADS         (1 << HS_SLAB_THREADS_LOG2)
+#define HS_SLAB_WIDTH_LOG2      3
+#define HS_SLAB_WIDTH           (1 << HS_SLAB_WIDTH_LOG2)
+#define HS_SLAB_HEIGHT          16
+#define HS_SLAB_KEYS            (HS_SLAB_WIDTH * HS_SLAB_HEIGHT)
 #define HS_REG_LAST(c)          c##16
-#define HS_KEY_WORDS            2
 #define HS_KEY_TYPE             ulong
+#define HS_KEY_WORDS            2
+#define HS_VAL_WORDS            0
+#define HS_BS_SLABS             16
+#define HS_BS_SLABS_LOG2_RU     4
+#define HS_BC_SLABS_LOG2_MAX    4
+#define HS_FM_SCALE_MIN         1
+#define HS_FM_SCALE_MAX         1
+#define HS_HM_SCALE_MIN         1
+#define HS_HM_SCALE_MAX         1
 #define HS_EMPTY
 
 #define HS_SLAB_ROWS()    \
@@ -85,34 +91,6 @@
   HS_TRANSPOSE_REMAP( u,  15,  14 )        \
   HS_TRANSPOSE_REMAP( u,  16,  16 )        \
   HS_EMPTY
-
-#define HS_FM_BLOCKS_LOG2_1    0
-#define HS_FM_BLOCKS_LOG2_2    1
-#define HS_FM_BLOCKS_LOG2_3    2
-#define HS_FM_BLOCKS_LOG2_4    3
-#define HS_FM_BLOCKS_LOG2_5    4
-#define HS_FM_BLOCKS_LOG2_6    5
-#define HS_HM_BLOCKS_LOG2_5    0
-#define HS_FM_BLOCKS_LOG2_7    6
-#define HS_HM_BLOCKS_LOG2_6    1
-#define HS_FM_BLOCKS_LOG2_8    7
-#define HS_HM_BLOCKS_LOG2_7    2
-#define HS_FM_BLOCKS_LOG2_9    8
-#define HS_HM_BLOCKS_LOG2_8    3
-#define HS_FM_BLOCKS_LOG2_10   9
-#define HS_HM_BLOCKS_LOG2_9    4
-#define HS_FM_BLOCKS_LOG2_11   10
-#define HS_HM_BLOCKS_LOG2_10   5
-#define HS_FM_BLOCKS_LOG2_12   11
-#define HS_HM_BLOCKS_LOG2_11   6
-#define HS_FM_BLOCKS_LOG2_13   12
-#define HS_HM_BLOCKS_LOG2_12   7
-#define HS_FM_BLOCKS_LOG2_14   13
-#define HS_HM_BLOCKS_LOG2_13   8
-#define HS_FM_BLOCKS_LOG2_15   14
-#define HS_HM_BLOCKS_LOG2_14   9
-#define HS_FM_BLOCKS_LOG2_16   15
-#define HS_HM_BLOCKS_LOG2_15   10
 
 #endif
 
