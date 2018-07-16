@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "168cba4d_0cbd18fd",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "If this fails, we want to return false and probably want to know about it. So HRBM should be good.",
+      "range": {
+        "startLine": 526,
+        "startChar": 4,
+        "endLine": 526,
+        "endChar": 14
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0c9f85bb_27c4bdde",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "need to \u0027delete context\u0027 here.",
+      "range": {
+        "startLine": 609,
+        "startChar": 0,
+        "endLine": 609,
+        "endChar": 1
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b1c298e_5dd4af75",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Declare and initialize this where it is needed, a few lines down.",
+      "range": {
+        "startLine": 636,
+        "startChar": 4,
+        "endLine": 636,
+        "endChar": 45
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da16bb61_1c1ec42d",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "This isn\u0027t needed, just pass nullptr to MakeFromData by not passing that parameter explicitly (the SkPngChunkReader* parameter to MakeFromData is implicitly nullptr).",
+      "range": {
+        "startLine": 642,
+        "startChar": 4,
+        "endLine": 642,
+        "endChar": 39
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f8f9f83_55c06b39",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "std::move(data)\n\nsince it isn\u0027t used after this point.",
+      "range": {
+        "startLine": 643,
+        "startChar": 34,
+        "endLine": 643,
+        "endChar": 38
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70181d0f_999ee3a1",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Leave off the \u0027.get()\u0027",
+      "range": {
+        "startLine": 644,
+        "startChar": 14,
+        "endLine": 644,
+        "endChar": 20
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc65c882_7202efbd",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Remove, SkMatrix::mapRect doesn\u0027t return an HRESULT. The bool result of SkMatrix::mapRect seems to answer the question \u0027after mapping the points did the points end up in the corners of the returned rectangle?\u0027. Not sure who uses that, but we don\u0027t care here.",
+      "range": {
+        "startLine": 658,
+        "startChar": 4,
+        "endLine": 658,
+        "endChar": 8
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25822c24_ef60cbbf",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "fIsColorFont only means we have IDWriteFactory2, but doesn\u0027t necessarily mean we have IDWriteFontFace4. Need to test that this-\u003egetDWriteTypeface()-\u003efDWriteFontFace4 is not nullptr here somewhere (same when generating the image).",
+      "range": {
+        "startLine": 681,
+        "startChar": 8,
+        "endLine": 681,
+        "endChar": 21
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8980f624_9a5c790c",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Either we are sure that the SkData is going to go out of scope at the end of this function (in which case this context can just be on the stack) or we aren\u0027t sure about that (in which case this context needs to own a reference to the fontFace4).",
+      "range": {
+        "startLine": 1044,
+        "startChar": 4,
+        "endLine": 1044,
+        "endChar": 64
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4b57d19_910bf601",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "std::move(data)\n\nsince we never use it again after this.",
+      "range": {
+        "startLine": 1049,
+        "startChar": 52,
+        "endLine": 1049,
+        "endChar": 56
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "56f7a8d3_849aaac8",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Asserting above that this is SkMask::Format::kARGB32_Format seems to mean the function call to SkColorType_for_SkMaskFormat isn\u0027t needed (just use that color type).",
+      "range": {
+        "startLine": 1054,
+        "startChar": 40,
+        "endLine": 1054,
+        "endChar": 80
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5cce4f4c_4a4e8200",
+        "filename": "tools/fonts/sk_tool_utils_font.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-16T19:47:48Z",
+      "side": 1,
+      "message": "Don\u0027t want to check this in yet.",
+      "range": {
+        "startLine": 75,
+        "startChar": 22,
+        "endLine": 75,
+        "endChar": 26
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
