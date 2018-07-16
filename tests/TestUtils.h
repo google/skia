@@ -9,6 +9,7 @@
 
 class GrSurfaceContext;
 class GrSurfaceProxy;
+typedef uint32_t GrColor;
 
 // Ensure that reading back from 'srcContext' as RGBA 8888 matches 'expectedPixelValues
 void test_read_pixels(skiatest::Reporter*,
@@ -29,3 +30,10 @@ void test_copy_from_surface(skiatest::Reporter*, GrContext*,
 // Ensure that RGBA 8888 pixels can be copied into 'dstContext'
 void test_copy_to_surface(skiatest::Reporter*, GrProxyProvider*,
                           GrSurfaceContext* dstContext, const char* testName);
+
+// Fills data with a red-green gradient
+void fill_pixel_data(int width, int height, GrColor* data);
+
+// Checks srcBuffer and dstBuffer contain the same colors
+bool does_full_buffer_contain_correct_color(GrColor* srcBuffer, GrColor* dstBuffer, int width,
+                                            int height);
