@@ -162,7 +162,14 @@ public:
             if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
                 return nullptr;
             }
-            if (!sk_gpu_test::CreateVkBackendContext(instProc, devProc, &backendContext,
+            auto getProc = [instProc, devProc](const char* proc_name,
+                                               VkInstance instance, VkDevice device) {
+                if (device != VK_NULL_HANDLE) {
+                    return devProc(device, proc_name);
+                }
+                return instProc(instance, proc_name);
+            };
+            if (!sk_gpu_test::CreateVkBackendContext(getProc, &backendContext,
                                                      &debugCallback)) {
                 return nullptr;
             }

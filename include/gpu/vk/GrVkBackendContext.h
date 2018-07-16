@@ -10,8 +10,7 @@
 
 #include "SkRefCnt.h"
 
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkInterface.h"
+#include "GrVkTypes.h"
 #include "vk/GrVkMemoryAllocator.h"
 
 enum GrVkExtensionFlags {
@@ -53,7 +52,6 @@ struct SK_API GrVkBackendContext {
     uint32_t                   fMinAPIVersion;
     uint32_t                   fExtensions;
     uint32_t                   fFeatures;
-    sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
     GrVkGetProc                fGetProc = nullptr;
 
