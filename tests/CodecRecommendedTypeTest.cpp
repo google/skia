@@ -25,7 +25,7 @@ DEF_TEST(Codec_recommendedF16, r) {
     // such a PNG.
     SkBitmap bm;
     bm.allocPixels(SkImageInfo::Make(10, 10, kRGBA_F16_SkColorType,
-            kPremul_SkAlphaType, SkColorSpace::MakeSRGBLinear()));
+            kPremul_SkAlphaType, SkColorSpace::MakeSRGB()));
     // What is drawn is not important.
     bm.eraseColor(SK_ColorBLUE);
 
