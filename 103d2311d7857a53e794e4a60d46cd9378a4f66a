@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4b36350d_f897a50e",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 2389,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-16T16:54:03Z",
+      "side": 1,
+      "message": "Done.\n\nI wasn\u0027t sure if there\u0027d be a good reason to use the pattern where setNodeId is\nnon-virtual and just calls virtual onSetNodeId(). Any preference?\n\nI was going to do the SkPictureRecorder change in a separate patch.",
+      "parentUuid": "3670be2c_2b225030",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2317f91f_1a7fd07d",
         "filename": "src/pdf/SkPDFDocument.h",
         "patchSetId": 7
@@ -68,6 +86,24 @@
       "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2382d801_f6c06941",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-16T16:54:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1346f9cf_c38c702e",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
