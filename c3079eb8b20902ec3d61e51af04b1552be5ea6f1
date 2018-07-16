@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95d11c30_2e82a9f4",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-07-16T14:55:58Z",
+      "side": 1,
+      "message": "where is this defined? shouldn\u0027t this be set to 0x7FFFFFFF.",
+      "range": {
+        "startLine": 38,
+        "startChar": 33,
+        "endLine": 38,
+        "endChar": 58
+      },
+      "revId": "c3079eb8b20902ec3d61e51af04b1552be5ea6f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
