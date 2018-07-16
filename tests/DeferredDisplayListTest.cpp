@@ -35,6 +35,7 @@
 #include "SkSurfaceCharacterization.h"
 #include "SkSurfaceProps.h"
 #include "SkSurface_Gpu.h"
+#include "SkUtils.h"
 #include "Test.h"
 #include "gl/GrGLCaps.h"
 #include "gl/GrGLDefines.h"
@@ -44,6 +45,7 @@
 #include "vk/GrVkDefines.h"
 #endif
 
+<<<<<<< HEAD
 #include <initializer_list>
 #include <memory>
 #include <utility>
@@ -134,11 +136,27 @@ static GrBackendFormat create_backend_format(GrContext* context,
                 break;
             case kRGBA_F32_SkColorType:
                 return GrBackendFormat();
+=======
+static GrBackendFormat create_backend_format(GrContext* context, SkColorType colorType,
+                                             SkColorSpace* cs) {
+    const GrCaps* caps = context->caps();
+
+    switch (context->contextPriv().getBackend()) {
+    case kOpenGL_GrBackend:
+        if (kRGBA_8888_SkColorType == colorType) {
+            GrGLenum format = caps->srgbSupport() && cs && cs->gammaCloseToSRGB()
+                                                                    ? GR_GL_SRGB8_ALPHA8
+                                                                    : GR_GL_RGBA8;
+            return GrBackendFormat::MakeGL(format, GR_GL_TEXTURE_2D);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_2D);
+>>>>>>> git squash commit for allocation-bug_____.
         }
     }
     break;
 #ifdef SK_VULKAN
     case kVulkan_GrBackend:
+<<<<<<< HEAD
         switch (ct) {
             case kUnknown_SkColorType:
                 return GrBackendFormat();
@@ -203,10 +221,20 @@ static GrBackendFormat create_backend_format(GrContext* context,
                 break;
             case kRGBA_F32_SkColorType:
                 return GrBackendFormat();
+=======
+        if (kRGBA_8888_SkColorType == colorType) {
+            VkFormat format =  caps->srgbSupport() && cs && cs->gammaCloseToSRGB()
+                                                   ? VK_FORMAT_R8G8B8A8_SRGB
+                                                   : VK_FORMAT_R8G8B8A8_UNORM;
+            return GrBackendFormat::MakeVk(format);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
+>>>>>>> git squash commit for allocation-bug_____.
         }
         break;
 #endif
     case kMock_GrBackend:
+<<<<<<< HEAD
         switch (ct) {
             case kUnknown_SkColorType:
                 return GrBackendFormat();
@@ -273,6 +301,15 @@ static GrBackendFormat create_backend_format(GrContext* context,
                 break;
             case kRGBA_F32_SkColorType:
                 return GrBackendFormat();
+=======
+        if (kRGBA_8888_SkColorType == colorType) {
+            GrPixelConfig config = caps->srgbSupport() && cs && cs->gammaCloseToSRGB()
+                                                       ? kSRGBA_8888_GrPixelConfig
+                                                       : kRGBA_8888_GrPixelConfig;
+            return GrBackendFormat::MakeMock(config);
+        } else if (kRGBA_F16_SkColorType == colorType) {
+            return GrBackendFormat::MakeMock(kRGBA_half_GrPixelConfig);
+>>>>>>> git squash commit for allocation-bug_____.
         }
         break;
     default:
@@ -348,7 +385,12 @@ public:
         }
     }
 
+<<<<<<< HEAD
     SkSurfaceCharacterization createCharacterization(GrContext* context) const {
+=======
+    // Create a DDL whose characterization captures the current settings
+    std::unique_ptr<SkDeferredDisplayList> createDDL(GrContext* context) const {
+>>>>>>> git squash commit for allocation-bug_____.
         int maxResourceCount;
         size_t maxResourceBytes;
         context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
@@ -358,10 +400,14 @@ public:
                                            kPremul_SkAlphaType, fColorSpace);
 
         GrBackendFormat backendFormat = create_backend_format(context, fColorType,
+<<<<<<< HEAD
                                                               fColorSpace.get(), fConfig);
         if (!backendFormat.isValid()) {
             return SkSurfaceCharacterization();
         }
+=======
+                                                              fColorSpace.get());
+>>>>>>> git squash commit for allocation-bug_____.
 
         SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
                                                 maxResourceBytes, ii, backendFormat, fSampleCount,
@@ -804,8 +850,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(DDLInvalidRecorder, reporter, ctxInfo) {
         REPORTER_ASSERT(reporter, !recorder.getCanvas());
         REPORTER_ASSERT(reporter, !recorder.detach());
 
+<<<<<<< HEAD
         GrBackendFormat format = create_backend_format(context, kRGBA_8888_SkColorType,
                                                        nullptr, kRGBA_8888_GrPixelConfig);
+=======
+        GrBackendFormat format = create_backend_format(context, kRGBA_8888_SkColorType, nullptr);
+>>>>>>> git squash commit for allocation-bug_____.
         sk_sp<SkImage> image = recorder.makePromiseTexture(format, 32, 32, GrMipMapped::kNo,
                                                            kTopLeft_GrSurfaceOrigin,
                                                            kRGBA_8888_SkColorType,
@@ -949,3 +999,175 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLCompatibilityTest, reporter, ctxInfo) {
     }
 
 }
+<<<<<<< HEAD
+=======
+
+static const int kTileSize = 64;
+
+static std::unique_ptr<SkDeferredDisplayList> make_ddl(GrContext* context, int size,
+                                                       std::function<void(SkCanvas*)> drawFn) {
+    int maxResourceCount;
+    size_t maxResourceBytes;
+    context->getResourceCacheLimits(&maxResourceCount, &maxResourceBytes);
+
+    // Note that Ganesh doesn't make use of the SkImageInfo's alphaType
+    SkImageInfo ii = SkImageInfo::Make(size, size, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType, nullptr);
+
+    GrBackendFormat backendFormat = create_backend_format(context, kRGBA_8888_SkColorType, nullptr);
+
+    SkSurfaceProps props(0x0, kUnknown_SkPixelGeometry);
+
+    // DDL TODO: try out specifying the isMipMapped flag here
+    SkSurfaceCharacterization c = context->threadSafeProxy()->createCharacterization(
+                                                    maxResourceBytes, ii, backendFormat, 1,
+                                                    kTopLeft_GrSurfaceOrigin, props, false);
+    SkAssertResult(c.isValid());
+
+    SkDeferredDisplayListRecorder r(c);
+    SkCanvas* canvas = r.getCanvas();
+    if (!canvas) {
+        return nullptr;
+    }
+
+    drawFn(canvas);
+    return r.detach();
+}
+
+static std::unique_ptr<SkDeferredDisplayList> make_color_ddl(GrContext* context, SkColor color) {
+    return make_ddl(context, kTileSize,
+                    [&] (SkCanvas* canvas) {
+                        SkPaint p;
+                        p.setColor(color);
+
+                        canvas->drawRect(SkRect::MakeWH(kTileSize, kTileSize), p);
+                    });
+}
+
+// Create an SkSurface compatible w/ a DDL created in make_ddl
+sk_sp<SkSurface> make_surface(GrContext* context, int size) {
+    SkImageInfo ii = SkImageInfo::Make(size, size, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType, nullptr);
+
+    SkSurfaceProps props(0x0, kUnknown_SkPixelGeometry);
+
+    return SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, ii, 1,
+                                       kTopLeft_GrSurfaceOrigin, &props, false);
+}
+
+SkBitmap read_back(SkSurface* src, int size) {
+    SkImageInfo ii = SkImageInfo::Make(size, size, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkBitmap result;
+    result.allocPixels(ii);
+    SkAssertResult(src->readPixels(result, 0, 0));
+    return result;
+}
+
+void save_bm(const SkBitmap& bm, const char* name) {
+    static int index = 0;
+
+    char filename[256];
+    _snprintf(filename, 256, "C:\\src\\skia.2\\local-win\\%s-%d.png", name, index++);
+    filename[255] = '\0';
+
+    SkFILEWStream file(filename);
+    SkASSERT(file.isValid());
+
+    SkEncodeImage(&file, bm, SkEncodedImageFormat::kPNG, 100);
+}
+
+// Test that chaining together DDLs via SkImages works.
+// It creates the following DAG of DDL/SkImage draws
+//
+//           Red   Green  Blue  Cyan
+//             \    \       /    /
+//              \    \     /    /
+//               \    \   /    /
+//                \    \ /    /
+//                  Rect clip
+//
+// and then draws them all at once in R,G,B,C,clip order in the pattern
+//
+//              Red  | Green
+//             --------------
+//              Blue | Cyan
+//
+DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(DDLSnapImageTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    std::unique_ptr<SkDeferredDisplayList> redDDL   = make_color_ddl(context, SK_ColorRED);
+    std::unique_ptr<SkDeferredDisplayList> greenDDL = make_color_ddl(context, SK_ColorGREEN);
+    std::unique_ptr<SkDeferredDisplayList> blueDDL  = make_color_ddl(context, SK_ColorBLUE);
+    std::unique_ptr<SkDeferredDisplayList> cyanDDL  = make_color_ddl(context, SK_ColorCYAN);
+
+    sk_sp<SkImage> redImg   = redDDL->futureImage();
+    sk_sp<SkImage> greenImg = greenDDL->futureImage();
+    sk_sp<SkImage> blueImg  = blueDDL->futureImage();
+    sk_sp<SkImage> cyanImg  = cyanDDL->futureImage();
+
+    std::unique_ptr<SkDeferredDisplayList> clipDDL = make_ddl(context, 2*kTileSize,
+                    [&] (SkCanvas* canvas) {
+                        canvas->clear(SK_ColorBLACK);
+                        SkRect r = SkRect::MakeXYWH(kTileSize/2, kTileSize/2, kTileSize, kTileSize);
+                        canvas->clipRect(r, false);
+                        canvas->drawImage(redImg,   0,         0);
+                        canvas->drawImage(greenImg, kTileSize, 0);
+//                        canvas->drawImage(blueImg,  0,         kTileSize);
+//                        canvas->drawImage(cyanImg,  kTileSize, kTileSize);
+                    });
+
+    sk_sp<SkSurface> redDest   = make_surface(context, kTileSize);
+    sk_sp<SkSurface> greenDest = make_surface(context, kTileSize);
+//    sk_sp<SkSurface> blueDest  = make_surface(context, kTileSize);
+//    sk_sp<SkSurface> cyanDest  = make_surface(context, kTileSize);
+    sk_sp<SkSurface> clipDest  = make_surface(context, 2*kTileSize);
+
+    SkAssertResult(redDest->draw(redDDL.get()));
+    SkAssertResult(greenDest->draw(greenDDL.get()));
+//    SkAssertResult(blueDest->draw(blueDDL.get()));
+//    SkAssertResult(cyanDest->draw(cyanDDL.get()));
+    SkAssertResult(clipDest->draw(clipDDL.get()));
+    context->flush();
+
+    SkBitmap red = read_back(redDest.get(), kTileSize);
+    save_bm(red, "red");
+
+    SkBitmap green = read_back(greenDest.get(), kTileSize);
+    save_bm(green, "green");
+
+    SkBitmap actual = read_back(clipDest.get(), 2*kTileSize);
+
+    SkImageInfo ii = SkImageInfo::Make(2*kTileSize, 2*kTileSize, kRGBA_8888_SkColorType,
+                                       kPremul_SkAlphaType);
+
+    SkIRect r = SkIRect::MakeWH(kTileSize/2, kTileSize/2);
+
+    SkBitmap expected;
+    expected.allocPixels(ii);
+    expected.eraseColor(SK_ColorBLACK);
+    expected.erase(SK_ColorRED,     r.makeOffset(kTileSize/2, kTileSize/2));
+    expected.erase(SK_ColorGREEN,   r.makeOffset(kTileSize,   kTileSize/2));
+//    expected.erase(SK_ColorBLUE,    r.makeOffset(kTileSize/2, kTileSize));
+//    expected.erase(SK_ColorMAGENTA, r.makeOffset(kTileSize,   kTileSize));
+
+    bool abort = false;
+    for (int y = 0; y < 2*kTileSize && !abort; ++y) {
+        for (int x = 0; x < 2*kTileSize; ++x) {
+            uint32_t expectedColor = *expected.getAddr32(x, y);
+            uint32_t actualColor = *actual.getAddr32(x, y);
+
+            if (expectedColor != actualColor) {
+                ERRORF(reporter, "[%d, %d] expected 0x%08x actual 0x%08x\n", x, y,
+                        expectedColor, actualColor);
+                abort = true;
+                break;
+            }
+        }
+    }
+
+    save_bm(actual, "actual");
+    save_bm(expected, "expected");
+}
+
+#endif
+>>>>>>> git squash commit for allocation-bug_____.

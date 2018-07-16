@@ -711,6 +711,8 @@ void GrResourceCache::notifyFlushOccurred(FlushType type) {
 }
 
 void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
+    this->validate();
+
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
         fNonpurgeableResources[i]->dumpMemoryStatistics(traceMemoryDump);
     }

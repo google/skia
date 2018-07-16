@@ -299,12 +299,12 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
         // This can happen if there is a loadOp (e.g., a clear) but no other draws. In this case we
         // still need to add an interval for the destination so we create a fake op# for
         // the missing clear op.
-        alloc->addInterval(fTarget.get());
+        alloc->addInterval(fTarget.get(), 1, false);
         alloc->incOps();
     }
 
     auto gather = [ alloc SkDEBUGCODE(, this) ] (GrSurfaceProxy* p) {
-        alloc->addInterval(p SkDEBUGCODE(, fTarget.get() == p));
+        alloc->addInterval(p, 1 SkDEBUGCODE(, fTarget.get() == p));
     };
     for (const RecordedOp& recordedOp : fRecordedOps) {
         recordedOp.visitProxies(gather); // only diff from the GrTextureOpList version

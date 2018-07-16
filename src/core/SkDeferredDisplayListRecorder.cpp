@@ -160,9 +160,12 @@ std::unique_ptr<SkDeferredDisplayList> SkDeferredDisplayListRecorder::detach() {
     }
 
     auto ddl = std::unique_ptr<SkDeferredDisplayList>(
-                           new SkDeferredDisplayList(fCharacterization, std::move(fLazyProxyData)));
+                           new SkDeferredDisplayList(fCharacterization,
+                                                     fSurface->makeImageSnapshot(),
+                                                     std::move(fLazyProxyData)));
 
     fContext->contextPriv().moveOpListsToDDL(ddl.get());
+    fSurface = nullptr;
     return ddl;
 }
 
