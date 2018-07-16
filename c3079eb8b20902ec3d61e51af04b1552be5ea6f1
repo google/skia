@@ -22,6 +22,30 @@
       "revId": "c3079eb8b20902ec3d61e51af04b1552be5ea6f1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbab1220_3bb1af07",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-07-16T15:02:45Z",
+      "side": 1,
+      "message": "It\u0027s defined in SkRegionPriv.h . while kRunTypeSentinel could be defined as 0x7fffffff here, then that would lead to one define here and another one in the priv file. Maybe this should be \n\n  typedef SkRegion_kRunTypeSentinel kRunTypeSentinel;\n\nto show that this is just saving typing.\n\nI\u0027m not happy with this CL so far, consider it a work in progress.",
+      "parentUuid": "95d11c30_2e82a9f4",
+      "range": {
+        "startLine": 38,
+        "startChar": 33,
+        "endLine": 38,
+        "endChar": 58
+      },
+      "revId": "c3079eb8b20902ec3d61e51af04b1552be5ea6f1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
