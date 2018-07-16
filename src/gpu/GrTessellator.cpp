@@ -1053,16 +1053,18 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** 
 
 void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, Comparator& c) {
     for (;;) {
-        if (edge->fPrevEdgeAbove && (edge->fTop == edge->fPrevEdgeAbove->fTop ||
+        const SkPoint& top = edge->fTop->fPoint;
+        const SkPoint& bottom = edge->fBottom->fPoint;
+        if (edge->fPrevEdgeAbove && (edge->fPrevEdgeAbove->fTop->fPoint == top ||
                                      !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
             merge_edges_above(edge->fPrevEdgeAbove, edge, activeEdges, current, c);
-        } else if (edge->fNextEdgeAbove && (edge->fTop == edge->fNextEdgeAbove->fTop ||
+        } else if (edge->fNextEdgeAbove && (edge->fNextEdgeAbove->fTop->fPoint == top ||
                                             !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
             merge_edges_above(edge->fNextEdgeAbove, edge, activeEdges, current, c);
-        } else if (edge->fPrevEdgeBelow && (edge->fBottom == edge->fPrevEdgeBelow->fBottom ||
+        } else if (edge->fPrevEdgeBelow && (edge->fPrevEdgeBelow->fBottom->fPoint == bottom ||
                                      !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
             merge_edges_below(edge->fPrevEdgeBelow, edge, activeEdges, current, c);
-        } else if (edge->fNextEdgeBelow && (edge->fBottom == edge->fNextEdgeBelow->fBottom ||
+        } else if (edge->fNextEdgeBelow && (edge->fNextEdgeBelow->fBottom->fPoint == bottom ||
                                             !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
             merge_edges_below(edge->fNextEdgeBelow, edge, activeEdges, current, c);
         } else {
