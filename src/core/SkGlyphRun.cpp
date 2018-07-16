@@ -45,7 +45,7 @@ SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
                        SkSpan<const uint32_t> clusters)
         : fUniqueGlyphIDIndices{denseIndices}
         , fPositions{positions}
-        , fTemporaryShuntGlyphIDs{glyphIDs}
+        , fGlyphIDs{glyphIDs}
         , fUniqueGlyphIDs{uniqueGlyphIDs}
         , fText{text}
         , fClusters{clusters}
@@ -55,21 +55,21 @@ void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origi
 
     auto pos = (const SkScalar*) this->positions().data();
 
-    if (!fTemporaryShuntGlyphIDs.empty()) {
+    if (!fGlyphIDs.empty()) {
         device->drawPosText(
-                fTemporaryShuntGlyphIDs.data(), fTemporaryShuntGlyphIDs.size() * sizeof(SkGlyphID),
+                fGlyphIDs.data(), fGlyphIDs.size() * sizeof(SkGlyphID),
                 pos, 2, origin, fRunPaint);
     }
 }
 
 void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
-    auto bytes = (const char *)fTemporaryShuntGlyphIDs.data();
+    auto bytes = (const char *)fGlyphIDs.data();
     auto pos = (const SkScalar*) this->positions().data();
-    callback(fTemporaryShuntGlyphIDs.size(), bytes, pos);
+    callback(fGlyphIDs.size(), bytes, pos);
 }
 
 void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
-    memcpy(glyphIDs, fTemporaryShuntGlyphIDs.data(), fTemporaryShuntGlyphIDs.size_bytes());
+    memcpy(glyphIDs, fGlyphIDs.data(), fGlyphIDs.size_bytes());
     memcpy(positions, fPositions.data(), fPositions.size_bytes());
 }
 
