@@ -250,7 +250,6 @@ skia_core_sources = [
   "$_src/core/SkRecordedDrawable.cpp",
   "$_src/core/SkRecorder.cpp",
   "$_src/core/SkRect.cpp",
-  "$_src/core/SkRefDict.cpp",
   "$_src/core/SkRegion.cpp",
   "$_src/core/SkRegionPriv.h",
   "$_src/core/SkRegion_path.cpp",

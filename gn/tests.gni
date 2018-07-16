@@ -194,7 +194,6 @@ tests_sources = [
   "$_tests/RectangleTextureTest.cpp",
   "$_tests/RectTest.cpp",
   "$_tests/RefCntTest.cpp",
-  "$_tests/RefDictTest.cpp",
   "$_tests/RegionTest.cpp",
   "$_tests/RenderTargetContextTest.cpp",
   "$_tests/ResourceAllocatorTest.cpp",
