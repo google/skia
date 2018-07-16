@@ -9,6 +9,7 @@
 #define SkDescriptor_DEFINED
 
 #include "SkMacros.h"
+#include "SkNoncopyable.h"
 #include "SkOpts.h"
 #include "SkTo.h"
 #include "SkTypes.h"

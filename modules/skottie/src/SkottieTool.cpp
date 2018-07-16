@@ -32,9 +32,11 @@ DEFINE_int32(height, 600, "Render height.");
 
 namespace {
 
-class Sink : public SkNoncopyable {
+class Sink {
 public:
     virtual ~Sink() = default;
+    Sink(const Sink&) = delete;
+    Sink& operator=(const Sink&) = delete;
 
     bool handleFrame(const sk_sp<skottie::Animation>& anim, size_t idx) const {
         const auto frame_file = SkStringPrintf("0%06d.%s", idx, fExtension.c_str());
@@ -56,8 +58,6 @@ protected:
 
 private:
     const SkString fExtension;
-
-    using INHERITED = SkNoncopyable;
 };
 
 class PNGSink final : public Sink {
