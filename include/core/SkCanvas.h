@@ -39,6 +39,7 @@ struct SkDrawShadowRec;
 class SkGlyphRunBuilder;
 class SkImage;
 class SkImageFilter;
+class SkLights;
 class SkMetaData;
 class SkPath;
 class SkPicture;
