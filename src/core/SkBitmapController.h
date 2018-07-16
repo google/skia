@@ -12,6 +12,7 @@
 #include "SkBitmapCache.h"
 #include "SkFilterQuality.h"
 #include "SkMatrix.h"
+#include "SkMipMap.h"
 
 class SkBitmapProvider;
 
@@ -22,42 +23,31 @@ class SkBitmapController : ::SkNoncopyable {
 public:
     class State : ::SkNoncopyable {
     public:
-        virtual ~State() {}
+        State(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality);
 
         const SkPixmap& pixmap() const { return fPixmap; }
         const SkMatrix& invMatrix() const { return fInvMatrix; }
         SkFilterQuality quality() const { return fQuality; }
 
-    protected:
-        SkPixmap        fPixmap;
-        SkMatrix        fInvMatrix;
-        SkFilterQuality fQuality;
-
     private:
-        friend class SkBitmapController;
+        bool processHighRequest(const SkBitmapProvider&);
+        bool processMediumRequest(const SkBitmapProvider&);
+
+        SkPixmap              fPixmap;
+        SkMatrix              fInvMatrix;
+        SkFilterQuality       fQuality;
+
+        // Pixmap storage.
+        SkBitmap              fResultBitmap;
+        sk_sp<const SkMipMap> fCurrMip;
+
     };
 
-    virtual ~SkBitmapController() {}
+    static State* RequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
+                                SkArenaAlloc*);
 
-    State* requestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                         SkArenaAlloc*);
-
-protected:
-    virtual State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inv, SkFilterQuality,
-                                   SkArenaAlloc*) = 0;
-};
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-#include "SkMipMap.h"
-
-class SkDefaultBitmapController : public SkBitmapController {
-public:
-    SkDefaultBitmapController() {}
-
-protected:
-    State* onRequestBitmap(const SkBitmapProvider&, const SkMatrix& inverse, SkFilterQuality,
-                           SkArenaAlloc*) override;
+private:
+    SkBitmapController() = delete;
 };
 
 #endif
