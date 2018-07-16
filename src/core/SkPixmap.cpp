@@ -80,8 +80,8 @@ bool SkPixmap::extractSubset(SkPixmap* result, const SkIRect& subset) const {
     return true;
 }
 
-bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB, int x, int y,
-                          SkTransferFunctionBehavior) const {
+bool SkPixmap::readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+                          int x, int y) const {
     if (!SkImageInfoValidConversion(dstInfo, fInfo)) {
         return false;
     }

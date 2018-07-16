@@ -482,19 +482,19 @@ bool SkBitmap::extractSubset(SkBitmap* result, const SkIRect& subset) const {
 ///////////////////////////////////////////////////////////////////////////////
 
 bool SkBitmap::readPixels(const SkImageInfo& requestedDstInfo, void* dstPixels, size_t dstRB,
-                          int x, int y, SkTransferFunctionBehavior behavior) const {
+                          int x, int y) const {
     SkPixmap src;
     if (!this->peekPixels(&src)) {
         return false;
     }
-    return src.readPixels(requestedDstInfo, dstPixels, dstRB, x, y, behavior);
+    return src.readPixels(requestedDstInfo, dstPixels, dstRB, x, y);
 }
 
 bool SkBitmap::readPixels(const SkPixmap& dst, int srcX, int srcY) const {
     return this->readPixels(dst.info(), dst.writable_addr(), dst.rowBytes(), srcX, srcY);
 }
 
-bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY, SkTransferFunctionBehavior) {
+bool SkBitmap::writePixels(const SkPixmap& src, int dstX, int dstY) {
     if (!SkImageInfoValidConversion(this->info(), src.info())) {
         return false;
     }
