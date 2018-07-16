@@ -43,12 +43,13 @@ private:
             , fXInvInset(xInvInset)
             , fYInvInset(yInvInset)
             , fSrcCoordTransform(SkMatrix::I(), fSrc.proxy()) {
-        this->addTextureSampler(&fSrc);
+        this->setTextureSamplerCnt(1);
         this->addCoordTransform(&fSrcCoordTransform);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     TextureSampler fSrc;
     SkIRect fBounds;

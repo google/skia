@@ -234,7 +234,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(sk_sp<GrTextureProxy> proxy,
     SkASSERT(mode != GrTextureDomain::kRepeat_Mode ||
              filterMode == GrSamplerState::Filter::kNearest);
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
@@ -243,7 +243,7 @@ GrTextureDomainEffect::GrTextureDomainEffect(const GrTextureDomainEffect& that)
         , fTextureDomain(that.fTextureDomain)
         , fTextureSampler(that.fTextureSampler) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 void GrTextureDomainEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -334,7 +334,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         , fTextureSampler(proxy, GrSamplerState::ClampNearest())
         , fTextureDomain(proxy.get(), GrTextureDomain::MakeTexelDomain(subset),
                          GrTextureDomain::kDecal_Mode) {
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
     fDeviceSpaceOffset.fX = deviceSpaceOffset.fX - subset.fLeft;
     fDeviceSpaceOffset.fY = deviceSpaceOffset.fY - subset.fTop;
 }
@@ -346,7 +346,7 @@ GrDeviceSpaceTextureDecalFragmentProcessor::GrDeviceSpaceTextureDecalFragmentPro
         , fTextureSampler(that.fTextureSampler)
         , fTextureDomain(that.fTextureDomain)
         , fDeviceSpaceOffset(that.fDeviceSpaceOffset) {
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 std::unique_ptr<GrFragmentProcessor> GrDeviceSpaceTextureDecalFragmentProcessor::clone() const {

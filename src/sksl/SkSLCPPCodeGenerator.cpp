@@ -635,6 +635,28 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     this->write("    }\n");
 }
 
+void CPPCodeGenerator::writeOnTextureSampler() {
+    bool foundSampler = false;
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        if (param->fType.kind() == Type::kSampler_Kind) {
+            if (!foundSampler) {
+                this->writef(
+                        "auto %s::onTextureSampler(int index) const -> const TextureSampler& {\n",
+                        fFullName.c_str());
+                this->writef("    return IthTextureSampler(index, %s",
+                             HCodeGenerator::FieldName(String(param->fName).c_str()).c_str());
+                foundSampler = true;
+            } else {
+                this->writef(", %s",
+                             HCodeGenerator::FieldName(String(param->fName).c_str()).c_str());
+            }
+        }
+    }
+    if (foundSampler) {
+        this->write(");\n}\n");
+    }
+}
+
 void CPPCodeGenerator::writeClone() {
     if (!this->writeSection(CLONE_SECTION)) {
         if (fSectionAndParameterHelper.getSection(FIELDS_SECTION)) {
@@ -660,14 +682,17 @@ void CPPCodeGenerator::writeClone() {
         }
         this->writef(" {\n");
         int childCount = 0;
+        int samplerCount = 0;
         for (const auto& param : fSectionAndParameterHelper.getParameters()) {
             if (param->fType.kind() == Type::kSampler_Kind) {
-                this->writef("    this->addTextureSampler(&%s);\n",
-                             HCodeGenerator::FieldName(String(param->fName).c_str()).c_str());
+                ++samplerCount;
             } else if (param->fType == *fContext.fFragmentProcessor_Type) {
                 this->writef("    this->registerChildProcessor(src.childProcessor(%d).clone());"
                              "\n", childCount++);
             }
+        }
+        if (samplerCount) {
+            this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
         }
         for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
             String field = HCodeGenerator::FieldName(s->fArgument.c_str());
@@ -817,6 +842,7 @@ bool CPPCodeGenerator::generateCode() {
     this->write("    return true;\n"
                 "}\n");
     this->writeClone();
+    this->writeOnTextureSampler();
     this->writeTest();
     this->writeSection(CPP_END_SECTION);
 

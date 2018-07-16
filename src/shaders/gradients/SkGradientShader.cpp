@@ -1293,8 +1293,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             fTextureSampler.reset(std::move(proxy), samplerState);
             fYCoord = SK_ScalarHalf;
         }
-
-        this->addTextureSampler(&fTextureSampler);
+        this->setTextureSamplerCnt(1);
     }
 
     this->addCoordTransform(&fCoordTransform);
@@ -1315,7 +1314,7 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         , fPremulType(that.fPremulType) {
     this->addCoordTransform(&fCoordTransform);
     if (fStrategy == InterpolationStrategy::kTexture) {
-        this->addTextureSampler(&fTextureSampler);
+        this->setTextureSamplerCnt(1);
     }
     if (this->useAtlas()) {
         fAtlas->lockRow(fRow);
