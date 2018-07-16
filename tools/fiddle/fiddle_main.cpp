@@ -267,7 +267,7 @@ int main(int argc, char** argv) {
     if (options.f16) {
         SkASSERT(options.srgb);
         colorType = kRGBA_F16_SkColorType;
-        colorSpace = SkColorSpace::MakeSRGBLinear();
+        colorSpace = SkColorSpace::MakeSRGB();
     } else if (options.srgb) {
         colorSpace = SkColorSpace::MakeSRGB();
     }
