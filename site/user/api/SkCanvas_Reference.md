@@ -3426,7 +3426,7 @@ true if <a href='#SkCanvas_quickReject_2_path'>path</a>, transformed by <a href=
 
 ### Example
 
-<div><fiddle-embed name="56dcd14f943aea6f7d7aafe0de7e6c25">
+<div><fiddle-embed name="94ad244056dc80ecd87daae004266334">
 
 #### Example Output
 
@@ -4459,7 +4459,7 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ### Example
 
-<div><fiddle-embed name="e311cdd451edacec33b50cc22a4dd5dc"></fiddle-embed></div>
+<div><fiddle-embed name="9303ffae45ddd0b0a1f93d816a1762f4"></fiddle-embed></div>
 
 ### See Also
 
@@ -5120,7 +5120,7 @@ and so on; or nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"><div>The leftmost <a href='#SkCanvas_drawImageNine_image'>image</a> is smaller than <a href='#SkCanvas_drawImageNine_center'>center</a>; only corners are drawn, all scaled to fit.
+<div><fiddle-embed name="8c28db3add9cd0177225088f6df6bbb5"><div>The leftmost <a href='#SkCanvas_drawImageNine_image'>image</a> is smaller than <a href='#SkCanvas_drawImageNine_center'>center</a>; only corners are drawn, all scaled to fit.
 The second <a href='#SkCanvas_drawImageNine_image'>image</a> equals the size of <a href='#SkCanvas_drawImageNine_center'>center</a>; only corners are drawn without scaling.
 The remaining images are larger than <a href='#SkCanvas_drawImageNine_center'>center</a>. All corners draw without scaling.
 The sides and <a href='#SkCanvas_drawImageNine_center'>center</a> are scaled if needed to take up the remaining space.

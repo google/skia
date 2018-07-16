@@ -4448,7 +4448,7 @@ clockwise if <a href='#SkPath_addOval_dir'>dir</a> is <a href='#SkPath_kCW_Direc
 
 ### Example
 
-<div><fiddle-embed name="ace8f4aebf90527d43e4b7291375c9ad"></fiddle-embed></div>
+<div><fiddle-embed name="cac84cf68e63a453c2a8b64c91537704"></fiddle-embed></div>
 
 ### See Also
 
@@ -5326,7 +5326,7 @@ Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'
 
 ### Example
 
-<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
+<div><fiddle-embed name="35888f0869e01a6e03b5b93bba563734">
 
 #### Example Output
 
@@ -5873,7 +5873,7 @@ open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_setPath_path'>path</a
 
 ### Example
 
-<div><fiddle-embed name="6c9688008cea8937ad5cc188b38ecf16">
+<div><fiddle-embed name="a61e5758574e28190ec4ed8c4ae7e7fa">
 
 #### Example Output
 

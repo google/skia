@@ -1380,7 +1380,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="2956aeb50fa862cdb13995e1e56a4bc8"></fiddle-embed></div>
+<div><fiddle-embed name="9f47f9c2a99473f5b1113db48096d586"></fiddle-embed></div>
 
 ### See Also
 
@@ -1838,7 +1838,7 @@ Returns <a href='#Alpha_Type'>Alpha Type</a>, one of: <a href='#kUnknown_SkAlpha
 
 ### Example
 
-<div><fiddle-embed name="c675a480b41dee157f84fa2550a2a53c">
+<div><fiddle-embed name="5c1d2499a4056b6cff38c1cf924158a1">
 
 #### Example Output
 

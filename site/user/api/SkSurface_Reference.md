@@ -1646,7 +1646,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="c43d70606b4ee464d2befbcf448c5e73"></fiddle-embed></div>
+<div><fiddle-embed name="9f454fb93bca6482598d198b4121f0a6"></fiddle-embed></div>
 
 ### See Also
 
