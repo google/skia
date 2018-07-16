@@ -37,6 +37,7 @@ class GrStyle;
 class GrTextureProxy;
 struct GrUserStencilSettings;
 struct SkDrawShadowRec;
+class SkGlyphRunList;
 struct SkIPoint;
 struct SkIRect;
 class SkLatticeIter;
@@ -67,9 +68,9 @@ public:
                              const char text[], size_t byteLength, const SkScalar pos[],
                              int scalarsPerPosition, const SkPoint& offset,
                              const SkIRect& clipBounds);
-    virtual void drawTextBlob(const GrClip&, const SkPaint&,
-                              const SkMatrix& viewMatrix, const SkTextBlob*,
-                              SkScalar x, SkScalar y, const SkIRect& clipBounds);
+    virtual void drawGlyphRunList(const GrClip&,
+                                  const SkMatrix& viewMatrix, SkGlyphRunList*,
+                                  const SkIRect& clipBounds);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed
