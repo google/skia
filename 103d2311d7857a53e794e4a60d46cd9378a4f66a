@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fba38077_9a3ab7e1",
+        "filename": "src/pdf/SkPDFDocument.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-16T15:26:02Z",
+      "side": 1,
+      "message": "Doh!  If I use unique_ptr\u003cT[]\u003e, then I also need a fChildCount field.",
+      "parentUuid": "2317f91f_1a7fd07d",
+      "revId": "103d2311d7857a53e794e4a60d46cd9378a4f66a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1346f9cf_c38c702e",
         "filename": "src/pdf/SkPDFTag.h",
         "patchSetId": 7
