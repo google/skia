@@ -1621,7 +1621,7 @@ product of input magnitudes and cosine of the angle between them
 
 ### Example
 
-<div><fiddle-embed name="6b0ffb03ba05f526b345dc65a1c73fe4"></fiddle-embed></div>
+<div><fiddle-embed name="496db0131a003162faba7d7f98b30340"></fiddle-embed></div>
 
 ### See Also
 

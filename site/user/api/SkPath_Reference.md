@@ -5326,7 +5326,7 @@ Returns zero if <a href='#Path'>Path</a> contains no <a href='undocumented#Line'
 
 ### Example
 
-<div><fiddle-embed name="35888f0869e01a6e03b5b93bba563734">
+<div><fiddle-embed name="657a3f3e11acafea92b84d6bb0c13633">
 
 #### Example Output
 
@@ -5873,7 +5873,7 @@ open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_setPath_path'>path</a
 
 ### Example
 
-<div><fiddle-embed name="a61e5758574e28190ec4ed8c4ae7e7fa">
+<div><fiddle-embed name="6c9688008cea8937ad5cc188b38ecf16">
 
 #### Example Output
 
