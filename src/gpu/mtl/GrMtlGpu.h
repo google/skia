@@ -39,6 +39,23 @@ public:
         kSkip_SyncQueue
     };
 
+#ifdef GR_TEST_UTILS
+    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
+                                                     GrPixelConfig config, bool isRT,
+                                                     GrMipMapped) override;
+
+    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override;
+
+    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
+
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
+                                                               GrSRGBEncoded) override;
+
+    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
+
+    void testingOnly_flushGpuAndSync() override;
+#endif
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
@@ -135,21 +152,9 @@ private:
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
 #if GR_TEST_UTILS
-    GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
-                                                     GrPixelConfig config, bool isRT,
-                                                     GrMipMapped) override {
-        return GrBackendTexture();
-    }
-    bool isTestingOnlyBackendTexture(const GrBackendTexture&) const override { return false; }
-    void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override {}
-
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
-                                                               GrSRGBEncoded) override {
-        return {};
-    }
-    void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override {}
-
-    void testingOnly_flushGpuAndSync() override {}
+    bool createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
+                                         bool renderable, GrMipMapped mipMapped,
+                                         const void* srcData, GrMtlTextureInfo* info);
 #endif
 
     sk_sp<GrMtlCaps> fMtlCaps;
