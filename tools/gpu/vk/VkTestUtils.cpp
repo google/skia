@@ -17,7 +17,7 @@
 namespace sk_gpu_test {
 
 bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,
-                                                   PFN_vkGetDeviceProcAddr* devProc) {
+                                      PFN_vkGetDeviceProcAddr* devProc) {
 #ifdef SK_MOLTENVK
     // MoltenVK is a statically linked framework, so there is no Vulkan library to load.
     *instProc = &vkGetInstanceProcAddr;
@@ -120,7 +120,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
         return;                                                                \
     }
 
-static void destroy_instance(GrVkInterface::GetProc getProc, VkInstance inst,
+static void destroy_instance(GrVkGetProc getProc, VkInstance inst,
                              VkDebugReportCallbackEXT* debugCallback,
                              bool hasDebugExtension) {
     if (hasDebugExtension && *debugCallback != VK_NULL_HANDLE) {
@@ -132,20 +132,11 @@ static void destroy_instance(GrVkInterface::GetProc getProc, VkInstance inst,
     grVkDestroyInstance(inst, nullptr);
 }
 
-bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstanceProc,
-                            const GrVkInterface::GetDeviceProc& getDeviceProc,
+bool CreateVkBackendContext(GrVkGetProc getProc,
                             GrVkBackendContext* ctx,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent) {
-    auto getProc = [getInstanceProc, getDeviceProc](const char* proc_name,
-                                                    VkInstance instance, VkDevice device) {
-        if (device != VK_NULL_HANDLE) {
-            return getDeviceProc(device, proc_name);
-        }
-        return getInstanceProc(instance, proc_name);
-    };
-
     VkPhysicalDevice physDev;
     VkDevice device;
     VkInstance inst;
@@ -417,7 +408,6 @@ bool CreateVkBackendContext(const GrVkInterface::GetInstanceProc& getInstancePro
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
     ctx->fExtensions = extensionFlags;
     ctx->fFeatures = featureFlags;
-    ctx->fInterface = nullptr;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
 

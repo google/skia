@@ -11,6 +11,7 @@
 
 #include "GrTypes.h"
 #include "GrVkDefines.h"
+#include <functional>
 
 /**
  * KHR_debug
