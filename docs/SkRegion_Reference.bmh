@@ -1,0 +1,1321 @@
+#Topic Region
+#Alias Region_Reference ##
+
+#Class SkRegion
+
+The SkRegion class encapsulates the geometric region used to specify
+clipping areas for drawing.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Class
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Operator
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Class Iterator
+#Line # incomplete ##
+
+#Code
+#ToDo fill this in manually ##
+##
+
+Returns the sequence of rectangles, sorted in Y and X, that make up
+this region.
+
+# ------------------------------------------------------------------------------
+
+#Method Iterator()
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method Iterator(const SkRegion& region)
+#In incomplete
+#Line # incomplete ##
+
+#Param region  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool rewind()
+#In incomplete
+#Line # incomplete ##
+
+Points iterator start of Region.
+Returns true if Region was set; otherwise, returns false.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void reset(const SkRegion& region)
+#In incomplete
+#Line # incomplete ##
+
+Resets iterator, using the new Region.
+
+#Param region  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool done() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void next()
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkIRect& rect() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRegion* rgn() const
+#In incomplete
+#Line # incomplete ##
+
+Returns Region if set; otherwise, returns nullptr.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class Iterator ##
+
+# ------------------------------------------------------------------------------
+
+#Class Cliperator
+#Line # incomplete ##
+
+#Code
+#ToDo fill this in manually ##
+##
+
+Returns the sequence of rectangles, sorted in Y and X, that make up
+this region intersected with the specified clip rectangle.
+
+# ------------------------------------------------------------------------------
+
+#Method Cliperator(const SkRegion& region, const SkIRect& clip)
+#In incomplete
+#Line # incomplete ##
+
+#Param region  incomplete ##
+#Param clip  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool done()
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void  next()
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkIRect& rect() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class Cliperator ##
+
+# ------------------------------------------------------------------------------
+
+#Class Spanerator
+#Line # incomplete ##
+
+#Code
+#ToDo fill this in manually ##
+##
+
+Returns the sequence of runs that make up this region for the specified
+Y scanline, clipped to the specified left and right X values.
+
+# ------------------------------------------------------------------------------
+
+#Method Spanerator(const SkRegion& region, int y, int left, int right)
+#In incomplete
+#Line # incomplete ##
+
+#Param region  incomplete ##
+#Param y  incomplete ##
+#Param left  incomplete ##
+#Param right  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool next(int* left, int* right)
+#In incomplete
+#Line # incomplete ##
+
+#Param left  incomplete ##
+#Param right  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class Spanerator ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef int32_t RunType
+#Line # incomplete ##
+
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRegion()
+#In Constructor
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRegion(const SkRegion& region)
+#In Constructor
+#Line # incomplete ##
+
+#Param region  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method explicit SkRegion(const SkIRect& region)
+#In Constructor
+#Line # incomplete ##
+
+#Param region  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method ~SkRegion()
+#In Constructor
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkRegion& operator=(const SkRegion& region)
+#In Operator
+#Line # incomplete ##
+
+#Param region  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator==(const SkRegion& other)_const
+#In Operator
+#Line # incomplete ##
+
+Return true if the two regions are equal. i.e. The enclose exactly
+the same area.
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool operator!=(const SkRegion& other)_const
+#In Operator
+#Line # incomplete ##
+
+Return true if the two regions are not equal.
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool set(const SkRegion& src)
+#In incomplete
+#Line # incomplete ##
+
+Replace this region with the specified region, and return true if the
+resulting region is non-empty.
+
+#Param src  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void swap(SkRegion& other)
+#In incomplete
+#Line # incomplete ##
+
+Swap the contents of this and the specified region. This operation
+is gauarenteed to never fail.
+
+#Param other  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isEmpty() const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region is empty
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isRect() const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region is a single, non-empty rectangle
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isComplex() const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region consists of more than 1 rectangular area
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkIRect& getBounds() const
+#In incomplete
+#Line # incomplete ##
+
+Return the bounds of this region. If the region is empty, returns an
+empty rectangle.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method int computeRegionComplexity() const
+#In incomplete
+#Line # incomplete ##
+
+Returns a value that grows approximately linearly with the number of
+intervals comprised in the region. Empty region will return 0, Rect
+will return 1, Complex will return a value > 1.
+Use this to compare two regions, where the larger count likely
+indicates a more complex region.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool getBoundaryPath(SkPath* path) const
+#In incomplete
+#Line # incomplete ##
+
+Returns true if the region is non-empty, and if so, appends the
+boundary(s) of the region to the specified path.
+If the region is empty, returns false, and path is left unmodified.
+
+#Param path  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setEmpty()
+#In incomplete
+#Line # incomplete ##
+
+Set the region to be empty, and return false, since the resulting
+region is empty
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setRect(const SkIRect& rect)
+#In incomplete
+#Line # incomplete ##
+
+If rect is non-empty, set this region to that rectangle and return true,
+otherwise set this region to empty and return false.
+
+#Param rect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setRect(int32_t left, int32_t top, int32_t right, int32_t bottom)
+#In incomplete
+#Line # incomplete ##
+
+If left < right and top < bottom, set this region to that rectangle and
+return true, otherwise set this region to empty and return false.
+
+#Param left  incomplete ##
+#Param top  incomplete ##
+#Param right  incomplete ##
+#Param bottom  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setRects(const SkIRect rects[], int count)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the union of an array of rects. This is generally
+faster than calling region.op(rect, kUnion_Op) in a loop. If count is
+0, then this region is set to the empty region. #Param rects  incomplete ##
+#Param count  incomplete ##
+
+#Return  true if the resulting region is non-empty
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setRegion(const SkRegion& region)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the specified region, and return true if it is
+non-empty.
+
+#Param region  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool setPath(const SkPath& path, const SkRegion& clip)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the area described by the path, clipped.
+Return true if the resulting region is non-empty.
+This produces a region that is identical to the pixels that would be
+drawn by the path (with no antialiasing) with the specified clip.
+
+#Param path  incomplete ##
+#Param clip  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool intersects(const SkIRect& rect) const
+#In incomplete
+#Line # incomplete ##
+
+Returns true if the specified rectangle has a non-empty intersection
+with this region.
+
+#Param rect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool intersects(const SkRegion& other) const
+#In incomplete
+#Line # incomplete ##
+
+Returns true if the specified region has a non-empty intersection
+with this region.
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool contains(int32_t x, int32_t y) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if the specified x,y coordinate is inside the region.
+
+#Param x  incomplete ##
+#Param y  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool contains(const SkIRect& other) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if the specified rectangle is completely inside the region.
+This works for simple (rectangular) and complex regions, and always
+returns the correct result. Note: if either this region or the rectangle
+is empty, contains() returns false.
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool contains(const SkRegion& other) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if the specified region is completely inside the region.
+This works for simple (rectangular) and complex regions, and always
+returns the correct result. Note: if either region is empty, contains()
+returns false.
+
+#Param other  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickContains(const SkIRect& r) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region is a single rectangle (not complex) and the
+specified rectangle is contained by this region. Returning false is not
+a guarantee that the rectangle is not contained by this region, but
+return true is a guarantee that the rectangle is contained by this region.
+
+#Param r  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickContains(int32_t left, int32_t top, int32_t right,
+                       int32_t bottom) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region is a single rectangle (not complex) and the
+specified rectangle is contained by this region. Returning false is not
+a guarantee that the rectangle is not contained by this region, but
+return true is a guarantee that the rectangle is contained by this
+region.
+
+#Param left  incomplete ##
+#Param top  incomplete ##
+#Param right  incomplete ##
+#Param bottom  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickReject(const SkIRect& rect) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region is empty, or if the specified rectangle does
+not intersect the region. Returning false is not a guarantee that they
+intersect, but returning true is a guarantee that they do not.
+
+#Param rect  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool quickReject(const SkRegion& rgn) const
+#In incomplete
+#Line # incomplete ##
+
+Return true if this region, or rgn, is empty, or if their bounds do not
+intersect. Returning false is not a guarantee that they intersect, but
+returning true is a guarantee that they do not.
+
+#Param rgn  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void translate(int dx, int dy)
+#In incomplete
+#Line # incomplete ##
+
+Translate the region by the specified (dx, dy) amount.
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void translate(int dx, int dy, SkRegion* dst) const
+#In incomplete
+#Line # incomplete ##
+
+Translate the region by the specified (dx, dy) amount, writing the
+resulting region into dst. Note: it is legal to pass this region as the
+dst parameter, effectively translating the region in place. If dst is
+null, nothing happens.
+
+#Param dx  incomplete ##
+#Param dy  incomplete ##
+#Param dst  incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum Op
+
+#Code
+    enum Op {
+        kDifference_Op,
+        kIntersect_Op,
+        kUnion_Op,
+        kXOR_Op,
+        kReverseDifference_Op,
+        kReplace_Op,
+        kLastOp = kReplace_Op,
+    };
+##
+
+The logical operations that can be performed when combining two regions.
+
+#Const kDifference_Op 0
+subtract the op region from the first region
+##
+#Const kIntersect_Op 1
+intersect the two regions
+##
+#Const kUnion_Op 2
+union (inclusive-or) the two regions
+##
+#Const kXOR_Op 3
+exclusive-or the two regions
+##
+#Const kReverseDifference_Op 4
+subtract the first region from the op region
+##
+#Const kReplace_Op 5
+replace the dst region with the op region
+##
+#Const kLastOp 5
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Const kOpCnt 6
+#Line # incomplete ##
+
+#Const ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(const SkIRect& rect, Op op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to this region and the
+specified rectangle: this = (this op rect).
+Return true if the resulting region is non-empty.
+
+#Param rect  incomplete ##
+#Param op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(int left, int top, int right, int bottom, Op op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to this region and the
+specified rectangle: this = (this op rect).
+Return true if the resulting region is non-empty.
+
+#Param left  incomplete ##
+#Param top  incomplete ##
+#Param right  incomplete ##
+#Param bottom  incomplete ##
+#Param op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(const SkRegion& rgn, Op op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to this region and the
+specified region: this = (this op rgn).
+Return true if the resulting region is non-empty.
+
+#Param rgn  incomplete ##
+#Param op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(const SkIRect& rect, const SkRegion& rgn, Op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to the specified
+rectangle and region: this = (rect op rgn).
+Return true if the resulting region is non-empty.
+
+#Param rect  incomplete ##
+#Param rgn  incomplete ##
+#Param Op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(const SkRegion& rgn, const SkIRect& rect, Op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to the specified
+region and rectangle: this = (rgn op rect).
+Return true if the resulting region is non-empty.
+
+#Param rgn  incomplete ##
+#Param rect  incomplete ##
+#Param Op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool op(const SkRegion& rgna, const SkRegion& rgnb, Op op)
+#In incomplete
+#Line # incomplete ##
+
+Set this region to the result of applying the Op to the specified
+regions: this = (rgna op rgnb).
+Return true if the resulting region is non-empty.
+
+#Param rgna  incomplete ##
+#Param rgnb  incomplete ##
+#Param op  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method char* toString()
+#In incomplete
+#Line # incomplete ##
+
+Returns a new char* containing the list of rectangles in this region
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t writeToMemory(void* buffer) const
+#In incomplete
+#Line # incomplete ##
+
+Write the region to the buffer, and return the number of bytes written.
+If buffer is NULL, it still returns the number of bytes.
+
+#Param buffer  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t readFromMemory(const void* buffer, size_t length)
+#In incomplete
+#Line # incomplete ##
+
+Initializes the region from the buffer
+
+#Param buffer  Memory to read from
+##
+#Param length  Amount of memory available in the buffer
+##
+
+#Return  number of bytes read (must be a multiple of 4) or
+        0 if there was not enough memory available
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static const SkRegion& GetEmptyRegion()
+#In incomplete
+#Line # incomplete ##
+
+Returns a reference to a global empty region. Just a convenience for
+callers that need a const empty region.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void dump() const
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void validate() const
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static void UnitTest()
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool debugSetRuns(const RunType runs[], int count)
+#In incomplete
+#Line # incomplete ##
+
+#Param runs  incomplete ##
+#Param count  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkRegion ##
+
+#Topic Region ##
