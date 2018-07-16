@@ -306,7 +306,6 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             GrGLPrintShader(fGpu->glContext(), GR_GL_FRAGMENT_SHADER, fFS.fCompilerStrings.begin(),
                             fFS.fCompilerStringLengths.begin(), fFS.fCompilerStrings.count(),
                             settings);
-            SkDEBUGFAIL("");
             return nullptr;
         }
     }
