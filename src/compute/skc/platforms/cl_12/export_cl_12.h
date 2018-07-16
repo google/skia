@@ -60,4 +60,3 @@ skc_surface_cl_12_create(struct skc_context   * const context,
 //
 //
 //
-

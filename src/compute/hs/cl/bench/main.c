@@ -32,9 +32,10 @@
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #endif
 
-#include "macros.h"
-#include "assert_cl.h"
-#include "find_cl.h"
+#include "common/macros.h"
+#include "common/cl/assert_cl.h"
+#include "common/cl/find_cl.h"
+
 #include "hs_cl_launcher.h"
 
 //
@@ -90,10 +91,10 @@ char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count);
 
 static
 char const *
-hs_cpu_sort(void                *  sorted_h,
-            uint32_t               const count,
-            struct hs_info const * const info,
-            double               * const cpu_ns)
+hs_cpu_sort(uint32_t const hs_words,
+            void   *       sorted_h,
+            uint32_t const count,
+            double * const cpu_ns)
 {
   char const * algo;
 
@@ -101,7 +102,7 @@ hs_cpu_sort(void                *  sorted_h,
 
   QueryPerformanceCounter(&t0);
 
-  if (info->words == 1)
+  if (hs_words == 1)
     algo = hs_cpu_sort_u32(sorted_h,count);
   else
     algo = hs_cpu_sort_u64(sorted_h,count);
@@ -117,27 +118,34 @@ hs_cpu_sort(void                *  sorted_h,
 
 static
 bool
-hs_verify_linear(void * sorted_h, void * vout_h, const uint32_t count, struct hs_info const * const info)
+hs_verify_linear(uint32_t const hs_words,
+                 void   *       sorted_h,
+                 void   *       vout_h,
+                 uint32_t const count)
 {
-  return memcmp(sorted_h, vout_h, sizeof(uint32_t) * info->words * count) == 0;
+  return memcmp(sorted_h, vout_h, sizeof(uint32_t) * hs_words * count) == 0;
 }
 
 static
 void
-hs_transpose_slabs_u32(uint32_t * vout_h, const uint32_t count, struct hs_info const * const info)
+hs_transpose_slabs_u32(uint32_t const hs_words,
+                       uint32_t const hs_width,
+                       uint32_t const hs_height,
+                       uint32_t *     vout_h,
+                       uint32_t const count)
 {
-  uint32_t   const slab_keys  = info->keys * info->lanes;
-  size_t     const slab_size  = sizeof(uint32_t) * info->words * slab_keys;
-  uint32_t * const slab       = _alloca(slab_size);
+  uint32_t   const slab_keys  = hs_width * hs_height;
+  size_t     const slab_size  = sizeof(uint32_t) * hs_words * slab_keys;
+  uint32_t * const slab       = ALLOCA_MACRO(slab_size);
   uint32_t         slab_count = count / slab_keys;
 
   while (slab_count-- > 0)
     {
       memcpy(slab,vout_h,slab_size);
 
-      for (uint32_t row=0; row<info->keys; row++)
-        for (uint32_t col=0; col<info->lanes; col++)
-          vout_h[col * info->keys + row] = slab[row * info->lanes + col];
+      for (uint32_t row=0; row<hs_height; row++)
+        for (uint32_t col=0; col<hs_width; col++)
+          vout_h[col * hs_height + row] = slab[row * hs_width + col];
 
       vout_h += slab_keys;
     }
@@ -145,20 +153,24 @@ hs_transpose_slabs_u32(uint32_t * vout_h, const uint32_t count, struct hs_info c
 
 static
 void
-hs_transpose_slabs_u64(uint64_t * vout_h, const uint32_t count, struct hs_info const * const info)
+hs_transpose_slabs_u64(uint32_t const hs_words,
+                       uint32_t const hs_width,
+                       uint32_t const hs_height,
+                       uint64_t *     vout_h,
+                       uint32_t const count)
 {
-  uint32_t   const slab_keys  = info->keys * info->lanes;
-  size_t     const slab_size  = sizeof(uint32_t) * info->words * slab_keys;
-  uint64_t * const slab       = _alloca(slab_size);
+  uint32_t   const slab_keys  = hs_width * hs_height;
+  size_t     const slab_size  = sizeof(uint32_t) * hs_words * slab_keys;
+  uint64_t * const slab       = ALLOCA_MACRO(slab_size);
   uint32_t         slab_count = count / slab_keys;
 
   while (slab_count-- > 0)
     {
       memcpy(slab,vout_h,slab_size);
 
-      for (uint32_t row=0; row<info->keys; row++)
-        for (uint32_t col=0; col<info->lanes; col++)
-          vout_h[col * info->keys + row] = slab[row * info->lanes + col];
+      for (uint32_t row=0; row<hs_height; row++)
+        for (uint32_t col=0; col<hs_width; col++)
+          vout_h[col * hs_height + row] = slab[row * hs_width + col];
 
       vout_h += slab_keys;
     }
@@ -166,12 +178,16 @@ hs_transpose_slabs_u64(uint64_t * vout_h, const uint32_t count, struct hs_info c
 
 static
 void
-hs_transpose_slabs(void * vout_h, const uint32_t count, struct hs_info const * const info)
+hs_transpose_slabs(uint32_t const hs_words,
+                   uint32_t const hs_width,
+                   uint32_t const hs_height,
+                   void   *       vout_h,
+                   uint32_t const count)
 {
-  if (info->words == 1)
-    hs_transpose_slabs_u32(vout_h,count,info);
+  if (hs_words == 1)
+    hs_transpose_slabs_u32(hs_words,hs_width,hs_height,vout_h,count);
   else
-    hs_transpose_slabs_u64(vout_h,count,info);
+    hs_transpose_slabs_u64(hs_words,hs_width,hs_height,vout_h,count);
 }
 
 //
@@ -180,18 +196,18 @@ hs_transpose_slabs(void * vout_h, const uint32_t count, struct hs_info const * c
 
 static
 void
-hs_debug_u32(
-             uint32_t       const *       vout_h,
-             uint32_t               const count,
-             struct hs_info const * const info)
+hs_debug_u32(uint32_t const   hs_width,
+             uint32_t const   hs_height,
+             uint32_t const * vout_h,
+             uint32_t const   count)
 {
-  uint32_t const slab  = info->keys * info->lanes;
-  uint32_t const slabs = (count + slab - 1) / slab;
+  uint32_t const slab_keys = hs_width * hs_height;
+  uint32_t const slabs     = (count + slab_keys - 1) / slab_keys;
 
   for (uint32_t ss=0; ss<slabs; ss++) {
     fprintf(stderr,"%u\n",ss);
-    for (uint32_t cc=0; cc<info->keys; cc++) {
-      for (uint32_t rr=0; rr<info->lanes; rr++)
+    for (uint32_t cc=0; cc<hs_height; cc++) {
+      for (uint32_t rr=0; rr<hs_width; rr++)
         fprintf(stderr,"%8X ",*vout_h++);
       fprintf(stderr,"\n");
     }
@@ -200,17 +216,18 @@ hs_debug_u32(
 
 static
 void
-hs_debug_u64(uint64_t       const *       vout_h,
-             uint32_t               const count,
-             struct hs_info const * const info)
+hs_debug_u64(uint32_t const   hs_width,
+             uint32_t const   hs_height,
+             uint64_t const * vout_h,
+             uint32_t const   count)
 {
-  uint32_t const slab  = info->keys * info->lanes;
-  uint32_t const slabs = (count + slab - 1) / slab;
+  uint32_t const slab_keys = hs_width * hs_height;
+  uint32_t const slabs     = (count + slab_keys - 1) / slab_keys;
 
   for (uint32_t ss=0; ss<slabs; ss++) {
     fprintf(stderr,"%u\n",ss);
-    for (uint32_t cc=0; cc<info->keys; cc++) {
-      for (uint32_t rr=0; rr<info->lanes; rr++)
+    for (uint32_t cc=0; cc<hs_height; cc++) {
+      for (uint32_t rr=0; rr<hs_width; rr++)
         fprintf(stderr,"%16llX ",*vout_h++);
       fprintf(stderr,"\n");
     }
@@ -275,7 +292,10 @@ hs_dummy_kernel_release()
 
 static
 void
-hs_dummy_kernel_enqueue(cl_command_queue cq, cl_event * const event)
+hs_dummy_kernel_enqueue(cl_command_queue cq,
+                        uint32_t         wait_list_size,
+                        cl_event const * wait_list,
+                        cl_event       * event)
 {
   size_t const global_work_size = 1;
 
@@ -285,8 +305,8 @@ hs_dummy_kernel_enqueue(cl_command_queue cq, cl_event * const event)
                           NULL,
                           &global_work_size,
                           NULL,
-                          0,
-                          NULL,
+                          wait_list_size,
+                          wait_list,
                           event));
 }
 
@@ -298,8 +318,12 @@ static
 void
 hs_bench(cl_context                   context,
          cl_command_queue             cq,
+         cl_command_queue             cq_profile,
          char           const * const device_name,
-         struct hs_info const * const info,
+         uint32_t               const hs_words,
+         uint32_t               const hs_width,
+         uint32_t               const hs_height,
+         struct hs_cl   const * const hs,
          uint32_t               const count_lo,
          uint32_t               const count_hi,
          uint32_t               const count_step,
@@ -318,14 +342,13 @@ hs_bench(cl_context                   context,
   //
   uint32_t count_hi_padded_in, count_hi_padded_out;
 
-  hs_pad(count_hi,&count_hi_padded_in,&count_hi_padded_out);
+  hs_cl_pad(hs,count_hi,&count_hi_padded_in,&count_hi_padded_out);
 
   //
   // SIZE
   //
-  size_t const key_size    = sizeof(uint32_t)    * info->words;
+  size_t const key_size    = sizeof(uint32_t)    * hs_words;
 
-  size_t const size_hi     = count_hi            * key_size;
   size_t const size_hi_in  = count_hi_padded_in  * key_size;
   size_t const size_hi_out = count_hi_padded_out * key_size;
 
@@ -363,7 +386,7 @@ hs_bench(cl_context                   context,
                                          &cl_err); cl_ok(cl_err);
 
     // fill with random numbers
-    hs_fill_rand(random_h,count_hi,info->words);
+    hs_fill_rand(random_h,count_hi,hs_words);
 
     //
     // UNMAP
@@ -379,16 +402,14 @@ hs_bench(cl_context                   context,
       // compute padding before sorting
       uint32_t count_padded_in, count_padded_out;
 
-      hs_pad(count,&count_padded_in,&count_padded_out);
+      hs_cl_pad(hs,count,&count_padded_in,&count_padded_out);
 
       cl_ulong elapsed_ns_min = ULONG_MAX;
       cl_ulong elapsed_ns_max = 0;
       cl_ulong elapsed_ns_sum = 0;
 
-#if 1
-          cl(EnqueueCopyBuffer(cq,random,vin,0,0,count * key_size,0,NULL,NULL));
-          cl(Finish(cq));
-#endif
+      cl(EnqueueCopyBuffer(cq,random,vin,0,0,count * key_size,0,NULL,NULL));
+      cl(Finish(cq));
 
       for (uint32_t ii=0; ii<warmup+loops; ii++)
         {
@@ -410,23 +431,23 @@ hs_bench(cl_context                   context,
           //
           // sort vin
           //
-          cl_event start, end;
+          cl_event start, complete, end;
 
-          hs_dummy_kernel_enqueue(cq,&start);
-
-          cl(EnqueueBarrierWithWaitList(cq,0,NULL,NULL));
+          hs_dummy_kernel_enqueue(cq_profile,0,NULL,&start);
 
           // note hs_sort enqueues a final barrier
-          hs_sort(cq,
-                  vin,vout,
-                  count,
-                  count_padded_in,
-                  count_padded_out,
-                  linearize);
+          hs_cl_sort(hs,
+                     cq,
+                     1,&start,&complete,
+                     vin,vout,
+                     count,
+                     count_padded_in,
+                     count_padded_out,
+                     linearize);
 
-          hs_dummy_kernel_enqueue(cq,&end);
+          hs_dummy_kernel_enqueue(cq_profile,1,&complete,&end);
 
-          cl(Finish(cq));
+          cl(Finish(cq_profile));
 
           //
           // measure duration
@@ -439,7 +460,6 @@ hs_bench(cl_context                   context,
                                    sizeof(cl_ulong),
                                    &t_start,
                                    NULL));
-          cl(ReleaseEvent(start));
 
           // end
           cl(GetEventProfilingInfo(end,
@@ -447,13 +467,16 @@ hs_bench(cl_context                   context,
                                    sizeof(cl_ulong),
                                    &t_end,
                                    NULL));
-          cl(ReleaseEvent(end));
 
           cl_ulong const t = t_end - t_start;
 
           elapsed_ns_min  = MIN_MACRO(elapsed_ns_min,t);
           elapsed_ns_max  = MAX_MACRO(elapsed_ns_max,t);
           elapsed_ns_sum += t;
+
+          cl(ReleaseEvent(start));
+          cl(ReleaseEvent(complete));
+          cl(ReleaseEvent(end));
         }
 
       //
@@ -485,27 +508,27 @@ hs_bench(cl_context                   context,
 
       double cpu_ns;
 
-      char const * const algo = hs_cpu_sort(sorted_h,count_padded_in,info,&cpu_ns);
+      char const * const algo = hs_cpu_sort(hs_words,sorted_h,count_padded_in,&cpu_ns);
 
       //
       // EXPLICITLY TRANSPOSE THE CPU SORTED SLABS IF NOT LINEARIZING
       //
       if (!linearize) {
-        hs_transpose_slabs(vout_h,count_padded_in,info);
+        hs_transpose_slabs(hs_words,hs_width,hs_height,vout_h,count_padded_in);
       }
 
       //
       // VERIFY
       //
-      bool const verified = hs_verify_linear(sorted_h,vout_h,count_padded_in,info);
+      bool const verified = hs_verify_linear(hs_words,sorted_h,vout_h,count_padded_in);
 
 #ifndef NDEBUG
       if (!verified)
         {
-          if (info->words == 1)
-            hs_debug_u32(vout_h,count,info);
+          if (hs_words == 1)
+            hs_debug_u32(hs_width,hs_height,vout_h,count);
           else // ulong
-            hs_debug_u64(vout_h,count,info);
+            hs_debug_u64(hs_width,hs_height,vout_h,count);
         }
 #endif
 
@@ -519,7 +542,7 @@ hs_bench(cl_context                   context,
       //
       fprintf(stdout,"%s, %s, %s, %s, %8u, %8u, %8u, CPU, %s, %9.2f, %6.2f, GPU, %9u, %7.3f, %7.3f, %7.3f, %6.2f, %6.2f\n",
               device_name,
-              (info->words == 1) ? "uint" : "ulong",
+              (hs_words == 1) ? "uint" : "ulong",
               linearize ? "linear" : "slab",
               verified ? "  OK  " : "*FAIL*",
               count,
@@ -555,8 +578,15 @@ hs_bench(cl_context                   context,
 //
 //
 
+#define HS_TARGET_NAME hs_target
+#include "intel/gen8/u64/hs_target.h"
+
+//
+//
+//
+
 int
-main(int argc, char** argv)
+main(int argc, char const * argv[])
 {
   char const * const target_platform_substring = "Intel";
   char const * const target_device_substring   = "Graphics";
@@ -601,41 +631,62 @@ main(int argc, char** argv)
   //
   // create command queue
   //
-  cl_command_queue_properties const props = CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE;
-
 #if 0 // OPENCL 2.0
-  cl_queue_properties queue_properties[] =
-    {
-      CL_QUEUE_PROPERTIES, (cl_queue_properties)props,
-      0
-    };
+
+  cl_queue_properties props[] = {
+    CL_QUEUE_PROPERTIES,
+    (cl_queue_properties)CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
+#ifndef NDEBUG
+    (cl_queue_properties)CL_QUEUE_PROFILING_ENABLE,
+#endif
+    0
+  };
+
+  cl_queue_properties props_profile[] = {
+    CL_QUEUE_PROPERTIES,
+    (cl_queue_properties)CL_QUEUE_PROFILING_ENABLE,
+    0
+  };
 
   cl_command_queue cq = clCreateCommandQueueWithProperties(context,
                                                            device_id,
-                                                           queue_properties,
+                                                           props,
                                                            &cl_err); cl_ok(cl_err);
+
+  cl_command_queue cq_profile = clCreateCommandQueueWithProperties(context,
+                                                                   device_id,
+                                                                   props_profile,
+                                                                   &cl_err); cl_ok(cl_err);
 #else // OPENCL 1.2
+
   cl_command_queue cq = clCreateCommandQueue(context,
                                              device_id,
-                                             props,
-                                             &cl_err); cl_ok(cl_err);
+#ifndef NDEBUG
+                                             CL_QUEUE_PROFILING_ENABLE |
 #endif
+                                             CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE,
+                                             &cl_err); cl_ok(cl_err);
+
+  cl_command_queue cq_profile = clCreateCommandQueue(context,
+                                                     device_id,
+                                                     CL_QUEUE_PROFILING_ENABLE,
+                                                     &cl_err); cl_ok(cl_err);
+#endif
+
+  //
+  // Intel GEN workaround -- create dummy kernel for semi-accurate
+  // profiling on an out-of-order queue.
+  //
+  hs_dummy_kernel_create(context,device_id);
 
   //
   // create kernels
   //
   fprintf(stdout,"Creating... ");
 
-  struct hs_info info;
-
-  hs_create(context,device_id,&info);
+  struct hs_cl * const hs = hs_cl_create(&hs_target,context,device_id);
 
   fprintf(stdout,"done.\n");
-
-  //
-  // create dummy kernel for profiling
-  //
-  hs_dummy_kernel_create(context,device_id);
 
   //
   //
@@ -651,7 +702,7 @@ main(int argc, char** argv)
   //
   // sort sizes and loops
   //
-  uint32_t const kpb        = info.keys * info.lanes;
+  uint32_t const kpb        = hs_target.config.slab.height << hs_target.config.slab.width_log2;
 
   uint32_t const count_lo   = (argc <= 1) ? kpb             : strtoul(argv[1],NULL,0);
   uint32_t const count_hi   = (argc <= 2) ? count_lo        : strtoul(argv[2],NULL,0);
@@ -663,15 +714,30 @@ main(int argc, char** argv)
   //
   // benchmark
   //
-  hs_bench(context,cq,device_name,&info,count_lo,count_hi,count_step,loops,warmup,linearize);
+  hs_bench(context,
+           cq,cq_profile,
+           device_name,
+           hs_target.config.words.key + hs_target.config.words.val,
+           1 << hs_target.config.slab.width_log2,
+           hs_target.config.slab.height,
+           hs,
+           count_lo,
+           count_hi,
+           count_step,
+           loops,
+           warmup,
+           linearize);
 
   //
   // release everything
   //
+  hs_cl_release(hs);
+
   hs_dummy_kernel_release();
-  hs_release();
 
   cl(ReleaseCommandQueue(cq));
+  cl(ReleaseCommandQueue(cq_profile));
+
   cl(ReleaseContext(context));
 
   return 0;

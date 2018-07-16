@@ -44,6 +44,7 @@ skc_surface_render(skc_surface_t             surface,
                    skc_composition_t         composition,
                    skc_framebuffer_t         fb,
                    uint32_t            const clip[4],
+                   int32_t             const txty[2],
                    skc_surface_render_notify notify,
                    void                    * data)
 {
@@ -70,7 +71,10 @@ skc_surface_render(skc_surface_t             surface,
   // non-overlapping clips.  This is fairly easy but at this point
   // doesn't seem like a common use case.
   //
-  surface->render(surface->impl,styling,composition,fb,clip,notify,data);
+  surface->render(surface->impl,
+                  styling,composition,
+                  fb,clip,txty,
+                  notify,data);
 
   return SKC_ERR_SUCCESS;
 }

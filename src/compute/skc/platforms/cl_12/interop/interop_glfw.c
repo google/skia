@@ -354,7 +354,7 @@ skc_interop_create()
                         .interop     = interop,
                         .post_render = skc_interop_blit },
 
-     .is_msecs      = true,
+     .is_msecs      = false,
      .is_srgb       = true,
      .is_vsync_on   = false,
      .is_fullscreen = false,
@@ -747,5 +747,3 @@ skc_interop_get_size(struct skc_interop * interop,
 //
 //
 //
-
-

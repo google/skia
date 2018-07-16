@@ -59,12 +59,11 @@ pow2_rd_u32(uint32_t n)
 uint32_t
 msb_idx_u32(uint32_t n)
 {
-
 #ifdef _MSC_VER
 
   uint32_t index;
 
-  _BitScanReverse(&index,n);
+  _BitScanReverse((unsigned long *)&index,n);
 
   return index;
 
@@ -78,7 +77,6 @@ msb_idx_u32(uint32_t n)
 #error "No msb_index()"
 
 #endif
-
 }
 
 //

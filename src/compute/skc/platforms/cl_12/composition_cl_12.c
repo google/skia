@@ -380,7 +380,8 @@ static
 void
 skc_composition_sort_grid_pfn_execute(skc_grid_t const grid)
 {
-  struct skc_composition_impl * const impl = skc_grid_get_data(grid);
+  struct skc_composition_impl * const impl    = skc_grid_get_data(grid);
+  struct skc_runtime          * const runtime = impl->runtime;
 
   // we should be sealing
   assert(impl->state == SKC_COMPOSITION_STATE_SEALING);
@@ -395,22 +396,24 @@ skc_composition_sort_grid_pfn_execute(skc_grid_t const grid)
     {
       uint32_t keys_padded_in, keys_padded_out;
 
-      hs_pad(atomics->keys,&keys_padded_in,&keys_padded_out);
+      hs_cl_pad(runtime->hs,atomics->keys,&keys_padded_in,&keys_padded_out);
 
-      hs_sort(impl->cq,
-              impl->keys.drw,
-              impl->keys.drw,
-              atomics->keys,
-              keys_padded_in,
-              keys_padded_out,
-              false);
+      hs_cl_sort(impl->runtime->hs,
+                 impl->cq,
+                 0,NULL,NULL,
+                 impl->keys.drw,
+                 NULL,
+                 atomics->keys,
+                 keys_padded_in,
+                 keys_padded_out,
+                 false);
 
       cl(SetKernelArg(impl->kernels.segment,0,SKC_CL_ARG(impl->keys.drw)));
       cl(SetKernelArg(impl->kernels.segment,1,SKC_CL_ARG(impl->offsets.drw)));
       cl(SetKernelArg(impl->kernels.segment,2,SKC_CL_ARG(impl->atomics.drw)));
 
       // find start of each tile
-      skc_device_enqueue_kernel(impl->runtime->device,
+      skc_device_enqueue_kernel(runtime->device,
                                 SKC_DEVICE_KERNEL_ID_SEGMENT_TTCK,
                                 impl->cq,
                                 impl->kernels.segment,

@@ -58,6 +58,8 @@ struct skc_runtime
   struct skc_config const        * config; // FIXME: config will be determined by device with some opportunities to resize
 
   struct skc_device              * device; // opaque bundle of kernels
+
+  struct hs_cl      const        * hs;     // opaque hotsort
 };
 
 //
@@ -185,4 +187,3 @@ skc_runtime_cl_12_debug(struct skc_context * const context);
 //
 //
 //
-

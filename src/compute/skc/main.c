@@ -69,7 +69,7 @@ skc_runtime_cl_12_debug(struct skc_context * const context);
 //
 
 int
-main(int argc, char** argv)
+main(int argc, char const * argv[])
 {
   //
   //
@@ -242,7 +242,8 @@ main(int argc, char** argv)
           skc_composition_seal(composition);
         }
 
-      uint32_t const clip[] = { 0, 0, 65535, 65535 }; // tile clip is <= 9 bits (512)
+      uint32_t const clip[] = { 0, 0, 65535, 65535 };
+      int32_t  const txty[] = { 0, 0 };
 
       // render the styled composition to the surface
       skc_surface_render(surface,
@@ -250,6 +251,7 @@ main(int argc, char** argv)
                          composition,
                          skc_interop_get_framebuffer(interop),
                          clip,
+                         txty,
                          NULL,
                          NULL);
 

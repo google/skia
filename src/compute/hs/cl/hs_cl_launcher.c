@@ -11,42 +11,97 @@
 //
 
 #include <stdlib.h>
+#include <string.h>
+
+//
+//
+//
+
+#include "common/cl/assert_cl.h"
+#include "common/macros.h"
+#include "common/util.h"
 
 //
 //
 //
 
 #include "hs_cl_launcher.h"
-#include "assert_cl.h"
-#include "macros.h"
-#include "util.h"
 
 //
 //
 //
 
-typedef uint32_t uint;
-typedef uint64_t ulong;
+struct hs_cl
+{
+  struct hs_cl_target_config config;
+
+  uint32_t                   key_val_size;
+  uint32_t                   slab_keys;
+  uint32_t                   bs_slabs_log2_ru;
+  uint32_t                   bc_slabs_log2_max;
+
+  struct {
+    uint32_t                 count;
+    cl_kernel              * transpose;
+    cl_kernel              * bs;
+    cl_kernel              * bc;
+    cl_kernel              * fm[3];
+    cl_kernel              * hm[3];
+    cl_kernel                all[];
+  } kernels;
+};
 
 //
 //
 //
 
-#include "hs_cl.h"
-
-//
-//
-//
-
-#if 0 // #ifndef NDEBUG
-#define HS_KERNEL_SOURCE
-#else
-#define HS_KERNEL_BINARY
+struct hs_state
+{
+#ifndef NDEBUG
+  cl_ulong         t_total; // 0
 #endif
 
+  cl_command_queue cq;
+
+  // key buffers
+  cl_mem           vin;
+  cl_mem           vout; // can be vin
+
+  // enforces ordering on out-of-order queue
+  cl_event         wait_list[3]; // worst case
+  uint32_t         wait_list_size;
+
+  // bx_ru is number of rounded up warps in vin
+  uint32_t         bx_ru;
+};
+
 //
-// #define HS_KERNEL_SPIRV
 //
+//
+
+static
+void
+hs_state_wait_list_release(struct hs_state * const state)
+{
+  for (uint32_t ii=0; ii<state->wait_list_size; ii++)
+    cl(ReleaseEvent(state->wait_list[ii]));
+
+  state->wait_list_size = 0;
+}
+
+static
+void
+hs_state_wait_list_update(struct hs_state * const state,
+                          uint32_t          const wait_list_size,
+                          cl_event  const * const wait_list)
+{
+  uint32_t const new_size = state->wait_list_size + wait_list_size;
+
+  for (uint32_t ii=state->wait_list_size; ii<new_size; ii++)
+    state->wait_list[ii] = wait_list[ii];
+
+  state->wait_list_size = new_size;
+}
 
 //
 //
@@ -54,83 +109,42 @@ typedef uint64_t ulong;
 
 #ifdef NDEBUG
 
-#define HS_LAUNCH_TRACE(k,g,l)
+#define HS_STATE_WAIT_LIST_PROFILE(state)
+#define HS_STATE_WAIT_LIST_PROFILE_EX(state,wait_list_size,wait_list)
 
 #else
 
 #include <stdio.h>
 
-#define HS_KERNEL_NAME_MAX 20
+#define HS_STATE_WAIT_LIST_PROFILE(state)               \
+  hs_state_wait_list_profile(state,                     \
+                             state->wait_list_size,     \
+                             state->wait_list)
+
+#define HS_STATE_WAIT_LIST_PROFILE_EX(state,wait_list_size,wait_list)   \
+  hs_state_wait_list_profile(state,                                     \
+                             wait_list_size,                            \
+                             wait_list)
 
 static
 void
-hs_launch_trace(cl_kernel    kernel,
-                size_t const global_work_size,
-                size_t const local_work_size)
+hs_state_wait_list_profile(struct hs_state  * const state,
+                           uint32_t           const wait_list_size,
+                           cl_event   const * const wait_list)
 {
-  if (kernel == NULL)
-    return;
-
-  char name[HS_KERNEL_NAME_MAX];
-
-  cl(GetKernelInfo(kernel,CL_KERNEL_FUNCTION_NAME,HS_KERNEL_NAME_MAX,name,NULL));
-
-  fprintf(stderr,"%-19s ( %6zu, %4zu )\n",name,global_work_size,local_work_size);
-}
-
-#define HS_LAUNCH_TRACE(k,g,l)  hs_launch_trace(k,g,l)
-
-#endif
-
-//
-//
-//
-
-#ifdef NDEBUG
-
-#define HS_EVENT_NEXT()      NULL
-#define HS_EVENT_PROFILE(cq)
-
-#else
-
-#define HS_EVENTS_MAX   128
-
-static cl_event events[HS_EVENTS_MAX];
-static uint32_t events_count;
-
-static
-cl_event *
-hs_event_next()
-{
-  if (events_count + 1 >= HS_EVENTS_MAX) // no events can be recorded?
-    {
-      return NULL;
-    }
-  else // return next event slot
-    {
-      return events + events_count++;
-    }
-}
-
-static
-void
-hs_event_profile(cl_command_queue cq)
-{
-  cl(Finish(cq));
+  cl(Finish(state->cq));
 
   cl_command_queue_properties props;
 
-  cl(GetCommandQueueInfo(cq,
+  cl(GetCommandQueueInfo(state->cq,
                          CL_QUEUE_PROPERTIES,
                          sizeof(props),
                          &props,
                          NULL));
 
-  cl_ulong t_min=UINT64_MAX, t_max=0;
-
-  for (uint32_t ee=0; ee<events_count; ee++)
+  for (uint32_t ii=0; ii<wait_list_size; ii++)
     {
-      cl_event event = events[ee];
+      cl_event event = wait_list[ii];
 
       //
       // profiling
@@ -152,8 +166,7 @@ hs_event_profile(cl_command_queue cq)
                                    &t_end,
                                    NULL));
 
-          t_min = MIN_MACRO(t_min,t_start);
-          t_max = MAX_MACRO(t_max,t_end);
+          state->t_total += t_end - t_start;
         }
 
       //
@@ -164,353 +177,91 @@ hs_event_profile(cl_command_queue cq)
 
       cl_get_event_info(event,&status,&type);
 
-      fprintf(stdout,"%-3u, %-13s, %-28s, %20llu, %20llu, %20llu, %20llu\n",
-              ee,
+      fprintf(stdout,"%-13s, %-28s, %20llu, %20llu, %20llu, %20llu\n",
               cl_get_event_command_status_string(status),
               cl_get_event_command_type_string(type),
-              t_start,t_end,t_end-t_start,t_max-t_min);
-
-      // release
-      cl(ReleaseEvent(event));
+              t_start,t_end,t_end-t_start,state->t_total);
     }
 }
 
-#define HS_EVENT_NEXT()      hs_event_next()
-#define HS_EVENT_PROFILE(cq) hs_event_profile(cq);
-
 #endif
 
 //
 //
 //
 
-struct hs_state
-{
-  cl_mem       vin;
-  cl_mem       vout;
+#ifdef NDEBUG
 
-  // bx.ru is number of rounded up warps in vin
-  struct {
-    uint32_t   ru;
-  } bx;
+#define HS_LAUNCH_TRACE(k,g,l)
 
-  // these values change on each iteration
-  union {
-    struct {
-      uint32_t full;
-      uint32_t frac;
-    } bs; // warps
-    struct {
-      uint32_t full;
-      uint32_t na;
-    } bc; // warps
-    struct {
-      uint32_t full;
-      uint32_t frac;
-    } fm; // rows
-  };
-};
+#else
 
-//
-//
-//
+#include <stdio.h>
 
-#define HS_THREADS_PER_BLOCK  (HS_BS_WARPS           * HS_LANES_PER_WARP)
-#define HS_KEYS_PER_WARP      (HS_KEYS_PER_LANE      * HS_LANES_PER_WARP)
-
-#define HS_BS_KEYS_PER_BLOCK  (HS_KEYS_PER_WARP      * HS_BS_WARPS)
-#define HS_BS_BLOCK_SIZE      (HS_BS_KEYS_PER_BLOCK  * sizeof(HS_KEY_TYPE))
-
-#define HS_BC_KEYS_PER_BLOCK  (HS_KEYS_PER_WARP << HS_BC_WARPS_LOG2_MAX)
-#define HS_BC_BLOCK_SIZE      (HS_BC_KEYS_PER_BLOCK  * sizeof(HS_KEY_TYPE))
-
-//
-//
-//
-
-#if   defined( HS_KERNEL_SOURCE )
-
-#include "hs_cl.pre.src.inl"
-
-#elif defined( HS_KERNEL_BINARY )
-
-#include "hs_cl.pre.bin.inl"
-
-#elif defined( HS_KERNEL_SPIRV )
-
-#include "hs_cl.pre.spv.inl"
-
-#endif
-
-//
-//
-//
-
-struct hs_transpose_kernel
-{
-  cl_kernel    kernel;
-  char const * name;
-};
-
-#define HS_TRANSPOSE_KERNEL_DECLARE(n) { .name = #n }
-
-static struct hs_transpose_kernel transpose_kernels[] =
-  {
-    HS_TRANSPOSE_KERNEL_DECLARE(hs_kernel_transpose)
-  };
-
-//
-//
-//
-
-struct hs_bs_kernel
-{
-  cl_kernel    kernel;
-  char const * name;
-};
-
-#define HS_BS_KERNEL_DECLARE(n) { .name = #n }
-
-static struct hs_bs_kernel bs_kernels[] =
-  {
-#if 0 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_0),
-#endif
-#if 1 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_1),
-#endif
-#if 2 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_2),
-#endif
-#if 3 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_3),
-#endif
-#if 4 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_4),
-#endif
-#if 5 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_5),
-#endif
-#if 6 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_6),
-#endif
-#if 7 <= HS_BS_WARPS_LOG2_RU
-    HS_BS_KERNEL_DECLARE(hs_kernel_bs_7),
-#endif
-  };
-
-//
-//
-//
-
-struct hs_bc_kernel
-{
-  cl_kernel    kernel;
-  char const * name;
-};
-
-#define HS_BC_KERNEL_DECLARE(n) { .name = #n }
-
-static struct hs_bc_kernel bc_kernels[] =
-  {
-#if (0 >= HS_BC_WARPS_LOG2_MIN) && (0 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_0),
-#endif
-#if (1 >= HS_BC_WARPS_LOG2_MIN) && (1 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_1),
-#endif
-#if (2 >= HS_BC_WARPS_LOG2_MIN) && (2 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_2),
-#endif
-#if (3 >= HS_BC_WARPS_LOG2_MIN) && (3 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_3),
-#endif
-#if (4 >= HS_BC_WARPS_LOG2_MIN) && (4 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_4),
-#endif
-#if (5 >= HS_BC_WARPS_LOG2_MIN) && (5 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_5),
-#endif
-#if (6 >= HS_BC_WARPS_LOG2_MIN) && (6 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_6),
-#endif
-#if (7 >= HS_BC_WARPS_LOG2_MIN) && (7 <= HS_BC_WARPS_LOG2_MAX)
-    HS_BC_KERNEL_DECLARE(hs_kernel_bc_7),
-#endif
-  };
-
-//
-//
-//
-
-struct hs_fm_kernel
-{
-  cl_kernel        kernel;
-  char     const * name;
-  uint32_t const   log2;
-};
-
-#define HS_FM_KERNEL_DECLARE(n,l) { .name = #n, .log2 = l }
-
-static struct hs_fm_kernel fm_kernels[] =
-  {
-#ifdef HS_FM_BLOCKS_LOG2_0
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_0,HS_FM_BLOCKS_LOG2_0),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_1
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_1,HS_FM_BLOCKS_LOG2_1),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_2
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_2,HS_FM_BLOCKS_LOG2_2),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_3
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_3,HS_FM_BLOCKS_LOG2_3),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_4
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_4,HS_FM_BLOCKS_LOG2_4),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_5
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_5,HS_FM_BLOCKS_LOG2_5),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_6
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_6,HS_FM_BLOCKS_LOG2_6),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_7
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_7,HS_FM_BLOCKS_LOG2_7),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_8
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_8,HS_FM_BLOCKS_LOG2_8),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_9
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_9,HS_FM_BLOCKS_LOG2_9),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_10
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_10,HS_FM_BLOCKS_LOG2_10),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_11
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_11,HS_FM_BLOCKS_LOG2_11),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_12
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_12,HS_FM_BLOCKS_LOG2_12),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_13
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_13,HS_FM_BLOCKS_LOG2_13),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_14
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_14,HS_FM_BLOCKS_LOG2_14),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_15
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_15,HS_FM_BLOCKS_LOG2_15),
-#endif
-#ifdef HS_FM_BLOCKS_LOG2_16
-    HS_FM_KERNEL_DECLARE(hs_kernel_fm_16,HS_FM_BLOCKS_LOG2_16),
-#endif
-  };
-
-//
-//
-//
-
-struct hs_hm_kernel
-{
-  cl_kernel        kernel;
-  char     const * name;
-  uint32_t const   log2;
-};
-
-#define HS_HM_KERNEL_DECLARE(n,l) { .name = #n, .log2 = l }
-
-static struct hs_hm_kernel hm_kernels[] =
-  {
-#ifdef HS_HM_BLOCKS_LOG2_0
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_0,HS_HM_BLOCKS_LOG2_0),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_1
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_1,HS_HM_BLOCKS_LOG2_1),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_2
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_2,HS_HM_BLOCKS_LOG2_2),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_3
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_3,HS_HM_BLOCKS_LOG2_3),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_4
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_4,HS_HM_BLOCKS_LOG2_4),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_5
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_5,HS_HM_BLOCKS_LOG2_5),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_6
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_6,HS_HM_BLOCKS_LOG2_6),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_7
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_7,HS_HM_BLOCKS_LOG2_7),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_8
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_8,HS_HM_BLOCKS_LOG2_8),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_9
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_9,HS_HM_BLOCKS_LOG2_9),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_10
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_10,HS_HM_BLOCKS_LOG2_10),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_11
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_11,HS_HM_BLOCKS_LOG2_11),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_12
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_12,HS_HM_BLOCKS_LOG2_12),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_13
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_13,HS_HM_BLOCKS_LOG2_13),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_14
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_14,HS_HM_BLOCKS_LOG2_14),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_15
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_15,HS_HM_BLOCKS_LOG2_15),
-#endif
-#ifdef HS_HM_BLOCKS_LOG2_16
-    HS_HM_KERNEL_DECLARE(hs_kernel_hm_16,HS_HM_BLOCKS_LOG2_16),
-#endif
-  };
-
-//
-//
-//
+#define HS_KERNEL_NAME_MAX 20
 
 static
 void
-hs_barrier(cl_command_queue cq)
+hs_launch_trace(cl_kernel            kernel,
+                uint32_t       const dim,
+                size_t const * const global_work_size)
 {
-  cl(EnqueueBarrierWithWaitList(cq,0,NULL,NULL));
+  if (kernel == NULL)
+    return;
+
+  char name[HS_KERNEL_NAME_MAX];
+
+  cl(GetKernelInfo(kernel,CL_KERNEL_FUNCTION_NAME,HS_KERNEL_NAME_MAX,name,NULL));
+
+  fprintf(stderr,"%-19s ( %6zu, %6zu, %6zu )\n",
+          name,
+          global_work_size[0],
+          dim < 2 ? 0 : global_work_size[1],
+          dim < 3 ? 0 : global_work_size[2]);
 }
 
+#define HS_LAUNCH_TRACE(k,d,g)  hs_launch_trace(k,d,g)
+
+#endif
+
 //
 //
 //
 
 static
 void
-hs_launch_transpose(struct hs_state const * const state,
-                    cl_command_queue              cq,
-                    cl_kernel                     kernel,
-                    size_t                  const global_work_size,
-                    size_t                  const local_work_size)
+hs_transpose_launcher(struct hs_cl const * const hs,
+                      struct hs_state    * const state)
 {
-  HS_LAUNCH_TRACE(kernel,global_work_size,local_work_size);
+  size_t const size[1] = { state->bx_ru << hs->config.slab.threads_log2 };
+  cl_kernel    kernel  = hs->kernels.transpose[0];
 
+  HS_LAUNCH_TRACE(kernel,1,size);
+
+  //
+  // The transpose kernel operates on a single slab.  For now, let's
+  // rely on the driver to choose a workgroup size.
+  //
+  // size_t local_work_size[1] = { HS_SLAB_THREADS };
+  //
   cl(SetKernelArg(kernel,0,sizeof(state->vout),&state->vout));
 
-  cl(EnqueueNDRangeKernel(cq,
+  cl_event wait_list_out[1];
+
+  cl(EnqueueNDRangeKernel(state->cq,
                           kernel,
                           1,
                           NULL,
-                          &global_work_size,
-                          &local_work_size,
-                          0,
+                          size,
                           NULL,
-                          HS_EVENT_NEXT()));
+                          state->wait_list_size,
+                          state->wait_list,
+                          wait_list_out));
+
+  hs_state_wait_list_release(state);
+  hs_state_wait_list_update(state,1,wait_list_out);
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -519,49 +270,63 @@ hs_launch_transpose(struct hs_state const * const state,
 
 static
 void
-hs_launch_bs(struct hs_state const * const state,
-             cl_command_queue              cq,
-             cl_kernel                     kernel_full,
-             cl_kernel                     kernel_frac,
-             size_t                  const global_work_size_full,
-             size_t                  const local_work_size_full,
-             size_t                  const local_work_size_frac)
-
+hs_launch_bs(struct hs_cl const * const hs,
+             struct hs_state    * const state,
+             uint32_t             const full,
+             uint32_t             const frac,
+             uint32_t             const wait_list_size,
+             cl_event           *       wait_list)
 {
-  HS_LAUNCH_TRACE(kernel_full,global_work_size_full,local_work_size_full);
-  HS_LAUNCH_TRACE(kernel_frac,local_work_size_frac,local_work_size_frac);
+  uint32_t wait_list_out_size = 0;
+  cl_event wait_list_out[2];
 
-  if (kernel_full != NULL)
+  if (full > 0)
     {
+      size_t const size_full[1] = { full << hs->config.slab.threads_log2 };
+      cl_kernel    kernel_full  = hs->kernels.bs[hs->bs_slabs_log2_ru];
+
+      HS_LAUNCH_TRACE(kernel_full,1,size_full);
+
       cl(SetKernelArg(kernel_full,0,sizeof(state->vin), &state->vin));
       cl(SetKernelArg(kernel_full,1,sizeof(state->vout),&state->vout));
 
-      cl(EnqueueNDRangeKernel(cq,
+      cl(EnqueueNDRangeKernel(state->cq,
                               kernel_full,
                               1,
                               NULL,
-                              &global_work_size_full,
-                              &local_work_size_full,
-                              0,
+                              size_full,
                               NULL,
-                              HS_EVENT_NEXT()));
+                              wait_list_size,
+                              wait_list,
+                              wait_list_out+wait_list_out_size++));
     }
 
-  if (kernel_frac != NULL)
+  if (frac > 0)
     {
+      size_t const offset_frac[1] = { full << hs->config.slab.threads_log2 };
+      size_t const size_frac  [1] = { frac << hs->config.slab.threads_log2 };
+      cl_kernel    kernel_frac    = hs->kernels.bs[msb_idx_u32(frac)];
+
+      HS_LAUNCH_TRACE(kernel_frac,1,size_frac);
+
       cl(SetKernelArg(kernel_frac,0,sizeof(state->vin), &state->vin));
       cl(SetKernelArg(kernel_frac,1,sizeof(state->vout),&state->vout));
 
-      cl(EnqueueNDRangeKernel(cq,
+      cl(EnqueueNDRangeKernel(state->cq,
                               kernel_frac,
                               1,
-                              &global_work_size_full,
-                              &local_work_size_frac,
-                              &local_work_size_frac,
-                              0,
+                              offset_frac,
+                              size_frac,
                               NULL,
-                              HS_EVENT_NEXT()));
+                              wait_list_size,
+                              wait_list,
+                              wait_list_out+wait_list_out_size++));
     }
+
+  hs_state_wait_list_release(state);
+  hs_state_wait_list_update(state,wait_list_out_size,wait_list_out);
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -570,25 +335,34 @@ hs_launch_bs(struct hs_state const * const state,
 
 static
 void
-hs_launch_bc(struct hs_state const * const state,
-             cl_command_queue              cq,
-             cl_kernel                     kernel,
-             size_t                  const global_work_size,
-             size_t                  const local_work_size)
+hs_launch_bc(struct hs_cl const * const hs,
+             struct hs_state    * const state,
+             uint32_t             const full,
+             uint32_t             const clean_slabs_log2)
 {
-  HS_LAUNCH_TRACE(kernel,global_work_size,local_work_size);
+  size_t const size[1] = { full << hs->config.slab.threads_log2 };
+  cl_kernel    kernel  = hs->kernels.bc[clean_slabs_log2];
+
+  HS_LAUNCH_TRACE(kernel,1,size);
 
   cl(SetKernelArg(kernel,0,sizeof(state->vout),&state->vout));
 
-  cl(EnqueueNDRangeKernel(cq,
+  cl_event wait_list_out[1];
+
+  cl(EnqueueNDRangeKernel(state->cq,
                           kernel,
                           1,
                           NULL,
-                          &global_work_size,
-                          &local_work_size,
-                          0,
+                          size,
                           NULL,
-                          HS_EVENT_NEXT()));
+                          state->wait_list_size,
+                          state->wait_list,
+                          wait_list_out));
+
+  hs_state_wait_list_release(state);
+  hs_state_wait_list_update(state,1,wait_list_out);
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -597,26 +371,64 @@ hs_launch_bc(struct hs_state const * const state,
 
 static
 void
-hs_launch_fm(struct hs_state const * const state,
-             cl_command_queue              cq,
-             cl_kernel                     kernel,
-             size_t                  const global_work_size)
+hs_launch_fm(struct hs_cl const * const hs,
+             struct hs_state    * const state,
+             uint32_t             const scale_log2,
+             uint32_t             const fm_full,
+             uint32_t             const fm_frac,
+             uint32_t             const span_threads)
 {
-  HS_LAUNCH_TRACE(kernel,global_work_size,0);
+  //
+  // Note that some platforms might need to use .z on large grids
+  //
+  uint32_t wait_list_out_size = 0;
+  cl_event wait_list_out[2];
 
-  cl(SetKernelArg(kernel,0,sizeof(state->vout),   &state->vout));
-  cl(SetKernelArg(kernel,1,sizeof(state->fm.full),&state->fm.full));
-  cl(SetKernelArg(kernel,2,sizeof(state->fm.frac),&state->fm.frac));
+  if (fm_full > 0)
+    {
+      size_t const size_full[3] = { span_threads, fm_full, 1 };
+      cl_kernel    kernel_full  = hs->kernels.fm[scale_log2][hs->bs_slabs_log2_ru];
 
-  cl(EnqueueNDRangeKernel(cq,
-                          kernel,
-                          1,
-                          NULL,
-                          &global_work_size,
-                          NULL,
-                          0,
-                          NULL,
-                          HS_EVENT_NEXT()));
+      HS_LAUNCH_TRACE(kernel_full,3,size_full);
+
+      cl(SetKernelArg(kernel_full,0,sizeof(state->vout),&state->vout));
+
+      cl(EnqueueNDRangeKernel(state->cq,
+                              kernel_full,
+                              3,
+                              NULL,
+                              size_full,
+                              NULL,
+                              state->wait_list_size,
+                              state->wait_list,
+                              wait_list_out+wait_list_out_size++));
+    }
+
+  if (fm_frac > 0)
+    {
+      size_t const offset_frac[3] = { 0,            fm_full, 0 };
+      size_t const size_frac  [3] = { span_threads, 1,       1 };
+      cl_kernel    kernel_frac    = hs->kernels.fm[scale_log2][msb_idx_u32(fm_frac)];
+
+      HS_LAUNCH_TRACE(kernel_frac,3,size_frac);
+
+      cl(SetKernelArg(kernel_frac,0,sizeof(state->vout),&state->vout));
+
+      cl(EnqueueNDRangeKernel(state->cq,
+                              kernel_frac,
+                              3,
+                              offset_frac,
+                              size_frac,
+                              NULL,
+                              state->wait_list_size,
+                              state->wait_list,
+                              wait_list_out+wait_list_out_size++));
+    }
+
+  hs_state_wait_list_release(state);
+  hs_state_wait_list_update(state,wait_list_out_size,wait_list_out);
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -625,24 +437,38 @@ hs_launch_fm(struct hs_state const * const state,
 
 static
 void
-hs_launch_hm(struct hs_state const * const state,
-             cl_command_queue              cq,
-             cl_kernel                     kernel,
-             size_t                  const global_work_size)
+hs_launch_hm(struct hs_cl const * const hs,
+             struct hs_state    * const state,
+             uint32_t             const scale_log2,
+             uint32_t             const spans,
+             uint32_t             const span_threads)
 {
-  HS_LAUNCH_TRACE(kernel,global_work_size,0);
+  //
+  // Note that some platforms might need to use .z on large grids
+  //
+  size_t const size[3] = { span_threads, spans, 1 };
+  cl_kernel    kernel  = hs->kernels.hm[scale_log2][0];
+
+  HS_LAUNCH_TRACE(kernel,3,size);
 
   cl(SetKernelArg(kernel,0,sizeof(state->vout),&state->vout));
 
-  cl(EnqueueNDRangeKernel(cq,
+  cl_event wait_list_out[1];
+
+  cl(EnqueueNDRangeKernel(state->cq,
                           kernel,
-                          1,
+                          3,
                           NULL,
-                          &global_work_size,
+                          size,
                           NULL,
-                          0,
-                          NULL,
-                          HS_EVENT_NEXT()));
+                          state->wait_list_size,
+                          state->wait_list,
+                          wait_list_out));
+
+  hs_state_wait_list_release(state);
+  hs_state_wait_list_update(state,1,wait_list_out);
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -651,18 +477,54 @@ hs_launch_hm(struct hs_state const * const state,
 
 static
 void
-hs_transpose_launcher(struct hs_state * const state,
-                      cl_command_queue        cq)
+hs_keyset_pre_sort(struct hs_cl const * const hs,
+                   struct hs_state    * const state,
+                   uint32_t             const count,
+                   uint32_t             const count_hi,
+                   uint32_t             const wait_list_size,
+                   cl_event           *       wait_list,
+                   cl_event           *       event)
 {
-  // transpose each slab
-  size_t const global_work_size = state->bx.ru * HS_LANES_PER_WARP;
-  size_t const local_work_size  = HS_LANES_PER_WARP; // FIXME -- might not always want to specify this
+  uint32_t const vin_span = count_hi - count;
+  uint32_t const pattern  = UINT32_MAX;
 
-  hs_launch_transpose(state,
-                      cq,
-                      transpose_kernels[0].kernel,
-                      global_work_size,
-                      local_work_size);
+  cl(EnqueueFillBuffer(state->cq,
+                       state->vin,
+                       &pattern,
+                       sizeof(pattern),
+                       count    * hs->key_val_size,
+                       vin_span * hs->key_val_size,
+                       wait_list_size,
+                       wait_list,
+                       event));
+
+  HS_STATE_WAIT_LIST_PROFILE_EX(state,1,event);
+}
+
+static
+void
+hs_keyset_pre_merge(struct hs_cl const * const hs,
+                    struct hs_state    * const state,
+                    uint32_t             const count_lo,
+                    uint32_t             const count_hi,
+                    uint32_t             const wait_list_size,
+                    cl_event           *       wait_list)
+{
+  uint32_t const vout_span = count_hi - count_lo;
+  uint32_t const pattern   = UINT32_MAX;
+
+  // appends event to incoming wait list
+  cl(EnqueueFillBuffer(state->cq,
+                       state->vout,
+                       &pattern,
+                       sizeof(pattern),
+                       count_lo  * hs->key_val_size,
+                       vout_span * hs->key_val_size,
+                       wait_list_size,
+                       wait_list,
+                       state->wait_list+state->wait_list_size++));
+
+  HS_STATE_WAIT_LIST_PROFILE(state);
 }
 
 //
@@ -671,27 +533,19 @@ hs_transpose_launcher(struct hs_state * const state,
 
 static
 void
-hs_bs_launcher(struct hs_state * const state,
-               uint32_t          const warps_in,
-               cl_command_queue        cq)
+hs_bs_launcher(struct hs_cl const * const hs,
+               struct hs_state    * const state,
+               uint32_t             const count_padded_in,
+               uint32_t             const wait_list_size,
+               cl_event           *       wait_list)
 {
-  // warps_in is already rounded up
-  uint32_t const full = (warps_in / HS_BS_WARPS) * HS_BS_WARPS;
-  uint32_t const frac = warps_in - full;
+  uint32_t const slabs_in = count_padded_in / hs->slab_keys;
+  uint32_t const full     = (slabs_in / hs->config.block.slabs) * hs->config.block.slabs;
+  uint32_t const frac     = slabs_in - full;
 
-  //
-  // FIXME -- launch on different queues
-  //
-  cl_kernel kernel_full = (full == 0) ? NULL : bs_kernels[HS_BS_WARPS_LOG2_RU].kernel;
-  cl_kernel kernel_frac = (frac == 0) ? NULL : bs_kernels[msb_idx_u32(frac)].kernel;
-
-  hs_launch_bs(state,
-               cq,
-               kernel_full,
-               kernel_frac,
-               full        * HS_LANES_PER_WARP,
-               HS_BS_WARPS * HS_LANES_PER_WARP,
-               frac        * HS_LANES_PER_WARP);
+  hs_launch_bs(hs,state,
+               full,frac,
+               wait_list_size,wait_list);
 }
 
 //
@@ -700,58 +554,17 @@ hs_bs_launcher(struct hs_state * const state,
 
 static
 void
-hs_bc_launcher(struct hs_state * const state,
-               uint32_t          const down_warps,
-               uint32_t          const down_warps_log2,
-               cl_command_queue        cq)
+hs_bc_launcher(struct hs_cl const * const hs,
+               struct hs_state    * const state,
+               uint32_t             const down_slabs,
+               uint32_t             const clean_slabs_log2)
 {
-  // block clean the minimal number of down_warps_log2 spans
-  uint32_t const frac_ru          = (1u << down_warps_log2) - 1;
-  state->bc.full                  = (down_warps + frac_ru) & ~frac_ru;
+  // block clean the minimal number of down_slabs_log2 spans
+  uint32_t const frac_ru = (1u << clean_slabs_log2) - 1;
+  uint32_t const full    = (down_slabs + frac_ru) & ~frac_ru;
 
-  // launch block slab sorting grid
-  size_t   const global_work_size = state->bc.full * HS_LANES_PER_WARP;
-  size_t   const local_work_size  = HS_LANES_PER_WARP << down_warps_log2;
-
-  //
   // we better be capable of cleaning at least two warps !!!
-  //
-  hs_launch_bc(state,
-               cq,
-               bc_kernels[down_warps_log2].kernel,
-               global_work_size,
-               local_work_size);
-}
-
-//
-//
-//
-
-static
-uint32_t
-hs_hm_launcher(struct hs_state * const state,
-               uint32_t          const down_warps,
-               uint32_t          const down_warps_log2_in,
-               cl_command_queue        cq)
-{
-  // how many scaled half-merge spans are there?
-  uint32_t const frac_ru  = (1 << down_warps_log2_in) - 1;
-  uint32_t const spans_ru = (down_warps + frac_ru) >> down_warps_log2_in;
-
-  // get the kernel record
-  struct hs_hm_kernel const * const hm = hm_kernels + down_warps_log2_in - HS_BC_WARPS_LOG2_MAX - 1;
-
-  // how large is the grid?
-  size_t const global_work_size = HS_LANES_PER_WARP * HS_KEYS_PER_LANE * (spans_ru << hm->log2);
-  size_t const local_work_size  = HS_LANES_PER_WARP;
-
-  // launch the hm kernel
-  hs_launch_hm(state,
-               cq,
-               hm->kernel,
-               global_work_size);
-
-  return hm->log2;
+  hs_launch_bc(hs,state,full,clean_slabs_log2);
 }
 
 //
@@ -760,63 +573,273 @@ hs_hm_launcher(struct hs_state * const state,
 
 static
 uint32_t
-hs_fm_launcher(struct hs_state * const state,
-               uint32_t          const up_scale_log2,
-               uint32_t        * const down_warps,
-               cl_command_queue        cq)
+hs_fm_launcher(struct hs_cl const * const hs,
+               struct hs_state    * const state,
+               uint32_t           * const down_slabs,
+               uint32_t             const up_scale_log2)
 {
-  // get the kernel record
-  struct hs_fm_kernel const * const fm = fm_kernels + up_scale_log2 - 1;
+  //
+  // FIXME OPTIMIZATION: in previous HotSort launchers it's sometimes
+  // a performance win to bias toward launching the smaller flip merge
+  // kernel in order to get more warps in flight (increased
+  // occupancy).  This is useful when merging small numbers of slabs.
+  //
+  // Note that HS_FM_SCALE_MIN will always be 0 or 1.
+  //
+  // So, for now, just clamp to the max until there is a reason to
+  // restore the fancier and probably low-impact approach.
+  //
+  uint32_t const scale_log2 = MIN_MACRO(hs->config.merge.fm.scale_max,up_scale_log2);
+  uint32_t const clean_log2 = up_scale_log2 - scale_log2;
 
-  // number of warps in a full-sized scaled flip-merge span
-  uint32_t const full_span_warps = HS_BS_WARPS << up_scale_log2;
+  // number of slabs in a full-sized scaled flip-merge span
+  uint32_t const full_span_slabs = hs->config.block.slabs << up_scale_log2;
 
   // how many full-sized scaled flip-merge spans are there?
-  state->fm.full = state->bx.ru / full_span_warps;
-  state->fm.frac = 0;
+  uint32_t fm_full = state->bx_ru / full_span_slabs;
+  uint32_t fm_frac = 0;
 
-  // initialize down_warps
-  *down_warps    = state->fm.full * full_span_warps;
+  // initialize down_slabs
+  *down_slabs = fm_full * full_span_slabs;
 
   // how many half-size scaled + fractional scaled spans are there?
-  uint32_t const span_rem        = state->bx.ru - state->fm.full * full_span_warps;
-  uint32_t const half_span_warps = full_span_warps >> 1;
+  uint32_t const span_rem        = state->bx_ru - *down_slabs;
+  uint32_t const half_span_slabs = full_span_slabs >> 1;
 
-  if (span_rem > half_span_warps)
+  // if we have over a half-span then fractionally merge it
+  if (span_rem > half_span_slabs)
     {
-      uint32_t const frac_rem      = span_rem - half_span_warps;
+      // the remaining slabs will be cleaned
+      *down_slabs += span_rem;
+
+      uint32_t const frac_rem      = span_rem - half_span_slabs;
       uint32_t const frac_rem_pow2 = pow2_ru_u32(frac_rem);
 
-      if (frac_rem_pow2 >= half_span_warps)
+      if (frac_rem_pow2 >= half_span_slabs)
         {
-          *down_warps    += full_span_warps;
-          state->fm.full += 1;
+          // bump it up to a full span
+          fm_full += 1;
         }
       else
         {
-          uint32_t const frac_interleaved = frac_rem_pow2 >> fm->log2;
-
-          *down_warps    += half_span_warps + frac_rem_pow2;
-          state->fm.frac  = MAX_MACRO(1,frac_interleaved);
+          // otherwise, add fractional
+          fm_frac  = MAX_MACRO(1,frac_rem_pow2 >> clean_log2);
         }
     }
 
   // size the grid
-  uint32_t const spans_frac       = MIN_MACRO(state->fm.frac,1);
-  uint32_t const spans_total      = state->fm.full + spans_frac;
-  uint32_t const scale            = spans_total << fm->log2;
-  size_t   const global_work_size = HS_LANES_PER_WARP * HS_KEYS_PER_LANE * scale;
-  size_t   const local_work_size  = HS_LANES_PER_WARP;
+  uint32_t const span_threads = hs->slab_keys << clean_log2;
 
   //
   // launch the fm kernel
   //
-  hs_launch_fm(state,
-               cq,
-               fm->kernel,
-               global_work_size);
+  hs_launch_fm(hs,
+               state,
+               scale_log2,
+               fm_full,
+               fm_frac,
+               span_threads);
 
-  return fm->log2;
+  return clean_log2;
+}
+
+//
+//
+//
+
+static
+uint32_t
+hs_hm_launcher(struct hs_cl const * const hs,
+               struct hs_state    * const state,
+               uint32_t             const down_slabs,
+               uint32_t             const clean_slabs_log2)
+{
+  // how many scaled half-merge spans are there?
+  uint32_t const frac_ru    = (1 << clean_slabs_log2) - 1;
+  uint32_t const spans      = (down_slabs + frac_ru) >> clean_slabs_log2;
+
+  // for now, just clamp to the max
+  uint32_t const log2_rem   = clean_slabs_log2 - hs->bc_slabs_log2_max;
+  uint32_t const scale_log2 = MIN_MACRO(hs->config.merge.hm.scale_max,log2_rem);
+  uint32_t const log2_out   = log2_rem - scale_log2;
+
+  // size the grid
+  uint32_t const span_threads = hs->slab_keys << log2_out;
+
+  // launch the hm kernel
+  hs_launch_hm(hs,
+               state,
+               scale_log2,
+               spans,
+               span_threads);
+
+  return log2_out;
+}
+
+//
+//
+//
+
+void
+hs_cl_sort(struct hs_cl const * const hs,
+           cl_command_queue           cq,
+           uint32_t             const wait_list_size,
+           cl_event           *       wait_list,
+           cl_event           *       event,
+           cl_mem                     vin,
+           cl_mem                     vout,
+           uint32_t             const count,
+           uint32_t             const count_padded_in,
+           uint32_t             const count_padded_out,
+           bool                 const linearize)
+{
+  // is this sort in place?
+  bool const is_in_place = (vout == NULL);
+
+  // cq, buffers, wait list and slab count
+  struct hs_state state = {
+#ifndef NDEBUG
+    .t_total        = 0,
+#endif
+    .cq             = cq,
+    .vin            = vin,
+    .vout           = is_in_place ? vin : vout,
+    .wait_list_size = 0,
+    .bx_ru          = (count + hs->slab_keys - 1) / hs->slab_keys
+  };
+
+  // initialize vin
+  uint32_t const count_hi                = is_in_place ? count_padded_out : count_padded_in;
+  bool     const is_pre_sort_keyset_reqd = count_hi > count;
+  cl_event       event_keyset_pre_sort[1];
+
+  // initialize any trailing keys in vin before sorting
+  if (is_pre_sort_keyset_reqd)
+    {
+      hs_keyset_pre_sort(hs,&state,
+                         count,count_hi,
+                         wait_list_size,wait_list,
+                         event_keyset_pre_sort);
+    }
+
+  // initialize any trailing keys in vout before merging
+  if (!is_in_place && (count_padded_out > count_padded_in))
+    {
+      hs_keyset_pre_merge(hs,&state,
+                          count_padded_in,count_padded_out,
+                          wait_list_size,wait_list);
+    }
+
+  //
+  // sort blocks of slabs
+  //
+  hs_bs_launcher(hs,&state,
+                 count_padded_in,
+                 is_pre_sort_keyset_reqd ? 1                     : wait_list_size,
+                 is_pre_sort_keyset_reqd ? event_keyset_pre_sort : wait_list);
+
+  // release the event
+  if (is_pre_sort_keyset_reqd)
+    cl(ReleaseEvent(event_keyset_pre_sort[0]));
+
+  //
+  // we're done if this was a single bs block...
+  //
+  // otherwise, merge sorted spans of slabs until done
+  //
+  if (state.bx_ru > hs->config.block.slabs)
+    {
+      int32_t up_scale_log2 = 1;
+
+      while (true)
+        {
+          uint32_t down_slabs;
+
+          // flip merge slabs -- return span of slabs that must be cleaned
+          uint32_t clean_slabs_log2 = hs_fm_launcher(hs,&state,
+                                                     &down_slabs,
+                                                     up_scale_log2);
+
+          // if span is gt largest slab block cleaner then half merge
+          while (clean_slabs_log2 > hs->bc_slabs_log2_max)
+            {
+              clean_slabs_log2 = hs_hm_launcher(hs,&state,
+                                                down_slabs,
+                                                clean_slabs_log2);
+            }
+
+          // launch clean slab grid -- is it the final launch?
+          hs_bc_launcher(hs,&state,
+                         down_slabs,
+                         clean_slabs_log2);
+
+          // was this the final block clean?
+          if (((uint32_t)hs->config.block.slabs << up_scale_log2) >= state.bx_ru)
+            break;
+
+          // otherwise, merge twice as many slabs
+          up_scale_log2 += 1;
+        }
+    }
+
+  // slabs or linear?
+  if (linearize) {
+    hs_transpose_launcher(hs,&state);
+  }
+
+  // does the caller want the final event?
+  if (event != NULL) {
+    *event = state.wait_list[0];
+  } else {
+    cl(ReleaseEvent(state.wait_list[0]));
+  }
+}
+
+//
+// all grids will be computed as a function of the minimum number of slabs
+//
+
+void
+hs_cl_pad(struct hs_cl const * const hs,
+          uint32_t             const count,
+          uint32_t           * const count_padded_in,
+          uint32_t           * const count_padded_out)
+{
+  //
+  // round up the count to slabs
+  //
+  uint32_t const slabs_ru        = (count + hs->slab_keys - 1) / hs->slab_keys;
+  uint32_t const blocks          = slabs_ru / hs->config.block.slabs;
+  uint32_t const block_slabs     = blocks * hs->config.block.slabs;
+  uint32_t const slabs_ru_rem    = slabs_ru - block_slabs;
+  uint32_t const slabs_ru_rem_ru = MIN_MACRO(pow2_ru_u32(slabs_ru_rem),hs->config.block.slabs);
+
+  *count_padded_in  = (block_slabs + slabs_ru_rem_ru) * hs->slab_keys;
+  *count_padded_out = *count_padded_in;
+
+  //
+  // will merging be required?
+  //
+  if (slabs_ru > hs->config.block.slabs)
+    {
+      // more than one block
+      uint32_t const blocks_lo       = pow2_rd_u32(blocks);
+      uint32_t const block_slabs_lo  = blocks_lo * hs->config.block.slabs;
+      uint32_t const block_slabs_rem = slabs_ru - block_slabs_lo;
+
+      if (block_slabs_rem > 0)
+        {
+          uint32_t const block_slabs_rem_ru     = pow2_ru_u32(block_slabs_rem);
+
+          uint32_t const block_slabs_hi         = MAX_MACRO(block_slabs_rem_ru,
+                                                            blocks_lo << (1 - hs->config.merge.fm.scale_min));
+
+          uint32_t const block_slabs_padded_out = MIN_MACRO(block_slabs_lo+block_slabs_hi,
+                                                            block_slabs_lo*2); // clamp non-pow2 blocks
+
+          *count_padded_out = block_slabs_padded_out * hs->slab_keys;
+        }
+    }
 }
 
 //
@@ -825,297 +848,289 @@ hs_fm_launcher(struct hs_state * const state,
 
 static
 void
-hs_keyset_launcher(cl_mem           mem,
-                   uint32_t   const offset,
-                   uint32_t   const span,
-                   cl_command_queue cq)
+hs_create_kernel(cl_program         program,
+                 cl_kernel  * const kernel,
+                 char const * const name)
 {
-
-
-  //
-  // DOES NOT TEST FOR SPAN = 0
-  //
-  HS_KEY_TYPE const pattern = (HS_KEY_TYPE)-1L;
-
-  cl(EnqueueFillBuffer(cq,
-                       mem,
-                       &pattern,
-                       sizeof(HS_KEY_TYPE),
-                       offset * sizeof(HS_KEY_TYPE),
-                       span   * sizeof(HS_KEY_TYPE),
-                       0,
-                       NULL,
-                       HS_EVENT_NEXT()));
-}
-
-//
-// all grids will be computed as a function of the minimum number of warps
-//
-
-void
-hs_pad(uint32_t   const count,
-       uint32_t * const count_padded_in,
-       uint32_t * const count_padded_out)
-{
-  //
-  // round up the count to warps
-  //
-  uint32_t const warps_ru     = (count + HS_KEYS_PER_WARP - 1) / HS_KEYS_PER_WARP;
-  uint32_t const blocks       = warps_ru / HS_BS_WARPS;
-  uint32_t const warps_mod    = warps_ru % HS_BS_WARPS;
-  uint32_t const warps_mod_ru = MIN_MACRO(pow2_ru_u32(warps_mod),HS_BS_WARPS);
-
-  *count_padded_in  = (blocks * HS_BS_WARPS + warps_mod_ru) * HS_KEYS_PER_WARP;
-  *count_padded_out = *count_padded_in;
-
-  //
-  // more than a single block sort?
-  //
-  if (warps_ru > HS_BS_WARPS)
-    {
-      // more than one block
-      uint32_t const blocks_lo = pow2_rd_u32(blocks);
-      uint32_t const warps_lo  = blocks_lo * HS_BS_WARPS;
-      uint32_t const warps_rem = warps_ru - warps_lo;
-
-      if (warps_rem > 0)
-        {
-          uint32_t const warps_rem_ru     = pow2_ru_u32(warps_rem);
-          uint32_t const warps_hi         = MAX_MACRO(warps_rem_ru,blocks_lo << HS_FM_BLOCKS_LOG2_1);
-          uint32_t const warps_padded_out = MIN_MACRO(warps_lo+warps_hi,warps_lo*2); // clamp non-pow2 blocks
-
-          *count_padded_out = warps_padded_out * HS_KEYS_PER_WARP;
-        }
-    }
-}
-
-//
-//
-//
-
-void
-hs_sort(cl_command_queue cq, // out-of-order cq
-        cl_mem           vin,
-        cl_mem           vout,
-        uint32_t   const count,
-        uint32_t   const count_padded_in,
-        uint32_t   const count_padded_out,
-        bool       const linearize)
-{
-#ifndef NDEBUG
-  events_count = 0;
-#endif
-
-  //
-  // FIXME -- get rid of this vestigial structure
-  //
-  struct hs_state state = { .vin = vin, .vout = vout };
-
-  // how many rounded-up key slabs are there?
-  state.bx.ru = (count + HS_KEYS_PER_WARP - 1) / HS_KEYS_PER_WARP;
-
-  //
-  // init padding with max-valued keys
-  //
-  bool const split  = state.vout != state.vin; // FIXME -- careful this comparison might not always be correct
-  bool       keyset = false;
-
-  if (!split)
-    {
-      uint32_t const vin_span = count_padded_out - count;
-
-      if (vin_span > 0)
-        {
-          hs_keyset_launcher(state.vin,
-                             count,vin_span,
-                             cq);
-          keyset = true;
-        }
-    }
-  else
-    {
-      uint32_t const vin_span = count_padded_in - count;
-
-      if (vin_span > 0)
-        {
-          hs_keyset_launcher(state.vin,
-                             count,vin_span,
-                             cq);
-          keyset = true;
-        }
-
-      uint32_t const vout_span = count_padded_out - count_padded_in;
-
-      if (vout_span > 0)
-        {
-          hs_keyset_launcher(state.vout,
-                             count_padded_in,vout_span,
-                             cq);
-          keyset = true;
-        }
-    }
-
-  if (keyset)
-    {
-      hs_barrier(cq);
-    }
-
-  //
-  // sort blocks
-  //
-  uint32_t const warps_in = count_padded_in / HS_KEYS_PER_WARP;
-
-  hs_bs_launcher(&state,warps_in,cq);
-
-  hs_barrier(cq);
-
-  //
-  // we're done if only a single bs kernel block was required
-  //
-  if (state.bx.ru > HS_BS_WARPS)
-    {
-      //
-      // otherwise... merge sorted spans of warps until done
-      //
-      uint32_t up_scale_log2 = 1;
-
-      while (true)
-        {
-          uint32_t down_warps;
-
-          // flip merge warps -- return span of warps that must be cleaned
-          uint32_t down_warps_log2 = hs_fm_launcher(&state,
-                                                    up_scale_log2,
-                                                    &down_warps,
-                                                    cq);
-
-          hs_barrier(cq);
-
-          // if span is gt largest slab block cleaner then half merge
-          while (down_warps_log2 > HS_BC_WARPS_LOG2_MAX)
-            {
-              down_warps_log2 = hs_hm_launcher(&state,
-                                               down_warps,
-                                               down_warps_log2,
-                                               cq);
-
-              hs_barrier(cq);
-            }
-
-               // launch clean slab grid -- is it the final launch?
-          hs_bc_launcher(&state,
-                         down_warps,
-                         down_warps_log2,
-                         cq);
-
-          hs_barrier(cq);
-
-          // was this the final block clean?
-          if (((uint32_t)HS_BS_WARPS << up_scale_log2) >= state.bx.ru)
-            break;
-
-          // otherwise, merge twice as many slabs
-          up_scale_log2 += 1;
-        }
-    }
-
-  if (linearize)
-    {
-      // launch linearize;
-      hs_transpose_launcher(&state,cq);
-
-      hs_barrier(cq);
-    }
-
-  HS_EVENT_PROFILE(cq);
-}
-
-//
-//
-//
-
-void
-hs_create(cl_context             context,
-          cl_device_id           device_id,
-          struct hs_info * const info)
-{
-  //
-  // create and build the program from source or a precompiled binary
-  //
-  if (info != NULL)
-    {
-      info->words = HS_KEY_WORDS;
-      info->keys  = HS_KEYS_PER_LANE;
-      info->lanes = HS_LANES_PER_WARP;
-    }
-
-#if defined( HS_KERNEL_SOURCE )
-
   cl_int err;
 
-  size_t const   strings_sizeof[] = { sizeof(hs_cl_pre_cl) };
-  char   const * strings[]        = { (char*)hs_cl_pre_cl  };
+  *kernel = clCreateKernel(program,name,&err);
 
-  cl_program program = clCreateProgramWithSource(context,
-                                                 1,
-                                                 strings,
-                                                 strings_sizeof,
-                                                 &err);
   cl_ok(err);
+}
 
-  char const * const options =
-    "-cl-std=CL2.0 -cl-fast-relaxed-math "
-    "-cl-no-signed-zeros -cl-mad-enable "
-    "-cl-denorms-are-zero "
-    "-cl-kernel-arg-info";
+static
+void
+hs_create_kernels(cl_program     program,
+                  cl_kernel    * kernels,
+                  char           name_template[],
+                  size_t   const name_template_size,
+                  uint32_t const count)
+{
+  char const n_max = '0'+(char)count;
 
-  cl(BuildProgram(program,
-                  1,
-                  &device_id,
-                  options,
-                  NULL,
-                  NULL));
+  for (char n = '0'; n<n_max; n++)
+    {
+      cl_int err;
 
-#elif defined( HS_KERNEL_BINARY )
+      name_template[name_template_size-2] = n;
 
-  cl_int status, err;
+      *kernels++ = clCreateKernel(program,name_template,&err);
 
-  size_t        const   bins_sizeof[] = { sizeof(hs_cl_pre_ir) };
-  unsigned char const * bins[]        = { hs_cl_pre_ir };
+      cl_ok(err);
+    }
+}
 
-  cl_program program = clCreateProgramWithBinary(context,
-                                                 1,
-                                                 &device_id,
-                                                 bins_sizeof,
-                                                 bins,
-                                                 &status,
-                                                 &err);
-  cl_ok(err);
+//
+//
+//
 
-  cl(BuildProgram(program,
-                  1,
-                  &device_id,
-                  NULL,
-                  NULL,
-                  NULL));
-#endif
+struct hs_cl *
+hs_cl_create(struct hs_cl_target const * const target,
+             cl_context                        context,
+             cl_device_id                      device_id)
+{
+  //
+  // immediately try to build the OpenCL program
+  //
+  bool     const is_binary    = (target->program[0] == 0);
+  uint32_t const program_size = NPBTOHL_MACRO(target->program+1);
+
+  cl_program program;
+
+  if (is_binary) // program is a binary
+    {
+      cl_int status, err;
+
+      size_t        const   bins_sizeof[] = { program_size      };
+      unsigned char const * bins[]        = { target->program+5 };
+
+      program = clCreateProgramWithBinary(context,
+                                          1,
+                                          &device_id,
+                                          bins_sizeof,
+                                          bins,
+                                          &status,
+                                          &err);
+      cl_ok(err);
+
+      cl(BuildProgram(program,
+                      1,
+                      &device_id,
+                      NULL,
+                      NULL,
+                      NULL));
+    }
+  else // program is source code
+    {
+      cl_int err;
+
+      size_t const   strings_sizeof[] = { program_size             };
+      char   const * strings[]        = { (char*)target->program+5 };
+
+      program = clCreateProgramWithSource(context,
+                                          1,
+                                          strings,
+                                          strings_sizeof,
+                                          &err);
+      cl_ok(err);
+
+      char const * const options =
+        "-cl-std=CL1.2 -cl-fast-relaxed-math " // FIXME FIXME FIXME FIXME 1.2
+        "-cl-no-signed-zeros -cl-mad-enable "
+        "-cl-denorms-are-zero "
+        "-cl-kernel-arg-info";
+
+      cl(BuildProgram(program,
+                      1,
+                      &device_id,
+                      options,
+                      NULL,
+                      NULL));
+    }
+
+  //
+  // we reference these values a lot
+  //
+  uint32_t const bs_slabs_log2_ru  = msb_idx_u32(pow2_ru_u32(target->config.block.slabs));
+  uint32_t const bc_slabs_log2_max = msb_idx_u32(pow2_rd_u32(target->config.block.slabs));
+
+  //
+  // how many kernels will be created?
+  //
+  uint32_t const count_bs    = bs_slabs_log2_ru + 1;
+  uint32_t const count_bc    = bc_slabs_log2_max + 1;
+  uint32_t       count_fm[3] = { 0 };
+  uint32_t       count_hm[3] = { 0 };
+
+  // guaranteed to be in range [0,2]
+  for (uint32_t scale = target->config.merge.fm.scale_min;
+       scale <= target->config.merge.fm.scale_max;
+       scale++)
+    {
+      count_fm[scale] = msb_idx_u32(pow2_ru_u32(target->config.block.slabs>>(scale-1))) + 1;
+    }
+
+  // guaranteed to be in range [0,2]
+  for (uint32_t scale = target->config.merge.hm.scale_min;
+       scale <= target->config.merge.hm.scale_max;
+       scale++)
+    {
+      count_hm[scale] = 1;
+    }
+
+  uint32_t const count_all =
+    1
+    + count_bs
+    + count_bc
+    + count_fm[0] + count_fm[1] + count_fm[2]
+    + count_hm[0] + count_hm[1] + count_hm[2];
+
+  //
+  // allocate hs_cl
+  //
+  struct hs_cl * hs = malloc(sizeof(*hs) + sizeof(cl_kernel) * count_all);
+
+  memcpy(&hs->config,&target->config,sizeof(hs->config));
+
+  // save some frequently used calculated values
+  hs->key_val_size      = (target->config.words.key + target->config.words.val) * 4;
+  hs->slab_keys         = target->config.slab.height << target->config.slab.width_log2;
+  hs->bs_slabs_log2_ru  = bs_slabs_log2_ru;
+  hs->bc_slabs_log2_max = bc_slabs_log2_max;
+
+  // save kernel count
+  hs->kernels.count     = count_all;
 
   //
   // create all the kernels and release the program
   //
-#define HS_CREATE_KERNELS(ks)                                   \
-  for (uint32_t ii=0; ii<ARRAY_LENGTH(ks); ii++) {              \
-    ks[ii].kernel = clCreateKernel(program,ks[ii].name,&err);   \
-    cl_ok(err);                                                 \
+  cl_kernel * kernel_next = hs->kernels.all;
+
+  //
+  // TRANSPOSE
+  //
+  {
+    hs->kernels.transpose = kernel_next;
+
+    hs_create_kernel(program,
+                     kernel_next,
+                     "hs_kernel_transpose");
+
+    kernel_next += 1;
   }
 
-  HS_CREATE_KERNELS(bs_kernels);
-  HS_CREATE_KERNELS(bc_kernels);
-  HS_CREATE_KERNELS(fm_kernels);
-  HS_CREATE_KERNELS(hm_kernels);
-  HS_CREATE_KERNELS(transpose_kernels);
+  //
+  // BS
+  //
+  {
+    hs->kernels.bs = kernel_next;
 
-  cl(ReleaseProgram(program));
+    char bs_name[] = { "hs_kernel_bs_X" };
+
+    hs_create_kernels(program,
+                      kernel_next,
+                      bs_name,sizeof(bs_name),
+                      count_bs);
+
+    kernel_next += count_bs;
+  }
+
+  //
+  // BC
+  //
+  {
+    hs->kernels.bc = kernel_next;
+
+    char bc_name[] = { "hs_kernel_bc_X" };
+
+    hs_create_kernels(program,
+                      kernel_next,
+                      bc_name,sizeof(bc_name),
+                      count_bc);
+
+    kernel_next += count_bc;
+  }
+
+  //
+  // FM 0
+  //
+  if (count_fm[0] > 0)
+    {
+      hs->kernels.fm[0] = kernel_next;
+
+      char fm_0_name[]  = { "hs_kernel_fm_0_X" };
+
+      hs_create_kernels(program,
+                        kernel_next,
+                        fm_0_name,sizeof(fm_0_name),
+                        count_fm[0]);
+
+      kernel_next += count_fm[0];
+    }
+
+  if (count_fm[1] > 0)
+    {
+      hs->kernels.fm[1] = kernel_next;
+
+      char fm_1_name[]  = { "hs_kernel_fm_1_X" };
+
+      hs_create_kernels(program,
+                        kernel_next,
+                        fm_1_name,sizeof(fm_1_name),
+                        count_fm[1]);
+
+      kernel_next += count_fm[1];
+    }
+
+  if (count_fm[2] > 0)
+    {
+      hs->kernels.fm[2] = kernel_next;
+
+      char fm_2_name[]  = { "hs_kernel_fm_2_X" };
+
+      hs_create_kernels(program,
+                        kernel_next,
+                        fm_2_name,sizeof(fm_2_name),
+                        count_fm[2]);
+
+      kernel_next += count_fm[2];
+    }
+
+  if (count_hm[0] > 0)
+    {
+      hs->kernels.hm[0] = kernel_next;
+
+      hs_create_kernel(program,
+                       kernel_next,
+                       "hs_kernel_hm_0");
+
+      kernel_next += count_hm[0];
+    }
+
+  if (count_hm[1] > 0)
+    {
+      hs->kernels.hm[1] = kernel_next;
+
+      hs_create_kernel(program,
+                       kernel_next,
+                       "hs_kernel_hm_1");
+
+      kernel_next += count_hm[1];
+    }
+
+  if (count_hm[2] > 0)
+    {
+      hs->kernels.hm[2] = kernel_next;
+
+      hs_create_kernel(program,
+                       kernel_next,
+                       "hs_kernel_hm_2");
+
+      kernel_next += count_hm[2]; // unnecessary
+    }
+
+  return hs;
 }
 
 //
@@ -1123,17 +1138,12 @@ hs_create(cl_context             context,
 //
 
 void
-hs_release()
+hs_cl_release(struct hs_cl * const hs)
 {
-#define HS_RELEASE_KERNELS(ks)                          \
-  for (uint32_t ii=0; ii<ARRAY_LENGTH(ks); ii++)        \
-    cl(ReleaseKernel(ks[ii].kernel))
+  for (uint32_t ii=0; ii<hs->kernels.count; ii++)
+    cl(ReleaseKernel(hs->kernels.all[ii]));
 
-  HS_RELEASE_KERNELS(bs_kernels);
-  HS_RELEASE_KERNELS(bc_kernels);
-  HS_RELEASE_KERNELS(fm_kernels);
-  HS_RELEASE_KERNELS(hm_kernels);
-  HS_RELEASE_KERNELS(transpose_kernels);
+  free(hs);
 }
 
 //

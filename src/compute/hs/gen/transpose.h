@@ -23,15 +23,15 @@
 void
 hsg_transpose(uint32_t                   const cols_log2,
               uint32_t                   const rows,
-              void *                           blend,
-              void *                           remap,
               void (*pfn_blend)(uint32_t const cols_log2,
                                 uint32_t const row_ll, // lower-left
                                 uint32_t const row_ur, // upper-right
                                 void *         blend),
+              void *                           blend,
               void (*pfn_remap)(uint32_t const row_from,
                                 uint32_t const row_to,
-                                void *         remap));
+                                void *         remap),
+              void *                           remap);
 
 //
 //

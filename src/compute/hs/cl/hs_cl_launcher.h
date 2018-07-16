@@ -17,61 +17,65 @@
 #include <stdbool.h>
 
 //
-// Returns some useful info about algorithm's configuration for the
-// target architecture.
+//
 //
 
-struct hs_info
-{
-  uint32_t words; // words-per-key (1 = uint, 2 = ulong)
-  uint32_t keys;  // keys-per-lane
-  uint32_t lanes; // lanes-per-warp
-};
+#include "hs_cl_target.h"
 
 //
 //
 //
 
-void
-hs_create(cl_context             context,
-          cl_device_id           device_id,
-          struct hs_info * const info);
+struct hs_cl *
+hs_cl_create(struct hs_cl_target const * const target,
+             cl_context                        context,
+             cl_device_id                      device_id);
+
 
 //
 //
 //
 
 void
-hs_release();
+hs_cl_release(struct hs_cl * const hs);
 
 //
-// Size the buffers.
+// Determine what padding will be applied to the input and output
+// buffers.
+//
+// Always check to see if the allocated buffers are large enough.
+//
+// count                    : number of keys
+// count + count_padded_in  : additional keys required for sorting
+// count + count_padded_out : additional keys required for merging
 //
 
 void
-hs_pad(uint32_t   const count,
-       uint32_t * const count_padded_in,
-       uint32_t * const count_padded_out);
+hs_cl_pad(struct hs_cl const * const hs,
+          uint32_t             const count,
+          uint32_t           * const count_padded_in,
+          uint32_t           * const count_padded_out);
 
 //
 // Sort the keys in the vin buffer and store them in the vout buffer.
 //
-// The vin and vout buffers can be the same buffer.
+// If vout is NULL then the sort will be performed in place.
 //
-// If it is necessary, a barrier should be enqueued before running
-// hs_sort().
-//
-// A final barrier will enqueued before returning.
+// The implementation assumes the command queue is out-of-order.
 //
 
 void
-hs_sort(cl_command_queue cq, // out-of-order cq
-        cl_mem           vin,
-        cl_mem           vout,
-        uint32_t   const count,
-        uint32_t   const count_padded_in,
-        uint32_t   const count_padded_out,
-        bool       const linearize);
+hs_cl_sort(struct hs_cl const * const hs,
+           cl_command_queue           cq,
+           uint32_t             const wait_list_size,
+           cl_event           *       wait_list,
+           cl_event           *       event,
+           cl_mem                     vin,
+           cl_mem                     vout,
+           uint32_t             const count,
+           uint32_t             const count_padded_in,
+           uint32_t             const count_padded_out,
+           bool                 const linearize);
 
 //
 //

@@ -15,13 +15,13 @@
 #include "tile.h"
 #include "atomic_cl.h"
 #include "kernel_cl_12.h"
+#include "hs/cl/intel/gen8/u64/hs_cl_macros.h"
 
 //
 //
 //
 
-#define HS_KEYS_PER_SLAB  (HS_KEYS_PER_LANE * HS_LANES_PER_WARP)
-#define HS_LANE_MASK      (HS_LANES_PER_WARP - 1)
+#define HS_LANE_MASK (HS_SLAB_WIDTH - 1)
 
 //
 //
@@ -35,23 +35,23 @@
 //
 
 __kernel
-__attribute__((intel_reqd_sub_group_size(HS_LANES_PER_WARP)))
+__attribute__((intel_reqd_sub_group_size(HS_SLAB_WIDTH)))
 void
 skc_kernel_segment_ttck(__global HS_KEY_TYPE              * SKC_RESTRICT const vout,
                         __global uint                     * SKC_RESTRICT const indices,
                         __global SKC_ATOMIC_UINT volatile * SKC_RESTRICT const atomics)
 {
   uint const global_id = get_global_id(0);
-  uint const gmem_base = (global_id >> HS_LANES_PER_WARP_LOG2) * HS_KEYS_PER_SLAB;
+  uint const gmem_base = (global_id >> HS_SLAB_WIDTH_LOG2) * HS_SLAB_KEYS;
   uint const gmem_idx  = gmem_base + (global_id & HS_LANE_MASK);
-  uint const lane_idx  = gmem_base + (global_id & HS_LANE_MASK) * HS_KEYS_PER_LANE;
+  uint const lane_idx  = gmem_base + (global_id & HS_LANE_MASK) * HS_SLAB_HEIGHT;
 
   //
   // LOAD ALL THE ROWS
   //
 #undef  HS_SLAB_ROW
 #define HS_SLAB_ROW(row,prev)                                           \
-  HS_KEY_TYPE const r##row = (vout + gmem_idx)[prev * HS_LANES_PER_WARP];
+  HS_KEY_TYPE const r##row = (vout + gmem_idx)[prev * HS_SLAB_WIDTH];
 
   HS_SLAB_ROWS();
 
@@ -103,11 +103,11 @@ skc_kernel_segment_ttck(__global HS_KEY_TYPE              * SKC_RESTRICT const v
   //
   uint next = 0;
 
-  if (get_sub_group_local_id() == HS_LANES_PER_WARP-1)
+  if (get_sub_group_local_id() == HS_SLAB_WIDTH-1)
     next = atomic_add(atomics+1,inclusive); // FIXME -- need a symbolic offset
 
   // distribute base across subgroup
-  next = exclusive + sub_group_broadcast(next,HS_LANES_PER_WARP-1);
+  next = exclusive + sub_group_broadcast(next,HS_SLAB_WIDTH-1);
 
   //
   // STORE THE INDICES

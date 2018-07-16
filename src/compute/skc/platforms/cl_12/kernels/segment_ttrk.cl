@@ -13,15 +13,15 @@
 //
 
 #include "tile.h"
-#include "raster_builder_cl_12.h" // need meta_in structure
 #include "kernel_cl_12.h"
+#include "raster_builder_cl_12.h" // need meta_in structure
+#include "hs/cl/intel/gen8/u64/hs_cl_macros.h"
 
 //
 //
 //
 
-#define HS_KEYS_PER_SLAB  (HS_KEYS_PER_LANE * HS_LANES_PER_WARP)
-#define HS_LANE_MASK      (HS_LANES_PER_WARP - 1)
+#define HS_LANE_MASK  (HS_SLAB_WIDTH - 1)
 
 //
 // THE BEST TYPE TO ZERO SMEM
@@ -39,7 +39,7 @@
 // 3: rk
 //
 
-#if (HS_KEYS_PER_SLAB < 256)
+#if (HS_SLAB_KEYS < 256)
 
 #define SKC_META_TYPE       uint
 #define SKC_META_WORDS      1
@@ -96,7 +96,7 @@
 
 #define SKC_ZERO_RATIO            (SKC_ZERO_WORDS / SKC_META_WORDS)
 #define SKC_META_ZERO_COUNT       (SKC_COHORT_SIZE * sizeof(SKC_META_TYPE) / sizeof(SKC_ZERO_TYPE))
-#define SKC_META_ZERO_REM         (SKC_META_ZERO_COUNT & SKC_BITS_TO_MASK(HS_LANES_PER_WARP_LOG2))
+#define SKC_META_ZERO_REM         (SKC_META_ZERO_COUNT & SKC_BITS_TO_MASK(HS_SLAB_WIDTH_LOG2))
 
 #define SKC_META_COMPONENTS       4
 #define SKC_META_COMPONENT_COUNT  (SKC_COHORT_SIZE * sizeof(SKC_META_TYPE) / sizeof(SKC_COMPONENT_TYPE))
@@ -106,7 +106,7 @@
 //
 
 __kernel
-__attribute__((intel_reqd_sub_group_size(HS_LANES_PER_WARP)))
+__attribute__((intel_reqd_sub_group_size(HS_SLAB_WIDTH)))
 void
 skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
                         __global uint        * SKC_RESTRICT const metas)
@@ -119,16 +119,16 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
   } shared;
 
   uint const global_id = get_global_id(0);
-  uint const gmem_base = (global_id >> HS_LANES_PER_WARP_LOG2) * HS_KEYS_PER_SLAB;
+  uint const gmem_base = (global_id >> HS_SLAB_WIDTH_LOG2) * HS_SLAB_KEYS;
   uint const gmem_idx  = gmem_base + (global_id & HS_LANE_MASK);
-  uint const gmem_off  = (global_id & HS_LANE_MASK) * HS_KEYS_PER_LANE;
+  uint const gmem_off  = (global_id & HS_LANE_MASK) * HS_SLAB_HEIGHT;
 
   //
   // LOAD ALL THE ROWS
   //
 #undef  HS_SLAB_ROW
 #define HS_SLAB_ROW(row,prev)                                           \
-  HS_KEY_TYPE const r##row = (vout + gmem_idx)[prev * HS_LANES_PER_WARP];
+  HS_KEY_TYPE const r##row = (vout + gmem_idx)[prev * HS_SLAB_WIDTH];
 
   HS_SLAB_ROWS();
 
@@ -169,7 +169,7 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
   // DEBUG
   //
 #if 0
-  if (gmem_base == HS_KEYS_PER_SLAB * 7)
+  if (gmem_base == HS_SLAB_KEYS * 7)
     {
       if (get_sub_group_local_id() == 0)
         printf("\n%llX ",as_ulong(r0));
@@ -267,14 +267,14 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
 
   // the min cohort is the first key in the slab
   uint const c_min = sub_group_broadcast(c1,0);
-  
+
   // the max cohort is the max across all lanes
   c_max = sub_group_reduce_max(c_max);
 
 #if 0 // REMOVE ME LATER
   if (get_sub_group_local_id() == 0)
     printf("%3u : ( %3u , %3u )\n",
-           get_global_id(0)>>HS_LANES_PER_WARP_LOG2,c_min,c_max);
+           get_global_id(0)>>HS_SLAB_WIDTH_LOG2,c_min,c_max);
 #endif
 
   //
@@ -286,7 +286,7 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
   uint       zz     = ((c_min / SKC_ZERO_RATIO) & ~HS_LANE_MASK) + get_sub_group_local_id();
   uint const zz_max = (c_max + SKC_ZERO_RATIO - 1) / SKC_ZERO_RATIO;
 
-  for (; zz<=zz_max; zz+=HS_LANES_PER_WARP)
+  for (; zz<=zz_max; zz+=HS_SLAB_WIDTH)
     shared.z[zz] = 0;
 #else
   // ERROR -- it's highly unlikely that the zero type is smaller than
@@ -348,7 +348,7 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
   // ATOMICALLY ADD THE CARRIED OUT METAS
   //
 #if 0 // BUG
-  if ((valid & (1<<(HS_KEYS_PER_LANE-1))) && (meta != 0))
+  if ((valid & (1<<(HS_SLAB_HEIGHT-1))) && (meta != 0))
     SKC_META_LOCAL_ADD(meta);
 #else
   if (meta != 0)
@@ -378,9 +378,9 @@ skc_kernel_segment_ttrk(__global HS_KEY_TYPE * SKC_RESTRICT const vout,
         atomic_add(metas+cc,c+adjust);
     }
 
-  cc += HS_LANES_PER_WARP;
+  cc += HS_SLAB_WIDTH;
 
-  for (; cc<=cc_max; cc+=HS_LANES_PER_WARP)
+  for (; cc<=cc_max; cc+=HS_SLAB_WIDTH)
     {
       uint const c = shared.c[cc];
 

@@ -53,4 +53,3 @@ cl_get_event_command_type_string(cl_command_type const type);
 //
 //
 //
-
