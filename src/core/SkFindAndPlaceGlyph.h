@@ -19,11 +19,6 @@
 
 class SkFindAndPlaceGlyph {
 public:
-    template<typename ProcessOneGlyph>
-    static void ProcessText(
-        SkPaint::TextEncoding, const char text[], size_t byteLength,
-        SkPoint offset, const SkMatrix& matrix, SkPaint::Align textAlignment,
-        SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph);
     // ProcessPosText handles all cases for finding and positioning glyphs. It has a very large
     // multiplicity. It figures out the glyph, position and rounding and pass those parameters to
     // processOneGlyph.
@@ -485,48 +480,6 @@ inline void SkFindAndPlaceGlyph::ProcessPosText(
         SkPoint mappedPoint = mapper->map(positionReader->nextPoint());
         findAndPosition->findAndPositionGlyph(
             &text, mappedPoint, std::forward<ProcessOneGlyph>(processOneGlyph));
-    }
-}
-
-template<typename ProcessOneGlyph>
-inline void SkFindAndPlaceGlyph::ProcessText(
-    SkPaint::TextEncoding textEncoding, const char text[], size_t byteLength,
-    SkPoint offset, const SkMatrix& matrix, SkPaint::Align textAlignment,
-    SkGlyphCache* cache, ProcessOneGlyph&& processOneGlyph) {
-    SkSTArenaAlloc<64> arena;
-
-    // transform the starting point
-    matrix.mapPoints(&offset, 1);
-
-    GlyphFinderInterface* glyphFinder = getGlyphFinder(&arena, textEncoding, cache);
-
-    // need to measure first
-    if (textAlignment != SkPaint::kLeft_Align) {
-        SkVector stop = MeasureText(glyphFinder, text, byteLength);
-
-        if (textAlignment == SkPaint::kCenter_Align) {
-            stop *= SK_ScalarHalf;
-        }
-        offset -= stop;
-    }
-
-    GlyphFindAndPlaceInterface<ProcessOneGlyph>* findAndPosition = nullptr;
-    if (cache->isSubpixel()) {
-        SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
-        findAndPosition = getSubpixel<ProcessOneGlyph>(
-            &arena, axisAlignment, glyphFinder);
-    } else {
-        using FullPixel = GlyphFindAndPlaceFullPixel<ProcessOneGlyph>;
-        findAndPosition = arena.make<FullPixel>(glyphFinder);
-    }
-
-    const char* stop = text + byteLength;
-    SkPoint current = offset;
-    while (text < stop) {
-        current =
-            findAndPosition->findAndPositionGlyph(
-                &text, current, std::forward<ProcessOneGlyph>(processOneGlyph));
-
     }
 }
 
