@@ -64,18 +64,13 @@ public:
      */
     void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
 
+    void addFoo(GrOpList* dependsOnMe);
+
     /*
      * Does this opList depend on 'dependedOn'?
      */
-    bool dependsOn(GrOpList* dependedOn) const {
-        for (int i = 0; i < fDependencies.count(); ++i) {
-            if (fDependencies[i] == dependedOn) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    bool dependsOn1(GrOpList* dependedOn) const;
+    bool dependsOn2(GrSurfaceProxy::UniqueID proxyID) const;
 
     /*
      * Safely cast this GrOpList to a GrTextureOpList (if possible).
@@ -116,6 +111,8 @@ protected:
 
     // List of texture proxies whose contents are being prepared on a worker thread
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
+
+    void closeThoseWhoDependOnMe(const GrCaps&);
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
@@ -164,10 +161,10 @@ private:
             return opList->isSetFlag(GrOpList::kTempMark_Flag);
         }
         static int NumDependencies(const GrOpList* opList) {
-            return opList->fDependencies.count();
+            return opList->fIDependOn.count();
         }
         static GrOpList* Dependency(GrOpList* opList, int index) {
-            return opList->fDependencies[index];
+            return opList->fIDependOn[index];
         }
     };
 
@@ -180,7 +177,8 @@ private:
     uint32_t               fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
-    SkSTArray<1, GrOpList*, true> fDependencies;
+    SkSTArray<1, GrOpList*, true> fIDependOn;
+    SkSTArray<1, GrOpList*, true> fDependOnMe;
 
     typedef SkRefCnt INHERITED;
 };

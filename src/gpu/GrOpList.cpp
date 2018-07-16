@@ -87,15 +87,21 @@ void GrOpList::prepare(GrOpFlushState* flushState) {
     this->onPrepare(flushState);
 }
 
-// Add a GrOpList-based dependency
-void GrOpList::addDependency(GrOpList* dependedOn) {
-    SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
+void GrOpList::addFoo(GrOpList* dependsOnMe) {
+    fDependOnMe.push_back(dependsOnMe);
 
-    if (this->dependsOn(dependedOn)) {
+}
+
+// Add a GrOpList-based dependency
+void GrOpList::addDependency(GrOpList* iDependOn) {
+    SkASSERT(!iDependOn->dependsOn1(this));  // loops are bad
+
+    if (this->dependsOn1(iDependOn)) {
         return;  // don't add duplicate dependencies
     }
 
-    fDependencies.push_back(dependedOn);
+    fIDependOn.push_back(iDependOn);
+    iDependOn->addFoo(this);
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
@@ -106,11 +112,13 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
 
         GrOpList* opList = dependedOn->getLastOpList();
         if (opList == this) {
-            // self-read - presumably for dst reads
+            // self-read - presumably for dst reads. We can't make it closed in the self-read case.
         } else {
             this->addDependency(opList);
 
-            // Can't make it closed in the self-read case
+            // We are closing 'opList' here bc the current contents of it are what 'this' opList
+            // depends on. We need a break in 'opList' so that the usage of that state has a
+            // chance to execute.
             opList->makeClosed(caps);
         }
     }
@@ -122,6 +130,34 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     }
 }
 
+bool GrOpList::dependsOn1(GrOpList* dependedOn) const {
+    for (int i = 0; i < fIDependOn.count(); ++i) {
+        if (fIDependOn[i] == dependedOn) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
+    for (int i = 0; i < fDependOnMe.count(); ++i) {
+        if (!fDependOnMe[i]->isClosed()) {
+            fDependOnMe[i]->makeClosed(caps);
+        }
+    }
+}
+
+bool GrOpList::dependsOn2(GrSurfaceProxy::UniqueID proxyID) const {
+    for (int i = 0; i < fIDependOn.count(); ++i) {
+        if (fIDependOn[i]->fTarget.get()->uniqueID() == proxyID) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool GrOpList::isInstantiated() const {
     return fTarget.get()->priv().isInstantiated();
 }
@@ -129,13 +165,23 @@ bool GrOpList::isInstantiated() const {
 #ifdef SK_DEBUG
 void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("opList: %d -> RT: %d\n", fUniqueID, fTarget.get() ? fTarget.get()->uniqueID().asUInt()
-                                                                : -1);
+    SkDebugf("opListID: %d -> proxyID: %d\n", fUniqueID,
+             fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1);
+    SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
+             GrLoadOp::kLoad == fColorLoadOp ? "load" : GrLoadOp::kClear == fColorLoadOp ? "clear" : "discard",
+             GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor : 0x0,
+             GrLoadOp::kLoad == fStencilLoadOp ? "load" : GrLoadOp::kClear == fStencilLoadOp ? "clear" : "discard");
 
     if (printDependencies) {
-        SkDebugf("relies On (%d): ", fDependencies.count());
-        for (int i = 0; i < fDependencies.count(); ++i) {
-            SkDebugf("%d, ", fDependencies[i]->fUniqueID);
+        SkDebugf("I rely On (%d): ", fIDependOn.count());
+        for (int i = 0; i < fIDependOn.count(); ++i) {
+            SkDebugf("%d, ", fIDependOn[i]->fUniqueID);
+        }
+        SkDebugf("\n");
+
+        SkDebugf("(%d) Rely On Me: ", fDependOnMe.count());
+        for (int i = 0; i < fDependOnMe.count(); ++i) {
+            SkDebugf("%d, ", fDependOnMe[i]->fUniqueID);
         }
         SkDebugf("\n");
     }

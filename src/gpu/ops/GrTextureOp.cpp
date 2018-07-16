@@ -871,6 +871,8 @@ __attribute__((no_sanitize("float-cast-overflow")))
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+        return false;
+
         const auto* that = t->cast<TextureOp>();
         const auto& shaderCaps = *caps.shaderCaps();
         if (!GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
@@ -1014,7 +1016,8 @@ __attribute__((no_sanitize("float-cast-overflow")))
                 , fHasDomain(constraint == SkCanvas::kStrict_SrcRectConstraint)
                 , fTextureIdx(SkToUInt(textureIdx))
                 , fQuad(quad)
-                , fColor(color) {}
+                , fColor(color) {
+        }
         const GrPerspQuad& quad() const { return fQuad; }
         int textureIdx() const { return SkToInt(fTextureIdx); }
         const SkRect& srcRect() const { return fSrcRect; }
