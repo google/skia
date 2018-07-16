@@ -8,11 +8,10 @@
 #ifndef GrVkBackendContext_DEFINED
 #define GrVkBackendContext_DEFINED
 
+#include "GrVkTypes.h"
 #include "SkRefCnt.h"
-
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkInterface.h"
 #include "vk/GrVkMemoryAllocator.h"
+#include <functional>
 
 enum GrVkExtensionFlags {
     kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
@@ -53,7 +52,6 @@ struct SK_API GrVkBackendContext {
     uint32_t                   fMinAPIVersion;
     uint32_t                   fExtensions;
     uint32_t                   fFeatures;
-    sk_sp<const GrVkInterface> fInterface;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
     GrVkGetProc                fGetProc = nullptr;
 
