@@ -844,12 +844,14 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
     // If it's not possible to even have a color attachment of surfaceConfig then read pixels is
     // not supported regardless of readConfig.
     if (!this->canConfigBeFBOColorAttachment(surfaceConfig)) {
+        SkDebugf("TIM-DEBUG GrGLCaps: can't have color attachment\n");
         return false;
     }
 
     GrGLenum readFormat;
     GrGLenum readType;
     if (!this->getReadPixelsFormat(surfaceConfig, readConfig, &readFormat, &readType)) {
+        SkDebugf("TIM-DEBUG GrGLCaps: can't get pixel format\n");
         return false;
     }
 
@@ -864,6 +866,7 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         if (readFormat != GR_GL_RED && readFormat != GR_GL_RG && readFormat != GR_GL_RGB &&
             readFormat != GR_GL_RGBA && readFormat != GR_GL_BGRA &&
             readFormat != GR_GL_RGBA_INTEGER) {
+            SkDebugf("TIM-DEBUG GrGLCaps: bad read format\n");
             return false;
         }
         // There is also a set of allowed types, but all the types we use are in the set:
@@ -896,6 +899,7 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
             const_cast<ReadPixelsFormat*>(&fConfigTable[surfaceConfig].fSecondReadPixelsFormat);
         GrGLint format = 0, type = 0;
         if (!bindRenderTarget()) {
+            SkDebugf("TIM-DEBUG GrGLCaps: can't bind render target\n");
             return false;
         }
         getIntegerv(GR_GL_IMPLEMENTATION_COLOR_READ_FORMAT, &format);
@@ -905,8 +909,13 @@ bool GrGLCaps::readPixelsSupported(GrPixelConfig surfaceConfig,
         unbindRenderTarget();
     }
 
-    return fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
-           fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fType == readType;
+    bool result = fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fFormat == readFormat &&
+                  fConfigTable[surfaceConfig].fSecondReadPixelsFormat.fType == readType;
+
+    if (!result) {
+        SkDebugf("TIM-DEBUG GrGLCaps: bad config\n");
+    }
+    return result;
 }
 
 void GrGLCaps::initFSAASupport(const GrContextOptions& contextOptions, const GrGLContextInfo& ctxInfo,
