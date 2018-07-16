@@ -2828,7 +2828,7 @@ time by defining SK_ABORT.
 
 ### Example
 
-<div><fiddle-embed name="d5547cd2b302822aa85b7b0ae3f48458"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
+<div><fiddle-embed name="1219b38c788bf270fb20f8cd2d78cff8"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 and erases it to black, but does not alter set1. <a href='#SkBitmap_setPixels'>setPixels</a> replaces black
 <a href='undocumented#Pixel_Ref'>Pixel Ref</a> with set2.
 </div></fiddle-embed></div>

@@ -644,7 +644,7 @@ drawing destination over source. Has no effect destination if is opaque.
 
 ### Example
 
-<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae"></fiddle-embed></div>
+<div><fiddle-embed name="10dbb4d97902956ef5f5f8562f65119e"></fiddle-embed></div>
 
 ## <a name='Src_In'>Src In</a>
 
@@ -957,7 +957,7 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
 
-<div><fiddle-embed name="de9be45255e48fae445c916a41063abc"></fiddle-embed></div>
+<div><fiddle-embed name="41e45570d682397d3b8ff2f51bd9c574"></fiddle-embed></div>
 
 ## <a name='Saturation'>Saturation</a>
 
