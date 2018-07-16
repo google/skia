@@ -9,6 +9,7 @@
 #define GrGpuResource_DEFINED
 
 #include "../private/GrTypesPriv.h"
+#include "../private/SkNoncopyable.h"
 #include "GrResourceKey.h"
 
 class GrContext;

@@ -8,10 +8,11 @@
 #ifndef GrBufferAllocPool_DEFINED
 #define GrBufferAllocPool_DEFINED
 
+#include "GrTypesPriv.h"
+#include "SkNoncopyable.h"
 #include "SkTArray.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
-#include "GrTypesPriv.h"
 
 class GrBuffer;
 class GrGpu;

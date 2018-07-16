@@ -8,9 +8,10 @@
 #ifndef SkDOM_DEFINED
 #define SkDOM_DEFINED
 
-#include "../private/SkTemplates.h"
 #include "SkArenaAlloc.h"
+#include "SkNoncopyable.h"
 #include "SkScalar.h"
+#include "SkTemplates.h"
 #include "SkTypes.h"
 
 struct SkDOMNode;

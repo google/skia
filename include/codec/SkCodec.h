@@ -8,6 +8,7 @@
 #ifndef SkCodec_DEFINED
 #define SkCodec_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "../private/SkTemplates.h"
 #include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"

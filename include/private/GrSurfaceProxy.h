@@ -8,6 +8,7 @@
 #ifndef GrSurfaceProxy_DEFINED
 #define GrSurfaceProxy_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "GrGpuResource.h"
 #include "GrSurface.h"
 
