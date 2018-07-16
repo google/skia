@@ -1980,6 +1980,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             desc.fFlags = kRenderTarget_GrSurfaceFlag;
             temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
+                SkDebugf("TIM-DEBUG cant create temp texture 1 GrGlGpu\n");
                 return false;
             }
             GrGLRenderTarget* glrt = static_cast<GrGLRenderTarget*>(temp->asRenderTarget());
@@ -1988,6 +1989,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
         } else if (this->glCaps().canConfigBeFBOColorAttachment(rtConfig)) {
             temp = this->createTexture(desc, SkBudgeted::kNo);
             if (!temp) {
+                SkDebugf("TIM-DEBUG cant create temp texture 2 GrGlGpu\n");
                 return false;
             }
             GrGLIRect vp;
@@ -1995,6 +1997,7 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
             fHWBoundRenderTargetUniqueID.makeInvalid();
             return true;
         }
+        SkDebugf("TIM-DEBUG config not renderable GrGlGpu\n");
         return false;
     };
     auto unbindRenderTarget = [this, &temp]() {
@@ -2003,8 +2006,12 @@ bool GrGLGpu::readPixelsSupported(GrPixelConfig rtConfig, GrPixelConfig readConf
     auto getIntegerv = [this](GrGLenum query, GrGLint* value) {
         GR_GL_GetIntegerv(this->glInterface(), query, value);
     };
-    return this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
-                                              unbindRenderTarget);
+    bool result = this->glCaps().readPixelsSupported(rtConfig, readConfig, getIntegerv, bindRenderTarget,
+                                                     unbindRenderTarget);
+    if (!result) {
+        SkDebugf("TIM-DEBUG readpixels caps returned false GrGlGpu\n");
+    }
+    return result;
 }
 
 bool GrGLGpu::readPixelsSupported(GrSurface* surfaceForConfig, GrPixelConfig readConfig) {
@@ -2022,6 +2029,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
+        SkDebugf("TIM-DEBUG canConfigBeFBO fail GrGlGpu\n");
         return false;
     }
 
@@ -2029,6 +2037,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
 
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
+        SkDebugf("TIM-DEBUG ReadPixels fail GrGlGpu\n");
         return false;
     }
 
@@ -2036,6 +2045,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     GrGLenum externalType;
     if (!this->glCaps().getReadPixelsFormat(surface->config(), dstAsConfig, &externalFormat,
                                             &externalType)) {
+        SkDebugf("TIM-DEBUG ReadPixelsFormat fail GrGlGpu\n");
         return false;
     }
 
@@ -2044,6 +2054,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         // resolve the render target if necessary
         switch (renderTarget->getResolveType()) {
             case GrGLRenderTarget::kCantResolve_ResolveType:
+                SkDebugf("TIM-DEBUG Resolve fail GrGlGpu\n");
                 return false;
             case GrGLRenderTarget::kAutoResolves_ResolveType:
                 this->flushRenderTargetNoColorWrites(renderTarget);
