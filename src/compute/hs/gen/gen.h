@@ -9,21 +9,20 @@
 #pragma once
 
 //
+// TODO:
 //
+// Add Key-Val sorting support -- easy.
 //
 
 #include <stdio.h>
 #include <stdint.h>
 
 //
+// All code generation is driven by the specified architectural
+// details and host platform API.
 //
-//
-
-#define MERGE_LEVELS_MAX_LOG2  7                            // merge up to 128 warps
-#define MERGE_LEVELS_MAX_SIZE  (1 << MERGE_LEVELS_MAX_LOG2) // ((1 << MERGE_MAX_LOG2) - 1) // incorrect debug error
-
-//
-//
+// In general, the warps-per-block and keys-per-thread are the
+// critical knobs for tuning performance.
 //
 
 struct hsg_config
@@ -58,6 +57,7 @@ struct hsg_config
 
   struct {
     uint32_t    lanes;
+    uint32_t    lanes_log2;
     uint32_t    skpw_bs;
   } warp;
 
@@ -72,7 +72,7 @@ struct hsg_config
 };
 
 //
-//
+// HotSort can merge non-power-of-two blocks of warps
 //
 
 struct hsg_level
@@ -91,6 +91,16 @@ struct hsg_level
   } active;
 };
 
+//
+//
+//
+
+#define MERGE_LEVELS_MAX_LOG2  7 // merge up to 128 warps
+#define MERGE_LEVELS_MAX_SIZE  (1 << MERGE_LEVELS_MAX_LOG2)
+
+//
+// This is computed
+//
 
 struct hsg_merge
 {
@@ -113,6 +123,8 @@ struct hsg_merge
 //
 //
 
+#if 0
+
 #define HSG_FILE_NAME_SIZE  80
 
 struct hsg_file
@@ -121,18 +133,6 @@ struct hsg_file
   char const * prefix;
   char         name[HSG_FILE_NAME_SIZE];
 };
-
-//
-//
-//
-
-typedef enum hsg_kernel_type {
-
-  HSG_KERNEL_TYPE_SORT_BLOCK,
-
-  HSG_KERNEL_TYPE_COUNT
-
-} hsg_kernel_type;
 
 //
 //
@@ -147,6 +147,8 @@ typedef enum hsg_file_type {
 
 } hsg_file_type;
 
+#endif
+
 //
 //
 //
@@ -158,10 +160,8 @@ typedef enum hsg_file_type {
   HSG_OP_EXPAND_X(HSG_OP_TYPE_BEGIN)                            \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_ELSE)                             \
                                                                 \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_FILE_HEADER)                      \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_FILE_FOOTER)                      \
-                                                                \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_DUMMY_KERNEL)                     \
+  HSG_OP_EXPAND_X(HSG_OP_TYPE_TARGET_BEGIN)                     \
+  HSG_OP_EXPAND_X(HSG_OP_TYPE_TARGET_END)                       \
                                                                 \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_TRANSPOSE_KERNEL_PROTO)           \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_TRANSPOSE_KERNEL_PREAMBLE)        \
@@ -186,12 +186,13 @@ typedef enum hsg_file_type {
   HSG_OP_EXPAND_X(HSG_OP_TYPE_FM_REG_GLOBAL_STORE_LEFT)         \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_FM_REG_GLOBAL_LOAD_RIGHT)         \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_FM_REG_GLOBAL_STORE_RIGHT)        \
+  HSG_OP_EXPAND_X(HSG_OP_TYPE_FM_MERGE_RIGHT_PRED)              \
                                                                 \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_HM_REG_GLOBAL_LOAD)               \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_HM_REG_GLOBAL_STORE)              \
                                                                 \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_WARP_FLIP)                        \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_WARP_HALF)                        \
+  HSG_OP_EXPAND_X(HSG_OP_TYPE_SLAB_FLIP)                        \
+  HSG_OP_EXPAND_X(HSG_OP_TYPE_SLAB_HALF)                        \
                                                                 \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_CMP_FLIP)                         \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_CMP_HALF)                         \
@@ -220,8 +221,6 @@ typedef enum hsg_file_type {
   HSG_OP_EXPAND_X(HSG_OP_TYPE_BX_MERGE_H_PRED)                  \
                                                                 \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_BS_ACTIVE_PRED)                   \
-                                                                \
-  HSG_OP_EXPAND_X(HSG_OP_TYPE_FM_MERGE_RIGHT_PRED)              \
                                                                 \
   HSG_OP_EXPAND_X(HSG_OP_TYPE_COUNT)
 
@@ -271,42 +270,63 @@ struct hsg_op
 //
 //
 
-typedef void (*hsg_target_pfn)(struct hsg_file        * const files,
-                               struct hsg_merge const * const merge,
-                               struct hsg_op    const * const ops,
-                               uint32_t                 const depth);
+extern char const * const hsg_op_type_string[];
 
 //
 //
 //
 
-extern struct hsg_config hsg_config;
-extern struct hsg_merge  hsg_merge[MERGE_LEVELS_MAX_LOG2];
+struct hsg_target
+{
+  struct hsg_target_state * state;
+};
 
+//
+// All targets share this prototype
+//
+
+typedef
+void
+(*hsg_target_pfn)(struct hsg_target       * const target,
+                  struct hsg_config const * const config,
+                  struct hsg_merge  const * const merge,
+                  struct hsg_op     const * const ops,
+                  uint32_t                  const depth);
 //
 //
 //
 
 extern
 void
-hsg_target_debug    (struct hsg_file        * const files,
-                     struct hsg_merge const * const merge,
-                     struct hsg_op    const * const ops,
-                     uint32_t                 const depth);
+hsg_target_debug(struct hsg_target       * const target,
+                 struct hsg_config const * const config,
+                 struct hsg_merge  const * const merge,
+                 struct hsg_op     const * const ops,
+                 uint32_t                  const depth);
 
 extern
 void
-hsg_target_cuda_sm3x(struct hsg_file        * const files,
-                     struct hsg_merge const * const merge,
-                     struct hsg_op    const * const ops,
-                     uint32_t                 const depth);
+hsg_target_cuda(struct hsg_target       * const target,
+                struct hsg_config const * const config,
+                struct hsg_merge  const * const merge,
+                struct hsg_op     const * const ops,
+                uint32_t                  const depth);
 
 extern
 void
-hsg_target_igp_genx (struct hsg_file        * const files,
-                     struct hsg_merge const * const merge,
-                     struct hsg_op    const * const ops,
-                     uint32_t                 const depth);
+hsg_target_opencl(struct hsg_target       * const target,
+                  struct hsg_config const * const config,
+                  struct hsg_merge  const * const merge,
+                  struct hsg_op     const * const ops,
+                  uint32_t                  const depth);
+
+extern
+void
+hsg_target_glsl(struct hsg_target       * const target,
+                struct hsg_config const * const config,
+                struct hsg_merge  const * const merge,
+                struct hsg_op     const * const ops,
+                uint32_t                  const depth);
 //
 //
 //

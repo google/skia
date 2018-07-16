@@ -46,5 +46,3 @@ skc_weakref_index(skc_weakref_t const * const weakref);
 //
 //
 //
-
-

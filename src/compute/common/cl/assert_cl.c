@@ -129,7 +129,7 @@ assert_cl(cl_int const code, char const * const file, int const line, bool const
       char const * const cl_err_str = cl_get_error_string(code);
 
       fprintf(stderr,
-              "\"%s\", line %d: cl_assert (%d) = \"%s\"",
+              "\"%s\", line %d: assert_cl( %d ) = \"%s\"",
               file,line,code,cl_err_str);
 
       if (abort)

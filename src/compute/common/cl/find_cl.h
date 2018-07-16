@@ -32,4 +32,3 @@ clFindIdsByName(char const     * const target_platform_substring,
 //
 //
 //
-

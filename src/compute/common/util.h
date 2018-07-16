@@ -27,5 +27,3 @@ uint32_t msb_idx_u32(uint32_t n); // 0-based bit position
 //
 //
 //
-
-

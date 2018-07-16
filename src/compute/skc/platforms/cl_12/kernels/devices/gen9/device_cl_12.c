@@ -23,7 +23,7 @@
 #include "device_cl_12.h"
 
 #include "hs/cl/hs_cl_launcher.h"
-#include "hs/cl/gen9/hs_cl.h"
+#include "hs/cl/intel/gen8/u64/hs_target.h"
 
 //
 //
@@ -500,11 +500,11 @@ skc_device_shaper_segment_ttrk(size_t    const work_size,
                                size_t  * const work_local)
 {
   // work_size is number of keys -- round up to a whole slab
-  size_t keys_ru = SKC_ROUND_UP(work_size,HS_LANES_PER_WARP*HS_KEYS_PER_LANE);
+  size_t keys_ru = SKC_ROUND_UP(work_size,HS_SLAB_WIDTH*HS_SLAB_HEIGHT);
 
   work_dim   [0] = 1;
-  work_global[0] = keys_ru / HS_KEYS_PER_LANE;
-  work_local [0] = HS_LANES_PER_WARP; // or just return NULL
+  work_global[0] = keys_ru / HS_SLAB_HEIGHT;
+  work_local [0] = HS_SLAB_WIDTH; // or just return NULL
 
   return work_local;
 }
@@ -517,11 +517,11 @@ skc_device_shaper_segment_ttck(size_t    const work_size,
                                size_t  * const work_local)
 {
   // work_size is number of keys -- round up to a whole slab
-  size_t keys_ru = SKC_ROUND_UP(work_size,HS_LANES_PER_WARP*HS_KEYS_PER_LANE);
+  size_t keys_ru = SKC_ROUND_UP(work_size,HS_SLAB_WIDTH*HS_SLAB_HEIGHT);
 
   work_dim   [0] = 1;
-  work_global[0] = keys_ru / HS_KEYS_PER_LANE;
-  work_local [0] = HS_LANES_PER_WARP; // or just return NULL
+  work_global[0] = keys_ru / HS_SLAB_HEIGHT;
+  work_local [0] = HS_SLAB_WIDTH; // or just return NULL
 
   return work_local;
 }
@@ -894,8 +894,10 @@ skc_device_create(struct skc_runtime * const runtime)
   SKC_DEVICE_BUILD_PROGRAM(paths_reclaim);
   SKC_DEVICE_BUILD_PROGRAM(rasters_reclaim);
 
-  // create HotSort instance -- FIXME -- how this occurs needs to be cleaned up
-  hs_create(runtime->cl.context,runtime->cl.device_id,NULL);
+  // create HotSort instance
+  runtime->hs = hs_cl_create(&hs_target,
+                             runtime->cl.context,
+                             runtime->cl.device_id);
 }
 
 void
@@ -906,6 +908,8 @@ skc_device_dispose(struct skc_runtime * const runtime)
   //
 
   skc_runtime_host_perm_free(runtime,runtime->device);
+
+  // dispose of hotsort etc.
 }
 
 //

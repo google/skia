@@ -11,7 +11,7 @@
 //
 
 #include "transpose.h"
-#include "macros.h"
+#include "common/macros.h"
 
 //
 // Rows must be an even number.  This is enforced elsewhere.
@@ -21,19 +21,19 @@
 void
 hsg_transpose(uint32_t                   const cols_log2,
               uint32_t                   const rows,
-              void *                           blend,
-              void *                           remap,
               void (*pfn_blend)(uint32_t const cols_log2,
                                 uint32_t const row_ll, // lower-left
                                 uint32_t const row_ur, // upper-right
                                 void *         blend),
+              void *                           blend,
               void (*pfn_remap)(uint32_t const row_from,
                                 uint32_t const row_to,
-                                void *         remap))
+                                void *         remap),
+              void *                           remap)
 {
   // get mapping array
-  uint32_t * map_curr = ALLOCA(rows * sizeof(*map_curr));
-  uint32_t * map_next = ALLOCA(rows * sizeof(*map_next));
+  uint32_t * map_curr = ALLOCA_MACRO(rows * sizeof(*map_curr));
+  uint32_t * map_next = ALLOCA_MACRO(rows * sizeof(*map_next));
 
   // init the mapping array
   for (uint32_t ii=0; ii<rows; ii++)
@@ -89,6 +89,28 @@ static uint32_t cols; // implicit on SIMD/GPU
 
 static
 void
+hsg_debug_blend(uint32_t const cols_log2,
+                uint32_t const row_ll, // lower-left
+                uint32_t const row_ur, // upper-right
+                uint32_t *     b)
+{
+  fprintf(stdout,"BLEND( %u, %3u, %3u )\n",cols_log2,row_ll,row_ur);
+
+  uint32_t * const ll = ALLOCA(cols * sizeof(*b));
+  uint32_t * const ur = ALLOCA(cols * sizeof(*b));
+
+  memcpy(ll,b+row_ll*cols,cols * sizeof(*b));
+  memcpy(ur,b+row_ur*cols,cols * sizeof(*b));
+
+  for (uint32_t ii=0; ii<cols; ii++)
+    b[row_ll*cols+ii] = ((ii >> cols_log2-1) & 1) ? ll[ii] : ur[ii^(1<<cols_log2-1)];
+
+  for (uint32_t ii=0; ii<cols; ii++)
+    b[row_ur*cols+ii] = ((ii >> cols_log2-1) & 1) ? ll[ii^(1<<cols_log2-1)] : ur[ii];
+}
+
+static
+void
 hsg_debug_remap(uint32_t   const row_from,
                 uint32_t   const row_to,
                 uint32_t * const r)
@@ -96,28 +118,6 @@ hsg_debug_remap(uint32_t   const row_from,
   fprintf(stdout,"REMAP( %3u, %3u )\n",row_from,row_to);
 
   r[row_to] = row_from;
-}
-
-static
-void
-hsg_debug_blend(uint32_t const cols_log2,
-                uint32_t const row_ll, // lower-left
-                uint32_t const row_ur, // upper-right
-                uint32_t *     m)
-{
-  fprintf(stdout,"BLEND( %u, %3u, %3u )\n",cols_log2,row_ll,row_ur);
-
-  uint32_t * const ll = ALLOCA(cols * sizeof(*m));
-  uint32_t * const ur = ALLOCA(cols * sizeof(*m));
-
-  memcpy(ll,m+row_ll*cols,cols * sizeof(*m));
-  memcpy(ur,m+row_ur*cols,cols * sizeof(*m));
-
-  for (uint32_t ii=0; ii<cols; ii++)
-    m[row_ll*cols+ii] = ((ii >> cols_log2-1) & 1) ? ll[ii] : ur[ii^(1<<cols_log2-1)];
-
-  for (uint32_t ii=0; ii<cols; ii++)
-    m[row_ur*cols+ii] = ((ii >> cols_log2-1) & 1) ? ll[ii^(1<<cols_log2-1)] : ur[ii];
 }
 
 static
@@ -144,23 +144,22 @@ main(int argc, char * argv[])
 
   cols = 1 << cols_log2;
 
-  uint32_t * const m = ALLOCA(cols * rows * sizeof(*m));
+  uint32_t * const b = ALLOCA(cols * rows * sizeof(*b));
   uint32_t * const r = ALLOCA(       rows * sizeof(*r));
 
   for (uint32_t rr=0; rr<rows; rr++) {
     r[rr] = rr;
     for (uint32_t cc=0; cc<cols; cc++)
-      m[rr*cols+cc] = cc*rows+rr;
+      b[rr*cols+cc] = cc*rows+rr;
   }
 
-  hsg_debug_print(rows,m,r);
+  hsg_debug_print(rows,b,r);
 
   hsg_transpose(cols_log2,rows,
-                m,r,
-                hsg_debug_blend,
-                hsg_debug_remap);
+                hsg_debug_blend,b,
+                hsg_debug_remap,r);
 
-  hsg_debug_print(rows,m,r);
+  hsg_debug_print(rows,b,r);
 
   return 0;
 }

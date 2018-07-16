@@ -166,7 +166,7 @@ skc_extent_thr_tdrw_alloc(struct skc_runtime         * const runtime,
 {
   extent->size = size;
   extent->hr   = skc_runtime_host_temp_alloc(runtime,
-                                             SKC_MEM_FLAGS_READ_WRITE,
+                                             SKC_MEM_FLAGS_READ_ONLY,
                                              size,&extent->id.hr,NULL);
   extent->drw  = skc_runtime_device_temp_alloc(runtime,
                                                CL_MEM_READ_WRITE,
