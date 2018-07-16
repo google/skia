@@ -8,6 +8,7 @@
 #ifndef SkColorSpaceXform_DEFINED
 #define SkColorSpaceXform_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "SkImageInfo.h"
 
 class SkColorSpace;

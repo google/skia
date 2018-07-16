@@ -9,6 +9,7 @@
 #define GrGLSLProgramDataManager_DEFINED
 
 #include "GrResourceHandle.h"
+#include "SkNoncopyable.h"
 #include "SkTypes.h"
 
 class SkMatrix;

@@ -8,6 +8,7 @@
 #ifndef GrSurfaceProxyRef_DEFINED
 #define GrSurfaceProxyRef_DEFINED
 
+#include "../private/SkNoncopyable.h"
 #include "GrTypesPriv.h"
 
 class GrSurfaceProxy;
