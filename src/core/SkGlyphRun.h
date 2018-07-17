@@ -37,6 +37,7 @@ public:
     T* data() const { return fPtr; }
     size_t size() const { return fSize; }
     bool empty() const { return fSize == 0; }
+    size_t size_bytes() const { return fSize * sizeof(T); }
 
 private:
     T* fPtr;
@@ -59,8 +60,9 @@ public:
     void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin);
     using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
     void temporaryShuntToCallback(TemporaryShuntCallback callback);
+    void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
-    size_t runSize() const { return fUniqueGlyphIDIndices.size(); }
+    size_t runSize() const { return fTemporaryShuntGlyphIDs.size(); }
     SkSpan<const SkPoint> positions() const { return fPositions; }
     const SkPaint& paint() const { return fRunPaint; }
 
