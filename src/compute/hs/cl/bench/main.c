@@ -10,19 +10,10 @@
 //
 //
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-
-//
-// CPU bench
-//
-
-#ifdef _MSC_VER
-#include <windows.h>
-#else
-#include <sys/time.h>
-#endif
 
 //
 // squelch OpenCL 1.2 deprecation warning
@@ -82,8 +73,8 @@ hs_fill_rand(uint32_t * vin_h, uint32_t const count, uint32_t const words)
 //
 //
 
-char const * hs_cpu_sort_u32(uint32_t * a, uint32_t const count);
-char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count);
+char const * hs_cpu_sort_u32(uint32_t * a, uint32_t const count, double * const cpu_ns);
+char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count, double * const cpu_ns);
 
 //
 //
@@ -91,29 +82,15 @@ char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count);
 
 static
 char const *
-hs_cpu_sort(uint32_t const hs_words,
-            void   *       sorted_h,
-            uint32_t const count,
-            double * const cpu_ns)
+hs_cpu_sort(uint32_t   const hs_words,
+            void     *       sorted_h,
+            uint32_t   const count,
+            double   * const cpu_ns)
 {
-  char const * algo;
-
-  LARGE_INTEGER t0,t1,freq;
-
-  QueryPerformanceCounter(&t0);
-
   if (hs_words == 1)
-    algo = hs_cpu_sort_u32(sorted_h,count);
+    return hs_cpu_sort_u32(sorted_h,count,cpu_ns);
   else
-    algo = hs_cpu_sort_u64(sorted_h,count);
-
-  QueryPerformanceCounter(&t1);
-  QueryPerformanceFrequency(&freq);
-
-  // nanoseconds
-  *cpu_ns = (double)((t1.QuadPart - t0.QuadPart) * 1000 * 1000 * 1000) / (double)freq.QuadPart;
-
-  return algo;
+    return hs_cpu_sort_u64(sorted_h,count,cpu_ns);
 }
 
 static
