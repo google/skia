@@ -198,6 +198,8 @@ gm_sources = [
   "$_gm/lcdoverlap.cpp",
   "$_gm/lcdtext.cpp",
   "$_gm/lighting.cpp",
+  "$_gm/lightingshader.cpp",
+  "$_gm/lightingshader2.cpp",
   "$_gm/linepaths.cpp",
   "$_gm/localmatriximagefilter.cpp",
   "$_gm/localmatriximageshader.cpp",

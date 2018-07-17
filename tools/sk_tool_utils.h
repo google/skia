@@ -140,6 +140,12 @@ namespace sk_tool_utils {
     // numPts and step must be co-prime.
     SkPath make_star(const SkRect& bounds, int numPts = 5, int step = 2);
 
+    void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst);
+
+    void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst);
+
+    void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst);
+
     void make_big_path(SkPath& path);
 
     // Return a blurred version of 'src'. This doesn't use a separable filter
