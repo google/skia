@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a11238c9_7dfb9f68",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c90ea10a_b6c96cb7",
+      "range": {
+        "startLine": 605,
+        "startChar": 7,
+        "endLine": 605,
+        "endChar": 14
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "120941f5_6886258f",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84d3daf0_48d0a35c",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "120941f5_6886258f",
+      "range": {
+        "startLine": 621,
+        "startChar": 56,
+        "endLine": 621,
+        "endChar": 73
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "f9f0ae55_7503f410",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e4b52a55_cb7a04eb",
+      "range": {
+        "startLine": 639,
+        "startChar": 35,
+        "endLine": 640,
+        "endChar": 10
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3659c144_01c61e4f",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 12
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "8ec89eec_46b38761",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3659c144_01c61e4f",
+      "range": {
+        "startLine": 646,
+        "startChar": 28,
+        "endLine": 647,
+        "endChar": 14
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71a48c49_365cb2a8",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 12
@@ -108,6 +204,24 @@
       "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63ec05c4_ed5c8544",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71a48c49_365cb2a8",
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "99d920df_05c0ee92",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "40805b8e_029affd4",
+      "range": {
+        "startLine": 1031,
+        "startChar": 56,
+        "endLine": 1031,
+        "endChar": 73
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "41a0be95_0b0aed24",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 12
@@ -157,6 +295,30 @@
     },
     {
       "key": {
+        "uuid": "e4d86e11_8eef4afa",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41a0be95_0b0aed24",
+      "range": {
+        "startLine": 1059,
+        "startChar": 4,
+        "endLine": 1059,
+        "endChar": 21
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4860f70a_9bac837b",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 12
@@ -177,6 +339,30 @@
       "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ffb2002d_6b1a420e",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T16:06:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4860f70a_9bac837b",
+      "range": {
+        "startLine": 1086,
+        "startChar": 0,
+        "endLine": 1086,
+        "endChar": 4
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
