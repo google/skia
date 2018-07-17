@@ -68,6 +68,11 @@ void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
     callback(fTemporaryShuntGlyphIDs.size(), bytes, pos);
 }
 
+void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
+    memcpy(glyphIDs, fTemporaryShuntGlyphIDs.data(), fTemporaryShuntGlyphIDs.size_bytes());
+    memcpy(positions, fPositions.data(), fPositions.size_bytes());
+}
+
 // -- SkGlyphRunList -------------------------------------------------------------------------------
 SkGlyphRunList::SkGlyphRunList(
         const SkPaint& paint,
