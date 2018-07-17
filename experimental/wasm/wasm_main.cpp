@@ -5,10 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkRegion.h"
 #include "SkString.h"
 
 #include <emscripten/emscripten.h>
@@ -309,6 +311,16 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path, val/* Path2D&*/ retVa
     return retVal;
 }
 
+//========================================================================================
+// Region things
+//========================================================================================
+
+SkPath GetBoundaryPathFromRegion(SkRegion region) {
+    SkPath p;
+    region.getBoundaryPath(&p);
+    return p;
+}
+
 // Binds the classes to the JS
 EMSCRIPTEN_BINDINGS(skia) {
     class_<SkPath>("SkPath")
@@ -322,14 +334,29 @@ EMSCRIPTEN_BINDINGS(skia) {
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
         .function("cubicTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
-        .function("close", &SkPath::close);
+        .function("close", &SkPath::close)
         // Uncomment below for debugging.
-        //.function("dump", select_overload<void() const>(&SkPath::dump));
+        .function("dump", select_overload<void() const>(&SkPath::dump));
 
     class_<SkOpBuilder>("SkOpBuilder")
         .constructor<>()
 
         .function("add", &SkOpBuilder::add);
+
+    class_<SkRegion>("SkRegion")
+        .constructor<>()
+
+        .function("setRect",
+            select_overload<bool(int32_t, int32_t, int32_t, int32_t)>(&SkRegion::setRect))
+        .function("setPath", &SkRegion::setPath)
+        .function("opLTRB",
+            select_overload<bool(int32_t, int32_t, int32_t, int32_t, SkRegion::Op)>(&SkRegion::op))
+        .function("opRegion",
+            select_overload<bool(const SkRegion&, SkRegion::Op)>(&SkRegion::op))
+        .function("opRegionAB",
+            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op))
+        ;
+
 
     // Without this, module._ToPath2D (yes with an underscore)
     // would be exposed, but be unable to correctly handle the SkPath type.
@@ -347,12 +374,24 @@ EMSCRIPTEN_BINDINGS(skia) {
     function("ApplyPathOp", &ApplyPathOp);
     function("ResolveBuilder", &ResolveBuilder);
 
+    function("SkBits2Float", &SkBits2Float);
+
+    function("GetBoundaryPathFromRegion", &GetBoundaryPathFromRegion);
+
     enum_<SkPathOp>("PathOp")
         .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
         .value("INTERSECT",          SkPathOp::kIntersect_SkPathOp)
         .value("UNION",              SkPathOp::kUnion_SkPathOp)
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
+
+    enum_<SkRegion::Op>("RegionOp")
+        .value("DIFFERENCE",         SkRegion::Op::kDifference_Op)
+        .value("INTERSECT",          SkRegion::Op::kIntersect_Op)
+        .value("UNION",              SkRegion::Op::kUnion_Op)
+        .value("XOR",                SkRegion::Op::kXOR_Op)
+        .value("REVERSE_DIFFERENCE", SkRegion::Op::kReverseDifference_Op)
+        .value("REPLACE",            SkRegion::Op::kReplace_Op);
 
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);

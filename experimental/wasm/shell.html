@@ -424,6 +424,40 @@
         document.getElementById('svg').appendChild(newPath);
 
         android2.delete();
+
+        // ===========================================================
+
+        let float = Module.SkBits2Float(parseInt("0x3f2aaaab"));
+        Module.print('SkBits2Float(0x3f2aaaab) = 0.666667', float);
+
+        p1 = new Module.SkPath();
+        p1.moveTo(0,60);
+        p1.lineTo(40,60);
+        p1.lineTo(20,80);
+        p1.close();
+        p2 = new Module.SkPath();
+        p2.moveTo(20,60);
+        p2.lineTo(60,60);
+        p2.lineTo(40,80);
+        p2.close();
+
+        let rgnA = new Module.SkRegion();
+        let rgnB = new Module.SkRegion();
+        let openClip = new Module.SkRegion();
+        let rgnOut = new Module.SkRegion();
+        openClip.setRect(-16000, -16000, 16000, 16000);
+        rgnA.setPath(p1, openClip);
+        rgnB.setPath(p2, openClip);
+        rgnOut.opRegionAB(rgnA, rgnB, Module.RegionOp.INTERSECT);
+        let pathOut = Module.GetBoundaryPathFromRegion(rgnOut);
+
+        p1.delete();
+        p2.delete();
+        rgnA.delete();
+        rgnB.delete();
+        openClip.delete();
+        rgnOut.delete();
+        pathOut.delete();
       }
     </script>
     <script type='text/javascript'>
