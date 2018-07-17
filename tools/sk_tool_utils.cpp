@@ -18,7 +18,7 @@
 #include "SkPath.h"
 #include "SkPixelRef.h"
 #include "SkPixmap.h"
-#include "SkPoint.h"
+#include "SkPoint3.h"
 #include "SkRRect.h"
 #include "SkShader.h"
 #include "SkSurface.h"
@@ -162,6 +162,114 @@ SkPath make_star(const SkRect& bounds, int numPts, int step) {
     }
     path.transform(SkMatrix::MakeRectToRect(path.getBounds(), bounds, SkMatrix::kFill_ScaleToFit));
     return path;
+}
+
+static inline void norm_to_rgb(SkBitmap* bm, int x, int y, const SkVector3& norm) {
+    SkASSERT(SkScalarNearlyEqual(norm.length(), 1.0f));
+    unsigned char r = static_cast<unsigned char>((0.5f * norm.fX + 0.5f) * 255);
+    unsigned char g = static_cast<unsigned char>((-0.5f * norm.fY + 0.5f) * 255);
+    unsigned char b = static_cast<unsigned char>((0.5f * norm.fZ + 0.5f) * 255);
+    *bm->getAddr32(x, y) = SkPackARGB32(0xFF, r, g, b);
+}
+
+void create_hemi_normal_map(SkBitmap* bm, const SkIRect& dst) {
+    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
+                                         dst.fTop + (dst.height() / 2.0f));
+    const SkPoint halfSize = SkPoint::Make(dst.width() / 2.0f, dst.height() / 2.0f);
+
+    SkVector3 norm;
+
+    for (int y = dst.fTop; y < dst.fBottom; ++y) {
+        for (int x = dst.fLeft; x < dst.fRight; ++x) {
+            norm.fX = (x + 0.5f - center.fX) / halfSize.fX;
+            norm.fY = (y + 0.5f - center.fY) / halfSize.fY;
+
+            SkScalar tmp = norm.fX * norm.fX + norm.fY * norm.fY;
+            if (tmp >= 1.0f) {
+                norm.set(0.0f, 0.0f, 1.0f);
+            } else {
+                norm.fZ = sqrtf(1.0f - tmp);
+            }
+
+            norm_to_rgb(bm, x, y, norm);
+        }
+    }
+}
+
+void create_frustum_normal_map(SkBitmap* bm, const SkIRect& dst) {
+    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
+                                         dst.fTop + (dst.height() / 2.0f));
+
+    SkIRect inner = dst;
+    inner.inset(dst.width()/4, dst.height()/4);
+
+    SkPoint3 norm;
+    const SkPoint3 left =  SkPoint3::Make(-SK_ScalarRoot2Over2, 0.0f, SK_ScalarRoot2Over2);
+    const SkPoint3 up =    SkPoint3::Make(0.0f, -SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
+    const SkPoint3 right = SkPoint3::Make(SK_ScalarRoot2Over2,  0.0f, SK_ScalarRoot2Over2);
+    const SkPoint3 down =  SkPoint3::Make(0.0f,  SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
+
+    for (int y = dst.fTop; y < dst.fBottom; ++y) {
+        for (int x = dst.fLeft; x < dst.fRight; ++x) {
+            if (inner.contains(x, y)) {
+                norm.set(0.0f, 0.0f, 1.0f);
+            } else {
+                SkScalar locX = x + 0.5f - center.fX;
+                SkScalar locY = y + 0.5f - center.fY;
+
+                if (locX >= 0.0f) {
+                    if (locY > 0.0f) {
+                        norm = locX >= locY ? right : down;   // LR corner
+                    } else {
+                        norm = locX > -locY ? right : up;     // UR corner
+                    }
+                } else {
+                    if (locY > 0.0f) {
+                        norm = -locX > locY ? left : down;    // LL corner
+                    } else {
+                        norm = locX > locY ? up : left;       // UL corner
+                    }
+                }
+            }
+
+            norm_to_rgb(bm, x, y, norm);
+        }
+    }
+}
+
+void create_tetra_normal_map(SkBitmap* bm, const SkIRect& dst) {
+    const SkPoint center = SkPoint::Make(dst.fLeft + (dst.width() / 2.0f),
+                                         dst.fTop + (dst.height() / 2.0f));
+
+    static const SkScalar k1OverRoot3 = 0.5773502692f;
+
+    SkPoint3 norm;
+    const SkPoint3 leftUp =  SkPoint3::Make(-k1OverRoot3, -k1OverRoot3, k1OverRoot3);
+    const SkPoint3 rightUp = SkPoint3::Make(k1OverRoot3,  -k1OverRoot3, k1OverRoot3);
+    const SkPoint3 down =  SkPoint3::Make(0.0f,  SK_ScalarRoot2Over2, SK_ScalarRoot2Over2);
+
+    for (int y = dst.fTop; y < dst.fBottom; ++y) {
+        for (int x = dst.fLeft; x < dst.fRight; ++x) {
+            SkScalar locX = x + 0.5f - center.fX;
+            SkScalar locY = y + 0.5f - center.fY;
+
+            if (locX >= 0.0f) {
+                if (locY > 0.0f) {
+                    norm = locX >= locY ? rightUp : down;   // LR corner
+                } else {
+                    norm = rightUp;
+                }
+            } else {
+                if (locY > 0.0f) {
+                    norm = -locX > locY ? leftUp : down;    // LL corner
+                } else {
+                    norm = leftUp;
+                }
+            }
+
+            norm_to_rgb(bm, x, y, norm);
+        }
+    }
 }
 
 #if !defined(__clang__) && defined(_MSC_VER)
