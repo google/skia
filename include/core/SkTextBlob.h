@@ -257,6 +257,7 @@ private:
     bool mergeRun(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                   uint32_t count, SkPoint offset);
     void updateDeferredBounds();
+    void updatePositions();
 
     static SkRect ConservativeRunBounds(const SkTextBlob::RunRecord&);
     static SkRect TightRunBounds(const SkTextBlob::RunRecord&);
@@ -268,6 +269,10 @@ private:
     SkRect                 fBounds;
     int                    fRunCount;
     bool                   fDeferredBounds;
+    bool                   fNeedsPositions{false};
+    SkPaint                fPositionsPaint;
+    SkPoint                fOrigin;
+    size_t                 fLastRunSize;
     size_t                 fLastRun; // index into fStorage
 
     RunBuffer              fCurrentRunBuffer;

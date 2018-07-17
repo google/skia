@@ -25,74 +25,81 @@ public:
         RunBuilderTest(reporter, builder, nullptr, 0, nullptr, 0);
 
         RunDef set1[] = {
-            { 128, SkTextBlob::kDefault_Positioning, 100, 100 },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 100, false },
         };
-        RunBuilderTest(reporter, builder, set1, SK_ARRAY_COUNT(set1), set1, SK_ARRAY_COUNT(set1));
+        RunDef set1out[] = {
+            { 128, SkTextBlob::kHorizontal_Positioning, 100, 100, true },
+        };
+        RunBuilderTest(reporter, builder,
+                       set1, SK_ARRAY_COUNT(set1),
+                       set1out, SK_ARRAY_COUNT(set1out));
 
         RunDef set2[] = {
-            { 128, SkTextBlob::kHorizontal_Positioning, 100, 100 },
+            { 128, SkTextBlob::kHorizontal_Positioning, 100, 100, false },
         };
         RunBuilderTest(reporter, builder, set2, SK_ARRAY_COUNT(set2), set2, SK_ARRAY_COUNT(set2));
 
         RunDef set3[] = {
-            { 128, SkTextBlob::kFull_Positioning, 100, 100 },
+            { 128, SkTextBlob::kFull_Positioning, 100, 100, false },
         };
         RunBuilderTest(reporter, builder, set3, SK_ARRAY_COUNT(set3), set3, SK_ARRAY_COUNT(set3));
 
         RunDef set4[] = {
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 150, false },
         };
-        RunBuilderTest(reporter, builder, set4, SK_ARRAY_COUNT(set4), set4, SK_ARRAY_COUNT(set4));
+        RunDef set4out[] = {
+                { 384, SkTextBlob::kHorizontal_Positioning, 100, 150, true },
+        };
+        RunBuilderTest(reporter, builder,
+                       set4, SK_ARRAY_COUNT(set4),
+                       set4out, SK_ARRAY_COUNT(set4out));
 
         RunDef set5[] = {
-            { 128, SkTextBlob::kHorizontal_Positioning, 100, 150 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 200, 150 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 300, 250 },
+            { 128, SkTextBlob::kHorizontal_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 200, 150, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 300, 250, false },
         };
         RunDef mergedSet5[] = {
-            { 256, SkTextBlob::kHorizontal_Positioning, 0, 150 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 0, 250 },
+            { 256, SkTextBlob::kHorizontal_Positioning, 0, 150, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 0, 250, false },
         };
         RunBuilderTest(reporter, builder, set5, SK_ARRAY_COUNT(set5), mergedSet5,
                        SK_ARRAY_COUNT(mergedSet5));
 
         RunDef set6[] = {
-            { 128, SkTextBlob::kFull_Positioning, 100, 100 },
-            { 128, SkTextBlob::kFull_Positioning, 200, 200 },
-            { 128, SkTextBlob::kFull_Positioning, 300, 300 },
+            { 128, SkTextBlob::kFull_Positioning, 100, 100, false },
+            { 128, SkTextBlob::kFull_Positioning, 200, 200, false },
+            { 128, SkTextBlob::kFull_Positioning, 300, 300, false },
         };
         RunDef mergedSet6[] = {
-            { 384, SkTextBlob::kFull_Positioning, 0, 0 },
+            { 384, SkTextBlob::kFull_Positioning, 0, 0, false },
         };
         RunBuilderTest(reporter, builder, set6, SK_ARRAY_COUNT(set6), mergedSet6,
                        SK_ARRAY_COUNT(mergedSet6));
 
         RunDef set7[] = {
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 100, 150 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 200, 150 },
-            { 128, SkTextBlob::kFull_Positioning, 400, 350 },
-            { 128, SkTextBlob::kFull_Positioning, 400, 350 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 450 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 450 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 100, 550 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 200, 650 },
-            { 128, SkTextBlob::kFull_Positioning, 400, 750 },
-            { 128, SkTextBlob::kFull_Positioning, 400, 850 },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 100, 150, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 200, 150, false },
+            { 128, SkTextBlob::kFull_Positioning, 400, 350, false },
+            { 128, SkTextBlob::kFull_Positioning, 400, 350, false },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 450, false },
+            { 128, SkTextBlob::kDefault_Positioning, 100, 450, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 100, 550, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 200, 650, false },
+            { 128, SkTextBlob::kFull_Positioning, 400, 750, false },
+            { 128, SkTextBlob::kFull_Positioning, 400, 850, false },
         };
         RunDef mergedSet7[] = {
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 150 },
-            { 256, SkTextBlob::kHorizontal_Positioning, 0, 150 },
-            { 256, SkTextBlob::kFull_Positioning, 0, 0 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 450 },
-            { 128, SkTextBlob::kDefault_Positioning, 100, 450 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 0, 550 },
-            { 128, SkTextBlob::kHorizontal_Positioning, 0, 650 },
-            { 256, SkTextBlob::kFull_Positioning, 0, 0 },
+            { 512, SkTextBlob::kHorizontal_Positioning, 0, 150, true },
+            { 256, SkTextBlob::kFull_Positioning, 0, 0, false },
+            { 256, SkTextBlob::kHorizontal_Positioning, 0, 450, true},
+            { 128, SkTextBlob::kHorizontal_Positioning, 0, 550, false },
+            { 128, SkTextBlob::kHorizontal_Positioning, 0, 650, false },
+            { 256, SkTextBlob::kFull_Positioning, 0, 0, false },
         };
         RunBuilderTest(reporter, builder, set7, SK_ARRAY_COUNT(set7), mergedSet7,
                        SK_ARRAY_COUNT(mergedSet7));
@@ -249,6 +256,7 @@ private:
         unsigned                     count;
         SkTextBlob::GlyphPositioning pos;
         SkScalar                     x, y;
+        bool                         wasDefault;
     };
 
     static void RunBuilderTest(skiatest::Reporter* reporter, SkTextBlobBuilder& builder,
@@ -277,20 +285,21 @@ private:
             REPORTER_ASSERT(reporter, !it.done());
             REPORTER_ASSERT(reporter, out[i].pos == it.positioning());
             REPORTER_ASSERT(reporter, out[i].count == it.glyphCount());
-            if (SkTextBlob::kDefault_Positioning == out[i].pos) {
-                REPORTER_ASSERT(reporter, out[i].x == it.offset().x());
-                REPORTER_ASSERT(reporter, out[i].y == it.offset().y());
+            if (SkTextBlob::kDefault_Positioning == it.positioning()) {
+                ERRORF(reporter, "Should never happen");
             } else if (SkTextBlob::kHorizontal_Positioning == out[i].pos) {
                 REPORTER_ASSERT(reporter, out[i].y == it.offset().y());
             }
 
             for (unsigned k = 0; k < it.glyphCount(); ++k) {
                 REPORTER_ASSERT(reporter, k % 128 == it.glyphs()[k]);
-                if (SkTextBlob::kHorizontal_Positioning == it.positioning()) {
-                    REPORTER_ASSERT(reporter, SkIntToScalar(k % 128) == it.pos()[k]);
-                } else if (SkTextBlob::kFull_Positioning == it.positioning()) {
-                    REPORTER_ASSERT(reporter, SkIntToScalar(k % 128) == it.pos()[k * 2]);
-                    REPORTER_ASSERT(reporter, -SkIntToScalar(k % 128) == it.pos()[k * 2 + 1]);
+                if (!out[i].wasDefault) {
+                    if (SkTextBlob::kHorizontal_Positioning == it.positioning()) {
+                        REPORTER_ASSERT(reporter, SkIntToScalar(k % 128) == it.pos()[k]);
+                    } else if (SkTextBlob::kFull_Positioning == it.positioning()) {
+                        REPORTER_ASSERT(reporter, SkIntToScalar(k % 128) == it.pos()[k * 2]);
+                        REPORTER_ASSERT(reporter, -SkIntToScalar(k % 128) == it.pos()[k * 2 + 1]);
+                    }
                 }
             }
 
@@ -368,7 +377,7 @@ DEF_TEST(TextBlob_extended, reporter) {
         for (uint32_t i = 0; i < it.glyphCount(); ++i) {
             REPORTER_ASSERT(reporter, it.glyphs()[i] == glyphs[i]);
         }
-        REPORTER_ASSERT(reporter, SkTextBlob::kDefault_Positioning == it.positioning());
+        REPORTER_ASSERT(reporter, SkTextBlob::kHorizontal_Positioning == it.positioning());
         REPORTER_ASSERT(reporter, (SkPoint{0.0f, 0.0f}) == it.offset());
         REPORTER_ASSERT(reporter, it.textSize() > 0);
         REPORTER_ASSERT(reporter, it.clusters());
