@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b4394e2_f6bcd3b5",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 2387,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "does this needs to be aware of save/restore? or is this completely independent? I take it that individual draws are the things that actually have a nodeId, this is just extra state for each draw call?",
+      "range": {
+        "startLine": 2387,
+        "startChar": 17,
+        "endLine": 2387,
+        "endChar": 26
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5c1b14a_530c46f3",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "pass to constructor?",
+      "range": {
+        "startLine": 226,
+        "startChar": 28,
+        "endLine": 226,
+        "endChar": 56
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1720f9a6_61beaadc",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1890,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "Always use braces.",
+      "range": {
+        "startLine": 1889,
+        "startChar": 3,
+        "endLine": 1890,
+        "endChar": 34
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81b60ea1_05432303",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "Always use braces.",
+      "range": {
+        "startLine": 1303,
+        "startChar": 0,
+        "endLine": 1304,
+        "endChar": 60
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a1fcd71_f4968b63",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "braces, here and multiple places below",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 420,
+        "endChar": 18
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "400a272b_5df2c673",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 14
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96ef1dba_9e9a8abd",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T17:42:40Z",
+      "side": 1,
+      "message": "four space indent",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 6
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
