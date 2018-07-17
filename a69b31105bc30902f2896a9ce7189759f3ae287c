@@ -1,0 +1,182 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c90ea10a_b6c96cb7",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "This is a common name and we should try to avoid ODR problems (see https://akrzemi1.wordpress.com/2016/11/28/the-one-definition-rule/ for an explanation). We should stick this in an anonymous namespace (and probably just include ReleaseProc in that anonymous namespace as well.",
+      "range": {
+        "startLine": 605,
+        "startChar": 7,
+        "endLine": 605,
+        "endChar": 14
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "120941f5_6886258f",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Can just remove this bit.",
+      "range": {
+        "startLine": 621,
+        "startChar": 56,
+        "endLine": 621,
+        "endChar": 73
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4b52a55_cb7a04eb",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Remove this bit.",
+      "range": {
+        "startLine": 639,
+        "startChar": 35,
+        "endLine": 640,
+        "endChar": 10
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3659c144_01c61e4f",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "MakeLTRB",
+      "range": {
+        "startLine": 646,
+        "startChar": 28,
+        "endLine": 647,
+        "endChar": 14
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71a48c49_365cb2a8",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Right here we want to bounds.roundOut(SkIRect*) and assign to the glyph the rounded out rect.",
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "40805b8e_029affd4",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1031,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Can remove this bit.",
+      "range": {
+        "startLine": 1031,
+        "startChar": 56,
+        "endLine": 1031,
+        "endChar": 73
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "41a0be95_0b0aed24",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Instead of creating a separate SkMatrix here and then setting it on the canvas, it should be possible to just use the canvas translate / concat / scale calls to use the SkMatrix already in the canvas directly.\n\nI think that looks something like\n\ncanvas.translate(left, top);\ncanvas.concat(fSkXform);\ncanvas.scale(scale, scale);",
+      "range": {
+        "startLine": 1059,
+        "startChar": 4,
+        "endLine": 1059,
+        "endChar": 21
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4860f70a_9bac837b",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 1086,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T15:09:33Z",
+      "side": 1,
+      "message": "Should at least assert that we don\u0027t get here I think.",
+      "range": {
+        "startLine": 1086,
+        "startChar": 0,
+        "endLine": 1086,
+        "endChar": 4
+      },
+      "revId": "a69b31105bc30902f2896a9ce7189759f3ae287c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
