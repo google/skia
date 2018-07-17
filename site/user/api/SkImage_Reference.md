@@ -2019,7 +2019,7 @@ true if pixels are copied to <a href='#SkImage_readPixels_dstPixels'>dstPixels</
 
 ### See Also
 
-<a href='#SkImage_scalePixels'>scalePixels</a> <a href='SkBitmap_Reference#SkBitmap_readPixels'>SkBitmap::readPixels</a><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_3'>[3]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_4'>[4]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_5'>[5]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
+<a href='#SkImage_scalePixels'>scalePixels</a> <a href='SkBitmap_Reference#SkBitmap_readPixels'>SkBitmap::readPixels</a><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
 ---
 
@@ -2086,7 +2086,7 @@ true if pixels are copied to <a href='#SkImage_readPixels_2_dst'>dst</a>
 
 ### See Also
 
-<a href='#SkImage_scalePixels'>scalePixels</a> <a href='SkBitmap_Reference#SkBitmap_readPixels'>SkBitmap::readPixels</a><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_3'>[3]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_4'>[4]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_5'>[5]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
+<a href='#SkImage_scalePixels'>scalePixels</a> <a href='SkBitmap_Reference#SkBitmap_readPixels'>SkBitmap::readPixels</a><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_2'>[2]</a></sup><sup><a href='SkBitmap_Reference#SkBitmap_readPixels_3'>[3]</a></sup> <a href='SkPixmap_Reference#SkPixmap_readPixels'>SkPixmap::readPixels</a><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_2'>[2]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_3'>[3]</a></sup><sup><a href='SkPixmap_Reference#SkPixmap_readPixels_4'>[4]</a></sup> <a href='SkCanvas_Reference#SkCanvas_readPixels'>SkCanvas::readPixels</a><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_2'>[2]</a></sup><sup><a href='SkCanvas_Reference#SkCanvas_readPixels_3'>[3]</a></sup> <a href='SkSurface_Reference#SkSurface_readPixels'>SkSurface::readPixels</a><sup><a href='SkSurface_Reference#SkSurface_readPixels_2'>[2]</a></sup><sup><a href='SkSurface_Reference#SkSurface_readPixels_3'>[3]</a></sup>
 
 ---
 
@@ -2622,9 +2622,7 @@ true if <a href='#Image'>Image</a> is created as needed
 ## makeColorSpace
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(
-              <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; target,
-                    <a href='undocumented#SkTransferFunctionBehavior'>SkTransferFunctionBehavior</a> premulBehavior = <a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a>) const
+<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='#SkImage'>SkImage</a>&gt; <a href='#SkImage_makeColorSpace'>makeColorSpace</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkColorSpace'>SkColorSpace</a>&gt; target) const
 </pre>
 
 Creates <a href='#Image'>Image</a> in <a href='#SkImage_makeColorSpace_target'>target</a> <a href='undocumented#Color_Space'>Color Space</a>.
@@ -2634,25 +2632,10 @@ Returns original <a href='#Image'>Image</a> if it is in <a href='#SkImage_makeCo
 Otherwise, converts pixels from <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Space</a> to <a href='#SkImage_makeColorSpace_target'>target</a> <a href='undocumented#Color_Space'>Color Space</a>.
 If <a href='#Image'>Image</a> <a href='#SkImage_colorSpace'>colorSpace</a> returns nullptr, <a href='#Image'>Image</a> <a href='undocumented#Color_Space'>Color Space</a> is assumed to be sRGB.
 
-<a href='undocumented#SkTransferFunctionBehavior'>SkTransferFunctionBehavior</a> is to be deprecated.
-
-Set <a href='#SkImage_makeColorSpace_premulBehavior'>premulBehavior</a> to <a href='undocumented#SkTransferFunctionBehavior_kRespect'>SkTransferFunctionBehavior::kRespect</a> to convert <a href='#Image'>Image</a>
-pixels to a linear space, before converting to destination <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>
-and <a href='undocumented#Color_Space'>Color Space</a>.
-
-Set <a href='#SkImage_makeColorSpace_premulBehavior'>premulBehavior</a> to <a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a> to treat <a href='#Image'>Image</a>
-pixels as linear, when converting to destination <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>
-and <a href='undocumented#Color_Space'>Color Space</a>, ignoring pixel encoding. <a href='#SkImage_makeColorSpace_premulBehavior'>premulBehavior</a> is
-<a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a> by default.
-
 ### Parameters
 
 <table>  <tr>    <td><a name='SkImage_makeColorSpace_target'><code><strong>target</strong></code></a></td>
     <td><a href='undocumented#Color_Space'>Color Space</a> describing color range of returned <a href='#Image'>Image</a></td>
-  </tr>
-  <tr>    <td><a name='SkImage_makeColorSpace_premulBehavior'><code><strong>premulBehavior</strong></code></a></td>
-    <td>one of: <a href='undocumented#SkTransferFunctionBehavior_kRespect'>SkTransferFunctionBehavior::kRespect</a>,
-<a href='undocumented#SkTransferFunctionBehavior_kIgnore'>SkTransferFunctionBehavior::kIgnore</a></td>
   </tr>
 </table>
 

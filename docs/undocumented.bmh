@@ -215,12 +215,6 @@ FT_Load_Glyph
     #Method static bool Equals(const SkColorSpace* src, const SkColorSpace* dst)
     ##
 ##
-#EnumClass SkTransferFunctionBehavior
-#Const kRespect 0
-##
-#Const kIgnore 1
-##
-#EnumClass ##
 ##
 
 #Topic Create_Color_Space_Xform_Canvas

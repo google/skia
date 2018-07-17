@@ -80,28 +80,6 @@ static bool <a href='#SkColorSpace_Equals'>Equals</a>(const <a href='#SkColorSpa
 
 ---
 
-## <a name='SkTransferFunctionBehavior'>Enum SkTransferFunctionBehavior</a>
-
-### Constants
-
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Const</th>
-<th style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>Value</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTransferFunctionBehavior_kRespect'><code>SkTransferFunctionBehavior::kRespect</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkTransferFunctionBehavior_kIgnore'><code>SkTransferFunctionBehavior::kIgnore</code></a></td>
-    <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>1</td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-</td>
-  </tr>
-</table>
-
 # <a name='Coons_Patch'>Coons Patch</a>
 
 # <a name='Core_Graphics'>Core Graphics</a>
