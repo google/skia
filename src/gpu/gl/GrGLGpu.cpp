@@ -2022,6 +2022,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
 
     GrGLRenderTarget* renderTarget = static_cast<GrGLRenderTarget*>(surface->asRenderTarget());
     if (!renderTarget && !this->glCaps().canConfigBeFBOColorAttachment(surface->config())) {
+        SkDebugf("canConfigBeFBO fail GrGlGpu\n");
         return false;
     }
 
@@ -2029,6 +2030,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     auto dstAsConfig = GrColorTypeToPixelConfig(dstColorType, GrSRGBEncoded::kNo);
 
     if (!this->readPixelsSupported(surface, dstAsConfig)) {
+        SkDebugf("ReadPixels fail GrGlGpu\n");
         return false;
     }
 
@@ -2036,6 +2038,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     GrGLenum externalType;
     if (!this->glCaps().getReadPixelsFormat(surface->config(), dstAsConfig, &externalFormat,
                                             &externalType)) {
+        SkDebugf("ReadPixelsFormat fail GrGlGpu\n");
         return false;
     }
 
@@ -2044,6 +2047,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         // resolve the render target if necessary
         switch (renderTarget->getResolveType()) {
             case GrGLRenderTarget::kCantResolve_ResolveType:
+                SkDebugf("Resolve fail GrGlGpu\n");
                 return false;
             case GrGLRenderTarget::kAutoResolves_ResolveType:
                 this->flushRenderTargetNoColorWrites(renderTarget);
