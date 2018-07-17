@@ -1,0 +1,50 @@
+#Topic StreamRewindable
+#Alias StreamRewindable_Reference ##
+
+#Class SkStreamRewindable
+
+SkStreamRewindable is a SkStream for which rewind and duplicate are required. */
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method bool rewind() override = 0
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method std::unique_ptr<SkStreamRewindable> duplicate() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkStreamRewindable ##
+
+#Topic StreamRewindable ##
