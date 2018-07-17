@@ -153,6 +153,9 @@ public:
         kSwizzleFragmentProcessor_ClassID,
         kTestFP_ClassID,
         kTextureGeometryProcessor_ClassID,
+        kFlatNormalsFP_ClassID,
+        kMappedNormalsFP_ClassID,
+        kLightingFP_ClassID,
     };
 
     virtual ~GrProcessor() = default;

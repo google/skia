@@ -15,7 +15,9 @@
 #include "SkGradientShader.h"
 #include "SkHighContrastFilter.h"
 #include "SkLayerDrawLooper.h"
+#include "SkLightingShader.h"
 #include "SkLumaColorFilter.h"
+#include "SkNormalSource.h"
 #include "SkOverdrawColorFilter.h"
 #include "SkPerlinNoiseShader.h"
 #include "SkShaderMaskFilter.h"
@@ -51,6 +53,8 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     // Shader
     SkPerlinNoiseShader::InitializeFlattenables();
     SkGradientShader::InitializeFlattenables();
+    SkLightingShader::InitializeFlattenables();
+    SkNormalSource::InitializeFlattenables();
 
     // PathEffect
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkCornerPathEffect)
