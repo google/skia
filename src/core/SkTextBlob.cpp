@@ -10,6 +10,7 @@
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
+#include "SkTextBlobPriv.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 
@@ -762,11 +763,11 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
-    buffer.writeRect(fBounds);
+void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
+    buffer.writeRect(blob.fBounds);
 
     SkPaint runPaint;
-    SkTextBlobRunIterator it(this);
+    SkTextBlobRunIterator it(&blob);
     while (!it.done()) {
         SkASSERT(it.glyphCount() > 0);
 
@@ -789,7 +790,8 @@ void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
 
         buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
         buffer.writeByteArray(it.pos(),
-                              it.glyphCount() * sizeof(SkScalar) * ScalarsPerGlyph(it.positioning()));
+                              it.glyphCount() * sizeof(SkScalar) *
+                              SkTextBlob::ScalarsPerGlyph(it.positioning()));
         if (pe.extended) {
             buffer.writeByteArray(it.clusters(), sizeof(uint32_t) * it.glyphCount());
             buffer.writeByteArray(it.text(), it.textSize());
@@ -802,7 +804,7 @@ void SkTextBlob::flatten(SkWriteBuffer& buffer) const {
     buffer.write32(0);
 }
 
-sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
+sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
     SkRect bounds;
     reader.readRect(&bounds);
 
@@ -817,8 +819,8 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
 
         PositioningAndExtended pe;
         pe.intValue = reader.read32();
-        GlyphPositioning pos = pe.positioning;
-        if (glyphCount <= 0 || pos > kFull_Positioning) {
+        SkTextBlob::GlyphPositioning pos = pe.positioning;
+        if (glyphCount <= 0 || pos > SkTextBlob::kFull_Positioning) {
             return nullptr;
         }
         int textSize = pe.extended ? reader.read32() : 0;
@@ -835,7 +837,8 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
         // a run before allocating it.
         const size_t glyphSize = safe.mul(glyphCount, sizeof(uint16_t)),
                      posSize =
-                             safe.mul(glyphCount, safe.mul(sizeof(SkScalar), ScalarsPerGlyph(pos))),
+                             safe.mul(glyphCount, safe.mul(sizeof(SkScalar),
+                             SkTextBlob::ScalarsPerGlyph(pos))),
                      clusterSize = pe.extended ? safe.mul(glyphCount, sizeof(uint32_t)) : 0;
         const size_t totalSize =
                 safe.add(safe.add(glyphSize, posSize), safe.add(clusterSize, textSize));
@@ -846,15 +849,15 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
 
         const SkTextBlobBuilder::RunBuffer* buf = nullptr;
         switch (pos) {
-            case kDefault_Positioning:
+            case SkTextBlob::kDefault_Positioning:
                 buf = &blobBuilder.allocRunText(font, glyphCount, offset.x(), offset.y(),
                                                 textSize, SkString(), &bounds);
                 break;
-            case kHorizontal_Positioning:
+            case SkTextBlob::kHorizontal_Positioning:
                 buf = &blobBuilder.allocRunTextPosH(font, glyphCount, offset.y(),
                                                     textSize, SkString(), &bounds);
                 break;
-            case kFull_Positioning:
+            case SkTextBlob::kFull_Positioning:
                 buf = &blobBuilder.allocRunTextPos(font, glyphCount, textSize, SkString(), &bounds);
                 break;
             default:
@@ -886,7 +889,7 @@ sk_sp<SkTextBlob> SkTextBlob::MakeFromBuffer(SkReadBuffer& reader) {
 sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
     SkBinaryWriteBuffer buffer;
     buffer.setSerialProcs(procs);
-    this->flatten(buffer);
+    SkTextBlobPriv::Flatten(*this, buffer);
 
     size_t total = buffer.bytesWritten();
     sk_sp<SkData> data = SkData::MakeUninitialized(total);
@@ -894,19 +897,11 @@ sk_sp<SkData> SkTextBlob::serialize(const SkSerialProcs& procs) const {
     return data;
 }
 
-sk_sp<SkData> SkTextBlob::serialize() const {
-    return this->serialize(SkSerialProcs());
-}
-
 sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
                                           const SkDeserialProcs& procs) {
     SkReadBuffer buffer(data, length);
     buffer.setDeserialProcs(procs);
-    return SkTextBlob::MakeFromBuffer(buffer);
-}
-
-sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length) {
-    return SkTextBlob::Deserialize(data, length, SkDeserialProcs());
+    return SkTextBlobPriv::MakeFromBuffer(buffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -936,7 +931,7 @@ sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) con
 size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
     SkBinaryWriteBuffer buffer(memory, memory_size);
     buffer.setSerialProcs(procs);
-    this->flatten(buffer);
+    SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
 }
 

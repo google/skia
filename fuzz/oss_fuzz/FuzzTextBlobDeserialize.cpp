@@ -9,10 +9,10 @@
 #include "SkPaint.h"
 #include "SkReadBuffer.h"
 #include "SkSurface.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 
 void FuzzTextBlobDeserialize(SkReadBuffer& buf) {
-    auto tb = SkTextBlob::MakeFromBuffer(buf);
+    auto tb = SkTextBlobPriv::MakeFromBuffer(buf);
     if (!buf.isValid()) {
         return;
     }

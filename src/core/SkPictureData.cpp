@@ -13,7 +13,7 @@
 #include "SkPictureRecord.h"
 #include "SkPicturePriv.h"
 #include "SkReadBuffer.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
 #include "SkTo.h"
@@ -156,7 +156,7 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     if (!fTextBlobs.empty()) {
         write_tag_size(buffer, SK_PICT_TEXTBLOB_BUFFER_TAG, fTextBlobs.count());
         for (const auto& blob : fTextBlobs) {
-            blob->flatten(buffer);
+            SkTextBlobPriv::Flatten(*blob, buffer);
         }
     }
 
@@ -405,7 +405,7 @@ void SkPictureData::parseBufferTag(SkReadBuffer& buffer, uint32_t tag, uint32_t 
                 }
             } break;
         case SK_PICT_TEXTBLOB_BUFFER_TAG:
-            new_array_from_buffer(buffer, size, fTextBlobs, SkTextBlob::MakeFromBuffer);
+            new_array_from_buffer(buffer, size, fTextBlobs, SkTextBlobPriv::MakeFromBuffer);
             break;
         case SK_PICT_VERTICES_BUFFER_TAG:
             new_array_from_buffer(buffer, size, fVertices, create_vertices_from_buffer);
