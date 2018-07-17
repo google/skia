@@ -539,6 +539,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6a90783_9f41bb21",
+        "filename": "tools/fonts/sk_tool_utils_font.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:37:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5cce4f4c_4a4e8200",
+      "range": {
+        "startLine": 75,
+        "startChar": 22,
+        "endLine": 75,
+        "endChar": 26
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
