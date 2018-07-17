@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3b0867fc_8cb8be68",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 526,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "168cba4d_0cbd18fd",
+      "range": {
+        "startLine": 526,
+        "startChar": 4,
+        "endLine": 526,
+        "endChar": 14
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0c9f85bb_27c4bdde",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdcda7e3_4758833b",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c9f85bb_27c4bdde",
+      "range": {
+        "startLine": 609,
+        "startChar": 0,
+        "endLine": 609,
+        "endChar": 1
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "a2201774_f4ecc62b",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b1c298e_5dd4af75",
+      "range": {
+        "startLine": 636,
+        "startChar": 4,
+        "endLine": 636,
+        "endChar": 45
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da16bb61_1c1ec42d",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c9dde92_c477db74",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da16bb61_1c1ec42d",
+      "range": {
+        "startLine": 642,
+        "startChar": 4,
+        "endLine": 642,
+        "endChar": 39
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5be643db_990e668d",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f8f9f83_55c06b39",
+      "range": {
+        "startLine": 643,
+        "startChar": 34,
+        "endLine": 643,
+        "endChar": 38
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70181d0f_999ee3a1",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -137,6 +257,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "759f1ed4_7d687dfc",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 644,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70181d0f_999ee3a1",
+      "range": {
+        "startLine": 644,
+        "startChar": 14,
+        "endLine": 644,
+        "endChar": 20
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "2fcbd3aa_b7c58c9c",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 658,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc65c882_7202efbd",
+      "range": {
+        "startLine": 658,
+        "startChar": 4,
+        "endLine": 658,
+        "endChar": 8
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25822c24_ef60cbbf",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -183,6 +351,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a6f813c_053c3140",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25822c24_ef60cbbf",
+      "range": {
+        "startLine": 681,
+        "startChar": 8,
+        "endLine": 681,
+        "endChar": 21
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "0d4b1b12_9aa90ed4",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1044,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8980f624_9a5c790c",
+      "range": {
+        "startLine": 1044,
+        "startChar": 4,
+        "endLine": 1044,
+        "endChar": 64
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4b57d19_910bf601",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "ddf6c4e1_0a99056c",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1049,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4b57d19_910bf601",
+      "range": {
+        "startLine": 1049,
+        "startChar": 52,
+        "endLine": 1049,
+        "endChar": 56
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56f7a8d3_849aaac8",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 8
@@ -252,6 +492,30 @@
       "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f97e541_ec94b564",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 1054,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T14:29:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56f7a8d3_849aaac8",
+      "range": {
+        "startLine": 1054,
+        "startChar": 40,
+        "endLine": 1054,
+        "endChar": 80
+      },
+      "revId": "69470bf3b7ab402ef15124e01043fc6512d794e1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
