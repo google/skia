@@ -141,6 +141,8 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     context->freeGpuResources();
     draw(canvasNoLCD, 1, blobs);
+    // If the following is uncommented, then the test runs fine.
+    context->flush();
 
     // test draw after abandon
     context->abandonContext();

@@ -7,6 +7,7 @@
 
 #include "SkTextBlobRunIterator.h"
 
+#include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
@@ -245,6 +246,7 @@ private:
         kPositioning_Mask = 0x03, // bits 0-1 reserved for positioning
         kLast_Flag        = 0x04, // set for the last blob run
         kExtended_Flag    = 0x08, // set for runs with text/cluster info
+        kNeedsPositioning = 0x10, // set for runs that need positions added
     };
 
     static const RunRecord* NextUnchecked(const RunRecord* run) {
@@ -554,6 +556,22 @@ void SkTextBlobBuilder::updateDeferredBounds() {
     fDeferredBounds = false;
 }
 
+void SkTextBlobBuilder::updatePositions() {
+    if (fNeedsPositions) {
+        SkGlyphRunBuilder builder;
+        builder.drawText(fPositionsPaint, fCurrentRunBuffer.glyphs, fLastRunSize, fOrigin);
+        auto list = *builder.useGlyphRunList();
+        if (!list.empty()) {
+            auto run = list[0];
+            auto posCursor = fCurrentRunBuffer.pos;
+            for (auto pt : run.positions()) {
+                *posCursor++ = pt.x();
+            }
+        }
+    }
+    fNeedsPositions = false;
+}
+
 void SkTextBlobBuilder::reserve(size_t size) {
     SkSafeMath safe;
 
@@ -647,6 +665,8 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
         return;
     }
 
+    this->updatePositions();
+
     if (textSize != 0 || !this->mergeRun(font, positioning, count, offset)) {
         this->updateDeferredBounds();
 
@@ -692,7 +712,15 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunText(const SkPain
                                                                     int textByteCount,
                                                                     SkString lang,
                                                                     const SkRect* bounds) {
-    this->allocInternal(font, SkTextBlob::kDefault_Positioning, count, textByteCount, SkPoint::Make(x, y), bounds);
+    this->allocInternal(
+            font, SkTextBlob::kHorizontal_Positioning, count, textByteCount,
+            SkPoint::Make(0, y), bounds);
+
+    fNeedsPositions = true;
+    fPositionsPaint = font;
+    fOrigin = SkPoint::Make(x, y);
+    fLastRunSize = count;
+
     return fCurrentRunBuffer;
 }
 
@@ -704,6 +732,8 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPosH(const Sk
     this->allocInternal(font, SkTextBlob::kHorizontal_Positioning, count, textByteCount, SkPoint::Make(0, y),
                         bounds);
 
+    fNeedsPositions = false;
+
     return fCurrentRunBuffer;
 }
 
@@ -712,6 +742,8 @@ const SkTextBlobBuilder::RunBuffer& SkTextBlobBuilder::allocRunTextPos(const SkP
                                                                        SkString lang,
                                                                        const SkRect *bounds) {
     this->allocInternal(font, SkTextBlob::kFull_Positioning, count, textByteCount, SkPoint::Make(0, 0), bounds);
+
+    fNeedsPositions = false;
 
     return fCurrentRunBuffer;
 }
@@ -727,6 +759,7 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
         return nullptr;
     }
 
+    this->updatePositions();
     this->updateDeferredBounds();
 
     // Tag the last run as such.
@@ -755,6 +788,7 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
     fStorageSize = 0;
     fRunCount = 0;
     fLastRun = 0;
+    fNeedsPositions = false;
     fBounds.setEmpty();
 
     return sk_sp<SkTextBlob>(blob);
