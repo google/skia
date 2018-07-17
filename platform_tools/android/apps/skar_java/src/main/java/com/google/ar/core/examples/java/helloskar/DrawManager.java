@@ -7,6 +7,7 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -19,6 +20,7 @@ import com.google.ar.core.Plane;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
+import com.google.skar.SkARFingerPainting;
 import com.google.skar.SkARMatrix;
 import com.google.skar.SkARUtil;
 import java.io.IOException;
@@ -39,8 +41,8 @@ public class DrawManager {
     private float viewportHeight;
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
-    private Bitmap planeTexture;
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
+    public SkARFingerPainting fingerPainting = new SkARFingerPainting();
 
     public void updateViewport(float width, float height) {
         viewportWidth = width;
@@ -57,6 +59,10 @@ public class DrawManager {
 
     public void updateLightColorFilter(float[] colorCorr) {
         lightFilter = SkARUtil.createLightCorrectionColorFilter(colorCorr);
+    }
+
+    public void updateFingerPainting(PointF p) {
+        fingerPainting.addPoint(p);
     }
 
     // Sample function for drawing a circle
@@ -130,6 +136,41 @@ public class DrawManager {
         canvas.restore();
     }
 
+    public void drawFingerPainting(Canvas canvas) {
+        if (fingerPainting.path.isEmpty()) {
+            return;
+        }
+
+        // Get finger painting model matrix
+        float[] m = fingerPainting.getModelMatrix();
+        float[] model = new float[16];
+        Matrix.setIdentityM(model, 0);
+        Matrix.translateM(model, 0, m[12], m[13], m[14]);
+
+        float[] initRot = SkARMatrix.createXYtoXZRotationMatrix();
+
+        // Matrix = mvpv
+        float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
+        android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
+
+        // Set up paint
+        Paint p = new Paint();
+        p.setColor(Color.GREEN);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(10f);
+        p.setAlpha(120);
+
+        // Build destination path by transforming source path
+        Path pathDst = new Path();
+        fingerPainting.path.transform(mvpv, pathDst);
+
+        // Draw dest path
+        canvas.save();
+        canvas.setMatrix(new android.graphics.Matrix());
+        canvas.drawPath(pathDst, p);
+        canvas.restore();
+    }
+
     // Sample function for drawing the AR point cloud
     public void drawPointCloud(Canvas canvas, PointCloud cloud) {
         FloatBuffer points = cloud.getPoints();
@@ -178,7 +219,6 @@ public class DrawManager {
                 continue;
             }
 
-
             // Get plane model matrix
             float[] model = new float[16];
             plane.getCenterPose().toMatrix(model, 0);
@@ -186,58 +226,58 @@ public class DrawManager {
             // Initial rotation
             float[] initRot = SkARMatrix.createXYtoXZRotationMatrix();
 
-            float[] initScale = new float[16];
-            Matrix.setIdentityM(initScale, 0);
-            Matrix.scaleM(initScale, 0, 1f, 1f, 1f);
-            android.graphics.Matrix scale = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(new float[][] {initScale}));
-
             // Matrix = mvpv
             float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
             android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
 
-            canvas.save();
-
-            canvas.setMatrix(mvpv);
-
-            drawPlaneAsPath(canvas, plane);
-            canvas.restore();
+            drawPlaneAsPath(canvas, mvpv, plane);
         }
     }
 
     // Helper function that draws an AR plane using a path
-    private void drawPlaneAsPath(Canvas canvas, Plane plane) {
+    private void drawPlaneAsPath(Canvas canvas, android.graphics.Matrix mvpv, Plane plane) {
         int vertsSize = plane.getPolygon().limit() / 2;
         FloatBuffer polygon = plane.getPolygon();
         polygon.rewind();
 
-        Path path = new Path();
-        path.moveTo(polygon.get(0), polygon.get(1));
+        // Build source path from polygon data
+        Path pathSrc = new Path();
+        pathSrc.moveTo(polygon.get(0), polygon.get(1));
         for (int i = 1; i < vertsSize; i++) {
-            path.lineTo(polygon.get(i * 2), polygon.get(i * 2 + 1));
+            pathSrc.lineTo(polygon.get(i * 2), polygon.get(i * 2 + 1));
         }
-        path.close();
+        pathSrc.close();
 
+        // Set up paint
         Paint p = new Paint();
         p.setShader(planeShader);
-        p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0), PorterDuff.Mode.SRC_ATOP));
+        p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
+                             PorterDuff.Mode.SRC_ATOP));
         p.setAlpha(120);
 
-        //canvas.drawPath(path, p); TODO: enable this when path is drawn on GPU
+        // Build destination path by transforming source path
+        Path pathDst = new Path();
+        pathSrc.transform(mvpv, pathDst);
 
-        RectF r = new RectF();
-        path.computeBounds(r, true);
-        canvas.drawRect(r, p);
+        // Shader local matrix
+        android.graphics.Matrix lm = new android.graphics.Matrix();
+        lm.setScale(0.00005f, 0.00005f);
+        lm.postConcat(mvpv);
+        planeShader.setLocalMatrix(lm);
+
+        // Draw dest path
+        canvas.save();
+        canvas.setMatrix(new android.graphics.Matrix());
+        canvas.drawPath(pathDst, p);
+        canvas.restore();
     }
 
     public void initializePlaneShader(Context context, String gridDistanceTextureName) throws IOException {
         // Read the texture.
-        planeTexture =
+        Bitmap planeTexture =
                 BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
         // Set up the shader
         planeShader = new BitmapShader(planeTexture, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        android.graphics.Matrix m = new android.graphics.Matrix();
-        m.setScale(0.0005f, 0.0005f);
-        planeShader.setLocalMatrix(m);
     }
 
     private float[] getTextScaleMatrix(float size) {
