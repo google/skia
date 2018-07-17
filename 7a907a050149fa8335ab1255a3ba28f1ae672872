@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8eb43766_6d256a59",
+        "filename": "src/image/SkSurface_Gpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-17T20:45:03Z",
+      "side": 1,
+      "message": "nit: we don\u0027t need this check as it is done in validate_backend_texture(). Or at least it should still be done before everything, but again that\u0027s moot since validate_backend_texture handles it.",
+      "range": {
+        "startLine": 547,
+        "startChar": 8,
+        "endLine": 547,
+        "endChar": 24
+      },
+      "revId": "7a907a050149fa8335ab1255a3ba28f1ae672872",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
