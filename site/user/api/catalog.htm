@@ -2373,13 +2373,6 @@
     "name": "SkPath::writeToMemory",
         "stdout": "path is equal to copy\\n"
     },
-        "SkPicture_MakePlaceholder": {
-    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkPicture> pict1 = SkPicture::MakePlaceholder({10, 40, 80, 110});\n    sk_sp<SkPicture> pict2 = SkPicture::MakePlaceholder({10, 40, 80, 110});\n    for (auto pict : { pict1, pict2 } ) {\n        SkRect bounds = pict->cullRect();\n        SkDebugf(\"id:%d bounds:{%g, %g, %g, %g}\\n\", pict->uniqueID(), \n                 bounds.fLeft, bounds.fTop, bounds.fRight, bounds.fBottom);\n    }\n}",
-    "hash": "32f84819483a906ede9c5525801845ef",
-    "file": "SkPicture_Reference",
-    "name": "SkPicture::MakePlaceholder",
-        "stdout": "id:1 bounds:{10, 40, 80, 110}\\nid:2 bounds:{10, 40, 80, 110}\\n"
-    },
         "SkPicture_uniqueID": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    recorder.beginRecording({0, 0, 0, 0});\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    SkDebugf(\"empty picture id = %d\\n\", picture->uniqueID());\n    sk_sp<SkPicture> placeholder = SkPicture::MakePlaceholder({0, 0, 0, 0});\n    SkDebugf(\"placeholder id = %d\\n\", placeholder->uniqueID());\n}",
     "hash": "8e4257245c988c600410fe4fd7293f07",
@@ -7198,6 +7191,14 @@
     "hash": "404fb42560a289c2004cad1caf3b96de",
     "file": "SkPicture_Reference",
     "name": "SkPicture::MakeFromStream"
+},
+    "SkPicture_MakePlaceholder": {
+    "code": "class MyCanvas : public SkCanvas {\npublic:\n    MyCanvas(SkCanvas* c) : canvas(c) {}\n        void onDrawPicture(const SkPicture* picture, const SkMatrix* ,\n                               const SkPaint* ) override {\n        const SkRect rect = picture->cullRect();\n        SkPaint redPaint;\n        redPaint.setColor(SK_ColorRED);\n        canvas->drawRect(rect, redPaint);\n   }\n   SkCanvas* canvas;\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    sk_sp<SkPicture> placeholder = SkPicture::MakePlaceholder({10, 40, 80, 110});\n    pictureCanvas->drawPicture(placeholder);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    MyCanvas myCanvas(canvas);\n    myCanvas.drawPicture(picture);\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "0d2cbf82f490ffb180e0b4531afa232c",
+    "file": "SkPicture_Reference",
+    "name": "SkPicture::MakePlaceholder"
 },
     "SkPicture_approximateBytesUsed": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPictureRecorder recorder;\n    SkCanvas* pictureCanvas = recorder.beginRecording({0, 0, 256, 256});\n    SkPaint paint;\n    pictureCanvas->drawRect(SkRect::MakeWH(200, 200), paint);\n    paint.setColor(SK_ColorWHITE);\n    pictureCanvas->drawRect(SkRect::MakeLTRB(20, 20, 180, 180), paint);\n    sk_sp<SkPicture> picture = recorder.finishRecordingAsPicture();\n    picture->playback(canvas);\n    std::string opCount = \"approximate bytes used: \" + std::to_string(picture->approximateBytesUsed());\n    canvas->drawString(opCount.c_str(), 20, 220, SkPaint());\n}",

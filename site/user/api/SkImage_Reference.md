@@ -1053,7 +1053,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="67b6609471a3f1ed0f4b1657004cdecb" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="b034517e39394b7543f06ec885e36d7d" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="fef2a36bee224e92500199fa9d3cbb8b"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 

@@ -84,15 +84,15 @@ SkRRect global, <code>struct</code>, and <code>class</code> related member funct
 </table>
 
 <a href='#SkRRect'>SkRRect</a> describes a rounded rectangle with a bounds and a pair of radii for each corner.
-The bounds and radii can be set so that <a href='#SkRRect'>SkRRect</a> describes a rectangle with sharp corners,
-a <a href='undocumented#Circle'>Circle</a>, an <a href='undocumented#Oval'>Oval</a>, or a rectangle with one or more rounded corners.
+The bounds and radii can be set so that <a href='#SkRRect'>SkRRect</a> describes: a rectangle with sharp corners;
+a <a href='undocumented#Circle'>Circle</a>; an <a href='undocumented#Oval'>Oval</a>; or a rectangle with one or more rounded corners.
 
 <a href='#SkRRect'>SkRRect</a> allows implementing CSS properties that describe rounded corners.
 <a href='#SkRRect'>SkRRect</a> may have up to eight different radii, one for each axis on each of its four
 corners.
 
 <a href='#SkRRect'>SkRRect</a> may modify the provided parameters when initializing bounds and radii.
-If either axis radii is zero or less, radii are stored as zero; corner is square.
+If either axis radii is zero or less: radii are stored as zero; corner is square.
 If corner curves overlap, radii are proportionally reduced to fit within bounds.
 
 ## Overview
@@ -481,7 +481,7 @@ less than half the height, or both.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 <a href='#RRect'>Round Rect</a> has width and height. Left x-radii are equal, top
 y-radii are equal, right x-radii are equal, and bottom y-radii
-are equal. The radii do not describe a rect, oval, or simple type.
+are equal. The radii do not describe <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocumented#Oval'>Oval</a>, or simple type.
 
 The centers of the corner ellipses form an axis-aligned rectangle
 that divides the <a href='#RRect'>Round Rect</a> into nine rectangular patches; an
