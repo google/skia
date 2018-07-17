@@ -34,7 +34,8 @@ sk_sp<SkData> read_file(const char* file_path) {
     return data;
 }
 
-bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
+bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly,
+                bool ignoreColorSpace) {
     auto codec = SkCodec::MakeFromData(fileBits);
     if (!codec) {
         SkDebugf("ERROR: could not create codec for <%s>\n", resource.fFullPath.c_str());
@@ -42,7 +43,18 @@ bool get_bitmap(sk_sp<SkData> fileBits, DiffResource& resource, bool sizeOnly) {
         return false;
     }
 
-    if (!resource.fBitmap.setInfo(codec->getInfo().makeColorType(kN32_SkColorType))) {
+    // If we're "ignoring" color space, then we want the raw pixel values from each image, so we
+    // decode to the original color space. If we want to account for color spaces, then we want to
+    // decode each image to the same color space, so that colors that are the "same" (but encoded
+    // differently) are transformed to some canonical representation prior to comparison.
+    //
+    // TODO: Use something wider than sRGB to avoid clipping with out-of-gamut colors.
+    SkImageInfo info = codec->getInfo().makeColorType(kN32_SkColorType);
+    if (!ignoreColorSpace) {
+        info = info.makeColorSpace(SkColorSpace::MakeSRGB());
+    }
+
+    if (!resource.fBitmap.setInfo(info.makeColorType(kN32_SkColorType))) {
         SkDebugf("ERROR: could not set bitmap info for <%s>\n", resource.fFullPath.c_str());
         resource.fStatus = DiffResource::kCouldNotDecode_Status;
         return false;
