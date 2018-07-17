@@ -1,0 +1,135 @@
+#Topic FILEWStream
+#Alias FILEWStream_Reference ##
+
+#Class SkFILEWStream
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method SkFILEWStream(const char path[])
+#In Constructor
+#Line # incomplete ##
+
+#Param path  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method ~SkFILEWStream() override
+#In Constructor
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool isValid() const
+#In incomplete
+#Line # incomplete ##
+
+Returns true if the current path could be opened.
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method bool write(const void* buffer, size_t size) override
+#In incomplete
+#Line # incomplete ##
+
+#Param buffer  incomplete ##
+#Param size  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void flush() override
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method void fsync()
+#In incomplete
+#Line # incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t bytesWritten() const override
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkFILEWStream ##
+
+#Topic FILEWStream ##

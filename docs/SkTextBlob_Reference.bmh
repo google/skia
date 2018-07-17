@@ -1,0 +1,312 @@
+#Topic Text_Blob
+#Alias Text_Blob_Reference ##
+
+Text_Blob holds one or more runs of text. Each run associates a string of glyphs
+with a position and Paint. Each Paint contains attributes used
+to define the run text: Typeface, Paint_Text_Size, Paint_Text_Scale_X,
+Paint_Text_Skew_X, Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
+Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
+Subpixel_Text, and Paint_Vertical_Text.
+
+Text_Blob runs of text use Glyph_ID encoding; each run Paint must set
+Paint_Text_Encoding to SkPaint::kGlyphID_TextEncoding.
+
+Text_Blob is constructed with Text_Blob_Builder. Once created, Text_Blob can not
+be modified.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Typedef
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx)
+#Line # incomplete ##
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx)
+#Line # incomplete ##
+#Typedef ##
+
+# ------------------------------------------------------------------------------
+
+#Class SkTextBlob
+
+SkTextBlob combines multiple text runs into an immutable container. Each text
+run consists of glyphs, Paint, and position.
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& bounds() const
+#In Property
+#Line # returns conservative bounding box ##
+
+Returns conservative bounding box. Uses Paint associated with each glyph to
+determine glyph bounds, and unions all bounds. Returned bounds may be
+larger than the bounds of all glyphs in runs. 
+
+#Return conservative bounding box ##
+
+#Example
+#Height 70
+    SkTextBlobBuilder textBlobBuilder;
+    const char bunny[] = "/(^x^)\\";
+    const int len = sizeof(bunny) - 1;
+    uint16_t glyphs[len];
+    SkPaint paint;
+    paint.textToGlyphs(bunny, len, glyphs);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    int runs[] = { 3, 1, 3 };
+    SkPoint textPos = { 20, 50 };
+    int glyphIndex = 0;
+    for (auto runLen : runs) {
+        paint.setTextSize(1 == runLen ? 20 : 50);
+        const SkTextBlobBuilder::RunBuffer& run =
+                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);
+        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);
+        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);
+        glyphIndex += runLen;
+    }
+    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+    paint.reset();
+    canvas->drawTextBlob(blob.get(), 0, 0, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(blob->bounds(), paint);
+##
+
+#SeeAlso SkPath::getBounds
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t uniqueID() const
+#In Property
+#Line # returns identifier for Text_Blob ##
+
+Returns a non-zero value unique among all text blobs.
+
+#Return identifier for Text_Blob ##
+
+#Example
+for (int index = 0; index < 2; ++index) {
+    SkTextBlobBuilder textBlobBuilder;
+    const char bunny[] = "/(^x^)\\";
+    const int len = sizeof(bunny) - 1;
+    uint16_t glyphs[len];
+    SkPaint paint;
+    paint.textToGlyphs(bunny, len, glyphs);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextScaleX(0.5);
+    int runs[] = { 3, 1, 3 };
+    SkPoint textPos = { 20, 50 };
+    int glyphIndex = 0;
+    for (auto runLen : runs) {
+        paint.setTextSize(1 == runLen ? 20 : 50);
+        const SkTextBlobBuilder::RunBuffer& run =
+                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);
+        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);
+        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);
+        glyphIndex += runLen;
+    }
+    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+    paint.reset();
+    canvas->drawTextBlob(blob.get(), 0, 0, paint);
+    std::string id = "unique ID:" + std::to_string(blob->uniqueID());
+    canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);
+    canvas->translate(blob->bounds().fRight + 10, 0);
+}
+##
+
+#SeeAlso SkRefCnt
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Enum GlyphPositioning
+
+#Code
+    enum GlyphPositioning {
+        kDefault_Positioning = 0,
+        kHorizontal_Positioning = 1,
+        kFull_Positioning = 2,
+    };
+##
+
+#Const kDefault_Positioning = 0
+Default glyph advances -- zero scalars per glyph.
+##
+#Const kHorizontal_Positioning = 1
+Horizontal positioning -- one scalar per glyph.
+##
+#Const kFull_Positioning = 2
+Point positioning -- two scalars per glyph.
+##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Enum ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkData> serialize(SkTypefaceCatalogerProc proc, void* ctx) const
+#In incomplete
+#Line # incomplete ##
+
+Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
+During this process, each time a typeface is encountered, it is passed to the catalog,
+allowing the caller to what typeface will need to be resolved in Deserialize.
+
+#Param proc  incomplete ##
+#Param ctx  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const
+#In incomplete
+#Line # incomplete ##
+
+Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
+if serialization failed due to insufficient size.
+
+#Param procs  incomplete ##
+#Param memory  incomplete ##
+#Param size  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
+                                         SkTypefaceResolverProc, void* ctx)
+#In incomplete
+#Line # incomplete ##
+
+Re-create a text blob previously serialized. Since the serialized form records 
+SkTypeface::uniqueID, deserialization requires that the caller provide the
+SkTypeface corresponding to the recorded Typeface_ID.
+
+#Param data  incomplete ##
+#Param size  incomplete ##
+#Param SkTypefaceResolverProc  incomplete ##
+#Param ctx  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkData> serialize(const SkSerialProcs& procs) const
+#In incomplete
+#Line # incomplete ##
+
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkData> serialize() const
+#In incomplete
+#Line # incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs)
+#In incomplete
+#Line # incomplete ##
+
+#Param data  incomplete ##
+#Param size  incomplete ##
+#Param procs  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size)
+#In incomplete
+#Line # incomplete ##
+
+#Param data  incomplete ##
+#Param size  incomplete ##
+
+#Return incomplete ##
+
+#Example
+// incomplete
+##
+
+#SeeAlso incomplete
+
+#Method ##
+
+#Class SkTextBlob ##
+
+#Topic Text_Blob ##
