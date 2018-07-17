@@ -228,7 +228,7 @@ void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, const SkMatri
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
 
     // Make a copy of the bone matrices.
-    SkMatrix* clonedBones = this->cloneArray(bones, boneCount);
+    SkMatrix* clonedBones = bones ? this->cloneArray(bones, boneCount) : nullptr;
 
     // Make the bone matrices thread-safe.
     for (int i = 0; i < boneCount; i ++) {
