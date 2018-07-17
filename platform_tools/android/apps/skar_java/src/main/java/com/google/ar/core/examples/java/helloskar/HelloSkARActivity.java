@@ -20,14 +20,17 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -54,6 +57,7 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.google.skar.SkARMatrix;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +76,8 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
     //Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
     private ARSurfaceView arSurfaceView;
+    private Canvas canvas;
+    private SurfaceHolder holder;
 
     //GLSurfaceView used to draw 3D objects & camera input
     private GLSurfaceView glSurfaceView;
@@ -93,6 +99,11 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
 
+    private final float[] back = new float[16];
+
+    PointF previousEvent;
+    android.graphics.Matrix inverted;
+
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
 
@@ -108,6 +119,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         arSurfaceView = findViewById(R.id.arsurfaceview);
         glSurfaceView = findViewById(R.id.glsurfaceview);
         arSurfaceView.bringToFront();
+        arSurfaceView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
         // Set up tap listener.
@@ -259,6 +271,9 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        canvas = null;
+        holder = null;
+
         // Clear screen to notify driver it should not load any pixels from previous frame.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -268,6 +283,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
         displayRotationHelper.updateSessionIfNeeded(session);
+
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
@@ -292,6 +308,54 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                             anchors.remove(0);
                         }
                         anchors.add(hit.createAnchor());
+                        break;
+                    }
+                }
+            }
+
+            MotionEvent holdTap = tapHelper.holdPoll();
+            if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+                for (HitResult hit : frame.hitTest(holdTap)) {
+                    // Check if any plane was hit, and if it was hit inside the plane polygon
+                    Trackable trackable = hit.getTrackable();
+                    // Creates an anchor if a plane or an oriented point was hit.
+                    if ((trackable instanceof Plane
+                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                            > 0))
+                            || (trackable instanceof Point
+                            && ((Point) trackable).getOrientationMode()
+                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+
+                        float[] pt = {hit.getHitPose().tx(), hit.getHitPose().tz()};
+
+                        if (drawManager.fingerPainting.isEmpty()) {
+                            float[] originalPt = {pt[0], pt[1]};
+
+                            // Get model matrix of first point
+                            float[] m = new float[16];
+                            hit.getHitPose().toMatrix(m, 0);
+                            drawManager.fingerPainting.setModelMatrix(m); //M0
+
+                            // Construct the inverse matrix + the translation to the origin
+                            float[] inv = new float[16];
+                            hit.getHitPose().toMatrix(inv, 0);
+                            Matrix.invertM(inv, 0, inv, 0);
+                            drawManager.fingerPainting.setInverseModelMatrix(inv);
+                            //inverted = SkARMatrix.createMatrixFrom4x4(inv); //M0 -1
+
+                            // Map hit location using the raw inverse matrix
+                            drawManager.fingerPainting.getInverseModelMatrix().mapPoints(originalPt);
+
+                            // Translate the point back to the origin, and update the inverse matrix
+                            Matrix.translateM(inv, 0, -originalPt[0], -originalPt[1], 0);
+                            drawManager.fingerPainting.setInverseModelMatrix(inv);
+                            //inverted = SkARMatrix.createMatrixFrom4x4(inv);
+                        }
+
+                        drawManager.fingerPainting.getInverseModelMatrix().mapPoints(pt);
+                        PointF newPoint = new PointF(pt[0], pt[1]);
+                        drawManager.fingerPainting.addPoint(newPoint);
                         break;
                     }
                 }
@@ -350,12 +414,17 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                 // Draw models
                 drawModels(canvas);
 
+                // Draw finger painting
+                drawFingerPainting(canvas);
+
                 // Unlock canvas
                 holder.unlockCanvasAndPost(canvas);
             }
-
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
+            if (holder != null && canvas != null) {
+                holder.unlockCanvasAndPost(canvas);
+            }
             Log.e(TAG, "Exception on the OpenGL thread", t);
         }
     }
@@ -384,5 +453,9 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             drawManager.drawAnimatedRoundRect(canvas, radius);
             drawManager.drawText(canvas, "HelloSkAR");
         }
+    }
+
+    private void drawFingerPainting(Canvas canvas) {
+        drawManager.drawFingerPainting(canvas);
     }
 }
