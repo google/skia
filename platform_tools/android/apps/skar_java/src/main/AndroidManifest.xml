@@ -46,5 +46,9 @@
     <!-- This tag indicates that this application requires ARCore.  This results in the Google Play
          Store downloading and installing ARCore along with the application. -->
     <meta-data android:name="com.google.ar.core" android:value="required" />
+    <meta-data
+        android:name="com.google.ar.core.min_apk_version"
+        tools:replace="android:value"
+        android:value="180226000" />
   </application>
 </manifest>

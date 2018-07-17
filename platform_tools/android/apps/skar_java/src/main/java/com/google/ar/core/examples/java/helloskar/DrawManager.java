@@ -1,12 +1,14 @@
 package com.google.ar.core.examples.java.helloskar;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -15,10 +17,13 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.opengl.Matrix;
+import android.os.Build;
+
 import com.google.ar.core.Plane;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
+import com.google.skar.SkARFingerPainting;
 import com.google.skar.SkARMatrix;
 import com.google.skar.SkARUtil;
 import java.io.IOException;
@@ -40,6 +45,7 @@ public class DrawManager {
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
+    public SkARFingerPainting fingerPainting = new SkARFingerPainting();
 
     public void updateViewport(float width, float height) {
         viewportWidth = width;
@@ -56,6 +62,10 @@ public class DrawManager {
 
     public void updateLightColorFilter(float[] colorCorr) {
         lightFilter = SkARUtil.createLightCorrectionColorFilter(colorCorr);
+    }
+
+    public void updateFingerPainting(PointF p) {
+        fingerPainting.addPoint(p);
     }
 
     // Sample function for drawing a circle
@@ -126,6 +136,41 @@ public class DrawManager {
         canvas.save();
         canvas.setMatrix(SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices)));
         canvas.drawText(text, 0, 0, p);
+        canvas.restore();
+    }
+
+    public void drawFingerPainting(Canvas canvas) {
+        if (fingerPainting.path.isEmpty()) {
+            return;
+        }
+
+        // Get finger painting model matrix
+        float[] m = fingerPainting.getModelMatrix();
+        float[] model = new float[16];
+        Matrix.setIdentityM(model, 0);
+        Matrix.translateM(model, 0, m[12], m[13], m[14]);
+
+        float[] initRot = SkARMatrix.createXYtoXZRotationMatrix();
+
+        // Matrix = mvpv
+        float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
+        android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
+
+        // Set up paint
+        Paint p = new Paint();
+        p.setColor(Color.GREEN);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(10f);
+        p.setAlpha(120);
+
+        // Build destination path by transforming source path
+        Path pathDst = new Path();
+        fingerPainting.path.transform(mvpv, pathDst);
+
+        // Draw dest path
+        canvas.save();
+        canvas.setMatrix(new android.graphics.Matrix());
+        canvas.drawPath(pathDst, p);
         canvas.restore();
     }
 
@@ -224,7 +269,7 @@ public class DrawManager {
 
         // Shader local matrix
         android.graphics.Matrix lm = new android.graphics.Matrix();
-        lm.setScale(0.0005f, 0.0005f);
+        lm.setScale(0.00005f, 0.00005f);
         lm.postConcat(mvpv);
         planeShader.setLocalMatrix(lm);
 
