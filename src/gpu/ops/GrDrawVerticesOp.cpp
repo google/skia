@@ -152,7 +152,8 @@ GrDrawOp::RequiresDstTexture GrDrawVerticesOp::finalize(const GrCaps& caps,
     return result;
 }
 
-sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
+sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
+                                                    bool* hasColorAttribute,
                                                     bool* hasLocalCoordAttribute,
                                                     bool* hasBoneAttribute) const {
     using namespace GrDefaultGeoProcFactory;
@@ -191,13 +192,15 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
     *hasBoneAttribute = this->hasBones();
 
     if (this->hasBones()) {
-        return GrDefaultGeoProcFactory::MakeWithBones(color,
+        return GrDefaultGeoProcFactory::MakeWithBones(shaderCaps,
+                                                      color,
                                                       Coverage::kSolid_Type,
                                                       localCoordsType,
                                                       bones,
                                                       vm);
     } else {
-        return GrDefaultGeoProcFactory::Make(color,
+        return GrDefaultGeoProcFactory::Make(shaderCaps,
+                                             color,
                                              Coverage::kSolid_Type,
                                              localCoordsType,
                                              vm);
@@ -205,7 +208,8 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(bool* hasColorAttribute,
 }
 
 void GrDrawVerticesOp::onPrepareDraws(Target* target) {
-    if (fMeshes[0].fVertices->isVolatile()) {
+    bool hasMapBufferSupport = GrCaps::kNone_MapFlags != target->caps().mapBufferFlags();
+    if (fMeshes[0].fVertices->isVolatile() || !hasMapBufferSupport) {
         this->drawVolatile(target);
     } else {
         this->drawNonVolatile(target);
@@ -216,7 +220,8 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(&hasColorAttribute,
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                 &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
                                                  &hasBoneAttribute);
 
@@ -224,7 +229,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     size_t vertexStride = sizeof(SkPoint) +
                           (hasColorAttribute ? sizeof(uint32_t) : 0) +
                           (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(uint32_t) + sizeof(float)) : 0);
+                          (hasBoneAttribute ? 4 * (sizeof(int8_t) + sizeof(uint8_t)) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
     // Allocate buffers.
@@ -265,7 +270,8 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
-    sk_sp<GrGeometryProcessor> gp = this->makeGP(&hasColorAttribute,
+    sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
+                                                 &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
                                                  &hasBoneAttribute);
 
@@ -300,7 +306,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     size_t vertexStride = sizeof(SkPoint) +
                           (hasColorAttribute ? sizeof(uint32_t) : 0) +
                           (hasLocalCoordsAttribute ? sizeof(SkPoint) : 0) +
-                          (hasBoneAttribute ? 4 * (sizeof(uint32_t) + sizeof(float)) : 0);
+                          (hasBoneAttribute ? 4 * (sizeof(int8_t) + sizeof(uint8_t)) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
     // Allocate vertex buffer.
@@ -417,7 +423,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
             }
             size_t boneIndexOffset = offset;
             if (hasBoneAttribute) {
-                offset += 4 * sizeof(uint32_t);
+                offset += 4 * sizeof(int8_t);
             }
             size_t boneWeightOffset = offset;
 
@@ -445,10 +451,10 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
                     const SkVertices::BoneIndices& indices = boneIndices[j];
                     const SkVertices::BoneWeights& weights = boneWeights[j];
                     for (int k = 0; k < 4; k++) {
-                        size_t indexOffset = boneIndexOffset + sizeof(uint32_t) * k;
-                        size_t weightOffset = boneWeightOffset + sizeof(float) * k;
-                        *(uint32_t*)((intptr_t)verts + indexOffset) = indices.indices[k];
-                        *(float*)((intptr_t)verts + weightOffset) = weights.weights[k];
+                        size_t indexOffset = boneIndexOffset + sizeof(int8_t) * k;
+                        size_t weightOffset = boneWeightOffset + sizeof(uint8_t) * k;
+                        *(int8_t*)((intptr_t)verts + indexOffset) = indices.indices[k];
+                        *(uint8_t*)((intptr_t)verts + weightOffset) = weights.weights[k] * 255.0f;
                     }
                 }
                 verts = (void*)((intptr_t)verts + vertexStride);
