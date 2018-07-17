@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "df3e4c37_5f53cbae",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-17T17:51:48Z",
+      "side": 1,
+      "message": "I agree with Ben.  He had a good idea.  PDFMetadata can have a field which is a const pointer to a SkDocumentTag root.\n\n    struct PDFMetadata {\n        //...\n        const SkDocumentTag* fStructureElementTreeRoot \u003d nullptr;\n    };",
+      "parentUuid": "b5c1b14a_530c46f3",
+      "range": {
+        "startLine": 226,
+        "startChar": 28,
+        "endLine": 226,
+        "endChar": 56
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1720f9a6_61beaadc",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 11
