@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fc98feb_2191d89b",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 2387,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Good question.\n\nThe node ID would definitely apply to multiple draw calls. For example we might\nset the node ID once when beginning to draw a paragraph, then each line of text\nwould be its own draw call, all under the same node ID.\n\nIn my prototyping I\u0027ve just been setting the node ID at the top of a\nPainter\u0027s Paint call and clearing it at the end. That seems to work fine.\n\nI can see the argument for save/restore - it could help prevent the node ID\nset on a leaf from applying to some unrelated ancestor. But the argument\nagainst this is that sometimes a large tree of objects can be painted without\never calling save/restore - so it\u0027s not really a sufficient solution.\n\nMy vote is to not save/restore the node ID yet, since we\u0027re not sure\nwe\u0027ll need it. As I land the code to hook this up in Blink, if we end up\nneeding it I\u0027ll add it then.",
+      "parentUuid": "1b4394e2_f6bcd3b5",
+      "range": {
+        "startLine": 2387,
+        "startChar": 17,
+        "endLine": 2387,
+        "endChar": 26
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b5c1b14a_530c46f3",
         "filename": "include/core/SkDocument.h",
         "patchSetId": 11
@@ -72,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "404d2db0_8b569ca4",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Why a const pointer, who would own it and what would be its lifetime?\n\nI think if we do this it should be a unique_ptr so that PDFMetadata owns it,\nwhat do you think?",
+      "parentUuid": "df3e4c37_5f53cbae",
+      "range": {
+        "startLine": 226,
+        "startChar": 28,
+        "endLine": 226,
+        "endChar": 56
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1720f9a6_61beaadc",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 11
@@ -92,6 +140,30 @@
       "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04d0cb25_86dea091",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1890,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1720f9a6_61beaadc",
+      "range": {
+        "startLine": 1889,
+        "startChar": 3,
+        "endLine": 1890,
+        "endChar": 34
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -118,6 +190,30 @@
     },
     {
       "key": {
+        "uuid": "0ed63676_ee3667af",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81b60ea1_05432303",
+      "range": {
+        "startLine": 1303,
+        "startChar": 0,
+        "endLine": 1304,
+        "endChar": 60
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6a1fcd71_f4968b63",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 11
@@ -138,6 +234,30 @@
       "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c704daf8_a5428847",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a1fcd71_f4968b63",
+      "range": {
+        "startLine": 419,
+        "startChar": 0,
+        "endLine": 420,
+        "endChar": 18
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -164,6 +284,30 @@
     },
     {
       "key": {
+        "uuid": "27908362_cf967ae2",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "400a272b_5df2c673",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 109,
+        "endChar": 14
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "96ef1dba_9e9a8abd",
         "filename": "src/pdf/SkPDFTag.h",
         "patchSetId": 11
@@ -184,6 +328,30 @@
       "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "968dc693_ec84d70b",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-07-17T18:13:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96ef1dba_9e9a8abd",
+      "range": {
+        "startLine": 49,
+        "startChar": 4,
+        "endLine": 49,
+        "endChar": 6
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
