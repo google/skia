@@ -16,7 +16,7 @@
 #include "SkReadBuffer.h"
 #include "SkRefSet.h"
 #include "SkRSXform.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkTypeface.h"
 #include "SkVertices.h"
 
@@ -401,7 +401,7 @@ static void drawTextOnPath_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
 }
 
 static void drawTextBlob_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
-    sk_sp<SkTextBlob> tb = SkTextBlob::MakeFromBuffer(reader);
+    sk_sp<SkTextBlob> tb = SkTextBlobPriv::MakeFromBuffer(reader);
     SkScalar x = reader.readScalar();
     SkScalar y = reader.readScalar();
     canvas->drawTextBlob(tb, x, y, read_paint(reader));
