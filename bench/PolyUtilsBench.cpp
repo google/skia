@@ -9,12 +9,12 @@
 #include "SkPolyUtils.h"
 
 class PolyUtilsBench : public Benchmark {
+public:
     // Evaluate SkTriangulateSimplePolygon's performance (via derived classes) on:
     //   a non-self-intersecting star, a circle of tiny line segments and a self-intersecting star
+    enum class Type { kConvexCheck, kSimpleCheck, kInsetConvex, kOffsetSimple, kTessellateSimple };
 
-    SkString           fName;
-public:
-    PolyUtilsBench() {}
+    PolyUtilsBench(Type type) : fType(type) {}
 
     virtual void appendName(SkString*) = 0;
     virtual void makePoly(SkTDArray<SkPoint>* poly) = 0;
@@ -24,6 +24,23 @@ protected:
     const char* onGetName() override {
         fName = "poly_utils_";
         this->appendName(&fName);
+        switch (fType) {
+        case Type::kConvexCheck:
+            fName.append("_c");
+            break;
+        case Type::kSimpleCheck:
+            fName.append("_s");
+            break;
+        case Type::kInsetConvex:
+            fName.append("_i");
+            break;
+        case Type::kOffsetSimple:
+            fName.append("_o");
+            break;
+        case Type::kTessellateSimple:
+            fName.append("_t");
+            break;
+        }
         return fName.c_str();
     }
 
@@ -36,20 +53,47 @@ protected:
         }
         SkTDArray<uint16_t> triangleIndices;
         for (int i = 0; i < loops; i++) {
-            if (SkIsSimplePolygon(poly.begin(), poly.count())) {
-                SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
-                                           &triangleIndices);
+            switch (fType) {
+            case Type::kConvexCheck:
+                (void) SkIsConvexPolygon(poly.begin(), poly.count());
+                break;
+            case Type::kSimpleCheck:
+                (void) SkIsSimplePolygon(poly.begin(), poly.count());
+                break;
+            case Type::kInsetConvex:
+                if (SkIsConvexPolygon(poly.begin(), poly.count())) {
+                    SkTDArray<SkPoint> result;
+                    (void) SkInsetConvexPolygon(poly.begin(), poly.count(), 10, &result);
+                    (void) SkInsetConvexPolygon(poly.begin(), poly.count(), 40, &result);
+                }
+                break;
+            case Type::kOffsetSimple:
+                if (SkIsSimplePolygon(poly.begin(), poly.count())) {
+                    SkTDArray<SkPoint> result;
+                    (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), 10, &result);
+                    (void)SkOffsetSimplePolygon(poly.begin(), poly.count(), -10, &result);
+                }
+                break;
+            case Type::kTessellateSimple:
+                if (SkIsSimplePolygon(poly.begin(), poly.count())) {
+                    SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
+                                               &triangleIndices);
+                    break;
+                }
             }
         }
     }
 
 private:
+    SkString           fName;
+    Type               fType;
+
     typedef Benchmark INHERITED;
 };
 
 class StarPolyUtilsBench : public PolyUtilsBench {
 public:
-    StarPolyUtilsBench() {}
+    StarPolyUtilsBench(PolyUtilsBench::Type type) : INHERITED(type) {}
 
     void appendName(SkString* name) override {
         name->append("star");
@@ -77,7 +121,7 @@ private:
 
 class CirclePolyUtilsBench : public PolyUtilsBench {
 public:
-    CirclePolyUtilsBench() {}
+    CirclePolyUtilsBench(PolyUtilsBench::Type type) : INHERITED(type) {}
 
     void appendName(SkString* name) override {
         name->append("circle");
@@ -101,7 +145,7 @@ private:
 
 class IntersectingPolyUtilsBench : public PolyUtilsBench {
 public:
-    IntersectingPolyUtilsBench() {}
+    IntersectingPolyUtilsBench(PolyUtilsBench::Type type) : INHERITED(type) {}
 
     void appendName(SkString* name) override {
         name->append("intersecting");
@@ -125,6 +169,18 @@ private:
     typedef PolyUtilsBench INHERITED;
 };
 
-DEF_BENCH(return new StarPolyUtilsBench();)
-DEF_BENCH(return new CirclePolyUtilsBench();)
-DEF_BENCH(return new IntersectingPolyUtilsBench();)
+DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
+DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
+DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
+DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
+DEF_BENCH(return new StarPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
+DEF_BENCH(return new CirclePolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
+DEF_BENCH(return new CirclePolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
+DEF_BENCH(return new CirclePolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
+DEF_BENCH(return new CirclePolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
+DEF_BENCH(return new CirclePolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
+DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kConvexCheck);)
+DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kSimpleCheck);)
+DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kInsetConvex);)
+DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kOffsetSimple);)
+DEF_BENCH(return new IntersectingPolyUtilsBench(PolyUtilsBench::Type::kTessellateSimple);)
