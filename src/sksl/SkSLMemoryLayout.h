@@ -75,9 +75,16 @@ public:
      */
     size_t stride(const Type& type) const {
         switch (type.kind()) {
-            case Type::kMatrix_Kind: // fall through
-            case Type::kArray_Kind:
-                return this->alignment(type);
+            case Type::kMatrix_Kind: {
+                size_t base = vector_alignment(this->size(type.componentType()), type.rows());
+                return this->roundUpIfNeeded(base);
+            }
+            case Type::kArray_Kind: {
+                int align = this->alignment(type.componentType());
+                int stride = this->size(type.componentType()) + align - 1;
+                stride -= stride % align;
+                return this->roundUpIfNeeded(stride);
+            }
             default:
                 ABORT("type does not have a stride");
         }
