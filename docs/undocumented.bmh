@@ -637,11 +637,6 @@ FT_Load_Glyph
 #Class ##
 #Topic ##
 
-#Topic Region
-#Class SkRegion
-##
-#Topic ##
-
 #Topic Render_Target
 #Class GrRenderTarget
 ##
@@ -688,11 +683,6 @@ FT_Load_Glyph
 #Alias Sprites ##
 #Topic ##
 
-#Topic Stream
-#Class SkStream
-##
-##
-
 #Topic String
 #Class SkString
 #Class ##
@@ -725,11 +715,6 @@ FT_Load_Glyph
 ##
 
 #Topic Text
-#Topic ##
-
-#Topic Text_Blob
-#Class SkTextBlob
-#Class ##
 #Topic ##
 
 #Topic Texture
@@ -797,11 +782,6 @@ FT_Load_Glyph
 #Subtopic Colors
 ##
 #Subtopic Texs
-##
-#Topic ##
-
-#Topic WStream
-#Class SkWStream
 ##
 #Topic ##
 

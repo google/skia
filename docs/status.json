@@ -46,9 +46,14 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkRegion.h",
+                "SkStream.h",
+                "SkTextBlob.h"
             ]
         },
         "docs": [
+            "SkRegion_Reference.bmh",
+            "SkTextBlob_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]
