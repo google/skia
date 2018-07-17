@@ -37,6 +37,7 @@
 #include "SkSLCompiler.h"
 #include "SkTo.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkTypes.h"
 
 #include <utility>
@@ -74,7 +75,8 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         }
     } else {
         GrVkExtensions extensions;
-        extensions.init(backendContext.fExtensions);
+        extensions.init(backendContext.fGetProc, backendContext.fInstance,
+                        backendContext.fExtensions);
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,

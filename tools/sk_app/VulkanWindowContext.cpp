@@ -14,8 +14,8 @@
 
 #include "vk/GrVkExtensions.h"
 #include "vk/GrVkImage.h"
-#include "vk/GrVkUtil.h"
 #include "vk/GrVkTypes.h"
+#include "vk/GrVkUtil.h"
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 // windows wants to define this as CreateSemaphoreA or CreateSemaphoreW
@@ -66,8 +66,8 @@ void VulkanWindowContext::initializeContext() {
         return;
     }
 
-    if (!extensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME) ||
-        !extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
+    if (!extensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME, 25) ||
+        !extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME, 68)) {
         return;
     }
 
@@ -80,6 +80,9 @@ void VulkanWindowContext::initializeContext() {
                                        &extensions));
 
     GET_PROC(DestroyInstance);
+    if (fDebugCallback != VK_NULL_HANDLE) {
+        GET_PROC(DestroyDebugReportCallbackEXT);
+    }
     GET_PROC(DestroySurfaceKHR);
     GET_PROC(GetPhysicalDeviceSurfaceSupportKHR);
     GET_PROC(GetPhysicalDeviceSurfaceCapabilitiesKHR);
@@ -453,8 +456,7 @@ void VulkanWindowContext::destroyContext() {
 
 #ifdef SK_ENABLE_VK_LAYERS
     if (fDebugCallback != VK_NULL_HANDLE) {
-        GR_VK_CALL(fInterface, DestroyDebugReportCallbackEXT(fInstance, fDebugCallback,
-                                                             nullptr));
+        fDestroyDebugReportCallbackEXT(fInstance, fDebugCallback, nullptr);
     }
 #endif
 
