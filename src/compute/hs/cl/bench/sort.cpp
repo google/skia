@@ -69,34 +69,56 @@ hs_qsort_compare_u64(void const * a, void const * b)
 
 extern "C"
 char const *
-hs_cpu_sort_u32(uint32_t * a, uint32_t const count)
+hs_cpu_sort_u32(uint32_t * a, uint32_t const count, double * const cpu_ns)
 {
+  using to_ns = std::chrono::duration<double,std::chrono::nanoseconds::period>;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
 #if   defined ( HS_USE_PARALLEL_SORT )
   std::sort(std::execution::par_unseq,a,a+count);
-  return "std::sort(std::execution::par_unseq)()";
+  char const * const algo = "std::sort(std::execution::par_unseq)()";
 #elif defined ( HS_USE_STD_SORT )
   std::sort(a,a+count);
-  return "std:sort()";
+  char const * const algo = "std:sort()";
 #elif defined ( HS_USE_QSORT )
   qsort(a,count,sizeof(*a),hs_qsort_compare_u32);
-  return "qsort()";
+  char const * const algo = "qsort()";
 #endif
+
+  auto stop        = std::chrono::high_resolution_clock::now();
+  auto duration_ns = to_ns(stop - start);
+
+  *cpu_ns = duration_ns.count();
+
+  return algo;
 }
 
 extern "C"
 char const *
-hs_cpu_sort_u64(uint64_t * a, uint32_t const count)
+hs_cpu_sort_u64(uint64_t * a, uint32_t const count, double * const cpu_ns)
 {
+  using to_ns = std::chrono::duration<double,std::chrono::nanoseconds::period>;
+
+  auto start = std::chrono::high_resolution_clock::now();
+
 #if   defined ( HS_USE_PARALLEL_SORT )
   std::sort(std::execution::par_unseq,a,a+count);
-  return "std::sort(std::execution::par_unseq)()";
+  char const * const algo = "std::sort(std::execution::par_unseq)()";
 #elif defined ( HS_USE_STD_SORT )
   std::sort(a,a+count);
-  return "std::sort()";
+  char const * const algo = "std::sort()";
 #elif defined ( HS_USE_QSORT )
   qsort(a,count,sizeof(*a),hs_qsort_compare_u64);
-  return "qsort()";
+  char const * const algo = "qsort()";
 #endif
+
+  auto stop        = std::chrono::high_resolution_clock::now();
+  auto duration_ns = to_ns(stop - start);
+
+  *cpu_ns = duration_ns.count();
+
+  return algo;
 }
 
 //
