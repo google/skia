@@ -536,14 +536,15 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendTextureAsRenderTarget(GrContext* cont
     if (!context) {
         return nullptr;
     }
-    if (!tex.isValid() ||
-        !SkSurface_Gpu::Valid(context->contextPriv().caps(), tex.config(), colorSpace.get())) {
-        return nullptr;
-    }
+
     sampleCnt = SkTMax(1, sampleCnt);
     GrBackendTexture texCopy = tex;
     if (!validate_backend_texture(context, texCopy, &texCopy.fConfig,
                                   sampleCnt, colorType, colorSpace, false)) {
+        return nullptr;
+    }
+
+    if (!SkSurface_Gpu::Valid(context->contextPriv().caps(), texCopy.config(), colorSpace.get())) {
         return nullptr;
     }
 
