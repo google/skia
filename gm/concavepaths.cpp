@@ -367,6 +367,22 @@ void test_bowtie_coincident_triangle(SkCanvas* canvas, const SkPaint& paint) {
     canvas->restore();
 }
 
+// Collinear outer boundary edges. In the edge-AA codepath, this creates an overlap region
+// which contains a boundary edge. It can't be removed, but it must have the correct winding.
+void test_collinear_outer_boundary_edge(SkCanvas* canvas, const SkPaint& paint) {
+    SkPath path;
+    canvas->save();
+    canvas->translate(400, 400);
+    path.moveTo(20, 20);
+    path.lineTo(20, 50);
+    path.lineTo(50, 50);
+    path.moveTo(80, 50);
+    path.lineTo(50, 50);
+    path.lineTo(80, 20);
+    canvas->drawPath(path, paint);
+    canvas->restore();
+}
+
 // Coincident edges (big ones first, coincident vert on top).
 void test_coincident_edges_1(SkCanvas* canvas, const SkPaint& paint) {
     SkPath path;
@@ -456,6 +472,7 @@ DEF_SIMPLE_GM(concavepaths, canvas, 500, 600) {
     test_degenerate(canvas, paint);
     test_coincident_edge(canvas, paint);
     test_bowtie_coincident_triangle(canvas, paint);
+    test_collinear_outer_boundary_edge(canvas, paint);
     test_coincident_edges_1(canvas, paint);
     test_coincident_edges_2(canvas, paint);
     test_coincident_edges_3(canvas, paint);
