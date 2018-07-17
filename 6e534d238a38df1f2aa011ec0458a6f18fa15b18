@@ -22,6 +22,30 @@
       "revId": "6e534d238a38df1f2aa011ec0458a6f18fa15b18",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0271261_c39d614d",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-07-17T20:53:10Z",
+      "side": 1,
+      "message": "This ends up being the faster code through Skia. The code uses a glyph run to produce a textblob, and it will immediately turn around and make it a glyph run. The pos variant ends up being the fastest conversion.",
+      "parentUuid": "de5b4c4b_074d1157",
+      "range": {
+        "startLine": 903,
+        "startChar": 35,
+        "endLine": 903,
+        "endChar": 46
+      },
+      "revId": "6e534d238a38df1f2aa011ec0458a6f18fa15b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
