@@ -84,6 +84,8 @@ public:
 
     bool halfIs32Bits() const { return fHalfIs32Bits; }
 
+    bool unsignedSupport() const { return fUnsignedSupport; }
+
     AdvBlendEqInteraction advBlendEqInteraction() const { return fAdvBlendEqInteraction; }
 
     bool mustEnableAdvBlendEqs() const {
@@ -252,6 +254,7 @@ private:
     bool fFPManipulationSupport             : 1;
     bool fFloatIs32Bits                     : 1;
     bool fHalfIs32Bits                      : 1;
+    bool fUnsignedSupport                   : 1;
 
     // Used for specific driver bug work arounds
     bool fCanUseAnyFunctionInShader                   : 1;

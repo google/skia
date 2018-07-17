@@ -100,6 +100,14 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(UShort2);
     ADD_TYPE(UShort3);
     ADD_TYPE(UShort4);
+    ADD_TYPE(Byte);
+    ADD_TYPE(Byte2);
+    ADD_TYPE(Byte3);
+    ADD_TYPE(Byte4);
+    ADD_TYPE(UByte);
+    ADD_TYPE(UByte2);
+    ADD_TYPE(UByte3);
+    ADD_TYPE(UByte4);
     ADD_TYPE(Bool);
     ADD_TYPE(Bool2);
     ADD_TYPE(Bool3);
@@ -149,6 +157,8 @@ Compiler::Compiler(Flags flags)
     ADD_TYPE(UVec);
     ADD_TYPE(SVec);
     ADD_TYPE(USVec);
+    ADD_TYPE(ByteVec);
+    ADD_TYPE(UByteVec);
     ADD_TYPE(BVec);
 
     ADD_TYPE(Sampler1D);

@@ -951,7 +951,8 @@ void AAHairlineOp::onPrepareDraws(Target* target) {
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
             localCoords.fMatrix = geometryProcessorLocalM;
-            lineGP = GrDefaultGeoProcFactory::Make(color, Coverage::kAttribute_Type, localCoords,
+            lineGP = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                                                   color, Coverage::kAttribute_Type, localCoords,
                                                    *geometryProcessorViewM);
         }
 

@@ -405,7 +405,11 @@ private:
             Coverage coverage(this->coverage());
             LocalCoords localCoords(fHelper.usesLocalCoords() ? LocalCoords::kUsePosition_Type
                                                               : LocalCoords::kUnused_Type);
-            gp = GrDefaultGeoProcFactory::Make(color, coverage, localCoords, this->viewMatrix());
+            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                                               color,
+                                               coverage,
+                                               localCoords,
+                                               this->viewMatrix());
         }
 
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
