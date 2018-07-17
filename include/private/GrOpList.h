@@ -67,7 +67,15 @@ public:
     /*
      * Does this opList depend on 'dependedOn'?
      */
-    bool dependsOn(const GrOpList* dependedOn) const;
+    bool dependsOn(GrOpList* dependedOn) const {
+        for (int i = 0; i < fDependencies.count(); ++i) {
+            if (fDependencies[i] == dependedOn) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /*
      * Safely cast this GrOpList to a GrTextureOpList (if possible).
@@ -111,13 +119,6 @@ protected:
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
-
-    void addDependency(GrOpList* dependedOn);
-    void addDependent(GrOpList* dependent);
-    SkDEBUGCODE(bool isDependedent(const GrOpList* dependent) const);
-    SkDEBUGCODE(void validate() const);
-
-    void closeThoseWhoDependOnMe(const GrCaps&);
 
     // Remove all Ops which reference proxies that have not been instantiated.
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
@@ -173,13 +174,13 @@ private:
     virtual void onPrepare(GrOpFlushState* flushState) = 0;
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
 
+    void addDependency(GrOpList* dependedOn);
+
     uint32_t               fUniqueID;
     uint32_t               fFlags;
 
     // 'this' GrOpList relies on the output of the GrOpLists in 'fDependencies'
     SkSTArray<1, GrOpList*, true> fDependencies;
-    // 'this' GrOpList's output is relied on by the GrOpLists in 'fDependents'
-    SkSTArray<1, GrOpList*, true> fDependents;
 
     typedef SkRefCnt INHERITED;
 };
