@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c984554b_82721f7d",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T18:41:08Z",
+      "side": 1,
+      "message": "matrix.preTranslate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);",
+      "range": {
+        "startLine": 655,
+        "startChar": 0,
+        "endLine": 655,
+        "endChar": 4
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "085b34e5_ea70345f",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T18:41:08Z",
+      "side": 1,
+      "message": "This goes together (it\u0027s logically the inside of the transform) so it should look like it goes together.",
+      "range": {
+        "startLine": 1060,
+        "startChar": 3,
+        "endLine": 1063,
+        "endChar": 31
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "edbf989c_177e382e",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T18:41:08Z",
+      "side": 1,
+      "message": "canvas.translate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);",
+      "range": {
+        "startLine": 1064,
+        "startChar": 0,
+        "endLine": 1064,
+        "endChar": 4
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
