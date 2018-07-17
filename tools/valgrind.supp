@@ -101,6 +101,12 @@
    obj:*/libGLX_nvidia.so*
 }
 {
+   nv_driver_bug_5
+   Memcheck:Leak
+   fun:malloc
+   obj:*/libGLX_nvidia.so*
+}
+{
     #Fixed by FontConfig 2.9.0
     #http://cgit.freedesktop.org/fontconfig/commit/?id=1c475d5c8cb265ac939d6b9e097666e300162511
     font_config_bug_1
