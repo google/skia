@@ -14,10 +14,6 @@
 #include "SkString.h"
 #include "SkRefCnt.h"
 
-class SkGlyphRunList;
-class SkReadBuffer;
-class SkWriteBuffer;
-
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
@@ -39,20 +35,6 @@ public:
      *  Return a non-zero, unique value representing the text blob.
      */
     uint32_t uniqueID() const { return fUniqueID; }
-
-    /**
-     *  Serialize to a buffer.
-     */
-    void flatten(SkWriteBuffer&) const;
-
-    /**
-     *  Recreate an SkTextBlob that was serialized into a buffer.
-     *
-     *  @param  SkReadBuffer Serialized blob data.
-     *  @return A new SkTextBlob representing the serialized data, or NULL if the buffer is
-     *          invalid.
-     */
-    static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
 
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
@@ -82,9 +64,7 @@ public:
                                          SkTypefaceResolverProc, void* ctx);
 
     sk_sp<SkData> serialize(const SkSerialProcs&) const;
-    sk_sp<SkData> serialize() const;
     static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
@@ -111,6 +91,7 @@ private:
     friend class SkGlyphRunList;
     friend class GrTextBlobCache;
     friend class SkTextBlobBuilder;
+    friend class SkTextBlobPriv;
     friend class SkTextBlobRunIterator;
 
     const SkRect               fBounds;

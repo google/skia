@@ -20,7 +20,7 @@
 #include "SkRSXform.h"
 #include "SkShader.h"
 #include "SkStream.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 
@@ -680,7 +680,7 @@ void SkPipeCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y
                                   const SkPaint &paint) {
     SkPipeWriter writer(this);
     writer.write32(pack_verb(SkPipeVerb::kDrawTextBlob, 0));
-    blob->flatten(writer);
+    SkTextBlobPriv::Flatten(*blob, writer);
     writer.writeScalar(x);
     writer.writeScalar(y);
     write_paint(writer, paint, kTextBlob_PaintUsage);
