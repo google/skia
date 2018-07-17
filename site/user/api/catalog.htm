@@ -4305,36 +4305,28 @@
     "name": "SkBitmap::notifyPixelsChanged"
 },
     "SkBitmap_readPixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int width = 256;\n    const int height = 32;\n    std::vector<int32_t> dstPixels;\n    dstPixels.resize(height * width * 4);\n    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);\n    SkColor  gradColors[] = { 0xFFAA3300, 0x7F881122 };\n    SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 } };\n    SkPaint gradPaint;\n    gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,\n                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));\n    for (auto behavior : { SkTransferFunctionBehavior::kRespect,\n                           SkTransferFunctionBehavior::kIgnore} ) {\n        SkBitmap bitmap;\n        bitmap.allocPixels(info);\n        SkCanvas srcCanvas(bitmap);\n        srcCanvas.drawRect(SkRect::MakeWH(width, height), gradPaint);\n        if (bitmap.readPixels(info, &dstPixels.front(), width * 4, 0, 0, behavior)) {\n            SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);\n            bitmap.installPixels(dstPixmap);\n            canvas->drawBitmap(bitmap, 0, 0);\n        }\n        canvas->translate(0, height);\n    }\n}\n",
-    "width": 256,
-    "height": 64,
-    "hash": "86fb9979516d256d71aa3f3f2182fe0c",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::readPixels"
-},
-    "SkBitmap_readPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n    const int width = 256;\n    const int height = 64;\n    SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkColor  gradColors[] = { 0xFFAA3300, 0x7F881122 };\n    SkPoint  gradPoints[] = { { 0, 0 }, { 256, 0 } };\n    SkPaint paint;\n    paint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,\n                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));\n    SkBitmap bitmap;\n    bitmap.allocPixels(srcInfo);\n    SkCanvas srcCanvas(bitmap);\n    srcCanvas.drawRect(SkRect::MakeWH(width, height), paint);\n    canvas->drawBitmap(bitmap, 0, 0);\n    SkImageInfo dstInfo = srcInfo.makeColorType(kARGB_4444_SkColorType);\n    std::vector<int16_t> dstPixels;\n    dstPixels.resize(height * width);\n    bitmap.readPixels(dstInfo, &dstPixels.front(), width * 2, 0, 0);\n    SkPixmap dstPixmap(dstInfo, &dstPixels.front(), width * 2);\n    bitmap.installPixels(dstPixmap);\n    canvas->drawBitmap(bitmap, 0, 64);\n}",
     "width": 256,
     "height": 128,
     "hash": "b2cbbbbcffb618865d8aae3bc04b2a62",
     "file": "SkBitmap_Reference",
-    "name": "SkBitmap::readPixels_2"
+    "name": "SkBitmap::readPixels"
 },
-    "SkBitmap_readPixels_3": {
+    "SkBitmap_readPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.rowBytes());\n    for (int y = 0; y < 4; ++y) {\n        for (int x = 0; x < 4; ++x) {\n            SkPixmap pixmap(SkImageInfo::MakeN32Premul(source.width() / 4, source.height() / 4),\n                    &srcPixels.front() + x * source.height() * source.width() / 4 +\n                    y * source.width() / 4, source.rowBytes());\n            source.readPixels(pixmap, x * source.width() / 4, y * source.height() / 4);\n        }\n    }\n    canvas->scale(.5f, .5f);\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(source.width(), source.height()),\n                             &srcPixels.front(), source.rowBytes());\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
     "height": 256,
     "hash": "e9f70cbc9827097449a386ec7a8a8188",
     "file": "SkBitmap_Reference",
-    "name": "SkBitmap::readPixels_3"
+    "name": "SkBitmap::readPixels_2"
 },
-    "SkBitmap_readPixels_4": {
+    "SkBitmap_readPixels_3": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> srcPixels;\n    srcPixels.resize(source.height() * source.width() * 8);\n    for (int i = 0;  i < 2; ++i) {\n    SkPixmap pixmap(SkImageInfo::Make(source.width() * 2, source.height(),\n                    i ? kRGBA_8888_SkColorType : kBGRA_8888_SkColorType, kPremul_SkAlphaType),\n                    &srcPixels.front() + i * source.width(), source.rowBytes() * 2);\n        source.readPixels(pixmap);\n    }\n    canvas->scale(.25f, .25f);\n    SkBitmap bitmap;\n    bitmap.installPixels(SkImageInfo::MakeN32Premul(source.width() * 2, source.height()),\n                         &srcPixels.front(), source.rowBytes() * 2);\n    canvas->drawBitmap(bitmap, 0, 0);\n}",
     "width": 256,
     "height": 128,
     "hash": "4590fbf052659d6e629fbfd827081ae5",
     "file": "SkBitmap_Reference",
-    "name": "SkBitmap::readPixels_4"
+    "name": "SkBitmap::readPixels_3"
 },
     "SkBitmap_readyToDraw": {
     "code": "void draw(SkCanvas* canvas) {\n    if (source.readyToDraw()) {\n        canvas->drawBitmap(source, 10, 10);\n    }\n}",
@@ -4431,14 +4423,6 @@
     "hash": "faa5dfa466f6e16c07c124d971f32679",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::writePixels_2"
-},
-    "SkBitmap_writePixels_3": {
-    "code": "void draw(SkCanvas* canvas) {\n    const int width = 256;\n    const int height = 32;\n    std::vector<int32_t> dstPixels;\n    dstPixels.resize(height * width * 4);\n    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);\n    SkColor  gradColors[] = { 0xFFAA3300, 0x7F881122 };\n    SkPoint  gradPoints[] = { { 0, 0 }, { width, 0 } };\n    SkPaint gradPaint;\n    gradPaint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,\n                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));\n    for (auto behavior : { SkTransferFunctionBehavior::kRespect,\n                           SkTransferFunctionBehavior::kIgnore} ) {\n        SkPixmap dstPixmap(info, &dstPixels.front(), width * 4);\n        SkBitmap bitmap;\n        bitmap.installPixels(dstPixmap);\n        SkCanvas srcCanvas(bitmap);\n        srcCanvas.drawRect(SkRect::MakeWH(width, height), gradPaint);\n        if (bitmap.writePixels(dstPixmap, 0, 0, behavior)) {\n            canvas->drawBitmap(bitmap, 0, 0);\n        }\n        canvas->translate(0, height);\n    }\n}",
-    "width": 256,
-    "height": 64,
-    "hash": "9f046f407b01b759cb737d702a994620",
-    "file": "SkBitmap_Reference",
-    "name": "SkBitmap::writePixels_3"
 },
     "SkCanvas_PointMode": {
     "code": "void draw(SkCanvas* canvas) {\n  SkPaint paint;\n  paint.setStyle(SkPaint::kStroke_Style);\n  paint.setStrokeWidth(10);\n  SkPoint points[] = {{64, 32}, {96, 96}, {32, 96}};\n  canvas->drawPoints(SkCanvas::kPoints_PointMode, 3, points, paint);\n  canvas->translate(128, 0);\n  canvas->drawPoints(SkCanvas::kLines_PointMode, 3, points, paint);\n  canvas->translate(0, 128);\n  canvas->drawPoints(SkCanvas::kPolygon_PointMode, 3, points, paint);\n  SkPath path;\n  path.addPoly(points, 3, false);\n  canvas->translate(-128, 0);\n  canvas->drawPath(path, paint);\n}\n",
@@ -7281,44 +7265,36 @@
     "name": "SkPixmap::extractSubset"
 },
     "SkPixmap_readPixels": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo srgb = SkImageInfo::MakeS32(image->width(), image->height(),\n            kPremul_SkAlphaType);\n    SkImageInfo linear = srgb.makeColorSpace(srgb.colorSpace()->makeLinearGamma());\n    std::vector<int32_t> srcPixels;\n    size_t rowBytes = image->width() * 4;\n    srcPixels.resize(image->height() * rowBytes);\n    SkPixmap pixmap(srgb, (const void*) &srcPixels.front(), rowBytes);\n    image->readPixels(pixmap, 0, 0);\n    int offset = -64;\n    std::vector<int32_t> dstPixels;\n    dstPixels.resize(image->height() * rowBytes);\n    for (const auto& info : { srgb, linear } ) {\n        for (auto behavior : { SkTransferFunctionBehavior::kRespect,\n                               SkTransferFunctionBehavior::kIgnore} ) {\n            pixmap.readPixels(info, &dstPixels.front(), rowBytes, 0, 0, behavior);\n            SkBitmap bitmap;\n            SkPixmap dstmap(info, &dstPixels.front(), rowBytes);\n            bitmap.installPixels(dstmap);\n            canvas->drawBitmap(bitmap, 0, offset += 64);\n        }\n    }\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "48ccfadec48f987c81a1e218e49cca68",
-    "file": "SkPixmap_Reference",
-    "name": "SkPixmap::readPixels"
-},
-    "SkPixmap_readPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    const int width = 256;\n    const int height = 64;\n    pixels.resize(height * width * 4);\n    SkImageInfo srcInfo = SkImageInfo::MakeN32Premul(width, height);\n    SkPixmap srcPixmap(srcInfo, (const void*) &pixels.front(), width * 4);\n    SkColor  gradColors[] = { 0xFFAA3300, 0x7F881122 };\n    SkPoint  gradPoints[] = { { 0, 0 }, { 256, 0 } };\n    SkPaint paint;\n    paint.setShader(SkGradientShader::MakeLinear(gradPoints, gradColors, nullptr,\n                    SK_ARRAY_COUNT(gradColors), SkShader::kClamp_TileMode));\n    SkBitmap bitmap;\n    bitmap.installPixels(srcPixmap);\n    SkCanvas srcCanvas(bitmap);\n    srcCanvas.drawRect(SkRect::MakeWH(width, height), paint);\n    canvas->drawBitmap(bitmap, 0, 0);\n    std::vector<int32_t> dstPixels;\n    dstPixels.resize(height * width * 2);\n    SkImageInfo dstInfo = srcInfo.makeColorType(kARGB_4444_SkColorType);\n    srcPixmap.readPixels(dstInfo, &dstPixels.front(), width * 2);\n    SkPixmap dstPixmap(dstInfo, &dstPixels.front(), width * 2);\n    bitmap.installPixels(dstPixmap);\n    canvas->drawBitmap(bitmap, 0, 128);\n}",
     "width": 256,
     "height": 128,
     "hash": "df4e355c4845350daede833b4fd21ec1",
     "file": "SkPixmap_Reference",
-    "name": "SkPixmap::readPixels_2"
+    "name": "SkPixmap::readPixels"
 },
-    "SkPixmap_readPixels_3": {
+    "SkPixmap_readPixels_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());\n    std::vector<int32_t> srcPixels;\n    const int rowBytes = image->width() * 4;\n    srcPixels.resize(image->height() * rowBytes);\n    SkPixmap pixmap(info, (const void*) &srcPixels.front(), rowBytes);\n    image->readPixels(pixmap, 0, 0);\n    for (int offset : { 32, 64, 96 } ) {\n        std::vector<int32_t> dstPixels;\n        dstPixels.resize(image->height() * rowBytes);\n        pixmap.readPixels(info, &dstPixels.front(), rowBytes, offset, 0);\n        SkBitmap bitmap;\n        SkPixmap dstmap(info, &dstPixels.front(), rowBytes);\n        bitmap.installPixels(dstmap);\n        canvas->translate(32, 32);\n        canvas->drawBitmap(bitmap, 0, 0);\n    }\n}\n",
     "width": 256,
     "height": 256,
     "hash": "094ca0bd37588cc7be241bb387a3e17b",
     "file": "SkPixmap_Reference",
-    "name": "SkPixmap::readPixels_3"
+    "name": "SkPixmap::readPixels_2"
 },
-    "SkPixmap_readPixels_4": {
+    "SkPixmap_readPixels_3": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());\n    std::vector<int32_t> srcPixels;\n    const int rowBytes = image->width() * 4;\n    srcPixels.resize(image->height() * rowBytes);\n    SkPixmap pixmap(info, (const void*) &srcPixels.front(), rowBytes);\n    image->readPixels(pixmap, 0, 0);\n    for (int offset : { 32, 64, 96 } ) {\n        std::vector<int32_t> dstPixels;\n        dstPixels.resize(image->height() * rowBytes);\n        SkPixmap dstmap(info, &dstPixels.front(), rowBytes);\n        pixmap.readPixels(dstmap, offset, 0);\n        SkBitmap bitmap;\n        bitmap.installPixels(dstmap);\n        canvas->translate(32, 32);\n        canvas->drawBitmap(bitmap, 0, 0);\n    }\n}\n",
     "width": 256,
     "height": 256,
     "hash": "6ec7f7b2cc163cd29f627eef6d4b061c",
     "file": "SkPixmap_Reference",
-    "name": "SkPixmap::readPixels_4"
+    "name": "SkPixmap::readPixels_3"
 },
-    "SkPixmap_readPixels_5": {
+    "SkPixmap_readPixels_4": {
     "code": "void draw(SkCanvas* canvas) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(image->width(), image->height());\n    std::vector<int32_t> srcPixels;\n    const int rowBytes = image->width() * 4;\n    srcPixels.resize(image->height() * rowBytes);\n    SkPixmap pixmap(info, (const void*) &srcPixels.front(), rowBytes);\n    image->readPixels(pixmap, 0, 0);\n    for (int index = 0; index < 3; ++index ) {\n        std::vector<int32_t> dstPixels;\n        dstPixels.resize(image->height() * rowBytes);\n        SkPixmap dstmap(info, &dstPixels.front(), rowBytes);\n        pixmap.readPixels(dstmap);\n        SkBitmap bitmap;\n        bitmap.installPixels(dstmap);\n        canvas->translate(32, 32);\n        canvas->drawBitmap(bitmap, 0, 0);\n    }\n}\n",
     "width": 256,
     "height": 256,
     "hash": "e18549b5ee1039cb61b0bb38c2104fc9",
     "file": "SkPixmap_Reference",
-    "name": "SkPixmap::readPixels_5"
+    "name": "SkPixmap::readPixels_4"
 },
     "SkPixmap_reset_2": {
     "code": "void draw(SkCanvas* canvas) {\n    std::vector<int32_t> pixels;\n    pixels.resize(image->height() * image->width() * 4);\n    SkPixmap pixmap(SkImageInfo::Make(image->width(), image->height(), kN32_SkColorType,\n            image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n    image->readPixels(pixmap, 0, 0);\n    int x = 0;\n    for (auto colorType : { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType } ) {\n        pixmap.reset(SkImageInfo::Make(image->width(), image->height(), colorType,\n                image->alphaType()), (const void*) &pixels.front(), image->width() * 4);\n        SkBitmap bitmap;\n        bitmap.installPixels(pixmap);\n        canvas->drawBitmap(bitmap, x, 0);\n        x += 128;\n    }\n}\n",
