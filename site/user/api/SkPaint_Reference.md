@@ -4037,7 +4037,7 @@ Does not alter <a href='undocumented#Typeface'>Typeface</a> <a href='undocumente
 
 ### Example
 
-<div><fiddle-embed name="5ce718e5a184baaac80e7098d7dad67b">
+<div><fiddle-embed name="d307e7e1237f39fb54d80723e5449857">
 
 #### Example Output
 
@@ -5401,7 +5401,7 @@ number of <a href='undocumented#Glyph'>Glyphs</a> represented by <a href='#SkPai
 
 ### Example
 
-<div><fiddle-embed name="85436c71aab5410767fc688ab0573e09">
+<div><fiddle-embed name="6fb11419e99297fe2fe666c296117fb9">
 
 #### Example Output
 
@@ -5682,7 +5682,7 @@ glyph count in <a href='#SkPaint_getTextWidths_text'>text</a>
 
 ### Example
 
-<div><fiddle-embed name="6b9e101f49e9c2c28755c5bdcef64dfb"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='#SkPaint_getTextWidths_text'>text</a>, but <a href='#SkPaint_getTextWidths_text'>text</a> advance remains the same.
+<div><fiddle-embed name="6fb11419e99297fe2fe666c296117fb9"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='#SkPaint_getTextWidths_text'>text</a>, but <a href='#SkPaint_getTextWidths_text'>text</a> advance remains the same.
 The underlines show the <a href='#SkPaint_getTextWidths_text'>text</a> advance, spaced to keep them distinct.
 </div></fiddle-embed></div>
 

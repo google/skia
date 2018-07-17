@@ -4749,7 +4749,7 @@ error at the image edges.
 
 ### Example
 
-<div><fiddle-embed name="5df49d1f4da37275a1f10ef7f1a749f0"><div>redBorder contains a black and white checkerboard bordered by red.
+<div><fiddle-embed name="3b7b1f884437ab450f986234e4aec27f"><div>redBorder contains a black and white checkerboard bordered by red.
 redBorder is drawn scaled by 16 on the left.
 The middle and right bitmaps are filtered checkerboards.
 Drawing the checkerboard with <a href='#SkCanvas_kStrict_SrcRectConstraint'>kStrict SrcRectConstraint</a> shows only a blur of black and white.
