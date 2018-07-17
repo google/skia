@@ -25,6 +25,52 @@
     },
     {
       "key": {
+        "uuid": "84fc28eb_8e2f3b78",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T18:51:49Z",
+      "side": 1,
+      "message": "if (this-\u003eisSubpixel()) {\n   ...\n}",
+      "range": {
+        "startLine": 656,
+        "startChar": 0,
+        "endLine": 656,
+        "endChar": 3
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "689b8615_5b3296f9",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T18:51:49Z",
+      "side": 1,
+      "message": "if (this-\u003eisSubpixel()) {\n    canvas.translate(SkFixedToScaler(glph.getSubXFixed(), ...);\n}",
+      "range": {
+        "startLine": 1060,
+        "startChar": 0,
+        "endLine": 1060,
+        "endChar": 3
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "085b34e5_ea70345f",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 13
