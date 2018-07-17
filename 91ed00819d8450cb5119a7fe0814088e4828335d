@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a8fefd4_849c557e",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-17T17:54:17Z",
+      "side": 1,
+      "message": "If we think it\u0027s worth keeping default pos around, I\u0027d prefer a non-deferred approach: we use the alloc/caller-fill pattern to avoid forcing the caller to consolidate the data (make extra copies), but for default pos there is little incentive.\n\nSo how about replacing these with addRun (addRunText if needed), where the caller passes glyphs upfront and the builder copies the data/injects positions immediately?  I think that would avoid all the pending-positions complexity.",
+      "range": {
+        "startLine": 191,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "91ed00819d8450cb5119a7fe0814088e4828335d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
