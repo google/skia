@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "75c4fde4_7baad8db",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T20:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c984554b_82721f7d",
+      "range": {
+        "startLine": 655,
+        "startChar": 0,
+        "endLine": 655,
+        "endChar": 4
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84fc28eb_8e2f3b78",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b17f1d70_1889aa22",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 656,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T20:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "84fc28eb_8e2f3b78",
+      "range": {
+        "startLine": 656,
+        "startChar": 0,
+        "endLine": 656,
+        "endChar": 3
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "8a55eedf_187e78e1",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1060,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T20:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "689b8615_5b3296f9",
+      "range": {
+        "startLine": 1060,
+        "startChar": 0,
+        "endLine": 1060,
+        "endChar": 3
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "085b34e5_ea70345f",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 13
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "eefde724_0d0d4bee",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T20:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "085b34e5_ea70345f",
+      "range": {
+        "startLine": 1060,
+        "startChar": 3,
+        "endLine": 1063,
+        "endChar": 31
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edbf989c_177e382e",
         "filename": "src/ports/SkScalerContext_win_dw.cpp",
         "patchSetId": 13
@@ -114,6 +210,30 @@
       "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c8e8abf_e3d90166",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 1064,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-17T20:23:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edbf989c_177e382e",
+      "range": {
+        "startLine": 1064,
+        "startChar": 0,
+        "endLine": 1064,
+        "endChar": 4
+      },
+      "revId": "a40815e1643226c0adaa1e21a24bd31a26aed14e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
