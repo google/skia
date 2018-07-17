@@ -27,10 +27,14 @@ mkdir -p out/wasm
 em++ -Oz -std=c++14 \
 -Iinclude/config \
 -Iinclude/core \
--Iinclude/private \
+-Iinclude/gpu \
 -Iinclude/pathops \
+-Iinclude/private \
 -Iinclude/utils \
 -Isrc/core \
+-Isrc/gpu \
+-Isrc/shaders \
+-Isrc/opts \
 --bind \
 -s WASM=1 \
 -s NO_EXIT_RUNTIME=1 \
@@ -39,15 +43,27 @@ em++ -Oz -std=c++14 \
 --shell-file $HTML_SHELL \
 -o out/wasm/pathkit.html \
 experimental/wasm/wasm_main.cpp \
+src/core/SkAnalyticEdge.cpp \
 src/core/SkArenaAlloc.cpp \
+src/core/SkBlitter.cpp \
+src/core/SkCoverageDelta.cpp \
+src/core/SkEdge.cpp \
+src/core/SkEdgeBuilder.cpp \
+src/core/SkEdgeClipper.cpp \
+src/core/SkFDot6Constants.cpp \
 src/core/SkGeometry.cpp \
+src/core/SkLineClipper.cpp \
 src/core/SkMallocPixelRef.cpp \
 src/core/SkMath.cpp \
 src/core/SkMatrix.cpp \
+src/core/SkOpts.cpp \
 src/core/SkPath.cpp \
 src/core/SkPathRef.cpp \
 src/core/SkPoint.cpp \
 src/core/SkRect.cpp \
+src/core/SkRegion.cpp \
+src/core/SkRegion_path.cpp \
+src/core/SkScan_Path.cpp \
 src/core/SkStream.cpp \
 src/core/SkString.cpp \
 src/core/SkStringUtils.cpp \

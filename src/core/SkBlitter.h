@@ -9,9 +9,9 @@
 #define SkBlitter_DEFINED
 
 #include "SkAutoMalloc.h"
-#include "SkBitmapProcShader.h"
 #include "SkColor.h"
 #include "SkCoverageDelta.h"
+#include "SkImagePriv.h"
 #include "SkRect.h"
 #include "SkRegion.h"
 #include "SkShaderBase.h"
