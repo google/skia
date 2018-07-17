@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1df9736e_1bb8b768",
+        "filename": "DEPS",
+        "patchSetId": 15
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-17T18:18:56Z",
+      "side": 1,
+      "message": "Can we please mirror these or remove them from the DEPS?  What happens when github goes down?",
+      "revId": "c069a57301a468dbc45f3f3775b623e5532f9398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
