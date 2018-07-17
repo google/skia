@@ -161,9 +161,61 @@ private:
     typedef GM INHERITED;
 };
 
-//////////////////////////////////////////////////////////////////////////////
-
 static GM* PathEffectFactory(void*) { return new PathEffectGM; }
 static GMRegistry regPathEffect(PathEffectFactory);
 
 }
+
+//////////////////////////////////////////////////////////////////////////////
+#include "SkOpPathEffect.h"
+
+class ComboPathEfectsGM : public skiagm::GM {
+public:
+    ComboPathEfectsGM() {}
+
+protected:
+
+    SkString onShortName() override {
+        return SkString("combo-patheffects");
+    }
+
+    SkISize onISize() override { return SkISize::Make(800, 600); }
+
+    void onDraw(SkCanvas* canvas) override {
+        SkPath path;
+        path.addCircle(100, 100, 60);
+
+        sk_sp<SkPathEffect> effects[] = {
+            nullptr,
+            SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
+            SkTranslatePathEffect::Make(15, 15),
+            SkOpPathEffect::Make(nullptr,
+                                 SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
+                                 kDifference_SkPathOp),
+            SkOpPathEffect::Make(SkTranslatePathEffect::Make(50, 0),
+                                 SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
+                                 kReverseDifference_SkPathOp),
+        };
+
+        SkPaint wireframe;
+        wireframe.setStyle(SkPaint::kStroke_Style);
+        wireframe.setAntiAlias(true);
+
+        SkPaint paint;
+        paint.setColor(0xFF8888FF);
+        paint.setAntiAlias(true);
+
+        for (auto pe : effects) {
+            paint.setPathEffect(pe);
+            canvas->drawPath(path, paint);
+            canvas->drawPath(path, wireframe);
+
+            canvas->translate(0, 150);
+        }
+    }
+
+private:
+    typedef GM INHERITED;
+};
+DEF_GM(return new ComboPathEfectsGM;)
+
