@@ -226,6 +226,12 @@ void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, const SkMatri
                                        int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     const sk_sp<SkVertices> verts = sk_ref_sp(vertices);  // retain vertices until flush
     SkRect drawBounds = SkRectPriv::MakeLargest(); // TODO tighter drawBounds
+
+    // Make the bone matrices thread-safe.
+    for (int i = 0; i < boneCount; i ++) {
+        bones[i].getType();
+    }
+
     fQueue.push(drawBounds, [=](SkArenaAlloc*, const DrawState& ds, const SkIRect& tileBounds){
         TileDraw(ds, tileBounds).drawVertices(verts->mode(), verts->vertexCount(),
                                               verts->positions(), verts->texCoords(),
