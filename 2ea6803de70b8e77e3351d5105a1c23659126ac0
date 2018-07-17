@@ -22,6 +22,30 @@
       "revId": "2ea6803de70b8e77e3351d5105a1c23659126ac0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f53e1c2c_0f31ba8b",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-17T17:42:10Z",
+      "side": 1,
+      "message": "Done, but higher up (in DrawPlanes). I will draw using vertices and remove path drawing in P.",
+      "parentUuid": "5e5366ca_ee575dbc",
+      "range": {
+        "startLine": 216,
+        "startChar": 29,
+        "endLine": 216,
+        "endChar": 33
+      },
+      "revId": "2ea6803de70b8e77e3351d5105a1c23659126ac0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
