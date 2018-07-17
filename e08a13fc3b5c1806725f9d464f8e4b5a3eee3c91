@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55054e4f_708b5da3",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 610,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T21:09:58Z",
+      "side": 1,
+      "message": "Since this doesn\u0027t all fit on one line, format like...\n\n    Context(...)\n        : fontFace4(...)\n        , glyphDataContext(...)\n    {}",
+      "range": {
+        "startLine": 609,
+        "startChar": 52,
+        "endLine": 610,
+        "endChar": 36
+      },
+      "revId": "e08a13fc3b5c1806725f9d464f8e4b5a3eee3c91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0e8bb0c_914da04f",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T21:09:58Z",
+      "side": 1,
+      "message": "should remove these spaces. The string here is actually the second parameter to HRVM.",
+      "range": {
+        "startLine": 633,
+        "startChar": 9,
+        "endLine": 633,
+        "endChar": 38
+      },
+      "revId": "e08a13fc3b5c1806725f9d464f8e4b5a3eee3c91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ef989968_ed9d1f8e",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-17T21:09:58Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 1047,
+        "startChar": 9,
+        "endLine": 1047,
+        "endChar": 38
+      },
+      "revId": "e08a13fc3b5c1806725f9d464f8e4b5a3eee3c91",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
