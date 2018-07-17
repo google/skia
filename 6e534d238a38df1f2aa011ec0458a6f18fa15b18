@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de5b4c4b_074d1157",
+        "filename": "src/core/SkTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-17T20:50:27Z",
+      "side": 1,
+      "message": "allocPosH and push only X coordinates?\n\nSince this is only used for testing, it\u0027s not critical - maybe you can add a todo/note.",
+      "range": {
+        "startLine": 903,
+        "startChar": 35,
+        "endLine": 903,
+        "endChar": 46
+      },
+      "revId": "6e534d238a38df1f2aa011ec0458a6f18fa15b18",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
