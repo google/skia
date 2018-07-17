@@ -690,7 +690,7 @@ draw all colors possible to a <a href='#kRGB_101010x_SkColorType'>kRGB_101010x_S
 
 ### Example
 
-<div><fiddle-embed name="92f81aa0459230459600a01e79ccff29"></fiddle-embed></div>
+<div><fiddle-embed name="d8439ba8d23a424fa032fb97147fd2d2"></fiddle-embed></div>
 
 ### See Also
 
@@ -1469,7 +1469,7 @@ created <a href='#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="de418ccb42471d1589508ef3955f8c53"><div>Top gradient is drawn to offScreen without <a href='undocumented#Color_Space'>Color Space</a>. It is darker than middle
+<div><fiddle-embed name="a2b1e0910f37066f15ae56368775a6d8"><div>Top gradient is drawn to offScreen without <a href='undocumented#Color_Space'>Color Space</a>. It is darker than middle
 gradient, drawn to offScreen with sRGB <a href='undocumented#Color_Space'>Color Space</a>. Bottom gradient shares bits
 with middle, but does not specify the <a href='undocumented#Color_Space'>Color Space</a> in noColorSpaceBitmap. A source
 without <a href='undocumented#Color_Space'>Color Space</a> is treated as sRGB; the bottom gradient is identical to the
@@ -1870,7 +1870,7 @@ Returns <a href='undocumented#Color_Space'>Color Space</a>, the range of colors.
 
 ### Example
 
-<div><fiddle-embed name="5602b816d7cf75e3851274ef36a4c10f"><div><a href='undocumented#SkColorSpace_MakeSRGBLinear'>SkColorSpace::MakeSRGBLinear</a> creates <a href='undocumented#Color_Space'>Color Space</a> with linear gamma
+<div><fiddle-embed name="6fb11419e99297fe2fe666c296117fb9"><div><a href='undocumented#SkColorSpace_MakeSRGBLinear'>SkColorSpace::MakeSRGBLinear</a> creates <a href='undocumented#Color_Space'>Color Space</a> with linear gamma
 and an sRGB gamut. This <a href='undocumented#Color_Space'>Color Space</a> gamma is not close to sRGB gamma.
 </div>
 
