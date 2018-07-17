@@ -49,6 +49,14 @@ public:
     , fShort2_Type(new Type("short2", *fShort_Type, 2))
     , fShort3_Type(new Type("short3", *fShort_Type, 3))
     , fShort4_Type(new Type("short4", *fShort_Type, 4))
+    , fUByte_Type(new Type("ubyte", Type::kUnsigned_NumberKind, 0))
+    , fUByte2_Type(new Type("ubyte2", *fUByte_Type, 2))
+    , fUByte3_Type(new Type("ubyte3", *fUByte_Type, 3))
+    , fUByte4_Type(new Type("ubyte4", *fUByte_Type, 4))
+    , fByte_Type(new Type("byte", Type::kSigned_NumberKind, 0))
+    , fByte2_Type(new Type("byte2", *fByte_Type, 2))
+    , fByte3_Type(new Type("byte3", *fByte_Type, 3))
+    , fByte4_Type(new Type("byte4", *fByte_Type, 4))
     , fBool_Type(new Type("bool", Type::kNonnumeric_NumberKind, -1))
     , fBool2_Type(new Type("bool2", *fBool_Type, 2))
     , fBool3_Type(new Type("bool3", *fBool_Type, 3))
@@ -180,6 +188,10 @@ public:
                                      fShort3_Type.get(), fShort4_Type.get() }))
     , fUSVec_Type(new Type("$usvec", { fInvalid_Type.get(), fUShort2_Type.get(),
                                        fUShort3_Type.get(), fUShort4_Type.get() }))
+    , fByteVec_Type(new Type("$bytevec", { fInvalid_Type.get(), fByte2_Type.get(),
+                                     fByte3_Type.get(), fByte4_Type.get() }))
+    , fUByteVec_Type(new Type("$ubytevec", { fInvalid_Type.get(), fUByte2_Type.get(),
+                                       fUByte3_Type.get(), fUByte4_Type.get() }))
     , fBVec_Type(new Type("$bvec", { fInvalid_Type.get(), fBool2_Type.get(),
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
@@ -229,6 +241,16 @@ public:
     const std::unique_ptr<Type> fShort2_Type;
     const std::unique_ptr<Type> fShort3_Type;
     const std::unique_ptr<Type> fShort4_Type;
+
+    const std::unique_ptr<Type> fUByte_Type;
+    const std::unique_ptr<Type> fUByte2_Type;
+    const std::unique_ptr<Type> fUByte3_Type;
+    const std::unique_ptr<Type> fUByte4_Type;
+
+    const std::unique_ptr<Type> fByte_Type;
+    const std::unique_ptr<Type> fByte2_Type;
+    const std::unique_ptr<Type> fByte3_Type;
+    const std::unique_ptr<Type> fByte4_Type;
 
     const std::unique_ptr<Type> fBool_Type;
     const std::unique_ptr<Type> fBool2_Type;
@@ -328,6 +350,8 @@ public:
     const std::unique_ptr<Type> fUVec_Type;
     const std::unique_ptr<Type> fSVec_Type;
     const std::unique_ptr<Type> fUSVec_Type;
+    const std::unique_ptr<Type> fByteVec_Type;
+    const std::unique_ptr<Type> fUByteVec_Type;
 
     const std::unique_ptr<Type> fBVec_Type;
 

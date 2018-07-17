@@ -147,7 +147,8 @@ private:
             LocalCoords::Type localCoordsType = fHelper.usesLocalCoords()
                                                         ? LocalCoords::kUsePosition_Type
                                                         : LocalCoords::kUnused_Type;
-            gp = GrDefaultGeoProcFactory::Make(color, Coverage::kSolid_Type, localCoordsType,
+            gp = GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(), color,
+                                               Coverage::kSolid_Type, localCoordsType,
                                                fViewMatrix);
         }
 

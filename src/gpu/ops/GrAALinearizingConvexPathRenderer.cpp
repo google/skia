@@ -112,7 +112,8 @@ static void extract_verts(const GrAAConvexTessellator& tess,
     }
 }
 
-static sk_sp<GrGeometryProcessor> create_lines_only_gp(bool tweakAlphaForCoverage,
+static sk_sp<GrGeometryProcessor> create_lines_only_gp(const GrShaderCaps* shaderCaps,
+                                                       bool tweakAlphaForCoverage,
                                                        const SkMatrix& viewMatrix,
                                                        bool usesLocalCoords) {
     using namespace GrDefaultGeoProcFactory;
@@ -125,7 +126,10 @@ static sk_sp<GrGeometryProcessor> create_lines_only_gp(bool tweakAlphaForCoverag
     }
     LocalCoords::Type localCoordsType =
             usesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-    return MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type, coverageType, localCoordsType,
+    return MakeForDeviceSpace(shaderCaps,
+                              Color::kPremulGrColorAttribute_Type,
+                              coverageType,
+                              localCoordsType,
                               viewMatrix);
 }
 
@@ -240,7 +244,8 @@ private:
     void onPrepareDraws(Target* target) override {
         auto pipe = fHelper.makePipeline(target);
         // Setup GrGeometryProcessor
-        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(fHelper.compatibleWithAlphaAsCoverage(),
+        sk_sp<GrGeometryProcessor> gp(create_lines_only_gp(target->caps().shaderCaps(),
+                                                           fHelper.compatibleWithAlphaAsCoverage(),
                                                            this->viewMatrix(),
                                                            fHelper.usesLocalCoords()));
         if (!gp) {

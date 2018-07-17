@@ -82,10 +82,14 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
             else if (component == *fContext.fDouble_Type) {
                 result = "dvec";
             }
-            else if (component == *fContext.fInt_Type || component == *fContext.fShort_Type) {
+            else if (component == *fContext.fInt_Type ||
+                     component == *fContext.fShort_Type ||
+                     component == *fContext.fByte_Type) {
                 result = "ivec";
             }
-            else if (component == *fContext.fUInt_Type || component == *fContext.fUShort_Type) {
+            else if (component == *fContext.fUInt_Type ||
+                     component == *fContext.fUShort_Type ||
+                     component == *fContext.fUByte_Type) {
                 result = "uvec";
             }
             else if (component == *fContext.fBool_Type) {
@@ -132,6 +136,12 @@ String GLSLCodeGenerator::getTypeName(const Type& type) {
                 return "int";
             }
             else if (type == *fContext.fUShort_Type) {
+                return "uint";
+            }
+            else if (type == *fContext.fByte_Type) {
+                return "int";
+            }
+            else if (type == *fContext.fUByte_Type) {
                 return "uint";
             }
             else {
@@ -857,7 +867,9 @@ void GLSLCodeGenerator::writeIntLiteral(const IntLiteral& i) {
         this->write(to_string(i.fValue & 0xffffffff) + "u");
     } else if (i.fType == *fContext.fUShort_Type) {
         this->write(to_string(i.fValue & 0xffff) + "u");
-     } else {
+    } else if (i.fType == *fContext.fUByte_Type) {
+        this->write(to_string(i.fValue & 0xff) + "u");
+    } else {
         this->write(to_string((int32_t) i.fValue));
     }
 }
@@ -1018,7 +1030,8 @@ const char* GLSLCodeGenerator::getTypePrecision(const Type& type) {
     if (usesPrecisionModifiers()) {
         switch (type.kind()) {
             case Type::kScalar_Kind:
-                if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type) {
+                if (type == *fContext.fShort_Type || type == *fContext.fUShort_Type ||
+                    type == *fContext.fByte_Type || type == *fContext.fUByte_Type) {
                     if (fProgram.fSettings.fForceHighPrecision ||
                             fProgram.fSettings.fCaps->incompleteShortIntPrecision()) {
                         return "highp ";

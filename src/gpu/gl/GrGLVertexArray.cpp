@@ -41,6 +41,22 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {false, 3, GR_GL_INT};
         case kInt4_GrVertexAttribType:
             return {false, 4, GR_GL_INT};
+        case kByte_GrVertexAttribType:
+            return {false, 1, GR_GL_BYTE};
+        case kByte2_GrVertexAttribType:
+            return {false, 2, GR_GL_BYTE};
+        case kByte3_GrVertexAttribType:
+            return {false, 3, GR_GL_BYTE};
+        case kByte4_GrVertexAttribType:
+            return {false, 4, GR_GL_BYTE};
+        case kUByte_GrVertexAttribType:
+            return {false, 1, GR_GL_UNSIGNED_BYTE};
+        case kUByte2_GrVertexAttribType:
+            return {false, 2, GR_GL_UNSIGNED_BYTE};
+        case kUByte3_GrVertexAttribType:
+            return {false, 3, GR_GL_UNSIGNED_BYTE};
+        case kUByte4_GrVertexAttribType:
+            return {false, 4, GR_GL_UNSIGNED_BYTE};
         case kUByte_norm_GrVertexAttribType:
             return {true, 1, GR_GL_UNSIGNED_BYTE};
         case kUByte4_norm_GrVertexAttribType:
@@ -84,6 +100,22 @@ static bool GrVertexAttribTypeIsIntType(const GrShaderCaps* shaderCaps,
         case kInt3_GrVertexAttribType:
             return true;
         case kInt4_GrVertexAttribType:
+            return true;
+        case kByte_GrVertexAttribType:
+            return true;
+        case kByte2_GrVertexAttribType:
+            return true;
+        case kByte3_GrVertexAttribType:
+            return true;
+        case kByte4_GrVertexAttribType:
+            return true;
+        case kUByte_GrVertexAttribType:
+            return true;
+        case kUByte2_GrVertexAttribType:
+            return true;
+        case kUByte3_GrVertexAttribType:
+            return true;
+        case kUByte4_GrVertexAttribType:
             return true;
         case kUByte_norm_GrVertexAttribType:
             return false;

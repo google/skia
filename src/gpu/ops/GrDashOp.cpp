@@ -392,7 +392,10 @@ private:
             Color color(this->color());
             LocalCoords::Type localCoordsType =
                     fUsesLocalCoords ? LocalCoords::kUsePosition_Type : LocalCoords::kUnused_Type;
-            gp = MakeForDeviceSpace(color, Coverage::kSolid_Type, localCoordsType,
+            gp = MakeForDeviceSpace(target->caps().shaderCaps(),
+                                    color,
+                                    Coverage::kSolid_Type,
+                                    localCoordsType,
                                     this->viewMatrix());
         }
 

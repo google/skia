@@ -399,6 +399,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
     shaderCaps->fFloatIs32Bits = true;
     shaderCaps->fHalfIs32Bits = false;
 
+    // SPIR-V supports unsigned integers.
+    shaderCaps->fUnsignedSupport = true;
+
     shaderCaps->fMaxVertexSamplers =
     shaderCaps->fMaxGeometrySamplers =
     shaderCaps->fMaxFragmentSamplers = SkTMin(

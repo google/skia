@@ -86,7 +86,8 @@ private:
                       const GrBuffer* indexBuffer,
                       int firstIndex);
 
-    sk_sp<GrGeometryProcessor> makeGP(bool* hasColorAttribute,
+    sk_sp<GrGeometryProcessor> makeGP(const GrShaderCaps* shaderCaps,
+                                      bool* hasColorAttribute,
                                       bool* hasLocalCoordAttribute,
                                       bool* hasBoneAttribute) const;
 

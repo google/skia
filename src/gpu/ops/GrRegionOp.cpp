@@ -19,10 +19,12 @@
 static const int kVertsPerInstance = 4;
 static const int kIndicesPerInstance = 6;
 
-static sk_sp<GrGeometryProcessor> make_gp(const SkMatrix& viewMatrix) {
+static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps,
+                                          const SkMatrix& viewMatrix) {
     using namespace GrDefaultGeoProcFactory;
-    return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type, Coverage::kSolid_Type,
-                                         LocalCoords::kUsePosition_Type, viewMatrix);
+    return GrDefaultGeoProcFactory::Make(shaderCaps, Color::kPremulGrColorAttribute_Type,
+                                         Coverage::kSolid_Type, LocalCoords::kUsePosition_Type,
+                                         viewMatrix);
 }
 
 static void tesselate_region(intptr_t vertices,
@@ -109,7 +111,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp(fViewMatrix);
+        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps(), fViewMatrix);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

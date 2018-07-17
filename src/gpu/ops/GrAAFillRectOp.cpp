@@ -255,7 +255,8 @@ private:
         }
 
         sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(color, coverageType, lc, SkMatrix::I());
+                GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(), color, coverageType,
+                                              lc, SkMatrix::I());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

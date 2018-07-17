@@ -99,7 +99,8 @@ private:
         static const int kLocalOffset = sizeof(SkPoint) + sizeof(GrColor);
 
         sk_sp<GrGeometryProcessor> gp =
-                GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+                GrDefaultGeoProcFactory::Make(target->caps().shaderCaps(),
+                                              Color::kPremulGrColorAttribute_Type,
                                               Coverage::kSolid_Type,
                                               fHasLocalRect ? LocalCoords::kHasExplicit_Type
                                                             : LocalCoords::kUnused_Type,

@@ -285,6 +285,7 @@ gm_sources = [
   "$_gm/skbug_4868.cpp",
   "$_gm/skbug_5321.cpp",
   "$_gm/skbug1719.cpp",
+  "$_gm/skinning.cpp",
   "$_gm/smallarc.cpp",
   "$_gm/smallpaths.cpp",
   "$_gm/spritebitmap.cpp",

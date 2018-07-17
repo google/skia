@@ -29,13 +29,17 @@ static const int kIndicesPerRect = 6;
 
     The vertex attrib order is always pos, color, [local coords].
  */
-static sk_sp<GrGeometryProcessor> make_gp() {
+static sk_sp<GrGeometryProcessor> make_gp(const GrShaderCaps* shaderCaps) {
     using namespace GrDefaultGeoProcFactory;
-    return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type, Coverage::kSolid_Type,
-                                         LocalCoords::kHasExplicit_Type, SkMatrix::I());
+    return GrDefaultGeoProcFactory::Make(shaderCaps,
+                                         Color::kPremulGrColorAttribute_Type,
+                                         Coverage::kSolid_Type,
+                                         LocalCoords::kHasExplicit_Type,
+                                         SkMatrix::I());
 }
 
-static sk_sp<GrGeometryProcessor> make_perspective_gp(const SkMatrix& viewMatrix,
+static sk_sp<GrGeometryProcessor> make_perspective_gp(const GrShaderCaps* shaderCaps,
+                                                      const SkMatrix& viewMatrix,
                                                       bool hasExplicitLocalCoords,
                                                       const SkMatrix* localMatrix) {
     SkASSERT(viewMatrix.hasPerspective() || (localMatrix && localMatrix->hasPerspective()));
@@ -50,15 +54,16 @@ static sk_sp<GrGeometryProcessor> make_perspective_gp(const SkMatrix& viewMatrix
         LocalCoords localCoords(hasExplicitLocalCoords ? LocalCoords::kHasExplicit_Type
                                                        : LocalCoords::kUsePosition_Type,
                                 localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+        return GrDefaultGeoProcFactory::Make(shaderCaps, Color::kPremulGrColorAttribute_Type,
                                              Coverage::kSolid_Type, localCoords, viewMatrix);
     } else if (hasExplicitLocalCoords) {
         LocalCoords localCoords(LocalCoords::kHasExplicit_Type, localMatrix);
-        return GrDefaultGeoProcFactory::Make(Color::kPremulGrColorAttribute_Type,
+        return GrDefaultGeoProcFactory::Make(shaderCaps, Color::kPremulGrColorAttribute_Type,
                                              Coverage::kSolid_Type, localCoords, SkMatrix::I());
     } else {
         LocalCoords localCoords(LocalCoords::kUsePosition_Type, localMatrix);
-        return GrDefaultGeoProcFactory::MakeForDeviceSpace(Color::kPremulGrColorAttribute_Type,
+        return GrDefaultGeoProcFactory::MakeForDeviceSpace(shaderCaps,
+                                                           Color::kPremulGrColorAttribute_Type,
                                                            Coverage::kSolid_Type, localCoords,
                                                            viewMatrix);
     }
@@ -174,7 +179,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrGeometryProcessor> gp = make_gp();
+        sk_sp<GrGeometryProcessor> gp = make_gp(target->caps().shaderCaps());
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -304,7 +309,10 @@ public:
 private:
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp = make_perspective_gp(
-                fViewMatrix, fHasLocalRect, fHasLocalMatrix ? &fLocalMatrix : nullptr);
+                target->caps().shaderCaps(),
+                fViewMatrix,
+                fHasLocalRect,
+                fHasLocalMatrix ? &fLocalMatrix : nullptr);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;

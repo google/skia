@@ -190,13 +190,13 @@ LLVMTypeRef JIT::getType(const Type& type) {
             if (type.name() == "float4" || type.name() == "half4") {
                 return fFloat32Vector4Type;
             }
-            if (type.name() == "int2" || type.name() == "short2") {
+            if (type.name() == "int2" || type.name() == "short2" || type.name == "byte2") {
                 return fInt32Vector2Type;
             }
-            if (type.name() == "int3" || type.name() == "short3") {
+            if (type.name() == "int3" || type.name() == "short3" || type.name == "byte3") {
                 return fInt32Vector3Type;
             }
-            if (type.name() == "int4" || type.name() == "short4") {
+            if (type.name() == "int4" || type.name() == "short4" || type.name == "byte3") {
                 return fInt32Vector4Type;
             }
             // fall through
@@ -402,9 +402,9 @@ JIT::TypeKind JIT::typeKind(const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return this->typeKind(type.componentType());
     }
-    if (type.fName == "int" || type.fName == "short") {
+    if (type.fName == "int" || type.fName == "short" || type.fName == "byte") {
         return JIT::kInt_TypeKind;
-    } else if (type.fName == "uint" || type.fName == "ushort") {
+    } else if (type.fName == "uint" || type.fName == "ushort" || type.fName == "ubyte") {
         return JIT::kUInt_TypeKind;
     } else if (type.fName == "float" || type.fName == "double") {
         return JIT::kFloat_TypeKind;

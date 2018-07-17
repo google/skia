@@ -10,6 +10,7 @@
 
 #include "GrColorSpaceXform.h"
 #include "GrGeometryProcessor.h"
+#include "GrShaderCaps.h"
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
@@ -127,7 +128,8 @@ namespace GrDefaultGeoProcFactory {
         int fBoneCount;
     };
 
-    sk_sp<GrGeometryProcessor> Make(const Color&,
+    sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
+                                    const Color&,
                                     const Coverage&,
                                     const LocalCoords&,
                                     const SkMatrix& viewMatrix);
@@ -137,7 +139,8 @@ namespace GrDefaultGeoProcFactory {
      * attribute. The view matrix must still be provided to compute correctly transformed
      * coordinates for GrFragmentProcessors. It may fail if the view matrix is not invertible.
      */
-    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const Color&,
+    sk_sp<GrGeometryProcessor> MakeForDeviceSpace(const GrShaderCaps*,
+                                                  const Color&,
                                                   const Coverage&,
                                                   const LocalCoords&,
                                                   const SkMatrix& viewMatrix);
@@ -147,7 +150,8 @@ namespace GrDefaultGeoProcFactory {
      * deformation of vertices using matrices that are passed in. This should only be called from
      * GrDrawVerticesOp.
      */
-    sk_sp<GrGeometryProcessor> MakeWithBones(const Color&,
+    sk_sp<GrGeometryProcessor> MakeWithBones(const GrShaderCaps*,
+                                             const Color&,
                                              const Coverage&,
                                              const LocalCoords&,
                                              const Bones&,

@@ -7,6 +7,7 @@
 
 #include "GrDefaultGeoProcFactory.h"
 
+#include "GrCaps.h"
 #include "SkRefCnt.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -30,12 +31,13 @@ enum GPFlag {
     kBonesAttribute_GPFlag          = 0x10,
 };
 
-static constexpr int kMaxBones = 100; // Due to GPU memory limitations, only up to 100 bone
-                                      // matrices are accepted.
+static constexpr int kMaxBones = 80; // Due to GPU memory limitations, only up to 80 bone
+                                     // matrices are accepted.
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
-    static sk_sp<GrGeometryProcessor> Make(uint32_t gpTypeFlags,
+    static sk_sp<GrGeometryProcessor> Make(const GrShaderCaps* shaderCaps,
+                                           uint32_t gpTypeFlags,
                                            GrColor color,
                                            sk_sp<GrColorSpaceXform> colorSpaceXform,
                                            const SkMatrix& viewMatrix,
@@ -45,8 +47,8 @@ public:
                                            const float* bones,
                                            int boneCount) {
         return sk_sp<GrGeometryProcessor>(new DefaultGeoProc(
-                gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix, coverage,
-                localCoordsWillBeRead, bones, boneCount));
+                shaderCaps, gpTypeFlags, color, std::move(colorSpaceXform), viewMatrix, localMatrix,
+                coverage, localCoordsWillBeRead, bones, boneCount));
     }
 
     const char* name() const override { return "DefaultGeometryProcessor"; }
@@ -118,17 +120,26 @@ public:
                                                                 kMaxBones,
                                                                 &vertBonesUniformName);
                 vertBuilder->codeAppendf(
-                        "float2 transformedPosition = (%s[0] * float3(%s, 1)).xy;"
-                        "float3x3 influence = float3x3(0);"
-                        "for (int i = 0; i < 4; i++) {"
-                        "   int index = %s[i];"
-                        "   float weight = %s[i];"
-                        "   influence += %s[index] * weight;"
-                        "}"
-                        "transformedPosition = (influence * float3(transformedPosition, 1)).xy;",
+                        "float3 originalPosition = %s[0] * float3(%s, 1);"
+                        "float2 transformedPosition = float2(0);"
+                        "for (int i = 0; i < 4; i++) {",
                         vertBonesUniformName,
-                        gp.fInPosition.name(),
-                        gp.fInBoneIndices.name(),
+                        gp.fInPosition.name());
+
+                if (args.fShaderCaps->unsignedSupport()) {
+                    vertBuilder->codeAppendf(
+                        "    byte index = %s[i];",
+                        gp.fInBoneIndices.name());
+                } else {
+                    vertBuilder->codeAppendf(
+                        "    byte index = byte(floor(%s[i] * 255 + 0.5));",
+                        gp.fInBoneIndices.name());
+                }
+
+                vertBuilder->codeAppendf(
+                        "    float weight = %s[i];"
+                        "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
+                        "}",
                         gp.fInBoneWeights.name(),
                         vertBonesUniformName);
                 transformedPositionName = "transformedPosition";
@@ -243,7 +254,8 @@ public:
     }
 
 private:
-    DefaultGeoProc(uint32_t gpTypeFlags,
+    DefaultGeoProc(const GrShaderCaps* shaderCaps,
+                   uint32_t gpTypeFlags,
                    GrColor color,
                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                    const SkMatrix& viewMatrix,
@@ -278,9 +290,13 @@ private:
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
-            fInBoneIndices = {"inBoneIndices", kInt4_GrVertexAttribType};
+            // GLSL 1.10 and 1.20 don't support integer attributes.
+            GrVertexAttribType indicesAttribType =
+                    shaderCaps->unsignedSupport() ? kByte4_GrVertexAttribType :
+                                                    kUByte4_norm_GrVertexAttribType;
+            fInBoneIndices = {"inBoneIndices", indicesAttribType};
             ++cnt;
-            fInBoneWeights = {"inBoneWeights", kFloat4_GrVertexAttribType};
+            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType};
             ++cnt;
         }
         this->setVertexAttributeCnt(cnt);
@@ -347,7 +363,8 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
         flags |= kBonesAttribute_GPFlag;
     }
 
-    return DefaultGeoProc::Make(flags,
+    return DefaultGeoProc::Make(d->caps()->shaderCaps(),
+                                flags,
                                 GrRandomColor(d->fRandom),
                                 GrTest::TestColorXform(d->fRandom),
                                 GrTest::TestMatrix(d->fRandom),
@@ -359,7 +376,8 @@ sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {
 }
 #endif
 
-sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
+sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const GrShaderCaps* shaderCaps,
+                                                         const Color& color,
                                                          const Coverage& coverage,
                                                          const LocalCoords& localCoords,
                                                          const SkMatrix& viewMatrix) {
@@ -376,7 +394,8 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     GrColor inColor = color.fColor;
-    return DefaultGeoProc::Make(flags,
+    return DefaultGeoProc::Make(shaderCaps,
+                                flags,
                                 inColor,
                                 color.fColorSpaceXform,
                                 viewMatrix,
@@ -388,6 +407,7 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::Make(const Color& color,
 }
 
 sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
+                                                                     const GrShaderCaps* shaderCaps,
                                                                      const Color& color,
                                                                      const Coverage& coverage,
                                                                      const LocalCoords& localCoords,
@@ -405,10 +425,11 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeForDeviceSpace(
     }
 
     LocalCoords inverted(LocalCoords::kUsePosition_Type, &invert);
-    return Make(color, coverage, inverted, SkMatrix::I());
+    return Make(shaderCaps, color, coverage, inverted, SkMatrix::I());
 }
 
-sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const Color& color,
+sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const GrShaderCaps* shaderCaps,
+                                                                  const Color& color,
                                                                   const Coverage& coverage,
                                                                   const LocalCoords& localCoords,
                                                                   const Bones& bones,
@@ -427,7 +448,8 @@ sk_sp<GrGeometryProcessor> GrDefaultGeoProcFactory::MakeWithBones(const Color& c
     bool localCoordsWillBeRead = localCoords.fType != LocalCoords::kUnused_Type;
 
     GrColor inColor = color.fColor;
-    return DefaultGeoProc::Make(flags,
+    return DefaultGeoProc::Make(shaderCaps,
+                                flags,
                                 inColor,
                                 color.fColorSpaceXform,
                                 viewMatrix,

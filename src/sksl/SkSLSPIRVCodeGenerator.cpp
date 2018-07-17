@@ -154,14 +154,16 @@ static bool is_signed(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_signed(context, type.componentType());
     }
-    return type == *context.fInt_Type || type == *context.fShort_Type;
+    return type == *context.fInt_Type || type == *context.fShort_Type ||
+           type == *context.fByte_Type;
 }
 
 static bool is_unsigned(const Context& context, const Type& type) {
     if (type.kind() == Type::kVector_Kind) {
         return is_unsigned(context, type.componentType());
     }
-    return type == *context.fUInt_Type || type == *context.fUShort_Type;
+    return type == *context.fUInt_Type || type == *context.fUShort_Type ||
+           type == *context.fUByte_Type;
 }
 
 static bool is_bool(const Context& context, const Type& type) {
@@ -433,20 +435,22 @@ Type SPIRVCodeGenerator::getActualType(const Type& type) {
     if (type == *fContext.fHalf_Type) {
         return *fContext.fFloat_Type;
     }
-    if (type == *fContext.fShort_Type) {
+    if (type == *fContext.fShort_Type || type == *fContext.fByte_Type) {
         return *fContext.fInt_Type;
     }
-    if (type == *fContext.fUShort_Type) {
+    if (type == *fContext.fUShort_Type || type == *fContext.fUByte_Type) {
         return *fContext.fUInt_Type;
     }
     if (type.kind() == Type::kMatrix_Kind || type.kind() == Type::kVector_Kind) {
         if (type.componentType() == *fContext.fHalf_Type) {
             return fContext.fFloat_Type->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fShort_Type) {
+        if (type.componentType() == *fContext.fShort_Type ||
+            type.componentType() == *fContext.fByte_Type) {
             return fContext.fInt_Type->toCompound(fContext, type.columns(), type.rows());
         }
-        if (type.componentType() == *fContext.fUShort_Type) {
+        if (type.componentType() == *fContext.fUShort_Type ||
+            type.componentType() == *fContext.fUByte_Type) {
             return fContext.fUInt_Type->toCompound(fContext, type.columns(), type.rows());
         }
     }
@@ -1298,31 +1302,47 @@ SpvId SPIRVCodeGenerator::writeVectorConstructor(const Constructor& c, OutputStr
                     if (c.fArguments.size() == 1) {
                         return vec;
                     }
-                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                } else if (src == *fContext.fInt_Type ||
+                           src == *fContext.fShort_Type ||
+                           src == *fContext.fByte_Type) {
                     op = SpvOpConvertSToF;
-                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                } else if (src == *fContext.fUInt_Type ||
+                           src == *fContext.fUShort_Type ||
+                           src == *fContext.fUByte_Type) {
                     op = SpvOpConvertUToF;
                 } else {
                     SkASSERT(false);
                 }
-            } else if (dst == *fContext.fInt_Type || dst == *fContext.fShort_Type) {
+            } else if (dst == *fContext.fInt_Type ||
+                       dst == *fContext.fShort_Type ||
+                       dst == *fContext.fByte_Type) {
                 if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
                     op = SpvOpConvertFToS;
-                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                } else if (src == *fContext.fInt_Type ||
+                           src == *fContext.fShort_Type ||
+                           src == *fContext.fByte_Type) {
                     if (c.fArguments.size() == 1) {
                         return vec;
                     }
-                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                } else if (src == *fContext.fUInt_Type ||
+                           src == *fContext.fUShort_Type ||
+                           src == *fContext.fUByte_Type) {
                     op = SpvOpBitcast;
                 } else {
                     SkASSERT(false);
                 }
-            } else if (dst == *fContext.fUInt_Type || dst == *fContext.fUShort_Type) {
+            } else if (dst == *fContext.fUInt_Type ||
+                       dst == *fContext.fUShort_Type ||
+                       dst == *fContext.fUByte_Type) {
                 if (src == *fContext.fFloat_Type || src == *fContext.fHalf_Type) {
                     op = SpvOpConvertFToS;
-                } else if (src == *fContext.fInt_Type || src == *fContext.fShort_Type) {
+                } else if (src == *fContext.fInt_Type ||
+                           src == *fContext.fShort_Type ||
+                           src == *fContext.fByte_Type) {
                     op = SpvOpBitcast;
-                } else if (src == *fContext.fUInt_Type || src == *fContext.fUShort_Type) {
+                } else if (src == *fContext.fUInt_Type ||
+                           src == *fContext.fUShort_Type ||
+                           src == *fContext.fUByte_Type) {
                     if (c.fArguments.size() == 1) {
                         return vec;
                     }
@@ -1391,9 +1411,13 @@ SpvId SPIRVCodeGenerator::writeConstructor(const Constructor& c, OutputStream& o
     }
     if (c.fType == *fContext.fFloat_Type || c.fType == *fContext.fHalf_Type) {
         return this->writeFloatConstructor(c, out);
-    } else if (c.fType == *fContext.fInt_Type || c.fType == *fContext.fShort_Type) {
+    } else if (c.fType == *fContext.fInt_Type ||
+               c.fType == *fContext.fShort_Type ||
+               c.fType == *fContext.fByte_Type) {
         return this->writeIntConstructor(c, out);
-    } else if (c.fType == *fContext.fUInt_Type || c.fType == *fContext.fUShort_Type) {
+    } else if (c.fType == *fContext.fUInt_Type ||
+               c.fType == *fContext.fUShort_Type ||
+               c.fType == *fContext.fUByte_Type) {
         return this->writeUIntConstructor(c, out);
     }
     switch (c.fType.kind()) {

@@ -801,6 +801,9 @@ void GrGLCaps::initGLSL(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli
 
     shaderCaps->fFloatIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_HIGH_FLOAT);
     shaderCaps->fHalfIs32Bits = is_float_fp32(ctxInfo, gli, GR_GL_MEDIUM_FLOAT);
+
+    // Unsigned integers only supported in and after GLSL 1.30.
+    shaderCaps->fUnsignedSupport = ctxInfo.glslGeneration() >= k130_GrGLSLGeneration;
 }
 
 bool GrGLCaps::hasPathRenderingSupport(const GrGLContextInfo& ctxInfo, const GrGLInterface* gli) {

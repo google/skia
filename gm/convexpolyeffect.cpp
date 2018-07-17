@@ -80,7 +80,11 @@ private:
 
         Color color(fColor);
         sk_sp<GrGeometryProcessor> gp(GrDefaultGeoProcFactory::Make(
-                color, Coverage::kSolid_Type, LocalCoords::kUnused_Type, SkMatrix::I()));
+                target->caps().shaderCaps(),
+                color,
+                Coverage::kSolid_Type,
+                LocalCoords::kUnused_Type,
+                SkMatrix::I()));
 
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
         QuadHelper helper;
