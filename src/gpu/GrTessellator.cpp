@@ -1785,6 +1785,7 @@ void Event::apply(VertexList* mesh, Comparator& c, SkArenaAlloc& alloc) {
     } else {
         LOG("edge %g -> %g is outer boundary; not disconnecting.\n",
             fEdge->fTop->fID, fEdge->fBottom->fID);
+        fEdge->fWinding = fEdge->fWinding >= 0 ? 1 : -1;
     }
 
     // If top still has some connected edges, set its partner to dest.
