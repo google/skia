@@ -16,6 +16,24 @@
       "revId": "c069a57301a468dbc45f3f3775b623e5532f9398",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3a8d078_ff3386e1",
+        "filename": "DEPS",
+        "patchSetId": 15
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-17T18:37:35Z",
+      "side": 1,
+      "message": "What\u0027s required to set up a mirror? Should I just file a bug for infra?",
+      "parentUuid": "1df9736e_1bb8b768",
+      "revId": "c069a57301a468dbc45f3f3775b623e5532f9398",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
