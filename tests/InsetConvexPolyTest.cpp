@@ -65,7 +65,7 @@ DEF_TEST(InsetConvexPoly, reporter) {
     // past full inset
     result = SkInsetConvexPolygon(rrectPoly.begin(), rrectPoly.count(), 75, &insetPoly);
     REPORTER_ASSERT(reporter, !result);
-    REPORTER_ASSERT(reporter, insetPoly.count() == 1);
+    REPORTER_ASSERT(reporter, insetPoly.count() == 0);
 
     // troublesome case
     SkTDArray<SkPoint> clippedRRectPoly;

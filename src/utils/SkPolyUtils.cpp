@@ -7,7 +7,6 @@
 
 #include "SkPolyUtils.h"
 
-#include <set>
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -299,31 +298,33 @@ bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     return true;
 }
 
-struct OffsetEdge {
-    OffsetEdge*   fPrev;
-    OffsetEdge*   fNext;
+struct EdgeData {
     OffsetSegment fInset;
     SkPoint       fIntersection;
     SkScalar      fTValue;
+    uint16_t      fStart;
     uint16_t      fEnd;
     uint16_t      fIndex;
+    bool          fValid;
 
-    void init(uint16_t start = 0, uint16_t end = 0) {
+    void init() {
         fIntersection = fInset.fP0;
         fTValue = SK_ScalarMin;
+        fStart = 0;
+        fEnd = 0;
+        fIndex = 0;
+        fValid = true;
+    }
+
+    void init(uint16_t start, uint16_t end) {
+        fIntersection = fInset.fP0;
+        fTValue = SK_ScalarMin;
+        fStart = start;
         fEnd = end;
         fIndex = start;
+        fValid = true;
     }
 };
-
-static void remove_node(const OffsetEdge* node, OffsetEdge** head) {
-    // remove from linked list
-    node->fPrev->fNext = node->fNext;
-    node->fNext->fPrev = node->fPrev;
-    if (node == *head) {
-        *head = (node->fNext == node) ? nullptr : node->fNext;
-    }
-}
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -353,117 +354,115 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     }
 
     // set up
-    SkAutoSTMalloc<64, OffsetEdge> edgeData(inputPolygonSize);
-    int prev = inputPolygonSize - 1;
-    for (int curr = 0; curr < inputPolygonSize; prev = curr, ++curr) {
-        int next = (curr + 1) % inputPolygonSize;
-        if (!inputPolygonVerts[curr].isFinite()) {
+    SkAutoSTMalloc<64, EdgeData> edgeData(inputPolygonSize);
+    for (int i = 0; i < inputPolygonSize; ++i) {
+        int j = (i + 1) % inputPolygonSize;
+        int k = (i + 2) % inputPolygonSize;
+        if (!inputPolygonVerts[i].isFinite()) {
             return false;
         }
         // check for convexity just to be sure
-        if (compute_side(inputPolygonVerts[prev], inputPolygonVerts[curr],
-                         inputPolygonVerts[next])*winding < 0) {
+        if (compute_side(inputPolygonVerts[i], inputPolygonVerts[j],
+                         inputPolygonVerts[k])*winding < 0) {
             return false;
         }
-        edgeData[curr].fPrev = &edgeData[prev];
-        edgeData[curr].fNext = &edgeData[next];
-        if (!SkOffsetSegment(inputPolygonVerts[curr], inputPolygonVerts[next],
-                             insetDistanceFunc(inputPolygonVerts[curr]),
-                             insetDistanceFunc(inputPolygonVerts[next]),
+        if (!SkOffsetSegment(inputPolygonVerts[i], inputPolygonVerts[j],
+                             insetDistanceFunc(inputPolygonVerts[i]),
+                             insetDistanceFunc(inputPolygonVerts[j]),
                              winding,
-                             &edgeData[curr].fInset.fP0, &edgeData[curr].fInset.fP1)) {
+                             &edgeData[i].fInset.fP0, &edgeData[i].fInset.fP1)) {
             return false;
         }
-        edgeData[curr].init();
+        edgeData[i].init();
     }
 
-    OffsetEdge* head = &edgeData[0];
-    OffsetEdge* currEdge = head;
-    OffsetEdge* prevEdge = currEdge->fPrev;
+    int prevIndex = inputPolygonSize - 1;
+    int currIndex = 0;
     int insetVertexCount = inputPolygonSize;
     int iterations = 0;
-    while (head && prevEdge != currEdge) {
+    while (prevIndex != currIndex) {
         ++iterations;
         // we should check each edge against each other edge at most once
         if (iterations > inputPolygonSize*inputPolygonSize) {
             return false;
         }
 
+        if (!edgeData[prevIndex].fValid) {
+            prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
+            continue;
+        }
+
         SkScalar s, t;
         SkPoint intersection;
-        if (compute_intersection(prevEdge->fInset, currEdge->fInset,
+        if (compute_intersection(edgeData[prevIndex].fInset, edgeData[currIndex].fInset,
                                  &intersection, &s, &t)) {
             // if new intersection is further back on previous inset from the prior intersection
-            if (s < prevEdge->fTValue) {
+            if (s < edgeData[prevIndex].fTValue) {
                 // no point in considering this one again
-                remove_node(prevEdge, &head);
+                edgeData[prevIndex].fValid = false;
                 --insetVertexCount;
                 // go back one segment
-                prevEdge = prevEdge->fPrev;
+                prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
             // we've already considered this intersection, we're done
-            } else if (currEdge->fTValue > SK_ScalarMin &&
+            } else if (edgeData[currIndex].fTValue > SK_ScalarMin &&
                        SkPointPriv::EqualsWithinTolerance(intersection,
-                                                          currEdge->fIntersection,
+                                                          edgeData[currIndex].fIntersection,
                                                           1.0e-6f)) {
                 break;
             } else {
                 // add intersection
-                currEdge->fIntersection = intersection;
-                currEdge->fTValue = t;
+                edgeData[currIndex].fIntersection = intersection;
+                edgeData[currIndex].fTValue = t;
 
                 // go to next segment
-                prevEdge = currEdge;
-                currEdge = currEdge->fNext;
+                prevIndex = currIndex;
+                currIndex = (currIndex + 1) % inputPolygonSize;
             }
         } else {
             // if prev to right side of curr
-            int side = winding*compute_side(currEdge->fInset.fP0,
-                                            currEdge->fInset.fP1,
-                                            prevEdge->fInset.fP1);
-            if (side < 0 && side == winding*compute_side(currEdge->fInset.fP0,
-                                                         currEdge->fInset.fP1,
-                                                         prevEdge->fInset.fP0)) {
+            int side = winding*compute_side(edgeData[currIndex].fInset.fP0,
+                                            edgeData[currIndex].fInset.fP1,
+                                            edgeData[prevIndex].fInset.fP1);
+            if (side < 0 && side == winding*compute_side(edgeData[currIndex].fInset.fP0,
+                                                         edgeData[currIndex].fInset.fP1,
+                                                         edgeData[prevIndex].fInset.fP0)) {
                 // no point in considering this one again
-                remove_node(prevEdge, &head);
+                edgeData[prevIndex].fValid = false;
                 --insetVertexCount;
                 // go back one segment
-                prevEdge = prevEdge->fPrev;
+                prevIndex = (prevIndex + inputPolygonSize - 1) % inputPolygonSize;
             } else {
                 // move to next segment
-                remove_node(currEdge, &head);
+                edgeData[currIndex].fValid = false;
                 --insetVertexCount;
-                currEdge = currEdge->fNext;
+                currIndex = (currIndex + 1) % inputPolygonSize;
             }
         }
     }
 
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+
     insetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (insetVertexCount >= 0) {
-            insetPolygon->setReserve(insetVertexCount);
+    if (insetVertexCount >= 0) {
+        insetPolygon->setReserve(insetVertexCount);
+    }
+    currIndex = -1;
+    for (int i = 0; i < inputPolygonSize; ++i) {
+        if (edgeData[i].fValid && (currIndex == -1 ||
+            !SkPointPriv::EqualsWithinTolerance(edgeData[i].fIntersection,
+                                                (*insetPolygon)[currIndex],
+                                                kCleanupTolerance))) {
+            *insetPolygon->push() = edgeData[i].fIntersection;
+            currIndex++;
         }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *insetPolygon->push() = currEdge->fIntersection;
-        currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*insetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *insetPolygon->push() = currEdge->fIntersection;
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-           SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
-                                              kCleanupTolerance)) {
-            insetPolygon->pop();
-        }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+       SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
+                                          kCleanupTolerance)) {
+        insetPolygon->pop();
     }
 
     return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
@@ -505,7 +504,6 @@ struct Vertex {
     static bool Left(const Vertex& qv0, const Vertex& qv1) {
         return left(qv0.fPosition, qv1.fPosition);
     }
-
     // packed to fit into 16 bytes (one cache line)
     SkPoint  fPosition;
     uint16_t fIndex;       // index in unsorted polygon
@@ -519,14 +517,9 @@ enum VertexFlags {
     kNextLeft_VertexFlag = 0x2,
 };
 
-struct ActiveEdge {
-    ActiveEdge(const SkPoint& p0, const SkPoint& p1, int32_t index0, int32_t index1)
-        : fSegment({p0, p1})
-        , fIndex0(index0)
-        , fIndex1(index1) {}
-
+struct Edge {
     // returns true if "this" is above "that"
-    bool above(const ActiveEdge& that, SkScalar tolerance = SK_ScalarNearlyZero) const {
+    bool above(const Edge& that, SkScalar tolerance = SK_ScalarNearlyZero) {
         SkASSERT(this->fSegment.fP0.fX < that.fSegment.fP0.fX ||
                  SkScalarNearlyEqual(this->fSegment.fP0.fX, that.fSegment.fP0.fX, tolerance));
         // The idea here is that if the vector between the origins of the two segments (dv)
@@ -544,26 +537,10 @@ struct ActiveEdge {
         // lies on dv. So then we try the same for the vector from the tail of "this"
         // to the head of "that". Again, ccw means "this" is above "that".
         dv = that.fSegment.fP1 - this->fSegment.fP0;
-        if (dv.cross(u) > tolerance) {
-            return true;
-        }
-        // If the previous check fails, the two segments are nearly collinear
-        // If this segment starts to the left of that one,
-        // just need to check y-coord of 1st endpoint
-        if (this->fSegment.fP0.fX < that.fSegment.fP0.fX) {
-            return (this->fSegment.fP0.fY >= that.fSegment.fP0.fY);
-        } else if (this->fSegment.fP0.fY > that.fSegment.fP0.fY) {
-            return true;
-        }
-        // Otherwise the first endpoints are effectively the same, so check the other endpoint
-        if (this->fSegment.fP1.fX < that.fSegment.fP1.fX) {
-            return (this->fSegment.fP1.fY >= that.fSegment.fP1.fY);
-        } else {
-            return (this->fSegment.fP1.fY > that.fSegment.fP1.fY);
-        }
+        return (dv.cross(u) > tolerance);
     }
 
-    bool intersect(const ActiveEdge& that) const {
+    bool intersect(const Edge& that) const {
         SkPoint intersection;
         SkScalar s, t;
         // check first to see if these edges are neighbors in the polygon
@@ -574,23 +551,12 @@ struct ActiveEdge {
         return compute_intersection(this->fSegment, that.fSegment, &intersection, &s, &t);
     }
 
-    bool operator==(const ActiveEdge& that) const {
+    bool operator==(const Edge& that) const {
         return (this->fIndex0 == that.fIndex0 && this->fIndex1 == that.fIndex1);
     }
 
-    bool operator!=(const ActiveEdge& that) const {
+    bool operator!=(const Edge& that) const {
         return !operator==(that);
-    }
-
-    bool operator<(const ActiveEdge& that) const {
-        // this may not be necessary
-        if (this->fIndex0 == that.fIndex0 && this->fIndex1 == that.fIndex1) {
-            return false;
-        }
-        if (this->fSegment.fP0.fX > that.fSegment.fP0.fX) {
-            return !that.above(*this);
-        }
-        return this->above(that);
     }
 
     OffsetSegment fSegment;
@@ -598,49 +564,65 @@ struct ActiveEdge {
     int32_t fIndex1;
 };
 
-class ActiveEdgeList {
+class EdgeList {
 public:
-    void reserve(int count) { }
+    void reserve(int count) { fEdges.reserve(count); }
 
-    bool insert(const SkPoint& p0, const SkPoint& p1, int32_t index0, int32_t index1) {
-        std::pair<Iterator, bool> result = fEdgeTree.emplace(p0, p1, index0, index1);
-        if (!result.second) {
+    bool insert(const Edge& newEdge) {
+        // linear search for now (expected case is very few active edges)
+        int insertIndex = 0;
+        while (insertIndex < fEdges.count() && fEdges[insertIndex].above(newEdge)) {
+            ++insertIndex;
+        }
+        // if we intersect with the existing edge above or below us
+        // then we know this polygon is not simple, so don't insert, just fail
+        if (insertIndex > 0 && newEdge.intersect(fEdges[insertIndex - 1])) {
+            return false;
+        }
+        if (insertIndex < fEdges.count() && newEdge.intersect(fEdges[insertIndex])) {
             return false;
         }
 
-        Iterator& curr = result.first;
-        if (curr != fEdgeTree.begin() && curr->intersect(*std::prev(curr))) {
-            return false;
+        fEdges.push_back();
+        for (int i = fEdges.count() - 1; i > insertIndex; --i) {
+            fEdges[i] = fEdges[i - 1];
         }
-        Iterator next = std::next(curr);
-        if (next != fEdgeTree.end() && curr->intersect(*next)) {
-            return false;
-        }
+        fEdges[insertIndex] = newEdge;
 
         return true;
     }
 
-    bool remove(const ActiveEdge& edge) {
-        auto element = fEdgeTree.find(edge);
-        // this better not happen
-        if (element == fEdgeTree.end()) {
+    bool remove(const Edge& edge) {
+        SkASSERT(fEdges.count() > 0);
+
+        // linear search for now (expected case is very few active edges)
+        int removeIndex = 0;
+        while (removeIndex < fEdges.count() && fEdges[removeIndex] != edge) {
+            ++removeIndex;
+        }
+        // we'd better find it or something is wrong
+        SkASSERT(removeIndex < fEdges.count());
+
+        // if we intersect with the edge above or below us
+        // then we know this polygon is not simple, so don't remove, just fail
+        if (removeIndex > 0 && fEdges[removeIndex].intersect(fEdges[removeIndex - 1])) {
             return false;
         }
-        if (element != fEdgeTree.begin() && element->intersect(*std::prev(element))) {
-            return false;
-        }
-        Iterator next = std::next(element);
-        if (next != fEdgeTree.end() && element->intersect(*next)) {
-            return false;
+        if (removeIndex < fEdges.count() - 1) {
+            if (fEdges[removeIndex].intersect(fEdges[removeIndex + 1])) {
+                return false;
+            }
+            // copy over the old entry
+            memmove(&fEdges[removeIndex], &fEdges[removeIndex + 1],
+                    sizeof(Edge)*(fEdges.count() - removeIndex - 1));
         }
 
-        fEdgeTree.erase(element);
+        fEdges.pop_back();
         return true;
     }
 
 private:
-    std::set<ActiveEdge> fEdgeTree;
-    typedef std::set<ActiveEdge>::iterator Iterator;
+    SkSTArray<1, Edge> fEdges;
 };
 
 // Here we implement a sweep line algorithm to determine whether the provided points
@@ -654,7 +636,10 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
         return false;
     }
 
-    SkTDPQueue <Vertex, Vertex::Left> vertexQueue(polygonSize);
+    SkTDPQueue <Vertex, Vertex::Left> vertexQueue;
+    EdgeList sweepLine;
+
+    sweepLine.reserve(polygonSize);
     for (int i = 0; i < polygonSize; ++i) {
         Vertex newVertex;
         if (!polygon[i].isFinite()) {
@@ -676,31 +661,31 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 
     // pop each vertex from the queue and generate events depending on
     // where it lies relative to its neighboring edges
-    ActiveEdgeList sweepLine;
-    sweepLine.reserve(polygonSize);
     while (vertexQueue.count() > 0) {
         const Vertex& v = vertexQueue.peek();
 
         // check edge to previous vertex
         if (v.fFlags & kPrevLeft_VertexFlag) {
-            ActiveEdge edge(polygon[v.fPrevIndex], v.fPosition, v.fPrevIndex, v.fIndex);
+            Edge edge{ { polygon[v.fPrevIndex], v.fPosition }, v.fPrevIndex, v.fIndex };
             if (!sweepLine.remove(edge)) {
                 break;
             }
         } else {
-            if (!sweepLine.insert(v.fPosition, polygon[v.fPrevIndex], v.fIndex, v.fPrevIndex)) {
+            Edge edge{ { v.fPosition, polygon[v.fPrevIndex] }, v.fIndex, v.fPrevIndex };
+            if (!sweepLine.insert(edge)) {
                 break;
             }
         }
 
         // check edge to next vertex
         if (v.fFlags & kNextLeft_VertexFlag) {
-            ActiveEdge edge(polygon[v.fNextIndex], v.fPosition, v.fNextIndex, v.fIndex);
+            Edge edge{ { polygon[v.fNextIndex], v.fPosition }, v.fNextIndex, v.fIndex };
             if (!sweepLine.remove(edge)) {
                 break;
             }
         } else {
-            if (!sweepLine.insert(v.fPosition, polygon[v.fNextIndex], v.fIndex, v.fNextIndex)) {
+            Edge edge{ { v.fPosition, polygon[v.fNextIndex] }, v.fIndex, v.fNextIndex };
+            if (!sweepLine.insert(edge)) {
                 break;
             }
         }
@@ -712,15 +697,6 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-
-// helper function for SkOffsetSimplePolygon
-static void setup_offset_edge(OffsetEdge* currEdge,
-                              const SkPoint& endpoint0, const SkPoint& endpoint1,
-                              int startIndex, int endIndex) {
-    currEdge->fInset.fP0 = endpoint0;
-    currEdge->fInset.fP1 = endpoint1;
-    currEdge->init(startIndex, endIndex);
-}
 
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
                            std::function<SkScalar(const SkPoint&)> offsetDistanceFunc,
@@ -760,7 +736,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // build initial offset edge list
-    SkSTArray<64, OffsetEdge> edgeData(inputPolygonSize);
+    SkSTArray<64, EdgeData> edgeData(inputPolygonSize);
     int prevIndex = inputPolygonSize - 1;
     int currIndex = 0;
     int nextIndex = 1;
@@ -778,143 +754,126 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
-            auto currEdge = edgeData.push_back_n(SkTMax(numSteps, 1));
             for (int i = 0; i < numSteps - 1; ++i) {
                 SkVector currNormal = SkVector::Make(prevNormal.fX*rotCos - prevNormal.fY*rotSin,
                                                      prevNormal.fY*rotCos + prevNormal.fX*rotSin);
-                setup_offset_edge(currEdge,
-                                  inputPolygonVerts[currIndex] + prevNormal,
-                                  inputPolygonVerts[currIndex] + currNormal,
-                                  currIndex, currIndex);
+                EdgeData& edge = edgeData.push_back();
+                edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
+                edge.fInset.fP1 = inputPolygonVerts[currIndex] + currNormal;
+                edge.init(currIndex, currIndex);
                 prevNormal = currNormal;
-                ++currEdge;
             }
-            setup_offset_edge(currEdge,
-                              inputPolygonVerts[currIndex] + prevNormal,
-                              inputPolygonVerts[currIndex] + normal0[currIndex],
-                              currIndex, currIndex);
-            ++currEdge;
-
+            EdgeData& edge = edgeData.push_back();
+            edge.fInset.fP0 = inputPolygonVerts[currIndex] + prevNormal;
+            edge.fInset.fP1 = inputPolygonVerts[currIndex] + normal0[currIndex];
+            edge.init(currIndex, currIndex);
         }
 
         // Add the edge
-        auto edge = edgeData.push_back_n(1);
-        setup_offset_edge(edge,
-                          inputPolygonVerts[currIndex] + normal0[currIndex],
-                          inputPolygonVerts[nextIndex] + normal1[nextIndex],
-                          currIndex, nextIndex);
+        EdgeData& edge = edgeData.push_back();
+        edge.fInset.fP0 = inputPolygonVerts[currIndex] + normal0[currIndex];
+        edge.fInset.fP1 = inputPolygonVerts[nextIndex] + normal1[nextIndex];
+        edge.init(currIndex, nextIndex);
 
         prevIndex = currIndex;
         currIndex++;
         nextIndex = (nextIndex + 1) % inputPolygonSize;
     }
 
-    // build linked list
-    // we have to do this as a post-process step because we might have reallocated
-    // the array when adding fans for reflex verts
-    prevIndex = edgeData.count()-1;
-    for (int currIndex = 0; currIndex < edgeData.count(); prevIndex = currIndex, ++currIndex) {
-        int nextIndex = (currIndex + 1) % edgeData.count();
-        edgeData[currIndex].fPrev = &edgeData[prevIndex];
-        edgeData[currIndex].fNext = &edgeData[nextIndex];
-    }
-
-    // now clip edges
     int edgeDataSize = edgeData.count();
-    auto head = &edgeData[0];
-    auto currEdge = head;
-    auto prevEdge = currEdge->fPrev;
-    int offsetVertexCount = edgeDataSize;
+    prevIndex = edgeDataSize - 1;
+    currIndex = 0;
+    int insetVertexCount = edgeDataSize;
     int iterations = 0;
-    while (head && prevEdge != currEdge) {
+    while (prevIndex != currIndex) {
         ++iterations;
         // we should check each edge against each other edge at most once
         if (iterations > edgeDataSize*edgeDataSize) {
             return false;
         }
 
+        if (!edgeData[prevIndex].fValid) {
+            prevIndex = (prevIndex + edgeDataSize - 1) % edgeDataSize;
+            continue;
+        }
+        if (!edgeData[currIndex].fValid) {
+            currIndex = (currIndex + 1) % edgeDataSize;
+            continue;
+        }
+
         SkScalar s, t;
         SkPoint intersection;
-        if (compute_intersection(prevEdge->fInset, currEdge->fInset,
+        if (compute_intersection(edgeData[prevIndex].fInset, edgeData[currIndex].fInset,
                                  &intersection, &s, &t)) {
             // if new intersection is further back on previous inset from the prior intersection
-            if (s < prevEdge->fTValue) {
+            if (s < edgeData[prevIndex].fTValue) {
                 // no point in considering this one again
-                remove_node(prevEdge, &head);
-                --offsetVertexCount;
+                edgeData[prevIndex].fValid = false;
+                --insetVertexCount;
                 // go back one segment
-                prevEdge = prevEdge->fPrev;
+                prevIndex = (prevIndex + edgeDataSize - 1) % edgeDataSize;
                 // we've already considered this intersection, we're done
-            } else if (currEdge->fTValue > SK_ScalarMin &&
+            } else if (edgeData[currIndex].fTValue > SK_ScalarMin &&
                        SkPointPriv::EqualsWithinTolerance(intersection,
-                                                          currEdge->fIntersection,
+                                                          edgeData[currIndex].fIntersection,
                                                           1.0e-6f)) {
                 break;
             } else {
                 // add intersection
-                currEdge->fIntersection = intersection;
-                currEdge->fTValue = t;
-                currEdge->fIndex = prevEdge->fEnd;
+                edgeData[currIndex].fIntersection = intersection;
+                edgeData[currIndex].fTValue = t;
+                edgeData[currIndex].fIndex = edgeData[prevIndex].fEnd;
 
                 // go to next segment
-                prevEdge = currEdge;
-                currEdge = currEdge->fNext;
+                prevIndex = currIndex;
+                currIndex = (currIndex + 1) % edgeDataSize;
             }
         } else {
             // If there is no intersection, we want to minimize the distance between
             // the point where the segment lines cross and the segments themselves.
-            OffsetEdge* prevPrevEdge = prevEdge->fPrev;
-            OffsetEdge* currNextEdge = currEdge->fNext;
-            SkScalar dist0 = compute_crossing_distance(currEdge->fInset,
-                                                       prevPrevEdge->fInset);
-            SkScalar dist1 = compute_crossing_distance(prevEdge->fInset,
-                                                       currNextEdge->fInset);
+            SkScalar prevPrevIndex = (prevIndex + edgeDataSize - 1) % edgeDataSize;
+            SkScalar currNextIndex = (currIndex + 1) % edgeDataSize;
+            SkScalar dist0 = compute_crossing_distance(edgeData[currIndex].fInset,
+                                                       edgeData[prevPrevIndex].fInset);
+            SkScalar dist1 = compute_crossing_distance(edgeData[prevIndex].fInset,
+                                                       edgeData[currNextIndex].fInset);
             if (dist0 < dist1) {
-                remove_node(prevEdge, &head);
-                prevEdge = prevPrevEdge;
+                edgeData[prevIndex].fValid = false;
+                prevIndex = prevPrevIndex;
             } else {
-                remove_node(currEdge, &head);
-                currEdge = currNextEdge;
+                edgeData[currIndex].fValid = false;
+                currIndex = currNextIndex;
             }
-            --offsetVertexCount;
+            --insetVertexCount;
         }
     }
 
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+
     offsetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (offsetVertexCount >= 0) {
-            offsetPolygon->setReserve(offsetVertexCount);
-        }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *offsetPolygon->push() = currEdge->fIntersection;
-        if (polygonIndices) {
-            *polygonIndices->push() = currEdge->fIndex;
-        }
-        currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*offsetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *offsetPolygon->push() = currEdge->fIntersection;
-                if (polygonIndices) {
-                    *polygonIndices->push() = currEdge->fIndex;
-                }
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-            SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
-                                               kCleanupTolerance)) {
-            offsetPolygon->pop();
+    offsetPolygon->setReserve(insetVertexCount);
+    currIndex = -1;
+    for (int i = 0; i < edgeData.count(); ++i) {
+        if (edgeData[i].fValid && (currIndex == -1 ||
+                                   !SkPointPriv::EqualsWithinTolerance(edgeData[i].fIntersection,
+                                                                       (*offsetPolygon)[currIndex],
+                                                                       kCleanupTolerance))) {
+            *offsetPolygon->push() = edgeData[i].fIntersection;
             if (polygonIndices) {
-                polygonIndices->pop();
+                *polygonIndices->push() = edgeData[i].fIndex;
             }
+            currIndex++;
+        }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
+                                           kCleanupTolerance)) {
+        offsetPolygon->pop();
+        if (polygonIndices) {
+            polygonIndices->pop();
         }
     }
 
