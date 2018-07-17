@@ -7,6 +7,7 @@
 
 #include "SkTextBlobRunIterator.h"
 
+#include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSafeMath.h"
@@ -881,6 +882,26 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
                 return nullptr;
             }
         }
+    }
+
+    return blobBuilder.make();
+}
+
+sk_sp<SkTextBlob> SkTextBlob::MakeAsDrawText(
+        const void* text, size_t byteLength, const SkPaint& paint) {
+    SkGlyphRunBuilder runBuilder;
+
+    runBuilder.drawText(paint, text, byteLength, SkPoint::Make(0, 0));
+
+    auto list = runBuilder.useGlyphRunList();
+    SkTextBlobBuilder blobBuilder;
+    if (!list->empty()) {
+        auto run = (*list)[0];
+        SkPaint blobPaint(paint);
+        blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+
+        auto runData = blobBuilder.allocRunPos(blobPaint, run.runSize());
+        run.filloutGlyphsAndPositions(runData.glyphs, (SkPoint *)runData.pos);
     }
 
     return blobBuilder.make();

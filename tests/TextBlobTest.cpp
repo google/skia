@@ -456,3 +456,19 @@ DEF_TEST(TextBlob_serialize, reporter) {
         REPORTER_ASSERT(reporter, sk_tool_utils::equal_pixels(img0.get(), img1.get()));
     }
 }
+
+DEF_TEST(TextBlob_MakeAsDrawText, reporter) {
+    SkPaint paint;
+    paint.setTextEncoding(SkPaint::kUTF8_TextEncoding);
+    const char text[] = "Hello";
+    auto blob = SkTextBlob::MakeAsDrawText(text, strlen(text), paint);
+
+    int runs = 0;
+    for(SkTextBlobRunIterator it(blob.get()); !it.done(); it.next()) {
+        REPORTER_ASSERT(reporter, it.glyphCount() == strlen(text));
+        REPORTER_ASSERT(reporter, it.positioning() == SkTextBlob::kFull_Positioning);
+        runs += 1;
+    }
+    REPORTER_ASSERT(reporter, runs == 1);
+
+}

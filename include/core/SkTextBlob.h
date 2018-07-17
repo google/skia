@@ -36,6 +36,9 @@ public:
      */
     uint32_t uniqueID() const { return fUniqueID; }
 
+    static sk_sp<SkTextBlob> MakeAsDrawText(
+            const void* text, size_t byteLength, const SkPaint& paint);
+
     enum GlyphPositioning : uint8_t {
         kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
         kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
