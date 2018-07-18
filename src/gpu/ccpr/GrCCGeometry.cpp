@@ -638,9 +638,7 @@ void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f
 // This function finds the T value whose tangent angle is halfway between the tangents at T=0 and
 // T=1 (tan0 and tan1).
 static inline float find_midtangent(const Sk2f& tan0, const Sk2f& tan1,
-                                    float scale2, const Sk2f& C2,
-                                    float scale1, const Sk2f& C1,
-                                    float scale0, const Sk2f& C0) {
+                                    const Sk2f& C2, const Sk2f& C1, const Sk2f& C0) {
     // Tangents point in the direction of increasing T, so tan0 and -tan1 both point toward the
     // midtangent. 'n' will therefore bisect tan0 and -tan1, giving us the normal to the midtangent.
     //
@@ -660,9 +658,6 @@ static inline float find_midtangent(const Sk2f& tan0, const Sk2f& tan1,
     Sk4f C[2];
     Sk2f::Store4(C, C2, C1, C0, 0);
     Sk4f coeffs = C[0]*n[0] + C[1]*n[1];
-    if (1 != scale2 || 1 != scale1 || 1 != scale0) {
-        coeffs *= Sk4f(scale2, scale1, scale0, 0);
-    }
 
     // Now solve the quadratic.
     float a = coeffs[0], b = coeffs[1], c = coeffs[2];
@@ -682,9 +677,9 @@ inline void GrCCGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, c
                                                          const Sk2f& p3, const Sk2f& tan0,
                                                          const Sk2f& tan1,
                                                          int maxFutureSubdivisions) {
-    float midT = find_midtangent(tan0, tan1, 3, p3 + (p1 - p2)*3 - p0,
-                                             6, p0 - p1*2 + p2,
-                                             3, p1 - p0);
+    float midT = find_midtangent(tan0, tan1, p3 + (p1 - p2)*3 - p0,
+                                             (p0 - p1*2 + p2)*2,
+                                             p1 - p0);
     // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we cull
     // near-flat cubics in cubicTo().)
     if (!(midT > 0 && midT < 1)) {
@@ -715,9 +710,9 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
         // tangent line. Since the denominator scales dx and dy uniformly, we can throw it out
         // completely after evaluating the derivative with the standard quotient rule. This leaves
         // us with a simpler quadratic function that we use to find the midtangent.
-        float midT = find_midtangent(tan0, tan1, 1, (w - 1) * (p2 - p0),
-                                                 1, (p2 - p0) - 2*w*(p1 - p0),
-                                                 1, w*(p1 - p0));
+        float midT = find_midtangent(tan0, tan1, (w - 1) * (p2 - p0),
+                                                 (p2 - p0) - 2*w*(p1 - p0),
+                                                 w*(p1 - p0));
         // Use positive logic since NaN fails comparisons. (However midT should not be NaN since we
         // cull near-linear conics above. And while w=0 is flat, it's not a line and has valid
         // midtangents.)
