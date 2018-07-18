@@ -661,12 +661,12 @@ void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
     SkMatrix matrix = fSkXform;
     SkScalar scale = fTextSizeRender / glyphData.pixelsPerEm;
     matrix.preScale(scale, scale);
-    matrix.preTranslate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
-    matrix.mapRect(&bounds);
+    matrix.preTranslate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
     if (this->isSubpixel()) {
-        matrix.preTranslate(SkFixedToScalar(glyph->getSubXFixed()),
-                            SkFixedToScalar(glyph->getSubYFixed()));
+        matrix.postTranslate(SkFixedToScalar(glyph->getSubXFixed()),
+                             SkFixedToScalar(glyph->getSubYFixed()));
     }
+    matrix.mapRect(&bounds);
     bounds.roundOut();
 
     glyph->fWidth = bounds.width();
@@ -1082,7 +1082,7 @@ void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
     canvas.concat(fSkXform);
     SkScalar ratio = fTextSizeRender / glyphData.pixelsPerEm;
     canvas.scale(ratio, ratio);
-    canvas.translate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
+    canvas.translate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
     canvas.drawImage(image, 0, 0, nullptr);
 }
 
