@@ -321,6 +321,10 @@ private:
 DEF_SAMPLE( return new ArcToView; )
 
 /////////////
+#include "SkPathMeasure.h"
+#include "SkVertices.h"
+#include "SkImage.h"
+#include "SkSurface.h"
 
 class FatStroke : public SampleView {
     bool fClosed, fShowStroke, fShowHidden, fShowSkeleton;
@@ -402,6 +406,48 @@ protected:
         }
     }
 
+    static sk_sp<SkImage> make_pattern() {
+        auto surf = SkSurface::MakeRasterN32Premul(40, 40);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setColor(SK_ColorRED);
+        surf->getCanvas()->drawCircle(20, 20, 19, paint);
+        return surf->makeImageSnapshot();
+    }
+    static void draw_strip(SkCanvas* canvas, const SkPath& path) {
+        SkScalar stroke_radius = 20;
+        auto img = make_pattern();
+        SkPathMeasure meas(path, false);
+        SkScalar len = meas.getLength();
+        SkScalar spacing = 20/5;  // arbitrary;
+        int xcount = SkScalarCeilToInt(len / spacing);
+        int vcount = (xcount + 1) * 2;
+        SkVertices::Builder builder(SkVertices::kTriangleStrip_VertexMode, vcount, 0,
+                                    SkVertices::kHasTexCoords_BuilderFlag);
+        SkPoint* pos = builder.positions();
+        SkPoint* tex = builder.texCoords();
+        SkScalar h = img->height();
+        SkScalar x = 0;
+        for (int ix = 0; ix <= xcount; ++ix) {
+            SkPoint position, tangent, normal;
+            (void)meas.getPosTan(x, &position, &tangent);
+            tangent.setLength(stroke_radius);
+            normal.set(tangent.fY, -tangent.fX);
+
+            pos[0] = position + normal;
+            pos[1] = position - normal;
+            tex[0].set(x, 0);
+            tex[1].set(x, h);
+            x += spacing;
+            pos += 2;
+            tex += 2;
+        }
+        SkPaint paint;
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setShader(img->makeShader(SkShader::kRepeat_TileMode, SkShader::kClamp_TileMode));
+        canvas->drawVertices(builder.detach(), SkBlendMode::kMultiply, paint);
+    }
+
     void onDrawContent(SkCanvas* canvas) override {
         canvas->drawColor(0xFFEEEEEE);
 
@@ -412,16 +458,25 @@ protected:
         fStrokePaint.setStrokeJoin((SkPaint::Join)fJoinType);
         fStrokePaint.setStrokeCap((SkPaint::Cap)fCapType);
 
-        if (fShowStroke) {
-            canvas->drawPath(path, fStrokePaint);
-        }
-        if (fShowHidden) {
-            SkPath hidden;
-            fStrokePaint.getFillPath(path, &hidden);
-            canvas->drawPath(hidden, fHiddenPaint);
-        }
-        if (fShowSkeleton) {
-            canvas->drawPath(path, fSkeletonPaint);
+        if (false) {
+            if (fShowStroke) {
+                canvas->drawPath(path, fStrokePaint);
+            }
+            if (fShowHidden) {
+                SkPath hidden;
+                fStrokePaint.getFillPath(path, &hidden);
+                canvas->drawPath(hidden, fHiddenPaint);
+            }
+            if (fShowSkeleton) {
+                canvas->drawPath(path, fSkeletonPaint);
+            }
+        } else {
+            SkPath p;
+            p.moveTo(fPts[0]);
+            p.cubicTo(fPts[1], fPts[2], fPts[3]);
+            p.close();
+            canvas->drawPath(p, fStrokePaint);
+            draw_strip(canvas, p);
         }
         canvas->drawPoints(SkCanvas::kPoints_PointMode, N, fPts, fPtsPaint);
     }
