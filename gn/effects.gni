@@ -23,6 +23,7 @@ skia_effects_sources = [
   "$_src/effects/SkHighContrastFilter.cpp",
   "$_src/effects/SkLayerDrawLooper.cpp",
   "$_src/effects/SkLumaColorFilter.cpp",
+  "$_src/effects/SkOpPathEffect.cpp",
   "$_src/effects/SkOverdrawColorFilter.cpp",
   "$_src/effects/SkPackBits.cpp",
   "$_src/effects/SkPackBits.h",

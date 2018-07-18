@@ -23,6 +23,7 @@
 #include "SkShaderMaskFilter.h"
 #include "SkTableColorFilter.h"
 #include "SkToSRGBColorFilter.h"
+#include "../../src/effects/SkOpPE.h"
 #include "../../src/effects/SkTrimPE.h"
 
 /*
@@ -64,4 +65,8 @@ void SkFlattenable::PrivateInitializer::InitEffects() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkLine2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkPath2DPathEffect)
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkTrimPE)
+
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkOpPE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkMatrixPE)
+    SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkStrokePE)
 }
