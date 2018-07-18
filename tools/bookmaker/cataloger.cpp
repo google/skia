@@ -79,7 +79,7 @@ bool Catalog::closeCatalog() {
 }
 
 bool Catalog::parseFromFile(const char* path) {
-    if (!INHERITED::parseSetup(path)) {
+    if (!INHERITED::parseFromFile(path)) {
         return false;
     }
     fIndent = 4;
