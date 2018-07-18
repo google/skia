@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "384fbae9_eef8608f",
+        "filename": "gm/skinning.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-18T18:14:58Z",
+      "side": 1,
+      "message": "Is there much value in testing the CPU-transform path with caching? I guess it does hit a new code path that isn\u0027t exercised anywhere else?",
+      "revId": "05d2a0370faaaaa08b6fa534698b4e882c323c14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
