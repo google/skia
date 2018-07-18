@@ -16,6 +16,24 @@
       "revId": "05d2a0370faaaaa08b6fa534698b4e882c323c14",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9c950ba_b03533e1",
+        "filename": "gm/skinning.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-07-18T18:22:16Z",
+      "side": 1,
+      "message": "I already hit submit to CQ, oops. I kept that there for the sake of consistency, but you\u0027re right, there\u0027s not much point in it other than showing that caching CPU transformed vertices is a bad idea.",
+      "parentUuid": "384fbae9_eef8608f",
+      "revId": "05d2a0370faaaaa08b6fa534698b4e882c323c14",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
