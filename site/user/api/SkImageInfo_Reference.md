@@ -527,7 +527,7 @@ always be paired with <a href='#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>.
 
 ### Example
 
-<div><fiddle-embed name="7e7c46bb4572e21e13529ff364eb0a9c"></fiddle-embed></div>
+<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"></fiddle-embed></div>
 
 ### See Also
 

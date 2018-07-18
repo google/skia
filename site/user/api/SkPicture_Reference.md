@@ -273,7 +273,7 @@ Recreates a picture that was serialized into <a href='#SkPicture_MakeFromData_da
 
 ### Example
 
-<div><fiddle-embed name="58b44bf47d8816782066618700afdecb"></fiddle-embed></div>
+<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"></fiddle-embed></div>
 
 ### See Also
 
