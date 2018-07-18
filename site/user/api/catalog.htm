@@ -5753,10 +5753,10 @@
     "name": "SkImage::isValid"
 },
     "SkImage_makeColorSpace": {
-    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkColorSpace> normalColorSpace = SkColorSpace::MakeRGB(\n             SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kSRGB_Gamut);\n    sk_sp<SkColorSpace> wackyColorSpace = normalColorSpace->makeColorSpin();\n    for (auto colorSpace : { normalColorSpace, wackyColorSpace  } ) {\n        for (auto transfer : { SkTransferFunctionBehavior::kRespect,\n                               SkTransferFunctionBehavior::kIgnore } ) {\n            sk_sp<SkImage> colorSpaced = image->makeColorSpace(colorSpace, transfer);\n            canvas->drawImage(colorSpaced, 0, 0);\n            canvas->translate(128, 0);\n        }\n        canvas->translate(-256, 128);\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    sk_sp<SkColorSpace> normalColorSpace = SkColorSpace::MakeRGB(\n             SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kSRGB_Gamut);\n    sk_sp<SkColorSpace> wackyColorSpace = normalColorSpace->makeColorSpin();\n    for (auto colorSpace : { normalColorSpace, wackyColorSpace  } ) {\n        sk_sp<SkImage> colorSpaced = image->makeColorSpace(colorSpace);\n        canvas->drawImage(colorSpaced, 0, 0);\n        canvas->translate(128, 0);\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "ab8bcb9acecbee444019a724d2b0503c",
+    "hash": "dbf5f75c1275a3013672f896767140fb",
     "file": "SkImage_Reference",
     "name": "SkImage::makeColorSpace"
 },
