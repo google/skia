@@ -16,8 +16,8 @@
 
 class SkBitmap;
 struct SkDrawShadowRec;
+class SkGlyphRun;
 class SkGlyphRunList;
-class SkGlyphRunBuilder;
 class SkImageFilterCache;
 struct SkIRect;
 class SkMatrix;
@@ -242,8 +242,7 @@ protected:
 
     virtual void drawTextOnPath(const void* text, size_t len, const SkPath&,
                                 const SkMatrix*, const SkPaint&);
-    virtual void drawTextRSXform(const void* text, size_t len, const SkRSXform[],
-                                 const SkPaint&);
+    void drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform);
 
     virtual void drawSpecial(SkSpecialImage*, int x, int y, const SkPaint&,
                              SkImage* clipImage, const SkMatrix& clipMatrix);

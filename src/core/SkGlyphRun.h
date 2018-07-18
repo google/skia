@@ -19,6 +19,7 @@
 #include "SkTypes.h"
 
 class SkBaseDevice;
+class SkGlyphRunList;
 
 template <typename T>
 class SkSpan {
@@ -55,6 +56,10 @@ public:
                SkSpan<const char> text,
                SkSpan<const uint32_t> clusters);
 
+    // A function that turns an SkGlyphRun into an SkGlyphRun for each glyph.
+    using PerGlyph = std::function<void (SkGlyphRun*, SkPaint*)>;
+    void eachGlyphToGlyphRun(PerGlyph perGlyph);
+
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
     void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin);
@@ -65,6 +70,7 @@ public:
     size_t runSize() const { return fTemporaryShuntGlyphIDs.size(); }
     SkSpan<const SkPoint> positions() const { return fPositions; }
     const SkPaint& paint() const { return fRunPaint; }
+    SkPaint* mutablePaint() { return &fRunPaint; }
 
 private:
     //
@@ -80,11 +86,11 @@ private:
     // Original clusters from SkTextBlob if present. Will be empty if not present.
     const SkSpan<const uint32_t>   fClusters;
     // Paint for this run modified to have glyph encoding and left alignment.
-    const SkPaint fRunPaint;
+    SkPaint fRunPaint;
 };
 
 class SkGlyphRunList {
-    const SkPaint* fOriginalPaint{nullptr};
+    const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
     // The text blob is needed to hookup the call back that the SkTextBlob destructor calls. It
     // should be used for nothing else
     const SkTextBlob*  fOriginalTextBlob{nullptr};
@@ -92,13 +98,15 @@ class SkGlyphRunList {
     SkSpan<SkGlyphRun> fGlyphRuns;
 
 public:
-    SkGlyphRunList() = default;
+    SkGlyphRunList();
     // Blob maybe null.
     SkGlyphRunList(
             const SkPaint& paint,
             const SkTextBlob* blob,
             SkPoint origin,
             SkSpan<SkGlyphRun> glyphRunList);
+
+    SkGlyphRunList(SkGlyphRun* glyphRun);
 
     uint64_t uniqueID() const;
     bool anyRunsLCD() const;
@@ -143,6 +151,7 @@ private:
 
 class SkGlyphRunBuilder {
 public:
+    void drawTextAtOrigin(const SkPaint& paint, const void* bytes, size_t byteLength);
     void drawText(
             const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin);
     void drawPosTextH(
@@ -152,7 +161,6 @@ public:
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
 
-    SkGlyphRun* useGlyphRun();
     SkGlyphRunList* useGlyphRunList();
 
 private:

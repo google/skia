@@ -199,7 +199,7 @@ private:
     // V43: Added DRAW_IMAGE and DRAW_IMAGE_RECT opt codes to serialized data
     // V44: Move annotations from paint to drawAnnotation
     // V45: Add invNormRotation to SkLightingShader.
-    // V46: Add drawTextRSXform
+    // V46: Add drawGlyphRunRSXform
     // V47: Add occluder rect to SkBlurMaskFilter
     // V48: Read and write extended SkTextBlobs.
     // V49: Gradients serialized as SkColor4f + SkColorSpace
