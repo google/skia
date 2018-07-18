@@ -34,6 +34,10 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
             fChain.push_back(std::move(pr));
         }
     }
+
+    // AA hairline path renderer is very specialized - no other renderer can do this job well
+    fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
+
     if (options.fGpuPathRenderers & GpuPathRenderers::kCoverageCounting) {
         using AllowCaching = GrCoverageCountingPathRenderer::AllowCaching;
         if (auto ccpr = GrCoverageCountingPathRenderer::CreateIfSupported(
@@ -42,9 +46,6 @@ GrPathRendererChain::GrPathRendererChain(GrContext* context, const Options& opti
             context->contextPriv().addOnFlushCallbackObject(fCoverageCountingPathRenderer);
             fChain.push_back(std::move(ccpr));
         }
-    }
-    if (options.fGpuPathRenderers & GpuPathRenderers::kAAHairline) {
-        fChain.push_back(sk_make_sp<GrAAHairLinePathRenderer>());
     }
     if (options.fGpuPathRenderers & GpuPathRenderers::kAAConvex) {
         fChain.push_back(sk_make_sp<GrAAConvexPathRenderer>());
