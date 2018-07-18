@@ -410,7 +410,7 @@ true if <a href='#SkPoint_fX'>fX</a> is zero and <a href='#SkPoint_fY'>fY</a> is
 
 ### Example
 
-<div><fiddle-embed name="81b9665110b88ef6bcbc20464aed7da1">
+<div><fiddle-embed name="214b559d75c65a7bef6ef4be1f860053">
 
 #### Example Output
 
@@ -776,7 +776,7 @@ straight-line distance to origin
 
 ### Example
 
-<div><fiddle-embed name="8363ab179447ee4b827679e20d3d81eb"></fiddle-embed></div>
+<div><fiddle-embed name="de83fbd848a4625345b4b87a6e55d98a"></fiddle-embed></div>
 
 ### See Also
 
@@ -805,7 +805,7 @@ straight-line distance to origin
 
 ### Example
 
-<div><fiddle-embed name="812cf26d91b1cdcd2c6b9438a8172518"></fiddle-embed></div>
+<div><fiddle-embed name="6c9688008cea8937ad5cc188b38ecf16"></fiddle-embed></div>
 
 ### See Also
 
