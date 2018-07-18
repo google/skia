@@ -946,6 +946,9 @@ static sk_sp<SkColorSpace> rgb_to_gbr() {
 static Sink* create_via(const SkString& tag, Sink* wrapped) {
 #define VIA(t, via, ...) if (tag.equals(t)) { return new via(__VA_ARGS__); }
     VIA("gbr",       ViaCSXform,           wrapped, rgb_to_gbr(), true);
+    VIA("p3",        ViaCSXform,           wrapped,
+                     SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                           SkColorSpace::kDCIP3_D65_Gamut), false);
     VIA("lite",      ViaLite,              wrapped);
     VIA("pipe",      ViaPipe,              wrapped);
 #ifdef TEST_VIA_SVG
@@ -1182,10 +1185,9 @@ struct Task {
                             const char* ext,
                             SkStream* data, size_t len,
                             const SkBitmap* bitmap) {
-        bool gammaCorrect = false;
-        if (bitmap) {
-            gammaCorrect = SkToBool(bitmap->info().colorSpace());
-        }
+        bool gammaCorrect = bitmap &&
+                            bitmap->info().colorSpace() &&
+                            bitmap->info().colorSpace()->gammaIsLinear();
 
         JsonWriter::BitmapResult result;
         result.name          = task.src->name();

@@ -55,6 +55,7 @@ static const struct {
     { "gl1010102",             "gpu", "api=gl,color=1010102" },
     { "gles1010102",           "gpu", "api=gles,color=1010102" },
     { "glsrgb",                "gpu", "api=gl,color=srgb" },
+    { "glp3",                  "gpu", "api=gl,color=p3" },
     { "glesrgb",               "gpu", "api=gl,color=esrgb" },
     { "glnarrow",              "gpu", "api=gl,color=narrow" },
     { "glenarrow",             "gpu", "api=gl,color=enarrow" },
@@ -305,6 +306,10 @@ static bool parse_option_gpu_color(const SkString& value,
     } else if (value.equals("srgb")) {
         *outColorType = kRGBA_8888_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();
+    } else if (value.equals("p3")) {
+        *outColorType = kRGBA_8888_SkColorType;
+        *outColorSpace = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                               SkColorSpace::kDCIP3_D65_Gamut);
     } else if (value.equals("esrgb")) {
         *outColorType = kRGBA_F16_SkColorType;
         *outColorSpace = SkColorSpace::MakeSRGB();

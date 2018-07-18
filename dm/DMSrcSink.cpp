@@ -18,6 +18,7 @@
 #include "Resources.h"
 #include "SkAndroidCodec.h"
 #include "SkAutoMalloc.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBase64.h"
 #include "SkCodec.h"
 #include "SkCodecImageGenerator.h"
@@ -2192,8 +2193,7 @@ ViaCSXform::ViaCSXform(Sink* sink, sk_sp<SkColorSpace> cs, bool colorSpin)
     , fColorSpin(colorSpin) {}
 
 Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkString* log) const {
-    return draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(),
-                          [&](SkCanvas* canvas) -> Error {
+    Error err = draw_to_canvas(fSink.get(), bitmap, stream, log, src.size(), [&](SkCanvas* canvas) {
         {
             SkAutoCanvasRestore acr(canvas, true);
             auto proxy = SkCreateColorSpaceXformCanvas(canvas, fCS);
@@ -2219,8 +2219,25 @@ Error ViaCSXform::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkSt
             canvas->drawBitmap(pixels, 0, 0, &rotateColors);
         }
 
-        return "";
+        return Error("");
     });
+
+    if (!err.isEmpty()) {
+        return err;
+    }
+
+    if (bitmap && !fColorSpin) {
+        // It should be possible to do this without all the copies, but that (I think) requires
+        // adding API to SkBitmap.
+        SkAutoPixmapStorage pmap;
+        pmap.alloc(bitmap->info());
+        bitmap->readPixels(pmap);
+        pmap.setColorSpace(fCS);
+        bitmap->allocPixels(pmap.info());
+        bitmap->writePixels(pmap);
+    }
+
+    return "";
 }
 
 }  // namespace DM
