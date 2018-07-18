@@ -275,6 +275,9 @@ template("gcc_like_toolchain") {
 
     tool("solink") {
       soname = "{{target_output_name}}{{output_extension}}"
+      if (is_linux && linux_soname_version != "") {
+        soname += ".$linux_soname_version"
+      }
 
       rpath = "-Wl,-soname,$soname"
       if (is_mac) {
