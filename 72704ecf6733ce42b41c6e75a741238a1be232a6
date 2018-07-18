@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b7240893_84d1bca7",
+        "filename": "src/effects/SkOpPE.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-18T17:01:05Z",
+      "side": 1,
+      "message": "Do all these need to be in a separate header (as opposed to private in .cpp)?",
+      "revId": "72704ecf6733ce42b41c6e75a741238a1be232a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ecca5d95_bbf3c721",
+        "filename": "src/ports/SkGlobalInitialization_default.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-18T17:01:05Z",
+      "side": 1,
+      "message": "ah, I guess this answers my question :)",
+      "range": {
+        "startLine": 69,
+        "startChar": 0,
+        "endLine": 71,
+        "endChar": 53
+      },
+      "revId": "72704ecf6733ce42b41c6e75a741238a1be232a6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
