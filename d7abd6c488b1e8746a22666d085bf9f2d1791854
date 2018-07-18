@@ -66,6 +66,30 @@
     },
     {
       "key": {
+        "uuid": "71346d37_e70b20cd",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-18T18:38:23Z",
+      "side": 1,
+      "message": "SGTM, changed \"jsons\" to \"lotties\" in the tool flags.",
+      "parentUuid": "e87ae7e5_b8f0c12a",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 13
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd59c714_4939d390",
         "filename": "infra/bots/recipe_modules/flavor/api.py",
         "patchSetId": 2
@@ -77,6 +101,30 @@
       "writtenOn": "2018-07-18T15:09:46Z",
       "side": 1,
       "message": "It\u0027s funny that \"install_everything\" doesn\u0027t install jsons.",
+      "range": {
+        "startLine": 110,
+        "startChar": 6,
+        "endLine": 110,
+        "endChar": 24
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d37ce98a_3a4f5a7c",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-18T18:38:23Z",
+      "side": 1,
+      "message": "Changed to explicitly list everything but lotties and removed install_everything.",
+      "parentUuid": "dd59c714_4939d390",
       "range": {
         "startLine": 110,
         "startChar": 6,
@@ -109,6 +157,30 @@
       "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4b37c00_d7ddb930",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-18T18:38:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70cb295e_90a2cdf2",
+      "range": {
+        "startLine": 171,
+        "startChar": 7,
+        "endLine": 171,
+        "endChar": 15
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
