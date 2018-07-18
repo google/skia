@@ -1149,7 +1149,7 @@ content of <a href='#SkPaint_move_operator_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="9fb7459b097d713f5f1fe5675afe14f5">
+<div><fiddle-embed name="5d7c6e23a34ca9bf3ba8cda4cdc94cc4">
 
 #### Example Output
 
@@ -2556,7 +2556,7 @@ a different arrangement.
 
 ### Example
 
-<div><fiddle-embed name="214b559d75c65a7bef6ef4be1f860053"></fiddle-embed></div>
+<div><fiddle-embed name="0fbf2dedc2619bbfbf173c9e3bc1a508"></fiddle-embed></div>
 
 <a name='SkPaint_getColor'></a>
 ## getColor
@@ -2679,7 +2679,7 @@ fully opaque.
 
 ### Example
 
-<div><fiddle-embed name="6ddc0360512dfb9947e75c17e6a8103d">
+<div><fiddle-embed name="525285073aae7e53eb8f454a398f880c">
 
 #### Example Output
 

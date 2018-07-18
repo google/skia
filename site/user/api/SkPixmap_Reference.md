@@ -597,7 +597,7 @@ pixel width in <a href='SkImageInfo_Reference#Image_Info'>Image Info</a>
 
 ### Example
 
-<div><fiddle-embed name="f68617b7153a20b2ed3d7f9ed5c6e5e4">
+<div><fiddle-embed name="95c6a7ef82993a8d2add676080e9438a">
 
 #### Example Output
 
