@@ -67,15 +67,7 @@ public:
     /*
      * Does this opList depend on 'dependedOn'?
      */
-    bool dependsOn(GrOpList* dependedOn) const {
-        for (int i = 0; i < fDependencies.count(); ++i) {
-            if (fDependencies[i] == dependedOn) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    bool dependsOn(const GrOpList* dependedOn) const;
 
     /*
      * Safely cast this GrOpList to a GrTextureOpList (if possible).
@@ -119,6 +111,8 @@ protected:
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+
+    void addDependency(GrOpList* dependedOn);
 
     // Remove all Ops which reference proxies that have not been instantiated.
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
@@ -173,8 +167,6 @@ private:
 
     virtual void onPrepare(GrOpFlushState* flushState) = 0;
     virtual bool onExecute(GrOpFlushState* flushState) = 0;
-
-    void addDependency(GrOpList* dependedOn);
 
     uint32_t               fUniqueID;
     uint32_t               fFlags;
