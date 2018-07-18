@@ -1328,19 +1328,29 @@ struct JsonStatus {
     string fName;
 };
 
-class StatusIter : public ParserCommon {
+class JsonCommon : public ParserCommon {
+public:
+    bool empty() { return fStack.empty(); }
+    bool parseFromFile(const char* path) override;
+
+    void reset() override {
+        fStack.clear();
+        INHERITED::resetCommon();
+    }
+
+    vector<JsonStatus> fStack;
+    Json::Value fRoot;
+private:
+    typedef ParserCommon INHERITED;
+};
+
+class StatusIter : public JsonCommon {
 public:
     StatusIter(const char* statusFile, const char* suffix, StatusFilter);
     ~StatusIter() override {}
     string baseDir();
-    bool empty() { return fStack.empty(); }
     bool next(string* file);
-protected:
-    bool parseFromFile(const char* path) override;
-    void reset() override;
 private:
-    vector<JsonStatus> fStack;
-    Json::Value fRoot;
     const char* fSuffix;
     StatusFilter fFilter;
 };
@@ -1415,6 +1425,7 @@ public:
     bool checkParamReturn(const Definition* definition) const;
     bool dumpExamples(FILE* fiddleOut, Definition& def, bool* continuation) const;
     bool dumpExamples(const char* fiddleJsonFileName) const;
+    bool checkExampleHashes() const;
     bool childOf(MarkType markType) const;
     string className(MarkType markType);
     bool collectExternals();
@@ -1441,6 +1452,7 @@ public:
 
     bool popParentStack(Definition* definition);
     void reportDuplicates(const Definition& def, string dup) const;
+    void resetExampleHashes();
 
     void reset() override {
         INHERITED::resetCommon();
@@ -2084,10 +2096,10 @@ private:
     typedef IncludeParser INHERITED;
 };
 
-class FiddleBase : public ParserCommon {
+class FiddleBase : public JsonCommon {
 protected:
-    FiddleBase(BmhParser* bmh) : ParserCommon()
-        , fBmhParser(bmh)
+    FiddleBase(BmhParser* bmh)
+        : fBmhParser(bmh)
         , fContinuation(false)
         , fTextOut(false)
         , fPngOut(false)
@@ -2096,7 +2108,7 @@ protected:
     }
 
     void reset() override {
-        INHERITED::resetCommon();
+        INHERITED::reset();
     }
 
     Definition* findExample(string name) const { return fBmhParser->findExample(name); }
@@ -2111,7 +2123,7 @@ protected:
     bool fTextOut;
     bool fPngOut;
 private:
-    typedef ParserCommon INHERITED;
+    typedef JsonCommon INHERITED;
 };
 
 class FiddleParser : public FiddleBase {
@@ -2121,10 +2133,14 @@ public:
     }
 
     bool parseFromFile(const char* path) override {
-        if (!INHERITED::parseSetup(path)) {
+        if (!INHERITED::parseFromFile(path)) {
             return false;
         }
-        return parseFiddles();
+        fBmhParser->resetExampleHashes();
+        if (!INHERITED::parseFiddles()) {
+            return false;
+        }
+        return fBmhParser->checkExampleHashes();
     }
 
 private:
