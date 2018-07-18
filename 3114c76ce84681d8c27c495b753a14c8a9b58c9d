@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93ea387b_3f1008f4",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-18T15:45:09Z",
+      "side": 1,
+      "message": "Do we have any thread safety issues here? Could the ref count change to or from 0 while we\u0027re in here?",
+      "range": {
+        "startLine": 203,
+        "startChar": 13,
+        "endLine": 203,
+        "endChar": 60
+      },
+      "revId": "3114c76ce84681d8c27c495b753a14c8a9b58c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
