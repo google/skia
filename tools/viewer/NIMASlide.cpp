@@ -56,7 +56,8 @@ public:
             , fIndices()
             , fBones()
             , fVertices(nullptr)
-            , fRenderMode(kBackend_RenderMode) {
+            , fRenderMode(kBackend_RenderMode)
+            , fCacheMode(kNone_CacheMode) {
         // Update the vertices and bones.
         this->updateVertices();
         this->updateBones();
@@ -65,46 +66,60 @@ public:
         this->updateVerticesObject(false, false);
     }
 
-    void renderBackend(SkCanvas* canvas) {
-        // Reset vertices if the render mode has changed.
-        if (fRenderMode != kBackend_RenderMode) {
-            fRenderMode = kBackend_RenderMode;
+    void render(SkCanvas* canvas) {
+        bool deformOnCpu = fRenderMode == kImmediate_RenderMode;
+        bool isVolatile = fCacheMode == kNone_CacheMode;
+
+        // Reset vertices if dirtied.
+        if (fDirty) {
             this->updateVertices();
-            this->updateVerticesObject(false, false);
+            this->updateVerticesObject(deformOnCpu, isVolatile);
+
+            fDirty = false;
         }
 
-        // Update the vertex data.
-        if (fActorImage->doesAnimationVertexDeform()) {
-            this->updateVertices();
-            this->updateVerticesObject(false, true);
-        }
+        switch (fRenderMode) {
+        case kBackend_RenderMode: {
+            // Update vertex data for deformed vertices.
+            if (fActorImage->doesAnimationVertexDeform()) {
+                this->updateVertices();
+                this->updateVerticesObject(false, true); // These change every frame, so
+                                                         // must be volatile.
+            }
 
-        // Update the bones.
-        this->updateBones();
+            // Update the bones.
+            this->updateBones();
+            break;
+        }
+        case kImmediate_RenderMode: {
+            // Update the vertex data.
+            if (fActorImage->doesAnimationVertexDeform() && fActorImage->isVertexDeformDirty()) {
+                this->updateVertices();
+                fActorImage->isVertexDeformDirty(false);
+            }
+
+            // Update the vertices object.
+            this->updateVerticesObject(true, true); // Immediate mode vertices change every frame,
+                                                    // so they must be volatile.
+        }
+        }
 
         // Draw the vertices object.
-        this->drawVerticesObject(canvas, true);
+        this->drawVerticesObject(canvas, !deformOnCpu);
     }
 
-    void renderImmediate(SkCanvas* canvas) {
-        // Reset vertices if the render mode has changed.
-        if (fRenderMode != kImmediate_RenderMode) {
-            fRenderMode = kImmediate_RenderMode;
-            this->updateVertices();
-            this->updateVerticesObject(true, true);
+    void setRenderMode(const RenderMode renderMode) {
+        if (fRenderMode != renderMode) {
+            fRenderMode = renderMode;
+            fDirty = true;
         }
+    }
 
-        // Update the vertex data.
-        if (fActorImage->doesAnimationVertexDeform() && fActorImage->isVertexDeformDirty()) {
-            this->updateVertices();
-            fActorImage->isVertexDeformDirty(false);
+    void setCacheMode(const CacheMode cacheMode) {
+        if (fCacheMode != cacheMode) {
+            fCacheMode = cacheMode;
+            fDirty = true;
         }
-
-        // Update the vertices object.
-        this->updateVerticesObject(true, true);
-
-        // Draw the vertices object.
-        this->drawVerticesObject(canvas, false);
     }
 
     int drawOrder() const { return fActorImage->drawOrder(); }
@@ -317,6 +332,8 @@ private:
     sk_sp<SkVertices>     fVertices;
 
     RenderMode fRenderMode;
+    CacheMode fCacheMode;
+    bool fDirty;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,21 +376,12 @@ public:
         }
     }
 
-    void render(SkCanvas* canvas, RenderMode renderMode) {
+    void render(SkCanvas* canvas, RenderMode renderMode, CacheMode cacheMode) {
         // Render the image nodes.
         for (auto& image : fActorImages) {
-            switch (renderMode) {
-            case kBackend_RenderMode: {
-                // Render with Skia backend.
-                image.renderBackend(canvas);
-                break;
-            }
-            case kImmediate_RenderMode: {
-                // Render with immediate backend.
-                image.renderImmediate(canvas);
-                break;
-            }
-            }
+            image.setRenderMode(renderMode);
+            image.setCacheMode(cacheMode);
+            image.render(canvas);
         }
     }
 
@@ -398,6 +406,7 @@ NIMASlide::NIMASlide(const SkString& name, const SkString& path)
         , fPlaying(true)
         , fTime(0.0f)
         , fRenderMode(kBackend_RenderMode)
+        , fCacheMode(kNone_CacheMode)
         , fAnimation(nullptr)
         , fAnimationIndex(0) {
     fName = name;
@@ -425,7 +434,7 @@ void NIMASlide::draw(SkCanvas* canvas) {
             canvas->scale(0.5, -0.5);
 
             // Render the actor.
-            fActor->render(canvas, fRenderMode);
+            fActor->render(canvas, fRenderMode, fCacheMode);
 
             canvas->restore();
         }
@@ -476,7 +485,7 @@ void NIMASlide::resetActor() {
 }
 
 void NIMASlide::renderGUI() {
-    ImGui::SetNextWindowSize(ImVec2(300, 220));
+    ImGui::SetNextWindowSize(ImVec2(300, 280));
     ImGui::Begin("NIMA");
 
     // List of animations.
@@ -514,6 +523,17 @@ void NIMASlide::renderGUI() {
         fRenderMode = kBackend_RenderMode;
     } else {
         fRenderMode = kImmediate_RenderMode;
+    }
+
+    // Cache control.
+    int cacheMode = fCacheMode;
+    ImGui::Spacing();
+    ImGui::RadioButton("No Caching", &cacheMode, 0);
+    ImGui::RadioButton("Caching", &cacheMode, 1);
+    if (cacheMode == 0) {
+        fCacheMode = kNone_CacheMode;
+    } else {
+        fCacheMode = kCache_CacheMode;
     }
 
     ImGui::End();

@@ -25,6 +25,11 @@ enum RenderMode {
     kImmediate_RenderMode = 1,
 };
 
+enum CacheMode {
+    kNone_CacheMode  = 0,
+    kCache_CacheMode = 1,
+};
+
 class NIMASlide : public Slide {
 public:
     NIMASlide(const SkString& name, const SkString& path);
@@ -51,6 +56,7 @@ private:
     bool fPlaying;
     float fTime;
     RenderMode fRenderMode;
+    CacheMode fCacheMode;
 
     nima::ActorAnimationInstance* fAnimation;
     int                           fAnimationIndex;
