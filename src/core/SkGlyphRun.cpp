@@ -51,6 +51,31 @@ SkGlyphRun::SkGlyphRun(SkPaint&& runPaint,
         , fClusters{clusters}
         , fRunPaint{std::move(runPaint)} {}
 
+
+void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
+    SkPaint paint{fRunPaint};
+    SkPoint point;
+    SkGlyphID glyphID;
+    SkGlyphRun run{
+        std::move(paint),
+        SkSpan<const uint16_t>{},  // No dense indices for now.
+        SkSpan<const SkPoint>{&point, 1},
+        SkSpan<const SkGlyphID>{&glyphID, 1},
+        SkSpan<const SkGlyphID>{},
+        SkSpan<const char>{},
+        SkSpan<const uint32_t>{}
+    };
+
+    auto runSize = fTemporaryShuntGlyphIDs.size();
+    auto runPaint = run.mutablePaint();
+    for (size_t i = 0; i < runSize; i++) {
+        glyphID = fTemporaryShuntGlyphIDs[i];
+        point = fPositions[i];
+        perGlyph(&run, runPaint);
+    }
+
+}
+
 void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) {
 
     auto pos = (const SkScalar*) this->positions().data();
@@ -74,6 +99,7 @@ void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positio
 }
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
+SkGlyphRunList::SkGlyphRunList() = default;
 SkGlyphRunList::SkGlyphRunList(
         const SkPaint& paint,
         const SkTextBlob* blob,
@@ -83,6 +109,12 @@ SkGlyphRunList::SkGlyphRunList(
         , fOriginalTextBlob{blob}
         , fOrigin{origin}
         , fGlyphRuns{glyphRunList} { }
+
+SkGlyphRunList::SkGlyphRunList(SkGlyphRun* glyphRun)
+        : fOriginalPaint{nullptr}
+        , fOriginalTextBlob{nullptr}
+        , fOrigin{SkPoint::Make(0, 0)}
+        , fGlyphRuns{SkSpan<SkGlyphRun>{glyphRun, 1}} {}
 
 uint64_t SkGlyphRunList::uniqueID() const {
     return fOriginalTextBlob != nullptr ? fOriginalTextBlob->uniqueID()
@@ -166,6 +198,29 @@ SkSpan<const SkGlyphID> SkGlyphIDSet::uniquifyGlyphIDs(
 }
 
 // -- SkGlyphRunBuilder ----------------------------------------------------------------------------
+void SkGlyphRunBuilder::drawTextAtOrigin(
+        const SkPaint& paint, const void* bytes, size_t byteLength) {
+    auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);
+    if (!glyphIDs.empty()) {
+        this->initialize(glyphIDs.size());
+    }
+
+    auto positions = SkSpan<const SkPoint>{fPositions, glyphIDs.size()};
+
+    // Every glyph is at the origin.
+    sk_bzero((void *)positions.data(), positions.size_bytes());
+
+    this->makeGlyphRun(
+            paint,
+            glyphIDs,
+            positions,
+            SkSpan<const uint16_t>{},  // no dense indices for now.,
+            SkSpan<const SkGlyphID>{},
+            SkSpan<const char>{},
+            SkSpan<const uint32_t>{});
+    this->makeGlyphRunList(paint, nullptr, SkPoint::Make(0, 0));
+}
+
 void SkGlyphRunBuilder::drawText(
         const SkPaint& paint, const void* bytes, size_t byteLength, SkPoint origin) {
     auto glyphIDs = textToGlyphIDs(paint, bytes, byteLength);

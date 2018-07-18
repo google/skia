@@ -2478,7 +2478,7 @@ void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPat
     LOOPER_END
 }
 
-void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
+void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
     if (cullRect && this->quickReject(*cullRect)) {
         return;
@@ -2487,7 +2487,12 @@ void SkCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRS
     LOOPER_BEGIN(paint, nullptr)
 
     while (iter.next()) {
-        iter.fDevice->drawTextRSXform(text, byteLength, xform, looper.paint());
+        fScratchGlyphRunBuilder->drawTextAtOrigin(paint, text, len);
+        auto list = fScratchGlyphRunBuilder->useGlyphRunList();
+        if (!list->empty()) {
+            auto glyphRun = (*list)[0];
+            iter.fDevice->drawGlyphRunRSXform(&glyphRun, xform);
+        }
     }
 
     LOOPER_END
