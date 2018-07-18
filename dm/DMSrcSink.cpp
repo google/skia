@@ -1596,7 +1596,8 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     // Also, force us to only use the software path renderer, so we really stress-test the threaded
     // version of that code.
     GrContextOptions contextOptions = this->baseContextOptions();
-    contextOptions.fGpuPathRenderers = GpuPathRenderers::kNone;
+    // FIXME: Sending hairlines to the software renderer causes failures in nonclosedpaths.
+    contextOptions.fGpuPathRenderers = GpuPathRenderers::kAAHairline;
     contextOptions.fExecutor = fExecutor.get();
 
     Error err = this->onDraw(src, dst, wStream, log, contextOptions);
