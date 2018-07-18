@@ -95,7 +95,6 @@ public:
 #endif
     }
 
-    int32_t getProxyRefCnt_TestOnly() const;
     int32_t getBackingRefCnt_TestOnly() const;
     int32_t getPendingReadCnt_TestOnly() const;
     int32_t getPendingWriteCnt_TestOnly() const;
@@ -162,6 +161,10 @@ protected:
         fTarget->fRefCnt += (fRefCnt-1); // don't xfer the proxy's creation ref
         fTarget->fPendingReads += fPendingReads;
         fTarget->fPendingWrites += fPendingWrites;
+    }
+
+    int32_t internalGetProxyRefCnt() const {
+        return fRefCnt;
     }
 
     bool internalHasPendingIO() const {
@@ -409,6 +412,10 @@ protected:
     friend class GrSurfaceProxyPriv;
 
     // Methods made available via GrSurfaceProxyPriv
+    int32_t getProxyRefCnt() const {
+        return this->internalGetProxyRefCnt();
+    }
+
     bool hasPendingIO() const {
         return this->internalHasPendingIO();
     }
