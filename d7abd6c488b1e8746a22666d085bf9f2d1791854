@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "e87ae7e5_b8f0c12a",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-18T16:28:08Z",
+      "side": 1,
+      "message": "The blame lies with my \"jsons\" naming for dm/viewer args :)\n\nAgreed that \"jsons\" is too generic, especially in the infra realm where you deal with other jsons.  I should rename the tools args to \"lotties\" also.",
+      "parentUuid": "f6584a3d_bb927fe9",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 13
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd59c714_4939d390",
         "filename": "infra/bots/recipe_modules/flavor/api.py",
         "patchSetId": 2
