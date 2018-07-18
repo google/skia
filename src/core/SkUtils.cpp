@@ -86,10 +86,6 @@ int SkUTF8_CountUnichars(const char utf8[]) {
 int SkUTF8_CountUnichars(const void* text, size_t byteLength) {
     SkASSERT(text);
     const char* utf8 = static_cast<const char*>(text);
-    if (byteLength == 0) {
-        return 0;
-    }
-
     int         count = 0;
     const char* stop = utf8 + byteLength;
 
@@ -262,9 +258,6 @@ int SkUTF16_CountUnichars(const uint16_t src[]) {
 // returns -1 on error
 int SkUTF16_CountUnichars(const void* text, size_t byteLength) {
     SkASSERT(text);
-    if (byteLength == 0) {
-        return 0;
-    }
     if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(byteLength)) {
         return -1;
     }
@@ -274,7 +267,9 @@ int SkUTF16_CountUnichars(const void* text, size_t byteLength) {
     int count = 0;
     while (src < stop) {
         unsigned c = *src++;
-        SkASSERT(!SkUTF16_IsLowSurrogate(c));
+        if (SkUTF16_IsLowSurrogate(c)) {
+            return -1;
+        }
         if (SkUTF16_IsHighSurrogate(c)) {
             if (src >= stop) {
                 return -1;
@@ -405,9 +400,6 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
 
 // returns -1 on error
 int SkUTF32_CountUnichars(const void* text, size_t byteLength) {
-    if (byteLength == 0) {
-        return 0;
-    }
     if (!SkIsAlign4(intptr_t(text)) || !SkIsAlign4(byteLength)) {
         return -1;
     }
