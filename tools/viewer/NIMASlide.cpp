@@ -194,6 +194,7 @@ private:
     }
 
     void updateVerticesObject(bool applyDeforms, bool isVolatile) {
+        isVolatile = true; // TODO: not this.
         std::vector<SkPoint>* positions = &fPositions;
 
         // Apply deforms if requested.
