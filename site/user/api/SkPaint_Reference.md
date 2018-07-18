@@ -1031,7 +1031,7 @@ content of <a href='#SkPaint_move_SkPaint_paint'>paint</a>
 
 ### Example
 
-<div><fiddle-embed name="8ed1488a503cd5282b86a51614aa90b1">
+<div><fiddle-embed name="9547e74a9d37553a667b913ffd1312dd">
 
 #### Example Output
 
@@ -1272,7 +1272,7 @@ a shallow hash
 
 ### Example
 
-<div><fiddle-embed name="7f7e1b701361912b344f90ae6b530393">
+<div><fiddle-embed name="8fe8572685eaa617f25a5a6767a874dc">
 
 #### Example Output
 
@@ -1381,7 +1381,7 @@ one of: <a href='#SkPaint_kNo_Hinting'>kNo Hinting</a>, <a href='#SkPaint_kSligh
 
 ### Example
 
-<div><fiddle-embed name="329e2e5a5919ac431e1c58878a5b99e0">
+<div><fiddle-embed name="ab746d9be63975041ae8e50cba84dc3d">
 
 #### Example Output
 
@@ -1900,7 +1900,7 @@ Clears <a href='#SkPaint_kLinearText_Flag'>kLinearText Flag</a> if <a href='#SkP
 
 ### Example
 
-<div><fiddle-embed name="c93bb912f3bddfb4d96d3ad70ada552b"></fiddle-embed></div>
+<div><fiddle-embed name="ccfc734aff2ddea0b097c83f5621de5e"></fiddle-embed></div>
 
 ### See Also
 
@@ -2645,7 +2645,7 @@ Retrieves <a href='SkColor_Reference#Alpha'>Alpha</a> from the <a href='SkColor_
 
 ### Example
 
-<div><fiddle-embed name="9a85bb62fe3d877b18fb7f952c4fa7f7">
+<div><fiddle-embed name="d06880c42f8bb3b4c3b67bd988046049">
 
 #### Example Output
 
@@ -3720,7 +3720,7 @@ over the destination color.
 
 ### Example
 
-<div><fiddle-embed name="73092d4d06faecea3c204d852a4dd8a8"></fiddle-embed></div>
+<div><fiddle-embed name="de83fbd848a4625345b4b87a6e55d98a"></fiddle-embed></div>
 
 ### See Also
 
@@ -3874,7 +3874,7 @@ Increases <a href='undocumented#Path_Effect'>Path Effect</a> <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="f56039b94c702c2704c8c5100e623aca">
+<div><fiddle-embed name="d06880c42f8bb3b4c3b67bd988046049">
 
 #### Example Output
 
@@ -3971,7 +3971,7 @@ Increases <a href='undocumented#Mask_Filter'>Mask Filter</a> <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="084b0dc3cebd78718c651d58f257f799">
+<div><fiddle-embed name="8e04f89252632da0fffe713f07f2296f">
 
 #### Example Output
 
@@ -4065,7 +4065,7 @@ Increases <a href='undocumented#Typeface'>Typeface</a> <a href='undocumented#Ref
 
 ### Example
 
-<div><fiddle-embed name="8b5aa7e555a0dc31be69db7cadf471a1">
+<div><fiddle-embed name="3fee4364929899649cf9efc37897e964">
 
 #### Example Output
 
@@ -5548,7 +5548,7 @@ advance width or height
 
 ### Example
 
-<div><fiddle-embed name="06084f609184470135a9cd9ebc5af149"></fiddle-embed></div>
+<div><fiddle-embed name="d06880c42f8bb3b4c3b67bd988046049"></fiddle-embed></div>
 
 ---
 
@@ -5994,7 +5994,7 @@ true if <a href='#Paint'>Paint</a> prevents all drawing
 
 ### Example
 
-<div><fiddle-embed name="2973b05bfbb6b4c29332c8ac4fcf3995">
+<div><fiddle-embed name="0e03cd9f154603ed4b21ca56d69dae44">
 
 #### Example Output
 

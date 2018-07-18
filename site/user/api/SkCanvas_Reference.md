@@ -1529,7 +1529,7 @@ The copied quarter circles overdraw the original circle.
 
 ### Example
 
-<div><fiddle-embed name="481e990e923a0ed34654f4361b94f096"><div><a href='#Canvas'>Canvas</a> returned by <a href='undocumented#Raster_Surface'>Raster Surface</a> has <a href='undocumented#Premultiply'>Premultiplied</a> pixel values.
+<div><fiddle-embed name="947922a19d59893fe7f9d9ee1954379b"><div><a href='#Canvas'>Canvas</a> returned by <a href='undocumented#Raster_Surface'>Raster Surface</a> has <a href='undocumented#Premultiply'>Premultiplied</a> pixel values.
 <a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
 and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 to generate <a href='undocumented#Premultiply'>Premultiplied</a> value 0x802B5580. <a href='#SkCanvas_readPixels'>readPixels</a> converts pixel back
@@ -3462,7 +3462,7 @@ bounds of <a href='#Clip'>Clip</a> in local coordinates
 
 ### Example
 
-<div><fiddle-embed name="7f60cb030d3f9b2473adbe3e34b19d91"><div>Initial bounds is device bounds outset by 1 on all sides.
+<div><fiddle-embed name="404fb42560a289c2004cad1caf3b96de"><div>Initial bounds is device bounds outset by 1 on all sides.
 Clipped bounds is <a href='#SkCanvas_clipPath'>clipPath</a> bounds outset by 1 on all sides.
 Scaling the canvas by two on both axes scales the local bounds by 1/2
 on both axes.
@@ -6366,7 +6366,7 @@ Draws <a href='SkPicture_Reference#Picture'>Picture</a> <a href='#SkCanvas_drawP
 
 ### Example
 
-<div><fiddle-embed name="83918a23fcffd47f59a1ef662c85a24c"></fiddle-embed></div>
+<div><fiddle-embed name="6e0be0766b8ca320da51640326e608b3"></fiddle-embed></div>
 
 ### See Also
 
@@ -6651,7 +6651,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="accb545d67984ced168f5be6ab824795"></fiddle-embed></div>
+<div><fiddle-embed name="6e2a8c9358b34aebd2ec586815fe9d3a"></fiddle-embed></div>
 
 ### See Also
 
@@ -6821,7 +6821,7 @@ If <a href='#SkCanvas_drawAtlas_2_cullRect'>cullRect</a> is outside of <a href='
 
 ### Example
 
-<div><fiddle-embed name="0e66a8f230a8d531bcef9f5ebdc5aac1"></fiddle-embed></div>
+<div><fiddle-embed name="25305461b916baf40d7d379e04a5589c"></fiddle-embed></div>
 
 ### See Also
 
@@ -7024,7 +7024,7 @@ Only some canvas implementations, such as recording to <a href='SkPicture_Refere
 
 ### Example
 
-<div><fiddle-embed name="00b430bd80d740e19c6d020a940f56d5"></fiddle-embed></div>
+<div><fiddle-embed name="33b029064e8d1928e42a587c953d0e4e"></fiddle-embed></div>
 
 ### See Also
 

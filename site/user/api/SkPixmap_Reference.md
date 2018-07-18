@@ -409,7 +409,7 @@ Changes <a href='undocumented#Color_Space'>Color Space</a> in <a href='SkImageIn
 
 ### Example
 
-<div><fiddle-embed name="30d70aec4de17c831dba71e03dc9664a">
+<div><fiddle-embed name="a7ac9c21bbabcdeeca00f72a61cd0f3e">
 
 #### Example Output
 
