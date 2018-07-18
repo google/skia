@@ -2228,7 +2228,7 @@ defined. Safer than operator[]; internal cache is always maintained.
 
 ### Example
 
-<div><fiddle-embed name="d06880c42f8bb3b4c3b67bd988046049">
+<div><fiddle-embed name="1d400a92ca826cc89bcb88ea051f28c8">
 
 #### Example Output
 
@@ -2873,7 +2873,7 @@ The pivot point is unchanged when mapped with <a href='#Matrix'>Matrix</a>.
 
 ### Example
 
-<div><fiddle-embed name="ececbda21218bd732394a305dba393a2"></fiddle-embed></div>
+<div><fiddle-embed name="187e1d9228e2e4341ef820bd77b6fda9"></fiddle-embed></div>
 
 ### See Also
 
@@ -3574,7 +3574,7 @@ S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O
 
 ### Example
 
-<div><fiddle-embed name="6b90c7ae9f254fe4ea9ef638f893a3e6"></fiddle-embed></div>
+<div><fiddle-embed name="ed3aa18ba0ea95c85cc49aa3829fe384"></fiddle-embed></div>
 
 ### See Also
 

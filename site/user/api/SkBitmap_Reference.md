@@ -1615,7 +1615,7 @@ size in bytes of image buffer
 
 ### Example
 
-<div><fiddle-embed name="befac1c29ed21507d367e4d824383a04">
+<div><fiddle-embed name="165c8f208829fc0908e8a50da60c0076">
 
 #### Example Output
 
@@ -2485,7 +2485,7 @@ true if pixel storage is allocated
 
 ### Example
 
-<div><fiddle-embed name="c81fc7dfaf785c3fb77209c7f2ebe5b8"></fiddle-embed></div>
+<div><fiddle-embed name="a2b1e0910f37066f15ae56368775a6d8"></fiddle-embed></div>
 
 ### See Also
 
@@ -2820,7 +2820,7 @@ time by defining SK_ABORT.
 
 ### Example
 
-<div><fiddle-embed name="d06880c42f8bb3b4c3b67bd988046049"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
+<div><fiddle-embed name="1219b38c788bf270fb20f8cd2d78cff8"><div><a href='#Bitmap'>Bitmap</a> hosts and draws gray values in set1. <a href='#SkBitmap_allocPixels'>allocPixels</a> replaces <a href='undocumented#Pixel_Ref'>Pixel Ref</a>
 and erases it to black, but does not alter set1. <a href='#SkBitmap_setPixels'>setPixels</a> replaces black
 <a href='undocumented#Pixel_Ref'>Pixel Ref</a> with set2.
 </div></fiddle-embed></div>
@@ -3026,7 +3026,7 @@ The caller is responsible for ensuring that the pixels match the
 
 ### Example
 
-<div><fiddle-embed name="befac1c29ed21507d367e4d824383a04"><div>Treating 32-bit data as 8-bit data is unlikely to produce useful results.
+<div><fiddle-embed name="f98cc0451c6e77a8833d261c9a484c5f"><div>Treating 32-bit data as 8-bit data is unlikely to produce useful results.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -3573,7 +3573,7 @@ true if <a href='#SkBitmap_extractSubset_dst'>dst</a> is replaced by <a href='#S
 
 ### Example
 
-<div><fiddle-embed name="8e04f89252632da0fffe713f07f2296f">
+<div><fiddle-embed name="304148c50c91490bfd58e9222342419c">
 
 #### Example Output
 
@@ -4001,7 +4001,7 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 ### Example
 
-<div><fiddle-embed name="05f0f65ae148f192656cd87df90f1d57"></fiddle-embed></div>
+<div><fiddle-embed name="092739b4cd5d732a27c07ced8ef45f01"></fiddle-embed></div>
 
 ### See Also
 
