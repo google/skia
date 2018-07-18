@@ -28,6 +28,7 @@ class ChromecastFlavor(android.AndroidFlavor):
         perf_data_dir = data_dir + 'perf',
         resource_dir  = data_dir + 'resources',
         images_dir    = data_dir + 'images',
+        jsons_dir     = data_dir + 'jsons',
         skp_dir       = data_dir + 'skps',
         svg_dir       = data_dir + 'svgs',
         tmp_dir       = data_dir)

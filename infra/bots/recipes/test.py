@@ -301,7 +301,7 @@ def dm_flags(api, bot):
   args.extend(configs)
 
   # Run tests, gms, and image decoding tests everywhere.
-  args.extend('--src tests gm image colorImage svg skp'.split(' '))
+  args.extend('--src tests gm image json colorImage svg skp'.split(' '))
   if api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     # Don't run the 'svgparse_*' svgs on GPU.
     blacklist('_ svg _ svgparse_')
@@ -325,15 +325,30 @@ def dm_flags(api, bot):
     args.remove('image')
     args.remove('colorImage')
 
+  def remove_from_args(arg):
+    if arg in args:
+      args.remove(arg)
+
   if 'DDL' in bot:
     # The DDL bots just render the large skps and the gms
-    args.remove('tests')
-    args.remove('image')
-    args.remove('colorImage')
-    args.remove('svg')
+    remove_from_args('tests')
+    remove_from_args('image')
+    remove_from_args('colorImage')
+    remove_from_args('svg')
   else:
     # Currently, only the DDL bots render skps
-    args.remove('skp')
+    remove_from_args('skp')
+
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    # Only run the jsons on Lottie bots.
+    remove_from_args('tests')
+    remove_from_args('gm')
+    remove_from_args('image')
+    remove_from_args('colorImage')
+    remove_from_args('svg')
+    remove_from_args('skp')
+  else:
+    remove_from_args('json')
 
   # TODO: ???
   blacklist('f16 _ _ dstreadshuffle')
@@ -948,6 +963,8 @@ def test_steps(api):
     ] + properties
 
     args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+    if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+      args.extend(['--jsons', api.flavor.device_dirs.jsons_dir])
 
   args.append('--key')
   args.extend(key_params(api))
@@ -988,6 +1005,8 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
+      elif 'Lottie' in api.vars.builder_name:
+        api.flavor.install(resources=True, jsons=True)
       else:
         api.flavor.install_everything()
       test_steps(api)
@@ -1020,6 +1039,7 @@ TEST_BUILDERS = [
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',

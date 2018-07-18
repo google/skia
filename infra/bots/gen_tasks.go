@@ -1003,6 +1003,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 	}
 	task := kitchenTask(name, recipe, "test_skia_bundled.isolate", "", swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
+	if strings.Contains(name, "Lottie") {
+		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+	}
 	task.Dependencies = append(task.Dependencies, compileTaskName)
 	if strings.Contains(name, "Android_ASAN") {
 		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
