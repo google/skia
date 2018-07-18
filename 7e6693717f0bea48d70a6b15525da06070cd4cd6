@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1e19aa9d_14ac8b7a",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-18T19:25:27Z",
+      "side": 1,
+      "message": "This is slightly confusing - on the next frame after changing modes, we\u0027ll potentially be building a cached vertices object here, even though the immediate code path (and the deformed code path) then re-create the vertices every frame as non-cached? I\u0027m not sure there\u0027s a good solution, but maybe a comment here?\n\n---\n\nMore generally, having some visualization modes might be nice. I know you implemented bounding box rendering at some point - is that code floating around? Having checkboxes in the GUI that let us see the bounding boxes, and even tinting each part to indicate which code path it\u0027s hitting (as well as information about any caching or batching that\u0027s happening) would be really neat.\n\nNone of this is required, just food for thought. ;)",
+      "revId": "7e6693717f0bea48d70a6b15525da06070cd4cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b919c425_529f5c15",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-18T19:25:27Z",
+      "side": 1,
+      "message": "This is only true when NIMA needs to do more complex vertex deformation (beyond skinning), right?",
+      "revId": "7e6693717f0bea48d70a6b15525da06070cd4cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "937e885b_4a502d41",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-18T19:25:27Z",
+      "side": 1,
+      "message": "nit: Indent the case labels (and everything else here) one level from the switch",
+      "range": {
+        "startLine": 82,
+        "startChar": 0,
+        "endLine": 104,
+        "endChar": 9
+      },
+      "revId": "7e6693717f0bea48d70a6b15525da06070cd4cd6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
