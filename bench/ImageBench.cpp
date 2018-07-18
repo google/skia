@@ -62,4 +62,42 @@ private:
 
     typedef Benchmark INHERITED;
 };
+
+class ImageBench : public Benchmark {
+public:
+    bool isSuitableFor(Backend backend) override {
+        return kGPU_Backend == backend || kRaster_Backend == backend;
+    }
+
+protected:
+    const char* onGetName() override {
+        return "draw_image";
+    }
+
+    void onPerCanvasPreDraw(SkCanvas* canvas) override {
+        SkImageInfo info = canvas->imageInfo().makeWH(100, 100);
+        auto surface(canvas->makeSurface(info));
+        canvas->drawColor(SK_ColorRED);
+        fImage = surface->makeImageSnapshot();
+    }
+
+    void onPerCanvasPostDraw(SkCanvas*) override {
+        fImage.reset(nullptr);
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        for (int i = 0; i < loops; i++) {
+            for (int inner = 0; inner < 10; ++inner) {
+                canvas->drawImage(fImage.get(), 0, 0);
+            }
+        }
+    }
+
+private:
+    sk_sp<SkImage>   fImage;
+
+    typedef Benchmark INHERITED;
+};
+
 DEF_BENCH( return new Image2RasterBench; )
+DEF_BENCH( return new ImageBench; )
