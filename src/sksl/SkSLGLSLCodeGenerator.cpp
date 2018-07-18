@@ -1229,25 +1229,6 @@ void GLSLCodeGenerator::writeHeader() {
             this->writeExtension((Extension&) *e);
         }
     }
-    if (!fProgram.fSettings.fCaps->canUseFragCoord()) {
-        Layout layout;
-        switch (fProgram.fKind) {
-            case Program::kVertex_Kind: {
-                Modifiers modifiers(layout, Modifiers::kOut_Flag | Modifiers::kHighp_Flag);
-                this->writeModifiers(modifiers, true);
-                this->write("vec4 sk_FragCoord_Workaround;\n");
-                break;
-            }
-            case Program::kFragment_Kind: {
-                Modifiers modifiers(layout, Modifiers::kIn_Flag | Modifiers::kHighp_Flag);
-                this->writeModifiers(modifiers, true);
-                this->write("vec4 sk_FragCoord_Workaround;\n");
-                break;
-            }
-            default:
-                break;
-        }
-    }
 }
 
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
@@ -1324,6 +1305,27 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = rawOut;
 
     write_stringstream(fHeader, *rawOut);
+
+    if (!fProgram.fSettings.fCaps->canUseFragCoord()) {
+        Layout layout;
+        switch (fProgram.fKind) {
+            case Program::kVertex_Kind: {
+                Modifiers modifiers(layout, Modifiers::kOut_Flag | Modifiers::kHighp_Flag);
+                this->writeModifiers(modifiers, true);
+                this->write("vec4 sk_FragCoord_Workaround;\n");
+                break;
+            }
+            case Program::kFragment_Kind: {
+                Modifiers modifiers(layout, Modifiers::kIn_Flag | Modifiers::kHighp_Flag);
+                this->writeModifiers(modifiers, true);
+                this->write("vec4 sk_FragCoord_Workaround;\n");
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
     if (this->usesPrecisionModifiers()) {
         this->writeLine("precision mediump float;");
     }
