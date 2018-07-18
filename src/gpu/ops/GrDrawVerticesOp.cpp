@@ -98,7 +98,7 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     if (this->hasBones()) {
         // We don't know the bounds if there are deformations involved, so attempt to calculate
         // the maximum possible.
-        SkRect bounds;
+        SkRect bounds = SkRect::MakeEmpty();
         const SkRect originalBounds = bones[0].mapRect(mesh.fVertices->bounds());
         for (int i = 1; i < boneCount; i++) {
             const SkMatrix& matrix = bones[i];
