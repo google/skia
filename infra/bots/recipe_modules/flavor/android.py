@@ -31,6 +31,7 @@ class AndroidFlavor(default.DefaultFlavor):
         perf_data_dir = android_data_dir + 'perf',
         resource_dir  = android_data_dir + 'resources',
         images_dir    = android_data_dir + 'images',
+        lotties_dir   = android_data_dir + 'lotties',
         skp_dir       = android_data_dir + 'skps',
         svg_dir       = android_data_dir + 'svgs',
         tmp_dir       = android_data_dir)

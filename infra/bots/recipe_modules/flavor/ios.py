@@ -21,6 +21,7 @@ class iOSFlavor(default.DefaultFlavor):
         perf_data_dir='perf',
         resource_dir='resources',
         images_dir='images',
+        lotties_dir='lotties',
         skp_dir='skps',
         svg_dir='svgs',
         tmp_dir='tmp')

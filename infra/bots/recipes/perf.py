@@ -352,7 +352,7 @@ def RunSteps(api):
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
       else:
-        api.flavor.install_everything()
+        api.flavor.install(skps=True, images=True, svgs=True, resources=True)
       perf_steps(api)
     finally:
       api.flavor.cleanup_steps()

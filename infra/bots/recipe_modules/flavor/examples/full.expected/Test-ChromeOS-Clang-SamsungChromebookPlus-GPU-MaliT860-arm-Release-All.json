@@ -502,6 +502,150 @@
       "--json-output",
       "/path/to/tmp/json",
       "copy",
+      "[START_DIR]/skia/infra/bots/assets/lottie-samples/VERSION",
+      "/path/to/tmp/"
+    ],
+    "infra_step": true,
+    "name": "Get lottie-samples VERSION"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "42",
+      "[START_DIR]/tmp/JSONS_VERSION"
+    ],
+    "infra_step": true,
+    "name": "write JSONS_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "cat",
+      "/home/chronos/user/JSONS_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "read /home/chronos/user/JSONS_VERSION",
+    "stdout": "/path/to/tmp/"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-f",
+      "/home/chronos/user/JSONS_VERSION"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/JSONS_VERSION"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "rm",
+      "-rf",
+      "/home/chronos/user/lotties"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "rm /home/chronos/user/lotties"
+  },
+  {
+    "cmd": [
+      "ssh",
+      "-oConnectTimeout=15",
+      "-oBatchMode=yes",
+      "-t",
+      "-t",
+      "foo@127.0.0.1",
+      "mkdir",
+      "-p",
+      "/home/chronos/user/lotties"
+    ],
+    "env": {
+      "CHROME_HEADLESS": "1",
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+    },
+    "infra_step": true,
+    "name": "mkdir /home/chronos/user/lotties"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nsrc = sys.argv[1] + '/*'\ndest   = sys.argv[2]\nprint subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)\n",
+      "[START_DIR]/lottie-samples",
+      "foo@127.0.0.1:/home/chronos/user/lotties"
+    ],
+    "infra_step": true,
+    "name": "scp -r [START_DIR]/lottie-samples foo@127.0.0.1:/home/chronos/user/lotties",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@src = sys.argv[1] + '/*'@@@",
+      "@@@STEP_LOG_LINE@python.inline@dest   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output('scp -r %s %s' % (src, dest), shell=True)@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "\nimport subprocess\nimport sys\nhost = sys.argv[1]\ndevice   = sys.argv[2]\nprint subprocess.check_output(['scp', host, device])\n",
+      "[START_DIR]/tmp/JSONS_VERSION",
+      "foo@127.0.0.1:/home/chronos/user/JSONS_VERSION"
+    ],
+    "infra_step": true,
+    "name": "scp [START_DIR]/tmp/JSONS_VERSION foo@127.0.0.1:/home/chronos/user/JSONS_VERSION",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@import subprocess@@@",
+      "@@@STEP_LOG_LINE@python.inline@import sys@@@",
+      "@@@STEP_LOG_LINE@python.inline@host = sys.argv[1]@@@",
+      "@@@STEP_LOG_LINE@python.inline@device   = sys.argv[2]@@@",
+      "@@@STEP_LOG_LINE@python.inline@print subprocess.check_output(['scp', host, device])@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
       "[START_DIR]/skia/infra/bots/assets/svg/VERSION",
       "/path/to/tmp/"
     ],
