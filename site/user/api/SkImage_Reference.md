@@ -2645,7 +2645,7 @@ created <a href='#Image'>Image</a> in <a href='#SkImage_makeColorSpace_target'>t
 
 ### Example
 
-<div><fiddle-embed name="ab8bcb9acecbee444019a724d2b0503c"></fiddle-embed></div>
+<div><fiddle-embed name="dbf5f75c1275a3013672f896767140fb"></fiddle-embed></div>
 
 ### See Also
 
