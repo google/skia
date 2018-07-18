@@ -656,7 +656,7 @@ void SkScalerContext_DW::generatePngMetrics(SkGlyph* glyph) {
     SkMatrix matrix = fSkXform;
     SkScalar scale = fTextSizeRender / glyphData.pixelsPerEm;
     matrix.preScale(scale, scale);
-    matrix.preTranslate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
+    matrix.preTranslate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
     matrix.mapRect(&bounds);
     if (this->isSubpixel()) {
         matrix.preTranslate(SkFixedToScalar(glyph->getSubXFixed()),
@@ -1005,11 +1005,11 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
                                    sk_float_round2int(colorGlyph->runColor.g * 255),
                                    sk_float_round2int(colorGlyph->runColor.b * 255));
         } else {
-            // If all components of runColor are 0 or (equivalently) paletteIndex is 0xFFFF then
-            // the 'current brush' is used. fRec.getLuminanceColor() is kinda sorta what is wanted
-            // here, but not really, it will often be the wrong value because it wan't designed for
-            // this.
-            // TODO: implement this fully, bug.skia.org/5788
+            //If all components of runColor are 0 or (equivalently) paletteIndex is 0xFFFF then
+            //the 'current brush' is used. fRec.getLuminanceColor() is kinda sorta what is wanted
+            //here, but not really, it will often be the wrong value because it wan't designed for
+            //this.
+            //TODO: implement this fully, bug.skia.org/5788
             color = fRec.getLuminanceColor();
         }
         paint.setColor(color);
@@ -1073,7 +1073,7 @@ void SkScalerContext_DW::generatePngGlyphImage(const SkGlyph& glyph) {
     canvas.concat(fSkXform);
     SkScalar ratio = fTextSizeRender / glyphData.pixelsPerEm;
     canvas.scale(ratio, ratio);
-    canvas.translate(glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
+    canvas.translate(-glyphData.horizontalLeftOrigin.x, -glyphData.horizontalLeftOrigin.y);
     canvas.drawImage(image, 0, 0, nullptr);
 }
 
