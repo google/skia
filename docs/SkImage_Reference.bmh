@@ -2209,13 +2209,9 @@ If Image colorSpace returns nullptr, Image Color_Space is assumed to be sRGB.
              SkColorSpace::kSRGB_RenderTargetGamma, SkColorSpace::kSRGB_Gamut);
     sk_sp<SkColorSpace> wackyColorSpace = normalColorSpace->makeColorSpin();
     for (auto colorSpace : { normalColorSpace, wackyColorSpace  } ) {
-        for (auto transfer : { SkTransferFunctionBehavior::kRespect,
-                               SkTransferFunctionBehavior::kIgnore } ) {
-            sk_sp<SkImage> colorSpaced = image->makeColorSpace(colorSpace, transfer);
-            canvas->drawImage(colorSpaced, 0, 0);
-            canvas->translate(128, 0);
-        }
-        canvas->translate(-256, 128);
+        sk_sp<SkImage> colorSpaced = image->makeColorSpace(colorSpace);
+        canvas->drawImage(colorSpaced, 0, 0);
+        canvas->translate(128, 0);
     }
 ##
 
