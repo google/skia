@@ -22,6 +22,30 @@
       "revId": "3114c76ce84681d8c27c495b753a14c8a9b58c9d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4979e6a8_4c2fc401",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-18T16:00:28Z",
+      "side": 1,
+      "message": "I think we\u0027re safe on that front. Allocation happens at flush time so the proxies involved had better not be being modified in a thread at the same time.\n\nWe also restrict promise image creation (and use) to occur w/in a single DDLRecorder so the proxies backing them won\u0027t occur on separate threads.",
+      "parentUuid": "93ea387b_3f1008f4",
+      "range": {
+        "startLine": 203,
+        "startChar": 13,
+        "endLine": 203,
+        "endChar": 60
+      },
+      "revId": "3114c76ce84681d8c27c495b753a14c8a9b58c9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
