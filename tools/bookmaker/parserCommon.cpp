@@ -392,7 +392,7 @@ bool StatusIter::next(string* str) {
     return true;
 }
 
-bool StatusIter::parseFromFile(const char* path) {
+bool JsonCommon::parseFromFile(const char* path) {
     sk_sp<SkData> json(SkData::MakeFromFileName(path));
     if (!json) {
         SkDebugf("file %s:\n", path);
@@ -400,7 +400,7 @@ bool StatusIter::parseFromFile(const char* path) {
     }
     Json::Reader reader;
     const char* data = (const char*)json->data();
-    if (!reader.parse(data, data+json->size(), fRoot)) {
+    if (!reader.parse(data, data + json->size(), fRoot)) {
         SkDebugf("file %s:\n", path);
         return this->reportError<bool>("file not parsable");
     }
@@ -409,6 +409,3 @@ bool StatusIter::parseFromFile(const char* path) {
     return true;
 }
 
-void StatusIter::reset() {
-    fStack.clear();
-}
