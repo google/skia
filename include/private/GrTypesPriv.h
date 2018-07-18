@@ -972,11 +972,12 @@ enum class GpuPathRenderers {
     kNone              = 0, // Always use sofware masks and/or GrDefaultPathRenderer.
     kDashLine          = 1 << 0,
     kStencilAndCover   = 1 << 1,
-    kAAConvex          = 1 << 2,
-    kAALinearizing     = 1 << 3,
-    kSmall             = 1 << 4,
-    kCoverageCounting  = 1 << 5,
-    kTessellating      = 1 << 6,
+    kCoverageCounting  = 1 << 2,
+    kAAHairline        = 1 << 3,
+    kAAConvex          = 1 << 4,
+    kAALinearizing     = 1 << 5,
+    kSmall             = 1 << 6,
+    kTessellating      = 1 << 7,
 
     kAll               = (kTessellating | (kTessellating - 1)),
     kDefault           = kAll
