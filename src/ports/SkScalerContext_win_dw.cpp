@@ -594,7 +594,14 @@ void SkScalerContext_DW::generateColorMetrics(SkGlyph* glyph) {
         }
         bounds.join(path.getBounds());
     }
-    HRV(fSkXform.mapRect(&bounds));
+    SkMatrix matrix = fSkXform;
+#ifndef SK_IGNORE_EMOJI_SUBPIXEL_FIX
+    if (this->isSubpixel()) {
+        matrix.postTranslate(SkFixedToScalar(glyph->getSubXFixed()),
+                             SkFixedToScalar(glyph->getSubYFixed()));
+    }
+#endif
+    matrix.mapRect(&bounds);
     // Round float bound values into integer.
     SkIRect ibounds = bounds.roundOut();
 
@@ -980,6 +987,12 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
 
     SkMatrix matrix = fSkXform;
     matrix.postTranslate(-SkIntToScalar(glyph.fLeft), -SkIntToScalar(glyph.fTop));
+#ifndef SK_IGNORE_EMOJI_SUBPIXEL_FIX
+    if (this->isSubpixel()) {
+        matrix.postTranslate(SkFixedToScalar(glyph.getSubXFixed()),
+                             SkFixedToScalar(glyph.getSubYFixed()));
+    }
+#endif
     SkRasterClip rc(SkIRect::MakeWH(glyph.fWidth, glyph.fHeight));
     SkDraw draw;
     draw.fDst = SkPixmap(SkImageInfo::MakeN32(glyph.fWidth, glyph.fHeight, kPremul_SkAlphaType),
