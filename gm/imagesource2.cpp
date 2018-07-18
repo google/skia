@@ -16,8 +16,10 @@ namespace skiagm {
 // is shifted for high quality mode between cpu and gpu.
 class ImageSourceGM : public GM {
 public:
-    ImageSourceGM(const char* suffix, SkFilterQuality filter) : fSuffix(suffix), fFilter(filter) {
-        this->setBGColor(0xFFFFFFFF);
+    ImageSourceGM(const char* suffix, SkFilterQuality filterQuality)
+            : fSuffix(suffix)
+            , fFilterQuality(filterQuality) {
+        this->setBGColor(SK_ColorWHITE);
     }
 
 protected:
@@ -60,13 +62,11 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        const SkRect srcRect = SkRect::MakeLTRB(0, 0,
-                                                SkIntToScalar(kImageSize),
-                                                SkIntToScalar(kImageSize));
+        const SkRect srcRect = SkRect::MakeIWH(kImageSize, kImageSize);
         const SkRect dstRect = SkRect::MakeLTRB(0.75f, 0.75f, 225.75f, 225.75f);
 
         SkPaint p;
-        p.setImageFilter(SkImageSource::Make(fImage, srcRect, dstRect, fFilter));
+        p.setImageFilter(SkImageSource::Make(fImage, srcRect, dstRect, fFilterQuality));
 
         canvas->saveLayer(nullptr, &p);
         canvas->restore();
@@ -75,8 +75,8 @@ protected:
 private:
     static constexpr int kImageSize = 503;
 
-    SkString fSuffix;
-    SkFilterQuality fFilter;
+    SkString        fSuffix;
+    SkFilterQuality fFilterQuality;
     sk_sp<SkImage>  fImage;
 
     typedef GM INHERITED;
