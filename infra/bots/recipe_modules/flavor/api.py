@@ -28,6 +28,7 @@ commands may be run through ADB.
 """
 
 
+VERSION_FILE_JSONS = 'JSONS_VERSION'
 VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
@@ -107,9 +108,10 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return self._f.remove_file_on_device(path)
 
   def install_everything(self):
-    self.install(skps=True, images=True, svgs=True, resources=True)
+    self.install(skps=True, images=True, jsons=False, svgs=True, resources=True)
 
-  def install(self, skps=False, images=False, svgs=False, resources=False):
+  def install(self, skps=False, images=False, jsons=False, svgs=False,
+              resources=False):
     self._f.install()
 
     # TODO(borenet): Only copy files which have changed.
@@ -122,6 +124,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       self._copy_skps()
     if images:
       self._copy_images()
+    if jsons:
+      self._copy_jsons()
     if svgs:
       self._copy_svgs()
 
@@ -161,6 +165,20 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         self.m.vars.tmp_dir,
         self.host_dirs.images_dir,
         self.device_dirs.images_dir)
+    return version
+
+  def _copy_jsons(self):
+    """Download and copy test jsons if needed."""
+    version = self.m.run.asset_version('lottie-samples', self._skia_dir)
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_JSONS),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_JSONS,
+        self.m.vars.tmp_dir,
+        self.host_dirs.jsons_dir,
+        self.device_dirs.jsons_dir)
     return version
 
   def _copy_skps(self):

@@ -311,6 +311,9 @@ def dm_flags(api, bot):
   else:
     # On CPU SVGs we only care about parsing. Only run them on the above bot.
     args.remove('svg')
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    # Only run the jsons on Lottie bots.
+    blacklist('_ ~json _ _')
 
   # Eventually I'd like these to pass, but for now just skip 'em.
   if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
@@ -948,6 +951,8 @@ def test_steps(api):
     ] + properties
 
     args.extend(['--svgs', api.flavor.device_dirs.svg_dir])
+    if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+      args.extend(['--jsons', api.flavor.device_dirs.jsons_dir])
 
   args.append('--key')
   args.extend(key_params(api))
@@ -988,6 +993,8 @@ def RunSteps(api):
     try:
       if 'Chromecast' in api.vars.builder_name:
         api.flavor.install(resources=True, skps=True)
+      elif 'Lottie' in api.vars.builder_name:
+        api.flavor.install(resources=True, jsons=True)
       else:
         api.flavor.install_everything()
       test_steps(api)
@@ -1020,6 +1027,7 @@ TEST_BUILDERS = [
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-TSAN',
