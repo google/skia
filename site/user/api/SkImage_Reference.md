@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="52dd55074ca0b7d520d04e750ca2a0d7"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 
@@ -2398,7 +2398,7 @@ Returns nullptr if copy, decode, or pixel read fails.
 
 ### Example
 
-<div><fiddle-embed name="ac49e8b810bd6ed5d84b4f5a3b40a0ec" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="505a6d9458394b1deb5d2f6c44e1cd76" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
