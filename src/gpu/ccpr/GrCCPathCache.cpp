@@ -41,23 +41,52 @@ inline static bool fuzzy_equals(const GrCCPathCache::MaskTransform& a,
     return true;
 }
 
+namespace {
+
+// Produces a key that accounts both for a shape's path geometry, as well as any stroke/style.
+class WriteStyledKey {
+public:
+    WriteStyledKey(const GrShape& shape)
+        : fShapeUnstyledKeyCount(shape.unstyledKeySize())
+        , fStyleKeyCount(
+                GrStyle::KeySize(shape.style(), GrStyle::Apply::kPathEffectAndStrokeRec)) {}
+
+    // Returns the total number of uint32_t's to allocate for the key.
+    int allocCountU32() const { return 2 + fShapeUnstyledKeyCount + fStyleKeyCount; }
+
+    // Writes the key to out[].
+    void write(const GrShape& shape, uint32_t* out) {
+        // How many bytes remain in the key, beginning on out[1]?
+        out[0] = (1 + fShapeUnstyledKeyCount + fStyleKeyCount)  * sizeof(uint32_t);
+        out[1] = fStyleKeyCount;
+        shape.writeUnstyledKey(&out[2]);
+        GrStyle::WriteKey(&out[2 + fShapeUnstyledKeyCount], shape.style(),
+                          GrStyle::Apply::kPathEffectAndStrokeRec, 1);
+    }
+
+private:
+    int fShapeUnstyledKeyCount;
+    int fStyleKeyCount;
+};
+
+}
+
 inline GrCCPathCache::HashNode::HashNode(GrCCPathCache* cache, const MaskTransform& m,
                                          const GrShape& shape) {
     SkASSERT(shape.hasUnstyledKey());
 
-    int keyLength = 1 + shape.unstyledKeySize();
-    void* mem = ::operator new (sizeof(GrCCPathCacheEntry) + keyLength * sizeof(uint32_t));
-    fEntry = new (mem) GrCCPathCacheEntry(cache, m);
+    WriteStyledKey writeKey(shape);
+    void* memory = ::operator new (sizeof(GrCCPathCacheEntry) +
+                                   writeKey.allocCountU32() * sizeof(uint32_t));
+    fEntry = new (memory) GrCCPathCacheEntry(cache, m);
 
     // The shape key is a variable-length footer to the entry allocation.
-    uint32_t* keyData = (uint32_t*)((char*)mem + sizeof(GrCCPathCacheEntry));
-    keyData[0] = keyLength - 1;
-    shape.writeUnstyledKey(&keyData[1]);
+    uint32_t* keyData = (uint32_t*)((char*)memory + sizeof(GrCCPathCacheEntry));
+    writeKey.write(shape, keyData);
 }
 
 inline bool operator==(const GrCCPathCache::HashKey& key1, const GrCCPathCache::HashKey& key2) {
-    return key1.fData[0] == key2.fData[0] &&
-           !memcmp(&key1.fData[1], &key2.fData[1], key1.fData[0] * sizeof(uint32_t));
+    return key1.fData[0] == key2.fData[0] && !memcmp(&key1.fData[1], &key2.fData[1], key1.fData[0]);
 }
 
 inline GrCCPathCache::HashKey GrCCPathCache::HashNode::GetKey(const GrCCPathCacheEntry* entry) {
@@ -92,10 +121,9 @@ sk_sp<GrCCPathCacheEntry> GrCCPathCache::find(const GrShape& shape, const MaskTr
         return nullptr;
     }
 
-    int keyLength = 1 + shape.unstyledKeySize();
-    SkAutoSTMalloc<GrShape::kMaxKeyFromDataVerbCnt * 4, uint32_t> keyData(keyLength);
-    keyData[0] = keyLength - 1;
-    shape.writeUnstyledKey(&keyData[1]);
+    WriteStyledKey writeKey(shape);
+    SkAutoSTMalloc<GrShape::kMaxKeyFromDataVerbCnt * 4, uint32_t> keyData(writeKey.allocCountU32());
+    writeKey.write(shape, keyData.get());
 
     GrCCPathCacheEntry* entry = nullptr;
     if (HashNode* node = fHashTable.find({keyData.get()})) {
