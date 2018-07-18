@@ -363,7 +363,6 @@ config("warnings") {
     ]
     cflags_cc += [
       "-Wnon-virtual-dtor",
-      "-Wno-noexcept-type",
     ]
   }
 
@@ -420,10 +419,12 @@ config("warnings") {
       "-Wno-unused-member-function",
       "-Wno-unused-template",
       "-Wno-zero-as-null-pointer-constant",
+      "-Wno-implicit-fallthrough",
     ]
     cflags_cc += [
       "-Wno-abstract-vbase-init",
       "-Wno-weak-vtables",
+      "-Wno-noexcept-type",
     ]
 
     # We are unlikely to want to fix these.
@@ -448,9 +449,6 @@ config("warnings") {
       "-Wno-direct-ivar-access",
       "-Wno-objcc-interface-ivars",
     ]
-  }
-  if (!is_win || is_clang) {
-    cflags += [ "-Wno-implicit-fallthrough" ]
   }
 }
 config("warnings_except_public_headers") {
