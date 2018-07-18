@@ -138,7 +138,7 @@ void GrResourceAllocator::IntervalList::insertByIncreasingEnd(Interval* intvl) {
 }
 
 // 'surface' can be reused. Add it back to the free pool.
-void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
+void GrResourceAllocator::recycleSurface(sk_sp<GrSurface> surface) {
     const GrScratchKey &key = surface->resourcePriv().getScratchKey();
 
     if (!key.isValid()) {
@@ -152,6 +152,9 @@ void GrResourceAllocator::freeUpSurface(sk_sp<GrSurface> surface) {
         return;
     }
 
+#if GR_ALLOCATION_SPEW
+    SkDebugf("putting surface %d back into pool\n", surface->uniqueID().asUInt());
+#endif
     // TODO: fix this insertion so we get a more LRU-ish behavior
     fFreePool.insert(key, surface.release());
 }
@@ -192,10 +195,18 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         Interval* temp = fActiveIntvls.popHead();
 
         if (temp->wasAssignedSurface()) {
-            this->freeUpSurface(temp->detachSurface());
+            sk_sp<GrSurface> surface = temp->detachSurface();
+
+            // If the proxy has an actual live ref on it that means someone wants to retain its
+            // contents. In that case we cannot recycle it (until the external holder lets
+            // go of it).
+            if (0 == temp->proxy()->priv().getProxyRefCnt()) {
+                this->recycleSurface(std::move(surface));
+            }
         }
 
         // Add temp to the free interval list so it can be reused
+        SkASSERT(!temp->wasAssignedSurface()); // it had better not have a ref on a surface
         temp->setNext(fFreeIntervalList);
         fFreeIntervalList = temp;
     }
@@ -222,6 +233,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
 
     SkDEBUGCODE(fAssigned = true;)
 
+#if GR_ALLOCATION_SPEW
+    this->dumpIntervals();
+#endif
     while (Interval* cur = fIntvlList.popHead()) {
         if (fEndOfOpListOpIndices[fCurOpListIndex] < cur->start()) {
             fCurOpListIndex++;
@@ -269,6 +283,12 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                 SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
             }
 
+#if GR_ALLOCATION_SPEW
+            SkDebugf("Assigning %d to %d\n",
+                 surface->uniqueID().asUInt(),
+                 cur->proxy()->uniqueID().asUInt());
+#endif
+
             cur->assign(std::move(surface));
         } else {
             SkASSERT(!cur->proxy()->priv().isInstantiated());
@@ -291,3 +311,42 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
     this->expire(std::numeric_limits<unsigned int>::max());
     return true;
 }
+
+#if GR_ALLOCATION_SPEW
+void GrResourceAllocator::dumpIntervals() {
+
+    // Print all the intervals while computing their range
+    unsigned int min = fNumOps+1;
+    unsigned int max = 0;
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt()
+                                                       : -1,
+                 cur->start(),
+                 cur->end(),
+                 cur->proxy()->priv().getProxyRefCnt(),
+                 cur->proxy()->getBackingRefCnt_TestOnly(),
+                 cur->proxy()->getPendingReadCnt_TestOnly(),
+                 cur->proxy()->getPendingWriteCnt_TestOnly());
+        min = SkTMin(min, cur->start());
+        max = SkTMax(max, cur->end());
+    }
+
+    // Draw a graph of the useage intervals
+    for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
+        SkDebugf("{ %3d,%3d }: ",
+                 cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt()
+                                                       : -1);
+        for (unsigned int i = min; i <= max; ++i) {
+            if (i >= cur->start() && i <= cur->end()) {
+                SkDebugf("x");
+            } else {
+                SkDebugf(" ");
+            }
+        }
+        SkDebugf("\n");
+    }
+}
+#endif
