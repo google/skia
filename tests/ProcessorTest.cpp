@@ -199,7 +199,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
                 testingOnly_getIORefCnts(proxy1.get(), &refCnt, &readCnt, &writeCnt);
                 // IO counts should be double if there is a clone of the FP.
                 int ioRefMul = makeClone ? 2 : 1;
-                REPORTER_ASSERT(reporter, 1 == refCnt);
+                REPORTER_ASSERT(reporter, -1 == refCnt);
                 REPORTER_ASSERT(reporter, ioRefMul * 1 == readCnt);
                 REPORTER_ASSERT(reporter, ioRefMul * 0 == writeCnt);
 

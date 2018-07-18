@@ -37,6 +37,12 @@ public:
         return fProxy->fTarget ? fProxy->fTarget->asRenderTarget() : nullptr;
     }
 
+    // Beware! Woe betide anyone whosoever calls this method.
+    // The refs on proxies and their backing GrSurfaces shift around based on whether the proxy
+    // is instantiated or not. Additionally, the lifetime of a proxy (and a GrSurface) also
+    // depends on the read and write refs (So this method can validly return 0).
+    int32_t getProxyRefCnt() const { return fProxy->getProxyRefCnt(); }
+
     // Beware! This call is only guaranteed to tell you if the proxy in question has
     // any pending IO in its current state. It won't tell you about the IO state in the
     // future when the proxy is actually used/instantiated.

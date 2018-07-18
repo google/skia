@@ -18,16 +18,12 @@
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 
-int32_t GrIORefProxy::getProxyRefCnt_TestOnly() const {
-    return fRefCnt;
-}
-
 int32_t GrIORefProxy::getBackingRefCnt_TestOnly() const {
     if (fTarget) {
         return fTarget->fRefCnt;
     }
 
-    return fRefCnt;
+    return -1; // no backing GrSurface
 }
 
 int32_t GrIORefProxy::getPendingReadCnt_TestOnly() const {
@@ -54,12 +50,12 @@ static void check_refs(skiatest::Reporter* reporter,
                        int32_t expectedBackingRefs,
                        int32_t expectedNumReads,
                        int32_t expectedNumWrites) {
-    REPORTER_ASSERT(reporter, proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
+    REPORTER_ASSERT(reporter, proxy->priv().getProxyRefCnt() == expectedProxyRefs);
     REPORTER_ASSERT(reporter, proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
     REPORTER_ASSERT(reporter, proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
     REPORTER_ASSERT(reporter, proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
 
-    SkASSERT(proxy->getProxyRefCnt_TestOnly() == expectedProxyRefs);
+    SkASSERT(proxy->priv().getProxyRefCnt() == expectedProxyRefs);
     SkASSERT(proxy->getBackingRefCnt_TestOnly() == expectedBackingRefs);
     SkASSERT(proxy->getPendingReadCnt_TestOnly() == expectedNumReads);
     SkASSERT(proxy->getPendingWriteCnt_TestOnly() == expectedNumWrites);
@@ -101,7 +97,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 static const int kExpectedReads = 0;
                 static const int kExpectedWrites = 1;
 
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+
+                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
                 proxy->instantiate(resourceProvider);
 
@@ -119,7 +117,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 static const int kExpectedReads = 1;
                 static const int kExpectedWrites = 0;
 
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+
+                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
                 proxy->instantiate(resourceProvider);
 
@@ -137,7 +137,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 static const int kExpectedReads = 1;
                 static const int kExpectedWrites = 1;
 
-                check_refs(reporter, proxy.get(), 1, 1, kExpectedReads, kExpectedWrites);
+                int backingRefs = proxy->isWrapped_ForTesting() ? 1 : -1;
+
+                check_refs(reporter, proxy.get(), 1, backingRefs, kExpectedReads, kExpectedWrites);
 
                 proxy->instantiate(resourceProvider);
 
@@ -156,7 +158,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
                 static const int kExpectedReads = 0;
                 static const int kExpectedWrites = 0;
 
-                check_refs(reporter, proxy.get(), 3, 3,kExpectedReads, kExpectedWrites);
+                int backingRefs = proxy->isWrapped_ForTesting() ? 3 : -1;
+
+                check_refs(reporter, proxy.get(), 3, backingRefs, kExpectedReads, kExpectedWrites);
 
                 proxy->instantiate(resourceProvider);
 
@@ -178,7 +182,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ProxyRefTest, reporter, ctxInfo) {
 
                 static const int kExpectedWrites = 1;
 
-                check_refs(reporter, proxy.get(), 2, 2, 0, kExpectedWrites);
+                int backingRefs = proxy->isWrapped_ForTesting() ? 2 : -1;
+
+                check_refs(reporter, proxy.get(), 2, backingRefs, 0, kExpectedWrites);
 
                 proxy->instantiate(resourceProvider);
 

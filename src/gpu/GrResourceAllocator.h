@@ -19,6 +19,9 @@
 class GrResourceProvider;
 class GrUninstantiateProxyTracker;
 
+// Print out explicit allocation information
+#define GR_ALLOCATION_SPEW 0
+
 /*
  * The ResourceAllocator explicitly distributes GPU resources at flush time. It operates by
  * being given the usage intervals of the various proxies. It keeps these intervals in a singly
@@ -74,6 +77,10 @@ public:
 
     void markEndOfOpList(int opListIndex);
 
+#if GR_ALLOCATION_SPEW
+    void dumpIntervals();
+#endif
+
 private:
     class Interval;
 
@@ -81,7 +88,7 @@ private:
     void expire(unsigned int curIndex);
 
     // These two methods wrap the interactions with the free pool
-    void freeUpSurface(sk_sp<GrSurface> surface);
+    void recycleSurface(sk_sp<GrSurface> surface);
     sk_sp<GrSurface> findSurfaceFor(const GrSurfaceProxy* proxy, bool needsStencil);
 
     struct FreePoolTraits {
