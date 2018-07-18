@@ -434,7 +434,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		}
 		if d["os"] == DEFAULT_OS_WIN {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
-			d["image"] = "windows-server-2016-dc-v20180410"
+			d["image"] = "windows-server-2016-dc-v20180710"
 		}
 		if d["os"] == DEFAULT_OS_MAC && (parts["model"] == "MacBook10.1" || parts["model"] == "MacBookAir7.2") {
 			// TODO(dogben): Get all Mac bots on the same version.
