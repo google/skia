@@ -2464,6 +2464,9 @@ bool IncludeParser::parseChar() {
             if (!this->checkForWord()) {
                 return false;
             }
+            if (!fParent->fTokens.size()) {
+                break;
+            }
             {
                 const Definition& lastToken = fParent->fTokens.back();
                 if (lastToken.fType != Definition::Type::kWord) {
