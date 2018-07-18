@@ -514,17 +514,6 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     // and we can't depend on it on all platforms
     deviceFeatures.robustBufferAccess = VK_FALSE;
 
-    uint32_t featureFlags = 0;
-    if (deviceFeatures.geometryShader) {
-        featureFlags |= kGeometryShader_GrVkFeatureFlag;
-    }
-    if (deviceFeatures.dualSrcBlend) {
-        featureFlags |= kDualSrcBlend_GrVkFeatureFlag;
-    }
-    if (deviceFeatures.sampleRateShading) {
-        featureFlags |= kSampleRateShading_GrVkFeatureFlag;
-    }
-
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
     // If one is needed, the client will need its own setup code
@@ -584,7 +573,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
     ctx->fMinAPIVersion = kGrVkMinimumVersion;
     ctx->fVkExtensions = extensions;
-    ctx->fFeatures = featureFlags;
+    ctx->fDeviceFeatures = deviceFeatures;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
 

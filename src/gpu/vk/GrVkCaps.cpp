@@ -15,7 +15,7 @@
 #include "vk/GrVkBackendContext.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, uint32_t featureFlags)
+                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features)
     : INHERITED(contextOptions) {
     fMustDoCopiesFromOrigin = false;
     fMustSubmitCommandsBeforeCopyOp = false;
@@ -47,7 +47,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev, featureFlags);
+    this->init(contextOptions, vkInterface, physDev, features);
 }
 
 bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -195,7 +195,7 @@ bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, uint32_t featureFlags) {
+                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
@@ -203,8 +203,8 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
 
-    this->initGrCaps(properties, memoryProperties, featureFlags);
-    this->initShaderCaps(properties, featureFlags);
+    this->initGrCaps(properties, memoryProperties, features);
+    this->initShaderCaps(properties, features);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
 #if defined(SK_CPU_X86)
@@ -310,7 +310,7 @@ int get_max_sample_count(VkSampleCountFlags flags) {
 
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
-                          uint32_t featureFlags) {
+                          const VkPhysicalDeviceFeatures& features) {
     // So GPUs, like AMD, are reporting MAX_INT support vertex attributes. In general, there is no
     // need for us ever to support that amount, and it makes tests which tests all the vertex
     // attribs timeout looping over that many. For now, we'll cap this at 64 max and can raise it if
@@ -339,12 +339,11 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
 
     fOversizedStencilSupport = true;
-    fSampleShadingSupport = SkToBool(featureFlags & kSampleRateShading_GrVkFeatureFlag);
-
-
+    fSampleShadingSupport = features.sampleRateShading;
 }
 
-void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint32_t featureFlags) {
+void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
+                              const VkPhysicalDeviceFeatures& features) {
     GrShaderCaps* shaderCaps = fShaderCaps.get();
     shaderCaps->fVersionDeclString = "#version 330\n";
 
@@ -385,10 +384,10 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    shaderCaps->fGeometryShaderSupport = SkToBool(featureFlags & kGeometryShader_GrVkFeatureFlag);
+    shaderCaps->fGeometryShaderSupport = features.geometryShader;
     shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
 
-    shaderCaps->fDualSourceBlendingSupport = SkToBool(featureFlags & kDualSrcBlend_GrVkFeatureFlag);
+    shaderCaps->fDualSourceBlendingSupport = features.dualSrcBlend;
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fVertexIDSupport = true;
