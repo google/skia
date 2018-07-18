@@ -159,7 +159,7 @@
     "hash": "cb9a08e8ff779b6a1cf8bb54f3883aaf",
     "file": "SkBitmap_Reference",
     "name": "SkBitmap::getAddr8",
-        "stdout": "\\u0026pixels[4][2] == bitmap.getAddr8(2, 4)\\n"
+        "stdout": "&pixels[4][2] == bitmap.getAddr8(2, 4)\\n"
     },
         "SkBitmap_getColor": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    SkColor colors[][w] = {\n        { 0x00000000, 0x2a0e002a, 0x55380055, 0x7f7f007f },\n        { 0x2a000e2a, 0x551c1c55, 0x7f542a7f, 0xaaaa38aa },\n        { 0x55003855, 0x7f2a547f, 0xaa7171aa, 0xd4d48dd4 },\n        { 0x7f007f7f, 0xaa38aaaa, 0xd48dd4d4, 0xffffffff }\n    };\n    SkDebugf(\"Premultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", colors[y][x], x == w - 1 ? '\\n' : ' ');\n        }\n    }\n    SkPixmap pixmap(SkImageInfo::MakeN32(w, h, kPremul_SkAlphaType), colors, w * 4);\n    SkBitmap bitmap;\n    bitmap.installPixels(pixmap);\n    SkDebugf(\"Unpremultiplied:\\n\");\n    for (int y = 0; y < h; ++y) {\n        SkDebugf(\"(0, %d) \", y);\n        for (int x = 0; x < w; ++x) {\n            SkDebugf(\"0x%08x%c\", bitmap.getColor(x, y), x == w - 1 ? '\\n' : ' ');\n        }\n    }\n}",
@@ -1524,7 +1524,7 @@
     "hash": "8a3f8c309533388b01aa66e1267f322d",
     "file": "SkPaint_Reference",
     "name": "SkPaint::getFlags",
-        "stdout": "(SkPaint::kAntiAlias_Flag \\u0026 paint.getFlags()) != 0\\n"
+        "stdout": "(SkPaint::kAntiAlias_Flag & paint.getFlags()) != 0\\n"
     },
         "SkPaint_getFontBounds": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkPaint::FontMetrics fm;\n    paint.getFontMetrics(&fm);\n    SkRect fb = paint.getFontBounds();\n    SkDebugf(\"metrics bounds = { %g, %g, %g, %g }\\n\", fm.fXMin, fm.fTop, fm.fXMax, fm.fBottom );\n    SkDebugf(\"font bounds    = { %g, %g, %g, %g }\\n\", fb.fLeft, fb.fTop, fb.fRight, fm.fBottom );\n}",
@@ -1664,42 +1664,42 @@
     "hash": "d7d5f4f7da7acd5104a652f490c6f7b8",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isAntiAlias",
-        "stdout": "paint.isAntiAlias() == !!(paint.getFlags() \\u0026 SkPaint::kAntiAlias_Flag)\\npaint.isAntiAlias() == !!(paint.getFlags() \\u0026 SkPaint::kAntiAlias_Flag)\\n"
+        "stdout": "paint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)\\npaint.isAntiAlias() == !!(paint.getFlags() & SkPaint::kAntiAlias_Flag)\\n"
     },
         "SkPaint_isAutohinted": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    for (auto forceAutoHinting : { false, true} ) {\n    paint.setAutohinted(forceAutoHinting);\n    SkDebugf(\"paint.isAutohinted() %c=\"\n            \" !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)\\n\",\n            paint.isAutohinted() ==\n            !!(paint.getFlags() & SkPaint::kAutoHinting_Flag) ? '=' : '!');\n    }\n}",
     "hash": "aa4781afbe3b90e7ef56a287e5b9ce1e",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isAutohinted",
-        "stdout": "paint.isAutohinted() == !!(paint.getFlags() \\u0026 SkPaint::kAutoHinting_Flag)\\npaint.isAutohinted() == !!(paint.getFlags() \\u0026 SkPaint::kAutoHinting_Flag)\\n"
+        "stdout": "paint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)\\npaint.isAutohinted() == !!(paint.getFlags() & SkPaint::kAutoHinting_Flag)\\n"
     },
         "SkPaint_isDither": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isDither() %c= !!(paint.getFlags() & SkPaint::kDither_Flag)\\n\",\n            paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag) ? '=' : '!');\n    paint.setDither(true);\n    SkDebugf(\"paint.isDither() %c= !!(paint.getFlags() & SkPaint::kDither_Flag)\\n\",\n            paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag) ? '=' : '!');\n}",
     "hash": "f4ce93f6c5e7335436a985377fd980c0",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isDither",
-        "stdout": "paint.isDither() == !!(paint.getFlags() \\u0026 SkPaint::kDither_Flag)\\npaint.isDither() == !!(paint.getFlags() \\u0026 SkPaint::kDither_Flag)\\n"
+        "stdout": "paint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)\\npaint.isDither() == !!(paint.getFlags() & SkPaint::kDither_Flag)\\n"
     },
         "SkPaint_isEmbeddedBitmapText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isEmbeddedBitmapText() %c=\"\n            \" !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\\n\",\n            paint.isEmbeddedBitmapText() ==\n            !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag) ? '=' : '!');\n    paint.setEmbeddedBitmapText(true);\n    SkDebugf(\"paint.isEmbeddedBitmapText() %c=\"\n            \" !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\\n\",\n            paint.isEmbeddedBitmapText() ==\n            !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag) ? '=' : '!');\n}",
     "hash": "eba10b27b790e87183ae451b3fc5c4b1",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isEmbeddedBitmapText",
-        "stdout": "paint.isEmbeddedBitmapText() == !!(paint.getFlags() \\u0026 SkPaint::kEmbeddedBitmapText_Flag)\\npaint.isEmbeddedBitmapText() == !!(paint.getFlags() \\u0026 SkPaint::kEmbeddedBitmapText_Flag)\\n"
+        "stdout": "paint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\\npaint.isEmbeddedBitmapText() == !!(paint.getFlags() & SkPaint::kEmbeddedBitmapText_Flag)\\n"
     },
         "SkPaint_isFakeBoldText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isFakeBoldText() %c= !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\\n\",\n        paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag) ? '=' : '!');\n    paint.setFakeBoldText(true);\n    SkDebugf(\"paint.isFakeBoldText() %c= !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\\n\",\n        paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag) ? '=' : '!');\n}",
     "hash": "f54d1f85b16073b80b9eef2e1a1d151d",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isFakeBoldText",
-        "stdout": "paint.isFakeBoldText() == !!(paint.getFlags() \\u0026 SkPaint::kFakeBoldText_Flag)\\npaint.isFakeBoldText() == !!(paint.getFlags() \\u0026 SkPaint::kFakeBoldText_Flag)\\n"
+        "stdout": "paint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\\npaint.isFakeBoldText() == !!(paint.getFlags() & SkPaint::kFakeBoldText_Flag)\\n"
     },
         "SkPaint_isLCDRenderText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)\\n\",\n        paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag) ? '=' : '!');\n    paint.setLCDRenderText(true);\n    SkDebugf(\"paint.isLCDRenderText() %c= !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)\\n\",\n        paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag) ? '=' : '!');\n}",
     "hash": "68e1fd95dd2fd06a333899d2bd2396b9",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isLCDRenderText",
-        "stdout": "paint.isLCDRenderText() == !!(paint.getFlags() \\u0026 SkPaint::kLCDRenderText_Flag)\\npaint.isLCDRenderText() == !!(paint.getFlags() \\u0026 SkPaint::kLCDRenderText_Flag)\\n"
+        "stdout": "paint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)\\npaint.isLCDRenderText() == !!(paint.getFlags() & SkPaint::kLCDRenderText_Flag)\\n"
     },
         "SkPaint_isSrcOver": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"isSrcOver %c= true\\n\", paint.isSrcOver() ? '=' : '!');\n   paint.setBlendMode(SkBlendMode::kSrc);\n   SkDebugf(\"isSrcOver %c= true\\n\", paint.isSrcOver() ? '=' : '!');\n}\n",
@@ -1713,14 +1713,14 @@
     "hash": "abe9afc0932e2199324ae6cbb396e67c",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isSubpixelText",
-        "stdout": "paint.isSubpixelText() == !!(paint.getFlags() \\u0026 SkPaint::kSubpixelText_Flag)\\npaint.isSubpixelText() == !!(paint.getFlags() \\u0026 SkPaint::kSubpixelText_Flag)\\n"
+        "stdout": "paint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\npaint.isSubpixelText() == !!(paint.getFlags() & SkPaint::kSubpixelText_Flag)\\n"
     },
         "SkPaint_isVerticalText": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n\",\n        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');\n    paint.setVerticalText(true);\n    SkDebugf(\"paint.isVerticalText() %c= !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n\",\n        paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag) ? '=' : '!');\n}",
     "hash": "4a269b16e644d473870ffa873396f139",
     "file": "SkPaint_Reference",
     "name": "SkPaint::isVerticalText",
-        "stdout": "paint.isVerticalText() == !!(paint.getFlags() \\u0026 SkPaint::kVerticalText_Flag)\\npaint.isVerticalText() == !!(paint.getFlags() \\u0026 SkPaint::kVerticalText_Flag)\\n"
+        "stdout": "paint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\npaint.isVerticalText() == !!(paint.getFlags() & SkPaint::kVerticalText_Flag)\\n"
     },
         "SkPaint_measureText_2": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    SkDebugf(\"default width = %g\\n\", paint.measureText(\"!\", 1));\n    paint.setTextSize(paint.getTextSize() * 2);\n    SkDebugf(\"double width = %g\\n\", paint.measureText(\"!\", 1));\n}",
@@ -2399,7 +2399,7 @@
     "hash": "2c0c88a546d4ef093ab63ff72dac00b9",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr16_2",
-        "stdout": "pixmap.addr16(1, 2) == \\u0026storage[1 + 2 * w]\\n"
+        "stdout": "pixmap.addr16(1, 2) == &storage[1 + 2 * w]\\n"
     },
         "SkPixmap_addr32": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint32_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::MakeN32(w, h, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr32() %c= storage\\n\",\n              pixmap.addr32()  == storage ? '=' : '!');\n}",
@@ -2413,7 +2413,7 @@
     "hash": "12f8b5ce9fb25604f33df336677f5d62",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr32_2",
-        "stdout": "pixmap.addr32(1, 2) == \\u0026storage[1 + 2 * w]\\n"
+        "stdout": "pixmap.addr32(1, 2) == &storage[1 + 2 * w]\\n"
     },
         "SkPixmap_addr64": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint64_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kRGBA_F16_SkColorType, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr64() %c= storage\\n\",\n              pixmap.addr64()  == storage ? '=' : '!');\n}",
@@ -2427,7 +2427,7 @@
     "hash": "5449f65fd7673273b0b57807fd3117ff",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr64_2",
-        "stdout": "pixmap.addr64(1, 2) == \\u0026storage[1 + 2 * w]\\n"
+        "stdout": "pixmap.addr64(1, 2) == &storage[1 + 2 * w]\\n"
     },
         "SkPixmap_addr8": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint8_t storage[w * h];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kGray_8_SkColorType, kPremul_SkAlphaType),\n                    storage, w * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addr8() %c= storage\\n\",\n              pixmap.addr8()  == storage ? '=' : '!');\n}",
@@ -2441,7 +2441,7 @@
     "hash": "5b986272268ef2c52045c1856f8b6107",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr8_2",
-        "stdout": "pixmap.addr8(1, 2) == \\u0026storage[1 + 2 * w]\\n"
+        "stdout": "pixmap.addr8(1, 2) == &storage[1 + 2 * w]\\n"
     },
         "SkPixmap_addrF16": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    uint16_t storage[w * h * 4];\n    SkPixmap pixmap(SkImageInfo::Make(w, h, kRGBA_F16_SkColorType, kPremul_SkAlphaType),\n                    storage, w * 4 * sizeof(storage[0]));\n    SkDebugf(\"pixmap.addrF16() %c= storage\\n\",\n              pixmap.addrF16()  == storage ? '=' : '!');\n}",
@@ -2455,14 +2455,14 @@
     "hash": "f6076cad455bc80af5d06eb121d3b6f2",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addrF16_2",
-        "stdout": "pixmap.addrF16(1, 2) == \\u0026storage[1 * wordsPerPixel + 2 * rowWords]\\n"
+        "stdout": "pixmap.addrF16(1, 2) == &storage[1 * wordsPerPixel + 2 * rowWords]\\n"
     },
         "SkPixmap_addr_2": {
     "code": "void draw(SkCanvas* canvas) {\n    const int w = 4;\n    const int h = 4;\n    std::vector<SkPMColor> storage;\n    storage.resize(w * h);\n    SkPixmap pixmap(SkImageInfo::MakeN32(w, h, kPremul_SkAlphaType), &storage.front(), w * 4);\n    SkDebugf(\"pixmap.addr(1, 2) %c= &storage[1 + 2 * w]\\n\",\n              pixmap.addr(1, 2)  == &storage[1 + 2 * w] ? '=' : '!');\n}",
     "hash": "6e6e29e860eafed77308c973400cc84d",
     "file": "SkPixmap_Reference",
     "name": "SkPixmap::addr_2",
-        "stdout": "pixmap.addr(1, 2) == \\u0026storage[1 + 2 * w]\\n"
+        "stdout": "pixmap.addr(1, 2) == &storage[1 + 2 * w]\\n"
     },
         "SkPixmap_alphaType": {
     "code": "void draw(SkCanvas* canvas) {\n    const char* alphas[] = {\"Unknown\", \"Opaque\", \"Premul\", \"Unpremul\"};\n    SkPixmap pixmap(SkImageInfo::MakeA8(16, 32), nullptr, 64);\n    SkDebugf(\"alpha type: k\" \"%s\" \"_SkAlphaType\\n\", alphas[pixmap.alphaType()]);\n}",
@@ -2819,7 +2819,7 @@
     "hash": "e1ea5f949d80276f3637931eae93a07c",
     "file": "SkRect_Reference",
     "name": "SkRect::asScalars",
-        "stdout": "rect.asScalars() == \\u0026rect.fLeft\\n"
+        "stdout": "rect.asScalars() == &rect.fLeft\\n"
     },
         "SkRect_bottom": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect unsorted = { 15, 25, 10, 5 };\n    SkDebugf(\"unsorted.fBottom: %g unsorted.bottom(): %g\\n\", unsorted.fBottom, unsorted.bottom());\n    SkRect sorted = unsorted.makeSorted();\n    SkDebugf(\"sorted.fBottom: %g sorted.bottom(): %g\\n\", sorted.fBottom, sorted.bottom());\n}",
@@ -3246,7 +3246,7 @@
     "hash": "99a54b814ccab7d2b1143c88581649ff",
     "file": "SkSurface_Reference",
     "name": "SkSurface::MakeNull",
-        "stdout": "SkSurface::MakeNull(0, 0) == nullptr\\nsurf-\\u003emakeImageSnapshot() == nullptr\\n"
+        "stdout": "SkSurface::MakeNull(0, 0) == nullptr\\nsurf->makeImageSnapshot() == nullptr\\n"
     },
         "SkSurface_MakeRaster": {
     "code": "void draw(SkCanvas* ) {\n    SkImageInfo info = SkImageInfo::MakeN32Premul(3, 3);\n    const size_t rowBytes = 64;\n    sk_sp<SkSurface> surface(SkSurface::MakeRaster(info, rowBytes, nullptr));\n    SkCanvas* canvas = surface->getCanvas();\n    canvas->clear(SK_ColorWHITE);\n    SkPixmap pixmap;\n    if (surface->peekPixels(&pixmap)) {\n        const uint32_t* colorPtr = pixmap.addr32();\n        SkPMColor pmWhite = colorPtr[0];\n        SkPaint paint;\n        canvas->drawPoint(1, 1, paint);\n        canvas->flush();  // ensure that point was drawn\n        for (int y = 0; y < info.height(); ++y) {\n            for (int x = 0; x < info.width(); ++x) {\n                SkDebugf(\"%c\", colorPtr[x] == pmWhite ? '-' : 'x');\n            }\n            colorPtr += rowBytes / sizeof(colorPtr[0]);\n            SkDebugf(\"\\n\");\n        }\n    }\n}\n",
