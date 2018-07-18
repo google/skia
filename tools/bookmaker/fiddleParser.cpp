@@ -8,106 +8,73 @@
 #include "bookmaker.h"
 
 bool FiddleBase::parseFiddles() {
-    if (!this->skipExact("{\n")) {
+    if (fStack.empty()) {
         return false;
     }
-    while (!this->eof()) {
-        if (!this->skipExact("  \"")) {
-            return false;
+    JsonStatus* status = &fStack.back();
+    while (status->fIter != status->fObject.end()) {
+        const char* blockName = status->fIter.memberName();
+        Definition* example = nullptr;
+        string textString;
+        if (!status->fObject.isObject()) {
+            return this->reportError<bool>("expected object");
         }
-        const char* nameLoc = fChar;
-        if (!this->skipToEndBracket("\"")) {
-            return false;
-        }
-        string name(nameLoc, fChar - nameLoc);
-        if (!this->skipExact("\": {\n")) {
-            return false;
-        }
-        if (!this->skipExact("    \"compile_errors\": [")) {
-            return false;
-        }
-        if (']' != this->peek()) {
-            // report compiler errors
-            int brackets = 1;
-            do {
-                if ('[' == this->peek()) {
-                    ++brackets;
-                } else if (']' == this->peek()) {
-                    --brackets;
+        for (auto iter = status->fIter->begin(); status->fIter->end() != iter; ++iter) {
+            const char* memberName = iter.memberName();
+            if (!strcmp("compile_errors", memberName)) {
+                if (!iter->isArray()) {
+                    return this->reportError<bool>("expected array");
                 }
-            } while (!this->eof() && this->next() && brackets > 0);
-            this->reportError("fiddle compile error");
+                if (iter->size()) {
+                    return this->reportError<bool>("fiddle compiler error");
+                }
+                continue;
+            }
+            if (!strcmp("runtime_error", memberName)) {
+                if (!iter->isString()) {
+                    return this->reportError<bool>("expected string 1");
+                }
+                if (iter->asString().length()) {
+                    return this->reportError<bool>("fiddle runtime error");
+                }
+                continue;
+            }
+            if (!strcmp("fiddleHash", memberName)) {
+                if (!iter->isString()) {
+                    return this->reportError<bool>("expected string 2");
+                }
+                example = this->findExample(blockName);
+                if (!example) {
+                    return this->reportError<bool>("missing example");
+                }
+                if (example->fHash.length() && example->fHash != iter->asString()) {
+                    return example->reportError<bool>("mismatched hash");
+                }
+                example->fHash = iter->asString();
+                continue;
+            }
+            if (!strcmp("text", memberName)) {
+                if (!iter->isString()) {
+                    return this->reportError<bool>("expected string 3");
+                }
+                textString = iter->asString();
+                continue;
+            }
+            return this->reportError<bool>("unexpected key");
         }
-        if (!this->skipExact("],\n")) {
-            return false;
+        if (!example) {
+            return this->reportError<bool>("missing fiddleHash");
         }
-        if (!this->skipExact("    \"runtime_error\": \"")) {
-            return false;
-        }
-        if ('"' != this->peek()) {
-            if (!this->skipToEndBracket('"')) {
+        size_t strLen = textString.length();
+        if (strLen) {
+            if (fTextOut
+                    && !this->textOut(example, textString.c_str(), textString.c_str() + strLen)) {
                 return false;
             }
-            this->reportError("fiddle runtime error");
-        }
-        if (!this->skipExact("\",\n")) {
+        } else if (fPngOut && !this->pngOut(example)) {
             return false;
         }
-        if (!this->skipExact("    \"fiddleHash\": \"")) {
-            return false;
-        }
-        const char* hashStart = fChar;
-        if (!this->skipToEndBracket('"')) {
-            return false;
-        }
-        Definition* example = this->findExample(name);
-        if (!example) {
-            this->reportError("missing example");
-        }
-        string hash(hashStart, fChar - hashStart);
-        if (example) {
-            example->fHash = hash;
-        }
-        if (!this->skipExact("\",\n")) {
-            return false;
-        }
-        if (!this->skipExact("    \"text\": \"")) {
-            return false;
-        }
-        if ('"' != this->peek()) {
-            const char* stdOutStart = fChar;
-            do {
-                if ('\\' == this->peek()) {
-                    this->next();
-                } else if ('"' == this->peek()) {
-                    break;
-                }
-            } while (!this->eof() && this->next());
-            const char* stdOutEnd = fChar;
-            if (example && fTextOut) {
-                if (!this->textOut(example, stdOutStart, stdOutEnd)) {
-                    return false;
-                }
-            }
-        } else {
-            if (example && fPngOut) {
-                if (!this->pngOut(example)) {
-                    return false;
-                }
-            }
-        }
-        if (!this->skipExact("\"\n")) {
-            return false;
-        }
-        if (!this->skipExact("  }")) {
-            return false;
-        }
-        if ('\n' == this->peek()) {
-            break;
-        }
-        if (!this->skipExact(",\n")) {
-            return false;
-        }
+        status->fIter++;
     }
     return true;
 }
