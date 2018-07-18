@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fa30879b_a83c3f0d",
+        "filename": "infra/bots/assets/lottie-samples/create.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-18T15:09:46Z",
+      "side": 1,
+      "message": "You should either implement this or delete create.py and create_and_upload.py.",
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6584a3d_bb927fe9",
+        "filename": "infra/bots/recipe_modules/flavor/android.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-18T15:09:46Z",
+      "side": 1,
+      "message": "nit: maybe call this lotties_dir or something more descriptive than \"jsons\"\n\nSame for other uses of \"jsons\".",
+      "range": {
+        "startLine": 34,
+        "startChar": 8,
+        "endLine": 34,
+        "endChar": 13
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd59c714_4939d390",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-18T15:09:46Z",
+      "side": 1,
+      "message": "It\u0027s funny that \"install_everything\" doesn\u0027t install jsons.",
+      "range": {
+        "startLine": 110,
+        "startChar": 6,
+        "endLine": 110,
+        "endChar": 24
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "70cb295e_90a2cdf2",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-18T15:09:46Z",
+      "side": 1,
+      "message": "nit: I realize you\u0027re just copy/pasting, but we don\u0027t download assets in recipes anymore.",
+      "range": {
+        "startLine": 171,
+        "startChar": 7,
+        "endLine": 171,
+        "endChar": 15
+      },
+      "revId": "d7abd6c488b1e8746a22666d085bf9f2d1791854",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
