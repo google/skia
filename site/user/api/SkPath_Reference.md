@@ -893,7 +893,7 @@ contour travels counterclockwise</td>
 
 ### Example
 
-<div><fiddle-embed name="de83fbd848a4625345b4b87a6e55d98a"></fiddle-embed></div>
+<div><fiddle-embed name="0de03d9c939b6238318b7366866e8722"></fiddle-embed></div>
 
 ### See Also
 
@@ -4004,7 +4004,7 @@ opposite the integer value of <a href='#SkPath_rArcTo_sweep'>sweep</a>; <a href=
 
 ### Example
 
-<div><fiddle-embed name="884447c809921cfaebc87aeb63dedd48"></fiddle-embed></div>
+<div><fiddle-embed name="3f76a1007416181a4848c1a87fc81dbd"></fiddle-embed></div>
 
 ### See Also
 
@@ -4286,7 +4286,7 @@ true if <a href='#Path'>Path</a> contains nested <a href='SkRect_Reference#Rect'
 
 ### Example
 
-<div><fiddle-embed name="f98cc0451c6e77a8833d261c9a484c5f">
+<div><fiddle-embed name="77e4394caf9fa083c19c21c2462efe14">
 
 #### Example Output
 
@@ -4570,7 +4570,7 @@ modulo 360, and <a href='#Arc'>Arc</a> may or may not draw depending on numeric 
 
 ### Example
 
-<div><fiddle-embed name="0fc85dd916cc1a5896d36c80b9847391"><div>The middle row of the left and right columns draw differently from the entries
+<div><fiddle-embed name="9cf5122475624e4cf39f06c698f80b1a"><div>The middle row of the left and right columns draw differently from the entries
 above and below because <a href='#SkPath_addArc_sweepAngle'>sweepAngle</a> is outside of the range of +/-360,
 and <a href='#SkPath_addArc_startAngle'>startAngle</a> modulo 90 is not zero.
 </div></fiddle-embed></div>
@@ -5071,7 +5071,7 @@ Offsets <a href='#Point_Array'>Point Array</a> by (<a href='#SkPath_offset_2_dx'
 
 ### Example
 
-<div><fiddle-embed name="9f459b218ec079c1ada23f4412968f9a"></fiddle-embed></div>
+<div><fiddle-embed name="5188d77585715db30bef228f2dfbcccd"></fiddle-embed></div>
 
 ### See Also
 
@@ -5205,7 +5205,7 @@ Sets <a href='#Last_Point'>Last Point</a> to (<a href='#SkPath_setLastPt_x'>x</a
 
 ### Example
 
-<div><fiddle-embed name="f02f0110d5605dac6d14dcb8d1d8cb6e"></fiddle-embed></div>
+<div><fiddle-embed name="542c5afaea5f57baa11d0561dd402e18"></fiddle-embed></div>
 
 ### See Also
 
@@ -5574,7 +5574,7 @@ The format used for <a href='#Path'>Path</a> in memory is not guaranteed.
 
 ### Example
 
-<div><fiddle-embed name="0d2cbf82f490ffb180e0b4531afa232c">
+<div><fiddle-embed name="2c6aff73608cd198659db6d1eeaaae4f">
 
 #### Example Output
 

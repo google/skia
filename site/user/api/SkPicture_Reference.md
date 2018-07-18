@@ -240,7 +240,7 @@ Recreates a picture that was serialized into a <a href='#SkPicture_MakeFromStrea
 
 ### Example
 
-<div><fiddle-embed name="594d47858eb11028cb626515a520910a"></fiddle-embed></div>
+<div><fiddle-embed name="404fb42560a289c2004cad1caf3b96de"></fiddle-embed></div>
 
 ### See Also
 
