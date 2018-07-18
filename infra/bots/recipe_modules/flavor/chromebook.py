@@ -25,6 +25,7 @@ class ChromebookFlavor(default.DefaultFlavor):
       perf_data_dir = self.chromeos_homedir + 'perf',
       resource_dir  = self.chromeos_homedir + 'resources',
       images_dir    = self.chromeos_homedir + 'images',
+      lotties_dir   = self.chromeos_homedir + 'lotties',
       skp_dir       = self.chromeos_homedir + 'skps',
       svg_dir       = self.chromeos_homedir + 'svgs',
       tmp_dir       = self.chromeos_homedir)
