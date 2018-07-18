@@ -161,10 +161,10 @@ DEFINE_bool(cachePathMasks, true, "Allows path mask textures to be cached in GPU
 
 DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
 
-DEFINE_string(pr, "default",
+DEFINE_string(pr, "all",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[~]all [~]default [~]dashline [~]nvpr [~]aaconvex "
-              "[~]aalinearizing [~]small [~]tess]");
+              "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
+              "[~]small [~]tess] [~]all");
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
