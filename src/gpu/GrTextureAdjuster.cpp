@@ -17,8 +17,9 @@ GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> o
                                      SkAlphaType alphaType,
                                      uint32_t uniqueID,
                                      SkColorSpace* cs)
-    : INHERITED(context, original->width(), original->height(),
+    : INHERITED(original->width(), original->height(),
                 GrPixelConfigIsAlphaOnly(original->config()))
+    , fContext(context)
     , fOriginal(std::move(original))
     , fAlphaType(alphaType)
     , fColorSpace(cs)
@@ -76,7 +77,6 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
         const GrSamplerState& params,
         SkColorSpace* dstColorSpace,
         sk_sp<SkColorSpace>* texColorSpace,
-        bool willBeMipped,
         SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
@@ -105,6 +105,8 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
         }
     }
 
+    bool willBeMipped = GrSamplerState::Filter::kMipMap == params.filter() &&
+                        fContext->contextPriv().caps()->mipMapSupport();
     sk_sp<GrTextureProxy> result = this->refTextureProxyCopy(copyParams, willBeMipped);
     if (!result && needsCopyForMipsOnly) {
         // If we were unable to make a copy and we only needed a copy for mips, then we will return

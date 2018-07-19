@@ -11,7 +11,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
-#include "SkMipMap.h"
 #include "SkRectPriv.h"
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
@@ -227,18 +226,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxyForParams(
     SkDEBUGCODE(bool expectNoScale = (sampler.filter() != GrSamplerState::Filter::kMipMap &&
                                       !sampler.isRepeated()));
     SkASSERT(scaleAdjust || expectNoScale);
-
-    int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->contextPriv().caps()->mipMapSupport();
-
     auto result =
-            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, willBeMipped,
-                                             scaleAdjust);
-
-    // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
-    // maps.
-    SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes);
+            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, scaleAdjust);
 
     // Check that the "no scaling expected" case always returns a proxy of the same size as the
     // producer.
@@ -254,18 +243,8 @@ sk_sp<GrTextureProxy> GrTextureProducer::refTextureProxy(GrMipMapped willNeedMip
             GrMipMapped::kNo == willNeedMips ? GrSamplerState::Filter::kNearest
                                              : GrSamplerState::Filter::kMipMap;
     GrSamplerState sampler(GrSamplerState::WrapMode::kClamp, filter);
-
-    int mipCount = SkMipMap::ComputeLevelCount(this->width(), this->height());
-    bool willBeMipped = GrSamplerState::Filter::kMipMap == sampler.filter() && mipCount &&
-                        fContext->contextPriv().caps()->mipMapSupport();
-
     auto result =
-            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace,
-                                             willBeMipped, nullptr);
-
-    // Check to make sure that if we say the texture willBeMipped that the returned texture has mip
-    // maps.
-    SkASSERT(!result || !willBeMipped || result->mipMapped() == GrMipMapped::kYes);
+            this->onRefTextureProxyForParams(sampler, dstColorSpace, proxyColorSpace, nullptr);
 
     // Check that no scaling occured and we returned a proxy of the same size as the producer.
     SkASSERT(!result || (result->width() == this->width() && result->height() == this->height()));
