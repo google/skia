@@ -242,9 +242,7 @@ private:
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
 
-    void internalDrawText( const void*, size_t, const SkScalar pos[],
-                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
-                          const uint32_t*, uint32_t, const char*);
+    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
