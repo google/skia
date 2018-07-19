@@ -1,11 +1,13 @@
 package com.google.skar;
 
-import android.graphics.Matrix;
 import android.graphics.Path;
 import android.graphics.PointF;
 
-public class SkARFingerPainting { ;
+public class SkARFingerPainting {
     public Path path = new Path();
+
+    // Previous point added to the path. This points belongs to the path in local space.
+    public PointF previousPoint;
 
     private int numberOfPoints = 0;
 
@@ -13,20 +15,16 @@ public class SkARFingerPainting { ;
     // model location (i.e on the Plane)
     private float[] modelMatrix;
 
-    // Holds the inverse model matrix of the first point that was added such that the path is drawn
-    // first at (0, 0)
-    private float[] inverseModelMatrix;
-
     public SkARFingerPainting() {}
 
-    // Adds another point to the path in Local space (i.e apply InverseModelMatrix to points located
-    // in Global space (e.g hit positions acquired through hit tests)
+    // Adds another point to the path in Local space
     public void addPoint(PointF p) {
         if (numberOfPoints == 0) {
             path.moveTo(p.x, p.y);
         } else {
             path.lineTo(p.x, p.y);
         }
+        previousPoint = p;
         numberOfPoints++;
     }
 
@@ -38,19 +36,12 @@ public class SkARFingerPainting { ;
         return modelMatrix;
     }
 
-    public float[] getRawInverseModelMatrix() {
-        return inverseModelMatrix;
-    }
-
-    public Matrix getInverseModelMatrix() {
-        return SkARMatrix.createMatrixFrom4x4(inverseModelMatrix);
-    }
-
     public void setModelMatrix(float[] m) {
         modelMatrix = m;
     }
 
-    public void setInverseModelMatrix(float[] m) {
-        inverseModelMatrix = m;
+    public void reset() {
+        path = new Path();
+        numberOfPoints = 0;
     }
 }

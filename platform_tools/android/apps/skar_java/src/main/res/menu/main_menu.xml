@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/menu_top">
+        <item
+            android:id="@+id/reset_paint"
+            android:title="Reset Finger Painting"/>
+    </group>
+
+    <group
+        android:id="@+id/menu_bottom"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/draw_circle"
+            android:title="Circle" >
+        </item>
+        <item
+            android:id="@+id/draw_rect"
+            android:title="Rect" >
+        </item>
+        <item
+            android:id="@+id/draw_animation"
+            android:title="Animation" >
+        </item>
+        <item
+            android:id="@+id/draw_text"
+            android:title="Text" >
+        </item>
+    </group>
+
+</menu>
