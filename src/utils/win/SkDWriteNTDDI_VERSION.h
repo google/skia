@@ -21,7 +21,7 @@
 #if defined(NTDDI_VERSION)
 #  undef NTDDI_VERSION
 #  if defined(_WIN32_WINNT)
-#    undef _WIN32_WINNT_WIN10
+#    undef _WIN32_WINNT
 #  endif
 #  if defined(WINVER)
 #    undef WINVER
