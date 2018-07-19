@@ -1522,7 +1522,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="102d014d7f753db2a9b9ee08893aaf11"><div>A black circle drawn on a blue background provides an image to copy.
+<div><fiddle-embed name="7a1f39b12d2cd8b7f5b1190879259cb2"><div>A black circle drawn on a blue background provides an image to copy.
 <a href='#SkCanvas_readPixels'>readPixels</a> copies one quarter of the canvas into each of the four corners.
 The copied quarter circles overdraw the original circle.
 </div></fiddle-embed></div>
@@ -1692,7 +1692,7 @@ true if pixels were copied
 
 ### Example
 
-<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a"><div><a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
+<div><fiddle-embed name="236e680b27960ca22641586dba0599c9"><div><a href='#SkCanvas_clear'>clear</a> takes <a href='undocumented#Unpremultiply'>Unpremultiplied</a> input with <a href='SkColor_Reference#Alpha'>Color Alpha</a> equal 0x80
 and RGB equal 0x55, 0xAA, 0xFF. RGB is multiplied by <a href='SkColor_Reference#Alpha'>Color Alpha</a>
 to generate <a href='undocumented#Premultiply'>Premultiplied</a> value 0x802B5580.
 </div>
@@ -2534,7 +2534,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="9b7fa2fe855642ffff6538829db15328">
+<div><fiddle-embed name="c79a196278c58b34cd5f551b0124ecc9">
 
 #### Example Output
 
