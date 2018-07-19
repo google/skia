@@ -7,6 +7,7 @@
 
 #include "SkBitmapDevice.h"
 #include "SkDraw.h"
+#include "SkGlyphRun.h"
 #include "SkImageFilter.h"
 #include "SkImageFilterCache.h"
 #include "SkMallocPixelRef.h"
@@ -568,6 +569,22 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
     SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
     LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &props()),
                 nullptr)
+}
+
+void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+#ifdef SK_SUPPORT_LEGACY_TEXT_BLOB
+    auto blob = glyphRunList->blob();
+
+    if (blob == nullptr) {
+        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+    } else {
+        auto origin = glyphRunList->origin();
+        auto paint = glyphRunList->paint();
+        this->drawTextBlob(blob, origin.x(), origin.y(), paint);
+    }
+#else
+    glyphRunList->temporaryShuntToDrawPosText(this, glyphRunList->origin());
+#endif
 }
 
 void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
