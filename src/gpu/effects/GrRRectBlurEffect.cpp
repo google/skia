@@ -146,10 +146,13 @@ GrRRectBlurEffect::GrRRectBlurEffect(const GrRRectBlurEffect& src)
         , fRect(src.fRect)
         , fCornerRadius(src.fCornerRadius)
         , fNinePatchSampler(src.fNinePatchSampler) {
-    this->addTextureSampler(&fNinePatchSampler);
+    this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrRRectBlurEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRRectBlurEffect(*this));
+}
+auto GrRRectBlurEffect::onTextureSampler(int index) const -> const TextureSampler& {
+    return IthTextureSampler(index, fNinePatchSampler);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRRectBlurEffect);
 #if GR_TEST_UTILS
