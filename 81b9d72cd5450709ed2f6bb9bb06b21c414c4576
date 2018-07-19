@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "04f29457_d480142c",
+        "filename": "dm/DM.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-19T17:28:46Z",
+      "side": 1,
+      "message": "Whoops, fixed.",
+      "parentUuid": "4fbbeb50_b919368f",
+      "range": {
+        "startLine": 787,
+        "startChar": 49,
+        "endLine": 787,
+        "endChar": 55
+      },
+      "revId": "81b9d72cd5450709ed2f6bb9bb06b21c414c4576",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fd67c8a1_34b09ae9",
         "filename": "infra/bots/recipe_modules/flavor/api.py",
         "patchSetId": 4
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "f21dfa96_163beb3c",
+        "filename": "infra/bots/recipe_modules/flavor/api.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-19T17:28:46Z",
+      "side": 1,
+      "message": "Missed this, done.",
+      "parentUuid": "fd67c8a1_34b09ae9",
+      "revId": "81b9d72cd5450709ed2f6bb9bb06b21c414c4576",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9c41ddad_9cd48cbb",
         "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
         "patchSetId": 4
@@ -53,6 +95,30 @@
       "writtenOn": "2018-07-18T20:19:27Z",
       "side": 1,
       "message": "Not sure if this is what you intended.",
+      "range": {
+        "startLine": 45,
+        "startChar": 51,
+        "endLine": 45,
+        "endChar": 63
+      },
+      "revId": "81b9d72cd5450709ed2f6bb9bb06b21c414c4576",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4643a9e6_c76a7b4c",
+        "filename": "infra/bots/recipe_modules/flavor/examples/full.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-19T17:28:46Z",
+      "side": 1,
+      "message": "Nope :-/",
+      "parentUuid": "9c41ddad_9cd48cbb",
       "range": {
         "startLine": 45,
         "startChar": 51,
