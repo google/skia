@@ -113,9 +113,7 @@ private:
                       void* buffer, size_t rowBytes) override;
 
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
-                       const GrMipLevel[], int) override {
-        return false;
-    }
+                       const GrMipLevel[], int mipLevelCount) override;
 
     bool onTransferPixels(GrTexture*,
                           int left, int top, int width, int height,
