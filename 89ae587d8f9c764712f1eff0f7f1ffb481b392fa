@@ -22,6 +22,30 @@
       "revId": "89ae587d8f9c764712f1eff0f7f1ffb481b392fa",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29934305_092630c8",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-19T20:11:25Z",
+      "side": 1,
+      "message": "IsACopyNeededForRepeatWrapMode still looks at the filter mode (nearest does one thing and linear/mips do another).\n\nWe could maybe move things around to pass in more specific params. However, this CL is going to need to be cherry-picked into 69 so I\u0027d rather leave this change as simple as possible and do a different CL if we things its worth updating the params here.",
+      "parentUuid": "9dd108b5_c32d484d",
+      "range": {
+        "startLine": 46,
+        "startChar": 53,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "89ae587d8f9c764712f1eff0f7f1ffb481b392fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
