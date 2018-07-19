@@ -1814,7 +1814,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         redHalf.fFlags = ConfigInfo::kTextureable_Flag;
 
         if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
-            (textureRedSupport && ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
+            ctxInfo.hasExtension("GL_EXT_color_buffer_float") ||
+            ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
             redHalf.fFlags |= fpRenderFlags;
         }
 
@@ -1838,7 +1839,8 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
         // ES requires 3.2 or EXT_color_buffer_half_float.
         if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3,2) ||
-             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
+            ctxInfo.hasExtension("GL_EXT_color_buffer_float") ||
+            ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
