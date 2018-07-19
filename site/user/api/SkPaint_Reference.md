@@ -3361,7 +3361,7 @@ one of: <a href='#SkPaint_kMiter_Join'>kMiter Join</a>, <a href='#SkPaint_kRound
 
 ### Example
 
-<div><fiddle-embed name="af6dec8ef974aa67bf102f29915bcd6a">
+<div><fiddle-embed name="31bf751d0a8ddf176b871810820d8199">
 
 #### Example Output
 
@@ -4588,7 +4588,7 @@ additional shear in x-axis relative to y-axis
 
 ### Example
 
-<div><fiddle-embed name="c79a196278c58b34cd5f551b0124ecc9"></fiddle-embed></div>
+<div><fiddle-embed name="11c10f466dae0d1639dbb9f6a0040218"></fiddle-embed></div>
 
 ---
 
