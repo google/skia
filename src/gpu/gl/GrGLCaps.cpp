@@ -1745,32 +1745,48 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     // NOTE: We disallow floating point textures on ES devices if linear filtering modes are not
     // supported. This is for simplicity, but a more granular approach is possible. Coincidentally,
     // [half] floating point textures became part of the standard in ES3.1 / OGL 3.0.
-    bool hasFPTextures = false;
-    bool hasHalfFPTextures = false;
+    bool hasFP32Textures = false;
+    bool hasFP16Textures = false;
     bool rgIsTexturable = false;
+    bool hasFP32RenderTargets = false;
+    bool hasFP16RenderTargets = false;
     // for now we don't support floating point MSAA on ES
     uint32_t fpRenderFlags = (kGL_GrGLStandard == standard) ? allRenderFlags : nonMSAARenderFlags;
 
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(3, 0)) {
-            hasFPTextures = true;
-            hasHalfFPTextures = true;
+            hasFP32Textures = true;
+            hasFP16Textures = true;
             rgIsTexturable = true;
+            hasFP32RenderTargets = true;
+            hasFP16RenderTargets = true;
         }
     } else {
         if (version >= GR_GL_VER(3, 0)) {
-            hasFPTextures = true;
-            hasHalfFPTextures = true;
+            hasFP32Textures = true;
+            hasFP16Textures = true;
             rgIsTexturable = true;
-        } else {
-            if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
-                ctxInfo.hasExtension("GL_OES_texture_float")) {
-                hasFPTextures = true;
-            }
-            if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
-                ctxInfo.hasExtension("GL_OES_texture_half_float")) {
-                hasHalfFPTextures = true;
-            }
+        } else if (ctxInfo.hasExtension("GL_OES_texture_float_linear") &&
+                   ctxInfo.hasExtension("GL_OES_texture_float")) {
+            hasFP32Textures = true;
+            hasFP16Textures = true;
+        } else if (ctxInfo.hasExtension("GL_OES_texture_half_float_linear") &&
+                   ctxInfo.hasExtension("GL_OES_texture_half_float")) {
+            hasFP16Textures = true;
+        }
+
+        if (version >= GR_GL_VER(3, 2)) {
+            // For now we only enable rendering to fp32 on desktop, because on ES we'd have to solve
+            // many precision issues and no clients actually want this yet.
+            // hasFP32RenderTargets = true;
+            hasFP16RenderTargets = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_float")) {
+            // For now we only enable rendering to fp32 on desktop, because on ES we'd have to
+            // solve many precision issues and no clients actually want this yet.
+            // hasFP32RenderTargets = true;
+            hasFP16RenderTargets = true;
+        } else if (ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
+            hasFP16RenderTargets = true;
         }
     }
 
@@ -1782,12 +1798,9 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[fpconfig].fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = format;
         fConfigTable[fpconfig].fFormats.fExternalType = GR_GL_FLOAT;
         fConfigTable[fpconfig].fFormatType = kFloat_FormatType;
-        if (hasFPTextures) {
+        if (hasFP32Textures) {
             fConfigTable[fpconfig].fFlags = rgIsTexturable ? ConfigInfo::kTextureable_Flag : 0;
-            // For now we only enable rendering to float on desktop, because on ES we'd have to
-            // solve many precision issues and no clients actually want this yet.
-            if (kGL_GrGLStandard == standard /* || version >= GR_GL_VER(3,2) ||
-                ctxInfo.hasExtension("GL_EXT_color_buffer_float")*/) {
+            if (hasFP32RenderTargets) {
                 fConfigTable[fpconfig].fFlags |= fpRenderFlags;
             }
         }
@@ -1810,11 +1823,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     redHalf.fFormats.fSizedInternalFormat = GR_GL_R16F;
     redHalf.fFormats.fExternalFormat[kReadPixels_ExternalFormatUsage] = GR_GL_RED;
     redHalf.fSwizzle = GrSwizzle::RRRR();
-    if (textureRedSupport && hasHalfFPTextures) {
+    if (textureRedSupport && hasFP16Textures) {
         redHalf.fFlags = ConfigInfo::kTextureable_Flag;
 
-        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3, 2) ||
-            (textureRedSupport && ctxInfo.hasExtension("GL_EXT_color_buffer_half_float"))) {
+        if (hasFP16RenderTargets) {
             redHalf.fFlags |= fpRenderFlags;
         }
 
@@ -1834,11 +1846,10 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
         fConfigTable[kRGBA_half_GrPixelConfig].fFormats.fExternalType = GR_GL_HALF_FLOAT_OES;
     }
     fConfigTable[kRGBA_half_GrPixelConfig].fFormatType = kFloat_FormatType;
-    if (hasHalfFPTextures) {
+    if (hasFP16Textures) {
         fConfigTable[kRGBA_half_GrPixelConfig].fFlags = ConfigInfo::kTextureable_Flag;
         // ES requires 3.2 or EXT_color_buffer_half_float.
-        if (kGL_GrGLStandard == standard || version >= GR_GL_VER(3,2) ||
-             ctxInfo.hasExtension("GL_EXT_color_buffer_half_float")) {
+        if (hasFP16RenderTargets) {
             fConfigTable[kRGBA_half_GrPixelConfig].fFlags |= fpRenderFlags;
         }
     }
