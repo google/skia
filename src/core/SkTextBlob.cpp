@@ -927,58 +927,9 @@ sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace {
-    struct CatalogState {
-        SkTypefaceCatalogerProc fProc;
-        void*                   fCtx;
-    };
-
-    sk_sp<SkData> catalog_typeface_proc(SkTypeface* face, void* ctx) {
-        CatalogState* state = static_cast<CatalogState*>(ctx);
-        state->fProc(face, state->fCtx);
-        uint32_t id = face->uniqueID();
-        return SkData::MakeWithCopy(&id, sizeof(uint32_t));
-    }
-}
-
-sk_sp<SkData> SkTextBlob::serialize(SkTypefaceCatalogerProc proc, void* ctx) const {
-    CatalogState state = { proc, ctx };
-    SkSerialProcs procs;
-    procs.fTypefaceProc = catalog_typeface_proc;
-    procs.fTypefaceCtx  = &state;
-    return this->serialize(procs);
-}
-
 size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {
     SkBinaryWriteBuffer buffer(memory, memory_size);
     buffer.setSerialProcs(procs);
     SkTextBlobPriv::Flatten(*this, buffer);
     return buffer.usingInitialStorage() ? buffer.bytesWritten() : 0u;
-}
-
-namespace {
-    struct ResolverState {
-        SkTypefaceResolverProc  fProc;
-        void*                   fCtx;
-    };
-
-    sk_sp<SkTypeface> resolver_typeface_proc(const void* data, size_t length, void* ctx) {
-        if (length != 4) {
-            return nullptr;
-        }
-
-        ResolverState* state = static_cast<ResolverState*>(ctx);
-        uint32_t id;
-        memcpy(&id, data, length);
-        return state->fProc(id, state->fCtx);
-    }
-}
-
-sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
-                                          SkTypefaceResolverProc proc, void* ctx) {
-    ResolverState state = { proc, ctx };
-    SkDeserialProcs procs;
-    procs.fTypefaceProc = resolver_typeface_proc;
-    procs.fTypefaceCtx  = &state;
-    return Deserialize(data, length, procs);
 }

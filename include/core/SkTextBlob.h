@@ -17,9 +17,6 @@
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
-typedef void (*SkTypefaceCatalogerProc)(SkTypeface*, void* ctx);
-typedef sk_sp<SkTypeface> (*SkTypefaceResolverProc)(uint32_t id, void* ctx);
-
 /** \class SkTextBlob
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
@@ -46,28 +43,15 @@ public:
     };
 
     /**
-     *  Serialize the typeface into a data blob, storing type uniqueID of each referenced typeface.
-     *  During this process, each time a typeface is encountered, it is passed to the catalog,
-     *  allowing the caller to what typeface IDs will need to be resolved in Deserialize().
-     */
-    sk_sp<SkData> serialize(SkTypefaceCatalogerProc, void* ctx) const;
-
-    /**
      *  Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
      *  if serialization failed due to insufficient size.
      */
     size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const;
 
-    /**
-     *  Re-create a text blob previously serialized. Since the serialized form records the uniqueIDs
-     *  of its typefaces, deserialization requires that the caller provide the corresponding
-     *  SkTypefaces for those IDs.
-     */
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
-                                         SkTypefaceResolverProc, void* ctx);
+    sk_sp<SkData> serialize(const SkSerialProcs& procs) const;
 
-    sk_sp<SkData> serialize(const SkSerialProcs&) const;
-    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs&);
+    static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size,
+                                         const SkDeserialProcs& procs);
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
