@@ -248,7 +248,7 @@ def dm_flags(api, bot):
     # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
     # on the GL bots.
     if ('QuadroP400' in bot and 'PreAbandonGpuContext' not in bot and
-        api.vars.is_linux):
+        'TSAN' not in bot and api.vars.is_linux):
       if 'Vulkan' in bot:
         configs.append('vk1010102')
         # Decoding transparent images to 1010102 just looks bad
