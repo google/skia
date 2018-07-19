@@ -1454,6 +1454,8 @@ void SkPDFDevice::internalDrawText(
 void SkPDFDevice::drawPosText(const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
+    SkASSERT(paint.getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+    SkASSERT(scalarsPerPos == 2);
     this->internalDrawText(text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
                            offset, paint, nullptr, 0, nullptr);
 }
