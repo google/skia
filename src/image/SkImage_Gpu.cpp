@@ -51,14 +51,9 @@ SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaTyp
         , fProxy(std::move(proxy))
         , fAlphaType(at)
         , fBudgeted(budgeted)
-        , fColorSpace(std::move(colorSpace))
-        , fAddedRasterVersionToCache(false) {}
+        , fColorSpace(std::move(colorSpace)) {}
 
-SkImage_Gpu::~SkImage_Gpu() {
-    if (fAddedRasterVersionToCache.load()) {
-        SkNotifyBitmapGenIDIsStale(this->uniqueID());
-    }
-}
+SkImage_Gpu::~SkImage_Gpu() {}
 
 SkImageInfo SkImage_Gpu::onImageInfo() const {
     return SkImageInfo::Make(fProxy->width(), fProxy->height(), this->onColorType(), fAlphaType,
@@ -119,7 +114,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) c
 
     if (rec) {
         SkBitmapCache::Add(std::move(rec), dst);
-        fAddedRasterVersionToCache.store(true);
+        this->notifyAddedToRasterCache();
     }
     return true;
 }

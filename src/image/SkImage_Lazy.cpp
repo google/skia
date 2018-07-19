@@ -360,7 +360,7 @@ bool SkImage_Lazy::lockAsBitmap(SkBitmap* bitmap, SkImage::CachingHint chint, Ca
         SkASSERT(bitmap->getPixels());  // we're locked
         SkASSERT(bitmap->isImmutable());
         SkASSERT(bitmap->getGenerationID() == uniqueID);
-        this->notifyAddedToCache();
+        this->notifyAddedToRasterCache();
     } else {
         *bitmap = tmpBitmap;
         bitmap->pixelRef()->setImmutableWithID(uniqueID);
