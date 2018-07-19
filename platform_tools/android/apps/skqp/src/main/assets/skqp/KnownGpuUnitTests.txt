@@ -44,7 +44,6 @@ GrWrappedMipMappedTest
 HalfFloatAlphaTextureTest
 HalfFloatRGBATextureTest
 ImageEncode_Gpu
-ImageFilterBlurLargeImage_Gpu
 ImageFilterCache_GPUBacked
 ImageFilterCache_ImageBackedGPU
 ImageFilterClippedPictureImageFilter_Gpu
