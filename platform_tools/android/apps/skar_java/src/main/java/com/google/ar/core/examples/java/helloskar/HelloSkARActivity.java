@@ -27,10 +27,15 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -57,7 +62,6 @@ import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
-import com.google.skar.SkARMatrix;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +76,10 @@ import javax.microedition.khronos.opengles.GL10;
  */
 
 public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+    public enum DrawingType {
+        circle, rect, text, animation
+    }
+
     private static final String TAG = HelloSkARActivity.class.getSimpleName();
 
     //Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
@@ -95,14 +103,12 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
     // 2D Renderer
     private DrawManager drawManager = new DrawManager();
+    private DrawingType currentDrawabletype = DrawingType.circle;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
 
-    private final float[] back = new float[16];
-
-    PointF previousEvent;
-    android.graphics.Matrix inverted;
+    PointF previousEvent;;
 
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
@@ -116,6 +122,15 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+
+        //hide notifications bar
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         arSurfaceView = findViewById(R.id.arsurfaceview);
         glSurfaceView = findViewById(R.id.glsurfaceview);
         arSurfaceView.bringToFront();
@@ -313,54 +328,6 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                 }
             }
 
-            MotionEvent holdTap = tapHelper.holdPoll();
-            if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(holdTap)) {
-                    // Check if any plane was hit, and if it was hit inside the plane polygon
-                    Trackable trackable = hit.getTrackable();
-                    // Creates an anchor if a plane or an oriented point was hit.
-                    if ((trackable instanceof Plane
-                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
-                            > 0))
-                            || (trackable instanceof Point
-                            && ((Point) trackable).getOrientationMode()
-                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-
-                        float[] pt = {hit.getHitPose().tx(), hit.getHitPose().tz()};
-
-                        if (drawManager.fingerPainting.isEmpty()) {
-                            float[] originalPt = {pt[0], pt[1]};
-
-                            // Get model matrix of first point
-                            float[] m = new float[16];
-                            hit.getHitPose().toMatrix(m, 0);
-                            drawManager.fingerPainting.setModelMatrix(m); //M0
-
-                            // Construct the inverse matrix + the translation to the origin
-                            float[] inv = new float[16];
-                            hit.getHitPose().toMatrix(inv, 0);
-                            Matrix.invertM(inv, 0, inv, 0);
-                            drawManager.fingerPainting.setInverseModelMatrix(inv);
-                            //inverted = SkARMatrix.createMatrixFrom4x4(inv); //M0 -1
-
-                            // Map hit location using the raw inverse matrix
-                            drawManager.fingerPainting.getInverseModelMatrix().mapPoints(originalPt);
-
-                            // Translate the point back to the origin, and update the inverse matrix
-                            Matrix.translateM(inv, 0, -originalPt[0], -originalPt[1], 0);
-                            drawManager.fingerPainting.setInverseModelMatrix(inv);
-                            //inverted = SkARMatrix.createMatrixFrom4x4(inv);
-                        }
-
-                        drawManager.fingerPainting.getInverseModelMatrix().mapPoints(pt);
-                        PointF newPoint = new PointF(pt[0], pt[1]);
-                        drawManager.fingerPainting.addPoint(newPoint);
-                        break;
-                    }
-                }
-            }
-
             // Draw background with OpenGL.
             // TODO: possibly find a way to extract texture and draw on Canvas
             backgroundRenderer.draw(frame);
@@ -383,6 +350,54 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             final float[] colorCorrectionRgba = new float[4];
             frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
             drawManager.updateLightColorFilter(colorCorrectionRgba);
+
+            // Building finger painting
+            MotionEvent holdTap = tapHelper.holdPoll();
+            if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+                for (HitResult hit : frame.hitTest(holdTap)) {
+                    // Check if any plane was hit, and if it was hit inside the plane polygon
+                    Trackable trackable = hit.getTrackable();
+                    // Creates an anchor if a plane or an oriented point was hit.
+                    if ((trackable instanceof Plane
+                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                            > 0))
+                            || (trackable instanceof Point
+                            && ((Point) trackable).getOrientationMode()
+                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+
+                        // Get hit point transform, apply it to the origin
+                        float[] gm = new float[16];
+                        hit.getHitPose().toMatrix(gm, 0);
+                        float[] point = {0, 0, 0, 1};
+                        Matrix.multiplyMV(point, 0, gm, 0, point, 0);
+
+                        if (drawManager.fingerPainting.isEmpty()) {
+                            drawManager.fingerPainting.addPoint(new PointF(0, 0));
+
+                            // Get model matrix of first point
+                            float[] m = new float[16];
+                            hit.getHitPose().toMatrix(m, 0);
+                            drawManager.fingerPainting.setModelMatrix(m);
+                        } else {
+                            float localDistanceScale = 1000;
+                            PointF distance = new PointF(point[0] - previousEvent.x,
+                                                         point[2] - previousEvent.y);
+
+                            // New point is distance + old point
+                            PointF p = new PointF(distance.x * localDistanceScale
+                                                   + drawManager.fingerPainting.previousPoint.x,
+                                                  distance.y * localDistanceScale
+                                                   + drawManager.fingerPainting.previousPoint.y);
+
+                            drawManager.fingerPainting.addPoint(p);
+                        }
+
+                        previousEvent = new PointF(point[0], point[2]);
+                        break;
+                    }
+                }
+            }
 
             // Drawing on Canvas (SurfaceView)
             if (arSurfaceView.isRunning()) {
@@ -448,14 +463,56 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             anchor.getPose().toMatrix(anchorMatrix, 0);
             drawManager.modelMatrices.add(0, anchorMatrix);
 
-            drawManager.drawRect(canvas);
-            drawManager.drawCircle(canvas);
-            drawManager.drawAnimatedRoundRect(canvas, radius);
-            drawManager.drawText(canvas, "HelloSkAR");
+            switch (currentDrawabletype) {
+                case circle:
+                    drawManager.drawCircle(canvas);
+                    return;
+                case rect:
+                    drawManager.drawRect(canvas);
+                    return;
+                case animation:
+                    drawManager.drawAnimatedRoundRect(canvas, radius);
+                    return;
+                case text:
+                    drawManager.drawText(canvas, "Android");
+                    return;
+                default:
+                    drawManager.drawCircle(canvas);
+                    return;
+            }
         }
     }
 
     private void drawFingerPainting(Canvas canvas) {
         drawManager.drawFingerPainting(canvas);
+    }
+
+    // Menu functions
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset_paint:
+                drawManager.fingerPainting.reset();
+                return true;
+            case R.id.draw_circle:
+                currentDrawabletype = DrawingType.circle;
+                return true;
+            case R.id.draw_rect:
+                currentDrawabletype = DrawingType.rect;
+                return true;
+            case R.id.draw_animation:
+                currentDrawabletype = DrawingType.animation;
+                return true;
+            case R.id.draw_text:
+                currentDrawabletype = DrawingType.text;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }
