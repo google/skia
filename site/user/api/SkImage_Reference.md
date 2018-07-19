@@ -659,7 +659,7 @@ created <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="cf2cf53321e4e6a77c2841bfbc0ef707"><div>The first <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is shared; writing to the pixel memory changes the first
+<div><fiddle-embed name="c79a196278c58b34cd5f551b0124ecc9"><div>The first <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is shared; writing to the pixel memory changes the first
 <a href='#Image'>Image</a>.
 The second <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> is marked immutable, and is copied; writing to the pixel
 memory does not alter the second <a href='#Image'>Image</a>.
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
+<div><fiddle-embed name="8bf1518db3f369696cd3065b541a8bd7"></fiddle-embed></div>
 
 ### See Also
 
