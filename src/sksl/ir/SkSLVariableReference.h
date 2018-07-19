@@ -49,6 +49,10 @@ struct VariableReference : public Expression {
         return 0 != (fVariable.fModifiers.fFlags & Modifiers::kConst_Flag);
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        return std::unique_ptr<Expression>(new VariableReference(fOffset, fVariable, fRefKind));
+    }
+
     String description() const override {
         return fVariable.fName;
     }

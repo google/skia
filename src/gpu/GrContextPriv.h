@@ -16,6 +16,7 @@ class GrBackendRenderTarget;
 class GrOpMemoryPool;
 class GrOnFlushCallbackObject;
 class GrSemaphore;
+class GrSkSLFPFactory;
 class GrSurfaceProxy;
 class GrTextureContext;
 
@@ -278,6 +279,10 @@ public:
     GrAuditTrail* getAuditTrail() { return &fContext->fAuditTrail; }
 
     GrContextOptions::PersistentCache* getPersistentCache() { return fContext->fPersistentCache; }
+
+    sk_sp<GrSkSLFPFactoryCache> getFPFactoryCache() {
+        return fContext->fFPFactoryCache;
+    }
 
     /** This is only useful for debug purposes */
     SkDEBUGCODE(GrSingleOwner* debugSingleOwner() const { return &fContext->fSingleOwner; } )
