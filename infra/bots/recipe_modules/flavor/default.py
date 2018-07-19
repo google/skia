@@ -19,6 +19,7 @@ class DeviceDirs(object):
                perf_data_dir,
                resource_dir,
                images_dir,
+               lotties_dir,
                skp_dir,
                svg_dir,
                tmp_dir):
@@ -27,6 +28,7 @@ class DeviceDirs(object):
     self._perf_data_dir = perf_data_dir
     self._resource_dir = resource_dir
     self._images_dir = images_dir
+    self._lotties_dir = lotties_dir
     self._skp_dir = skp_dir
     self._svg_dir = svg_dir
     self._tmp_dir = tmp_dir
@@ -51,6 +53,10 @@ class DeviceDirs(object):
   @property
   def images_dir(self):
     return self._images_dir
+
+  @property
+  def lotties_dir(self):
+    return self._lotties_dir
 
   @property
   def skp_dir(self):
@@ -83,6 +89,7 @@ class DefaultFlavor(object):
         perf_data_dir=self.m.vars.swarming_out_dir,
         resource_dir=self.m.path['start_dir'].join('skia', 'resources'),
         images_dir=self.m.path['start_dir'].join('skimage'),
+        lotties_dir=self.m.path['start_dir'].join('lottie-samples'),
         skp_dir=self.m.path['start_dir'].join('skp'),
         svg_dir=self.m.path['start_dir'].join('svg'),
         tmp_dir=self.m.vars.tmp_dir)

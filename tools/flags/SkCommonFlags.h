@@ -26,7 +26,7 @@ DECLARE_bool(releaseAndAbandonGpuContext);
 DECLARE_string(skps);
 DECLARE_int32(skpViewportSize);
 DECLARE_string(jpgs);
-DECLARE_string(jsons);
+DECLARE_string(lotties);
 DECLARE_string(svgs);
 DECLARE_string(nimas);
 DECLARE_bool(nativeFonts);

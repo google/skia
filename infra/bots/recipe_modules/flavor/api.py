@@ -28,6 +28,7 @@ commands may be run through ADB.
 """
 
 
+VERSION_FILE_LOTTIE = 'LOTTIE_VERSION'
 VERSION_FILE_SK_IMAGE = 'SK_IMAGE_VERSION'
 VERSION_FILE_SKP = 'SKP_VERSION'
 VERSION_FILE_SVG = 'SVG_VERSION'
@@ -106,10 +107,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
   def remove_file_on_device(self, path):
     return self._f.remove_file_on_device(path)
 
-  def install_everything(self):
-    self.install(skps=True, images=True, svgs=True, resources=True)
-
-  def install(self, skps=False, images=False, svgs=False, resources=False):
+  def install(self, skps=False, images=False, lotties=False, svgs=False,
+              resources=False):
     self._f.install()
 
     # TODO(borenet): Only copy files which have changed.
@@ -122,6 +121,8 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
       self._copy_skps()
     if images:
       self._copy_images()
+    if lotties:
+      self._copy_lotties()
     if svgs:
       self._copy_svgs()
 
@@ -150,7 +151,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         self.copy_file_to_device(actual_version_file, device_version_file)
 
   def _copy_images(self):
-    """Download and copy test images if needed."""
+    """Copy test images if needed."""
     version = self.m.run.asset_version('skimage', self._skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SK_IMAGE),
@@ -163,8 +164,22 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
         self.device_dirs.images_dir)
     return version
 
+  def _copy_lotties(self):
+    """Copy test lotties if needed."""
+    version = self.m.run.asset_version('lottie-samples', self._skia_dir)
+    self.m.run.writefile(
+        self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_LOTTIE),
+        version)
+    self._copy_dir(
+        version,
+        VERSION_FILE_LOTTIE,
+        self.m.vars.tmp_dir,
+        self.host_dirs.lotties_dir,
+        self.device_dirs.lotties_dir)
+    return version
+
   def _copy_skps(self):
-    """Download and copy the SKPs if needed."""
+    """Copy the SKPs if needed."""
     version = self.m.run.asset_version('skp', self._skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SKP),
@@ -178,7 +193,7 @@ class SkiaFlavorApi(recipe_api.RecipeApi):
     return version
 
   def _copy_svgs(self):
-    """Download and copy the SVGs if needed."""
+    """Copy the SVGs if needed."""
     version = self.m.run.asset_version('svg', self._skia_dir)
     self.m.run.writefile(
         self.m.path.join(self.m.vars.tmp_dir, VERSION_FILE_SVG),

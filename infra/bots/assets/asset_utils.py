@@ -73,11 +73,9 @@ class CIPDStore(object):
       # Enable automatic GCE authentication. For context see
       # https://bugs.chromium.org/p/skia/issues/detail?id=6385#c3
       cipd_args.extend(['-service-account-json', ':gce'])
-    subprocess.check_call(
-        [self._cipd]
-        + cmd
-        + cipd_args
-    )
+    return subprocess.check_output(
+        [self._cipd] + cmd + cipd_args,
+        stderr=subprocess.STDOUT)
 
   def _json_output(self, cmd):
     """Run the given command, return the JSON output."""
@@ -89,7 +87,12 @@ class CIPDStore(object):
     return parsed.get('result', [])
 
   def _search(self, pkg_name):
-    res = self._json_output(['search', pkg_name, '--tag', TAG_PROJECT_SKIA])
+    try:
+      res = self._json_output(['search', pkg_name, '--tag', TAG_PROJECT_SKIA])
+    except subprocess.CalledProcessError as e:
+      if 'no such package' in e.output:
+        return []
+      raise
     return [r['instance_id'] for r in res]
 
   def _describe(self, pkg_name, instance_id):

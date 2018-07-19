@@ -558,7 +558,7 @@ void Viewer::initSlides() {
                 return sk_make_sp<ImageSlide>(name, path);}
         },
 #if defined(SK_ENABLE_SKOTTIE)
-        { ".json", "skottie-dir", FLAGS_jsons,
+        { ".json", "skottie-dir", FLAGS_lotties,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
