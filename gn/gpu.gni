@@ -628,6 +628,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlCaps.mm",
   "$_src/gpu/mtl/GrMtlGpu.h",
   "$_src/gpu/mtl/GrMtlGpu.mm",
+  "$_src/gpu/mtl/GrMtlGpuCommandBuffer.h",
   "$_src/gpu/mtl/GrMtlRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlRenderTarget.h",
   "$_src/gpu/mtl/GrMtlTexture.mm",
