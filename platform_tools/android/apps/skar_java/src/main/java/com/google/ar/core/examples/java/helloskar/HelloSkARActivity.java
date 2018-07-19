@@ -20,14 +20,22 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -68,10 +76,16 @@ import javax.microedition.khronos.opengles.GL10;
  */
 
 public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+    public enum DrawingType {
+        circle, rect, text, animation
+    }
+
     private static final String TAG = HelloSkARActivity.class.getSimpleName();
 
     //Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
     private ARSurfaceView arSurfaceView;
+    private Canvas canvas;
+    private SurfaceHolder holder;
 
     //GLSurfaceView used to draw 3D objects & camera input
     private GLSurfaceView glSurfaceView;
@@ -89,9 +103,12 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
     // 2D Renderer
     private DrawManager drawManager = new DrawManager();
+    private DrawingType currentDrawabletype = DrawingType.circle;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
+
+    PointF previousEvent;;
 
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
@@ -105,9 +122,19 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
+
+
+        //hide notifications bar
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         arSurfaceView = findViewById(R.id.arsurfaceview);
         glSurfaceView = findViewById(R.id.glsurfaceview);
         arSurfaceView.bringToFront();
+        arSurfaceView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
 
         // Set up tap listener.
@@ -259,6 +286,9 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
 
     @Override
     public void onDrawFrame(GL10 gl) {
+        canvas = null;
+        holder = null;
+
         // Clear screen to notify driver it should not load any pixels from previous frame.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -268,6 +298,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
         displayRotationHelper.updateSessionIfNeeded(session);
+
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
@@ -320,6 +351,54 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
             drawManager.updateLightColorFilter(colorCorrectionRgba);
 
+            // Building finger painting
+            MotionEvent holdTap = tapHelper.holdPoll();
+            if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+                for (HitResult hit : frame.hitTest(holdTap)) {
+                    // Check if any plane was hit, and if it was hit inside the plane polygon
+                    Trackable trackable = hit.getTrackable();
+                    // Creates an anchor if a plane or an oriented point was hit.
+                    if ((trackable instanceof Plane
+                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                            > 0))
+                            || (trackable instanceof Point
+                            && ((Point) trackable).getOrientationMode()
+                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+
+                        // Get hit point transform, apply it to the origin
+                        float[] gm = new float[16];
+                        hit.getHitPose().toMatrix(gm, 0);
+                        float[] point = {0, 0, 0, 1};
+                        Matrix.multiplyMV(point, 0, gm, 0, point, 0);
+
+                        if (drawManager.fingerPainting.isEmpty()) {
+                            drawManager.fingerPainting.addPoint(new PointF(0, 0));
+
+                            // Get model matrix of first point
+                            float[] m = new float[16];
+                            hit.getHitPose().toMatrix(m, 0);
+                            drawManager.fingerPainting.setModelMatrix(m);
+                        } else {
+                            float localDistanceScale = 1000;
+                            PointF distance = new PointF(point[0] - previousEvent.x,
+                                                         point[2] - previousEvent.y);
+
+                            // New point is distance + old point
+                            PointF p = new PointF(distance.x * localDistanceScale
+                                                   + drawManager.fingerPainting.previousPoint.x,
+                                                  distance.y * localDistanceScale
+                                                   + drawManager.fingerPainting.previousPoint.y);
+
+                            drawManager.fingerPainting.addPoint(p);
+                        }
+
+                        previousEvent = new PointF(point[0], point[2]);
+                        break;
+                    }
+                }
+            }
+
             // Drawing on Canvas (SurfaceView)
             if (arSurfaceView.isRunning()) {
                 // Lock canvas
@@ -350,12 +429,17 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                 // Draw models
                 drawModels(canvas);
 
+                // Draw finger painting
+                drawFingerPainting(canvas);
+
                 // Unlock canvas
                 holder.unlockCanvasAndPost(canvas);
             }
-
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
+            if (holder != null && canvas != null) {
+                holder.unlockCanvasAndPost(canvas);
+            }
             Log.e(TAG, "Exception on the OpenGL thread", t);
         }
     }
@@ -379,10 +463,56 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             anchor.getPose().toMatrix(anchorMatrix, 0);
             drawManager.modelMatrices.add(0, anchorMatrix);
 
-            drawManager.drawRect(canvas);
-            drawManager.drawCircle(canvas);
-            drawManager.drawAnimatedRoundRect(canvas, radius);
-            drawManager.drawText(canvas, "HelloSkAR");
+            switch (currentDrawabletype) {
+                case circle:
+                    drawManager.drawCircle(canvas);
+                    return;
+                case rect:
+                    drawManager.drawRect(canvas);
+                    return;
+                case animation:
+                    drawManager.drawAnimatedRoundRect(canvas, radius);
+                    return;
+                case text:
+                    drawManager.drawText(canvas, "Android");
+                    return;
+                default:
+                    drawManager.drawCircle(canvas);
+                    return;
+            }
+        }
+    }
+
+    private void drawFingerPainting(Canvas canvas) {
+        drawManager.drawFingerPainting(canvas);
+    }
+
+    // Menu functions
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.reset_paint:
+                drawManager.fingerPainting.reset();
+                return true;
+            case R.id.draw_circle:
+                currentDrawabletype = DrawingType.circle;
+                return true;
+            case R.id.draw_rect:
+                currentDrawabletype = DrawingType.rect;
+                return true;
+            case R.id.draw_animation:
+                currentDrawabletype = DrawingType.animation;
+                return true;
+            case R.id.draw_text:
+                currentDrawabletype = DrawingType.text;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
