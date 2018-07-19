@@ -70,11 +70,10 @@ static void swap(const SkMatrix** x, const SkMatrix** y) {
 class SkinningGM : public GM {
 
 public:
-    SkinningGM(bool deformUsingCPU, bool cache)
+    SkinningGM(bool deformUsingCPU)
             : fPaint()
             , fVertices(nullptr)
             , fDeformUsingCPU(deformUsingCPU)
-            , fCache(cache)
     {}
 
 protected:
@@ -86,9 +85,6 @@ protected:
         SkString name("skinning");
         if (fDeformUsingCPU) {
             name.append("_cpu");
-        }
-        if (fCache) {
-            name.append("_cached");
         }
         return name;
     }
@@ -107,7 +103,7 @@ protected:
                                          kBoneWeights,
                                          kIndexCount,
                                          kIndices,
-                                         !fCache);
+                                         false); // Keep the vertices non-volatile.
     }
 
     void onDraw(SkCanvas* canvas) override {
@@ -180,8 +176,7 @@ private:
                                                                   nullptr,
                                                                   kColors,
                                                                   kIndexCount,
-                                                                  kIndices,
-                                                                  !fCache);
+                                                                  kIndices);
                 canvas->drawVertices(vertices.get(),
                                      SkBlendMode::kSrc,
                                      fPaint);
@@ -223,14 +218,11 @@ private:
     SkPaint fPaint;
     sk_sp<SkVertices> fVertices;
     bool fDeformUsingCPU;
-    bool fCache;
 
     typedef GM INHERITED;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DEF_GM(return new SkinningGM(true, true);)
-DEF_GM(return new SkinningGM(false, true);)
-DEF_GM(return new SkinningGM(true, false);)
-DEF_GM(return new SkinningGM(false, false);)
+DEF_GM(return new SkinningGM(true);)
+DEF_GM(return new SkinningGM(false);)

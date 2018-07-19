@@ -103,7 +103,7 @@ private:
     struct Mesh {
         GrColor fColor;  // Used if this->hasPerVertexColors() is false.
         sk_sp<SkVertices> fVertices;
-        std::vector<float> fBones; // Transformation matrices stored in GPU format.
+        int8_t fBoneCount;
         SkMatrix fViewMatrix;
         bool fIgnoreTexCoords;
         bool fIgnoreColors;
@@ -118,7 +118,7 @@ private:
         }
 
         bool hasBones() const {
-            return fVertices->hasBones() && fBones.size() && !fIgnoreBones;
+            return fVertices->hasBones() && fBoneCount > 0 && !fIgnoreBones;
         }
     };
 
@@ -152,6 +152,8 @@ private:
 
     Helper fHelper;
     SkSTArray<1, Mesh, true> fMeshes;
+    std::vector<float> fBones; // Bone transformation matrices stored in GPU format.
+    std::vector<float> fTransforms; // World/view transforms stored in GPU format.
     // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
     // the SkVertices mode (though fPrimitiveType may have been inferred from it).
     GrPrimitiveType fPrimitiveType;

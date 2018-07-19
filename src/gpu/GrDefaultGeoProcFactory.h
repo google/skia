@@ -120,12 +120,16 @@ namespace GrDefaultGeoProcFactory {
     };
 
     struct Bones {
-        Bones(const float bones[], int boneCount)
+        Bones(const float bones[], int boneCount, const float transforms[], int transformCount)
             : fBones(bones)
-            , fBoneCount(boneCount) {}
+            , fBoneCount(boneCount)
+            , fTransforms(transforms)
+            , fTransformCount(transformCount) {}
 
         const float* fBones;
         int fBoneCount;
+        const float* fTransforms;
+        int fTransformCount;
     };
 
     sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
