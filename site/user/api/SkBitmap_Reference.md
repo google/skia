@@ -1579,7 +1579,7 @@ pixel address
 
 ### Example
 
-<div><fiddle-embed name="e006bb05cf74ec8d2b3d6adeb5dba11b">
+<div><fiddle-embed name="9344796c059ff5e4f057595e781905b3">
 
 #### Example Output
 
@@ -4046,7 +4046,7 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 ### Example
 
-<div><fiddle-embed name="c79a196278c58b34cd5f551b0124ecc9"></fiddle-embed></div>
+<div><fiddle-embed name="cd7543fa8c9f3cede46dc2d72eb8c4bd"></fiddle-embed></div>
 
 ### See Also
 

@@ -954,7 +954,7 @@ Returns <a href='#SkPreMultiplyARGB_a'>a</a> <a href='#SkPMColor'>SkPMColor</a> 
 
 ### Example
 
-<div><fiddle-embed name="756345484fd48ca0ea7b6cec350f73b8"></fiddle-embed></div>
+<div><fiddle-embed name="4b5d3904476726a39f1c3e276d6b6ba7"></fiddle-embed></div>
 
 ### See Also
 

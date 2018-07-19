@@ -1006,7 +1006,7 @@ Call <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fLeft'>fLeft</a
 
 ### Example
 
-<div><fiddle-embed name="02750ceaa874f956e6e6544ef6b858ee">
+<div><fiddle-embed name="23c77a35ac54a439a2989f840aa5cb99">
 
 #### Example Output
 
@@ -1171,7 +1171,7 @@ and <a href='#SkRect_sort'>sort</a> to reverse <a href='#SkRect_fTop'>fTop</a> a
 
 ### Example
 
-<div><fiddle-embed name="a98993a66616ae406d8bdc54adfb1411">
+<div><fiddle-embed name="85496614e90c66b020f8a70db8d06f4a">
 
 #### Example Output
 
@@ -2306,7 +2306,7 @@ If <a href='#SkRect_offset_2_delta'>delta</a>.fY is positive, moves <a href='#Re
 
 ### Example
 
-<div><fiddle-embed name="b24cf65561c98c1858a06c39f10fb797">
+<div><fiddle-embed name="4b5d3904476726a39f1c3e276d6b6ba7">
 
 #### Example Output
 

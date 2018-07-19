@@ -865,7 +865,7 @@ true if (x, y) length is not zero or nearly zero
 
 ### Example
 
-<div><fiddle-embed name="3e4f147d143a388802484bf0d26534c2"></fiddle-embed></div>
+<div><fiddle-embed name="02e33141f13da2f19aef7feb7117b541"></fiddle-embed></div>
 
 ### See Also
 
@@ -1519,7 +1519,7 @@ straight-line distance to origin
 
 ### Example
 
-<div><fiddle-embed name="c98773d8b4509969d78cb8121e4b77f6"></fiddle-embed></div>
+<div><fiddle-embed name="4b5d3904476726a39f1c3e276d6b6ba7"></fiddle-embed></div>
 
 ### See Also
 
