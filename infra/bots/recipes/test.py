@@ -446,16 +446,6 @@ def dm_flags(api, bot):
     # Android and iOS. skia:5438
     blacklist('_ test _ GrShape')
 
-  if api.vars.internal_hardware_label == '1':
-    # skia:7046
-    blacklist('_ test _ EGLImageTest')
-    blacklist('_ test _ ES2BlendWithNoTexture')
-    blacklist('_ test _ GrSurfaceRenderability')
-    blacklist('_ test _ WritePixelsMSAA_Gpu')
-    blacklist('_ test _ WritePixelsNonTextureMSAA_Gpu')
-    blacklist('_ test _ WritePixelsNonTexture_Gpu')
-    blacklist('_ test _ WritePixels_Gpu')
-
   if api.vars.internal_hardware_label == '2':
     # skia:7160
     blacklist('_ test _ SRGBReadWritePixels')
@@ -816,9 +806,6 @@ def dm_flags(api, bot):
   if 'Mac' in bot and 'IntelHD615' in bot:
     # skia:7603
     match.append('~^GrMeshTest$')
-
-  if api.vars.internal_hardware_label == '1':
-    match.append('~skbug6653') # skia:6653
 
   if blacklisted:
     args.append('--blacklist')
@@ -1237,26 +1224,6 @@ def GenTests(api):
     api.step_data(retry_step_name, retcode=1) +
     api.step_data(retry_step_name + ' (attempt 2)', retcode=1) +
     api.step_data(retry_step_name + ' (attempt 3)', retcode=1)
-  )
-
-  yield (
-    api.test('internal_bot_1') +
-    api.properties(buildername=builder,
-                   buildbucket_build_id='123454321',
-                   revision='abc123',
-                   path_config='kitchen',
-                   swarm_out_dir='[SWARM_OUT_DIR]',
-                   internal_hardware_label='1') +
-    api.path.exists(
-        api.path['start_dir'].join('skia'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skimage', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'skp', 'VERSION'),
-        api.path['start_dir'].join('skia', 'infra', 'bots', 'assets',
-                                     'svg', 'VERSION'),
-        api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
-    )
   )
 
   yield (
