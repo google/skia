@@ -46,11 +46,11 @@ private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* proxyColorSpace,
+                                                     bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
 
     sk_sp<GrTextureProxy> refTextureProxyCopy(const CopyParams& copyParams, bool willBeMipped);
 
-    GrContext*            fContext;
     sk_sp<GrTextureProxy> fOriginal;
     SkAlphaType           fAlphaType;
     SkColorSpace*         fColorSpace;
