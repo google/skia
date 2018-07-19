@@ -112,6 +112,8 @@ protected:
      */
     void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
+
+    void drawGlyphRunList(SkGlyphRunList* glyphRunList) override;
     void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
