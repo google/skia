@@ -194,11 +194,11 @@ bool SkImage::isValid(GrContext* context) const {
 
 SkImage_Base::SkImage_Base(int width, int height, uint32_t uniqueID)
     : INHERITED(width, height, uniqueID)
-    , fAddedToCache(false)
+    , fAddedToRasterCache(false)
 {}
 
 SkImage_Base::~SkImage_Base() {
-    if (fAddedToCache.load()) {
+    if (fAddedToRasterCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
 }
