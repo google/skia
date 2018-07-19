@@ -43,7 +43,7 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
-	DEFAULT_OS_MAC       = "Mac-10.13.3"
+	DEFAULT_OS_MAC       = "Mac-10.13.6"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -435,10 +435,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		if d["os"] == DEFAULT_OS_WIN {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
 			d["image"] = "windows-server-2016-dc-v20180710"
-		}
-		if d["os"] == DEFAULT_OS_MAC && (parts["model"] == "MacBook10.1" || parts["model"] == "MacBookAir7.2") {
-			// TODO(dogben): Get all Mac bots on the same version.
-			d["os"] = "Mac-10.13.6"
 		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
