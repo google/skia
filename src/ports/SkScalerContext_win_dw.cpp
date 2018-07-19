@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkDWriteNTDDI_VERSION.h"
 
 #include "SkTypes.h"
 #if defined(SK_BUILD_FOR_WIN)
@@ -35,6 +36,7 @@
 
 #include <dwrite.h>
 #include <dwrite_1.h>
+#include <dwrite_3.h>
 
 /* Note:
  * In versions 8 and 8.1 of Windows, some calls in DWrite are not thread safe.
