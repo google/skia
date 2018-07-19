@@ -12,7 +12,7 @@
 #include "SkPaint.h"
 #include "SkPathOps.h"
 
-class SkOpPathEffect {
+class SkMergePathEffect {
 public:
     /*  Defers to two other patheffects, and then combines their outputs using the specified op.
      *  e.g.
