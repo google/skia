@@ -78,6 +78,10 @@ def RunSteps(api):
              ]
       api.run(api.step, 'Extract all fiddles out of md files', cmd=cmd)
 
+      # Output fiddle.json for easy debugging.
+      api.run(api.step, 'Output fiddle.json',
+              cmd=['cat', fiddlecli_input])
+
       # Step 2: Forces fiddle.skia.org to compile all fiddles extracted out of
       #         markdown files and get output in JSON.
       cmd = [fiddlecli_binary,
