@@ -1146,7 +1146,7 @@ unique content identifier
 
 ### Example
 
-<div><fiddle-embed name="d8be8b6e59de244e4cbf58ec9554557b">
+<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c">
 
 #### Example Output
 
@@ -1434,7 +1434,7 @@ compatible <a href='#Surface'>Surface</a> or nullptr
 
 ### Example
 
-<div><fiddle-embed name="8f91f58001d9c10420eb146fbc169af4"></fiddle-embed></div>
+<div><fiddle-embed name="a9889b519a26896b900da0444e423c61"></fiddle-embed></div>
 
 ### See Also
 
@@ -1856,7 +1856,7 @@ converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>
 
 ### Example
 
-<div><fiddle-embed name="af0b72360c1c7a25b4754bfa47011dd5"></fiddle-embed></div>
+<div><fiddle-embed name="d77790dd3bc9f678fa4f582347fb8fba"></fiddle-embed></div>
 
 ### See Also
 
