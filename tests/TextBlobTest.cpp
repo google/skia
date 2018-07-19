@@ -7,6 +7,7 @@
 
 #include "SkPaint.h"
 #include "SkPoint.h"
+#include "SkSerialProcs.h"
 #include "SkTextBlobRunIterator.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
@@ -412,6 +413,25 @@ static sk_sp<SkImage> render(const SkTextBlob* blob) {
     return surf->makeImageSnapshot();
 }
 
+static sk_sp<SkData> SerializeTypeface(SkTypeface* tf, void* ctx) {
+    auto array = (SkTDArray<SkTypeface*>*)ctx;
+    *array->append() = tf;
+    return sk_sp<SkData>(nullptr);
+}
+
+static sk_sp<SkTypeface> DeserializeTypeface(const void* data, size_t length, void* ctx) {
+    auto array = (SkTDArray<SkTypeface*>*)ctx;
+    for (int i = 0; i < array->count(); ++i) {
+        auto result = (*array)[i];
+        if (result) {
+            (*array)[i] = nullptr;
+            return sk_ref_sp(result);
+        }
+    }
+    SkASSERT(false);
+    return sk_sp<SkTypeface>(nullptr);
+}
+
 /*
  *  Build a blob with more than one typeface.
  *  Draw it into an offscreen,
@@ -429,26 +449,15 @@ DEF_TEST(TextBlob_serialize, reporter) {
     }();
 
     SkTDArray<SkTypeface*> array;
-    sk_sp<SkData> data = blob0->serialize([](SkTypeface* tf, void* ctx) {
-        auto array = (SkTDArray<SkTypeface*>*)ctx;
-        if (array->find(tf) < 0) {
-            *array->append() = tf;
-        }
-    }, &array);
-    // we only expect 1, since null would not have been serialized, but the default would
-    REPORTER_ASSERT(reporter, array.count() == 1);
-
-    sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(),
-                                                      [](uint32_t uniqueID, void* ctx) {
-        auto array = (SkTDArray<SkTypeface*>*)ctx;
-        for (int i = 0; i < array->count(); ++i) {
-            if ((*array)[i]->uniqueID() == uniqueID) {
-                return sk_ref_sp((*array)[i]);
-            }
-        }
-        SkASSERT(false);
-        return sk_sp<SkTypeface>(nullptr);
-    }, &array);
+    SkSerialProcs serializeProcs;
+    serializeProcs.fTypefaceProc = &SerializeTypeface;
+    serializeProcs.fTypefaceCtx = (void*) &array;
+    sk_sp<SkData> data = blob0->serialize(serializeProcs);
+    REPORTER_ASSERT(reporter, array.count() == 2);
+    SkDeserialProcs deserializeProcs;
+    deserializeProcs.fTypefaceProc = &DeserializeTypeface;
+    deserializeProcs.fTypefaceCtx = (void*) &array;
+    sk_sp<SkTextBlob> blob1 = SkTextBlob::Deserialize(data->data(), data->size(), deserializeProcs);
 
     sk_sp<SkImage> img0 = render(blob0.get());
     sk_sp<SkImage> img1 = render(blob1.get());
