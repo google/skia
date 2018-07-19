@@ -1460,7 +1460,7 @@ that <a href='#SkPath_setFillType_ft'>ft</a> is legal, values outside of <a href
 
 ### Example
 
-<div><fiddle-embed name="b4a91cd7f50b2a0a0d1bec6d0ac823d2"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
+<div><fiddle-embed name="d307e7e1237f39fb54d80723e5449857"><div>If empty <a href='#Path'>Path</a> is set to inverse <a href='#SkPath_FillType'>FillType</a>, it fills all pixels.
 </div></fiddle-embed></div>
 
 ### See Also
@@ -5205,7 +5205,7 @@ Sets <a href='#Last_Point'>Last Point</a> to (<a href='#SkPath_setLastPt_x'>x</a
 
 ### Example
 
-<div><fiddle-embed name="542c5afaea5f57baa11d0561dd402e18"></fiddle-embed></div>
+<div><fiddle-embed name="02e33141f13da2f19aef7feb7117b541"></fiddle-embed></div>
 
 ### See Also
 

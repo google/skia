@@ -312,7 +312,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="3f5aeb870104187643197354a7f1d27a">
+<div><fiddle-embed name="70692838793454c8e045d6eaf7edcbff">
 
 #### Example Output
 
@@ -1236,7 +1236,7 @@ Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a 
 
 ### Example
 
-<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c"></fiddle-embed></div>
+<div><fiddle-embed name="911a84253dfec4dabf94dbe3c71766f0"></fiddle-embed></div>
 
 ### See Also
 

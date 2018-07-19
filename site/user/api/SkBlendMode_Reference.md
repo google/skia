@@ -757,7 +757,7 @@ summing the <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Col
 
 ### Example
 
-<div><fiddle-embed name="05383441e510d54008402e128fc8ad2b"></fiddle-embed></div>
+<div><fiddle-embed name="3aa2603225dff72ac53dd359f897f494"></fiddle-embed></div>
 
 ## <a name='Modulate'>Modulate</a>
 
@@ -914,7 +914,7 @@ replacing destination with lighter less darker.
 
 ### Example
 
-<div><fiddle-embed name="52d2c8d1b9b428de4477b4caa1543a3d"></fiddle-embed></div>
+<div><fiddle-embed name="8b3224641cb3053a7b8a5798b6cd1cf6"></fiddle-embed></div>
 
 ## <a name='Exclusion'>Exclusion</a>
 

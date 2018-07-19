@@ -5682,7 +5682,7 @@ glyph count in <a href='#SkPaint_getTextWidths_text'>text</a>
 
 ### Example
 
-<div><fiddle-embed name="6b9e101f49e9c2c28755c5bdcef64dfb"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='#SkPaint_getTextWidths_text'>text</a>, but <a href='#SkPaint_getTextWidths_text'>text</a> advance remains the same.
+<div><fiddle-embed name="424a00a73675dbd99ad20feb0267442b"><div>Bounds of <a href='undocumented#Glyph'>Glyphs</a> increase for stroked <a href='#SkPaint_getTextWidths_text'>text</a>, but <a href='#SkPaint_getTextWidths_text'>text</a> advance remains the same.
 The underlines show the <a href='#SkPaint_getTextWidths_text'>text</a> advance, spaced to keep them distinct.
 </div></fiddle-embed></div>
 

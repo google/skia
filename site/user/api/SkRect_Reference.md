@@ -972,7 +972,7 @@ true if no member is infinite or NaN
 
 ### Example
 
-<div><fiddle-embed name="443fe5f8296d4cdb19cc9862a9cf77a4">
+<div><fiddle-embed name="c433aa41eaf5e419e3349fb970a08151">
 
 #### Example Output
 
@@ -2015,7 +2015,7 @@ top and bottom are not sorted; top is not necessarily less than bottom.
 
 ### Example
 
-<div><fiddle-embed name="18532f1aa90b76364fb8d7ea072f1892">
+<div><fiddle-embed name="c7065a83b220a96f903dbbb65906fe7b">
 
 #### Example Output
 
@@ -3346,7 +3346,7 @@ and <a href='#SkRect_width'>width</a> and <a href='#SkRect_height'>height</a> wi
 
 ### Example
 
-<div><fiddle-embed name="e624fe398e3d770b573c09fc74c0c400">
+<div><fiddle-embed name="36a995442c081ee779ecab2962d36e69">
 
 #### Example Output
 

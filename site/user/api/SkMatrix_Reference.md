@@ -3049,7 +3049,7 @@ a * b = | D E F | * | M N O | = | DJ+EM+FP DK+EN+FQ DL+EO+FR |
 
 ### Example
 
-<div><fiddle-embed name="0381a10ac69bdefdf9d15b47cbb9fefe"><div><a href='#SkMatrix_setPolyToPoly'>setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
+<div><fiddle-embed name="95c6a7ef82993a8d2add676080e9438a"><div><a href='#SkMatrix_setPolyToPoly'>setPolyToPoly</a> creates perspective matrices, one the inverse of the other.
 Multiplying the matrix by its inverse turns into an identity matrix.
 </div></fiddle-embed></div>
 
@@ -3316,7 +3316,7 @@ Matrix * R(degrees, px, py) = | D E F | | s  c 0 | = | Dc+Es -Ds+Ec F |
 
 ### Example
 
-<div><fiddle-embed name="5acd49bd931c79a808dd6c7cc0e92f72"></fiddle-embed></div>
+<div><fiddle-embed name="688123908c733169bbbfaf11f41ecff6"></fiddle-embed></div>
 
 ### See Also
 
@@ -3574,7 +3574,7 @@ S(sx, sy, px, py) * Matrix = |  0 sy dy | | M N O | = | sy*M+dy*P sy*N+dy*Q sy*O
 
 ### Example
 
-<div><fiddle-embed name="ed3aa18ba0ea95c85cc49aa3829fe384"></fiddle-embed></div>
+<div><fiddle-embed name="0fbf2dedc2619bbfbf173c9e3bc1a508"></fiddle-embed></div>
 
 ### See Also
 

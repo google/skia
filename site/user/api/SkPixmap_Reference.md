@@ -662,7 +662,7 @@ Returns <a href='SkImageInfo_Reference#Color_Type'>Color Type</a>, one of: <a hr
 
 ### Example
 
-<div><fiddle-embed name="0ab5c7af272685f2ce177cc79e6b9457">
+<div><fiddle-embed name="6bd705a6e0c5f8ee24f302fe531bfabc">
 
 #### Example Output
 
@@ -2107,7 +2107,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="a0cdbafed4786788cc90681e7b294234"></fiddle-embed></div>
+<div><fiddle-embed name="4cacf302830e644234d522f6e2f8f580"></fiddle-embed></div>
 
 ### See Also
 

@@ -410,7 +410,7 @@ Returns <a href='#Color4f'>Color4f</a> with all components in the range from zer
 
 ### Example
 
-<div><fiddle-embed name="9e349862c5189a44d2acef5da24f2e79"></fiddle-embed></div>
+<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
 
 ### See Also
 

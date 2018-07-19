@@ -1081,7 +1081,7 @@ dimensions and <a href='SkImageInfo_Reference#Color_Type'>Color Type</a> of <a h
 
 ### Example
 
-<div><fiddle-embed name="d93389d971f8084c4ccc7a66e4e157ee">
+<div><fiddle-embed name="62848df605af6258653d9e16b27d8f7f">
 
 #### Example Output
 
@@ -3039,7 +3039,7 @@ Resulting <a href='#Clip'>Clip</a> is <a href='undocumented#Alias'>Aliased</a>; 
 
 ### Example
 
-<div><fiddle-embed name="13bbc5fa5597a6cd4d704b419dbc66d9"></fiddle-embed></div>
+<div><fiddle-embed name="d307e7e1237f39fb54d80723e5449857"></fiddle-embed></div>
 
 ### See Also
 
@@ -3509,7 +3509,7 @@ true if <a href='#Clip'>Clip</a> <a href='#SkCanvas_getLocalClipBounds_2_bounds'
 
 ### Example
 
-<div><fiddle-embed name="85496614e90c66b020f8a70db8d06f4a">
+<div><fiddle-embed name="911a84253dfec4dabf94dbe3c71766f0">
 
 #### Example Output
 
@@ -3901,7 +3901,7 @@ Fills <a href='#Clip'>Clip</a> with <a href='SkPaint_Reference#Paint'>Paint</a> 
 
 ### Example
 
-<div><fiddle-embed name="1cd076b9b1a7c976cdca72b93c4f42dd"></fiddle-embed></div>
+<div><fiddle-embed name="62848df605af6258653d9e16b27d8f7f"></fiddle-embed></div>
 
 ### See Also
 
@@ -6651,7 +6651,7 @@ may be nullptr</td>
 
 ### Example
 
-<div><fiddle-embed name="accb545d67984ced168f5be6ab824795"></fiddle-embed></div>
+<div><fiddle-embed name="35888f0869e01a6e03b5b93bba563734"></fiddle-embed></div>
 
 ### See Also
 

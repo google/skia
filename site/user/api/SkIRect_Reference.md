@@ -1010,7 +1010,7 @@ or if result fits in 32-bit signed integer; result may be negative.
 
 ### Example
 
-<div><fiddle-embed name="8b3224641cb3053a7b8a5798b6cd1cf6">
+<div><fiddle-embed name="4f153cf1d0dbe1a95acf5badeec14dae">
 
 #### Example Output
 
@@ -1238,7 +1238,7 @@ is a convenience, but does not designate a special empty rectangle.
 
 ### Example
 
-<div><fiddle-embed name="94039c3cc9e911c8ab2993d56fd06210">
+<div><fiddle-embed name="1466c844a78fd05a7362537347e360ca">
 
 #### Example Output
 
@@ -2102,7 +2102,7 @@ true if all sides of <a href='#IRect'>IRect</a> are outside construction
 
 ### Example
 
-<div><fiddle-embed name="fef2a36bee224e92500199fa9d3cbb8b">
+<div><fiddle-embed name="1ce28351444b41ab2b8e3128a4b9b9c2">
 
 #### Example Output
 

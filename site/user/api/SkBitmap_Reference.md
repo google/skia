@@ -1552,7 +1552,7 @@ true if <a href='SkImageInfo_Reference#Alpha_Type'>Alpha Type</a> is set
 
 ### Example
 
-<div><fiddle-embed name="dd73f0f927a049b17982c8cf06dd2d00"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
+<div><fiddle-embed name="525285073aae7e53eb8f454a398f880c"><a href='SkImageInfo_Reference#kUnknown_SkAlphaType'>kUnknown_SkAlphaType</a>, <a href='SkImageInfo_Reference#kOpaque_SkAlphaType'>kOpaque_SkAlphaType</a>, <a href='SkImageInfo_Reference#kPremul_SkAlphaType'>kPremul_SkAlphaType</a>,
 <a href='SkImageInfo_Reference#kUnpremul_SkAlphaType'>kUnpremul_SkAlphaType</a> <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, <a href='SkImageInfo_Reference#kAlpha_8_SkColorType'>kAlpha_8_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_565_SkColorType'>kRGB_565_SkColorType</a>,
 <a href='SkImageInfo_Reference#kARGB_4444_SkColorType'>kARGB_4444_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_8888_SkColorType'>kRGBA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_888x_SkColorType'>kRGB_888x_SkColorType</a>,
 <a href='SkImageInfo_Reference#kBGRA_8888_SkColorType'>kBGRA_8888_SkColorType</a>, <a href='SkImageInfo_Reference#kRGBA_1010102_SkColorType'>kRGBA_1010102_SkColorType</a>, <a href='SkImageInfo_Reference#kRGB_101010x_SkColorType'>kRGB_101010x_SkColorType</a>,
@@ -1934,7 +1934,7 @@ Returns <a href='SkIRect_Reference#IRect'>IRect</a> { 0, 0, <a href='#SkBitmap_w
 
 ### Example
 
-<div><fiddle-embed name="0c45da35172bc0a529b2faecddae62a2"></fiddle-embed></div>
+<div><fiddle-embed name="7000b501f49341629bfdd9f80e686103"></fiddle-embed></div>
 
 ### See Also
 
@@ -4001,7 +4001,7 @@ true if <a href='SkColor_Reference#Alpha'>Alpha</a> layer was constructed in <a 
 
 ### Example
 
-<div><fiddle-embed name="092739b4cd5d732a27c07ced8ef45f01"></fiddle-embed></div>
+<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
 
 ### See Also
 
