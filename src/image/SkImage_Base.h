@@ -86,8 +86,8 @@ public:
 
     // Call when this image is part of the key to a resourcecache entry. This allows the cache
     // to know automatically those entries can be purged when this SkImage deleted.
-    void notifyAddedToCache() const {
-        fAddedToCache.store(true);
+    void notifyAddedToRasterCache() const {
+        fAddedToRasterCache.store(true);
     }
 
     virtual bool onIsValid(GrContext*) const = 0;
@@ -101,7 +101,7 @@ protected:
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
-    mutable SkAtomic<bool> fAddedToCache;
+    mutable SkAtomic<bool> fAddedToRasterCache;
 
     typedef SkImage INHERITED;
 };

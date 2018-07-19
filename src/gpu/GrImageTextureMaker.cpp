@@ -42,10 +42,6 @@ void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* pa
     }
 }
 
-void GrImageTextureMaker::didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) {
-    as_IB(fClient)->notifyAddedToCache();
-}
-
 SkAlphaType GrImageTextureMaker::alphaType() const {
     return fClient->alphaType();
 }
