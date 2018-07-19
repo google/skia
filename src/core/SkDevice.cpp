@@ -240,6 +240,8 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
 }
 
 void SkBaseDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+
+#ifdef SK_SUPPORT_LEGACY_TEXT_BLOB
     auto blob = glyphRunList->blob();
 
     if (blob == nullptr) {
@@ -249,6 +251,9 @@ void SkBaseDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
         auto paint = glyphRunList->paint();
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
+#else
+    glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+#endif
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
