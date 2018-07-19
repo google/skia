@@ -131,7 +131,6 @@ public:
         kGrRRectBlurEffect_ClassID,
         kGrRRectShadowGeoProc_ClassID,
         kGrSimpleTextureEffect_ClassID,
-        kGrSkSLFP_ClassID,
         kGrSpecularLightingEffect_ClassID,
         kGrSRGBEffect_ClassID,
         kGrSweepGradient_ClassID,

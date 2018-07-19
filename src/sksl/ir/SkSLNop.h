@@ -28,10 +28,6 @@ struct Nop : public Statement {
         return String(";");
     }
 
-    std::unique_ptr<Statement> clone() const override {
-        return std::unique_ptr<Statement>(new Nop());
-    }
-
     typedef Statement INHERITED;
 };
 

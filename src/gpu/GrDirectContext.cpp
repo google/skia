@@ -10,7 +10,6 @@
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 
-#include "effects/GrSkSLFP.h"
 #include "gl/GrGLGpu.h"
 #include "mock/GrMockGpu.h"
 #include "text/GrGlyphCache.h"
@@ -59,10 +58,9 @@ protected:
     bool init(const GrContextOptions& options) override {
         SkASSERT(fCaps);  // should've been set in ctor
         SkASSERT(!fThreadSafeProxy);
-        SkASSERT(!fFPFactoryCache);
-        fFPFactoryCache.reset(new GrSkSLFPFactoryCache());
+
         fThreadSafeProxy.reset(new GrContextThreadSafeProxy(fCaps, this->uniqueID(),
-                                                            fBackend, options, fFPFactoryCache));
+                                                            fBackend, options));
 
         if (!INHERITED::initCommon(options)) {
             return false;

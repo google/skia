@@ -38,8 +38,6 @@ class SkPixelRef;
 class SkPixmap;
 struct SkIRect;
 
-extern const char* SKSL_DITHER_SRC;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Color type conversions
 
