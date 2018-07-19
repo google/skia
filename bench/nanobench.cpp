@@ -130,11 +130,12 @@ DEFINE_int32(flushEvery, 10, "Flush --outResultsFile every Nth run.");
 DEFINE_bool(gpuStats, false, "Print GPU stats after each gpu benchmark?");
 DEFINE_bool(gpuStatsDump, false, "Dump GPU states after each benchmark to json");
 DEFINE_bool(keepAlive, false, "Print a message every so often so that we don't time out");
-DEFINE_bool(csv, false, "Print status in CSV format");
+DEFINE_bool(csv, true, "Print status in CSV format");
 DEFINE_string(sourceType, "",
         "Apply usual --match rules to source type: bench, gm, skp, image, etc.");
 DEFINE_string(benchType,  "",
         "Apply usual --match rules to bench type: micro, recording, piping, playback, skcodec, etc.");
+DEFINE_string(matchOverride, "skinning", "");
 
 DEFINE_bool(forceRasterPipeline, false, "sets gSkForceRasterPipelineBlitter");
 
@@ -656,7 +657,7 @@ public:
     static sk_sp<SkPicture> ReadPicture(const char* path) {
         // Not strictly necessary, as it will be checked again later,
         // but helps to avoid a lot of pointless work if we're going to skip it.
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, SkOSPath::Basename(path).c_str())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_matchOverride, SkOSPath::Basename(path).c_str())) {
             return nullptr;
         }
 
@@ -843,7 +844,7 @@ public:
             fSourceType = "image";
             fBenchType = "skcodec";
             const SkString& path = fImages[fCurrentCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_matchOverride, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -922,7 +923,7 @@ public:
             fBenchType = "skandroidcodec";
 
             const SkString& path = fImages[fCurrentAndroidCodec];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_matchOverride, path.c_str())) {
                 continue;
             }
             sk_sp<SkData> encoded(SkData::MakeFromFileName(path.c_str()));
@@ -967,7 +968,7 @@ public:
             fBenchType = "BRD";
 
             const SkString& path = fImages[fCurrentBRDImage];
-            if (SkCommandLineFlags::ShouldSkip(FLAGS_match, path.c_str())) {
+            if (SkCommandLineFlags::ShouldSkip(FLAGS_matchOverride, path.c_str())) {
                 continue;
             }
 
@@ -1215,7 +1216,7 @@ int main(int argc, char** argv) {
     BenchmarkStream benchStream;
     while (Benchmark* b = benchStream.next()) {
         std::unique_ptr<Benchmark> bench(b);
-        if (SkCommandLineFlags::ShouldSkip(FLAGS_match, bench->getUniqueName())) {
+        if (SkCommandLineFlags::ShouldSkip(FLAGS_matchOverride, bench->getUniqueName())) {
             continue;
         }
 
