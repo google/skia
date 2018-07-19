@@ -470,7 +470,6 @@ patch_alpha
 patch_alpha_test
 patch_image
 patch_primitive
-path-reverse
 path_huge_crbug_800804
 path_mask_cache
 patheffect
@@ -652,8 +651,6 @@ vertices_batching
 vertices_scaled_shader
 verttext
 verttext2
-verylarge_picture_image
-verylargebitmap
 windowrectangles
 windowrectangles_mask
 xfermodeimagefilter
