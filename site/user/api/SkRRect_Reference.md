@@ -707,7 +707,7 @@ true if not empty, <a href='SkRect_Reference#Rect'>Rect</a>, <a href='undocument
 
 ### Example
 
-<div><fiddle-embed name="2df932f526e810f74c89d30ec3f4c947"></fiddle-embed></div>
+<div><fiddle-embed name="e4ba9346ee5c2d37d5e504f8cc678544"></fiddle-embed></div>
 
 ### See Also
 
@@ -1614,7 +1614,7 @@ true if <a href='#RRect'>Round Rect</a> contains rect
 
 ### Example
 
-<div><fiddle-embed name="46d9bacf593deaaeabd74ff42f2571a0"></fiddle-embed></div>
+<div><fiddle-embed name="884447c809921cfaebc87aeb63dedd48"></fiddle-embed></div>
 
 ### See Also
 

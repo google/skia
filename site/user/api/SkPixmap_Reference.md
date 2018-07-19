@@ -1342,7 +1342,7 @@ readable unsigned 16-bit pointer to pixel at (<a href='#SkPixmap_addr16_2_x'>x</
 
 ### Example
 
-<div><fiddle-embed name="4acfbe051805940210c8916a94794142">
+<div><fiddle-embed name="2c0c88a546d4ef093ab63ff72dac00b9">
 
 #### Example Output
 
@@ -2072,7 +2072,7 @@ true if pixels are scaled to fit <a href='#SkPixmap_scalePixels_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="c79a196278c58b34cd5f551b0124ecc9"></fiddle-embed></div>
+<div><fiddle-embed name="8e3c8a9c1d0d2e9b8bf66e24d274f792"></fiddle-embed></div>
 
 ### See Also
 
