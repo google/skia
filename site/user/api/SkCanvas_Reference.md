@@ -3901,7 +3901,7 @@ Fills <a href='#Clip'>Clip</a> with <a href='SkPaint_Reference#Paint'>Paint</a> 
 
 ### Example
 
-<div><fiddle-embed name="41638d13e40fa449ece354dde5fb1941"></fiddle-embed></div>
+<div><fiddle-embed name="1cd076b9b1a7c976cdca72b93c4f42dd"></fiddle-embed></div>
 
 ### See Also
 
@@ -4425,7 +4425,7 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ### Example
 
-<div><fiddle-embed name="5ce718e5a184baaac80e7098d7dad67b"></fiddle-embed></div>
+<div><fiddle-embed name="841229e25ca9dfb68bd0dc4dfff356eb"></fiddle-embed></div>
 
 ### See Also
 

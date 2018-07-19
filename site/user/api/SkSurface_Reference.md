@@ -946,7 +946,7 @@ of <a href='undocumented#Raster_Surface'>Raster Surface</a>; width, or height, o
 
 ### Example
 
-<div><fiddle-embed name="5ce718e5a184baaac80e7098d7dad67b" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="5c7629c15e9ac93f098335e72560fa2e" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
@@ -1236,7 +1236,7 @@ Subsequent calls to <a href='#SkSurface_generationID'>generationID</a> return a 
 
 ### Example
 
-<div><fiddle-embed name="947922a19d59893fe7f9d9ee1954379b"></fiddle-embed></div>
+<div><fiddle-embed name="be9574c4a14f891e1abb4ec2b1e51d6c"></fiddle-embed></div>
 
 ### See Also
 
