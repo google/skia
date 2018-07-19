@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dd108b5_c32d484d",
+        "filename": "src/gpu/GrTextureAdjuster.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-19T20:03:23Z",
+      "side": 1,
+      "message": "Should/could this just now be isTiled?",
+      "range": {
+        "startLine": 46,
+        "startChar": 53,
+        "endLine": 46,
+        "endChar": 74
+      },
+      "revId": "89ae587d8f9c764712f1eff0f7f1ffb481b392fa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
