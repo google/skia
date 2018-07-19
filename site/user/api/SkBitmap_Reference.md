@@ -1755,7 +1755,7 @@ true if marked volatile
 
 ### Example
 
-<div><fiddle-embed name="23c4543ac6cdd0e8fe762816a0dc2e03">
+<div><fiddle-embed name="2531f8d1e05d7b6dc22f3efcd2fb84e4">
 
 #### Example Output
 
@@ -1795,7 +1795,7 @@ consumption on <a href='undocumented#Device'>Device</a>.
 
 ### Example
 
-<div><fiddle-embed name="e8627a4df659b896402f89a91326618f"></fiddle-embed></div>
+<div><fiddle-embed name="2531f8d1e05d7b6dc22f3efcd2fb84e4"></fiddle-embed></div>
 
 ### See Also
 
