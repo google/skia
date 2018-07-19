@@ -20,6 +20,7 @@ declare_args() {
   }
 
   cc_wrapper = ""
+  skia_no_rspfiles = false
 }
 
 if (host_os == "win") {
@@ -75,33 +76,41 @@ toolchain("msvc") {
 
   tool("cc") {
     rspfile = "{{output}}.rsp"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
     precompiled_header_type = "msvc"
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    if (skia_no_rspfiles) {
+      command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC $rspfile_content /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    } else {
+      command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    }
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content =
-        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_c}}"
     description = "compile {{source}}"
   }
 
   tool("cxx") {
     rspfile = "{{output}}.rsp"
+    rspfile_content =
+        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
     precompiled_header_type = "msvc"
     pdbname = "{{target_out_dir}}/{{label_name}}_c.pdb"
 
     # Label names may have spaces so pdbname must be quoted.
-    command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    if (skia_no_rspfiles) {
+      command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC $rspfile_content /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    } else {
+      command = "$env_setup $cc_wrapper \"$cl\" /nologo /showIncludes /FC @$rspfile /c {{source}} /Fo{{output}} /Fd\"$pdbname\""
+    }
     depsformat = "msvc"
     outputs = [
       "{{source_out_dir}}/{{target_output_name}}.{{source_name_part}}.obj",
     ]
-    rspfile_content =
-        "{{defines}} {{include_dirs}} {{cflags}} $cl_m32_flag {{cflags_cc}}"
     description = "compile {{source}}"
   }
 
