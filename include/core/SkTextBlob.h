@@ -36,12 +36,6 @@ public:
     static sk_sp<SkTextBlob> MakeAsDrawText(
             const void* text, size_t byteLength, const SkPaint& paint);
 
-    enum GlyphPositioning : uint8_t {
-        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
-        kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
-        kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
-    };
-
     /**
      *  Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
      *  if serialization failed due to insufficient size.
@@ -56,6 +50,8 @@ public:
 private:
     friend class SkNVRefCnt<SkTextBlob>;
     class RunRecord;
+
+    enum GlyphPositioning : uint8_t;
 
     explicit SkTextBlob(const SkRect& bounds);
 
