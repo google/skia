@@ -19,7 +19,7 @@
 #include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkKeyedImage.h"
 
 class SkKeyedImage;
@@ -243,7 +243,7 @@ private:
 
 
     void internalDrawText( const void*, size_t, const SkScalar pos[],
-                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
+                          SkTextBlobRunIterator::GlyphPositioning, SkPoint, const SkPaint&,
                           const uint32_t*, uint32_t, const char*);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);

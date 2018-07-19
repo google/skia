@@ -196,7 +196,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
         }
         cacheBlob->setRunPaintFlags(run, runPaint.skPaint().getFlags());
 
-        SkASSERT(it.positioning() == SkTextBlob::kFull_Positioning);
+        SkASSERT(it.positioning() == SkTextBlobRunIterator::kFull_Positioning);
         if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), fOptions)) {
             this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,

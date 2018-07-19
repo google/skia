@@ -14,7 +14,6 @@
 #include "SkGlyphCache.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
-#include "SkTextBlobRunIterator.h"
 #include "SkTextToPathIter.h"
 #include "ops/GrAtlasTextOp.h"
 #include <new>

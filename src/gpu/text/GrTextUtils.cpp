@@ -10,7 +10,6 @@
 #include "SkGlyphCache.h"
 #include "SkGr.h"
 #include "SkPaint.h"
-#include "SkTextBlobRunIterator.h"
 
 void GrTextUtils::Paint::initFilteredColor() {
     GrColor4f filteredColor = SkColorToUnpremulGrColor4f(fPaint->getColor(), *fDstColorSpaceInfo);
