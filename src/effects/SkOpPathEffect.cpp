@@ -10,8 +10,8 @@
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
 
-sk_sp<SkPathEffect> SkOpPathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two,
-                                         SkPathOp op) {
+sk_sp<SkPathEffect> SkMergePathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two,
+                                            SkPathOp op) {
     return sk_sp<SkPathEffect>(new SkOpPE(std::move(one), std::move(two), op));
 }
 
@@ -48,7 +48,7 @@ sk_sp<SkFlattenable> SkOpPE::CreateProc(SkReadBuffer& buffer) {
     auto one = buffer.readPathEffect();
     auto two = buffer.readPathEffect();
     SkPathOp op = buffer.read32LE(kReverseDifference_SkPathOp);
-    return buffer.isValid() ? SkOpPathEffect::Make(std::move(one), std::move(two), op) : nullptr;
+    return buffer.isValid() ? SkMergePathEffect::Make(std::move(one), std::move(two), op) : nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

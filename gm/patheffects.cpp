@@ -189,12 +189,14 @@ protected:
         sk_sp<SkPathEffect> effects[] = {
             nullptr,
             SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
-            SkOpPathEffect::Make(nullptr,
-                                 SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
-                                 kDifference_SkPathOp),
-            SkOpPathEffect::Make(SkMatrixPathEffect::MakeTranslate(50, 30),
-                                 SkStrokePathEffect::Make(20, SkPaint::kRound_Join, SkPaint::kRound_Cap, 0),
-                                 kReverseDifference_SkPathOp),
+            SkMergePathEffect::Make(nullptr,
+                                    SkStrokePathEffect::Make(20, SkPaint::kRound_Join,
+                                                             SkPaint::kRound_Cap, 0),
+                                    kDifference_SkPathOp),
+            SkMergePathEffect::Make(SkMatrixPathEffect::MakeTranslate(50, 30),
+                                    SkStrokePathEffect::Make(20, SkPaint::kRound_Join,
+                                                             SkPaint::kRound_Cap, 0),
+                                    kReverseDifference_SkPathOp),
         };
 
         SkPaint wireframe;
