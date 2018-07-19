@@ -22,6 +22,30 @@
       "revId": "62c8ed89f821d78d9b8858193d62fee64f6693e7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d456a4ab_0cc49bae",
+        "filename": "src/utils/win/SkDWriteNTDDI_VERSION.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-19T15:31:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "169432d1_9bbcff52",
+      "range": {
+        "startLine": 11,
+        "startChar": 61,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "62c8ed89f821d78d9b8858193d62fee64f6693e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
