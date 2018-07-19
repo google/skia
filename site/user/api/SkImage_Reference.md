@@ -1436,7 +1436,7 @@ integral rectangle from origin to <a href='#SkImage_width'>width</a> and <a href
 
 ### Example
 
-<div><fiddle-embed name="eba10b27b790e87183ae451b3fc5c4b1"></fiddle-embed></div>
+<div><fiddle-embed name="c204b38b3fc08914b0a634aa4eaec894"></fiddle-embed></div>
 
 ### See Also
 
@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="4a269b16e644d473870ffa873396f139"></fiddle-embed></div>
+<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
 
 ### See Also
 
@@ -2520,7 +2520,7 @@ true if back-end texture was created
 
 ### Example
 
-<div><fiddle-embed name="6fa5e8f9513b3225e106778592e27e94" gpu="true"></fiddle-embed></div>
+<div><fiddle-embed name="06aeb3cf63ffccf7b49fe556e5def351" gpu="true"></fiddle-embed></div>
 
 ### See Also
 
