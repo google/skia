@@ -42,7 +42,7 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTo.h"
 #include "SkUtils.h"
@@ -1115,16 +1115,17 @@ static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
 }
 
 static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
-                               const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
-                               SkPoint offset, const SkPaint& srcPaint) {
+                                const SkScalar pos[],
+                                SkTextBlobRunIterator::GlyphPositioning positioning,
+                                SkPoint offset, const SkPaint& srcPaint) {
     SkPath path;
     int glyphCount;
     SkAutoTMalloc<SkPoint> tmpPoints;
     switch (positioning) {
-        case SkTextBlob::kDefault_Positioning:
+        case SkTextBlobRunIterator::kDefault_Positioning:
             srcPaint.getTextPath(sourceText, sourceByteCount, offset.x(), offset.y(), &path);
             break;
-        case SkTextBlob::kHorizontal_Positioning:
+        case SkTextBlobRunIterator::kHorizontal_Positioning:
             glyphCount = srcPaint.countText(sourceText, sourceByteCount);
             tmpPoints.realloc(glyphCount);
             for (int i = 0; i < glyphCount; ++i) {
@@ -1132,7 +1133,7 @@ static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
             }
             srcPaint.getPosTextPath(sourceText, sourceByteCount, tmpPoints.get(), &path);
             break;
-        case SkTextBlob::kFull_Positioning:
+        case SkTextBlobRunIterator::kFull_Positioning:
             srcPaint.getPosTextPath(sourceText, sourceByteCount, (const SkPoint*)pos, &path);
             path.offset(offset.x(), offset.y());
             break;
@@ -1206,7 +1207,7 @@ static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
 
 void SkPDFDevice::internalDrawText(
         const void* sourceText, size_t sourceByteCount,
-        const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
+        const SkScalar pos[], SkTextBlobRunIterator::GlyphPositioning positioning,
         SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
         uint32_t textByteLength, const char* utf8Text) {
     if (0 == sourceByteCount || !sourceText || srcPaint.getTextSize() <= 0) {
@@ -1259,7 +1260,7 @@ void SkPDFDevice::internalDrawText(
         return;
     }
 
-    bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
+    bool defaultPositioning = (positioning == SkTextBlobRunIterator::kDefault_Positioning);
     paint.setHinting(SkPaint::kNo_Hinting);
 
     int emSize;
@@ -1376,7 +1377,7 @@ void SkPDFDevice::internalDrawText(
                 SkPoint xy = {0, 0};
                 SkScalar advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
                 if (!defaultPositioning) {
-                    xy = SkTextBlob::kFull_Positioning == positioning
+                    xy = SkTextBlobRunIterator::kFull_Positioning == positioning
                        ? SkPoint{pos[2 * index], pos[2 * index + 1]}
                        : SkPoint{pos[index], 0};
                     if (alignment != SkPaint::kLeft_Align) {
@@ -1453,7 +1454,7 @@ void SkPDFDevice::internalDrawText(
 void SkPDFDevice::drawPosText(const void* text, size_t len,
                               const SkScalar pos[], int scalarsPerPos,
                               const SkPoint& offset, const SkPaint& paint) {
-    this->internalDrawText(text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
+    this->internalDrawText(text, len, pos, (SkTextBlobRunIterator::GlyphPositioning)scalarsPerPos,
                            offset, paint, nullptr, 0, nullptr);
 }
 

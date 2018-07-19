@@ -208,7 +208,7 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
         if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), fOptions)) {
             switch (it.positioning()) {
-                case SkTextBlob::kDefault_Positioning: {
+                case SkTextBlobRunIterator::kDefault_Positioning: {
                     auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
                     SkGlyphRunBuilder builder;
                     builder.drawText(runPaint.skPaint(),
@@ -228,14 +228,14 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                     break;
                 }
 
-                case SkTextBlob::kHorizontal_Positioning: {
+                case SkTextBlobRunIterator::kHorizontal_Positioning: {
                     SkPoint dfOffset = SkPoint::Make(x, y + offset.y());
                     this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
                                         scalerContextFlags, viewMatrix, (const char*)it.glyphs(),
                                         textLen, it.pos(), 1, dfOffset);
                     break;
                 }
-                case SkTextBlob::kFull_Positioning: {
+                case SkTextBlobRunIterator::kFull_Positioning: {
                     SkPoint dfOffset = SkPoint::Make(x, y);
                     this->drawDFPosText(cacheBlob, run, glyphCache, props, runPaint,
                                         scalerContextFlags, viewMatrix, (const char*)it.glyphs(),
@@ -245,7 +245,7 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
             }
         } else {
             switch (it.positioning()) {
-                case SkTextBlob::kDefault_Positioning: {
+                case SkTextBlobRunIterator::kDefault_Positioning: {
                     auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
                     SkGlyphRunBuilder builder;
                     builder.drawText(runPaint.skPaint(),
@@ -265,12 +265,12 @@ void GrTextContext::regenerateTextBlob(GrTextBlob* cacheBlob,
                     }
                     break;
                 }
-                case SkTextBlob::kHorizontal_Positioning:
+                case SkTextBlobRunIterator::kHorizontal_Positioning:
                     DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
                                    viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 1,
                                    SkPoint::Make(x, y + offset.y()));
                     break;
-                case SkTextBlob::kFull_Positioning:
+                case SkTextBlobRunIterator::kFull_Positioning:
                     DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
                                    viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 2,
                                    SkPoint::Make(x, y));

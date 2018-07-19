@@ -12,7 +12,6 @@
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
 #include "GrTextUtils.h"
-#include "SkTextBlobRunIterator.h"
 
 #if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
