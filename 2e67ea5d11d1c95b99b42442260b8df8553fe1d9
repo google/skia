@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "091ea25f_21fbfd58",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-19T21:24:32Z",
+      "side": 1,
+      "message": "Either way is fine.  unique_ptr\u003c\u003e is explicit about ownership.  I was thinking that the caller would retain direct ownership.",
+      "parentUuid": "404d2db0_8b569ca4",
+      "range": {
+        "startLine": 226,
+        "startChar": 28,
+        "endLine": 226,
+        "endChar": 56
+      },
+      "revId": "2e67ea5d11d1c95b99b42442260b8df8553fe1d9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "1720f9a6_61beaadc",
         "filename": "src/core/SkCanvas.cpp",
         "patchSetId": 11

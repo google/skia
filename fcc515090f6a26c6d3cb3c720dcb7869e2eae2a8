@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "958b49da_c873bc57",
+        "filename": "example/MakeTaggedPDF.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-19T21:24:32Z",
+      "side": 1,
+      "message": "Let\u0027s make this a unit test in skia:\n\nDEF_TEST(PDFTags, reporter) {\n    #ifdef SK_PDF_TEST_TAGS_OUTPUT_PATH\n    SkFILEWStream outputStream(SK_PDF_TEST_TAGS_OUTPUT_PATH);\n    #else\n    SkDynamicMemoryWStream outputStream;\n    #endif\n\nthen you can use `extra_cflags \u003d [ \"-DSK_PDF_TEST_TAGS_OUTPUT_PATH\u003d\\\"/tmp/foo.pdf\\\"\" ]` in args.gn.",
+      "revId": "fcc515090f6a26c6d3cb3c720dcb7869e2eae2a8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
