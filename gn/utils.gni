@@ -77,6 +77,7 @@ skia_utils_sources = [
   "$_src/utils/win/SkDWriteFontFileStream.h",
   "$_src/utils/win/SkDWriteGeometrySink.cpp",
   "$_src/utils/win/SkDWriteGeometrySink.h",
+  "$_src/utils/win/SkDWriteNTDDI_VERSION.h",
   "$_src/utils/win/SkHRESULT.h",
   "$_src/utils/win/SkHRESULT.cpp",
   "$_src/utils/win/SkIStream.h",
