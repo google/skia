@@ -762,16 +762,22 @@ static void push_codec_srcs(Path path) {
 }
 
 template <typename T>
-void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* ext) {
+void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* ext,
+                      const char* src_name = nullptr) {
+    if (!src_name) {
+        // With the exception of Lottie files, the source name is the extension.
+        src_name = ext;
+    }
+
     for (int i = 0; i < flags.count(); i++) {
         const char* path = flags[i];
         if (sk_isdir(path)) {
             SkOSFile::Iter it(path, ext);
             for (SkString file; it.next(&file); ) {
-                push_src(ext, "", new T(SkOSPath::Join(path, file.c_str())));
+                push_src(src_name, "", new T(SkOSPath::Join(path, file.c_str())));
             }
         } else {
-            push_src(ext, "", new T(path));
+            push_src(src_name, "", new T(path));
         }
     }
 }
@@ -784,7 +790,7 @@ static bool gather_srcs() {
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
     gather_file_srcs<MSKPSrc>(FLAGS_mskps, "mskp");
 #if defined(SK_ENABLE_SKOTTIE)
-    gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json");
+    gather_file_srcs<SkottieSrc>(FLAGS_lotties, "json", "lottie");
 #endif
 #if defined(SK_XML)
     gather_file_srcs<SVGSrc>(FLAGS_svgs, "svg");
