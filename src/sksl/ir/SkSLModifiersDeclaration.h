@@ -23,11 +23,7 @@ struct ModifiersDeclaration : public ProgramElement {
     : INHERITED(-1, kModifiers_Kind)
     , fModifiers(modifiers) {}
 
-    std::unique_ptr<ProgramElement> clone() const override {
-        return std::unique_ptr<ProgramElement>(new ModifiersDeclaration(fModifiers));
-    }
-
-    String description() const override {
+    String description() const {
         return fModifiers.description() + ";";
     }
 

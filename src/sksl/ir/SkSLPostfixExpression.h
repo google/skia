@@ -26,10 +26,6 @@ struct PostfixExpression : public Expression {
         return true;
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new PostfixExpression(fOperand->clone(), fOperator));
-    }
-
     String description() const override {
         return fOperand->description() + Compiler::OperatorName(fOperator);
     }

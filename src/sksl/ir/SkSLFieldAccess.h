@@ -35,11 +35,6 @@ struct FieldAccess : public Expression {
         return fBase->hasSideEffects();
     }
 
-    std::unique_ptr<Expression> clone() const override {
-        return std::unique_ptr<Expression>(new FieldAccess(fBase->clone(), fFieldIndex,
-                                                           fOwnerKind));
-    }
-
     String description() const override {
         return fBase->description() + "." + fBase->fType.fields()[fFieldIndex].fName;
     }
