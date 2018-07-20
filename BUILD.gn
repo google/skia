@@ -2082,12 +2082,7 @@ if (skia_enable_tools) {
 
       include_dirs = []
       deps = [
-        ":flags",
-        ":gpu_tool_utils",
-        ":sk_app",
         ":skia",
-        ":tool_utils",
-        ":views",
       ]
     }
   }
