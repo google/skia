@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a18ab0d0_a1a86d91",
+        "filename": "tools/viewer/NIMASlide.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-20T15:08:14Z",
+      "side": 1,
+      "message": "Leftover from debugging?",
+      "revId": "626646ce92b4b47edea4aafaac49e56716fa3167",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
