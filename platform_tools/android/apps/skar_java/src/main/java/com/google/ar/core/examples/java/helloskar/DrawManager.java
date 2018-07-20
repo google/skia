@@ -46,7 +46,7 @@ public class DrawManager {
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
-    public SkARFingerPainting fingerPainting = new SkARFingerPainting();
+    public SkARFingerPainting fingerPainting = new SkARFingerPainting(false);
 
     public void updateViewport(float width, float height) {
         viewportWidth = width;
@@ -63,10 +63,6 @@ public class DrawManager {
 
     public void updateLightColorFilter(float[] colorCorr) {
         lightFilter = SkARUtil.createLightCorrectionColorFilter(colorCorr);
-    }
-
-    public void updateFingerPainting(PointF p) {
-        fingerPainting.addPoint(p);
     }
 
     // Sample function for drawing a circle
@@ -143,6 +139,10 @@ public class DrawManager {
     }
 
     public void drawFingerPainting(Canvas canvas) {
+        // Build the path before rendering
+        fingerPainting.buildPath();
+
+        // If path empty, return
         if (fingerPainting.path.isEmpty()) {
             return;
         }
@@ -166,7 +166,12 @@ public class DrawManager {
 
         // Set up paint
         Paint p = new Paint();
-        p.setColor(Color.GREEN);
+        if (fingerPainting.getSmoothness()) {
+            p.setColor(Color.CYAN);
+        } else {
+            p.setColor(Color.GREEN);
+        }
+
         p.setStyle(Paint.Style.STROKE);
         p.setStrokeWidth(30f);
         p.setAlpha(120);
@@ -269,19 +274,24 @@ public class DrawManager {
 
         // Set up paint
         Paint p = new Paint();
-        p.setShader(planeShader);
-        p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
+
+        if (false) {
+            //p.setShader(planeShader);
+            p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
                              PorterDuff.Mode.SRC_ATOP));
+        }
 
         p.setColor(Color.RED);
         p.setAlpha(100);
+        p.setStrokeWidth(0.01f);
+        p.setStyle(Paint.Style.STROKE);
+
 
         if (true) {
             // Shader local matrix
             android.graphics.Matrix lm = new android.graphics.Matrix();
             lm.setScale(0.00005f, 0.00005f);
             planeShader.setLocalMatrix(lm);
-
             // Draw dest path
             canvas.save();
             canvas.setMatrix(mvpv);

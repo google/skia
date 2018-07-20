@@ -6,6 +6,17 @@
             android:id="@+id/reset_paint"
             android:title="Reset Finger Painting"/>
     </group>
+    <group
+        android:id="@+id/menu_middle"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/smooth_paint"
+            android:title="Smooth Painting" />
+        <item
+            android:id="@+id/rough_paint"
+            android:title="Rough Painting" />
+    </group>
+
 
     <group
         android:id="@+id/menu_bottom"
