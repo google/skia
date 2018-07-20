@@ -88,7 +88,10 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
 #define COMPARE_BLOBS(expected, actual, reporter)                                        \
     for (int i = 0; i < expected.width(); ++i) {                                         \
         for (int j = 0; j < expected.height(); ++j) {                                    \
-            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j)); \
+            if (expected.getColor(i, j) != actual.getColor(i, j)) {                      \
+                ERRORF(reporter, "%d, %d : expected: %x != %x :actual",                  \
+                        i, j, expected.getColor(i, j), actual.getColor(i, j));           \
+            }                                                                            \
         }                                                                                \
     }
 
