@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "701ad6d3_c1412002",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-20T17:17:29Z",
+      "side": 1,
+      "message": "do you need mid as an object here, or just midx and midy floats?",
+      "range": {
+        "startLine": 57,
+        "startChar": 16,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "6a5f1749ed38acce5471e9ca0f8b53012e9746b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
