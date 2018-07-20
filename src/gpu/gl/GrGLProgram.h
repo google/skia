@@ -19,7 +19,6 @@ class GrGLSLXferProcessor;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTargetProxy;
-class GrResourceIOProcessor;
 
 /**
  * This class manages a GPU program and records per-program information. It also records the vertex
@@ -140,16 +139,10 @@ public:
 
 private:
     // A helper to loop over effects, set the transforms (via subclass) and bind textures
-    void setFragmentData(const GrPrimitiveProcessor&, const GrPipeline&, int* nextTexSamplerIdx);
+    void setFragmentData(const GrPipeline&, int* nextTexSamplerIdx);
 
     // Helper for setData() that sets the view matrix and loads the render target height uniform
     void setRenderTargetState(const GrPrimitiveProcessor&, const GrRenderTargetProxy*);
-
-    // Helper for setData() that binds textures to the appropriate texture units
-    void bindTextures(const GrResourceIOProcessor&, int* nextSamplerIdx);
-
-    // Helper for generateMipmaps() that ensures mipmaps are up to date
-    void generateMipmaps(const GrResourceIOProcessor&);
 
     // these reflect the current values of uniforms (GL uniform values travel with program)
     RenderTargetState fRenderTargetState;

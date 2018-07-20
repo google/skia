@@ -40,8 +40,10 @@ class GrGLSLPrimitiveProcessor;
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
  */
-class GrPrimitiveProcessor : public GrResourceIOProcessor, public GrProgramElement {
+class GrPrimitiveProcessor : public GrProcessor, public GrProgramElement {
 public:
+    class TextureSampler;
+
     /** Describes a vertex or instance attribute. */
     class Attribute {
     public:
@@ -70,6 +72,8 @@ public:
 
     GrPrimitiveProcessor(ClassID);
 
+    int numTextureSamplers() const { return fTextureSamplerCnt; }
+    const TextureSampler& textureSampler(int index) const;
     int numVertexAttributes() const { return fVertexAttributeCnt; }
     const Attribute& vertexAttribute(int i) const;
     int numInstanceAttributes() const { return fInstanceAttributeCnt; }
@@ -131,23 +135,127 @@ public:
 
     virtual float getSampleShading() const { return 0.0; }
 
+    bool instantiate(GrResourceProvider*) const;
+
 protected:
-    void setVertexAttributeCnt(int cnt) { fVertexAttributeCnt = cnt; }
-    void setInstanceAttributeCnt(int cnt) { fInstanceAttributeCnt = cnt; }
+    void setVertexAttributeCnt(int cnt) {
+        SkASSERT(cnt >= 0);
+        fVertexAttributeCnt = cnt;
+    }
+    void setInstanceAttributeCnt(int cnt) {
+        SkASSERT(cnt >= 0);
+        fInstanceAttributeCnt = cnt;
+    }
+    void setTextureSamplerCnt(int cnt) {
+        SkASSERT(cnt >= 0);
+        fTextureSamplerCnt = cnt;
+    }
+
+    /**
+     * Helper for implementing onTextureSampler(). E.g.:
+     * return IthTexureSampler(i, fMyFirstSampler, fMySecondSampler, fMyThirdSampler);
+     */
+    template <typename... Args>
+    static const TextureSampler& IthTextureSampler(int i, const TextureSampler& samp0,
+                                                   const Args&... samps) {
+        return (0 == i) ? samp0 : IthTextureSampler(i - 1, samps...);
+    }
+    inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    void addPendingIOs() const override { GrResourceIOProcessor::addPendingIOs(); }
-    void removeRefs() const override { GrResourceIOProcessor::removeRefs(); }
-    void pendingIOComplete() const override { GrResourceIOProcessor::pendingIOComplete(); }
+    void addPendingIOs() const final;
+    void removeRefs() const final;
+    void pendingIOComplete() const final;
     void notifyRefCntIsZero() const final {}
 
     virtual const Attribute& onVertexAttribute(int) const = 0;
     virtual const Attribute& onInstanceAttribute(int) const = 0;
+    virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
     int fVertexAttributeCnt = 0;
     int fInstanceAttributeCnt = 0;
+    int fTextureSamplerCnt = 0;
     typedef GrProcessor INHERITED;
 };
+
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Used to represent a texture that is required by a GrPrimitiveProcessor. It holds a GrTexture
+ * along with an associated GrSamplerState. TextureSamplers don't perform any coord manipulation to
+ * account for texture origin.
+ */
+class GrPrimitiveProcessor::TextureSampler {
+public:
+    /**
+     * Must be initialized before adding to a GrProcessor's texture access list.
+     */
+    TextureSampler();
+    /**
+     * This copy constructor is used by GrFragmentProcessor::clone() implementations. The copy
+     * always takes a new ref on the texture proxy as the new fragment processor will not yet be
+     * in pending execution state.
+     */
+    explicit TextureSampler(const TextureSampler& that)
+            : fProxyRef(sk_ref_sp(that.fProxyRef.get()), that.fProxyRef.ioType())
+            , fSamplerState(that.fSamplerState)
+            , fVisibility(that.fVisibility) {}
+
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&);
+
+    explicit TextureSampler(sk_sp<GrTextureProxy>,
+                            GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+                            GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
+                            GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    TextureSampler& operator=(const TextureSampler&) = delete;
+
+    void reset(sk_sp<GrTextureProxy>, const GrSamplerState&,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
+    void reset(sk_sp<GrTextureProxy>,
+               GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
+               GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
+               GrShaderFlags visibility = kFragment_GrShaderFlag);
+
+    bool operator==(const TextureSampler& that) const {
+        return this->proxy()->underlyingUniqueID() == that.proxy()->underlyingUniqueID() &&
+               fSamplerState == that.fSamplerState && fVisibility == that.fVisibility;
+    }
+
+    bool operator!=(const TextureSampler& other) const { return !(*this == other); }
+
+    // 'instantiate' should only ever be called at flush time.
+    bool instantiate(GrResourceProvider* resourceProvider) const {
+        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+    }
+
+    // 'peekTexture' should only ever be called after a successful 'instantiate' call
+    GrTexture* peekTexture() const {
+        SkASSERT(fProxyRef.get()->priv().peekTexture());
+        return fProxyRef.get()->priv().peekTexture();
+    }
+
+    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
+    GrShaderFlags visibility() const { return fVisibility; }
+    const GrSamplerState& samplerState() const { return fSamplerState; }
+
+    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
+    /**
+     * For internal use by GrProcessor.
+     */
+    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
+
+private:
+    GrSurfaceProxyRef fProxyRef;
+    GrSamplerState fSamplerState;
+    GrShaderFlags fVisibility;
+};
+
+const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::IthTextureSampler(int i) {
+    SK_ABORT("Illegal texture sampler index");
+    static const TextureSampler kBogus;
+    return kBogus;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -608,11 +608,35 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     return pipelineState;
 }
 
-static void prepare_sampled_images(const GrResourceIOProcessor& processor,
+static void prepare_sampled_images(const GrFragmentProcessor& fp,
                                    SkTArray<GrVkImage*>* sampledImages,
                                    GrVkGpu* gpu) {
-    for (int i = 0; i < processor.numTextureSamplers(); ++i) {
-        const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(i);
+    for (int i = 0; i < fp.numTextureSamplers(); ++i) {
+        const GrFragmentProcessor::TextureSampler& sampler = fp.textureSampler(i);
+        GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.peekTexture());
+
+        // We may need to resolve the texture first if it is also a render target
+        GrVkRenderTarget* texRT = static_cast<GrVkRenderTarget*>(vkTexture->asRenderTarget());
+        if (texRT) {
+            gpu->onResolveRenderTarget(texRT);
+        }
+
+        // Check if we need to regenerate any mip maps
+        if (GrSamplerState::Filter::kMipMap == sampler.samplerState().filter()) {
+            SkASSERT(vkTexture->texturePriv().mipMapped() == GrMipMapped::kYes);
+            if (vkTexture->texturePriv().mipMapsAreDirty()) {
+                gpu->regenerateMipMapLevels(vkTexture);
+            }
+        }
+        sampledImages->push_back(vkTexture);
+    }
+}
+
+static void prepare_sampled_images(const GrPrimitiveProcessor& pp,
+                                   SkTArray<GrVkImage*>* sampledImages,
+                                   GrVkGpu* gpu) {
+    for (int i = 0; i < pp.numTextureSamplers(); ++i) {
+        const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
         GrVkTexture* vkTexture = static_cast<GrVkTexture*>(sampler.peekTexture());
 
         // We may need to resolve the texture first if it is also a render target
