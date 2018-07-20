@@ -21,12 +21,16 @@ class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
 
+namespace SkSL {
+    class Compiler;
+}
+
 class GrMtlGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
                              id<MTLDevice> device, id<MTLCommandQueue> queue);
 
-    ~GrMtlGpu() override {}
+    ~GrMtlGpu() override = default;
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
@@ -60,6 +64,11 @@ public:
                            GrSurface* src, GrSurfaceOrigin srcOrigin,
                            const SkIRect& srcRect, const SkIPoint& dstPoint);
 
+    bool copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                           GrSurface* src, GrSurfaceOrigin srcOrigin,
+                           const SkIRect& srcRect, const SkIPoint& dstPoint,
+                           bool canDiscardOutsideDstRect);
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
@@ -72,6 +81,10 @@ public:
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
     GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+
+    SkSL::Compiler* shaderCompiler() const {
+        return fCompiler.get();
+    }
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -147,6 +160,8 @@ private:
         return nullptr;
     }
 
+    bool createCopyProgram(id<MTLTexture> dstTex);
+
     void clearStencil(GrRenderTarget* target, int clearValue) override  {}
 
 #if GR_TEST_UTILS
@@ -161,6 +176,21 @@ private:
     id<MTLCommandQueue> fQueue;
 
     id<MTLCommandBuffer> fCmdBuffer;
+
+    std::unique_ptr<SkSL::Compiler> fCompiler;
+
+    struct MtlPipelineStateInfo {
+        id<MTLRenderPipelineState> fPipelineState;
+        MTLPixelFormat fPixelFormat;
+    };
+    SkTArray<MtlPipelineStateInfo> fPipelineStateCache;
+
+    id<MTLRenderPipelineState> fCopyProgramPipelineState;
+    id<MTLSamplerState>        fCopyProgramSamplerState;
+    id<MTLBuffer>              fCopyProgramVertexAttributeBuffer;
+
+    void initCopyProgramSampler();
+    void initCopyProgramBuffer();
 
     typedef GrGpu INHERITED;
 };
