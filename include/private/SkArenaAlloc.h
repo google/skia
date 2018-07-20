@@ -98,6 +98,7 @@ public:
 
     template <typename T>
     T* makeArrayDefault(size_t count) {
+        AssertRelease(count <= std::numeric_limits<uint32_t>::max());
         uint32_t safeCount = ToU32(count);
         T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
@@ -110,6 +111,7 @@ public:
 
     template <typename T>
     T* makeArray(size_t count) {
+        AssertRelease(count <= std::numeric_limits<uint32_t>::max());
         uint32_t safeCount = ToU32(count);
         T* array = (T*)this->commonArrayAlloc<T>(safeCount);
 
@@ -121,8 +123,9 @@ public:
         return array;
     }
 
-    // Only use makeBytesAlignedTo if none of the typed variants are impractical to use.
+    // Only use makeBytesAlignedTo if none of the typed variants are practical to use.
     void* makeBytesAlignedTo(size_t size, size_t align) {
+        AssertRelease(size <= std::numeric_limits<uint32_t>::max());
         auto objStart = this->allocObject(ToU32(size), ToU32(align));
         fCursor = objStart + size;
         return objStart;
@@ -134,9 +137,7 @@ public:
 private:
     static void AssertRelease(bool cond) { if (!cond) { ::abort(); } }
     static uint32_t ToU32(size_t v) {
-#if SIZE_MAX > 0xffffffff
-        AssertRelease(v <= 0xffffffff);
-#endif
+        assert(v <= std::numeric_limits<uint32_t>::max());
         return (uint32_t)v;
     }
 
