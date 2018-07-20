@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "65af3a72_cdc4539e",
+        "filename": "src/core/SkResourceCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-20T20:49:16Z",
+      "side": 1,
+      "message": "Kinda wonder whether these constructors should be something like\n\nclass SkResourceCache {\npublic:\n   SkResourceCache(DiscardableFactory) : SkResourceCache(DiscardableFactory, false) {}\nprivate:\n   SkResourceCache(DiscardableFactory, bool isGlobal);\n   static SkResourceCache* GetGlobalCache();\n};\n\nrather than leaving it up to the client whether they\u0027re global, unless the intent was to allow multiple global caches.",
+      "range": {
+        "startLine": 202,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 63
+      },
+      "revId": "ae98093476926d085ad7a17732551dd403e59bff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
