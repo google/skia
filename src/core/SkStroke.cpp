@@ -767,13 +767,9 @@ void SkPathStroker::quadTo(const SkPoint& pt1, const SkPoint& pt2) {
 // compute the perpendicular point and its tangent.
 void SkPathStroker::setRayPts(const SkPoint& tPt, SkVector* dxy, SkPoint* onPt,
         SkPoint* tangent) const {
-    SkPoint oldDxy = *dxy;
-    if (!dxy->setLength(fRadius)) {  // consider moving double logic into SkPoint::setLength
-        double xx = oldDxy.fX;
-        double yy = oldDxy.fY;
-        double dscale = fRadius / sqrt(xx * xx + yy * yy);
-        dxy->fX = SkDoubleToScalar(xx * dscale);
-        dxy->fY = SkDoubleToScalar(yy * dscale);
+    if (!dxy->setLength(fRadius)) {
+        // what to do when dxy is degenerate?
+        dxy->set(fRadius, 0);
     }
     SkScalar axisFlip = SkIntToScalar(fStrokeType);  // go opposite ways for outer, inner
     onPt->fX = tPt.fX + axisFlip * dxy->fY;
