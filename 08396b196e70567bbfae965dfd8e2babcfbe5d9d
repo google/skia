@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53a72ece_300addf0",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-20T15:12:15Z",
+      "side": 1,
+      "message": "low-level efficiency note: I think this makes an array of objects, each of which is only 2 floats. Perhaps just an array of floats (which you manually interpret as x,y,... would be more efficient.",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 9,
+        "endChar": 20
+      },
+      "revId": "08396b196e70567bbfae965dfd8e2babcfbe5d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2557674b_124bd17b",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-20T15:12:15Z",
+      "side": 1,
+      "message": "does ArrayList not know how long it is? Why track that separately?",
+      "range": {
+        "startLine": 39,
+        "startChar": 8,
+        "endLine": 39,
+        "endChar": 22
+      },
+      "revId": "08396b196e70567bbfae965dfd8e2babcfbe5d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "481ef353_f90c6eab",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-20T15:12:15Z",
+      "side": 1,
+      "message": "newline after the comma, to keep the line length reasonable",
+      "range": {
+        "startLine": 57,
+        "startChar": 80,
+        "endLine": 57,
+        "endChar": 81
+      },
+      "revId": "08396b196e70567bbfae965dfd8e2babcfbe5d9d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
