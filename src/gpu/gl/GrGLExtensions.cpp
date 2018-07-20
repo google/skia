@@ -115,6 +115,10 @@ bool GrGLExtensions::init(GrGLStandard standard,
         SkTQSort(&fStrings.front(), &fStrings.back(), cmp);
     }
     fInitialized = true;
+    SkDebugf("@@@> extensions:\n");
+    for (auto str : fStrings) {
+        SkDebugf("@@@@@> %s\n", str.c_str());
+    }
     return true;
 }
 

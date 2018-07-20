@@ -387,6 +387,9 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
             if (intelNumber >= 6000 && intelNumber < 7000) {
                 return kIntel6xxx_GrGLRenderer;
             }
+            if (intelNumber >= 2000 && intelNumber < 4000) {
+                return kIntelSandyBridge_GrGLRenderer;
+            }
             if (intelNumber >= 500 && intelNumber < 600) {
                 return kIntelSkylake_GrGLRenderer;
             }
@@ -449,6 +452,10 @@ void GrGLGetANGLEInfoFromString(const char* rendererString, GrGLANGLEBackend* ba
             (1 == sscanf(modelStr, "HD Graphics %i", &modelNumber) ||
              1 == sscanf(modelStr, "HD Graphics P%i", &modelNumber))) {
             switch (modelNumber) {
+                case 2000:
+                case 3000:
+                    *renderer = GrGLANGLERenderer::kSandyBridge;
+                    break;
                 case 4000:
                 case 2500:
                     *renderer = GrGLANGLERenderer::kIvyBridge;
