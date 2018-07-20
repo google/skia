@@ -121,6 +121,7 @@ bench_sources = [
   "$_bench/TileImageFilterBench.cpp",
   "$_bench/TopoSortBench.cpp",
   "$_bench/VertBench.cpp",
+  "$_bench/VertexColorSpaceBench.cpp",
   "$_bench/WritePixelsBench.cpp",
   "$_bench/WriterBench.cpp",
 ]
