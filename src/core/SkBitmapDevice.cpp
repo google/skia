@@ -572,7 +572,8 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
 }
 
 void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
-#ifdef SK_SUPPORT_LEGACY_TEXT_BLOB
+    // DO NOT COMMIT: This should be ifdef
+#ifndef SK_SUPPORT_LEGACY_TEXT_BLOB
     auto blob = glyphRunList->blob();
 
     if (blob == nullptr) {
@@ -583,7 +584,8 @@ void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
 #else
-    glyphRunList->temporaryShuntToDrawPosText(this, glyphRunList->origin());
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, glyphRunList->paint(), fSurfaceProps);
+    LOOP_TILER( drawGlyphRunList(glyphRunList, &props()), nullptr )
 #endif
 }
 
