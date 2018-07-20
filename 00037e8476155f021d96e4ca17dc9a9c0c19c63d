@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85dbbfa0_b25ae8e4",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "Please remove commented out code.",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "235a7749_2f78f9e3",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "Is the bounds issue for regular TrueType outline fonts fixed? FT_Get_Color_Glyph_Layer seems to work only for color fonts, how are the bounds for regular font initialized?",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5428d17_64a2ab88",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "Can we remove this debug code?",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c09fdb6_fce833f7",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "Remove unused code.",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e23423b1_c2395f5c",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "Remove unused code.",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dfd2d440_470bf448",
+        "filename": "tools/fonts/sk_tool_utils_font.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-07-20T08:19:55Z",
+      "side": 1,
+      "message": "This is likely to break a couple of non Windows tests that rely on the existing emoji typeface.",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
