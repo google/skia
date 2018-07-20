@@ -104,6 +104,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     // 2D Renderer
     private DrawManager drawManager = new DrawManager();
     private DrawingType currentDrawabletype = DrawingType.circle;
+    private boolean drawSmoothPainting = false;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
@@ -372,6 +373,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                         float[] point = {0, 0, 0, 1};
                         Matrix.multiplyMV(point, 0, gm, 0, point, 0);
 
+                        // Non-smooth finger painting
                         if (drawManager.fingerPainting.isEmpty()) {
                             drawManager.fingerPainting.addPoint(new PointF(0, 0));
 
@@ -383,6 +385,11 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                             float localDistanceScale = 1000;
                             PointF distance = new PointF(point[0] - previousEvent.x,
                                                          point[2] - previousEvent.y);
+
+                            if (distance.length() < 0.1f) {
+                                continue;
+                            }
+
 
                             // New point is distance + old point
                             PointF p = new PointF(distance.x * localDistanceScale
@@ -466,24 +473,25 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             switch (currentDrawabletype) {
                 case circle:
                     drawManager.drawCircle(canvas);
-                    return;
+                    break;
                 case rect:
                     drawManager.drawRect(canvas);
-                    return;
+                    break;
                 case animation:
                     drawManager.drawAnimatedRoundRect(canvas, radius);
-                    return;
+                    break;
                 case text:
                     drawManager.drawText(canvas, "Android");
-                    return;
+                    break;
                 default:
                     drawManager.drawCircle(canvas);
-                    return;
+                    break;
             }
         }
     }
 
     private void drawFingerPainting(Canvas canvas) {
+        drawManager.fingerPainting.setSmoothness(drawSmoothPainting);
         drawManager.drawFingerPainting(canvas);
     }
 
@@ -498,6 +506,12 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         switch (item.getItemId()) {
             case R.id.reset_paint:
                 drawManager.fingerPainting.reset();
+                return true;
+            case R.id.smooth_paint:
+                drawSmoothPainting = true;
+                return true;
+            case R.id.rough_paint:
+                drawSmoothPainting = false;
                 return true;
             case R.id.draw_circle:
                 currentDrawabletype = DrawingType.circle;
