@@ -34,6 +34,14 @@ public:
         SkASSERT(fOwner == SkGetThreadID());
     }
 
+    bool tryAcquire() {
+        if (fSemaphore.try_wait()) {
+            SkDEBUGCODE(fOwner = SkGetThreadID();)
+            return true;
+        }
+        return false;
+    }
+
 protected:
     SkBaseSemaphore fSemaphore{1};
     SkDEBUGCODE(SkThreadID fOwner{kIllegalThreadID};)

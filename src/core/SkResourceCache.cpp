@@ -70,7 +70,7 @@ class SkResourceCache::Hash :
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkResourceCache::init() {
+void SkResourceCache::init(bool isGlobal) {
     fHead = nullptr;
     fTail = nullptr;
     fHash = new Hash;
@@ -81,15 +81,19 @@ void SkResourceCache::init() {
     // One of these should be explicit set by the caller after we return.
     fTotalByteLimit = 0;
     fDiscardableFactory = nullptr;
+
+    if (isGlobal) {
+        fPurgeSharedIDInbox.setHandler(HandlePurgeMessage, this);
+    }
 }
 
-SkResourceCache::SkResourceCache(DiscardableFactory factory) {
-    this->init();
+SkResourceCache::SkResourceCache(DiscardableFactory factory, bool isGlobal) {
+    this->init(isGlobal);
     fDiscardableFactory = factory;
 }
 
-SkResourceCache::SkResourceCache(size_t byteLimit) {
-    this->init();
+SkResourceCache::SkResourceCache(size_t byteLimit, bool isGlobal) {
+    this->init(isGlobal);
     fTotalByteLimit = byteLimit;
 }
 
@@ -451,9 +455,9 @@ static SkResourceCache* get_cache() {
     gMutex.assertHeld();
     if (nullptr == gResourceCache) {
 #ifdef SK_USE_DISCARDABLE_SCALEDIMAGECACHE
-        gResourceCache = new SkResourceCache(SkDiscardableMemory::Create);
+        gResourceCache = new SkResourceCache(SkDiscardableMemory::Create, true);
 #else
-        gResourceCache = new SkResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT);
+        gResourceCache = new SkResourceCache(SK_DEFAULT_IMAGE_CACHE_LIMIT, true);
 #endif
     }
     return gResourceCache;
@@ -522,6 +526,19 @@ void SkResourceCache::Add(Rec* rec, void* payload) {
 void SkResourceCache::VisitAll(Visitor visitor, void* context) {
     SkAutoMutexAcquire am(gMutex);
     get_cache()->visitAll(visitor, context);
+}
+
+bool SkResourceCache::HandlePurgeMessage(const PurgeSharedIDMessage& m, void* ctx) {
+    SkResourceCache* cache = (SkResourceCache*)ctx;
+
+    if (gMutex.tryAcquire()) {
+        SkASSERT(cache == get_cache());
+        cache->purgeSharedID(m.fSharedID);
+        gMutex.release();
+        return true;
+    }
+    // we're busy, so just return false so m will get que'd up
+    return false;
 }
 
 void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
