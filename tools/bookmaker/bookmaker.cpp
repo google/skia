@@ -754,6 +754,9 @@ void BmhParser::resetExampleHashes() {
 
 static void find_examples(const Definition& def, vector<string>* exampleNames) {
     if (MarkType::kExample == def.fMarkType) {
+        if ("SkRegion_copy_const_SkRegion" == def.fFiddle) {
+            SkDebugf("");
+        }
         exampleNames->push_back(def.fFiddle);
     }
     for (auto& child : def.fChildren ) {
