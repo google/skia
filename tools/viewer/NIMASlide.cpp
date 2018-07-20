@@ -56,7 +56,7 @@ public:
             , fIndices()
             , fBones()
             , fVertices(nullptr)
-            , fRenderMode(kBackend_RenderMode) {
+            , fRenderFlags(0) {
         // Update the vertices and bones.
         this->updateVertices();
         this->updateBones();
@@ -65,46 +65,65 @@ public:
         this->updateVerticesObject(false, false);
     }
 
-    void renderBackend(SkCanvas* canvas) {
-        // Reset vertices if the render mode has changed.
-        if (fRenderMode != kBackend_RenderMode) {
-            fRenderMode = kBackend_RenderMode;
-            this->updateVertices();
-            this->updateVerticesObject(false, false);
-        }
+    void render(SkCanvas* canvas, uint32_t renderFlags) {
+        bool dirty = renderFlags != fRenderFlags;
+        fRenderFlags = renderFlags;
 
-        // Update the vertex data.
-        if (fActorImage->doesAnimationVertexDeform()) {
-            this->updateVertices();
-            this->updateVerticesObject(false, true);
-        }
+        bool useImmediate = renderFlags & kImmediate_RenderFlag;
+        bool useCache = renderFlags & kCache_RenderFlag;
+        bool drawBounds = renderFlags & kBounds_RenderFlag;
 
-        // Update the bones.
-        this->updateBones();
+        if (useImmediate) {
+            // Immediate mode transforms.
+            // Update the vertex data.
+            if (fActorImage->doesAnimationVertexDeform() && fActorImage->isVertexDeformDirty()) {
+                this->updateVertices();
+                fActorImage->isVertexDeformDirty(false);
+            }
+
+            // Update the vertices object.
+            this->updateVerticesObject(true, true); // Immediate mode vertices change every frame,
+                                                    // so they must be volatile.
+        } else {
+            // Backend transformations.
+            if (fActorImage->doesAnimationVertexDeform()) {
+                // These are vertices that transform beyond just bone transforms, so they must be
+                // updated every frame.
+                this->updateVertices();
+                this->updateVerticesObject(false, true);
+            } else if (dirty) {
+                // If the render flags are dirty, reset the vertices object.
+                this->updateVertices();
+                this->updateVerticesObject(false, !useCache);
+            }
+
+            // Update the bones.
+            this->updateBones();
+        }
 
         // Draw the vertices object.
-        this->drawVerticesObject(canvas, true);
-    }
+        this->drawVerticesObject(canvas, !useImmediate);
 
-    void renderImmediate(SkCanvas* canvas) {
-        // Reset vertices if the render mode has changed.
-        if (fRenderMode != kImmediate_RenderMode) {
-            fRenderMode = kImmediate_RenderMode;
-            this->updateVertices();
-            this->updateVerticesObject(true, true);
+        if (drawBounds && fActorImage->renderOpacity() > 0.0f) {
+            // Get the bounds.
+            SkRect bounds = fVertices->bounds();
+
+            // Approximate bounds if not using immediate transforms.
+            if (!useImmediate) {
+                const SkRect originalBounds = fBones[0].mapRect(fVertices->bounds());
+                bounds = originalBounds;
+                for (size_t i = 1; i < fBones.size(); i++) {
+                    const SkMatrix& matrix = fBones[i];
+                    bounds.join(matrix.mapRect(originalBounds));
+                }
+            }
+
+            // Draw the bounds.
+            SkPaint paint;
+            paint.setStyle(SkPaint::kStroke_Style);
+            paint.setColor(0xFFFF0000);
+            canvas->drawRect(bounds, paint);
         }
-
-        // Update the vertex data.
-        if (fActorImage->doesAnimationVertexDeform() && fActorImage->isVertexDeformDirty()) {
-            this->updateVertices();
-            fActorImage->isVertexDeformDirty(false);
-        }
-
-        // Update the vertices object.
-        this->updateVerticesObject(true, true);
-
-        // Draw the vertices object.
-        this->drawVerticesObject(canvas, false);
     }
 
     int drawOrder() const { return fActorImage->drawOrder(); }
@@ -316,7 +335,7 @@ private:
     std::vector<SkMatrix> fBones;
     sk_sp<SkVertices>     fVertices;
 
-    RenderMode fRenderMode;
+    uint32_t fRenderFlags;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,21 +378,10 @@ public:
         }
     }
 
-    void render(SkCanvas* canvas, RenderMode renderMode) {
+    void render(SkCanvas* canvas, uint32_t renderFlags) {
         // Render the image nodes.
         for (auto& image : fActorImages) {
-            switch (renderMode) {
-            case kBackend_RenderMode: {
-                // Render with Skia backend.
-                image.renderBackend(canvas);
-                break;
-            }
-            case kImmediate_RenderMode: {
-                // Render with immediate backend.
-                image.renderImmediate(canvas);
-                break;
-            }
-            }
+            image.render(canvas, renderFlags);
         }
     }
 
@@ -397,7 +405,7 @@ NIMASlide::NIMASlide(const SkString& name, const SkString& path)
         , fActor(nullptr)
         , fPlaying(true)
         , fTime(0.0f)
-        , fRenderMode(kBackend_RenderMode)
+        , fRenderFlags(0)
         , fAnimation(nullptr)
         , fAnimationIndex(0) {
     fName = name;
@@ -425,7 +433,7 @@ void NIMASlide::draw(SkCanvas* canvas) {
             canvas->scale(0.5, -0.5);
 
             // Render the actor.
-            fActor->render(canvas, fRenderMode);
+            fActor->render(canvas, fRenderFlags);
 
             canvas->restore();
         }
@@ -476,7 +484,7 @@ void NIMASlide::resetActor() {
 }
 
 void NIMASlide::renderGUI() {
-    ImGui::SetNextWindowSize(ImVec2(300, 220));
+    ImGui::SetNextWindowSize(ImVec2(300, 0));
     ImGui::Begin("NIMA");
 
     // List of animations.
@@ -506,14 +514,34 @@ void NIMASlide::renderGUI() {
     ImGui::SliderFloat("Time", &fTime, 0.0f, fAnimation->max(), "Time: %.3f");
 
     // Backend control.
-    int renderMode = fRenderMode;
+    int useImmediate = SkToBool(fRenderFlags & kImmediate_RenderFlag);
     ImGui::Spacing();
-    ImGui::RadioButton("Skia Backend", &renderMode, 0);
-    ImGui::RadioButton("Immediate Backend", &renderMode, 1);
-    if (renderMode == 0) {
-        fRenderMode = kBackend_RenderMode;
+    ImGui::RadioButton("Skia Backend", &useImmediate, 0);
+    ImGui::RadioButton("Immediate Backend", &useImmediate, 1);
+    if (useImmediate) {
+        fRenderFlags |= kImmediate_RenderFlag;
     } else {
-        fRenderMode = kImmediate_RenderMode;
+        fRenderFlags &= ~kImmediate_RenderFlag;
+    }
+
+    // Cache control.
+    bool useCache = SkToBool(fRenderFlags & kCache_RenderFlag);
+    ImGui::Spacing();
+    ImGui::Checkbox("Cache Vertices", &useCache);
+    if (useCache) {
+        fRenderFlags |= kCache_RenderFlag;
+    } else {
+        fRenderFlags &= ~kCache_RenderFlag;
+    }
+
+    // Bounding box toggle.
+    bool drawBounds = SkToBool(fRenderFlags & kBounds_RenderFlag);
+    ImGui::Spacing();
+    ImGui::Checkbox("Draw Bounds", &drawBounds);
+    if (drawBounds) {
+        fRenderFlags |= kBounds_RenderFlag;
+    } else {
+        fRenderFlags &= ~kBounds_RenderFlag;
     }
 
     ImGui::End();
