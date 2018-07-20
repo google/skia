@@ -22,6 +22,7 @@ class SkBitmap;
 class SkClipStack;
 class SkBaseDevice;
 class SkBlitter;
+class SkGlyphRunList;
 class SkMatrix;
 class SkPath;
 class SkRegion;
@@ -65,6 +66,7 @@ public:
     void    drawPosText(const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
+    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps*) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
