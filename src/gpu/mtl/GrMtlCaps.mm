@@ -9,7 +9,10 @@
 
 #include "GrBackendSurface.h"
 #include "GrMtlUtil.h"
+#include "GrRenderTargetProxy.h"
 #include "GrShaderCaps.h"
+#include "GrSurfaceProxy.h"
+#include "SkRect.h"
 
 GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice> device,
                      MTLFeatureSet featureSet)
@@ -99,6 +102,52 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
 #endif
     // No supported feature sets were found
     SK_ABORT("Requested an unsupported feature set");
+}
+
+bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
+                              GrSurfaceOrigin dstOrigin,
+                              GrPixelConfig srcConfig, int srcSampleCount,
+                              GrSurfaceOrigin srcOrigin,
+                              const SkIRect& srcRect, const SkIPoint& dstPoint,
+                              bool areDstSrcSameObj) const {
+    if (dstConfig != srcConfig) {
+        return false;
+    }
+    if ((dstSampleCount > 1 || srcSampleCount > 1) && (dstSampleCount != srcSampleCount)) {
+        return false;
+    }
+    if (dstOrigin != srcOrigin) {
+        return false;
+    }
+    if (areDstSrcSameObj) {
+        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
+                                            srcRect.width(), srcRect.height());
+        if (dstRect.intersect(srcRect)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool GrMtlCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
+                               const SkIRect& srcRect, const SkIPoint& dstPoint) const {
+    GrSurfaceOrigin dstOrigin = dst->origin();
+    GrSurfaceOrigin srcOrigin = src->origin();
+
+    int dstSampleCnt = 0;
+    int srcSampleCnt = 0;
+    if (const GrRenderTargetProxy* rtProxy = dst->asRenderTargetProxy()) {
+        dstSampleCnt = rtProxy->numColorSamples();
+    }
+    if (const GrRenderTargetProxy* rtProxy = src->asRenderTargetProxy()) {
+        srcSampleCnt = rtProxy->numColorSamples();
+    }
+    SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
+    SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
+
+    return this->canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin,
+                               src->config(), srcSampleCnt, srcOrigin,
+                               srcRect, dstPoint, dst == src);
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
