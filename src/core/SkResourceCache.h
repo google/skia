@@ -259,9 +259,26 @@ public:
      */
     void dump() const;
 
+    // The caller must manage the ownership of the returned list
+    Rec* detachDeadList() {
+        Rec* list = fDeadList;
+        fDeadList = nullptr;
+        return list;
+    }
+
+    static void DeleteList(Rec* rec) {
+        while (rec) {
+            Rec* next = rec->fNext;
+            delete rec;
+            rec = next;
+        }
+    }
+
 private:
     Rec*    fHead;
     Rec*    fTail;
+
+    Rec*    fDeadList = nullptr;    // accumulated recs to be deleted (outside of mutex)
 
     class Hash;
     Hash*   fHash;
@@ -283,6 +300,11 @@ private:
     void addToHead(Rec*);
     void release(Rec*);
     void remove(Rec*);
+
+    void addToDeadList(Rec* rec) {
+        rec->fNext = fDeadList;
+        fDeadList = rec;
+    }
 
     void init();    // called by constructors
 
