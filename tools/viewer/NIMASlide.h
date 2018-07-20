@@ -20,9 +20,10 @@
 class NIMAActor;
 class NIMAActorImage;
 
-enum RenderMode {
-    kBackend_RenderMode   = 0,
-    kImmediate_RenderMode = 1,
+enum RenderFlags {
+    kImmediate_RenderFlag = 0x1,
+    kCache_RenderFlag     = 0x2,
+    kBounds_RenderFlag    = 0x4,
 };
 
 class NIMASlide : public Slide {
@@ -50,7 +51,7 @@ private:
 
     bool fPlaying;
     float fTime;
-    RenderMode fRenderMode;
+    uint32_t fRenderFlags;
 
     nima::ActorAnimationInstance* fAnimation;
     int                           fAnimationIndex;
