@@ -69,6 +69,10 @@ public:
                            const SkIRect& srcRect, const SkIPoint& dstPoint,
                            bool canDiscardOutsideDstRect);
 
+    bool copySurfaceAsDrawThenBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                   GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                   const SkIRect& srcRect, const SkIPoint& dstPoint);
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,

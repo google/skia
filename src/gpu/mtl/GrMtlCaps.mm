@@ -148,6 +148,19 @@ bool GrMtlCaps::canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
     return true;
 }
 
+bool GrMtlCaps::canCopyAsDrawThenBlit(GrPixelConfig dstConfig, GrPixelConfig srcConfig,
+                                      bool srcIsTextureable) const {
+    // TODO: Make copySurfaceAsDraw handle the swizzle
+    if (this->shaderCaps()->configOutputSwizzle(srcConfig) !=
+        this->shaderCaps()->configOutputSwizzle(dstConfig)) {
+        return false;
+    }
+    if (!srcIsTextureable) {
+        return false;
+    }
+    return true;
+}
+
 bool GrMtlCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                const SkIRect& srcRect, const SkIPoint& dstPoint) const {
     GrSurfaceOrigin dstOrigin = dst->origin();
@@ -168,7 +181,9 @@ bool GrMtlCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* 
                                src->config(), srcSampleCnt, srcOrigin,
                                srcRect, dstPoint, dst == src) ||
            this->canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTargetProxy()),
-                               src->config(), SkToBool(src->asTextureProxy()));
+                               src->config(), SkToBool(src->asTextureProxy())) ||
+           this->canCopyAsDrawThenBlit(dst->config(), src->config(),
+                                       SkToBool(src->asTextureProxy()));
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {

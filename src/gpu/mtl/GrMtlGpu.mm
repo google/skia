@@ -688,6 +688,71 @@ bool GrMtlGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return true;
 }
 
+bool GrMtlGpu::copySurfaceAsDrawThenBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                         GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                         const SkIRect& srcRect, const SkIPoint& dstPoint) {
+#ifdef SK_DEBUG
+    // Should be the only case which requires a draw then blit.
+    SkASSERT(dstOrigin != srcOrigin && SkToBool(dst->asRenderTarget()) == false);
+
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+    SkASSERT(!this->mtlCaps().canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin,
+                                            src->config(), srcSampleCnt, srcOrigin,
+                                            srcRect, dstPoint, dst == src));
+    SkASSERT(!this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
+                                            src->config(), SkToBool(src->asTexture())));
+    SkASSERT(this->mtlCaps().canCopyAsDrawThenBlit(dst->config(),src->config(),
+                                                   SkToBool(src->asTexture())));
+#endif
+    GrSurfaceDesc surfDesc;
+    surfDesc.fFlags = kRenderTarget_GrSurfaceFlag;
+    surfDesc.fWidth = dst->width();
+    surfDesc.fHeight = dst->height();
+    surfDesc.fConfig = dst->config();
+    surfDesc.fSampleCnt = 1;
+
+    id<MTLTexture> dstTex = get_mtl_texture_from_surface(dst);
+    MTLTextureDescriptor* textureDesc = GrGetMTLTextureDescriptor(dstTex);
+    textureDesc.sampleCount = 1;
+    textureDesc.mipmapLevelCount = 1;
+    textureDesc.usage |= MTLTextureUsageRenderTarget;
+
+    sk_sp<GrMtlTexture> transferTexture =
+            GrMtlTextureRenderTarget::CreateNewTextureRenderTarget(this,
+                                                                   SkBudgeted::kNo,
+                                                                   surfDesc,
+                                                                   textureDesc,
+                                                                   GrMipMapsStatus::kNotAllocated);
+
+    GrSurfaceOrigin transferOrigin = dstOrigin;
+    SkASSERT(this->mtlCaps().canCopyAsDraw(transferTexture->config(),
+                                           SkToBool(transferTexture->asRenderTarget()),
+                                           src->config(),
+                                           SkToBool(src->asTexture())));
+    if (!this->copySurface(transferTexture.get(), transferOrigin,
+                           src, srcOrigin,
+                           srcRect, dstPoint)) {
+        return false;
+    }
+
+    SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.fX, dstPoint.fY,
+                                        srcRect.width(), srcRect.height());
+    SkASSERT(this->mtlCaps().canCopyAsBlit(dst->config(),
+                                           dstSampleCnt,
+                                           dstOrigin,
+                                           transferTexture->config(),
+                                           get_surface_sample_cnt(transferTexture.get()),
+                                           transferOrigin,
+                                           dstRect, dstPoint, false));
+    if (!this->copySurface(dst, dstOrigin,
+                           transferTexture.get(), transferOrigin,
+                           dstRect, dstPoint)) {
+        return false;
+    }
+    return true;
+}
+
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                              GrSurface* src, GrSurfaceOrigin srcOrigin,
                              const SkIRect& srcRect,
@@ -714,6 +779,10 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                              src->config(), SkToBool(src->asTexture()))) {
         success = this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
                                           canDiscardOutsideDstRect);
+    } else if (this->mtlCaps().canCopyAsDrawThenBlit(dst->config(), src->config(),
+                                                     SkToBool(src->asTexture()))) {
+        success = this->copySurfaceAsDrawThenBlit(dst, dstOrigin, src, srcOrigin,
+                                                  srcRect, dstPoint);
     }
     if (success) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
