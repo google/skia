@@ -11,8 +11,30 @@
 #include "GrOpFlushState.h"
 #include "SkGr.h"
 #include "SkRectPriv.h"
+#include <iostream>
 
 static constexpr int kNumFloatsPerSkMatrix = 9;
+static constexpr int kGPUSkinningThreshold = 32; // If we have a low average number of vertices per
+                                                 // draw op, the we do the skinning calculations on
+                                                 // the CPU instead.
+
+static void write_skmatrix(const SkMatrix& matrix, std::vector<float>& destination) {
+    destination.push_back(matrix.get(SkMatrix::kMScaleX));
+    destination.push_back(matrix.get(SkMatrix::kMSkewY));
+    destination.push_back(matrix.get(SkMatrix::kMPersp0));
+    destination.push_back(matrix.get(SkMatrix::kMSkewX));
+    destination.push_back(matrix.get(SkMatrix::kMScaleY));
+    destination.push_back(matrix.get(SkMatrix::kMPersp1));
+    destination.push_back(matrix.get(SkMatrix::kMTransX));
+    destination.push_back(matrix.get(SkMatrix::kMTransY));
+    destination.push_back(matrix.get(SkMatrix::kMPersp2));
+}
+
+static SkPoint map_point(const SkPoint& point, const float* matrix) {
+    float x = matrix[0] * point.x() + matrix[3] * point.y() + matrix[6];
+    float y = matrix[1] * point.x() + matrix[4] * point.y() + matrix[7];
+    return SkPoint::Make(x, y);
+}
 
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
                                                  GrPaint&& paint,
@@ -51,25 +73,24 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     mesh.fColor = color;
     mesh.fViewMatrix = viewMatrix;
     mesh.fVertices = std::move(vertices);
-    if (bones) {
-        // Copy the bone data over in the format that the GPU would upload.
-        mesh.fBones.reserve(boneCount * kNumFloatsPerSkMatrix);
-        for (int i = 0; i < boneCount; i ++) {
-            const SkMatrix& matrix = bones[i];
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMScaleX));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMSkewY));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMPersp0));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMSkewX));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMScaleY));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMPersp1));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMTransX));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMTransY));
-            mesh.fBones.push_back(matrix.get(SkMatrix::kMPersp2));
-        }
-    }
+    mesh.fBoneCount = boneCount - 1;
     mesh.fIgnoreTexCoords = false;
     mesh.fIgnoreColors = false;
     mesh.fIgnoreBones = false;
+
+    if (bones && boneCount > 1) {
+        // Copy the bone data over in the format that the GPU would upload.
+        fBones.reserve(boneCount * kNumFloatsPerSkMatrix);
+        for (int i = 1; i < boneCount; i ++) {
+            const SkMatrix& matrix = bones[i];
+            write_skmatrix(matrix, fBones);
+        }
+
+        // Copy the world and view matrices.
+        fTransforms.reserve(2 * kNumFloatsPerSkMatrix);
+        write_skmatrix(bones[0], fTransforms);
+        write_skmatrix(viewMatrix, fTransforms);
+    }
 
     fFlags = 0;
     if (mesh.hasPerVertexColors()) {
@@ -155,7 +176,8 @@ GrDrawOp::RequiresDstTexture GrDrawVerticesOp::finalize(const GrCaps& caps,
 sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCaps,
                                                     bool* hasColorAttribute,
                                                     bool* hasLocalCoordAttribute,
-                                                    bool* hasBoneAttribute) const {
+                                                    bool* hasBoneAttribute,
+                                                    bool* doBoneTransforms) const {
     using namespace GrDefaultGeoProcFactory;
     LocalCoords::Type localCoordsType;
     if (fHelper.usesLocalCoords()) {
@@ -186,12 +208,27 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCa
         *hasColorAttribute = false;
     };
 
-    const SkMatrix& vm = this->hasMultipleViewMatrices() ? SkMatrix::I() : fMeshes[0].fViewMatrix;
+    const SkMatrix& vm = (this->hasMultipleViewMatrices() || this->hasBones()) ?
+            SkMatrix::I() : fMeshes[0].fViewMatrix;
 
-    Bones bones(fMeshes[0].fBones.data(), fMeshes[0].fBones.size() / kNumFloatsPerSkMatrix);
+    Bones bones(fBones.data(),
+                fBones.size() / kNumFloatsPerSkMatrix,
+                fTransforms.data(),
+                fTransforms.size() / kNumFloatsPerSkMatrix);
     *hasBoneAttribute = this->hasBones();
 
-    if (this->hasBones()) {
+    // Determine whether to do bone transforms on the CPU before passing to the GPU.
+    *doBoneTransforms = false;
+    if (this->hasBones() && fMeshes[0].fVertices->isVolatile()) {
+        int averageVerticesPerMesh = fVertexCount / fMeshes.count();
+        // TODO: Make sure the GPU is capable of batching.
+        if (averageVerticesPerMesh < kGPUSkinningThreshold) {
+            *doBoneTransforms = true;
+            *hasBoneAttribute = false;
+        }
+    }
+
+    if (*hasBoneAttribute) {
         return GrDefaultGeoProcFactory::MakeWithBones(shaderCaps,
                                                       color,
                                                       Coverage::kSolid_Type,
@@ -220,10 +257,12 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
+    bool doBoneTransforms;
     sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
-                                                 &hasBoneAttribute);
+                                                 &hasBoneAttribute,
+                                                 &doBoneTransforms);
 
     // Calculate the stride.
     size_t vertexStride = sizeof(SkPoint) +
@@ -256,6 +295,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
     this->fillBuffers(hasColorAttribute,
                       hasLocalCoordsAttribute,
                       hasBoneAttribute,
+                      doBoneTransforms,
                       vertexStride,
                       verts,
                       indices);
@@ -270,10 +310,12 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     bool hasColorAttribute;
     bool hasLocalCoordsAttribute;
     bool hasBoneAttribute;
+    bool doBoneTransforms;
     sk_sp<GrGeometryProcessor> gp = this->makeGP(target->caps().shaderCaps(),
                                                  &hasColorAttribute,
                                                  &hasLocalCoordsAttribute,
-                                                 &hasBoneAttribute);
+                                                 &hasBoneAttribute,
+                                                 &doBoneTransforms);
 
     SkASSERT(fMeshes.count() == 1); // Non-volatile meshes should never combine.
 
@@ -338,6 +380,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     this->fillBuffers(hasColorAttribute,
                       hasLocalCoordsAttribute,
                       hasBoneAttribute,
+                      doBoneTransforms,
                       vertexStride,
                       verts,
                       indices);
@@ -359,6 +402,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
 void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
                                    bool hasLocalCoordsAttribute,
                                    bool hasBoneAttribute,
+                                   bool doBoneTransforms,
                                    size_t vertexStride,
                                    void* verts,
                                    uint16_t* indices) const {
@@ -366,6 +410,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
 
     // Copy data into the buffers.
     int vertexOffset = 0;
+    int8_t instanceBoneIndexOffset = 0;
     // We have a fast case below for uploading the vertex data when the matrix is translate
     // only and there are colors but not local coords. Fast case does not apply when there are bone
     // transformations.
@@ -432,6 +477,16 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
                     mesh.fViewMatrix.mapPoints(((SkPoint*)verts), &positions[j], 1);
                 } else {
                     *((SkPoint*)verts) = positions[j];
+
+                    // Transform the position with the bones.
+                    if (doBoneTransforms) {
+                        SkPoint& position = *((SkPoint*)verts);
+                        position = transformWithBones(position,
+                                                      boneIndices[j].indices,
+                                                      boneWeights[j].weights,
+                                                      i,
+                                                      instanceBoneIndexOffset);
+                    }
                 }
                 if (hasColorAttribute) {
                     if (mesh.hasPerVertexColors()) {
@@ -453,7 +508,18 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
                     for (int k = 0; k < 4; k++) {
                         size_t indexOffset = boneIndexOffset + sizeof(int8_t) * k;
                         size_t weightOffset = boneWeightOffset + sizeof(uint8_t) * k;
-                        *(int8_t*)((intptr_t)verts + indexOffset) = indices.indices[k];
+
+                        // Set index to positive or negative depending on the kth bit of i.
+                        // This can be done because we only support a maximum of 100 bones, which
+                        // means the index only needs 7 bits of precision.
+                        // To account for zero, we increase each of the indices by 1.
+                        int8_t index = indices.indices[k] + instanceBoneIndexOffset + 1;
+                        if (i >> k & 0x1) {
+                            // kth bit of i is set.
+                            index = -index;
+                        }
+
+                        *(int8_t*)((intptr_t)verts + indexOffset) = index;
                         *(uint8_t*)((intptr_t)verts + weightOffset) = weights.weights[k] * 255.0f;
                     }
                 }
@@ -461,7 +527,47 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
             }
         }
         vertexOffset += vertexCount;
+        instanceBoneIndexOffset += mesh.fBoneCount;
     }
+}
+
+SkPoint GrDrawVerticesOp::transformWithBones(const SkPoint& position,
+                                             const uint32_t* indices,
+                                             const float* weights,
+                                             int meshId,
+                                             int8_t boneIndexOffset) const {
+    // Get the world and view transforms.
+    const float* worldTransform = fTransforms.data() + meshId * 2 * kNumFloatsPerSkMatrix;
+    const float* viewTransform = worldTransform + kNumFloatsPerSkMatrix;
+
+    // Apply the world transform.
+    SkPoint worldPosition = map_point(position, worldTransform);
+
+    // Apply the bone transforms.
+    SkPoint result = SkPoint::Make(0.0f, 0.0f);
+    for (int i = 0; i < 4; i++) {
+        uint32_t index = indices[i];
+        float weight = weights[i];
+        if (index == 0 || weight == 0.0f) {
+            continue;
+        }
+
+        // Offset the index.
+        index += boneIndexOffset - 1;
+
+        // Get the matrix.
+        const float* matrix = fBones.data() + index * kNumFloatsPerSkMatrix;
+
+        // Perform the transform.
+        SkPoint transformedPosition = map_point(worldPosition, matrix);
+
+        // Add to the final position.
+        result += transformedPosition * weight;
+    }
+
+    // Apply the view transform.
+    return map_point(worldPosition, viewTransform);
+    return map_point(result, viewTransform);
 }
 
 void GrDrawVerticesOp::drawVertices(Target* target,
@@ -490,13 +596,6 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
-    // Meshes with bones cannot be combined because different meshes use different bones, so to
-    // combine them, the matrices would have to be combined, and the bone indices on each vertex
-    // would change, thus making the vertices uncacheable.
-    if (this->hasBones() || that->hasBones()) {
-        return false;
-    }
-
     // Non-volatile meshes cannot batch, because if a non-volatile mesh batches with another mesh,
     // then on the next frame, if that non-volatile mesh is drawn, it will draw the other mesh
     // that was saved in its vertex buffer, which is not necessarily there anymore.
@@ -520,6 +619,23 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         return false;
     }
 
+    // We can only batch bone vertices with other bone vertices.
+    if (this->hasBones() != that->hasBones()) {
+        return false;
+    }
+
+    if (this->hasBones()) {
+        // We can only batch up to 16 at once.
+        if (this->fMeshes.count() + that->fMeshes.count() > 16) {
+            return false;
+        }
+
+        // We can only upload 100 bones of data.
+        if (this->fBones.size() + that->fBones.size() > 80 * kNumFloatsPerSkMatrix) {
+            return false;
+        }
+    }
+
     // NOTE: For SkColor vertex colors, the source color space is always sRGB, and the destination
     // gamut is determined by the render target context. A mis-match should be impossible.
     SkASSERT(GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get()));
@@ -533,13 +649,18 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     }
     // Check whether we are about to acquire a mesh with a different view matrix.
     if (!this->hasMultipleViewMatrices() &&
-        !this->fMeshes[0].fViewMatrix.cheapEqualTo(that->fMeshes[0].fViewMatrix)) {
+        !this->fMeshes[0].fViewMatrix.cheapEqualTo(that->fMeshes[0].fViewMatrix) &&
+        !this->hasBones()) { // We don't want this flag if we're doing bone vertex batching.
         fFlags |= kHasMultipleViewMatrices_Flag;
     }
 
     fMeshes.push_back_n(that->fMeshes.count(), that->fMeshes.begin());
     fVertexCount += that->fVertexCount;
     fIndexCount += that->fIndexCount;
+
+    // Combine the bone and transform data.
+    fBones.insert(fBones.end(), that->fBones.begin(), that->fBones.end());
+    fTransforms.insert(fTransforms.end(), that->fTransforms.begin(), that->fTransforms.end());
 
     this->joinBounds(*that);
     return true;
