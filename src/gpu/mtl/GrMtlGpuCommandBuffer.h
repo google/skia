@@ -18,14 +18,14 @@ public:
     GrMtlGpuTextureCommandBuffer(GrMtlGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
             : INHERITED(texture, origin)
             , fGpu(gpu) {
-        // Silence unused var warning
-        (void)fGpu;
     }
 
     ~GrMtlGpuTextureCommandBuffer() override {}
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override {}
+              const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fTexture, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    }
 
     void insertEventMarker(const char* msg) override {}
 
@@ -63,7 +63,9 @@ public:
     void inlineUpload(GrOpFlushState* state, GrDeferredTextureUploadFn& upload) override {}
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
-              const SkIPoint& dstPoint) override {}
+              const SkIPoint& dstPoint) override {
+        fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
+    }
 
     void submit() override {}
 

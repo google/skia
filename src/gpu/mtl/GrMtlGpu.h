@@ -56,11 +56,15 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
+    bool copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                           GrSurface* src, GrSurfaceOrigin srcOrigin,
+                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
                        const SkIPoint& dstPoint,
-                       bool canDiscardOutsideDstRect) override { return false; }
+                       bool canDiscardOutsideDstRect) override;
 
     GrGpuRTCommandBuffer* createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
