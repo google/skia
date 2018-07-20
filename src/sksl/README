@@ -42,9 +42,10 @@ Differences from GLSL
   rather than normalized coordinates.
 * use sk_PointSize instead of gl_PointSize
 * use sk_VertexID instead of gl_VertexID
-* use sk_InstanceID instead of gl_InstanceID
+* use sk_FrontFacing instead of gl_FrontFacing
 * the fragment coordinate is sk_FragCoord, and is always relative to the upper
   left.
+* use sk_InstanceID instead of gl_InstanceID
 * you do not need to include ".0" to make a number a float (meaning that
   "float2(x, y) * 4" is perfectly legal in SkSL, unlike GLSL where it would
   often have to be expressed "float2(x, y) * 4.0". There is no performance
