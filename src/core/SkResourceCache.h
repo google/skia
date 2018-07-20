@@ -199,7 +199,7 @@ public:
      *  and getTotalByteLimit() will return 0, and setTotalByteLimit
      *  will ignore its argument and return 0.
      */
-    SkResourceCache(DiscardableFactory);
+    SkResourceCache(DiscardableFactory, bool isGlobal = false);
 
     /**
      *  Construct the cache, allocating memory with malloc, and respect the
@@ -207,7 +207,7 @@ public:
      *  that pushes the total bytesUsed over the limit. Note: The limit can be
      *  changed at runtime with setTotalByteLimit.
      */
-    explicit SkResourceCache(size_t byteLimit);
+    explicit SkResourceCache(size_t byteLimit, bool isGlobal = false);
     ~SkResourceCache();
 
     /**
@@ -278,13 +278,15 @@ private:
     void checkMessages();
     void purgeAsNeeded(bool forcePurge = false);
 
+    static bool HandlePurgeMessage(const PurgeSharedIDMessage&, void* cache);
+
     // linklist management
     void moveToHead(Rec*);
     void addToHead(Rec*);
     void release(Rec*);
     void remove(Rec*);
 
-    void init();    // called by constructors
+    void init(bool isGlobal);    // called by constructors
 
 #ifdef SK_DEBUG
     void validate() const;

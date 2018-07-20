@@ -27,6 +27,9 @@ public:
     // Message::shouldSend() for each inbox. Threadsafe.
     static void Post(const Message& m);
 
+    // If this returns false, then we still call receive(message)
+    typedef bool (*Handler)(const Message&, void* ctx);
+
     class Inbox {
     public:
         Inbox(uint32_t uniqueID = SK_InvalidUniqueID);
@@ -35,9 +38,16 @@ public:
         // Overwrite out with all the messages we've received since the last call.  Threadsafe.
         void poll(SkTArray<Message>* out);
 
+        void setHandler(Handler h, void* ctx) {
+            fHandler = h;
+            fHandlerContext = ctx;
+        }
+
     private:
         SkTArray<Message>  fMessages;
         SkMutex            fMessagesMutex;
+        Handler            fHandler = nullptr;
+        void*              fHandlerContext = nullptr;
         uint32_t           fUniqueID;
 
         friend class SkMessageBus;
@@ -110,9 +120,11 @@ template <typename Message>
 /*static*/ void SkMessageBus<Message>::Post(const Message& m) {
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexAcquire lock(bus->fInboxesMutex);
-    for (int i = 0; i < bus->fInboxes.count(); i++) {
-        if (m.shouldSend(bus->fInboxes[i]->fUniqueID)) {
-            bus->fInboxes[i]->receive(m);
+    for (auto inbox : bus->fInboxes) {
+        if (m.shouldSend(inbox->fUniqueID)) {
+            if (!inbox->fHandler || !inbox->fHandler(m, inbox->fHandlerContext)) {
+                inbox->receive(m);
+            }
         }
     }
 }
