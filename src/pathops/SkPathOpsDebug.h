@@ -49,7 +49,7 @@ DummyClasses(Cubic, Cubic);
 #ifdef SK_RELEASE
 #define FORCE_RELEASE 1
 #else
-#define FORCE_RELEASE 1  // set force release to 1 for multiple thread -- no debugging
+#define FORCE_RELEASE 0  // set force release to 1 for multiple thread -- no debugging
 #endif
 
 #define DEBUG_UNDER_DEVELOPMENT 0
@@ -107,17 +107,17 @@ DummyClasses(Cubic, Cubic);
 
 #define DEBUG_ACTIVE_OP 1
 #define DEBUG_ACTIVE_SPANS 1
-#define DEBUG_ADD_INTERSECTING_TS 1
-#define DEBUG_ADD_T 1
+#define DEBUG_ADD_INTERSECTING_TS 0
+#define DEBUG_ADD_T 0
 #define DEBUG_ALIGNMENT 0
 #define DEBUG_ANGLE 1
 #define DEBUG_ASSEMBLE 1
-#define DEBUG_COINCIDENCE 1
+#define DEBUG_COINCIDENCE 0
 #define DEBUG_COINCIDENCE_DUMP 0
 #define DEBUG_COINCIDENCE_ORDER 0  // tight arc quads may generate out-of-order coincdence spans
-#define DEBUG_COINCIDENCE_VERBOSE 1
+#define DEBUG_COINCIDENCE_VERBOSE 0
 #define DEBUG_CUBIC_BINARY_SEARCH 0
-#define DEBUG_CUBIC_SPLIT 1
+#define DEBUG_CUBIC_SPLIT 0
 #define DEBUG_DUMP_VERIFY 0
 #define DEBUG_DUMP_SEGMENTS 1
 #define DEBUG_FLOW 1
@@ -209,9 +209,9 @@ DummyClasses(Cubic, Cubic);
     #define DEBUG_PHASE_PARAMS(phase) \
             , DEBUG_PHASE_ONLY_PARAMS(phase)
     #define DEBUG_SET_PHASE() \
-            this->globalState()->debugSetPhase(phase)
+            this->globalState()->debugSetPhase(__func__, phase)
     #define DEBUG_STATIC_SET_PHASE(obj) \
-            obj->globalState()->debugSetPhase(phase)
+            obj->globalState()->debugSetPhase(__func__, phase)
 #else
     #define DEBUG_COIN_DECLARE_ONLY_PARAMS()
     #define DEBUG_COIN_DECLARE_PARAMS()

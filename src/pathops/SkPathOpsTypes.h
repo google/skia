@@ -99,8 +99,10 @@ public:
     bool debugCheckHealth() const { return fDebugCheckHealth; }
 #endif
 
-#if DEBUG_VALIDATE || DEBUG_COIN
+#if DEBUG_COIN
     void debugSetPhase(const char* funcName  DEBUG_COIN_DECLARE_PARAMS()) const;
+#elif DEBUG_VALIDATE
+    void debugSetPhase(const char* funcName, SkOpPhase phase) const;
 #endif
 
 #if DEBUG_COIN
