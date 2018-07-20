@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "GrContextPriv.h"
+#include "GrGpu.h"
 #include "SkDraw.h"
 #include "SkGraphics.h"
 #include "SkMutex.h"
@@ -88,7 +90,10 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
 #define COMPARE_BLOBS(expected, actual, reporter)                                        \
     for (int i = 0; i < expected.width(); ++i) {                                         \
         for (int j = 0; j < expected.height(); ++j) {                                    \
-            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j)); \
+            if (expected.getColor(i, j) != actual.getColor(i, j)) {                      \
+                ERRORF(reporter, "%d, %d : expected: %x != %x :actual",                  \
+                        i, j, expected.getColor(i, j), actual.getColor(i, j));           \
+            }                                                                            \
         }                                                                                \
     }
 
@@ -103,14 +108,17 @@ SkTextBlobCacheDiffCanvas::Settings MakeSettings(GrContext* context) {
 SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint& paint,
                     GrContext* context, const SkMatrix* matrix = nullptr,
                     SkScalar x = 0) {
+    context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
     const SkImageInfo info =
             SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
     auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    surface->getCanvas()->clear(0x00000000);
     if (matrix) surface->getCanvas()->concat(*matrix);
     surface->getCanvas()->drawTextBlob(blob.get(), x, 0, paint);
     SkBitmap bitmap;
     bitmap.allocN32Pixels(width, height);
     surface->readPixels(bitmap, 0, 0);
+    context->contextPriv().getGpu()->testingOnly_flushGpuAndSync();
     return bitmap;
 }
 
