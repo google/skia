@@ -138,7 +138,7 @@ public:
                                 kAlpha_half_GrPixelConfig, *proxyProvider->caps());
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
                           GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
-            this->addTextureSampler(&fAccess);
+            this->setTextureSamplerCnt(1);
         }
 
     private:
@@ -149,6 +149,7 @@ public:
         GrGLSLFragmentProcessor* onCreateGLSLInstance() const override { return nullptr; }
         void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
         bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
+        const TextureSampler& onTextureSampler(int) const override { return fAccess; }
 
         GrProxyProvider* const fProxyProvider;
         LazyProxyTest* const fTest;

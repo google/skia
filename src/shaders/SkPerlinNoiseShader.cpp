@@ -764,8 +764,7 @@ private:
             , fPermutationsSampler(std::move(permutationsProxy))
             , fNoiseSampler(std::move(noiseProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->addTextureSampler(&fPermutationsSampler);
-        this->addTextureSampler(&fNoiseSampler);
+        this->setTextureSamplerCnt(2);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
@@ -779,9 +778,12 @@ private:
             , fPermutationsSampler(that.fPermutationsSampler)
             , fNoiseSampler(that.fNoiseSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->addTextureSampler(&fPermutationsSampler);
-        this->addTextureSampler(&fNoiseSampler);
+        this->setTextureSamplerCnt(2);
         this->addCoordTransform(&fCoordTransform);
+    }
+
+    const TextureSampler& onTextureSampler(int i) const override {
+        return IthTextureSampler(i, fPermutationsSampler, fNoiseSampler);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
@@ -1185,8 +1187,7 @@ private:
             , fPermutationsSampler(std::move(permutationsProxy))
             , fGradientSampler(std::move(gradientProxy))
             , fPaintingData(std::move(paintingData)) {
-        this->addTextureSampler(&fPermutationsSampler);
-        this->addTextureSampler(&fGradientSampler);
+        this->setTextureSamplerCnt(2);
         fCoordTransform.reset(matrix);
         this->addCoordTransform(&fCoordTransform);
     }
@@ -1199,9 +1200,12 @@ private:
             , fPermutationsSampler(that.fPermutationsSampler)
             , fGradientSampler(that.fGradientSampler)
             , fPaintingData(new SkPerlinNoiseShaderImpl::PaintingData(*that.fPaintingData)) {
-        this->addTextureSampler(&fPermutationsSampler);
-        this->addTextureSampler(&fGradientSampler);
+        this->setTextureSamplerCnt(2);
         this->addCoordTransform(&fCoordTransform);
+    }
+
+    const TextureSampler& onTextureSampler(int i) const override {
+        return IthTextureSampler(i, fPermutationsSampler, fGradientSampler);
     }
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST

@@ -115,11 +115,12 @@ private:
             , fRect(rect)
             , fCornerRadius(cornerRadius)
             , fNinePatchSampler(std::move(ninePatchSampler)) {
-        this->addTextureSampler(&fNinePatchSampler);
+        this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     float fSigma;
     SkRect fRect;

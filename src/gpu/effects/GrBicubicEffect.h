@@ -70,6 +70,8 @@ private:
 
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
+    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+
     GrCoordTransform fCoordTransform;
     GrTextureDomain fDomain;
     TextureSampler fTextureSampler;

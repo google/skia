@@ -59,6 +59,7 @@ private:
                         const SkMatrix& localMatrix, bool usesW);
 
     const Attribute& onVertexAttribute(int i) const override;
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
