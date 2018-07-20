@@ -2673,6 +2673,14 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
     if (kPowerVRRogue_GrGLRenderer == ctxInfo.renderer()) {
         fBlacklistCoverageCounting = true;
     }
+
+    // CCPR edge AA is busted on Sandy Bridge.
+    // http://skbug.com/8162
+    if (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
+        (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
+         GrGLANGLERenderer::kSandyBridge == ctxInfo.angleRenderer())) {
+        fBlacklistCoverageCounting = true;
+    }
 }
 
 void GrGLCaps::onApplyOptionsOverrides(const GrContextOptions& options) {

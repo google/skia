@@ -64,6 +64,7 @@ enum GrGLRenderer {
     kIntel4xxx_GrGLRenderer,
     /** Either HD 6xxx or Iris 6xxx */
     kIntel6xxx_GrGLRenderer,
+    kIntelSandyBridge_GrGLRenderer,
     kIntelSkylake_GrGLRenderer,
     kGalliumLLVM_GrGLRenderer,
     kMali4xx_GrGLRenderer,
@@ -102,6 +103,7 @@ enum class GrGLANGLEVendor {
 
 enum class GrGLANGLERenderer {
     kUnknown,
+    kSandyBridge,
     kIvyBridge,
     kSkylake
 };
