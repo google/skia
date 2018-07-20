@@ -2300,7 +2300,7 @@ partial or full <a href='#Image'>Image</a>, or nullptr
 
 ### Example
 
-<div><fiddle-embed name="93669037c9eb9d142e7776b9f936fa96"></fiddle-embed></div>
+<div><fiddle-embed name="e626e26bf557857b824aa7d03f723e0f"></fiddle-embed></div>
 
 ### See Also
 

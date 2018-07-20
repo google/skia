@@ -1717,7 +1717,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> <a href='SkIma
 
 ### Example
 
-<div><fiddle-embed name="5e76b68bb46d54315eb0c12d83bd6949"><div><a href='#SkBitmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
+<div><fiddle-embed name="e78471212a67f2f4fd39496e17a30d17"><div><a href='#SkBitmap_isOpaque'>isOpaque</a> ignores whether all pixels are opaque or not.
 </div>
 
 #### Example Output

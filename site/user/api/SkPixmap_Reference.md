@@ -2138,7 +2138,7 @@ true if pixels are changed
 
 ### Example
 
-<div><fiddle-embed name="838202e0d49cad2eb3eeb495834f6d63"></fiddle-embed></div>
+<div><fiddle-embed name="9a85bb62fe3d877b18fb7f952c4fa7f7"></fiddle-embed></div>
 
 ### See Also
 
