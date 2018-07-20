@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b279784_a4e9e2d1",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 2455,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-20T15:39:34Z",
+      "side": 1,
+      "message": "Bikeshed:  I would replace `SkPoint::Make(x, y)` with `{x, y}`.",
+      "revId": "4a44743a6b5fb0879e95d3dc45d253b0566680fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
