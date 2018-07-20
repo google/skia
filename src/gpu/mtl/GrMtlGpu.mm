@@ -527,6 +527,117 @@ void GrMtlGpu::testingOnly_flushGpuAndSync() {
 }
 #endif // GR_TEST_UTILS
 
+id<MTLTexture> get_mtl_texture_from_surface(GrSurface* surface, bool doResolve) {
+    id<MTLTexture> mtlTexture = nil;
+
+    GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
+    GrMtlTexture* texture;
+    if (renderTarget) {
+        if (doResolve) {
+            // TODO: do resolve and set mtlTexture to resolved texture. As of now, we shouldn't
+            // have any multisampled render targets.
+            SkASSERT(false);
+        } else {
+            mtlTexture = renderTarget->mtlRenderTexture();
+        }
+    } else {
+        texture = static_cast<GrMtlTexture*>(surface->asTexture());
+        if (texture) {
+            mtlTexture = texture->mtlTexture();
+        }
+    }
+    return mtlTexture;
+}
+
+static int get_surface_sample_cnt(GrSurface* surf) {
+    if (const GrRenderTarget* rt = surf->asRenderTarget()) {
+        return rt->numColorSamples();
+    }
+    return 0;
+}
+
+bool GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                 GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                 const SkIRect& srcRect, const SkIPoint& dstPoint) {
+#ifdef SK_DEBUG
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+    SkASSERT(this->mtlCaps().canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin,
+                                           src->config(), srcSampleCnt, srcOrigin,
+                                           srcRect, dstPoint, dst == src));
+#endif
+    id<MTLTexture> dstTex = get_mtl_texture_from_surface(dst, false);
+    id<MTLTexture> srcTex = get_mtl_texture_from_surface(src, false);
+
+    // Flip rect if necessary
+    SkIRect srcMtlRect;
+    srcMtlRect.fLeft = srcRect.fLeft;
+    srcMtlRect.fRight = srcRect.fRight;
+    SkIRect dstRect;
+    dstRect.fLeft = dstPoint.fX;
+    dstRect.fRight = dstPoint.fX + srcRect.width();
+
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        srcMtlRect.fTop = srcTex.height - srcRect.fBottom;
+        srcMtlRect.fBottom = srcTex.height - srcRect.fTop;
+    } else {
+        srcMtlRect.fTop = srcRect.fTop;
+        srcMtlRect.fBottom = srcRect.fBottom;
+    }
+
+    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
+        dstRect.fTop = dstTex.height - dstPoint.fY - srcMtlRect.height();
+    } else {
+        dstRect.fTop = dstPoint.fY;
+    }
+    dstRect.fBottom = dstRect.fTop + srcMtlRect.height();
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
+    [blitCmdEncoder copyFromTexture: srcTex
+                        sourceSlice: 0
+                        sourceLevel: 0
+                       sourceOrigin: MTLOriginMake(srcMtlRect.x(), srcMtlRect.y(), 0)
+                         sourceSize: MTLSizeMake(srcMtlRect.width(), srcMtlRect.height(), 1)
+                          toTexture: dstTex
+                   destinationSlice: 0
+                   destinationLevel: 0
+                  destinationOrigin: MTLOriginMake(dstRect.x(), dstRect.y(), 0)];
+    [blitCmdEncoder endEncoding];
+
+    return true;
+}
+
+bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                             GrSurface* src, GrSurfaceOrigin srcOrigin,
+                             const SkIRect& srcRect,
+                             const SkIPoint& dstPoint,
+                             bool canDiscardOutsideDstRect) {
+
+    GrPixelConfig dstConfig = dst->config();
+    GrPixelConfig srcConfig = src->config();
+
+    int dstSampleCnt = get_surface_sample_cnt(dst);
+    int srcSampleCnt = get_surface_sample_cnt(src);
+
+    if (dstSampleCnt > 1 || srcSampleCnt > 1) {
+        SkASSERT(false); // Currently dont support MSAA
+        return false;
+    }
+
+    bool success = false;
+    if (this->mtlCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstOrigin,
+                                      srcConfig, srcSampleCnt, srcOrigin,
+                                      srcRect, dstPoint, dst == src)) {
+        success = this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
+    }
+    if (success) {
+        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
+                                            srcRect.width(), srcRect.height());
+        this->didWriteToSurface(dst, dstOrigin, &dstRect);
+    }
+    return success;
+}
+
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,
                              GrColorType srcColorType, const GrMipLevel texels[],
                              int mipLevelCount) {
@@ -556,20 +667,8 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
         return false;
     }
 
-    id<MTLTexture> mtlTexture = nil;
-    GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
-    GrMtlTexture* texture;
-    if (renderTarget) {
-        // TODO: Handle resolving rt here when MSAA is supported. Right now we just grab the render
-        // texture since we cannot currently have a multi-sampled rt.
-        mtlTexture = renderTarget->mtlRenderTexture();
-    } else {
-        texture = static_cast<GrMtlTexture*>(surface->asTexture());
-        if (texture) {
-            mtlTexture = texture->mtlTexture();
-        }
-    }
-
+    bool doResolve = get_surface_sample_cnt(surface) > 1;
+    id<MTLTexture> mtlTexture = get_mtl_texture_from_surface(surface, doResolve);
     if (!mtlTexture) {
         return false;
     }
