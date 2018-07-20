@@ -32,10 +32,6 @@ public:
     void setIdentity();
     void setScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
                   SkScalar aScale = SK_Scalar1);
-    void preScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
-                  SkScalar aScale = SK_Scalar1);
-    void postScale(SkScalar rScale, SkScalar gScale, SkScalar bScale,
-                   SkScalar aScale = SK_Scalar1);
     void postTranslate(SkScalar rTrans, SkScalar gTrans, SkScalar bTrans,
                        SkScalar aTrans = 0);
 
