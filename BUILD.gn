@@ -2203,3 +2203,25 @@ if (skia_enable_tools) {
     }
   }
 }
+
+if (skia_enable_gpu && (is_linux || is_mac || is_win)) {
+  test_app("image_viewer") {
+    sources = [
+      "tools/viewer/ImGuiLayer.cpp",
+      "tools/viewer/ImageViewer.cpp",
+    ]
+    libs = []
+
+    include_dirs = []
+    deps = [
+      ":flags",
+      ":gpu_tool_utils",
+      ":sk_app",
+      ":skia",
+      ":tool_utils",
+      ":views",
+      "//third_party/imgui",
+      "//third_party/jsoncpp",
+    ]
+  }
+}
