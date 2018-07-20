@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e15ded79_a3a2014e",
+        "filename": "include/gpu/vk/GrVkBackendContext.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-20T15:21:03Z",
+      "side": 1,
+      "message": "I think this should go first.",
+      "range": {
+        "startLine": 14,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 20
+      },
+      "revId": "670d1d2a440374f911eba83f6b387bee5ecc6eeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541f793c_e83fffc5",
+        "filename": "src/gpu/vk/GrVkExtensions.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-20T15:21:03Z",
+      "side": 1,
+      "message": "GrVkInterface sorts before SkString.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 26
+      },
+      "revId": "670d1d2a440374f911eba83f6b387bee5ecc6eeb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
