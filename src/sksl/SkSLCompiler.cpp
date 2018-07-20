@@ -1347,6 +1347,15 @@ bool Compiler::toMetal(const Program& program, OutputStream& out) {
     return result;
 }
 
+bool Compiler::toMetal(const Program& program, String* out) {
+    StringStream buffer;
+    bool result = this->toMetal(program, buffer);
+    if (result) {
+        *out = buffer.str();
+    }
+    return result;
+}
+
 bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
     fSource = program.fSource.get();
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
