@@ -74,6 +74,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             auto dst = sk_gpu_test::MakeTextureProxyFromData(
                                     context, dRT, kW, kH, ii.colorType(), dOrigin, dstPixels.get(),
                                     kRowBytes);
+
+                            bool canCopy = context->contextPriv().caps()->canCopySurface(dst.get(),
+                                                                                         src.get(),
+                                                                                         srcRect,
+                                                                                         dstPoint);
                             if (!src || !dst) {
                                 ERRORF(reporter,
                                        "Could not create surfaces for copy surface test.");
@@ -86,6 +91,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
                             bool result = dstContext->copy(src.get(), srcRect, dstPoint);
 
                             bool expectedResult = true;
+                            if (!canCopy) {
+                                expectedResult = false;
+                            }
                             SkIPoint dstOffset = { dstPoint.fX - srcRect.fLeft,
                                                    dstPoint.fY - srcRect.fTop };
                             SkIRect copiedDstRect = SkIRect::MakeXYWH(dstPoint.fX,
