@@ -13,6 +13,9 @@
 #include "GrMtlUtil.h"
 #include "GrTexturePriv.h"
 #include "SkConvertPixels.h"
+#include "SkSLCompiler.h"
+
+#import <simd/simd.h>
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -96,6 +99,7 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
     fCaps = fMtlCaps;
 
     fCmdBuffer = [fQueue commandBuffer];
+    fCompiler.reset(new SkSL::Compiler());
 }
 
 GrGpuRTCommandBuffer* GrMtlGpu::createCommandBuffer(
@@ -603,6 +607,87 @@ bool GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     return true;
 }
 
+bool GrMtlGpu::copySurfaceAsDraw(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                 GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                 const SkIRect& srcRect, const SkIPoint& dstPoint,
+                                 bool canDiscardOutsideDstRect) {
+    SkASSERT(this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
+                                           src->config(), SkToBool(src->asTexture())));
+
+    id<MTLTexture> dstTex = get_mtl_texture_from_surface(dst);
+    id<MTLTexture> srcTex = get_mtl_texture_from_surface(src);
+
+    if (fCopyProgramPipelineState == nil) {
+        SkASSERT(fCopyProgramSamplerState == nil);
+        SkASSERT(fCopyProgramVertexAttributeBuffer == nil);
+        this->createCopyProgram(dstTex);
+    }
+
+    // UPDATE UNIFORM DESCRIPTOR SET
+    int w = srcRect.width();
+    int h = srcRect.height();
+
+    // dst rect edges in NDC (-1 to 1)
+    int dw = dstTex.width;
+    int dh = dstTex.height;
+    float dx0 = 2.f * dstPoint.fX / dw - 1.f;
+    float dx1 = 2.f * (dstPoint.fX + w) / dw - 1.f;
+    float dy0 = 2.f * dstPoint.fY / dh - 1.f;
+    float dy1 = 2.f * (dstPoint.fY + h) / dh - 1.f;
+    if (kBottomLeft_GrSurfaceOrigin == dstOrigin) {
+        dy0 = -dy0;
+        dy1 = -dy1;
+    }
+
+    float sx0 = (float)srcRect.fLeft;
+    float sx1 = (float)(srcRect.fLeft + w);
+    float sy0 = (float)srcRect.fTop;
+    float sy1 = (float)(srcRect.fTop + h);
+    int sh = srcTex.height;
+    if (kBottomLeft_GrSurfaceOrigin == srcOrigin) {
+        sy0 = sh - sy0;
+        sy1 = sh - sy1;
+    }
+    // src rect edges in normalized texture space (0 to 1).
+    int sw = srcTex.width;
+    sx0 /= sw;
+    sx1 /= sw;
+    sy0 /= sh;
+    sy1 /= sh;
+
+    const simd::float4 vertexUniformBuffer[2] = {
+        {dx1 - dx0, dy1 - dy0, dx0, dy0}, // posXform
+        {sx1 - sx0, sy1 - sy0, sx0, sy0}, // texCoordXform
+    };
+
+    MTLRenderPassDescriptor* renderPassDesc = [[MTLRenderPassDescriptor alloc] init];
+    renderPassDesc.colorAttachments[0].texture = dstTex;
+    renderPassDesc.colorAttachments[0].slice = 0;
+    renderPassDesc.colorAttachments[0].level = 0;
+    renderPassDesc.colorAttachments[0].loadAction = canDiscardOutsideDstRect ? MTLLoadActionDontCare
+                                                                             : MTLLoadActionLoad;
+    renderPassDesc.colorAttachments[0].storeAction = MTLStoreActionStore;
+
+    id<MTLRenderCommandEncoder> renderCmdEncoder =
+            [fCmdBuffer renderCommandEncoderWithDescriptor: renderPassDesc];
+    [renderCmdEncoder setRenderPipelineState: fCopyProgramPipelineState];
+    [renderCmdEncoder setVertexBuffer: fCopyProgramVertexAttributeBuffer
+                               offset: 0
+                              atIndex: 0];
+    [renderCmdEncoder setVertexBytes: vertexUniformBuffer
+                              length: sizeof(vertexUniformBuffer)
+                             atIndex: 1];
+    [renderCmdEncoder setFragmentTexture: srcTex
+                                 atIndex: 0];
+    [renderCmdEncoder setFragmentSamplerState: fCopyProgramSamplerState
+                                      atIndex: 0];
+    [renderCmdEncoder drawPrimitives: MTLPrimitiveTypeTriangleStrip
+                         vertexStart: 0
+                         vertexCount: 4];
+    [renderCmdEncoder endEncoding];
+    return true;
+}
+
 bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                              GrSurface* src, GrSurfaceOrigin srcOrigin,
                              const SkIRect& srcRect,
@@ -625,6 +710,10 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                       srcConfig, srcSampleCnt, srcOrigin,
                                       srcRect, dstPoint, dst == src)) {
         success = this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
+    } else if (this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
+                                             src->config(), SkToBool(src->asTexture()))) {
+        success = this->copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                                          canDiscardOutsideDstRect);
     }
     if (success) {
         SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
@@ -632,6 +721,160 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
         this->didWriteToSurface(dst, dstOrigin, &dstRect);
     }
     return success;
+}
+
+void GrMtlGpu::initCopyProgramBuffer() {
+    // Create and upload  per vertex attribute data
+    static const simd::float2 vdata[4] = {
+        {0, 0},
+        {0, 1},
+        {1, 0},
+        {1, 1},
+    };
+    fCopyProgramVertexAttributeBuffer =
+            [fDevice newBufferWithLength: sizeof(vdata)
+                                 options: MTLResourceStorageModePrivate];
+    id<MTLBuffer> transferBuffer = [fDevice newBufferWithBytes: vdata
+                                                        length: sizeof(vdata)
+                                                       options: MTLResourceStorageModeManaged];
+
+    id<MTLBlitCommandEncoder> blitCmdEncoder = [fCmdBuffer blitCommandEncoder];
+    [blitCmdEncoder copyFromBuffer: transferBuffer
+                      sourceOffset: 0
+                          toBuffer: fCopyProgramVertexAttributeBuffer
+                 destinationOffset: 0
+                              size: sizeof(vdata)];
+    [blitCmdEncoder endEncoding];
+}
+
+void GrMtlGpu::initCopyProgramSampler() {
+     // Create sampler for copy as draw
+    MTLSamplerDescriptor* samplerDescriptor = [[MTLSamplerDescriptor alloc] init];
+    samplerDescriptor.rAddressMode = MTLSamplerAddressModeClampToZero;
+    samplerDescriptor.sAddressMode = MTLSamplerAddressModeClampToZero;
+    samplerDescriptor.tAddressMode = MTLSamplerAddressModeClampToZero;
+    samplerDescriptor.minFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.magFilter = MTLSamplerMinMagFilterNearest;
+    samplerDescriptor.mipFilter = MTLSamplerMipFilterNotMipmapped;
+    samplerDescriptor.lodMinClamp = 0;
+    samplerDescriptor.lodMaxClamp = 0;
+    samplerDescriptor.normalizedCoordinates = true;
+
+    fCopyProgramSamplerState = [fDevice newSamplerStateWithDescriptor: samplerDescriptor];
+}
+
+bool GrMtlGpu::createCopyProgram(id<MTLTexture> dstTex) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
+
+    fCopyProgramPipelineState = nil;
+    for (const auto& pipelineState: fPipelineStateCache) {
+        if (pipelineState.fPixelFormat == dstTex.pixelFormat) {
+            fCopyProgramPipelineState = pipelineState.fPipelineState;
+        }
+    }
+
+    if (fCopyProgramPipelineState == nil) {
+        // Create shader code for copy as draw
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
+        const char* version = shaderCaps->versionDeclString();
+        SkString vertShaderText(version);
+        vertShaderText.append(
+            "#extension GL_ARB_separate_shader_objects : enable\n"
+            "#extension GL_ARB_shading_language_420pack : enable\n"
+
+            "layout(set = 1, binding = 0) uniform vertexUniformBuffer {"
+                "float4 uPosXform;"
+                "float4 uTexCoordXform;"
+            "};"
+            "layout(location = 0) in float2 inPosition;"
+            "layout(location = 1) out float2 vTexCoord;"
+
+            "// Copy Program VS\n"
+            "void main() {"
+                "vTexCoord = inPosition * uTexCoordXform.xy + uTexCoordXform.zw;"
+                "sk_Position.xy = inPosition * uPosXform.xy + uPosXform.zw;"
+                "sk_Position.zw = float2(0, 1);"
+            "}"
+        );
+
+        SkString fragShaderText(version);
+        fragShaderText.append(
+            "#extension GL_ARB_separate_shader_objects : enable\n"
+            "#extension GL_ARB_shading_language_420pack : enable\n"
+
+            "layout(set = 1, binding = 0) uniform sampler2D uTexture;"
+            "layout(location = 1) in float2 vTexCoord;"
+
+            "// Copy Program FS\n"
+            "void main() {"
+                "sk_FragColor = texture(uTexture, vTexCoord);"
+            "}"
+        );
+
+        SkSL::Program::Settings settings;
+        SkSL::Program::Inputs inputs;
+        id<MTLLibrary> vertexLibrary = GrCompileMtlShaderLibrary(this, vertShaderText.c_str(),
+                                                                 SkSL::Program::kVertex_Kind,
+                                                                 settings, &inputs);
+        SkASSERT(inputs.isEmpty());
+        SkASSERT(vertexLibrary);
+
+        id<MTLLibrary> fragmentLibrary = GrCompileMtlShaderLibrary(this, fragShaderText.c_str(),
+                                                                   SkSL::Program::kFragment_Kind,
+                                                                   settings, &inputs);
+        SkASSERT(inputs.isEmpty());
+        SkASSERT(fragmentLibrary);
+
+        id<MTLFunction> vertexFunction = [vertexLibrary newFunctionWithName: @"vertexMain"];
+        id<MTLFunction> fragmentFunction = [fragmentLibrary newFunctionWithName: @"fragmentMain"];
+        SkASSERT(vertexFunction);
+        SkASSERT(fragmentFunction);
+
+        // Create vertex descriptor for pipeline
+        // Expected [[stage_in]] (vertex attribute) format:
+        // struct Input {
+        //     float2 inPosition [[attribute(0)]];
+        // };
+        MTLVertexDescriptor* vertexDescriptor = [[MTLVertexDescriptor alloc] init];
+        vertexDescriptor.attributes[0].format = MTLVertexFormatFloat2;
+        vertexDescriptor.attributes[0].offset = 0;
+        vertexDescriptor.attributes[0].bufferIndex = 0;
+
+        vertexDescriptor.layouts[0].stepFunction = MTLVertexStepFunctionPerVertex;
+        vertexDescriptor.layouts[0].stepRate = 1;
+        vertexDescriptor.layouts[0].stride = sizeof(simd::float2);
+
+        // Create pipeline state for copy as draw
+        MTLRenderPipelineDescriptor* pipelineDescriptor =
+                [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineDescriptor.vertexFunction = vertexFunction;
+        pipelineDescriptor.fragmentFunction = fragmentFunction;
+        pipelineDescriptor.vertexDescriptor = vertexDescriptor;
+        pipelineDescriptor.colorAttachments[0].pixelFormat = dstTex.pixelFormat;
+
+        NSError* error = nil;
+        fCopyProgramPipelineState =
+                [fDevice newRenderPipelineStateWithDescriptor: pipelineDescriptor error: &error];
+        if (error) {
+            SkDebugf("Error creating pipeline: %s\n",
+                      [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+            return false;
+        }
+    }
+    fPipelineStateCache.emplace_back(MtlPipelineStateInfo{fCopyProgramPipelineState,
+                                                          dstTex.pixelFormat});
+    if (fCopyProgramSamplerState == nil) {
+        this->initCopyProgramSampler();
+    }
+
+    if (fCopyProgramVertexAttributeBuffer == nil) {
+        this->initCopyProgramBuffer();
+    }
+
+    SkASSERT(fCopyProgramPipelineState);
+    SkASSERT(fCopyProgramSamplerState);
+    SkASSERT(fCopyProgramVertexAttributeBuffer);
+    return true;
 }
 
 bool GrMtlGpu::onWritePixels(GrSurface* surface, int left, int top, int width, int height,

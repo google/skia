@@ -11,7 +11,9 @@
 #import <Metal/Metal.h>
 
 #include "GrTypesPriv.h"
+#include "ir/SkSLProgram.h"
 
+class GrMtlGpu;
 
 /**
  * Returns the Metal texture format for the given GrPixelConfig
@@ -44,5 +46,11 @@ const void* GrReleaseId(id idObject);
  * MTLTexture without the same storage allocation.
  */
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture);
+
+id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                                         const char* shaderString,
+                                         SkSL::Program::Kind kind,
+                                         const SkSL::Program::Settings& settings,
+                                         SkSL::Program::Inputs* outInputs);
 
 #endif
