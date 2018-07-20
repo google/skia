@@ -88,7 +88,10 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
 #define COMPARE_BLOBS(expected, actual, reporter)                                        \
     for (int i = 0; i < expected.width(); ++i) {                                         \
         for (int j = 0; j < expected.height(); ++j) {                                    \
-            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j)); \
+            if (expected.getColor(i, j) != actual.getColor(i, j)) {                      \
+                ERRORF(reporter, "%d, %d : expected: %x != %x :actual",                  \
+                        i, j, expected.getColor(i, j), actual.getColor(i, j));           \
+            }                                                                            \
         }                                                                                \
     }
 
@@ -106,6 +109,7 @@ SkBitmap RasterBlob(sk_sp<SkTextBlob> blob, int width, int height, const SkPaint
     const SkImageInfo info =
             SkImageInfo::Make(width, height, kN32_SkColorType, kPremul_SkAlphaType);
     auto surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, info);
+    surface->getCanvas()->clear(0x00000000);
     if (matrix) surface->getCanvas()->concat(*matrix);
     surface->getCanvas()->drawTextBlob(blob.get(), x, 0, paint);
     SkBitmap bitmap;
