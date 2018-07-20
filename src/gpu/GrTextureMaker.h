@@ -28,8 +28,7 @@ public:
 
 protected:
     GrTextureMaker(GrContext* context, int width, int height, bool isAlphaOnly)
-        : INHERITED(width, height, isAlphaOnly)
-        , fContext(context) {}
+        : INHERITED(context, width, height, isAlphaOnly) {}
 
     /**
      *  Return the maker's "original" texture. It is the responsibility of the maker to handle any
@@ -54,9 +53,8 @@ private:
     sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* proxyColorSpace,
+                                                     bool willBeMipped,
                                                      SkScalar scaleAdjust[2]) override;
-
-    GrContext*  fContext;
 
     typedef GrTextureProducer INHERITED;
 };

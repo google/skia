@@ -16,6 +16,7 @@
 sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSamplerState& params,
                                                                  SkColorSpace* dstColorSpace,
                                                                  sk_sp<SkColorSpace>* texColorSpace,
+                                                                 bool willBeMipped,
                                                                  SkScalar scaleAdjust[2]) {
     if (this->width() > fContext->contextPriv().caps()->maxTextureSize() ||
         this->height() > fContext->contextPriv().caps()->maxTextureSize()) {
@@ -23,11 +24,6 @@ sk_sp<GrTextureProxy> GrTextureMaker::onRefTextureProxyForParams(const GrSampler
     }
 
     CopyParams copyParams;
-    bool willBeMipped = params.filter() == GrSamplerState::Filter::kMipMap;
-
-    if (!fContext->contextPriv().caps()->mipMapSupport()) {
-        willBeMipped = false;
-    }
 
     if (texColorSpace) {
         *texColorSpace = this->getColorSpace(dstColorSpace);
