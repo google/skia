@@ -489,12 +489,12 @@ DEF_TEST(SkPDF_Primitives_Color, reporter) {
     }
 }
 
-static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, const SkPoint* pos,
+static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                            SkPaint paint, const uint32_t* clusters,
                            size_t utf8TextByteLength, const char* utf8Text) {
     return SkGlyphRun(std::move(paint),
                       SkSpan<const uint16_t>{},  // No dense indices for now.
-                      SkSpan<const SkPoint>{pos, len},
+                      SkSpan<SkPoint>{pos, len},
                       SkSpan<const SkGlyphID>{glyphs, len},
                       SkSpan<const SkGlyphID>{},
                       SkSpan<const char>{utf8Text, utf8TextByteLength},
@@ -508,7 +508,7 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
         constexpr unsigned len = 11;
         const uint32_t clusters[len] = { 3, 2, 2, 1, 0, 4, 4, 7, 6, 6, 5 };
         const SkGlyphID glyphs[len] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        const SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
+        SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
                                   {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         const char text[] = "abcdefgh";
         SkGlyphRun run = make_run(len, glyphs, pos, paint, clusters, strlen(text), text);
@@ -532,7 +532,7 @@ DEF_TEST(SkPDF_Clusterator, reporter) {
         constexpr unsigned len = 5;
         const uint32_t clusters[len] = { 0, 1, 4, 5, 6 };
         const SkGlyphID glyphs[len] = { 43, 167, 79, 79, 82, };
-        const SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+        SkPoint pos[len] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
         const char text[] = "Ha\xCC\x8A" "llo";
         SkGlyphRun run = make_run(len, glyphs, pos, paint, clusters, strlen(text), text);
         SkClusterator clusterator(run);

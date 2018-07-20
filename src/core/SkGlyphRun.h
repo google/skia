@@ -41,6 +41,7 @@ public:
     size_t size() const { return fSize; }
     bool empty() const { return fSize == 0; }
     size_t size_bytes() const { return fSize * sizeof(T); }
+    SkSpan<const T> toConst() const { return SkSpan<const T>{fPtr, fSize}; }
 
 private:
     T* fPtr;
@@ -52,7 +53,7 @@ public:
     SkGlyphRun() = default;
     SkGlyphRun(SkPaint&& runPaint,
                SkSpan<const uint16_t> denseIndices,
-               SkSpan<const SkPoint> positions,
+               SkSpan<SkPoint> positions,
                SkSpan<const SkGlyphID> glyphIDs,
                SkSpan<const SkGlyphID> uniqueGlyphIDs,
                SkSpan<const char> text,
@@ -61,6 +62,13 @@ public:
     // A function that turns an SkGlyphRun into an SkGlyphRun for each glyph.
     using PerGlyph = std::function<void (SkGlyphRun*, SkPaint*)>;
     void eachGlyphToGlyphRun(PerGlyph perGlyph);
+    void mapPositions(const SkMatrix& matrix);
+
+    // The following made a ~5% speed improvement over not using a template.
+    //using PerGlyphPos = std::function<void (SkGlyphID glyphID, SkPoint positions)>;
+    template <typename PerGlyphPos>
+    void forEachGlyphAndPosition(PerGlyphPos perGlyph) const;
+
 
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
@@ -70,7 +78,7 @@ public:
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
     size_t runSize() const { return fGlyphIDs.size(); }
-    SkSpan<const SkPoint> positions() const { return fPositions; }
+    SkSpan<const SkPoint> positions() const { return fPositions.toConst(); }
     SkSpan<const SkGlyphID> shuntGlyphsIDs() const { return fGlyphIDs; }
     const SkPaint& paint() const { return fRunPaint; }
     SkPaint* mutablePaint() { return &fRunPaint; }
@@ -81,7 +89,7 @@ private:
     //
     const SkSpan<const uint16_t> fUniqueGlyphIDIndices;
     //
-    const SkSpan<const SkPoint> fPositions;
+    const SkSpan<SkPoint> fPositions;
     // This is temporary while converting from the old per glyph code to the bulk code.
     const SkSpan<const SkGlyphID> fGlyphIDs;
     // The unique glyphs from fGlyphIDs.
@@ -93,6 +101,14 @@ private:
     // Paint for this run modified to have glyph encoding and left alignment.
     SkPaint fRunPaint;
 };
+
+template <typename PerGlyphPos>
+inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
+    SkPoint* ptCursor = fPositions.data();
+    for (auto glyphID : fGlyphIDs) {
+        perGlyph(glyphID, *ptCursor++);
+    }
+}
 
 class SkGlyphRunList {
     const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
@@ -207,7 +223,7 @@ private:
     void makeGlyphRun(
             const SkPaint& runPaint,
             SkSpan<const SkGlyphID> glyphIDs,
-            SkSpan<const SkPoint> positions,
+            SkSpan<SkPoint> positions,
             SkSpan<const uint16_t> uniqueGlyphIDIndices,
             SkSpan<const SkGlyphID> uniqueGlyphIDs,
             SkSpan<const char> text,
@@ -228,7 +244,7 @@ private:
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
     size_t simplifyDrawPosText(
             const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos,
-            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs,
+            uint16_t* uniqueGlyphIDIndices, SkGlyphID* uniqueGlyphIDs, SkPoint* positions,
             SkSpan<const char> text = SkSpan<const char>{},
             SkSpan<const uint32_t> clusters = SkSpan<const uint32_t>{});
 
