@@ -48,6 +48,7 @@ except subprocess.CalledProcessError as error:
 # copy apk back into the main out directory
 current_dir = os.path.dirname(__file__)
 apk_src = os.path.join(current_dir, "..", "apps", args.app_name, "build", "outputs", "apk",
+                       target_cpu, android_buildtype,
                        args.app_name + "-"  + target_cpu + "-"  + android_buildtype + ".apk")
 apk_dst = os.path.join(args.output_dir, args.app_name + ".apk")
 shutil.copyfile(apk_src, apk_dst)
