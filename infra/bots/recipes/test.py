@@ -682,6 +682,10 @@ def dm_flags(api, bot):
                   '~^SurfaceSemaphores$'])
     # skia:7837
     match.append('~BlurMaskBiggerThanDest')
+    # skia:8166
+    match.extend(['~SkRemoteGlyphCache_DrawTextXY',
+                  '~SkRemoteGlyphCache_DrawTextAsPath',
+                  '~SkRemoteGlyphCache_StrikeSerialization'])
 
   if 'Vulkan' in bot and 'GalaxyS7_G930FD' in bot:
     # skia:8064
