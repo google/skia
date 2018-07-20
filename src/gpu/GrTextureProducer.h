@@ -124,8 +124,9 @@ public:
 protected:
     friend class GrTextureProducer_TestAccess;
 
-    GrTextureProducer(int width, int height, bool isAlphaOnly)
-        : fWidth(width)
+    GrTextureProducer(GrContext* context, int width, int height, bool isAlphaOnly)
+        : fContext(context)
+        , fWidth(width)
         , fHeight(height)
         , fIsAlphaOnly(isAlphaOnly) {}
 
@@ -185,10 +186,13 @@ protected:
             const SkRect& domain,
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
+    GrContext* fContext;
+
 private:
     virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
                                                              SkColorSpace* dstColorSpace,
                                                              sk_sp<SkColorSpace>* proxyColorSpace,
+                                                             bool willBeMipped,
                                                              SkScalar scaleAdjust[2]) = 0;
 
     const int   fWidth;
