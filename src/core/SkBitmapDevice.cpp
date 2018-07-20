@@ -583,7 +583,8 @@ void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
 #else
-    glyphRunList->temporaryShuntToDrawPosText(this, glyphRunList->origin());
+    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, glyphRunList->paint(), fSurfaceProps);
+    LOOP_TILER( drawGlyphRunList(glyphRunList, &props()), nullptr )
 #endif
 }
 

@@ -1598,6 +1598,84 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
         offset, *fMatrix, pos, scalarsPerPosition, cache.get(), drawOneGlyph);
 }
 
+void SkDraw::drawGlyphRunAsPaths(
+        SkGlyphRun* glyphRun, SkPoint origin, const SkSurfaceProps* props) const {
+    // setup our std paint, in hopes of getting hits in the cache
+    const SkPaint& origPaint = glyphRun->paint();
+    SkPaint paint(glyphRun->paint());
+    SkScalar matrixScale = paint.setupForAsPaths();
+
+    SkMatrix matrix;
+    matrix.setScale(matrixScale, matrixScale);
+
+    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setPathEffect(nullptr);
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            paint, props, this->scalerContextFlags(), nullptr);
+
+    // Now restore the original settings, so we "draw" with whatever style/stroking.
+    paint.setStyle(origPaint.getStyle());
+    paint.setPathEffect(origPaint.refPathEffect());
+
+    auto eachGlyph = [this, origin, &cache, &matrix, &paint](SkGlyphID glyphID, SkPoint position) {
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        if (glyph.fWidth > 0) {
+            const SkPath* path = cache->findPath(glyph);
+            if (path != nullptr) {
+                SkPoint loc = position + origin;
+                matrix[SkMatrix::kMTransX] = loc.fX;
+                matrix[SkMatrix::kMTransY] = loc.fY;
+                this->drawPath(*path, paint, &matrix, false);
+            }
+        }
+    };
+    glyphRun->forEachGlyphAndPosition(eachGlyph);
+}
+
+void SkDraw::drawGlyphRunAsSubpixelMask(
+        SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin,
+        const SkSurfaceProps* props) const {
+
+
+
+}
+
+void SkDraw::drawGlyphRunAsFullpixelMask(
+        SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin,
+        const SkSurfaceProps* props) const {
+    SkMatrix matrix = *fMatrix;
+    // Add rounding and origin.
+    matrix.postTranslate(origin.y() + SK_ScalarHalf, origin.y() + SK_ScalarHalf);
+    glyphRun->mapPositions(&matrix);
+
+    auto eachGlyph = [cache](SkGlyphID glyphID, SkPoint position) {
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        if (glyph.fWidth > 0) {
+
+        }
+    };
+}
+
+void SkDraw::drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps* props) const {
+    SkPoint origin = glyphRunList->origin();
+    for (auto& glyphRun : *glyphRunList) {
+        if (ShouldDrawTextAsPaths(glyphRun.paint(), *fMatrix)) {
+            this->drawGlyphRunAsPaths(&glyphRun, origin, props);
+        } else {
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                    glyphRun.paint(), props, this->scalerContextFlags(), fMatrix);
+            if (cache->isSubpixel()) {
+                this->drawGlyphRunAsSubpixelMask(cache.get(), &glyphRun, origin, props);
+            } else {
+                this->drawGlyphRunAsFullpixelMask(cache.get(), &glyphRun, origin, props);
+            }
+        }
+    }
+
+}
+
 #if defined _WIN32
 #pragma warning ( pop )
 #endif
