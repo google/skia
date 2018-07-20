@@ -388,6 +388,7 @@ config("warnings") {
 
     # We are unlikely to want to fix these.
     cflags += [
+      "-Wno-tautological-type-limit-compare", #https://reviews.llvm.org/D39462 and https://reviews.llvm.org/D41512
       "-Wno-bad-function-cast",
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
