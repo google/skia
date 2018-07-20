@@ -562,6 +562,10 @@ void Viewer::initSlides() {
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
+        { ".json.gz", "skottie-dir-gz", FLAGS_lotties,
+            [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
+                return sk_make_sp<SkottieSlide>(name, path);}
+        },
 #endif
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {

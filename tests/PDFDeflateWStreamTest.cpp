@@ -167,4 +167,44 @@ DEF_TEST(SkPDF_DeflateWStream, r) {
     REPORTER_ASSERT(r, !emptyDeflateWStream.writeText("FOO"));
 }
 
+DEF_TEST(SkPDF_DeflateStream, r) {
+    static constexpr size_t kBufferSize = 524288;
+    SkAutoTMalloc<uint8_t> buffer(kBufferSize),
+                           out_buffer(kBufferSize);
+
+    SkRandom random(123456);
+    for (auto* p = reinterpret_cast<uint32_t*>(buffer.get());
+         p < reinterpret_cast<uint32_t*>(buffer.get() + kBufferSize); ++p) {
+        *p = random.nextU();
+    }
+
+    for (size_t size = 0; size <= kBufferSize; size += 4096) {
+        SkDynamicMemoryWStream compressed_out;
+        SkDeflateWStream compress_stream(&compressed_out);
+        REPORTER_ASSERT(r, compress_stream.write(buffer, size));
+        compress_stream.finalize();
+
+        auto compressed_data = compressed_out.detachAsData();
+
+        for (size_t chunk = 1; chunk <= kBufferSize; chunk *= 2) {
+            SkMemoryStream compressed_in(compressed_data);
+            SkDeflateStream decompress_stream(&compressed_in);
+            memset(out_buffer, 0, size);
+
+            size_t bytes = 0;
+            while (bytes < size) {
+                const auto to_read = SkTMin(chunk, size - bytes),
+                              read = decompress_stream.read(out_buffer + bytes, to_read);
+                REPORTER_ASSERT(r, read == to_read);
+                if (!read) break;
+
+                bytes += read;
+            }
+
+            REPORTER_ASSERT(r, decompress_stream.read(out_buffer, chunk) == 0);
+            REPORTER_ASSERT(r, memcmp(buffer, out_buffer, size) == 0);
+        }
+    }
+}
+
 #endif

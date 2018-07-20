@@ -124,3 +124,73 @@ bool SkDeflateWStream::write(const void* void_buffer, size_t len) {
 size_t SkDeflateWStream::bytesWritten() const {
     return fImpl->fZStream.total_in + fImpl->fInBufferIndex;
 }
+
+// Hide all zlib impl details.
+struct SkDeflateStream::Impl {
+    static constexpr size_t kBufferSize = 0xffff;
+
+    SkStream* fIn;
+    uint8_t   fInBuffer[kBufferSize];
+    size_t    fInBufferIndex;
+    z_stream  fZStream;
+};
+
+SkDeflateStream::SkDeflateStream(SkStream* in)
+    : fImpl(skstd::make_unique<SkDeflateStream::Impl>()) {
+    fImpl->fIn = in;
+    fImpl->fInBufferIndex = 0;
+
+    fImpl->fZStream.next_in = nullptr;
+    fImpl->fZStream.avail_in = 0;
+    fImpl->fZStream.next_out = nullptr;
+    fImpl->fZStream.avail_out = 0;
+    fImpl->fZStream.zalloc = &skia_alloc_func;
+    fImpl->fZStream.zfree = &skia_free_func;
+    fImpl->fZStream.opaque = nullptr;
+
+    // gzip hack
+    SkAssertResult(inflateInit2(&fImpl->fZStream, 16 + MAX_WBITS) == Z_OK);
+}
+
+SkDeflateStream::~SkDeflateStream() {
+    SkAssertResult(inflateEnd(&fImpl->fZStream) == Z_OK);
+}
+
+bool SkDeflateStream::isAtEnd() const {
+    return fImpl->fIn ? fImpl->fIn->isAtEnd() : true;
+}
+
+size_t SkDeflateStream::read(void* buffer, size_t size) {
+    if (!fImpl->fIn) {
+        return 0;
+    }
+
+    fImpl->fZStream.next_out  = static_cast<uint8_t*>(buffer);
+    fImpl->fZStream.avail_out = SkToUInt(size);
+
+    const auto* buffer_end = fImpl->fZStream.next_out + size;
+    while (fImpl->fZStream.next_out < buffer_end) {
+        if (!fImpl->fZStream.avail_in) {
+            fImpl->fZStream.next_in  = fImpl->fInBuffer;
+            fImpl->fZStream.avail_in = SkToUInt(fImpl->fIn->read(fImpl->fInBuffer,
+                                                                 Impl::kBufferSize));
+            if (!fImpl->fZStream.avail_in) {
+                break;
+            }
+
+        }
+
+        const auto rc = inflate(&fImpl->fZStream, Z_NO_FLUSH);
+        if (rc == Z_STREAM_END) {
+            break;
+        }
+
+        if (rc != Z_OK) {
+            SkDebugf("SkDeflateStream -- unexpected inflate() return code: %d\n", rc);
+            fImpl->fIn = nullptr;
+            return 0;
+        }
+    }
+
+    return SkToSizeT(fImpl->fZStream.next_out - static_cast<uint8_t*>(buffer));
+}

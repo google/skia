@@ -50,4 +50,20 @@ private:
     std::unique_ptr<Impl> fImpl;
 };
 
+class SkDeflateStream final : public SkStream {
+public:
+    SkDeflateStream(SkStream*);
+
+    ~SkDeflateStream() override;
+
+    bool isAtEnd() const override;
+
+    size_t read(void* buffer, size_t size) override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> fImpl;
+};
+
+
 #endif  // SkFlate_DEFINED

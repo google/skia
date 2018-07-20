@@ -11,6 +11,7 @@
 
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
+#include "SkDeflate.h"
 #include "Skottie.h"
 
 #include <cmath>
@@ -59,7 +60,35 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
 }
 
 void SkottieSlide::load(SkScalar w, SkScalar h) {
-    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
+    if (fPath.endsWith(".gz")) {
+        SkFILEStream fstream(fPath.c_str());
+        SkASSERT(fstream.isValid());
+
+        static constexpr size_t kBufSize = 65536;
+        uint8_t buf[kBufSize];
+
+        SkDeflateStream inflate(&fstream);
+        SkDynamicMemoryWStream memstr;
+
+        size_t size = 0;
+        const auto t0 = SkTime::GetMSecs();
+        do {
+            size = inflate.read(buf, kBufSize);
+            memstr.write(buf, size);
+        } while (size == kBufSize);
+        const auto t1 = SkTime::GetMSecs();
+
+//        while (size_t sz = inflate.read(buf, kBufSize)) {
+//            memstr.write(buf, sz);
+//        }
+
+        auto decompressed = memstr.detachAsStream();
+        fAnimation = skottie::Animation::Make(decompressed.get(), nullptr, &fAnimationStats);
+        fAnimationStats.fJsonParseTimeMS += (t1 - t0);
+    } else {
+        fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
+    }
+
     fWinSize   = SkSize::Make(w, h);
     fTimeBase  = 0; // force a time reset
 
