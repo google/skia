@@ -75,6 +75,8 @@ public:
 
     bool toMetal(const Program& program, OutputStream& out);
 
+    bool toMetal(const Program& program, String* out);
+
     bool toCPP(const Program& program, String name, OutputStream& out);
 
     bool toH(const Program& program, String name, OutputStream& out);
