@@ -88,17 +88,23 @@ void MetalCodeGenerator::writeType(const Type& type) {
             this->writeType(type.componentType());
             this->write(to_string(type.columns()));
             break;
+        case Type::kMatrix_Kind:
+            this->writeType(type.componentType());
+            this->write(to_string(type.columns()));
+            this->write("x");
+            this->write(to_string(type.rows()));
+            break;
         case Type::kSampler_Kind:
-            this->write("texture2d<float> "); //FIXME - support other texture types;
+            this->write("texture2d<float> "); // FIXME - support other texture types;
             break;
         default:
-            // FIXME - converted all half types to floats for MVK integration
-            if ((type.kind() == Type::kVector_Kind || type.kind() == Type::kMatrix_Kind) &&
-                type.componentType() == *fContext.fHalf_Type) {
-                this->writeType(fContext.fFloat_Type->toCompound(fContext, type.columns(),
-                                                                 type.rows()));
-            } else if (type == *fContext.fHalf_Type) {
-                this->writeType(*fContext.fFloat_Type);
+            if (type == *fContext.fHalf_Type) {
+                // FIXME - Currently only supporting floats in MSL to avoid type coercion issues.
+                this->write(fContext.fFloat_Type->name());
+            } else if (type == *fContext.fByte_Type) {
+                this->write("char");
+            } else if (type == *fContext.fUByte_Type) {
+                this->write("uchar");
             } else {
                 this->write(type.name());
             }
