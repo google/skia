@@ -9,9 +9,9 @@
 #define GrVkExtensions_DEFINED
 
 #include "../private/SkTArray.h"
+#include "GrVkInterface.h"
 #include "SkString.h"
-#include "vk/GrVkDefines.h"
-#include "vk/GrVkInterface.h"
+#include "vk/GrVkTypes.h"
 
 /**
  * This helper queries the Vulkan driver for available extensions and layers, remembers them,
@@ -19,12 +19,12 @@
  */
 class SK_API GrVkExtensions {
 public:
-    GrVkExtensions(GrVkInterface::GetProc getProc)
-                     : fGetProc(getProc)
-                     , fInstanceExtensionStrings(new SkTArray<SkString>)
-                     , fDeviceExtensionStrings(new SkTArray<SkString>)
-                     , fInstanceLayerStrings(new SkTArray<SkString>)
-                     , fDeviceLayerStrings(new SkTArray<SkString>) {}
+    GrVkExtensions(GrVkGetProc getProc)
+            : fGetProc(getProc)
+            , fInstanceExtensionStrings(new SkTArray<SkString>)
+            , fDeviceExtensionStrings(new SkTArray<SkString>)
+            , fInstanceLayerStrings(new SkTArray<SkString>)
+            , fDeviceLayerStrings(new SkTArray<SkString>) {}
 
     bool initInstance(uint32_t specVersion);
     bool initDevice(uint32_t specVersion, VkInstance, VkPhysicalDevice);
@@ -40,7 +40,7 @@ public:
     void print(const char* sep = "\n") const;
 
 private:
-    GrVkInterface::GetProc fGetProc;
+    GrVkGetProc fGetProc;
     std::unique_ptr<SkTArray<SkString>>  fInstanceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fDeviceExtensionStrings;
     std::unique_ptr<SkTArray<SkString>>  fInstanceLayerStrings;
