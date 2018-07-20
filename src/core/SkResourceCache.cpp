@@ -146,7 +146,7 @@ void SkResourceCache::add(Rec* rec, void* payload) {
         } else {
             // if it cannot be purged, we reuse it and delete the new one
             prev->postAddInstall(payload);
-            delete rec;
+            this->addToDeadList(rec);
             return;
         }
     }
@@ -188,7 +188,7 @@ void SkResourceCache::remove(Rec* rec) {
                  bytesStr.c_str(), rec, rec->getHash(), totalStr.c_str(), fCount);
     }
 
-    delete rec;
+    this->addToDeadList(rec);
 }
 
 void SkResourceCache::purgeAsNeeded(bool forcePurge) {
@@ -459,75 +459,81 @@ static SkResourceCache* get_cache() {
     return gResourceCache;
 }
 
+class CachePurger {
+    SkResourceCache* fCache;
+    SkResourceCache::Rec* fDeadList;
+
+public:
+    CachePurger() {
+        gMutex.acquire();
+        fCache = get_cache();
+        fDeadList = nullptr;
+    }
+    ~CachePurger() {
+        fDeadList = fCache->detachDeadList();
+        gMutex.release();
+        SkResourceCache::DeleteList(fDeadList);
+    }
+
+    SkResourceCache* operator->() {
+        return fCache;
+    }
+};
+
 size_t SkResourceCache::GetTotalBytesUsed() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->getTotalBytesUsed();
+    return CachePurger()->getTotalBytesUsed();
 }
 
 size_t SkResourceCache::GetTotalByteLimit() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->getTotalByteLimit();
+    return CachePurger()->getTotalByteLimit();
 }
 
 size_t SkResourceCache::SetTotalByteLimit(size_t newLimit) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->setTotalByteLimit(newLimit);
+    return CachePurger()->setTotalByteLimit(newLimit);
 }
 
 SkResourceCache::DiscardableFactory SkResourceCache::GetDiscardableFactory() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->discardableFactory();
+    return CachePurger()->discardableFactory();
 }
 
 SkCachedData* SkResourceCache::NewCachedData(size_t bytes) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->newCachedData(bytes);
+    return CachePurger()->newCachedData(bytes);
 }
 
 void SkResourceCache::Dump() {
-    SkAutoMutexAcquire am(gMutex);
-    get_cache()->dump();
+    CachePurger()->dump();
 }
 
 size_t SkResourceCache::SetSingleAllocationByteLimit(size_t size) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->setSingleAllocationByteLimit(size);
+    return CachePurger()->setSingleAllocationByteLimit(size);
 }
 
 size_t SkResourceCache::GetSingleAllocationByteLimit() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->getSingleAllocationByteLimit();
+    return CachePurger()->getSingleAllocationByteLimit();
 }
 
 size_t SkResourceCache::GetEffectiveSingleAllocationByteLimit() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->getEffectiveSingleAllocationByteLimit();
+    return CachePurger()->getEffectiveSingleAllocationByteLimit();
 }
 
 void SkResourceCache::PurgeAll() {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->purgeAll();
+    return CachePurger()->purgeAll();
 }
 
 bool SkResourceCache::Find(const Key& key, FindVisitor visitor, void* context) {
-    SkAutoMutexAcquire am(gMutex);
-    return get_cache()->find(key, visitor, context);
+    return CachePurger()->find(key, visitor, context);
 }
 
 void SkResourceCache::Add(Rec* rec, void* payload) {
-    SkAutoMutexAcquire am(gMutex);
-    get_cache()->add(rec, payload);
+    CachePurger()->add(rec, payload);
 }
 
 void SkResourceCache::VisitAll(Visitor visitor, void* context) {
-    SkAutoMutexAcquire am(gMutex);
-    get_cache()->visitAll(visitor, context);
+    CachePurger()->visitAll(visitor, context);
 }
 
 void SkResourceCache::PostPurgeSharedID(uint64_t sharedID) {
-    if (sharedID) {
-        SkMessageBus<PurgeSharedIDMessage>::Post(PurgeSharedIDMessage(sharedID));
-    }
+    CachePurger()->purgeSharedID(sharedID);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
