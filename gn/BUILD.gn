@@ -112,10 +112,8 @@ config("default") {
 
     # The main idea is to slim the exported API, but these flags also improve link time on Mac.
     # These would make stack traces worse on Linux, so we don't just set them willy-nilly.
-    if (is_component_build || is_ios || is_mac) {
-      cflags += [ "-fvisibility=hidden" ]
-      cflags_cc += [ "-fvisibility-inlines-hidden" ]
-    }
+    cflags += [ "-fvisibility=hidden" ]
+    cflags_cc += [ "-fvisibility-inlines-hidden" ]
   }
 
   if (current_cpu == "arm" && !is_win) {
@@ -505,7 +503,7 @@ config("release") {
     ]
   } else {
     cflags = [
-      "-O3",
+      "-Os",
     ]
     if (!enable_bitcode) {
       cflags += [
@@ -516,7 +514,7 @@ config("release") {
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else {
-      ldflags = [ "-Wl,--gc-sections" ]
+      ldflags = [ "-s", "-Wl,--gc-sections" ]
     }
     if (target_cpu == "wasm") {
       # The compiler asks us to add an optimization flag to both cflags
