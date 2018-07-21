@@ -186,6 +186,7 @@ typedef enum {
 typedef struct sk_canvas_t sk_canvas_t;
 typedef struct sk_nodraw_canvas_t sk_nodraw_canvas_t;
 typedef struct sk_nway_canvas_t sk_nway_canvas_t;
+typedef struct sk_overdraw_canvas_t sk_overdraw_canvas_t;
 /**
     A sk_data_ holds an immutable data buffer.
 */

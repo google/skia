@@ -79,6 +79,9 @@ SK_C_API void sk_nway_canvas_add_canvas(sk_nway_canvas_t*, sk_canvas_t* canvas);
 SK_C_API void sk_nway_canvas_remove_canvas(sk_nway_canvas_t*, sk_canvas_t* canvas);
 SK_C_API void sk_nway_canvas_remove_all(sk_nway_canvas_t*);
 
+SK_C_API sk_overdraw_canvas_t* sk_overdraw_canvas_new(sk_canvas_t* canvas);
+SK_C_API void sk_overdraw_canvas_destroy(sk_overdraw_canvas_t* canvas);
+
 SK_C_PLUS_PLUS_END_GUARD
 
 #endif

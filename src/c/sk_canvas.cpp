@@ -11,6 +11,7 @@
 #include "SkAnnotation.h"
 #include "SkNoDrawCanvas.h"
 #include "SkNWayCanvas.h"
+#include "SkOverdrawCanvas.h"
 
 #include "sk_canvas.h"
 
@@ -328,4 +329,12 @@ void sk_nway_canvas_remove_canvas(sk_nway_canvas_t* t, sk_canvas_t* canvas) {
 
 void sk_nway_canvas_remove_all(sk_nway_canvas_t* t) {
     AsNWayCanvas(t)->removeAll();
+}
+
+sk_overdraw_canvas_t* sk_overdraw_canvas_new(sk_canvas_t* canvas) {
+    return ToOverdrawCanvas(new SkOverdrawCanvas(AsCanvas(canvas)));
+}
+
+void sk_overdraw_canvas_destroy(sk_overdraw_canvas_t* canvas) {
+    delete AsOverdrawCanvas(canvas);
 }
