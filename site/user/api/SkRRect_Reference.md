@@ -552,7 +552,7 @@ Returns <a href='#SkRRect_Type'>Type</a>, one of: <a href='#SkRRect_kEmpty_Type'
 
 ### Example
 
-<div><fiddle-embed name="1080805c8449406a4e26d694bc56d2dc"><div><a href='#SkRRect_inset'>inset</a> has made rrect2 empty.
+<div><fiddle-embed name="b418d15df9829aefcc6aca93a37428bb"><div><a href='#SkRRect_inset'>inset</a> has made rrect2 empty.
 </div></fiddle-embed></div>
 
 ### See Also

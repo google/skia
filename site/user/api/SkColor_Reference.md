@@ -292,7 +292,7 @@ color with opaque alpha
 
 ### Example
 
-<div><fiddle-embed name="dad12dd912197cd5edd789ac0801bf8a"></fiddle-embed></div>
+<div><fiddle-embed name="f68617b7153a20b2ed3d7f9ed5c6e5e4"></fiddle-embed></div>
 
 ### See Also
 
@@ -868,7 +868,7 @@ ARGB equivalent to <a href='#HSV'>HSV</a>
 
 ### Example
 
-<div><fiddle-embed name="311a59931ac340b90f202cd6ac399a0a"></fiddle-embed></div>
+<div><fiddle-embed name="0374f2dcd7effeb1dd435205a6c2de6f"></fiddle-embed></div>
 
 ### See Also
 

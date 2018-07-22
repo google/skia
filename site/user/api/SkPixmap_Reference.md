@@ -1725,7 +1725,7 @@ writable unsigned 64-bit pointer to pixel
 
 ### Example
 
-<div><fiddle-embed name="de14d8d30e4a7b6462103d0e0dd96b0b"></fiddle-embed></div>
+<div><fiddle-embed name="568cb730e66d0df09a7d9bd9d6142c9e"></fiddle-embed></div>
 
 ### See Also
 
@@ -1978,7 +1978,7 @@ true if pixels are copied to <a href='#SkPixmap_readPixels_3_dst'>dst</a>
 
 ### Example
 
-<div><fiddle-embed name="6ec7f7b2cc163cd29f627eef6d4b061c"></fiddle-embed></div>
+<div><fiddle-embed name="25305461b916baf40d7d379e04a5589c"></fiddle-embed></div>
 
 ### See Also
 

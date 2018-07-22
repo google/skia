@@ -566,7 +566,7 @@ This safely casts <a href='#SkPoint_iset_2_p'>p</a>.<a href='#SkPoint_fX'>fX</a>
 
 ### Example
 
-<div><fiddle-embed name="12b7164a769e232bb772f19c59600ee7">
+<div><fiddle-embed name="46d9bacf593deaaeabd74ff42f2571a0">
 
 #### Example Output
 
@@ -1239,7 +1239,7 @@ reference to <a href='#Point'>Point</a>
 
 ### Example
 
-<div><fiddle-embed name="3ce3db36235d80dbac4d39504cf756da"></fiddle-embed></div>
+<div><fiddle-embed name="a70bb18d67c06a20ab514e7a47924e5a"></fiddle-embed></div>
 
 ### See Also
 

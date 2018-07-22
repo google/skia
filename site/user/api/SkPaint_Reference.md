@@ -3468,7 +3468,7 @@ true if the path represents <a href='#Style_Fill'>Style Fill</a>, or false if it
 
 ### Example
 
-<div><fiddle-embed name="cedd6233848198e1fca4d1e14816baaf"><div>A very small <a href='SkPath_Reference#Quad'>Quad</a> stroke is turned into a filled path with increasing levels of precision.
+<div><fiddle-embed name="35b3bc675779de043706ae4817ee950c"><div>A very small <a href='SkPath_Reference#Quad'>Quad</a> stroke is turned into a filled path with increasing levels of precision.
 At the lowest precision, the <a href='SkPath_Reference#Quad'>Quad</a> stroke is approximated by a rectangle.
 At the highest precision, the filled path has high fidelity compared to the original stroke.
 </div></fiddle-embed></div>

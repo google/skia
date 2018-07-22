@@ -3365,7 +3365,7 @@ If <a href='#SkPath_conicTo_2_w'>w</a> is not finite, appends <a href='#SkPath_k
 
 ### Example
 
-<div><fiddle-embed name="22d25e03b19d5bae92118877e462361b"><div><a href='#Conic'>Conics</a> and arcs use identical representations. As the arc sweep increases
+<div><fiddle-embed name="df3a5d3c688e7597eae1e4e07bf91ae6"><div><a href='#Conic'>Conics</a> and arcs use identical representations. As the arc sweep increases
 the <a href='#Conic_Weight'>Conic Weight</a> also increases, but remains smaller than one.
 </div></fiddle-embed></div>
 

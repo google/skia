@@ -2441,7 +2441,7 @@ empty <a href='#SkCanvas_SaveLayerRec_empty_constructor'>SaveLayerRec</a>
 
 ### Example
 
-<div><fiddle-embed name="b5cea1eed80a0eb04ddbab3f36dff73f">
+<div><fiddle-embed name="bfd18e9cac896cdf94c9f154ccf94be8">
 
 #### Example Output
 
@@ -4273,7 +4273,7 @@ if stroked, <a href='SkPaint_Reference#Stroke_Width'>Paint Stroke Width</a> desc
 
 ### Example
 
-<div><fiddle-embed name="80309e0deca0f8add616cec7bec634ca"></fiddle-embed></div>
+<div><fiddle-embed name="b418d15df9829aefcc6aca93a37428bb"></fiddle-embed></div>
 
 ### See Also
 
