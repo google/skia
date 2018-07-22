@@ -481,7 +481,7 @@ config("release") {
     if (is_mac || is_ios) {
       ldflags = [ "-dead_strip" ]
     } else {
-      ldflags = [ "-Wl,--gc-sections" ]
+      ldflags = [ "-s", "-Wl,--gc-sections" ]
     }
   }
   defines = [ "NDEBUG" ]
