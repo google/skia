@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cd70ea22_16c9b91e",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-23T17:25:55Z",
+      "side": 1,
+      "message": "Feel free to ignore since someone could figure it out pretty easily, but small nit to say the segment is defined from s0 to s0+v0, or something like that.",
+      "range": {
+        "startLine": 25,
+        "startChar": 42,
+        "endLine": 25,
+        "endChar": 49
+      },
+      "revId": "f977c43cd8c9f497f79b271856d16b79c83dfad4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
