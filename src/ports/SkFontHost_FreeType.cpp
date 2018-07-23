@@ -1622,7 +1622,7 @@ int SkTypeface_FreeType::onCountGlyphs() const {
     return face ? face->num_glyphs : 0;
 }
 
-SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() const {
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface_FreeType::onCreateFamilyNameIterator() const {
     sk_sp<SkTypeface::LocalizedStrings> nameIter =
         SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*this);
     if (!nameIter) {
@@ -1631,7 +1631,124 @@ SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() 
         SkString language("und"); //undetermined
         nameIter = sk_make_sp<SkOTUtils::LocalizedStrings_SingleName>(familyName, language);
     }
-    return nameIter.release();
+    return nameIter;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface_FreeType::onCreateAxisNameIterator(int axis) const {
+    SK_OT_USHORT axisStringId;
+    SkString axisName = SkString("");
+    {
+        AutoFTAccess fta(this);
+        FT_Face face = fta.face();
+        if (!face) {
+            return nullptr;
+        }
+
+        if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+            return nullptr;
+        }
+
+        FT_MM_Var* variations = nullptr;
+        FT_Error err = FT_Get_MM_Var(face, &variations);
+        if (err) {
+            SkDEBUGF(
+                "INFO: font %s claims to have variations, but none found.\n",
+                face->family_name);
+            return nullptr;
+        }
+
+        SkAutoFree autoFreeVariations(variations);
+        if (axis < 0 || axis >= SkToInt(variations->num_axis)) {
+            return nullptr;
+        }
+
+        FT_Var_Axis& ftAxis = variations->axis[axis];
+        axisName = ftAxis.name;
+        axisStringId = SkEndian_SwapBE16((SK_OT_USHORT) ftAxis.strid);
+    }
+
+    sk_sp<SkTypeface::LocalizedStrings> nameIter =
+        SkOTUtils::LocalizedStrings_NameTable::Make(*this, &axisStringId, 1);
+    if (!nameIter) {
+        SkString name(axisName);
+        SkString language("und"); //undetermined
+        nameIter.reset(new SkOTUtils::LocalizedStrings_SingleName(name, language));
+    }
+
+    return nameIter;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface_FreeType::onCreateVariationDesignInstanceNameIterator(
+    int instance) const {
+    SK_OT_USHORT instanceStringId;
+    {
+        AutoFTAccess fta(this);
+        FT_Face face = fta.face();
+        if (!face) {
+            return nullptr;
+        }
+
+        if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+            return nullptr;
+        }
+
+        FT_MM_Var* variations = nullptr;
+        FT_Error err = FT_Get_MM_Var(face, &variations);
+        if (err) {
+            SkDEBUGF("INFO: font %s claims to have variations, but none found.\n",
+                     face->family_name);
+            return nullptr;
+        }
+
+        if (instance < 0 || instance >= SkToInt(variations->num_namedstyles)) {
+            return nullptr;
+        }
+
+        SkAutoFree autoFreeVariations(variations);
+        FT_Var_Named_Style& ftVarNamedStyle = variations->namedstyle[instance];
+
+        instanceStringId = SkEndian_SwapBE16((SK_OT_USHORT)ftVarNamedStyle.strid);
+    }
+
+    return  SkOTUtils::LocalizedStrings_NameTable::Make(*this, &instanceStringId, 1);
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface_FreeType::onCreatePaletteNameIterator(int palette) const {
+#ifdef FT_COLOR_H
+    AutoFTAccess fta(this);
+    SK_OT_USHORT paletteStringId;
+
+    {
+        FT_Face face = fta.face();
+        if (!face) {
+            return nullptr;
+        }
+
+        FT_Palette_Data palette_data;
+        FT_Error err = FT_Palette_Data_Get(face, &palette_data);
+        if (err) {
+            SK_TRACEFTR(err, "INFO: could not get palette data from font %s.\n", face->family_name);
+            return nullptr;
+        }
+
+        if (palette < 0 || palette >= palette_data.num_palettes) {
+            return nullptr;
+        }
+
+        if (!palette_data.palette_name_ids) {
+            SkDEBUGF("INFO: font %s's 'CPAL' table doesn't contain appropriate data.\n",
+                     face->family_name);
+            return nullptr;
+        }
+
+        paletteStringId = SkEndian_SwapBE16(
+            (SK_OT_USHORT)palette_data.palette_name_ids[palette]);
+    }
+
+    return SkOTUtils::LocalizedStrings_NameTable::Create(*this, &paletteStringId, 1);
+#else
+    return nullptr;
+#endif
 }
 
 int SkTypeface_FreeType::onGetVariationDesignPosition(
@@ -1718,6 +1835,83 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     }
 
     return variations->num_axis;
+}
+
+int SkTypeface_FreeType::onGetVariationDesignInstancePosition(
+    int instance,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return 0;
+    }
+
+    FT_MM_Var* variations = nullptr;
+    if (FT_Get_MM_Var(face, &variations)) {
+        return -1;
+    }
+    SkAutoFree autoFreeVariations(variations);
+
+    if (!coordinates || coordinateCount < SkToInt(variations->num_axis)) {
+        return variations->num_axis;
+    }
+
+    if (instance < 0 || instance >= SkToInt(variations->num_namedstyles)) {
+        return -1;
+    }
+
+    FT_Var_Named_Style& namedStyle = variations->namedstyle[instance];
+    for (FT_UInt i = 0; i < variations->num_axis; ++i) {
+        coordinates[i].axis = variations->axis[i].tag;
+        coordinates[i].value = SkFixedToScalar(namedStyle.coords[i]);
+    }
+
+    return variations->num_axis;
+}
+
+int SkTypeface_FreeType::onGetVariationDesignInstanceCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+
+    if (!(face->face_flags & FT_FACE_FLAG_MULTIPLE_MASTERS)) {
+        return 0;
+    }
+
+    FT_MM_Var* variations = nullptr;
+    if (FT_Get_MM_Var(face, &variations)) {
+        return -1;
+    }
+
+    return variations->num_namedstyles;
+}
+
+int SkTypeface_FreeType::onGetPaletteCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+
+#ifdef FT_COLOR_H
+    FT_Palette_Data  palette_data;
+    FT_Error err = FT_Palette_Data_Get(face, &palette_data);
+    if (err) {
+        SK_TRACEFTR(err, "INFO: could not get palette data from font %s.\n", face->family_name);
+        return -1;
+    }
+
+    return palette_data.num_palettes;
+#else
+    return 0;
+#endif
 }
 
 int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {

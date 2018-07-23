@@ -202,8 +202,8 @@ void SkRandomTypeface::onGetFamilyName(SkString* familyName) const {
     fProxy->getFamilyName(familyName);
 }
 
-SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() const {
-    return fProxy->createFamilyNameIterator();
+sk_sp<SkTypeface::LocalizedStrings> SkRandomTypeface::onCreateFamilyNameIterator() const {
+    return sk_sp<SkTypeface::LocalizedStrings>(fProxy->createFamilyNameIterator());
 }
 
 int SkRandomTypeface::onGetVariationDesignPosition(
