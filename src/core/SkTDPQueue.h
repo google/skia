@@ -30,6 +30,7 @@ template <typename T,
 class SkTDPQueue {
 public:
     SkTDPQueue() {}
+    SkTDPQueue(int reserve) { fArray.setReserve(reserve); }
 
     SkTDPQueue(SkTDPQueue&&) = default;
     SkTDPQueue& operator =(SkTDPQueue&&) = default;
