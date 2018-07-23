@@ -296,6 +296,19 @@ protected:
         SK_ABORT("unimplemented");
         return nullptr;
     }
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int axis) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -304,6 +317,19 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override
+    {
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
