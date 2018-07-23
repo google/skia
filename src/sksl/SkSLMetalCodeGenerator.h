@@ -86,7 +86,6 @@ public:
         this->setupIntrinsics();
     }
 
-    bool generateCode(int shaderNum); // FIXME - remove when done inserting MSL
     bool generateCode() override;
 
 protected:
