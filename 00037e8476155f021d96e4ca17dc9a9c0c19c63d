@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8bd0b335_13adf7d8",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85dbbfa0_b25ae8e4",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "235a7749_2f78f9e3",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 3
@@ -33,6 +51,24 @@
       "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45f44569_e6c57c43",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "The reason why the color setting did not work on regular fonts was that only the font face which contains color layers would set the glyph boundary. A regular font face which does not have a color layer will end up with none glyph bound information. To fix this, inspired by Dominik\u0027s changes, I initialized the glyph bound in the beginning. If the font face has color layers, we can update the bound in the end. This way it works for both font faces with or without color layers.",
+      "parentUuid": "235a7749_2f78f9e3",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "018f6074_b7ac7001",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5428d17_64a2ab88",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4c09fdb6_fce833f7",
         "filename": "src/ports/SkFontHost_FreeType_common.cpp",
         "patchSetId": 3
@@ -67,6 +121,24 @@
       "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d257bc89_234966e4",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c09fdb6_fce833f7",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "95060c18_9ed31841",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e23423b1_c2395f5c",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dfd2d440_470bf448",
         "filename": "tools/fonts/sk_tool_utils_font.cpp",
         "patchSetId": 3
@@ -101,6 +191,24 @@
       "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0682913_8a482f42",
+        "filename": "tools/fonts/sk_tool_utils_font.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-23T14:11:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dfd2d440_470bf448",
+      "revId": "00037e8476155f021d96e4ca17dc9a9c0c19c63d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
