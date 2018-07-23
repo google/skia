@@ -59,6 +59,17 @@ public:
      */
     bool isFixedPitch() const { return fIsFixedPitch; }
 
+    struct LocalizedString {
+        SkString fString;
+        SkString fLanguage;
+    };
+    class LocalizedStrings : ::SkNoncopyable {
+    public:
+        virtual ~LocalizedStrings() { }
+        virtual bool next(LocalizedString* localizedString) = 0;
+        void unref() { delete this; }
+    };
+
     /** Copy into 'coordinates' (allocated by the caller) the design variation coordinates.
      *
      *  @param coordinates the buffer into which to write the design variation coordinates.
@@ -86,6 +97,18 @@ public:
      */
     int getVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                      int parameterCount) const;
+
+    LocalizedStrings* createAxisNameIterator(int axis) const;
+
+    int getVariationDesignInstanceCount();
+    int getVariationDesignInstancePosition(int index,
+                                           SkFontArguments::VariationPosition::Coordinate coordinates[],
+                                           int coordinateCount) const;
+    LocalizedStrings* createVariationDesignInstanceIterator(int axis) const;
+
+    int getPaletteCount();
+    LocalizedStrings* createPaletteNameIterator(int palette) const;
+
 
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
@@ -252,16 +275,6 @@ public:
     bool getKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                    int32_t adjustments[]) const;
 
-    struct LocalizedString {
-        SkString fString;
-        SkString fLanguage;
-    };
-    class LocalizedStrings : ::SkNoncopyable {
-    public:
-        virtual ~LocalizedStrings() { }
-        virtual bool next(LocalizedString* localizedString) = 0;
-        void unref() { delete this; }
-    };
     /**
      *  Returns an iterator which will attempt to enumerate all of the
      *  family names specified by the font.
