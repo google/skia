@@ -45,11 +45,19 @@ struct SkOTUtils {
     public:
         /** Takes ownership of the nameTableData and will free it with SK_DELETE. */
         LocalizedStrings_NameTable(SkOTTableName* nameTableData,
-                                   SkOTTableName::Record::NameID::Predefined::Value types[],
+                                   SK_OT_USHORT types[],
                                    int typesCount)
             : fTypes(types), fTypesCount(typesCount), fTypesIndex(0)
             , fNameTableData(nameTableData), fFamilyNameIter(*nameTableData, fTypes[fTypesIndex])
         { }
+
+        /** Creates an iterator over all data in the 'name' table of a typeface.
+         *  If no valid 'name' table can be found, returns nullptr.
+         */
+        static LocalizedStrings_NameTable* Create(
+            const SkTypeface& typeface,
+            SK_OT_USHORT types[],
+            int typesCount);
 
         /** Creates an iterator over all the family names in the 'name' table of a typeface.
          *  If no valid 'name' table can be found, returns nullptr.
@@ -58,9 +66,9 @@ struct SkOTUtils {
 
         bool next(SkTypeface::LocalizedString* localizedString) override;
     private:
-        static SkOTTableName::Record::NameID::Predefined::Value familyNameTypes[3];
+        static SK_OT_USHORT familyNameTypes[3];
 
-        SkOTTableName::Record::NameID::Predefined::Value* fTypes;
+        SK_OT_USHORT* fTypes;
         int fTypesCount;
         int fTypesIndex;
         std::unique_ptr<SkOTTableName[]> fNameTableData;
