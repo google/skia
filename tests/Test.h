@@ -163,6 +163,14 @@ private:
         }                                                          \
     } while (0)
 
+#define ABORT_TEST(r, cond, ...)                                   \
+    do {                                                           \
+        if (cond) {                                                \
+            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
+            return;                                                \
+        }                                                          \
+    } while (0)
+
 #define ERRORF(r, ...)                                      \
     do {                                                    \
         REPORT_FAILURE(r, "", SkStringPrintf(__VA_ARGS__)); \
