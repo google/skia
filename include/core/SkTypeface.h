@@ -59,6 +59,17 @@ public:
      */
     bool isFixedPitch() const { return fIsFixedPitch; }
 
+    struct LocalizedString {
+        SkString fString;
+        SkString fLanguage;
+    };
+    class LocalizedStrings : ::SkNoncopyable {
+    public:
+        virtual ~LocalizedStrings() { }
+        virtual bool next(LocalizedString* localizedString) = 0;
+        void unref() { delete this; }
+    };
+
     /** Copy into 'coordinates' (allocated by the caller) the design variation coordinates.
      *
      *  @param coordinates the buffer into which to write the design variation coordinates.
@@ -86,6 +97,51 @@ public:
      */
     int getVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                      int parameterCount) const;
+
+    /**
+     *  Returns an iterator which will attempt to iterate the axis names
+     *  specified by the axis index
+     *  It is the caller's responsibility to unref() the returned pointer.
+     */
+    LocalizedStrings* createAxisNameIterator(int axis) const;
+
+    /** Return the number of variation design instances in the font face. */
+    int getVariationDesignInstanceCount() const;
+
+    /** Copy into 'coordinates' (allocated by the caller) the variation coordinates contained
+     *  in the variation instance specified by the instance index.
+     *
+     *  @param instance the index of the variation instance.
+     *  @param coordinates the buffer into which to write the variation instances coordinates.
+     *  @param coordinateCount the number of entries available through 'coordinates'.
+     *
+     *  @return The number of axes, or -1 if there is an error.
+     *  If 'coordinates != nullptr' and 'coordinateCount >= numAxes' then 'coordinates' will be
+     *  filled with the variation coordinates describing the position of this typeface in design
+     *  instance space. It is possible the number of axes can be retrieved but actual position
+     *  cannot.
+     */
+    int getVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const;
+
+    /**
+     *  Returns an iterator which will attempt to iterate the variation design
+     *  instance name specified by the instance index.
+     *  It is the caller's responsibility to unref() the returned pointer.
+     */
+    LocalizedStrings* createVariationDesignInstanceNameIterator(int instance) const;
+
+    /** Return the palette count in the font face. */
+    int getPaletteCount() const;
+
+    /**
+     *  Returns an iterator which will attempt to iterator the palette name
+     *  specified by the palette index.
+     *  It is the caller's responsibility to unref() the returned pointer.
+     */
+    LocalizedStrings* createPaletteNameIterator(int palette) const;
 
     /** Return a 32bit value for this typeface, unique for the underlying font
         data. Will never return 0.
@@ -252,16 +308,6 @@ public:
     bool getKerningPairAdjustments(const SkGlyphID glyphs[], int count,
                                    int32_t adjustments[]) const;
 
-    struct LocalizedString {
-        SkString fString;
-        SkString fLanguage;
-    };
-    class LocalizedStrings : ::SkNoncopyable {
-    public:
-        virtual ~LocalizedStrings() { }
-        virtual bool next(LocalizedString* localizedString) = 0;
-        void unref() { delete this; }
-    };
     /**
      *  Returns an iterator which will attempt to enumerate all of the
      *  family names specified by the font.
@@ -360,6 +406,15 @@ protected:
     virtual int onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const;
 
+    virtual int onGetVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const;
+
+    virtual int onGetVariationDesignInstanceCount() const;
+
+    virtual int onGetPaletteCount() const;
+
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
     virtual int onCharsToGlyphs(const void* chars, Encoding, SkGlyphID glyphs[],
@@ -377,6 +432,13 @@ protected:
 
     /** Returns an iterator over the family names in the font. */
     virtual LocalizedStrings* onCreateFamilyNameIterator() const = 0;
+
+    virtual LocalizedStrings* onCreateAxisNameIterator(int axis) const;
+
+    virtual LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int instance) const;
+
+    virtual LocalizedStrings* onCreatePaletteNameIterator(int palette) const;
 
     virtual int onGetTableTags(SkFontTableTag tags[]) const = 0;
     virtual size_t onGetTableData(SkFontTableTag, size_t offset,
