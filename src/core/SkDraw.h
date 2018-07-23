@@ -11,6 +11,7 @@
 #define SkDraw_DEFINED
 
 #include "SkCanvas.h"
+#include "SkGlyphRun.h"
 #include "SkMask.h"
 #include "SkPaint.h"
 #include "SkPixmap.h"
@@ -76,7 +77,12 @@ public:
 
     void drawGlyphRunAsFullpixelMask(
             SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin) const;
-    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps*) const;
+
+    void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
+    SkGlyphRunListDrawer::PerMask drawOneMaskCreator(
+            const SkPaint& paint, SkArenaAlloc* alloc) const;
+
+    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, SkGlyphRunListDrawer* glyphDraw) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -158,11 +164,11 @@ private:
 
 public:
     SkPixmap        fDst;
-    const SkMatrix* fMatrix;        // required
-    const SkRasterClip* fRC;        // required
+    const SkMatrix* fMatrix{nullptr};        // required
+    const SkRasterClip* fRC{nullptr};        // required
 
     // optional, will be same dimensions as fDst if present
-    const SkPixmap* fCoverage = nullptr;
+    const SkPixmap* fCoverage{nullptr};
 
 #ifdef SK_DEBUG
     void validate() const;
