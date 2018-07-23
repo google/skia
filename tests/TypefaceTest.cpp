@@ -263,6 +263,73 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
 
 }
 
+DEF_TEST(TypefaceVariationDesignInstance, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+    constexpr int numberOfAxesInDistortable = 1;
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    SkFontArguments params;
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    int count = typeface->getVariationDesignInstancePosition(0, nullptr, 0);
+    if (count == -1) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
+
+    float weightsAmongInstances[3] = {0.5, 1, 2};
+    for (int index = 0; index < typeface->getVariationDesignInstanceCount(); index++) {
+        SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
+        count = typeface->getVariationDesignInstancePosition(index, positionRead,
+                                                             SK_ARRAY_COUNT(positionRead));
+        REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
+
+        REPORTER_ASSERT(reporter, positionRead[0].axis == SkSetFourByteTag('w','g','h','t'));
+        REPORTER_ASSERT(reporter, positionRead[0].value == weightsAmongInstances[index]);
+    }
+}
+
+#include <iostream>
+using namespace std;
+DEF_TEST(TypefacePlayground, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), 1.618033988749895f },
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    sk_sp<SkTypeface::LocalizedStrings> axisNamesIter(typeface->createAxisNameIterator(0));
+    SkTypeface::LocalizedString axisNameLocalized;
+    while (axisNamesIter->next(&axisNameLocalized)) {
+        cout << "language: " << axisNameLocalized.fLanguage.c_str() << endl;
+        cout << "value: " << axisNameLocalized.fString.c_str() << endl;
+    }
+}
+
 namespace {
 
 class EmptyTypeface : public SkTypeface {
@@ -296,6 +363,19 @@ protected:
         SK_ABORT("unimplemented");
         return nullptr;
     }
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int axis) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -304,6 +384,19 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override
+    {
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
