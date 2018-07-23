@@ -689,6 +689,11 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
             break;
+        case SK_CLOCKWISE_BUILTIN:
+            // gl_FrontFacing is defined in terms of a bottom-up render target. In skia, we use
+            // the default convention of "counter-clockwise face is front".
+            this->write(fProgram.fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
+            break;
         case SK_VERTEXID_BUILTIN:
             this->write("gl_VertexID");
             break;
