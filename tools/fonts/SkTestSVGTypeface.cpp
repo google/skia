@@ -154,6 +154,19 @@ SkTypeface::LocalizedStrings* SkTestSVGTypeface::onCreateFamilyNameIterator() co
     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
 
+SkTypeface::LocalizedStrings* SkTestSVGTypeface::onCreateAxisNameIterator(int axis) const {
+    return nullptr;
+}
+
+SkTypeface::LocalizedStrings* SkTestSVGTypeface::onCreateVariationDesignInstanceIterator(
+    int axis) const {
+    return nullptr;
+}
+
+SkTypeface::LocalizedStrings* SkTestSVGTypeface::onCreatePaletteNameIterator(int palette) const {
+    return nullptr;
+}
+
 class SkTestSVGScalerContext : public SkScalerContext {
 public:
     SkTestSVGScalerContext(sk_sp<SkTestSVGTypeface> face, const SkScalerContextEffects& effects,

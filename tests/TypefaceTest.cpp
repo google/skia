@@ -306,6 +306,12 @@ protected:
     {
         return 0;
     }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
+        return 0;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override { return 0; }
 };
