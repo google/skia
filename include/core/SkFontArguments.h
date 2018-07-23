@@ -71,8 +71,16 @@ struct SkFontArguments {
     VariationPosition getVariationDesignPosition() const {
         return fVariationDesignPosition;
     }
+
+    /** Specify the index of the desired color palette.
+    */
+    SkFontArguments& setPaletteIndex(int paletteIndex) {
+        fPaletteIndex = paletteIndex;
+        return *this;
+    }
 private:
     int fCollectionIndex;
+    int fPaletteIndex;
     VariationPosition fVariationDesignPosition;
 };
 
