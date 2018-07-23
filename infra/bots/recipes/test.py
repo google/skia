@@ -791,6 +791,10 @@ def dm_flags(api, bot):
       # skia:6141
       blacklist([config, 'gm', '_', 'discard'])
 
+  if 'IntelIris6100' in bot and 'ANGLE' in bot:
+    # skia:7376
+    match.append('~^ProcessorOptimizationValidationTest$')
+
   if ('IntelIris6100' in bot or 'IntelHD4400' in bot) and 'ANGLE' in bot:
     # skia:6857
     blacklist(['angle_d3d9_es2', 'gm', '_', 'lighting'])
@@ -1060,6 +1064,7 @@ TEST_BUILDERS = [
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
+  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
