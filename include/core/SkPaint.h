@@ -31,6 +31,7 @@ class SkData;
 class SkDescriptor;
 class SkDrawLooper;
 class SkGlyph;
+class SkGlyphDraw;
 struct SkRect;
 class SkGlyphCache;
 class SkImageFilter;
@@ -1535,6 +1536,7 @@ private:
     friend class SkCanonicalizePaint;
     friend class SkCanvas;
     friend class SkDraw;
+    friend class SkGlyphDraw;
     friend class SkPaintPriv;
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
