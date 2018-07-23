@@ -1033,13 +1033,11 @@ public:
     GlyphPositioner(SkDynamicMemoryWStream* content,
                     SkScalar textSkewX,
                     bool wideChars,
-                    bool defaultPositioning,
                     SkPoint origin)
         : fContent(content)
         , fCurrentMatrixOrigin(origin)
         , fTextSkewX(textSkewX)
-        , fWideChars(wideChars)
-        , fDefaultPositioning(defaultPositioning) {
+        , fWideChars(wideChars) {
     }
     ~GlyphPositioner() { this->flush(); }
     void flush() {
@@ -1064,19 +1062,17 @@ public:
             fCurrentMatrixOrigin.set(0.0f, 0.0f);
             fInitialized = true;
         }
-        if (!fDefaultPositioning) {
-            SkPoint position = xy - fCurrentMatrixOrigin;
-            if (position != SkPoint{fXAdvance, 0}) {
-                this->flush();
-                SkPDFUtils::AppendScalar(position.x() - position.y() * fTextSkewX, fContent);
-                fContent->writeText(" ");
-                SkPDFUtils::AppendScalar(-position.y(), fContent);
-                fContent->writeText(" Td ");
-                fCurrentMatrixOrigin = xy;
-                fXAdvance = 0;
-            }
-            fXAdvance += advanceWidth;
+        SkPoint position = xy - fCurrentMatrixOrigin;
+        if (position != SkPoint{fXAdvance, 0}) {
+            this->flush();
+            SkPDFUtils::AppendScalar(position.x() - position.y() * fTextSkewX, fContent);
+            fContent->writeText(" ");
+            SkPDFUtils::AppendScalar(-position.y(), fContent);
+            fContent->writeText(" Td ");
+            fCurrentMatrixOrigin = xy;
+            fXAdvance = 0;
         }
+        fXAdvance += advanceWidth;
         if (!fInText) {
             fContent->writeText("<");
             fInText = true;
@@ -1097,7 +1093,6 @@ private:
     bool fWideChars;
     bool fInText = false;
     bool fInitialized = false;
-    const bool fDefaultPositioning;
 };
 }  // namespace
 
@@ -1115,30 +1110,15 @@ static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
     wStream->writeText(" Tf\n");
 }
 
-static SkPath draw_text_as_path(const void* sourceText, size_t sourceByteCount,
-                               const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
-                               SkPoint offset, const SkPaint& srcPaint) {
+static void draw_glyph_run_as_path(SkPDFDevice* dev, const SkGlyphRun& glyphRun, SkPoint offset) {
     SkPath path;
-    int glyphCount;
-    SkAutoTMalloc<SkPoint> tmpPoints;
-    switch (positioning) {
-        case SkTextBlob::kDefault_Positioning:
-            srcPaint.getTextPath(sourceText, sourceByteCount, offset.x(), offset.y(), &path);
-            break;
-        case SkTextBlob::kHorizontal_Positioning:
-            glyphCount = srcPaint.countText(sourceText, sourceByteCount);
-            tmpPoints.realloc(glyphCount);
-            for (int i = 0; i < glyphCount; ++i) {
-                tmpPoints[i] = {pos[i] + offset.x(), offset.y()};
-            }
-            srcPaint.getPosTextPath(sourceText, sourceByteCount, tmpPoints.get(), &path);
-            break;
-        case SkTextBlob::kFull_Positioning:
-            srcPaint.getPosTextPath(sourceText, sourceByteCount, (const SkPoint*)pos, &path);
-            path.offset(offset.x(), offset.y());
-            break;
-    }
-    return path;
+    SkASSERT(glyphRun.paint().getTextEncoding() == SkPaint::kGlyphID_TextEncoding);
+    glyphRun.paint().getPosTextPath(glyphRun.shuntGlyphsIDs().data(),
+                                    glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
+                                    glyphRun.positions().data(),
+                                    &path);
+    path.offset(offset.x(), offset.y());
+    dev->drawPath(path, glyphRun.paint(), nullptr, true);
 }
 
 static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
@@ -1205,36 +1185,25 @@ static sk_sp<SkImage> image_from_mask(const SkMask& mask) {
     }
 }
 
-void SkPDFDevice::internalDrawText(
-        const void* sourceText, size_t sourceByteCount,
-        const SkScalar pos[], SkTextBlob::GlyphPositioning positioning,
-        SkPoint offset, const SkPaint& srcPaint, const uint32_t* clusters,
-        uint32_t textByteLength, const char* utf8Text) {
-    if (0 == sourceByteCount || !sourceText || srcPaint.getTextSize() <= 0) {
+void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset) {
+
+    const SkGlyphID* glyphs = glyphRun.shuntGlyphsIDs().data();
+    uint32_t glyphCount = SkToU32(glyphRun.shuntGlyphsIDs().size());
+    const SkPaint& srcPaint = glyphRun.paint();
+    if (!glyphCount || !glyphs || srcPaint.getTextSize() <= 0 || this->hasEmptyClip()) {
         return;
-    }
-    if (this->hasEmptyClip()) {
-        return;
-    }
-    NOT_IMPLEMENTED(srcPaint.isVerticalText(), false);
-    if (srcPaint.isVerticalText()) {
-        // Don't pretend we support drawing vertical text.  It is not
-        // clear to me how to switch to "vertical writing" mode in PDF.
-        // Currently neither Chromium or Android set this flag.
-        // https://bug.skia.org/5665
     }
     if (srcPaint.getPathEffect()
-            || srcPaint.getMaskFilter()
-            || SkPaint::kFill_Style != srcPaint.getStyle()) {
+        || srcPaint.getMaskFilter()
+        || srcPaint.isVerticalText()
+        || SkPaint::kFill_Style != srcPaint.getStyle()) {
         // Stroked Text doesn't work well with Type3 fonts.
-        SkPath path = draw_text_as_path(sourceText, sourceByteCount, pos,
-                                        positioning, offset, srcPaint);
-        this->drawPath(path, srcPaint, nullptr, true);
-        return;
+        return draw_glyph_run_as_path(this, glyphRun, offset);
     }
     SkPaint paint = calculate_text_paint(srcPaint);
     remove_color_filter(&paint);
     replace_srcmode_on_opaque_paint(&paint);
+    paint.setHinting(SkPaint::kNo_Hinting);
     if (!paint.getTypeface()) {
         paint.setTypeface(SkTypeface::MakeDefault());
     }
@@ -1243,25 +1212,14 @@ void SkPDFDevice::internalDrawText(
         SkDebugf("SkPDF: SkTypeface::MakeDefault() returned nullptr.\n");
         return;
     }
-
-    const SkAdvancedTypefaceMetrics* metrics =
-        SkPDFFont::GetMetrics(typeface, fDocument->canon());
+    const SkAdvancedTypefaceMetrics* metrics = SkPDFFont::GetMetrics(typeface, fDocument->canon());
     if (!metrics) {
         return;
     }
     const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(
         typeface, fDocument->canon());
 
-    SkClusterator clusterator(sourceText, sourceByteCount, paint,
-                              clusters, textByteLength, utf8Text);
-    const SkGlyphID* glyphs = clusterator.glyphs();
-    uint32_t glyphCount = clusterator.glyphCount();
-    if (glyphCount == 0) {
-        return;
-    }
-
-    bool defaultPositioning = (positioning == SkTextBlob::kDefault_Positioning);
-    paint.setHinting(SkPaint::kNo_Hinting);
+    SkClusterator clusterator(glyphRun);
 
     int emSize;
     auto glyphCache = SkPDFFont::MakeVectorCache(typeface, &emSize);
@@ -1273,23 +1231,13 @@ void SkPDFDevice::internalDrawText(
     SkScalar textScaleY = textSize / emSize;
     SkScalar textScaleX = advanceScale + paint.getTextSkewX() * textScaleY;
 
-    SkPaint::Align alignment = paint.getTextAlign();
-    float alignmentFactor = SkPaint::kLeft_Align   == alignment ?  0.0f :
-                            SkPaint::kCenter_Align == alignment ? -0.5f :
-                            /* SkPaint::kRight_Align */           -1.0f;
-    if (defaultPositioning && alignment != SkPaint::kLeft_Align) {
-        SkScalar advance = 0;
-        for (uint32_t i = 0; i < glyphCount; ++i) {
-            advance += advanceScale * glyphCache->getGlyphIDAdvance(glyphs[i]).fAdvanceX;
-        }
-        offset.offset(alignmentFactor * advance, 0);
-    }
+    SkASSERT(paint.getTextAlign() == SkPaint::kLeft_Align);
     SkRect clipStackBounds = this->cs().bounds(this->bounds());
     struct PositionedGlyph {
         SkPoint fPos;
         SkGlyphID fGlyph;
     };
-    SkTArray<PositionedGlyph> fMissingGlyphs;
+    SkTArray<PositionedGlyph> missingGlyphs;
     {
         ScopedContentEntry content(this, paint, true);
         if (!content.entry()) {
@@ -1310,7 +1258,6 @@ void SkPDFDevice::internalDrawText(
         GlyphPositioner glyphPositioner(out,
                                         paint.getTextSkewX(),
                                         multiByteGlyphs,
-                                        defaultPositioning,
                                         offset);
         SkPDFFont* font = nullptr;
 
@@ -1374,45 +1321,33 @@ void SkPDFDevice::internalDrawText(
                     }
                     SkASSERT(font->multiByteGlyphs() == multiByteGlyphs);
                 }
-                SkPoint xy = {0, 0};
-                SkScalar advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
-                if (!defaultPositioning) {
-                    xy = SkTextBlob::kFull_Positioning == positioning
-                       ? SkPoint{pos[2 * index], pos[2 * index + 1]}
-                       : SkPoint{pos[index], 0};
-                    if (alignment != SkPaint::kLeft_Align) {
-                        xy.offset(alignmentFactor * advance, 0);
-                    }
-                    // Do a glyph-by-glyph bounds-reject if positions are absolute.
-                    SkRect glyphBounds = get_glyph_bounds_device_space(
-                            gid, glyphCache.get(), textScaleX, textScaleY,
-                            xy + offset, this->ctm());
-                    if (glyphBounds.isEmpty()) {
-                        if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
-                            continue;
-                        }
-                    } else {
-                        if (!clipStackBounds.intersects(glyphBounds)) {
-                            continue;  // reject glyphs as out of bounds
-                        }
-                    }
-                    if (!has_outline_glyph(gid, glyphCache.get())) {
-                        fMissingGlyphs.push_back({xy + offset, gid});
+                SkPoint xy = glyphRun.positions()[index];
+                // Do a glyph-by-glyph bounds-reject if positions are absolute.
+                SkRect glyphBounds = get_glyph_bounds_device_space(
+                        gid, glyphCache.get(), textScaleX, textScaleY,
+                        xy + offset, this->ctm());
+                if (glyphBounds.isEmpty()) {
+                    if (!contains(clipStackBounds, {glyphBounds.x(), glyphBounds.y()})) {
+                        continue;
                     }
                 } else {
-                    if (!has_outline_glyph(gid, glyphCache.get())) {
-                        fMissingGlyphs.push_back({offset, gid});
+                    if (!clipStackBounds.intersects(glyphBounds)) {
+                        continue;  // reject glyphs as out of bounds
                     }
-                    offset += SkPoint{advance, 0};
                 }
+                if (!has_outline_glyph(gid, glyphCache.get())) {
+                    missingGlyphs.push_back({xy + offset, gid});
+                }
+
                 font->noteGlyphUsage(gid);
 
                 SkGlyphID encodedGlyph = multiByteGlyphs ? gid : font->glyphToPDFFontEncoding(gid);
+                SkScalar advance = advanceScale * glyphCache->getGlyphIDAdvance(gid).fAdvanceX;
                 glyphPositioner.writeGlyph(xy, advance, encodedGlyph);
             }
         }
     }
-    if (fMissingGlyphs.count() > 0) {
+    if (missingGlyphs.count() > 0) {
         // Fall back on images.
         SkPaint scaledGlyphCachePaint;
         scaledGlyphCachePaint.setTextSize(paint.getTextSize());
@@ -1422,7 +1357,7 @@ void SkPDFDevice::internalDrawText(
         auto scaledGlyphCache = SkStrikeCache::FindOrCreateStrikeExclusive(scaledGlyphCachePaint);
         SkTHashMap<SkPDFCanon::BitmapGlyphKey, SkPDFCanon::BitmapGlyph>* map =
             &this->getCanon()->fBitmapGlyphImages;
-        for (PositionedGlyph positionedGlyph : fMissingGlyphs) {
+        for (PositionedGlyph positionedGlyph : missingGlyphs) {
             SkPDFCanon::BitmapGlyphKey key = {typeface->uniqueID(),
                                               paint.getTextSize(),
                                               paint.getTextScaleX(),
@@ -1451,20 +1386,9 @@ void SkPDFDevice::internalDrawText(
     }
 }
 
-void SkPDFDevice::drawPosText(const void* text, size_t len,
-                              const SkScalar pos[], int scalarsPerPos,
-                              const SkPoint& offset, const SkPaint& paint) {
-    this->internalDrawText(text, len, pos, (SkTextBlob::GlyphPositioning)scalarsPerPos,
-                           offset, paint, nullptr, 0, nullptr);
-}
-
 void SkPDFDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
-    for (SkGlyphRunListIterator it(glyphRunList); !it.done(); it.next()) {
-        SkPaint runPaint;
-        it.applyFontToPaint(&runPaint);
-        this->internalDrawText(it.glyphs(), sizeof(SkGlyphID) * it.glyphCount(),
-                               it.pos(), it.positioning(), glyphRunList->origin(), runPaint,
-                               it.clusters(), it.textSize(), it.text());
+    for (const SkGlyphRun& glyphRun : *glyphRunList) {
+        this->internalDrawGlyphRun(glyphRun, glyphRunList->origin());
     }
 }
 
