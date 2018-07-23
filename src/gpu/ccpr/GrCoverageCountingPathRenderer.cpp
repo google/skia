@@ -46,6 +46,7 @@ GrCCPerOpListPaths::~GrCCPerOpListPaths() {
 }
 
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
+    SkDebugf("@@@@> caps.blacklistCoverageCounting=%u\n", caps.blacklistCoverageCounting());
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     return shaderCaps.integerSupport() && shaderCaps.flatInterpolationSupport() &&
            caps.instanceAttribSupport() && GrCaps::kNone_MapFlags != caps.mapBufferFlags() &&
@@ -254,6 +255,8 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     if (specs.isEmpty()) {
         return;  // Nothing to draw.
     }
+
+    SkDebugf("@@@@> GrCoverageCountingPathRenderer::preFlush %u paths\n", specs.fNumClipPaths + specs.fNumCachedPaths + specs.fNumCopiedPaths + specs.fNumRenderedPaths);
 
     // Determine if there are enough reusable paths from last flush for it to be worth our time to
     // copy them to cached atlas(es).
