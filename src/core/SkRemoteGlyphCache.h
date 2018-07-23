@@ -24,6 +24,7 @@
 #include "SkTypeface.h"
 
 class Serializer;
+enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
 class SkGlyphCache;
 struct SkPackedGlyphID;
@@ -124,7 +125,9 @@ public:
     public:
         SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
                           std::unique_ptr<SkDescriptor> keyDescriptor,
-                          SkDiscardableHandleId discardableHandleId);
+                          SkDiscardableHandleId discardableHandleId,
+                          bool isSubpixel,
+                          SkAxisAlignment axisAlignmentForHText);
         ~SkGlyphCacheState();
 
         void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
@@ -133,6 +136,8 @@ public:
         const SkDescriptor& getDeviceDescriptor() {
             return *fDeviceDescriptor;
         }
+        bool isSubpixel() const { return fIsSubpixel; }
+        SkAxisAlignment axisAlignmentForHText() const { return fAxisAlignmentForHText; }
 
         const SkDescriptor& getKeyDescriptor() {
             return *fKeyDescriptor;
@@ -159,7 +164,9 @@ public:
         // create descriptors with out the device filtering, thus matching the key descriptor.
         std::unique_ptr<SkDescriptor> fDeviceDescriptor;
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
-        const SkDiscardableHandleId fDiscardableHandleId = static_cast<SkDiscardableHandleId>(-1);
+        const SkDiscardableHandleId fDiscardableHandleId;
+        const bool fIsSubpixel;
+        const SkAxisAlignment fAxisAlignmentForHText;
 
         // The context built using fDeviceDescriptor
         std::unique_ptr<SkScalerContext> fContext;
@@ -169,7 +176,7 @@ public:
     };
 
     SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps*, const SkMatrix*,
-                                        SkScalerContextFlags flags, SkScalerContextRec* deviceRec,
+                                        SkScalerContextFlags flags,
                                         SkScalerContextEffects* effects);
 
 private:

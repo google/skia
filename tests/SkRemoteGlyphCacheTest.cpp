@@ -616,11 +616,10 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
     // Send over the real glyph and make sure the client cache stays intact.
     {
         SkAutoDescriptor ad;
-        SkScalerContextRec rec;
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(serverTf);
-        auto* cacheState = server.getOrCreateCache(paint, nullptr, nullptr, flags, &rec, &effects);
+        auto* cacheState = server.getOrCreateCache(paint, nullptr, nullptr, flags, &effects);
         cacheState->addGlyph(serverTf.get(), effects, lostGlyphID, false);
 
         std::vector<uint8_t> serverStrikeData;
