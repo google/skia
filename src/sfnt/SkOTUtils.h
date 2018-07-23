@@ -51,6 +51,14 @@ struct SkOTUtils {
             , fNameTableData(nameTableData), fFamilyNameIter(*nameTableData, fTypes[fTypesIndex])
         { }
 
+        /** Creates an iterator over all data in the 'name' table of a typeface.
+         *  If no valid 'name' table can be found, returns nullptr.
+         */
+        static LocalizedStrings_NameTable* Create(
+            const SkTypeface& typeface,
+            SK_OT_USHORT types[],
+            int typesCount);
+
         /** Creates an iterator over all the family names in the 'name' table of a typeface.
          *  If no valid 'name' table can be found, returns nullptr.
          */
