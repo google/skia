@@ -84,6 +84,12 @@ protected:
     {
         return 0;
     }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
+        return 0;
+    }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
     size_t onGetTableData(SkFontTableTag, size_t, size_t, void*) const override {
         return 0;
@@ -218,6 +224,13 @@ int SkTypeface::getVariationDesignParameters(
     return this->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
+int SkTypeface::getVariationDesignInstanceCount() const {
+    return this->onGetVariationDesignInstanceCount();
+}
+
+int SkTypeface::getPaletteCount() const {
+    return this->onGetPaletteCount();
+}
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);
 }
@@ -340,6 +353,13 @@ int SkTypeface::onGetVariationDesignParameters(
     return -1;
 }
 
+int SkTypeface::onGetVariationDesignInstanceCount() const {
+    return -1;
+}
+
+int SkTypeface::onGetPaletteCount() const {
+    return -1;
+}
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SkDescriptor.h"

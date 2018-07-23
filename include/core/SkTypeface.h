@@ -100,13 +100,15 @@ public:
 
     LocalizedStrings* createAxisNameIterator(int axis) const;
 
-    int getVariationDesignInstanceCount();
+    /** Return the variable axis instance count in the font face. */
+    int getVariationDesignInstanceCount() const;
     int getVariationDesignInstancePosition(int index,
                                            SkFontArguments::VariationPosition::Coordinate coordinates[],
                                            int coordinateCount) const;
     LocalizedStrings* createVariationDesignInstanceIterator(int axis) const;
 
-    int getPaletteCount();
+    /** Return the palette count in the font face. */
+    int getPaletteCount() const;
     LocalizedStrings* createPaletteNameIterator(int palette) const;
 
 
@@ -372,6 +374,10 @@ protected:
 
     virtual int onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const;
+
+    virtual int onGetVariationDesignInstanceCount() const;
+
+    virtual int onGetPaletteCount() const;
 
     virtual void onGetFontDescriptor(SkFontDescriptor*, bool* isLocal) const = 0;
 
