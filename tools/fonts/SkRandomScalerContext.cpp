@@ -211,16 +211,45 @@ SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateFamilyNameIterator() con
     return fProxy->createFamilyNameIterator();
 }
 
+SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateAxisNameIterator(int axis) const {
+    return fProxy->createAxisNameIterator(axis);
+}
+
+SkTypeface::LocalizedStrings* SkRandomTypeface::onCreateVariationDesignInstanceNameIterator(
+    int instance) const {
+    return fProxy->createVariationDesignInstanceNameIterator(instance);
+}
+
+SkTypeface::LocalizedStrings* SkRandomTypeface::onCreatePaletteNameIterator(int palette) const {
+    return fProxy->createPaletteNameIterator(palette);
+}
+
 int SkRandomTypeface::onGetVariationDesignPosition(
         SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
-    return fProxy->onGetVariationDesignPosition(coordinates, coordinateCount);
+    return fProxy->getVariationDesignPosition(coordinates, coordinateCount);
 }
 
 int SkRandomTypeface::onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const
 {
-    return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
+    return fProxy->getVariationDesignParameters(parameters, parameterCount);
+}
+
+int SkRandomTypeface::onGetVariationDesignInstancePosition(
+    int index,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const
+{
+    return fProxy->getVariationDesignInstancePosition(index, coordinates, coordinateCount);
+}
+
+int SkRandomTypeface::onGetVariationDesignInstanceCount() const {
+    return fProxy->getVariationDesignInstanceCount();
+}
+
+int SkRandomTypeface::onGetPaletteCount() const {
+    return fProxy->getPaletteCount();
 }
 
 int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
