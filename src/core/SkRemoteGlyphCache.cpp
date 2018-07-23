@@ -199,11 +199,10 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackTextHelper& helper,
     SkMatrix fallbackMatrix = matrix;
     helper.initializeForDraw(&fallbackPaint, &textRatio, &fallbackMatrix);
 
-    SkScalerContextRec deviceSpecificRec;
     SkScalerContextEffects effects;
-    auto* glyphCacheState = server->getOrCreateCache(
-            fallbackPaint, &props, &fallbackMatrix,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
+    auto* glyphCacheState =
+            server->getOrCreateCache(fallbackPaint, &props, &fallbackMatrix,
+                                     SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
     const char* text = helper.fallbackText().begin();
     const char* stop = text + helper.fallbackText().count();
@@ -309,17 +308,15 @@ private:
                 SK_ABORT("unhandled positioning mode");
         }
 
-        SkScalerContextRec deviceSpecificRec;
         SkScalerContextEffects effects;
         auto* glyphCacheState = fStrikeServer->getOrCreateCache(
                 runPaint, &this->surfaceProps(), &runMatrix,
-                SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
+                SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
         SkASSERT(glyphCacheState);
 
         const bool asPath = false;
-        bool isSubpixel =
-                SkToBool(deviceSpecificRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
-        SkAxisAlignment axisAlignment = deviceSpecificRec.computeAxisAlignmentForHText();
+        bool isSubpixel = glyphCacheState->isSubpixel();
+        SkAxisAlignment axisAlignment = glyphCacheState->axisAlignmentForHText();
         auto pos = it.pos();
         const uint16_t* glyphs = it.glyphs();
         for (uint32_t index = 0; index < it.glyphCount(); index++) {
@@ -356,11 +353,10 @@ private:
         pathPaint.setStyle(SkPaint::kFill_Style);
         pathPaint.setPathEffect(nullptr);
 
-        SkScalerContextRec deviceSpecificRec;
         SkScalerContextEffects effects;
         auto* glyphCacheState = fStrikeServer->getOrCreateCache(
                 pathPaint, &this->surfaceProps(), nullptr,
-                SkScalerContextFlags::kFakeGammaAndBoostContrast, &deviceSpecificRec, &effects);
+                SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
         const bool asPath = true;
         const SkIPoint subPixelPos{0, 0};
@@ -407,10 +403,9 @@ private:
         SkScalerContextFlags flags;
         GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options, &textRatio,
                                               &flags);
-        SkScalerContextRec deviceSpecificRec;
         SkScalerContextEffects effects;
-        auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-                dfPaint, &this->surfaceProps(), nullptr, flags, &deviceSpecificRec, &effects);
+        auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(),
+                                                                nullptr, flags, &effects);
 
         GrTextContext::FallbackTextHelper fallbackTextHelper(
                 runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
@@ -529,16 +524,11 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkSurfaceProps* props,
         const SkMatrix* matrix,
         SkScalerContextFlags flags,
-        SkScalerContextRec* deviceRec,
         SkScalerContextEffects* effects) {
     SkScalerContextRec keyRec;
-    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, deviceRec, effects, true);
     SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &keyRec, effects, false);
-    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(keyRec.dump().c_str()));
-
-    // TODO: possible perf improvement - don't recompute the device desc on cache hit.
-    auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(*deviceRec, *effects);
     auto keyDesc = SkScalerContext::DescriptorGivenRecAndEffects(keyRec, *effects);
+    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(keyRec.dump().c_str()));
 
     // Already locked.
     if (fLockedDescs.find(keyDesc.get()) != fLockedDescs.end()) {
@@ -550,7 +540,12 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     // Try to lock.
     auto it = fRemoteGlyphStateMap.find(keyDesc.get());
     if (it != fRemoteGlyphStateMap.end()) {
+#ifdef SK_DEBUG
+        SkScalerContextRec deviceRec;
+        SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
+        auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
         SkASSERT(it->second->getDeviceDescriptor() == *deviceDesc);
+#endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
             fLockedDescs.insert(it->first);
@@ -570,10 +565,16 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
                                       tf->isFixedPitch());
     }
 
+    SkScalerContextRec deviceRec;
+    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
+    auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
+    bool isSubpixel = SkToBool(deviceRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+    SkAxisAlignment axisAlignment = deviceRec.computeAxisAlignmentForHText();
+
     auto* keyDescPtr = keyDesc.get();
     auto newHandle = fDiscardableHandleManager->createHandle();
-    auto cacheState = skstd::make_unique<SkGlyphCacheState>(std::move(deviceDesc),
-                                                            std::move(keyDesc), newHandle);
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(
+            std::move(deviceDesc), std::move(keyDesc), newHandle, isSubpixel, axisAlignment);
     auto* cacheStatePtr = cacheState.get();
 
     fLockedDescs.insert(keyDescPtr);
@@ -584,10 +585,14 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
 SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
                                                      std::unique_ptr<SkDescriptor>
                                                              keyDescriptor,
-                                                     uint32_t discardableHandleId)
+                                                     uint32_t discardableHandleId,
+                                                     bool isSubpixel,
+                                                     SkAxisAlignment axisAlignmentForHText)
         : fDeviceDescriptor(std::move(deviceDescriptor))
         , fKeyDescriptor(std::move(keyDescriptor))
-        , fDiscardableHandleId(discardableHandleId) {
+        , fDiscardableHandleId(discardableHandleId)
+        , fIsSubpixel(isSubpixel)
+        , fAxisAlignmentForHText(axisAlignmentForHText) {
     SkASSERT(fDeviceDescriptor);
     SkASSERT(fKeyDescriptor);
 }
