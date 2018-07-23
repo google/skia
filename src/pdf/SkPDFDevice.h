@@ -97,7 +97,7 @@ public:
                        SkCanvas::SrcRectConstraint) override;
     void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
-                     const SkPoint& offset, const SkPaint&) override;
+                     const SkPoint& offset, const SkPaint&) override { SkASSERT(false); }
     void drawGlyphRunList(SkGlyphRunList* glyphRunList) override;
     void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                       const SkPaint&) override;
@@ -242,9 +242,7 @@ private:
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
 
 
-    void internalDrawText( const void*, size_t, const SkScalar pos[],
-                          SkTextBlob::GlyphPositioning, SkPoint, const SkPaint&,
-                          const uint32_t*, uint32_t, const char*);
+    void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
 
     void internalDrawPaint(const SkPaint& paint, ContentEntry* contentEntry);
 
