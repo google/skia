@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDevice.h"
+#include "SkGlyphRun.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
@@ -106,12 +107,6 @@ protected:
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&,
                         const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
-    /**
-     *  Does not handle text decoration.
-     *  Decorations (underline and stike-thru) will be handled by SkCanvas.
-     */
-    void drawPosText(const void* text, size_t len, const SkScalar pos[],
-                     int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
     void drawGlyphRunList(SkGlyphRunList* glyphRunList) override;
     void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
@@ -158,6 +153,13 @@ private:
 
     class BDDraw;
 
+    /**
+     *  Does not handle text decoration.
+     *  Decorations (underline and stike-thru) will be handled by SkCanvas.
+     */
+    void drawPosText(const void* text, size_t len, const SkScalar pos[],
+                     int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) override;
+
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
@@ -173,6 +175,8 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
     std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
+    SkGlyphRunListDrawer fGlyphDraw;
+
 
     typedef SkBaseDevice INHERITED;
 };

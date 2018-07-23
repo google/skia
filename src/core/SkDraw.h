@@ -11,6 +11,7 @@
 #define SkDraw_DEFINED
 
 #include "SkCanvas.h"
+#include "SkGlyphRun.h"
 #include "SkMask.h"
 #include "SkPaint.h"
 #include "SkPixmap.h"
@@ -66,16 +67,7 @@ public:
     void    drawPosText(const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
-
-    void drawGlyphRunAsPaths(
-            SkGlyphRun* glyphRun, SkPoint origin, const SkSurfaceProps* props) const;
-
-    void drawGlyphRunAsSubpixelMask(
-            SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin) const;
-
-    void drawGlyphRunAsFullpixelMask(
-            SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin) const;
-    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps*) const;
+    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, SkGlyphRunListDrawer* glyphDraw) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -132,6 +124,9 @@ public:
                                     const SkPaint&, const SkSurfaceProps*) const;
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
+    void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
+    SkGlyphRunListDrawer::PerMask drawOneMaskCreator(
+            const SkPaint& paint, SkArenaAlloc* alloc) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
     void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
@@ -157,11 +152,11 @@ private:
 
 public:
     SkPixmap        fDst;
-    const SkMatrix* fMatrix;        // required
-    const SkRasterClip* fRC;        // required
+    const SkMatrix* fMatrix{nullptr};        // required
+    const SkRasterClip* fRC{nullptr};        // required
 
     // optional, will be same dimensions as fDst if present
-    const SkPixmap* fCoverage = nullptr;
+    const SkPixmap* fCoverage{nullptr};
 
 #ifdef SK_DEBUG
     void validate() const;

@@ -51,9 +51,7 @@ static SkPaint make_paint_with_image(
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkDraw::SkDraw() {
-    sk_bzero(this, sizeof(*this));
-}
+SkDraw::SkDraw() {}
 
 bool SkDraw::computeConservativeLocalClipBounds(SkRect* localBounds) const {
     if (fRC->isEmpty()) {
@@ -1407,8 +1405,9 @@ public:
             // this extra test is worth it, assuming that most of the time it succeeds
             // since we can avoid writing to storage
             if (!fClipBounds.containsNoEmptyCheck(mask.fBounds)) {
-                if (!storage.intersectNoEmptyCheck(mask.fBounds, fClipBounds))
+                if (!storage.intersectNoEmptyCheck(mask.fBounds, fClipBounds)) {
                     return;
+                }
                 bounds = &storage;
             }
 
@@ -1556,116 +1555,72 @@ void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar po
         offset, *fMatrix, pos, scalarsPerPosition, cache.get(), drawOneGlyph);
 }
 
-void SkDraw::drawGlyphRunAsPaths(
-        SkGlyphRun* glyphRun, SkPoint origin, const SkSurfaceProps* props) const {
-    // setup our std paint, in hopes of getting hits in the cache
-    const SkPaint& origPaint = glyphRun->paint();
-    SkPaint paint(glyphRun->paint());
-    SkScalar matrixScale = paint.setupForAsPaths();
+void SkDraw::blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const {
+    SkASSERT(SkMask::kARGB32_Format == mask.fFormat);
+    SkBitmap bm;
+    bm.installPixels(
+            SkImageInfo::MakeN32Premul(mask.fBounds.width(), mask.fBounds.height()),
+            (SkPMColor*)mask.fImage, mask.fRowBytes);
 
-    SkMatrix matrix;
-    matrix.setScale(matrixScale, matrixScale);
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            paint, props, this->scalerContextFlags(), nullptr);
-
-    // Now restore the original settings, so we "draw" with whatever style/stroking.
-    paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(origPaint.refPathEffect());
-
-    auto eachGlyph = [this, origin, &cache, &matrix, &paint](SkGlyphID glyphID, SkPoint position) {
-        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-        if (glyph.fWidth > 0) {
-            const SkPath* path = cache->findPath(glyph);
-            if (path != nullptr) {
-                SkPoint loc = position + origin;
-                matrix[SkMatrix::kMTransX] = loc.fX;
-                matrix[SkMatrix::kMTransY] = loc.fY;
-                this->drawPath(*path, paint, &matrix, false);
-            }
-        }
-    };
-    glyphRun->forEachGlyphAndPosition(eachGlyph);
+    this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
 }
 
-void SkDraw::drawGlyphRunAsSubpixelMask(
-        SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin) const {
+SkGlyphRunListDrawer::PerMask SkDraw::drawOneMaskCreator(
+        const SkPaint& paint, SkArenaAlloc* alloc) const {
+    SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, alloc, false);
+    if (fCoverage != nullptr) {
+        auto coverageBlitter = SkBlitter::Choose(*fCoverage, *fMatrix, SkPaint(), alloc, true);
+        blitter = alloc->make<SkPairBlitter>(blitter, coverageBlitter);
+    }
 
-    SkMatrix matrix = *fMatrix;
-    // Add rounding and origin.
-    SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
-    SkPoint rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
-    matrix.preTranslate(origin.x(), origin.y());
-    matrix.postTranslate(rounding.x(), rounding.y());
+    auto wrapaper = alloc->make<SkAAClipBlitterWrapper>(*fRC, blitter);
+    blitter = wrapaper->getBlitter();
 
-    glyphRun->mapPositions(matrix);
+    auto useRegion = fRC->isBW() && !fRC->isRect();
 
-    auto paint = glyphRun->paint();
-    // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
-    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
-    DrawOneGlyph           drawOneGlyph(*this, paint, cache, wrapper.getBlitter());
+    if (useRegion) {
+        return [this, blitter, &paint](const SkMask& mask) {
+            SkRegion::Cliperator clipper(fRC->bwRgn(), mask.fBounds);
 
-    auto eachGlyph = [cache, &drawOneGlyph, axisAlignment](SkGlyphID glyphID, SkPoint position) {
-        auto subpixelAlignment = [](SkAxisAlignment axisAlignment, SkPoint position) -> SkIPoint {
-
-            if (!SkScalarsAreFinite(position.fX, position.fY)) {
-                return {0, 0};
+            if (!clipper.done()) {
+                if (SkMask::kARGB32_Format == mask.fFormat) {
+                    this->blitARGB32Mask(mask, paint);
+                } else {
+                    const SkIRect& cr = clipper.rect();
+                    do {
+                        blitter->blitMask(mask, cr);
+                        clipper.next();
+                    } while (!clipper.done());
+                }
             }
-
-            // Only the fractional part of position.fX and position.fY matter, because the result of
-            // this function will just be passed to FixedToSub.
-            switch (axisAlignment) {
-                case kX_SkAxisAlignment:
-                    return {SkScalarToFixed(SkScalarFraction(position.fX)), 0};
-                case kY_SkAxisAlignment:
-                    return {0, SkScalarToFixed(SkScalarFraction(position.fY))};
-                case kNone_SkAxisAlignment:
-                    return {SkScalarToFixed(SkScalarFraction(position.fX)),
-                            SkScalarToFixed(SkScalarFraction(position.fY))};
-            }
-            SK_ABORT("Should not get here.");
-            return {0, 0};
         };
+    } else {
+        SkIRect clipBounds = fRC->isBW() ? fRC->bwRgn().getBounds()
+                                         : fRC->aaRgn().getBounds();
+        return [this, blitter, clipBounds, &paint](const SkMask& mask) {
+            SkIRect  storage;
+            const SkIRect* bounds = &mask.fBounds;
 
-        SkIPoint lookupPosition = subpixelAlignment(axisAlignment, position);
-        const SkGlyph& glyph = cache->getGlyphIDMetrics(
-                glyphID, lookupPosition.x(), lookupPosition.y());
-        if (glyph.fWidth > 0) {
-            drawOneGlyph(glyph, position, SkPoint::Make(0, 0));
-        }
-    };
-    glyphRun->forEachGlyphAndPosition(eachGlyph);
+            // this extra test is worth it, assuming that most of the time it succeeds
+            // since we can avoid writing to storage
+            if (!clipBounds.containsNoEmptyCheck(mask.fBounds)) {
+                if (!storage.intersectNoEmptyCheck(mask.fBounds, clipBounds)) {
+                    return;
+                }
+                bounds = &storage;
+            }
+
+            if (SkMask::kARGB32_Format == mask.fFormat) {
+                this->blitARGB32Mask(mask, paint);
+            } else {
+                blitter->blitMask(mask, *bounds);
+            }
+        };
+    }
 }
 
-void SkDraw::drawGlyphRunAsFullpixelMask(
-        SkGlyphCache* cache, SkGlyphRun* glyphRun, SkPoint origin) const {
-    SkMatrix matrix = *fMatrix;
-    // Add rounding and origin.
-    matrix.preTranslate(origin.x(), origin.y());
-    matrix.postTranslate(SK_ScalarHalf, SK_ScalarHalf);
-    glyphRun->mapPositions(matrix);
-
-    auto paint = glyphRun->paint();
-    // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
-    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
-    DrawOneGlyph           drawOneGlyph(*this, paint, cache, wrapper.getBlitter());
-
-    auto eachGlyph = [cache, &drawOneGlyph](SkGlyphID glyphID, SkPoint position) {
-        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-        if (glyph.fWidth > 0) {
-            drawOneGlyph(glyph, position, SkPoint::Make(0, 0));
-        }
-    };
-    glyphRun->forEachGlyphAndPosition(eachGlyph);
-}
-
-void SkDraw::drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps* props) const {
+void SkDraw::drawGlyphRunList(
+        SkGlyphRunList* glyphRunList, SkGlyphRunListDrawer* glyphDraw) const {
 
     SkDEBUGCODE(this->validate();)
 
@@ -1673,21 +1628,18 @@ void SkDraw::drawGlyphRunList(SkGlyphRunList* glyphRunList, const SkSurfaceProps
         return;
     }
 
-    SkPoint origin = glyphRunList->origin();
-    for (auto& glyphRun : *glyphRunList) {
-        if (ShouldDrawTextAsPaths(glyphRun.paint(), *fMatrix)) {
-            this->drawGlyphRunAsPaths(&glyphRun, origin, props);
-        } else {
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    glyphRun.paint(), props, this->scalerContextFlags(), fMatrix);
-            if (cache->isSubpixel()) {
-                this->drawGlyphRunAsSubpixelMask(cache.get(), &glyphRun, origin);
-            } else {
-                this->drawGlyphRunAsFullpixelMask(cache.get(), &glyphRun, origin);
-            }
-        }
-    }
+    auto perPathBuilder = [this](const SkPaint& paint, SkArenaAlloc*) {
+        auto perPath = [this, &paint](const SkPath& path, const SkMatrix& matrix) {
+            this->drawPath(path, paint, &matrix, false);
+        };
+        return perPath;
+    };
 
+    auto perMaskBuilder = [this](const SkPaint& paint, SkArenaAlloc* alloc) {
+        return this->drawOneMaskCreator(paint, alloc);
+    };
+
+    glyphDraw->drawForBitmap(glyphRunList, *fMatrix, perMaskBuilder, perPathBuilder);
 }
 
 #if defined _WIN32

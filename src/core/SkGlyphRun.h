@@ -12,16 +12,19 @@
 #include <memory>
 #include <vector>
 
+#include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkPoint.h"
+#include "SkSurfaceProps.h"
 #include "SkTemplates.h"
 #include "SkTextBlob.h"
 #include "SkTypes.h"
 
 class SkBaseDevice;
 class SkGlyphRunList;
+class SkRasterClip;
 
 template <typename T>
 class SkSpan {
@@ -69,7 +72,6 @@ public:
     template <typename PerGlyphPos>
     void forEachGlyphAndPosition(PerGlyphPos perGlyph) const;
 
-
     // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
     // are developed.
     void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin);
@@ -102,13 +104,43 @@ private:
     SkPaint fRunPaint;
 };
 
-template <typename PerGlyphPos>
-inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
-    SkPoint* ptCursor = fPositions.data();
-    for (auto glyphID : fGlyphIDs) {
-        perGlyph(glyphID, *ptCursor++);
-    }
-}
+class SkGlyphRunListDrawer {
+public:
+    // Constructor for SkBitmpapDevice.
+    SkGlyphRunListDrawer(
+            const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
+
+    using PerMask = std::function<void(const SkMask&)>;
+    using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
+    using PerPath = std::function<void(const SkPath&, const SkMatrix&)>;
+    using PerPathCreator = std::function<PerPath(const SkPaint&, SkArenaAlloc* alloc)>;
+    void drawForBitmap(
+            SkGlyphRunList* glyphRunList, const SkMatrix& deviceMatrix,
+            PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
+
+private:
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
+    bool ensureBitmapBuffers(size_t runSize);
+    void drawGlyphRunAsPaths(
+            SkGlyphRun* glyphRun, SkPoint origin,
+            const SkSurfaceProps& props, PerPath perPath) const;
+    void drawGlyphRunAsSubpixelMask(
+            SkGlyphCache* cache, SkGlyphRun* glyphRun,
+            SkPoint origin, const SkMatrix& deviceMatrix,
+            PerMask perMask);
+    void drawGlyphRunAsFullpixelMask(
+            SkGlyphCache* cache, SkGlyphRun* glyphRun,
+            SkPoint origin, const SkMatrix& deviceMatrix,
+            PerMask perMask);
+    // The props as on the actual device.
+    const SkSurfaceProps fDeviceProps;
+    // The props for when the bitmap device can't draw LCD text.
+    const SkSurfaceProps fBitmapFallbackProps;
+    const SkColorType fColorType;
+    const SkScalerContextFlags fScalerContextFlags;
+    size_t fMaxRunSize{0};
+    SkAutoTMalloc<SkPoint> fPositions;
+};
 
 class SkGlyphRunList {
     const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
@@ -268,5 +300,13 @@ private:
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
 };
+
+template <typename PerGlyphPos>
+inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
+    SkPoint* ptCursor = fPositions.data();
+    for (auto glyphID : fGlyphIDs) {
+        perGlyph(glyphID, *ptCursor++);
+    }
+}
 
 #endif  // SkGlyphRunInfo_DEFINED
