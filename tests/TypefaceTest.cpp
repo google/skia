@@ -15,6 +15,7 @@
 #include "SkSFNTHeader.h"
 #include "SkStream.h"
 #include "SkRefCnt.h"
+#include "sk_tool_utils.h"
 #include "SkTypeface.h"
 #include "SkTypefaceCache.h"
 #include "Resources.h"
@@ -263,6 +264,172 @@ DEF_TEST(TypefaceAxesParameters, reporter) {
 
 }
 
+DEF_TEST(TypefaceVariationDesignInstance, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+    constexpr int numberOfAxesInDistortable = 1;
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    SkFontArguments params;
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    if (typeface->getVariationDesignInstanceCount() == -1) {
+        // Error in getVariationDesignInstanceCount().
+        return;
+    }
+
+    int count = typeface->getVariationDesignInstancePosition(0, nullptr, 0);
+    if (count == -1) {
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, count == numberOfAxesInDistortable);
+
+    const float weightAxisValuesInDistortable[3] = {0.5, 1, 2};
+    for (int index = 0; index < typeface->getVariationDesignInstanceCount(); ++index) {
+        SkFontArguments::VariationPosition::Coordinate positionRead[numberOfAxesInDistortable];
+        count = typeface->getVariationDesignInstancePosition(index, positionRead,
+                                                             SK_ARRAY_COUNT(positionRead));
+        REPORTER_ASSERT(reporter, count == SK_ARRAY_COUNT(positionRead));
+
+        REPORTER_ASSERT(reporter, positionRead[0].axis == SkSetFourByteTag('w','g','h','t'));
+        REPORTER_ASSERT(reporter, positionRead[0].value == weightAxisValuesInDistortable[index]);
+    }
+}
+
+DEF_TEST(TypefaceAxisNameIterator, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+    constexpr int numberOfAxesInDistortable = 1;
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    const char* axisNamesInDistortable[1] = {"Weight"};
+    for (int axis = 0; axis < numberOfAxesInDistortable; ++axis) {
+        sk_sp<SkTypeface::LocalizedStrings> axisNameIter(typeface->createAxisNameIterator(axis));
+        if (!axisNameIter) {
+            return;
+        }
+
+        SkTypeface::LocalizedString axisNameLocalized;
+        while (axisNameIter->next(&axisNameLocalized)) {
+            // The language of distortable fonts on Linux is "en", while on Windows it is "en-us"
+            // Here we check the first two characters which are 'e' and 'n'
+            if (axisNameLocalized.fLanguage.size() < 2) {
+                return;
+            }
+
+            REPORTER_ASSERT(reporter, axisNameLocalized.fLanguage[0] == 'e');
+            REPORTER_ASSERT(reporter, axisNameLocalized.fLanguage[1] == 'n');
+            REPORTER_ASSERT(reporter,
+                            axisNameLocalized.fString == SkString(axisNamesInDistortable[axis]));
+        }
+    }
+}
+
+DEF_TEST(TypefaceVariationDesignInstanceNameIterator, reporter) {
+    std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
+    if (!distortable) {
+        REPORT_FAILURE(reporter, "distortable", SkString());
+        return;
+    }
+
+    sk_sp<SkFontMgr> fm = SkFontMgr::RefDefault();
+    const SkFontArguments::VariationPosition::Coordinate position[] = {
+        { SkSetFourByteTag('w','g','h','t'), SK_ScalarSqrt2 },
+    };
+    SkFontArguments params;
+    params.setVariationDesignPosition({position, SK_ARRAY_COUNT(position)});
+    sk_sp<SkTypeface> typeface = fm->makeFromStream(std::move(distortable), params);
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    const char* instanceNamesInDistortable[3] = {"Thin", "Normal", "Heavy"};
+    for (int instance = 0; instance < typeface->getVariationDesignInstanceCount(); ++instance) {
+        sk_sp<SkTypeface::LocalizedStrings> instanceNameIter(
+            typeface->createVariationDesignInstanceNameIterator(instance));
+        if (!instanceNameIter) {
+            return;
+        }
+
+        SkTypeface::LocalizedString instanceNameLocalized;
+        while (instanceNameIter->next(&instanceNameLocalized)) {
+            // The language of distortable fonts on Linux is "en", while on Windows it is "en-us"
+            // Here we check the first two characters which are 'e' and 'n'
+            if (instanceNameLocalized.fLanguage.size() < 2) {
+                return;
+            }
+
+            REPORTER_ASSERT(reporter, instanceNameLocalized.fLanguage[0] == 'e');
+            REPORTER_ASSERT(reporter, instanceNameLocalized.fLanguage[1] == 'n');
+            REPORTER_ASSERT(
+                reporter,
+                instanceNameLocalized.fString == SkString(instanceNamesInDistortable[instance]));
+        }
+    }
+}
+
+DEF_TEST(TypefacePaletteNameIterator, reporter) {
+    sk_sp<SkTypeface> typeface = MakeResourceAsTypeface("fonts/colr.ttf");
+    if (!typeface) {
+        // Not all SkFontMgr can makeFromStream().
+        return;
+    }
+
+    if (typeface->getPaletteCount() == -1) {
+        // Error in getPaletteCount().
+        return;
+    }
+
+    for (int palette = 0; palette < typeface->getPaletteCount(); ++palette) {
+        sk_sp<SkTypeface::LocalizedStrings> paletteNameIter(
+            typeface->createPaletteNameIterator(palette));
+
+        // The 'CPAL' table of "colr.ttf" doesn't contain appropriate data.
+        // paletteNameIter = NULL, will return from here
+        if (!paletteNameIter) {
+            return;
+        }
+
+        SkTypeface::LocalizedString paletteNameLocalized;
+        while (paletteNameIter->next(&paletteNameLocalized)) {
+            // The language of distortable fonts on Linux is "en", while on Windows it is "en-us"
+            // Here we check the first two characters which are 'e' and 'n'
+            if (paletteNameLocalized.fLanguage.size() < 2) {
+                return;
+            }
+
+            REPORTER_ASSERT(reporter, paletteNameLocalized.fLanguage[0] == 'e');
+            REPORTER_ASSERT(reporter, paletteNameLocalized.fLanguage[1] == 'n');
+
+            // Palette name checking need to be added.
+        }
+    }
+}
+
 namespace {
 
 class EmptyTypeface : public SkTypeface {
@@ -296,6 +463,19 @@ protected:
         SK_ABORT("unimplemented");
         return nullptr;
     }
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int instance) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override {
+        SK_ABORT("unimplemented");
+        return nullptr;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -304,6 +484,19 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override
+    {
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
