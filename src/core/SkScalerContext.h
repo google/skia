@@ -46,7 +46,7 @@ struct SkScalerContextEffects {
     SkMaskFilter*   fMaskFilter;
 };
 
-enum SkAxisAlignment {
+enum SkAxisAlignment : uint32_t {
     kNone_SkAxisAlignment,
     kX_SkAxisAlignment,
     kY_SkAxisAlignment
