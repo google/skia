@@ -714,8 +714,19 @@ protected:
     std::unique_ptr<SkFontData> onMakeFontData() const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
+    int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
+                                       int parameterCount) const override;
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override;
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int instance) const override;
+    int onGetVariationDesignInstanceCount() const override;
+    int onGetPaletteCount() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -2157,6 +2168,98 @@ int SkTypeface_Mac::onGetVariationDesignPosition(
     return axisCount;
 }
 
+int SkTypeface_Mac::onGetVariationDesignParameters(
+        SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
+    // The CGFont variation data does not contain the tag.
+
+    // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+    // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
+    UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
+    if (!ctAxes) {
+        return -1;
+    }
+    CFIndex axisCount = CFArrayGetCount(ctAxes.get());
+    if (!parameters || parameterCount < axisCount) {
+        return axisCount;
+    }
+
+    for (int i = 0; i < axisCount; ++i) {
+        CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), i);
+        if (CFGetTypeID(axisInfo) != CFDictionaryGetTypeID()) {
+            return -1;
+        }
+        CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
+
+        CFTypeRef tag = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisIdentifierKey);
+        if (!tag || CFGetTypeID(tag) != CFNumberGetTypeID()) {
+            return -1;
+        }
+        CFNumberRef tagNumber = static_cast<CFNumberRef>(tag);
+        int64_t tagLong;
+        if (!CFNumberGetValue(tagNumber, kCFNumberSInt64Type, &tagLong)) {
+            return -1;
+        }
+        parameters[i].tag = tagLong;
+
+        CGFloat minCGFloat;
+        CFTypeRef min = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMinimumValueKey);
+        if (!min || CFGetTypeID(min) != CFNumberGetTypeID()) {
+            return -1;
+        }
+        CFNumberRef minValue = static_cast<CFNumberRef>(min);
+        if (!CFNumberGetValue(minValue, kCFNumberCGFloatType, &minCGFloat)) {
+            return -1;
+        }
+        parameters[i].min = minCGFloat;
+
+        CGFloat defCGFloat;
+        CFTypeRef def = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisDefaultValueKey);
+        if (!def || CFGetTypeID(def) != CFNumberGetTypeID()) {
+            return -1;
+        }
+        CFNumberRef defValue = static_cast<CFNumberRef>(def);
+        if (!CFNumberGetValue(defValue, kCFNumberCGFloatType, &defCGFloat)) {
+            return -1;
+        }
+        parameters[i].def = defCGFloat;
+
+        CGFloat maxCGFloat;
+        CFTypeRef max = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisMaximumValueKey);
+        if (!max || CFGetTypeID(max) != CFNumberGetTypeID()) {
+            return -1;
+        }
+        CFNumberRef maxValue = static_cast<CFNumberRef>(max);
+        if (!CFNumberGetValue(maxValue, kCFNumberCGFloatType, &maxCGFloat)) {
+            return -1;
+        }
+        parameters[i].max = maxCGFloat;
+
+        bool hidden = false;
+        // We need to check if the system (mac or ios) supports kCTFontVariationAxisHiddenKey
+        void* hiddenKeyPtr = dlsym(RTLD_DEFAULT, "kCTFontVariationAxisHiddenKey");
+        if (hiddenKeyPtr) {
+            CFTypeRef hiddenFlag = CFDictionaryGetValue(axisInfoDict, *(static_cast<CFStringRef*>(hiddenKeyPtr)));
+            if (!hiddenFlag || CFGetTypeID(hiddenFlag) != CFBooleanGetTypeID()) {
+                return -1;
+            }
+            CFBooleanRef hiddenValue = static_cast<CFBooleanRef>(hiddenFlag);
+            hidden = SkToBool(CFBooleanGetValue(hiddenValue));
+        }
+        parameters[i].setHidden(hidden);
+
+    }
+    return axisCount;
+}
+
+int SkTypeface_Mac::onGetVariationDesignInstancePosition(
+    int index,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    // Unable to retrieve variation instance info currently
+    // Need to be fixed
+    return -1;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -2188,6 +2291,69 @@ SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const
         nameIter = new SkOTUtils::LocalizedStrings_SingleName(skFamilyName, skLanguage);
     }
     return nameIter;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateAxisNameIterator(int axis) const {
+    // The CGFont variation data does not contain the tag.
+
+    // CTFontCopyVariationAxes returns nullptr for CGFontCreateWithDataProvider fonts with
+    // macOS 10.10 and iOS 9 or earlier. When this happens, there is no API to provide the tag.
+    UniqueCFRef<CFArrayRef> ctAxes(CTFontCopyVariationAxes(fFontRef.get()));
+    if (!ctAxes) {
+        return nullptr;
+    }
+    CFIndex axisCount = CFArrayGetCount(ctAxes.get());
+    if (axis < 0 || axis >= axisCount) {
+        return nullptr;
+    }
+
+    CFTypeRef axisInfo = CFArrayGetValueAtIndex(ctAxes.get(), axis);
+    if (CFGetTypeID(axisInfo) != CFDictionaryGetTypeID()) {
+        return nullptr;
+    }
+    CFDictionaryRef axisInfoDict = static_cast<CFDictionaryRef>(axisInfo);
+
+    CFTypeRef cfAxisName = CFDictionaryGetValue(axisInfoDict, kCTFontVariationAxisNameKey);
+    if (!cfAxisName || CFGetTypeID(cfAxisName) != CFStringGetTypeID()) {
+        return nullptr;
+    }
+    CFStringRef axisNameRef = static_cast<CFStringRef>(cfAxisName);
+    SkString skAxisName;
+    CFStringToSkString(axisNameRef, &skAxisName);
+
+    CFStringRef cfLanguageRaw;
+    CTFontCopyLocalizedName(fFontRef.get(), kCTFontFamilyNameKey, &cfLanguageRaw);
+    UniqueCFRef<CFStringRef> cfLanguage(cfLanguageRaw);
+    SkString skLanguage;
+    if (cfLanguage) {
+        CFStringToSkString(cfLanguage.get(), &skLanguage);
+    } else {
+        skLanguage = "und"; //undetermined
+    }
+
+    SkTypeface::LocalizedStrings* nameIter =
+        new SkOTUtils::LocalizedStrings_SingleName(skAxisName, skLanguage);
+
+    return nameIter;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateVariationDesignInstanceNameIterator(
+    int instance) const {
+    // Unable to retrieve variation instance info currently
+    // Need to be fixed
+    return nullptr;
+}
+
+int SkTypeface_Mac::onGetPaletteCount() const {
+    // Unable to retrieve color palette count currently
+    // Need to be fixed
+    return 0;
+}
+
+int SkTypeface_Mac::onGetVariationDesignInstanceCount() const {
+    // Unable to retrieve variation instance count currently
+    // Need to be fixed
+    return 0;
 }
 
 int SkTypeface_Mac::onGetTableTags(SkFontTableTag tags[]) const {
