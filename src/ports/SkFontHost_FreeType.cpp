@@ -1571,6 +1571,28 @@ SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateFamilyNameIterator() 
     return nameIter;
 }
 
+SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateAxisNameIterator(int axis) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    FT_MM_Var* variations = nullptr;
+    FT_Error err = FT_Get_MM_Var(face, &variations);
+    if (err) {
+        SkDEBUGF("INFO: font %s claims to have variations, but none found.\n",
+                 face->family_name);
+        return nullptr;
+    }
+    SkAutoFree autoFreeVariations(variations);
+
+    const FT_Var_Axis& ftAxis = variations->axis[axis];
+    FT_String* fAxisName = ftAxis.name;
+    return (LocalizedStrings*)fAxisName;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface_FreeType::onCreateVariationDesignInstanceIterator(
+    int axis) const {
+    return nullptr;
+}
+
 int SkTypeface_FreeType::onGetVariationDesignPosition(
     SkFontArguments::VariationPosition::Coordinate coordinates[], int coordinateCount) const
 {
@@ -1655,6 +1677,48 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     }
 
     return variations->num_axis;
+}
+
+int SkTypeface_FreeType::onGetVariationDesignInstancePosition(
+    int index,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+    FT_Long num_instances = face->style_flags >> 16;
+    if (!coordinates || coordinateCount < SkToInt(num_instances)) {
+        return SkToInt(num_instances);
+    }
+    // bla bla bla
+    return SkToInt(num_instances);
+}
+
+int SkTypeface_FreeType::onGetVariationDesignInstanceCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+    FT_Long num_instances = face->style_flags >> 16;
+    return SkToInt(num_instances);
+}
+
+int SkTypeface_FreeType::onGetPaletteCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+    FT_Palette_Data  palette_data;
+    FT_Error err = FT_Palette_Data_Get(face, &palette_data);
+    if (err) {
+        SK_TRACEFTR(err, "Could not get palette data.", palette_data);
+        return -1;
+    }
+    return SkToInt(palette_data.num_palettes);
 }
 
 int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {

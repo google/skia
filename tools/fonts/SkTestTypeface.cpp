@@ -169,6 +169,15 @@ SkTypeface::LocalizedStrings* SkTestTypeface::onCreateFamilyNameIterator() const
     return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
 }
 
+SkTypeface::LocalizedStrings* SkTestTypeface::onCreateAxisNameIterator(int axis) const {
+    return nullptr;
+}
+
+SkTypeface::LocalizedStrings* SkTestTypeface::onCreateVariationDesignInstanceIterator(
+    int axis) const {
+    return nullptr;
+}
+
 class SkTestScalerContext : public SkScalerContext {
 public:
     SkTestScalerContext(sk_sp<SkTestTypeface> face, const SkScalerContextEffects& effects,

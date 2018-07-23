@@ -40,11 +40,14 @@ protected:
 
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
-
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override;
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceIterator(int axis) const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override;
+    int onGetVariationDesignInstanceCount() const override;
+    int onGetPaletteCount() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;

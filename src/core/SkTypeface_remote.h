@@ -87,6 +87,14 @@ protected:
         SK_ABORT("Should never be called.");
         return 0;
     }
+    int onGetVariationDesignInstanceCount() const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
+    int onGetPaletteCount() const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
     void onGetFamilyName(SkString* familyName) const override {
         // Used by SkStrikeCache::DumpMemoryStatistics.
         *familyName = "";
