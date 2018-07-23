@@ -163,6 +163,29 @@ SkData* SkOTUtils::RenameFont(SkStreamAsset* fontData, const char* fontName, int
     return rewrittenFontData.release();
 }
 
+SkOTUtils::LocalizedStrings_NameTable*
+SkOTUtils::LocalizedStrings_NameTable::Create(const SkTypeface& typeface,
+                                              SK_OT_USHORT types[],
+                                              int typesCount)
+{
+    static const SkFontTableTag nameTag = SkSetFourByteTag('n','a','m','e');
+    size_t nameTableSize = typeface.getTableSize(nameTag);
+    if (0 == nameTableSize) {
+        return nullptr;
+    }
+    std::unique_ptr<uint8_t[]> nameTableData(new uint8_t[nameTableSize]);
+    size_t copied = typeface.getTableData(nameTag, 0, nameTableSize, nameTableData.get());
+    if (copied != nameTableSize) {
+        return nullptr;
+    }
+
+    SkOTTableName::Record::NameID::Predefined::Value new_types
+        = (SkOTTableName::Record::NameID::Predefined::Value)SkEndian_SwapBE16(*types);
+
+    return new SkOTUtils::LocalizedStrings_NameTable((SkOTTableName*)nameTableData.release(),
+                                                     &new_types,
+                                                     typesCount);
+}
 
 SkOTUtils::LocalizedStrings_NameTable*
 SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(const SkTypeface& typeface) {
