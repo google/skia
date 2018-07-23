@@ -13,12 +13,15 @@
 
 #include "SkDevice.h"
 #include "SkDraw.h"
+#include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphCache.h"
 #include "SkMSAN.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkPaintPriv.h"
+#include "SkPathEffect.h"
+#include "SkRasterClip.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobRunIterator.h"
@@ -74,7 +77,6 @@ void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
         point = fPositions[i];
         perGlyph(&run, runPaint);
     }
-
 }
 
 void SkGlyphRun::mapPositions(const SkMatrix& matrix) {
@@ -102,6 +104,212 @@ void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
 void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
     memcpy(glyphIDs, fGlyphIDs.data(), fGlyphIDs.size_bytes());
     memcpy(positions, fPositions.data(), fPositions.size_bytes());
+}
+
+// -- SkGlyphRunListDrawer -------------------------------------------------------------------------
+SkGlyphRunListDrawer::SkGlyphRunListDrawer(
+        const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
+        : fDeviceProps{props}
+        , fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
+        , fColorType{colorType}
+        , fScalerContextFlags{flags} {}
+
+bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+    // hairline glyphs are fast enough so we don't need to cache them
+    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
+        return true;
+    }
+
+    // we don't cache perspective
+    if (matrix.hasPerspective()) {
+        return true;
+    }
+
+    SkMatrix textM;
+    SkPaintPriv::MakeTextMatrix(&textM, paint);
+    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+}
+
+bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {
+    if (runSize > fMaxRunSize) {
+        fPositions.reset(runSize);
+        fMaxRunSize = runSize;
+    }
+
+    return true;
+}
+
+void SkGlyphRunListDrawer::drawGlyphRunAsPaths(
+        SkGlyphRun* glyphRun, SkPoint origin, const SkSurfaceProps& props, PerPath perPath) const {
+    // setup our std paint, in hopes of getting hits in the cache
+    const SkPaint& origPaint = glyphRun->paint();
+    SkPaint paint(glyphRun->paint());
+    SkScalar matrixScale = paint.setupForAsPaths();
+
+    SkMatrix matrix;
+    matrix.setScale(matrixScale, matrixScale);
+
+    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
+    paint.setStyle(SkPaint::kFill_Style);
+    paint.setPathEffect(nullptr);
+
+    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            paint, &props, fScalerContextFlags, nullptr);
+
+    // Now restore the original settings, so we "draw" with whatever style/stroking.
+    paint.setStyle(origPaint.getStyle());
+    paint.setPathEffect(origPaint.refPathEffect());
+
+    auto eachGlyph = [perPath{std::move(perPath)}, origin, &cache, &matrix]
+            (SkGlyphID glyphID, SkPoint position) {
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        if (glyph.fWidth > 0) {
+            const SkPath* path = cache->findPath(glyph);
+            if (path != nullptr) {
+                SkPoint loc = position + origin;
+                matrix[SkMatrix::kMTransX] = loc.fX;
+                matrix[SkMatrix::kMTransY] = loc.fY;
+                perPath(*path, matrix);
+            }
+        }
+    };
+
+    glyphRun->forEachGlyphAndPosition(eachGlyph);
+}
+
+static bool prepare_mask(
+        SkGlyphCache* cache, const SkGlyph& glyph, SkPoint position, SkMask* mask) {
+    if (glyph.fWidth == 0) { return false; }
+
+    // Prevent glyphs from being drawn outside of or straddling the edge of device space.
+    // Comparisons written a little weirdly so that NaN coordinates are treated safely.
+    auto gt = [](float a, int b) { return !(a <= (float)b); };
+    auto lt = [](float a, int b) { return !(a >= (float)b); };
+    if (gt(position.fX, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
+        lt(position.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) ||
+        gt(position.fY, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) ||
+        lt(position.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/))) {
+        return false;
+    }
+
+    int left = SkScalarFloorToInt(position.fX);
+    int top  = SkScalarFloorToInt(position.fY);
+
+    left += glyph.fLeft;
+    top  += glyph.fTop;
+
+    int right   = left + glyph.fWidth;
+    int bottom  = top  + glyph.fHeight;
+
+    mask->fBounds.set(left, top, right, bottom);
+    SkASSERT(!mask->fBounds.isEmpty());
+
+    uint8_t* bits = (uint8_t*)(cache->findImage(glyph));
+    if (nullptr == bits) {
+        return false;  // can't rasterize glyph
+    }
+
+    mask->fImage    = bits;
+    mask->fRowBytes = glyph.rowBytes();
+    mask->fFormat   = static_cast<SkMask::Format>(glyph.fMaskFormat);
+
+    return true;
+}
+
+void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
+        SkGlyphCache* cache, SkGlyphRun* glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerMask perMask) {
+    auto runSize = glyphRun->runSize();
+    if (this->ensureBitmapBuffers(glyphRun->runSize())) {
+        // Add rounding and origin.
+        SkMatrix matrix = deviceMatrix;
+        SkAxisAlignment axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
+        SkPoint rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
+        matrix.preTranslate(origin.x(), origin.y());
+        matrix.postTranslate(rounding.x(), rounding.y());
+        matrix.mapPoints(fPositions, glyphRun->positions().data(), runSize);
+
+        const SkPoint* positionCursor = fPositions;
+        for (auto glyphID : glyphRun->shuntGlyphsIDs()) {
+            auto position = *positionCursor++;
+            if (SkScalarsAreFinite(position.fX, position.fY)) {
+                SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.fX)),
+                        lookupY = SkScalarToFixed(SkScalarFraction(position.fY));
+
+                // Snap to a given axis if alignment is requested.
+                if (axisAlignment == kX_SkAxisAlignment ) {
+                    lookupY = 0;
+                } else if (axisAlignment == kY_SkAxisAlignment) {
+                    lookupX = 0;
+                }
+
+                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID, lookupX, lookupY);
+                SkMask mask;
+                if (prepare_mask(cache, glyph, position, &mask)) {
+                    perMask(mask);
+                }
+            }
+        }
+    }
+}
+
+void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
+        SkGlyphCache* cache, SkGlyphRun* glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerMask perMask) {
+    auto runSize = glyphRun->runSize();
+    if (this->ensureBitmapBuffers(glyphRun->runSize())) {
+
+        // Add rounding and origin.
+        SkMatrix matrix = deviceMatrix;
+        matrix.preTranslate(origin.x(), origin.y());
+        matrix.postTranslate(SK_ScalarHalf, SK_ScalarHalf);
+        matrix.mapPoints(fPositions, glyphRun->positions().data(), runSize);
+
+        const SkPoint* positionCursor = fPositions;
+        for (auto glyphID : glyphRun->shuntGlyphsIDs()) {
+            auto position = *positionCursor++;
+            if (SkScalarsAreFinite(position.fX, position.fY)) {
+                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+                SkMask mask;
+                if (prepare_mask(cache, glyph, position, &mask)) {
+                    perMask(mask);
+                }
+            }
+        }
+    }
+}
+
+void SkGlyphRunListDrawer::drawForBitmap(
+        SkGlyphRunList* glyphRunList, const SkMatrix& deviceMatrix,
+        PerMaskCreator perMaskCreator, PerPathCreator perPathCreator) {
+
+    SkPoint origin = glyphRunList->origin();
+    for (auto& glyphRun : *glyphRunList) {
+        SkSTArenaAlloc<3332> alloc;
+        // The bitmap blitters can only draw lcd text to a N32 bitmap in srcOver. Otherwise,
+        // convert the lcd text into A8 text. The props communicates this to the scaler.
+        auto& props = (kN32_SkColorType == fColorType && glyphRun.paint().isSrcOver())
+                    ? fDeviceProps
+                    : fBitmapFallbackProps;
+        auto paint = glyphRun.paint();
+        if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
+            auto perPath = perPathCreator(paint, &alloc);
+            this->drawGlyphRunAsPaths(&glyphRun, origin, props, perPath);
+        } else {
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                    paint, &props, fScalerContextFlags, &deviceMatrix);
+            auto perMask = perMaskCreator(paint, &alloc);
+            if (cache->isSubpixel()) {
+                this->drawGlyphRunAsSubpixelMask(
+                        cache.get(), &glyphRun, origin, deviceMatrix, perMask);
+            } else {
+                this->drawGlyphRunAsFullpixelMask(
+                        cache.get(), &glyphRun, origin, deviceMatrix, perMask);
+            }
+        }
+    }
 }
 
 // -- SkGlyphRunList -------------------------------------------------------------------------------
