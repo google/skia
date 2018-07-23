@@ -223,6 +223,14 @@ int SkRandomTypeface::onGetVariationDesignParameters(
     return fProxy->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
+int SkRandomTypeface::onGetVariationDesignInstanceCount() const {
+    return fProxy->onGetVariationDesignInstanceCount();
+}
+
+int SkRandomTypeface::onGetPaletteCount() const {
+    return fProxy->onGetPaletteCount();
+}
+
 int SkRandomTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     return fProxy->getTableTags(tags);
 }

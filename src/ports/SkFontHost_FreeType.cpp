@@ -1657,6 +1657,31 @@ int SkTypeface_FreeType::onGetVariationDesignParameters(
     return variations->num_axis;
 }
 
+int SkTypeface_FreeType::onGetVariationDesignInstanceCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+    FT_Long num_instances = face->style_flags >> 16;
+    return (int) num_instances;
+}
+
+int SkTypeface_FreeType::onGetPaletteCount() const {
+    AutoFTAccess fta(this);
+    FT_Face face = fta.face();
+    if (!face) {
+        return -1;
+    }
+    FT_Palette_Data  palette_data;
+    FT_Error err = FT_Palette_Data_Get(face, &palette_data);
+    if (err) {
+        SK_TRACEFTR(err, "Could not get palette data.", palette_data);
+        return -1;
+    }
+    return palette_data.num_palettes;
+}
+
 int SkTypeface_FreeType::onGetTableTags(SkFontTableTag tags[]) const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();

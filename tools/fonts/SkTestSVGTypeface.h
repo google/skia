@@ -116,6 +116,14 @@ protected:
         return 0;
     }
 
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+
+    int onGetPaletteCount() const override {
+        return 0;
+    }
+
     int onGetTableTags(SkFontTableTag tags[]) const override {
         return 0;
     }
