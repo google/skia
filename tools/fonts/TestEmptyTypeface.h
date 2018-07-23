@@ -46,8 +46,8 @@ protected:
         bool next(SkTypeface::LocalizedString*) override { return false; }
     };
     void onGetFamilyName(SkString* familyName) const override { familyName->reset(); }
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
-        return new EmptyLocalizedStrings;
+    sk_sp<SkTypeface::LocalizedStrings> onCreateFamilyNameIterator() const override {
+        return sk_make_sp<EmptyLocalizedStrings>();
     }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override {

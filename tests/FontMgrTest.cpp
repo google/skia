@@ -152,8 +152,8 @@ static void test_matchStyleCSS3(skiatest::Reporter* reporter) {
         void onGetFamilyName(SkString* familyName) const override {
             familyName->reset();
         }
-        SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
-            return new EmptyLocalizedStrings;
+        sk_sp<SkTypeface::LocalizedStrings> onCreateFamilyNameIterator() const override {
+            return sk_make_sp<EmptyLocalizedStrings>();
         }
         int onGetVariationDesignPosition(
                 SkFontArguments::VariationPosition::Coordinate coordinates[],

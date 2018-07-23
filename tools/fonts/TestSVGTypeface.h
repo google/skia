@@ -104,7 +104,7 @@ protected:
     int onGetUPEM() const override { return fUpem; }
 
     void                          onGetFamilyName(SkString* familyName) const override;
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    sk_sp<SkTypeface::LocalizedStrings> onCreateFamilyNameIterator() const override;
 
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override {

@@ -73,8 +73,18 @@ protected:
     void onGetFamilyName(SkString* familyName) const override {
         familyName->reset();
     }
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
-        return new EmptyLocalizedStrings;
+    sk_sp<SkTypeface::LocalizedStrings> onCreateFamilyNameIterator() const override {
+        return sk_make_sp<EmptyLocalizedStrings>();
+    }
+    sk_sp<SkTypeface::LocalizedStrings> onCreateAxisNameIterator(int axis) const override {
+        return sk_make_sp<EmptyLocalizedStrings>();
+    }
+    sk_sp<SkTypeface::LocalizedStrings>
+    onCreateVariationDesignInstanceNameIterator(int instance) const override {
+        return sk_make_sp<EmptyLocalizedStrings>();
+    }
+    sk_sp<SkTypeface::LocalizedStrings> onCreatePaletteNameIterator(int palette) const override {
+        return sk_make_sp<EmptyLocalizedStrings>();
     }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
@@ -84,6 +94,19 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+    int onGetVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override
+    {
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
@@ -245,6 +268,22 @@ int SkTypeface::getVariationDesignParameters(
     return this->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
+int SkTypeface::getVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const
+{
+    return this->onGetVariationDesignInstancePosition(instance, coordinates, coordinateCount);
+}
+
+int SkTypeface::getVariationDesignInstanceCount() const {
+    return this->onGetVariationDesignInstanceCount();
+}
+
+int SkTypeface::getPaletteCount() const {
+    return this->onGetPaletteCount();
+}
+
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);
 }
@@ -328,7 +367,20 @@ bool SkTypeface::getKerningPairAdjustments(const uint16_t glyphs[], int count,
 }
 
 SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
-    return this->onCreateFamilyNameIterator();
+    return this->onCreateFamilyNameIterator().release();
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface::createAxisNameIterator(int axis) const {
+    return this->onCreateAxisNameIterator(axis);
+}
+
+sk_sp<SkTypeface::LocalizedStrings>
+SkTypeface::createVariationDesignInstanceNameIterator(int instance) const {
+    return this->onCreateVariationDesignInstanceNameIterator(instance);
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface::createPaletteNameIterator(int palette) const {
+    return this->onCreatePaletteNameIterator(palette);
 }
 
 void SkTypeface::getFamilyName(SkString* name) const {
@@ -372,7 +424,35 @@ sk_sp<SkTypeface> SkTypeface::onMakeClone(const SkFontArguments& args) const {
 
 int SkTypeface::onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
+    return 0;
+}
+
+int SkTypeface::onGetVariationDesignInstancePosition(
+    int instance,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    return 0;
+}
+
+int SkTypeface::onGetVariationDesignInstanceCount() const {
     return -1;
+}
+
+int SkTypeface::onGetPaletteCount() const {
+    return -1;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface::onCreateAxisNameIterator(int axis) const {
+    return nullptr;
+}
+
+sk_sp<SkTypeface::LocalizedStrings>
+SkTypeface::onCreateVariationDesignInstanceNameIterator(int instance) const {
+    return nullptr;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> SkTypeface::onCreatePaletteNameIterator(int palette) const {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
