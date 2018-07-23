@@ -300,6 +300,17 @@ void SkTouchGesture::touchEnd(void* owner) {
     limitTrans();
 }
 
+bool SkTouchGesture::isFling(SkPoint* dir) {
+    if (fFlinger.isActive()) {
+        SkScalar speed;
+        fFlinger.get(dir, &speed);
+        if (speed > 1000) {
+            return true;
+        }
+    }
+    return false;
+}
+
 float SkTouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
     double dx = rec0.fStartX - rec1.fStartX;
     double dy = rec0.fStartY - rec1.fStartY;
