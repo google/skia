@@ -104,6 +104,10 @@ protected:
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
 
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override;
+
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceIterator(int axis) const override;
+
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -113,6 +117,14 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+
+    int onGetPaletteCount() const override {
         return 0;
     }
 

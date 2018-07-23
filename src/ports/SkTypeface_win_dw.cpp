@@ -289,6 +289,17 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
     return -1;
 }
 
+int DWriteFontTypeface::onGetVariationDesignInstanceCount() const {
+    // Unable to retrieve instance count currently
+    // Need to be fixed
+    return 0;
+}
+
+int DWriteFontTypeface::onGetPaletteCount() const {
+    IDWriteFontFace2* fontFace2 = fDWriteFontFace2.get();
+    return fontFace2->GetColorPaletteCount();
+}
+
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {
     DWRITE_FONT_FACE_TYPE type = fDWriteFontFace->GetType();
     if (type != DWRITE_FONT_FACE_TYPE_CFF &&
