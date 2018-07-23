@@ -272,15 +272,30 @@ protected:
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override {
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int axis) const override {
+        return nullptr;
+    }
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override {
+        return nullptr;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
-                                     int coordinateCount) const override
+                                     int coordinateCount) const override 
     {
         return -1;
     }
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
-                                       int parameterCount) const override
-    {
+                                       int parameterCount) const override {
         return -1;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
+        return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
