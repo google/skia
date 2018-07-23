@@ -65,6 +65,9 @@ private:
         if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace4))) {
             SkASSERT_RELEASE(nullptr == fDWriteFontFace4.get());
         }
+        if (!SUCCEEDED(fDWriteFontFace->QueryInterface(&fDWriteFontFace5))) {
+            SkASSERT_RELEASE(nullptr == fDWriteFontFace5.get());
+        }
         if (!SUCCEEDED(fFactory->QueryInterface(&fFactory2))) {
             SkASSERT_RELEASE(nullptr == fFactory2.get());
         }
@@ -81,6 +84,7 @@ public:
     SkTScopedComPtr<IDWriteFontFace1> fDWriteFontFace1;
     SkTScopedComPtr<IDWriteFontFace2> fDWriteFontFace2;
     SkTScopedComPtr<IDWriteFontFace4> fDWriteFontFace4;
+    SkTScopedComPtr<IDWriteFontFace5> fDWriteFontFace5;
 
     static DWriteFontTypeface* Create(IDWriteFactory* factory,
                                       IDWriteFontFace* fontFace,
@@ -119,10 +123,20 @@ protected:
     int onGetUPEM() const override;
     void onGetFamilyName(SkString* familyName) const override;
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override;
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override;
+    SkTypeface::LocalizedStrings* onCreateVariationDesignInstanceNameIterator(
+        int instance) const override;
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override;
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override;
+    int onGetVariationDesignInstanceCount() const override;
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override;
+    int onGetPaletteCount() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset, size_t length, void* data) const override;
 
