@@ -14,10 +14,10 @@
 #include "ir/SkSLModifiersDeclaration.h"
 #include "ir/SkSLNop.h"
 #include "ir/SkSLVariableReference.h"
-#include <fstream>  // FIXME - remove streams when done inserting MSL code directly
-#include <sstream>
 
-static const uint32_t MVKMagicNum = 0x19960412; // FIXME - remove when decoupled from MVK
+#ifdef SK_MOLTENVK
+    static const uint32_t MVKMagicNum = 0x19960412;
+#endif
 
 namespace SkSL {
 
@@ -357,7 +357,7 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
             this->write("gl_ClipDistance");
             break;
         case SK_POSITION_BUILTIN:
-            this->write("_out->position");
+            this->write("_out->sk_Position");
             break;
         default:
             if (field->fName == "sk_PointSize") {
@@ -524,10 +524,18 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     if ("main" == f.fDeclaration.fName) {
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
-                this->write("fragment Outputs main0"); // FIXME - named main0 for MVK integration
+#ifdef SK_MOLTENVK
+                this->write("fragment Outputs main0");
+#else
+                this->write("fragment Outputs fragmentMain");
+#endif
                 break;
             case Program::kVertex_Kind:
+#ifdef SK_MOLTENVK
                 this->write("vertex Outputs main0");
+#else
+                this->write("vertex Outputs vertexMain");
+#endif
                 break;
             default:
                 SkASSERT(false);
@@ -574,7 +582,8 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             }
         }
         if (fInterfaceBlockNameMap.empty()) {
-            // FIXME - used for MVK integration
+            // FIXME - Possibly have a different way of passing in u_skRTHeight or flip y axis
+            // in a different way altogether.
             this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(0)]]");
         }
         if (fProgram.fKind == Program::kFragment_Kind) {
@@ -685,7 +694,7 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->writeLine("return *_out;");
                 break;
             case Program::kVertex_Kind:
-                this->writeLine("_out->position.y = -_out->position.y;");
+                this->writeLine("_out->sk_Position.y = -_out->sk_Position.y;");
                 this->writeLine("return *_out;"); // FIXME - detect if function already has return
                 break;
             default:
@@ -1079,7 +1088,7 @@ void MetalCodeGenerator::writeInputStruct() {
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
     if (fProgram.fKind == Program::kVertex_Kind) {
-        this->write("    float4 position [[position]];\n");
+        this->write("    float4 sk_Position [[position]];\n");
     } else if (fProgram.fKind == Program::kFragment_Kind) {
         this->write("    float4 sk_FragColor [[color(0), index(0)]];\n");
     }
@@ -1127,7 +1136,8 @@ void MetalCodeGenerator::writeInterfaceBlocks() {
         }
     }
     if (!wroteInterfaceBlock && (fProgram.fKind == Program::kFragment_Kind)) {
-        // FIXME - below struct needed for mvk integration
+        // FIXME - Possibly have a different way of passing in u_skRTHeight or flip y axis
+        // in a different way altogether.
         this->writeLine("struct sksl_synthetic_uniforms {");
         this->writeLine("    float u_skRTHeight;");
         this->writeLine("};");
@@ -1384,15 +1394,12 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     return found->second;
 }
 
-bool MetalCodeGenerator::generateCode() { // FIXME - use this one when done with inserting MSL
-    return false;
-}
-
-// FIXME - temporarily using this while inserting MSL
-bool MetalCodeGenerator::generateCode(int shaderNum) {
+bool MetalCodeGenerator::generateCode() {
     OutputStream* rawOut = fOut;
     fOut = &fHeader;
-    fOut->write((const char*) &MVKMagicNum, sizeof(MVKMagicNum)); // FIXME - for MVK integration
+#ifdef SK_MOLTENVK
+    fOut->write((const char*) &MVKMagicNum, sizeof(MVKMagicNum));
+#endif
     fProgramKind = fProgram.fKind;
     this->writeHeader();
     this->writeUniformStruct();
@@ -1409,36 +1416,10 @@ bool MetalCodeGenerator::generateCode(int shaderNum) {
 
     write_stringstream(fHeader, *rawOut);
     write_stringstream(body, *rawOut);
-    this->write("\0"); // FIXME - for MVK integration
+#ifdef SK_MOLTENVK
+    this->write("\0");
+#endif
     return true;
-
-    // FIXME - remove when done inserting MSL
-    // OutputStream* rawOut = fOut;
-    // fOut = &fHeader;
-    // // fOut->write((const char*) &MVKMagicNum, sizeof(MVKMagicNum)); // FIXME - for MVK integration
-    // // fProgramKind = fProgram.fKind;
-    // // this->writeHeader();
-    // // this->writeUniformStruct();
-    // // this->writeInputStruct();
-    // // this->writeOutputStruct();
-    // // this->writeGlobalStruct();
-    // (void) MVKMagicNum;
-    // StringStream body;
-    // fOut = &body;
-    // // for (const auto& e : fProgram) {
-    // //     this->writeProgramElement(e);
-    // // }
-    // std::ifstream mvkin("/Users/timliang/MVKShaders/mvk" + std::to_string(shaderNum) + ".metal");
-    // std::ostringstream contents;
-    // contents << mvkin.rdbuf();
-    // mvkin.close();
-    // this->write(contents.str().c_str());
-    // fOut = rawOut;
-
-    // write_stringstream(fHeader, *rawOut);
-    // write_stringstream(body, *rawOut);
-    // this->write("\0"); // FIXME - for MVK integration
-    // return true;
 }
 
 }
