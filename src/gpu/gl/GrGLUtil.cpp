@@ -367,31 +367,39 @@ GrGLRenderer GrGLGetRendererFromStrings(const char* rendererString,
         if (0 == strcmp("Google SwiftShader", rendererString)) {
             return kGoogleSwiftShader_GrGLRenderer;
         }
-        if (0 == strcmp("Intel Iris Pro OpenGL Engine", rendererString)) {
-            return kIntelIrisPro_GrGLRenderer;
-        }
 
-        int intelNumber;
-        if (sscanf(rendererString, "Intel(R) Iris(TM) Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(TM) Pro Graphics P%d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) Iris(R) Pro Graphics P%d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) HD Graphics %d", &intelNumber) ||
-            sscanf(rendererString, "Intel(R) HD Graphics P%d", &intelNumber)) {
-
-            if (intelNumber >= 4000 && intelNumber < 5000) {
-                return kIntel4xxx_GrGLRenderer;
+        if (const char* intelString = strstr(rendererString, "Intel")) {
+            if (0 == strcmp("Intel Iris Pro OpenGL Engine", intelString)) {
+                return kIntelIrisPro_GrGLRenderer;
             }
-            if (intelNumber >= 6000 && intelNumber < 7000) {
-                return kIntel6xxx_GrGLRenderer;
-            }
-            if (intelNumber >= 2000 && intelNumber < 4000) {
+            if (strstr(intelString, "Sandybridge")) {
                 return kIntelSandyBridge_GrGLRenderer;
             }
-            if (intelNumber >= 500 && intelNumber < 600) {
-                return kIntelSkylake_GrGLRenderer;
+            if (strstr(intelString, "Bay Trail")) {
+                return kIntelBayTrail_GrGLRenderer;
+            }
+            int intelNumber;
+            if (sscanf(intelString, "Intel(R) Iris(TM) Graphics %d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) Iris(TM) Pro Graphics %d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) Iris(TM) Pro Graphics P%d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) Iris(R) Graphics %d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) Iris(R) Pro Graphics %d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) Iris(R) Pro Graphics P%d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) HD Graphics %d", &intelNumber) ||
+                sscanf(intelString, "Intel(R) HD Graphics P%d", &intelNumber)) {
+
+                if (intelNumber >= 4000 && intelNumber < 5000) {
+                    return kIntel4xxx_GrGLRenderer;
+                }
+                if (intelNumber >= 6000 && intelNumber < 7000) {
+                    return kIntel6xxx_GrGLRenderer;
+                }
+                if (intelNumber >= 2000 && intelNumber < 4000) {
+                    return kIntelSandyBridge_GrGLRenderer;
+                }
+                if (intelNumber >= 500 && intelNumber < 600) {
+                    return kIntelSkylake_GrGLRenderer;
+                }
             }
         }
 

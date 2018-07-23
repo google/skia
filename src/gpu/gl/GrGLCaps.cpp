@@ -2674,11 +2674,11 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         fBlacklistCoverageCounting = true;
     }
 
-    // CCPR edge AA is busted on Sandy Bridge.
+    // CCPR edge AA is busted on Mesa, Sandy Bridge/Bay Trail.
     // http://skbug.com/8162
-    if (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
-        (kANGLE_GrGLRenderer == ctxInfo.renderer() &&
-         GrGLANGLERenderer::kSandyBridge == ctxInfo.angleRenderer())) {
+    if (kMesa_GrGLDriver == ctxInfo.driver() &&
+        (kIntelSandyBridge_GrGLRenderer == ctxInfo.renderer() ||
+         kIntelBayTrail_GrGLRenderer == ctxInfo.renderer())) {
         fBlacklistCoverageCounting = true;
     }
 }
