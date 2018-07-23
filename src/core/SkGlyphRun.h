@@ -22,6 +22,7 @@
 
 class SkBaseDevice;
 class SkGlyphRunList;
+class SkRasterClip;
 
 template <typename T>
 class SkSpan {
@@ -102,13 +103,24 @@ private:
     SkPaint fRunPaint;
 };
 
-template <typename PerGlyphPos>
-inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
-    SkPoint* ptCursor = fPositions.data();
-    for (auto glyphID : fGlyphIDs) {
-        perGlyph(glyphID, *ptCursor++);
-    }
-}
+class SkGlyphDraw {
+public:
+    SkGlyphDraw(const SkSurfaceProps* props, SkScalerContextFlags flags);
+
+    using PerPositionedGlyph = std::function<void(SkPoint, const SkGlyph&)>;
+    using PerPositionedPath = std::function<void(const SkPath&, const SkPaint&, const SkMatrix&)>;
+    void drawForBitmap(
+            SkGlyphRunList* glyphRunList, const SkMatrix& deviceMatrix, const SkRasterClip& clip,
+            PerPositionedGlyph perGlyph, PerPositionedPath perPath);
+
+private:
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
+    void drawGlyphRunAsPaths(
+            SkGlyphRun* glyphRun, SkPoint origin, PerPositionedPath perPath) const;
+    const SkSurfaceProps& fSurfaceProps;
+    const SkScalerContextFlags fScalerContextFlags;
+    SkAutoTMalloc<SkPoint> fPositions;
+};
 
 class SkGlyphRunList {
     const SkPaint* fOriginalPaint{nullptr};  // This should be deleted soon.
@@ -268,5 +280,13 @@ private:
     // Used for collecting the set of unique glyphs.
     SkGlyphIDSet fGlyphIDSet;
 };
+
+template <typename PerGlyphPos>
+inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
+    SkPoint* ptCursor = fPositions.data();
+    for (auto glyphID : fGlyphIDs) {
+        perGlyph(glyphID, *ptCursor++);
+    }
+}
 
 #endif  // SkGlyphRunInfo_DEFINED
