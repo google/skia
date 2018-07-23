@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a16f0eb8_46011fa1",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-23T21:27:00Z",
+      "side": 1,
+      "message": "Even more flexible...\n\n    template \u003ctypename U,\n              typename \u003d typename std::enable_if\u003cstd::is_convertible\u003cU*, T*\u003e::value \u0026\u0026\n                                                 sizeof(U) \u003d\u003d sizeof(T)\u003e::type\u003e\n    SkSpan(const SkSpan\u003cU\u003e\u0026 that) : fPtr(that.fPtr), fSize(that.fSize) {}\n\nstd::span seems to have something almost like this...",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 44,
+        "endChar": 76
+      },
+      "revId": "0489bcef203ca436e76dc4d916f9d58b5b17ed44",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
