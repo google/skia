@@ -74,6 +74,16 @@ protected:
     SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
         return new EmptyLocalizedStrings;
     }
+    SkTypeface::LocalizedStrings* onCreateAxisNameIterator(int axis) const override {
+        return new EmptyLocalizedStrings;
+    }
+    SkTypeface::LocalizedStrings*
+        onCreateVariationDesignInstanceNameIterator(int axis) const override {
+        return new EmptyLocalizedStrings;
+    }
+    SkTypeface::LocalizedStrings* onCreatePaletteNameIterator(int palette) const override {
+        return new EmptyLocalizedStrings;
+    }
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override
     {
@@ -82,6 +92,18 @@ protected:
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override
     {
+        return 0;
+    }
+    int onGetVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override {
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        return 0;
+    }
+    int onGetPaletteCount() const override {
         return 0;
     }
     int onGetTableTags(SkFontTableTag tags[]) const override { return 0; }
@@ -218,6 +240,22 @@ int SkTypeface::getVariationDesignParameters(
     return this->onGetVariationDesignParameters(parameters, parameterCount);
 }
 
+int SkTypeface::getVariationDesignInstancePosition(
+        int index,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const
+{
+    return this->onGetVariationDesignInstancePosition(index, coordinates, coordinateCount);
+}
+
+int SkTypeface::getVariationDesignInstanceCount() const {
+    return this->onGetVariationDesignInstanceCount();
+}
+
+int SkTypeface::getPaletteCount() const {
+    return this->onGetPaletteCount();
+}
+
 int SkTypeface::countTables() const {
     return this->onGetTableTags(nullptr);
 }
@@ -296,6 +334,18 @@ SkTypeface::LocalizedStrings* SkTypeface::createFamilyNameIterator() const {
     return this->onCreateFamilyNameIterator();
 }
 
+SkTypeface::LocalizedStrings* SkTypeface::createAxisNameIterator(int axis) const {
+    return this->onCreateAxisNameIterator(axis);
+}
+
+SkTypeface::LocalizedStrings* SkTypeface::createVariationDesignInstanceNameIterator(int axis) const {
+    return this->onCreateVariationDesignInstanceNameIterator(axis);
+}
+
+SkTypeface::LocalizedStrings* SkTypeface::createPaletteNameIterator(int palette) const {
+    return this->onCreatePaletteNameIterator(palette);
+}
+
 void SkTypeface::getFamilyName(SkString* name) const {
     SkASSERT(name);
     this->onGetFamilyName(name);
@@ -338,6 +388,33 @@ sk_sp<SkTypeface> SkTypeface::onMakeClone(const SkFontArguments& args) const {
 int SkTypeface::onGetVariationDesignParameters(
         SkFontParameters::Variation::Axis parameters[], int parameterCount) const {
     return -1;
+}
+
+int SkTypeface::onGetVariationDesignInstancePosition(
+    int index,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    return -1;
+}
+
+int SkTypeface::onGetVariationDesignInstanceCount() const {
+    return -1;
+}
+
+int SkTypeface::onGetPaletteCount() const {
+    return -1;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface::onCreateAxisNameIterator(int axis) const {
+    return nullptr;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface::onCreateVariationDesignInstanceNameIterator(int axis) const {
+    return nullptr;
+}
+
+SkTypeface::LocalizedStrings* SkTypeface::onCreatePaletteNameIterator(int palette) const {
+    return nullptr;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
