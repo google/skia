@@ -2,28 +2,50 @@
 # Builder: https://cloud.google.com/container-builder/docs/
 #
 steps:
-  # To test locally, first uncomment the last two lines, then submit with:
+  # To test locally, first uncomment the last two lines of this comment block, then submit with:
   #
   #    gcloud container builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=e01683e81de03caf5a2f9a23a5ae9f644908b56f
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
-  #  - name: 'gcr.io/cloud-builders/git'
-  #    args: ['clone', 'https://github.com/google/skia.git', '.']
+  # - name: 'gcr.io/cloud-builders/git'
+  #   args: ['clone', 'https://github.com/google/skia.git', '.']
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/skia-release:prod', './docker/skia-release']
     timeout: 7200s
   - name: 'gcr.io/skia-public/infra:prod'
     dir: '/home/skia/golib/src/go.skia.org/infra/fiddlek'
     env:
-      - 'ROOT=/workspace/__staging'
+      - 'ROOT=/workspace/__fiddler_staging'
       - 'SKIP_BUILD=1'
     args: ['./build_fiddler_release']
     timeout: 600s
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/skottie'
+    env:
+      - 'ROOT=/workspace/__skottie_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release']
+    timeout: 600s
+  - name: 'gcr.io/skia-public/infra:prod'
+    dir: '/home/skia/golib/src/go.skia.org/infra/debugger'
+    env:
+      - 'ROOT=/workspace/__debugger_staging'
+      - 'SKIP_BUILD=1'
+    args: ['make', 'release']
+    timeout: 600s
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__staging']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA', '/workspace/__fiddler_staging']
+    timeout: 600s
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA', '/workspace/__skottie_staging']
+    timeout: 600s
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA', '/workspace/__debugger_staging']
     timeout: 600s
 images:
   - 'gcr.io/$PROJECT_ID/fiddler:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/skottie:$COMMIT_SHA'
+  - 'gcr.io/$PROJECT_ID/debugger:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/skia-release:prod'
 timeout: 7200s
