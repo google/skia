@@ -20,6 +20,11 @@ struct SkFlingState {
     void reset(float sx, float sy);
     bool evaluateMatrix(SkMatrix* matrix);
 
+    void get(SkPoint* dir, SkScalar* speed) {
+        *dir = fDirection;
+        *speed = fSpeed0;
+    }
+
 private:
     SkPoint     fDirection;
     SkScalar    fSpeed0;
@@ -41,6 +46,7 @@ public:
     bool isActive() { return fFlinger.isActive(); }
     void stop() { fFlinger.stop(); }
     bool isBeingTouched() { return kEmpty_State != fState; }
+    bool isFling(SkPoint* dir);
 
     const SkMatrix& localM();
     const SkMatrix& globalM() const { return fGlobalM; }
