@@ -485,7 +485,9 @@ bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar r,
     }
     SkScalar theta = SkScalarATan2(rSin, rCos);
 
-    int steps = SkScalarRoundToInt(SkScalarAbs(r*theta*kRecipPixelsPerArcSegment));
+    SkScalar floatSteps = SkScalarAbs(r*theta*kRecipPixelsPerArcSegment);
+    // limit the number of steps to at most uint16_t size (that's all we can index)
+    int steps = SkScalarRoundToInt(SkTMin(SkIntToScalar(65535), floatSteps));
 
     SkScalar dTheta = steps > 0 ? theta / steps : 0;
     *rotSin = SkScalarSinCos(dTheta, rotCos);
