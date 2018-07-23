@@ -12,6 +12,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDevice.h"
+#include "SkGlyphRun.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
@@ -174,6 +175,8 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
     std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
+    SkGlyphRunListDrawer fGlyphDraw;
+
 
     typedef SkBaseDevice INHERITED;
 };
