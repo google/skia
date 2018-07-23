@@ -24,6 +24,15 @@ WindowContext* NewGLForWin(HWND, const DisplayParams&);
 
 WindowContext* NewANGLEForWin(HWND, const DisplayParams&);
 
+#ifdef SK_NXT
+#ifdef SK_NXT_OPENGL
+WindowContext* NewNXTGLForWin(HWND, const DisplayParams&);
+#endif
+#ifdef SK_NXT_D3D12
+WindowContext* NewNXTD3D12ForWin(HWND, const DisplayParams&);
+#endif
+#endif
+
 WindowContext* NewRasterForWin(HWND, const DisplayParams&);
 
 }  // namespace window_context_factory
