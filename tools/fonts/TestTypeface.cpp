@@ -156,10 +156,10 @@ int TestTypeface::onCharsToGlyphs(const void* chars,
 
 void TestTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fTestFont->fName; }
 
-SkTypeface::LocalizedStrings* TestTypeface::onCreateFamilyNameIterator() const {
+sk_sp<SkTypeface::LocalizedStrings> TestTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fTestFont->fName);
     SkString language("und");  // undetermined
-    return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
+    return sk_make_sp<SkOTUtils::LocalizedStrings_SingleName>(familyName, language);
 }
 
 class SkTestScalerContext : public SkScalerContext {

@@ -106,12 +106,21 @@ protected:
                         int glyphCount) const override;
     int onCountGlyphs() const override;
 
-    LocalizedStrings* onCreateFamilyNameIterator() const override;
+    sk_sp<LocalizedStrings> onCreateFamilyNameIterator() const override;
+    sk_sp<LocalizedStrings> onCreateAxisNameIterator(int axis) const override;
+    sk_sp<LocalizedStrings> onCreateVariationDesignInstanceNameIterator(int instance) const override;
+    sk_sp<LocalizedStrings> onCreatePaletteNameIterator(int palette) const override;
 
     int onGetVariationDesignPosition(SkFontArguments::VariationPosition::Coordinate coordinates[],
                                      int coordinateCount) const override;
     int onGetVariationDesignParameters(SkFontParameters::Variation::Axis parameters[],
                                        int parameterCount) const override;
+    int onGetVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override;
+    int onGetVariationDesignInstanceCount() const override;
+    int onGetPaletteCount() const override;
     int onGetTableTags(SkFontTableTag tags[]) const override;
     size_t onGetTableData(SkFontTableTag, size_t offset,
                           size_t length, void* data) const override;

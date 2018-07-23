@@ -87,11 +87,39 @@ protected:
         SK_ABORT("Should never be called.");
         return 0;
     }
+    int onGetVariationDesignInstancePosition(
+        int instance,
+        SkFontArguments::VariationPosition::Coordinate coordinates[],
+        int coordinateCount) const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
+    int onGetVariationDesignInstanceCount() const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
+    int onGetPaletteCount() const override {
+        SK_ABORT("Should never be called.");
+        return 0;
+    }
     void onGetFamilyName(SkString* familyName) const override {
         // Used by SkStrikeCache::DumpMemoryStatistics.
         *familyName = "";
     }
-    SkTypeface::LocalizedStrings* onCreateFamilyNameIterator() const override {
+    sk_sp<SkTypeface::LocalizedStrings> onCreateFamilyNameIterator() const override {
+        SK_ABORT("Should never be called.");
+        return nullptr;
+    }
+    sk_sp<SkTypeface::LocalizedStrings> onCreateAxisNameIterator(int axis) const override {
+        SK_ABORT("Should never be called.");
+        return nullptr;
+    }
+    sk_sp<SkTypeface::LocalizedStrings> onCreateVariationDesignInstanceNameIterator(
+        int instance) const override {
+        SK_ABORT("Should never be called.");
+        return nullptr;
+    }
+    sk_sp<SkTypeface::LocalizedStrings> onCreatePaletteNameIterator(int palette) const override {
         SK_ABORT("Should never be called.");
         return nullptr;
     }

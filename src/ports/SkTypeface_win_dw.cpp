@@ -175,7 +175,7 @@ private:
     SkTScopedComPtr<IDWriteLocalizedStrings> fStrings;
 };
 
-SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() const {
+sk_sp<SkTypeface::LocalizedStrings> DWriteFontTypeface::onCreateFamilyNameIterator() const {
     sk_sp<SkTypeface::LocalizedStrings> nameIter =
         SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*this);
     if (!nameIter) {
@@ -183,7 +183,42 @@ SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() c
         HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
         nameIter = sk_make_sp<LocalizedStrings_IDWriteLocalizedStrings>(familyNames.release());
     }
-    return nameIter.release();
+    return nameIter;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> DWriteFontTypeface::onCreateAxisNameIterator(int axis) const {
+
+#if defined(NTDDI_WIN10_RS3) && NTDDI_VERSION >= NTDDI_WIN10_RS3
+
+    SkTScopedComPtr<IDWriteFontFace5> fontFace5;
+    HRN(fDWriteFontFace->QueryInterface(&fontFace5));
+
+    if (!fontFace5->HasVariations()) {
+        return nullptr;
+    }
+
+    SkTScopedComPtr<IDWriteFontResource> fontResource;
+    HRNM(fontFace5->GetFontResource(&fontResource), "Could not get font resources.");
+    SkTScopedComPtr<IDWriteLocalizedStrings> axisName;
+    HRNM(fontResource->GetAxisNames(axis, &axisName), "Could not get axis name.");
+    return sk_make_sp<new LocalizedStrings_IDWriteLocalizedStrings>(axisName.release());
+
+#endif
+
+    return nullptr;
+}
+
+sk_sp<SkTypeface::LocalizedStrings>
+DWriteFontTypeface::onCreateVariationDesignInstanceNameIterator(int axis) const {
+    // Unable to retrieve instance name currently
+    // Need to be fixed
+    return nullptr;
+}
+
+sk_sp<SkTypeface::LocalizedStrings> DWriteFontTypeface::onCreatePaletteNameIterator(int palette) const {
+    // Unable to retrieve color palette name currently
+    // Need to be fixed
+    return nullptr;
 }
 
 int DWriteFontTypeface::onGetVariationDesignPosition(
@@ -287,6 +322,30 @@ int DWriteFontTypeface::onGetVariationDesignParameters(
 #endif
 
     return -1;
+}
+
+int DWriteFontTypeface::onGetVariationDesignInstancePosition(
+    int instance,
+    SkFontArguments::VariationPosition::Coordinate coordinates[],
+    int coordinateCount) const {
+    // Unable to retrieve instance info currently
+    // Need to be fixed
+    return -1;
+}
+
+int DWriteFontTypeface::onGetVariationDesignInstanceCount() const {
+    // Unable to retrieve instance count currently
+    // Need to be fixed
+    return 0;
+}
+
+int DWriteFontTypeface::onGetPaletteCount() const {
+    SkTScopedComPtr<IDWriteFontFace2> fontFace2;
+    if (FAILED(fDWriteFontFace->QueryInterface(&fontFace2))) {
+        return -1;
+    }
+
+    return fontFace2->GetColorPaletteCount();
 }
 
 int DWriteFontTypeface::onGetTableTags(SkFontTableTag tags[]) const {

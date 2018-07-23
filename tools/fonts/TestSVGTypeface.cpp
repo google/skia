@@ -175,10 +175,10 @@ int TestSVGTypeface::onCharsToGlyphs(const void* chars,
 
 void TestSVGTypeface::onGetFamilyName(SkString* familyName) const { *familyName = fName; }
 
-SkTypeface::LocalizedStrings* TestSVGTypeface::onCreateFamilyNameIterator() const {
+sk_sp<SkTypeface::LocalizedStrings> TestSVGTypeface::onCreateFamilyNameIterator() const {
     SkString familyName(fName);
     SkString language("und");  // undetermined
-    return new SkOTUtils::LocalizedStrings_SingleName(familyName, language);
+    return sk_make_sp<SkOTUtils::LocalizedStrings_SingleName>(familyName, language);
 }
 
 class SkTestSVGScalerContext : public SkScalerContext {

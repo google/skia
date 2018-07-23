@@ -178,7 +178,6 @@ SkOTUtils::LocalizedStrings_NameTable::Make(const SkTypeface& typeface,
     if (copied != nameTableSize) {
         return nullptr;
     }
-
     return sk_sp<SkOTUtils::LocalizedStrings_NameTable>(
         new SkOTUtils::LocalizedStrings_NameTable(std::move(nameTableData), nameTableSize,
                                                   types, typesCount));
