@@ -126,8 +126,8 @@ def dm_flags(api, bot):
       configs.extend(['narrow'])
       configs.extend(['enarrow'])
 
-      if 'SAN' in bot:
-        configs.extend(['t8888'])
+      #if 'SAN' in bot:
+      #  configs.extend(['t8888'])
 
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
 
