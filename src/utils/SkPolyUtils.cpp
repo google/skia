@@ -213,23 +213,78 @@ static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetS
     const SkVector& v0 = s0.fV;
     const SkVector& v1 = s1.fV;
 
-    SkScalar perpDot = v0.cross(v1);
-    if (SkScalarNearlyZero(perpDot)) {
-        // segments are parallel
-        return SK_ScalarMax;
-    }
-
-    SkVector d = s1.fP0 - s0.fP0;
-    SkScalar localS = d.cross(v1) / perpDot;
-    if (localS < 0) {
-        localS = -localS;
+    SkScalar denom = v0.cross(v1);
+    SkVector w = s0.fP0 - s1.fP0;
+    SkScalar sn, sd, tn, td;
+    SkScalar s, t;
+    if (SkScalarNearlyZero(denom)) {
+        // clamp s to 0
+        sd = td = v1.dot(v1);
+        sn = 0.0f;
+        tn = v1.dot(w);
     } else {
-        localS -= SK_Scalar1;
+        // clamp s within [0,1]
+        if (denom < 0) {
+            sd = td = -denom;
+            sn = w.cross(v1);
+            tn = w.cross(v0);
+        } else {
+            sd = td = denom;
+            sn = v1.cross(w);
+            tn = v0.cross(w);
+        }
+
+        // clamp s to 0
+        if (sn < 0.0f) {
+            sn = 0.0f;
+            tn = v1.dot(w);
+            td = v1.dot(v1);
+        // clamp s to 1
+        } else if (sn > sd) {
+            sn = sd;
+            tn = v1.dot(w) + v0.dot(v1);
+            td = v1.dot(v1);
+        }
     }
 
-    localS *= v0.length();
+    // clamp t within [0,1]
+    // clamp t to 0
+    if (tn < 0.0f) {
+        t = 0.0f;
+        SkScalar a = v0.dot(v0);
+        SkScalar d = v0.dot(w);
+        // clamp s to 0
+        if ( -d < 0.0f ) {
+            s = 0.0f;
+        // clamp s to 1
+        } else if ( -d > a ) {
+            s = 1.0f;
+        } else {
+            s = -d/a;
+        }
+    // clamp t_c to 1
+    } else if (tn > td) {
+        SkScalar a = v0.dot(v0);
+        SkScalar b = v0.dot(v1);
+        SkScalar d = v0.dot(w);
+        t = 1.0f;
+        // clamp s_c to 0
+        if ( (-d+b) < 0.0f ) {
+            s = 0.0f;
+        // clamp s_c to 1
+        } else if ( (-d+b) > a ) {
+            s = 1.0f;
+        } else {
+            s = (-d+b)/a;
+        }
+    } else {
+        t = tn/td;
+        s = sn/sd;
+    }
 
-    return localS;
+    // compute difference vector and distance squared
+    SkVector dist = w + v0*s - v1*t;
+    return dist.dot(dist);
 }
 
 bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
