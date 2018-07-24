@@ -66,23 +66,7 @@ static int utf8_byte_type(uint8_t c) {
 }
 static bool utf8_type_is_valid_leading_byte(int type) { return type > 0; }
 
-int SkUTF8_CountUnichars(const char utf8[]) {
-    SkASSERT(utf8);
-
-    int count = 0;
-
-    for (;;) {
-        int c = *(const uint8_t*)utf8;
-        if (c == 0) {
-            break;
-        }
-        utf8 += SkUTF8_LeadByteToCount(c);
-        count += 1;
-    }
-    return count;
-}
-
-// SAFE: returns -1 if invalid UTF-8
+// Returns -1 if invalid UTF-8
 int SkUTF8_CountUnichars(const void* text, size_t byteLength) {
     SkASSERT(text);
     const char* utf8 = static_cast<const char*>(text);
@@ -106,27 +90,6 @@ int SkUTF8_CountUnichars(const void* text, size_t byteLength) {
         ++count;
     }
     return count;
-}
-
-SkUnichar SkUTF8_ToUnichar(const char utf8[]) {
-    SkASSERT(utf8);
-
-    const uint8_t*  p = (const uint8_t*)utf8;
-    int             c = *p;
-    int             hic = c << 24;
-
-    assert_utf8_leadingbyte(c);
-
-    if (hic < 0) {
-        uint32_t mask = (uint32_t)~0x3F;
-        hic = SkLeftShift(hic, 1);
-        do {
-            c = (c << 6) | (*++p & 0x3F);
-            mask <<= 5;
-        } while ((hic = SkLeftShift(hic, 1)) < 0);
-        c &= ~mask;
-    }
-    return c;
 }
 
 // SAFE: returns -1 on invalid UTF-8 sequence.
@@ -162,43 +125,6 @@ SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end) {
     return c;
 }
 
-SkUnichar SkUTF8_NextUnichar(const char** ptr) {
-    SkASSERT(ptr && *ptr);
-
-    const uint8_t*  p = (const uint8_t*)*ptr;
-    int             c = *p;
-    int             hic = c << 24;
-
-    assert_utf8_leadingbyte(c);
-
-    if (hic < 0) {
-        uint32_t mask = (uint32_t)~0x3F;
-        hic = SkLeftShift(hic, 1);
-        do {
-            c = (c << 6) | (*++p & 0x3F);
-            mask <<= 5;
-        } while ((hic = SkLeftShift(hic, 1)) < 0);
-        c &= ~mask;
-    }
-    *ptr = (char*)p + 1;
-    return c;
-}
-
-SkUnichar SkUTF8_PrevUnichar(const char** ptr) {
-    SkASSERT(ptr && *ptr);
-
-    const char* p = *ptr;
-
-    if (*--p & 0x80) {
-        while (*--p & 0x40) {
-            ;
-        }
-    }
-
-    *ptr = (char*)p;
-    return SkUTF8_NextUnichar(&p);
-}
-
 size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[]) {
     if ((uint32_t)uni > 0x10FFFF) {
         SkDEBUGFAIL("bad unichar");
@@ -216,8 +142,6 @@ size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[]) {
     char*   p = tmp;
     size_t  count = 1;
 
-    SkDEBUGCODE(SkUnichar orig = uni;)
-
     while (uni > 0x7F >> count) {
         *p++ = (char)(0x80 | (uni & 0x3F));
         uni >>= 6;
@@ -233,7 +157,6 @@ size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[]) {
         *--utf8 = (char)(~(0xFF >> count) | uni);
     }
 
-    SkASSERT(utf8 == nullptr || orig == SkUTF8_ToUnichar(utf8));
     return count;
 }
 
@@ -323,15 +246,6 @@ SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* endPtr) {
     return result;
 }
 
-SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr) {
-    SkUnichar c = SkUTF16_NextUnichar(srcPtr, *srcPtr + 2);
-    if (c == -1) {
-        SkASSERT(false);
-        ++(*srcPtr);
-        return 0xFFFD;  // REPLACEMENT CHARACTER.
-    }
-    return c;
-}
 
 SkUnichar SkUTF16_PrevUnichar(const uint16_t** srcPtr) {
     SkASSERT(srcPtr && *srcPtr);
@@ -386,12 +300,12 @@ size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
 
     if (utf8 == nullptr) {    // just count
         while (utf16 < stop) {
-            size += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16), nullptr);
+            size += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16, stop), nullptr);
         }
     } else {
         char* start = utf8;
         while (utf16 < stop) {
-            utf8 += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16), utf8);
+            utf8 += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&utf16, stop), utf8);
         }
         size = utf8 - start;
     }

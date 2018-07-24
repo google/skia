@@ -13,6 +13,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCharsToGlyphs.h"
 #include "SkColor.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
@@ -28,9 +29,9 @@
 #include "SkOTUtils.h"
 #include "SkPaintPriv.h"
 #include "SkPath.h"
-#include "SkPathPriv.h"
 #include "SkPathEffect.h"
 #include "SkPathOps.h"
+#include "SkPathPriv.h"
 #include "SkPixmap.h"
 #include "SkPointPriv.h"
 #include "SkRRect.h"
@@ -125,23 +126,12 @@ void SkTestSVGTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLoca
 
 int SkTestSVGTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                     uint16_t glyphs[], int glyphCount) const {
-    auto utf8  = (const      char*)chars;
-    auto utf16 = (const  uint16_t*)chars;
-    auto utf32 = (const SkUnichar*)chars;
-
-    for (int i = 0; i < glyphCount; i++) {
-        SkUnichar ch;
-        switch (encoding) {
-            case kUTF8_Encoding:  ch =  SkUTF8_NextUnichar(&utf8 ); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch =                    *utf32++; break;
-        }
-        if (glyphs) {
-            SkGlyphID* g = fCMap.find(ch);
-            glyphs[i] = g ? *g : 0;
-        }
-    }
-    return glyphCount;
+    const SkTHashMap<SkUnichar, SkGlyphID>* map = &fCMap;
+    auto fn = [map](SkUnichar uchr) {
+        SkGlyphID* g = map->find(uchr);
+        return g ? *g : 0;
+    };
+    return SkCharsToGlyphs(chars, encoding, glyphs, glyphCount, fn);
 }
 
 void SkTestSVGTypeface::onGetFamilyName(SkString* familyName) const {

@@ -5,9 +5,12 @@
  * found in the LICENSE file.
  */
 
+#include "SkTestTypeface.h"
+
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkCharsToGlyphs.h"
 #include "SkFontDescriptor.h"
 #include "SkGlyph.h"
 #include "SkImageInfo.h"
@@ -20,7 +23,6 @@
 #include "SkScalerContext.h"
 #include "SkString.h"
 #include "SkTDArray.h"
-#include "SkTestTypeface.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 
@@ -141,22 +143,12 @@ void SkTestTypeface::onGetFontDescriptor(SkFontDescriptor* desc, bool* isLocal) 
 
 int SkTestTypeface::onCharsToGlyphs(const void* chars, Encoding encoding,
                                     uint16_t glyphs[], int glyphCount) const {
-    auto utf8  = (const      char*)chars;
-    auto utf16 = (const  uint16_t*)chars;
-    auto utf32 = (const SkUnichar*)chars;
 
-    for (int i = 0; i < glyphCount; i++) {
-        SkUnichar ch;
-        switch (encoding) {
-            case kUTF8_Encoding:  ch =  SkUTF8_NextUnichar(&utf8 ); break;
-            case kUTF16_Encoding: ch = SkUTF16_NextUnichar(&utf16); break;
-            case kUTF32_Encoding: ch =                    *utf32++; break;
-        }
-        if (glyphs) {
-            glyphs[i] = fTestFont->codeToIndex(ch);
-        }
-    }
-    return glyphCount;
+    SkTestFont* font = fTestFont.get();
+    auto fn = [font](SkUnichar uchr) {
+        return font->codeToIndex(uchr);
+    };
+    return SkCharsToGlyphs(chars, encoding, glyphs, glyphCount, fn);
 }
 
 void SkTestTypeface::onGetFamilyName(SkString* familyName) const {

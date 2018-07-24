@@ -37,12 +37,6 @@ static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
     #define SkUTF8_LeadByteToCount(c)   ((((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1)
 #endif
 
-inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
-    SkASSERT(utf8);
-    return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
-}
-
-int         SkUTF8_CountUnichars(const char utf8[]);
 
 /** These functions are safe: invalid sequences will return -1; */
 int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
@@ -66,10 +60,6 @@ inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
     return val;
 }
 
-SkUnichar   SkUTF8_ToUnichar(const char utf8[]);
-SkUnichar   SkUTF8_NextUnichar(const char**);
-SkUnichar   SkUTF8_PrevUnichar(const char**);
-
 /** Return the number of bytes need to convert a unichar
     into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
     or 0 if uni is illegal.
@@ -83,7 +73,6 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
 // returns the current unichar and then moves past it (*p++)
-SkUnichar SkUTF16_NextUnichar(const uint16_t**);
 SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* end);
 
 // this guy backs up to the previus unichar value, and returns it (*--p)
