@@ -2,7 +2,9 @@ STRINGIFY(
 
 // defines built-in interfaces supported by SkiaSL fragment shaders
 
+// See "enum SpvBuiltIn_" in ./spirv.h
 layout(builtin=15) in float4 sk_FragCoord;
+layout(builtin=17) in bool sk_Clockwise;  // Similar to gl_FrontFacing, but defined in device space.
 layout(builtin=3) float sk_ClipDistance[1];
 
 // 9999 is a temporary value that causes us to ignore these declarations beyond
