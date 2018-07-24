@@ -71,7 +71,7 @@ public:
         if (TextType::kPosText == fTextType
                 && fPaint.getTextAlign() != SkPaint::kLeft_Align) { // need to measure first
             const char* text = fText;
-            const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &text);
+            const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &text, fStop);
             SkScalar width = (&glyph.fAdvanceX)[0] * fScale;
             if (fPaint.getTextAlign() == SkPaint::kCenter_Align) {
                 width = SkScalarHalf(width);

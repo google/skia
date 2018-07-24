@@ -1551,7 +1551,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
     paint.setPathEffect(origPaint.refPathEffect());
 
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
+        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text, stop);
         if (glyph.fWidth) {
             const SkPath* path = cache->findPath(glyph);
             if (path) {

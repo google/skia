@@ -55,13 +55,14 @@ SkString SkTabString(const SkString& string, int tabCnt) {
 
 SkString SkStringFromUTF16(const uint16_t* src, size_t count) {
     SkString ret;
+    const uint16_t* stop = src + count;
     if (count > 0) {
         SkASSERT(src);
         size_t n = 0;
         const uint16_t* end = src + count;
         for (const uint16_t* ptr = src; ptr < end;) {
             const uint16_t* last = ptr;
-            SkUnichar u = SkUTF16_NextUnichar(&ptr);
+            SkUnichar u = SkUTF16_NextUnichar(&ptr, stop);
             size_t s = SkUTF8_FromUnichar(u);
             if (n > UINT32_MAX - s) {
                 end = last;  // truncate input string
@@ -72,7 +73,7 @@ SkString SkStringFromUTF16(const uint16_t* src, size_t count) {
         ret = SkString(n);
         char* out = ret.writable_str();
         for (const uint16_t* ptr = src; ptr < end;) {
-            out += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&ptr), out);
+            out += SkUTF8_FromUnichar(SkUTF16_NextUnichar(&ptr, stop), out);
         }
         SkASSERT(out == ret.writable_str() + n);
     }

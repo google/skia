@@ -148,7 +148,7 @@ protected:
                 textP.setBlendMode(gModes[i]);
                 textP.setTextEncoding(SkPaint::kUTF32_TextEncoding);
                 const char* text = sk_tool_utils::emoji_sample_text();
-                SkUnichar unichar = SkUTF8_ToUnichar(text);
+                SkUnichar unichar = SkUTF8_NextUnichar(&text, text + strlen(text));
                 canvas->drawText(&unichar, 4, x+ w/10.f, y + 7.f*h/8.f, textP);
             }
 #if 1

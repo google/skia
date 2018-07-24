@@ -133,6 +133,7 @@ public:
 
         int count = paint.countText(text, byteLen);
 
+        const char* stop = (const char*)text + byteLen;
         switch(paint.getTextEncoding()) {
         case SkPaint::kGlyphID_TextEncoding: {
             SkASSERT(count * sizeof(uint16_t) == byteLen);
@@ -145,14 +146,14 @@ public:
         case SkPaint::kUTF8_TextEncoding: {
             const char* c8 = reinterpret_cast<const char*>(text);
             for (int i = 0; i < count; ++i) {
-                this->appendUnichar(SkUTF8_NextUnichar(&c8));
+                this->appendUnichar(SkUTF8_NextUnichar(&c8, stop));
             }
             SkASSERT(reinterpret_cast<const char*>(text) + byteLen == c8);
         } break;
         case SkPaint::kUTF16_TextEncoding: {
             const uint16_t* c16 = reinterpret_cast<const uint16_t*>(text);
             for (int i = 0; i < count; ++i) {
-                this->appendUnichar(SkUTF16_NextUnichar(&c16));
+                this->appendUnichar(SkUTF16_NextUnichar(&c16, (const uint16_t*)stop));
             }
             SkASSERT(SkIsAlign2(byteLen));
             SkASSERT(reinterpret_cast<const uint16_t*>(text) + (byteLen / 2) == c16);

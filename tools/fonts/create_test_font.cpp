@@ -144,7 +144,7 @@ static void output_path_data(const SkPaint& paint,
         char str[1];
         str[0] = ch;
         const char* used = str;
-        SkUnichar index = SkUTF8_NextUnichar(&used);
+        SkUnichar index = SkUTF8_NextUnichar(&used, str + 1);
         SkPath path;
         paint.getTextPath((const void*) &index, 2, 0, 0, &path);
         SkPath::RawIter iter(path);

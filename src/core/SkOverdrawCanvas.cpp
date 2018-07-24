@@ -95,22 +95,26 @@ void SkOverdrawCanvas::onDrawTextOnPath(const void* text, size_t byteLength, con
     return;
 }
 
-typedef int (*CountTextProc)(const char* text);
-static int count_utf16(const char* text) {
-    const uint16_t* prev = (uint16_t*)text;
-    (void)SkUTF16_NextUnichar(&prev);
+typedef int (*CountTextProc)(const char* text, const char* stop);
+static int count_utf16(const char* text, const char* stop) {
+    const uint16_t* prev = (const uint16_t*)text;
+    (void)SkUTF16_NextUnichar(&prev, (const uint16_t*)stop);
     return SkToInt((const char*)prev - text);
 }
-static int return_4(const char* text) { return 4; }
-static int return_2(const char* text) { return 2; }
+static int return_4(const char* text, const char* stop) { return 4; }
+static int return_2(const char* text, const char* stop) { return 2; }
+static int count_utf8(const char* text, const char* stop) {
+    return SkUTF8_LeadByteToCount(*(const uint8_t*)text);
+}
 
 void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
                                          const SkRSXform xform[], const SkRect*,
                                          const SkPaint& paint) {
+    const char* stop = (const char*)text + byteLength;
     CountTextProc proc = nullptr;
     switch (paint.getTextEncoding()) {
         case SkPaint::kUTF8_TextEncoding:
-            proc = SkUTF8_CountUTF8Bytes;
+            proc = count_utf8;
             break;
         case SkPaint::kUTF16_TextEncoding:
             proc = count_utf16;
@@ -129,7 +133,8 @@ void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
     while ((const char*)text < (const char*)stopText) {
         matrix.setRSXform(*xform++);
         matrix.setConcat(this->getTotalMatrix(), matrix);
-        int subLen = proc((const char*)text);
+        int subLen = proc((const char*)text, stop);
+        SkASSERT(subLen > 0);
 
         this->save();
         this->concat(matrix);

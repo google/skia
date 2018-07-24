@@ -339,7 +339,7 @@ void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
     SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
 
     while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
+        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text, stop);
         if (glyph.fWidth) {
             SkPoint loc;
             tmsProc(pos, &loc);
@@ -554,7 +554,7 @@ void GrTextContext::drawDFPosText(GrTextBlob* blob, int runIndex,
         while (text < stop) {
             const char* lastText = text;
             // the last 2 parameters are ignored
-            const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
+            const SkGlyph& glyph = glyphCacheProc(cache.get(), &text, stop);
 
             if (glyph.fWidth) {
                 SkPoint glyphPos(offset);
@@ -664,7 +664,7 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
         const char* stop = text + fFallbackTxt.count();
         SkPoint* glyphPos = fFallbackPos.begin();
         while (text < stop) {
-            const SkGlyph& glyph = glyphCacheProc(cache.get(), &text);
+            const SkGlyph& glyph = glyphCacheProc(cache.get(), &text, stop);
             if (!fUseTransformedFallback) {
                 fViewMatrix.mapPoints(glyphPos, 1);
                 glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);

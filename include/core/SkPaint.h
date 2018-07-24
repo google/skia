@@ -1455,7 +1455,7 @@ public:
                                       Style style) const;
 
 private:
-    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**);
+    typedef const SkGlyph& (*GlyphCacheProc)(SkGlyphCache*, const char**, const char*);
 
     sk_sp<SkTypeface>     fTypeface;
     sk_sp<SkPathEffect>   fPathEffect;

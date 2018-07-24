@@ -36,7 +36,7 @@ bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** pat
     SkASSERT(path);
     SkASSERT(xpos);
     if (fText < fStop) {
-        const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText);
+        const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText, fStop);
 
         fXPos += fPrevAdvance * fScale;
         SkASSERT(0 == fXYIndex || 1 == fXYIndex);
