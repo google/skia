@@ -87,9 +87,6 @@ public:
 
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
-        if (dstProxy.proxy()) {
-            addDependency(dstProxy.proxy());
-        }
 
         return this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
     }

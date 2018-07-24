@@ -96,9 +96,6 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
     }
 
     fDependencies.push_back(dependedOn);
-    dependedOn->addDependent(this);
-
-    SkDEBUGCODE(this->validate());
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
@@ -137,38 +134,6 @@ bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
     return false;
 }
 
-void GrOpList::addDependent(GrOpList* dependent) {
-    fDependents.push_back(dependent);
-}
-
-#ifdef SK_DEBUG
-bool GrOpList::isDependedent(const GrOpList* dependent) const {
-    for (int i = 0; i < fDependents.count(); ++i) {
-        if (fDependents[i] == dependent) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void GrOpList::validate() const {
-    // TODO: check for loops and duplicates
-
-    for (int i = 0; i < fDependencies.count(); ++i) {
-        SkASSERT(fDependencies[i]->isDependedent(this));
-    }
-}
-#endif
-
-void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
-    for (int i = 0; i < fDependents.count(); ++i) {
-        if (!fDependents[i]->isClosed()) {
-            fDependents[i]->makeClosed(caps);
-        }
-    }
-}
-
 bool GrOpList::isInstantiated() const {
     return fTarget.get()->priv().isInstantiated();
 }
@@ -191,12 +156,6 @@ void GrOpList::dump(bool printDependencies) const {
         SkDebugf("I rely On (%d): ", fDependencies.count());
         for (int i = 0; i < fDependencies.count(); ++i) {
             SkDebugf("%d, ", fDependencies[i]->fUniqueID);
-        }
-        SkDebugf("\n");
-
-        SkDebugf("(%d) Rely On Me: ", fDependents.count());
-        for (int i = 0; i < fDependents.count(); ++i) {
-            SkDebugf("%d, ", fDependents[i]->fUniqueID);
         }
         SkDebugf("\n");
     }
