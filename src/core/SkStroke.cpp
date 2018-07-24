@@ -612,13 +612,13 @@ SkPathStroker::ReductionType SkPathStroker::CheckCubicLinear(const SkPoint cubic
     }
     SkScalar tValues[3];
     int count = SkFindCubicMaxCurvature(cubic, tValues);
-    if (count == 0) {
-        return kLine_ReductionType;
-    }
     int rCount = 0;
     // Now loop over the t-values, and reject any that evaluate to either end-point
     for (int index = 0; index < count; ++index) {
         SkScalar t = tValues[index];
+        if (0 >= t || t >= 1) {
+            continue;
+        }
         SkEvalCubicAt(cubic, t, &reduction[rCount], nullptr, nullptr);
         if (reduction[rCount] != cubic[0] && reduction[rCount] != cubic[3]) {
             ++rCount;
@@ -679,7 +679,7 @@ SkPathStroker::ReductionType SkPathStroker::CheckQuadLinear(const SkPoint quad[3
         return kQuad_ReductionType;
     }
     SkScalar t = SkFindQuadMaxCurvature(quad);
-    if (0 == t) {
+    if (0 == t || 1 == t) {
         return kLine_ReductionType;
     }
     *reduction = SkEvalQuadAt(quad, t);

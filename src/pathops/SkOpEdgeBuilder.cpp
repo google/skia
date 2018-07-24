@@ -242,7 +242,7 @@ bool SkOpEdgeBuilder::walk() {
                 if (v1.dot(v2) < 0) {
                     // FIXME: max curvature for conics hasn't been implemented; use placeholder
                     SkScalar maxCurvature = SkFindQuadMaxCurvature(pointsPtr);
-                    if (maxCurvature > 0) {
+                    if (0 < maxCurvature && maxCurvature < 1) {
                         SkConic conic(pointsPtr, weight);
                         SkConic pair[2];
                         if (!conic.chopAt(maxCurvature, pair)) {

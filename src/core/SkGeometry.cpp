@@ -32,10 +32,6 @@ static int is_not_monotonic(SkScalar a, SkScalar b, SkScalar c) {
 
 ////////////////////////////////////////////////////////////////////////
 
-static bool is_unit_interval(SkScalar x) {
-    return x > 0 && x < SK_Scalar1;
-}
-
 static int valid_unit_divide(SkScalar numer, SkScalar denom, SkScalar* ratio) {
     SkASSERT(ratio);
 
@@ -264,15 +260,27 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
     SkScalar    Ay = src[1].fY - src[0].fY;
     SkScalar    Bx = src[0].fX - src[1].fX - src[1].fX + src[2].fX;
     SkScalar    By = src[0].fY - src[1].fY - src[1].fY + src[2].fY;
-    SkScalar    t = 0;  // 0 means don't chop
 
-    (void)valid_unit_divide(-(Ax * Bx + Ay * By), Bx * Bx + By * By, &t);
+    SkScalar numer = -(Ax * Bx + Ay * By);
+    SkScalar denom = Bx * Bx + By * By;
+    if (denom < 0) {
+        numer = -numer;
+        denom = -denom;
+    }
+    if (numer <= 0) {
+        return 0;
+    }
+    if (numer >= denom) {  // Also catches denom=0.
+        return 1;
+    }
+    SkScalar t = numer / denom;
+    SkASSERT(0 <= t && t < 1);
     return t;
 }
 
 int SkChopQuadAtMaxCurvature(const SkPoint src[3], SkPoint dst[5]) {
     SkScalar t = SkFindQuadMaxCurvature(src);
-    if (t == 0) {
+    if (t == 0 || t == 1) {
         memcpy(dst, src, 3 * sizeof(SkPoint));
         return 1;
     } else {
@@ -421,8 +429,8 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[],
     {
         for (int i = 0; i < roots - 1; i++)
         {
-            SkASSERT(is_unit_interval(tValues[i]));
-            SkASSERT(is_unit_interval(tValues[i+1]));
+            SkASSERT(0 < tValues[i] && tValues[i] < 1);
+            SkASSERT(0 < tValues[i+1] && tValues[i+1] < 1);
             SkASSERT(tValues[i] < tValues[i+1]);
         }
     }
@@ -759,34 +767,19 @@ static int solve_cubic_poly(const SkScalar coeff[4], SkScalar tValues[3]) {
     SkScalar R2MinusQ3 = R * R - Q3;
     SkScalar adiv3 = a / 3;
 
-    SkScalar*   roots = tValues;
-    SkScalar    r;
-
     if (R2MinusQ3 < 0) { // we have 3 real roots
         // the divide/root can, due to finite precisions, be slightly outside of -1...1
         SkScalar theta = SkScalarACos(SkScalarPin(R / SkScalarSqrt(Q3), -1, 1));
         SkScalar neg2RootQ = -2 * SkScalarSqrt(Q);
 
-        r = neg2RootQ * SkScalarCos(theta/3) - adiv3;
-        if (is_unit_interval(r)) {
-            *roots++ = r;
-        }
-        r = neg2RootQ * SkScalarCos((theta + 2*SK_ScalarPI)/3) - adiv3;
-        if (is_unit_interval(r)) {
-            *roots++ = r;
-        }
-        r = neg2RootQ * SkScalarCos((theta - 2*SK_ScalarPI)/3) - adiv3;
-        if (is_unit_interval(r)) {
-            *roots++ = r;
-        }
+        tValues[0] = SkScalarPin(neg2RootQ * SkScalarCos(theta/3) - adiv3, 0, 1);
+        tValues[1] = SkScalarPin(neg2RootQ * SkScalarCos((theta + 2*SK_ScalarPI)/3) - adiv3, 0, 1);
+        tValues[2] = SkScalarPin(neg2RootQ * SkScalarCos((theta - 2*SK_ScalarPI)/3) - adiv3, 0, 1);
         SkDEBUGCODE(test_collaps_duplicates();)
 
         // now sort the roots
-        int count = (int)(roots - tValues);
-        SkASSERT((unsigned)count <= 3);
-        bubble_sort(tValues, count);
-        count = collaps_duplicates(tValues, count);
-        roots = tValues + count;    // so we compute the proper count below
+        bubble_sort(tValues, 3);
+        return collaps_duplicates(tValues, 3);
     } else {              // we have 1 real root
         SkScalar A = SkScalarAbs(R) + SkScalarSqrt(R2MinusQ3);
         A = SkScalarCubeRoot(A);
@@ -796,13 +789,9 @@ static int solve_cubic_poly(const SkScalar coeff[4], SkScalar tValues[3]) {
         if (A != 0) {
             A += Q / A;
         }
-        r = A - adiv3;
-        if (is_unit_interval(r)) {
-            *roots++ = r;
-        }
+        tValues[0] = SkScalarPin(A - adiv3, 0, 1);
+        return 1;
     }
-
-    return (int)(roots - tValues);
 }
 
 /*  Looking for F' dot F'' == 0
@@ -849,19 +838,10 @@ int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]) {
         coeffX[i] += coeffY[i];
     }
 
-    SkScalar    t[3];
-    int         count = solve_cubic_poly(coeffX, t);
-    int         maxCount = 0;
-
+    int numRoots = solve_cubic_poly(coeffX, tValues);
     // now remove extrema where the curvature is zero (mins)
     // !!!! need a test for this !!!!
-    for (i = 0; i < count; i++) {
-        // if (not_min_curvature())
-        if (t[i] > 0 && t[i] < SK_Scalar1) {
-            tValues[maxCount++] = t[i];
-        }
-    }
-    return maxCount;
+    return numRoots;
 }
 
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
@@ -872,7 +852,16 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
         tValues = t_storage;
     }
 
-    int count = SkFindCubicMaxCurvature(src, tValues);
+    SkScalar roots[3];
+    int rootCount = SkFindCubicMaxCurvature(src, roots);
+
+    // Throw out values not inside 0..1.
+    int count = 0;
+    for (int i = 0; i < rootCount; ++i) {
+        if (0 < roots[i] && roots[i] < 1) {
+            tValues[count++] = roots[i];
+        }
+    }
 
     if (dst) {
         if (count == 0) {
