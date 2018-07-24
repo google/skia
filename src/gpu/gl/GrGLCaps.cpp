@@ -592,17 +592,21 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
 
-    if (kGL_GrGLStandard == standard) {
-        if (version >= GR_GL_VER(4, 1)) {
+    // Chrome doesn't ever support program binaries. Allowing clients to submit them would be
+    // unsafe, and Chrome caches program binaries internally anyway.
+    if (kChromium_GrGLDriver != ctxInfo.driver()) {
+        if (kGL_GrGLStandard == standard) {
+            if (version >= GR_GL_VER(4, 1)) {
+                fProgramBinarySupport = true;
+            }
+        } else if (version >= GR_GL_VER(3, 0)) {
             fProgramBinarySupport = true;
         }
-    } else if (version >= GR_GL_VER(3, 0)) {
-        fProgramBinarySupport = true;
-    }
-    if (fProgramBinarySupport) {
-        GrGLint count;
-        GR_GL_GetIntegerv(gli, GR_GL_NUM_PROGRAM_BINARY_FORMATS, &count);
-        fProgramBinarySupport = count > 0;
+        if (fProgramBinarySupport) {
+            GrGLint count;
+            GR_GL_GetIntegerv(gli, GR_GL_NUM_PROGRAM_BINARY_FORMATS, &count);
+            fProgramBinarySupport = count > 0;
+        }
     }
     // Requires fTextureRedSupport, fTextureSwizzleSupport, msaa support, ES compatibility have
     // already been detected.
