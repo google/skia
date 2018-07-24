@@ -420,7 +420,9 @@ sk_sp<SkFlattenable> SkLightingShaderImpl::CreateProc(SkReadBuffer& buf) {
 
     // Discarding SkShader flattenable params
     bool hasLocalMatrix = buf.readBool();
-    SkAssertResult(!hasLocalMatrix);
+    if (hasLocalMatrix) {
+        return nullptr;
+    }
 
     sk_sp<SkLights> lights = SkLights::MakeFromBuffer(buf);
 
