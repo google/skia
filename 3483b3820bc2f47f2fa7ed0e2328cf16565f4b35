@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "55535ac1_bc10154c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-24T16:06:27Z",
+      "side": 1,
+      "message": "(Micro-nit) I would inline the declaration in the conditional, just to minimize its scope:\n\nif (const SkColorFilter* cf \u003d paint.getColorFilter()) { ... }",
+      "revId": "3483b3820bc2f47f2fa7ed0e2328cf16565f4b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d79a4037_b83ce412",
+        "filename": "tests/Test.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-24T16:06:27Z",
+      "side": 1,
+      "message": "We don\u0027t currently guard our unit tests this way, although arguably we should.\n\nIdeally, this would be named REPORTER_ASSERT and current REPORTER_ASSERT renamed to REPORTER_EXPECT.  That\u0027s a lot of churn though, so for now I suggest you could define this macro in SVGDeviceTest.cpp only.",
+      "range": {
+        "startLine": 166,
+        "startChar": 8,
+        "endLine": 166,
+        "endChar": 18
+      },
+      "revId": "3483b3820bc2f47f2fa7ed0e2328cf16565f4b35",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
