@@ -12,8 +12,8 @@
 
 #include <utility>
 
-static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** startPtr,
-        SkOpSpanBase** endPtr) {
+static bool findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** startPtr,
+        SkOpSpanBase** endPtr, SkOpSegment** result) {
     while (chase.count()) {
         SkOpSpanBase* span;
         chase.pop(&span);
@@ -30,7 +30,8 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
    #else
             *chase.append() = span;
    #endif
-            return last->segment();
+            *result = last->segment();
+            return true;
         }
         if (done) {
             continue;
@@ -39,7 +40,8 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
         bool sortable;
         const SkOpAngle* angle = AngleWinding(*startPtr, *endPtr, &winding, &sortable);
         if (!angle) {
-            return nullptr;
+            *result = nullptr;
+            return true;
         }
         if (winding == SK_MinS32) {
             continue;
@@ -50,12 +52,14 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
             sumMiWinding = segment->updateWindingReverse(angle);
             if (sumMiWinding == SK_MinS32) {
                 SkASSERT(segment->globalState()->debugSkipAssert());
-                return nullptr;
+                *result = nullptr;
+                return true;
             }
             sumSuWinding = segment->updateOppWindingReverse(angle);
             if (sumSuWinding == SK_MinS32) {
                 SkASSERT(segment->globalState()->debugSkipAssert());
-                return nullptr;
+                *result = nullptr;
+                return true;
             }
             if (segment->operand()) {
                 using std::swap;
@@ -81,8 +85,10 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
                 }
                 // OPTIMIZATION: should this also add to the chase?
                 if (sortable) {
-                    (void) segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
-                        oppSumWinding, angle);
+                    if (!segment->markAngle(maxWinding, sumWinding, oppMaxWinding,
+                            oppSumWinding, angle, nullptr)) {
+                        return false;
+                    }
                 }
             }
         }
@@ -92,10 +98,12 @@ static SkOpSegment* findChaseOp(SkTDArray<SkOpSpanBase*>& chase, SkOpSpanBase** 
        #else
             *chase.append() = span;
        #endif
-            return first;
+            *result = first;
+            return true;
         }
     }
-    return nullptr;
+    *result = nullptr;
+    return true;
 }
 
 static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
@@ -181,7 +189,9 @@ static bool bridgeOp(SkOpContourHead* contourList, const SkPathOp op,
 #endif
                 }
             }
-            current = findChaseOp(chase, &start, &end);
+            if (!findChaseOp(chase, &start, &end, &current)) {
+                return false;
+            }
             SkPathOpsDebug::ShowActiveSpans(contourList);
             if (!current) {
                 break;
@@ -347,10 +357,12 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     contourList->dumpSegments("aligned");
 #endif
     // construct closed contours
+    SkPath original = *result;
     result->reset();
     result->setFillType(fillType);
     SkPathWriter wrapper(*result);
     if (!bridgeOp(contourList, op, xorMask, xorOpMask, &wrapper)) {
+        *result = original;
         return false;
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining

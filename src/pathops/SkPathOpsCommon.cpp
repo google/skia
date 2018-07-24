@@ -156,7 +156,8 @@ SkOpSegment* FindChase(SkTDArray<SkOpSpanBase*>* chase, SkOpSpanBase** startPtr,
                 }
                 // OPTIMIZATION: should this also add to the chase?
                 if (sortable) {
-                    (void) segment->markAngle(maxWinding, sumWinding, angle);
+                    // TODO: add error handling
+                    SkAssertResult(segment->markAngle(maxWinding, sumWinding, angle, nullptr));
                 }
             }
         }

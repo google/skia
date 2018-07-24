@@ -520,6 +520,11 @@ bool testSimplifyCheck(skiatest::Reporter* reporter, const SkPath& path, const c
             ExpectSuccess::kYes : ExpectSuccess::kNo, SkipAssert::kNo, ExpectMatch::kNo);
 }
 
+bool testSimplifyFail(skiatest::Reporter* reporter, const SkPath& path, const char* filename) {
+    return inner_simplify(reporter, path, filename,
+            ExpectSuccess::kNo, SkipAssert::kYes, ExpectMatch::kNo);
+}
+
 #if DEBUG_SHOW_TEST_NAME
 static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
     SkDebugf("\n");

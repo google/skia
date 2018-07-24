@@ -338,7 +338,7 @@ SkOpSpanBase::Collapsed SkOpSegment::collapsed(double s, double e) const {
     return SkOpSpanBase::Collapsed::kNo;
 }
 
-void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
+bool SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle,
         SkOpAngle::IncludeType includeType) {
     SkOpSegment* baseSegment = baseAngle->segment();
     int sumMiWinding = baseSegment->updateWindingReverse(baseAngle);
@@ -358,17 +358,22 @@ void SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle
         int oppMaxWinding, oppSumWinding;
         nextSegment->setUpWindings(nextAngle->start(), nextAngle->end(), &sumMiWinding,
                 &sumSuWinding, &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
-        last = nextSegment->markAngle(maxWinding, sumWinding, oppMaxWinding, oppSumWinding,
-                nextAngle);
+        if (!nextSegment->markAngle(maxWinding, sumWinding, oppMaxWinding, oppSumWinding,
+                nextAngle, &last)) {
+            return false;
+        }
     } else {
         nextSegment->setUpWindings(nextAngle->start(), nextAngle->end(), &sumMiWinding,
                 &maxWinding, &sumWinding);
-        last = nextSegment->markAngle(maxWinding, sumWinding, nextAngle);
+        if (!nextSegment->markAngle(maxWinding, sumWinding, nextAngle, &last)) {
+            return false;
+        }
     }
     nextAngle->setLastMarked(last);
+    return true;
 }
 
-void SkOpSegment::ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
+bool SkOpSegment::ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngle,
         SkOpAngle::IncludeType includeType) {
     SkOpSegment* baseSegment = baseAngle->segment();
     int sumMiWinding = baseSegment->updateWinding(baseAngle);
@@ -388,14 +393,19 @@ void SkOpSegment::ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngl
         int oppMaxWinding, oppSumWinding;
         nextSegment->setUpWindings(nextAngle->end(), nextAngle->start(), &sumMiWinding,
                 &sumSuWinding, &maxWinding, &sumWinding, &oppMaxWinding, &oppSumWinding);
-        last = nextSegment->markAngle(maxWinding, sumWinding, oppMaxWinding, oppSumWinding,
-                nextAngle);
+        if (!nextSegment->markAngle(maxWinding, sumWinding, oppMaxWinding, oppSumWinding,
+                nextAngle, &last)) {
+            return false;
+        }
     } else {
         nextSegment->setUpWindings(nextAngle->end(), nextAngle->start(), &sumMiWinding,
                 &maxWinding, &sumWinding);
-        last = nextSegment->markAngle(maxWinding, sumWinding, nextAngle);
+        if (!nextSegment->markAngle(maxWinding, sumWinding, nextAngle, &last)) {
+            return false;
+        }
     }
     nextAngle->setLastMarked(last);
+    return true;
 }
 
 // at this point, the span is already ordered, or unorderable
@@ -910,10 +920,10 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end,
             if (this->operand() == other->operand()) {
                 if (spanStart->windSum() != winding || spanStart->oppSum() != oppWinding) {
                     this->globalState()->setWindingFailed();
-                    return false;
+                    return true;  // ... but let it succeed anyway
                 }
             } else {
-                SkASSERT(spanStart->windSum() == oppWinding);
+                FAIL_IF(spanStart->windSum() != oppWinding);
                 SkASSERT(spanStart->oppSum() == winding);
             }
             SkASSERT(!last);
@@ -931,13 +941,15 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end,
     return success;
 }
 
-SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, const SkOpAngle* angle) {
+bool SkOpSegment::markAngle(int maxWinding, int sumWinding, const SkOpAngle* angle,
+                            SkOpSpanBase** result) {
     SkASSERT(angle->segment() == this);
     if (UseInnerWinding(maxWinding, sumWinding)) {
         maxWinding = sumWinding;
     }
-    SkOpSpanBase* last;
-    (void) markAndChaseWinding(angle->start(), angle->end(), maxWinding, &last);
+    if (!markAndChaseWinding(angle->start(), angle->end(), maxWinding, result)) {
+        return false;
+    }
 #if DEBUG_WINDING
     if (last) {
         SkDebugf("%s last seg=%d span=%d", __FUNCTION__,
@@ -949,11 +961,11 @@ SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, const SkOpA
         SkDebugf("\n");
     }
 #endif
-    return last;
+    return true;
 }
 
-SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxWinding,
-                                   int oppSumWinding, const SkOpAngle* angle) {
+bool SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxWinding,
+                            int oppSumWinding, const SkOpAngle* angle, SkOpSpanBase** result) {
     SkASSERT(angle->segment() == this);
     if (UseInnerWinding(maxWinding, sumWinding)) {
         maxWinding = sumWinding;
@@ -961,9 +973,10 @@ SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxW
     if (oppMaxWinding != oppSumWinding && UseInnerWinding(oppMaxWinding, oppSumWinding)) {
         oppMaxWinding = oppSumWinding;
     }
-    SkOpSpanBase* last = nullptr;
     // caller doesn't require that this marks anything
-    (void) markAndChaseWinding(angle->start(), angle->end(), maxWinding, oppMaxWinding, &last);
+    if (!markAndChaseWinding(angle->start(), angle->end(), maxWinding, oppMaxWinding, result)) {
+        return false;
+    }
 #if DEBUG_WINDING
     if (last) {
         SkDebugf("%s last segment=%d span=%d", __FUNCTION__,
@@ -975,7 +988,7 @@ SkOpSpanBase* SkOpSegment::markAngle(int maxWinding, int sumWinding, int oppMaxW
         SkDebugf(" \n");
     }
 #endif
-    return last;
+    return true;
 }
 
 void SkOpSegment::markDone(SkOpSpan* span) {
