@@ -177,7 +177,7 @@ static void test_utf16(skiatest::Reporter* reporter) {
         size_t count2 = SkUTF16_CountUnichars(buf, 2 * sizeof(uint16_t));
         REPORTER_ASSERT(reporter, count2 == 1);
         const uint16_t* ptr = buf;
-        SkUnichar c = SkUTF16_NextUnichar(&ptr);
+        SkUnichar c = SkUTF16_NextUnichar(&ptr, buf + SK_ARRAY_COUNT(buf));
         REPORTER_ASSERT(reporter, c == gUni[i]);
         REPORTER_ASSERT(reporter, ptr - buf == 2);
     }
@@ -203,13 +203,12 @@ DEF_TEST(Utils, reporter) {
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTest); i++) {
         const char* p = gTest[i].fUtf8;
-        int         n = SkUTF8_CountUnichars(p);
-        SkUnichar   u0 = SkUTF8_ToUnichar(gTest[i].fUtf8);
-        SkUnichar   u1 = SkUTF8_NextUnichar(&p);
+        const char* stop = p + strlen(p);
+        int         n = SkUTF8_CountUnichars(p, strlen(p));
+        SkUnichar   u1 = SkUTF8_NextUnichar(&p, stop);
 
         REPORTER_ASSERT(reporter, n == 1);
-        REPORTER_ASSERT(reporter, u0 == u1);
-        REPORTER_ASSERT(reporter, u0 == gTest[i].fUni);
+        REPORTER_ASSERT(reporter, u1 == gTest[i].fUni);
         REPORTER_ASSERT(reporter,
                         p - gTest[i].fUtf8 == (int)strlen(gTest[i].fUtf8));
     }
