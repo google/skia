@@ -1765,6 +1765,15 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->writeWord(oneId, out);
         return flipped;
     }
+    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
+        !fProgram.fSettings.fFlipY) {
+        // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
+        // the default convention of "counter-clockwise face is front".
+        SpvId inverse = this->nextId();
+        this->writeInstruction(SpvOpLogicalNot, this->getType(*fContext.fBool_Type), inverse,
+                               result, out);
+        return inverse;
+    }
     return result;
 }
 
@@ -2278,7 +2287,7 @@ SpvId SPIRVCodeGenerator::writeLogicalOr(const BinaryExpression& o, OutputStream
 
 SpvId SPIRVCodeGenerator::writeTernaryExpression(const TernaryExpression& t, OutputStream& out) {
     SpvId test = this->writeExpression(*t.fTest, out);
-    if (t.fIfTrue->isConstant() && t.fIfFalse->isConstant()) {
+    if (t.fIfTrue->fType.columns() == 1 && t.fIfTrue->isConstant() && t.fIfFalse->isConstant()) {
         // both true and false are constants, can just use OpSelect
         SpvId result = this->nextId();
         SpvId trueId = this->writeExpression(*t.fIfTrue, out);
