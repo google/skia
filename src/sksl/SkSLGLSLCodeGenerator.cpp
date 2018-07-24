@@ -798,7 +798,8 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
     if (precedence >= parentPrecedence) {
         this->write("(");
     }
-    bool positionWorkaround = Compiler::IsAssignment(b.fOperator) &&
+    bool positionWorkaround = fProgramKind == Program::Kind::kVertex_Kind &&
+                              Compiler::IsAssignment(b.fOperator) &&
                               Expression::kFieldAccess_Kind == b.fLeft->fKind &&
                               is_sk_position((FieldAccess&) *b.fLeft) &&
                               !strstr(b.fRight->description().c_str(), "sk_RTAdjust") &&
