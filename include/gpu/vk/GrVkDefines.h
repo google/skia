@@ -13,6 +13,12 @@
 
 #ifdef SK_VULKAN
 
+#if GR_TEST_UTILS
+
+#include <vulkan/vulkan_core.h>
+
+#else // GR_TEST_UTILS
+
 #ifdef SK_VULKAN_HEADER
 #include SK_VULKAN_HEADER // IWYU pragma: export
 #else
@@ -130,5 +136,7 @@ static constexpr VkStructureType VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INF
 #endif // VK_KHR_dedicated_allocation
 
 #endif
+
+#endif // GR_TEST_UTILS
 
 #endif

@@ -330,12 +330,16 @@ template("optional") {
       if (defined(invoker.public_configs)) {
         configs = invoker.public_configs
       }
+      if (defined(invoker.public_include_dirs)) {
+        include_dirs = invoker.public_include_dirs
+      }
     }
     source_set(target_name) {
       forward_variables_from(invoker,
                              "*",
                              [
                                "public_defines",
+                               "public_include_dirs",
                                "sources_when_disabled",
                                "configs_to_remove",
                              ])
@@ -352,6 +356,7 @@ template("optional") {
                              [
                                "public_defines",
                                "public_deps",
+                               "public_include_dirs",
                                "deps",
                                "libs",
                                "sources",
@@ -582,6 +587,7 @@ optional("gpu") {
   public_defines = []
   public_configs = []
   public_deps = []
+  public_include_dirs = []
 
   sources = skia_gpu_sources + skia_sksl_sources + skia_gpu_processor_outputs
 
@@ -618,7 +624,9 @@ optional("gpu") {
     # //third_party/vulkan directory in their trees so they can set up the vulkan library however
     # they want. For example this would allow us to remove the fuchsia specific vulkan code in our
     # vulkan files.
-    public_deps += [ "third_party/vulkan" ]
+    #public_deps += [ "third_party/vulkan" ]
+    public_defines += [ "SK_VULKAN" ]
+    public_include_dirs += [ "third_party/vulkan" ]
     deps += [ "third_party/vulkanmemoryallocator" ]
     sources += skia_vk_sources
     if (skia_enable_vulkan_debug_layers) {
@@ -826,6 +834,7 @@ component("skia") {
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
+    ":gpu",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -844,9 +853,9 @@ component("skia") {
 
   # We need the public deps here for Vulkan. Our third_party/vulkan target sets some defines that
   # need to get propagated up to the tools that depend on :skia and thus :gpu.
-  public_deps = [
-    ":gpu",
-  ]
+  #  public_deps = [
+  #    ":gpu",
+  #  ]
 
   # This file (and all GN files in Skia) are designed to work with an
   # empty sources assignment filter; we handle all that explicitly.
@@ -994,7 +1003,7 @@ if (skia_enable_tools) {
     include_dirs = [ "$target_gen_dir" ]
     if (skia_use_vulkan) {
       # So we can get the header which includes vulkan
-      include_dirs += [ "tools/gpu/vk" ]
+      # include_dirs += [ "tools/gpu/vk" ]
     }
   }
   action("skia.h") {
@@ -1279,6 +1288,7 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
     if (skia_use_vulkan) {
+      public_include_dirs += [ "third_party/vulkan" ]
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
     }

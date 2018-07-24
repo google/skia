@@ -12,7 +12,7 @@
 #ifndef GrVulkanMemoryAllocator_DEFINED
 #define GrVulkanMemoryAllocator_DEFINED
 
-#include "../../include/gpu/vk/GrVkDefines.h"
+#include <vulkan/vulkan_core.h>
 #include "include/vk_mem_alloc.h"
 
 #endif

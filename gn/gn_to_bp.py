@@ -218,7 +218,7 @@ gn_args = {
   'skia_use_vulkan':     'true',
   'target_cpu':          '"none"',
   'target_os':           '"android"',
-  'skia_vulkan_header':  '"Skia_Vulkan_Android.h"',
+  #'skia_vulkan_header':  '"Skia_Vulkan_Android.h"',
 }
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
@@ -264,8 +264,8 @@ cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
 
 # We need to add the include path to the vulkan defines and header file set in
 # then skia_vulkan_header gn arg that is used for framework builds.
-local_includes.add("platform_tools/android/vulkan")
-export_includes.add("platform_tools/android/vulkan")
+# local_includes.add("platform_tools/android/vulkan")
+# export_includes.add("platform_tools/android/vulkan")
 
 here = os.path.dirname(__file__)
 defs = gn_to_bp_utils.GetArchSources(os.path.join(here, 'opts.gni'))
