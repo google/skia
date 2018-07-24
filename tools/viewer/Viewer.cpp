@@ -183,6 +183,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fZoomWindowFixed(false)
     , fZoomWindowLocation{0.0f, 0.0f}
     , fLastImage(nullptr)
+    , fZoomUI(false)
     , fBackendType(sk_app::Window::kNativeGL_BackendType)
     , fColorMode(ColorMode::kLegacy)
     , fColorSpacePrimaries(gSrgbPrimaries)
@@ -478,6 +479,11 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         fPerspectiveMode = (kPerspective_Off == fPerspectiveMode) ? kPerspective_Real
                                                                   : kPerspective_Off;
         this->updateTitle();
+        fWindow->inval();
+    });
+    fCommands.addCommand('u', "GUI", "Zoom UI", [this]() {
+        fZoomUI = !fZoomUI;
+        fStatsLayer.setDisplayScale(fZoomUI ? 2.0f : 1.0f);
         fWindow->inval();
     });
 
