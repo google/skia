@@ -1758,8 +1758,8 @@ pixels in Image could not be read or copied.
 #Example
 #Image 3
     canvas->scale(.5f, .5f);
-    const int width = 32;
-    const int height = 32;
+    const int width = 64;
+    const int height = 64;
     for (int y = 0; y < 512; y += height ) {
         for (int x = 0; x < 512; x += width ) {
             sk_sp<SkImage> subset(image->makeSubset({x, y, x + width, y + height}));

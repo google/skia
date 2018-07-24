@@ -5793,10 +5793,10 @@
     "name": "SkImage::makeShader_2"
 },
     "SkImage_makeSubset": {
-    "code": "void draw(SkCanvas* canvas) {\n    canvas->scale(.5f, .5f);\n    const int width = 32;\n    const int height = 32;\n    for (int y = 0; y < 512; y += height ) {\n        for (int x = 0; x < 512; x += width ) {\n            sk_sp<SkImage> subset(image->makeSubset({x, y, x + width, y + height}));\n            canvas->drawImage(subset, x * 3 / 2, y * 3 / 2);\n        }\n    }\n}",
+    "code": "void draw(SkCanvas* canvas) {\n    canvas->scale(.5f, .5f);\n    const int width = 64;\n    const int height = 64;\n    for (int y = 0; y < 512; y += height ) {\n        for (int x = 0; x < 512; x += width ) {\n            sk_sp<SkImage> subset(image->makeSubset({x, y, x + width, y + height}));\n            canvas->drawImage(subset, x * 3 / 2, y * 3 / 2);\n        }\n    }\n}",
     "width": 256,
     "height": 256,
-    "hash": "93669037c9eb9d142e7776b9f936fa96",
+    "hash": "889e495ce3e3b3bacc96e8230932331c",
     "file": "SkImage_Reference",
     "name": "SkImage::makeSubset"
 },
