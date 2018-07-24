@@ -427,11 +427,22 @@ sk_sp<GrRenderTargetOpList> GrDrawingManager::newRTOpList(GrRenderTargetProxy* r
     SkASSERT(fContext);
 
     if (!fOpLists.empty()) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
-        // reordering so ops that (in the single opList world) would've just glommed onto the
-        // end of the single opList but referred to a far earlier RT need to appear in their
-        // own opList.
-        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
+        if (fSortRenderTargets) {
+            // In this case we need to close all the opLists that rely on the current contents of
+            // 'rtp'. That is bc we're going to update the content of the proxy so they need to be
+            // split in case they use both the old and new content. (This is a bit of an overkill:
+            // they really only need to be split if they ever reference proxy's contents again but
+            // that is hard to predict/handle).
+            if (GrOpList* lastOpList = rtp->getLastOpList()) {
+                lastOpList->closeThoseWhoDependOnMe(*fContext->contextPriv().caps());
+            }
+        } else {
+            // This is  a temporary fix for the partial-MDB world. In that world we're not
+            // reordering so ops that (in the single opList world) would've just glommed onto the
+            // end of the single opList but referred to a far earlier RT need to appear in their
+            // own opList.
+            fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
+        }
     }
 
     auto resourceProvider = fContext->contextPriv().resourceProvider();
@@ -454,11 +465,22 @@ sk_sp<GrTextureOpList> GrDrawingManager::newTextureOpList(GrTextureProxy* textur
     SkASSERT(fContext);
 
     if (!fOpLists.empty()) {
-        // This is  a temporary fix for the partial-MDB world. In that world we're not
-        // reordering so ops that (in the single opList world) would've just glommed onto the
-        // end of the single opList but referred to a far earlier RT need to appear in their
-        // own opList.
-        fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
+        if (fSortRenderTargets) {
+            // In this case we need to close all the opLists that rely on the current contents of
+            // 'rtp'. That is bc we're going to update the content of the proxy so they need to be
+            // split in case they use both the old and new content. (This is a bit of an overkill:
+            // they really only need to be split if they ever reference proxy's contents again but
+            // that is hard to predict/handle).
+            if (GrOpList* lastOpList = textureProxy->getLastOpList()) {
+                lastOpList->closeThoseWhoDependOnMe(*fContext->contextPriv().caps());
+            }
+        } else {
+            // This is  a temporary fix for the partial-MDB world. In that world we're not
+            // reordering so ops that (in the single opList world) would've just glommed onto the
+            // end of the single opList but referred to a far earlier RT need to appear in their
+            // own opList.
+            fOpLists.back()->makeClosed(*fContext->contextPriv().caps());
+        }
     }
 
     sk_sp<GrTextureOpList> opList(new GrTextureOpList(fContext->contextPriv().resourceProvider(),
