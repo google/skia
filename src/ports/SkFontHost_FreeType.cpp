@@ -1495,11 +1495,14 @@ void SkScalerContext_FreeType::emboldenIfNeeded(FT_Face face, FT_GlyphSlot glyph
 #include "SkUtils.h"
 
 static SkUnichar next_utf8(const void** chars) {
-    return SkUTF8_NextUnichar((const char**)chars);
+    const char* stop = (const char*)*chars + strlen((const char*)*chars);
+    return SkUTF8_NextUnichar((const char**)chars, stop);
 }
 
 static SkUnichar next_utf16(const void** chars) {
-    return SkUTF16_NextUnichar((const uint16_t**)chars);
+    const uint16_t* stop = *(const uint16_t**)chars;
+    while (*stop++) {}
+    return SkUTF16_NextUnichar((const uint16_t**)chars, stop);
 }
 
 static SkUnichar next_utf32(const void** chars) {
