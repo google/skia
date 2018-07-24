@@ -33,6 +33,24 @@
       "revId": "e7e3bb4d20067bd8038a6f64b08e75c799179d55",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab3e18d4_34476b90",
+        "filename": "tools/skiaserve/Request.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-24T13:07:05Z",
+      "side": 0,
+      "message": "Ah, good points. Yeah, I\u0027ll undo the fiddle changes so that F16 there is f16-linear.",
+      "parentUuid": "2ee63a91_39061ccd",
+      "revId": "e7e3bb4d20067bd8038a6f64b08e75c799179d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
