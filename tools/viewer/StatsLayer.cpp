@@ -14,7 +14,8 @@
 StatsLayer::StatsLayer()
     : fCurrentMeasurement(0)
     , fCumulativeMeasurementTime(0)
-    , fCumulativeMeasurementCount(0) {}
+    , fCumulativeMeasurementCount(0)
+    , fDisplayScale(1.0f) {}
 
 void StatsLayer::resetMeasurements() {
     for (int i = 0; i < fTimers.count(); ++i) {
@@ -64,7 +65,7 @@ void StatsLayer::onPaint(SkCanvas* canvas) {
     // Scale up the stats overlay on Android devices
     static constexpr SkScalar kScale = 1.5;
 #else
-    static constexpr SkScalar kScale = 1;
+    SkScalar kScale = fDisplayScale;
 #endif
 
     // Now draw everything

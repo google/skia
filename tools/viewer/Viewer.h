@@ -135,6 +135,7 @@ private:
     bool                   fZoomWindowFixed;
     SkPoint                fZoomWindowLocation;
     sk_sp<SkImage>         fLastImage;
+    bool                   fZoomUI;
 
     sk_app::Window::BackendType fBackendType;
 

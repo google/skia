@@ -26,6 +26,8 @@ public:
 
     void onPaint(SkCanvas* canvas) override;
 
+    void setDisplayScale(float scale) { fDisplayScale = scale; }
+
 private:
     static const int kMeasurementCount = 1 << 6;  // should be power of 2 for fast mod
     struct TimerData {
@@ -38,6 +40,7 @@ private:
     int fCurrentMeasurement;
     double fCumulativeMeasurementTime;
     int fCumulativeMeasurementCount;
+    float fDisplayScale;
 };
 
 #endif
