@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4cd8a4e0_c6302e0e",
+        "filename": "infra/bots/jobs.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-07-24T19:23:41Z",
+      "side": 1,
+      "message": "Just want to confirm that this is intentionally changing the existing job, as opposed to adding a new one which is what the commit message suggests.",
+      "range": {
+        "startLine": 516,
+        "startChar": 2,
+        "endLine": 516,
+        "endChar": 83
+      },
+      "revId": "536fe9a550bc7bfd7ed5f0f1f1002afaf2431f70",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
