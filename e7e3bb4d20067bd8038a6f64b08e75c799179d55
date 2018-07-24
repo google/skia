@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "77f37b22_97cb664d",
+        "filename": "tools/fiddle/fiddle_main.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-24T12:54:22Z",
+      "side": 0,
+      "message": "This one is to mirror the \"f16\" config, right?  I don\u0027t mind changing it, but I think it might end up messing with the existing fiddles, etc, and it seems mostly harmless to keep linear.",
+      "revId": "e7e3bb4d20067bd8038a6f64b08e75c799179d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ee63a91_39061ccd",
+        "filename": "tools/skiaserve/Request.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-24T12:54:22Z",
+      "side": 0,
+      "message": "Same deal here?  I guess in general the f16/sRGB options are pretty woefully underuseful nowadays, but we\u0027re kind of changing things here arbitrarily?",
+      "revId": "e7e3bb4d20067bd8038a6f64b08e75c799179d55",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

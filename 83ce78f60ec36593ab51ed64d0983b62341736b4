@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e4bfa1d_87dc7f05",
+        "filename": "tests/ReadPixelsTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-24T12:54:22Z",
+      "side": 1,
+      "message": "Worth adding a linear color space here as a follow up?",
+      "revId": "83ce78f60ec36593ab51ed64d0983b62341736b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
