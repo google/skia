@@ -433,3 +433,18 @@ DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     sub = serial_deserial(sub.get());
     canvas->drawImage(sub, 220+110, 10);
 }
+
+#include "Resources.h"
+
+DEF_SIMPLE_GM(image_subset1, canvas, 256, 256) {
+    auto image = GetResourceAsImage("images/mandrill_512.png");
+    canvas->scale(.5f, .5f);
+    const int width = 32;
+    const int height = 32;
+    for (int y = 0; y < 512; y += height ) {
+        for (int x = 0; x < 512; x += width ) {
+            sk_sp<SkImage> subset(image->makeSubset({x, y, x + width, y + height}));
+            canvas->drawImage(subset, x * 3 / 2, y * 3 / 2);
+        }
+    }
+}
