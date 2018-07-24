@@ -303,7 +303,6 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		},
 		Isolate:        relpath(isolate),
 		Outputs:        outputs,
-		Priority:       0.8,
 		ServiceAccount: serviceAccount,
 	}
 	timeout(task, time.Hour)
@@ -644,8 +643,7 @@ func bundleRecipes(b *specs.TasksCfgBuilder) string {
 		EnvPrefixes: map[string][]string{
 			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 		},
-		Isolate:  relpath("swarm_recipe.isolate"),
-		Priority: 0.7,
+		Isolate: relpath("swarm_recipe.isolate"),
 	})
 	return BUNDLE_RECIPES_NAME
 }
@@ -704,7 +702,6 @@ func isolateCIPDAsset(b *specs.TasksCfgBuilder, name string) string {
 		Command:    []string{"/bin/cp", "-rL", asset.path, "${ISOLATED_OUTDIR}"},
 		Dimensions: linuxGceDimensions(MACHINE_TYPE_SMALL),
 		Isolate:    relpath("empty.isolate"),
-		Priority:   0.7,
 	})
 	return name
 }
@@ -1188,6 +1185,7 @@ func presubmit(b *specs.TasksCfgBuilder, name string) string {
 
 // process generates tasks and jobs for the given job name.
 func process(b *specs.TasksCfgBuilder, name string) {
+	var priority float64 // Leave as default for most jobs.
 	deps := []string{}
 
 	// Bundle Recipes.
@@ -1266,6 +1264,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		deps = append(deps, checkGeneratedFiles(b, name))
 	}
 	if name == "Housekeeper-OnDemand-Presubmit" {
+		priority = 1
 		deps = append(deps, presubmit(b, name))
 	}
 	if strings.Contains(name, "Bookmaker") {
@@ -1331,7 +1330,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 
 	// Add the Job spec.
 	j := &specs.JobSpec{
-		Priority:  0.8,
+		Priority:  priority,
 		TaskSpecs: deps,
 		Trigger:   specs.TRIGGER_ANY_BRANCH,
 	}
