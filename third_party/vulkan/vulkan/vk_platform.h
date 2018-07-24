@@ -17,11 +17,6 @@
 ** limitations under the License.
 */
 
-/*
- * Below this point is based on the original Khronos vk_platform.h header, but simplified for use in
- * Skia when we are not building with a Vulkan backend, but still need the type declarations for
- * compiling.
- */
 
 #ifndef VK_PLATFORM_H_
 #define VK_PLATFORM_H_
