@@ -348,6 +348,9 @@ def dm_flags(api, bot):
   blacklist('g8 image _ _')
   blacklist('g8 colorImage _ _')
 
+  # http://skbug.com/8188
+  blacklist('gltestthreading _ _ nonclosedpaths')
+
   if 'Valgrind' in bot:
     # These take 18+ hours to run.
     blacklist('pdf gm _ fontmgr_iter')
