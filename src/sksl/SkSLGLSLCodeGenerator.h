@@ -102,7 +102,9 @@ protected:
 
     void writeType(const Type& type);
 
-    void writeExtension(const Extension& ext);
+    void writeExtension(const String& name);
+
+    void writeExtension(const String& name, bool require);
 
     void writeInterfaceBlock(const InterfaceBlock& intf);
 
@@ -194,7 +196,8 @@ protected:
 
     const char* fLineEnding;
     const Context& fContext;
-    StringStream fHeader;
+    StringStream fExtensions;
+    StringStream fGlobals;
     StringStream fExtraFunctions;
     String fFunctionHeader;
     Program::Kind fProgramKind;
