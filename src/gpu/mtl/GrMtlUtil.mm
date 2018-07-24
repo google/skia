@@ -8,6 +8,12 @@
 #include "GrMtlUtil.h"
 
 #include "GrTypesPriv.h"
+#include "mtl/GrMtlGpu.h"
+#include "SkSLCompiler.h"
+
+#import <Metal/Metal.h>
+
+#define PRINT_MSL 0 // print out the MSL code generated
 
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
     MTLPixelFormat dontCare;
@@ -142,4 +148,57 @@ MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     texDesc.sampleCount = mtlTexture.sampleCount;
     texDesc.usage = mtlTexture.usage;
     return texDesc;
+}
+
+#if PRINT_MSL
+void print_msl(const char* source) {
+    SkTArray<SkString> lines;
+    SkStrSplit(source, "\n", kStrict_SkStrSplitMode, &lines);
+    for (int i = 0; i < lines.count(); i++) {
+        SkString& line = lines[i];
+        line.prependf("%4i\t", i + 1);
+        SkDebugf("%s\n", line.c_str());
+    }
+}
+#endif
+
+id<MTLLibrary> GrCompileMtlShaderLibrary(const GrMtlGpu* gpu,
+                               const char* shaderString,
+                               SkSL::Program::Kind kind,
+                               const SkSL::Program::Settings& settings,
+                               SkSL::Program::Inputs* outInputs) {
+    std::unique_ptr<SkSL::Program> program =
+            gpu->shaderCompiler()->convertProgram(kind,
+                                                  SkSL::String(shaderString),
+                                                  settings);
+
+    if (!program) {
+        SkDebugf("SkSL error:\n%s\n", gpu->shaderCompiler()->errorText().c_str());
+        SkASSERT(false);
+    }
+
+    *outInputs = program->fInputs;
+    SkSL::String code;
+    if (!gpu->shaderCompiler()->toMetal(*program, &code)) {
+        SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
+        SkASSERT(false);
+        return nil;
+    }
+    NSString* mtlCode = [[NSString alloc] initWithCString: code.c_str()
+                                                 encoding: NSASCIIStringEncoding];
+#if PRINT_MSL
+    print_msl([mtlCode cStringUsingEncoding: NSASCIIStringEncoding]);
+#endif
+
+    MTLCompileOptions* defaultOptions = [[MTLCompileOptions alloc] init];
+    NSError* error = nil;
+    id<MTLLibrary> compiledLibrary = [gpu->device() newLibraryWithSource: mtlCode
+                                                                 options: defaultOptions
+                                                                   error: &error];
+    if (error) {
+        SkDebugf("Error compiling MSL shader: %s\n",
+                 [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
+        return nil;
+    }
+    return compiledLibrary;
 }
