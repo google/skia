@@ -182,7 +182,7 @@ static SkScalar quad_folded_len(const SkPoint pts[3]) {
     SkPoint pt = SkEvalQuadAt(pts, t);
     SkVector a = pts[2] - pt;
     SkScalar result = a.length();
-    if (0 != t) {
+    if (0 != t && 1 != t) {
         SkVector b = pts[0] - pt;
         result += b.length();
     }

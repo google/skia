@@ -439,7 +439,7 @@ private:
     // and dst[1] are the two new conics.
     int split_conic(const SkPoint src[3], SkConic dst[2], const SkScalar weight) {
         SkScalar t = SkFindQuadMaxCurvature(src);
-        if (t == 0) {
+        if (t == 0 || t == 1) {
             if (dst) {
                 dst[0].set(src, weight);
             }
