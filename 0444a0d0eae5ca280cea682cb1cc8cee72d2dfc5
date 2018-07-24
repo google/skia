@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d81e490b_78b8893f",
+        "filename": "src/sksl/README",
+        "patchSetId": 5
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-24T13:40:11Z",
+      "side": 1,
+      "message": "Again, aren\u0027t we in complete control of this? Why would we depend on the client doing it right?",
+      "range": {
+        "startLine": 49,
+        "startChar": 24,
+        "endLine": 50,
+        "endChar": 37
+      },
+      "revId": "0444a0d0eae5ca280cea682cb1cc8cee72d2dfc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c9c28bc_6bb855cc",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-24T13:40:11Z",
+      "side": 1,
+      "message": "I had figured it would matter whether we had to do the flip using rtHeight vs. origin_upper_left - did you determine that that is not in fact the case?",
+      "range": {
+        "startLine": 695,
+        "startChar": 24,
+        "endLine": 695,
+        "endChar": 49
+      },
+      "revId": "0444a0d0eae5ca280cea682cb1cc8cee72d2dfc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89654824_193cc679",
+        "filename": "src/sksl/SkSLSPIRVCodeGenerator.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1770,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-07-24T13:40:11Z",
+      "side": 1,
+      "message": "It\u0027s configurable, though - is there a reason we don\u0027t just invert our configuration of it instead of having to invert it on every use?",
+      "range": {
+        "startLine": 1770,
+        "startChar": 11,
+        "endLine": 1770,
+        "endChar": 80
+      },
+      "revId": "0444a0d0eae5ca280cea682cb1cc8cee72d2dfc5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
