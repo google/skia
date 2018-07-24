@@ -248,6 +248,9 @@ def dm_flags(api, bot):
     if 'Vulkan' in bot:
       configs = ['vk']
 
+    if 'Metal' in bot:
+      configs = ['mtl']
+
     # Test 1010102 on our Linux/NVIDIA bots and the persistent cache config
     # on the GL bots.
     if ('QuadroP400' in bot and 'PreAbandonGpuContext' not in bot and
@@ -819,6 +822,9 @@ def dm_flags(api, bot):
     args.append('--blacklist')
     args.extend(blacklisted)
 
+  if 'Metal' in bot:
+    match = ['GrUploadPixelsTests']
+
   if match:
     args.append('--match')
     args.extend(match)
@@ -1050,6 +1056,7 @@ TEST_BUILDERS = [
   'Test-Mac-Clang-MacMini7.1-CPU-AVX-x86_64-Release-All',
   'Test-Mac-Clang-MacMini7.1-GPU-IntelIris5100-x86_64-Debug-All-CommandBuffer',
   'Test-Mac-Clang-MacBook10.1-GPU-IntelHD615-x86_64-Release-All-NativeFonts',
+  'Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Debug-All-Metal',
   ('Test-Mac-Clang-MacBookPro11.5-GPU-RadeonHD8870M-x86_64-Release-All-'
    'MoltenVK_Vulkan'),
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Vulkan_Coverage',
