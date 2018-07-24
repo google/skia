@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95ccaf7a_1e02216d",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-24T16:45:34Z",
+      "side": 1,
+      "message": "this comment is now in the wrong place.",
+      "revId": "a410457630ab9c49907c7e2852f0190dd00e1dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0364e0c0_6e9fcb62",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-24T16:45:34Z",
+      "side": 1,
+      "message": "does this belong here?  Is it used only for testing?",
+      "revId": "a410457630ab9c49907c7e2852f0190dd00e1dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3183529_a8443ce0",
+        "filename": "src/core/SkUtils.cpp",
+        "patchSetId": 18
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-24T16:45:34Z",
+      "side": 1,
+      "message": "two argument version of SkUTF16_NextUnichar?",
+      "revId": "a410457630ab9c49907c7e2852f0190dd00e1dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c258f3df_89dc862b",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 18
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-24T16:45:34Z",
+      "side": 1,
+      "message": "comment explaining this fn?\n\nWhy is this here?  is it used only in SkTypeface?",
+      "revId": "a410457630ab9c49907c7e2852f0190dd00e1dfa",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
