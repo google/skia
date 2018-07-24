@@ -15,7 +15,6 @@
 #include "SkSLErrorReporter.h"
 #include "ir/SkSLLayout.h"
 #include "SkSLLexer.h"
-#include "SkSLLayoutLexer.h"
 
 struct yy_buffer_state;
 #define YY_TYPEDEF_YY_BUFFER_STATE
@@ -52,6 +51,47 @@ class SymbolTable;
  */
 class Parser {
 public:
+    enum class LayoutToken {
+        LOCATION,
+        OFFSET,
+        BINDING,
+        INDEX,
+        SET,
+        BUILTIN,
+        INPUT_ATTACHMENT_INDEX,
+        ORIGIN_UPPER_LEFT,
+        OVERRIDE_COVERAGE,
+        BLEND_SUPPORT_ALL_EQUATIONS,
+        BLEND_SUPPORT_MULTIPLY,
+        BLEND_SUPPORT_SCREEN,
+        BLEND_SUPPORT_OVERLAY,
+        BLEND_SUPPORT_DARKEN,
+        BLEND_SUPPORT_LIGHTEN,
+        BLEND_SUPPORT_COLORDODGE,
+        BLEND_SUPPORT_COLORBURN,
+        BLEND_SUPPORT_HARDLIGHT,
+        BLEND_SUPPORT_SOFTLIGHT,
+        BLEND_SUPPORT_DIFFERENCE,
+        BLEND_SUPPORT_EXCLUSION,
+        BLEND_SUPPORT_HSL_HUE,
+        BLEND_SUPPORT_HSL_SATURATION,
+        BLEND_SUPPORT_HSL_COLOR,
+        BLEND_SUPPORT_HSL_LUMINOSITY,
+        PUSH_CONSTANT,
+        POINTS,
+        LINES,
+        LINE_STRIP,
+        LINES_ADJACENCY,
+        TRIANGLES,
+        TRIANGLE_STRIP,
+        TRIANGLES_ADJACENCY,
+        MAX_VERTICES,
+        INVOCATIONS,
+        WHEN,
+        KEY,
+        CTYPE
+    };
+
     Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors);
 
     /**
@@ -66,6 +106,8 @@ public:
     Position position(Token token);
 
 private:
+    static void InitLayoutMap();
+
     /**
      * Return the next token, including whitespace tokens, from the parse stream.
      */
@@ -230,9 +272,10 @@ private:
 
     bool identifier(StringFragment* dest);
 
+    static std::unordered_map<String, LayoutToken>* layoutTokens;
+
     const char* fText;
     Lexer fLexer;
-    LayoutLexer fLayoutLexer;
     YY_BUFFER_STATE fBuffer;
     // current parse depth, used to enforce a recursion limit to try to keep us from overflowing the
     // stack on pathological inputs

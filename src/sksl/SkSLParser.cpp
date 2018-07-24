@@ -46,6 +46,10 @@
 #include "ir/SkSLModifiers.h"
 #include "ir/SkSLType.h"
 
+#ifndef SKSL_STANDALONE
+#include "SkOnce.h"
+#endif
+
 namespace SkSL {
 
 #define MAX_PARSE_DEPTH 50
@@ -73,12 +77,64 @@ private:
     Parser* fParser;
 };
 
+std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens;
+
+void Parser::InitLayoutMap() {
+    layoutTokens = new std::unordered_map<String, LayoutToken>;
+    #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name;
+    TOKEN(LOCATION,                     "location");
+    TOKEN(OFFSET,                       "offset");
+    TOKEN(BINDING,                      "binding");
+    TOKEN(INDEX,                        "index");
+    TOKEN(SET,                          "set");
+    TOKEN(BUILTIN,                      "builtin");
+    TOKEN(INPUT_ATTACHMENT_INDEX,       "input_attachment_index");
+    TOKEN(ORIGIN_UPPER_LEFT,            "origin_upper_left");
+    TOKEN(OVERRIDE_COVERAGE,            "override_coverage");
+    TOKEN(BLEND_SUPPORT_ALL_EQUATIONS,  "blend_support_all_equations");
+    TOKEN(BLEND_SUPPORT_MULTIPLY,       "blend_support_multiply");
+    TOKEN(BLEND_SUPPORT_SCREEN,         "blend_support_screen");
+    TOKEN(BLEND_SUPPORT_OVERLAY,        "blend_support_overlay");
+    TOKEN(BLEND_SUPPORT_DARKEN,         "blend_support_darken");
+    TOKEN(BLEND_SUPPORT_LIGHTEN,        "blend_support_lighten");
+    TOKEN(BLEND_SUPPORT_COLORDODGE,     "blend_support_colordodge");
+    TOKEN(BLEND_SUPPORT_COLORBURN,      "blend_support_colorburn");
+    TOKEN(BLEND_SUPPORT_HARDLIGHT,      "blend_support_hardlight");
+    TOKEN(BLEND_SUPPORT_SOFTLIGHT,      "blend_support_softlight");
+    TOKEN(BLEND_SUPPORT_DIFFERENCE,     "blend_support_difference");
+    TOKEN(BLEND_SUPPORT_EXCLUSION,      "blend_support_exclusion");
+    TOKEN(BLEND_SUPPORT_HSL_HUE,        "blend_support_hsl_hue");
+    TOKEN(BLEND_SUPPORT_HSL_SATURATION, "blend_support_hsl_saturation");
+    TOKEN(BLEND_SUPPORT_HSL_COLOR,      "blend_support_hsl_color");
+    TOKEN(BLEND_SUPPORT_HSL_LUMINOSITY, "blend_support_hsl_luminosity");
+    TOKEN(PUSH_CONSTANT,                "push_constant");
+    TOKEN(POINTS,                       "points");
+    TOKEN(LINES,                        "lines");
+    TOKEN(LINE_STRIP,                   "line_strip");
+    TOKEN(LINES_ADJACENCY,              "lines_adjacency");
+    TOKEN(TRIANGLES,                    "triangles");
+    TOKEN(TRIANGLE_STRIP,               "triangle_strip");
+    TOKEN(TRIANGLES_ADJACENCY,          "triangles_adjacency");
+    TOKEN(MAX_VERTICES,                 "max_vertices");
+    TOKEN(INVOCATIONS,                  "invocations");
+    TOKEN(WHEN,                         "when");
+    TOKEN(KEY,                          "key");
+    TOKEN(CTYPE,                        "ctype");
+    #undef TOKEN
+}
+
 Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors)
 : fText(text)
 , fPushback(Token::INVALID, -1, -1)
 , fTypes(types)
 , fErrors(errors) {
     fLexer.start(text, length);
+#ifdef SKSL_STANDALONE
+    InitLayoutMap();
+#else
+    static SkOnce once;
+    once([] { InitLayoutMap(); });
+#endif
 }
 
 /* (directive | section | declaration)* END_OF_FILE */
@@ -690,10 +746,9 @@ Layout Parser::layout() {
         for (;;) {
             Token t = this->nextToken();
             String text = this->text(t);
-            fLayoutLexer.start(text.c_str(), text.size());
-            int token = fLayoutLexer.next().fKind;
-            if (token != LayoutToken::INVALID) {
-                switch (token) {
+            auto found = layoutTokens->find(text);
+            if (found != layoutTokens->end()) {
+                switch (found->second) {
                     case LayoutToken::LOCATION:
                         location = this->layoutInt();
                         break;
@@ -809,10 +864,10 @@ Layout Parser::layout() {
                         ctype = this->layoutIdentifier();
                         break;
                 }
-            } else if (Layout::ReadFormat(this->text(t), &format)) {
+            } else if (Layout::ReadFormat(text, &format)) {
                // AST::ReadFormat stored the result in 'format'.
             } else {
-                this->error(t, ("'" + this->text(t) + "' is not a valid layout qualifier").c_str());
+                this->error(t, ("'" + text + "' is not a valid layout qualifier").c_str());
             }
             if (this->checkNext(Token::RPAREN)) {
                 break;
