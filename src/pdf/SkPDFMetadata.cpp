@@ -62,22 +62,22 @@ static SkString to_utf16be(const char* src, size_t len) {
     const char* const end = src + len;
     size_t n = 1;  // BOM
     for (const char* ptr = src; ptr < end;) {
-        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         if (u < 0) {
             break;
         }
-        n += SkUTF16_FromUnichar(u);
+        n += SkUTF::ToUTF16(u);
     }
     ret.resize(2 * n);
     char* out = ret.writable_str();
     write_utf16be(&out, 0xFEFF);  // BOM
     for (const char* ptr = src; ptr < end;) {
-        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         if (u < 0) {
             break;
         }
         uint16_t utf16[2];
-        size_t l = SkUTF16_FromUnichar(u, utf16);
+        size_t l = SkUTF::ToUTF16(u, utf16);
         write_utf16be(&out, utf16[0]);
         if (l == 2) {
             write_utf16be(&out, utf16[1]);
