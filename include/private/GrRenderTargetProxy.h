@@ -86,7 +86,7 @@ protected:
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
 
-    sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
+    sk_sp<GrSurface> createSurface(GrResourceProvider*, bool noPendingIO) const override;
 
 private:
     void setHasMixedSamples() {

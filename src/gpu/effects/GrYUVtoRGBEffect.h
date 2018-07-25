@@ -19,6 +19,7 @@ public:
                                                      sk_sp<GrTextureProxy> uProxy,
                                                      sk_sp<GrTextureProxy> vProxy,
                                                      SkYUVColorSpace colorSpace, bool nv12);
+    SkString dumpInfo() const override;
     SkMatrix44 ySamplerTransform() const { return fYSamplerTransform; }
     SkMatrix44 uSamplerTransform() const { return fUSamplerTransform; }
     SkMatrix44 vSamplerTransform() const { return fVSamplerTransform; }

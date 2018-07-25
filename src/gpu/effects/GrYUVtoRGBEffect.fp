@@ -41,6 +41,7 @@ layout(key) in bool nv12;
                                                      sk_sp<GrTextureProxy> uProxy,
                                                      sk_sp<GrTextureProxy> vProxy,
                                                      SkYUVColorSpace colorSpace, bool nv12);
+    SkString dumpInfo() const override;
 }
 
 @cpp {
@@ -104,6 +105,19 @@ layout(key) in bool nv12;
                                      std::move(vProxy), vTransform, mat, nv12,
                                      GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                     uvFilterMode)));
+    }
+
+    SkString GrYUVtoRGBEffect::dumpInfo() const {
+        SkString str;
+        str.appendf("Y: %d %d U: %d %d V: %d %d\n",
+            fYSampler.proxy()->uniqueID().asUInt(),
+            fYSampler.proxy()->underlyingUniqueID().asUInt(),
+            fUSampler.proxy()->uniqueID().asUInt(),
+            fUSampler.proxy()->underlyingUniqueID().asUInt(),
+            fVSampler.proxy()->uniqueID().asUInt(),
+            fVSampler.proxy()->underlyingUniqueID().asUInt());
+
+        return str;
     }
 }
 

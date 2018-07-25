@@ -98,7 +98,7 @@ protected:
 
     ~GrTextureProxy() override;
 
-    sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
+    sk_sp<GrSurface> createSurface(GrResourceProvider*, bool noPendingIO) const override;
 
     void setIsGLTextureRectangleOrExternal() {
         fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;

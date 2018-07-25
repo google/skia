@@ -72,11 +72,12 @@ bool GrRenderTargetProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
-sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider) const {
+sk_sp<GrSurface> GrRenderTargetProxy::createSurface(GrResourceProvider* resourceProvider,
+                                                    bool noPendingIO) const {
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, fSampleCnt, fNeedsStencil,
-                                                       kDescFlags, GrMipMapped::kNo);
+                                                       noPendingIO, kDescFlags, GrMipMapped::kNo);
     if (!surface) {
         return nullptr;
     }

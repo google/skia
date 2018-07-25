@@ -84,9 +84,10 @@ bool GrTextureProxy::instantiate(GrResourceProvider* resourceProvider) {
     return true;
 }
 
-sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider) const {
+sk_sp<GrSurface> GrTextureProxy::createSurface(GrResourceProvider* resourceProvider,
+                                               bool noPendingIO) const {
     sk_sp<GrSurface> surface= this->createSurfaceImpl(resourceProvider, 1,
-                                                      /* needsStencil = */ false,
+                                                      /* needsStencil = */ false, noPendingIO,
                                                       kNone_GrSurfaceFlags,
                                                       fMipMapped);
     if (!surface) {
