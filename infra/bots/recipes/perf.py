@@ -213,8 +213,6 @@ def nanobench_flags(api, bot):
   if ('ASAN' in bot or 'UBSAN' in bot) and 'CPU' in bot:
     # floor2int_undef benches undefined behavior, so ASAN correctly complains.
     match.append('~^floor2int_undef$')
-  if 'AcerChromebookR13Convertible' in bot and 'Release' in bot:
-    match.append('~^gr_mipmap_build_511x512$')
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
@@ -367,8 +365,6 @@ TEST_BUILDERS = [
    'Android_NoGPUThreads'),
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
-  ('Perf-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-arm'
-   '-Release-All'),
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Perf-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
