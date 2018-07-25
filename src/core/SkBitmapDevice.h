@@ -155,7 +155,6 @@ private:
     friend class SkDrawTiler;
     friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
-    friend class SkThreadedBMPDevice; // to copy fRCStack
 
     class BDDraw;
 

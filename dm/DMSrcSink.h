@@ -441,9 +441,8 @@ public:
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
     const char* fileExtension() const override { return "png"; }
     SinkFlags flags() const override { return SinkFlags{ SinkFlags::kRaster, SinkFlags::kDirect }; }
-protected:
-    void allocPixels(const Src& src, SkBitmap*) const;
 
+private:
     SkColorType         fColorType;
     sk_sp<SkColorSpace> fColorSpace;
 };

@@ -106,10 +106,6 @@ private:
     SkMatrix computeMatrix();
     SkPoint mapEvent(float x, float y);
 
-    void resetExecutor() {
-        fExecutor = SkExecutor::MakeFIFOThreadPool(fThreadCnt == 0 ? fTileCnt : fThreadCnt);
-    }
-
     sk_app::Window*        fWindow;
 
     StatsLayer             fStatsLayer;
@@ -171,10 +167,6 @@ private:
     SkPoint                fPerspectivePoints[4];
 
     SkTArray<std::function<void(void)>> fDeferredActions;
-
-    int fTileCnt;
-    int fThreadCnt;
-    std::unique_ptr<SkExecutor> fExecutor;
 
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;

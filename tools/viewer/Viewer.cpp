@@ -34,7 +34,6 @@
 #include "SkSurface.h"
 #include "SkTaskGroup.h"
 #include "SkTestFontMgr.h"
-#include "SkThreadedBMPDevice.h"
 #include "SkTo.h"
 #include "SvgSlide.h"
 #include "Viewer.h"
@@ -194,8 +193,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fOffset{0.0f, 0.0f}
     , fGestureDevice(GestureDevice::kNone)
     , fPerspectiveMode(kPerspective_Off)
-    , fTileCnt(0)
-    , fThreadCnt(0)
 {
     SkGraphics::Init();
 
@@ -325,40 +322,6 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
         }
 #endif
         this->setBackend(newBackend);
-    });
-    fCommands.addCommand('+', "Threaded Backend", "Increase tile count", [this]() {
-        fTileCnt++;
-        if (fThreadCnt == 0) {
-            this->resetExecutor();
-        }
-        this->updateTitle();
-        fWindow->inval();
-    });
-    fCommands.addCommand('-', "Threaded Backend", "Decrease tile count", [this]() {
-        fTileCnt = SkTMax(0, fTileCnt - 1);
-        if (fThreadCnt == 0) {
-            this->resetExecutor();
-        }
-        this->updateTitle();
-        fWindow->inval();
-    });
-    fCommands.addCommand('>', "Threaded Backend", "Increase thread count", [this]() {
-        if (fTileCnt == 0) {
-            return;
-        }
-        fThreadCnt = (fThreadCnt + 1) % fTileCnt;
-        this->resetExecutor();
-        this->updateTitle();
-        fWindow->inval();
-    });
-    fCommands.addCommand('<', "Threaded Backend", "Decrease thread count", [this]() {
-        if (fTileCnt == 0) {
-            return;
-        }
-        fThreadCnt = (fThreadCnt + fTileCnt - 1) % fTileCnt;
-        this->resetExecutor();
-        this->updateTitle();
-        fWindow->inval();
     });
     fCommands.addCommand('K', "IO", "Save slide to SKP", [this]() {
         fSaveToSKP = true;
@@ -768,13 +731,6 @@ void Viewer::updateTitle() {
     }
     paintTitle.done();
 
-    if (fTileCnt > 0) {
-        title.appendf(" T%d", fTileCnt);
-        if (fThreadCnt > 0) {
-            title.appendf("/%d", fThreadCnt);
-        }
-    }
-
     switch (fColorMode) {
         case ColorMode::kLegacy:
             title.append(" Legacy 8888");
@@ -1140,17 +1096,7 @@ void Viewer::drawSlide(SkCanvas* canvas) {
                          ? SkSurface::MakeRaster(info, &props)
                          : canvas->makeSurface(info);
         SkPixmap offscreenPixmap;
-        if (fTileCnt > 0 && offscreenSurface->peekPixels(&offscreenPixmap)) {
-            SkBitmap offscreenBitmap;
-            offscreenBitmap.installPixels(offscreenPixmap);
-            threadedCanvas =
-                skstd::make_unique<SkCanvas>(
-                    sk_make_sp<SkThreadedBMPDevice>(
-                         offscreenBitmap, fTileCnt, fThreadCnt, fExecutor.get()));
-            slideCanvas = threadedCanvas.get();
-        } else {
-            slideCanvas = offscreenSurface->getCanvas();
-        }
+        slideCanvas = offscreenSurface->getCanvas();
     }
 
     std::unique_ptr<SkCanvas> xformCanvas = nullptr;
