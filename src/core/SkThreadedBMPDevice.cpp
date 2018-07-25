@@ -222,6 +222,10 @@ void SkThreadedBMPDevice::drawPosText(const void* text, size_t len, const SkScal
     });
 }
 
+void SkThreadedBMPDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+  // TODO(herb): how do we implement this here?
+}
+
 void SkThreadedBMPDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones,
                                        int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     const sk_sp<SkVertices> verts = sk_ref_sp(vertices);  // retain vertices until flush
