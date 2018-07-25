@@ -1,0 +1,349 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cabea64_eb7a10b6",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Need to add \u0027Name\u0027 to this I think.\n\ncreateVariationDesignInstanceNameIterator",
+      "range": {
+        "startLine": 133,
+        "startChar": 22,
+        "endLine": 133,
+        "endChar": 59
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80508b46_7fca4244",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "And here\n\nonCreateVariationDesignInstanceNameIterator",
+      "range": {
+        "startLine": 437,
+        "startChar": 30,
+        "endLine": 437,
+        "endChar": 69
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "64b124fc_c84e4d8a",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Not a field, so doesn\u0027t need an \u0027f\u0027. It\u0027s also just one string ID, so it\u0027s singular.\n\naxisStringId",
+      "range": {
+        "startLine": 1590,
+        "startChar": 17,
+        "endLine": 1590,
+        "endChar": 28
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d85f6da_86aead4e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Pretty sure this will need SkEndian_SwapBE16(...)",
+      "range": {
+        "startLine": 1590,
+        "startChar": 31,
+        "endLine": 1590,
+        "endChar": 57
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9e3e7f7_69475800",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1594,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "I think this all fits on one line?",
+      "range": {
+        "startLine": 1592,
+        "startChar": 54,
+        "endLine": 1594,
+        "endChar": 57
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fafbe5c9_6b95e149",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1595,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "!nameIter",
+      "range": {
+        "startLine": 1595,
+        "startChar": 8,
+        "endLine": 1595,
+        "endChar": 27
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17dd67d7_f6d78b0e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1596,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "axis-\u003ename",
+      "range": {
+        "startLine": 1596,
+        "startChar": 26,
+        "endLine": 1596,
+        "endChar": 42
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0dbf889c_3999fb62",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "instanceStringId",
+      "range": {
+        "startLine": 1620,
+        "startChar": 17,
+        "endLine": 1620,
+        "endChar": 38
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32ed5c75_181a24a8",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "SkEndian_SwapBE16(...)",
+      "range": {
+        "startLine": 1620,
+        "startChar": 41,
+        "endLine": 1620,
+        "endChar": 76
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6ab030b_156c6052",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "This doesn\u0027t do what you think it does. The compiler will take \"\" and will store a \u0027\\0\u0027 in the data segment somewhere and then this will treat that as a char* and add the value in ftVarNamedStyleStrIds to that pointer and then call SkString(const char[]) with that pointer, giving some random string of some undetermined length.\n\nIn this case there isn\u0027t really a good fallback, it\u0027s probably better to just return nullptr in this case.",
+      "range": {
+        "startLine": 1626,
+        "startChar": 30,
+        "endLine": 1626,
+        "endChar": 56
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af589156_932d425d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1645,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "SkEndian_SwapBE16(...)",
+      "range": {
+        "startLine": 1645,
+        "startChar": 36,
+        "endLine": 1645,
+        "endChar": 88
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeeec69e_bccf965f",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1645,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "paletteStringId",
+      "range": {
+        "startLine": 1645,
+        "startChar": 17,
+        "endLine": 1645,
+        "endChar": 33
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71ccfcc3_227c330e",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1654,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Probably better to just return nullptr to indicate there are no names.",
+      "range": {
+        "startLine": 1650,
+        "startChar": 4,
+        "endLine": 1654,
+        "endChar": 5
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "386a1242_1d68fdc0",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1757,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Usually one writes\n\n// TODO\n\nbut this also works",
+      "range": {
+        "startLine": 1757,
+        "startChar": 7,
+        "endLine": 1757,
+        "endChar": 18
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e533ed08_e4c80e38",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T18:36:37Z",
+      "side": 1,
+      "message": "Replace all of this with\n\nCreate(typeface,",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 93
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
