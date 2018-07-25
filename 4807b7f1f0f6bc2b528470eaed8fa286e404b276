@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4e82a4ec_ab9b7d76",
+        "filename": "gm/scaledemoji_rendering.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T20:06:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d5ffa53_ce767cf3",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 23,
+        "endChar": 28
+      },
+      "revId": "4807b7f1f0f6bc2b528470eaed8fa286e404b276",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2be7d0ca_3327b377",
         "filename": "gm/scaledemoji_rendering.cpp",
         "patchSetId": 8
