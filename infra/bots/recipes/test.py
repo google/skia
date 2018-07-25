@@ -219,6 +219,10 @@ def dm_flags(api, bot):
       blacklist('gltestthreading gm _ dftext_blob_persp')
       # skbug.com/7523 - Flaky on various GPUs
       blacklist('gltestthreading gm _ orientation')
+      # http://skbug.com/8188
+      blacklist('gltestthreading gm _ nonclosedpaths')
+      blacklist('gltestthreading gm _ squarehair')
+      blacklist('gltestthreading skp _ desk_mapsvg.skp')
 
     # Test SkColorSpaceXformCanvas on a few bots
     if 'GTX1070' in bot:
