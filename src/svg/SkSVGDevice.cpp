@@ -119,6 +119,13 @@ struct Resources {
     SkString fClip;
 };
 
+static SkTypeface::Encoding to_encoding(SkPaint::TextEncoding e) {
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
+    return (SkTypeface::Encoding)e;
+}
+
 class SVGTextBuilder : SkNoncopyable {
 public:
     SVGTextBuilder(const void* text, size_t byteLen, const SkPaint& paint, const SkPoint& offset,
@@ -131,42 +138,29 @@ public:
         SkASSERT(scalarsPerPos <= 2);
         SkASSERT(scalarsPerPos == 0 || SkToBool(pos));
 
-        int count = paint.countText(text, byteLen);
-
-        const char* stop = (const char*)text + byteLen;
-        switch(paint.getTextEncoding()) {
-        case SkPaint::kGlyphID_TextEncoding: {
-            SkASSERT(count * sizeof(uint16_t) == byteLen);
-            SkAutoSTArray<64, SkUnichar> unichars(count);
-            paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
-            for (int i = 0; i < count; ++i) {
-                this->appendUnichar(unichars[i]);
+        SkPaint::TextEncoding encoding = paint.getTextEncoding();
+        switch(encoding) {
+            case SkPaint::kGlyphID_TextEncoding: {
+                int count = paint.countText(text, byteLen);
+                SkASSERT(count * sizeof(uint16_t) == byteLen);
+                SkAutoSTArray<64, SkUnichar> unichars(count);
+                paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
+                for (int i = 0; i < count; ++i) {
+                    this->appendUnichar(unichars[i]);
+                }
+                break;
             }
-        } break;
-        case SkPaint::kUTF8_TextEncoding: {
-            const char* c8 = reinterpret_cast<const char*>(text);
-            for (int i = 0; i < count; ++i) {
-                this->appendUnichar(SkUTF8_NextUnichar(&c8, stop));
+            case SkPaint::kUTF8_TextEncoding:
+            case SkPaint::kUTF16_TextEncoding:
+            case SkPaint::kUTF32_TextEncoding: {
+                const void* stop = (const char*)text + byteLen;
+                while (text < stop) {
+                    this->appendUnichar(SkUTFN_Next(to_encoding(encoding), &text, stop));
+                }
+                break;
             }
-            SkASSERT(reinterpret_cast<const char*>(text) + byteLen == c8);
-        } break;
-        case SkPaint::kUTF16_TextEncoding: {
-            const uint16_t* c16 = reinterpret_cast<const uint16_t*>(text);
-            for (int i = 0; i < count; ++i) {
-                this->appendUnichar(SkUTF16_NextUnichar(&c16, (const uint16_t*)stop));
-            }
-            SkASSERT(SkIsAlign2(byteLen));
-            SkASSERT(reinterpret_cast<const uint16_t*>(text) + (byteLen / 2) == c16);
-        } break;
-        case SkPaint::kUTF32_TextEncoding: {
-            SkASSERT(count * sizeof(uint32_t) == byteLen);
-            const uint32_t* c32 = reinterpret_cast<const uint32_t*>(text);
-            for (int i = 0; i < count; ++i) {
-                this->appendUnichar(c32[i]);
-            }
-        } break;
-        default:
-            SK_ABORT("unknown text encoding");
+            default:
+                SK_ABORT("unknown text encoding");
         }
 
         if (scalarsPerPos < 2) {
