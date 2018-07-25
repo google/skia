@@ -98,13 +98,15 @@ void SkOverdrawCanvas::onDrawTextOnPath(const void* text, size_t byteLength, con
 typedef int (*CountTextProc)(const char* text, const char* stop);
 static int count_utf16(const char* text, const char* stop) {
     const uint16_t* prev = (const uint16_t*)text;
-    (void)SkUTF16_NextUnichar(&prev, (const uint16_t*)stop);
+    (void)SkUTF::NextUTF16(&prev, (const uint16_t*)stop);
     return SkToInt((const char*)prev - text);
 }
 static int return_4(const char* text, const char* stop) { return 4; }
 static int return_2(const char* text, const char* stop) { return 2; }
 static int count_utf8(const char* text, const char* stop) {
-    return SkUTF8_LeadByteToCount(*(const uint8_t*)text);
+    const char* ptr = text;
+    (void)SkUTF::NextUTF8(&ptr, stop);
+    return SkToInt(ptr - text);
 }
 
 void SkOverdrawCanvas::onDrawTextRSXform(const void* text, size_t byteLength,

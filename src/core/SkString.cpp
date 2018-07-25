@@ -446,8 +446,8 @@ void SkString::insert(size_t offset, const char text[], size_t len) {
 }
 
 void SkString::insertUnichar(size_t offset, SkUnichar uni) {
-    char    buffer[kMaxBytesInUTF8Sequence];
-    size_t  len = SkUTF8_FromUnichar(uni, buffer);
+    char    buffer[SkUTF::kMaxBytesInUTF8Sequence];
+    size_t  len = SkUTF::ToUTF8(uni, buffer);
 
     if (len) {
         this->insert(offset, buffer, len);
