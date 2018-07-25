@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkPM4fPriv.h"
 #include "SkRasterPipeline.h"
@@ -22,7 +23,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkArenaAlloc* alloc,
                                          bool shaderIsOpaque) const {
     alloc->make<SkColorSpaceXformSteps>(fSrcColorSpace.get(), kPremul_SkAlphaType,
-                                        SkColorSpace::MakeSRGB().get())
+                                        sk_srgb_singleton())
         ->apply(p);
 }
 
@@ -51,6 +52,6 @@ void SkToSRGBColorFilter::flatten(SkWriteBuffer& buffer) const {
 #if SK_SUPPORT_GPU
 std::unique_ptr<GrFragmentProcessor> SkToSRGBColorFilter::asFragmentProcessor(
         GrContext*, const GrColorSpaceInfo&) const {
-    return GrColorSpaceXformEffect::Make(fSrcColorSpace.get(), SkColorSpace::MakeSRGB().get());
+    return GrColorSpaceXformEffect::Make(fSrcColorSpace.get(), sk_srgb_singleton());
 }
 #endif

@@ -8,6 +8,7 @@
 #include "SkPatchUtils.h"
 
 #include "SkColorData.h"
+#include "SkColorSpacePriv.h"
 #include "SkGeometry.h"
 #include "SkPM4f.h"
 #include "SkTo.h"
@@ -254,8 +255,8 @@ struct SkRGBAf {
 
 static void skcolor_to_float(SkRGBAf dst[], const SkColor src[], int count, SkColorSpace* dstCS,
                              bool doPremul) {
-    // Source is always sRGB SkColor (safe because sRGB is a global singleton)
-    auto srcCS = SkColorSpace::MakeSRGB().get();
+    // Source is always sRGB SkColor.
+    auto srcCS = sk_srgb_singleton();
 
     auto op = doPremul ? SkColorSpaceXform::kPremul_AlphaOp : SkColorSpaceXform::kPreserve_AlphaOp;
     SkAssertResult(SkColorSpaceXform::Apply(dstCS, SkColorSpaceXform::kRGBA_F32_ColorFormat,  dst,
@@ -264,8 +265,8 @@ static void skcolor_to_float(SkRGBAf dst[], const SkColor src[], int count, SkCo
 }
 
 static void float_to_skcolor(SkColor dst[], const SkRGBAf src[], int count, SkColorSpace* srcCS) {
-    // Destination is always sRGB SkColor (safe because sRGB is a global singleton)
-    auto dstCS = SkColorSpace::MakeSRGB().get();
+    // Destination is always sRGB SkColor.
+    auto dstCS = sk_srgb_singleton();
     SkAssertResult(SkColorSpaceXform::Apply(dstCS, SkColorSpaceXform::kBGRA_8888_ColorFormat, dst,
                                             srcCS, SkColorSpaceXform::kRGBA_F32_ColorFormat,  src,
                                             count, SkColorSpaceXform::kPreserve_AlphaOp));
@@ -292,9 +293,9 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
         return nullptr;
     }
 
-    // Treat null interpolation space as sRGB (safe because sRGB is a global singleton)
+    // Treat null interpolation space as sRGB.
     if (!colorSpace) {
-        colorSpace = SkColorSpace::MakeSRGB().get();
+        colorSpace = sk_srgb_singleton();
     }
 
     int vertexCount = SkToS32(mult64);

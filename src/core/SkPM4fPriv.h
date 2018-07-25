@@ -10,6 +10,7 @@
 
 #include "SkColorData.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
@@ -40,7 +41,7 @@ static inline uint32_t Sk4f_toL32(const Sk4f& px) {
 static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
                                               SkColorSpace* srcCS, SkColorSpace* dstCS) {
     // We treat untagged sources as sRGB.
-    if (!srcCS) { srcCS = SkColorSpace::MakeSRGB().get(); }
+    if (!srcCS) { srcCS = sk_srgb_singleton(); }
 
     // If dstCS is null, no color space transformation is needed (and apply() will just premul).
     if (!dstCS) { dstCS = srcCS; }
@@ -58,7 +59,7 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
     swizzle_rb(Sk4f_fromL32(c)).store(color4f.vec());
 
     // SkColors are always sRGB.
-    return premul_in_dst_colorspace(color4f, SkColorSpace::MakeSRGB().get(), dstCS);
+    return premul_in_dst_colorspace(color4f, sk_srgb_singleton(), dstCS);
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

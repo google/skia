@@ -7,6 +7,7 @@
 
 #include "SkArenaAlloc.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkCoreBlitters.h"
 #include "SkOpts.h"
@@ -143,7 +144,7 @@ public:
             if (!srcCS || fSource.colorType() == kAlpha_8_SkColorType) {
                 // We treat untagged images as sRGB.
                 // A8 images get their r,g,b from the paint color, so they're also sRGB.
-                srcCS = SkColorSpace::MakeSRGB().get();
+                srcCS = sk_srgb_singleton();
             }
             fAlloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType, dstCS)
                 ->apply(&p);

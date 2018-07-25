@@ -80,7 +80,7 @@ static constexpr float g_sRGB_G[]{ 0.3853f, 0.7170f, 0.0971f };
 static constexpr float g_sRGB_B[]{ 0.1430f, 0.0606f, 0.7139f };
 
 DEF_TEST(ColorSpace_sRGB, r) {
-    test_space(r, SkColorSpace::MakeSRGB().get(),
+    test_space(r, sk_srgb_singleton(),
                g_sRGB_R, g_sRGB_G, g_sRGB_B, kSRGB_SkGammaNamed);
 
 }

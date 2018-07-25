@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
 #include "SkFlattenablePriv.h"
 #include "SkFloatBits.h"
@@ -462,14 +463,14 @@ SkColor4fXformer::SkColor4fXformer(const SkColor4f* colors, int colorCount,
     // Transform all of the colors to destination color space
     fColors = colors;
 
-    // Treat null destinations as sRGB (safe because sRGB is a global singleton)
+    // Treat null destinations as sRGB.
     if (!dst) {
-        dst = SkColorSpace::MakeSRGB().get();
+        dst = sk_srgb_singleton();
     }
 
-    // Treat null sources as sRGB (safe because sRGB is a global singleton)
+    // Treat null sources as sRGB.
     if (!src) {
-        src = SkColorSpace::MakeSRGB().get();
+        src = sk_srgb_singleton();
     }
 
     if (!SkColorSpace::Equals(src, dst)) {
