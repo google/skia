@@ -68,10 +68,10 @@ int SkFont::textToGlyphs(const void* text, size_t byteLength, SkTextEncoding enc
 
     switch (encoding) {
         case kUTF8_SkTextEncoding:
-            count = SkUTF8_CountUnichars((const char*)text, byteLength);
+            count = SkUTF::CountUTF8((const char*)text, byteLength);
             break;
         case kUTF16_SkTextEncoding:
-            count = SkUTF16_CountUnichars((const uint16_t*)text, byteLength);
+            count = SkUTF::CountUTF16((const uint16_t*)text, byteLength);
             break;
         case kUTF32_SkTextEncoding:
             count = SkToInt(byteLength >> 2);
