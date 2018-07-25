@@ -145,8 +145,10 @@ static const char* op_to_name(GrLoadOp op) {
 
 void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
-    SkDebugf("opListID: %d -> proxyID: %d\n", fUniqueID,
-             fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1);
+    SkDebugf("opListID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
+             fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1,
+             fTarget.get() && fTarget.get()->priv().peekSurface()
+                                ? fTarget.get()->priv().peekSurface()->uniqueID().asUInt() : -1);
     SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
              op_to_name(fColorLoadOp),
              GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor : 0x0,

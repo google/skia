@@ -436,8 +436,8 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
     // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
     // bool.
-    paint.addColorFragmentProcessor(
-            GrYUVtoRGBEffect::Make(yProxy, uProxy, vProxy, colorSpace, nv12));
+    paint.addColorFragmentProcessor(GrYUVtoRGBEffect::Make(std::move(yProxy), std::move(uProxy),
+                                                           std::move(vProxy), colorSpace, nv12));
 
     const SkRect rect = SkRect::MakeIWH(width, height);
 
@@ -446,6 +446,8 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
     if (!renderTargetContext->asSurfaceProxy()) {
         return nullptr;
     }
+
+    // DDL TODO: in the promise image version we must not flush here
     ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
 
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
