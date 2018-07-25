@@ -105,6 +105,20 @@ layout(key) in bool nv12;
                                      GrSamplerState(GrSamplerState::WrapMode::kClamp,
                                                     uvFilterMode)));
     }
+
+    SkString dumpInfo() const override {
+        SkString str;
+        TextureSampler fYSampler;
+        TextureSampler fUSampler;
+        TextureSampler fVSampler;
+        str.appendf("Y: %d %d\n",
+
+        str.appendf("Domain: [L: %.2f, T: %.2f, R: %.2f, B: %.2f]",
+                    fTextureDomain.domain().fLeft, fTextureDomain.domain().fTop,
+                    fTextureDomain.domain().fRight, fTextureDomain.domain().fBottom);
+        str.append(INHERITED::dumpInfo());
+        return str;
+    }
 }
 
 void main() {

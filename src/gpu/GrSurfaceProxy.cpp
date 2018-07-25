@@ -115,10 +115,10 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
     return true;
 }
 
-sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
-                                                GrResourceProvider* resourceProvider,
-                                                int sampleCnt, bool needsStencil,
-                                                GrSurfaceDescFlags descFlags, GrMipMapped mipMapped) const {
+sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
+                                                   int sampleCnt, bool needsStencil,
+                                                   bool noPendingIO, GrSurfaceDescFlags descFlags,
+                                                   GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
@@ -132,7 +132,7 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     desc.fSampleCnt = sampleCnt;
 
     GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::kNone_Flag;
-    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO || noPendingIO) {
         resourceProviderFlags = GrResourceProvider::kNoPendingIO_Flag;
     }
 
@@ -211,7 +211,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
     }
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, sampleCnt, needsStencil,
-                                                       descFlags, mipMapped);
+                                                       false, descFlags, mipMapped);
     if (!surface) {
         return false;
     }

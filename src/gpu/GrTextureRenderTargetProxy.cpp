@@ -95,12 +95,13 @@ bool GrTextureRenderTargetProxy::instantiate(GrResourceProvider* resourceProvide
 }
 
 sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
-                                                    GrResourceProvider* resourceProvider) const {
+                                                    GrResourceProvider* resourceProvider,
+                                                    bool noPendingIO) const {
     static constexpr GrSurfaceDescFlags kDescFlags = kRenderTarget_GrSurfaceFlag;
 
     sk_sp<GrSurface> surface = this->createSurfaceImpl(resourceProvider, this->numStencilSamples(),
-                                                       this->needsStencil(), kDescFlags,
-                                                       this->mipMapped());
+                                                       this->needsStencil(), noPendingIO,
+                                                       kDescFlags, this->mipMapped());
     if (!surface) {
         return nullptr;
     }

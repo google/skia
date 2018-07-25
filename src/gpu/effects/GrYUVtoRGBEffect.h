@@ -37,6 +37,8 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
     const char* name() const override { return "YUVtoRGBEffect"; }
 
+    SkString dumpInfo() const override;
+
 private:
     GrYUVtoRGBEffect(sk_sp<GrTextureProxy> ySampler, SkMatrix44 ySamplerTransform,
                      sk_sp<GrTextureProxy> uSampler, SkMatrix44 uSamplerTransform,

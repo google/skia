@@ -57,8 +57,8 @@ public:
 
     // Create a GrSurface-derived class that meets the requirements (i.e, desc, renderability)
     // of the GrSurfaceProxy.
-    sk_sp<GrSurface> createSurface(GrResourceProvider* resourceProvider) const {
-        return fProxy->createSurface(resourceProvider);
+    sk_sp<GrSurface> createSurface(GrResourceProvider* resourceProvider, bool noPendingIO) const {
+        return fProxy->createSurface(resourceProvider, noPendingIO);
     }
 
     // Assign this proxy the provided GrSurface as its backing surface

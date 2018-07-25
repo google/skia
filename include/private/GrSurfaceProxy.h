@@ -426,11 +426,11 @@ protected:
 
     void computeScratchKey(GrScratchKey*) const;
 
-    virtual sk_sp<GrSurface> createSurface(GrResourceProvider*) const = 0;
+    virtual sk_sp<GrSurface> createSurface(GrResourceProvider*, bool noPendingIO) const = 0;
     void assign(sk_sp<GrSurface> surface);
 
     sk_sp<GrSurface> createSurfaceImpl(GrResourceProvider*, int sampleCnt, bool needsStencil,
-                                       GrSurfaceDescFlags descFlags, GrMipMapped) const;
+                                       bool noPendingIO, GrSurfaceDescFlags, GrMipMapped) const;
 
     bool instantiateImpl(GrResourceProvider* resourceProvider, int sampleCnt, bool needsStencil,
                          GrSurfaceDescFlags descFlags, GrMipMapped, const GrUniqueKey*);

@@ -185,7 +185,11 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
     }
 
     // Failing that, try to grab a new one from the resource cache
-    return proxy->priv().createSurface(fResourceProvider);
+    surface = proxy->priv().createSurface(fResourceProvider, true);
+    SkDebugf("pulled %d out of the cache %d %d %d\n", surface->uniqueID().asUInt(),
+        surface->fRefCnt, surface->fPendingReads, surface->fPendingWrites);
+
+    return surface;
 }
 
 // Remove any intervals that end before the current index. Return their GrSurfaces
