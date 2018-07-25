@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42e86598_96cdd8ce",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T22:03:23Z",
+      "side": 1,
+      "message": "This matrix is never actually used? It is translated, but never allied to anything?",
+      "range": {
+        "startLine": 596,
+        "startChar": 13,
+        "endLine": 596,
+        "endChar": 19
+      },
+      "revId": "e2843bbd48aee78f3aaa2c20cb4237eb7bf9e3bf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
