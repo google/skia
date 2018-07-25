@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba5e93c_a2f5a982",
+        "filename": "src/gpu/GrResourceAllocator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-25T16:39:32Z",
+      "side": 1,
+      "message": "why not have this on one line anymore?",
+      "range": {
+        "startLine": 188,
+        "startChar": 4,
+        "endLine": 189,
+        "endChar": 18
+      },
+      "revId": "395d75c9c596ae13fd034b221e9a289e72bb7636",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
