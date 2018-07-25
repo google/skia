@@ -1146,7 +1146,7 @@ uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni) {
     UniChar theChar[2]; // UniChar is a UTF-16 16-bit code unit.
 
     // Get the glyph
-    size_t numUniChar = SkUTF16_FromUnichar(uni, theChar);
+    size_t numUniChar = SkUTF::ToUTF16(uni, theChar);
     SkASSERT(sizeof(CGGlyph) <= sizeof(uint16_t));
 
     // Undocumented behavior of CTFontGetGlyphsForCharacters with non-bmp code points:
@@ -2366,7 +2366,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
             src = utf16;
             for (int i = 0; i < glyphCount; ++i) {
                 SkUnichar uni = SkUTF8_NextUnichar(&utf8);
-                utf16 += SkUTF16_FromUnichar(uni, utf16);
+                utf16 += SkUTF::ToUTF16(uni, utf16);
             }
             srcCount = SkToInt(utf16 - src);
             break;
@@ -2387,7 +2387,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
             UniChar* utf16 = charStorage.reset(2 * glyphCount);
             src = utf16;
             for (int i = 0; i < glyphCount; ++i) {
-                utf16 += SkUTF16_FromUnichar(utf32[i], utf16);
+                utf16 += SkUTF::ToUTF16(utf32[i], utf16);
             }
             srcCount = SkToInt(utf16 - src);
             break;
