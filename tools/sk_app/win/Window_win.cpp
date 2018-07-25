@@ -241,7 +241,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         case WM_CHAR: {
             const uint16_t* c = reinterpret_cast<uint16_t*>(&wParam);
-            eventHandled = window->onChar(SkUTF16_NextUnichar(&c),
+            eventHandled = window->onChar(SkUTF::NextUTF16(&c),
                                           get_modifiers(message, wParam, lParam));
         } break;
 
