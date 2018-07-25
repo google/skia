@@ -9,6 +9,7 @@
 #include "SkBitmapController.h"
 #include "SkBitmapProcShader.h"
 #include "SkBitmapProvider.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkEmptyShader.h"
 #include "SkImage_Base.h"
@@ -402,7 +403,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             if (!srcCS || info.colorType() == kAlpha_8_SkColorType) {
                 // We treat untagged images as sRGB.
                 // A8 images get their r,g,b from the paint color, so they're also sRGB.
-                srcCS = SkColorSpace::MakeSRGB().get();
+                srcCS = sk_srgb_singleton();
             }
             alloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType, rec.fDstCS)
                 ->apply(p);

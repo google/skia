@@ -9,6 +9,7 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXform.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
@@ -153,8 +154,7 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
     clamp_if_necessary(dstInfo, data->writable_data());
 
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
-    sk_sp<SkColorSpace> srgb = fix_for_colortype(
-            SkColorSpace::MakeSRGB().get(), dstColorType);
+    sk_sp<SkColorSpace> srgb = fix_for_colortype(sk_srgb_singleton(), dstColorType);
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorSpace(srgb), data, rowBytes);
     canvas->drawImage(raw.get(), 0.0f, 0.0f, nullptr);
 }

@@ -11,6 +11,7 @@
 #include "SkBlitter.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
+#include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
@@ -94,7 +95,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
     // we need to sometimes still need to distinguish null dstCS from sRGB.
 #if 0
     SkColorSpace* dstCS = dst.colorSpace() ? dst.colorSpace()
-                                           : SkColorSpace::MakeSRGB().get();
+                                           : sk_srgb_singleton();
 #else
     SkColorSpace* dstCS = dst.colorSpace();
 #endif

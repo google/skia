@@ -19,9 +19,9 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
         return nullptr;
     }
 
-    // Treat null sources as sRGB (safe because sRGB is a global singleton)
+    // Treat null sources as sRGB.
     if (!src) {
-        src = SkColorSpace::MakeSRGB().get();
+        src = sk_srgb_singleton();
     }
 
     // TODO: Plumb source alpha type
@@ -38,9 +38,9 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::MakeUnpremulToUnpremul(SkColorSpace*
         return nullptr;
     }
 
-    // Treat null sources as sRGB (safe because sRGB is a global singleton)
+    // Treat null sources as sRGB.
     if (!src) {
-        src = SkColorSpace::MakeSRGB().get();
+        src = sk_srgb_singleton();
     }
 
     SkColorSpaceXformSteps steps = SkColorSpaceXformSteps::UnpremulToUnpremul(src, dst);

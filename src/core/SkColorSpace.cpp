@@ -192,21 +192,21 @@ static SkColorSpace* singleton_colorspace(SkGammaNamed gamma, const float to_xyz
     return new SkColorSpace_XYZ(gamma, m44);
 }
 
-static SkColorSpace* srgb() {
+SkColorSpace* sk_srgb_singleton() {
     static SkColorSpace* cs = singleton_colorspace(kSRGB_SkGammaNamed, gSRGB_toXYZD50);
     return cs;
 }
-static SkColorSpace* srgb_linear() {
+SkColorSpace* sk_srgb_linear_singleton() {
     static SkColorSpace* cs = singleton_colorspace(kLinear_SkGammaNamed, gSRGB_toXYZD50);
     return cs;
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGB() {
-    return sk_ref_sp(srgb());
+    return sk_ref_sp(sk_srgb_singleton());
 }
 
 sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
-    return sk_ref_sp(srgb_linear());
+    return sk_ref_sp(sk_srgb_linear_singleton());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +258,7 @@ uint32_t SkColorSpace::toXYZD50Hash() const {
 }
 
 bool SkColorSpace::isSRGB() const {
-    return srgb() == this;
+    return sk_srgb_singleton() == this;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,13 +331,13 @@ size_t SkColorSpace::writeToMemory(void* memory) const {
         SkASSERT(this->toXYZD50());
         // If we have a named profile, only write the enum.
         const SkGammaNamed gammaNamed = this->gammaNamed();
-        if (this == srgb()) {
+        if (this == sk_srgb_singleton()) {
             if (memory) {
                 *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
                         k0_Version, kSRGB_NamedColorSpace, gammaNamed, 0);
             }
             return sizeof(ColorSpaceHeader);
-        } else if (this == srgb_linear()) {
+        } else if (this == sk_srgb_linear_singleton()) {
             if (memory) {
                 *((ColorSpaceHeader*) memory) = ColorSpaceHeader::Pack(
                         k0_Version, kSRGBLinear_NamedColorSpace, gammaNamed, 0);

@@ -1486,7 +1486,7 @@ static void test_encode_icc(skiatest::Reporter* r, SkEncodedImageFormat format) 
     encode_format(&srgbBuf, pixmap, format);
     sk_sp<SkData> srgbData = srgbBuf.detachAsData();
     std::unique_ptr<SkCodec> srgbCodec(SkCodec::MakeFromData(srgbData));
-    REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == SkColorSpace::MakeSRGB().get());
+    REPORTER_ASSERT(r, srgbCodec->getInfo().colorSpace() == sk_srgb_singleton());
 
     // Test with P3 color space.
     SkDynamicMemoryWStream p3Buf;

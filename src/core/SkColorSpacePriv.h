@@ -216,4 +216,10 @@ static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
             return false;
     }
 }
+
+// Return raw pointers to commonly used SkColorSpaces.
+// No need to ref/unref these, but if you do, do it in pairs.
+SkColorSpace* sk_srgb_singleton();
+SkColorSpace* sk_srgb_linear_singleton();
+
 #endif  // SkColorSpacePriv_DEFINED

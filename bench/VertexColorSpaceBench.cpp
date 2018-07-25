@@ -13,6 +13,7 @@
 #include "GrMemoryPool.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
+#include "SkColorSpacePriv.h"
 #include "SkGr.h"
 #include "SkString.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
@@ -232,7 +233,7 @@ public:
         SkASSERT(context);
         auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                         SkColorSpace::kDCIP3_D65_Gamut);
-        auto xform = GrColorSpaceXform::MakeUnpremulToUnpremul(SkColorSpace::MakeSRGB().get(),
+        auto xform = GrColorSpaceXform::MakeUnpremulToUnpremul(sk_srgb_singleton(),
                                                                p3.get());
 
         SkRandom r;
