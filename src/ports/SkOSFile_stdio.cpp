@@ -46,16 +46,16 @@ static FILE* fopen_win(const char* utf8path, const char* perm) {
     const char* end = utf8path + strlen(utf8path);
     size_t n = 0;
     while (ptr < end) {
-        SkUnichar u = SkUTF8_NextUnicharWithError(&ptr, end);
+        SkUnichar u = SkUTF::NextUTF8(&ptr, end);
         if (u < 0) {
             return nullptr;  // malformed UTF-8
         }
-        n += SkUTF16_FromUnichar(u);
+        n += SkUTF::ToUTF16(u);
     }
     std::vector<uint16_t> wchars(n + 1);
     uint16_t* out = wchars.data();
     for (const char* ptr = utf8path; ptr < end;) {
-        out += SkUTF16_FromUnichar(SkUTF8_NextUnicharWithError(&ptr, end), out);
+        out += SkUTF::ToUTF16(SkUTF::NextUTF8(&ptr, end), out);
     }
     SkASSERT(out == &wchars[n]);
     *out = 0; // final null
