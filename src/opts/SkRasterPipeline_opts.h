@@ -706,7 +706,7 @@ static const size_t N = sizeof(F) / sizeof(float);
 
 // Any custom ABI to use for all (non-externally-facing) stage functions?
 // Also decide here whether to use narrow (compromise) or wide (ideal) stages.
-#if defined(__arm__) && defined(__ARM_NEON)
+#if defined(__arm__) && defined(JUMPER_IS_NEON)
     // This lets us pass vectors more efficiently on 32-bit ARM.
     // We can still only pass 16 floats, so best as 4x {r,g,b,a}.
     #define ABI __attribute__((pcs("aapcs-vfp")))
@@ -2363,7 +2363,7 @@ static void start_pipeline(const size_t x0,     const size_t y0,
 SI U16 div255(U16 v) {
 #if 0
     return (v+127)/255;  // The ideal rounding divide by 255.
-#elif 1 && defined(__ARM_NEON)
+#elif 1 && defined(JUMPER_IS_NEON)
     // With NEON we can compute (v+127)/255 as (v + ((v+128)>>8) + 128)>>8
     // just as fast as we can do the approximation below, so might as well be correct!
     // First we compute v + ((v+128)>>8), then one more round of (...+128)>>8 to finish up.
@@ -2425,7 +2425,7 @@ SI F rcp(F x) {
     __m128 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
-#elif defined(__ARM_NEON)
+#elif defined(JUMPER_IS_NEON)
     auto rcp = [](float32x4_t v) {
         auto est = vrecpeq_f32(v);
         return vrecpsq_f32(v,est)*est;
@@ -2450,7 +2450,7 @@ SI F sqrt_(F x) {
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vsqrtq_f32(lo), vsqrtq_f32(hi));
-#elif defined(__ARM_NEON)
+#elif defined(JUMPER_IS_NEON)
     auto sqrt = [](float32x4_t v) {
         auto est = vrsqrteq_f32(v);  // Estimate and two refinement steps for est = rsqrt(v).
         est *= vrsqrtsq_f32(v,est*est);
@@ -2770,7 +2770,7 @@ SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
 }
 
 SI void load_8888_(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16* a) {
-#if 1 && defined(__ARM_NEON)
+#if 1 && defined(JUMPER_IS_NEON)
     uint8x8x4_t rgba;
     switch (tail & (N-1)) {
         case 0: rgba = vld4_u8     ((const uint8_t*)(ptr+0)         ); break;
@@ -2791,7 +2791,7 @@ SI void load_8888_(const uint32_t* ptr, size_t tail, U16* r, U16* g, U16* b, U16
 #endif
 }
 SI void store_8888_(uint32_t* ptr, size_t tail, U16 r, U16 g, U16 b, U16 a) {
-#if 1 && defined(__ARM_NEON)
+#if 1 && defined(JUMPER_IS_NEON)
     uint8x8x4_t rgba = {{
         cast<U8>(r),
         cast<U8>(g),
