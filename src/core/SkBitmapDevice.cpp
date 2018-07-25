@@ -564,10 +564,32 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
+class FilteredSurfaceProps {
+public:
+    FilteredSurfaceProps(const SkBitmap& bitmap,
+                         const SkPaint& paint,
+                         const SkSurfaceProps& surfaceProps)
+        : fSurfaceProps((kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver())
+                        ? fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry)
+                        : &surfaceProps)
+    {}
+
+    FilteredSurfaceProps           (const FilteredSurfaceProps& ) = delete;
+    FilteredSurfaceProps& operator=(const FilteredSurfaceProps& ) = delete;
+    FilteredSurfaceProps           (      FilteredSurfaceProps&&) = delete;
+    FilteredSurfaceProps& operator=(      FilteredSurfaceProps&&) = delete;
+
+    const SkSurfaceProps* operator()() const { return fSurfaceProps; }
+
+private:
+    SkTLazy<SkSurfaceProps> fLazy;
+    const SkSurfaceProps* fSurfaceProps;
+};
+
 void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
                                  int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
-    LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &props()),
+    FilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
+    LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, props()),
                 nullptr)
 }
 
@@ -583,8 +605,8 @@ void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
 #else
-    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, glyphRunList->paint(), fSurfaceProps);
-    LOOP_TILER( drawGlyphRunList(glyphRunList, &props()), nullptr )
+    FilteredSurfaceProps props(fBitmap, glyphRunList->paint(), fSurfaceProps);
+    LOOP_TILER( drawGlyphRunList(glyphRunList, props()), nullptr )
 #endif
 }
 
