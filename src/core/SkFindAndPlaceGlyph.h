@@ -147,7 +147,7 @@ private:
 
     private:
         SkUnichar nextUnichar(const char** text, const char* stop) override {
-            return SkUTF8_NextUnichar(text, stop);
+            return SkUTF8_GetNextUnichar(text, stop);
         }
     };
 
@@ -157,7 +157,7 @@ private:
 
     private:
         SkUnichar nextUnichar(const char** text, const char* stop) override {
-            return SkUTF16_NextUnichar((const uint16_t**)text, (const uint16_t*)stop);
+            return SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop);
         }
     };
 

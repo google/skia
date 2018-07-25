@@ -57,7 +57,7 @@ static SkUnichar next_utf8(const void** chars) {
 }
 
 static SkUnichar next_utf16(const void** chars) {
-    return SkUTF16_NextUnichar((const uint16_t**)chars);
+    return SkUTF::NextUTF16((const uint16_t**)chars);
 }
 
 static SkUnichar next_utf32(const void** chars) {

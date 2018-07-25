@@ -172,12 +172,12 @@ static void test_utf16(skiatest::Reporter* reporter) {
     uint16_t buf[2];
 
     for (size_t i = 0; i < SK_ARRAY_COUNT(gUni); i++) {
-        size_t count = SkUTF16_FromUnichar(gUni[i], buf);
+        size_t count = SkUTF::ToUTF16(gUni[i], buf);
         REPORTER_ASSERT(reporter, count == 2);
-        size_t count2 = SkUTF16_CountUnichars(buf, 2 * sizeof(uint16_t));
+        size_t count2 = SkUTF::CountUTF16((const uint16_t*)buf, 2 * sizeof(uint16_t));
         REPORTER_ASSERT(reporter, count2 == 1);
         const uint16_t* ptr = buf;
-        SkUnichar c = SkUTF16_NextUnichar(&ptr, buf + SK_ARRAY_COUNT(buf));
+        SkUnichar c = SkUTF::NextUTF16(&ptr, buf + SK_ARRAY_COUNT(buf));
         REPORTER_ASSERT(reporter, c == gUni[i]);
         REPORTER_ASSERT(reporter, ptr - buf == 2);
     }
@@ -204,8 +204,8 @@ DEF_TEST(Utils, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTest); i++) {
         const char* p = gTest[i].fUtf8;
         const char* stop = p + strlen(p);
-        int         n = SkUTF8_CountUnichars(p, strlen(p));
-        SkUnichar   u1 = SkUTF8_NextUnichar(&p, stop);
+        int         n = SkUTF::CountUTF8(p, strlen(p));
+        SkUnichar   u1 = SkUTF8_GetNextUnichar(&p, stop);
 
         REPORTER_ASSERT(reporter, n == 1);
         REPORTER_ASSERT(reporter, u1 == gTest[i].fUni);
@@ -226,7 +226,7 @@ DEF_TEST(Utils, reporter) {
 #define LEADING_FOUR_BYTE  "\xF0"
 #define INVALID_BYTE       "\xFC"
 static bool valid_utf8(const char* p, size_t l) {
-    return SkUTF8_CountUnichars(p, l) >= 0;
+    return SkUTF::CountUTF8(p, l) >= 0;
 }
 DEF_TEST(Utils_UTF8_ValidLength, r) {
     const char* goodTestcases[] = {
