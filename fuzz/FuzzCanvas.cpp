@@ -1020,21 +1020,21 @@ static SkTDArray<uint8_t> make_fuzz_text(Fuzz* fuzz, const SkPaint& paint) {
         case SkPaint::kUTF8_TextEncoding: {
             size_t utf8len = 0;
             for (int j = 0; j < length; ++j) {
-                utf8len += SkUTF8_FromUnichar(buffer[j], nullptr);
+                utf8len += SkUTF::ToUTF8(buffer[j], nullptr);
             }
             char* ptr = (char*)array.append(utf8len);
             for (int j = 0; j < length; ++j) {
-                ptr += SkUTF8_FromUnichar(buffer[j], ptr);
+                ptr += SkUTF::ToUTF8(buffer[j], ptr);
             }
         } break;
         case SkPaint::kUTF16_TextEncoding: {
             size_t utf16len = 0;
             for (int j = 0; j < length; ++j) {
-                utf16len += SkUTF16_FromUnichar(buffer[j]);
+                utf16len += SkUTF::ToUTF16(buffer[j]);
             }
             uint16_t* ptr = (uint16_t*)array.append(utf16len * sizeof(uint16_t));
             for (int j = 0; j < length; ++j) {
-                ptr += SkUTF16_FromUnichar(buffer[j], ptr);
+                ptr += SkUTF::ToUTF16(buffer[j], ptr);
             }
         } break;
         case SkPaint::kUTF32_TextEncoding:

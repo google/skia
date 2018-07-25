@@ -165,20 +165,19 @@ static void test_search(skiatest::Reporter* reporter) {
 }
 
 static void test_utf16(skiatest::Reporter* reporter) {
+    // Test non-basic-multilingual-plane unicode.
     static const SkUnichar gUni[] = {
         0x10000, 0x18080, 0x20202, 0xFFFFF, 0x101234
     };
-
-    uint16_t buf[2];
-
-    for (size_t i = 0; i < SK_ARRAY_COUNT(gUni); i++) {
-        size_t count = SkUTF16_FromUnichar(gUni[i], buf);
+    for (SkUnichar uni : gUni) {
+        uint16_t buf[2];
+        size_t count = SkUTF::ToUTF16(uni, buf);
         REPORTER_ASSERT(reporter, count == 2);
-        size_t count2 = SkUTF16_CountUnichars(buf, 2 * sizeof(uint16_t));
+        size_t count2 = SkUTF::CountUTF16(buf, sizeof(buf));
         REPORTER_ASSERT(reporter, count2 == 1);
         const uint16_t* ptr = buf;
-        SkUnichar c = SkUTF16_NextUnichar(&ptr, buf + SK_ARRAY_COUNT(buf));
-        REPORTER_ASSERT(reporter, c == gUni[i]);
+        SkUnichar c = SkUTF::NextUTF16(&ptr, buf + SK_ARRAY_COUNT(buf));
+        REPORTER_ASSERT(reporter, c == uni);
         REPORTER_ASSERT(reporter, ptr - buf == 2);
     }
 }
@@ -204,8 +203,8 @@ DEF_TEST(Utils, reporter) {
     for (size_t i = 0; i < SK_ARRAY_COUNT(gTest); i++) {
         const char* p = gTest[i].fUtf8;
         const char* stop = p + strlen(p);
-        int         n = SkUTF8_CountUnichars(p, strlen(p));
-        SkUnichar   u1 = SkUTF8_NextUnichar(&p, stop);
+        int         n = SkUTF::CountUTF8(p, strlen(p));
+        SkUnichar   u1 = SkUTF::NextUTF8(&p, stop);
 
         REPORTER_ASSERT(reporter, n == 1);
         REPORTER_ASSERT(reporter, u1 == gTest[i].fUni);
@@ -220,62 +219,91 @@ DEF_TEST(Utils, reporter) {
 }
 
 #define ASCII_BYTE         "X"
-#define CONTINUATION_BYTE  "\x80"
-#define LEADING_TWO_BYTE   "\xC4"
-#define LEADING_THREE_BYTE "\xE0"
+#define CONTINUATION_BYTE  "\xA1"
+#define LEADING_TWO_BYTE   "\xC2"
+#define LEADING_THREE_BYTE "\xE1"
 #define LEADING_FOUR_BYTE  "\xF0"
 #define INVALID_BYTE       "\xFC"
-static bool valid_utf8(const char* p, size_t l) {
-    return SkUTF8_CountUnichars(p, l) >= 0;
-}
-DEF_TEST(Utils_UTF8_ValidLength, r) {
-    const char* goodTestcases[] = {
-        "",
-        ASCII_BYTE,
-        ASCII_BYTE ASCII_BYTE,
-        LEADING_TWO_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-        LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE
-            CONTINUATION_BYTE,
+DEF_TEST(SkUTF_CountUTF8, r) {
+    struct {
+        int expectedCount;
+        const char* utf8String;
+    } testCases[] = {
+        { 0, "" },
+        { 1, ASCII_BYTE },
+        { 2, ASCII_BYTE ASCII_BYTE },
+        { 1, LEADING_TWO_BYTE CONTINUATION_BYTE },
+        { 2, ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE },
+        { 3, ASCII_BYTE ASCII_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE },
+        { 1, LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 2, ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 3, ASCII_BYTE ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 1, LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 2, ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 3, ASCII_BYTE ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE CONTINUATION_BYTE
+             CONTINUATION_BYTE },
+        { -1, INVALID_BYTE },
+        { -1, INVALID_BYTE CONTINUATION_BYTE },
+        { -1, INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { -1, INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { -1, LEADING_TWO_BYTE },
+        { -1, CONTINUATION_BYTE },
+        { -1, CONTINUATION_BYTE CONTINUATION_BYTE },
+        { -1, LEADING_THREE_BYTE CONTINUATION_BYTE },
+        { -1, CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { -1, LEADING_FOUR_BYTE CONTINUATION_BYTE },
+        { -1, CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
     };
-    for (const char* testcase : goodTestcases) {
-        REPORTER_ASSERT(r, valid_utf8(testcase, strlen(testcase)));
+    for (auto testCase : testCases) {
+        const char* str = testCase.utf8String;
+        REPORTER_ASSERT(r, testCase.expectedCount == SkUTF::CountUTF8(str, strlen(str)));
     }
-    const char* badTestcases[] = {
-        INVALID_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_TWO_BYTE,
-        CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_THREE_BYTE CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        LEADING_FOUR_BYTE CONTINUATION_BYTE,
-        CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-
-        ASCII_BYTE INVALID_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE INVALID_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_TWO_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_THREE_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE LEADING_FOUR_BYTE CONTINUATION_BYTE,
-        ASCII_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE CONTINUATION_BYTE,
-
-        // LEADING_FOUR_BYTE LEADING_TWO_BYTE CONTINUATION_BYTE,
-    };
-    for (const char* testcase : badTestcases) {
-        REPORTER_ASSERT(r, !valid_utf8(testcase, strlen(testcase)));
-    }
-
 }
+
+DEF_TEST(SkUTF_NextUTF8_ToUTF8, r) {
+    struct {
+        SkUnichar expected;
+        const char* utf8String;
+    } testCases[] = {
+        { -1, INVALID_BYTE },
+        { -1, "" },
+        { 0x0058, ASCII_BYTE },
+        { 0x00A1, LEADING_TWO_BYTE CONTINUATION_BYTE },
+        { 0x1861, LEADING_THREE_BYTE CONTINUATION_BYTE CONTINUATION_BYTE },
+        { 0x010330, LEADING_FOUR_BYTE "\x90\x8C\xB0" },
+    };
+    for (auto testCase : testCases) {
+        const char* str = testCase.utf8String;
+        SkUnichar uni = SkUTF::NextUTF8(&str, str + strlen(str));
+        REPORTER_ASSERT(r, str == testCase.utf8String + strlen(testCase.utf8String));
+        REPORTER_ASSERT(r, uni == testCase.expected);
+        char buff[5] = {0, 0, 0, 0, 0};
+        size_t len = SkUTF::ToUTF8(uni, buff);
+        if (buff[len] != 0) {
+            ERRORF(r, "unexpected write");
+            continue;
+        }
+        if (uni == -1) {
+            REPORTER_ASSERT(r, len == 0);
+            continue;
+        }
+        if (len == 0) {
+           ERRORF(r, "unexpected failure.");
+           continue;
+        }
+        if (len > 4) {
+           ERRORF(r, "wrote too much");
+           continue;
+        }
+        str = testCase.utf8String;
+        REPORTER_ASSERT(r, len == strlen(buff));
+        REPORTER_ASSERT(r, len == strlen(str));
+        REPORTER_ASSERT(r, 0 == strcmp(str, buff));
+    }
+}
+#undef ASCII_BYTE
+#undef CONTINUATION_BYTE
+#undef LEADING_TWO_BYTE
+#undef LEADING_THREE_BYTE
+#undef LEADING_FOUR_BYTE
+#undef INVALID_BYTE

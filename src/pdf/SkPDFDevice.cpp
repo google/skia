@@ -1274,7 +1274,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                 // Check if `/ActualText` needed.
                 const char* textPtr = c.fUtf8Text;
                 const char* textEnd = c.fUtf8Text + c.fTextByteLength;
-                SkUnichar unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+                SkUnichar unichar = SkUTF::NextUTF8(&textPtr, textEnd);
                 if (unichar < 0) {
                     return;
                 }
@@ -1288,7 +1288,7 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
                     // the BOM marks this text as UTF-16BE, not PDFDocEncoding.
                     SkPDFUtils::WriteUTF16beHex(out, unichar);  // first char
                     while (textPtr < textEnd) {
-                        unichar = SkUTF8_NextUnicharWithError(&textPtr, textEnd);
+                        unichar = SkUTF::NextUTF8(&textPtr, textEnd);
                         if (unichar < 0) {
                             break;
                         }

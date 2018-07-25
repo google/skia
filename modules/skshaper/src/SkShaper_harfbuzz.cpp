@@ -83,6 +83,15 @@ HBFont create_hb_font(SkTypeface* tf) {
     return font;
 }
 
+/** this version replaces invalid utf-8 sequences with code point U+FFFD. */
+static inline SkUnichar utf8_next(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
+    if (val < 0) {
+        return 0xFFFD;  // REPLACEMENT CHARACTER
+    }
+    return val;
+}
+
 class RunIterator {
 public:
     virtual ~RunIterator() {}
@@ -138,16 +147,16 @@ public:
         SkASSERT(fUTF16LogicalPosition < ubidi_getLength(fBidi.get()));
         int32_t endPosition = ubidi_getLength(fBidi.get());
         fLevel = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
-        SkUnichar u = SkUTF8_NextUnichar(&fEndOfCurrentRun, fEndOfAllRuns);
-        fUTF16LogicalPosition += SkUTF16_FromUnichar(u);
+        SkUnichar u = utf8_next(&fEndOfCurrentRun, fEndOfAllRuns);
+        fUTF16LogicalPosition += SkUTF::ToUTF16(u);
         UBiDiLevel level;
         while (fUTF16LogicalPosition < endPosition) {
             level = ubidi_getLevelAt(fBidi.get(), fUTF16LogicalPosition);
             if (level != fLevel) {
                 break;
             }
-            u = SkUTF8_NextUnichar(&fEndOfCurrentRun, fEndOfAllRuns);
-            fUTF16LogicalPosition += SkUTF16_FromUnichar(u);
+            u = utf8_next(&fEndOfCurrentRun, fEndOfAllRuns);
+            fUTF16LogicalPosition += SkUTF::ToUTF16(u);
         }
     }
     const char* endOfCurrentRun() const override {
@@ -184,11 +193,11 @@ public:
     {}
     void consume() override {
         SkASSERT(fCurrent < fEnd);
-        SkUnichar u = SkUTF8_NextUnichar(&fCurrent, fEnd);
+        SkUnichar u = utf8_next(&fCurrent, fEnd);
         fCurrentScript = hb_unicode_script(fHBUnicode, u);
         while (fCurrent < fEnd) {
             const char* prev = fCurrent;
-            u = SkUTF8_NextUnichar(&fCurrent, fEnd);
+            u = utf8_next(&fCurrent, fEnd);
             const hb_script_t script = hb_unicode_script(fHBUnicode, u);
             if (script != fCurrentScript) {
                 if (fCurrentScript == HB_SCRIPT_INHERITED || fCurrentScript == HB_SCRIPT_COMMON) {
@@ -243,7 +252,7 @@ public:
     {}
     void consume() override {
         SkASSERT(fCurrent < fEnd);
-        SkUnichar u = SkUTF8_NextUnichar(&fCurrent, fEnd);
+        SkUnichar u = utf8_next(&fCurrent, fEnd);
         // If the starting typeface can handle this character, use it.
         if (fTypeface->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
             fFallbackTypeface.reset();
@@ -265,7 +274,7 @@ public:
 
         while (fCurrent < fEnd) {
             const char* prev = fCurrent;
-            u = SkUTF8_NextUnichar(&fCurrent, fEnd);
+            u = utf8_next(&fCurrent, fEnd);
 
             // If using a fallback and the initial typeface has this character, stop fallback.
             if (fFallbackTypeface &&
@@ -554,7 +563,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         const char* utf8Current = utf8Start;
         while (utf8Current < utf8End) {
             unsigned int cluster = utf8Current - utf8Start;
-            hb_codepoint_t u = SkUTF8_NextUnichar(&utf8Current, utf8End);
+            hb_codepoint_t u = utf8_next(&utf8Current, utf8End);
             hb_buffer_add(buffer, u, cluster);
         }
 

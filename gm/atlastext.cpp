@@ -30,7 +30,7 @@ static SkScalar draw_string(SkAtlasTextTarget* target, const SkString& text, SkS
         return x;
     }
     auto font = SkAtlasTextFont::Make(typeface, size);
-    int cnt = SkUTF8_CountUnichars(text.c_str(), text.size());
+    int cnt = SkUTF::CountUTF8(text.c_str(), text.size());
     std::unique_ptr<SkGlyphID[]> glyphs(new SkGlyphID[cnt]);
     typeface->charsToGlyphs(text.c_str(), SkTypeface::Encoding::kUTF8_Encoding, glyphs.get(), cnt);
 

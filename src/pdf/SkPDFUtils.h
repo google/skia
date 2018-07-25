@@ -103,7 +103,7 @@ inline void WriteUInt8(SkDynamicMemoryWStream* wStream, uint8_t value) {
 
 inline void WriteUTF16beHex(SkDynamicMemoryWStream* wStream, SkUnichar utf32) {
     uint16_t utf16[2] = {0, 0};
-    size_t len = SkUTF16_FromUnichar(utf32, utf16);
+    size_t len = SkUTF::ToUTF16(utf32, utf16);
     SkASSERT(len == 1 || len == 2);
     SkPDFUtils::WriteUInt16BE(wStream, utf16[0]);
     if (len == 2) {

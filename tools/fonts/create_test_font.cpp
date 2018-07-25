@@ -140,13 +140,12 @@ static int output_points(const SkPoint* pts, int emSize, int count, SkString* pt
 static void output_path_data(const SkPaint& paint,
         int emSize, SkString* ptsOut, SkTDArray<SkPath::Verb>* verbs,
         SkTDArray<unsigned>* charCodes, SkTDArray<SkScalar>* widths) {
-    for (int ch = 0x00; ch < 0x7f; ++ch) {
-        char str[1];
-        str[0] = ch;
-        const char* used = str;
-        SkUnichar index = SkUTF8_NextUnichar(&used, str + 1);
+    for (SkUnichar index = 0x00; index < 0x7f; ++index) {
+        uint16_t utf16[2];
+        size_t utf16Bytes = sizeof(uint16_t) * SkUTF::ToUTF16(index, utf16);
         SkPath path;
-        paint.getTextPath((const void*) &index, 2, 0, 0, &path);
+        SkASSERT(paint.getTextEncoding() == SkPaint::kUTF16_TextEncoding);
+        paint.getTextPath(utf16, utf16Bytes, 0, 0, &path);
         SkPath::RawIter iter(path);
         SkPath::Verb verb;
         SkPoint pts[4];
@@ -175,12 +174,12 @@ static void output_path_data(const SkPaint& paint,
         *verbs->append() = SkPath::kDone_Verb;
         *charCodes->append() = index;
         SkScalar width;
-        SkDEBUGCODE(int charCount =) paint.getTextWidths((const void*) &index, 2, &width);
+        SkDEBUGCODE(int charCount =) paint.getTextWidths(utf16, utf16Bytes, &width);
         SkASSERT(charCount == 1);
      // SkASSERT(floor(width) == width);  // not true for Hiragino Maru Gothic Pro
         *widths->append() = width;
-        if (!ch) {
-            ch = 0x1f;  // skip the rest of the control codes
+        if (0 == index) {
+            index = 0x1f;  // skip the rest of the control codes
         }
     }
 }
@@ -432,7 +431,11 @@ static void generate_index(const char* defaultName) {
 }
 
 int main(int , char * const []) {
+#ifdef SK_BUILD_FOR_UNIX
+    generate_fonts("/usr/share/fonts/truetype/liberation/");
+#else
     generate_fonts("/Library/Fonts/"); // or /usr/share/fonts/truetype/ttf-liberation/
+#endif
     generate_index(DEFAULT_FONT_NAME);
     return 0;
 }

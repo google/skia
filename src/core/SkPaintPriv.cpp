@@ -92,9 +92,9 @@ bool SkPaintPriv::ShouldDither(const SkPaint& p, SkColorType dstCT) {
 
 int SkPaintPriv::ValidCountText(const void* text, size_t length, SkPaint::TextEncoding encoding) {
     switch (encoding) {
-        case SkPaint::kUTF8_TextEncoding: return SkUTF8_CountUnichars(text, length);
-        case SkPaint::kUTF16_TextEncoding: return SkUTF16_CountUnichars(text, length);
-        case SkPaint::kUTF32_TextEncoding: return SkUTF32_CountUnichars(text, length);
+        case SkPaint::kUTF8_TextEncoding: return SkUTF::CountUTF8((const char*)text, length);
+        case SkPaint::kUTF16_TextEncoding: return SkUTF::CountUTF16((const uint16_t*)text, length);
+        case SkPaint::kUTF32_TextEncoding: return SkUTF::CountUTF32((const int32_t*)text, length);
         case SkPaint::kGlyphID_TextEncoding:
             if (!SkIsAlign2(intptr_t(text)) || !SkIsAlign2(length)) {
                 return -1;

@@ -147,7 +147,7 @@ private:
 
     private:
         SkUnichar nextUnichar(const char** text, const char* stop) override {
-            return SkUTF8_NextUnichar(text, stop);
+            return SkUTF::NextUTF8(text, stop);
         }
     };
 
@@ -157,7 +157,7 @@ private:
 
     private:
         SkUnichar nextUnichar(const char** text, const char* stop) override {
-            return SkUTF16_NextUnichar((const uint16_t**)text, (const uint16_t*)stop);
+            return SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop);
         }
     };
 
@@ -167,10 +167,7 @@ private:
 
     private:
         SkUnichar nextUnichar(const char** text, const char* stop) override {
-            const int32_t* ptr = *(const int32_t**)text;
-            SkUnichar uni = *ptr++;
-            *text = (const char*)ptr;
-            return uni;
+            return SkUTF::NextUTF32((const int32_t**)text, (const int32_t*)stop);
         }
     };
 
@@ -181,19 +178,24 @@ private:
             SkASSERT(cache != nullptr);
         }
 
-        const SkGlyph& lookupGlyph(const char** text, const char*) override {
-            return fCache->getGlyphIDMetrics(nextGlyphId(text));
+        const SkGlyph& lookupGlyph(const char** text, const char* stop) override {
+            return fCache->getGlyphIDMetrics(nextGlyphId(text, stop));
         }
-        const SkGlyph& lookupGlyphXY(const char** text, const char*,
+        const SkGlyph& lookupGlyphXY(const char** text, const char* stop,
                                      SkFixed x, SkFixed y) override {
-            return fCache->getGlyphIDMetrics(nextGlyphId(text), x, y);
+            return fCache->getGlyphIDMetrics(nextGlyphId(text, stop), x, y);
         }
 
     private:
-        uint16_t nextGlyphId(const char** text) {
+        uint16_t nextGlyphId(const char** text, const char* stop) {
             SkASSERT(text != nullptr);
 
             const uint16_t* ptr = *(const uint16_t**)text;
+            SkASSERT(ptr);
+            if (ptr + 1 > (const uint16_t*)stop) {
+                *text = stop;
+                return 0;
+            }
             uint16_t glyphID = *ptr;
             ptr += 1;
             *text = (const char*)ptr;

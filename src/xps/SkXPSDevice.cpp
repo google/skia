@@ -1984,17 +1984,13 @@ HRESULT SkXPSDevice::AddGlyphs(IXpsOMObjectFactory* xpsFactory,
 }
 
 static int num_glyph_guess(SkPaint::TextEncoding encoding, const void* text, size_t byteLength) {
-    switch (encoding) {
-    case SkPaint::kUTF8_TextEncoding:
-        return SkUTF8_CountUnichars(text, byteLength);
-    case SkPaint::kUTF16_TextEncoding:
-        return SkUTF16_CountUnichars(text, byteLength);
-    case SkPaint::kGlyphID_TextEncoding:
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
+    if (encoding == SkPaint::kGlyphID_TextEncoding) {
         return SkToInt(byteLength / 2);
-    default:
-        SK_ABORT("Invalid Text Encoding");
     }
-    return 0;
+    return SkUTFN_CountUnichars((SkTypeface::Encoding)encoding, text, byteLength);
 }
 
 static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {

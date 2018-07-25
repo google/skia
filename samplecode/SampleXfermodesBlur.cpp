@@ -90,7 +90,7 @@ protected:
             paint.setTextSize(50);
             paint.setTypeface(SkTypeface::MakeFromName("Arial Unicode MS", SkFontStyle()));
             char buffer[10];
-            size_t len = SkUTF8_FromUnichar(0x8500, buffer);
+            size_t len = SkUTF::ToUTF8(0x8500, buffer);
             canvas->drawText(buffer, len, 40, 40, paint);
             return;
         }

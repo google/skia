@@ -398,7 +398,7 @@ public:
 
         WCHAR str[16];
         UINT32 strLen = static_cast<UINT32>(
-            SkUTF16_FromUnichar(character, reinterpret_cast<uint16_t*>(str)));
+            SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
         SkTScopedComPtr<IDWriteTextLayout> fallbackLayout;
         HR_GENERAL(dwFactory->CreateTextLayout(str, strLen, fallbackFormat.get(),
                                                200.0f, 200.0f,
