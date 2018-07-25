@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d07bd196_b7ea191b",
+        "filename": "src/core/SkMask.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-25T17:21:26Z",
+      "side": 1,
+      "message": "Don\u0027t understand the check. toAlloc seems to just be a function of dstW and dstH...",
+      "range": {
+        "startLine": 81,
+        "startChar": 53,
+        "endLine": 81,
+        "endChar": 0
+      },
+      "revId": "f7d3f298e7f3b6978b969780a81c2e3bed1e034f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
