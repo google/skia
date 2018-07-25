@@ -757,7 +757,7 @@ SkTypeface* SkFontMgr_DirectWrite::onMatchFamilyStyleCharacter(const char family
 
     WCHAR str[16];
     UINT32 strLen = static_cast<UINT32>(
-        SkUTF16_FromUnichar(character, reinterpret_cast<uint16_t*>(str)));
+        SkUTF::ToUTF16(character, reinterpret_cast<uint16_t*>(str)));
 
     const SkSMallocWCHAR* dwBcp47;
     SkSMallocWCHAR dwBcp47Local;
