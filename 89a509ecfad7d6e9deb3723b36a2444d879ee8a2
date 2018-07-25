@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e903d1de_3c7da2a0",
+        "filename": "gm/scaledemoji_rendering.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T20:25:01Z",
+      "side": 1,
+      "message": "This is now pretty obvious, can remove this comment",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 35
+      },
+      "revId": "89a509ecfad7d6e9deb3723b36a2444d879ee8a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f241f35_41724158",
+        "filename": "gm/scaledemoji_rendering.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T20:25:01Z",
+      "side": 1,
+      "message": "This comment doesn\u0027t really apply anymore, remove.",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 57,
+        "endChar": 65
+      },
+      "revId": "89a509ecfad7d6e9deb3723b36a2444d879ee8a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "46bcf3f5_296e1454",
+        "filename": "gm/scaledemoji_rendering.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T20:25:01Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 60,
+        "startChar": 47,
+        "endLine": 60,
+        "endChar": 62
+      },
+      "revId": "89a509ecfad7d6e9deb3723b36a2444d879ee8a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "950e75cc_4471dc55",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1008,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-25T20:25:01Z",
+      "side": 1,
+      "message": "Should put the spaces back so as not to make unnecessary changes. (Keeps the blame clean.)",
+      "range": {
+        "startLine": 1008,
+        "startChar": 12,
+        "endLine": 1008,
+        "endChar": 14
+      },
+      "revId": "89a509ecfad7d6e9deb3723b36a2444d879ee8a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
