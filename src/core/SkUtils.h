@@ -8,10 +8,11 @@
 #ifndef SkUtils_DEFINED
 #define SkUtils_DEFINED
 
-#include "SkTypes.h"
 #include "SkMath.h"
 #include "SkOpts.h"
 #include "SkTypeface.h"
+#include "SkTypes.h"
+#include "SkUTF.h"
 
 /** Similar to memset(), but it assigns a 16, 32, or 64-bit value into the buffer.
     @param buffer   The memory to have value copied into it
@@ -29,7 +30,7 @@ static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
 }
 ///////////////////////////////////////////////////////////////////////////////
 
-#define kMaxBytesInUTF8Sequence     4
+constexpr unsigned kMaxBytesInUTF8Sequence = SkUTF::kMaxBytesInUTF8Sequence;
 
 #ifdef SK_DEBUG
     int SkUTF8_LeadByteToCount(unsigned c);
@@ -37,7 +38,7 @@ static inline void sk_memset64(uint64_t buffer[], uint64_t value, int count) {
     #define SkUTF8_LeadByteToCount(c)   ((((0xE5 << 24) >> ((unsigned)c >> 4 << 1)) & 3) + 1)
 #endif
 
-inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
+static inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
     SkASSERT(utf8);
     return SkUTF8_LeadByteToCount(*(const uint8_t*)utf8);
 }
@@ -45,20 +46,31 @@ inline int SkUTF8_CountUTF8Bytes(const char utf8[]) {
 int         SkUTF8_CountUnichars(const char utf8[]);
 
 /** These functions are safe: invalid sequences will return -1; */
-int SkUTF8_CountUnichars(const void* utf8, size_t byteLength);
-int SkUTF16_CountUnichars(const void* utf16, size_t byteLength);
-int SkUTF32_CountUnichars(const void* utf32, size_t byteLength);
+static inline int SkUTF8_CountUnichars(const void* utf8, size_t byteLength) {
+    return SkUTF::CountUTF8((const char*)utf8, byteLength);
+}
+
+static inline int SkUTF16_CountUnichars(const void* utf16, size_t byteLength) {
+    return SkUTF::CountUTF16((const uint16_t*)utf16, byteLength);
+}
+
+static inline int SkUTF32_CountUnichars(const void* utf32, size_t byteLength) {
+    return SkUTF::CountUTF32((const int32_t*)utf32, byteLength);
+}
+
 int SkUTFN_CountUnichars(SkTypeface::Encoding encoding, const void* utfN, size_t byteLength);
 
 /** This function is safe: invalid UTF8 sequences will return -1
  *  When -1 is returned, ptr is unchanged.
  *  Precondition: *ptr < end;
  */
-SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end);
+static inline SkUnichar SkUTF8_NextUnicharWithError(const char** ptr, const char* end) {
+    return SkUTF::NextUTF8(ptr, end);
+}
 
 /** this version replaces invalid utf-8 sequences with code point U+FFFD. */
-inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
-    SkUnichar val = SkUTF8_NextUnicharWithError(ptr, end);
+static inline SkUnichar SkUTF8_NextUnichar(const char** ptr, const char* end) {
+    SkUnichar val = SkUTF::NextUTF8(ptr, end);
     if (val < 0) {
         *ptr = end;
         return 0xFFFD;  // REPLACEMENT CHARACTER
@@ -74,7 +86,9 @@ SkUnichar   SkUTF8_PrevUnichar(const char**);
     into a utf8 sequence. Will be 1..kMaxBytesInUTF8Sequence,
     or 0 if uni is illegal.
 */
-size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
+static inline size_t SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr) {
+    return SkUTF::ToUTF8(uni, utf8);
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +98,10 @@ size_t      SkUTF8_FromUnichar(SkUnichar uni, char utf8[] = nullptr);
 int SkUTF16_CountUnichars(const uint16_t utf16[]);
 // returns the current unichar and then moves past it (*p++)
 SkUnichar SkUTF16_NextUnichar(const uint16_t**);
-SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* end);
+
+static inline SkUnichar SkUTF16_NextUnichar(const uint16_t** srcPtr, const uint16_t* end) {
+    return SkUTF::NextUTF16(srcPtr, end);
+}
 
 // this guy backs up to the previus unichar value, and returns it (*--p)
 SkUnichar SkUTF16_PrevUnichar(const uint16_t**);
@@ -93,7 +110,7 @@ size_t SkUTF16_FromUnichar(SkUnichar uni, uint16_t utf16[] = nullptr);
 size_t SkUTF16_ToUTF8(const uint16_t utf16[], int numberOf16BitValues,
                       char utf8[] = nullptr);
 
-inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
+static inline bool SkUnichar_IsVariationSelector(SkUnichar uni) {
 /*  The 'true' ranges are:
  *      0x180B  <= uni <=  0x180D
  *      0xFE00  <= uni <=  0xFE0F
