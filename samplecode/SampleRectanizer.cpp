@@ -59,8 +59,8 @@ protected:
         }
         SkUnichar uni;
         if (SampleCode::CharQ(*evt, &uni)) {
-            char utf8[kMaxBytesInUTF8Sequence];
-            size_t size = SkUTF8_FromUnichar(uni, utf8);
+            char utf8[SkUTF::kMaxBytesInUTF8Sequence];
+            size_t size = SkUTF::ToUTF8(uni, utf8);
             // Only consider events for single char keys
             if (1 == size) {
                 switch (utf8[0]) {

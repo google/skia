@@ -399,9 +399,9 @@ int SkPaint::countText(const void* text, size_t byteLength) const {
     SkASSERT(text != nullptr);
     switch (this->getTextEncoding()) {
         case kUTF8_TextEncoding:
-            return SkUTF8_CountUnichars(text, byteLength);
+            return SkUTF::CountUTF8((const char*)text, byteLength);
         case kUTF16_TextEncoding:
-            return SkUTF16_CountUnichars(text, byteLength);
+            return SkUTF::CountUTF16((const uint16_t*)text, byteLength);
         case kUTF32_TextEncoding:
             return SkToInt(byteLength >> 2);
         case kGlyphID_TextEncoding:
@@ -411,6 +411,13 @@ int SkPaint::countText(const void* text, size_t byteLength) const {
     }
 
     return 0;
+}
+
+static SkTypeface::Encoding to_encoding(SkPaint::TextEncoding e) {
+    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
+    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
+    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
+    return (SkTypeface::Encoding)e;
 }
 
 int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyphs[]) const {
@@ -431,38 +438,16 @@ int SkPaint::textToGlyphs(const void* textData, size_t byteLength, uint16_t glyp
 
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
 
-    const char* text = (const char*)textData;
-    const char* stop = text + byteLength;
+    const void* stop = (const char*)textData + byteLength;
     uint16_t*   gptr = glyphs;
+    const SkTypeface::Encoding encoding = to_encoding(this->getTextEncoding());
 
-    switch (this->getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding:
-            while (text < stop) {
-                SkUnichar u = SkUTF8_NextUnicharWithError(&text, stop);
-                if (u < 0) {
-                    return 0;  // bad UTF-8 sequence
-                }
-                *gptr++ = cache->unicharToGlyph(u);
-            }
-            break;
-        case SkPaint::kUTF16_TextEncoding: {
-            const uint16_t* text16 = (const uint16_t*)text;
-            const uint16_t* stop16 = (const uint16_t*)stop;
-            while (text16 < stop16) {
-                *gptr++ = cache->unicharToGlyph(SkUTF16_NextUnichar(&text16, stop16));
-            }
-            break;
+    while (textData < stop) {
+        SkUnichar unichar = SkUTFN_Next(encoding, &textData, stop);
+        if (unichar < 0) {
+            return 0;  // bad UTF-N sequence
         }
-        case kUTF32_TextEncoding: {
-            const int32_t* text32 = (const int32_t*)text;
-            const int32_t* stop32 = (const int32_t*)stop;
-            while (text32 < stop32) {
-                *gptr++ = cache->unicharToGlyph(*text32++);
-            }
-            break;
-        }
-        default:
-            SkDEBUGFAIL("unknown text encoding");
+        *gptr++ = cache->unicharToGlyph(unichar);
     }
     return SkToInt(gptr - glyphs);
 }
@@ -487,41 +472,12 @@ bool SkPaint::containsText(const void* textData, size_t byteLength) const {
     }
 
     auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(*this);
-
-    switch (this->getTextEncoding()) {
-        case SkPaint::kUTF8_TextEncoding: {
-            const char* text = static_cast<const char*>(textData);
-            const char* stop = text + byteLength;
-            while (text < stop) {
-                if (0 == cache->unicharToGlyph(SkUTF8_NextUnichar(&text, stop))) {
-                    return false;
-                }
-            }
-            break;
-        }
-        case SkPaint::kUTF16_TextEncoding: {
-            const uint16_t* text = static_cast<const uint16_t*>(textData);
-            const uint16_t* stop = text + (byteLength >> 1);
-            while (text < stop) {
-                if (0 == cache->unicharToGlyph(SkUTF16_NextUnichar(&text, stop))) {
-                    return false;
-                }
-            }
-            break;
-        }
-        case SkPaint::kUTF32_TextEncoding: {
-            const int32_t* text = static_cast<const int32_t*>(textData);
-            const int32_t* stop = text + (byteLength >> 2);
-            while (text < stop) {
-                if (0 == cache->unicharToGlyph(*text++)) {
-                    return false;
-                }
-            }
-            break;
-        }
-        default:
-            SkDEBUGFAIL("unknown text encoding");
+    const void* stop = (const char*)textData + byteLength;
+    const SkTypeface::Encoding encoding = to_encoding(this->getTextEncoding());
+    while (textData < stop) {
+        if (0 == cache->unicharToGlyph(SkUTFN_Next(encoding, &textData, stop))) {
             return false;
+        }
     }
     return true;
 }
@@ -551,7 +507,7 @@ static const SkGlyph& sk_getMetrics_utf8_next(SkGlyphCache* cache,
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    return cache->getUnicharMetrics(SkUTF8_NextUnichar(text, stop));
+    return cache->getUnicharMetrics(SkUTF::NextUTF8(text, stop));
 }
 
 static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
@@ -561,7 +517,7 @@ static const SkGlyph& sk_getMetrics_utf16_next(SkGlyphCache* cache,
     SkASSERT(text != nullptr);
 
     return cache->getUnicharMetrics(
-            SkUTF16_NextUnichar((const uint16_t**)text, (const uint16_t*)stop));
+            SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop));
 }
 
 static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
@@ -570,10 +526,7 @@ static const SkGlyph& sk_getMetrics_utf32_next(SkGlyphCache* cache,
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    const int32_t* ptr = *(const int32_t**)text;
-    SkUnichar uni = *ptr++;
-    *text = (const char*)ptr;
-    return cache->getUnicharMetrics(uni);
+    return cache->getUnicharMetrics(SkUTF::NextUTF32((const int32_t**)text, (const int32_t*)stop));
 }
 
 static const SkGlyph& sk_getMetrics_glyph_next(SkGlyphCache* cache,
@@ -595,7 +548,7 @@ static const SkGlyph& sk_getAdvance_utf8_next(SkGlyphCache* cache,
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    return cache->getUnicharAdvance(SkUTF8_NextUnichar(text, stop));
+    return cache->getUnicharAdvance(SkUTF::NextUTF8(text, stop));
 }
 
 static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
@@ -605,7 +558,7 @@ static const SkGlyph& sk_getAdvance_utf16_next(SkGlyphCache* cache,
     SkASSERT(text != nullptr);
 
     return cache->getUnicharAdvance(
-            SkUTF16_NextUnichar((const uint16_t**)text, (const uint16_t*)stop));
+            SkUTF::NextUTF16((const uint16_t**)text, (const uint16_t*)stop));
 }
 
 static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
@@ -614,10 +567,7 @@ static const SkGlyph& sk_getAdvance_utf32_next(SkGlyphCache* cache,
     SkASSERT(cache != nullptr);
     SkASSERT(text != nullptr);
 
-    const int32_t* ptr = *(const int32_t**)text;
-    SkUnichar uni = *ptr++;
-    *text = (const char*)ptr;
-    return cache->getUnicharAdvance(uni);
+    return cache->getUnicharAdvance(SkUTF::NextUTF32((const int32_t**)text, (const int32_t*)stop));
 }
 
 static const SkGlyph& sk_getAdvance_glyph_next(SkGlyphCache* cache,
