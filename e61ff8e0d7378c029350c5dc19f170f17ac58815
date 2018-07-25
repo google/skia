@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b16e6a8b_c54c5d9c",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1cabea64_eb7a10b6",
+      "range": {
+        "startLine": 133,
+        "startChar": 22,
+        "endLine": 133,
+        "endChar": 59
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80508b46_7fca4244",
         "filename": "include/core/SkTypeface.h",
         "patchSetId": 7
@@ -45,6 +69,30 @@
       "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "118044fe_76432c40",
+        "filename": "include/core/SkTypeface.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80508b46_7fca4244",
+      "range": {
+        "startLine": 437,
+        "startChar": 30,
+        "endLine": 437,
+        "endChar": 69
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -94,6 +142,54 @@
     },
     {
       "key": {
+        "uuid": "7c1d6a1d_3f7a83b5",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d85f6da_86aead4e",
+      "range": {
+        "startLine": 1590,
+        "startChar": 31,
+        "endLine": 1590,
+        "endChar": 57
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ce74f9df_2563882b",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1590,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64b124fc_c84e4d8a",
+      "range": {
+        "startLine": 1590,
+        "startChar": 17,
+        "endLine": 1590,
+        "endChar": 28
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b9e3e7f7_69475800",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "4b9f2003_937ee81a",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1594,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9e3e7f7_69475800",
+      "range": {
+        "startLine": 1592,
+        "startChar": 54,
+        "endLine": 1594,
+        "endChar": 57
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafbe5c9_6b95e149",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -137,6 +257,30 @@
       "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4bfa31a_6d55327d",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1595,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafbe5c9_6b95e149",
+      "range": {
+        "startLine": 1595,
+        "startChar": 8,
+        "endLine": 1595,
+        "endChar": 27
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -209,6 +353,54 @@
     },
     {
       "key": {
+        "uuid": "13c89e8c_b8cd49be",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32ed5c75_181a24a8",
+      "range": {
+        "startLine": 1620,
+        "startChar": 41,
+        "endLine": 1620,
+        "endChar": 76
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d98f1cb_ea7bf890",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0dbf889c_3999fb62",
+      "range": {
+        "startLine": 1620,
+        "startChar": 17,
+        "endLine": 1620,
+        "endChar": 38
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e6ab030b_156c6052",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -229,6 +421,30 @@
       "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d247070_318eb2c2",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Changed to return nameIter, since\n\nif (!nameIter) return nullptr;\nreturn nameIter;\n\u003c\u003d\u003e\nreturn nameIter;",
+      "parentUuid": "e6ab030b_156c6052",
+      "range": {
+        "startLine": 1626,
+        "startChar": 30,
+        "endLine": 1626,
+        "endChar": 56
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -278,6 +494,54 @@
     },
     {
       "key": {
+        "uuid": "b404c5cf_9a983414",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1645,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af589156_932d425d",
+      "range": {
+        "startLine": 1645,
+        "startChar": 36,
+        "endLine": 1645,
+        "endChar": 88
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55f6b57c_ef5480d2",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1645,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aeeec69e_bccf965f",
+      "range": {
+        "startLine": 1645,
+        "startChar": 17,
+        "endLine": 1645,
+        "endChar": 33
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "71ccfcc3_227c330e",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -298,6 +562,30 @@
       "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c2b8316_ac65f769",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1654,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71ccfcc3_227c330e",
+      "range": {
+        "startLine": 1650,
+        "startChar": 4,
+        "endLine": 1654,
+        "endChar": 5
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -344,6 +632,30 @@
       "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0ee302a_d9b49316",
+        "filename": "src/sfnt/SkOTUtils.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-25T19:38:49Z",
+      "side": 1,
+      "message": "Convert SkOTTableName::Record::NameID::Predefined::Value to SK_OT_USHORT type.",
+      "parentUuid": "e533ed08_e4c80e38",
+      "range": {
+        "startLine": 192,
+        "startChar": 0,
+        "endLine": 203,
+        "endChar": 93
+      },
+      "revId": "e61ff8e0d7378c029350c5dc19f170f17ac58815",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
