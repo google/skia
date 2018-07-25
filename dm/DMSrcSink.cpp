@@ -56,11 +56,11 @@
 #include "SkRecordDraw.h"
 #include "SkRecorder.h"
 #include "SkStream.h"
+#include "SkSurface.h"
 #include "SkSurfaceCharacterization.h"
 #include "SkSwizzler.h"
 #include "SkTLogic.h"
 #include "SkTaskGroup.h"
-#include "SkThreadedBMPDevice.h"
 #if defined(SK_BUILD_FOR_WIN)
     #include "SkAutoCoInitialize.h"
     #include "SkHRESULT.h"
@@ -1804,7 +1804,7 @@ RasterSink::RasterSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
     : fColorType(colorType)
     , fColorSpace(std::move(colorSpace)) {}
 
-void RasterSink::allocPixels(const Src& src, SkBitmap* dst) const {
+Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
     const SkISize size = src.size();
     // If there's an appropriate alpha type for this color type, use it, otherwise use premul.
     SkAlphaType alphaType = kPremul_SkAlphaType;
@@ -1813,38 +1813,9 @@ void RasterSink::allocPixels(const Src& src, SkBitmap* dst) const {
     dst->allocPixelsFlags(SkImageInfo::Make(size.width(), size.height(),
                                             fColorType, alphaType, fColorSpace),
                           SkBitmap::kZeroPixels_AllocFlag);
-}
 
-Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) const {
-    this->allocPixels(src, dst);
     SkCanvas canvas(*dst);
     return src.draw(&canvas);
-}
-
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
-ThreadedSink::ThreadedSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
-        : RasterSink(colorType, colorSpace) {}
-
-Error ThreadedSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* str) const {
-    this->allocPixels(src, dst);
-
-    auto canvas = skstd::make_unique<SkCanvas>(
-            sk_make_sp<SkThreadedBMPDevice>(
-                    *dst, FLAGS_backendTiles, FLAGS_backendThreads));
-    Error result = src.draw(canvas.get());
-    canvas->flush();
-    return result;
-
-    // ??? yuqian:  why does the following give me segmentation fault while the above one works?
-    //              The seg fault occurs right in the beginning of ThreadedSink::draw with invalid
-    //              memory address (it would crash without even calling this->allocPixels).
-
-    // SkThreadedBMPDevice device(*dst, tileCnt, FLAGS_cpuThreads, fExecutor.get());
-    // SkCanvas canvas(&device);
-    // Error result = src.draw(&canvas);
-    // canvas.flush();
-    // return result;
 }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

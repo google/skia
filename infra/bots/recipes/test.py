@@ -126,14 +126,7 @@ def dm_flags(api, bot):
       configs.extend(['narrow'])
       configs.extend(['enarrow'])
 
-      # Temporarily disabled while debugging.
-      #if 'SAN' in bot:
-      #  configs.extend(['t8888'])
-
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
-
-    if 'T8888' in bot:
-      configs = ['t8888']
 
     # This bot only differs from vanilla CPU bots in 8888 config.
     if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
@@ -326,11 +319,6 @@ def dm_flags(api, bot):
     args.remove('tests')
 
   if 'NativeFonts' in bot:  # images won't exercise native font integration :)
-    args.remove('image')
-    args.remove('colorImage')
-
-  if 'T8888' in bot:
-    args.remove('tests')
     args.remove('image')
     args.remove('colorImage')
 
@@ -1045,7 +1033,6 @@ TEST_BUILDERS = [
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
    '-SK_USE_DISCARDABLE_SCALEDIMAGECACHE'),
-  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-T8888',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All-Lottie',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All'
    '-SK_FORCE_RASTER_PIPELINE_BLITTER'),
