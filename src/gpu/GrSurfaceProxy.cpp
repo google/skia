@@ -115,10 +115,10 @@ bool GrSurfaceProxyPriv::AttachStencilIfNeeded(GrResourceProvider* resourceProvi
     return true;
 }
 
-sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
-                                                GrResourceProvider* resourceProvider,
-                                                int sampleCnt, bool needsStencil,
-                                                GrSurfaceDescFlags descFlags, GrMipMapped mipMapped) const {
+sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(GrResourceProvider* resourceProvider,
+                                                   int sampleCnt, bool needsStencil,
+                                                   GrSurfaceDescFlags descFlags,
+                                                   GrMipMapped mipMapped) const {
     SkASSERT(GrSurfaceProxy::LazyState::kNot == this->lazyInstantiationState());
     SkASSERT(!fTarget);
     GrSurfaceDesc desc;
@@ -132,7 +132,10 @@ sk_sp<GrSurface> GrSurfaceProxy::createSurfaceImpl(
     desc.fSampleCnt = sampleCnt;
 
     GrResourceProvider::Flags resourceProviderFlags = GrResourceProvider::kNone_Flag;
-    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO) {
+    if (fSurfaceFlags & GrInternalSurfaceFlags::kNoPendingIO ||
+        resourceProvider->explicitlyAllocateGPUResources()) {
+        // The explicit resource allocator requires that any resources it pulls out of the
+        // cache have no pending IO.
         resourceProviderFlags = GrResourceProvider::kNoPendingIO_Flag;
     }
 

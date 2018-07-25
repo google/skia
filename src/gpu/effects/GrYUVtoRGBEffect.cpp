@@ -60,6 +60,19 @@ std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::Make(sk_sp<GrTextureProxy
             std::move(yProxy), yTransform, std::move(uProxy), uTransform, std::move(vProxy),
             vTransform, mat, nv12, GrSamplerState(GrSamplerState::WrapMode::kClamp, uvFilterMode)));
 }
+
+SkString GrYUVtoRGBEffect::dumpInfo() const {
+    SkString str;
+    str.appendf("Y: %d %d U: %d %d V: %d %d\n",
+                fYSampler.proxy()->uniqueID().asUInt(),
+                fYSampler.proxy()->underlyingUniqueID().asUInt(),
+                fUSampler.proxy()->uniqueID().asUInt(),
+                fUSampler.proxy()->underlyingUniqueID().asUInt(),
+                fVSampler.proxy()->uniqueID().asUInt(),
+                fVSampler.proxy()->underlyingUniqueID().asUInt());
+
+    return str;
+}
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
