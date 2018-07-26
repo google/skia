@@ -6,13 +6,14 @@
   "pool": "Skia",
   "no_upload": [
     "ASAN",
+    "AbandonGpuContext",
     "Coverage",
     "MSAN",
+    "Metal",
     "OpenCL",
+    "SKQP",
     "TSAN",
     "UBSAN",
-    "Valgrind",
-    "AbandonGpuContext",
-    "SKQP"
+    "Valgrind"
   ]
 }

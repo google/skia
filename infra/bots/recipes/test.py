@@ -812,6 +812,8 @@ def dm_flags(api, bot):
     args.extend(blacklisted)
 
   if 'Metal' in bot:
+    # If we modify the whitelist to include GMs, also update infra/bots/cfg.json
+    # to remove Metal from no_upload.
     match = ['GrUploadPixelsTests']
 
   if match:
