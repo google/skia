@@ -46,9 +46,26 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkRegion.h",
+                "SkStream.h",
+                "SkTextBlob.h"
             ]
         },
         "docs": [
+            "SkDynamicMemoryWStream_Reference.bmh",
+            "SkFILEStream_Reference.bmh",
+            "SkFILEWStream_Reference.bmh",
+            "SkMemoryStream_Reference.bmh",
+            "SkNullWStream_Reference.bmh",
+            "SkRegion_Reference.bmh",
+            "SkStreamAsset_Reference.bmh",
+            "SkStreamMemory_Reference.bmh",
+            "SkStreamRewindable_Reference.bmh",
+            "SkStreamSeekable_Reference.bmh",
+            "SkStream_Reference.bmh",
+            "SkTextBlobBuilder_Reference.bmh",
+            "SkTextBlob_Reference.bmh",
+            "SkWStream_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

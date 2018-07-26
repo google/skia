@@ -2504,16 +2504,16 @@ Returns false if <a href='#SkRect'>SkRect</a> is empty.
 ### Parameters
 
 <table>  <tr>    <td><a name='SkRect_contains_x'><code><strong>x</strong></code></a></td>
-    <td>test <a href='SkPoint_Reference#SkPoint'>SkPoint</a> x-coordinate</td>
+    <td>test <a href='SkPoint_Reference#Point'>Point</a> x-coordinate</td>
   </tr>
   <tr>    <td><a name='SkRect_contains_y'><code><strong>y</strong></code></a></td>
-    <td>test <a href='SkPoint_Reference#SkPoint'>SkPoint</a> y-coordinate</td>
+    <td>test <a href='SkPoint_Reference#Point'>Point</a> y-coordinate</td>
   </tr>
 </table>
 
 ### Return Value
 
-true if (x, y) is inside <a href='#SkRect'>SkRect</a>
+true if (x, y) is inside <a href='#Rect'>Rect</a>
 
 ### Example
 
