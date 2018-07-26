@@ -8,14 +8,15 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 /**
- * SurfaceView that is overlayed on top of a GLSurfaceView. All 2D drawings can be done on this
- * surface.
+ * SurfaceView that is overlayed on top of a GLSurfaceView. All Canvas 2D drawings can be done on
+ * this surface.
  */
-public class ARSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
+
+public class CanvasARSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
 
     boolean running;
 
-    public ARSurfaceView(Context context, AttributeSet attrs) {
+    public CanvasARSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         SurfaceHolder holder = getHolder();
