@@ -5,6 +5,8 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.util.Log;
 
+import com.google.skar.examples.helloskar.helpers.TapHelper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +24,10 @@ public class SkARFingerPainting {
     private int color = Color.RED;
 
     // Previous point added to the path. This points belongs to the path in local space.
-    public PointF previousPoint;
+    private float[] previousLocalPoint;
+
+    // Previous point added to the path. This points belongs to the path in global space (i.e Pose)
+    private float[] previousGlobalPoint;
 
     // Holds the model matrix of the first point added to such that the path can be drawn at the
     // model location (i.e on the Plane)
@@ -34,23 +39,39 @@ public class SkARFingerPainting {
         this.isSmooth = smooth;
     }
 
-    public boolean getSmoothness() {
-        return isSmooth;
-    }
-
     public void setSmoothness(boolean smooth) {
         isSmooth = smooth;
     }
 
-    // Adds another point to the path in Local space
-    public void addPoint(PointF p, boolean jumpPoint) {
-        points.add(p);
-        if (jumpPoint) {
-            Log.i("Jumped!", Integer.toString(points.size() - 1));
-            jumpPoints.add(points.size() - 1);
-            indexColors.put(points.size() - 1, color);
+    public boolean computeNextPoint(float[] hitLocation, TapHelper.ScrollEvent holdTap) {
+        if (isEmpty()) {
+            // If finger painting is empty, then first point is origin. Model matrix
+            // of the finger painting is the model matrix of the first point
+            addPoint(new PointF(0, 0), true);
+
+            // Get model matrix of first point
+            setModelMatrix(modelMatrix);
+        } else {
+            // Else, construct next point given its distance from previous point
+            float localDistanceScale = 1000;
+            PointF distance = new PointF(hitLocation[0] - previousGlobalPoint[0],
+                                         hitLocation[2] - previousGlobalPoint[1]);
+
+            if (distance.length() < 0.01f) {
+                // If distance between previous stored point and current point is too
+                // small, skip it
+                return false;
+            }
+
+            // New point is distance + old point
+            PointF p = new PointF(distance.x * localDistanceScale + previousLocalPoint[0],
+                                  distance.y * localDistanceScale + previousLocalPoint[1]);
+
+            addPoint(p, holdTap.isStartOfScroll);
         }
-        previousPoint = p;
+        previousGlobalPoint[0] = hitLocation[0];
+        previousGlobalPoint[1] = hitLocation[1];
+        return true;
     }
 
     // Used to build a path before rendering it
@@ -82,6 +103,17 @@ public class SkARFingerPainting {
 
             buildRoughFromTo(start, points.size());
         }
+    }
+
+    // Adds another point to the path in Local space
+    private void addPoint(PointF p, boolean jumpPoint) {
+        points.add(p);
+        if (jumpPoint) {
+            jumpPoints.add(points.size() - 1);
+            indexColors.put(points.size() - 1, color);
+        }
+        previousLocalPoint[0] = p.x;
+        previousLocalPoint[1] = p.y;
     }
 
     private void buildRoughFromTo(int start, int finish) {
@@ -121,15 +153,13 @@ public class SkARFingerPainting {
         pathColors.put(p, c);
     }
 
-    public boolean isEmpty() {
-        return points.isEmpty();
-    }
+    private boolean isEmpty() { return points.isEmpty(); }
 
     public float[] getModelMatrix() {
         return modelMatrix;
     }
 
-    public void setModelMatrix(float[] m) {
+    private void setModelMatrix(float[] m) {
         modelMatrix = m;
     }
 
