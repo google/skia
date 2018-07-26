@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "03a3bd26_c9e6a4d7",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T16:40:19Z",
+      "side": 1,
+      "message": "since only the color is different inside the loop, can you move the allocation and other setters outside?",
+      "range": {
+        "startLine": 172,
+        "startChar": 26,
+        "endLine": 172,
+        "endChar": 31
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "94f11034_1135dc8b",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T16:40:19Z",
+      "side": 1,
+      "message": "let\u0027s expand the explanation more for the if/else -- exactly why they\u0027re different, and why that\u0027s needed. (i.e. turn the (true) into some sort of version check, or if that is still not possible (don\u0027t have an SDK symbol for P) document what should go there.",
+      "range": {
+        "startLine": 186,
+        "startChar": 29,
+        "endLine": 186,
+        "endChar": 33
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e81a7e61_ba68aa24",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T16:40:19Z",
+      "side": 1,
+      "message": "do we need mid to be an object, or can we just compute mid_x and mid_y as floats?",
+      "range": {
+        "startLine": 111,
+        "startChar": 14,
+        "endLine": 111,
+        "endChar": 20
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
