@@ -16,6 +16,41 @@
       "revId": "6b00bf9680484c977cab22e2fbf483d54e828004",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "549305ee_a0514d7e",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-26T20:39:40Z",
+      "side": 1,
+      "message": "Yes, it should be in both skia_all_hdrs and skia_public_hdrs if other packages will use it.",
+      "parentUuid": "d09fb636_a636efa0",
+      "revId": "6b00bf9680484c977cab22e2fbf483d54e828004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5640786_9c97cb88",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-26T20:39:40Z",
+      "side": 1,
+      "message": "You will need to add \"modules/skottie/include/*.h\" to the exclude list because Bazel doesn\u0027t like the same file specified twice.",
+      "revId": "6b00bf9680484c977cab22e2fbf483d54e828004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
