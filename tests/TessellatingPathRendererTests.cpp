@@ -616,6 +616,20 @@ static SkPath create_path_42() {
     return path;
 }
 
+// Reduction from crbug.com/866319. Cause is edges that are collinear when tested from
+// one side, but non-collinear when tested from the other.
+static SkPath create_path_43() {
+    SkPath path;
+    path.moveTo(     307316821852160,      -28808363114496);
+    path.lineTo(     307165222928384,      -28794154909696);
+    path.lineTo(     307013691113472,      -28779948802048);
+    path.lineTo(     306862159298560,      -28765744791552);
+    path.lineTo(     306870313025536,      -28766508154880);
+    path.lineTo(     307049695019008,      -28783327313920);
+    path.lineTo(     307408660332544,      -28816974020608);
+    return path;
+}
+
 static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
@@ -718,4 +732,5 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_40());
     test_path(ctx, rtc.get(), create_path_41(), SkMatrix(), GrAAType::kCoverage);
     test_path(ctx, rtc.get(), create_path_42());
+    test_path(ctx, rtc.get(), create_path_43(), SkMatrix(), GrAAType::kCoverage);
 }
