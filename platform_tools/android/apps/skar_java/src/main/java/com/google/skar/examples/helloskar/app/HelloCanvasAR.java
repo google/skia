@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.ar.core.examples.java.helloskar;
+package com.google.skar.examples.helloskar.app;
 
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
@@ -78,12 +78,12 @@ import javax.microedition.khronos.opengles.GL10;
  * plane to place 2D objects
  */
 
-public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceView.Renderer {
+public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Renderer {
     public enum DrawingType {
         circle, rect, text, animation
     }
 
-    private static final String TAG = HelloSkARActivity.class.getSimpleName();
+    private static final String TAG = HelloCanvasAR.class.getSimpleName();
 
     //Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
     private ARSurfaceView arSurfaceView;
