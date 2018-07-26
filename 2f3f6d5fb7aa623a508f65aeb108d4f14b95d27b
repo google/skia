@@ -46,6 +46,30 @@
       "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f177c4b_599f3ba7",
+        "filename": "gm/coloremoji_blendmodes.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-26T19:50:11Z",
+      "side": 1,
+      "message": "I suppose what I\u0027m saying here is that either name them both SkUTF8_NextUnichar and go on a quest to remove the one argument version, or turn these into actual iterators or spans or ranges or whatever works nicely here. On the other hand, after looking around I can\u0027t say I see any shining examples of this sort of iterator that I like. I know we generally frown on overloading, but I\u0027m fine with it since we\u0027re trying to get rid of one of them. On the other hand, maybe just SkUTF8_Next would be fine, since that is obviously (at least to me) going to read in a utf8 and return an SkUnichar. It\u0027s also shorter.\n\nNote that icu has UTF8_NEXT which turns into http://icu-project.org/apiref/icu4c/utf8_8h.html#a27c3748113bc63347a7fa3a4b2c71029 . Note that this is more or less the same as the two argument version of SkUTF8_NextUnichar (except that its a macro so can do weird things).",
+      "parentUuid": "e5497064_e854196a",
+      "range": {
+        "startLine": 151,
+        "startChar": 43,
+        "endLine": 151,
+        "endChar": 46
+      },
+      "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
