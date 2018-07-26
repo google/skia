@@ -353,7 +353,7 @@ bool SkOpSegment::ComputeOneSum(const SkOpAngle* baseAngle, SkOpAngle* nextAngle
     }
     SkOpSegment* nextSegment = nextAngle->segment();
     int maxWinding, sumWinding;
-    SkOpSpanBase* last;
+    SkOpSpanBase* last = nullptr;
     if (binary) {
         int oppMaxWinding, oppSumWinding;
         nextSegment->setUpWindings(nextAngle->start(), nextAngle->end(), &sumMiWinding,
@@ -388,7 +388,7 @@ bool SkOpSegment::ComputeOneSumReverse(SkOpAngle* baseAngle, SkOpAngle* nextAngl
     }
     SkOpSegment* nextSegment = nextAngle->segment();
     int maxWinding, sumWinding;
-    SkOpSpanBase* last;
+    SkOpSpanBase* last = nullptr;
     if (binary) {
         int oppMaxWinding, oppSumWinding;
         nextSegment->setUpWindings(nextAngle->end(), nextAngle->start(), &sumMiWinding,
