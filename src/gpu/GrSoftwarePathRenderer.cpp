@@ -295,7 +295,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Fractional translate does not affect caching on Android. This is done for better cache
         // hit ratio and speed, but it is matching HWUI behavior, which doesn't consider the matrix
         // at all when caching paths.
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 4 + args.fShape->unstyledKeySize(),
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
 #else
         SkScalar tx = args.fViewMatrix->get(SkMatrix::kMTransX);
@@ -303,18 +303,20 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Allow 8 bits each in x and y of subpixel positioning.
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize(),
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 6 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
 #endif
         builder[0] = SkFloat2Bits(sx);
         builder[1] = SkFloat2Bits(sy);
         builder[2] = SkFloat2Bits(kx);
         builder[3] = SkFloat2Bits(ky);
+        builder[4] = args.fShape->style().isSimpleHairline() ?
+            ((args.fShape->style().strokeRec().getCap() << 1) | 1) : 0;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        args.fShape->writeUnstyledKey(&builder[4]);
-#else
-        builder[4] = fracX | (fracY >> 8);
         args.fShape->writeUnstyledKey(&builder[5]);
+#else
+        builder[5] = fracX | (fracY >> 8);
+        args.fShape->writeUnstyledKey(&builder[6]);
 #endif
     }
 
