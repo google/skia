@@ -1637,7 +1637,7 @@ void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
                                       this->devClipBounds());
 }
 
-void SkGpuDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
     SkDEBUGCODE(this->validate();)

@@ -86,12 +86,12 @@ SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(
 
 void GrTextContext::drawGlyphRunList(
         GrContext* context, GrTextUtils::Target* target, const GrClip& clip,
-        const SkMatrix& viewMatrix, const SkSurfaceProps& props, SkGlyphRunList* glyphRunList,
+        const SkMatrix& viewMatrix, const SkSurfaceProps& props, const SkGlyphRunList& glyphRunList,
         const SkIRect& clipBounds) {
-    SkPoint origin = glyphRunList->origin();
+    SkPoint origin = glyphRunList.origin();
 
     // Get the first paint to use as the key paint.
-    const SkPaint& skPaint = glyphRunList->paint();
+    const SkPaint& skPaint = glyphRunList.paint();
 
     // If we have been abandoned, then don't draw
     if (context->abandoned()) {
@@ -102,7 +102,7 @@ void GrTextContext::drawGlyphRunList(
     // It might be worth caching these things, but its not clear at this time
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = skPaint.getMaskFilter();
-    bool canCache = glyphRunList->canCache() && !(skPaint.getPathEffect() ||
+    bool canCache = glyphRunList.canCache() && !(skPaint.getPathEffect() ||
                       (mf && !as_MFB(mf)->asABlur(&blurRec)));
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
@@ -112,7 +112,7 @@ void GrTextContext::drawGlyphRunList(
     sk_sp<GrTextBlob> cacheBlob;
     GrTextBlob::Key key;
     if (canCache) {
-        bool hasLCD = glyphRunList->anyRunsLCD();
+        bool hasLCD = glyphRunList.anyRunsLCD();
 
         // We canonicalize all non-lcd draws to use kUnknown_SkPixelGeometry
         SkPixelGeometry pixelGeometry = hasLCD ? props.pixelGeometry() :
@@ -125,7 +125,7 @@ void GrTextContext::drawGlyphRunList(
                                  ComputeCanonicalColor(skPaint, hasLCD);
 
         key.fPixelGeometry = pixelGeometry;
-        key.fUniqueID = glyphRunList->uniqueID();
+        key.fUniqueID = glyphRunList.uniqueID();
         key.fStyle = skPaint.getStyle();
         key.fHasBlur = SkToBool(mf);
         key.fCanonicalColor = canonicalColor;
@@ -148,8 +148,8 @@ void GrTextContext::drawGlyphRunList(
             textBlobCache->makeMRU(cacheBlob.get());
 
             if (CACHE_SANITY_CHECK) {
-                int glyphCount = glyphRunList->totalGlyphCount();
-                int runCount = glyphRunList->runCount();
+                int glyphCount = glyphRunList.totalGlyphCount();
+                int runCount = glyphRunList.runCount();
                 sk_sp<GrTextBlob> sanityBlob(textBlobCache->makeBlob(glyphCount, runCount));
                 sanityBlob->setupKey(key, blurRec, skPaint);
                 this->regenerateGlyphRunList(
@@ -180,8 +180,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                        SkScalerContextFlags scalerContextFlags,
                                        const SkMatrix& viewMatrix,
                                        const SkSurfaceProps& props,
-                                       SkGlyphRunList* glyphRunList) const {
-    SkPoint origin = glyphRunList->origin();
+                                       const SkGlyphRunList& glyphRunList) const {
+    SkPoint origin = glyphRunList.origin();
     cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, origin.x(), origin.y());
 
     // Regenerate textblob
@@ -718,8 +718,8 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
     sk_sp<GrTextBlob> blob;
 
     auto glyphRunList = builder.useGlyphRunList();
-    if (!glyphRunList->empty()) {
-        auto glyphRun = (*glyphRunList)[0];
+    if (!glyphRunList.empty()) {
+        auto glyphRun = glyphRunList[0];
         // Use the text and textLen below, because we don't want to mess with the paint.
         glyphRun.temporaryShuntToCallback(
             [&](size_t runSize, const char* glyphIDs, const SkScalar* pos) {

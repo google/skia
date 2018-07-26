@@ -223,7 +223,7 @@ protected:
                               const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    virtual void drawGlyphRunList(SkGlyphRunList* glyphRunList);
+    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList);
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);

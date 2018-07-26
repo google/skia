@@ -241,7 +241,7 @@ void GrRenderTargetContext::drawPosText(const GrClip& clip, const SkPaint& paint
 
 void GrRenderTargetContext::drawGlyphRunList(
         const GrClip& clip, const SkMatrix& viewMatrix,
-        SkGlyphRunList* blob, const SkIRect& clipBounds) {
+        const SkGlyphRunList& blob, const SkIRect& clipBounds) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
