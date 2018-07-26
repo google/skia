@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e7823a8c_f3bd1c59",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-26T18:22:40Z",
+      "side": 1,
+      "message": "Link to changes: https://skia-review.googlesource.com/c/skia/+/143546/1/platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+      "parentUuid": "8fb4fb35_2c9cac3f",
+      "range": {
+        "startLine": 172,
+        "startChar": 26,
+        "endLine": 172,
+        "endChar": 31
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94f11034_1135dc8b",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
         "patchSetId": 2
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "Fixed in another CL",
       "parentUuid": "e81a7e61_ba68aa24",
+      "range": {
+        "startLine": 111,
+        "startChar": 14,
+        "endLine": 111,
+        "endChar": 20
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40097c81_d0e8e657",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-26T18:22:40Z",
+      "side": 1,
+      "message": "Link to changes: https://skia-review.googlesource.com/c/skia/+/143620/1/platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+      "parentUuid": "ed71d679_692e5e25",
       "range": {
         "startLine": 111,
         "startChar": 14,
