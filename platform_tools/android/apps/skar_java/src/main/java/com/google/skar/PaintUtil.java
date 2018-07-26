@@ -6,17 +6,15 @@ import android.graphics.ColorMatrixColorFilter;
 
 import java.util.Arrays;
 
-public class SkARUtil {
+public class PaintUtil {
 
     private static final float MIDDLE_GRAY_GAMMA = 0.466f;
 
     /**
      * Returns a ColorFilter that can be used on a Paint to apply color correction effects
-     * as documented by ARCore in
-     * <a href="https://developers.google.com/ar/reference/java/com/google/ar/core/LightEstimate">LightEstimate</a>
+     * as documented by ARCore.
      *
-     * @param colorCorr output array of
-     *                  <a href="https://developers.google.com/ar/reference/java/com/google/ar/core/LightEstimate.html#getColorCorrection(float[],%20int)">getColorCorrection()</a>
+     * @param colorCorr output array of getColorCorrection() from ARCore
      * @return ColorFilter with effects applied
      */
     public static ColorFilter createLightCorrectionColorFilter(float[] colorCorr) {
