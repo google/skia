@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "571ed3cf_2aee3589",
+        "filename": "src/core/SkDraw.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1619,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-07-26T18:05:09Z",
+      "side": 1,
+      "message": "can we wrap this bit in a lambda then mark it as // TODO: extract as a function and use everywhere we\u0027d normally have used SkAutoBlitterChooser, etc.\n\n?\n\nOr make SkBlitter::Choose() do all this?",
+      "range": {
+        "startLine": 1612,
+        "startChar": 2,
+        "endLine": 1619,
+        "endChar": 37
+      },
+      "revId": "b0800b5e07c5cb84ae0ccde65c3d908cc5532f3c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
