@@ -585,15 +585,15 @@ void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xp
                 nullptr)
 }
 
-void SkBitmapDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
+void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 #if defined(SK_SUPPORT_LEGACY_TEXT_BLOB)
-    auto blob = glyphRunList->blob();
+    auto blob = glyphRunList.blob();
 
     if (blob == nullptr) {
-        glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+        glyphRunList.temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
     } else {
-        auto origin = glyphRunList->origin();
-        auto paint = glyphRunList->paint();
+        auto origin = glyphRunList.origin();
+        auto paint = glyphRunList.paint();
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
 #else

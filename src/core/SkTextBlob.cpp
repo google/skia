@@ -893,10 +893,10 @@ sk_sp<SkTextBlob> SkTextBlob::MakeAsDrawText(
 
     runBuilder.drawText(paint, text, byteLength, SkPoint::Make(0, 0));
 
-    auto list = runBuilder.useGlyphRunList();
+    auto glyphRunList = runBuilder.useGlyphRunList();
     SkTextBlobBuilder blobBuilder;
-    if (!list->empty()) {
-        auto run = (*list)[0];
+    if (!glyphRunList.empty()) {
+        auto run = glyphRunList[0];
         SkPaint blobPaint(paint);
         blobPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
