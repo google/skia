@@ -1,4 +1,4 @@
-package com.google.ar.core.examples.java.helloskar;
+package com.google.skar.examples.helloskar.rendering;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -21,7 +21,8 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
 import com.google.skar.CanvasMatrixUtil;
 import com.google.skar.PaintUtil;
-import com.google.skar.SkARFingerPainting;
+import com.google.skar.examples.helloskar.app.SkARFingerPainting;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -34,6 +35,14 @@ import java.util.Collection;
  */
 
 public class DrawManager {
+    public enum DrawingType {
+        circle, rect, text, animation
+    }
+
+    // App defaults
+    public DrawManager.DrawingType currentDrawabletype = DrawManager.DrawingType.circle;
+    public boolean drawSmoothPainting = true;
+
     private float[] projectionMatrix = new float[16];
     private float[] viewMatrix = new float[16];
     private float viewportWidth;
