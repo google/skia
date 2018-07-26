@@ -1,4 +1,4 @@
-package com.google.skar;
+package com.google.skar.examples.helloskar.app;
 
 import android.graphics.Color;
 import android.graphics.Path;
