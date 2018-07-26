@@ -1,32 +1,27 @@
 package com.google.ar.core.examples.java.helloskar;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.opengl.Matrix;
-import android.os.Build;
-import android.util.Log;
 
 import com.google.ar.core.Plane;
 import com.google.ar.core.PointCloud;
 import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
+import com.google.skar.CanvasMatrixUtil;
+import com.google.skar.PaintUtil;
 import com.google.skar.SkARFingerPainting;
-import com.google.skar.SkARMatrix;
-import com.google.skar.SkARUtil;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -62,7 +57,7 @@ public class DrawManager {
     }
 
     public void updateLightColorFilter(float[] colorCorr) {
-        lightFilter = SkARUtil.createLightCorrectionColorFilter(colorCorr);
+        lightFilter = PaintUtil.createLightCorrectionColorFilter(colorCorr);
     }
 
     // Sample function for drawing a circle
@@ -75,7 +70,7 @@ public class DrawManager {
         p.setARGB(180, 100, 0, 0);
 
         canvas.save();
-        android.graphics.Matrix m = SkARMatrix.createPerspectiveMatrix(modelMatrices.get(0),
+        android.graphics.Matrix m = CanvasMatrixUtil.createPerspectiveMatrix(modelMatrices.get(0),
                 viewMatrix, projectionMatrix, viewportWidth, viewportHeight);
         canvas.setMatrix(m);
 
@@ -93,7 +88,7 @@ public class DrawManager {
         p.setARGB(180, 100, 0, 100);
 
         canvas.save();
-        canvas.setMatrix(SkARMatrix.createPerspectiveMatrix(modelMatrices.get(0),
+        canvas.setMatrix(CanvasMatrixUtil.createPerspectiveMatrix(modelMatrices.get(0),
                 viewMatrix, projectionMatrix, viewportWidth, viewportHeight));
         canvas.drawRoundRect(0,0, 0.5f, 0.5f, radius, radius, p);
         canvas.restore();
@@ -108,7 +103,7 @@ public class DrawManager {
         p.setColorFilter(lightFilter);
         p.setARGB(180, 0, 0, 255);
         canvas.save();
-        canvas.setMatrix(SkARMatrix.createPerspectiveMatrix(modelMatrices.get(0),
+        canvas.setMatrix(CanvasMatrixUtil.createPerspectiveMatrix(modelMatrices.get(0),
                 viewMatrix, projectionMatrix, viewportWidth, viewportHeight));
         RectF rect = new RectF(0, 0, 0.2f, 0.2f);
         canvas.drawRect(rect, p);
@@ -127,13 +122,13 @@ public class DrawManager {
         p.setTextSize(textSize);
 
         float[] scaleMatrix = getTextScaleMatrix(textSize);
-        float[] rotateMatrix = SkARMatrix.createXYtoXZRotationMatrix();
+        float[] rotateMatrix = CanvasMatrixUtil.createXYtoXZRotationMatrix();
         float[][] matrices = { scaleMatrix, rotateMatrix, modelMatrices.get(0), viewMatrix,
                                 projectionMatrix,
-                                SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
+                CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
 
         canvas.save();
-        canvas.setMatrix(SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices)));
+        canvas.setMatrix(CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices)));
         canvas.drawText(text, 0, 0, p);
         canvas.restore();
     }
@@ -153,7 +148,7 @@ public class DrawManager {
         Matrix.setIdentityM(in, 0);
         Matrix.translateM(in, 0, model[12], model[13], model[14]);
 
-        float[] initRot = SkARMatrix.createXYtoXZRotationMatrix();
+        float[] initRot = CanvasMatrixUtil.createXYtoXZRotationMatrix();
 
         float[] scale = new float[16];
         float s = 0.001f;
@@ -161,20 +156,24 @@ public class DrawManager {
         Matrix.scaleM(scale, 0, s, s, s);
 
         // Matrix = mvpv
-        float[][] matrices = {scale, initRot, in, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
-        android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
+        float[][] matrices = {scale, initRot, in, viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+        android.graphics.Matrix mvpv = CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices));
+
+        // Paint set up
+        Paint p = new Paint();
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(30f);
+        p.setAlpha(120);
 
         for (Path path : fingerPainting.getPaths()) {
             if (path.isEmpty()) {
                 continue;
             }
-            // Set up paint
-            Paint p = new Paint();
             p.setColor(fingerPainting.getPathColor(path));
 
-            p.setStyle(Paint.Style.STROKE);
-            p.setStrokeWidth(30f);
-            p.setAlpha(120);
+            // Scaling issues appear to happen when drawing a Path and transforming the Canvas
+            // directly with a matrix on Android versions less than P. Ideally we would
+            // switch true to be (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 
             if (true) {
                 // Transform applied through canvas
@@ -202,15 +201,15 @@ public class DrawManager {
         FloatBuffer points = cloud.getPoints();
         int numberOfPoints = points.remaining() / 4;
 
-        float[][] matrices = {viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
-        float[] vpv = SkARMatrix.multiplyMatrices4x4(matrices);
+        float[][] matrices = {viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+        float[] vpv = CanvasMatrixUtil.multiplyMatrices4x4(matrices);
 
         float[] pointsToDraw = new float[numberOfPoints * 2];
         for (int i = 0; i < numberOfPoints; i++) {
             float[] point = {points.get(i * 4), points.get(i * 4 + 1), points.get(i * 4 + 2), 1};
-            PointF p = SkARMatrix.multiplyMatrixVector(vpv, point, true);
-            pointsToDraw[i * 2] = p.x;
-            pointsToDraw[i * 2 + 1] = p.y;
+            float[] result = CanvasMatrixUtil.multiplyMatrixVector(vpv, point, true);
+            pointsToDraw[i * 2] = result[0];
+            pointsToDraw[i * 2 + 1] = result[1];
         }
 
         Paint p = new Paint();
@@ -221,7 +220,7 @@ public class DrawManager {
         canvas.save();
         float[] id = new float[16];
         Matrix.setIdentityM(id, 0);
-        android.graphics.Matrix identity = SkARMatrix.createMatrixFrom4x4(id);
+        android.graphics.Matrix identity = CanvasMatrixUtil.createMatrixFrom4x4(id);
         canvas.setMatrix(identity);
         canvas.drawPoints(pointsToDraw, p);
         canvas.restore();
@@ -250,11 +249,11 @@ public class DrawManager {
             plane.getCenterPose().toMatrix(model, 0);
 
             // Initial rotation
-            float[] initRot = SkARMatrix.createXYtoXZRotationMatrix();
+            float[] initRot = CanvasMatrixUtil.createXYtoXZRotationMatrix();
 
             // Matrix = mvpv
-            float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
-            android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
+            float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+            android.graphics.Matrix mvpv = CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices));
 
             drawPlaneAsPath(canvas, mvpv, plane);
         }

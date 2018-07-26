@@ -106,9 +106,8 @@ public class SkARFingerPainting {
         } else if (nbPts >= 3){
             // Else, essentially run deCasteljau
             p.moveTo(points.get(start).x, points.get(start).y);
-            PointF mid = new PointF((points.get(start).x + points.get(start + 1).x) / 2,
-                                    (points.get(start).y + points.get(start + 1).y) / 2);
-            p.lineTo(mid.x, mid.y);
+            p.lineTo((points.get(start).x + points.get(start + 1).x) / 2,
+                     (points.get(start).y + points.get(start + 1).y) / 2);
 
             for (int i = start + 1; i < finish - 1; i++) {
                 PointF p1 = points.get(i);
