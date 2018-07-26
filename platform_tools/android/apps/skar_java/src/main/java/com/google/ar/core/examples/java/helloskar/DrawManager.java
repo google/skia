@@ -143,7 +143,7 @@ public class DrawManager {
         fingerPainting.buildPath();
 
         // If path empty, return
-        if (fingerPainting.path.isEmpty()) {
+        if (fingerPainting.getPaths().isEmpty()) {
             return;
         }
 
@@ -164,35 +164,37 @@ public class DrawManager {
         float[][] matrices = {scale, initRot, in, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
         android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
 
-        // Set up paint
-        Paint p = new Paint();
-        if (fingerPainting.getSmoothness()) {
-            p.setColor(Color.CYAN);
-        } else {
-            p.setColor(Color.GREEN);
+        for (Path path : fingerPainting.getPaths()) {
+            if (path.isEmpty()) {
+                continue;
+            }
+            // Set up paint
+            Paint p = new Paint();
+            p.setColor(fingerPainting.getPathColor(path));
+
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(30f);
+            p.setAlpha(120);
+
+            if (true) {
+                // Transform applied through canvas
+                canvas.save();
+                canvas.setMatrix(mvpv);
+                canvas.drawPath(path, p);
+                canvas.restore();
+            } else {
+                // Transform path directly
+                Path pathDst = new Path();
+                path.transform(mvpv, pathDst);
+
+                // Draw dest path
+                canvas.save();
+                canvas.setMatrix(new android.graphics.Matrix());
+                canvas.drawPath(pathDst, p);
+                canvas.restore();
+            }
         }
 
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(30f);
-        p.setAlpha(120);
-
-        if (true) {
-            // Transform applied through canvas
-            canvas.save();
-            canvas.setMatrix(mvpv);
-            canvas.drawPath(fingerPainting.path, p);
-            canvas.restore();
-        } else {
-            // Transform path directly
-            Path pathDst = new Path();
-            fingerPainting.path.transform(mvpv, pathDst);
-
-            // Draw dest path
-            canvas.save();
-            canvas.setMatrix(new android.graphics.Matrix());
-            canvas.drawPath(pathDst, p);
-            canvas.restore();
-        }
     }
 
     // Sample function for drawing the AR point cloud
