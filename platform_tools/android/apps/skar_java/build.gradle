@@ -33,7 +33,7 @@ dependencies {
     implementation 'de.javagl:obj:0.2.1'
 
     implementation 'com.android.support:appcompat-v7:27.0.2'
-    implementation 'com.android.support:design:27.0.2'
+    implementation 'com.android.support:design:27.1.1'
 
     // Required -- JUnit 4 framework
     testImplementation 'junit:junit:4.12'

@@ -32,4 +32,17 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="QText" parent="Widget.Design.BottomNavigationView">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/holo_red_dark</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:typeface">sans</item>
+    </style>
+
+    <style name="BottomNavigation" parent="Widget.Design.BottomNavigationView">
+        <item name="itemBackground">@android:color/darker_gray</item>
+<!--        <item name="paddingStart">10dp</item>
+        <item name="paddingEnd">10dp</item>-->
+    </style>
+
 </resources>
