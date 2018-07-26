@@ -652,6 +652,17 @@ void SkScalerContextRec::getSingleMatrix(SkMatrix* m) const {
     m->postConcat(deviceMatrix);
 }
 
+static SkMatrix make_rotation_from_vector(SkVector h) {
+    SkMatrix m;
+    SkVector v = h;
+    if (v.setLength(1)) {
+        m.setSinCos(-v.fY, v.fX);
+    } else {
+        m.reset();
+    }
+    return m;
+}
+
 bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector* s, SkMatrix* sA,
                                          SkMatrix* GsA, SkMatrix* G_inv, SkMatrix* A_out)
 {
@@ -675,7 +686,11 @@ bool SkScalerContextRec::computeMatrices(PreMatrixScale preMatrixScale, SkVector
 
         // G is the Givens Matrix for A (rotational matrix where GA[0][1] == 0).
         SkMatrix G;
-        SkComputeGivensRotation(h, &G);
+        if (true) {
+            G = make_rotation_from_vector(h);
+        } else {
+            SkComputeGivensRotation(h, &G);
+        }
 
         GA = G;
         GA.preConcat(A);
