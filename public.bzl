@@ -216,6 +216,10 @@ BASE_SRCS_ALL = struct(
         "src/**/*.inc",
         "src/jumper/SkJumper_generated.S",
 
+        # Some modules
+        "modules/skottie/*",
+        "modules/sksg/*",
+
         # Third Party
         "third_party/gif/*.cpp",
         "third_party/gif/*.h",
