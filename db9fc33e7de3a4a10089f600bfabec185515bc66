@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0404cdc6_bc8767d5",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-26T16:34:48Z",
+      "side": 1,
+      "message": "put this all on one line",
+      "range": {
+        "startLine": 85,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "db9fc33e7de3a4a10089f600bfabec185515bc66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99ced661_a4e2276d",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-26T16:34:48Z",
+      "side": 1,
+      "message": "Does it make sense to move this all to some CopyProgram file/class like vulkan so that we don\u0027t fill up the GrMtlGPU with all the copy stuff?",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 190,
+        "endChar": 65
+      },
+      "revId": "db9fc33e7de3a4a10089f600bfabec185515bc66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f61a638c_a4bf47e8",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-26T16:34:48Z",
+      "side": 1,
+      "message": "Should we create a GrMtlResourceProvider class similar to what we have in vulkan? In vulkan its been a nice to move all the logic about caching and creating different out of the gpu object to keep the GPU more about managing the global state.",
+      "range": {
+        "startLine": 192,
+        "startChar": 1,
+        "endLine": 192,
+        "endChar": 69
+      },
+      "revId": "db9fc33e7de3a4a10089f600bfabec185515bc66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
