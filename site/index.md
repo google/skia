@@ -13,10 +13,14 @@ source.
 
   * Canonical source tree:
     [skia.googlesource.com/skia](https://skia.googlesource.com/skia).
+
   * Issue tracker:
     [bug.skia.org](https://bug.skia.org/).
   * Discussion forum:
     [skia-discuss@googlegroups.com](https://groups.google.com/forum/#!forum/skia-discuss).
+
+  * Documentation: [skia.org/user/api](https://skia.org/user/api/).
+  * Skia Fiddle: [fiddle.skia.org](https://fiddle.skia.org/c/@skcanvas_paint)
 
 Showcase
 --------
