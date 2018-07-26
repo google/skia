@@ -22,6 +22,30 @@
       "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e5497064_e854196a",
+        "filename": "gm/coloremoji_blendmodes.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-26T17:51:44Z",
+      "side": 1,
+      "message": "I want a different name for these two functions:\n    SkUnichar SkUTF8_NextUnichar(const char**, const char*);\n    SkUnichar SkUTF8_NextUnichar(const char**,);\n\nThe former is good to use, the latter is not.\n\nHow about SkUTF8_NextUnicharReplace() ?",
+      "parentUuid": "49bc36d8_22e37602",
+      "range": {
+        "startLine": 151,
+        "startChar": 43,
+        "endLine": 151,
+        "endChar": 46
+      },
+      "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
