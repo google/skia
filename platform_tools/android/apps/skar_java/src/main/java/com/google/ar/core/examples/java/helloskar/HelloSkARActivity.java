@@ -26,6 +26,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationMenuView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -104,11 +107,12 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
     // 2D Renderer
     private DrawManager drawManager = new DrawManager();
     private DrawingType currentDrawabletype = DrawingType.circle;
+    private boolean drawSmoothPainting = true;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
 
-    PointF previousEvent;;
+    PointF previousEvent;
 
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
@@ -149,6 +153,26 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         installRequested = false;
+
+        BottomNavigationView bottomNav = findViewById(R.id.palette);
+        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.palette_green:
+                        drawManager.fingerPainting.setColor(Color.GREEN);
+                        return true;
+                    case R.id.palette_red:
+                        drawManager.fingerPainting.setColor(Color.RED);
+                        return true;
+                    case R.id.palette_reset:
+                        drawManager.fingerPainting.reset();
+                        return true;
+                    default:
+                        return true;
+                }
+            }
+        });
 
         // Animator set up
         PropertyValuesHolder propertyRadius = PropertyValuesHolder.ofFloat(PROPERTY_RADIUS, 0, 0.5f);
@@ -352,9 +376,9 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             drawManager.updateLightColorFilter(colorCorrectionRgba);
 
             // Building finger painting
-            MotionEvent holdTap = tapHelper.holdPoll();
+            TapHelper.ScrollEvent holdTap = tapHelper.holdPoll();
             if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(holdTap)) {
+                for (HitResult hit : frame.hitTest(holdTap.e)) {
                     // Check if any plane was hit, and if it was hit inside the plane polygon
                     Trackable trackable = hit.getTrackable();
                     // Creates an anchor if a plane or an oriented point was hit.
@@ -373,7 +397,7 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                         Matrix.multiplyMV(point, 0, gm, 0, point, 0);
 
                         if (drawManager.fingerPainting.isEmpty()) {
-                            drawManager.fingerPainting.addPoint(new PointF(0, 0));
+                            drawManager.fingerPainting.addPoint(new PointF(0, 0), true);
 
                             // Get model matrix of first point
                             float[] m = new float[16];
@@ -384,13 +408,17 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
                             PointF distance = new PointF(point[0] - previousEvent.x,
                                                          point[2] - previousEvent.y);
 
+                            if (distance.length() < 0.05f) {
+                                continue;
+                            }
+
                             // New point is distance + old point
                             PointF p = new PointF(distance.x * localDistanceScale
                                                    + drawManager.fingerPainting.previousPoint.x,
                                                   distance.y * localDistanceScale
                                                    + drawManager.fingerPainting.previousPoint.y);
 
-                            drawManager.fingerPainting.addPoint(p);
+                            drawManager.fingerPainting.addPoint(p, holdTap.isStartOfScroll);
                         }
 
                         previousEvent = new PointF(point[0], point[2]);
@@ -466,24 +494,25 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
             switch (currentDrawabletype) {
                 case circle:
                     drawManager.drawCircle(canvas);
-                    return;
+                    break;
                 case rect:
                     drawManager.drawRect(canvas);
-                    return;
+                    break;
                 case animation:
                     drawManager.drawAnimatedRoundRect(canvas, radius);
-                    return;
+                    break;
                 case text:
                     drawManager.drawText(canvas, "Android");
-                    return;
+                    break;
                 default:
                     drawManager.drawCircle(canvas);
-                    return;
+                    break;
             }
         }
     }
 
     private void drawFingerPainting(Canvas canvas) {
+        drawManager.fingerPainting.setSmoothness(drawSmoothPainting);
         drawManager.drawFingerPainting(canvas);
     }
 
@@ -498,6 +527,12 @@ public class HelloSkARActivity extends AppCompatActivity implements GLSurfaceVie
         switch (item.getItemId()) {
             case R.id.reset_paint:
                 drawManager.fingerPainting.reset();
+                return true;
+            case R.id.smooth_paint:
+                drawSmoothPainting = true;
+                return true;
+            case R.id.rough_paint:
+                drawSmoothPainting = false;
                 return true;
             case R.id.draw_circle:
                 currentDrawabletype = DrawingType.circle;

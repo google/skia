@@ -46,7 +46,7 @@ public class DrawManager {
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
-    public SkARFingerPainting fingerPainting = new SkARFingerPainting();
+    public SkARFingerPainting fingerPainting = new SkARFingerPainting(false);
 
     public void updateViewport(float width, float height) {
         viewportWidth = width;
@@ -63,10 +63,6 @@ public class DrawManager {
 
     public void updateLightColorFilter(float[] colorCorr) {
         lightFilter = SkARUtil.createLightCorrectionColorFilter(colorCorr);
-    }
-
-    public void updateFingerPainting(PointF p) {
-        fingerPainting.addPoint(p);
     }
 
     // Sample function for drawing a circle
@@ -143,7 +139,11 @@ public class DrawManager {
     }
 
     public void drawFingerPainting(Canvas canvas) {
-        if (fingerPainting.path.isEmpty()) {
+        // Build the path before rendering
+        fingerPainting.buildPath();
+
+        // If path empty, return
+        if (fingerPainting.getPaths().isEmpty()) {
             return;
         }
 
@@ -164,30 +164,37 @@ public class DrawManager {
         float[][] matrices = {scale, initRot, in, viewMatrix, projectionMatrix, SkARMatrix.createViewportMatrix(viewportWidth, viewportHeight)};
         android.graphics.Matrix mvpv = SkARMatrix.createMatrixFrom4x4(SkARMatrix.multiplyMatrices4x4(matrices));
 
-        // Set up paint
-        Paint p = new Paint();
-        p.setColor(Color.GREEN);
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(30f);
-        p.setAlpha(120);
+        for (Path path : fingerPainting.getPaths()) {
+            if (path.isEmpty()) {
+                continue;
+            }
+            // Set up paint
+            Paint p = new Paint();
+            p.setColor(fingerPainting.getPathColor(path));
 
-        if (true) {
-            // Transform applied through canvas
-            canvas.save();
-            canvas.setMatrix(mvpv);
-            canvas.drawPath(fingerPainting.path, p);
-            canvas.restore();
-        } else {
-            // Transform path directly
-            Path pathDst = new Path();
-            fingerPainting.path.transform(mvpv, pathDst);
+            p.setStyle(Paint.Style.STROKE);
+            p.setStrokeWidth(30f);
+            p.setAlpha(120);
 
-            // Draw dest path
-            canvas.save();
-            canvas.setMatrix(new android.graphics.Matrix());
-            canvas.drawPath(pathDst, p);
-            canvas.restore();
+            if (true) {
+                // Transform applied through canvas
+                canvas.save();
+                canvas.setMatrix(mvpv);
+                canvas.drawPath(path, p);
+                canvas.restore();
+            } else {
+                // Transform path directly
+                Path pathDst = new Path();
+                path.transform(mvpv, pathDst);
+
+                // Draw dest path
+                canvas.save();
+                canvas.setMatrix(new android.graphics.Matrix());
+                canvas.drawPath(pathDst, p);
+                canvas.restore();
+            }
         }
+
     }
 
     // Sample function for drawing the AR point cloud
@@ -269,19 +276,24 @@ public class DrawManager {
 
         // Set up paint
         Paint p = new Paint();
-        p.setShader(planeShader);
-        p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
+
+        if (false) {
+            //p.setShader(planeShader);
+            p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
                              PorterDuff.Mode.SRC_ATOP));
+        }
 
         p.setColor(Color.RED);
         p.setAlpha(100);
+        p.setStrokeWidth(0.01f);
+        p.setStyle(Paint.Style.STROKE);
+
 
         if (true) {
             // Shader local matrix
             android.graphics.Matrix lm = new android.graphics.Matrix();
             lm.setScale(0.00005f, 0.00005f);
             planeShader.setLocalMatrix(lm);
-
             // Draw dest path
             canvas.save();
             canvas.setMatrix(mvpv);
