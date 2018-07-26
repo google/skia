@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "8fb4fb35_2c9cac3f",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-26T18:15:46Z",
+      "side": 1,
+      "message": "Fixed in another CL",
+      "parentUuid": "03a3bd26_c9e6a4d7",
+      "range": {
+        "startLine": 172,
+        "startChar": 26,
+        "endLine": 172,
+        "endChar": 31
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94f11034_1135dc8b",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3a4e6232_e9be98f3",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/ar/core/examples/java/helloskar/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-26T18:15:46Z",
+      "side": 1,
+      "message": "Fixed in another CL",
+      "parentUuid": "94f11034_1135dc8b",
+      "range": {
+        "startLine": 186,
+        "startChar": 29,
+        "endLine": 186,
+        "endChar": 33
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e81a7e61_ba68aa24",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
         "patchSetId": 2
@@ -68,6 +116,30 @@
       "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed71d679_692e5e25",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/SkARFingerPainting.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-26T18:15:46Z",
+      "side": 1,
+      "message": "Fixed in another CL",
+      "parentUuid": "e81a7e61_ba68aa24",
+      "range": {
+        "startLine": 111,
+        "startChar": 14,
+        "endLine": 111,
+        "endChar": 20
+      },
+      "revId": "b989c30606643cc1308d826464e2f1da667d96e3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
