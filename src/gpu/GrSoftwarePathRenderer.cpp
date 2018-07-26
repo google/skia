@@ -241,7 +241,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     // We really need to know if the shape will be inverse filled or not
     bool inverseFilled = false;
     SkTLazy<GrShape> tmpShape;
-    SkASSERT(!args.fShape->style().applies());
+    SkASSERT(args.fShape->style().isSimpleFill() || args.fShape->style().isSimpleHairline());
     // If the path is hairline, ignore inverse fill.
     inverseFilled = args.fShape->inverseFilled() &&
                     !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
@@ -295,7 +295,7 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Fractional translate does not affect caching on Android. This is done for better cache
         // hit ratio and speed, but it is matching HWUI behavior, which doesn't consider the matrix
         // at all when caching paths.
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 4 + args.fShape->unstyledKeySize(),
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
 #else
         SkScalar tx = args.fViewMatrix->get(SkMatrix::kMTransX);
@@ -303,23 +303,25 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         // Allow 8 bits each in x and y of subpixel positioning.
         SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
         SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
-        GrUniqueKey::Builder builder(&maskKey, kDomain, 5 + args.fShape->unstyledKeySize(),
+        GrUniqueKey::Builder builder(&maskKey, kDomain, 6 + args.fShape->unstyledKeySize(),
                                      "SW Path Mask");
 #endif
         builder[0] = SkFloat2Bits(sx);
         builder[1] = SkFloat2Bits(sy);
         builder[2] = SkFloat2Bits(kx);
         builder[3] = SkFloat2Bits(ky);
+        builder[4] = args.fShape->style().isSimpleFill() ? 1 : 0;
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
-        args.fShape->writeUnstyledKey(&builder[4]);
+        args.fShape->writeUnstyledKey(&builder[5]);
 #else
         builder[4] = fracX | (fracY >> 8);
-        args.fShape->writeUnstyledKey(&builder[5]);
+        args.fShape->writeUnstyledKey(&builder[6]);
 #endif
     }
 
     sk_sp<GrTextureProxy> proxy;
     if (useCache) {
+        SkDebugf("0x%08x\n", maskKey.hash());
         proxy = fProxyProvider->findOrCreateProxyByUniqueKey(maskKey, kTopLeft_GrSurfaceOrigin);
     }
     if (!proxy) {

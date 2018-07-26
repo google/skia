@@ -68,26 +68,17 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        // Stroke widths are:
-        // 0(may use hairline rendering), 10(common case for stroke-style)
-        // 40 and 50(>= geometry width/height, make the contour filled in fact)
-        constexpr int kStrokeWidth[] = {0, 10, 40, 50};
-        int numWidths = SK_ARRAY_COUNT(kStrokeWidth);
 
         constexpr SkPaint::Style kStyle[] = {
             SkPaint::kStroke_Style, SkPaint::kStrokeAndFill_Style
         };
 
-        constexpr SkPaint::Cap kCap[] = {
-            SkPaint::kButt_Cap, SkPaint::kRound_Cap, SkPaint::kSquare_Cap
-        };
-
         constexpr SkPaint::Join kJoin[] = {
-            SkPaint::kMiter_Join, SkPaint::kRound_Join, SkPaint::kBevel_Join
+            SkPaint::kRound_Join, SkPaint::kBevel_Join
         };
 
         constexpr ClosureType kType[] = {
-            TotallyNonClosed, FakeCloseCorner, FakeCloseMiddle
+            TotallyNonClosed, FakeCloseMiddle
         };
 
         int counter = 0;
@@ -95,43 +86,26 @@ protected:
         paint.setAntiAlias(true);
 
         // For stroke style painter and fill-and-stroke style painter
-        for (size_t type = 0; type < kClosureTypeCount; ++type) {
+        for (size_t type = 0; type < SK_ARRAY_COUNT(kType); ++type) {
             for (size_t style = 0; style < SK_ARRAY_COUNT(kStyle); ++style) {
-                for (size_t cap = 0; cap < SK_ARRAY_COUNT(kCap); ++cap) {
-                    for (size_t join = 0; join < SK_ARRAY_COUNT(kJoin); ++join) {
-                        for (int width = 0; width < numWidths; ++width) {
-                            canvas->save();
-                            SetLocation(canvas, counter, SkPaint::kJoinCount * numWidths);
+                for (size_t join = 0; join < SK_ARRAY_COUNT(kJoin); ++join) {
+                    canvas->save();
+                    canvas->translate(50, 100 * counter);
 
-                            SkPath path;
-                            MakePath(&path, kType[type]);
+                    SkPath path;
+                    MakePath(&path, kType[type]);
 
-                            paint.setStyle(kStyle[style]);
-                            paint.setStrokeCap(kCap[cap]);
-                            paint.setStrokeJoin(kJoin[join]);
-                            paint.setStrokeWidth(SkIntToScalar(kStrokeWidth[width]));
+                    paint.setStyle(kStyle[style]);
+                    paint.setStrokeCap(SkPaint::kButt_Cap);
+                    paint.setStrokeJoin(kJoin[join]);
+                    paint.setStrokeWidth(0);
 
-                            canvas->drawPath(path, paint);
-                            canvas->restore();
-                            ++counter;
-                        }
-                    }
+                    canvas->drawPath(path, paint);
+                    canvas->restore();
+                    ++counter;
                 }
+
             }
-        }
-
-        // For fill style painter
-        paint.setStyle(SkPaint::kFill_Style);
-        for (size_t type = 0; type < kClosureTypeCount; ++type) {
-            canvas->save();
-            SetLocation(canvas, counter, SkPaint::kJoinCount * numWidths);
-
-            SkPath path;
-            MakePath(&path, kType[type]);
-
-            canvas->drawPath(path, paint);
-            canvas->restore();
-            ++counter;
         }
     }
 
