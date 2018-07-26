@@ -86,7 +86,8 @@ public:
                GrSurfaceProxy::LazyInstantiationType::kUninstantiate == lazyInstantiationType();
     }
 
-    static bool AttachStencilIfNeeded(GrResourceProvider*, GrSurface*, bool needsStencil);
+    static bool SK_WARN_UNUSED_RESULT AttachStencilIfNeeded(GrResourceProvider*, GrSurface*,
+                                                            bool needsStencil);
 
 private:
     explicit GrSurfaceProxyPriv(GrSurfaceProxy* proxy) : fProxy(proxy) {}

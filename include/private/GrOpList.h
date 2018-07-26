@@ -95,6 +95,10 @@ public:
 protected:
     bool isInstantiated() const;
 
+    // In addition to just the GrSurface being allocated, has the stencil buffer been allocated (if
+    // it is required)?
+    bool isFullyInstantiated() const;
+
     // This is a backpointer to the GrOpMemoryPool that holds the memory for this opLists' ops.
     // In the DDL case, these back pointers keep the DDL's GrOpMemoryPool alive as long as its
     // constituent opLists survive.
