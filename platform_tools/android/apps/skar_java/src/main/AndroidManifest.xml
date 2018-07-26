@@ -33,7 +33,7 @@
       tools:ignore="GoogleAppIndexingWarning">
 
     <activity
-        android:name="com.google.ar.core.examples.java.helloskar.HelloSkARActivity"
+        android:name="com.google.ar.core.examples.java.helloskar.HelloCanvasAR"
         android:configChanges="orientation|screenSize"
         android:exported="true"
         android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
