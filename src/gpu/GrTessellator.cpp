@@ -1051,30 +1051,40 @@ void merge_edges_below(Edge* edge, Edge* other, EdgeList* activeEdges, Vertex** 
     }
 }
 
+bool top_collinear(Edge* left, Edge* right) {
+    if (!left || !right) {
+        return false;
+    }
+    return left->fTop->fPoint == right->fTop->fPoint ||
+           !left->isLeftOf(right->fTop) || !right->isRightOf(left->fTop);
+}
+
+bool bottom_collinear(Edge* left, Edge* right) {
+    if (!left || !right) {
+        return false;
+    }
+    return left->fBottom->fPoint == right->fBottom->fPoint ||
+           !left->isLeftOf(right->fBottom) || !right->isRightOf(left->fBottom);
+}
+
 void merge_collinear_edges(Edge* edge, EdgeList* activeEdges, Vertex** current, Comparator& c) {
     for (;;) {
-        const SkPoint& top = edge->fTop->fPoint;
-        const SkPoint& bottom = edge->fBottom->fPoint;
-        if (edge->fPrevEdgeAbove && (edge->fPrevEdgeAbove->fTop->fPoint == top ||
-                                     !edge->fPrevEdgeAbove->isLeftOf(edge->fTop))) {
+        if (top_collinear(edge->fPrevEdgeAbove, edge)) {
             merge_edges_above(edge->fPrevEdgeAbove, edge, activeEdges, current, c);
-        } else if (edge->fNextEdgeAbove && (edge->fNextEdgeAbove->fTop->fPoint == top ||
-                                            !edge->isLeftOf(edge->fNextEdgeAbove->fTop))) {
+        } else if (top_collinear(edge, edge->fNextEdgeAbove)) {
             merge_edges_above(edge->fNextEdgeAbove, edge, activeEdges, current, c);
-        } else if (edge->fPrevEdgeBelow && (edge->fPrevEdgeBelow->fBottom->fPoint == bottom ||
-                                     !edge->fPrevEdgeBelow->isLeftOf(edge->fBottom))) {
+        } else if (bottom_collinear(edge->fPrevEdgeBelow, edge)) {
             merge_edges_below(edge->fPrevEdgeBelow, edge, activeEdges, current, c);
-        } else if (edge->fNextEdgeBelow && (edge->fNextEdgeBelow->fBottom->fPoint == bottom ||
-                                            !edge->isLeftOf(edge->fNextEdgeBelow->fBottom))) {
+        } else if (bottom_collinear(edge, edge->fNextEdgeBelow)) {
             merge_edges_below(edge->fNextEdgeBelow, edge, activeEdges, current, c);
         } else {
             break;
         }
     }
-    SkASSERT(!edge->fPrevEdgeAbove || edge->fPrevEdgeAbove->isLeftOf(edge->fTop));
-    SkASSERT(!edge->fPrevEdgeBelow || edge->fPrevEdgeBelow->isLeftOf(edge->fBottom));
-    SkASSERT(!edge->fNextEdgeAbove || edge->fNextEdgeAbove->isRightOf(edge->fTop));
-    SkASSERT(!edge->fNextEdgeBelow || edge->fNextEdgeBelow->isRightOf(edge->fBottom));
+    SkASSERT(!top_collinear(edge->fPrevEdgeAbove, edge));
+    SkASSERT(!top_collinear(edge, edge->fNextEdgeAbove));
+    SkASSERT(!bottom_collinear(edge->fPrevEdgeBelow, edge));
+    SkASSERT(!bottom_collinear(edge, edge->fNextEdgeBelow));
 }
 
 bool split_edge(Edge* edge, Vertex* v, EdgeList* activeEdges, Vertex** current, Comparator& c,
