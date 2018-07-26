@@ -22,6 +22,30 @@
       "revId": "e29ead5481309aeccc4169f932f4f3afe07a6495",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99663c6b_52a8dee7",
+        "filename": "src/gpu/GrSoftwarePathRenderer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-26T17:39:17Z",
+      "side": 1,
+      "message": "Added comment to explain what that\u0027s not needed.",
+      "parentUuid": "21cc8c75_b5473ac4",
+      "range": {
+        "startLine": 313,
+        "startChar": 21,
+        "endLine": 313,
+        "endChar": 61
+      },
+      "revId": "e29ead5481309aeccc4169f932f4f3afe07a6495",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
