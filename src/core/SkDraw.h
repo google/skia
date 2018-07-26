@@ -67,7 +67,8 @@ public:
     void    drawPosText(const char text[], size_t byteLength,
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
-    void    drawGlyphRunList(SkGlyphRunList* glyphRunList, SkGlyphRunListDrawer* glyphDraw) const;
+    void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
+                             SkGlyphRunListDrawer* glyphDraw) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],

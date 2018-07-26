@@ -494,7 +494,7 @@ static SkGlyphRun make_run(size_t len, const SkGlyphID* glyphs, SkPoint* pos,
                            size_t utf8TextByteLength, const char* utf8Text) {
     return SkGlyphRun(std::move(paint),
                       SkSpan<const uint16_t>{},  // No dense indices for now.
-                      SkSpan<SkPoint>{pos, len},
+                      SkSpan<const SkPoint>{pos, len},
                       SkSpan<const SkGlyphID>{glyphs, len},
                       SkSpan<const SkGlyphID>{},
                       SkSpan<const char>{utf8Text, utf8TextByteLength},

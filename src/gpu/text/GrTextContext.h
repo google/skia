@@ -49,7 +49,7 @@ public:
                      size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                      const SkPoint& offset, const SkIRect& regionClipBounds);
     void drawGlyphRunList(GrContext*, GrTextUtils::Target*, const GrClip&,
-                          const SkMatrix& viewMatrix, const SkSurfaceProps&, SkGlyphRunList*,
+                          const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkGlyphRunList&,
                           const SkIRect& clipBounds);
 
     std::unique_ptr<GrDrawOp> createOp_TestingOnly(GrContext*,
@@ -123,7 +123,7 @@ private:
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
-                            SkGlyphRunList* glyphRunList) const;
+                            const SkGlyphRunList& glyphRunList) const;
 
     sk_sp<GrTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                                const GrShaderCaps&,

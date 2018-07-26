@@ -69,7 +69,7 @@ public:
                              int scalarsPerPosition, const SkPoint& offset,
                              const SkIRect& clipBounds);
     virtual void drawGlyphRunList(const GrClip&,
-                                  const SkMatrix& viewMatrix, SkGlyphRunList*,
+                                  const SkMatrix& viewMatrix, const SkGlyphRunList&,
                                   const SkIRect& clipBounds);
 
     /**

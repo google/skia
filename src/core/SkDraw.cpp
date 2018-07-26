@@ -1620,7 +1620,7 @@ SkGlyphRunListDrawer::PerMask SkDraw::drawOneMaskCreator(
 }
 
 void SkDraw::drawGlyphRunList(
-        SkGlyphRunList* glyphRunList, SkGlyphRunListDrawer* glyphDraw) const {
+        const SkGlyphRunList& glyphRunList, SkGlyphRunListDrawer* glyphDraw) const {
 
     SkDEBUGCODE(this->validate();)
 

@@ -158,7 +158,7 @@ void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
             SkGlyphRunBuilder builder;
             builder.drawText(runPaint, (const char*) it.glyphs(), textLen, origin);
             auto glyphRunList = builder.useGlyphRunList();
-            glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+            glyphRunList.temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
         }
         break;
         case SkTextBlob::kHorizontal_Positioning:
@@ -239,8 +239,8 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
-    glyphRunList->temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
+void SkBaseDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
+    glyphRunList.temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
 }
 
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
@@ -491,7 +491,7 @@ void SkBaseDevice::drawGlyphRunRSXform(SkGlyphRun* run, const SkRSXform* xform) 
         ctm.setConcat(originalCTM, ctm);
         this->setCTM(ctm);
         SkGlyphRunList glyphRunList{glyphRun};
-        this->drawGlyphRunList(&glyphRunList);
+        this->drawGlyphRunList(glyphRunList);
     };
     run->eachGlyphToGlyphRun(perGlyph);
     run->mutablePaint()->setShader(shader);

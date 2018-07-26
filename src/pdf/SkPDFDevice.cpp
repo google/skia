@@ -1386,9 +1386,9 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
     }
 }
 
-void SkPDFDevice::drawGlyphRunList(SkGlyphRunList* glyphRunList) {
-    for (const SkGlyphRun& glyphRun : *glyphRunList) {
-        this->internalDrawGlyphRun(glyphRun, glyphRunList->origin());
+void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
+    for (const SkGlyphRun& glyphRun : glyphRunList) {
+        this->internalDrawGlyphRun(glyphRun, glyphRunList.origin());
     }
 }
 

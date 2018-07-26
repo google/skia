@@ -86,9 +86,9 @@ DEF_TEST(GlyphRunBlob, reporter) {
 
     auto runList = runBuilder.useGlyphRunList();
 
-    REPORTER_ASSERT(reporter, runList->size() == runCount);
+    REPORTER_ASSERT(reporter, runList.size() == runCount);
     int runIndex = 0;
-    for (auto& run : *runList) {
+    for (auto& run : runList) {
         REPORTER_ASSERT(reporter, run.runSize() == count);
 
         int index = 0;

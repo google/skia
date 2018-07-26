@@ -239,14 +239,14 @@ public:
     }
 
 protected:
-    void drawGlyphRunList(SkGlyphRunList* glyphRunList) override {
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
         SkPaint runPaint;
         SkGlyphRunListIterator it(glyphRunList);
         for (; !it.done(); it.next()) {
             // applyFontToPaint() always overwrites the exact same attributes,
             // so it is safe to not re-seed the paint for this reason.
             it.applyFontToPaint(&runPaint);
-            this->processGlyphRun(glyphRunList->origin(), it, runPaint);
+            this->processGlyphRun(glyphRunList.origin(), it, runPaint);
         }
     }
 
