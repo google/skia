@@ -402,10 +402,11 @@ bool GrResourceProvider::attachStencilAttachment(GrRenderTarget* rt) {
         if (!stencil) {
             // Need to try and create a new stencil
             stencil.reset(this->gpu()->createStencilAttachmentForRenderTarget(rt, width, height));
-            if (stencil) {
-                this->assignUniqueKeyToResource(sbKey, stencil.get());
-                SkDEBUGCODE(newStencil = true;)
+            if (!stencil) {
+                return false;
             }
+            this->assignUniqueKeyToResource(sbKey, stencil.get());
+            SkDEBUGCODE(newStencil = true;)
         }
         if (rt->renderTargetPriv().attachStencilAttachment(std::move(stencil))) {
 #ifdef SK_DEBUG
