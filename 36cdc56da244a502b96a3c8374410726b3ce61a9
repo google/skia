@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ddc16aa_5dbd373f",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T20:34:55Z",
+      "side": 1,
+      "message": "what is happening here? What is the 20?",
+      "range": {
+        "startLine": 422,
+        "startChar": 44,
+        "endLine": 422,
+        "endChar": 45
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4afaa46_e54a47ea",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T20:34:55Z",
+      "side": 1,
+      "message": "we seem to always (1) make array, (2) call toMatrix. Should we just change toMatrix to return the array?",
+      "range": {
+        "startLine": 458,
+        "startChar": 37,
+        "endLine": 458,
+        "endChar": 45
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e90f1438_e7275223",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/SkARFingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-26T20:34:55Z",
+      "side": 1,
+      "message": "Make sure you well-document the jumPoints array somewhere (not necessarily here), and how it is used with the other arrays.",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 22
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
