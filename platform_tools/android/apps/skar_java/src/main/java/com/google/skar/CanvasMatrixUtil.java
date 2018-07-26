@@ -1,26 +1,26 @@
 package com.google.skar;
 
 import android.graphics.Matrix;
-import android.graphics.PointF;
 
 /**
- * Provides static methods for matrix manipulation. Input matrices are assumed to be 4x4
- * android.opengl.Matrix types. Output matrices are 3x3 android.graphics.Matrix types.
- * The main use of this class is to be able to get a Matrix for a Canvas that applies perspective
- * to 2D objects
+ * Provides static methods for matrix manipulation needed to draw in ARCore with Canvas.
+ * Input matrices are assumed to be 4x4 android.opengl.Matrix types (16-float arrays in column-major
+ * order).
+ * Output matrices are 3x3 android.graphics.Matrix types.
  */
 
-public class SkARMatrix {
+public class CanvasMatrixUtil {
 
     /******************* PUBLIC FUNCTIONS ***********************/
 
     /**
      * Returns an android.graphics.Matrix that can be used on a Canvas to draw a 2D object in
-     * perspective. Object will be rotated towards the XZ plane. Undefined behavior when any of
-     * the matrices are not of size 16, or are null.
+     * perspective. Object will be rotated towards the XZ plane and will appear to stick on Planes.
+     * Undefined behavior when any of the matrices are not of size 16, or are null.
      *
      * @param model          4x4 model matrix of the object to be drawn (global/world)
-     * @param view           4x4 camera view matrix (brings objects to camera origin and orientation)
+     * @param view           4x4 camera view matrix (brings objects to camera origin and
+     *                       orientation)
      * @param projection     4x4 projection matrix
      * @param viewPortWidth  width of viewport of GLSurfaceView
      * @param viewPortHeight height of viewport of GLSurfaceView
@@ -30,8 +30,8 @@ public class SkARMatrix {
     public static Matrix createPerspectiveMatrix(float[] model, float[] view, float[] projection,
                                                  float viewPortWidth, float viewPortHeight) {
         float[] viewPort = createViewportMatrix(viewPortWidth, viewPortHeight);
-        float[] skiaRotation = createXYtoXZRotationMatrix();
-        float[][] matrices = {skiaRotation, model, view, projection, viewPort};
+        float[] planeStickRotation = createXYtoXZRotationMatrix();
+        float[][] matrices = {planeStickRotation, model, view, projection, viewPort};
         return createMatrixFrom4x4Array(matrices);
     }
 
@@ -52,8 +52,9 @@ public class SkARMatrix {
     }
 
     /**
-     * Returns a 16-float matrix in column-major order that is used to rotate objects from the XY plane
-     * to the XZ plane. This is useful given that objects drawn on the Canvas are on the XY plane.
+     * Returns a 16-float matrix in column-major order that is used to rotate objects from the
+     * XY plane to the XZ plane. This is useful given that objects drawn on the Canvas are on the
+     * XY plane.
      * In order to get objects to appear as if they are sticking on planes/ceilings/walls, we need
      * to rotate them from the XY plane to the XZ plane.
      */
@@ -67,7 +68,8 @@ public class SkARMatrix {
 
 
     /**
-     * Returns an android.graphics.Matrix resulting from a 16-float matrix array in column-major order
+     * Returns an android.graphics.Matrix resulting from a 16-float matrix array in column-major
+     * order.
      * Undefined behavior when the array is not of size 16 or is null.
      *
      * @param m4 16-float matrix in column-major order
@@ -79,25 +81,42 @@ public class SkARMatrix {
     }
 
     /**
-     * Returns an android.graphics.PointF resulting from the multiplication of a Vector of 4 floats
-     * with a 4x4 float Matrix. The return PointF is the (x, y) values of m4 * v4
-     * @param m4                16-float matrix in column-major order
-     * @param v4                4-float vector
-     * @param perspectiveDivide if true, divide return value by the w-coordinate
-     * @return                  PointF resulting from taking the (x, y) values of m4 * v4
+     * Returns an android.graphics.Matrix resulting from the concatenation of 16-float matrices
+     * in column-major order from left to right.
+     * e.g: m4Array = {m1, m2, m3} --> returns m = m3 * m2 * m1
+     * Undefined behavior when the array is empty, null, or contains arrays not of size 9 (or null)
+     *
+     * @param m4Array array of 16-float matrices in column-major order
      */
-    public static PointF multiplyMatrixVector(float[] m4, float[] v4, boolean perspectiveDivide) {
-        float[] result = new float[4];
-        android.opengl.Matrix.multiplyMV(result, 0, m4, 0, v4, 0);
-        if (perspectiveDivide) {
-            return new PointF(result[0] / result[3], result[1] / result[3]);
-        }
 
-        return new PointF(result[0], result[1]);
+    public static Matrix createMatrixFrom4x4Array(float[][] m4Array) {
+        float[] result = multiplyMatrices4x4(m4Array);
+        return createMatrixFrom4x4(result);
     }
 
     /**
-     * Returns a 16-float matrix in column-major order resulting from the multiplication of matrices.
+     * Returns 4-float array resulting from the multiplication of a Vector of 4 floats
+     * with a 4x4 float Matrix. The return is essentially m4 * v4, with perspective-divide applied
+     * if perspectiveDivide is true
+     * @param m4                16-float matrix in column-major order
+     * @param v4                4-float vector
+     * @param perspectiveDivide if true, divide return value by the w-coordinate
+     * @return                  4-float array resulting from the multiplication
+     */
+
+    public static float[] multiplyMatrixVector(float[] m4, float[] v4, boolean perspectiveDivide) {
+        float[] result = new float[4];
+        android.opengl.Matrix.multiplyMV(result, 0, m4, 0, v4, 0);
+        if (perspectiveDivide) {
+            return new float[] {result[0] / result[3], result[1] / result[3],
+                                result[2] / result[3], 1};
+        }
+
+        return new float[] {result[0], result[1], result[2], result[3]};
+    }
+
+    /**
+     * Returns a 16-float matrix in column-major order resulting from the multiplication of matrices
      * e.g: m4Array = {m1, m2, m3} --> returns m = m3 * m2 * m1
      * Undefined behavior when the array is empty, null, or contains arrays not of size 9 (or null)
      *
@@ -117,20 +136,6 @@ public class SkARMatrix {
     }
 
     /******************* PRIVATE FUNCTIONS ***********************/
-
-    /**
-     * Returns an android.graphics.Matrix resulting from the concatenation of 16-float matrices
-     * in column-major order from left to right.
-     * e.g: m4Array = {m1, m2, m3} --> returns m = m3 * m2 * m1
-     * Undefined behavior when the array is empty, null, or contains arrays not of size 9 (or null)
-     *
-     * @param m4Array array of 16-float matrices in column-major order
-     */
-
-    private static Matrix createMatrixFrom4x4Array(float[][] m4Array) {
-        float[] result = multiplyMatrices4x4(m4Array);
-        return createMatrixFrom4x4(result);
-    }
 
     /**
      * Returns an android.graphics.Matrix resulting from a 9-float matrix array in row-major order.
