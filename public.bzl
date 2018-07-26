@@ -57,6 +57,7 @@ def skia_glob(srcs):
 def skia_all_hdrs():
   return native.glob([
       "src/**/*.h",
+      "modules/skottie/include/*.h",
       "include/**/*.h",
       "third_party/**/*.h",
   ])
@@ -215,6 +216,10 @@ BASE_SRCS_ALL = struct(
         "src/**/*.cpp",
         "src/**/*.inc",
         "src/jumper/SkJumper_generated.S",
+
+        # Some modules
+        "modules/skottie/**",
+        "modules/sksg/**",
 
         # Third Party
         "third_party/gif/*.cpp",
