@@ -224,7 +224,7 @@ struct GrContextOptions {
     /**
      * Include or exclude specific GPU path renderers.
      */
-    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kDefault;
+    GpuPathRenderers fGpuPathRenderers = GpuPathRenderers::kAll;
 
     /**
      * Disables using multiple texture units to batch multiple images into a single draw on
