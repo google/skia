@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d09fb636_a636efa0",
+        "filename": "public.bzl",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-07-26T20:30:50Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be in skia_public_headers?",
+      "revId": "6b00bf9680484c977cab22e2fbf483d54e828004",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
