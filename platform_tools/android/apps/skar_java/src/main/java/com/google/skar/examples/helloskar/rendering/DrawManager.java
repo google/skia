@@ -1,4 +1,4 @@
-package com.google.ar.core.examples.java.helloskar;
+package com.google.skar.examples.helloskar.rendering;
 
 import android.content.Context;
 import android.graphics.Bitmap;
