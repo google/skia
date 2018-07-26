@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d475655a_58d79527",
+        "filename": "src/core/SkDraw.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-26T21:09:50Z",
+      "side": 1,
+      "message": "Should go on previous line to match the way the rest of this does lone breaking.",
+      "range": {
+        "startLine": 71,
+        "startChar": 12,
+        "endLine": 71,
+        "endChar": 46
+      },
+      "revId": "f38a3ef155a9d2fdb368cd992118424788ca87c2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
