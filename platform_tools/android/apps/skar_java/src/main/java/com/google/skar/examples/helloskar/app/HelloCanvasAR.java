@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.ar.core.examples.java.helloskar;
+package com.google.skar.examples.helloskar.app;
 
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
