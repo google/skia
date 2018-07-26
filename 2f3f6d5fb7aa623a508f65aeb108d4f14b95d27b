@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "49bc36d8_22e37602",
+        "filename": "gm/coloremoji_blendmodes.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-26T16:35:08Z",
+      "side": 1,
+      "message": "But NextUnichar is actually a better name for what it does. This isn\u0027t a getter, it\u0027s an iterator next. Ideally one would just create an iterator object with a start and end and an operator++.",
+      "range": {
+        "startLine": 151,
+        "startChar": 43,
+        "endLine": 151,
+        "endChar": 46
+      },
+      "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
