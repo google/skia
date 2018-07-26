@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrDeferredProxyUploader.h"
 #include "GrMemoryPool.h"
+#include "GrRenderTargetPriv.h"
 #include "GrSurfaceProxy.h"
 #include "GrTextureProxyPriv.h"
 
@@ -136,6 +137,27 @@ bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
 
 bool GrOpList::isInstantiated() const {
     return fTarget.get()->priv().isInstantiated();
+}
+
+bool GrOpList::isFullyInstantiated() const {
+    if (!this->isInstantiated()) {
+        return false;
+    }
+
+    GrSurfaceProxy* proxy = fTarget.get();
+    bool needsStencil = proxy->asRenderTargetProxy()
+                                        ? proxy->asRenderTargetProxy()->needsStencil()
+                                        : false;
+
+    if (needsStencil) {
+        GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+
+        if (!rt->renderTargetPriv().getStencilAttachment()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 #ifdef SK_DEBUG

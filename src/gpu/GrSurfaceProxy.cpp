@@ -416,7 +416,9 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
                                         ? fProxy->asRenderTargetProxy()->needsStencil()
                                         : false;
 
-    GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil);
+    if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(resourceProvider, surface.get(), needsStencil)) {
+        return false;
+    }
 
     this->assign(std::move(surface));
     return true;

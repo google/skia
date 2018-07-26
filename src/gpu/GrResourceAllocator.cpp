@@ -180,7 +180,10 @@ sk_sp<GrSurface> GrResourceAllocator::findSurfaceFor(const GrSurfaceProxy* proxy
             surface->resourcePriv().makeBudgeted();
         }
 
-        GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(), needsStencil);
+        if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider, surface.get(),
+                                                       needsStencil)) {
+            return nullptr;
+        }
         return surface;
     }
 
@@ -248,9 +251,11 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                                             : false;
 
         if (cur->proxy()->priv().isInstantiated()) {
-            GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider,
-                                                      cur->proxy()->priv().peekSurface(),
-                                                      needsStencil);
+            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider,
+                                                           cur->proxy()->priv().peekSurface(),
+                                                           needsStencil)) {
+                *outError = AssignError::kFailedProxyInstantiation;
+            }
 
             fActiveIntvls.insertByIncreasingEnd(cur);
 
