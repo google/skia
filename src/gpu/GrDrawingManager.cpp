@@ -103,6 +103,13 @@ void GrDrawingManager::freeGpuResources() {
     fSoftwarePathRenderer = nullptr;
 }
 
+static void end_oplist_flush_if_not_unique(const sk_sp<GrOpList>& opList) {
+    if (!opList->unique()) {
+        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
+        opList->endFlush();
+    }
+}
+
 // MDB TODO: make use of the 'proxy' parameter.
 GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                                                       GrResourceCache::FlushType type,
@@ -210,6 +217,11 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
                             &error)) {
             if (GrResourceAllocator::AssignError::kFailedProxyInstantiation == error) {
                 for (int i = startIndex; i < stopIndex; ++i) {
+                    if (fOpLists[i] && !fOpLists[i]->isFullyInstantiated()) {
+                        // If the backing surface wasn't allocated drop the draw of the entire opList.
+                        end_oplist_flush_if_not_unique(fOpLists[i]); // http://skbug.com/7111
+                        fOpLists[i] = nullptr;
+                    }
                     if (fOpLists[i]) {
                         fOpLists[i]->purgeOpsWithUninstantiatedProxies();
                     }
@@ -257,13 +269,6 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     fFlushing = false;
 
     return result;
-}
-
-static void end_oplist_flush_if_not_unique(const sk_sp<GrOpList>& opList) {
-    if (!opList->unique()) {
-        // TODO: Eventually this should be guaranteed unique: http://skbug.com/7111
-        opList->endFlush();
-    }
 }
 
 bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
