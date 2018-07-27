@@ -33,7 +33,7 @@ public:
      */
     uint32_t uniqueID() const { return fUniqueID; }
 
-    static sk_sp<SkTextBlob> MakeAsDrawText(
+    static sk_sp<SkTextBlob> MakeFromText(
             const void* text, size_t byteLength, const SkPaint& paint);
 
     /**
