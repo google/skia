@@ -8,7 +8,12 @@
 #ifndef SkFrontBufferedStream_DEFINED
 #define SkFrontBufferedStream_DEFINED
 
-#include "SkStream.h"
+#include "SkTypes.h"
+
+#include <memory>
+
+class SkStream;
+class SkStreamRewindable;
 
 /**
  *  Specialized stream that buffers the first X bytes of a stream,

@@ -14,6 +14,7 @@
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
+#include "SkStream.h"
 #include "SkUnPreMultiply.h"
 #include "SkWebpEncoder.h"
 

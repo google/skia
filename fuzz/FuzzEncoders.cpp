@@ -13,6 +13,7 @@
 #include "SkPixmap.h"
 #include "SkPngEncoder.h"
 #include "SkRandom.h"
+#include "SkStream.h"
 #include "SkWebpEncoder.h"
 #include "SkOSFile.h"
 

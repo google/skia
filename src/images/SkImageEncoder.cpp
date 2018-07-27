@@ -8,6 +8,7 @@
 #include "SkImageEncoderPriv.h"
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
+#include "SkStream.h"
 #include "SkWebpEncoder.h"
 
 #ifndef SK_HAS_JPEG_LIBRARY

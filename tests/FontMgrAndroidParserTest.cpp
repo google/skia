@@ -12,6 +12,7 @@
 #include "SkFontMgr_android.h"
 #include "SkFontMgr_android_parser.h"
 #include "SkOSFile.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 #include "Test.h"
 

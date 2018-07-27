@@ -11,7 +11,8 @@
 #include "SkBitmap.h"
 #include "SkBRDAllocator.h"
 #include "SkEncodedImageFormat.h"
-#include "SkStream.h"
+
+class SkStreamRewindable;
 
 /*
  * This class aims to provide an interface to test multiple implementations of

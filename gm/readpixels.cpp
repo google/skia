@@ -16,6 +16,7 @@
 #include "SkImage.h"
 #include "SkImageInfoPriv.h"
 #include "SkPictureRecorder.h"
+#include "SkStream.h"
 
 static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
     if (kRGBA_F16_SkColorType != info.colorType()) {

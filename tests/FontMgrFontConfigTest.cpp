@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkFontMgr.h"
 #include "SkFontMgr_fontconfig.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 #include "Test.h"
 

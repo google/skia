@@ -8,6 +8,7 @@
 #include "SkColorSpacePriv.h"
 #include "SkImage.h"
 #include "SkPngEncoder.h"
+#include "SkStream.h"
 
 #include "Resources.h"
 
