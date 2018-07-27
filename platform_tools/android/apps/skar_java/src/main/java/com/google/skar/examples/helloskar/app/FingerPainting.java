@@ -84,14 +84,14 @@ public class FingerPainting {
      * @param holdTap       ScrollEvent associated with the hit test that calls this function
      * @return              true if point was computed and added. False otherwise.
      */
-    public boolean computeNextPoint(float[] hitLocation, GestureHelper.ScrollEvent holdTap) {
+    public boolean computeNextPoint(float[] hitLocation, float[] modelMat, GestureHelper.ScrollEvent holdTap) {
         if (isEmpty()) {
             // If finger painting is empty, then first point is origin. Model matrix
             // of the finger painting is the model matrix of the first point
             addPoint(new PointF(0, 0), true);
 
             // Get model matrix of first point
-            setModelMatrix(modelMatrix);
+            setModelMatrix(modelMat);
         } else {
             // Else, construct next point given its distance from previous point
             float localDistanceScale = 1000;
@@ -111,7 +111,7 @@ public class FingerPainting {
             addPoint(p, holdTap.isStartOfScroll);
         }
         previousGlobalPoint[0] = hitLocation[0];
-        previousGlobalPoint[1] = hitLocation[1];
+        previousGlobalPoint[1] = hitLocation[2];
         return true;
     }
 
@@ -230,6 +230,8 @@ public class FingerPainting {
         if (nbPts == 2) {
             p.moveTo(points.get(start).x, points.get(start).y);
             p.lineTo(points.get(start + 1).x, points.get(start + 1).y);
+            BuiltPath bp = new BuiltPath(p, c);
+            paths.add(bp);
         } else if (nbPts >= 3) {
             // Else (3 pts +), essentially run deCasteljau
             p.moveTo(points.get(start).x, points.get(start).y);
@@ -243,10 +245,9 @@ public class FingerPainting {
             }
 
             p.lineTo(points.get(finish - 1).x, points.get(finish - 1).y);
+            BuiltPath bp = new BuiltPath(p, c);
+            paths.add(bp);
         }
-
-        BuiltPath bp = new BuiltPath(p, c);
-        paths.add(bp);
     }
 
     private boolean isEmpty() { return points.isEmpty(); }

@@ -43,12 +43,15 @@
             android:id="@+id/gl_surfaceview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/palette"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             app:menu="@menu/platte_bar"
+            app:itemIconTint="@android:color/black"
+            app:itemTextColor="@android:color/black"
             style="@style/BottomNavigation" />
     </FrameLayout>
 

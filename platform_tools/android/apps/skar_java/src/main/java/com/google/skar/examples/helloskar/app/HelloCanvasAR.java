@@ -133,12 +133,14 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
 
         // Canvas Surface View set up
         arSurfaceView = findViewById(R.id.canvas_surfaceview);
+        glSurfaceView = findViewById(R.id.gl_surfaceview);
         arSurfaceView.bringToFront();
         arSurfaceView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         holder = arSurfaceView.getHolder();
 
         // Set up tap listener.
         tapHelper = new GestureHelper(this);
+
         glSurfaceView.setOnTouchListener(tapHelper);
 
         // Set up renderer.
@@ -308,7 +310,6 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
     @Override
     public void onDrawFrame(GL10 gl) {
         Canvas canvas = null;
-        holder = null;
 
         // Clear screen to notify driver it should not load any pixels from previous frame.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
@@ -392,7 +393,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
             }
         } catch (Throwable t) {
             // Avoid crashing the application due to unhandled exceptions.
-            if (holder != null && canvas != null) {
+            if (canvas != null) {
                 holder.unlockCanvasAndPost(canvas);
             }
             Log.e(TAG, "Exception on the OpenGL thread", t);
@@ -461,7 +462,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
                     Matrix.multiplyMV(hitLocation, 0, modelMatrix, 0,
                                       hitLocation, 0);
 
-                    if (! drawManager.fingerPainting.computeNextPoint(hitLocation, holdTap)) {
+                    if (! drawManager.fingerPainting.computeNextPoint(hitLocation, modelMatrix, holdTap)) {
                         // Try to add the next point to the finger painting. If return value
                         // is false, then keep looping
                         continue;
@@ -523,19 +524,16 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
+
+        menu.setGroupCheckable(R.id.menu_drawables, true, true);
         return true;
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
+        item.setChecked(!item.isChecked());
         switch (item.getItemId()) {
-            case R.id.reset_paint:
-                drawManager.fingerPainting.reset();
-                return true;
             case R.id.smooth_paint:
-                drawManager.drawSmoothPainting = true;
-                return true;
-            case R.id.rough_paint:
-                drawManager.drawSmoothPainting = false;
+                drawManager.drawSmoothPainting = item.isChecked();
                 return true;
             case R.id.draw_circle:
                 drawManager.currentDrawabletype = DrawManager.DrawingType.circle;
@@ -543,11 +541,11 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
             case R.id.draw_rect:
                 drawManager.currentDrawabletype = DrawManager.DrawingType.rect;
                 return true;
-            case R.id.draw_animation:
-                drawManager.currentDrawabletype = DrawManager.DrawingType.animation;
-                return true;
             case R.id.draw_text:
                 drawManager.currentDrawabletype = DrawManager.DrawingType.text;
+                return true;
+            case R.id.draw_animation:
+                drawManager.currentDrawabletype = DrawManager.DrawingType.animation;
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
