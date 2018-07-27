@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "88922214_480e582f",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 17
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-27T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "089913f0_3bef331b",
+      "range": {
+        "startLine": 643,
+        "startChar": 0,
+        "endLine": 646,
+        "endChar": 30
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4d2bc687_5fd0b274",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 17
@@ -45,6 +69,30 @@
       "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f6f6ee87_ed2e3076",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-27T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d2bc687_5fd0b274",
+      "range": {
+        "startLine": 18,
+        "startChar": 7,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "586d43a7_51c7a2c5",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-27T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c7ff8c9_f48defad",
+      "range": {
+        "startLine": 22,
+        "startChar": 12,
+        "endLine": 22,
+        "endChar": 60
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b940c67e_6be62321",
         "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
         "patchSetId": 17
@@ -91,6 +163,30 @@
       "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "be7988e6_6c8bc3b4",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-07-27T21:24:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b940c67e_6be62321",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 46,
+        "endChar": 100
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
