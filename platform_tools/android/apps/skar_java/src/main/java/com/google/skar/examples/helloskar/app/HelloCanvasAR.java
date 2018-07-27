@@ -514,6 +514,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
 
     private void drawFingerPainting(Canvas canvas) {
         drawManager.fingerPainting.setSmoothness(drawManager.drawSmoothPainting);
+        drawManager.fingerPainting.buildPath();
         drawManager.drawFingerPainting(canvas);
     }
 

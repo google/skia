@@ -46,7 +46,7 @@ import java.util.Collection;
 
 /**
  * Sample class that handles drawing different types of geometry using the matrices provided
- * by ARCore. The matrices are handled by SkARMatrix in order to be passed to the drawing
+ * by ARCore. The matrices are handled by CanvasMatrixUtil in order to be passed to the drawing
  * Canvas.
  */
 
@@ -59,15 +59,32 @@ public class DrawManager {
     public DrawManager.DrawingType currentDrawabletype = DrawManager.DrawingType.circle;
     public boolean drawSmoothPainting = true;
 
+    // Camera matrices + viewport info
     private float[] projectionMatrix = new float[16];
     private float[] viewMatrix = new float[16];
     private float viewportWidth;
     private float viewportHeight;
+
+    // Paint modifiers
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
+
+    // Drawables info
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
     public FingerPainting fingerPainting = new FingerPainting(false);
 
+    /************ Initilization calls ****************************/
+    public void initializePlaneShader(Context context, String gridDistanceTextureName)
+                                      throws IOException {
+        // Read the texture.
+        Bitmap planeTexture =
+                BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
+        // Set up the shader
+        planeShader = new BitmapShader(planeTexture, Shader.TileMode.REPEAT,
+                                       Shader.TileMode.REPEAT););
+    }
+
+    /************ ARCore onDrawFrame() calls ********************/
     public void updateViewport(float width, float height) {
         viewportWidth = width;
         viewportHeight = height;
@@ -85,11 +102,14 @@ public class DrawManager {
         lightFilter = PaintUtil.createLightCorrectionColorFilter(colorCorr);
     }
 
+    /********** 2D objects drawing functions **********************/
+
     // Sample function for drawing a circle
     public void drawCircle(Canvas canvas) {
         if (modelMatrices.isEmpty()) {
             return;
         }
+
         Paint p = new Paint();
         p.setColorFilter(lightFilter);
         p.setARGB(180, 100, 0, 0);
@@ -103,7 +123,8 @@ public class DrawManager {
         canvas.restore();
     }
 
-    // Sample function for drawing an animated round rect
+    // Sample function for drawing an animated round rect.
+    // Radius parameter is animated by the application
     public void drawAnimatedRoundRect(Canvas canvas, float radius) {
         if (modelMatrices.isEmpty()) {
             return;
@@ -127,6 +148,7 @@ public class DrawManager {
         Paint p = new Paint();
         p.setColorFilter(lightFilter);
         p.setARGB(180, 0, 0, 255);
+
         canvas.save();
         canvas.setMatrix(CanvasMatrixUtil.createPerspectiveMatrix(modelMatrices.get(0),
                 viewMatrix, projectionMatrix, viewportWidth, viewportHeight));
@@ -146,22 +168,23 @@ public class DrawManager {
         p.setARGB(255, 0, 255, 0);
         p.setTextSize(textSize);
 
+        // TODO: Remove scale matrix and scale text directly. Potential unfixed bug in versions < P
         float[] scaleMatrix = getTextScaleMatrix(textSize);
         float[] rotateMatrix = CanvasMatrixUtil.createXYtoXZRotationMatrix();
         float[][] matrices = { scaleMatrix, rotateMatrix, modelMatrices.get(0), viewMatrix,
-                                projectionMatrix,
-                CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+                               projectionMatrix,
+                               CanvasMatrixUtil.createViewportMatrix(viewportWidth,
+                                                                     viewportHeight)};
 
         canvas.save();
-        canvas.setMatrix(CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices)));
+        canvas.setMatrix(CanvasMatrixUtil.createMatrixFrom4x4(
+                            CanvasMatrixUtil.multiplyMatrices4x4(matrices)));
         canvas.drawText(text, 0, 0, p);
         canvas.restore();
     }
 
+    // Sample function for drawing a built FingerPainting object
     public void drawFingerPainting(Canvas canvas) {
-        // Build the path before rendering
-        fingerPainting.buildPath();
-
         // If path empty, return
         if (fingerPainting.getPaths().isEmpty()) {
             return;
@@ -169,20 +192,24 @@ public class DrawManager {
 
         // Get finger painting model matrix
         float[] model = fingerPainting.getModelMatrix();
-        float[] in = new float[16];
-        Matrix.setIdentityM(in, 0);
-        Matrix.translateM(in, 0, model[12], model[13], model[14]);
+        float[] modelTranslate = new float[16]; // stores translate components of model matrix
+        Matrix.setIdentityM(modelTranslate, 0);
+        Matrix.translateM(modelTranslate, 0, model[12], model[13], model[14]);
 
+        // Rotation onto plane
         float[] initRot = CanvasMatrixUtil.createXYtoXZRotationMatrix();
 
+        // Arbitrary scale for the finger painting
         float[] scale = new float[16];
         float s = 0.001f;
         Matrix.setIdentityM(scale, 0);
         Matrix.scaleM(scale, 0, s, s, s);
 
-        // Matrix = mvpv
-        float[][] matrices = {scale, initRot, in, viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
-        android.graphics.Matrix mvpv = CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices));
+        // Matrix = mvpv (model, view, projection, viewport)
+        float[][] matrices = {scale, initRot, modelTranslate, viewMatrix, projectionMatrix,
+                              CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+        android.graphics.Matrix mvpv =
+            CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices));
 
         // Paint set up
         Paint p = new Paint();
@@ -194,11 +221,12 @@ public class DrawManager {
             if (bp.path.isEmpty()) {
                 continue;
             }
+
             p.setColor(bp.color);
 
             // Scaling issues appear to happen when drawing a Path and transforming the Canvas
-            // directly with a matrix on Android versions less than P. Ideally we would
-            // switch true to be (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            // directly with a matrix on Android versions less than P.
+            // TODO: Ideally switch true to be (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 
             if (true) {
                 // Transform applied through canvas
@@ -221,14 +249,19 @@ public class DrawManager {
 
     }
 
+    /*********************** AR Environment drawing functions *************************/
+
     // Sample function for drawing the AR point cloud
     public void drawPointCloud(Canvas canvas, PointCloud cloud) {
         FloatBuffer points = cloud.getPoints();
         int numberOfPoints = points.remaining() / 4;
 
-        float[][] matrices = {viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
+        // Build vpv matrix
+        float[][] matrices = {viewMatrix, projectionMatrix,
+                              CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
         float[] vpv = CanvasMatrixUtil.multiplyMatrices4x4(matrices);
 
+        // Transform points on CPU
         float[] pointsToDraw = new float[numberOfPoints * 2];
         for (int i = 0; i < numberOfPoints; i++) {
             float[] point = {points.get(i * 4), points.get(i * 4 + 1), points.get(i * 4 + 2), 1};
@@ -243,10 +276,7 @@ public class DrawManager {
         p.setStrokeWidth(6.0f);
 
         canvas.save();
-        float[] id = new float[16];
-        Matrix.setIdentityM(id, 0);
-        android.graphics.Matrix identity = CanvasMatrixUtil.createMatrixFrom4x4(id);
-        canvas.setMatrix(identity);
+        canvas.setMatrix(new android.graphics.Matrix());
         canvas.drawPoints(pointsToDraw, p);
         canvas.restore();
     }
@@ -277,15 +307,18 @@ public class DrawManager {
             float[] initRot = CanvasMatrixUtil.createXYtoXZRotationMatrix();
 
             // Matrix = mvpv
-            float[][] matrices = {initRot, model, viewMatrix, projectionMatrix, CanvasMatrixUtil.createViewportMatrix(viewportWidth, viewportHeight)};
-            android.graphics.Matrix mvpv = CanvasMatrixUtil.createMatrixFrom4x4(CanvasMatrixUtil.multiplyMatrices4x4(matrices));
+            float[][] matrices = {initRot, model, viewMatrix, projectionMatrix,
+                                  CanvasMatrixUtil.createViewportMatrix(viewportWidth,
+                                                                        viewportHeight)};
+            android.graphics.Matrix mvpv = CanvasMatrixUtil.createMatrixFrom4x4(
+                                            CanvasMatrixUtil.multiplyMatrices4x4(matrices));
 
-            drawPlaneAsPath(canvas, mvpv, plane);
+            drawPlaneOutline(canvas, mvpv, plane);
         }
     }
 
-    // Helper function that draws an AR plane using a path
-    private void drawPlaneAsPath(Canvas canvas, android.graphics.Matrix mvpv, Plane plane) {
+    // Helper function that draws an AR plane's outline using a path
+    private void drawPlaneOutline(Canvas canvas, android.graphics.Matrix mvpv, Plane plane) {
         int vertsSize = plane.getPolygon().limit() / 2;
         FloatBuffer polygon = plane.getPolygon();
         polygon.rewind();
@@ -300,24 +333,66 @@ public class DrawManager {
 
         // Set up paint
         Paint p = new Paint();
-
-        if (false) {
-            //p.setShader(planeShader);
-            p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
-                             PorterDuff.Mode.SRC_ATOP));
-        }
-
         p.setColor(Color.RED);
         p.setAlpha(100);
         p.setStrokeWidth(0.01f);
         p.setStyle(Paint.Style.STROKE);
 
+        // Scaling issues appear to happen when drawing a Path and transforming the Canvas
+        // directly with a matrix on Android versions less than P.
+        // TODO: Ideally switch true to be (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
 
+        if (true) {
+            // Draw dest path
+            canvas.save();
+            canvas.setMatrix(mvpv);
+            canvas.drawPath(pathSrc, p);
+            canvas.restore();
+        } else {
+            // Build destination path by transforming source path
+            Path pathDst = new Path();
+            pathSrc.transform(mvpv, pathDst);
+
+            // Draw dest path
+            canvas.save();
+            canvas.setMatrix(new android.graphics.Matrix());
+            canvas.drawPath(pathDst, p);
+            canvas.restore();
+        }
+    }
+
+    // Helper function that draws an AR plane using a path + initialized shader
+    private void drawPlaneWithShader(Canvas canvas, android.graphics.Matrix mvpv, Plane plane) {
+        int vertsSize = plane.getPolygon().limit() / 2;
+        FloatBuffer polygon = plane.getPolygon();
+        polygon.rewind();
+
+        // Build source path from polygon data
+        Path pathSrc = new Path();
+        pathSrc.moveTo(polygon.get(0), polygon.get(1));
+        for (int i = 1; i < vertsSize; i++) {
+            pathSrc.lineTo(polygon.get(i * 2), polygon.get(i * 2 + 1));
+        }
+        pathSrc.close();
+
+        // Set up paint
+        Paint p = new Paint();
+        p.setShader(planeShader);
+        p.setColorFilter(new PorterDuffColorFilter(Color.argb(0.4f, 1, 0, 0),
+                PorterDuff.Mode.SRC_ATOP));
+        p.setColor(Color.RED);
+        p.setAlpha(100);
+        p.setStrokeWidth(0.01f);
+
+        // Scaling issues appear to happen when drawing a Path and transforming the Canvas
+        // directly with a matrix on Android versions less than P.
+        // TODO: Ideally switch true to be (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
         if (true) {
             // Shader local matrix
             android.graphics.Matrix lm = new android.graphics.Matrix();
             lm.setScale(0.00005f, 0.00005f);
             planeShader.setLocalMatrix(lm);
+
             // Draw dest path
             canvas.save();
             canvas.setMatrix(mvpv);
@@ -342,15 +417,9 @@ public class DrawManager {
         }
     }
 
-    public void initializePlaneShader(Context context, String gridDistanceTextureName) throws IOException {
-        // Read the texture.
-        Bitmap planeTexture =
-                BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
-        // Set up the shader
-        planeShader = new BitmapShader(planeTexture, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        planeShader.setLocalMatrix(new android.graphics.Matrix());
-    }
-
+    /*************** Misc helpers *************************************/
+    // Returns a scale matrix for drawing text given the size of the text. Workaround that solves
+    // a text size bug not fixed in Android versions < P
     private float[] getTextScaleMatrix(float size) {
         float scaleFactor = 1 / (size * 10);
         float[] initScale = new float[16];
@@ -364,6 +433,7 @@ public class DrawManager {
         float cameraX = cameraPose.tx();
         float cameraY = cameraPose.ty();
         float cameraZ = cameraPose.tz();
+
         // Get transformed Y axis of plane's coordinate system.
         planePose.getTransformedAxis(1, 1.0f, normal, 0);
         // Compute dot product of plane's normal with vector from camera to plane center.
