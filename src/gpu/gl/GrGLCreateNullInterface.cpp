@@ -501,6 +501,9 @@ public:
             case GR_GL_MAX_FRAGMENT_UNIFORM_VECTORS:
                 *params = kDefaultMaxFragmentUniformVectors;
                 break;
+            case GR_GL_MAX_VERTEX_UNIFORM_COMPONENTS:
+                *params = 16 * 4;
+                break;
             case GR_GL_MAX_FRAGMENT_UNIFORM_COMPONENTS:
                 *params = 16 * 4;
                 break;

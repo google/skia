@@ -364,6 +364,14 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     GR_GL_GetIntegerv(gli, GR_GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxSamplers);
     shaderCaps->fMaxCombinedSamplers = SkTMin<GrGLint>(kMaxSaneSamplers, maxSamplers);
 
+    // Find the maximum number of uniform components allowed in the vertex shader.
+    static const uint32_t kMaxSaneVertexUniformComponents = 2048;
+    GrGLint maxComponents;
+    GR_GL_GetIntegerv(gli, GR_GL_MAX_VERTEX_UNIFORM_COMPONENTS, &maxComponents);
+    shaderCaps->fMaxVertexUniformComponents = SkTMin<GrGLint>(kMaxSaneVertexUniformComponents,
+                                                              maxComponents);
+
+
     // This is all *very* approximate.
     switch (ctxInfo.vendor()) {
         case kNVIDIA_GrGLVendor:
