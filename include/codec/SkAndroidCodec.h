@@ -10,8 +10,9 @@
 
 #include "SkCodec.h"
 #include "SkEncodedImageFormat.h"
-#include "SkStream.h"
 #include "SkTypes.h"
+
+class SkStream;
 
 /**
  *  Abstract interface defining image codec functionality that is necessary for

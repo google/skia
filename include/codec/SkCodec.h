@@ -19,7 +19,6 @@
 #include "SkImageInfo.h"
 #include "SkPixmap.h"
 #include "SkSize.h"
-#include "SkStream.h"
 #include "SkTypes.h"
 #include "SkYUVSizeInfo.h"
 
@@ -30,6 +29,7 @@ class SkData;
 class SkFrameHolder;
 class SkPngChunkReader;
 class SkSampler;
+class SkStream;
 
 namespace DM {
 class CodecSrc;

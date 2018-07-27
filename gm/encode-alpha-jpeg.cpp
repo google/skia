@@ -9,6 +9,7 @@
 #include "SkImage.h"
 #include "SkImageInfoPriv.h"
 #include "SkJpegEncoder.h"
+#include "SkStream.h"
 
 #include "Resources.h"
 

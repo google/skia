@@ -27,6 +27,7 @@
 #include "SkPixelRef.h"
 #include "SkRRect.h"
 #include "SkShaper.h"
+#include "SkStream.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"

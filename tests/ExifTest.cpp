@@ -7,6 +7,7 @@
 
 #include "Resources.h"
 #include "SkCodec.h"
+#include "SkStream.h"
 #include "Test.h"
 
 DEF_TEST(ExifOrientation, r) {
