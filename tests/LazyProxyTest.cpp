@@ -137,7 +137,7 @@ public:
                                 kBottomLeft_GrSurfaceOrigin,
                                 kAlpha_half_GrPixelConfig, *proxyProvider->caps());
             fAccess.reset(fLazyProxy, GrSamplerState::Filter::kNearest,
-                          GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag);
+                          GrSamplerState::WrapMode::kClamp);
             this->setTextureSamplerCnt(1);
         }
 
