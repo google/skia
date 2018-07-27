@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d1bcc5c_c444eccd",
+        "filename": "src/gpu/ops/GrDrawVerticesOp.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-07-27T19:45:36Z",
+      "side": 1,
+      "message": "Can you put kMaxBones as a constant in one of the headers (Default GP factory?), and use that here?",
+      "revId": "aca7ba52108629327e8e3ac5f00df33a3357ca6b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
