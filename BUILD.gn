@@ -1561,6 +1561,15 @@ if (skia_enable_tools) {
         ]
       }
     }
+    test_app("imgcvt") {
+      sources = [
+        "tools/imgcvt.cpp",
+      ]
+      deps = [
+        ":skcms",
+        ":skia",
+      ]
+    }
     test_app("dm") {
       sources = [
         "dm/DM.cpp",
