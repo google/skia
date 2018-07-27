@@ -534,6 +534,15 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
     this->makeGlyphRunList(paint, &blob, origin);
 }
 
+void SkGlyphRunBuilder::drawGlyphPos(
+        const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos) {
+    if (!glyphIDs.empty()) {
+        this->initialize(glyphIDs.size());
+        this->simplifyDrawPosText(paint, glyphIDs, pos,
+                fUniqueGlyphIDIndices, fUniqueGlyphIDs, fPositions);
+    }
+}
+
 const SkGlyphRunList& SkGlyphRunBuilder::useGlyphRunList() {
     return fGlyphRunList;
 }
