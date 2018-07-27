@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 
 #include "SkGlyphRun.h"
 #include "SkPaintPriv.h"
@@ -333,7 +333,7 @@ namespace {
 union PositioningAndExtended {
     int32_t intValue;
     struct {
-        SkTextBlob::GlyphPositioning positioning;
+        uint8_t  positioning;
         uint8_t  extended;
         uint16_t padding;
     };
@@ -342,6 +342,12 @@ union PositioningAndExtended {
 static_assert(sizeof(PositioningAndExtended) == sizeof(int32_t), "");
 
 } // namespace
+
+enum SkTextBlob::GlyphPositioning : uint8_t {
+        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
+        kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
+        kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
+};
 
 unsigned SkTextBlob::ScalarsPerGlyph(GlyphPositioning pos) {
     // GlyphPositioning values are directly mapped to scalars-per-glyph.
@@ -400,9 +406,16 @@ const SkPoint& SkTextBlobRunIterator::offset() const {
     return fCurrentRun->offset();
 }
 
-SkTextBlob::GlyphPositioning SkTextBlobRunIterator::positioning() const {
+SkTextBlobRunIterator::GlyphPositioning SkTextBlobRunIterator::positioning() const {
     SkASSERT(!this->done());
-    return fCurrentRun->positioning();
+    static_assert(static_cast<GlyphPositioning>(SkTextBlob::kDefault_Positioning) ==
+                  kDefault_Positioning, "");
+    static_assert(static_cast<GlyphPositioning>(SkTextBlob::kHorizontal_Positioning) ==
+                  kHorizontal_Positioning, "");
+    static_assert(static_cast<GlyphPositioning>(SkTextBlob::kFull_Positioning) ==
+                  kFull_Positioning, "");
+
+    return SkTo<GlyphPositioning>(fCurrentRun->positioning());
 }
 
 void SkTextBlobRunIterator::applyFontToPaint(SkPaint* paint) const {
@@ -792,7 +805,8 @@ void SkTextBlobPriv::Flatten(const SkTextBlob& blob, SkWriteBuffer& buffer) {
         buffer.writeByteArray(it.glyphs(), it.glyphCount() * sizeof(uint16_t));
         buffer.writeByteArray(it.pos(),
                               it.glyphCount() * sizeof(SkScalar) *
-                              SkTextBlob::ScalarsPerGlyph(it.positioning()));
+                              SkTextBlob::ScalarsPerGlyph(
+                                  SkTo<SkTextBlob::GlyphPositioning>(it.positioning())));
         if (pe.extended) {
             buffer.writeByteArray(it.clusters(), sizeof(uint32_t) * it.glyphCount());
             buffer.writeByteArray(it.text(), it.textSize());
@@ -820,7 +834,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
 
         PositioningAndExtended pe;
         pe.intValue = reader.read32();
-        SkTextBlob::GlyphPositioning pos = pe.positioning;
+        const auto pos = SkTo<SkTextBlob::GlyphPositioning>(pe.positioning);
         if (glyphCount <= 0 || pos > SkTextBlob::kFull_Positioning) {
             return nullptr;
         }

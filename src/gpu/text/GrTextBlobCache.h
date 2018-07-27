@@ -12,7 +12,7 @@
 #include "SkMessageBus.h"
 #include "SkRefCnt.h"
 #include "SkTArray.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlobPriv.h"
 #include "SkTHash.h"
 
 class GrTextBlobCache {

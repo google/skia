@@ -267,7 +267,7 @@ private:
             FAIL_AND_RETURN
         }
 
-        if (it.positioning() == SkTextBlob::kDefault_Positioning) {
+        if (it.positioning() == SkTextBlobRunIterator::kDefault_Positioning) {
             // Default positioning needs advances. Can't do that.
             TRACE_EVENT0("skia", "kDefault_Positioning");
             FAIL_AND_RETURN
@@ -291,13 +291,13 @@ private:
         SkSTArenaAlloc<120> arena;
         SkFindAndPlaceGlyph::MapperInterface* mapper = nullptr;
         switch (it.positioning()) {
-            case SkTextBlob::kHorizontal_Positioning:
+            case SkTextBlobRunIterator::kHorizontal_Positioning:
                 posFn = [](int index, const SkScalar* pos) { return SkPoint{pos[index], 0}; };
                 mapper = SkFindAndPlaceGlyph::CreateMapper(
                         runMatrix, SkPoint::Make(position.x(), position.y() + it.offset().y()), 1,
                         &arena);
                 break;
-            case SkTextBlob::kFull_Positioning:
+            case SkTextBlobRunIterator::kFull_Positioning:
                 posFn = [](int index, const SkScalar* pos) {
                     return SkPoint{pos[2 * index], pos[2 * index + 1]};
                 };

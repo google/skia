@@ -21,8 +21,7 @@
 #include "SkPicture.h"
 #include "SkReadBuffer.h"
 #include "SkRectPriv.h"
-#include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlobPriv.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
@@ -1950,19 +1949,19 @@ Json::Value SkDrawTextBlobCommand::toJSON(UrlDataManager& urlDataManager) const 
         const uint16_t* iterGlyphs = iter.glyphs();
         for (uint32_t i = 0; i < iter.glyphCount(); i++) {
             switch (iter.positioning()) {
-                case SkTextBlob::kFull_Positioning:
+                case SkTextBlobRunIterator::kFull_Positioning:
                     jsonPositions.append(MakeJsonPoint(iterPositions[i * 2],
                                                        iterPositions[i * 2 + 1]));
                     break;
-                case SkTextBlob::kHorizontal_Positioning:
+                case SkTextBlobRunIterator::kHorizontal_Positioning:
                     jsonPositions.append(Json::Value(iterPositions[i]));
                     break;
-                case SkTextBlob::kDefault_Positioning:
+                case SkTextBlobRunIterator::kDefault_Positioning:
                     break;
             }
             jsonGlyphs.append(Json::Value(iterGlyphs[i]));
         }
-        if (iter.positioning() != SkTextBlob::kDefault_Positioning) {
+        if (iter.positioning() != SkTextBlobRunIterator::kDefault_Positioning) {
             run[SKDEBUGCANVAS_ATTRIBUTE_POSITIONS] = jsonPositions;
         }
         run[SKDEBUGCANVAS_ATTRIBUTE_GLYPHS] = jsonGlyphs;

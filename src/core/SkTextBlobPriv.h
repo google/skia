@@ -30,4 +30,41 @@ public:
     static sk_sp<SkTextBlob> MakeFromBuffer(SkReadBuffer&);
 };
 
+/**
+ *  Iterate through all of the text runs of the text blob.  For example:
+ *    for (SkTextBlobRunIterator it(blob); !it.done(); it.next()) {
+ *         .....
+ *    }
+ */
+class SkTextBlobRunIterator {
+public:
+    SkTextBlobRunIterator(const SkTextBlob* blob);
+
+    enum GlyphPositioning : uint8_t {
+        kDefault_Positioning      = 0, // Default glyph advances -- zero scalars per glyph.
+        kHorizontal_Positioning   = 1, // Horizontal positioning -- one scalar per glyph.
+        kFull_Positioning         = 2  // Point positioning -- two scalars per glyph.
+    };
+
+    bool done() const;
+    void next();
+
+    uint32_t glyphCount() const;
+    const uint16_t* glyphs() const;
+    const SkScalar* pos() const;
+    const SkPoint& offset() const;
+    void applyFontToPaint(SkPaint*) const;
+    GlyphPositioning positioning() const;
+    uint32_t* clusters() const;
+    uint32_t textSize() const;
+    char* text() const;
+
+    bool isLCD() const;
+
+private:
+    const SkTextBlob::RunRecord* fCurrentRun;
+
+    SkDEBUGCODE(uint8_t* fStorageTop;)
+};
+
 #endif // SkTextBlobPriv_DEFINED
