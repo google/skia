@@ -35,9 +35,11 @@ public class PaintUtil {
      */
     public static ColorFilter createLightCorrectionColorFilter(float[] colorCorr) {
         float[] colorCorrCopy = Arrays.copyOf(colorCorr, 4);
+
         for (int i = 0; i < 3; i++) {
             colorCorrCopy[i] *= colorCorrCopy[3] / MIDDLE_GRAY_GAMMA;
         }
+
         ColorMatrix m = new ColorMatrix();
         m.setScale(colorCorrCopy[0], colorCorrCopy[1], colorCorrCopy[2], 1);
         return new ColorMatrixColorFilter(m);
