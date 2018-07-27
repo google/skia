@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "0cd22cbf_2493ecff",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-27T15:18:57Z",
+      "side": 1,
+      "message": "If its their API, then n/m",
+      "parentUuid": "a78b022b_b8f65683",
+      "range": {
+        "startLine": 458,
+        "startChar": 37,
+        "endLine": 458,
+        "endChar": 45
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e90f1438_e7275223",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/SkARFingerPainting.java",
         "patchSetId": 3
