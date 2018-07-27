@@ -61,10 +61,14 @@ void GLSLCodeGenerator::writeLine() {
     this->writeLine("");
 }
 
-void GLSLCodeGenerator::writeExtension(const Extension& ext) {
-    this->write("#extension ");
-    this->write(ext.fName);
-    this->writeLine(" : enable");
+void GLSLCodeGenerator::writeExtension(const String& name) {
+    this->writeExtension(name, true);
+}
+
+void GLSLCodeGenerator::writeExtension(const String& name, bool require) {
+    fExtensions.writeText("#extension ");
+    fExtensions.write(name.c_str(), name.length());
+    fExtensions.writeText(require ? " : require\n" : " : enable\n");
 }
 
 bool GLSLCodeGenerator::usesPrecisionModifiers() const {
@@ -510,9 +514,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (!fFoundDerivatives && (c.fFunction.fName == "dFdx" || c.fFunction.fName == "dFdy") &&
         c.fFunction.fBuiltin && fProgram.fSettings.fCaps->shaderDerivativeExtensionString()) {
         SkASSERT(fProgram.fSettings.fCaps->shaderDerivativeSupport());
-        fHeader.writeText("#extension ");
-        fHeader.writeText(fProgram.fSettings.fCaps->shaderDerivativeExtensionString());
-        fHeader.writeText(" : require\n");
+        this->writeExtension(fProgram.fSettings.fCaps->shaderDerivativeExtensionString());
         fFoundDerivatives = true;
     }
     bool isTextureFunctionWithBias = false;
@@ -643,11 +645,9 @@ void GLSLCodeGenerator::writeFragCoord() {
                fProgram.fSettings.fCaps->fragCoordConventionsExtensionString()) {
         if (!fSetupFragPositionGlobal) {
             if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(extension);
-                fHeader.writeText(" : require\n");
+                this->writeExtension(extension);
             }
-            fHeader.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
+            fGlobals.writeText("layout(origin_upper_left) in vec4 gl_FragCoord;\n");
             fSetupFragPositionGlobal = true;
         }
         this->write("gl_FragCoord");
@@ -659,9 +659,9 @@ void GLSLCodeGenerator::writeFragCoord() {
             // do the same thing. Copying gl_FragCoord.xy into a temp float2 beforehand
             // (and only accessing .xy) seems to "fix" things.
             const char* precision = usesPrecisionModifiers() ? "highp " : "";
-            fHeader.writeText("uniform ");
-            fHeader.writeText(precision);
-            fHeader.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
+            fGlobals.writeText("uniform ");
+            fGlobals.writeText(precision);
+            fGlobals.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
             fSetupFragPositionGlobal = true;
         }
         if (!fSetupFragPositionLocal) {
@@ -1091,22 +1091,17 @@ void GLSLCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool g
         }
         if (!fFoundImageDecl && var.fVar->fType == *fContext.fImage2D_Type) {
             if (fProgram.fSettings.fCaps->imageLoadStoreExtensionString()) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
-                fHeader.writeText(" : require\n");
+                this->writeExtension(fProgram.fSettings.fCaps->imageLoadStoreExtensionString());
             }
             fFoundImageDecl = true;
         }
         if (!fFoundExternalSamplerDecl && var.fVar->fType == *fContext.fSamplerExternalOES_Type) {
             if (fProgram.fSettings.fCaps->externalTextureExtensionString()) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(fProgram.fSettings.fCaps->externalTextureExtensionString());
-                fHeader.writeText(" : enable\n");
+                this->writeExtension(fProgram.fSettings.fCaps->externalTextureExtensionString());
             }
             if (fProgram.fSettings.fCaps->secondExternalTextureExtensionString()) {
-                fHeader.writeText("#extension ");
-                fHeader.writeText(fProgram.fSettings.fCaps->secondExternalTextureExtensionString());
-                fHeader.writeText(" : enable\n");
+                this->writeExtension(
+                                  fProgram.fSettings.fCaps->secondExternalTextureExtensionString());
             }
             fFoundExternalSamplerDecl = true;
         }
@@ -1260,16 +1255,12 @@ void GLSLCodeGenerator::writeReturnStatement(const ReturnStatement& r) {
 void GLSLCodeGenerator::writeHeader() {
     this->write(fProgram.fSettings.fCaps->versionDeclString());
     this->writeLine();
-    for (const auto& e : fProgram) {
-        if (e.fKind == ProgramElement::kExtension_Kind) {
-            this->writeExtension((Extension&) e);
-        }
-    }
 }
 
 void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     switch (e.fKind) {
         case ProgramElement::kExtension_Kind:
+            this->writeExtension(((Extension&) e).fName);
             break;
         case ProgramElement::kVar_Kind: {
             VarDeclarations& decl = (VarDeclarations&) e;
@@ -1304,9 +1295,7 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
             const Modifiers& modifiers = ((ModifiersDeclaration&) e).fModifiers;
             if (!fFoundGSInvocations && modifiers.fLayout.fInvocations >= 0) {
                 if (fProgram.fSettings.fCaps->gsInvocationsExtensionString()) {
-                    fHeader.writeText("#extension ");
-                    fHeader.writeText(fProgram.fSettings.fCaps->gsInvocationsExtensionString());
-                    fHeader.writeText(" : require\n");
+                    this->writeExtension(fProgram.fSettings.fCaps->gsInvocationsExtensionString());
                 }
                 fFoundGSInvocations = true;
             }
@@ -1323,16 +1312,13 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
 }
 
 bool GLSLCodeGenerator::generateCode() {
-    OutputStream* rawOut = fOut;
-    fOut = &fHeader;
     fProgramKind = fProgram.fKind;
     this->writeHeader();
     if (Program::kGeometry_Kind == fProgramKind &&
         fProgram.fSettings.fCaps->geometryShaderExtensionString()) {
-        fHeader.writeText("#extension ");
-        fHeader.writeText(fProgram.fSettings.fCaps->geometryShaderExtensionString());
-        fHeader.writeText(" : require\n");
+        this->writeExtension(fProgram.fSettings.fCaps->geometryShaderExtensionString());
     }
+    OutputStream* rawOut = fOut;
     StringStream body;
     fOut = &body;
     for (const auto& e : fProgram) {
@@ -1340,7 +1326,8 @@ bool GLSLCodeGenerator::generateCode() {
     }
     fOut = rawOut;
 
-    write_stringstream(fHeader, *rawOut);
+    write_stringstream(fExtensions, *rawOut);
+    write_stringstream(fGlobals, *rawOut);
 
     if (!fProgram.fSettings.fCaps->canUseFragCoord()) {
         Layout layout;
