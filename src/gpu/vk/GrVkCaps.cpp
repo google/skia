@@ -412,6 +412,9 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties, uint
                                        SkTMin(properties.limits.maxDescriptorSetSampledImages,
                                               properties.limits.maxDescriptorSetSamplers),
                                               (uint32_t)INT_MAX);
+
+    // 2048 is a sane maximum number of vertex uniform components.
+    shaderCaps->fMaxVertexUniformComponents = 2048;
 }
 
 bool stencil_format_supported(const GrVkInterface* interface,
