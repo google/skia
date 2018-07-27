@@ -560,6 +560,9 @@ bool skcms_Transform(const void*             src,
         if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
     }
 
+    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
+        *ops++ = Op_clamp;
+    }
     if (dstAlpha == skcms_AlphaFormat_Opaque) {
         *ops++ = Op_force_opaque;
     } else if (dstAlpha == skcms_AlphaFormat_PremulAsEncoded) {
@@ -567,9 +570,6 @@ bool skcms_Transform(const void*             src,
     }
     if (dstFmt & 1) {
         *ops++ = Op_swap_rb;
-    }
-    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
-        *ops++ = Op_clamp;
     }
     switch (dstFmt >> 1) {
         default: return false;
