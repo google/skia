@@ -901,7 +901,7 @@ sk_sp<SkTextBlob> SkTextBlobPriv::MakeFromBuffer(SkReadBuffer& reader) {
     return blobBuilder.make();
 }
 
-sk_sp<SkTextBlob> SkTextBlob::MakeAsDrawText(
+sk_sp<SkTextBlob> SkTextBlob::MakeFromText(
         const void* text, size_t byteLength, const SkPaint& paint) {
     SkGlyphRunBuilder runBuilder;
 
