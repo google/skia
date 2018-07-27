@@ -81,7 +81,7 @@ public class DrawManager {
                 BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
         // Set up the shader
         planeShader = new BitmapShader(planeTexture, Shader.TileMode.REPEAT,
-                                       Shader.TileMode.REPEAT););
+                                       Shader.TileMode.REPEAT);
     }
 
     /************ ARCore onDrawFrame() calls ********************/
@@ -136,7 +136,7 @@ public class DrawManager {
         canvas.save();
         canvas.setMatrix(CanvasMatrixUtil.createPerspectiveMatrix(modelMatrices.get(0),
                 viewMatrix, projectionMatrix, viewportWidth, viewportHeight));
-        canvas.drawRoundRect(0,0, 0.5f, 0.5f, radius, radius, p);
+        canvas.drawRoundRect(0,0, 0.2f, 0.2f, radius, radius, p);
         canvas.restore();
     }
 
@@ -165,7 +165,7 @@ public class DrawManager {
         Paint p = new Paint();
         float textSize = 100;
         p.setColorFilter(lightFilter);
-        p.setARGB(255, 0, 255, 0);
+        p.setARGB(255, 255, 255, 0);
         p.setTextSize(textSize);
 
         // TODO: Remove scale matrix and scale text directly. Potential unfixed bug in versions < P

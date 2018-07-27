@@ -19,11 +19,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/palette_red"
-        android:title="Red" />
+        android:icon="@drawable/splash"
+        android:iconTint="@android:color/holo_red_dark"
+        android:title="@string/palette_red" />
     <item
         android:id="@+id/palette_green"
-        android:title="Green" />
+        android:icon="@drawable/splash"
+        android:iconTint="@android:color/holo_green_dark"
+        android:title="@string/palette_green" />
     <item
         android:id="@+id/palette_reset"
-        android:title="Reset" />
+        android:icon="@drawable/clear"
+        android:iconTint="@android:color/black"
+        android:title="@string/palette_reset" />
 </menu>
