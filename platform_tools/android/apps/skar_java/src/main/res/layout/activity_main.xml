@@ -18,14 +18,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.google.ar.core.examples.java.helloskar.HelloCanvasAR">
+    tools:context="com.google.skar.examples.helloskar.app.HelloCanvasAR">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/my_toolbar"
+            android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
@@ -33,13 +33,13 @@
             android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-        <com.google.ar.core.examples.java.helloskar.ARSurfaceView
-            android:id="@+id/arsurfaceview"
+        <com.google.skar.examples.helloskar.app.CanvasARSurfaceView
+            android:id="@+id/canvas_surfaceview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
         <android.opengl.GLSurfaceView
-            android:id="@+id/glsurfaceview"
+            android:id="@+id/gl_surfaceview"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
         <android.support.design.widget.BottomNavigationView

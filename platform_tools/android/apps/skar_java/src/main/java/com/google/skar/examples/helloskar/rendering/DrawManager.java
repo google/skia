@@ -1,3 +1,19 @@
+/*
+ * Copyright 2018 Google LLC All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.google.skar.examples.helloskar.rendering;
 
 import android.content.Context;
@@ -21,7 +37,8 @@ import com.google.ar.core.Pose;
 import com.google.ar.core.TrackingState;
 import com.google.skar.CanvasMatrixUtil;
 import com.google.skar.PaintUtil;
-import com.google.skar.SkARFingerPainting;
+import com.google.skar.examples.helloskar.app.FingerPainting;
+
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -34,6 +51,14 @@ import java.util.Collection;
  */
 
 public class DrawManager {
+    public enum DrawingType {
+        circle, rect, text, animation
+    }
+
+    // App defaults
+    public DrawManager.DrawingType currentDrawabletype = DrawManager.DrawingType.circle;
+    public boolean drawSmoothPainting = true;
+
     private float[] projectionMatrix = new float[16];
     private float[] viewMatrix = new float[16];
     private float viewportWidth;
@@ -41,7 +66,7 @@ public class DrawManager {
     private ColorFilter lightFilter;
     private BitmapShader planeShader;
     public ArrayList<float[]> modelMatrices = new ArrayList<>();
-    public SkARFingerPainting fingerPainting = new SkARFingerPainting(false);
+    public FingerPainting fingerPainting = new FingerPainting(false);
 
     public void updateViewport(float width, float height) {
         viewportWidth = width;
@@ -165,11 +190,11 @@ public class DrawManager {
         p.setStrokeWidth(30f);
         p.setAlpha(120);
 
-        for (Path path : fingerPainting.getPaths()) {
-            if (path.isEmpty()) {
+        for (FingerPainting.BuiltPath bp : fingerPainting.getPaths()) {
+            if (bp.path.isEmpty()) {
                 continue;
             }
-            p.setColor(fingerPainting.getPathColor(path));
+            p.setColor(bp.color);
 
             // Scaling issues appear to happen when drawing a Path and transforming the Canvas
             // directly with a matrix on Android versions less than P. Ideally we would
@@ -179,12 +204,12 @@ public class DrawManager {
                 // Transform applied through canvas
                 canvas.save();
                 canvas.setMatrix(mvpv);
-                canvas.drawPath(path, p);
+                canvas.drawPath(bp.path, p);
                 canvas.restore();
             } else {
                 // Transform path directly
                 Path pathDst = new Path();
-                path.transform(mvpv, pathDst);
+                bp.path.transform(mvpv, pathDst);
 
                 // Draw dest path
                 canvas.save();

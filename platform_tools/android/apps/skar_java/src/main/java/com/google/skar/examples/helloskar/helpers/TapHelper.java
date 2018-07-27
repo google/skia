@@ -1,10 +1,11 @@
 /*
- * Copyright 2017 Google Inc. All Rights Reserved.
+ * Copyright 2018 Google LLC All Rights Reserved.
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -12,19 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.skar.examples.helloskar.helpers;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
-
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -72,7 +68,9 @@ public final class TapHelper implements OnTouchListener {
                                 if (e2.getPointerCount() == 1 && e1.getPointerCount() == 1) {
                                     previousScroll = isScrolling;
                                     isScrolling = true;
-                                    queuedFingerHold.offer(new ScrollEvent(e2, startedScrolling()));
+
+                                    queuedFingerHold.offer(new ScrollEvent(e2, isStartedScrolling()));
+
                                     return true;
                                 }
                                 return false;
@@ -97,10 +95,6 @@ public final class TapHelper implements OnTouchListener {
 
     public ScrollEvent holdPoll() { return queuedFingerHold.poll(); }
 
-    public boolean startedScrolling() {
-        return isScrolling && !previousScroll;
-    }
-
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         boolean val = gestureDetector.onTouchEvent(motionEvent);
@@ -113,4 +107,5 @@ public final class TapHelper implements OnTouchListener {
         }
         return val;
     }
+    private boolean isStartedScrolling() { return isScrolling && !previousScroll; }
 }

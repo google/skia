@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google Inc. All Rights Reserved.
+ * Copyright 2018 Google LLC All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,13 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.graphics.PorterDuff;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.internal.BottomNavigationMenuView;
+
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -53,12 +52,17 @@ import com.google.ar.core.PointCloud;
 import com.google.ar.core.Session;
 import com.google.ar.core.Trackable;
 import com.google.ar.core.TrackingState;
-import com.google.ar.core.examples.java.common.helpers.CameraPermissionHelper;
-import com.google.ar.core.examples.java.common.helpers.DisplayRotationHelper;
-import com.google.ar.core.examples.java.common.helpers.FullScreenHelper;
-import com.google.ar.core.examples.java.common.helpers.SnackbarHelper;
-import com.google.ar.core.examples.java.common.helpers.TapHelper;
-import com.google.ar.core.examples.java.common.rendering.BackgroundRenderer;
+
+import com.google.ar.core.examples.java.helloskar.R;
+import com.google.skar.examples.helloskar.helpers.CameraPermissionHelper;
+import com.google.skar.examples.helloskar.helpers.DisplayRotationHelper;
+import com.google.skar.examples.helloskar.helpers.FullScreenHelper;
+import com.google.skar.examples.helloskar.helpers.SnackbarHelper;
+import com.google.skar.examples.helloskar.helpers.TapHelper;
+
+import com.google.skar.examples.helloskar.rendering.BackgroundRenderer;
+import com.google.skar.examples.helloskar.rendering.DrawManager;
+
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
@@ -79,40 +83,32 @@ import javax.microedition.khronos.opengles.GL10;
  */
 
 public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Renderer {
-    public enum DrawingType {
-        circle, rect, text, animation
-    }
-
     private static final String TAG = HelloCanvasAR.class.getSimpleName();
+    private final int MAX_NUMBER_DRAWABLES = 50; // Arbitrary limit to the # of anchors to store
 
-    //Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
-    private ARSurfaceView arSurfaceView;
-    private Canvas canvas;
+    // Simple SurfaceView used to draw 2D objects on top of the GLSurfaceView
+    private CanvasARSurfaceView arSurfaceView;
     private SurfaceHolder holder;
 
-    //GLSurfaceView used to draw 3D objects & camera input
+    // GLSurfaceView used to draw 3D objects & camera input
     private GLSurfaceView glSurfaceView;
 
-    //ARSession
+    // ARSession
     private Session session;
-
-    private boolean installRequested;
-    private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
-    private DisplayRotationHelper displayRotationHelper;
-    private TapHelper tapHelper;
 
     // OpenGL background renderer
     private final BackgroundRenderer backgroundRenderer = new BackgroundRenderer();
 
     // 2D Renderer
     private DrawManager drawManager = new DrawManager();
-    private DrawingType currentDrawabletype = DrawingType.circle;
-    private boolean drawSmoothPainting = true;
+
+    private boolean installRequested;
+    private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
+    private DisplayRotationHelper displayRotationHelper;
+    private TapHelper tapHelper;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
-
-    PointF previousEvent;
 
     // Anchors created from taps used for object placing.
     private final ArrayList<Anchor> anchors = new ArrayList<>();
@@ -127,22 +123,22 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
+        // Menu tool bar set up
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
-
-        //hide notifications bar
+        // Hide notifications bar
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        arSurfaceView = findViewById(R.id.arsurfaceview);
-        glSurfaceView = findViewById(R.id.glsurfaceview);
+        // Canvas Surface View set up
+        arSurfaceView = findViewById(R.id.canvas_surfaceview);
         arSurfaceView.bringToFront();
         arSurfaceView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        displayRotationHelper = new DisplayRotationHelper(/*context=*/ this);
+        holder = arSurfaceView.getHolder();
 
         // Set up tap listener.
-        tapHelper = new TapHelper(/*context=*/ this);
+        tapHelper = new TapHelper(this);
         glSurfaceView.setOnTouchListener(tapHelper);
 
         // Set up renderer.
@@ -151,9 +147,10 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
         glSurfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
         glSurfaceView.setRenderer(this);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
+        displayRotationHelper = new DisplayRotationHelper(this);
         installRequested = false;
 
+        // Set up finger painting palette bar
         BottomNavigationView bottomNav = findViewById(R.id.palette);
         bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -174,7 +171,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
             }
         });
 
-        // Animator set up
+        // Value Animator set up
         PropertyValuesHolder propertyRadius = PropertyValuesHolder.ofFloat(PROPERTY_RADIUS, 0, 0.5f);
         animator = new ValueAnimator();
         animator.setValues(propertyRadius);
@@ -310,7 +307,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
 
     @Override
     public void onDrawFrame(GL10 gl) {
-        canvas = null;
+        Canvas canvas = null;
         holder = null;
 
         // Clear screen to notify driver it should not load any pixels from previous frame.
@@ -319,38 +316,18 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
         if (session == null) {
             return;
         }
+
         // Notify ARCore session that the view size changed so that the perspective matrix and
         // the video background can be properly adjusted.
         displayRotationHelper.updateSessionIfNeeded(session);
-
 
         try {
             session.setCameraTextureName(backgroundRenderer.getTextureId());
             Frame frame = session.update();
             Camera camera = frame.getCamera();
 
-            MotionEvent tap = tapHelper.poll();
-            if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(tap)) {
-                    // Check if any plane was hit, and if it was hit inside the plane polygon
-                    Trackable trackable = hit.getTrackable();
-                    // Creates an anchor if a plane or an oriented point was hit.
-                    if ((trackable instanceof Plane
-                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
-                            > 0))
-                            || (trackable instanceof Point
-                            && ((Point) trackable).getOrientationMode()
-                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-                        if (anchors.size() >= 20) {
-                            anchors.get(0).detach();
-                            anchors.remove(0);
-                        }
-                        anchors.add(hit.createAnchor());
-                        break;
-                    }
-                }
-            }
+            // Query information from single tap gestures to get anchors
+            handleSingleTaps(frame, camera);
 
             // Draw background with OpenGL.
             // TODO: possibly find a way to extract texture and draw on Canvas
@@ -362,76 +339,26 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
             }
 
             // Get projection matrix.
-            float[] projmtx = new float[16];
-            camera.getProjectionMatrix(projmtx, 0, 0.1f, 100.0f);
-            drawManager.updateProjectionMatrix(projmtx);
+            float[] projMatrix = new float[16];
+            camera.getProjectionMatrix(projMatrix, 0, 0.1f, 100.0f);
+            drawManager.updateProjectionMatrix(projMatrix);
 
             // Get camera matrix and draw.
-            float[] viewmtx = new float[16];
-            camera.getViewMatrix(viewmtx, 0);
-            drawManager.updateViewMatrix(viewmtx);
+            float[] viewMatrix = new float[16];
+            camera.getViewMatrix(viewMatrix, 0);
+            drawManager.updateViewMatrix(viewMatrix);
 
             final float[] colorCorrectionRgba = new float[4];
             frame.getLightEstimate().getColorCorrection(colorCorrectionRgba, 0);
             drawManager.updateLightColorFilter(colorCorrectionRgba);
 
-            // Building finger painting
-            TapHelper.ScrollEvent holdTap = tapHelper.holdPoll();
-            if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-                for (HitResult hit : frame.hitTest(holdTap.e)) {
-                    // Check if any plane was hit, and if it was hit inside the plane polygon
-                    Trackable trackable = hit.getTrackable();
-                    // Creates an anchor if a plane or an oriented point was hit.
-                    if ((trackable instanceof Plane
-                            && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
-                            && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
-                            > 0))
-                            || (trackable instanceof Point
-                            && ((Point) trackable).getOrientationMode()
-                            == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
-
-                        // Get hit point transform, apply it to the origin
-                        float[] gm = new float[16];
-                        hit.getHitPose().toMatrix(gm, 0);
-                        float[] point = {0, 0, 0, 1};
-                        Matrix.multiplyMV(point, 0, gm, 0, point, 0);
-
-                        if (drawManager.fingerPainting.isEmpty()) {
-                            drawManager.fingerPainting.addPoint(new PointF(0, 0), true);
-
-                            // Get model matrix of first point
-                            float[] m = new float[16];
-                            hit.getHitPose().toMatrix(m, 0);
-                            drawManager.fingerPainting.setModelMatrix(m);
-                        } else {
-                            float localDistanceScale = 1000;
-                            PointF distance = new PointF(point[0] - previousEvent.x,
-                                                         point[2] - previousEvent.y);
-
-                            if (distance.length() < 0.05f) {
-                                continue;
-                            }
-
-                            // New point is distance + old point
-                            PointF p = new PointF(distance.x * localDistanceScale
-                                                   + drawManager.fingerPainting.previousPoint.x,
-                                                  distance.y * localDistanceScale
-                                                   + drawManager.fingerPainting.previousPoint.y);
-
-                            drawManager.fingerPainting.addPoint(p, holdTap.isStartOfScroll);
-                        }
-
-                        previousEvent = new PointF(point[0], point[2]);
-                        break;
-                    }
-                }
-            }
+            // Query information from scrolling gestures to build finger paintings
+            handleHoldTaps(frame, camera);
 
             // Drawing on Canvas (SurfaceView)
             if (arSurfaceView.isRunning()) {
                 // Lock canvas
-                SurfaceHolder holder = arSurfaceView.getHolder();
-                Canvas canvas = holder.lockHardwareCanvas();
+                canvas = holder.lockHardwareCanvas();
                 canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
 
                 // Draw point cloud
@@ -472,6 +399,81 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
         }
     }
 
+    /**************************** Gesture helpers ******************************/
+    /**
+     * Given a Frame and a Camera, perform hit tests on stored UI touch events. If a hit test is
+     * successful, construct an Anchor at the hit position and add it to the set of anchors.
+     * @param frame     Frame of this update() call
+     * @param camera    Camera of this update() call
+     */
+    private void handleSingleTaps(Frame frame, Camera camera) {
+        MotionEvent tap = tapHelper.poll();
+        if (tap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+            for (HitResult hit : frame.hitTest(tap)) {
+                // Check if any plane was hit, and if it was hit inside the plane polygon
+                Trackable trackable = hit.getTrackable();
+                // Creates an anchor if a plane or an oriented point was hit.
+                if ((trackable instanceof Plane
+                        && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                        && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                        > 0))
+                        || (trackable instanceof Point
+                        && ((Point) trackable).getOrientationMode()
+                        == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+                    if (anchors.size() >= MAX_NUMBER_DRAWABLES) {
+                        anchors.get(0).detach();
+                        anchors.remove(0);
+                    }
+                    anchors.add(hit.createAnchor());
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Given a Frame and a Camera, perform hit tests on stored UI touch events. If a hit test is
+     * successful, construct an Anchor at the hit position and add it to the set of anchors.
+     * @param frame     Frame of this update() call
+     * @param camera    Camera of this update() call
+     */
+    private void handleHoldTaps(Frame frame, Camera camera) {
+        // Building finger painting
+        TapHelper.ScrollEvent holdTap = tapHelper.holdPoll();
+        if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
+            for (HitResult hit : frame.hitTest(holdTap.e)) {
+                // Check if any plane was hit, and if it was hit inside the plane polygon
+                Trackable trackable = hit.getTrackable();
+                // Creates an anchor if a plane or an oriented point was hit.
+                if ((trackable instanceof Plane
+                        && ((Plane) trackable).isPoseInPolygon(hit.getHitPose())
+                        && (DrawManager.calculateDistanceToPlane(hit.getHitPose(), camera.getPose())
+                        > 0))
+                        || (trackable instanceof Point
+                        && ((Point) trackable).getOrientationMode()
+                        == OrientationMode.ESTIMATED_SURFACE_NORMAL)) {
+
+                    // Get hit point transform, apply it to the origin --> point is not in hit
+                    // location on the plane
+                    float[] modelMatrix = new float[16];
+                    hit.getHitPose().toMatrix(modelMatrix, 0);
+                    float[] hitLocation = {0, 0, 0, 1};
+                    Matrix.multiplyMV(hitLocation, 0, modelMatrix, 0,
+                                      hitLocation, 0);
+
+                    if (! drawManager.fingerPainting.computeNextPoint(hitLocation, holdTap)) {
+                        // Try to add the next point to the finger painting. If return value
+                        // is false, then keep looping
+                        continue;
+                    }
+
+                    break;
+                }
+            }
+        }
+    }
+
+    /**************************** Drawing helpers ******************************/
     // Helper drawing functions that invoke drawManager
     private void drawPlanes(Canvas canvas, Camera camera) {
         drawManager.drawPlanes(canvas, camera.getPose(), session.getAllTrackables(Plane.class));
@@ -486,12 +488,11 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
             if (anchor.getTrackingState() != TrackingState.TRACKING) {
                 continue;
             }
-            // Get the current pose of an Anchor in world space. The Anchor pose is updated
-            // during calls to session.update() as ARCore refines its estimate of the world.
+            // Get the current pose of an Anchor in world space
             anchor.getPose().toMatrix(anchorMatrix, 0);
             drawManager.modelMatrices.add(0, anchorMatrix);
 
-            switch (currentDrawabletype) {
+            switch (drawManager.currentDrawabletype) {
                 case circle:
                     drawManager.drawCircle(canvas);
                     break;
@@ -512,11 +513,12 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
     }
 
     private void drawFingerPainting(Canvas canvas) {
-        drawManager.fingerPainting.setSmoothness(drawSmoothPainting);
+        drawManager.fingerPainting.setSmoothness(drawManager.drawSmoothPainting);
         drawManager.drawFingerPainting(canvas);
     }
 
-    // Menu functions
+    /**************************** UI helpers ******************************/
+    // Tool bar functions
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
@@ -529,22 +531,22 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
                 drawManager.fingerPainting.reset();
                 return true;
             case R.id.smooth_paint:
-                drawSmoothPainting = true;
+                drawManager.drawSmoothPainting = true;
                 return true;
             case R.id.rough_paint:
-                drawSmoothPainting = false;
+                drawManager.drawSmoothPainting = false;
                 return true;
             case R.id.draw_circle:
-                currentDrawabletype = DrawingType.circle;
+                drawManager.currentDrawabletype = DrawManager.DrawingType.circle;
                 return true;
             case R.id.draw_rect:
-                currentDrawabletype = DrawingType.rect;
+                drawManager.currentDrawabletype = DrawManager.DrawingType.rect;
                 return true;
             case R.id.draw_animation:
-                currentDrawabletype = DrawingType.animation;
+                drawManager.currentDrawabletype = DrawManager.DrawingType.animation;
                 return true;
             case R.id.draw_text:
-                currentDrawabletype = DrawingType.text;
+                drawManager.currentDrawabletype = DrawManager.DrawingType.text;
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
