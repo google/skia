@@ -70,6 +70,7 @@ gm_sources = [
   "$_gm/clip_strokerect.cpp",
   "$_gm/clipdrawdraw.cpp",
   "$_gm/clippedbitmapshaders.cpp",
+  "$_gm/clockwise.cpp",
   "$_gm/color4f.cpp",
   "$_gm/coloremoji.cpp",
   "$_gm/coloremoji_blendmodes.cpp",

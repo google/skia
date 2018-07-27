@@ -1154,6 +1154,17 @@ DEF_TEST(SkSLFragCoord, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLClockwise, r) {
+    test(r,
+         "void main() { sk_FragColor = half4(sk_Clockwise ? +1 : -1); }",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor = vec4(float(gl_FrontFacing ? 1 : -1));\n"
+         "}\n");
+}
+
 DEF_TEST(SkSLVertexID, r) {
     test(r,
          "out int id; void main() { id = sk_VertexID; }",

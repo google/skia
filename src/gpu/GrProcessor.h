@@ -71,6 +71,7 @@ public:
         kButtCapStrokedCircleGeometryProcessor_ClassID,
         kCircleGeometryProcessor_ClassID,
         kCircularRRectEffect_ClassID,
+        kClockwiseTestProcessor_ClassID,
         kColorMatrixEffect_ClassID,
         kColorTableEffect_ClassID,
         kComposeOneFragmentProcessor_ClassID,
