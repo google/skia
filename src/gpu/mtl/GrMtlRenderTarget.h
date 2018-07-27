@@ -16,7 +16,7 @@
 
 class GrMtlGpu;
 
-class GrMtlRenderTarget: public GrRenderTarget {
+class GrMtlRenderTarget : public GrRenderTarget {
 public:
     static sk_sp<GrMtlRenderTarget> MakeWrappedRenderTarget(GrMtlGpu*,
                                                             const GrSurfaceDesc&,
@@ -27,7 +27,7 @@ public:
     // override of GrRenderTarget
     ResolveType getResolveType() const override {
         return kCantResolve_ResolveType;
-#if 0 // TODO figure this once we support msaa
+#if 0  // TODO figure this once we support msaa
         if (this->numColorSamples() > 1) {
             return kCanResolve_ResolveType;
         }
@@ -35,9 +35,7 @@ public:
 #endif
     }
 
-    bool canAttemptStencilAttachment() const override {
-        return true;
-    }
+    bool canAttemptStencilAttachment() const override { return true; }
 
     id<MTLTexture> mtlRenderTexture() const { return fRenderTexture; }
 
@@ -46,12 +44,12 @@ public:
 protected:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture,
-                      id<MTLTexture> resolveTexture);
+                      id<MTLTexture>
+                              renderTexture,
+                      id<MTLTexture>
+                              resolveTexture);
 
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture);
+    GrMtlRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& desc, id<MTLTexture> renderTexture);
 
     GrMtlGpu* getMtlGpu() const;
 
@@ -78,23 +76,18 @@ private:
     GrMtlRenderTarget(GrMtlGpu* gpu,
                       SkBudgeted,
                       const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture,
-                      id<MTLTexture> resolveTexture);
+                      id<MTLTexture>
+                              renderTexture,
+                      id<MTLTexture>
+                              resolveTexture);
 
-    GrMtlRenderTarget(GrMtlGpu* gpu,
-                      SkBudgeted,
-                      const GrSurfaceDesc& desc,
-                      id<MTLTexture> renderTexture);
+    GrMtlRenderTarget(
+            GrMtlGpu* gpu, SkBudgeted, const GrSurfaceDesc& desc, id<MTLTexture> renderTexture);
 
-    static sk_sp<GrMtlRenderTarget> Make(GrMtlGpu*,
-                                         SkBudgeted,
-                                         const GrSurfaceDesc&,
-                                         id<MTLTexture> renderTexture,
-                                         bool isWrapped);
+    static sk_sp<GrMtlRenderTarget>
+    Make(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture> renderTexture, bool isWrapped);
 
     bool completeStencilAttachment() override;
 };
 
-
 #endif
-

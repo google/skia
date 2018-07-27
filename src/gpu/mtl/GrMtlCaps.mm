@@ -105,11 +105,9 @@ void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
 }
 
 bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
-                              GrSurfaceOrigin dstOrigin,
-                              GrPixelConfig srcConfig, int srcSampleCount,
-                              GrSurfaceOrigin srcOrigin,
-                              const SkIRect& srcRect, const SkIPoint& dstPoint,
-                              bool areDstSrcSameObj) const {
+                              GrSurfaceOrigin dstOrigin, GrPixelConfig srcConfig,
+                              int srcSampleCount, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                              const SkIPoint& dstPoint, bool areDstSrcSameObj) const {
     if (dstConfig != srcConfig) {
         return false;
     }
@@ -120,8 +118,8 @@ bool GrMtlCaps::canCopyAsBlit(GrPixelConfig dstConfig, int dstSampleCount,
         return false;
     }
     if (areDstSrcSameObj) {
-        SkIRect dstRect = SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(),
-                                            srcRect.width(), srcRect.height());
+        SkIRect dstRect =
+                SkIRect::MakeXYWH(dstPoint.x(), dstPoint.y(), srcRect.width(), srcRect.height());
         if (dstRect.intersect(srcRect)) {
             return false;
         }
@@ -145,9 +143,8 @@ bool GrMtlCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* 
     SkASSERT((dstSampleCnt > 0) == SkToBool(dst->asRenderTargetProxy()));
     SkASSERT((srcSampleCnt > 0) == SkToBool(src->asRenderTargetProxy()));
 
-    return this->canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin,
-                               src->config(), srcSampleCnt, srcOrigin,
-                               srcRect, dstPoint, dst == src);
+    return this->canCopyAsBlit(dst->config(), dstSampleCnt, dstOrigin, src->config(), srcSampleCnt,
+                               srcOrigin, srcRect, dstPoint, dst == src);
 }
 
 void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
@@ -192,15 +189,15 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     // may be what we eventually need here, but it has no description.
     fSampleShadingSupport = false;
 
-    fSRGBSupport = true;   // always available in Metal
+    fSRGBSupport = true;  // always available in Metal
     fSRGBWriteControl = false;
-    fMipMapSupport = true;   // always available in Metal
+    fMipMapSupport = true;           // always available in Metal
     fNPOTTextureTileSupport = true;  // always available in Metal
     fDiscardRenderTargetSupport = true;
 
-    fReuseScratchTextures = true; // Assuming this okay
+    fReuseScratchTextures = true;  // Assuming this okay
 
-    fTextureBarrierSupport = false; // Need to figure out if we can do this
+    fTextureBarrierSupport = false;  // Need to figure out if we can do this
 
     fSampleLocationsSupport = false;
     fMultisampleDisableSupport = false;
@@ -212,10 +209,9 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fUsesMixedSamples = false;
     fGpuTracingSupport = false;
 
-    fFenceSyncSupport = true;   // always available in Metal
+    fFenceSyncSupport = true;  // always available in Metal
     fCrossContextTextureSupport = false;
 }
-
 
 int GrMtlCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     if (fConfigTable[config].fFlags & ConfigInfo::kMSAA_Flag) {
@@ -270,16 +266,16 @@ void GrMtlCaps::initShaderCaps() {
     shaderCaps->fGeometryShaderSupport = false;
 
     if ((this->isMac() && fVersion >= 2) ||
-        (this->isIOS() && ((1 == fFamilyGroup && 4 == fVersion) ||
-                           (2 == fFamilyGroup && 4 == fVersion) ||
-                           (3 == fFamilyGroup && 3 == fVersion)))) {
+        (this->isIOS() &&
+         ((1 == fFamilyGroup && 4 == fVersion) || (2 == fFamilyGroup && 4 == fVersion) ||
+          (3 == fFamilyGroup && 3 == fVersion)))) {
         shaderCaps->fDualSourceBlendingSupport = true;
     }
 
     if (this->isIOS()) {
         shaderCaps->fFBFetchSupport = true;
-        shaderCaps->fFBFetchNeedsCustomOutput = true; // ??
-        shaderCaps->fFBFetchColorName = ""; // Somehow add [[color(0)]] to arguments to frag shader
+        shaderCaps->fFBFetchNeedsCustomOutput = true;  // ??
+        shaderCaps->fFBFetchColorName = "";  // Somehow add [[color(0)]] to arguments to frag shader
     }
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 
@@ -294,8 +290,7 @@ void GrMtlCaps::initShaderCaps() {
     // Metal supports unsigned integers.
     shaderCaps->fUnsignedSupport = true;
 
-    shaderCaps->fMaxVertexSamplers =
-    shaderCaps->fMaxFragmentSamplers = 16;
+    shaderCaps->fMaxVertexSamplers = shaderCaps->fMaxFragmentSamplers = 16;
     // For now just cap at the per stage max. If we hit this limit we can come back to adjust this
     shaderCaps->fMaxCombinedSamplers = shaderCaps->fMaxVertexSamplers;
 }
@@ -372,9 +367,8 @@ GrBackendFormat GrMtlCaps::onCreateFormatFromBackendTexture(
         const GrBackendTexture& backendTex) const {
     GrMtlTextureInfo mtlInfo;
     SkAssertResult(backendTex.getMtlTextureInfo(&mtlInfo));
-    id<MTLTexture> mtlTexture = GrGetMTLTexture(mtlInfo.fTexture,
-                                                GrWrapOwnership::kBorrow_GrWrapOwnership);
+    id<MTLTexture> mtlTexture =
+            GrGetMTLTexture(mtlInfo.fTexture, GrWrapOwnership::kBorrow_GrWrapOwnership);
     return GrBackendFormat::MakeMtl(mtlTexture.pixelFormat);
 }
 #endif
-

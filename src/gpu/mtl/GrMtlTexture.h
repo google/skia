@@ -17,12 +17,10 @@ class GrMtlGpu;
 class GrMtlTexture : public GrTexture {
 public:
     static sk_sp<GrMtlTexture> CreateNewTexture(GrMtlGpu*, SkBudgeted budgeted,
-                                                const GrSurfaceDesc&,
-                                                MTLTextureDescriptor*,
+                                                const GrSurfaceDesc&, MTLTextureDescriptor*,
                                                 GrMipMapsStatus);
 
-    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&,
-                                                  id<MTLTexture>);
+    static sk_sp<GrMtlTexture> MakeWrappedTexture(GrMtlGpu*, const GrSurfaceDesc&, id<MTLTexture>);
 
     ~GrMtlTexture() override;
 
@@ -46,27 +44,22 @@ protected:
 
     GrMtlGpu* getMtlGpu() const;
 
-    void onAbandon() override {
-        fTexture = nil;
-    }
-    void onRelease() override {
-        fTexture = nil;
-    }
+    void onAbandon() override { fTexture = nil; }
+    void onRelease() override { fTexture = nil; }
 
-     bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
-         return false;
-     }
+    bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) override {
+        return false;
+    }
 
 private:
     enum Wrapped { kWrapped };
-    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>,
-                 GrMipMapsStatus);
+    GrMtlTexture(GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
 
     GrMtlTexture(GrMtlGpu*, Wrapped, const GrSurfaceDesc&, id<MTLTexture>, GrMipMapsStatus);
 
     id<MTLTexture> fTexture;
 
-    sk_sp<GrReleaseProcHelper>        fReleaseHelper;
+    sk_sp<GrReleaseProcHelper> fReleaseHelper;
 
     typedef GrTexture INHERITED;
 };

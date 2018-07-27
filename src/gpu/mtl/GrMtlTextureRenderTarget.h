@@ -11,13 +11,10 @@
 #include "GrMtlRenderTarget.h"
 #include "GrMtlTexture.h"
 
-class GrMtlTextureRenderTarget: public GrMtlTexture, public GrMtlRenderTarget {
+class GrMtlTextureRenderTarget : public GrMtlTexture, public GrMtlRenderTarget {
 public:
-    static sk_sp<GrMtlTextureRenderTarget> CreateNewTextureRenderTarget(GrMtlGpu*,
-                                                                        SkBudgeted,
-                                                                        const GrSurfaceDesc&,
-                                                                        MTLTextureDescriptor*,
-                                                                        GrMipMapsStatus);
+    static sk_sp<GrMtlTextureRenderTarget> CreateNewTextureRenderTarget(
+            GrMtlGpu*, SkBudgeted, const GrSurfaceDesc&, MTLTextureDescriptor*, GrMipMapsStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> MakeWrappedTextureRenderTarget(GrMtlGpu*,
                                                                           const GrSurfaceDesc&,
@@ -38,30 +35,37 @@ private:
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
                              const GrSurfaceDesc& desc,
-                             id<MTLTexture> renderTexture,
-                             id<MTLTexture> resolveTexture,
+                             id<MTLTexture>
+                                     renderTexture,
+                             id<MTLTexture>
+                                     resolveTexture,
                              GrMipMapsStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              SkBudgeted budgeted,
                              const GrSurfaceDesc& desc,
-                             id<MTLTexture> renderTexture,
+                             id<MTLTexture>
+                                     renderTexture,
                              GrMipMapsStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              const GrSurfaceDesc& desc,
-                             id<MTLTexture> renderTexture,
-                             id<MTLTexture> resolveTexture,
+                             id<MTLTexture>
+                                     renderTexture,
+                             id<MTLTexture>
+                                     resolveTexture,
                              GrMipMapsStatus);
 
     GrMtlTextureRenderTarget(GrMtlGpu* gpu,
                              const GrSurfaceDesc& desc,
-                             id<MTLTexture> renderTexture,
+                             id<MTLTexture>
+                                     renderTexture,
                              GrMipMapsStatus);
 
     static sk_sp<GrMtlTextureRenderTarget> Make(GrMtlGpu*,
                                                 const GrSurfaceDesc&,
-                                                id<MTLTexture> resolveTexture,
+                                                id<MTLTexture>
+                                                        resolveTexture,
                                                 GrMipMapsStatus,
                                                 SkBudgeted budgeted,
                                                 bool isWrapped);

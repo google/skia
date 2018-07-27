@@ -34,10 +34,7 @@ public:
 
     id<MTLCommandBuffer> commandBuffer() const { return fCmdBuffer; }
 
-    enum SyncQueue {
-        kForce_SyncQueue,
-        kSkip_SyncQueue
-    };
+    enum SyncQueue { kForce_SyncQueue, kSkip_SyncQueue };
 
 #ifdef GR_TEST_UTILS
     GrBackendTexture createTestingOnlyBackendTexture(const void* pixels, int w, int h,
@@ -56,20 +53,17 @@ public:
     void testingOnly_flushGpuAndSync() override;
 #endif
 
-    bool copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                           GrSurface* src, GrSurfaceOrigin srcOrigin,
-                           const SkIRect& srcRect, const SkIPoint& dstPoint);
+    bool copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                           GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
+                           const SkIPoint& dstPoint);
 
-    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
-                       GrSurface* src, GrSurfaceOrigin srcOrigin,
-                       const SkIRect& srcRect,
-                       const SkIPoint& dstPoint,
+    bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin, GrSurface* src,
+                       GrSurfaceOrigin srcOrigin, const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool canDiscardOutsideDstRect) override;
 
     GrGpuRTCommandBuffer* createCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin,
-                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+            GrRenderTarget*, GrSurfaceOrigin, const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
     GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
@@ -82,14 +76,16 @@ public:
     }
     sk_sp<GrSemaphore> wrapBackendSemaphore(const GrBackendSemaphore& semaphore,
                                             GrResourceProvider::SemaphoreWrapType wrapType,
-                                            GrWrapOwnership ownership) override { return nullptr; }
+                                            GrWrapOwnership ownership) override {
+        return nullptr;
+    }
     void insertSemaphore(sk_sp<GrSemaphore> semaphore, bool flush) override {}
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
 private:
-    GrMtlGpu(GrContext* context, const GrContextOptions& options,
-             id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
+    GrMtlGpu(GrContext* context, const GrContextOptions& options, id<MTLDevice> device,
+             id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
 
     void onResetContext(uint32_t resetBits) override {}
 
@@ -119,10 +115,8 @@ private:
     bool onWritePixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                        const GrMipLevel[], int mipLevelCount) override;
 
-    bool onTransferPixels(GrTexture*,
-                          int left, int top, int width, int height,
-                          GrColorType, GrBuffer*,
-                          size_t offset, size_t rowBytes) override {
+    bool onTransferPixels(GrTexture*, int left, int top, int width, int height, GrColorType,
+                          GrBuffer*, size_t offset, size_t rowBytes) override {
         return false;
     }
 
@@ -147,7 +141,7 @@ private:
         return nullptr;
     }
 
-    void clearStencil(GrRenderTarget* target, int clearValue) override  {}
+    void clearStencil(GrRenderTarget* target, int clearValue) override {}
 
 #if GR_TEST_UTILS
     bool createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int h, bool texturable,
@@ -166,4 +160,3 @@ private:
 };
 
 #endif
-

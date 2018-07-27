@@ -50,13 +50,13 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
 #else
             return false;
 #endif
-        case kAlpha_8_GrPixelConfig: // fall through
+        case kAlpha_8_GrPixelConfig:  // fall through
         case kAlpha_8_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR8Unorm;
             return true;
         case kAlpha_8_as_Alpha_GrPixelConfig:
             return false;
-        case kGray_8_GrPixelConfig: // fall through
+        case kGray_8_GrPixelConfig:  // fall through
         case kGray_8_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR8Unorm;
             return true;
@@ -71,7 +71,7 @@ bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format) {
         case kRGBA_half_GrPixelConfig:
             *format = MTLPixelFormatRGBA16Float;
             return true;
-        case kAlpha_half_GrPixelConfig: // fall through
+        case kAlpha_half_GrPixelConfig:  // fall through
         case kAlpha_half_as_Red_GrPixelConfig:
             *format = MTLPixelFormatR16Float;
             return true;
@@ -122,13 +122,9 @@ id<MTLTexture> GrGetMTLTexture(const void* mtlTexture, GrWrapOwnership wrapOwner
     }
 }
 
-const void* GrGetPtrFromId(id idObject) {
-    return (__bridge const void*)idObject;
-}
+const void* GrGetPtrFromId(id idObject) { return (__bridge const void*)idObject; }
 
-const void* GrReleaseId(id idObject) {
-    return (__bridge_retained const void*)idObject;
-}
+const void* GrReleaseId(id idObject) { return (__bridge_retained const void*)idObject; }
 
 MTLTextureDescriptor* GrGetMTLTextureDescriptor(id<MTLTexture> mtlTexture) {
     MTLTextureDescriptor* texDesc = [[MTLTextureDescriptor alloc] init];

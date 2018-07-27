@@ -34,9 +34,7 @@ public:
     bool surfaceSupportsWritePixels(const GrSurface*) const override { return true; }
     bool surfaceSupportsReadPixels(const GrSurface*) const override { return true; }
 
-    bool isConfigCopyable(GrPixelConfig config) const override {
-        return true;
-    }
+    bool isConfigCopyable(GrPixelConfig config) const override { return true; }
 
 #if 0
     /**
@@ -90,21 +88,18 @@ private:
 
         enum {
             kTextureable_Flag = 0x1,
-            kRenderable_Flag  = 0x2, // Color attachment and blendable
-            kMSAA_Flag        = 0x4,
-            kResolve_Flag     = 0x8,
+            kRenderable_Flag = 0x2,  // Color attachment and blendable
+            kMSAA_Flag = 0x4,
+            kResolve_Flag = 0x8,
         };
-        static const uint16_t kAllFlags = kTextureable_Flag | kRenderable_Flag |
-                                          kMSAA_Flag | kResolve_Flag;
+        static const uint16_t kAllFlags =
+                kTextureable_Flag | kRenderable_Flag | kMSAA_Flag | kResolve_Flag;
 
         uint16_t fFlags;
     };
     ConfigInfo fConfigTable[kGrPixelConfigCnt];
 
-    enum class Platform {
-        kMac,
-        kIOS
-    };
+    enum class Platform { kMac, kIOS };
     bool isMac() { return Platform::kMac == fPlatform; }
     bool isIOS() { return Platform::kIOS == fPlatform; }
 

@@ -12,15 +12,14 @@
 
 #include "GrTypesPriv.h"
 
-
 /**
  * Returns the Metal texture format for the given GrPixelConfig
  */
 bool GrPixelConfigToMTLFormat(GrPixelConfig config, MTLPixelFormat* format);
 
 /**
-* Returns the GrPixelConfig for the given Metal texture format
-*/
+ * Returns the GrPixelConfig for the given Metal texture format
+ */
 GrPixelConfig GrMTLFormatToPixelConfig(MTLPixelFormat format);
 
 /**

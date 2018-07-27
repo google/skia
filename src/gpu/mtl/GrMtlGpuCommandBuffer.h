@@ -16,9 +16,7 @@ class GrMtlRenderTarget;
 class GrMtlGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
     GrMtlGpuTextureCommandBuffer(GrMtlGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-            : INHERITED(texture, origin)
-            , fGpu(gpu) {
-    }
+            : INHERITED(texture, origin), fGpu(gpu) {}
 
     ~GrMtlGpuTextureCommandBuffer() override {}
 
@@ -84,12 +82,11 @@ private:
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {}
 
-    GrMtlGpu*                                     fGpu;
-    GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
+    GrMtlGpu* fGpu;
+    GrGpuRTCommandBuffer::LoadAndStoreInfo fColorLoadAndStoreInfo;
     GrGpuRTCommandBuffer::StencilLoadAndStoreInfo fStencilLoadAndStoreInfo;
 
     typedef GrGpuRTCommandBuffer INHERITED;
 };
 
 #endif
-

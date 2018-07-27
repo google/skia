@@ -18,4 +18,3 @@ sk_sp<GrGpu> GrMtlTrampoline::MakeGpu(GrContext* context,
                           (__bridge_transfer id<MTLDevice>)device,
                           (__bridge_transfer id<MTLCommandQueue>)queue);
 }
-

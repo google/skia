@@ -19,7 +19,8 @@ static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            const GrSurfaceDesc& desc,
-                           id<MTLTexture> texture,
+                           id<MTLTexture>
+                                   texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
@@ -32,7 +33,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            Wrapped,
                            const GrSurfaceDesc& desc,
-                           id<MTLTexture> texture,
+                           id<MTLTexture>
+                                   texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
@@ -44,7 +46,8 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
 
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            const GrSurfaceDesc& desc,
-                           id<MTLTexture> texture,
+                           id<MTLTexture>
+                                   texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
         , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
@@ -58,7 +61,7 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
                                                    MTLTextureDescriptor* texDesc,
                                                    GrMipMapsStatus mipMapsStatus) {
     if (desc.fSampleCnt > 1) {
-        SkASSERT(false); // Currently we don't support msaa
+        SkASSERT(false);  // Currently we don't support msaa
         return nullptr;
     }
     id<MTLTexture> texture = [gpu->device() newTextureWithDescriptor:texDesc];
@@ -67,23 +70,20 @@ sk_sp<GrMtlTexture> GrMtlTexture::CreateNewTexture(GrMtlGpu* gpu, SkBudgeted bud
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, budgeted, desc, texture, mipMapsStatus));
 }
 
-sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(GrMtlGpu* gpu,
-                                                     const GrSurfaceDesc& desc,
-                                                     id<MTLTexture> texture) {
+sk_sp<GrMtlTexture> GrMtlTexture::MakeWrappedTexture(
+        GrMtlGpu* gpu, const GrSurfaceDesc& desc, id<MTLTexture> texture) {
     if (desc.fSampleCnt > 1) {
-        SkASSERT(false); // Currently we don't support msaa
+        SkASSERT(false);  // Currently we don't support msaa
         return nullptr;
     }
     SkASSERT(nil != texture);
     SkASSERT(MTLTextureUsageShaderRead & texture.usage);
-    GrMipMapsStatus mipMapsStatus = texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid
-                                                                 : GrMipMapsStatus::kNotAllocated;
+    GrMipMapsStatus mipMapsStatus =
+            texture.mipmapLevelCount > 1 ? GrMipMapsStatus::kValid : GrMipMapsStatus::kNotAllocated;
     return sk_sp<GrMtlTexture>(new GrMtlTexture(gpu, kWrapped, desc, texture, mipMapsStatus));
 }
 
-GrMtlTexture::~GrMtlTexture() {
-    SkASSERT(nil == fTexture);
-}
+GrMtlTexture::~GrMtlTexture() { SkASSERT(nil == fTexture); }
 
 GrMtlGpu* GrMtlTexture::getMtlGpu() const {
     SkASSERT(!this->wasDestroyed());
@@ -91,10 +91,8 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
 }
 
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
-    GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes
-                                                          : GrMipMapped::kNo;
+    GrMipMapped mipMapped = fTexture.mipmapLevelCount > 1 ? GrMipMapped::kYes : GrMipMapped::kNo;
     GrMtlTextureInfo info;
     info.fTexture = GrGetPtrFromId(fTexture);
     return GrBackendTexture(this->width(), this->height(), mipMapped, info);
 }
-

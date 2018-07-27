@@ -10,10 +10,8 @@
 #include "GrMtlGpu.h"
 #include "GrMtlUtil.h"
 
-GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
-                                     SkBudgeted budgeted,
-                                     const GrSurfaceDesc& desc,
-                                     id<MTLTexture> renderTexture)
+GrMtlRenderTarget::GrMtlRenderTarget(
+        GrMtlGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc, id<MTLTexture> renderTexture)
         : GrSurface(gpu, desc)
         , GrRenderTarget(gpu, desc)
         , fRenderTexture(renderTexture)
@@ -22,9 +20,8 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
     this->registerWithCache(budgeted);
 }
 
-GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
-                                     const GrSurfaceDesc& desc,
-                                     id<MTLTexture> renderTexture)
+GrMtlRenderTarget::GrMtlRenderTarget(
+        GrMtlGpu* gpu, const GrSurfaceDesc& desc, id<MTLTexture> renderTexture)
         : GrSurface(gpu, desc)
         , GrRenderTarget(gpu, desc)
         , fRenderTexture(renderTexture)
@@ -32,21 +29,20 @@ GrMtlRenderTarget::GrMtlRenderTarget(GrMtlGpu* gpu,
     SkASSERT(1 == desc.fSampleCnt);
 }
 
-sk_sp<GrMtlRenderTarget>
-GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu, const GrSurfaceDesc& desc,
-                                           id<MTLTexture> renderTexture) {
+sk_sp<GrMtlRenderTarget> GrMtlRenderTarget::MakeWrappedRenderTarget(GrMtlGpu* gpu,
+                                                                    const GrSurfaceDesc& desc,
+                                                                    id<MTLTexture> renderTexture) {
     SkASSERT(nil != renderTexture);
     SkASSERT(1 == renderTexture.mipmapLevelCount);
     SkASSERT(MTLTextureUsageRenderTarget & renderTexture.usage);
-    return sk_sp<GrMtlRenderTarget>(new GrMtlRenderTarget(gpu, SkBudgeted::kNo,
-                                                          desc, renderTexture));
+    return sk_sp<GrMtlRenderTarget>(
+            new GrMtlRenderTarget(gpu, SkBudgeted::kNo, desc, renderTexture));
 }
 
 GrMtlRenderTarget::~GrMtlRenderTarget() {
     SkASSERT(nil == fRenderTexture);
     SkASSERT(nil == fResolveTexture);
 }
-
 
 GrBackendRenderTarget GrMtlRenderTarget::getBackendRenderTarget() const {
     GrMtlTextureInfo info;
@@ -73,4 +69,3 @@ bool GrMtlRenderTarget::completeStencilAttachment() {
     // TODO: fill this out
     return true;
 }
-
