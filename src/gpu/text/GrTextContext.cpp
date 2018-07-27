@@ -185,26 +185,25 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
     cacheBlob->initReusableBlob(paint.luminanceColor(), viewMatrix, origin.x(), origin.y());
 
     // Regenerate textblob
-    SkGlyphRunListIterator it(glyphRunList);
     GrTextUtils::RunPaint runPaint(&paint);
-    for (int run = 0; !it.done(); it.next(), run++) {
-        int glyphCount = it.glyphCount();
-        size_t textLen = glyphCount * sizeof(uint16_t);
-        cacheBlob->push_back_run(run);
-        if (!runPaint.modifyForRun([it](SkPaint* p) { it.applyFontToPaint(p); })) {
+    int runNum = 0;
+    for (const auto& glyphRun : glyphRunList) {
+        cacheBlob->push_back_run(runNum);
+
+        if (!runPaint.modifyForRun([glyphRun](SkPaint* p) { *p = glyphRun.paint(); })) {
             continue;
         }
-        cacheBlob->setRunPaintFlags(run, runPaint.skPaint().getFlags());
+        cacheBlob->setRunPaintFlags(runNum, runPaint.skPaint().getFlags());
 
         if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), fOptions)) {
-            this->drawDFGlyphRun(cacheBlob, run, glyphCache, props, runPaint,
-                                scalerContextFlags, viewMatrix, it.glyphRun(), origin);
+            this->drawDFGlyphRun(cacheBlob, runNum, glyphCache, props, runPaint,
+                                 scalerContextFlags, viewMatrix, glyphRun, origin);
         } else {
-            DrawBmpPosText(cacheBlob, run, glyphCache, props, runPaint, scalerContextFlags,
-                           viewMatrix, (const char*)it.glyphs(), textLen, it.pos(), 2,
-                           origin);
+            DrawBmpGlyphRun(cacheBlob, runNum, glyphCache, props, runPaint, scalerContextFlags,
+                            viewMatrix, glyphRun, origin);
         }
+        runNum += 1;
     }
 }
 
@@ -299,6 +298,42 @@ void GrTextContext::DrawBmpPosText(GrTextBlob* blob, int runIndex,
                                SkScalarFloorToScalar(position.fY),
                                paint.filteredPremulColor(), cache.get(), SK_Scalar1, false);
             });
+}
+
+void GrTextContext::DrawBmpGlyphRun(GrTextBlob* blob, int runIndex,
+                                    GrGlyphCache* glyphCache, const SkSurfaceProps& props,
+                                    const GrTextUtils::Paint& paint,
+                                    SkScalerContextFlags scalerContextFlags,
+                                    const SkMatrix& viewMatrix,
+                                    const SkGlyphRun& glyphRun, const SkPoint& offset) {
+
+    // Ensure the blob is set for bitmaptext
+    blob->setHasBitmap();
+
+    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)) {
+        DrawBmpPosTextAsPaths(
+                blob, runIndex, glyphCache, props, paint, scalerContextFlags, viewMatrix,
+                (const char*)glyphRun.shuntGlyphsIDs().data(),
+                glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
+                (const SkScalar*)glyphRun.positions().data(), 2, offset);
+        return;
+    }
+
+    sk_sp<GrTextStrike> currStrike;
+    auto cache = blob->setupCache(runIndex, props, scalerContextFlags, paint, &viewMatrix);
+    SkFindAndPlaceGlyph::ProcessPosText(
+            SkPaint::kGlyphID_TextEncoding,
+            (const char*)glyphRun.shuntGlyphsIDs().data(),
+            glyphRun.shuntGlyphsIDs().size() * sizeof(SkGlyphID),
+            offset, viewMatrix, (const SkScalar*)glyphRun.positions().data(), 2, cache.get(),
+            [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
+                position += rounding;
+                BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
+                               SkScalarFloorToScalar(position.fX),
+                               SkScalarFloorToScalar(position.fY),
+                               paint.filteredPremulColor(), cache.get(), SK_Scalar1, false);
+            }
+    );
 }
 
 void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
