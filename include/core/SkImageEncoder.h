@@ -11,7 +11,8 @@
 #include "SkBitmap.h"
 #include "SkData.h"
 #include "SkEncodedImageFormat.h"
-#include "SkStream.h"
+
+class SkWStream;
 
 /**
  * Encode SkPixmap in the given binary image format.

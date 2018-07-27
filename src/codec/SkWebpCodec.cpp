@@ -17,6 +17,7 @@
 #include "SkMakeUnique.h"
 #include "SkRasterPipeline.h"
 #include "SkSampler.h"
+#include "SkStream.h"
 #include "SkStreamPriv.h"
 #include "SkTemplates.h"
 #include "SkTo.h"
