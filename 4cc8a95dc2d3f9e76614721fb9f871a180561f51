@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "939a22a2_d9334f47",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/FingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-27T18:53:36Z",
+      "side": 1,
+      "message": "why not move these 2 lines inside the \"if\", then you can remove the else/return",
+      "range": {
+        "startLine": 250,
+        "startChar": 27,
+        "endLine": 250,
+        "endChar": 36
+      },
+      "revId": "4cc8a95dc2d3f9e76614721fb9f871a180561f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
