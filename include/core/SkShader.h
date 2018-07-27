@@ -59,7 +59,7 @@ public:
          */
         kDecal_TileMode,
 
-        kLast_TileMode = kDecal_TileMode
+        kLast_TileMode = kDecal_TileMode,
     };
 
     static constexpr int kTileModeCount = kLast_TileMode + 1;
@@ -139,7 +139,7 @@ public:
         kRadial_GradientType,
         kSweep_GradientType,
         kConical_GradientType,
-        kLast_GradientType = kConical_GradientType
+        kLast_GradientType = kConical_GradientType,
     };
 
     struct GradientInfo {
