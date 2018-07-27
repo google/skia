@@ -2285,6 +2285,15 @@ bool skcms_Transform(const void*             src,
         if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
     }
 
+    // Clamp here before premul to make sure we're clamping to fixed-point values _and_ gamut,
+    // not just to values that fit in the fixed point representation.
+    //
+    // E.g. r = 1.1, a = 0.5 would fit fine in fixed point after premul (ra=0.55,a=0.5),
+    // but would be carrying r > 1, which is really unexpected for downstream consumers.
+    // TODO(mtklein): add a unit test
+    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
+        *ops++ = Op_clamp;
+    }
     if (dstAlpha == skcms_AlphaFormat_Opaque) {
         *ops++ = Op_force_opaque;
     } else if (dstAlpha == skcms_AlphaFormat_PremulAsEncoded) {
@@ -2292,9 +2301,6 @@ bool skcms_Transform(const void*             src,
     }
     if (dstFmt & 1) {
         *ops++ = Op_swap_rb;
-    }
-    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
-        *ops++ = Op_clamp;
     }
     switch (dstFmt >> 1) {
         default: return false;
