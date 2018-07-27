@@ -19,16 +19,13 @@ package com.google.skar.examples.helloskar.app;
 import android.graphics.Color;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.util.Log;
 
-import com.google.skar.examples.helloskar.helpers.TapHelper;
+import com.google.skar.examples.helloskar.helpers.GestureHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.util.ArrayList;
 
 public class FingerPainting {
     public static class BuiltPath {
@@ -87,7 +84,7 @@ public class FingerPainting {
      * @param holdTap       ScrollEvent associated with the hit test that calls this function
      * @return              true if point was computed and added. False otherwise.
      */
-    public boolean computeNextPoint(float[] hitLocation, TapHelper.ScrollEvent holdTap) {
+    public boolean computeNextPoint(float[] hitLocation, GestureHelper.ScrollEvent holdTap) {
         if (isEmpty()) {
             // If finger painting is empty, then first point is origin. Model matrix
             // of the finger painting is the model matrix of the first point

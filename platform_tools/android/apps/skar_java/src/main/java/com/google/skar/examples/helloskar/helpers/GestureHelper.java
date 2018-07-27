@@ -25,32 +25,35 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Helper to detect taps using Android GestureDetector, and pass the taps between UI thread and
+ * Helper to detect gestures using Android GestureDetector, and pass the taps between UI thread and
  * render thread.
  */
-public final class TapHelper implements OnTouchListener {
+
+public final class GestureHelper implements OnTouchListener {
     private final GestureDetector gestureDetector;
     private final BlockingQueue<MotionEvent> queuedSingleTaps = new ArrayBlockingQueue<>(16);
     private final BlockingQueue<ScrollEvent> queuedFingerHold = new ArrayBlockingQueue<>(16);
     private boolean isScrolling = false;
     private boolean previousScroll = true;
 
+    // Struct holding a MotionEvent obtained from onScroll() callbacks, and a boolean evaluating to
+    // true if the MotionEven was the start of the scrolling motion
     public static class ScrollEvent {
-        public MotionEvent e;
+        public MotionEvent event;
         public boolean isStartOfScroll;
 
         public ScrollEvent(MotionEvent e, boolean isStartOfScroll) {
-            this.e = e;
+            this.event = e;
             this.isStartOfScroll = isStartOfScroll;
         }
     }
 
     /**
-     * Creates the tap helper.
+     * Creates the gesture helper.
      *
      * @param context the application's context.
      */
-    public TapHelper(Context context) {
+    public GestureHelper(Context context) {
         gestureDetector =
                 new GestureDetector(
                         context,
@@ -63,13 +66,15 @@ public final class TapHelper implements OnTouchListener {
                             }
 
                             @Override
-                            public boolean onScroll (MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                            public boolean onScroll (MotionEvent e1, MotionEvent e2,
+                                                     float distanceX, float distanceY) {
                                 // Queue motion events when scrolling
                                 if (e2.getPointerCount() == 1 && e1.getPointerCount() == 1) {
                                     previousScroll = isScrolling;
                                     isScrolling = true;
 
-                                    queuedFingerHold.offer(new ScrollEvent(e2, isStartedScrolling()));
+                                    queuedFingerHold.offer(new ScrollEvent(e2,
+                                                                           isStartedScrolling()));
 
                                     return true;
                                 }
@@ -93,13 +98,18 @@ public final class TapHelper implements OnTouchListener {
         return queuedSingleTaps.poll();
     }
 
+    /**
+     * Polls for a scrolling motion.
+     *
+     * @return if a scrolling event was queued, a ScrollEvent for the gesture. Otherwise null
+     */
     public ScrollEvent holdPoll() { return queuedFingerHold.poll(); }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
         boolean val = gestureDetector.onTouchEvent(motionEvent);
 
-        // If finger is up + is scrolling: don't scroll anymore, and empty Touch Hold queue
+        // If finger is up + is scrolling: don't scroll anymore, and empty touch hold queue
         if (motionEvent.getAction() == MotionEvent.ACTION_UP && isScrolling) {
             previousScroll = true;
             isScrolling = false;

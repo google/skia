@@ -57,8 +57,8 @@ import com.google.ar.core.examples.java.helloskar.R;
 import com.google.skar.examples.helloskar.helpers.CameraPermissionHelper;
 import com.google.skar.examples.helloskar.helpers.DisplayRotationHelper;
 import com.google.skar.examples.helloskar.helpers.FullScreenHelper;
+import com.google.skar.examples.helloskar.helpers.GestureHelper;
 import com.google.skar.examples.helloskar.helpers.SnackbarHelper;
-import com.google.skar.examples.helloskar.helpers.TapHelper;
 
 import com.google.skar.examples.helloskar.rendering.BackgroundRenderer;
 import com.google.skar.examples.helloskar.rendering.DrawManager;
@@ -105,7 +105,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
     private boolean installRequested;
     private final SnackbarHelper messageSnackbarHelper = new SnackbarHelper();
     private DisplayRotationHelper displayRotationHelper;
-    private TapHelper tapHelper;
+    private GestureHelper tapHelper;
 
     // Temporary matrix allocated here to reduce number of allocations for each frame.
     private final float[] anchorMatrix = new float[16];
@@ -138,7 +138,7 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
         holder = arSurfaceView.getHolder();
 
         // Set up tap listener.
-        tapHelper = new TapHelper(this);
+        tapHelper = new GestureHelper(this);
         glSurfaceView.setOnTouchListener(tapHelper);
 
         // Set up renderer.
@@ -439,9 +439,9 @@ public class HelloCanvasAR extends AppCompatActivity implements GLSurfaceView.Re
      */
     private void handleHoldTaps(Frame frame, Camera camera) {
         // Building finger painting
-        TapHelper.ScrollEvent holdTap = tapHelper.holdPoll();
+        GestureHelper.ScrollEvent holdTap = tapHelper.holdPoll();
         if (holdTap != null && camera.getTrackingState() == TrackingState.TRACKING) {
-            for (HitResult hit : frame.hitTest(holdTap.e)) {
+            for (HitResult hit : frame.hitTest(holdTap.event)) {
                 // Check if any plane was hit, and if it was hit inside the plane polygon
                 Trackable trackable = hit.getTrackable();
                 // Creates an anchor if a plane or an oriented point was hit.

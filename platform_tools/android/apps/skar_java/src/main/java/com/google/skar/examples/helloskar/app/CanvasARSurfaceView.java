@@ -57,6 +57,5 @@ public class CanvasARSurfaceView extends SurfaceView implements SurfaceHolder.Ca
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-    }
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {}
 }
