@@ -112,6 +112,9 @@ void basic_transfer_test(skiatest::Reporter* reporter, GrContext* context, GrCol
         }
 
         sk_sp<GrTexture> tex = resourceProvider->createTexture(desc, SkBudgeted::kNo);
+        if (!tex) {
+            continue;
+        }
 
         //////////////////////////
         // transfer full data
