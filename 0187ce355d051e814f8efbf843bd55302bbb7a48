@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b01dc53_7f26aad4",
+        "filename": "src/gpu/mtl/GrMtlCopyManager.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T13:38:13Z",
+      "side": 1,
+      "message": "So the expectation is that you will only ever have 1 GrMtlCopyManager. So wouldn\u0027t this have multiple MTLRenderPipelineStates for each format? What advantage is there to storing this here. Like if we do two copies in a row with different formats we\u0027ll override this immediately.",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 34,
+        "endChar": 57
+      },
+      "revId": "0187ce355d051e814f8efbf843bd55302bbb7a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d4dbdee_6cc39ca1",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T13:38:13Z",
+      "side": 1,
+      "message": "capital A",
+      "range": {
+        "startLine": 11,
+        "startChar": 13,
+        "endLine": 11,
+        "endChar": 14
+      },
+      "revId": "0187ce355d051e814f8efbf843bd55302bbb7a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8c61ddf_b1015f4d",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T13:38:13Z",
+      "side": 1,
+      "message": "I don\u0027t think we should prefix these with Mtl since when we use them it later it looks like they are actual metal objects.\n\nPart of me wonders if it makes sense to factor this out into its own class as well. That way the resource provider doesn\u0027t need to know any of the details of what a copy pipeline state actually is. All it knows is it has a cache of them that it can search through to find a compatible one, otherwise it calls the function to create one without needed to know how to.",
+      "range": {
+        "startLine": 24,
+        "startChar": 11,
+        "endLine": 24,
+        "endChar": 35
+      },
+      "revId": "0187ce355d051e814f8efbf843bd55302bbb7a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8961e8fa_5df9693c",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T13:38:13Z",
+      "side": 1,
+      "message": "This, as also mentioned in the mm file seems to be something that should be owned by the copymanager.",
+      "range": {
+        "startLine": 29,
+        "startChar": 1,
+        "endLine": 33,
+        "endChar": 6
+      },
+      "revId": "0187ce355d051e814f8efbf843bd55302bbb7a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4c0fbd14_79b83c6d",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 14
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T13:38:13Z",
+      "side": 1,
+      "message": "This looks like very copy specific stuff and should probably go in the copy manager class",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 0
+      },
+      "revId": "0187ce355d051e814f8efbf843bd55302bbb7a48",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
