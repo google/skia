@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "089913f0_3bef331b",
+        "filename": "gn/gpu.gni",
+        "patchSetId": 17
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T20:28:59Z",
+      "side": 1,
+      "message": "Looks like we we\u0027re not consistent before, but alphabetically I think the .h should be before the .mm. Maybe fix the other ones to match that order :)",
+      "range": {
+        "startLine": 643,
+        "startChar": 0,
+        "endLine": 646,
+        "endChar": 30
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d2bc687_5fd0b274",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T20:28:59Z",
+      "side": 1,
+      "message": "Looks like the only thing we use dstTex for is the pixelFormat, so lets just pass the pixelFormat in instead.",
+      "range": {
+        "startLine": 18,
+        "startChar": 7,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c7ff8c9_f48defad",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T20:28:59Z",
+      "side": 1,
+      "message": "This check is very simply, but I feel like we should move this check into the GrMtlCopyPipelineState. The resource provider doesn\u0027t need to know the logic about what allows us to use a pipline state or not. So if we have something like GrMtlCopyPipelineState::isCompatible(MtlPixelFormat) it abstracts that knowledge to the actual class.",
+      "range": {
+        "startLine": 22,
+        "startChar": 12,
+        "endLine": 22,
+        "endChar": 60
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b940c67e_6be62321",
+        "filename": "src/gpu/mtl/GrMtlResourceProvider.mm",
+        "patchSetId": 17
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-07-27T20:28:59Z",
+      "side": 1,
+      "message": "Again this is all details about how to make a copy pipeline state that should live with the class. So lets have a Make factory on on GrMtlCopyPipelineState that does all this, and the move the ctor in that class to private.",
+      "range": {
+        "startLine": 28,
+        "startChar": 3,
+        "endLine": 46,
+        "endChar": 100
+      },
+      "revId": "1100691f307e6877ee21897075e9e9bc692cdda0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
