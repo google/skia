@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37c781e3_4e1bba8e",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-07-27T16:31:06Z",
+      "side": 1,
+      "message": "Should this be a test failure?",
+      "revId": "1e102aacb63bd6d0d95462784b54e554dd293bbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
