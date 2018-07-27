@@ -41,7 +41,7 @@
     </style>
 
     <style name="BottomNavigation" parent="Widget.Design.BottomNavigationView">
-        <item name="itemBackground">@android:color/darker_gray</item>
+        <item name="itemBackground">@android:color/white</item>
     </style>
 
 </resources>
