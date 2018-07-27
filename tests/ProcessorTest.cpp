@@ -475,12 +475,12 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
         static constexpr int kTimesToInvokeFactory = 10;
         for (int j = 0; j < kTimesToInvokeFactory; ++j) {
             auto fp = GrFragmentProcessorTestFactory::MakeIdx(i, &testData);
+            const char* name = fp->name();
             auto clone = fp->clone();
             if (!clone) {
                 ERRORF(reporter, "Clone of processor %s failed.", fp->name());
                 continue;
             }
-            const char* name = fp->name();
             if (!fp->instantiate(resourceProvider) || !clone->instantiate(resourceProvider)) {
                 continue;
             }
@@ -509,6 +509,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorCloneTest, reporter, ctxInfo) {
                 for (int x = 0; x < kRenderSize && passing; ++x) {
                     int idx = y * kRenderSize + x;
                     if (readData1[idx] != readData2[idx]) {
+                        fp->dumpInfo();
                         ERRORF(reporter,
                                "Processor %s made clone produced different output. "
                                "Input color: 0x%08x, Original Output Color: 0x%08x, "
