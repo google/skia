@@ -435,8 +435,12 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
 			d["image"] = "windows-server-2016-dc-v20180710"
 		}
-		if d["os"] == DEFAULT_OS_MAC && (parts["model"] == "MacBook10.1" || parts["model"] == "MacBookAir7.2") {
-			// TODO(dogben): Get all Mac bots on the same version.
+		// TODO(dogben): Most Mac bots are on 10.13.6. Mac builders are stuck on
+		// 10.13.3 for now because of unresolved issues with building iOS and
+		// MoltenVK. MacMini7.1 are stuck on 10.13.3 because they run *SAN, which
+		// (currently) needs to have an XCode installed that matches the XCode of
+		// the builder.
+		if d["os"] == DEFAULT_OS_MAC && !(parts["model"] == "MacMini7.1" || parts["role"] == "Build") {
 			d["os"] = "Mac-10.13.6"
 		}
 	} else {
