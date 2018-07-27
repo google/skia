@@ -18,6 +18,17 @@
 #include "GrTextureProxy.h"
 #include "GrUninstantiateProxyTracker.h"
 
+#if GR_TRACK_INTERVAL_CREATION
+uint32_t GrResourceAllocator::Interval::CreateUniqueID() {
+    static int32_t gUniqueID = SK_InvalidUniqueID;
+    uint32_t id;
+    do {
+        id = static_cast<uint32_t>(sk_atomic_inc(&gUniqueID) + 1);
+    } while (id == SK_InvalidUniqueID);
+    return id;
+}
+#endif
+
 void GrResourceAllocator::Interval::assign(sk_sp<GrSurface> s) {
     SkASSERT(!fAssignedSurface);
     fAssignedSurface = s;
