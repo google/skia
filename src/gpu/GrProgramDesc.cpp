@@ -34,10 +34,6 @@ static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type )
         case kTexture2DRectSampler_GrSLType:
             value = 2;
             break;
-        case kBufferSampler_GrSLType:
-            value = 3;
-            break;
-
         default:
             break;
     }
