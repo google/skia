@@ -425,6 +425,7 @@
   "Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-OpenCL",
   "Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Debug-All-Vulkan",
   "Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All",
+  "Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-TSAN",
   "Test-Debian9-Clang-NUC7i5BNK-GPU-IntelIris640-x86_64-Release-All-Vulkan",
   "Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Debug-All",
   "Test-Debian9-Clang-NUCDE3815TYKHE-GPU-IntelBayTrail-x86_64-Release-All",
