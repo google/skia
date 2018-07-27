@@ -8,10 +8,11 @@
 #ifndef GrTextContext_DEFINED
 #define GrTextContext_DEFINED
 
-#include "GrTextBlob.h"
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
+#include "GrTextBlob.h"
 #include "GrTextUtils.h"
+#include "SkGlyphRun.h"
 
 #if GR_TEST_UTILS
 #include "GrDrawOpTest.h"
@@ -176,6 +177,11 @@ private:
                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
                                const char text[], size_t byteLength, const SkScalar pos[],
                                int scalarsPerPosition, const SkPoint& offset);
+
+    static void DrawBmpGlyphRun(GrTextBlob*, int runIndex, GrGlyphCache*,
+                                const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
+                                const SkGlyphRun& glyphRun, const SkPoint& offset);
 
     static void DrawBmpPosTextAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
                                       const SkSurfaceProps&, const GrTextUtils::Paint& paint,
