@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ecd302f5_f723abfd",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-27T13:48:54Z",
+      "side": 1,
+      "message": "That was an arbitrary number set by the sample ARCore demo. It\u0027s just setting a limit to the number of things to draw on tap (circles, text, ...)",
+      "parentUuid": "9ddc16aa_5dbd373f",
+      "range": {
+        "startLine": 422,
+        "startChar": 44,
+        "endLine": 422,
+        "endChar": 45
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d4afaa46_e54a47ea",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "a78b022b_b8f65683",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/HelloCanvasAR.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-27T13:48:54Z",
+      "side": 1,
+      "message": "That is a call to ARCore. Is it possible for me to override/extend functionalities of their API?",
+      "parentUuid": "d4afaa46_e54a47ea",
+      "range": {
+        "startLine": 458,
+        "startChar": 37,
+        "endLine": 458,
+        "endChar": 45
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e90f1438_e7275223",
         "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/SkARFingerPainting.java",
         "patchSetId": 3
@@ -68,6 +116,30 @@
       "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f07ec364_bfa0cf30",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/app/SkARFingerPainting.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 8180
+      },
+      "writtenOn": "2018-07-27T13:48:54Z",
+      "side": 1,
+      "message": "Will do! Most likely this will be my next refactor.",
+      "parentUuid": "e90f1438_e7275223",
+      "range": {
+        "startLine": 112,
+        "startChar": 12,
+        "endLine": 112,
+        "endChar": 22
+      },
+      "revId": "36cdc56da244a502b96a3c8374410726b3ce61a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
