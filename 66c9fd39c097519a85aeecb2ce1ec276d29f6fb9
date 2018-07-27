@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "42e09c36_7cab009f",
+        "filename": "src/gpu/text/GrTextContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-27T19:45:23Z",
+      "side": 1,
+      "message": "nit: I think the comment above was supposed to cover both (now 3) functions.",
+      "range": {
+        "startLine": 181,
+        "startChar": 4,
+        "endLine": 181,
+        "endChar": 53
+      },
+      "revId": "66c9fd39c097519a85aeecb2ce1ec276d29f6fb9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
