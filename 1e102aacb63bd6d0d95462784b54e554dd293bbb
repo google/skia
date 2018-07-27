@@ -16,6 +16,24 @@
       "revId": "1e102aacb63bd6d0d95462784b54e554dd293bbb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6061a944_1ff04a0a",
+        "filename": "tests/TransferPixelsTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-27T17:04:26Z",
+      "side": 1,
+      "message": "In the normal course of events it should never fail allocation (we\u0027ve already determined that it is either renderable or textureable and it is only ever a 16x16 texture). We believe it is only failing for TSAN because some thread in the driver is getting paused. So, I don\u0027t think it would be interesting to report the error.",
+      "parentUuid": "37c781e3_4e1bba8e",
+      "revId": "1e102aacb63bd6d0d95462784b54e554dd293bbb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
