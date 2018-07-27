@@ -1,5 +1,5 @@
 <!--
-   Copyright 2016 Google Inc.
+   Copyright 2018 Google LLC
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
+
 <resources>
 
     <!--
@@ -41,8 +42,6 @@
 
     <style name="BottomNavigation" parent="Widget.Design.BottomNavigationView">
         <item name="itemBackground">@android:color/darker_gray</item>
-<!--        <item name="paddingStart">10dp</item>
-        <item name="paddingEnd">10dp</item>-->
     </style>
 
 </resources>
