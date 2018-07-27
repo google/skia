@@ -43,7 +43,7 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlob.h"
 #include "SkTextFormatParams.h"
 #include "SkTo.h"
 #include "SkUtils.h"

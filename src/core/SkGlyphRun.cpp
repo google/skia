@@ -24,7 +24,7 @@
 #include "SkRasterClip.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlobPriv.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 
@@ -503,14 +503,14 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
 
         size_t uniqueGlyphIDsSize = 0;
         switch (it.positioning()) {
-            case SkTextBlob::kDefault_Positioning: {
+            case SkTextBlobRunIterator::kDefault_Positioning: {
                 uniqueGlyphIDsSize = this->simplifyDrawText(
                         runPaint, glyphIDs, offset,
                         currentDenseIndices, currentUniqueGlyphIDs, currentPositions,
                         text, clusters);
             }
                 break;
-            case SkTextBlob::kHorizontal_Positioning: {
+            case SkTextBlobRunIterator::kHorizontal_Positioning: {
                 auto constY = offset.y();
                 uniqueGlyphIDsSize = this->simplifyDrawPosTextH(
                         runPaint, glyphIDs, it.pos(), constY,
@@ -518,14 +518,12 @@ void SkGlyphRunBuilder::drawTextBlob(const SkPaint& paint, const SkTextBlob& blo
                         text, clusters);
             }
                 break;
-            case SkTextBlob::kFull_Positioning:
+            case SkTextBlobRunIterator::kFull_Positioning:
                 uniqueGlyphIDsSize = this->simplifyDrawPosText(
                         runPaint, glyphIDs, (const SkPoint*)it.pos(),
                         currentDenseIndices, currentUniqueGlyphIDs, currentPositions,
                         text, clusters);
                 break;
-            default:
-                SK_ABORT("unhandled positioning mode");
         }
 
         currentDenseIndices += runSize;

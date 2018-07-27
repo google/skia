@@ -19,7 +19,7 @@
 #include "SkPoint.h"
 #include "SkSurfaceProps.h"
 #include "SkTemplates.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkTypes.h"
 
 class SkBaseDevice;
@@ -203,7 +203,9 @@ public:
     const SkScalar* pos() const { return (const SkScalar*)fList[fIndex].positions().data(); }
     const SkPoint& offset() const { return fZero; }
     void applyFontToPaint(SkPaint* paint) const { *paint = fList[fIndex].paint(); }
-    SkTextBlob::GlyphPositioning positioning() const { return SkTextBlob::kFull_Positioning; }
+    SkTextBlobRunIterator::GlyphPositioning positioning() const {
+        return SkTextBlobRunIterator::kFull_Positioning;
+    }
     const uint32_t* clusters() const { return fList[fIndex].clusters().data(); }
     uint32_t textSize() const { return fList[fIndex].text().size(); }
     const char* text() const { return fList[fIndex].text().data(); }

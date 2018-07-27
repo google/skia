@@ -19,7 +19,7 @@
 #include "SkRSXform.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlobPriv.h"
 #include "SkTo.h"
 
 namespace {
@@ -154,19 +154,16 @@ void SkOverdrawCanvas::onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScal
         const SkPoint& offset = it.offset();
         it.applyFontToPaint(&runPaint);
         switch (it.positioning()) {
-            case SkTextBlob::kDefault_Positioning:
+            case SkTextBlobRunIterator::kDefault_Positioning:
                 this->onDrawText(it.glyphs(), textLen, x + offset.x(), y + offset.y(), runPaint);
                 break;
-            case SkTextBlob::kHorizontal_Positioning:
+            case SkTextBlobRunIterator::kHorizontal_Positioning:
                 this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 1,
                                         SkPoint::Make(x, y + offset.y()), runPaint);
                 break;
-            case SkTextBlob::kFull_Positioning:
+            case SkTextBlobRunIterator::kFull_Positioning:
                 this->drawPosTextCommon(it.glyphs(), textLen, it.pos(), 2, SkPoint::Make(x, y),
                                         runPaint);
-                break;
-            default:
-                SkASSERT(false);
                 break;
         }
     }

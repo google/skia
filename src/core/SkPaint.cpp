@@ -33,7 +33,7 @@
 #include "SkSurfacePriv.h"
 #include "SkTLazy.h"
 #include "SkTextBlob.h"
-#include "SkTextBlobRunIterator.h"
+#include "SkTextBlobPriv.h"
 #include "SkTextFormatParams.h"
 #include "SkTextToPathIter.h"
 #include "SkTo.h"
@@ -1095,15 +1095,15 @@ int SkPaint::getTextBlobIntercepts(const SkTextBlob* blob, const SkScalar bounds
         SkScalar* runIntervals = intervals ? intervals + count : nullptr;
 
         switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
+        case SkTextBlobRunIterator::kDefault_Positioning:
             count += runPaint.getTextIntercepts(it.glyphs(), runByteCount, it.offset().x(),
                                                 it.offset().y(), bounds, runIntervals);
             break;
-        case SkTextBlob::kHorizontal_Positioning:
+        case SkTextBlobRunIterator::kHorizontal_Positioning:
             count += runPaint.getPosTextHIntercepts(it.glyphs(), runByteCount, it.pos(),
                                                     it.offset().y(), bounds, runIntervals);
             break;
-        case SkTextBlob::kFull_Positioning:
+        case SkTextBlobRunIterator::kFull_Positioning:
             count += runPaint.getPosTextIntercepts(it.glyphs(), runByteCount,
                                                    reinterpret_cast<const SkPoint*>(it.pos()),
                                                    bounds, runIntervals);

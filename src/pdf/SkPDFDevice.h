@@ -19,7 +19,7 @@
 #include "SkSinglyLinkedList.h"
 #include "SkStream.h"
 #include "SkTDArray.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkKeyedImage.h"
 
 class SkGlyphRunList;
@@ -240,7 +240,6 @@ private:
     int addXObjectResource(SkPDFObject* xObject);
 
     int getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID);
-
 
     void internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offset);
 
