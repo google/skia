@@ -120,6 +120,9 @@ private:
         sk_sp<GrBuffer> vertexBuffer(flushState->resourceProvider()->createBuffer(
                 sizeof(vertices), kVertex_GrBufferType, kStatic_GrAccessPattern,
                 GrResourceProvider::kNone_Flag, vertices));
+        if (!vertexBuffer) {
+            return;
+        }
         GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
                             SkBlendMode::kPlus);
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
@@ -155,7 +158,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
 
     // Draw the test to an off-screen, top-down render target.
     if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kExact, 100, 200, rtc->accessRenderTarget()->config(),
+                    SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
                     nullptr, 1, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin, nullptr,
                     SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
@@ -170,7 +173,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
 
     // Draw the test to an off-screen, bottom-up render target.
     if (auto topLeftRTC = ctx->contextPriv().makeDeferredRenderTargetContext(
-                    SkBackingFit::kExact, 100, 200, rtc->accessRenderTarget()->config(),
+                    SkBackingFit::kExact, 100, 200, rtc->asSurfaceProxy()->config(),
                     nullptr, 1, GrMipMapped::kNo, kBottomLeft_GrSurfaceOrigin, nullptr,
                     SkBudgeted::kYes)) {
         topLeftRTC->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
