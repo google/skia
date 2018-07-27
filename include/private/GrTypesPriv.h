@@ -328,7 +328,6 @@ enum GrSLType {
     kTexture2DSampler_GrSLType,
     kTextureExternalSampler_GrSLType,
     kTexture2DRectSampler_GrSLType,
-    kBufferSampler_GrSLType,
     kTexture2D_GrSLType,
     kSampler_GrSLType,
 };
@@ -395,7 +394,6 @@ static inline bool GrSLTypeIsFloatType(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
         case kBool_GrSLType:
         case kByte_GrSLType:
         case kByte2_GrSLType:
@@ -479,7 +477,6 @@ static inline int GrSLTypeVecLength(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
             return -1;
@@ -516,7 +513,6 @@ static inline bool GrSLTypeIs2DCombinedSamplerType(GrSLType type) {
         case kInt4_GrSLType:
         case kUint_GrSLType:
         case kUint2_GrSLType:
-        case kBufferSampler_GrSLType:
         case kBool_GrSLType:
         case kByte_GrSLType:
         case kByte2_GrSLType:
@@ -547,7 +543,6 @@ static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
             return true;
 
         case kVoid_GrSLType:
@@ -601,7 +596,6 @@ static inline bool GrSLTypeAcceptsPrecision(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
             return true;
@@ -679,7 +673,6 @@ static inline bool GrSLTypeTemporarilyAcceptsPrecision(GrSLType type) {
         case kTexture2DSampler_GrSLType:
         case kTextureExternalSampler_GrSLType:
         case kTexture2DRectSampler_GrSLType:
-        case kBufferSampler_GrSLType:
         case kTexture2D_GrSLType:
         case kSampler_GrSLType:
             return true;

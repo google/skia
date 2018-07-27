@@ -54,8 +54,6 @@ const char* GrGLSLTypeString(const GrShaderCaps* shaderCaps, GrSLType t) {
             return "samplerExternalOES";
         case kTexture2DRectSampler_GrSLType:
             return "sampler2DRect";
-        case kBufferSampler_GrSLType:
-            return "samplerBuffer";
         case kBool_GrSLType:
             return "bool";
         case kInt_GrSLType:
