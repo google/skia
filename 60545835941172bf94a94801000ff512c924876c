@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2f29346a_5efd43af",
+        "filename": "platform_tools/android/apps/skar_java/src/main/java/com/google/skar/examples/helloskar/rendering/DrawManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-07-27T17:14:09Z",
+      "side": 1,
+      "message": "is this needed, if you\u0027re passing the identity matrix?",
+      "range": {
+        "startLine": 85,
+        "startChar": 20,
+        "endLine": 85,
+        "endChar": 34
+      },
+      "revId": "60545835941172bf94a94801000ff512c924876c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
