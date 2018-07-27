@@ -14,6 +14,7 @@
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextFont.h"
 #include "SkAtlasTextRenderer.h"
+#include "SkGlyphRun.h"
 #include "SkGr.h"
 #include "SkInternalAtlasTextContext.h"
 #include "ops/GrAtlasTextOp.h"
@@ -152,10 +153,13 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
     auto* grContext = this->context()->internal().grContext();
     auto bounds = SkIRect::MakeWH(fWidth, fHeight);
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
-    size_t byteLength = sizeof(SkGlyphID) * glyphCnt;
-    const SkScalar* pos = &positions->fX;
-    atlasTextContext->drawPosText(grContext, this, GrNoClip(), paint, this->ctm(), props,
-                                  (const char*)glyphs, byteLength, pos, 2, {0, 0}, bounds);
+    SkGlyphRunBuilder builder;
+    builder.drawGlyphPos(paint, SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)}, positions);
+    auto glyphRunList = builder.useGlyphRunList();
+    if (!glyphRunList.empty()) {
+        atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(), props,
+                                           glyphRunList, bounds);
+    }
 }
 
 void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) {

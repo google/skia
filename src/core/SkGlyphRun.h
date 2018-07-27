@@ -240,6 +240,8 @@ public:
     void drawPosText(
             const SkPaint& paint, const void* bytes, size_t byteLength, const SkPoint* pos);
     void drawTextBlob(const SkPaint& paint, const SkTextBlob& blob, SkPoint origin);
+    void drawGlyphPos(
+            const SkPaint& paint, SkSpan<const SkGlyphID> glyphIDs, const SkPoint* pos);
 
     const SkGlyphRunList& useGlyphRunList();
 
