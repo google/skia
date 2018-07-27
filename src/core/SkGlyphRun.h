@@ -209,6 +209,7 @@ public:
     const uint32_t* clusters() const { return fList[fIndex].clusters().data(); }
     uint32_t textSize() const { return fList[fIndex].text().size(); }
     const char* text() const { return fList[fIndex].text().data(); }
+    const SkGlyphRun& glyphRun() const { return fList[fIndex]; }
 
     bool isLCD() const { return fList[fIndex].paint().isLCDRenderText(); }
 

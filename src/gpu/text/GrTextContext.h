@@ -107,6 +107,41 @@ public:
         bool fUseTransformedFallback;
     };
 
+    class FallbackGlyphRunHelper {
+    public:
+        FallbackGlyphRunHelper(const SkMatrix& viewMatrix,
+                           const SkPaint& pathPaint,
+                           SkScalar maxTextSize,
+                           SkScalar textRatio)
+                : fViewMatrix(viewMatrix)
+                , fTextSize(pathPaint.getTextSize())
+                , fMaxTextSize(maxTextSize)
+                , fTextRatio(textRatio)
+                , fTransformedFallbackTextSize(fMaxTextSize)
+                , fUseTransformedFallback(false) {
+            fMaxScale = viewMatrix.getMaxScale();
+        }
+
+        void appendText(const SkGlyph& glyph, SkGlyphID, SkPoint glyphPos);
+        void drawText(GrTextBlob* blob, int runIndex, GrGlyphCache*, const SkSurfaceProps&,
+                      const GrTextUtils::Paint&, SkScalerContextFlags);
+
+        void initializeForDraw(SkPaint* paint, SkScalar* textRatio, SkMatrix* matrix) const;
+        const std::vector<SkGlyphID>& fallbackText() const { return fFallbackTxt; }
+
+    private:
+        std::vector<SkGlyphID> fFallbackTxt;
+        std::vector<SkPoint> fFallbackPos;
+
+        const SkMatrix& fViewMatrix;
+        SkScalar fTextSize;
+        SkScalar fMaxTextSize;
+        SkScalar fTextRatio;
+        SkScalar fTransformedFallbackTextSize;
+        SkScalar fMaxScale;
+        bool fUseTransformedFallback;
+    };
+
 private:
     GrTextContext(const Options& options);
 
@@ -156,6 +191,12 @@ private:
                        SkScalerContextFlags scalerContextFlags,
                        const SkMatrix& viewMatrix, const char text[],
                        size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
+                       const SkPoint& offset) const;
+
+    void drawDFGlyphRun(GrTextBlob* blob, int runIndex, GrGlyphCache*,
+                       const SkSurfaceProps&, const GrTextUtils::Paint& paint,
+                       SkScalerContextFlags scalerContextFlags,
+                       const SkMatrix& viewMatrix, const SkGlyphRun& glyphRun,
                        const SkPoint& offset) const;
 
     static void BmpAppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
