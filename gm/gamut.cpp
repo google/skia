@@ -236,3 +236,24 @@ DEF_SIMPLE_GM_BG(gamut, canvas, gTestWidth, gTestHeight, SK_ColorBLACK) {
 
     draw_gamut_grid(canvas, renderers);
 }
+
+DEF_SIMPLE_GM_BG(f16_makeTextureImage, canvas, 100, 50, SK_ColorBLACK) {
+    SkBitmap bmp;
+    bmp.allocPixels(SkImageInfo::Make(50, 50, kRGBA_F16_SkColorType, kPremul_SkAlphaType,
+                                      SkColorSpace::MakeSRGBLinear()));
+    SkCanvas bmpCanvas(bmp);
+    bmpCanvas.clear(SK_ColorGREEN);
+    SkPaint red;
+    red.setColor(SK_ColorRED);
+    bmpCanvas.drawRect(SkRect::MakeXYWH(10, 10, 30, 30), red);
+    bmp.setImmutable();
+
+    auto img = SkImage::MakeFromBitmap(bmp);
+    canvas->drawImage(img, 0, 0);
+
+    if (GrContext* ctx = canvas->getGrContext()) {
+        auto gpuImg = img->makeTextureImage(ctx, nullptr);
+        SkASSERT(gpuImg);
+        canvas->drawImage(gpuImg, 50, 0);
+    }
+}
