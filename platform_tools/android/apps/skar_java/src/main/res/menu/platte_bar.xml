@@ -19,11 +19,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/palette_red"
-        android:title="Red" />
+        android:title="@string/palette_red" />
     <item
         android:id="@+id/palette_green"
-        android:title="Green" />
+        android:title="@string/plaette_green" />
     <item
         android:id="@+id/palette_reset"
-        android:title="Reset" />
+        android:title="@string/palette_reset" />
 </menu>

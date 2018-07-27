@@ -81,7 +81,7 @@ public class DrawManager {
                 BitmapFactory.decodeStream(context.getAssets().open(gridDistanceTextureName));
         // Set up the shader
         planeShader = new BitmapShader(planeTexture, Shader.TileMode.REPEAT,
-                                       Shader.TileMode.REPEAT););
+                                       Shader.TileMode.REPEAT);
     }
 
     /************ ARCore onDrawFrame() calls ********************/

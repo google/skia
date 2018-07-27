@@ -17,44 +17,33 @@
 -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group
-        android:id="@+id/menu_top">
-        <item
-            android:id="@+id/reset_paint"
-            android:title="Reset Finger Painting"/>
-    </group>
-    <group
-        android:id="@+id/menu_middle"
+    <group android:id="@+id/menu_painting"
         android:checkableBehavior="single">
         <item
             android:id="@+id/smooth_paint"
-            android:title="Smooth Painting" />
-        <item
-            android:id="@+id/rough_paint"
-            android:title="Rough Painting" />
+            android:checkable="true"
+            android:checked="true"
+            android:title="@string/menu_painting_smooth" />
     </group>
 
-
-    <group
-        android:id="@+id/menu_bottom"
-        android:checkableBehavior="single">
-
+    <group android:id="@+id/menu_drawables">
         <item
             android:id="@+id/draw_circle"
-            android:title="Circle" >
+            android:checked="true"
+            android:checkable="true"
+            android:title="@string/menu_drawable_circle" >
         </item>
         <item
             android:id="@+id/draw_rect"
-            android:title="Rect" >
-        </item>
-        <item
-            android:id="@+id/draw_animation"
-            android:title="Animation" >
+            android:title="@string/menu_drawable_rect" >
         </item>
         <item
             android:id="@+id/draw_text"
-            android:title="Text" >
+            android:title="@string/menu_drawable_text" >
+        </item>
+        <item
+            android:id="@+id/draw_animation"
+            android:title="@string/menu_drawable_animation" >
         </item>
     </group>
-
 </menu>
