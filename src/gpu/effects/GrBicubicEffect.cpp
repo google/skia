@@ -125,7 +125,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
         , fTextureSampler(std::move(proxy),
                           GrSamplerState(wrapModes, GrSamplerState::Filter::kNearest)) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
@@ -136,7 +136,7 @@ GrBicubicEffect::GrBicubicEffect(sk_sp<GrTextureProxy> proxy,
         , fDomain(proxy.get(), domain, GrTextureDomain::kClamp_Mode)
         , fTextureSampler(std::move(proxy)) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
@@ -145,7 +145,7 @@ GrBicubicEffect::GrBicubicEffect(const GrBicubicEffect& that)
         , fDomain(that.fDomain)
         , fTextureSampler(that.fTextureSampler) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 void GrBicubicEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
