@@ -734,3 +734,104 @@ const char* SkCodec::ResultToString(Result result) {
             return "bogus result value";
     }
 }
+
+static SkIRect frame_rect_on_screen(SkIRect frameRect,
+                                    const SkIRect& screenRect) {
+    if (!frameRect.intersect(screenRect)) {
+        return SkIRect::MakeEmpty();
+    }
+
+    return frameRect;
+}
+
+static bool independent(const SkFrame& frame) {
+    return frame.getRequiredFrame() == SkCodec::kNone;
+}
+
+static bool restore_bg(const SkFrame& frame) {
+    return frame.getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestoreBGColor;
+}
+
+void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
+    const bool reportsAlpha = frame->reportedAlpha() != SkEncodedInfo::kOpaque_Alpha;
+    const auto screenRect = SkIRect::MakeWH(fScreenWidth, fScreenHeight);
+    const auto frameRect = frame_rect_on_screen(frame->frameRect(), screenRect);
+
+    const int i = frame->frameId();
+    if (0 == i) {
+        frame->setHasAlpha(reportsAlpha || frameRect != screenRect);
+        frame->setRequiredFrame(SkCodec::kNone);
+        return;
+    }
+
+
+    const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kPriorFrame;
+    if ((!reportsAlpha || !blendWithPrevFrame) && frameRect == screenRect) {
+        frame->setHasAlpha(reportsAlpha);
+        frame->setRequiredFrame(SkCodec::kNone);
+        return;
+    }
+
+    const SkFrame* prevFrame = this->getFrame(i-1);
+    while (prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kRestorePrevious) {
+        const int prevId = prevFrame->frameId();
+        if (0 == prevId) {
+            frame->setHasAlpha(true);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
+
+        prevFrame = this->getFrame(prevId - 1);
+    }
+
+    const bool clearPrevFrame = restore_bg(*prevFrame);
+    auto prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
+
+    if (clearPrevFrame) {
+        if (prevFrameRect == screenRect || independent(*prevFrame)) {
+            frame->setHasAlpha(true);
+            frame->setRequiredFrame(SkCodec::kNone);
+            return;
+        }
+    }
+
+    if (reportsAlpha && blendWithPrevFrame) {
+        // Note: We could be more aggressive here. If prevFrame clears
+        // to background color and covers its required frame (and that
+        // frame is independent), prevFrame could be marked independent.
+        // Would this extra complexity be worth it?
+        frame->setRequiredFrame(prevFrame->frameId());
+        frame->setHasAlpha(prevFrame->hasAlpha() || clearPrevFrame);
+        return;
+    }
+
+    while (frameRect.contains(prevFrameRect)) {
+        const int prevRequiredFrame = prevFrame->getRequiredFrame();
+        if (prevRequiredFrame == SkCodec::kNone) {
+            frame->setRequiredFrame(SkCodec::kNone);
+            frame->setHasAlpha(true);
+            return;
+        }
+
+        prevFrame = this->getFrame(prevRequiredFrame);
+        prevFrameRect = frame_rect_on_screen(prevFrame->frameRect(), screenRect);
+    }
+
+    if (restore_bg(*prevFrame)) {
+        frame->setHasAlpha(true);
+        if (prevFrameRect == screenRect || independent(*prevFrame)) {
+            frame->setRequiredFrame(SkCodec::kNone);
+        } else {
+            // Note: As above, frame could still be independent, e.g. if
+            // prevFrame covers its required frame and that frame is
+            // independent.
+            frame->setRequiredFrame(prevFrame->frameId());
+        }
+        return;
+    }
+
+    SkASSERT(prevFrame->getDisposalMethod() == SkCodecAnimation::DisposalMethod::kKeep);
+    frame->setRequiredFrame(prevFrame->frameId());
+    frame->setHasAlpha(prevFrame->hasAlpha() || (reportsAlpha && !blendWithPrevFrame));
+}
+
