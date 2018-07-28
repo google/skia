@@ -114,46 +114,6 @@ static void test_text(SkCanvas* canvas) {
     drawFadingText(canvas, str, len, x, y, paint);
 }
 
-#ifdef SK_DEBUG
-static void make_rgn(SkRegion* rgn, int left, int top, int right, int bottom,
-                     int count, int32_t runs[]) {
-    SkIRect r;
-    r.set(left, top, right, bottom);
-
-    rgn->debugSetRuns(runs, count);
-    SkASSERT(rgn->getBounds() == r);
-}
-
-static void test_union_bug_1505668(SkRegion* ra, SkRegion* rb, SkRegion* rc) {
-    static int32_t dataA[] = {
-        0x00000001,
-        0x000001dd, 2, 0x00000001, 0x0000000c, 0x0000000d, 0x00000025, 0x7fffffff,
-        0x000001de, 1, 0x00000001, 0x00000025, 0x7fffffff,
-        0x000004b3, 1, 0x00000001, 0x00000026, 0x7fffffff,
-        0x000004b4, 1, 0x0000000c, 0x00000026, 0x7fffffff,
-        0x00000579, 1, 0x00000000, 0x0000013a, 0x7fffffff,
-        0x000005d8, 1, 0x00000000, 0x0000013b, 0x7fffffff,
-        0x7fffffff
-    };
-    make_rgn(ra, 0, 1, 315, 1496, SK_ARRAY_COUNT(dataA), dataA);
-
-    static int32_t dataB[] = {
-        0x000000b6,
-        0x000000c4, 1, 0x000000a1, 0x000000f0, 0x7fffffff,
-        0x000000d6, 0, 0x7fffffff,
-        0x000000e4, 2, 0x00000070, 0x00000079, 0x000000a1, 0x000000b0, 0x7fffffff,
-        0x000000e6, 0, 0x7fffffff,
-        0x000000f4, 2, 0x00000070, 0x00000079, 0x000000a1, 0x000000b0, 0x7fffffff,
-        0x000000f6, 0, 0x7fffffff,
-        0x00000104, 1, 0x000000a1, 0x000000b0, 0x7fffffff,
-        0x7fffffff
-    };
-    make_rgn(rb, 112, 182, 240, 260, SK_ARRAY_COUNT(dataB), dataB);
-
-    rc->op(*ra, *rb, SkRegion::kUnion_Op);
-}
-#endif
-
 static void scale_rect(SkIRect* dst, const SkIRect& src, float scale) {
     dst->fLeft = (int)::roundf(src.fLeft * scale);
     dst->fTop = (int)::roundf(src.fTop * scale);
@@ -324,26 +284,7 @@ protected:
             test_text(canvas);
             return;
         }
-#ifdef SK_DEBUG
-        if (true) {
-            SkRegion a, b, c;
-            test_union_bug_1505668(&a, &b, &c);
 
-            if (false) {    // draw the result of the test
-                SkPaint paint;
-
-                canvas->translate(SkIntToScalar(10), SkIntToScalar(10));
-                paint.setColor(SK_ColorRED);
-                paint_rgn(canvas, a, paint);
-                paint.setColor(0x800000FF);
-                paint_rgn(canvas, b, paint);
-                paint.setColor(SK_ColorBLACK);
-                paint.setStyle(SkPaint::kStroke_Style);
-             //   paint_rgn(canvas, c, paint);
-                return;
-            }
-        }
-#endif
         const SkPoint origins[] = {
             { 30*SK_Scalar1, 50*SK_Scalar1 },
             { 150*SK_Scalar1, 50*SK_Scalar1 },
