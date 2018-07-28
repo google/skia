@@ -14,6 +14,7 @@
 #include "SkAtlasTextContext.h"
 #include "SkAtlasTextFont.h"
 #include "SkAtlasTextRenderer.h"
+#include "SkGlyphRun.h"
 #include "SkGr.h"
 #include "SkInternalAtlasTextContext.h"
 #include "ops/GrAtlasTextOp.h"
@@ -73,6 +74,8 @@ void SkAtlasTextTarget::concat(const SkMatrix& matrix) { this->accessCTM()->preC
 //////////////////////////////////////////////////////////////////////////////
 
 static const GrColorSpaceInfo kColorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig);
+static const SkSurfaceProps kProps(
+        SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +85,8 @@ public:
                               int width, int height,
                               void* handle)
             : GrTextUtils::Target(width, height, kColorSpaceInfo)
-            , SkAtlasTextTarget(std::move(context), width, height, handle) {
+            , SkAtlasTextTarget(std::move(context), width, height, handle)
+            , fGlyphDrawer(kProps, kColorSpaceInfo) {
         fOpMemoryPool = fContext->internal().grContext()->contextPriv().refOpMemoryPool();
     }
 
@@ -108,6 +112,10 @@ public:
         return this->context()->internal().grContext();
     }
 
+    SkGlyphRunListDrawer* glyphDrawer() override {
+        return &fGlyphDrawer;
+    }
+
     /** SkAtlasTextTarget overrides */
 
     void drawText(const SkGlyphID[], const SkPoint[], int glyphCnt, uint32_t color,
@@ -122,6 +130,7 @@ private:
     using SkAtlasTextTarget::fHeight;
     SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
+    SkGlyphRunListDrawer fGlyphDrawer;
 };
 
 //////////////////////////////////////////////////////////////////////////////

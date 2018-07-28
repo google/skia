@@ -22,6 +22,8 @@
 #include "SkTextBlobPriv.h"
 #include "SkTypes.h"
 
+class GrColorSpaceInfo;
+class GrRenderTargetContext;
 class SkBaseDevice;
 class SkGlyphRunList;
 class SkRasterClip;
@@ -108,19 +110,24 @@ public:
     // Constructor for SkBitmpapDevice.
     SkGlyphRunListDrawer(
             const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
+    SkGlyphRunListDrawer(const SkSurfaceProps&, const GrColorSpaceInfo&);
+    explicit SkGlyphRunListDrawer(const GrRenderTargetContext& renderTargetContext);
 
-    using PerMask = std::function<void(const SkMask&)>;
+    using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;
     using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
     using PerPath = std::function<void(const SkPath&, const SkMatrix&)>;
     using PerPathCreator = std::function<PerPath(const SkPaint&, SkArenaAlloc* alloc)>;
-    void drawForBitmap(
+    void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
+    void drawUsingMasks(
+            SkGlyphCache* cache, const SkGlyphRun& glyphRun, SkPoint origin,
+            const SkMatrix& deviceMatrix, PerMask perMask);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     bool ensureBitmapBuffers(size_t runSize);
-    void drawGlyphRunAsPaths(
+    void drawUsingPaths(
             const SkGlyphRun& glyphRun, SkPoint origin,
             const SkSurfaceProps& props, PerPath perPath) const;
     void drawGlyphRunAsSubpixelMask(
