@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1ff4c99a_9b12e87e",
+        "filename": "gm/animatedGif.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "I deleted the comment.",
+      "parentUuid": "28bdcf7d_92055853",
+      "range": {
+        "startLine": 49,
+        "startChar": 27,
+        "endLine": 49,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f0bbd29_ab0a0844",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "31b78f0e_f3f88670",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f0bbd29_ab0a0844",
+      "range": {
+        "startLine": 52,
+        "startChar": 4,
+        "endLine": 52,
+        "endChar": 63
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d3afc811_d977b6d8",
         "filename": "src/codec/SkStreamBuffer.h",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "SkPngCodec doesn\u0027t completely support incremental decoding. Although it does implement the methods, and they are used in SkSampledCodec (which is used by Android to decoded a sampled version of the image without ever allocating space for the entire image), it doesn\u0027t work for the case where the data is supplied incrementally (which is crucial for Chromium). The following document sums up \"incremental decoding\":\n\nhttps://docs.google.com/document/d/11Mn8-ePDKwVEMCjs3nWwSjxcSpJ_Cu8DF57KNtUmgLM/\n\nSkPngCodec needs to buffer the incoming data somehow, in case we had less than a whole chunk of data to decode. The plan is to use SkStreamBuffer for that purpose.",
+      "range": {
+        "startLine": 22,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 45
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3cd5fb0d_cdda5ed6",
+        "filename": "src/codec/SkStreamBuffer.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "TODO updated.",
+      "parentUuid": "d3afc811_d977b6d8",
       "range": {
         "startLine": 22,
         "startChar": 0,
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "0caf4790_69811eb2",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7d8f7f4_ed10720c",
+      "range": {
+        "startLine": 75,
+        "startChar": 6,
+        "endLine": 75,
+        "endChar": 72
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "be1d8a67_eef241f1",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "We\u0027ve gone back and forth over whether this should be the color type that mostly matches the image or what works best for Skia. Ultimately we\u0027ve decided that the SkCodec should not have a preference here (skbug.com/6839 has more details).",
+      "range": {
+        "startLine": 134,
+        "startChar": 19,
+        "endLine": 134,
+        "endChar": 50
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "92a844ad_98c137ea",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "I skimmed the bug, but I\u0027m still not sure what \"SkCodec should not have a preference here\" should mean in practice: what kFooBar_SkColorType should I use here?? I left the code and TODO as is.",
+      "parentUuid": "be1d8a67_eef241f1",
       "range": {
         "startLine": 134,
         "startChar": 19,
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "c7a25caf_b649a115",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "I changed it from RGBA to to BGRA. No tests broke by the change. Not sure if that\u0027s a good thing or if it means that I forgot to wire up something somewhere. :-) Maybe it will matter once I use a swizzler.",
+      "parentUuid": "c2f47a51_75d27a1e",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 59
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "eccd2fe6_b4a347ab",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -151,6 +295,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "We should be able to support BGRA and RGBA. This can be handled with the SkSwizzler.",
+      "range": {
+        "startLine": 253,
+        "startChar": 0,
+        "endLine": 256,
+        "endChar": 3
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b7332e9_bdbd61c4",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "TODO updated.",
+      "parentUuid": "eccd2fe6_b4a347ab",
       "range": {
         "startLine": 253,
         "startChar": 0,
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "ab74eeaa_47345373",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "You say it\u0027s taken care of by the base class, but in my newer patch set, I still need to explicitly zero-initialize, or else the AnimatedImage test fails on images/alphabetAnim.gif. Am I holding something wrong?\n\nThat might just mean that I\u0027m not setting *rowsDecoded properly, in my newer patch set. I\u0027m not sure if that\u0027s plausible, though, because the part of the image that\u0027s outside the frame isn\u0027t just complete rows. It can be part-rows, if the frame left-and-width isn\u0027t the same as 0-and-the-image-width. Does that make sense??",
+      "parentUuid": "162eda27_1960748a",
+      "range": {
+        "startLine": 292,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71e0ff88_8fdf5e95",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -197,6 +389,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "Are you asking whether dst is the frame rectangle or the image rectangle? It is the image rectangle.",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 30
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1e2a948_24c59353",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, dst is the image rectangle, not the frame rectangle. But is onIncrementalDecode (and onGetPixels) supposed to touch the pixels of dst that are outside the frame-rect but inside the image-rect? See also the \"clear the dst image to transparent black\" in my newer patch set.",
+      "parentUuid": "71e0ff88_8fdf5e95",
       "range": {
         "startLine": 313,
         "startChar": 0,
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "06e246e1_fc10c377",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "0e59a088_13b33088",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 337,
+        "endChar": 76
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5e672b4a_b5399034",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -243,6 +483,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "rowsDecoded is just to tell you whether the rows are initialized, so the base class can initialize the remaining rows. For interlaced images, we just initialize first, since we don\u0027t have a sensible way to initialize once we fail.",
+      "range": {
+        "startLine": 361,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 29
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "916ada29_d650d93e",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK. Well, let me know if I\u0027m still doing it wrong in my newer patch set.",
+      "parentUuid": "5e672b4a_b5399034",
       "range": {
         "startLine": 361,
         "startChar": 0,
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "a87470ae_55b38f5e",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I formatted the new files with:\n\nclang-format -i -style\u003d\"{BasedOnStyle: Chromium, ColumnLimit: 100, IndentWidth: 4}\" SkWuffsGifCodec.*",
+      "parentUuid": "13c08b1e_48ba0ee8",
+      "range": {
+        "startLine": 384,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0261661a_1316320e",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "6e8f159f_01fd32e2",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0261661a_1316320e",
+      "range": {
+        "startLine": 392,
+        "startChar": 0,
+        "endLine": 396,
+        "endChar": 25
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6db3f8f4_cf6bb245",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -312,6 +624,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "The frame this frame depends on. The idea is that if you have to start decoding arbitrary frame i, you don\u0027t have to start from 0 to decode it. You can start from the required frame, saving some work.",
+      "range": {
+        "startLine": 407,
+        "startChar": 4,
+        "endLine": 407,
+        "endChar": 70
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1629c498_6155bea4",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Ah, I can call setAlphaAndRequiredFrame to do all the work. I missed that on a first pass because it\u0027s implemented in third_party/gif, not src/codec. I\u0027ll cook up a separate CL to move it.",
+      "parentUuid": "6db3f8f4_cf6bb245",
       "range": {
         "startLine": 407,
         "startChar": 4,
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "1e7da434_a1fdb17f",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I left a new TODO to set this properly.",
+      "parentUuid": "600311ef_fcd9780f",
+      "range": {
+        "startLine": 408,
+        "startChar": 4,
+        "endLine": 408,
+        "endChar": 74
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2d05d17d_377e3614",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "de0708f3_90c22100",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2d05d17d_377e3614",
+      "range": {
+        "startLine": 409,
+        "startChar": 4,
+        "endLine": 409,
+        "endChar": 74
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "89f36524_5c3cd161",
         "filename": "src/codec/SkWuffsGifCodec.h",
         "patchSetId": 2
@@ -381,6 +765,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "Could you copy the wuffs_gif__decoder? How big is it?",
+      "range": {
+        "startLine": 55,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 17
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ae65bfa_e8d6eb47",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Technically, yes, we could copy the wuffs_gif__decoder. sizeof wuffs_gif__decoder is currently around 22904 bytes (this can change over time, up until Wuffs hits version 1.0 ABI stability, as Wuffs \u0027allocates\u0027 all the memory it will need up-front, inside the wuffs_gif__decoder struct.",
+      "parentUuid": "89f36524_5c3cd161",
       "range": {
         "startLine": 55,
         "startChar": 0,
@@ -416,6 +824,30 @@
     },
     {
       "key": {
+        "uuid": "a1325e1d_b93fc3ec",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I\u0027ll leave the TODO as is. As it\u0027d be an optimization, we can reconsider the TODO once all the tests pass, unadulterated. I like to keep optimizations as separate commits, especially as commits with no test changes.",
+      "parentUuid": "6ee0b6f7_2208b344",
+      "range": {
+        "startLine": 74,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "dd2ef0a2_6d8bfbf2",
         "filename": "tests/CodecPartialTest.cpp",
         "patchSetId": 2
@@ -427,6 +859,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "This got added in https://skia-review.googlesource.com/5758. That commit has some more detail, but basically the unexpected behavior was that we used the wrong color map once more data was provided.",
+      "range": {
+        "startLine": 362,
+        "startChar": 0,
+        "endLine": 362,
+        "endChar": 64
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a64fd05_73faf1e1",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I\u0027ll leave the TODO for now. We can discuss and/or remove it in a further iteration, as I fix the other tests.",
+      "parentUuid": "dd2ef0a2_6d8bfbf2",
       "range": {
         "startLine": 362,
         "startChar": 0,
@@ -462,6 +918,30 @@
     },
     {
       "key": {
+        "uuid": "44c1c920_2bbe1782",
+        "filename": "tests/CodecPartialTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9baeec24_be7ddc1a",
+      "range": {
+        "startLine": 381,
+        "startChar": 0,
+        "endLine": 387,
+        "endChar": 5
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1449990_46953669",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 2
@@ -473,6 +953,30 @@
       "writtenOn": "2018-06-29T18:39:24Z",
       "side": 1,
       "message": "No, that is a bug.",
+      "range": {
+        "startLine": 387,
+        "startChar": 27,
+        "endLine": 390,
+        "endChar": 0
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e8d54ca_b98aeaa2",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I\u0027ll file a separate CL.",
+      "parentUuid": "b1449990_46953669",
       "range": {
         "startLine": 387,
         "startChar": 27,
@@ -508,6 +1012,30 @@
     },
     {
       "key": {
+        "uuid": "3cfc7ac1_4f802e78",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "OK, I\u0027ll leave the TODO for now. We can discuss and/or remove it in a further iteration, as I fix the other tests.",
+      "parentUuid": "15fa6ec7_cb808d21",
+      "range": {
+        "startLine": 195,
+        "startChar": 74,
+        "endLine": 197,
+        "endChar": 66
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8f81fc8b_b2b5479e",
         "filename": "tests/GifTest.cpp",
         "patchSetId": 2
@@ -528,6 +1056,30 @@
       "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97e2bd00_8520ee34",
+        "filename": "tests/GifTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T06:21:34Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "8f81fc8b_b2b5479e",
+      "range": {
+        "startLine": 291,
+        "startChar": 23,
+        "endLine": 291,
+        "endChar": 72
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
