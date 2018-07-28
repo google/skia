@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6509aa74_7a31f3ea",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T07:04:04Z",
+      "side": 1,
+      "message": "This while/break is admittedly awkward...",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a062bee5_6070052a",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T07:04:04Z",
+      "side": 1,
+      "message": "...and the s/return/break/ here is subtle...",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9f76163_48402c6f",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-07-28T07:04:04Z",
+      "side": 1,
+      "message": "...so an alternative is to pull this from the bottom to the top of the function, and revert all of the other changes. I don\u0027t know if that breaks any implicit ordering assumptions. WDYT?",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
