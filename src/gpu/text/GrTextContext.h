@@ -158,7 +158,8 @@ private:
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
-                            const SkGlyphRunList& glyphRunList) const;
+                            const SkGlyphRunList& glyphRunList,
+                            SkGlyphRunListDrawer* glyphDrawer);
 
     sk_sp<GrTextBlob> makeDrawPosTextBlob(GrTextBlobCache*, GrGlyphCache*,
                                                const GrShaderCaps&,
