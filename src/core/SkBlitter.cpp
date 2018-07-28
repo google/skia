@@ -822,9 +822,9 @@ public:
                             unsigned mul = SkAlpha255To256(mulp[i]);
                             unsigned add = addp[i];
 
-                            r = SkFastMin32(SkAlphaMul(r, mul) + add, a);
-                            g = SkFastMin32(SkAlphaMul(g, mul) + add, a);
-                            b = SkFastMin32(SkAlphaMul(b, mul) + add, a);
+                            r = SkMin32(SkAlphaMul(r, mul) + add, a);
+                            g = SkMin32(SkAlphaMul(g, mul) + add, a);
+                            b = SkMin32(SkAlphaMul(b, mul) + add, a);
 
                             span[i] = SkPackARGB32(a, r, g, b);
                         }
@@ -843,9 +843,9 @@ public:
                         unsigned add = addp[i];
 
                         span[i] = SkPackARGB32( a,
-                                        SkFastMin32(SkAlphaMul(r, mul) + add, a),
-                                        SkFastMin32(SkAlphaMul(g, mul) + add, a),
-                                        SkFastMin32(SkAlphaMul(b, mul) + add, a));
+                                        SkMin32(SkAlphaMul(r, mul) + add, a),
+                                        SkMin32(SkAlphaMul(g, mul) + add, a),
+                                        SkMin32(SkAlphaMul(b, mul) + add, a));
                     } else {
                         span[i] = 0;
                     }

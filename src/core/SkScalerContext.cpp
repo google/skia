@@ -515,8 +515,8 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         fRec.getMatrixFrom2x2(&matrix);
 
         if (as_MFB(fMaskFilter)->filterMask(&dstM, srcM, matrix, nullptr)) {
-            int width = SkFastMin32(origGlyph.fWidth, dstM.fBounds.width());
-            int height = SkFastMin32(origGlyph.fHeight, dstM.fBounds.height());
+            int width = SkMin32(origGlyph.fWidth, dstM.fBounds.width());
+            int height = SkMin32(origGlyph.fHeight, dstM.fBounds.height());
             int dstRB = origGlyph.rowBytes();
             int srcRB = dstM.fRowBytes;
 

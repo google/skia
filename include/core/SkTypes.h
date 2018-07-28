@@ -207,13 +207,6 @@ template <typename T> constexpr const T& SkTClamp(const T& x, const T& lo, const
     return (x < lo) ? lo : SkTMin(x, hi);
 }
 
-static inline int32_t SkFastMin32(int32_t value, int32_t max) {
-    if (value > max) {
-        value = max;
-    }
-    return value;
-}
-
 /** @return value pinned (clamped) between min and max, inclusively.
 */
 template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {

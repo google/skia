@@ -413,7 +413,7 @@ struct Edge {
     }
 
     int top() const {
-        return SkFastMin32(fY0, fY1);
+        return SkMin32(fY0, fY1);
     }
 };
 
