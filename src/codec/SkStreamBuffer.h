@@ -19,6 +19,9 @@
  *
  *  Used by GIFImageReader, and currently set up for that use case.
  *
+ *  TODO(nigeltao): this might no longer be used by GIFImageReader, once we
+ *  delete third_party/gif.
+ *
  *  Buffers up to 256 * 3 bytes (256 colors, with 3 bytes each) to support GIF.
  *  FIXME (scroggo): Make this more general purpose?
  */
