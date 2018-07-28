@@ -151,24 +151,6 @@ private:
     // Determines if we need to use fake gamma (and contrast boost):
     static SkScalerContextFlags ComputeScalerContextFlags(const GrColorSpaceInfo&);
 
-    void drawDFGlyphRun(GrTextBlob* blob, int runIndex, GrGlyphCache*,
-                        const SkSurfaceProps&, const GrTextUtils::Paint& paint,
-                        SkScalerContextFlags scalerContextFlags,
-                        const SkMatrix& viewMatrix, const SkGlyphRun& glyphRun,
-                        const SkPoint& offset) const;
-
-    static void DrawBmpGlyphRunAsPaths(GrTextBlob*, int runIndex, GrGlyphCache*,
-                                       const SkSurfaceProps&, const GrTextUtils::Paint& paint,
-                                       SkScalerContextFlags scalerContextFlags,
-                                       const SkMatrix& viewMatrix,
-                                       const SkGlyphRun& glyphRun,
-                                       const SkPoint& offset);
-
-    static void DrawBmpGlyphRun(GrTextBlob*, int runIndex, GrGlyphCache*,
-                                const SkSurfaceProps&, const GrTextUtils::Paint& paint,
-                                SkScalerContextFlags scalerContextFlags, const SkMatrix& viewMatrix,
-                                const SkGlyphRun& glyphRun, const SkPoint& offset);
-
     void regenerateGlyphRunList(GrTextBlob* bmp,
                             GrGlyphCache*,
                             const GrShaderCaps&,
