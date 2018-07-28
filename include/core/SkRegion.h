@@ -15,29 +15,20 @@
 class SkPath;
 class SkRgnBuilder;
 
-namespace android {
-    class Region;
-}
-
-#define SkRegion_gEmptyRunHeadPtr   ((SkRegion::RunHead*)-1)
-#define SkRegion_gRectRunHeadPtr    nullptr
-
 /** \class SkRegion
 
     The SkRegion class encapsulates the geometric region used to specify
     clipping areas for drawing.
 */
 class SK_API SkRegion {
-public:
     typedef int32_t RunType;
-    static constexpr int kRunTypeSentinel = 0x7FFFFFFF;
-
+public:
     SkRegion();
-    SkRegion(const SkRegion&);
-    explicit SkRegion(const SkIRect&);
+    SkRegion(const SkRegion& region);
+    explicit SkRegion(const SkIRect& region);
     ~SkRegion();
 
-    SkRegion& operator=(const SkRegion&);
+    SkRegion& operator=(const SkRegion& region);
 
     /**
      *  Return true if the two regions are equal. i.e. The enclose exactly
@@ -65,13 +56,13 @@ public:
      *  Swap the contents of this and the specified region. This operation
      *  is gauarenteed to never fail.
      */
-    void swap(SkRegion&);
+    void swap(SkRegion& other);
 
     /** Return true if this region is empty */
-    bool isEmpty() const { return fRunHead == SkRegion_gEmptyRunHeadPtr; }
+    bool isEmpty() const { return fRunHead == emptyRunHeadPtr(); }
 
     /** Return true if this region is a single, non-empty rectangle */
-    bool isRect() const { return fRunHead == SkRegion_gRectRunHeadPtr; }
+    bool isRect() const { return fRunHead == kRectRunHeadPtr; }
 
     /** Return true if this region consists of more than 1 rectangular area */
     bool isComplex() const { return !this->isEmpty() && !this->isRect(); }
@@ -109,7 +100,7 @@ public:
      *  If rect is non-empty, set this region to that rectangle and return true,
      *  otherwise set this region to empty and return false.
      */
-    bool setRect(const SkIRect&);
+    bool setRect(const SkIRect& rect);
 
     /**
      *  If left < right and top < bottom, set this region to that rectangle and
@@ -131,7 +122,7 @@ public:
      *  Set this region to the specified region, and return true if it is
      *  non-empty.
      */
-    bool setRegion(const SkRegion&);
+    bool setRegion(const SkRegion& region);
 
     /**
      *  Set this region to the area described by the path, clipped.
@@ -139,19 +130,19 @@ public:
      *  This produces a region that is identical to the pixels that would be
      *  drawn by the path (with no antialiasing) with the specified clip.
      */
-    bool setPath(const SkPath&, const SkRegion& clip);
+    bool setPath(const SkPath& path, const SkRegion& clip);
 
     /**
      *  Returns true if the specified rectangle has a non-empty intersection
      *  with this region.
      */
-    bool intersects(const SkIRect&) const;
+    bool intersects(const SkIRect& rect) const;
 
     /**
      *  Returns true if the specified region has a non-empty intersection
      *  with this region.
      */
-    bool intersects(const SkRegion&) const;
+    bool intersects(const SkRegion& other) const;
 
     /**
      *  Return true if the specified x,y coordinate is inside the region.
@@ -164,7 +155,7 @@ public:
      *  returns the correct result. Note: if either this region or the rectangle
      *  is empty, contains() returns false.
      */
-    bool contains(const SkIRect&) const;
+    bool contains(const SkIRect& other) const;
 
     /**
      *  Return true if the specified region is completely inside the region.
@@ -172,7 +163,7 @@ public:
      *  returns the correct result. Note: if either region is empty, contains()
      *  returns false.
      */
-    bool contains(const SkRegion&) const;
+    bool contains(const SkRegion& other) const;
 
     /**
      *  Return true if this region is a single rectangle (not complex) and the
@@ -196,7 +187,7 @@ public:
         SkASSERT(this->isEmpty() == fBounds.isEmpty()); // valid region
 
         return left < right && top < bottom &&
-               fRunHead == SkRegion_gRectRunHeadPtr &&  // this->isRect()
+               fRunHead == kRectRunHeadPtr &&  // this->isRect()
                /* fBounds.contains(left, top, right, bottom); */
                fBounds.fLeft <= left && fBounds.fTop <= top &&
                fBounds.fRight >= right && fBounds.fBottom >= bottom;
@@ -245,7 +236,7 @@ public:
         kReverseDifference_Op,
         kReplace_Op,    //!< replace the dst region with the op region
 
-        kLastOp = kReplace_Op
+        kLastOp = kReplace_Op,
     };
 
     static const int kOpCnt = kLastOp + 1;
@@ -317,11 +308,11 @@ public:
     class SK_API Iterator {
     public:
         Iterator() : fRgn(nullptr), fDone(true) {}
-        Iterator(const SkRegion&);
+        Iterator(const SkRegion& region);
         // if we have a region, reset to it and return true, else return false
         bool rewind();
         // reset the iterator, using the new region
-        void reset(const SkRegion&);
+        void reset(const SkRegion& region);
         bool done() const { return fDone; }
         void next();
         const SkIRect& rect() const { return fRect; }
@@ -330,7 +321,7 @@ public:
 
     private:
         const SkRegion* fRgn;
-        const RunType*  fRuns;
+        const SkRegion::RunType*  fRuns;
         SkIRect         fRect;
         bool            fDone;
     };
@@ -341,7 +332,7 @@ public:
      */
     class SK_API Cliperator {
     public:
-        Cliperator(const SkRegion&, const SkIRect& clip);
+        Cliperator(const SkRegion& region, const SkIRect& clip);
         bool done() { return fDone; }
         void  next();
         const SkIRect& rect() const { return fRect; }
@@ -359,7 +350,7 @@ public:
      */
     class Spanerator {
     public:
-        Spanerator(const SkRegion&, int y, int left, int right);
+        Spanerator(const SkRegion& region, int y, int left, int right);
         bool next(int* left, int* right);
 
     private:
@@ -383,19 +374,6 @@ public:
      */
     size_t readFromMemory(const void* buffer, size_t length);
 
-    /**
-     *  Returns a reference to a global empty region. Just a convenience for
-     *  callers that need a const empty region.
-     */
-    static const SkRegion& GetEmptyRegion();
-
-    SkDEBUGCODE(void dump() const;)
-    SkDEBUGCODE(void validate() const;)
-    SkDEBUGCODE(static void UnitTest();)
-
-    // expose this to allow for regression test on complex regions
-    SkDEBUGCODE(bool debugSetRuns(const RunType runs[], int count);)
-
 private:
     static constexpr int kOpCount = kReplace_Op + 1;
 
@@ -404,14 +382,17 @@ private:
     // S
     static constexpr int kRectRegionRuns = 7;
 
-    friend class android::Region;    // needed for marshalling efficiently
-
     struct RunHead;
+
+    static RunHead* emptyRunHeadPtr() { return (SkRegion::RunHead*) -1; }
+    static constexpr RunHead* kRectRunHeadPtr = nullptr;
 
     // allocate space for count runs
     void allocateRuns(int count);
     void allocateRuns(int count, int ySpanCount, int intervalCount);
     void allocateRuns(const RunHead& src);
+
+    SkDEBUGCODE(void dump() const;)
 
     SkIRect     fBounds;
     RunHead*    fRunHead;

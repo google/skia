@@ -8,7 +8,7 @@
 
 #include "SkCanvas.h"
 #include "SkPaint.h"
-#include "SkRegion.h"
+#include "SkRegionPriv.h"
 #include "SkSurface.h"
 
 bool FuzzRegionDeserialize(sk_sp<SkData> bytes) {
@@ -30,7 +30,7 @@ bool FuzzRegionDeserialize(sk_sp<SkData> bytes) {
         return false;
     }
     s->getCanvas()->drawRegion(region, SkPaint());
-    SkDEBUGCODE(region.validate());
+    SkDEBUGCODE(SkRegionPriv::Validate(region));
     return true;
 }
 

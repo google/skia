@@ -236,11 +236,11 @@ void SkRgnBuilder::copyToRgn(SkRegion::RunType runs[]) const {
             memcpy(runs, line->firstX(), count * sizeof(SkRegion::RunType));
             runs += count;
         }
-        *runs++ = SkRegion::kRunTypeSentinel;
+        *runs++ = SkRegion_kRunTypeSentinel;
         line = line->nextScanline();
     } while (line < stop);
     SkASSERT(line == stop);
-    *runs = SkRegion::kRunTypeSentinel;
+    *runs = SkRegion_kRunTypeSentinel;
 }
 
 static unsigned verb_to_initial_last_index(unsigned verb) {
@@ -320,7 +320,7 @@ static bool check_inverse_on_empty_return(SkRegion* dst, const SkPath& path, con
 }
 
 bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(SkRegionPriv::Validate(*this));
 
     if (clip.isEmpty() || !path.isFinite()) {
         return this->setEmpty();
@@ -382,7 +382,7 @@ bool SkRegion::setPath(const SkPath& path, const SkRegion& clip) {
         tmp.fRunHead->computeRunBounds(&tmp.fBounds);
         this->swap(tmp);
     }
-    SkDEBUGCODE(this->validate();)
+    SkDEBUGCODE(SkRegionPriv::Validate(*this));
     return true;
 }
 
@@ -397,17 +397,17 @@ struct Edge {
         kCompleteLink = (kY0Link | kY1Link)
     };
 
-    SkRegion::RunType fX;
-    SkRegion::RunType fY0, fY1;
+    SkRegionPriv::RunType fX;
+    SkRegionPriv::RunType fY0, fY1;
     uint8_t fFlags;
     Edge*   fNext;
 
     void set(int x, int y0, int y1) {
         SkASSERT(y0 != y1);
 
-        fX = (SkRegion::RunType)(x);
-        fY0 = (SkRegion::RunType)(y0);
-        fY1 = (SkRegion::RunType)(y1);
+        fX = (SkRegionPriv::RunType)(x);
+        fY0 = (SkRegionPriv::RunType)(y0);
+        fY1 = (SkRegionPriv::RunType)(y1);
         fFlags = 0;
         SkDEBUGCODE(fNext = nullptr;)
     }

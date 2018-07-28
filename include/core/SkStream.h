@@ -288,7 +288,7 @@ class SK_API SkNullWStream : public SkWStream {
 public:
     SkNullWStream() : fBytesWritten(0) {}
 
-    bool write(const void*, size_t n) override { fBytesWritten += n; return true; }
+    bool write(const void* , size_t n) override { fBytesWritten += n; return true; }
     void flush() override {}
     size_t bytesWritten() const override { return fBytesWritten; }
 
@@ -373,7 +373,7 @@ public:
     SkMemoryStream(const void* data, size_t length, bool copyData = false);
 
     /** Creates the stream to read from the specified data */
-    SkMemoryStream(sk_sp<SkData>);
+    SkMemoryStream(sk_sp<SkData> data);
 
     /** Returns a stream with a copy of the input data. */
     static std::unique_ptr<SkMemoryStream> MakeCopy(const void* data, size_t length);
@@ -397,7 +397,7 @@ public:
     void setMemoryOwned(const void* data, size_t length);
 
     sk_sp<SkData> asData() const { return fData; }
-    void setData(sk_sp<SkData>);
+    void setData(sk_sp<SkData> data);
 
     void skipToAlign4();
     const void* getAtPos();
