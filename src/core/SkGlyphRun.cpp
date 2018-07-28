@@ -11,6 +11,11 @@
 #include <new>
 #include <tuple>
 
+#if SK_SUPPORT_GPU
+#include "GrColorSpaceInfo.h"
+#include "GrRenderTargetContext.h"
+#endif
+
 #include "SkDevice.h"
 #include "SkDraw.h"
 #include "SkFindAndPlaceGlyph.h"
@@ -109,6 +114,29 @@ SkGlyphRunListDrawer::SkGlyphRunListDrawer(
         , fColorType{colorType}
         , fScalerContextFlags{flags} {}
 
+#if SK_SUPPORT_GPU
+
+// TODO: unify with code in GrTextContext.cpp
+static SkScalerContextFlags compute_scaler_context_flags(
+        const GrColorSpaceInfo& colorSpaceInfo) {
+    // If we're doing linear blending, then we can disable the gamma hacks.
+    // Otherwise, leave them on. In either case, we still want the contrast boost:
+    // TODO: Can we be even smarter about mask gamma based on the dest transfer function?
+    if (colorSpaceInfo.isLinearlyBlended()) {
+        return SkScalerContextFlags::kBoostContrast;
+    } else {
+        return SkScalerContextFlags::kFakeGammaAndBoostContrast;
+    }
+}
+
+SkGlyphRunListDrawer::SkGlyphRunListDrawer(
+        const SkSurfaceProps& props, const GrColorSpaceInfo& csi)
+        : SkGlyphRunListDrawer(props, kUnknown_SkColorType, compute_scaler_context_flags(csi)) {}
+
+SkGlyphRunListDrawer::SkGlyphRunListDrawer(const GrRenderTargetContext& rtc)
+        : SkGlyphRunListDrawer{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
+#endif
+
 bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
@@ -134,7 +162,7 @@ bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {
     return true;
 }
 
-void SkGlyphRunListDrawer::drawGlyphRunAsPaths(
+void SkGlyphRunListDrawer::drawUsingPaths(
         const SkGlyphRun& glyphRun, SkPoint origin,
         const SkSurfaceProps& props, PerPath perPath) const {
     // setup our std paint, in hopes of getting hits in the cache
@@ -243,7 +271,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
                 const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID, lookupX, lookupY);
                 SkMask mask;
                 if (prepare_mask(cache, glyph, position, &mask)) {
-                    perMask(mask);
+                    perMask(mask, glyph, position);
                 }
             }
         }
@@ -270,14 +298,14 @@ void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
                 const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
                 SkMask mask;
                 if (prepare_mask(cache, glyph, position, &mask)) {
-                    perMask(mask);
+                    perMask(mask, glyph, position);
                 }
             }
         }
     }
 }
 
-void SkGlyphRunListDrawer::drawForBitmap(
+void SkGlyphRunListDrawer::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         PerMaskCreator perMaskCreator, PerPathCreator perPathCreator) {
 
@@ -292,19 +320,24 @@ void SkGlyphRunListDrawer::drawForBitmap(
         auto paint = glyphRun.paint();
         if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
             auto perPath = perPathCreator(paint, &alloc);
-            this->drawGlyphRunAsPaths(glyphRun, origin, props, perPath);
+            this->drawUsingPaths(glyphRun, origin, props, perPath);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     paint, &props, fScalerContextFlags, &deviceMatrix);
             auto perMask = perMaskCreator(paint, &alloc);
-            if (cache->isSubpixel()) {
-                this->drawGlyphRunAsSubpixelMask(
-                        cache.get(), glyphRun, origin, deviceMatrix, perMask);
-            } else {
-                this->drawGlyphRunAsFullpixelMask(
-                        cache.get(), glyphRun, origin, deviceMatrix, perMask);
-            }
+            this->drawUsingMasks(cache.get(), glyphRun, origin, deviceMatrix, perMask);
         }
+    }
+}
+
+void SkGlyphRunListDrawer::drawUsingMasks(
+        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+                                           SkPoint origin, const SkMatrix& deviceMatrix,
+                                           SkGlyphRunListDrawer::PerMask perMask) {
+    if (cache->isSubpixel()) {
+        this->drawGlyphRunAsSubpixelMask(cache, glyphRun, origin, deviceMatrix, perMask);
+    } else {
+        this->drawGlyphRunAsFullpixelMask(cache, glyphRun, origin, deviceMatrix, perMask);
     }
 }
 
