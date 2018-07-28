@@ -379,84 +379,85 @@ static void check(skiatest::Reporter* r,
         REPORTER_ASSERT(r, startResult == SkCodec::kUnimplemented);
     }
 
-    // The rest of this function tests decoding subsets, and will decode an arbitrary number of
-    // random subsets.
+    // Test decoding subsets, by decoding an arbitrary number of random subsets.
     // Do not attempt to decode subsets of an image of only once pixel, since there is no
     // meaningful subset.
-    if (size.width() * size.height() == 1) {
-        return;
-    }
+    //
+    // It is "while(etc) { etc; break; }" - nominally a loop but that loop runs
+    // either zero times or once - so that failures inside the loop can break,
+    // to still run the code after the loop.
+    while (size.width() * size.height() != 1) {
+        SkRandom rand;
+        SkIRect subset;
+        SkCodec::Options opts;
+        opts.fSubset = &subset;
+        for (int i = 0; i < 5; i++) {
+            subset = generate_random_subset(&rand, size.width(), size.height());
+            SkASSERT(!subset.isEmpty());
+            const bool supported = codec->getValidSubset(&subset);
+            REPORTER_ASSERT(r, supported == supportsSubsetDecoding);
 
-    SkRandom rand;
-    SkIRect subset;
-    SkCodec::Options opts;
-    opts.fSubset = &subset;
-    for (int i = 0; i < 5; i++) {
-        subset = generate_random_subset(&rand, size.width(), size.height());
-        SkASSERT(!subset.isEmpty());
-        const bool supported = codec->getValidSubset(&subset);
-        REPORTER_ASSERT(r, supported == supportsSubsetDecoding);
+            SkImageInfo subsetInfo = info.makeWH(subset.width(), subset.height());
+            SkBitmap bm;
+            bm.allocPixels(subsetInfo);
+            const auto result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes(), &opts);
 
-        SkImageInfo subsetInfo = info.makeWH(subset.width(), subset.height());
-        SkBitmap bm;
-        bm.allocPixels(subsetInfo);
-        const auto result = codec->getPixels(bm.info(), bm.getPixels(), bm.rowBytes(), &opts);
-
-        if (supportsSubsetDecoding) {
-            if (expectedResult == SkCodec::kSuccess) {
-                REPORTER_ASSERT(r, result == expectedResult);
+            if (supportsSubsetDecoding) {
+                if (expectedResult == SkCodec::kSuccess) {
+                    REPORTER_ASSERT(r, result == expectedResult);
+                }
+                // Webp is the only codec that supports subsets, and it will have modified the
+                // subset to have even left/top.
+                REPORTER_ASSERT(r, SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
+            } else {
+                // No subsets will work.
+                REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
             }
-            // Webp is the only codec that supports subsets, and it will have modified the subset
-            // to have even left/top.
-            REPORTER_ASSERT(r, SkIsAlign2(subset.fLeft) && SkIsAlign2(subset.fTop));
-        } else {
-            // No subsets will work.
-            REPORTER_ASSERT(r, result == SkCodec::kUnimplemented);
-        }
-    }
-
-    // SkAndroidCodec tests
-    if (supportsScanlineDecoding || supportsSubsetDecoding || supportsNewScanlineDecoding) {
-
-        std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
-        if (!stream) {
-            return;
         }
 
-        auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
-        if (!androidCodec) {
-            ERRORF(r, "Unable to decode '%s'", path);
-            return;
+        // SkAndroidCodec tests
+        if (supportsScanlineDecoding || supportsSubsetDecoding || supportsNewScanlineDecoding) {
+            std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+            if (!stream) {
+                break;
+            }
+
+            auto androidCodec = SkAndroidCodec::MakeFromCodec(std::move(codec));
+            if (!androidCodec) {
+                ERRORF(r, "Unable to decode '%s'", path);
+                break;
+            }
+
+            SkBitmap bm;
+            SkMD5::Digest androidCodecDigest;
+            test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &androidCodecDigest,
+                       &codecDigest);
         }
 
-        SkBitmap bm;
-        SkMD5::Digest androidCodecDigest;
-        test_codec(r, androidCodec.get(), bm, info, size, expectedResult, &androidCodecDigest,
-                   &codecDigest);
-    }
-
-    if (!isIncomplete) {
-        // Test SkCodecImageGenerator
-        std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
-        sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
-        std::unique_ptr<SkImageGenerator> gen(
-                SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
-        SkBitmap bm;
-        bm.allocPixels(info);
-        REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
-        compare_to_good_digest(r, codecDigest, bm);
+        if (!isIncomplete) {
+            // Test SkCodecImageGenerator
+            std::unique_ptr<SkStream> stream(GetResourceAsStream(path));
+            sk_sp<SkData> fullData(SkData::MakeFromStream(stream.get(), stream->getLength()));
+            std::unique_ptr<SkImageGenerator> gen(
+                    SkCodecImageGenerator::MakeFromEncodedCodec(fullData));
+            SkBitmap bm;
+            bm.allocPixels(info);
+            REPORTER_ASSERT(r, gen->getPixels(info, bm.getPixels(), bm.rowBytes()));
+            compare_to_good_digest(r, codecDigest, bm);
 
 #ifndef SK_PNG_DISABLE_TESTS
-        // Test using SkFrontBufferedStream, as Android does
-        auto bufferedStream = SkFrontBufferedStream::Make(
-                      SkMemoryStream::Make(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
-        REPORTER_ASSERT(r, bufferedStream);
-        codec = SkCodec::MakeFromStream(std::move(bufferedStream));
-        REPORTER_ASSERT(r, codec);
-        if (codec) {
-            test_info(r, codec.get(), info, SkCodec::kSuccess, &codecDigest);
-        }
+            // Test using SkFrontBufferedStream, as Android does
+            auto bufferedStream = SkFrontBufferedStream::Make(
+                    SkMemoryStream::Make(std::move(fullData)), SkCodec::MinBufferedBytesNeeded());
+            REPORTER_ASSERT(r, bufferedStream);
+            codec = SkCodec::MakeFromStream(std::move(bufferedStream));
+            REPORTER_ASSERT(r, codec);
+            if (codec) {
+                test_info(r, codec.get(), info, SkCodec::kSuccess, &codecDigest);
+            }
 #endif
+        }
+        break;
     }
 
     // If we've just tested incomplete decodes, let's run the same test again on full decodes.
