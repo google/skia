@@ -27,6 +27,7 @@
 #include "GrStyle.h"
 #include "GrTracing.h"
 #include "SkDrawShadowInfo.h"
+#include "SkGlyphRun.h"
 #include "SkGr.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
@@ -53,12 +54,15 @@
 #include "text/GrTextContext.h"
 #include "text/GrTextUtils.h"
 
+
+
 class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {
 public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
             : Target(renderTargetContext->width(), renderTargetContext->height(),
                      renderTargetContext->colorSpaceInfo())
-            , fRenderTargetContext(renderTargetContext) {}
+            , fRenderTargetContext(renderTargetContext)
+            , fGlyphDrawer{*renderTargetContext}{}
 
     void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -87,8 +91,14 @@ public:
         return fRenderTargetContext->fContext;
     }
 
+    SkGlyphRunListDrawer* glyphDrawer() override {
+        return &fGlyphDrawer;
+    }
+
 private:
     GrRenderTargetContext* fRenderTargetContext;
+    SkGlyphRunListDrawer fGlyphDrawer;
+
 };
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this->drawingManager()->getContext())
