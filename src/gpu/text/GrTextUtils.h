@@ -27,6 +27,7 @@ class GrPaint;
 class GrShaderCaps;
 class SkColorSpace;
 class SkGlyph;
+class SkGlyphRunListDrawer;
 class SkMatrix;
 struct SkIRect;
 struct SkPoint;
@@ -57,6 +58,8 @@ public:
                                  GrPaint*) = 0;
 
         virtual GrContext* getContext() = 0;
+
+        virtual SkGlyphRunListDrawer* glyphDrawer() = 0;
 
     protected:
         Target(int width, int height, const GrColorSpaceInfo& colorSpaceInfo)
