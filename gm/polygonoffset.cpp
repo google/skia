@@ -377,27 +377,28 @@ const size_t gConvexSizes[] = {
 static_assert(SK_ARRAY_COUNT(gConvexSizes) == SK_ARRAY_COUNT(gConvexPoints), "array_mismatch");
 
 const SkPoint* gSimplePoints[] = {
-    gPoints0, gPoints1, gPoints2, gPoints4, gPoints5, gPoints7,
-    gPoints8, gPoints11, gPoints12, gPoints13, gPoints14, gPoints15,
-    gPoints16, gPoints17, gPoints18,
+//    gPoints0, gPoints1, gPoints2, gPoints4, gPoints5, gPoints7,
+//    gPoints8, gPoints11, gPoints12,
+    gPoints13,// gPoints14, gPoints15,
+    //gPoints16, gPoints17, gPoints18,
 };
 
 const size_t gSimpleSizes[] = {
-    SK_ARRAY_COUNT(gPoints0),
-    SK_ARRAY_COUNT(gPoints1),
-    SK_ARRAY_COUNT(gPoints2),
-    SK_ARRAY_COUNT(gPoints4),
-    SK_ARRAY_COUNT(gPoints5),
-    SK_ARRAY_COUNT(gPoints7),
-    SK_ARRAY_COUNT(gPoints8),
-    SK_ARRAY_COUNT(gPoints11),
-    SK_ARRAY_COUNT(gPoints12),
+    //SK_ARRAY_COUNT(gPoints0),
+    //SK_ARRAY_COUNT(gPoints1),
+    //SK_ARRAY_COUNT(gPoints2),
+    //SK_ARRAY_COUNT(gPoints4),
+    //SK_ARRAY_COUNT(gPoints5),
+    //SK_ARRAY_COUNT(gPoints7),
+    //SK_ARRAY_COUNT(gPoints8),
+    //SK_ARRAY_COUNT(gPoints11),
+    //SK_ARRAY_COUNT(gPoints12),
     SK_ARRAY_COUNT(gPoints13),
-    SK_ARRAY_COUNT(gPoints14),
-    SK_ARRAY_COUNT(gPoints15),
-    SK_ARRAY_COUNT(gPoints16),
-    SK_ARRAY_COUNT(gPoints17),
-    SK_ARRAY_COUNT(gPoints18),
+    //SK_ARRAY_COUNT(gPoints14),
+    //SK_ARRAY_COUNT(gPoints15),
+    //SK_ARRAY_COUNT(gPoints16),
+    //SK_ARRAY_COUNT(gPoints17),
+    //SK_ARRAY_COUNT(gPoints18),
 };
 static_assert(SK_ARRAY_COUNT(gSimpleSizes) == SK_ARRAY_COUNT(gSimplePoints), "array_mismatch");
 
@@ -530,7 +531,7 @@ protected:
 
         const SkPath::Direction dirs[2] = { SkPath::kCW_Direction, SkPath::kCCW_Direction };
         const float insets[] = { 5, 10, 15, 20, 25, 30, 35, 40 };
-        const float offsets[] = { 2, 5, 9, 14, 20, 27, 35, 44, -2, -5, -9 };
+        const float offsets[] = { /*2, 5, 9,*/ 14, 20, 27, 35, 44, -2, -5, -9 };
         const SkColor colors[] = { 0xFF901313, 0xFF8D6214, 0xFF698B14, 0xFF1C8914,
                                    0xFF148755, 0xFF146C84, 0xFF142482, 0xFF4A1480,
                                    0xFF901313, 0xFF8D6214, 0xFF698B14 };

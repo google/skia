@@ -20,6 +20,9 @@
 struct OffsetSegment {
     SkPoint fP0;
     SkVector fV;
+#if defined(SK_DEBUG)
+    SkPoint fP1;
+#endif
 };
 
 // Computes perpDot for point p compared to segment defined by origin s0 and vector v0.
@@ -164,11 +167,11 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
             }
             localS = 0;
         } else {
-            // Project segment1's endpoints onto segment0
+            // Project segment1's endpoints onto s0
             localS = compute_param(v0, d);
             localT = 0;
             if (localS < 0 || localS > SK_Scalar1) {
-                // The first endpoint doesn't lie on segment0
+                // The first endpoint doesn't lie on s0
                 // If segment1 is degenerate, then there's no collision
                 if (!SkPointPriv::CanNormalize(v1.fX, v1.fY)) {
                     return false;
@@ -179,12 +182,12 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                 localS = compute_param(v0, d + v1);
                 localT = SK_Scalar1;
                 if (localS < 0 || localS > SK_Scalar1) {
-                    // it's possible that segment1's interval surrounds segment0
+                    // it's possible that segment1's interval surrounds s0
                     // this is false if params have the same signs, and in that case no collision
                     if (localS*oldLocalS > 0) {
                         return false;
                     }
-                    // otherwise project segment0's endpoint onto segment1 instead
+                    // otherwise project s0's endpoint onto segment1 instead
                     localS = 0;
                     localT = compute_param(v1, -d);
                 }
@@ -208,28 +211,88 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
     return true;
 }
 
-// computes the line intersection and then the distance to s0's endpoint
+// computes the squared distance between s0 and s1
 static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetSegment& s1) {
     const SkVector& v0 = s0.fV;
     const SkVector& v1 = s1.fV;
 
-    SkScalar perpDot = v0.cross(v1);
-    if (SkScalarNearlyZero(perpDot)) {
-        // segments are parallel
-        return SK_ScalarMax;
-    }
-
-    SkVector d = s1.fP0 - s0.fP0;
-    SkScalar localS = d.cross(v1) / perpDot;
-    if (localS < 0) {
-        localS = -localS;
+    SkScalar denom = v0.cross(v1);
+    SkVector w = s0.fP0 - s1.fP0;
+    SkScalar sn, sd, tn, td;
+    SkScalar s, t;
+    if (SkScalarNearlyZero(denom, SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
+        // clamp s to 0
+        sd = td = v1.dot(v1);
+        sn = 0.0f;
+        tn = v1.dot(w);
     } else {
-        localS -= SK_Scalar1;
+        // set up params to make range checks easier
+        if (denom < 0) {
+            sd = td = -denom;
+            sn = w.cross(v1);
+            tn = w.cross(v0);
+        } else {
+            sd = td = denom;
+            sn = v1.cross(w);
+            tn = v0.cross(w);
+        }
+
+        // clamp s to 0
+        if (sn < 0.0f) {
+            sn = 0.0f;
+            tn = v1.dot(w);
+            td = v1.dot(v1);
+            // clamp s to 1
+        } else if (sn > sd) {
+            sn = sd;
+            tn = v1.dot(w) + v0.dot(v1);
+            td = v1.dot(v1);
+        }
     }
 
-    localS *= v0.length();
+    // clamp t within [0,1]
+    // clamp t to 0
+    if (tn < 0.0f) {
+        t = 0.0f;
+        SkScalar a = v0.dot(v0);
+        SkScalar d = v0.dot(w);
+        // clamp s to 0
+        if (-d < 0.0f) {
+            s = 0.0f;
+            // clamp s to 1
+        } else if (-d > a) {
+            s = 1.0f;
+        } else {
+            s = -d / a;
+        }
+        // clamp t_c to 1
+    } else if (tn > td) {
+        SkScalar a = v0.dot(v0);
+        SkScalar b = v0.dot(v1);
+        SkScalar d = v0.dot(w);
+        t = 1.0f;
+        // clamp s_c to 0
+        if ((-d + b) < 0.0f) {
+            s = 0.0f;
+            // clamp s_c to 1
+        } else if ((-d + b) > a) {
+            s = 1.0f;
+        } else {
+            s = (-d + b) / a;
+        }
+    } else {
+        t = tn / td;
+        s = sn / sd;
+    }
 
-    return localS;
+    // compute difference vector and distance squared
+    SkVector distV = w + v0 * s - v1 * t;
+    SkScalar distSq = distV.dot(distV);
+    if (SkScalarNearlyZero(distSq, SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
+        distSq = 0;
+    }
+
+    return distSq;
 }
 
 bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
@@ -384,6 +447,9 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
         edgeData[curr].fNext = &edgeData[next];
         edgeData[curr].fInset.fP0 = p0;
         edgeData[curr].fInset.fV = p1 - p0;
+#if defined(SK_DEBUG)
+        edgeData[curr].fInset.fP1 = p1;
+#endif
         edgeData[curr].init();
     }
 
@@ -538,7 +604,11 @@ enum VertexFlags {
 
 struct ActiveEdge {
     ActiveEdge(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1)
+#if defined(SK_DEBUG)
+        : fSegment({p0, p1-p0, p1})
+#else
         : fSegment({p0, p1-p0})
+#endif
         , fIndex0(index0)
         , fIndex1(index1) {}
 
@@ -750,6 +820,9 @@ static void setup_offset_edge(OffsetEdge* currEdge,
                               int startIndex, int endIndex) {
     currEdge->fInset.fP0 = endpoint0;
     currEdge->fInset.fV = endpoint1 - endpoint0;
+#if defined(SK_DEBUG)
+    currEdge->fInset.fP1 = endpoint1;
+#endif
     currEdge->init(startIndex, endIndex);
 }
 
