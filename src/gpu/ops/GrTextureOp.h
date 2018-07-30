@@ -34,5 +34,6 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                GrAAType,
                                SkCanvas::SrcRectConstraint,
                                const SkMatrix& viewMatrix,
-                               sk_sp<GrColorSpaceXform>);
+                               sk_sp<GrColorSpaceXform> textureXform,
+                               sk_sp<GrColorSpaceXform> paintXform);
 }

@@ -99,7 +99,6 @@ static bool can_use_draw_texture(const SkPaint& paint) {
 static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
                          const SkRect* dst, GrAA aa, SkCanvas::SrcRectConstraint constraint,
                          sk_sp<GrTextureProxy> proxy,
-
                          SkColorSpace* colorSpace, const GrClip& clip, GrRenderTargetContext* rtc) {
     SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
     SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
@@ -111,7 +110,7 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
         srcToDst.mapRect(&dstRect, srcRect);
     }
-    auto csxf = GrColorSpaceXform::Make(colorSpace, rtc->colorSpaceInfo().colorSpace());
+    auto textureXform = GrColorSpaceXform::Make(colorSpace, rtc->colorSpaceInfo().colorSpace());
     GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
         case kNone_SkFilterQuality:
@@ -124,11 +123,18 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         case kHigh_SkFilterQuality:
             SK_ABORT("Quality level not allowed.");
     }
-    GrColor color = GrPixelConfigIsAlphaOnly(proxy->config())
-                            ? SkColorToPremulGrColor(paint.getColor())
-                            : SkColorAlphaToGrColor(paint.getColor());
+    GrColor color;
+    sk_sp<GrColorSpaceXform> paintColorXform = nullptr;
+    if (GrPixelConfigIsAlphaOnly(proxy->config())) {
+        // Leave the color unpremul if we're going to transform it in the vertex shader
+        paintColorXform = rtc->colorSpaceInfo().refColorSpaceXformFromSRGB();
+        color = paintColorXform ? SkColorToUnpremulGrColor(paint.getColor())
+                                : SkColorToPremulGrColor(paint.getColor());
+    } else {
+        color = SkColorAlphaToGrColor(paint.getColor());
+    }
     rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, constraint, ctm,
-                     std::move(csxf));
+                     std::move(textureXform), std::move(paintColorXform));
 }
 
 //////////////////////////////////////////////////////////////////////////////
