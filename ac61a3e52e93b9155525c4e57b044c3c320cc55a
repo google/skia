@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "d74509d1_fbc67d91",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-30T18:48:40Z",
+      "side": 1,
+      "message": "Many processors don\u0027t use textures, particularly GPs.",
+      "parentUuid": "923865ae_67acb3a9",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "fbcb2279_e72fc54f",
         "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.cpp",
         "patchSetId": 7
@@ -33,6 +51,24 @@
       "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60638cf8_d8cb280d",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-30T18:48:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fbcb2279_e72fc54f",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "2976b9ab_9223120e",
+        "filename": "src/gpu/effects/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-30T18:48:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6c6949a2_cbcb3b90",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "31a107f0_1953a065",
         "filename": "src/gpu/effects/GrMagnifierEffect.cpp",
         "patchSetId": 7
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "e9afea38_2656241f",
+        "filename": "src/gpu/effects/GrMagnifierEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-30T18:48:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31a107f0_1953a065",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "03734759_e3a2f1f9",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 7
@@ -81,6 +153,24 @@
       "writtenOn": "2018-07-30T18:38:13Z",
       "side": 1,
       "message": "Simplify it here?",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5702fce6_85a3a3fa",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-30T18:48:40Z",
+      "side": 1,
+      "message": "Done. I made it be GrFragmentProcessor::TextureSampler rather than GrResourceIOProcessor::TextureSampler because GrResourceIOProcessor is going away.",
+      "parentUuid": "03734759_e3a2f1f9",
       "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
