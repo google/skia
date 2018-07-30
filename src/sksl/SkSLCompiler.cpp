@@ -13,6 +13,7 @@
 #include "SkSLHCodeGenerator.h"
 #include "SkSLIRGenerator.h"
 #include "SkSLMetalCodeGenerator.h"
+#include "SkSLPipelineStageCodeGenerator.h"
 #include "SkSLSPIRVCodeGenerator.h"
 #include "ir/SkSLEnum.h"
 #include "ir/SkSLExpression.h"
@@ -55,8 +56,8 @@ static const char* SKSL_FP_INCLUDE =
 #include "sksl_fp.inc"
 ;
 
-static const char* SKSL_CPU_INCLUDE =
-#include "sksl_cpu.inc"
+static const char* SKSL_PIPELINE_STAGE_INCLUDE =
+#include "sksl_pipeline.inc"
 ;
 
 namespace SkSL {
@@ -231,21 +232,18 @@ Compiler::Compiler(Flags flags)
                                  strlen(SKSL_VERT_INCLUDE), *fTypes, &fVertexInclude);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     fVertexSymbolTable = fIRGenerator->fSymbolTable;
-    fIRGenerator->finish();
 
     fIRGenerator->start(&settings, nullptr);
     fIRGenerator->convertProgram(Program::kVertex_Kind, SKSL_FRAG_INCLUDE,
                                  strlen(SKSL_FRAG_INCLUDE), *fTypes, &fFragmentInclude);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     fFragmentSymbolTable = fIRGenerator->fSymbolTable;
-    fIRGenerator->finish();
 
     fIRGenerator->start(&settings, nullptr);
     fIRGenerator->convertProgram(Program::kGeometry_Kind, SKSL_GEOM_INCLUDE,
                                  strlen(SKSL_GEOM_INCLUDE), *fTypes, &fGeometryInclude);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     fGeometrySymbolTable = fIRGenerator->fSymbolTable;
-    fIRGenerator->finish();
 }
 
 Compiler::~Compiler() {
@@ -1243,11 +1241,11 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                          &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
-        case Program::kCPU_Kind:
+        case Program::kPipelineStage_Kind:
             inherited = nullptr;
             fIRGenerator->start(&settings, nullptr);
-            fIRGenerator->convertProgram(kind, SKSL_CPU_INCLUDE, strlen(SKSL_CPU_INCLUDE),
-                                         *fTypes, &elements);
+            fIRGenerator->convertProgram(kind, SKSL_PIPELINE_STAGE_INCLUDE,
+                                         strlen(SKSL_PIPELINE_STAGE_INCLUDE), *fTypes, &elements);
             fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
             break;
     }
@@ -1259,13 +1257,6 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
     std::unique_ptr<String> textPtr(new String(std::move(text)));
     fSource = textPtr.get();
     fIRGenerator->convertProgram(kind, textPtr->c_str(), textPtr->size(), *fTypes, &elements);
-    if (!fErrorCount) {
-        for (auto& element : elements) {
-            if (element->fKind == ProgramElement::kFunction_Kind) {
-                this->scanCFG((FunctionDefinition&) *element);
-            }
-        }
-    }
     auto result = std::unique_ptr<Program>(new Program(kind,
                                                        std::move(textPtr),
                                                        settings,
@@ -1274,16 +1265,55 @@ std::unique_ptr<Program> Compiler::convertProgram(Program::Kind kind, String tex
                                                        std::move(elements),
                                                        fIRGenerator->fSymbolTable,
                                                        fIRGenerator->fInputs));
-    fIRGenerator->finish();
-    fSource = nullptr;
-    this->writeErrorCount();
     if (fErrorCount) {
         return nullptr;
     }
     return result;
 }
 
-bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
+bool Compiler::optimize(Program& program) {
+    SkASSERT(!fErrorCount);
+    if (!program.fIsOptimized) {
+        program.fIsOptimized = true;
+        fIRGenerator->fKind = program.fKind;
+        fIRGenerator->fSettings = &program.fSettings;
+        for (auto& element : program) {
+            if (element.fKind == ProgramElement::kFunction_Kind) {
+                this->scanCFG((FunctionDefinition&) element);
+            }
+        }
+        fSource = nullptr;
+    }
+    return fErrorCount == 0;
+}
+
+std::unique_ptr<Program> Compiler::specialize(
+                   Program& program,
+                   const std::unordered_map<SkSL::String, SkSL::Program::Settings::Value>& inputs) {
+    std::vector<std::unique_ptr<ProgramElement>> elements;
+    for (const auto& e : program) {
+        elements.push_back(e.clone());
+    }
+    Program::Settings settings;
+    settings.fCaps = program.fSettings.fCaps;
+    for (auto iter = inputs.begin(); iter != inputs.end(); ++iter) {
+        settings.fArgs.insert(*iter);
+    }
+    std::unique_ptr<Program> result(new Program(program.fKind,
+                                                nullptr,
+                                                settings,
+                                                program.fContext,
+                                                program.fInheritedElements,
+                                                std::move(elements),
+                                                program.fSymbols,
+                                                program.fInputs));
+    return result;
+}
+
+bool Compiler::toSPIRV(Program& program, OutputStream& out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
 #ifdef SK_ENABLE_SPIRV_VALIDATION
     StringStream buffer;
     fSource = program.fSource.get();
@@ -1309,11 +1339,10 @@ bool Compiler::toSPIRV(const Program& program, OutputStream& out) {
     bool result = cg.generateCode();
     fSource = nullptr;
 #endif
-    this->writeErrorCount();
     return result;
 }
 
-bool Compiler::toSPIRV(const Program& program, String* out) {
+bool Compiler::toSPIRV(Program& program, String* out) {
     StringStream buffer;
     bool result = this->toSPIRV(program, buffer);
     if (result) {
@@ -1322,16 +1351,18 @@ bool Compiler::toSPIRV(const Program& program, String* out) {
     return result;
 }
 
-bool Compiler::toGLSL(const Program& program, OutputStream& out) {
+bool Compiler::toGLSL(Program& program, OutputStream& out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     fSource = program.fSource.get();
     GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
-    this->writeErrorCount();
     return result;
 }
 
-bool Compiler::toGLSL(const Program& program, String* out) {
+bool Compiler::toGLSL(Program& program, String* out) {
     StringStream buffer;
     bool result = this->toGLSL(program, buffer);
     if (result) {
@@ -1340,14 +1371,19 @@ bool Compiler::toGLSL(const Program& program, String* out) {
     return result;
 }
 
-bool Compiler::toMetal(const Program& program, OutputStream& out) {
+bool Compiler::toMetal(Program& program, OutputStream& out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     MetalCodeGenerator cg(fContext.get(), &program, this, &out);
     bool result = cg.generateCode();
-    this->writeErrorCount();
     return result;
 }
 
-bool Compiler::toMetal(const Program& program, String* out) {
+bool Compiler::toMetal(Program& program, String* out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     StringStream buffer;
     bool result = this->toMetal(program, buffer);
     if (result) {
@@ -1356,21 +1392,39 @@ bool Compiler::toMetal(const Program& program, String* out) {
     return result;
 }
 
-bool Compiler::toCPP(const Program& program, String name, OutputStream& out) {
+bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     fSource = program.fSource.get();
     CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
-    this->writeErrorCount();
     return result;
 }
 
-bool Compiler::toH(const Program& program, String name, OutputStream& out) {
+bool Compiler::toH(Program& program, String name, OutputStream& out) {
+    if (!this->optimize(program)) {
+        return false;
+    }
     fSource = program.fSource.get();
     HCodeGenerator cg(fContext.get(), &program, this, name, &out);
     bool result = cg.generateCode();
     fSource = nullptr;
-    this->writeErrorCount();
+    return result;
+}
+
+bool Compiler::toPipelineStage(const Program& program, String* out,
+                               std::vector<FormatArg>* outFormatArgs) {
+    SkASSERT(program.fIsOptimized);
+    fSource = program.fSource.get();
+    StringStream buffer;
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    bool result = cg.generateCode();
+    fSource = nullptr;
+    if (result) {
+        *out = buffer.str();
+    }
     return result;
 }
 
@@ -1465,6 +1519,8 @@ void Compiler::error(int offset, String msg) {
 }
 
 String Compiler::errorText() {
+    this->writeErrorCount();
+    fErrorCount = 0;
     String result = fErrorText;
     return result;
 }

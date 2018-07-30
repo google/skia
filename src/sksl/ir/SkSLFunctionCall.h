@@ -32,6 +32,15 @@ struct FunctionCall : public Expression {
         return fFunction.fModifiers.fFlags & Modifiers::kHasSideEffects_Flag;
     }
 
+    std::unique_ptr<Expression> clone() const override {
+        std::vector<std::unique_ptr<Expression>> cloned;
+        for (const auto& arg : fArguments) {
+            cloned.push_back(arg->clone());
+        }
+        return std::unique_ptr<Expression>(new FunctionCall(fOffset, fType, fFunction,
+                                                            std::move(cloned)));
+    }
+
     String description() const override {
         String result = String(fFunction.fName) + "(";
         String separator;
