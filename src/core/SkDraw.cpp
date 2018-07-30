@@ -1628,9 +1628,18 @@ void SkDraw::drawGlyphRunList(
         return;
     }
 
-    auto perPathBuilder = [this](const SkPaint& paint, SkArenaAlloc*) {
-        auto perPath = [this, &paint](const SkPath& path, const SkMatrix& matrix) {
-            this->drawPath(path, paint, &matrix, false);
+    SkMatrix renderMatrix{*fMatrix};
+    auto perPathBuilder = [this, &renderMatrix]
+            (const SkPaint& paint, SkScalar scaleMatrix, SkArenaAlloc*) {
+        renderMatrix.setScale(scaleMatrix, scaleMatrix);
+        auto perPath =
+                [this, &renderMatrix, &paint]
+                (const SkPath* path, const SkGlyph&, SkPoint position) {
+            if (path != nullptr) {
+                renderMatrix[SkMatrix::kMTransX] = position.fX;
+                renderMatrix[SkMatrix::kMTransY] = position.fY;
+                this->drawPath(*path, paint, &renderMatrix, false);
+            }
         };
         return perPath;
     };
