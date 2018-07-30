@@ -2230,7 +2230,6 @@ bool skcms_Transform(const void*             src,
     //
     // E.g. r = 1.1, a = 0.5 would fit fine in fixed point after premul (ra=0.55,a=0.5),
     // but would be carrying r > 1, which is really unexpected for downstream consumers.
-    // TODO(mtklein): add a unit test
     if (dstFmt < skcms_PixelFormat_RGB_hhh) {
         *ops++ = Op_clamp;
     }
