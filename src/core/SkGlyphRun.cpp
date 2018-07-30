@@ -163,38 +163,16 @@ bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {
 }
 
 void SkGlyphRunListDrawer::drawUsingPaths(
-        const SkGlyphRun& glyphRun, SkPoint origin,
-        const SkSurfaceProps& props, PerPath perPath) const {
-    // setup our std paint, in hopes of getting hits in the cache
-    const SkPaint& origPaint = glyphRun.paint();
-    SkPaint paint(glyphRun.paint());
-    SkScalar matrixScale = paint.setupForAsPaths();
+        const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const {
 
-    SkMatrix matrix;
-    matrix.setScale(matrixScale, matrixScale);
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            paint, &props, fScalerContextFlags, nullptr);
-
-    // Now restore the original settings, so we "draw" with whatever style/stroking.
-    paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(origPaint.refPathEffect());
-
-    auto eachGlyph = [perPath{std::move(perPath)}, origin, &cache, &matrix]
+    auto eachGlyph =
+            [perPath{std::move(perPath)}, origin, &cache]
             (SkGlyphID glyphID, SkPoint position) {
         const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
         if (glyph.fWidth > 0) {
             const SkPath* path = cache->findPath(glyph);
-            if (path != nullptr) {
-                SkPoint loc = position + origin;
-                matrix[SkMatrix::kMTransX] = loc.fX;
-                matrix[SkMatrix::kMTransY] = loc.fY;
-                perPath(*path, matrix);
-            }
+            SkPoint loc = position + origin;
+            perPath(path, glyph, loc);
         }
     };
 
@@ -319,8 +297,20 @@ void SkGlyphRunListDrawer::drawForBitmapDevice(
                     : fBitmapFallbackProps;
         auto paint = glyphRun.paint();
         if (ShouldDrawAsPath(glyphRun.paint(), deviceMatrix)) {
-            auto perPath = perPathCreator(paint, &alloc);
-            this->drawUsingPaths(glyphRun, origin, props, perPath);
+
+            // setup our std pathPaint, in hopes of getting hits in the cache
+            SkPaint pathPaint(glyphRun.paint());
+            SkScalar matrixScale = pathPaint.setupForAsPaths();
+
+            // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
+            pathPaint.setStyle(SkPaint::kFill_Style);
+            pathPaint.setPathEffect(nullptr);
+
+            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                    pathPaint, &props, fScalerContextFlags, nullptr);
+
+            auto perPath = perPathCreator(paint, matrixScale, &alloc);
+            this->drawUsingPaths(glyphRun, origin, pathCache.get(), perPath);
         } else {
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     paint, &props, fScalerContextFlags, &deviceMatrix);
