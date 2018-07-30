@@ -88,7 +88,7 @@ using sk_gpu_test::GrContextFactory;
 
 namespace DM {
 
-GMSrc::GMSrc(skiagm::GMRegistry::Factory factory) : fFactory(factory) {}
+GMSrc::GMSrc(skiagm::GMFactory factory) : fFactory(factory) {}
 
 Error GMSrc::draw(SkCanvas* canvas) const {
     std::unique_ptr<skiagm::GM> gm(fFactory(nullptr));
