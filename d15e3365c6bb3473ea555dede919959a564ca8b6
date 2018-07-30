@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "20807055_583109bf",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T22:03:46Z",
+      "side": 1,
+      "message": "All of these \u0027pre\u0027 actually need to be \u0027post\u0027.",
+      "range": {
+        "startLine": 989,
+        "startChar": 11,
+        "endLine": 989,
+        "endChar": 14
+      },
+      "revId": "d15e3365c6bb3473ea555dede919959a564ca8b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7349b97f_c1f47252",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 990,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T22:03:46Z",
+      "side": 1,
+      "message": "ifndef",
+      "range": {
+        "startLine": 990,
+        "startChar": 1,
+        "endLine": 990,
+        "endChar": 6
+      },
+      "revId": "d15e3365c6bb3473ea555dede919959a564ca8b6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
