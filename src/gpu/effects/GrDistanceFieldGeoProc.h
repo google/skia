@@ -104,6 +104,8 @@ private:
         return IthAttribute(i, fInPosition, kInColor, kInTextureCoords);
     }
 
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
+
     static constexpr int kMaxTextures = 4;
 
     TextureSampler   fTextureSamplers[kMaxTextures];
@@ -165,6 +167,7 @@ private:
                                const GrSamplerState&, uint32_t flags);
 
     const Attribute& onVertexAttribute(int i) const override;
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
@@ -235,6 +238,7 @@ private:
                                   const SkMatrix& localMatrix);
 
     const Attribute& onVertexAttribute(int) const override;
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     static constexpr int kMaxTextures = 4;
 

@@ -223,14 +223,17 @@ void HCodeGenerator::writeConstructor() {
     }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
+    int samplerCount = 0;
     for (const auto& param : fSectionAndParameterHelper.getParameters()) {
         if (param->fType.kind() == Type::kSampler_Kind) {
-            this->writef("        this->addTextureSampler(&%s);\n",
-                         FieldName(String(param->fName).c_str()).c_str());
+            ++samplerCount;
         } else if (param->fType == *fContext.fFragmentProcessor_Type) {
             this->writef("        this->registerChildProcessor(std::move(%s));",
                          String(param->fName).c_str());
         }
+    }
+    if (samplerCount) {
+        this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
     }
     for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
         String field = FieldName(s->fArgument.c_str());
@@ -312,8 +315,14 @@ bool HCodeGenerator::generateCode() {
     this->writef("    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;\n"
                  "    void onGetGLSLProcessorKey(const GrShaderCaps&,"
                                                 "GrProcessorKeyBuilder*) const override;\n"
-                 "    bool onIsEqual(const GrFragmentProcessor&) const override;\n"
-                 "    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
+                 "    bool onIsEqual(const GrFragmentProcessor&) const override;\n");
+    for (const auto& param : fSectionAndParameterHelper.getParameters()) {
+        if (param->fType.kind() == Type::kSampler_Kind) {
+            this->writef("    const TextureSampler& onTextureSampler(int) const override;");
+            break;
+        }
+    }
+    this->writef("    GR_DECLARE_FRAGMENT_PROCESSOR_TEST\n");
     this->writeFields();
     this->writef("    typedef GrFragmentProcessor INHERITED;\n"
                 "};\n");

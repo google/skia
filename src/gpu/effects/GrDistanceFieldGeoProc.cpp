@@ -236,10 +236,9 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const sk_sp<GrTexture
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-
         fTextureSamplers[i].reset(std::move(proxies[i]), params);
-        this->addTextureSampler(&fTextureSamplers[i]);
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
@@ -249,12 +248,11 @@ void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* pr
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
-            this->addTextureSampler(&fTextureSamplers[i]);
         }
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldA8TextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -519,10 +517,9 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const SkMatrix& matrix,
     this->setVertexAttributeCnt(3);
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-
         fTextureSamplers[i].reset(std::move(proxies[i]), params);
-        this->addTextureSampler(&fTextureSamplers[i]);
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
@@ -535,9 +532,9 @@ void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* prox
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
-            this->addTextureSampler(&fTextureSamplers[i]);
         }
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldPathGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
@@ -834,10 +831,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextu
 
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-
         fTextureSamplers[i].reset(std::move(proxies[i]), params);
-        this->addTextureSampler(&fTextureSamplers[i]);
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
@@ -850,9 +846,9 @@ void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* p
 
         if (!fTextureSamplers[i].isInitialized()) {
             fTextureSamplers[i].reset(std::move(proxies[i]), params);
-            this->addTextureSampler(&fTextureSamplers[i]);
         }
     }
+    this->setTextureSamplerCnt(numProxies);
 }
 
 void GrDistanceFieldLCDTextGeoProc::getGLSLProcessorKey(const GrShaderCaps& caps,
