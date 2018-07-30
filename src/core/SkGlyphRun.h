@@ -129,7 +129,7 @@ private:
     bool ensureBitmapBuffers(size_t runSize);
     void drawUsingPaths(
             const SkGlyphRun& glyphRun, SkPoint origin,
-            const SkSurfaceProps& props, PerPath perPath) const;
+            SkScalar matrixScale, SkGlyphCache* cache, PerPath perPath) const;
     void drawGlyphRunAsSubpixelMask(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
