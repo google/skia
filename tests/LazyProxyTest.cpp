@@ -242,8 +242,8 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                         *testCountPtr = 1;
                         return sk_sp<GrTexture>();
                     },
-                    desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
-                    SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+                    desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrTextureType::k2D,
+                    GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
             REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
@@ -309,8 +309,8 @@ private:
                     }
                     return rp->createTexture(desc, SkBudgeted::kNo);
                 },
-                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
-                SkBudgeted::kNo);
+                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrTextureType::k2D,
+                SkBackingFit::kExact, SkBudgeted::kNo);
 
         SkASSERT(fLazyProxy.get());
 
@@ -453,8 +453,8 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                     texture->setRelease(UninstantiateReleaseProc, releasePtr);
                     return texture;
                 },
-                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
-                SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+                desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrTextureType::k2D,
+                GrInternalSurfaceFlags::kNone, SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
         REPORTER_ASSERT(reporter, lazyProxy.get());
 

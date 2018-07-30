@@ -15,7 +15,7 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-static inline GrTextureType texture_type_from_target(GrGLenum target) {
+GrTextureType GrGLTexture::TextureTypeFromTarget(GrGLenum target) {
     switch (target) {
         case GR_GL_TEXTURE_2D:
             return GrTextureType::k2D;
@@ -55,7 +55,7 @@ static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDe
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, texture_type_from_target(idDesc.fInfo.fTarget),
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
                     highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
@@ -64,7 +64,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
                          GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, texture_type_from_target(idDesc.fInfo.fTarget),
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
                     highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
@@ -73,7 +73,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, texture_type_from_target(idDesc.fInfo.fTarget),
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
                     highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
 }
@@ -81,10 +81,6 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& 
 void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fID);
     SkASSERT(0 != idDesc.fInfo.fFormat);
-    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
-        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        this->setIsGLTextureRectangleOrExternal();
-    }
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
     fID = idDesc.fInfo.fID;
