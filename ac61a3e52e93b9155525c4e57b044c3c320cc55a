@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "923865ae_67acb3a9",
+        "filename": "src/gpu/GrProcessor.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-30T18:38:13Z",
+      "side": 1,
+      "message": "Why not pure virtual ?",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbcb2279_e72fc54f",
+        "filename": "src/gpu/effects/GrAlphaThresholdFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-30T18:38:13Z",
+      "side": 1,
+      "message": "This seems like the long way round to define this",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6c6949a2_cbcb3b90",
+        "filename": "src/gpu/effects/GrCircleBlurFragmentProcessor.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-30T18:38:13Z",
+      "side": 1,
+      "message": "Here too ?",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31a107f0_1953a065",
+        "filename": "src/gpu/effects/GrMagnifierEffect.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-30T18:38:13Z",
+      "side": 1,
+      "message": "Here too?",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03734759_e3a2f1f9",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-30T18:38:13Z",
+      "side": 1,
+      "message": "Simplify it here?",
+      "revId": "ac61a3e52e93b9155525c4e57b044c3c320cc55a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
