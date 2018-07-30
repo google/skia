@@ -15,18 +15,17 @@
 #define GPUGL static_cast<GrGLGpu*>(this->getGpu())
 #define GL_CALL(X) GR_GL_CALL(GPUGL->glInterface(), X)
 
-static inline GrSLType sampler_type(const GrGLTexture::IDDesc& idDesc, GrPixelConfig config,
-                                    const GrGLGpu* gpu) {
-    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        SkASSERT(gpu->caps()->shaderCaps()->externalTextureSupport());
-        return kTextureExternalSampler_GrSLType;
-    } else if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE) {
-        SkASSERT(gpu->glCaps().rectangleTextureSupport());
-        return kTexture2DRectSampler_GrSLType;
-    } else {
-        SkASSERT(idDesc.fInfo.fTarget == GR_GL_TEXTURE_2D);
-        return kTexture2DSampler_GrSLType;
+static inline GrTextureType texture_type(GrGLenum target) {
+    switch (target) {
+        case GR_GL_TEXTURE_2D:
+            return GrTextureType::k2D;
+        case GR_GL_TEXTURE_RECTANGLE:
+            return GrTextureType::kRectangle;
+        case GR_GL_TEXTURE_EXTERNAL:
+            return GrTextureType::kExternal;
     }
+    SK_ABORT("Unexpected texture target");
+    return GrTextureType::k2D;
 }
 
 // This method parallels GrTextureProxy::highestFilterMode
@@ -42,27 +41,27 @@ static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDe
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, texture_type(idDesc.fInfo.fTarget),
+                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
                          GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, texture_type(idDesc.fInfo.fTarget),
+                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
 
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          GrMipMapsStatus mipMapsStatus)
-    : GrSurface(gpu, desc)
-    , INHERITED(gpu, desc, sampler_type(idDesc, desc.fConfig, gpu),
-                highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        : GrSurface(gpu, desc)
+        , INHERITED(gpu, desc, texture_type(idDesc.fInfo.fTarget),
+                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
     this->init(desc, idDesc);
 }
 
