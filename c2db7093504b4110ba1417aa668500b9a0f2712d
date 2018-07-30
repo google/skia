@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9f49f7e_43f464e3",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T18:18:31Z",
+      "side": 1,
+      "message": "Wrap this in\n\n#ifdef SK_IGNORE_EMOJI_SUBPIXEL_FIX\n....\n#endif",
+      "range": {
+        "startLine": 598,
+        "startChar": 0,
+        "endLine": 601,
+        "endChar": 5
+      },
+      "revId": "c2db7093504b4110ba1417aa668500b9a0f2712d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22a0dee4_07e69793",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T18:18:31Z",
+      "side": 1,
+      "message": "This doesn\u0027t return an HRESULT, and I don\u0027t think we need to check the return value anyway.",
+      "range": {
+        "startLine": 602,
+        "startChar": 4,
+        "endLine": 602,
+        "endChar": 7
+      },
+      "revId": "c2db7093504b4110ba1417aa668500b9a0f2712d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9f15073_bf16b299",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T18:18:31Z",
+      "side": 1,
+      "message": "Same ifdef here.",
+      "range": {
+        "startLine": 988,
+        "startChar": 0,
+        "endLine": 991,
+        "endChar": 5
+      },
+      "revId": "c2db7093504b4110ba1417aa668500b9a0f2712d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
