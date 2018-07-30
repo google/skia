@@ -9,9 +9,10 @@
 #include <cstring>
 #include <type_traits>
 
-#include "GrAHardwareBufferImageGenerator.h"
+#include "SkAutoPixmapStorage.h"
 #include "GrBackendSurface.h"
 #include "GrBackendTextureImageGenerator.h"
+#include "GrAHardwareBufferImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
@@ -24,24 +25,23 @@
 #include "GrResourceProvider.h"
 #include "GrSemaphore.h"
 #include "GrSurfacePriv.h"
-#include "GrTexture.h"
 #include "GrTextureAdjuster.h"
+#include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
-#include "SkAutoPixmapStorage.h"
-#include "SkBitmapCache.h"
+#include "gl/GrGLDefines.h"
+#include "effects/GrYUVtoRGBEffect.h"
 #include "SkCanvas.h"
+#include "SkBitmapCache.h"
 #include "SkGr.h"
+#include "SkImage_Gpu.h"
 #include "SkImageCacherator.h"
 #include "SkImageInfoPriv.h"
-#include "SkImage_Gpu.h"
 #include "SkMipMap.h"
 #include "SkPixelRef.h"
 #include "SkReadPixelsRec.h"
 #include "SkTraceEvent.h"
-#include "effects/GrYUVtoRGBEffect.h"
-#include "gl/GrGLTexture.h"
 
 SkImage_Gpu::SkImage_Gpu(sk_sp<GrContext> context, uint32_t uniqueID, SkAlphaType at,
                          sk_sp<GrTextureProxy> proxy, sk_sp<SkColorSpace> colorSpace,
@@ -651,11 +651,14 @@ private:
     sk_sp<GrReleaseProcHelper> fDoneHelper;
 };
 
-static GrTextureType TextureTypeFromBackendFormat(const GrBackendFormat& backendFormat) {
+static GrInternalSurfaceFlags get_flags_from_format(const GrBackendFormat& backendFormat) {
     if (const GrGLenum* target = backendFormat.getGLTarget()) {
-        return GrGLTexture::TextureTypeFromTarget(*target);
+        if (GR_GL_TEXTURE_RECTANGLE == *target || GR_GL_TEXTURE_EXTERNAL == *target) {
+            return GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
+        }
     }
-    return GrTextureType::k2D;
+
+    return GrInternalSurfaceFlags::kNone;
 }
 
 sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
@@ -693,9 +696,10 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
         return nullptr;
     }
 
-    GrTextureType textureType = TextureTypeFromBackendFormat(backendFormat);
+    GrInternalSurfaceFlags formatFlags = get_flags_from_format(backendFormat);
 
-    if (mipMapped == GrMipMapped::kYes && GrTextureTypeHasRestrictedSampling(textureType)) {
+    if (mipMapped == GrMipMapped::kYes &&
+        SkToBool(formatFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal)) {
         // It is invalid to have a GL_TEXTURE_EXTERNAL or GL_TEXTURE_RECTANGLE and have mips as
         // well.
         return nullptr;
@@ -712,17 +716,15 @@ sk_sp<SkImage> SkImage_Gpu::MakePromiseTexture(GrContext* context,
                                      textureContext);
 
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [promiseHelper, config](GrResourceProvider* resourceProvider) mutable {
+            [promiseHelper, config] (GrResourceProvider* resourceProvider) mutable {
                 if (!resourceProvider) {
                     promiseHelper.reset();
                     return sk_sp<GrTexture>();
                 }
 
                 return promiseHelper.getTexture(resourceProvider, config);
-            },
-            desc, origin, mipMapped, textureType, GrInternalSurfaceFlags::kNone,
-            SkBackingFit::kExact, SkBudgeted::kNo,
-            GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
+            }, desc, origin, mipMapped, formatFlags, SkBackingFit::kExact,
+               SkBudgeted::kNo, GrSurfaceProxy::LazyInstantiationType::kUninstantiate);
 
     if (!proxy) {
         return nullptr;

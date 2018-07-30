@@ -31,9 +31,6 @@ public:
         GrGLTextureInfo             fInfo;
         GrBackendObjectOwnership    fOwnership;
     };
-
-    static GrTextureType TextureTypeFromTarget(GrGLenum textureTarget);
-
     GrGLTexture(GrGLGpu*, SkBudgeted, const GrSurfaceDesc&, const IDDesc&, GrMipMapsStatus);
 
     ~GrGLTexture() override {

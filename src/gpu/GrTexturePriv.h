@@ -41,9 +41,6 @@ public:
     }
 
     GrTextureType textureType() const { return fTexture->fTextureType; }
-    bool hasRestrictedSampling() const {
-        return GrTextureTypeHasRestrictedSampling(this->textureType());
-    }
 
     /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
     GrSamplerState::Filter highestFilterMode() const { return fTexture->fHighestFilterMode; }

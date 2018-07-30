@@ -148,15 +148,14 @@ public:
                                                            int sampleCnt);
 
     using LazyInstantiateCallback = std::function<sk_sp<GrSurface>(GrResourceProvider*)>;
-
-    enum class Renderable : bool {
+    enum class Textureable : bool {
         kNo = false,
         kYes = true
     };
 
-    struct TextureInfo {
-        GrMipMapped fMipMapped;
-        GrTextureType fTextureType;
+    enum class Renderable : bool {
+        kNo = false,
+        kYes = true
     };
 
     using LazyInstantiationType = GrSurfaceProxy::LazyInstantiationType;
@@ -171,26 +170,20 @@ public:
      * callback should cleanup any resources it captured and return an empty sk_sp<GrTextureProxy>.
      */
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrTextureType,
-                                          GrInternalSurfaceFlags, SkBackingFit, SkBudgeted,
-                                          LazyInstantiationType);
+                                          GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
+                                          SkBackingFit, SkBudgeted, LazyInstantiationType);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrTextureType,
-                                          GrInternalSurfaceFlags, SkBackingFit, SkBudgeted);
+                                          GrSurfaceOrigin, GrMipMapped, GrInternalSurfaceFlags,
+                                          SkBackingFit, SkBudgeted);
 
     sk_sp<GrTextureProxy> createLazyProxy(LazyInstantiateCallback&&, const GrSurfaceDesc&,
-                                          GrSurfaceOrigin, GrMipMapped, GrTextureType, SkBackingFit,
-                                          SkBudgeted);
-
-    /** A null TextureInfo indicates a non-textureable render target. */
+                                          GrSurfaceOrigin, GrMipMapped, SkBackingFit, SkBudgeted);
     sk_sp<GrRenderTargetProxy> createLazyRenderTargetProxy(LazyInstantiateCallback&&,
                                                            const GrSurfaceDesc&,
                                                            GrSurfaceOrigin origin,
-                                                           GrInternalSurfaceFlags,
-                                                           const TextureInfo*,
-                                                           SkBackingFit,
-                                                           SkBudgeted);
+                                                           GrInternalSurfaceFlags, Textureable,
+                                                           GrMipMapped, SkBackingFit, SkBudgeted);
 
     /**
      * Fully lazy proxies have unspecified width and height. Methods that rely on those values

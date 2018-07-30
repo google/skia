@@ -97,8 +97,9 @@ private:
     TestFP(const SkTArray<sk_sp<GrTextureProxy>>& proxies, const SkTArray<sk_sp<GrBuffer>>& buffers)
             : INHERITED(kTestFP_ClassID, kNone_OptimizationFlags), fSamplers(4) {
         for (const auto& proxy : proxies) {
-            this->addTextureSampler(&fSamplers.emplace_back(proxy));
+            fSamplers.emplace_back(proxy);
         }
+        this->setTextureSamplerCnt(fSamplers.count());
     }
 
     TestFP(std::unique_ptr<GrFragmentProcessor> child)
@@ -110,11 +111,11 @@ private:
             : INHERITED(kTestFP_ClassID, that.optimizationFlags()), fSamplers(4) {
         for (int i = 0; i < that.fSamplers.count(); ++i) {
             fSamplers.emplace_back(that.fSamplers[i]);
-            this->addTextureSampler(&fSamplers.back());
         }
         for (int i = 0; i < that.numChildProcessors(); ++i) {
             this->registerChildProcessor(that.childProcessor(i).clone());
         }
+        this->setTextureSamplerCnt(fSamplers.count());
     }
 
     virtual GrGLSLFragmentProcessor* onCreateGLSLInstance() const override {
@@ -132,6 +133,7 @@ private:
     }
 
     bool onIsEqual(const GrFragmentProcessor&) const override { return false; }
+    const TextureSampler& onTextureSampler(int i) const override { return fSamplers[i]; }
 
     GrTAllocator<TextureSampler> fSamplers;
     typedef GrFragmentProcessor INHERITED;

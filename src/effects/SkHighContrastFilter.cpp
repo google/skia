@@ -177,8 +177,7 @@ private:
     HighContrastFilterEffect(const SkHighContrastConfig& config, bool linearize)
         : INHERITED(kHighContrastFilterEffect_ClassID, kNone_OptimizationFlags)
         , fConfig(config)
-        , fLinearize(linearize) {
-    }
+        , fLinearize(linearize) {}
 
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
 
