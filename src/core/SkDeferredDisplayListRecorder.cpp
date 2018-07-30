@@ -113,6 +113,13 @@ bool SkDeferredDisplayListRecorder::init() {
     if (usesGLFBO0) {
         surfaceFlags |= GrInternalSurfaceFlags::kGLRTFBOIDIs0;
     }
+    GrProxyProvider::TextureInfo textureInfo;
+    GrProxyProvider::TextureInfo* optionalTextureInfo = nullptr;
+    if (fCharacterization.isTextureable()) {
+        optionalTextureInfo = &textureInfo;
+        textureInfo.fTextureType = GrTextureType::k2D;
+        textureInfo.fMipMapped = GrMipMapped::kNo;
+    }
 
     sk_sp<GrRenderTargetProxy> proxy = proxyProvider->createLazyRenderTargetProxy(
             [lazyProxyData](GrResourceProvider* resourceProvider) {
@@ -128,8 +135,7 @@ bool SkDeferredDisplayListRecorder::init() {
             desc,
             fCharacterization.origin(),
             surfaceFlags,
-            GrProxyProvider::Textureable(fCharacterization.isTextureable()),
-            GrMipMapped::kNo,
+            optionalTextureInfo,
             SkBackingFit::kExact,
             SkBudgeted::kYes);
 

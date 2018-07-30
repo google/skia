@@ -6,7 +6,6 @@
  */
 
 #include "GrBackendTextureImageGenerator.h"
-
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
@@ -19,9 +18,9 @@
 #include "GrTexture.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
-
 #include "SkGr.h"
 #include "SkMessageBus.h"
+#include "gl/GrGLTexture.h"
 
 GrBackendTextureImageGenerator::RefHelper::~RefHelper() {
     SkASSERT(nullptr == fBorrowedTexture);
@@ -134,6 +133,11 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
     GrBackendTexture backendTexture = fBackendTexture;
     RefHelper* refHelper = fRefHelper;
 
+    GrTextureType textureType = GrTextureType::k2D;
+    GrGLTextureInfo glInfo;
+    if (backendTexture.getGLTextureInfo(&glInfo)) {
+        textureType = GrGLTexture::TextureTypeFromTarget(glInfo.fTarget);
+    }
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
             [refHelper, releaseProcHelper, semaphore,
              backendTexture](GrResourceProvider* resourceProvider) {
@@ -171,9 +175,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
                 }
 
                 return tex;
-
             },
-            desc, fSurfaceOrigin, mipMapped, SkBackingFit::kExact, SkBudgeted::kNo);
+            desc, fSurfaceOrigin, mipMapped, textureType, SkBackingFit::kExact, SkBudgeted::kNo);
 
     if (!proxy) {
         return nullptr;
