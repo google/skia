@@ -255,8 +255,7 @@ void InitSkia(Mode mode, skqp::AssetManager* mgr) {
 
 std::vector<GMFactory> GetGMFactories(skqp::AssetManager* assetManager) {
     std::vector<GMFactory> result;
-    for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        GMFactory f = r->factory();
+    for (const GMFactory& f : skiagm::GMRegistry::Range()) {
         SkASSERT(f);
         auto name = GetGMName(f);
         if ((is_empty(gKnownGMs) || in_set(name.c_str(), gKnownGMs)) &&

@@ -43,6 +43,18 @@ public:
     const Registry* next() const { return fChain; }
     const Factory& factory() const { return fFact; }
 
+    // for (const T& t : sk_tools::Registry<T>::Range()) { process(t); }
+    struct Range {
+        struct Iterator {
+            const Registry* fPtr;
+            const T& operator*() { return SkASSERT(fPtr), fPtr->factory(); }
+            void operator++() { if (fPtr) { fPtr = fPtr->next(); } }
+            bool operator!=(const Iterator& other) const { return fPtr != other.fPtr; }
+        };
+        Iterator begin() const { return Iterator{Registry::Head()}; }
+        Iterator end() const { return Iterator{nullptr}; }
+    };
+
 private:
     Factory   fFact;
     Registry* fChain;
