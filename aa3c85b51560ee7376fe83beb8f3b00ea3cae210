@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5d3a4b91_322ce10f",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-30T20:33:54Z",
+      "side": 1,
+      "message": "As mentioned below, the \"break\"s should be fine as \"return\"s, since they should only happen on error. So I don\u0027t think the trickiness of the while is necessary, but as you point out below, it\u0027s simpler anyway to run the complete tests above, and then we can leave this code as is.",
+      "parentUuid": "6509aa74_7a31f3ea",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a062bee5_6070052a",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "47608bb7_d4fb55cf",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-30T20:33:54Z",
+      "side": 1,
+      "message": "Hmm, this should never be happen, but we should probably have an ERRORF here.\n\nI think for these ERRORS, returning is probably fine. We\u0027ll skip some tests, but in a non-broken run, we\u0027ll run them, so I wouldn\u0027t worry about missing them.",
+      "parentUuid": "a062bee5_6070052a",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d9f76163_48402c6f",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2018-07-28T07:04:04Z",
       "side": 1,
       "message": "...so an alternative is to pull this from the bottom to the top of the function, and revert all of the other changes. I don\u0027t know if that breaks any implicit ordering assumptions. WDYT?",
+      "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3c810d9_d9118a99",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 464,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-30T20:33:54Z",
+      "side": 1,
+      "message": "There shouldn\u0027t be any implicit ordering assumptions... Putting this at the top sounds fine to me.",
+      "parentUuid": "d9f76163_48402c6f",
       "revId": "aa3c85b51560ee7376fe83beb8f3b00ea3cae210",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
