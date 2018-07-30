@@ -93,6 +93,11 @@ std::unique_ptr<Expression> VariableReference::constantPropagate(const IRGenerat
     if (fRefKind != kRead_RefKind) {
         return nullptr;
     }
+    if (irGenerator.fKind == Program::kPipelineStage_Kind &&
+        fVariable.fStorage == Variable::kGlobal_Storage &&
+        (fVariable.fModifiers.fFlags & Modifiers::kIn_Flag)) {
+        return irGenerator.getArg(fOffset, fVariable.fName);
+    }
     if ((fVariable.fModifiers.fFlags & Modifiers::kConst_Flag) && fVariable.fInitialValue &&
         fVariable.fInitialValue->isConstant()) {
         return copy_constant(irGenerator, fVariable.fInitialValue);

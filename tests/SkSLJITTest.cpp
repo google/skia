@@ -15,8 +15,9 @@ template<typename type>
 void test(skiatest::Reporter* r, const char* src, type x, type y, type result) {
     SkSL::Compiler compiler;
     SkSL::Program::Settings settings;
-    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(SkSL::Program::kCPU_Kind,
-                                                                     SkSL::String(src), settings);
+    std::unique_ptr<SkSL::Program> program = compiler.convertProgram(
+                                                                 SkSL::Program::kPipelineStage_Kind,
+                                                                 SkSL::String(src), settings);
     REPORTER_ASSERT(r, program);
     if (program) {
        SkSL::JIT jit(&compiler);
