@@ -72,12 +72,12 @@ protected:
     friend class GrTextureProxyPriv;
 
     // Deferred version - when constructed with data the origin is always kTopLeft.
-    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, SkBackingFit, SkBudgeted,
-                   const void* srcData, size_t srcRowBytes, GrInternalSurfaceFlags);
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrMipMapped, GrTextureType, SkBackingFit,
+                   SkBudgeted, const void* srcData, size_t srcRowBytes, GrInternalSurfaceFlags);
 
     // Deferred version - no data.
-    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin, GrMipMapped, SkBackingFit,
-                   SkBudgeted, GrInternalSurfaceFlags);
+    GrTextureProxy(const GrSurfaceDesc& srcDesc, GrSurfaceOrigin, GrMipMapped, GrTextureType,
+                   SkBackingFit, SkBudgeted, GrInternalSurfaceFlags);
 
     // Lazy-callback version
     // There are two main use cases for lazily-instantiated proxies:
@@ -90,7 +90,7 @@ protected:
     // The minimal knowledge version is used for CCPR where we are generating an atlas but we do not
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrSurfaceDesc& desc,
-                   GrSurfaceOrigin, GrMipMapped, SkBackingFit, SkBudgeted,
+                   GrSurfaceOrigin, GrMipMapped, GrTextureType, SkBackingFit, SkBudgeted,
                    GrInternalSurfaceFlags);
 
     // Wrapped version
@@ -100,15 +100,9 @@ protected:
 
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
-    void setIsGLTextureRectangleOrExternal() {
-        fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
-    }
-    bool isGLTextureRectangleOrExternal() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
-    }
-
 private:
     GrMipMapped      fMipMapped;
+    GrTextureType    fTextureType;
 
     GrUniqueKey      fUniqueKey;
     GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
