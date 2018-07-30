@@ -39,7 +39,7 @@ private:
                                           int arrayCount,
                                           const char** outName) override;
 
-    SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrSLType, GrSLPrecision,
+    SamplerHandle addSampler(uint32_t visibility, GrSwizzle, GrTextureType, GrSLPrecision,
                              const char* name) override;
 
     const GrShaderVar& samplerVariable(SamplerHandle handle) const override {
