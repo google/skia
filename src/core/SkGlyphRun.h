@@ -119,21 +119,21 @@ public:
 
     using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;
     using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
-    using PerPath = std::function<void(const SkPath&, const SkMatrix&)>;
-    using PerPathCreator = std::function<PerPath(const SkPaint&, SkArenaAlloc* alloc)>;
+    using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
+    using PerPathCreator = std::function<PerPath(
+            const SkPaint&, SkScalar matrixScale,SkArenaAlloc* alloc)>;
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
     void drawUsingMasks(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun, SkPoint origin,
             const SkMatrix& deviceMatrix, PerMask perMask);
+    void drawUsingPaths(
+            const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const;
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     bool ensureBitmapBuffers(size_t runSize);
-    void drawUsingPaths(
-            const SkGlyphRun& glyphRun, SkPoint origin,
-            const SkSurfaceProps& props, PerPath perPath) const;
     void drawGlyphRunAsSubpixelMask(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
