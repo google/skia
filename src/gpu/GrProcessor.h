@@ -23,8 +23,6 @@
 #include "SkString.h"
 
 class GrContext;
-class GrCoordTransform;
-class GrInvariantOutput;
 class GrResourceProvider;
 
 /**
@@ -203,24 +201,31 @@ class GrResourceIOProcessor : public GrProcessor {
 public:
     class TextureSampler;
 
-    int numTextureSamplers() const { return fTextureSamplers.count(); }
+    int numTextureSamplers() const { return fNumTextureSamplers; }
 
-    /** Returns the access pattern for the texture at index. index must be valid according to
-        numTextureSamplers(). */
-    const TextureSampler& textureSampler(int index) const { return *fTextureSamplers[index]; }
+    /** Gets a TextureSampler which is a combination of a GrTextureProxy and how it is sampled.
+     * index must be valid according to numTextureSamplers(). */
+    const TextureSampler& textureSampler(int index) const {
+        SkASSERT(index >= 0 && index < fNumTextureSamplers);
+        return this->onTextureSampler(index);
+    }
 
     bool instantiate(GrResourceProvider* resourceProvider) const;
 
 protected:
+    template <typename... Args>
+    static const TextureSampler& IthTextureSampler(int i, const TextureSampler& samp0,
+                                                   const Args&... samps) {
+        return (0 == i) ? samp0 : IthTextureSampler(i - 1, samps...);
+    }
+    inline static const TextureSampler& IthTextureSampler(int i);
+
     GrResourceIOProcessor(ClassID classID) : INHERITED(classID) {}
 
-    /**
-     * Subclasses call these from their constructor to register sampler sources. The processor
-     * subclass manages the lifetime of the objects (these functions only store pointers). The
-     * TextureSampler instances are typically member fields of the GrProcessor subclass. These must
-     * only be called from the constructor because GrProcessors are immutable.
-     */
-    void addTextureSampler(const TextureSampler*);
+    void setTextureSamplerCnt(int numTextureSamplers) {
+        SkASSERT(numTextureSamplers >= 0);
+        fNumTextureSamplers = numTextureSamplers;
+    }
 
     bool hasSameSamplers(const GrResourceIOProcessor&) const;
 
@@ -230,8 +235,9 @@ protected:
     void pendingIOComplete() const;
 
 private:
-    SkSTArray<4, const TextureSampler*, true> fTextureSamplers;
+    virtual const TextureSampler& onTextureSampler(int index) const { return IthTextureSampler(0); }
 
+    int fNumTextureSamplers = 0;
     typedef GrProcessor INHERITED;
 };
 
@@ -305,5 +311,11 @@ private:
     GrSamplerState fSamplerState;
     GrShaderFlags fVisibility;
 };
+
+const GrResourceIOProcessor::TextureSampler& GrResourceIOProcessor::IthTextureSampler(int i) {
+    SK_ABORT("Illegal texture sampler index");
+    static const TextureSampler kBogus;
+    return kBogus;
+}
 
 #endif

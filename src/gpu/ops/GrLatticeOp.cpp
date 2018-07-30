@@ -96,13 +96,15 @@ private:
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
         fSampler.reset(std::move(proxy), filter);
-        this->addTextureSampler(&fSampler);
+        this->setTextureSamplerCnt(1);
         this->setVertexAttributeCnt(4);
     }
 
     const Attribute& onVertexAttribute(int i) const override {
         return IthAttribute(i, kPositions, kTextureCoords, kTextureDomain, kColors);
     }
+
+    const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
     static constexpr Attribute kPositions = {"position", kFloat2_GrVertexAttribType};
     static constexpr Attribute kTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType};

@@ -613,6 +613,8 @@ protected:
     bool onIsEqual(const GrFragmentProcessor&) const override;
 
 private:
+    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+
     GrCoordTransform fCoordTransform;
     GrTextureDomain fDomain;
     TextureSampler fTextureSampler;
@@ -1696,7 +1698,7 @@ GrLightingEffect::GrLightingEffect(ClassID classID,
         , fFilterMatrix(matrix)
         , fBoundaryMode(boundaryMode) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
@@ -1709,7 +1711,7 @@ GrLightingEffect::GrLightingEffect(const GrLightingEffect& that)
         , fFilterMatrix(that.fFilterMatrix)
         , fBoundaryMode(that.fBoundaryMode) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 bool GrLightingEffect::onIsEqual(const GrFragmentProcessor& sBase) const {

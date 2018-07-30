@@ -54,11 +54,15 @@ GrSimpleTextureEffect::GrSimpleTextureEffect(const GrSimpleTextureEffect& src)
         , fImage(src.fImage)
         , fMatrix(src.fMatrix)
         , fImageCoordTransform(src.fImageCoordTransform) {
-    this->addTextureSampler(&fImage);
+    this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fImageCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrSimpleTextureEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrSimpleTextureEffect(*this));
+}
+const GrFragmentProcessor::TextureSampler& GrSimpleTextureEffect::onTextureSampler(
+        int index) const {
+    return IthTextureSampler(index, fImage);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSimpleTextureEffect);
 #if GR_TEST_UTILS

@@ -100,7 +100,7 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
     this->setVertexAttributeCnt(1);
 
     fAtlasAccess.instantiate(resourceProvider);
-    this->addTextureSampler(&fAtlasAccess);
+    this->setTextureSamplerCnt(1);
 
     if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
         fLocalMatrix.setIdentity();

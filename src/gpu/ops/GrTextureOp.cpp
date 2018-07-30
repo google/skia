@@ -296,12 +296,10 @@ private:
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform)) {
         SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
         fSamplers[0].reset(std::move(proxies[0]), filters[0]);
-        this->addTextureSampler(&fSamplers[0]);
         for (int i = 1; i < proxyCnt; ++i) {
             // This class has one sampler built in, the rest come from memory this processor was
             // placement-newed into and so haven't been constructed.
             new (&fSamplers[i]) TextureSampler(std::move(proxies[i]), filters[i]);
-            this->addTextureSampler(&fSamplers[i]);
         }
 
         if (perspective) {
@@ -319,7 +317,6 @@ private:
             GrTextureProxy* dupeProxy = fSamplers[proxyCnt - 1].proxy();
             for (int i = proxyCnt; i < samplerCnt; ++i) {
                 new (&fSamplers[i]) TextureSampler(sk_ref_sp(dupeProxy), filters[proxyCnt - 1]);
-                this->addTextureSampler(&fSamplers[i]);
             }
             SkASSERT(caps.integerSupport());
             fTextureIdx = {"textureIdx", kInt_GrVertexAttribType};
@@ -337,12 +334,15 @@ private:
             vertexAttributeCnt += 4;
         }
         this->setVertexAttributeCnt(vertexAttributeCnt);
+        this->setTextureSamplerCnt(samplerCnt);
     }
 
     const Attribute& onVertexAttribute(int i) const override {
         return IthInitializedAttribute(i, fPositions, fColors, fTextureCoords, fTextureIdx, fDomain,
                                        fAAEdges[0], fAAEdges[1], fAAEdges[2], fAAEdges[3]);
     }
+
+    const TextureSampler& onTextureSampler(int i) const override { return fSamplers[i]; }
 
     Attribute fPositions;
     Attribute fColors;

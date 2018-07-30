@@ -171,13 +171,14 @@ GrYUVtoRGBEffect::GrYUVtoRGBEffect(const GrYUVtoRGBEffect& src)
         , fYSamplerCoordTransform(src.fYSamplerCoordTransform)
         , fUSamplerCoordTransform(src.fUSamplerCoordTransform)
         , fVSamplerCoordTransform(src.fVSamplerCoordTransform) {
-    this->addTextureSampler(&fYSampler);
-    this->addTextureSampler(&fUSampler);
-    this->addTextureSampler(&fVSampler);
+    this->setTextureSamplerCnt(3);
     this->addCoordTransform(&fYSamplerCoordTransform);
     this->addCoordTransform(&fUSamplerCoordTransform);
     this->addCoordTransform(&fVSamplerCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrYUVtoRGBEffect::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrYUVtoRGBEffect(*this));
+}
+const GrFragmentProcessor::TextureSampler& GrYUVtoRGBEffect::onTextureSampler(int index) const {
+    return IthTextureSampler(index, fYSampler, fUSampler, fVSampler);
 }

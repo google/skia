@@ -12,6 +12,8 @@
 #include "GrProcessor.h"
 #include "GrShaderVar.h"
 
+class GrCoordTransform;
+
 /*
  * The GrPrimitiveProcessor represents some kind of geometric primitive.  This includes the shape
  * of the primitive and the inherent color of the primitive.  The GrPrimitiveProcessor is

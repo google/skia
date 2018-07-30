@@ -208,6 +208,10 @@ private:
                             sk_sp<GrTextureProxy> displacement, const SkMatrix& offsetMatrix,
                             sk_sp<GrTextureProxy> color, const SkISize& colorDimensions);
 
+    const TextureSampler& onTextureSampler(int i) const override {
+        return IthTextureSampler(i, fDisplacementSampler, fColorSampler);
+    }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     GrCoordTransform            fDisplacementTransform;
@@ -461,9 +465,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(
         , fYChannelSelector(yChannelSelector)
         , fScale(scale) {
     this->addCoordTransform(&fDisplacementTransform);
-    this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);
-    this->addTextureSampler(&fColorSampler);
+    this->setTextureSamplerCnt(2);
 }
 
 GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& that)
@@ -478,9 +481,8 @@ GrDisplacementMapEffect::GrDisplacementMapEffect(const GrDisplacementMapEffect& 
         , fYChannelSelector(that.fYChannelSelector)
         , fScale(that.fScale) {
     this->addCoordTransform(&fDisplacementTransform);
-    this->addTextureSampler(&fDisplacementSampler);
     this->addCoordTransform(&fColorTransform);
-    this->addTextureSampler(&fColorSampler);
+    this->setTextureSamplerCnt(2);
 }
 
 GrDisplacementMapEffect::~GrDisplacementMapEffect() {}

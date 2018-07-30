@@ -302,6 +302,8 @@ private:
     void addInterval(const SkGradientShaderBase&, const SkColor4f* colors,
                      size_t idx0, size_t idx1);
 
+    const TextureSampler& onTextureSampler(int i) const override { return fTextureSampler; }
+
     static OptimizationFlags OptFlags(bool isOpaque);
 
     // Interpolation intervals, encoded as 4f tuples of (scale, bias)

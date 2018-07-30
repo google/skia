@@ -93,11 +93,15 @@ GrAlphaThresholdFragmentProcessor::GrAlphaThresholdFragmentProcessor(
         , fInnerThreshold(src.fInnerThreshold)
         , fOuterThreshold(src.fOuterThreshold)
         , fMaskCoordTransform(src.fMaskCoordTransform) {
-    this->addTextureSampler(&fMask);
+    this->setTextureSamplerCnt(1);
     this->addCoordTransform(&fMaskCoordTransform);
 }
 std::unique_ptr<GrFragmentProcessor> GrAlphaThresholdFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrAlphaThresholdFragmentProcessor(*this));
+}
+const GrFragmentProcessor::TextureSampler& GrAlphaThresholdFragmentProcessor::onTextureSampler(
+        int index) const {
+    return IthTextureSampler(index, fMask);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrAlphaThresholdFragmentProcessor);
 #if GR_TEST_UTILS

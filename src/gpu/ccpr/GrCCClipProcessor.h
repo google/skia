@@ -26,6 +26,7 @@ public:
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
+    const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
 private:
     const GrCCClipPath* const fClipPath;

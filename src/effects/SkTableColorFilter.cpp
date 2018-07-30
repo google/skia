@@ -316,6 +316,8 @@ private:
 
     ColorTableEffect(sk_sp<GrTextureProxy> proxy, sk_sp<GrTextureStripAtlas> atlas, int row);
 
+    const TextureSampler& onTextureSampler(int) const override { return fTextureSampler; }
+
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     TextureSampler fTextureSampler;
@@ -455,7 +457,7 @@ ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy,
         , fTextureSampler(std::move(proxy))
         , fAtlas(std::move(atlas))
         , fRow(row) {
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
 }
 
 ColorTableEffect::~ColorTableEffect() {

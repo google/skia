@@ -128,31 +128,27 @@ void GrProcessor::operator delete(void* target) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrResourceIOProcessor::addTextureSampler(const TextureSampler* access) {
-    fTextureSamplers.push_back(access);
-}
-
 void GrResourceIOProcessor::addPendingIOs() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->markPendingIO();
+    for (int i = 0; i < fNumTextureSamplers; ++i) {
+        this->textureSampler(i).programProxy()->markPendingIO();
     }
 }
 
 void GrResourceIOProcessor::removeRefs() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->removeRef();
+    for (int i = 0; i < fNumTextureSamplers; ++i) {
+        this->textureSampler(i).programProxy()->removeRef();
     }
 }
 
 void GrResourceIOProcessor::pendingIOComplete() const {
-    for (const auto& sampler : fTextureSamplers) {
-        sampler->programProxy()->pendingIOComplete();
+    for (int i = 0; i < fNumTextureSamplers; ++i) {
+        this->textureSampler(i).programProxy()->pendingIOComplete();
     }
 }
 
 bool GrResourceIOProcessor::instantiate(GrResourceProvider* resourceProvider) const {
-    for (const auto& sampler : fTextureSamplers) {
-        if (!sampler->instantiate(resourceProvider)) {
+    for (int i = 0; i < fNumTextureSamplers; ++i) {
+        if (!this->textureSampler(i).instantiate(resourceProvider)) {
             return false;
         }
     }

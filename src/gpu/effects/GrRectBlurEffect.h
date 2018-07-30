@@ -104,11 +104,12 @@ private:
             , fRect(rect)
             , fSigma(sigma)
             , fBlurProfile(std::move(blurProfile), samplerParams) {
-        this->addTextureSampler(&fBlurProfile);
+        this->setTextureSamplerCnt(1);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     SkRect fRect;
     float fSigma;

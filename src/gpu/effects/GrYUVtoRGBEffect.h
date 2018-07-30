@@ -55,9 +55,7 @@ private:
             , fYSamplerCoordTransform(ySamplerTransform, fYSampler.proxy())
             , fUSamplerCoordTransform(uSamplerTransform, fUSampler.proxy())
             , fVSamplerCoordTransform(vSamplerTransform, fVSampler.proxy()) {
-        this->addTextureSampler(&fYSampler);
-        this->addTextureSampler(&fUSampler);
-        this->addTextureSampler(&fVSampler);
+        this->setTextureSamplerCnt(3);
         this->addCoordTransform(&fYSamplerCoordTransform);
         this->addCoordTransform(&fUSamplerCoordTransform);
         this->addCoordTransform(&fVSamplerCoordTransform);
@@ -65,6 +63,7 @@ private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     TextureSampler fYSampler;
     SkMatrix44 fYSamplerTransform;
