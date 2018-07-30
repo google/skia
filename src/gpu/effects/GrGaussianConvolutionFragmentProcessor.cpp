@@ -223,7 +223,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(direction)
         , fMode(mode) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
     SkASSERT(radius <= kMaxKernelRadius);
 
     fill_in_1D_gaussian_kernel(fKernel, this->width(), gaussianSigma, this->radius());
@@ -240,7 +240,7 @@ GrGaussianConvolutionFragmentProcessor::GrGaussianConvolutionFragmentProcessor(
         , fDirection(that.fDirection)
         , fMode(that.fMode) {
     this->addCoordTransform(&fCoordTransform);
-    this->addTextureSampler(&fTextureSampler);
+    this->setTextureSamplerCnt(1);
     memcpy(fKernel, that.fKernel, that.width() * sizeof(float));
     memcpy(fBounds, that.fBounds, sizeof(fBounds));
 }
