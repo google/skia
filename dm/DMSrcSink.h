@@ -21,8 +21,6 @@
 
 //#define TEST_VIA_SVG
 
-namespace skottie { class Animation; }
-
 namespace DM {
 
 // This is just convenience.  It lets you use either return "foo" or return SkStringPrintf(...).
@@ -265,9 +263,12 @@ private:
     // Generates a kTileCount x kTileCount filmstrip with evenly distributed frames.
     static constexpr int      kTileCount = 5;
 
+    // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
+    static constexpr SkScalar kTargetSize = 1000;
+    static constexpr SkScalar kTileSize = kTargetSize / kTileCount;
+
     Name                      fName;
-    SkISize                   fTileSize = SkISize::MakeEmpty();
-    sk_sp<skottie::Animation> fAnimation;
+    Path                      fPath;
 };
 #endif
 
