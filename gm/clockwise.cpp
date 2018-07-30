@@ -168,7 +168,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
                          GrSamplerState::Filter::kNearest, 0xffffffff, {0,0,100,200},
                          {100,0,200,200}, GrAA::kNo,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
-                         nullptr);
+                         nullptr, nullptr);
     }
 
     // Draw the test to an off-screen, bottom-up render target.
@@ -183,7 +183,7 @@ void ClockwiseGM::onDraw(SkCanvas* canvas) {
                          GrSamplerState::Filter::kNearest, 0xffffffff, {0,0,100,200},
                          {200,0,300,200}, GrAA::kNo,
                          SkCanvas::SrcRectConstraint::kStrict_SrcRectConstraint, SkMatrix::I(),
-                         nullptr);
+                         nullptr, nullptr);
     }
 }
 
