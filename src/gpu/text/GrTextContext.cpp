@@ -169,21 +169,20 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
 
-            const SkPoint* positionCursor = glyphRun.positions().data();
-            for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
-                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-                SkPoint loc = origin + *positionCursor++;
-                if (glyph.fWidth > 0) {
-                    if (glyph.fMaskFormat == SkMask::kARGB32_Format) {
-                        fallbackTextHelper.appendText(glyph, glyphID, loc);
-                    } else {
-                        const SkPath* path = cache->findPath(glyph);
-                        if (path != nullptr) {
-                            cacheBlob->appendPathGlyph(runIndex, *path, loc.fX, loc.fY, matrixScale, false);
-                        }
+            auto drawOnePath =
+                    [&fallbackTextHelper, matrixScale, runIndex, cacheBlob]
+                    (const SkPath* path, const SkGlyph& glyph, SkPoint position) {
+                if (glyph.fMaskFormat == SkMask::kARGB32_Format) {
+                    fallbackTextHelper.appendText(glyph, glyph.getGlyphID(), position);
+                } else {
+                    if (path != nullptr) {
+                        cacheBlob->appendPathGlyph(
+                                runIndex, *path, position.fX, position.fY, matrixScale, false);
                     }
                 }
-            }
+            };
+
+            glyphDrawer->drawUsingPaths(glyphRun, origin, cache.get(), drawOnePath);
 
             fallbackTextHelper.drawText(
                     cacheBlob, runIndex, glyphCache, props, runPaint, scalerContextFlags);
