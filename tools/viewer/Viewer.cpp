@@ -594,16 +594,12 @@ void Viewer::initSlides() {
 
     // GMs
     int firstGM = fSlides.count();
-    const skiagm::GMRegistry* gms(skiagm::GMRegistry::Head());
-    while (gms) {
-        std::unique_ptr<skiagm::GM> gm(gms->factory()(nullptr));
-
+    for (skiagm::GMFactory gmFactory : skiagm::GMRegistry::Range()) {
+        std::unique_ptr<skiagm::GM> gm(gmFactory(nullptr));
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, gm->getName())) {
             sk_sp<Slide> slide(new GMSlide(gm.release()));
             fSlides.push_back(std::move(slide));
         }
-
-        gms = gms->next();
     }
     // reverse gms
     int numGMs = fSlides.count() - firstGM;

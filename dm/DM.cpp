@@ -783,8 +783,8 @@ void gather_file_srcs(const SkCommandLineFlags::StringArray& flags, const char* 
 }
 
 static bool gather_srcs() {
-    for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        push_src("gm", "", new GMSrc(r->factory()));
+    for (skiagm::GMFactory f : skiagm::GMRegistry::Range()) {
+        push_src("gm", "", new GMSrc(f));
     }
 
     gather_file_srcs<SKPSrc>(FLAGS_skps, "skp");
@@ -1261,13 +1261,10 @@ static void gather_tests() {
     if (!FLAGS_src.contains("tests")) {
         return;
     }
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
+    for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         if (!in_shard()) {
             continue;
         }
-        // Despite its name, factory() is returning a reference to
-        // link-time static const POD data.
-        const skiatest::Test& test = r->factory();
         if (SkCommandLineFlags::ShouldSkip(FLAGS_match, test.name)) {
             continue;
         }

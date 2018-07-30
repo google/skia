@@ -14,8 +14,8 @@
 
 int main() {
     std::vector<std::string> gms;
-    for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        std::unique_ptr<skiagm::GM> gm(r->factory()(nullptr));
+    for (skiagm::GMFactory factory : skiagm::GMRegistry::Range()) {
+        std::unique_ptr<skiagm::GM> gm(factory(nullptr));
         gms.push_back(std::string(gm->getName()));
     }
     std::sort(gms.begin(), gms.end());

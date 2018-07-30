@@ -119,7 +119,8 @@ namespace skiagm {
         bool     fHaveCalledOnceBeforeDraw;
     };
 
-    typedef sk_tools::Registry<GM*(*)(void*)> GMRegistry;
+    typedef GM*(*GMFactory)(void*) ;
+    typedef sk_tools::Registry<GMFactory> GMRegistry;
 
     class SimpleGM : public skiagm::GM {
     public:
