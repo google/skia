@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "645ed8cc_99288255",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-30T15:21:08Z",
+      "side": 1,
+      "message": "This seems iffy to me -- should we be referring to gpu/ code in core/?",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 34
+      },
+      "revId": "d2daf39b628e6512c5bc812058308697e1bf913e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
