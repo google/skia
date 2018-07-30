@@ -607,10 +607,6 @@ static bool ShouldUseDAA(const SkPath& path) {
         return false;
     }
 
-#ifdef SK_SUPPORT_LEGACY_AA_CHOICE
-    const SkRect& bounds = path.getBounds();
-    return !path.isConvex() && path.countPoints() >= SkTMax(bounds.width(), bounds.height()) / 8;
-#else
     constexpr int kSampleSize = 8;
     constexpr SkScalar kComplexityThreshold = 0.25;
     constexpr SkScalar kSmallCubicThreshold = 16;
@@ -663,7 +659,6 @@ static bool ShouldUseDAA(const SkPath& path) {
     SkScalar complexity = intersections / path.getBounds().height();
 
     return complexity >= kComplexityThreshold;
-#endif
 }
 
 static bool ShouldUseAAA(const SkPath& path) {
