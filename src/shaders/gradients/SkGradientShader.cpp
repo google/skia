@@ -1246,6 +1246,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         SkBitmap bitmap;
         shader.getGradientTableBitmap(xformedColors.fColors, &bitmap, colorType);
         SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
+        SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
 
         auto atlasManager = args.fContext->contextPriv().textureStripAtlasManager();
 
@@ -1253,21 +1254,28 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
-        fAtlas = atlasManager->refAtlas(desc);
-        SkASSERT(fAtlas);
+        desc.fColorType7 = bitmap.colorType();
+        //desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
+
+        int row;
+        fAtlas = atlasManager->refAtlas99(args.fContext, desc, bitmap, &row);
+        SkASSERT((!fAtlas) == (row < 0));
+//        fRow = fAtlas->lockRow2(args.fContext, bitmap);
 
         // We always filter the gradient table. Each table is one row of a texture, always
         // y-clamp.
         GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
-        fRow = fAtlas->lockRow(args.fContext, bitmap);
         if (-1 != fRow) {
+            SkASSERT(!fAtlas);
+
             fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
-            // This is 1/2 places where auto-normalization is disabled
-            fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
-            fTextureSampler.reset(fAtlas->asTextureProxyRef(), samplerState);
+            // This is 1/2 places where auto-normalization is disabled bc the gradient T is 0..1
+            fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef7().get(), false);
+            fTextureSampler.reset(fAtlas->asTextureProxyRef7(), samplerState);
         } else {
+            SkASSERT(fAtlas);
+
             // In this instance we know the samplerState state is:
             //   clampY, bilerp
             // and the proxy is:
@@ -1289,7 +1297,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;
             }
-            // This is 2/2 places where auto-normalization is disabled
+            // This is 2/2 places where auto-normalization is disabled because the graient T is 0..1
             fCoordTransform.reset(*args.fMatrix, proxy.get(), false);
             fTextureSampler.reset(std::move(proxy), samplerState);
             fYCoord = SK_ScalarHalf;
@@ -1319,13 +1327,13 @@ GrGradientEffect::GrGradientEffect(const GrGradientEffect& that)
         this->addTextureSampler(&fTextureSampler);
     }
     if (this->useAtlas()) {
-        fAtlas->lockRow(fRow);
+        fAtlas->lockRow1(fRow);
     }
 }
 
 GrGradientEffect::~GrGradientEffect() {
     if (this->useAtlas()) {
-        fAtlas->unlockRow(fRow);
+        fAtlas->unlockRow1(fRow);
     }
 }
 
