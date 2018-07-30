@@ -226,10 +226,10 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         // GrProcessor::TextureSampler sampler(dstTexture);
         SkString name("DstTextureSampler");
         dstTextureSamplerHandle =
-                this->emitSampler(dstTexture->texturePriv().samplerType(), dstTexture->config(),
+                this->emitSampler(dstTexture->texturePriv().textureType(), dstTexture->config(),
                                   "DstTextureSampler", kFragment_GrShaderFlag);
         dstTextureOrigin = fPipeline.dstTextureProxy()->origin();
-        SkASSERT(kTextureExternalSampler_GrSLType != dstTexture->texturePriv().samplerType());
+        SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
 
     GrGLSLXferProcessor::EmitArgs args(&fFS,
@@ -258,9 +258,9 @@ void GrGLSLProgramBuilder::emitSamplers(
     for (int t = 0; t < numTextureSamplers; ++t) {
         const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(t);
         name.printf("TextureSampler_%d", outTexSamplerHandles->count());
-        GrSLType samplerType = sampler.peekTexture()->texturePriv().samplerType();
+        GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
         outTexSamplerHandles->emplace_back(this->emitSampler(
-                samplerType, sampler.peekTexture()->config(), name.c_str(), sampler.visibility()));
+                textureType, sampler.peekTexture()->config(), name.c_str(), sampler.visibility()));
     }
 }
 
@@ -277,14 +277,14 @@ void GrGLSLProgramBuilder::updateSamplerCounts(GrShaderFlags visibility) {
     }
 }
 
-GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrSLType samplerType,
+GrGLSLProgramBuilder::SamplerHandle GrGLSLProgramBuilder::emitSampler(GrTextureType textureType,
                                                                       GrPixelConfig config,
                                                                       const char* name,
                                                                       GrShaderFlags visibility) {
     this->updateSamplerCounts(visibility);
     GrSLPrecision precision = GrSLSamplerPrecision(config);
     GrSwizzle swizzle = this->shaderCaps()->configTextureSwizzle(config);
-    return this->uniformHandler()->addSampler(visibility, swizzle, samplerType, precision, name);
+    return this->uniformHandler()->addSampler(visibility, swizzle, textureType, precision, name);
 }
 
 void GrGLSLProgramBuilder::emitFSOutputSwizzle(bool hasSecondaryOutput) {

@@ -63,7 +63,7 @@ GrGLSLUniformHandler::UniformHandle GrGLUniformHandler::internalAddUniformArray(
 
 GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visibility,
                                                                    GrSwizzle swizzle,
-                                                                   GrSLType type,
+                                                                   GrTextureType type,
                                                                    GrSLPrecision precision,
                                                                    const char* name) {
     SkASSERT(name && strlen(name));
@@ -74,8 +74,7 @@ GrGLSLUniformHandler::SamplerHandle GrGLUniformHandler::addSampler(uint32_t visi
     fProgramBuilder->nameVariable(&mangleName, prefix, name, true);
 
     UniformInfo& sampler = fSamplers.push_back();
-    SkASSERT(GrSLTypeIsCombinedSamplerType(type));
-    sampler.fVariable.setType(type);
+    sampler.fVariable.setType(GrSLCombinedSamplerTypeForTextureType(type));
     sampler.fVariable.setTypeModifier(GrShaderVar::kUniform_TypeModifier);
     sampler.fVariable.setPrecision(precision);
     sampler.fVariable.setName(mangleName);

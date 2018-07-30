@@ -330,6 +330,17 @@ enum GrSLType {
     kTexture2DRectSampler_GrSLType,
 };
 
+/**
+ * The type of texture. Backends other than GL currently only use the 2D value but the type must
+ * still be known at the API-neutral layer as it used to determine whether MIP maps, renderability,
+ * and sampling parameters are legal for proxies that will be instantiated with wrapped textures.
+ */
+enum class GrTextureType {
+    k2D,
+    kRectangle,
+    kExternal
+};
+
 enum GrShaderType {
     kVertex_GrShaderType,
     kGeometry_GrShaderType,
@@ -477,6 +488,19 @@ static inline int GrSLTypeVecLength(GrSLType type) {
     }
     SK_ABORT("Unexpected type");
     return -1;
+}
+
+static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type) {
+    switch (type) {
+        case GrTextureType::k2D:
+            return kTexture2DSampler_GrSLType;
+        case GrTextureType::kRectangle:
+            return kTexture2DRectSampler_GrSLType;
+        case GrTextureType::kExternal:
+            return kTextureExternalSampler_GrSLType;
+    }
+    SK_ABORT("Unexpected texture type");
+    return kTexture2DSampler_GrSLType;
 }
 
 static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {

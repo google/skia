@@ -60,7 +60,7 @@ private:
 
     SamplerHandle addSampler(uint32_t visibility,
                              GrSwizzle swizzle,
-                             GrSLType type,
+                             GrTextureType type,
                              GrSLPrecision precision,
                              const char* name) override;
 

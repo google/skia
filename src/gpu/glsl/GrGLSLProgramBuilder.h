@@ -137,7 +137,7 @@ private:
     void emitAndInstallXferProc(const SkString& colorIn, const SkString& coverageIn);
     void emitSamplers(const GrResourceIOProcessor& processor,
                       SkTArray<SamplerHandle>* outTexSamplerHandles);
-    SamplerHandle emitSampler(GrSLType samplerType, GrPixelConfig, const char* name,
+    SamplerHandle emitSampler(GrTextureType, GrPixelConfig, const char* name,
                               GrShaderFlags visibility);
     void emitFSOutputSwizzle(bool hasSecondaryOutput);
     void updateSamplerCounts(GrShaderFlags visibility);

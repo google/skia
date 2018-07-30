@@ -953,7 +953,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
                 return -1;
             }
             if (GrTexture* tex = thatProxies[j]->priv().peekTexture()) {
-                if (tex->texturePriv().samplerType() != kTexture2DSampler_GrSLType) {
+                if (tex->texturePriv().textureType() != GrTextureType::k2D) {
                     return -1;
                 }
             }

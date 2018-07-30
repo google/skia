@@ -22,28 +22,26 @@ enum {
     kSamplerOrImageTypeKeyBits = 4
 };
 
-static inline uint16_t image_storage_or_sampler_uniform_type_key(GrSLType type ) {
+static inline uint16_t texture_type_key(GrTextureType type) {
     int value = UINT16_MAX;
     switch (type) {
-        case kTexture2DSampler_GrSLType:
+        case GrTextureType::k2D:
             value = 0;
             break;
-        case kTextureExternalSampler_GrSLType:
+        case GrTextureType::kExternal:
             value = 1;
             break;
-        case kTexture2DRectSampler_GrSLType:
+        case GrTextureType::kRectangle:
             value = 2;
-            break;
-        default:
             break;
     }
     SkASSERT((value & ((1 << kSamplerOrImageTypeKeyBits) - 1)) == value);
-    return value;
+    return SkToU16(value);
 }
 
-static uint16_t sampler_key(GrSLType samplerType, GrPixelConfig config, GrShaderFlags visibility,
+static uint16_t sampler_key(GrTextureType textureType, GrPixelConfig config,
                             const GrShaderCaps& caps) {
-    int samplerTypeKey = image_storage_or_sampler_uniform_type_key(samplerType);
+    int samplerTypeKey = texture_type_key(textureType);
 
     GR_STATIC_ASSERT(1 == sizeof(caps.configTextureSwizzle(config).asKey()));
     return SkToU16(samplerTypeKey |
@@ -65,8 +63,7 @@ static void add_sampler_and_image_keys(GrProcessorKeyBuilder* b, const GrResourc
         const GrResourceIOProcessor::TextureSampler& sampler = proc.textureSampler(i);
         const GrTexture* tex = sampler.peekTexture();
 
-        k16[j] = sampler_key(tex->texturePriv().samplerType(), tex->config(), sampler.visibility(),
-                             caps);
+        k16[j] = sampler_key(tex->texturePriv().textureType(), tex->config(), caps);
     }
     // zero the last 16 bits if the number of uniforms for samplers is odd.
     if (numTextureSamplers & 0x1) {
