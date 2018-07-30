@@ -359,9 +359,9 @@ void GrGLGpu::onResetContext(uint32_t resetBits) {
 
         // We don't use face culling.
         GL_CALL(Disable(GR_GL_CULL_FACE));
-
-        // Setting the front face keeps gl_FrontFacing consistent in device space.
-        fHWFrontFace = GR_GL_NONE;
+        // We do use separate stencil. Our algorithms don't care which face is front vs. back so
+        // just set this to the default for self-consistency.
+        GL_CALL(FrontFace(GR_GL_CCW));
 
         fHWBufferState[kTexel_GrBufferType].invalidate();
         fHWBufferState[kDrawIndirect_GrBufferType].invalidate();
@@ -1704,7 +1704,6 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     fHWProgram->setData(primProc, pipeline);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
-    GrSurfaceOrigin origin = pipeline.proxy()->origin();
     GrStencilSettings stencil;
     if (pipeline.isStencilEnabled()) {
         // TODO: attach stencil and create settings during render target flush.
@@ -1716,16 +1715,16 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
     if (pipeline.isScissorEnabled()) {
         static constexpr SkIRect kBogusScissor{0, 0, 1, 1};
         GrScissorState state(fixedDynamicState ? fixedDynamicState->fScissorRect : kBogusScissor);
-        this->flushScissor(state, glRT->getViewport(), origin);
+        this->flushScissor(state, glRT->getViewport(), pipeline.proxy()->origin());
     } else {
         this->disableScissor();
     }
-    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, origin);
+    this->flushWindowRectangles(pipeline.getWindowRectsState(), glRT, pipeline.proxy()->origin());
     this->flushHWAAState(glRT, pipeline.isHWAntialiasState(), !stencil.isDisabled());
 
     // This must come after textures are flushed because a texture may need
     // to be msaa-resolved (which will modify bound FBO state).
-    this->flushRenderTarget(glRT, origin);
+    this->flushRenderTarget(glRT);
 
     return true;
 }
@@ -1857,9 +1856,9 @@ void GrGLGpu::clear(const GrFixedClip& clip, GrColor color,
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(target);
 
     if (clip.scissorEnabled()) {
-        this->flushRenderTarget(glRT, origin, &clip.scissorRect());
+        this->flushRenderTarget(glRT, origin, clip.scissorRect());
     } else {
-        this->flushRenderTarget(glRT, origin);
+        this->flushRenderTarget(glRT);
     }
     this->flushScissor(clip.scissorState(), glRT->getViewport(), origin);
     this->flushWindowRectangles(clip.windowRectsState(), glRT, origin);
@@ -2122,17 +2121,14 @@ GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,
-                                const SkIRect* bounds) {
+                                const SkIRect& bounds) {
     this->flushRenderTargetNoColorWrites(target);
+    this->didWriteToSurface(target, origin, &bounds);
+}
 
-    // A triangle is front-facing if it winds clockwise in device space.
-    GrGLenum frontFace = (kBottomLeft_GrSurfaceOrigin == origin) ? GR_GL_CW : GR_GL_CCW;
-    if (frontFace != fHWFrontFace) {
-        GL_CALL(FrontFace(frontFace));
-        fHWFrontFace = frontFace;
-    }
-
-    this->didWriteToSurface(target, origin, bounds);
+void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target) {
+    this->flushRenderTargetNoColorWrites(target);
+    this->didWriteToSurface(target, kTopLeft_GrSurfaceOrigin, nullptr);
 }
 
 void GrGLGpu::flushRenderTargetNoColorWrites(GrGLRenderTarget* target) {
@@ -3365,7 +3361,7 @@ void GrGLGpu::clearStencilClipAsDraw(const GrFixedClip& clip, bool insideStencil
     }
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(rt->asRenderTarget());
-    this->flushRenderTarget(glRT, origin);
+    this->flushRenderTarget(glRT);
 
     this->flushProgram(fStencilClipClearProgram);
 

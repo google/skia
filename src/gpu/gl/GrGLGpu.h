@@ -341,7 +341,9 @@ private:
 
     // The passed bounds contains the render target's color values that will subsequently be
     // written.
-    void flushRenderTarget(GrGLRenderTarget*, GrSurfaceOrigin, const SkIRect* bounds = nullptr);
+    void flushRenderTarget(GrGLRenderTarget*, GrSurfaceOrigin, const SkIRect& bounds);
+    // This version has an implicit bounds of the entire render target.
+    void flushRenderTarget(GrGLRenderTarget*);
     // This version can be used when the render target's colors will not be written.
     void flushRenderTargetNoColorWrites(GrGLRenderTarget*);
 
@@ -558,7 +560,6 @@ private:
     GrStencilSettings                       fHWStencilSettings;
     TriState                                fHWStencilTestEnabled;
 
-    GrGLenum                                fHWFrontFace;
 
     TriState                                fHWWriteToColor;
     GrGpuResource::UniqueID                 fHWBoundRenderTargetUniqueID;
