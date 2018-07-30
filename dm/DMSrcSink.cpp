@@ -1202,22 +1202,12 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 #if defined(SK_ENABLE_SKOTTIE)
-SkottieSrc::SkottieSrc(Path path)
-    : fName(SkOSPath::Basename(path.c_str())) {
-
-    fAnimation  = skottie::Animation::MakeFromFile(path.c_str());
-    if (!fAnimation) {
-        return;
-    }
-
-    // Fit kTileCount x kTileCount frames to a 1000x1000 film strip.
-    static constexpr SkScalar kTargetSize = 1000;
-    fTileSize = SkSize::Make(kTargetSize / kTileCount, kTargetSize / kTileCount).toCeil();
-}
+SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Error SkottieSrc::draw(SkCanvas* canvas) const {
-    if (!fAnimation) {
-        return SkStringPrintf("Unable to parse file: %s", fName.c_str());
+    auto animation = skottie::Animation::MakeFromFile(fPath.c_str());
+    if (!animation) {
+        return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
     }
 
     canvas->drawColor(SK_ColorWHITE);
@@ -1229,22 +1219,22 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
     static_assert(SK_ARRAY_COUNT(frames) == kTileCount, "");
 
     for (int i = 0; i < kTileCount; ++i) {
-        const SkScalar y = frames[i] * fTileSize.height();
+        const SkScalar y = frames[i] * kTileSize;
 
         for (int j = 0; j < kTileCount; ++j) {
-            const SkScalar x = frames[j] * fTileSize.width();
-            SkRect dest = SkRect::MakeXYWH(x, y, fTileSize.width(), fTileSize.height());
+            const SkScalar x = frames[j] * kTileSize;
+            SkRect dest = SkRect::MakeXYWH(x, y, kTileSize, kTileSize);
 
             const auto t = t_rate * (frames[i] * kTileCount + frames[j]);
             {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->clipRect(dest, true);
-                canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(fAnimation->size()),
+                canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
                                                         dest,
                                                         SkMatrix::kCenter_ScaleToFit));
 
-                fAnimation->seek(t);
-                fAnimation->render(canvas);
+                animation->seek(t);
+                animation->render(canvas);
             }
         }
     }
@@ -1253,11 +1243,10 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
 }
 
 SkISize SkottieSrc::size() const {
-    return SkISize::Make(kTileCount * fTileSize.width(),
-                         kTileCount * fTileSize.height());
+    return SkISize::Make(kTargetSize, kTargetSize);
 }
 
-Name SkottieSrc::name() const { return fName; }
+Name SkottieSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 bool SkottieSrc::veto(SinkFlags flags) const {
     // No need to test to non-(raster||gpu||vector) or indirect backends.
