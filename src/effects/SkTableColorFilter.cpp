@@ -410,23 +410,27 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
                                                             const SkBitmap& bitmap) {
+
+    if (kUnknown_GrPixelConfig == SkColorType2GrPixelConfig(bitmap.colorType())) {
+        return nullptr;
+    }
+
     GrTextureStripAtlas::Desc desc;
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
-    desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
-
-    if (kUnknown_GrPixelConfig == desc.fConfig) {
-        return nullptr;
-    }
+//    desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
+    desc.fColorType7 = bitmap.colorType();
 
     auto atlasManager = context->contextPriv().textureStripAtlasManager();
 
-    sk_sp<GrTextureStripAtlas> atlas = atlasManager->refAtlas(desc);
-    int row = atlas->lockRow(context, bitmap);
+    int row;
+    sk_sp<GrTextureStripAtlas> atlas = atlasManager->refAtlas99(desc, bitmap, &row);
+    SkASSERT((!atlas) == (row < 0));
+
     sk_sp<GrTextureProxy> proxy;
     if (-1 == row) {
-        atlas = nullptr;
+        SkASSERT(!atlas);
 
         SkASSERT(bitmap.isImmutable());
 
@@ -437,7 +441,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
 
         proxy = GrMakeCachedImageProxy(context->contextPriv().proxyProvider(), std::move(srcImage));
     } else {
-        proxy = atlas->asTextureProxyRef();
+        proxy = atlas->asTextureProxyRef7();
     }
 
     if (!proxy) {
@@ -460,12 +464,12 @@ ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy,
 
 ColorTableEffect::~ColorTableEffect() {
     if (fAtlas) {
-        fAtlas->unlockRow(fRow);
+        fAtlas->unlockRow1(fRow);
     }
 }
 
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::clone() const {
-    fAtlas->lockRow(fRow);
+    fAtlas->lockRow1(fRow);
     return std::unique_ptr<GrFragmentProcessor>(
             new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy()), fAtlas, fRow));
 }
