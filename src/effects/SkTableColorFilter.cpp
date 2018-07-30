@@ -287,6 +287,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> in
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
+#include "GrTexture.h"
 #include "GrTextureStripAtlas.h"
 #include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
@@ -306,6 +307,10 @@ public:
     int atlasRow() const { return fRow; }
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
+
+    int peekBackingHeight() const {
+        return fTextureSampler.peekTexture()->height();
+    }
 
 private:
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
@@ -345,8 +350,8 @@ void GLColorTableEffect::onSetData(const GrGLSLProgramDataManager& pdm,
     float rgbaYValues[4];
     const ColorTableEffect& cte = proc.cast<ColorTableEffect>();
     if (cte.atlas()) {
-        SkScalar yDelta = cte.atlas()->getNormalizedTexelHeight();
-        rgbaYValues[3] = cte.atlas()->getYOffset(cte.atlasRow()) + SK_ScalarHalf * yDelta;
+        SkScalar yDelta = 1.0f / cte.peekBackingHeight();
+        rgbaYValues[3] = cte.atlas()->getYOffset8(cte.atlasRow()) + SK_ScalarHalf * yDelta;
         rgbaYValues[0] = rgbaYValues[3] + yDelta;
         rgbaYValues[1] = rgbaYValues[0] + yDelta;
         rgbaYValues[2] = rgbaYValues[1] + yDelta;
@@ -410,23 +415,27 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
                                                             const SkBitmap& bitmap) {
+
+    if (kUnknown_GrPixelConfig == SkColorType2GrPixelConfig(bitmap.colorType())) {
+        return nullptr;
+    }
+
     GrTextureStripAtlas::Desc desc;
     desc.fWidth  = bitmap.width();
     desc.fHeight = 128;
     desc.fRowHeight = bitmap.height();
-    desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
-
-    if (kUnknown_GrPixelConfig == desc.fConfig) {
-        return nullptr;
-    }
+//    desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
+    desc.fColorType7 = bitmap.colorType();
 
     auto atlasManager = context->contextPriv().textureStripAtlasManager();
 
-    sk_sp<GrTextureStripAtlas> atlas = atlasManager->refAtlas(desc);
-    int row = atlas->lockRow(context, bitmap);
+    int row;
+    sk_sp<GrTextureStripAtlas> atlas = atlasManager->refAtlas99(context, desc, bitmap, &row);
+    SkASSERT((!atlas) == (row < 0));
+
     sk_sp<GrTextureProxy> proxy;
     if (-1 == row) {
-        atlas = nullptr;
+        SkASSERT(!atlas);
 
         SkASSERT(bitmap.isImmutable());
 
@@ -437,7 +446,7 @@ std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
 
         proxy = GrMakeCachedImageProxy(context->contextPriv().proxyProvider(), std::move(srcImage));
     } else {
-        proxy = atlas->asTextureProxyRef();
+        proxy = atlas->asTextureProxyRef7();
     }
 
     if (!proxy) {
@@ -460,12 +469,12 @@ ColorTableEffect::ColorTableEffect(sk_sp<GrTextureProxy> proxy,
 
 ColorTableEffect::~ColorTableEffect() {
     if (fAtlas) {
-        fAtlas->unlockRow(fRow);
+        fAtlas->unlockRow1(fRow);
     }
 }
 
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::clone() const {
-    fAtlas->lockRow(fRow);
+    fAtlas->lockRow1(fRow);
     return std::unique_ptr<GrFragmentProcessor>(
             new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy()), fAtlas, fRow));
 }
