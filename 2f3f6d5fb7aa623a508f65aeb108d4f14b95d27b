@@ -70,6 +70,30 @@
       "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98b5e503_80c5b52e",
+        "filename": "gm/coloremoji_blendmodes.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-30T16:02:49Z",
+      "side": 1,
+      "message": "SkUTF8_Next(): Done.",
+      "parentUuid": "7f177c4b_599f3ba7",
+      "range": {
+        "startLine": 151,
+        "startChar": 43,
+        "endLine": 151,
+        "endChar": 46
+      },
+      "revId": "2f3f6d5fb7aa623a508f65aeb108d4f14b95d27b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
