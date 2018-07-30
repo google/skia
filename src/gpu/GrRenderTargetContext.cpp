@@ -764,7 +764,8 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
                                         const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
                                         SkCanvas::SrcRectConstraint constraint,
                                         const SkMatrix& viewMatrix,
-                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
+                                        sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                                        sk_sp<GrColorSpaceXform> paintColorSpaceXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -790,7 +791,8 @@ void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy
     }
     this->addDrawOp(clip, GrTextureOp::Make(fContext, std::move(proxy), filter, color,
                                             clippedSrcRect, clippedDstRect, aaType, constraint,
-                                            viewMatrix, std::move(colorSpaceXform)));
+                                            viewMatrix, std::move(textureColorSpaceXform),
+                                            std::move(paintColorSpaceXform)));
 }
 
 void GrRenderTargetContext::fillRectWithLocalMatrix(const GrClip& clip,
