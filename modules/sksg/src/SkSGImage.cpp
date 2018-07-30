@@ -19,7 +19,7 @@ void Image::onRender(SkCanvas* canvas) const {
     paint.setAntiAlias(fAntiAlias);
     paint.setFilterQuality(fQuality);
 
-    canvas->drawImage(fImage, 0, 0);
+    canvas->drawImage(fImage, 0, 0, &paint);
 }
 
 SkRect Image::onRevalidate(InvalidationController*, const SkMatrix& ctm) {
