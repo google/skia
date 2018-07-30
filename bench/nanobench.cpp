@@ -712,7 +712,7 @@ public:
 
     Benchmark* rawNext() {
         if (fBenches) {
-            Benchmark* bench = fBenches->factory()(nullptr);
+            Benchmark* bench = fBenches->get()(nullptr);
             fBenches = fBenches->next();
             fSourceType = "bench";
             fBenchType  = "micro";
@@ -720,7 +720,7 @@ public:
         }
 
         while (fGMs) {
-            std::unique_ptr<skiagm::GM> gm(fGMs->factory()(nullptr));
+            std::unique_ptr<skiagm::GM> gm(fGMs->get()(nullptr));
             fGMs = fGMs->next();
             if (gm->runAsBench()) {
                 fSourceType = "gm";

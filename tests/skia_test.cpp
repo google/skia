@@ -195,9 +195,7 @@ int main(int argc, char** argv) {
     int total = 0;
     int toRun = 0;
 
-    for (const TestRegistry* iter = TestRegistry::Head(); iter;
-         iter = iter->next()) {
-        const Test& test = iter->factory();
+    for (const Test& test : TestRegistry::Range()) {
         if (should_run(test.name, test.needsGpu)) {
             toRun++;
         }
@@ -212,9 +210,8 @@ int main(int argc, char** argv) {
     SkTArray<const Test*> gpuTests;
 
     Status status(toRun);
-    for (const TestRegistry* iter = TestRegistry::Head(); iter;
-         iter = iter->next()) {
-        const Test& test = iter->factory();
+
+    for (const Test& test : TestRegistry::Range()) {
         if (!should_run(test.name, test.needsGpu)) {
             ++skipCount;
         } else if (test.needsGpu) {

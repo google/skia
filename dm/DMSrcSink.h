@@ -100,7 +100,7 @@ struct Sink {
 
 class GMSrc : public Src {
 public:
-    explicit GMSrc(skiagm::GMRegistry::Factory);
+    explicit GMSrc(skiagm::GMFactory);
 
     Error draw(SkCanvas*) const override;
     SkISize size() const override;
@@ -108,7 +108,7 @@ public:
     void modifyGrContextOptions(GrContextOptions* options) const override;
 
 private:
-    skiagm::GMRegistry::Factory fFactory;
+    skiagm::GMFactory fFactory;
 };
 
 class CodecSrc : public Src {

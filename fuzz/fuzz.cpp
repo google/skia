@@ -304,15 +304,13 @@ static uint8_t calculate_option(SkData* bytes) {
 
 static void print_api_names(){
     SkDebugf("When using --type api, please choose an API to fuzz with --name/-n:\n");
-    for (auto r = sk_tools::Registry<Fuzzable>::Head(); r; r = r->next()) {
-        auto fuzzable = r->factory();
+    for (const Fuzzable& fuzzable : sk_tools::Registry<Fuzzable>::Range()) {
         SkDebugf("\t%s\n", fuzzable.name);
     }
 }
 
 static void fuzz_api(sk_sp<SkData> bytes, SkString name) {
-    for (auto r = sk_tools::Registry<Fuzzable>::Head(); r; r = r->next()) {
-        auto fuzzable = r->factory();
+    for (const Fuzzable& fuzzable : sk_tools::Registry<Fuzzable>::Range()) {
         if (name.equals(fuzzable.name)) {
             SkDebugf("Fuzzing %s...\n", fuzzable.name);
             Fuzz fuzz(std::move(bytes));

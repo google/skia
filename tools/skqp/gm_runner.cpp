@@ -98,8 +98,7 @@ const char* GetUnitTestName(UnitTest test) { return test->name; }
 
 std::vector<UnitTest> GetUnitTests() {
     std::vector<UnitTest> tests;
-    for (const skiatest::TestRegistry* r = skiatest::TestRegistry::Head(); r; r = r->next()) {
-        const skiatest::Test& test = r->factory();
+    for (const skiatest::Test& test : skiatest::TestRegistry::Range()) {
         if ((is_empty(gKnownGpuUnitTests) || in_set(test.name, gKnownGpuUnitTests))
             && test.needsGpu) {
             tests.push_back(&test);
@@ -255,8 +254,7 @@ void InitSkia(Mode mode, skqp::AssetManager* mgr) {
 
 std::vector<GMFactory> GetGMFactories(skqp::AssetManager* assetManager) {
     std::vector<GMFactory> result;
-    for (const skiagm::GMRegistry* r = skiagm::GMRegistry::Head(); r; r = r->next()) {
-        GMFactory f = r->factory();
+    for (const GMFactory& f : skiagm::GMRegistry::Range()) {
         SkASSERT(f);
         auto name = GetGMName(f);
         if ((is_empty(gKnownGMs) || in_set(name.c_str(), gKnownGMs)) &&
