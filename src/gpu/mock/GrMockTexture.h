@@ -46,7 +46,7 @@ protected:
     GrMockTexture(GrMockGpu* gpu, const GrSurfaceDesc& desc, GrMipMapsStatus mipMapsStatus,
                   const GrMockTextureInfo& info)
             : GrSurface(gpu, desc)
-            , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, GrSamplerState::Filter::kMipMap,
+            , INHERITED(gpu, desc, GrTextureType::k2D, GrSamplerState::Filter::kMipMap,
                         mipMapsStatus)
             , fInfo(info) {}
 
