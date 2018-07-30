@@ -63,14 +63,6 @@ public:
                               GrMipMapped, bool useNextPow2 = false);
 
 protected:
-    void setIsGLTextureRectangleOrExternal() {
-        SkASSERT(this->asTexture());
-        fSurfaceFlags |= GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
-    }
-    bool isGLTextureRectangleOrExternal() const {
-        return fSurfaceFlags & GrInternalSurfaceFlags::kIsGLTextureRectangleOrExternal;
-    }
-
     void setHasMixedSamples() {
         SkASSERT(this->asRenderTarget());
         fSurfaceFlags |= GrInternalSurfaceFlags::kMixedSampled;

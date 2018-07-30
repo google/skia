@@ -503,6 +503,20 @@ static inline GrSLType GrSLCombinedSamplerTypeForTextureType(GrTextureType type)
     return kTexture2DSampler_GrSLType;
 }
 
+/** Rectangle and external textures ony support the clamp wrap mode and do not support MIP maps. */
+static inline bool GrTextureTypeHasRestrictedSampling(GrTextureType type) {
+    switch (type) {
+        case GrTextureType::k2D:
+            return false;
+        case GrTextureType::kRectangle:
+            return true;
+        case GrTextureType::kExternal:
+            return true;
+    }
+    SK_ABORT("Unexpected texture type");
+    return false;
+}
+
 static inline bool GrSLTypeIsCombinedSamplerType(GrSLType type) {
     switch (type) {
         case kTexture2DSampler_GrSLType:
@@ -850,17 +864,6 @@ enum class GrInternalSurfaceFlags {
     kNoPendingIO                    = 1 << 0,
 
     kSurfaceMask                    = kNoPendingIO,
-
-    // Texture-only flags
-
-    // This flag is for GL only. It says that the GL texture we will use has a target which is
-    // either GL_TEXTURE_RECTANGLE or GL_GL_TEXTURE_EXTERNAL. We use this information to make
-    // decisions about various rendering capabilites (e.g. is clamp the only supported wrap mode).
-    // Note: Ganesh does not internally create these types of textures so they will only occur on
-    // resources passed into Ganesh.
-    kIsGLTextureRectangleOrExternal = 1 << 1,
-
-    kTextureMask                    = kIsGLTextureRectangleOrExternal,
 
     // RT-only
 
