@@ -96,8 +96,15 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
     SkASSERT(!fGeometryProcessor);
     fGeometryProcessor.reset(proc.createGLSLInstance(*this->shaderCaps()));
 
-    SkSTArray<4, SamplerHandle>      texSamplers(proc.numTextureSamplers());
-    this->emitSamplers(proc, &texSamplers);
+    SkAutoSTMalloc<4, SamplerHandle> texSamplers(proc.numTextureSamplers());
+    for (int i = 0; i < proc.numTextureSamplers(); ++i) {
+        SkString name;
+        name.printf("TextureSampler_%d", i);
+        const auto& sampler = proc.textureSampler(i);
+        GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
+        texSamplers[i] = this->emitSampler(textureType, sampler.peekTexture()->config(),
+                                           name.c_str(), sampler.visibility());
+    }
 
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,
                                                                        &fTransformedCoordVars);
@@ -111,7 +118,7 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
                                            outputColor->c_str(),
                                            outputCoverage->c_str(),
                                            rtAdjustName,
-                                           texSamplers.begin(),
+                                           texSamplers.get(),
                                            &transformHandler);
     fGeometryProcessor->emitCode(args);
 
@@ -168,15 +175,23 @@ SkString GrGLSLProgramBuilder::emitAndInstallFragProc(
 
     GrGLSLFragmentProcessor* fragProc = fp.createGLSLInstance();
 
-    SkSTArray<4, SamplerHandle> textureSamplerArray(fp.numTextureSamplers());
-    GrFragmentProcessor::Iter iter(&fp);
-    while (const GrFragmentProcessor* subFP = iter.next()) {
-        this->emitSamplers(*subFP, &textureSamplerArray);
+    SkSTArray<4, SamplerHandle> texSamplers;
+    GrFragmentProcessor::Iter fpIter(&fp);
+    int samplerIdx = 0;
+    while (const auto* subFP = fpIter.next()) {
+        for (int i = 0; i < subFP->numTextureSamplers(); ++i) {
+            SkString name;
+            name.printf("TextureSampler_%d", samplerIdx++);
+            const auto& sampler = subFP->textureSampler(i);
+            GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
+            texSamplers.emplace_back(this->emitSampler(textureType, sampler.peekTexture()->config(),
+                                                       name.c_str(), kFragment_GrShaderFlag));
+        }
     }
 
     const GrShaderVar* coordVars = fTransformedCoordVars.begin() + transformedCoordVarsIdx;
     GrGLSLFragmentProcessor::TransformedCoordVars coords(&fp, coordVars);
-    GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, textureSamplerArray.begin());
+    GrGLSLFragmentProcessor::TextureSamplers textureSamplers(&fp, texSamplers.begin());
     GrGLSLFragmentProcessor::EmitArgs args(&fFS,
                                            this->uniformHandler(),
                                            this->shaderCaps(),
@@ -248,20 +263,6 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
     // asks for dst color, then the emit code needs to follow suit
     SkDEBUGCODE(verify(xp);)
     fFS.codeAppend("}");
-}
-
-void GrGLSLProgramBuilder::emitSamplers(
-        const GrResourceIOProcessor& processor,
-        SkTArray<SamplerHandle>* outTexSamplerHandles) {
-    SkString name;
-    int numTextureSamplers = processor.numTextureSamplers();
-    for (int t = 0; t < numTextureSamplers; ++t) {
-        const GrResourceIOProcessor::TextureSampler& sampler = processor.textureSampler(t);
-        name.printf("TextureSampler_%d", outTexSamplerHandles->count());
-        GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
-        outTexSamplerHandles->emplace_back(this->emitSampler(
-                textureType, sampler.peekTexture()->config(), name.c_str(), sampler.visibility()));
-    }
 }
 
 void GrGLSLProgramBuilder::updateSamplerCounts(GrShaderFlags visibility) {
