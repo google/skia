@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "318002a5_1776c2b2",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-30T18:34:06Z",
+      "side": 1,
+      "message": "Fixed the order issues. mapRect should be put after preTranslate.",
+      "range": {
+        "startLine": 664,
+        "startChar": 4,
+        "endLine": 664,
+        "endChar": 28
+      },
+      "revId": "a2cc230a803bf939489910cfd57ff4702da17c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
