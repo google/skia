@@ -7,30 +7,28 @@
 
 // Intentionally NO #pragma once... included multiple times.
 
-// This file is included from skcms.c with some values and types pre-defined:
+// This file is included from skcms.cc with some pre-defined macros:
 //    N:    depth of all vectors, 1,4,8, or 16
-//
+//    ATTR:   an __attribute__ to apply to functions
+// and inside a namespace, with some types already defined:
 //    F:    a vector of N float
 //    I32:  a vector of N int32_t
 //    U64:  a vector of N uint64_t
 //    U32:  a vector of N uint32_t
 //    U16:  a vector of N uint16_t
 //    U8:   a vector of N uint8_t
-//
-//    F0: a vector of N floats set to zero
-//    F1: a vector of N floats set to one
-//
-//    NS(id): a macro that returns unique identifiers
-//    ATTR:   an __attribute__ to apply to functions
 
 #if defined(__ARM_FEATURE_FP16_VECTOR_ARITHMETIC)
     // TODO(mtklein): this build supports FP16 compute
 #endif
 
-#if defined(__ARM_NEON)
-    #include <arm_neon.h>
-#elif defined(__SSE__)
-    #include <immintrin.h>
+#if defined(__GNUC__) && !defined(__clang__)
+    // Once again, GCC is kind of weird, not allowing vector = scalar directly.
+    static constexpr F F0 = F() + 0.0f,
+                       F1 = F() + 1.0f;
+#else
+    static constexpr F F0 = 0.0f,
+                       F1 = 1.0f;
 #endif
 
 #if N == 4 && defined(__ARM_NEON)
@@ -83,8 +81,7 @@
 // When we convert from float to fixed point, it's very common to want to round,
 // and for some reason compilers generate better code when converting to int32_t.
 // To serve both those ends, we use this function to_fixed() instead of direct CASTs.
-SI ATTR I32 NS(to_fixed_)(F f) {  return CAST(I32, f + 0.5f); }
-#define to_fixed NS(to_fixed_)
+SI ATTR I32 to_fixed(F f) {  return CAST(I32, f + 0.5f); }
 
 // Comparisons result in bool when N == 1, in an I32 mask when N > 1.
 // We've made this a macro so it can be type-generic...
@@ -96,23 +93,23 @@ SI ATTR I32 NS(to_fixed_)(F f) {  return CAST(I32, f + 0.5f); }
 #endif
 
 #if defined(USING_NEON_F16C)
-    SI ATTR F   NS(F_from_Half_(U16 half)) { return      vcvt_f32_f16((float16x4_t)half); }
-    SI ATTR U16 NS(Half_from_F_(F      f)) { return (U16)vcvt_f16_f32(                f); }
+    SI ATTR F   F_from_Half(U16 half) { return      vcvt_f32_f16((float16x4_t)half); }
+    SI ATTR U16 Half_from_F(F      f) { return (U16)vcvt_f16_f32(                f); }
 #elif defined(__AVX512F__)
-    SI ATTR F   NS(F_from_Half_)(U16 half) { return (F)_mm512_cvtph_ps((__m256i)half); }
-    SI ATTR U16 NS(Half_from_F_)(F f) {
+    SI ATTR F   F_from_Half(U16 half) { return (F)_mm512_cvtph_ps((__m256i)half); }
+    SI ATTR U16 Half_from_F(F f) {
         return (U16)_mm512_cvtps_ph((__m512 )f, _MM_FROUND_CUR_DIRECTION );
     }
 #elif defined(USING_AVX_F16C)
-    SI ATTR F NS(F_from_Half_)(U16 half) {
+    SI ATTR F F_from_Half(U16 half) {
         typedef int16_t __attribute__((vector_size(16))) I16;
         return __builtin_ia32_vcvtph2ps256((I16)half);
     }
-    SI ATTR U16 NS(Half_from_F_)(F f) {
+    SI ATTR U16 Half_from_F(F f) {
         return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
     }
 #else
-    SI ATTR F NS(F_from_Half_)(U16 half) {
+    SI ATTR F F_from_Half(U16 half) {
         U32 wide = CAST(U32, half);
         // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
         U32 s  = wide & 0x8000,
@@ -127,7 +124,7 @@ SI ATTR I32 NS(to_fixed_)(F f) {  return CAST(I32, f + 0.5f); }
         return (F)if_then_else(em < 0x0400, F0, norm);
     }
 
-    SI ATTR U16 NS(Half_from_F_)(F f) {
+    SI ATTR U16 Half_from_F(F f) {
         // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
         U32 sem;
         small_memcpy(&sem, &f, sizeof(sem));
@@ -141,36 +138,28 @@ SI ATTR I32 NS(to_fixed_)(F f) {  return CAST(I32, f + 0.5f); }
     }
 #endif
 
-#define F_from_Half NS(F_from_Half_)
-#define Half_from_F NS(Half_from_F_)
-
 // Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
 #if defined(USING_NEON)
-    SI ATTR U16 NS(swap_endian_16_)(U16 v) {
+    SI ATTR U16 swap_endian_16(U16 v) {
         return (U16)vrev16_u8((uint8x8_t) v);
     }
-    #define swap_endian_16 NS(swap_endian_16_)
 #endif
 
 // Passing by U64* instead of U64 avoids ABI warnings.  It's all moot when inlined.
-SI ATTR void NS(swap_endian_16x4_)(U64* rgba) {
+SI ATTR void swap_endian_16x4(U64* rgba) {
     *rgba = (*rgba & 0x00ff00ff00ff00ff) << 8
           | (*rgba & 0xff00ff00ff00ff00) >> 8;
 }
-#define swap_endian_16x4 NS(swap_endian_16x4_)
 
 #if defined(USING_NEON)
-    SI ATTR F NS(min__)(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
-    SI ATTR F NS(max__)(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
+    SI ATTR F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
+    SI ATTR F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
 #else
-    SI ATTR F NS(min__)(F x, F y) { return (F)if_then_else(x > y, y, x); }
-    SI ATTR F NS(max__)(F x, F y) { return (F)if_then_else(x < y, y, x); }
+    SI ATTR F min_(F x, F y) { return (F)if_then_else(x > y, y, x); }
+    SI ATTR F max_(F x, F y) { return (F)if_then_else(x < y, y, x); }
 #endif
 
-#define min_ NS(min__)
-#define max_ NS(max__)
-
-SI ATTR F NS(floor__)(F x) {
+SI ATTR F floor_(F x) {
 #if N == 1
     return floorf_(x);
 #elif defined(__aarch64__)
@@ -191,9 +180,8 @@ SI ATTR F NS(floor__)(F x) {
     // the range an integer can represent.  We expect most x to be small.
 #endif
 }
-#define floor_ NS(floor__)
 
-SI ATTR F NS(approx_log2_)(F x) {
+SI ATTR F approx_log2(F x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
     I32 bits;
     small_memcpy(&bits, &x, sizeof(bits));
@@ -209,9 +197,8 @@ SI ATTR F NS(approx_log2_)(F x) {
              -   1.498030302f*m
              -   1.725879990f/(0.3520887068f + m);
 }
-#define approx_log2 NS(approx_log2_)
 
-SI ATTR F NS(approx_exp2_)(F x) {
+SI ATTR F approx_exp2(F x) {
     F fract = x - floor_(x);
 
     I32 bits = CAST(I32, (1.0f * (1<<23)) * (x + 121.274057500f
@@ -220,16 +207,14 @@ SI ATTR F NS(approx_exp2_)(F x) {
     small_memcpy(&x, &bits, sizeof(x));
     return x;
 }
-#define approx_exp2 NS(approx_exp2_)
 
-SI ATTR F NS(approx_pow_)(F x, float y) {
+SI ATTR F approx_pow(F x, float y) {
     return (F)if_then_else((x == F0) | (x == F1), x
                                                 , approx_exp2(approx_log2(x) * y));
 }
-#define approx_pow NS(approx_pow_)
 
 // Return tf(x).
-SI ATTR F NS(apply_tf_)(const skcms_TransferFunction* tf, F x) {
+SI ATTR F apply_tf(const skcms_TransferFunction* tf, F x) {
     F sign = (F)if_then_else(x < 0, -F1, F1);
     x *= sign;
 
@@ -238,7 +223,6 @@ SI ATTR F NS(apply_tf_)(const skcms_TransferFunction* tf, F x) {
 
     return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
 }
-#define apply_tf NS(apply_tf_)
 
 // Strided loads and stores of N values, starting from p.
 #if N == 1
@@ -283,7 +267,7 @@ SI ATTR F NS(apply_tf_)(const skcms_TransferFunction* tf, F x) {
         (p)[48] = (v)[12]; (p)[52] = (v)[13]; (p)[56] = (v)[14]; (p)[60] = (v)[15]
 #endif
 
-SI ATTR U8 NS(gather_8_)(const uint8_t* p, I32 ix) {
+SI ATTR U8 gather_8(const uint8_t* p, I32 ix) {
 #if N == 1
     U8 v = p[ix];
 #elif N == 4
@@ -299,17 +283,15 @@ SI ATTR U8 NS(gather_8_)(const uint8_t* p, I32 ix) {
 #endif
     return v;
 }
-#define gather_8 NS(gather_8_)
 
 // Helper for gather_16(), loading the ix'th 16-bit value from p.
-SI ATTR uint16_t NS(load_16_)(const uint8_t* p, int ix) {
+SI ATTR uint16_t load_16(const uint8_t* p, int ix) {
     uint16_t v;
     small_memcpy(&v, p + 2*ix, 2);
     return v;
 }
-#define load_16 NS(load_16_)
 
-SI ATTR U16 NS(gather_16_)(const uint8_t* p, I32 ix) {
+SI ATTR U16 gather_16(const uint8_t* p, I32 ix) {
 #if N == 1
     U16 v = load_16(p,ix);
 #elif N == 4
@@ -325,25 +307,22 @@ SI ATTR U16 NS(gather_16_)(const uint8_t* p, I32 ix) {
 #endif
     return v;
 }
-#define gather_16 NS(gather_16_)
 
 #if !defined(__AVX2__)
     // Helpers for gather_24/48(), loading the ix'th 24/48-bit value from p, and 1/2 extra bytes.
-    SI ATTR uint32_t NS(load_24_32_)(const uint8_t* p, int ix) {
+    SI ATTR uint32_t load_24_32(const uint8_t* p, int ix) {
         uint32_t v;
         small_memcpy(&v, p + 3*ix, 4);
         return v;
     }
-    SI ATTR uint64_t NS(load_48_64_)(const uint8_t* p, int ix) {
+    SI ATTR uint64_t load_48_64(const uint8_t* p, int ix) {
         uint64_t v;
         small_memcpy(&v, p + 6*ix, 8);
         return v;
     }
-    #define load_24_32 NS(load_24_32_)
-    #define load_48_64 NS(load_48_64_)
 #endif
 
-SI ATTR U32 NS(gather_24_)(const uint8_t* p, I32 ix) {
+SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
     // First, back up a byte.  Any place we're gathering from has a safe junk byte to read
     // in front of it, either a previous table value, or some tag metadata.
     p -= 1;
@@ -379,10 +358,9 @@ SI ATTR U32 NS(gather_24_)(const uint8_t* p, I32 ix) {
     // Shift off the junk byte, leaving r,g,b in low 24 bits (and zero in the top 8).
     return v >> 8;
 }
-#define gather_24 NS(gather_24_)
 
 #if !defined(__arm__)
-    SI ATTR void NS(gather_48_)(const uint8_t* p, I32 ix, U64* v) {
+    SI ATTR void gather_48(const uint8_t* p, I32 ix, U64* v) {
         // As in gather_24(), with everything doubled.
         p -= 2;
 
@@ -433,32 +411,28 @@ SI ATTR U32 NS(gather_24_)(const uint8_t* p, I32 ix) {
 
         *v >>= 16;
     }
-    #define gather_48 NS(gather_48_)
 #endif
 
-SI ATTR F NS(F_from_U8_)(U8 v) {
+SI ATTR F F_from_U8(U8 v) {
     return CAST(F, v) * (1/255.0f);
 }
-#define F_from_U8 NS(F_from_U8_)
 
-SI ATTR F NS(F_from_U16_BE_)(U16 v) {
+SI ATTR F F_from_U16_BE(U16 v) {
     // All 16-bit ICC values are big-endian, so we byte swap before converting to float.
     // MSVC catches the "loss" of data here in the portable path, so we also make sure to mask.
     v = (U16)( ((v<<8)|(v>>8)) & 0xffff );
     return CAST(F, v) * (1/65535.0f);
 }
-#define F_from_U16_BE NS(F_from_U16_BE_)
 
-SI ATTR F NS(minus_1_ulp_)(F v) {
+SI ATTR F minus_1_ulp(F v) {
     I32 bits;
     small_memcpy(&bits, &v, sizeof(bits));
     bits = bits - 1;
     small_memcpy(&v, &bits, sizeof(bits));
     return v;
 }
-#define minus_1_ulp NS(minus_1_ulp_)
 
-SI ATTR F NS(table_8_)(const skcms_Curve* curve, F v) {
+SI ATTR F table_8(const skcms_Curve* curve, F v) {
     // Clamp the input to [0,1], then scale to a table index.
     F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
 
@@ -476,7 +450,7 @@ SI ATTR F NS(table_8_)(const skcms_Curve* curve, F v) {
     return l + (h-l)*t;
 }
 
-SI ATTR F NS(table_16_)(const skcms_Curve* curve, F v) {
+SI ATTR F table_16(const skcms_Curve* curve, F v) {
     // All just as in table_8() until the gathers.
     F ix = max_(F0, min_(v, F1)) * (float)(curve->table_entries - 1);
 
@@ -492,7 +466,7 @@ SI ATTR F NS(table_16_)(const skcms_Curve* curve, F v) {
 }
 
 // Color lookup tables, by input dimension and bit depth.
-SI ATTR void NS(clut_0_8_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+SI ATTR void clut_0_8(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
     U32 rgb = gather_24(a2b->grid_8, ix);
 
     *r = CAST(F, (rgb >>  0) & 0xff) * (1/255.0f);
@@ -502,7 +476,7 @@ SI ATTR void NS(clut_0_8_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g,
     (void)a;
     (void)stride;
 }
-SI ATTR void NS(clut_0_16_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
+SI ATTR void clut_0_16(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) {
     #if defined(__arm__)
         // This is up to 2x faster on 32-bit ARM than the #else-case fast path.
         *r = F_from_U16_BE(gather_16(a2b->grid_16, 3*ix+0));
@@ -532,28 +506,28 @@ SI ATTR void NS(clut_0_16_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g
 
 // These are all the same basic approach: handle one dimension, then the rest recursively.
 // We let "I" be the current dimension, and "J" the previous dimension, I-1.  "B" is the bit depth.
-#define DEF_CLUT(I,J,B)                                                                           \
-    MAYBE_SI ATTR                                                                                 \
-    void NS(clut_##I##_##B##_)(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) { \
-        I32 limit = CAST(I32, F0);                                                                \
-        limit += a2b->grid_points[I-1];                                                           \
-                                                                                                  \
-        const F* srcs[] = { r,g,b,&a };                                                           \
-        F src = *srcs[I-1];                                                                       \
-                                                                                                  \
-        F x = max_(F0, min_(src, F1)) * CAST(F, limit - 1);                                       \
-                                                                                                  \
-        I32 lo = CAST(I32,             x      ),                                                  \
-            hi = CAST(I32, minus_1_ulp(x+1.0f));                                                  \
-        F lr = *r, lg = *g, lb = *b,                                                              \
-          hr = *r, hg = *g, hb = *b;                                                              \
-        NS(clut_##J##_##B##_)(a2b, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);                  \
-        NS(clut_##J##_##B##_)(a2b, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);                  \
-                                                                                                  \
-        F t = x - CAST(F, lo);                                                                    \
-        *r = lr + (hr-lr)*t;                                                                      \
-        *g = lg + (hg-lg)*t;                                                                      \
-        *b = lb + (hb-lb)*t;                                                                      \
+#define DEF_CLUT(I,J,B)                                                                    \
+    MAYBE_SI ATTR                                                                          \
+    void clut_##I##_##B(const skcms_A2B* a2b, I32 ix, I32 stride, F* r, F* g, F* b, F a) { \
+        I32 limit = CAST(I32, F0);                                                         \
+        limit += a2b->grid_points[I-1];                                                    \
+                                                                                           \
+        const F* srcs[] = { r,g,b,&a };                                                    \
+        F src = *srcs[I-1];                                                                \
+                                                                                           \
+        F x = max_(F0, min_(src, F1)) * CAST(F, limit - 1);                                \
+                                                                                           \
+        I32 lo = CAST(I32,             x      ),                                           \
+            hi = CAST(I32, minus_1_ulp(x+1.0f));                                           \
+        F lr = *r, lg = *g, lb = *b,                                                       \
+          hr = *r, hg = *g, hb = *b;                                                       \
+        clut_##J##_##B(a2b, stride*lo + ix, stride*limit, &lr,&lg,&lb,a);                  \
+        clut_##J##_##B(a2b, stride*hi + ix, stride*limit, &hr,&hg,&hb,a);                  \
+                                                                                           \
+        F t = x - CAST(F, lo);                                                             \
+        *r = lr + (hr-lr)*t;                                                               \
+        *g = lg + (hg-lg)*t;                                                               \
+        *b = lb + (hb-lb)*t;                                                               \
     }
 
 DEF_CLUT(1,0,8)
@@ -567,8 +541,8 @@ DEF_CLUT(3,2,16)
 DEF_CLUT(4,3,16)
 
 ATTR
-static void NS(exec_ops)(const Op* ops, const void** args,
-                         const char* src, char* dst, int i) {
+static void exec_ops(const Op* ops, const void** args,
+                     const char* src, char* dst, int i) {
     F r = F0, g = F0, b = F0, a = F0;
     while (true) {
         switch (*ops++) {
@@ -863,36 +837,36 @@ static void NS(exec_ops)(const Op* ops, const void** args,
             case Op_tf_b:{ b = apply_tf((const skcms_TransferFunction*)*args++, b); } break;
             case Op_tf_a:{ a = apply_tf((const skcms_TransferFunction*)*args++, a); } break;
 
-            case Op_table_8_r: { r = NS(table_8_ )((const skcms_Curve*)*args++, r); } break;
-            case Op_table_8_g: { g = NS(table_8_ )((const skcms_Curve*)*args++, g); } break;
-            case Op_table_8_b: { b = NS(table_8_ )((const skcms_Curve*)*args++, b); } break;
-            case Op_table_8_a: { a = NS(table_8_ )((const skcms_Curve*)*args++, a); } break;
+            case Op_table_8_r: { r = table_8((const skcms_Curve*)*args++, r); } break;
+            case Op_table_8_g: { g = table_8((const skcms_Curve*)*args++, g); } break;
+            case Op_table_8_b: { b = table_8((const skcms_Curve*)*args++, b); } break;
+            case Op_table_8_a: { a = table_8((const skcms_Curve*)*args++, a); } break;
 
-            case Op_table_16_r:{ r = NS(table_16_)((const skcms_Curve*)*args++, r); } break;
-            case Op_table_16_g:{ g = NS(table_16_)((const skcms_Curve*)*args++, g); } break;
-            case Op_table_16_b:{ b = NS(table_16_)((const skcms_Curve*)*args++, b); } break;
-            case Op_table_16_a:{ a = NS(table_16_)((const skcms_Curve*)*args++, a); } break;
+            case Op_table_16_r:{ r = table_16((const skcms_Curve*)*args++, r); } break;
+            case Op_table_16_g:{ g = table_16((const skcms_Curve*)*args++, g); } break;
+            case Op_table_16_b:{ b = table_16((const skcms_Curve*)*args++, b); } break;
+            case Op_table_16_a:{ a = table_16((const skcms_Curve*)*args++, a); } break;
 
             case Op_clut_3D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                NS(clut_3_8_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+                clut_3_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_3D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                NS(clut_3_16_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+                clut_3_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
             } break;
 
             case Op_clut_4D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                NS(clut_4_8_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+                clut_4_8(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
 
             case Op_clut_4D_16:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
-                NS(clut_4_16_)(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
+                clut_4_16(a2b, CAST(I32,F0),CAST(I32,F1), &r,&g,&b,a);
                 // 'a' was really a CMYK K, so our output is actually opaque.
                 a = F1;
             } break;
@@ -1098,12 +1072,12 @@ static void NS(exec_ops)(const Op* ops, const void** args,
 }
 
 ATTR
-static void NS(run_program)(const Op* program, const void** arguments,
-                           const char* src, char* dst, int n,
-                           const size_t src_bpp, const size_t dst_bpp) {
+static void run_program(const Op* program, const void** arguments,
+                        const char* src, char* dst, int n,
+                        const size_t src_bpp, const size_t dst_bpp) {
     int i = 0;
     while (n >= N) {
-        NS(exec_ops)(program, arguments, src, dst, i);
+        exec_ops(program, arguments, src, dst, i);
         i += N;
         n -= N;
     }
@@ -1112,7 +1086,7 @@ static void NS(run_program)(const Op* program, const void** arguments,
              tmp_dst[4*4*N] = {0};
 
         memcpy(tmp_src, (const char*)src + (size_t)i*src_bpp, (size_t)n*src_bpp);
-        NS(exec_ops)(program, arguments, tmp_src, tmp_dst, 0);
+        exec_ops(program, arguments, tmp_src, tmp_dst, 0);
         memcpy((char*)dst + (size_t)i*dst_bpp, tmp_dst, (size_t)n*dst_bpp);
     }
 }
