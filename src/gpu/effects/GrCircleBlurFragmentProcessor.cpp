@@ -330,10 +330,13 @@ GrCircleBlurFragmentProcessor::GrCircleBlurFragmentProcessor(
         , fTextureRadius(src.fTextureRadius)
         , fSolidRadius(src.fSolidRadius)
         , fBlurProfileSampler(src.fBlurProfileSampler) {
-    this->addTextureSampler(&fBlurProfileSampler);
+    this->setTextureSamplerCnt(1);
 }
 std::unique_ptr<GrFragmentProcessor> GrCircleBlurFragmentProcessor::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrCircleBlurFragmentProcessor(*this));
+}
+auto GrCircleBlurFragmentProcessor::onTextureSampler(int index) const -> const TextureSampler& {
+    return IthTextureSampler(index, fBlurProfileSampler);
 }
 GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrCircleBlurFragmentProcessor);
 #if GR_TEST_UTILS

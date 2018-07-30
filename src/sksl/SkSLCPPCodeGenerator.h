@@ -78,6 +78,8 @@ private:
 
     void writeGetKey();
 
+    void writeOnTextureSampler();
+
     void writeClone();
 
     void writeTest();

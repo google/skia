@@ -40,12 +40,13 @@ private:
             , fMaskCoordTransform(
                       SkMatrix::MakeTrans(SkIntToScalar(-bounds.x()), SkIntToScalar(-bounds.y())),
                       fMask.proxy()) {
-        this->addTextureSampler(&fMask);
+        this->setTextureSamplerCnt(1);
         this->addCoordTransform(&fMaskCoordTransform);
     }
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
     void onGetGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override;
     bool onIsEqual(const GrFragmentProcessor&) const override;
+    const TextureSampler& onTextureSampler(int) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     TextureSampler fMask;
     float fInnerThreshold;
