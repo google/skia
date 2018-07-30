@@ -3004,7 +3004,8 @@ bool GrGLGpu::createCopyProgram(GrTexture* srcTex) {
 
     int progIdx = TextureToCopyProgramIdx(srcTex);
     const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
-    GrSLType samplerType = srcTex->texturePriv().samplerType();
+    GrSLType samplerType =
+            GrSLCombinedSamplerTypeForTextureType(srcTex->texturePriv().textureType());
 
     if (!fCopyProgramArrayBuffer) {
         static const GrGLfloat vdata[] = {
@@ -4122,7 +4123,7 @@ sk_sp<GrSemaphore> GrGLGpu::prepareTextureForCrossContextUsage(GrTexture* textur
 }
 
 int GrGLGpu::TextureToCopyProgramIdx(GrTexture* texture) {
-    switch (texture->texturePriv().samplerType()) {
+    switch (GrSLCombinedSamplerTypeForTextureType(texture->texturePriv().textureType())) {
         case kTexture2DSampler_GrSLType:
             return 0;
         case kTexture2DRectSampler_GrSLType:

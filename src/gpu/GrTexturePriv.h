@@ -40,7 +40,7 @@ public:
         return fTexture->fMaxMipMapLevel;
     }
 
-    GrSLType samplerType() const { return fTexture->fSamplerType; }
+    GrTextureType textureType() const { return fTexture->fTextureType; }
 
     /** The filter used is clamped to this value in GrProcessor::TextureSampler. */
     GrSamplerState::Filter highestFilterMode() const { return fTexture->fHighestFilterMode; }

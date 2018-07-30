@@ -35,11 +35,10 @@ size_t GrTexture::onGpuMemorySize() const {
 }
 
 /////////////////////////////////////////////////////////////////////////////
-GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrSLType samplerType,
-                     GrSamplerState::Filter highestFilterMode,
-                     GrMipMapsStatus mipMapsStatus)
+GrTexture::GrTexture(GrGpu* gpu, const GrSurfaceDesc& desc, GrTextureType textureType,
+                     GrSamplerState::Filter highestFilterMode, GrMipMapsStatus mipMapsStatus)
         : INHERITED(gpu, desc)
-        , fSamplerType(samplerType)
+        , fTextureType(textureType)
         , fHighestFilterMode(highestFilterMode)
         , fMipMapsStatus(mipMapsStatus) {
     if (GrMipMapsStatus::kNotAllocated == fMipMapsStatus) {

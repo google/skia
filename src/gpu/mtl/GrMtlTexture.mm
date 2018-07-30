@@ -22,8 +22,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                    mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     this->registerWithCache(budgeted);
@@ -35,8 +34,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                    mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     this->registerWithCacheWrapped();
@@ -47,8 +45,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, kTexture2DSampler_GrSLType, highest_filter_mode(desc.fConfig),
-                    mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
 }
