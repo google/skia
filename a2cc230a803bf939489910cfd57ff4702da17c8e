@@ -22,6 +22,30 @@
       "revId": "a2cc230a803bf939489910cfd57ff4702da17c8e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "58ccd5e9_d2c1c578",
+        "filename": "src/ports/SkScalerContext_win_dw.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-07-30T22:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "318002a5_1776c2b2",
+      "range": {
+        "startLine": 664,
+        "startChar": 4,
+        "endLine": 664,
+        "endChar": 28
+      },
+      "revId": "a2cc230a803bf939489910cfd57ff4702da17c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
