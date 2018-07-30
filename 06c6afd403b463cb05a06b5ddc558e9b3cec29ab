@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "023b9c0d_e64871f4",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "If this one checks, shouldn\u0027t the 16 and 32 also check?",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 17
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8af410d7_b8576b38",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "Seems like this should be ::NextUTF8 . In theory the result of NextUTF8 should be checked, but since no font maps any character \u003c 0 to anything, this should always map to glyph 0 and return false anyway.",
+      "range": {
+        "startLine": 496,
+        "startChar": 47,
+        "endLine": 496,
+        "endChar": 58
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7cdc04b2_2b76add0",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF8",
+      "range": {
+        "startLine": 554,
+        "startChar": 36,
+        "endLine": 554,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7345c46f_73acf5ec",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF32",
+      "range": {
+        "startLine": 576,
+        "startChar": 36,
+        "endLine": 576,
+        "endChar": 39
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "701c0818_5d031748",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF8",
+      "range": {
+        "startLine": 598,
+        "startChar": 36,
+        "endLine": 598,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "20785b65_57a7029c",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF32",
+      "range": {
+        "startLine": 620,
+        "startChar": 36,
+        "endLine": 620,
+        "endChar": 39
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8f859c57_ac5133b3",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF8",
+      "range": {
+        "startLine": 149,
+        "startChar": 36,
+        "endLine": 149,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4598e9b6_2e497ae6",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-30T20:18:32Z",
+      "side": 1,
+      "message": "NextUTF32",
+      "range": {
+        "startLine": 165,
+        "startChar": 36,
+        "endLine": 165,
+        "endChar": 42
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
