@@ -13,6 +13,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(__ARM_NEON)
+    #include <arm_neon.h>
+#elif defined(__SSE__)
+    #include <immintrin.h>
+#endif
+
 // sizeof(x) will return size_t, which is 32-bit on some machines and 64-bit on others.
 // We have better testing on 64-bit machines, so force 32-bit machines to behave like 64-bit.
 //
@@ -1806,174 +1812,108 @@ typedef enum {
 #endif
 
 #if defined(__clang__)
-    typedef float    __attribute__((ext_vector_type(4)))   Fx4;
-    typedef int32_t  __attribute__((ext_vector_type(4))) I32x4;
-    typedef uint64_t __attribute__((ext_vector_type(4))) U64x4;
-    typedef uint32_t __attribute__((ext_vector_type(4))) U32x4;
-    typedef uint16_t __attribute__((ext_vector_type(4))) U16x4;
-    typedef uint8_t  __attribute__((ext_vector_type(4)))  U8x4;
-
-    typedef float    __attribute__((ext_vector_type(8)))   Fx8;
-    typedef int32_t  __attribute__((ext_vector_type(8))) I32x8;
-    typedef uint64_t __attribute__((ext_vector_type(8))) U64x8;
-    typedef uint32_t __attribute__((ext_vector_type(8))) U32x8;
-    typedef uint16_t __attribute__((ext_vector_type(8))) U16x8;
-    typedef uint8_t  __attribute__((ext_vector_type(8)))  U8x8;
-
-    typedef float    __attribute__((ext_vector_type(16)))   Fx16;
-    typedef int32_t  __attribute__((ext_vector_type(16))) I32x16;
-    typedef uint64_t __attribute__((ext_vector_type(16))) U64x16;
-    typedef uint32_t __attribute__((ext_vector_type(16))) U32x16;
-    typedef uint16_t __attribute__((ext_vector_type(16))) U16x16;
-    typedef uint8_t  __attribute__((ext_vector_type(16)))  U8x16;
+    template <int N, typename T> using Vec = T __attribute__((ext_vector_type(N)));
 #elif defined(__GNUC__)
-    typedef float    __attribute__((vector_size(16)))   Fx4;
-    typedef int32_t  __attribute__((vector_size(16))) I32x4;
-    typedef uint64_t __attribute__((vector_size(32))) U64x4;
-    typedef uint32_t __attribute__((vector_size(16))) U32x4;
-    typedef uint16_t __attribute__((vector_size( 8))) U16x4;
-    typedef uint8_t  __attribute__((vector_size( 4)))  U8x4;
+    // For some reason GCC accepts this nonsense, but not the more straightforward version,
+    //   template <int N, typename T> using Vec = T __attribute__((vector_size(N*sizeof(T))));
+    template <int N, typename T>
+    struct VecHelper { typedef T __attribute__((vector_size(N*sizeof(T)))) V; };
 
-    typedef float    __attribute__((vector_size(32)))   Fx8;
-    typedef int32_t  __attribute__((vector_size(32))) I32x8;
-    typedef uint64_t __attribute__((vector_size(64))) U64x8;
-    typedef uint32_t __attribute__((vector_size(32))) U32x8;
-    typedef uint16_t __attribute__((vector_size(16))) U16x8;
-    typedef uint8_t  __attribute__((vector_size( 8)))  U8x8;
-
-    typedef float    __attribute__((vector_size( 64)))   Fx16;
-    typedef int32_t  __attribute__((vector_size( 64))) I32x16;
-    typedef uint64_t __attribute__((vector_size(128))) U64x16;
-    typedef uint32_t __attribute__((vector_size( 64))) U32x16;
-    typedef uint16_t __attribute__((vector_size( 32))) U16x16;
-    typedef uint8_t  __attribute__((vector_size( 16)))  U8x16;
+    template <int N, typename T> using Vec = typename VecHelper<N,T>::V;
 #endif
 
 // First, instantiate our default exec_ops() implementation using the default compiliation target.
 
+namespace baseline {
 #if defined(SKCMS_PORTABLE) || !(defined(__clang__) || defined(__GNUC__))
     #define N 1
-
-    #define F   float
-    #define U64 uint64_t
-    #define U32 uint32_t
-    #define I32 int32_t
-    #define U16 uint16_t
-    #define U8  uint8_t
-
-    #define F0 0.0f
-    #define F1 1.0f
+    using F   = float;
+    using U64 = uint64_t;
+    using U32 = uint32_t;
+    using I32 = int32_t;
+    using U16 = uint16_t;
+    using U8  = uint8_t;
 
 #elif defined(__AVX512F__)
     #define N 16
-
-    #define F     Fx16
-    #define U64 U64x16
-    #define U32 U32x16
-    #define I32 I32x16
-    #define U16 U16x16
-    #define U8   U8x16
-
-    #define F0 F{0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0}
-    #define F1 F{1,1,1,1, 1,1,1,1, 1,1,1,1, 1,1,1,1}
+    using   F = Vec<N,float>;
+    using I32 = Vec<N,int32_t>;
+    using U64 = Vec<N,uint64_t>;
+    using U32 = Vec<N,uint32_t>;
+    using U16 = Vec<N,uint16_t>;
+    using  U8 = Vec<N,uint8_t>;
 #elif defined(__AVX__)
     #define N 8
-
-    #define F     Fx8
-    #define U64 U64x8
-    #define U32 U32x8
-    #define I32 I32x8
-    #define U16 U16x8
-    #define U8   U8x8
-
-    #define F0 F{0,0,0,0, 0,0,0,0}
-    #define F1 F{1,1,1,1, 1,1,1,1}
+    using   F = Vec<N,float>;
+    using I32 = Vec<N,int32_t>;
+    using U64 = Vec<N,uint64_t>;
+    using U32 = Vec<N,uint32_t>;
+    using U16 = Vec<N,uint16_t>;
+    using  U8 = Vec<N,uint8_t>;
 #else
     #define N 4
-
-    #define F     Fx4
-    #define U64 U64x4
-    #define U32 U32x4
-    #define I32 I32x4
-    #define U16 U16x4
-    #define U8   U8x4
-
-    #define F0 F{0,0,0,0}
-    #define F1 F{1,1,1,1}
+    using   F = Vec<N,float>;
+    using I32 = Vec<N,int32_t>;
+    using U64 = Vec<N,uint64_t>;
+    using U32 = Vec<N,uint32_t>;
+    using U16 = Vec<N,uint16_t>;
+    using  U8 = Vec<N,uint8_t>;
 #endif
 
-#define NS(id) id
-#define ATTR
+    #define ATTR
     #include "src/Transform_inl.h"
-#undef N
-#undef F
-#undef U64
-#undef U32
-#undef I32
-#undef U16
-#undef U8
-#undef F0
-#undef F1
-#undef NS
-#undef ATTR
+    #undef N
+    #undef ATTR
+}
 
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
 #if !defined(SKCMS_PORTABLE) && (defined(__clang__) || defined(__GNUC__)) \
         && defined(__x86_64__) && !defined(__AVX2__)
-    #define N 8
-    #define F     Fx8
-    #define U64 U64x8
-    #define U32 U32x8
-    #define I32 I32x8
-    #define U16 U16x8
-    #define U8   U8x8
-    #define F0 F{0,0,0,0, 0,0,0,0}
-    #define F1 F{1,1,1,1, 1,1,1,1}
 
-    #define NS(id) id ## _hsw
-    #define ATTR __attribute__((target("avx2,f16c")))
+    namespace hsw {
+        #define N 8
+        using   F = Vec<N,float>;
+        using I32 = Vec<N,int32_t>;
+        using U64 = Vec<N,uint64_t>;
+        using U32 = Vec<N,uint32_t>;
+        using U16 = Vec<N,uint16_t>;
+        using  U8 = Vec<N,uint8_t>;
 
-    // We check these guards to see if we have support for these features.
-    // They're likely _not_ defined here in our baseline build config.
-    #ifndef __AVX__
-        #define __AVX__ 1
-        #define UNDEF_AVX
-    #endif
-    #ifndef __F16C__
-        #define __F16C__ 1
-        #define UNDEF_F16C
-    #endif
-    #ifndef __AVX2__
-        #define __AVX2__ 1
-        #define UNDEF_AVX2
-    #endif
+        #define ATTR __attribute__((target("avx2,f16c")))
 
-    #include "src/Transform_inl.h"
+        // We check these guards to see if we have support for these features.
+        // They're likely _not_ defined here in our baseline build config.
+        #ifndef __AVX__
+            #define __AVX__ 1
+            #define UNDEF_AVX
+        #endif
+        #ifndef __F16C__
+            #define __F16C__ 1
+            #define UNDEF_F16C
+        #endif
+        #ifndef __AVX2__
+            #define __AVX2__ 1
+            #define UNDEF_AVX2
+        #endif
 
-    #undef N
-    #undef F
-    #undef U64
-    #undef U32
-    #undef I32
-    #undef U16
-    #undef U8
-    #undef F0
-    #undef F1
-    #undef NS
-    #undef ATTR
+        #include "src/Transform_inl.h"
 
-    #ifdef UNDEF_AVX
-        #undef __AVX__
-        #undef UNDEF_AVX
-    #endif
-    #ifdef UNDEF_F16C
-        #undef __F16C__
-        #undef UNDEF_F16C
-    #endif
-    #ifdef UNDEF_AVX2
-        #undef __AVX2__
-        #undef UNDEF_AVX2
-    #endif
+        #undef N
+        #undef ATTR
+
+        #ifdef UNDEF_AVX
+            #undef __AVX__
+            #undef UNDEF_AVX
+        #endif
+        #ifdef UNDEF_F16C
+            #undef __F16C__
+            #undef UNDEF_F16C
+        #endif
+        #ifdef UNDEF_AVX2
+            #undef __AVX2__
+            #undef UNDEF_AVX2
+        #endif
+    }
 
     #define TEST_FOR_HSW
 
@@ -2319,11 +2259,9 @@ bool skcms_Transform(const void*             src,
         case skcms_PixelFormat_RGBA_ffff     >> 1: *ops++ = Op_store_ffff;     break;
     }
 
-    void (*run)(const Op*, const void**, const char*, char*, int, size_t,size_t) = run_program;
+    auto run = baseline::run_program;
 #if defined(TEST_FOR_HSW)
-    if (hsw_ok()) {
-        run = run_program_hsw;
-    }
+    if (hsw_ok()) { run = hsw::run_program; }
 #endif
     run(program, arguments, (const char*)src, (char*)dst, n, src_bpp,dst_bpp);
     return true;
