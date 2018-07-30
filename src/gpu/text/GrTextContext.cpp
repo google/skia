@@ -179,7 +179,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     } else {
                         const SkPath* path = cache->findPath(glyph);
                         if (path != nullptr) {
-                            cacheBlob->appendPathGlyph(runIndex, *path, loc.fX, loc.fY, matrixScale, false);
+                            cacheBlob->appendPathGlyph(
+                                    runIndex, *path, loc.fX, loc.fY, matrixScale, false);
                         }
                     }
                 }
