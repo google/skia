@@ -9,6 +9,7 @@
 
 #include "GrSurface.h"
 
+#include "GrMtlBuffer.h"
 #include "GrMtlCopyPipelineState.h"
 #include "GrMtlGpu.h"
 #include "GrMtlResourceProvider.h"
@@ -28,20 +29,9 @@ void GrMtlCopyManager::createCopyProgramBuffer() {
         {1, 0},
         {1, 1},
     };
-    fVertexAttributeBuffer = [fGpu->device() newBufferWithLength: sizeof(vdata)
-                                                         options: MTLResourceStorageModePrivate];
-    id<MTLBuffer> transferBuffer =
-            [fGpu->device() newBufferWithBytes: vdata
-                                        length: sizeof(vdata)
-                                       options: MTLResourceStorageModeManaged];
-
-    id<MTLBlitCommandEncoder> blitCmdEncoder = [fGpu->commandBuffer() blitCommandEncoder];
-    [blitCmdEncoder copyFromBuffer: transferBuffer
-                      sourceOffset: 0
-                          toBuffer: fVertexAttributeBuffer
-                 destinationOffset: 0
-                              size: sizeof(vdata)];
-    [blitCmdEncoder endEncoding];
+    sk_sp<GrMtlBuffer> mtlBuffer(GrMtlBuffer::Create(fGpu, sizeof(vdata), kVertex_GrBufferType,
+                                                     kStatic_GrAccessPattern, vdata));
+    fVertexAttributeBuffer = mtlBuffer->mtlBuffer();
 }
 
 void GrMtlCopyManager::createCopyProgramShaders() {
