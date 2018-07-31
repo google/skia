@@ -31,6 +31,7 @@ enum GPFlag {
     kBonesAttribute_GPFlag          = 0x10,
 };
 
+static constexpr int kNumVec2sPerBone = 3;
 static constexpr int kMaxTransforms = 32; // We only have enough precision to store 16 pairs of
                                           // transforms.
 
@@ -122,9 +123,9 @@ public:
                 const char* vertBonesUniformName;
                 const char* vertTransformsUniformName;
                 fBonesUniform = uniformHandler->addUniformArray(kVertex_GrShaderFlag,
-                                                                kFloat3x3_GrSLType,
+                                                                kFloat2_GrSLType,
                                                                 "Bones",
-                                                                kMaxBones,
+                                                                kMaxBones * kNumVec2sPerBone,
                                                                 &vertBonesUniformName);
                 fTransformsUniform = uniformHandler->addUniformArray(kVertex_GrShaderFlag,
                                                                      kFloat3x3_GrSLType,
@@ -163,17 +164,25 @@ public:
 
                 // Perform transforms.
                 vertBuilder->codeAppendf(
-                        "float3 originalPosition = %s[meshIndex * 2] * float3(%s, 1);"
+                        "float3 worldPosition = %s[meshIndex * 2] * float3(%s, 1);"
                         "float3 transformedPosition = float3(0, 0, 1);"
                         "for (int i = 0; i < 4; i++) {"
-                        "    byte index = indices[i];"
+                        "    short index = indices[i] * 3;"
                         "    float weight = %s[i];"
-                        "    transformedPosition.xy += (%s[index] * originalPosition * weight).xy;"
+                        "    float2 c0 = %s[index];"
+                        "    float2 c1 = %s[index + 1];"
+                        "    float2 c2 = %s[index + 2];"
+                        "    float x = c0.x * worldPosition.x + c1.x * worldPosition.y + c2.x;"
+                        "    float y = c0.y * worldPosition.x + c1.y * worldPosition.y + c2.y;"
+                        "    transformedPosition.x += x * weight;"
+                        "    transformedPosition.y += y * weight;"
                         "}"
                         "transformedPosition = %s[meshIndex * 2 + 1] * transformedPosition;",
                         vertTransformsUniformName,
                         gp.fInPosition.name(),
                         gp.fInBoneWeights.name(),
+                        vertBonesUniformName,
+                        vertBonesUniformName,
                         vertBonesUniformName,
                         vertTransformsUniformName);
                 transformedPositionName = "transformedPosition.xy / transformedPosition.z";
@@ -262,7 +271,7 @@ public:
             fColorSpaceHelper.setData(pdman, dgp.fColorSpaceXform.get());
 
             if (dgp.hasBones()) {
-                pdman.setMatrix3fv(fBonesUniform, dgp.boneCount(), dgp.bones());
+                pdman.set2fv(fBonesUniform, dgp.boneCount() * kNumVec2sPerBone, dgp.bones());
                 pdman.setMatrix3fv(fTransformsUniform, dgp.transformCount(), dgp.transforms());
             }
         }
@@ -378,13 +387,14 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
 #if GR_TEST_UTILS
+static constexpr int kNumFloatsPerBone = 6;
 static constexpr int kNumFloatsPerSkMatrix = 9;
 static constexpr int kTestBoneCount = 4;
-static constexpr float kTestBones[kTestBoneCount * kNumFloatsPerSkMatrix] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+static constexpr float kTestBones[kTestBoneCount * kNumFloatsPerBone] = {
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 };
 static constexpr int kTestTransformCount = 2;
 static constexpr float kTestTransforms[kTestTransformCount * kNumFloatsPerSkMatrix] = {
