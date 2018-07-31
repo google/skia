@@ -18,6 +18,7 @@
 #include "SkUtils.h"
 #include "SkWriteBuffer.h"
 #include "Test.h"
+#undef ASSERT
 
 static size_t uni_to_utf8(const SkUnichar src[], void* dst, int count) {
     char* u8 = (char*)dst;

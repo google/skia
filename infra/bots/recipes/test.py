@@ -237,6 +237,9 @@ def dm_flags(api, bot):
         if sample_count is not '':
           configs.append('angle_gl_es2_msaa' + sample_count)
           configs.append('angle_gl_es3_msaa' + sample_count)
+      if 'NUC5i7RYH' in bot:
+        # skbug.com/7376
+        blacklist('_ test _ ProcessorCloneTest')
 
     # Vulkan bot *only* runs the vk config.
     if 'Vulkan' in bot:
