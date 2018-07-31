@@ -208,7 +208,7 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
     return true;
 }
 
-// computes the line intersection and then the distance to s0's endpoint
+// computes the line intersection and then the distance from that to s0
 static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetSegment& s1) {
     const SkVector& v0 = s0.fV;
     const SkVector& v1 = s1.fV;
@@ -223,8 +223,17 @@ static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetS
     SkScalar localS = d.cross(v1) / perpDot;
     if (localS < 0) {
         localS = -localS;
-    } else {
+    } else if (localS > SK_Scalar1) {
         localS -= SK_Scalar1;
+    } else {
+        SkScalar localT = d.cross(v0) / perpDot;
+        if (localT >= 0 && localT <= SK_Scalar1) {
+            // both segments intersect
+            localS = -SK_Scalar1;
+        } else {
+            // line intersection is on s0
+            localS = 0;
+        }
     }
 
     localS *= v0.length();
