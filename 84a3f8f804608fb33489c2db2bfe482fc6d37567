@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0dd0016_3182b014",
+        "filename": "tools/Registry.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-07-31T20:36:37Z",
+      "side": 1,
+      "message": "Factory\n\nIn fact I\u0027m a bit bewildered by the \u0027typename T\u0027 in the declaration of \u0027Registry\u0027. Why not just \u0027typename Factory\u0027? It seems \u0027Factory\u0027 is used twice and \u0027T\u0027 once even though they mean the same thing. Can we just use \u0027typename Factory\u0027 and remove the typedef?",
+      "range": {
+        "startLine": 50,
+        "startChar": 18,
+        "endLine": 50,
+        "endChar": 19
+      },
+      "revId": "84a3f8f804608fb33489c2db2bfe482fc6d37567",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
