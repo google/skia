@@ -43,9 +43,7 @@
 #include <stdlib.h>
 #include <map>
 
-#if defined(SK_HAS_SKSG)
-    #include "SlideDir.h"
-#endif
+#include "SlideDir.h"
 
 #if defined(SK_ENABLE_SKOTTIE)
     #include "SkottieSlide.h"
@@ -634,14 +632,12 @@ void Viewer::initSlides() {
                     addSlide(name, SkOSPath::Join(flag.c_str(), name.c_str()), info.fFactory);
                 }
             }
-#if defined(SK_HAS_SKSG)
             if (!dirSlides.empty()) {
                 fSlides.push_back(
                     sk_make_sp<SlideDir>(SkStringPrintf("%s[%s]", info.fDirName, flag.c_str()),
                                          std::move(dirSlides)));
                 dirSlides.reset();
             }
-#endif
         }
     }
 }
