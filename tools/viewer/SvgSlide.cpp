@@ -7,6 +7,8 @@
 
 #include "SvgSlide.h"
 
+#if defined(SK_XML)
+
 #include "SkCanvas.h"
 #include "SkStream.h"
 #include "SkSVGDOM.h"
@@ -41,3 +43,5 @@ void SvgSlide::draw(SkCanvas* canvas) {
         fDom->render(canvas);
     }
 }
+
+#endif // SK_XML
