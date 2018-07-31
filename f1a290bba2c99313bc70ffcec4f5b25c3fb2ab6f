@@ -378,6 +378,30 @@
     },
     {
       "key": {
+        "uuid": "539a69bb_00eb4ca8",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "\u003e You say it\u0027s taken care of by the base class, but in my newer patch set, I still need to explicitly zero-initialize, or else the AnimatedImage test fails on images/alphabetAnim.gif. Am I holding something wrong?\n\u003e \n\u003e That might just mean that I\u0027m not setting *rowsDecoded properly, in my newer patch set. I\u0027m not sure if that\u0027s plausible, though, because the part of the image that\u0027s outside the frame isn\u0027t just complete rows. It can be part-rows, if the frame left-and-width isn\u0027t the same as 0-and-the-image-width. Does that make sense??\n\nOh sorry. The base class only handles zero initialization if you set *rowsDecoded properly. But the base class doesn\u0027t know anything about \"the frame left-and-width isn\u0027t the same as 0-and-the-image-width.\" So in that case, SkGifCodec does its own zero initialization ahead of time.",
+      "parentUuid": "ab74eeaa_47345373",
+      "range": {
+        "startLine": 292,
+        "startChar": 0,
+        "endLine": 294,
+        "endChar": 75
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "71e0ff88_8fdf5e95",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 2
@@ -413,6 +437,30 @@
       "side": 1,
       "message": "OK, dst is the image rectangle, not the frame rectangle. But is onIncrementalDecode (and onGetPixels) supposed to touch the pixels of dst that are outside the frame-rect but inside the image-rect? See also the \"clear the dst image to transparent black\" in my newer patch set.",
       "parentUuid": "71e0ff88_8fdf5e95",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 318,
+        "endChar": 30
+      },
+      "revId": "f1a290bba2c99313bc70ffcec4f5b25c3fb2ab6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0064be11_2d3b6abd",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "Yes. SkCodec\u0027s API is intended to hide any knowledge frame-rects being subset from the image-rect. So the SkCodec implementation has to fill all of those pixels with something (unless they were filled by a prior frame).",
+      "parentUuid": "e1e2a948_24c59353",
       "range": {
         "startLine": 313,
         "startChar": 0,

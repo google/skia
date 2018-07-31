@@ -1,0 +1,487 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d3fc489_c2c4ec57",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "FWIW, SkGifCodec handles this by never passing the stream to the base class SkCodec. With a null stream, rewindIfNeeded simply returns true.\n\nBut you\u0027re right; we wouldn\u0027t want to rewind if we\u0027re just decoding the next frame.\n\nIt\u0027s probably more logical to put this inside handleFrameIndex, given the current architecture, although SkCodec does not currently keep track of \"I most recently decoded frame i\", which would be necessary to skip this call to rewindIfNeeded.",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 49
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f7dca708_67de81a1",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "You could use SkCodecPrintf. It\u0027s generally turned off, but with a build flag converts to SkDebugf.",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 78
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1c38317d_9f099cff",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "My take on it is kInvalidInput.",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 75
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5703ffa3_0452657b",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "This is supposed to represent the alpha of the first frame. You\u0027re right; we don\u0027t yet know what the alpha is of all frames.\n\nThis is another case where we started off with an API that only supported reading the first frame. SkCodec has an SkImageInfo (which I\u0027m in the process of removing) which requires an SkAlphaType. I\u0027ve added FrameInfo\u0027s fAlphaType, which represents the type for that frame, but it\u0027s a little confusing to have one on the SkCodec, too.",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 28
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "057818f3_2e3e7464",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "Sorry my last comment didn\u0027t clarify this. Yes, use kN32.",
+      "range": {
+        "startLine": 201,
+        "startChar": 52,
+        "endLine": 201,
+        "endChar": 68
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6a9c33f_95e64911",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "If the image is complete and fills the frame, there\u0027s no need to fill to transparent black. But we don\u0027t know at the start whether the image is complete, so in order to avoid showing uninitialized memory, we have to fill either when we discover it\u0027s incomplete (but only the first time), or ahead of time. It\u0027s simpler to fill ahead of time if the image is interlaced (although SkGifCodec repeats rows so that the initial fill may be unnecessary), or if the frame doesn\u0027t fill the image size. (In the latter case, the swizzler doesn\u0027t handle pixels to the left or right of the frame, so for simplicity we do the whole frame before hand.)\n\nThis is all only if the frame is independent, and we handle restoring to the background separately.",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 315,
+        "endChar": 36
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f5b88f6_e5f88428",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "That comment has three cases. Are they all unclear to you? The third case is a little funny, and relates to Chromium\u0027s behavior for a busted image. If there is no color table, Chromium will just draw a completely transparent image, so we clear the pixels to transparent black. An alternative might be to say the image is invalid and not draw it.",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 26
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c490c8a9_463bae4a",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "As currently written, SkCodec will have already called rewindIfNeeded. But you\u0027re right that it is overly aggressive.",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 351,
+        "endChar": 50
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b49cb5a_a2ccff2a",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "I would say this should be a break, handled the same way as WUFFS_BASE__STATUS_OK. The FrameInfos/onGetFrameCount should tell us that we\u0027ve reached the end.",
+      "range": {
+        "startLine": 382,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 45
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "335d5d13_0606d337",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "This is kind of confusing. We don\u0027t use it if we successfully decoded the entire image. Let\u0027s say you have a 10 pixel high image (both the frame and the image). If you only decoded the first 3 rows, you\u0027d set this to 3, and then SkCodec (or the client of incrementalDecode()) would zero-initialize the remaining 7 (unless the memory was already zero-initialized).\n\nNow let\u0027s say that the image is still 10 pixels high, but the frame is from row 5 to 9. If you only decoded 3 rows, but you initialized the first 5, you could return 8, and the caller would zero-initialize the final 2. In SkGifCodec, we just zero-initialize all 10 rows ahead of time (as you do here) and return the height of the image, so the caller knows it doesn\u0027t need to do anything. (To match that behavior, I think you\u0027d want to return fPixelBuffer.height()?) That\u0027s wasted work, and it\u0027s possible there\u0027s a better way to do it, but I haven\u0027t investigated it.",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 78
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2da2fdbf_5a030328",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "Given the existing architecture, I think that would make more sense. That would both rewind the stream and call onRewind.",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "235799b3_51094f00",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "I said this elsewhere, but I *thought* the fact that it has move constructors means it can be used directly in a vector. But if I\u0027m wrong, I don\u0027t have a problem of making it not SkNoncopyable.",
+      "range": {
+        "startLine": 450,
+        "startChar": 0,
+        "endLine": 453,
+        "endChar": 70
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b9d8a79_cfc55692",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "SkFrameInfo (the public-facing API) does not include a frame rect (deliberately).\n\nSkGifCodec does not clip the frame rect in (the internal) SkFrame. It\u0027s used by setAlphaAndRequiredFrame and by the SkCodec subclass. In either case, I don\u0027t think that clipping early would hurt anything, but if you\u0027re clipping later (i.e. in onIncrementalDecode), it\u0027s not necessary. That said, I\u0027d support adding a comment to SkFrame describing how it\u0027s expected to be used.",
+      "range": {
+        "startLine": 461,
+        "startChar": 56,
+        "endLine": 463,
+        "endChar": 51
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e0f05974_ef50daed",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "Thanks for the overview!",
+      "range": {
+        "startLine": 504,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 72
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "402d4ec5_3290951c",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "nit: In Skia, we typically do not indent these keywords from the class.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c31a7119_460279d9",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "We generally do not use multiple inheritance. You could just make this class own a subclass of SkFrameHolder.",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 76
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "162583be_2b91c9eb",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "I default to making a class non-copyable, even if it doesn\u0027t have pointers.\n\nBut I thought that the fact that we added move constructors to SkNoncopyable allowed it to be placed in an std::vector. Maybe I\u0027m wrong?",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 69
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54a9297f_406ce8ac",
+        "filename": "tests/CodecAnimTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "My guess is this is when the loop count is infinite. We use SkCodec::kRepetitionCountInfinite, which is -1, but the image stores that as 0.",
+      "range": {
+        "startLine": 187,
+        "startChar": 0,
+        "endLine": 188,
+        "endChar": 30
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa7ce12_08d59f80",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "There\u0027s only one test where we set expectedResult to kErrorInInput. That test was added as a part of skbug.com/5887. I don\u0027t remember the details off hand, but I introduced kErrorInInput to handle incremental decoding. If the image is truncated, SkGifCodec returns kIncompleteInput. The caller knows that they need to provide more data in order to continue decoding. But if there is a fatal error in the stream (i.e. providing more data will not make it possible to keep decoding), kErrorInInput tells you that. But it\u0027s different from kInvalidInput in that there was potentially a partial image to draw.",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 79
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e9af5af_b3eafb90",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "We could definitely improve this by using ERRORF and SkCodec::ResultToString (which was added since this test was written), but it still doesn\u0027t have access to other interesting information, like the file that had the error.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 23
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f2281af_7f47b6e0",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-07-31T20:23:30Z",
+      "side": 1,
+      "message": "The test was added as a part of https://skia-review.googlesource.com/c/skia/+/106964.\n\nIt looks like the image has a valid header but is missing some LZW blocks. So I\u0027m surprised that the wuffs gif codec doesn\u0027t create a codec. (Unless the header is broken in some way that I missed?)",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
