@@ -611,3 +611,35 @@ DEF_SIMPLE_GM(bug7792, canvas, 800, 800) {
     path.close();
     canvas->drawPath(path, p);
 }
+
+static void add_triangle(SkPath* path, SkPoint a, SkPoint b, SkPoint c) {
+    SkScalar scale = 1200;
+    path->moveTo(a * scale);
+    path->lineTo(b * scale);
+    if (false) {
+        path->lineTo(c * scale);
+    } else if (0) {
+        path->quadTo((b + c) * 0.5f * scale, c * scale);
+    } else {
+        path->cubicTo((b + c) * 0.5f * scale, c * scale, c * scale);
+    }
+}
+
+DEF_SIMPLE_GM(thinfan, canvas, 300, 300) {
+    SkScalar angle_step = SK_ScalarPI / 2000;
+
+    SkPath path;
+
+    canvas->translate(10, 10);
+    SkPoint prev = { SK_Scalar1, 0 };
+    for (SkScalar rad = 0; rad < SK_ScalarPI/4; rad += angle_step) {
+        SkPoint curr = { SkScalarCos(rad), SkScalarSin(rad) };
+        add_triangle(&path, {0, 0}, prev, curr);
+        prev = curr;
+    }
+    add_triangle(&path, {0, 0}, prev, { SK_Scalar1, 0});
+
+    SkPaint p;
+    canvas->drawPath(path, p);
+}
+

@@ -127,6 +127,7 @@ private:
         }
         float T = (0 == fRand.nextU() % 10) ? 0 : scalbnf(1, -(int)fRand.nextRangeU(10, 149));
         SkASSERT(T >= 0 && T < 1);
+        SkDebugf("T %g\n", T);
         return T;
     }
 
@@ -154,19 +155,19 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint paint;
         paint.setColor(SK_ColorWHITE);
-        paint.setAntiAlias(true);
+      //  paint.setAntiAlias(true);
 
         MandolineSlicer mandoline({41, 43});
         mandoline.sliceCubic({5, 277}, {381, -74}, {243, 162});
         mandoline.sliceLine({41, 43});
-        canvas->drawPath(mandoline.path(), paint);
+    //    canvas->drawPath(mandoline.path(), paint);
 
         mandoline.reset({357.049988f, 446.049988f});
         mandoline.sliceCubic({472.750000f, -71.950012f}, {639.750000f, 531.950012f},
                              {309.049988f, 347.950012f});
         mandoline.sliceLine({309.049988f, 419});
         mandoline.sliceLine({357.049988f, 446.049988f});
-        canvas->drawPath(mandoline.path(), paint);
+//        canvas->drawPath(mandoline.path(), paint);
 
         canvas->save();
         canvas->translate(421, 105);
@@ -178,7 +179,7 @@ protected:
                              {1, 0}, .5f);
         mandoline.sliceLine({0, 0});
         mandoline.sliceLine({-cosf(SkDegreesToRadians(-60)), sinf(SkDegreesToRadians(-60))});
-        canvas->drawPath(mandoline.path(), paint);
+//        canvas->drawPath(mandoline.path(), paint);
         canvas->restore();
 
         canvas->save();
