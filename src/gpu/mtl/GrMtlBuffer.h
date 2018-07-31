@@ -1,0 +1,53 @@
+/*
+ * Copyright 2016 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef GrMtlBuffer_DEFINED
+#define GrMtlBuffer_DEFINED
+
+#include "GrBuffer.h"
+
+#import <metal/metal.h>
+
+class GrMtlGpu;
+class GrMtlCaps;
+
+class GrMtlBuffer: public GrBuffer {
+public:
+    static GrMtlBuffer* Create(GrMtlGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
+                               const void* data = nullptr);
+
+    ~GrMtlBuffer() override;
+
+    id<MTLBuffer> mtlBuffer() const { return fMtlBuffer; }
+
+protected:
+    GrMtlBuffer(GrMtlGpu*, size_t size, GrBufferType intendedType, GrAccessPattern,
+                const void* data);
+
+    void onAbandon() override;
+    void onRelease() override;
+
+private:
+    GrMtlGpu* mtlGpu() const;
+
+    void onMap() override;
+    void onUnmap() override;
+    bool onUpdateData(const void* src, size_t srcSizeInBytes) override;
+
+#ifdef SK_DEBUG
+    void validate() const;
+#endif
+
+    GrBufferType fIntendedType;
+    bool fIsDynamic;
+    id<MTLBuffer> fMtlBuffer;
+    id<MTLBuffer> fMappedBuffer;
+
+    typedef GrBuffer INHERITED;
+};
+
+#endif
