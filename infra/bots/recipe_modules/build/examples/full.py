@@ -72,8 +72,11 @@ defaultProps = lambda buildername: dict(
 
 def GenTests(api):
   for buildername in TEST_BUILDERS:
+    props = defaultProps(buildername)
+    if 'Mac' in buildername:
+      props['xcode_build_version'] = '9abcd'
     test = (
       api.test(buildername) +
-      api.properties(**defaultProps(buildername))
+      api.properties(**props)
     )
     yield test

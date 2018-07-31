@@ -106,13 +106,16 @@ TEST_BUILDERS = [
 
 def GenTests(api):
   for builder in TEST_BUILDERS:
-    test = (
-      api.test(builder) +
-      api.properties(buildername=builder,
+    props = dict(buildername=builder,
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+    if 'Mac' in builder:
+      props['xcode_build_version'] = '9abcd'
+    test = (
+      api.test(builder) +
+      api.properties(**props) +
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )

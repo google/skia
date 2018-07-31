@@ -11893,6 +11893,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -11925,6 +11929,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -11965,7 +11974,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm-Debug-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm-Debug-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12016,6 +12025,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12048,6 +12061,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12088,7 +12106,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12216,7 +12234,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Debug-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Debug-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12267,6 +12285,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12299,6 +12321,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12339,7 +12366,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Debug-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12390,6 +12417,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12422,6 +12453,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12462,7 +12498,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-arm64-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12513,6 +12549,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12545,6 +12585,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12585,7 +12630,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x64-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x64-Release-iOS\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12636,6 +12681,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12668,6 +12717,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12708,7 +12762,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12759,6 +12813,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12791,6 +12849,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12831,7 +12894,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-ASAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -12882,6 +12945,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -12914,6 +12981,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12954,7 +13026,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13005,6 +13077,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13037,6 +13113,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13077,7 +13158,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Metal\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-Metal\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13128,6 +13209,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13160,6 +13245,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
           "name": "skia/bots/moltenvk",
@@ -13205,7 +13295,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Debug-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13256,6 +13346,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13288,6 +13382,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13328,7 +13427,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13379,6 +13478,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13411,6 +13514,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13451,7 +13559,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-CommandBuffer\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13502,6 +13610,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13534,6 +13646,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13574,7 +13691,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-Metal\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-Metal\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13625,6 +13742,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13657,6 +13778,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
           "name": "skia/bots/moltenvk",
@@ -13702,7 +13828,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-MoltenVK_Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -13753,6 +13879,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode_ios_9c40b",
+          "path": "cache/xcode_ios_9c40b.app"
         }
       ],
       "cipd_packages": [
@@ -13785,6 +13915,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13825,7 +13960,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Mac-Clang-x86_64-Release-TSAN\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\",\"xcode_build_version\":\"9c40b\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
