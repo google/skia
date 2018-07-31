@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a2a5fc9d_475b6666",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done.\n\nAlso factored out a utility fn.",
+      "parentUuid": "023b9c0d_e64871f4",
+      "range": {
+        "startLine": 442,
+        "startChar": 0,
+        "endLine": 444,
+        "endChar": 17
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8af410d7_b8576b38",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 16
@@ -45,6 +69,30 @@
       "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e3b6bb6_3d170f20",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8af410d7_b8576b38",
+      "range": {
+        "startLine": 496,
+        "startChar": 47,
+        "endLine": 496,
+        "endChar": 58
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "90c946fc_4692a27a",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7cdc04b2_2b76add0",
+      "range": {
+        "startLine": 554,
+        "startChar": 36,
+        "endLine": 554,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7345c46f_73acf5ec",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 16
@@ -91,6 +163,30 @@
       "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d1507a5c_b51c61a2",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7345c46f_73acf5ec",
+      "range": {
+        "startLine": 576,
+        "startChar": 36,
+        "endLine": 576,
+        "endChar": 39
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5a50821c_2bf90752",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 598,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "701c0818_5d031748",
+      "range": {
+        "startLine": 598,
+        "startChar": 36,
+        "endLine": 598,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "20785b65_57a7029c",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 16
@@ -137,6 +257,30 @@
       "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "358edacd_c169f234",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "20785b65_57a7029c",
+      "range": {
+        "startLine": 620,
+        "startChar": 36,
+        "endLine": 620,
+        "endChar": 39
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ecb056b3_fc4dc449",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8f859c57_ac5133b3",
+      "range": {
+        "startLine": 149,
+        "startChar": 36,
+        "endLine": 149,
+        "endChar": 47
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4598e9b6_2e497ae6",
         "filename": "src/svg/SkSVGDevice.cpp",
         "patchSetId": 16
@@ -183,6 +351,30 @@
       "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6b90ead_cc44682c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T14:54:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4598e9b6_2e497ae6",
+      "range": {
+        "startLine": 165,
+        "startChar": 36,
+        "endLine": 165,
+        "endChar": 42
+      },
+      "revId": "06c6afd403b463cb05a06b5ddc558e9b3cec29ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
