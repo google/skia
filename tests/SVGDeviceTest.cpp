@@ -5,8 +5,17 @@
  * found in the LICENSE file.
  */
 
+#define ABORT_TEST(r, cond, ...)                                   \
+    do {                                                           \
+        if (cond) {                                                \
+            REPORT_FAILURE(r, #cond, SkStringPrintf(__VA_ARGS__)); \
+            return;                                                \
+        }                                                          \
+    } while (0)
+
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkImageShader.h"
@@ -338,6 +347,39 @@ DEF_TEST(SVGDevice_image_shader_tileboth, reporter) {
 
     REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "width")) == imageWidth);
     REPORTER_ASSERT(reporter, atoi(dom.findAttr(patternNode, "height")) == imageHeight);
+}
+
+DEF_TEST(SVGDevice_ColorFilters, reporter) {
+    SkDOM dom;
+    SkPaint paint;
+    paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorRED, SkBlendMode::kSrcIn));
+    {
+        SkXMLParserWriter writer(dom.beginParsing());
+        std::unique_ptr<SkCanvas> svgCanvas = SkSVGCanvas::Make(SkRect::MakeWH(100, 100), &writer);
+        SkRect bounds{0, 0, SkIntToScalar(100), SkIntToScalar(100)};
+        svgCanvas->drawRect(bounds, paint);
+    }
+    const SkDOM::Node* rootElement = dom.finishParsing();
+    ABORT_TEST(reporter, !rootElement, "root element not found");
+
+    const SkDOM::Node* filterElement = dom.getFirstChild(rootElement, "filter");
+    ABORT_TEST(reporter, !filterElement, "filter element not found");
+
+    const SkDOM::Node* floodElement = dom.getFirstChild(filterElement, "feFlood");
+    ABORT_TEST(reporter, !floodElement, "feFlood element not found");
+
+    const SkDOM::Node* compositeElement = dom.getFirstChild(filterElement, "feComposite");
+    ABORT_TEST(reporter, !compositeElement, "feComposite element not found");
+
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(filterElement, "width"), "100%") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(filterElement, "height"), "100%") == 0);
+
+    REPORTER_ASSERT(reporter,
+                    strcmp(dom.findAttr(floodElement, "flood-color"), "rgb(255,0,0)") == 0);
+    REPORTER_ASSERT(reporter, atoi(dom.findAttr(floodElement, "flood-opacity")) == 1);
+
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "in"), "flood") == 0);
+    REPORTER_ASSERT(reporter, strcmp(dom.findAttr(compositeElement, "operator"), "in") == 0);
 }
 
 #endif
