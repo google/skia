@@ -208,30 +208,6 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
     return true;
 }
 
-// computes the line intersection and then the distance to s0's endpoint
-static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetSegment& s1) {
-    const SkVector& v0 = s0.fV;
-    const SkVector& v1 = s1.fV;
-
-    SkScalar perpDot = v0.cross(v1);
-    if (SkScalarNearlyZero(perpDot)) {
-        // segments are parallel
-        return SK_ScalarMax;
-    }
-
-    SkVector d = s1.fP0 - s0.fP0;
-    SkScalar localS = d.cross(v1) / perpDot;
-    if (localS < 0) {
-        localS = -localS;
-    } else {
-        localS -= SK_Scalar1;
-    }
-
-    localS *= v0.length();
-
-    return localS;
-}
-
 bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     if (polygonSize < 3) {
         return false;
@@ -289,15 +265,19 @@ struct OffsetEdge {
     OffsetEdge*   fNext;
     OffsetSegment fInset;
     SkPoint       fIntersection;
+    SkScalar      fSValue;
     SkScalar      fTValue;
     uint16_t      fIndex;
     uint16_t      fEnd;
+    uint16_t      fGroup;
 
-    void init(uint16_t start = 0, uint16_t end = 0) {
+    void init(uint16_t start = 0, uint16_t end = 0, uint16_t group = 0) {
         fIntersection = fInset.fP0;
+        fSValue = SK_ScalarMax;
         fTValue = SK_ScalarMin;
         fIndex = start;
         fEnd = end;
+        fGroup = group;
     }
 
     // special intersection check that looks for endpoint intersection
@@ -315,6 +295,51 @@ struct OffsetEdge {
 
         return compute_intersection(this->fInset, that->fInset, p, s, t);
     }
+
+    // computes the line intersection and then the distance from that to this
+    SkScalar computeCrossingDistance(const OffsetEdge* that) {
+        const OffsetSegment& s0 = this->fInset;
+        const OffsetSegment& s1 = that->fInset;
+        const SkVector& v0 = s0.fV;
+        const SkVector& v1 = s1.fV;
+
+        SkScalar perpDot = v0.cross(v1);
+        if (SkScalarNearlyZero(perpDot)) {
+            // segments are parallel
+            return SK_ScalarMax;
+        }
+
+        SkVector d = s1.fP0 - s0.fP0;
+        SkScalar localS = d.cross(v1) / perpDot;
+        if (localS < 0) {
+            localS = -localS;
+        } else if (localS > SK_Scalar1) {
+            localS -= SK_Scalar1;
+        } else {
+            // if it violates our edge check, don't consider this one
+            if (localS < this->fTValue || localS > this->fSValue) {
+                return SK_ScalarMax;
+            }
+            SkScalar localT = d.cross(v0) / perpDot;
+            if (localT >= 0 && localT <= SK_Scalar1) {
+                // both segments intersect
+                // if it violates our edge check, don't consider this one
+                if (localT < that->fTValue || localT > that->fSValue) {
+                    return SK_ScalarMax;
+                }
+                localS = -SK_Scalar1;
+            } else {
+                // line intersection is on s0
+                localS = 0;
+            }
+        }
+
+        //*** make more efficient
+        localS *= v0.length();
+
+        return localS;
+    }
+
 };
 
 static void remove_node(const OffsetEdge* node, OffsetEdge** head) {
@@ -747,10 +772,10 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 // helper function for SkOffsetSimplePolygon
 static void setup_offset_edge(OffsetEdge* currEdge,
                               const SkPoint& endpoint0, const SkPoint& endpoint1,
-                              int startIndex, int endIndex) {
+                              uint16_t startIndex, uint16_t endIndex, uint16_t group) {
     currEdge->fInset.fP0 = endpoint0;
     currEdge->fInset.fV = endpoint1 - endpoint0;
-    currEdge->init(startIndex, endIndex);
+    currEdge->init(startIndex, endIndex, group);
 }
 
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
@@ -797,9 +822,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
 
     // build initial offset edge list
     SkSTArray<64, OffsetEdge> edgeData(inputPolygonSize);
-    int prevIndex = inputPolygonSize - 1;
-    int currIndex = 0;
-    int nextIndex = 1;
+    uint16_t prevIndex = inputPolygonSize - 1;
+    uint16_t currIndex = 0;
+    uint16_t nextIndex = 1;
+    uint16_t group = 0;
     while (currIndex < inputPolygonSize) {
         int side = compute_side(inputPolygonVerts[prevIndex],
                                 inputPolygonVerts[currIndex] - inputPolygonVerts[prevIndex],
@@ -821,16 +847,17 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                 setup_offset_edge(currEdge,
                                   inputPolygonVerts[currIndex] + prevNormal,
                                   inputPolygonVerts[currIndex] + currNormal,
-                                  currIndex, currIndex);
+                                  currIndex, currIndex, group);
                 prevNormal = currNormal;
                 ++currEdge;
             }
             setup_offset_edge(currEdge,
                               inputPolygonVerts[currIndex] + prevNormal,
                               inputPolygonVerts[currIndex] + normal0[currIndex],
-                              currIndex, currIndex);
+                              currIndex, currIndex, group);
             ++currEdge;
-
+        } else {
+            ++group;
         }
 
         // Add the edge
@@ -838,7 +865,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         setup_offset_edge(edge,
                           inputPolygonVerts[currIndex] + normal0[currIndex],
                           inputPolygonVerts[nextIndex] + normal1[nextIndex],
-                          currIndex, nextIndex);
+                          currIndex, nextIndex, group);
 
         prevIndex = currIndex;
         currIndex++;
@@ -873,7 +900,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         SkPoint intersection;
         if (prevEdge->checkIntersection(currEdge, &intersection, &s, &t)) {
             // if new intersection is further back on previous inset from the prior intersection
-            if (s < prevEdge->fTValue) {
+            if (s < prevEdge->fTValue || s > prevEdge->fSValue) {
                 // no point in considering this one again
                 remove_node(prevEdge, &head);
                 --offsetVertexCount;
@@ -890,6 +917,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                 currEdge->fIntersection = intersection;
                 currEdge->fTValue = t;
                 currEdge->fIndex = prevEdge->fEnd;
+                prevEdge->fSValue = s;
 
                 // go to next segment
                 prevEdge = currEdge;
@@ -900,16 +928,50 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             // the point where the segment lines cross and the segments themselves.
             OffsetEdge* prevPrevEdge = prevEdge->fPrev;
             OffsetEdge* currNextEdge = currEdge->fNext;
-            SkScalar dist0 = compute_crossing_distance(currEdge->fInset,
-                                                       prevPrevEdge->fInset);
-            SkScalar dist1 = compute_crossing_distance(prevEdge->fInset,
-                                                       currNextEdge->fInset);
-            if (dist0 < dist1) {
+            bool prevGroupSame = (prevPrevEdge->fGroup == prevEdge->fGroup);
+            bool currGroupSame = (currNextEdge->fGroup == currEdge->fGroup);
+
+            SkPoint p0, p1;
+            if (prevPrevEdge->fSValue < SK_ScalarMax) {
+                p1 = prevPrevEdge->fInset.fP0 + prevPrevEdge->fInset.fV*prevPrevEdge->fSValue;
+            } else {
+                p1 = prevPrevEdge->fInset.fP0 + prevPrevEdge->fInset.fV;
+            }
+            if (prevEdge->fTValue > SK_ScalarMin) {
+                p0 = prevEdge->fIntersection;
+            } else {
+                p0 = prevEdge->fInset.fP0;
+            }
+            prevGroupSame = SkScalarNearlyZero(SkPoint::Distance(p1, p0));
+
+            if (currEdge->fSValue < SK_ScalarMax) {
+                p1 = currEdge->fInset.fP0 + currEdge->fInset.fV*currEdge->fSValue;
+            } else {
+                p1 = currEdge->fInset.fP0 + currEdge->fInset.fV;
+            }
+            if (currNextEdge->fTValue > SK_ScalarMin) {
+                p0 = currNextEdge->fIntersection;
+            } else {
+                p0 = currNextEdge->fInset.fP0;
+            }
+            currGroupSame = SkScalarNearlyZero(SkPoint::Distance(p1, p0));
+
+            if (currGroupSame && !prevGroupSame) {
                 remove_node(prevEdge, &head);
                 prevEdge = prevPrevEdge;
-            } else {
+            } else if (prevGroupSame && !currGroupSame) {
                 remove_node(currEdge, &head);
                 currEdge = currNextEdge;
+            } else {
+                SkScalar dist0 = currEdge->computeCrossingDistance(prevPrevEdge);
+                SkScalar dist1 = prevEdge->computeCrossingDistance(currNextEdge);
+                if (dist0 < dist1) {
+                    remove_node(prevEdge, &head);
+                    prevEdge = prevPrevEdge;
+                } else {
+                    remove_node(currEdge, &head);
+                    currEdge = currNextEdge;
+                }
             }
             --offsetVertexCount;
         }
