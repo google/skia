@@ -49,7 +49,7 @@ public:
 
     /** Additional data required on a per-op basis when executing GrOps. */
     struct OpArgs {
-        GrRenderTarget* renderTarget() const { return fProxy->priv().peekRenderTarget(); }
+        GrRenderTarget* renderTarget() const { return fProxy->peekRenderTarget(); }
 
         GrOp* fOp;
         // TODO: do we still need the dst proxy here?

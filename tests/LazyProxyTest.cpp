@@ -131,7 +131,7 @@ public:
                                     REPORTER_ASSERT(fTest->fReporter, !fTest->fHasClipTexture);
                                     fTest->fHasClipTexture = true;
                                     fAtlas->instantiate(rp);
-                                    return sk_ref_sp(fAtlas->priv().peekTexture());
+                                    return sk_ref_sp(fAtlas->peekTexture());
                                 },
                                 GrProxyProvider::Renderable::kYes,
                                 kBottomLeft_GrSurfaceOrigin,

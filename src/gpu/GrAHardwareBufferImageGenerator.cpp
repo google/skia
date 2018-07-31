@@ -135,7 +135,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
 
         // We need to get the actual GrTexture so force instantiation of the GrTextureProxy
         texProxy->instantiate(context->contextPriv().resourceProvider());
-        GrTexture* texture = texProxy->priv().peekTexture();
+        GrTexture* texture = texProxy->peekTexture();
         SkASSERT(texture);
         fOriginalTexture = texture;
     }

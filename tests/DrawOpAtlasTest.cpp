@@ -47,7 +47,7 @@ static const int kAtlasSize = kNumPlots * kPlotSize;
 int GrDrawOpAtlas::numAllocated_TestingOnly() const {
     int count = 0;
     for (uint32_t i = 0; i < this->maxPages(); ++i) {
-        if (fProxies[i]->priv().isInstantiated()) {
+        if (fProxies[i]->isInstantiated()) {
             ++count;
         }
     }

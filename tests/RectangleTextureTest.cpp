@@ -139,13 +139,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(RectangleTexture, reporter, ctxInfo) {
         }
 
         SkASSERT(rectProxy->mipMapped() == GrMipMapped::kNo);
-        SkASSERT(rectProxy->priv().peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
+        SkASSERT(rectProxy->peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
 
-        SkASSERT(rectProxy->texPriv().textureType() == GrTextureType::kRectangle);
-        SkASSERT(rectProxy->priv().peekTexture()->texturePriv().textureType() ==
+        SkASSERT(rectProxy->textureType() == GrTextureType::kRectangle);
+        SkASSERT(rectProxy->peekTexture()->texturePriv().textureType() ==
                  GrTextureType::kRectangle);
-        SkASSERT(rectProxy->texPriv().hasRestrictedSampling());
-        SkASSERT(rectProxy->priv().peekTexture()->texturePriv().hasRestrictedSampling());
+        SkASSERT(rectProxy->hasRestrictedSampling());
+        SkASSERT(rectProxy->peekTexture()->texturePriv().hasRestrictedSampling());
 
         test_basic_draw_as_src(reporter, context, rectProxy, refPixels);
 

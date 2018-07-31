@@ -73,9 +73,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrWrappedMipMappedTest, reporter, ctxInfo) {
                 return;
             }
 
-            REPORTER_ASSERT(reporter, proxy->priv().isInstantiated());
+            REPORTER_ASSERT(reporter, proxy->isInstantiated());
 
-            GrTexture* texture = proxy->priv().peekTexture();
+            GrTexture* texture = proxy->peekTexture();
             REPORTER_ASSERT(reporter, texture);
             if (!texture) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
@@ -124,9 +124,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
                 return;
             }
 
-            REPORTER_ASSERT(reporter, proxy->priv().isInstantiated());
+            REPORTER_ASSERT(reporter, proxy->isInstantiated());
 
-            sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
+            sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
             REPORTER_ASSERT(reporter, texture);
             if (!texture) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
@@ -156,17 +156,17 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrBackendTextureImageMipMappedTest, reporter,
 
             if (GrSurfaceProxy::LazyState::kNot != genProxy->lazyInstantiationState()) {
                 genProxy->priv().doLazyInstantiation(context->contextPriv().resourceProvider());
-            } else if (!genProxy->priv().isInstantiated()) {
+            } else if (!genProxy->isInstantiated()) {
                 genProxy->instantiate(context->contextPriv().resourceProvider());
             }
 
-            REPORTER_ASSERT(reporter, genProxy->priv().isInstantiated());
-            if (!genProxy->priv().isInstantiated()) {
+            REPORTER_ASSERT(reporter, genProxy->isInstantiated());
+            if (!genProxy->isInstantiated()) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
                 return;
             }
 
-            GrTexture* genTexture = genProxy->priv().peekTexture();
+            GrTexture* genTexture = genProxy->peekTexture();
             REPORTER_ASSERT(reporter, genTexture);
             if (!genTexture) {
                 gpu->deleteTestingOnlyBackendTexture(backendTex);
@@ -260,7 +260,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
             texProxy->instantiate(resourceProvider);
-            GrTexture* texture = texProxy->priv().peekTexture();
+            GrTexture* texture = texProxy->peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 
             sk_sp<SkImage> image = surface->makeImageSnapshot();
@@ -272,7 +272,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrImageSnapshotMipMappedTest, reporter, ctxIn
             REPORTER_ASSERT(reporter, mipMapped == texProxy->mipMapped());
 
             texProxy->instantiate(resourceProvider);
-            texture = texProxy->priv().peekTexture();
+            texture = texProxy->peekTexture();
             REPORTER_ASSERT(reporter, mipMapped == texture->texturePriv().mipMapped());
 
             // Must flush the context to make sure all the cmds (copies, etc.) from above are sent

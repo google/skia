@@ -95,7 +95,7 @@ GrCCAtlas::~GrCCAtlas() {
 
 bool GrCCAtlas::addRect(const SkIRect& devIBounds, SkIVector* offset) {
     // This can't be called anymore once makeRenderTargetContext() has been called.
-    SkASSERT(!fTextureProxy->priv().isInstantiated());
+    SkASSERT(!fTextureProxy->isInstantiated());
 
     SkIPoint16 location;
     if (!this->internalPlaceRect(devIBounds.width(), devIBounds.height(), &location)) {
@@ -136,7 +136,7 @@ bool GrCCAtlas::internalPlaceRect(int w, int h, SkIPoint16* loc) {
 
 void GrCCAtlas::setUserBatchID(int id) {
     // This can't be called anymore once makeRenderTargetContext() has been called.
-    SkASSERT(!fTextureProxy->priv().isInstantiated());
+    SkASSERT(!fTextureProxy->isInstantiated());
     fUserBatchID = id;
 }
 
@@ -153,7 +153,7 @@ const GrUniqueKey& GrCCAtlas::getOrAssignUniqueKey(GrOnFlushResourceProvider* on
         builder[0] = next_atlas_unique_id();
         builder.finish();
 
-        if (fTextureProxy->priv().isInstantiated()) {
+        if (fTextureProxy->isInstantiated()) {
             onFlushRP->assignUniqueKeyToProxy(fUniqueKey, fTextureProxy.get());
         }
     }
@@ -169,7 +169,7 @@ sk_sp<GrCCAtlas::CachedAtlasInfo> GrCCAtlas::refOrMakeCachedAtlasInfo() {
 
 sk_sp<GrRenderTargetContext> GrCCAtlas::makeRenderTargetContext(
         GrOnFlushResourceProvider* onFlushRP, sk_sp<GrTexture> backingTexture) {
-    SkASSERT(!fTextureProxy->priv().isInstantiated());  // This method should only be called once.
+    SkASSERT(!fTextureProxy->isInstantiated());  // This method should only be called once.
     // Caller should have cropped any paths to the destination render target instead of asking for
     // an atlas larger than maxRenderTargetSize.
     SkASSERT(SkTMax(fHeight, fWidth) <= fMaxTextureSize);

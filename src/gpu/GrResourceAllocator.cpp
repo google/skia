@@ -261,10 +261,9 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                                             ? cur->proxy()->asRenderTargetProxy()->needsStencil()
                                             : false;
 
-        if (cur->proxy()->priv().isInstantiated()) {
-            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(fResourceProvider,
-                                                           cur->proxy()->priv().peekSurface(),
-                                                           needsStencil)) {
+        if (cur->proxy()->isInstantiated()) {
+            if (!GrSurfaceProxyPriv::AttachStencilIfNeeded(
+                        fResourceProvider, cur->proxy()->peekSurface(), needsStencil)) {
                 *outError = AssignError::kFailedProxyInstantiation;
             }
 
@@ -307,7 +306,7 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
 
             cur->assign(std::move(surface));
         } else {
-            SkASSERT(!cur->proxy()->priv().isInstantiated());
+            SkASSERT(!cur->proxy()->isInstantiated());
             *outError = AssignError::kFailedProxyInstantiation;
         }
 
@@ -337,8 +336,7 @@ void GrResourceAllocator::dumpIntervals() {
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
         SkDebugf("{ %3d,%3d }: [%2d, %2d] - proxyRefs:%d surfaceRefs:%d R:%d W:%d\n",
                  cur->proxy()->uniqueID().asUInt(),
-                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt()
-                                                       : -1,
+                 cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1,
                  cur->start(),
                  cur->end(),
                  cur->proxy()->priv().getProxyRefCnt(),
@@ -353,8 +351,7 @@ void GrResourceAllocator::dumpIntervals() {
     for(const Interval* cur = fIntvlList.peekHead(); cur; cur = cur->next()) {
         SkDebugf("{ %3d,%3d }: ",
                  cur->proxy()->uniqueID().asUInt(),
-                 cur->proxy()->priv().isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt()
-                                                       : -1);
+                 cur->proxy()->isInstantiated() ? cur->proxy()->underlyingUniqueID().asUInt() : -1);
         for (unsigned int i = min; i <= max; ++i) {
             if (i >= cur->start() && i <= cur->end()) {
                 SkDebugf("x");

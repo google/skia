@@ -126,7 +126,7 @@ void GrGLMatrixConvolutionEffect::onSetData(const GrGLSLProgramDataManager& pdma
                                             const GrFragmentProcessor& processor) {
     const GrMatrixConvolutionEffect& conv = processor.cast<GrMatrixConvolutionEffect>();
     GrSurfaceProxy* proxy = conv.textureSampler(0).proxy();
-    GrTexture* texture = proxy->priv().peekTexture();
+    GrTexture* texture = proxy->peekTexture();
 
     float imageIncrement[2];
     float ySign = proxy->origin() == kTopLeft_GrSurfaceOrigin ? 1.0f : -1.0f;

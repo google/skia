@@ -29,7 +29,7 @@
 void GrDrawOpAtlas::instantiate(GrOnFlushResourceProvider* onFlushResourceProvider) {
     for (uint32_t i = 0; i < fNumActivePages; ++i) {
         // All the atlas pages are now instantiated at flush time in the activeNewPage method.
-        SkASSERT(fProxies[i] && fProxies[i]->priv().isInstantiated());
+        SkASSERT(fProxies[i] && fProxies[i]->isInstantiated());
     }
 }
 
@@ -136,7 +136,7 @@ bool GrDrawOpAtlas::Plot::addSubImage(int width, int height, const void* image, 
 void GrDrawOpAtlas::Plot::uploadToTexture(GrDeferredTextureUploadWritePixelsFn& writePixels,
                                           GrTextureProxy* proxy) {
     // We should only be issuing uploads if we are in fact dirty
-    SkASSERT(fDirty && fData && proxy && proxy->priv().peekTexture());
+    SkASSERT(fDirty && fData && proxy && proxy->peekTexture());
     TRACE_EVENT0("skia.gpu", TRACE_FUNC);
     size_t rowBytes = fBytesPerPixel * fWidth;
     const unsigned char* dataPtr = fData;
@@ -218,7 +218,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
         sk_sp<Plot> plotsp(SkRef(plot));
 
         GrTextureProxy* proxy = fProxies[pageIdx].get();
-        SkASSERT(proxy->priv().isInstantiated());  // This is occurring at flush time
+        SkASSERT(proxy->isInstantiated());  // This is occurring at flush time
 
         GrDeferredUploadToken lastUploadToken = target->addASAPUpload(
                 [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {
@@ -232,7 +232,7 @@ inline bool GrDrawOpAtlas::updatePlot(GrDeferredUploadTarget* target, AtlasID* i
 
 bool GrDrawOpAtlas::uploadToPage(unsigned int pageIdx, AtlasID* id, GrDeferredUploadTarget* target,
                                  int width, int height, const void* image, SkIPoint16* loc) {
-    SkASSERT(fProxies[pageIdx] && fProxies[pageIdx]->priv().isInstantiated());
+    SkASSERT(fProxies[pageIdx] && fProxies[pageIdx]->isInstantiated());
 
     // look through all allocated plots for one we can share, in Most Recently Refed order
     PlotList::Iter plotIter;
@@ -351,7 +351,7 @@ GrDrawOpAtlas::ErrorCode GrDrawOpAtlas::addToAtlas(GrResourceProvider* resourceP
     sk_sp<Plot> plotsp(SkRef(newPlot.get()));
 
     GrTextureProxy* proxy = fProxies[pageIdx].get();
-    SkASSERT(proxy->priv().isInstantiated());
+    SkASSERT(proxy->isInstantiated());
 
     GrDeferredUploadToken lastUploadToken = target->addInlineUpload(
             [plotsp, proxy](GrDeferredTextureUploadWritePixelsFn& writePixels) {

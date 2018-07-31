@@ -160,7 +160,7 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
                                                   GrSurfaceOrigin* origin) const {
     SkASSERT(fProxy);
 
-    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
+    if (!fContext->contextPriv().resourceProvider() && !fProxy->isInstantiated()) {
         // This image was created with a DDL context and cannot be instantiated.
         return GrBackendTexture();
     }
@@ -169,7 +169,7 @@ GrBackendTexture SkImage_Gpu::onGetBackendTexture(bool flushPendingGrContextIO,
         return GrBackendTexture(); // invalid
     }
 
-    GrTexture* texture = fProxy->priv().peekTexture();
+    GrTexture* texture = fProxy->peekTexture();
 
     if (texture) {
         if (flushPendingGrContextIO) {
@@ -189,7 +189,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    if (!fContext->contextPriv().resourceProvider() && !fProxy->priv().isInstantiated()) {
+    if (!fContext->contextPriv().resourceProvider() && !fProxy->isInstantiated()) {
         // This image was created with a DDL context and cannot be instantiated.
         return nullptr;
     }
@@ -198,7 +198,7 @@ GrTexture* SkImage_Gpu::onGetTexture() const {
         return nullptr;
     }
 
-    return proxy->priv().peekTexture();
+    return proxy->peekTexture();
 }
 
 bool SkImage_Gpu::onReadPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
@@ -776,7 +776,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromEncoded(GrContext* context, sk_sp<Sk
     if (!proxy->instantiate(context->contextPriv().resourceProvider())) {
         return codecImage;
     }
-    sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
+    sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
     // Flush any writes or uploads
     context->contextPriv().prepareSurfaceForExternalIO(proxy.get());
@@ -845,7 +845,7 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
         return SkImage::MakeRasterCopy(*pixmap);
     }
 
-    sk_sp<GrTexture> texture = sk_ref_sp(proxy->priv().peekTexture());
+    sk_sp<GrTexture> texture = sk_ref_sp(proxy->peekTexture());
 
     // Flush any writes or uploads
     context->contextPriv().prepareSurfaceForExternalIO(proxy.get());

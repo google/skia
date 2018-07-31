@@ -74,7 +74,7 @@ bool GrGpu::IsACopyNeededForRepeatWrapMode(const GrCaps* caps, GrTextureProxy* t
     if (texProxy) {
         // If the texture format itself doesn't support repeat wrap mode or mipmapping (and
         // those capabilities are required) force a copy.
-        if (texProxy->texPriv().hasRestrictedSampling()) {
+        if (texProxy->hasRestrictedSampling()) {
             copyParams->fFilter = GrSamplerState::Filter::kNearest;
             copyParams->fWidth = texProxy->width();
             copyParams->fHeight = texProxy->height();

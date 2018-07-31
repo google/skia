@@ -127,7 +127,7 @@ sk_sp<GrTexture> GrResourceProvider::createTexture(const GrSurfaceDesc& desc,
             return nullptr;
         }
         SkAssertResult(sContext->writePixels(srcInfo, mipLevel.fPixels, mipLevel.fRowBytes, 0, 0));
-        return sk_ref_sp(sContext->asTextureProxy()->priv().peekTexture());
+        return sk_ref_sp(sContext->asTextureProxy()->peekTexture());
     } else {
         return fGpu->createTexture(desc, budgeted, &mipLevel, 1);
     }

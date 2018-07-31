@@ -38,7 +38,7 @@ void GrCCClipPath::init(const SkPath& deviceSpacePath, const SkIRect& accessRect
                                     fDevToAtlasOffset.fY * fAtlasScale.y());
                 SkDEBUGCODE(fHasAtlasTransform = true);
 
-                return sk_ref_sp(textureProxy->priv().peekTexture());
+                return sk_ref_sp(textureProxy->peekTexture());
             },
             GrProxyProvider::Renderable::kYes, kTopLeft_GrSurfaceOrigin, kAlpha_half_GrPixelConfig,
             caps);

@@ -73,7 +73,7 @@ void GrOpList::endFlush() {
 void GrOpList::instantiateDeferredProxies(GrResourceProvider* resourceProvider) {
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
         if (resourceProvider->explicitlyAllocateGPUResources()) {
-            SkASSERT(fDeferredProxies[i]->priv().isInstantiated());
+            SkASSERT(fDeferredProxies[i]->isInstantiated());
         } else {
             fDeferredProxies[i]->instantiate(resourceProvider);
         }
@@ -135,9 +135,7 @@ bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
     return false;
 }
 
-bool GrOpList::isInstantiated() const {
-    return fTarget.get()->priv().isInstantiated();
-}
+bool GrOpList::isInstantiated() const { return fTarget.get()->isInstantiated(); }
 
 bool GrOpList::isFullyInstantiated() const {
     if (!this->isInstantiated()) {
@@ -150,7 +148,7 @@ bool GrOpList::isFullyInstantiated() const {
                                         : false;
 
     if (needsStencil) {
-        GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+        GrRenderTarget* rt = proxy->peekRenderTarget();
 
         if (!rt->renderTargetPriv().getStencilAttachment()) {
             return false;
@@ -169,8 +167,9 @@ void GrOpList::dump(bool printDependencies) const {
     SkDebugf("--------------------------------------------------------------\n");
     SkDebugf("opListID: %d - proxyID: %d - surfaceID: %d\n", fUniqueID,
              fTarget.get() ? fTarget.get()->uniqueID().asUInt() : -1,
-             fTarget.get() && fTarget.get()->priv().peekSurface()
-                                ? fTarget.get()->priv().peekSurface()->uniqueID().asUInt() : -1);
+             fTarget.get() && fTarget.get()->peekSurface()
+                     ? fTarget.get()->peekSurface()->uniqueID().asUInt()
+                     : -1);
     SkDebugf("ColorLoadOp: %s %x StencilLoadOp: %s\n",
              op_to_name(fColorLoadOp),
              GrLoadOp::kClear == fColorLoadOp ? fLoadClearColor : 0x0,

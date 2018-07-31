@@ -610,7 +610,7 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
                         this->writef("        GrSurfaceProxy& %sProxy = "
                                      "*_outer.textureSampler(%d).proxy();\n",
                                      name, samplerIndex);
-                        this->writef("        GrTexture& %s = *%sProxy.priv().peekTexture();\n",
+                        this->writef("        GrTexture& %s = *%sProxy.peekTexture();\n",
                                      name, name);
                         this->writef("        (void) %s;\n", name);
                         ++samplerIndex;

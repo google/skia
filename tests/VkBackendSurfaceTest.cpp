@@ -64,8 +64,8 @@ DEF_GPUTEST_FOR_VULKAN_CONTEXT(VkImageLayoutTest, reporter, ctxInfo) {
 
     sk_sp<GrTextureProxy> texProxy = as_IB(wrappedImage)->asTextureProxyRef();
     REPORTER_ASSERT(reporter, texProxy.get());
-    REPORTER_ASSERT(reporter, texProxy->priv().isInstantiated());
-    GrTexture* texture = texProxy->priv().peekTexture();
+    REPORTER_ASSERT(reporter, texProxy->isInstantiated());
+    GrTexture* texture = texProxy->peekTexture();
     REPORTER_ASSERT(reporter, texture);
 
     // Verify that modifying the layout via the GrVkTexture is reflected in the GrBackendTexture

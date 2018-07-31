@@ -149,7 +149,7 @@ void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSample
 
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrRenderTargetProxy* proxy) {
-    GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+    GrRenderTarget* rt = proxy->peekRenderTarget();
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
         fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {

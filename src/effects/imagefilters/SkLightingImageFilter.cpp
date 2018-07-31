@@ -1917,7 +1917,7 @@ void GrGLLightingEffect::onSetData(const GrGLSLProgramDataManager& pdman,
     }
 
     GrTextureProxy* proxy = lighting.textureSampler(0).proxy();
-    GrTexture* texture = proxy->priv().peekTexture();
+    GrTexture* texture = proxy->peekTexture();
 
     float ySign = proxy->origin() == kTopLeft_GrSurfaceOrigin ? -1.0f : 1.0f;
     pdman.set2f(fImageIncrementUni, 1.0f / texture->width(), ySign / texture->height());

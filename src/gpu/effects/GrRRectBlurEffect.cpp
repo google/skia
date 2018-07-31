@@ -108,7 +108,7 @@ private:
         UniformHandle& cornerRadius = fCornerRadiusVar;
         (void)cornerRadius;
         GrSurfaceProxy& ninePatchSamplerProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& ninePatchSampler = *ninePatchSamplerProxy.priv().peekTexture();
+        GrTexture& ninePatchSampler = *ninePatchSamplerProxy.peekTexture();
         (void)ninePatchSampler;
         UniformHandle& proxyRect = fProxyRectVar;
         (void)proxyRect;

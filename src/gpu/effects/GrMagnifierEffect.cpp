@@ -83,7 +83,7 @@ private:
             pdman.set1f(fYInvInsetVar, _outer.yInvInset());
         }
         GrSurfaceProxy& srcProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& src = *srcProxy.priv().peekTexture();
+        GrTexture& src = *srcProxy.peekTexture();
         (void)src;
         auto bounds = _outer.bounds();
         (void)bounds;

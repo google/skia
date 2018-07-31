@@ -70,7 +70,7 @@ size_t GrTextureRenderTargetProxy::onUninstantiatedGpuMemorySize() const {
 
     // TODO: do we have enough information to improve this worst case estimate?
     return GrSurface::ComputeSize(this->config(), this->width(), this->height(),
-                                  colorSamplesPerPixel, this->texPriv().proxyMipMapped(),
+                                  colorSamplesPerPixel, this->proxyMipMapped(),
                                   !this->priv().isExact());
 }
 
@@ -116,7 +116,7 @@ sk_sp<GrSurface> GrTextureRenderTargetProxy::createSurface(
 void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     // Anything checked here should also be checking the GrTextureProxy version
     SkASSERT(surface->asTexture());
-    SkASSERT(GrMipMapped::kNo == this->texPriv().proxyMipMapped() ||
+    SkASSERT(GrMipMapped::kNo == this->proxyMipMapped() ||
              GrMipMapped::kYes == surface->asTexture()->texturePriv().mipMapped());
 
     // Anything checked here should also be checking the GrRenderTargetProxy version
@@ -127,7 +127,7 @@ void GrTextureRenderTargetProxy::onValidateSurface(const GrSurface* surface) {
     GrInternalSurfaceFlags surfaceFlags = surface->surfacePriv().flags();
     SkASSERT((proxyFlags & GrInternalSurfaceFlags::kRenderTargetMask) ==
              (surfaceFlags & GrInternalSurfaceFlags::kRenderTargetMask));
-    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->texPriv().textureType());
+    SkASSERT(surface->asTexture()->texturePriv().textureType() == this->textureType());
 }
 #endif
 

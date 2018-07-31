@@ -42,9 +42,9 @@
 #include <unordered_map>
 
 #define ASSERT_OWNED_PROXY(P) \
-SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == this)
+    SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == this)
 #define ASSERT_OWNED_PROXY_PRIV(P) \
-SkASSERT(!(P) || !((P)->priv().peekTexture()) || (P)->priv().peekTexture()->getContext() == fContext)
+    SkASSERT(!(P) || !((P)->peekTexture()) || (P)->peekTexture()->getContext() == fContext)
 
 #define ASSERT_OWNED_RESOURCE(R) SkASSERT(!(R) || (R)->getContext() == this)
 #define ASSERT_SINGLE_OWNER \
@@ -469,7 +469,7 @@ bool GrContextPriv::writeSurfacePixels(GrSurfaceContext* dst, int left, int top,
     }
 
     GrSurfaceProxy* dstProxy = dst->asSurfaceProxy();
-    GrSurface* dstSurface = dstProxy->priv().peekSurface();
+    GrSurface* dstSurface = dstProxy->peekSurface();
 
     if (!GrSurfacePriv::AdjustWritePixelParams(dstSurface->width(), dstSurface->height(),
                                                GrColorTypeBytesPerPixel(srcColorType), &left, &top,
@@ -640,7 +640,7 @@ bool GrContextPriv::readSurfacePixels(GrSurfaceContext* src, int left, int top, 
     }
 
     GrSurfaceProxy* srcProxy = src->asSurfaceProxy();
-    GrSurface* srcSurface = srcProxy->priv().peekSurface();
+    GrSurface* srcSurface = srcProxy->peekSurface();
 
     if (!GrSurfacePriv::AdjustReadPixelParams(srcSurface->width(), srcSurface->height(),
                                               GrColorTypeBytesPerPixel(dstColorType), &left, &top,

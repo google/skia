@@ -27,14 +27,6 @@ public:
     // Clears any deferred uploader object on the proxy. Used to free the CPU data after the
     // contents have been uploaded.
     void resetDeferredUploader();
-    // Returns the GrMipMapped value of the proxy from creation time regardless of whether it has
-    // been instantiated or not.
-    GrMipMapped proxyMipMapped() const { return fTextureProxy->fMipMapped; }
-
-    GrTextureType textureType() const { return fTextureProxy->fTextureType; }
-    bool hasRestrictedSampling() const {
-        return GrTextureTypeHasRestrictedSampling(this->textureType());
-    }
 
 private:
     explicit GrTextureProxyPriv(GrTextureProxy* textureProxy) : fTextureProxy(textureProxy) {}
