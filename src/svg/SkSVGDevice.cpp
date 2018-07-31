@@ -10,9 +10,11 @@
 #include "SkAnnotationKeys.h"
 #include "SkBase64.h"
 #include "SkBitmap.h"
+#include "SkBlendMode.h"
 #include "SkChecksum.h"
 #include "SkClipOpPriv.h"
 #include "SkClipStack.h"
+#include "SkColorFilter.h"
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkImage.h"
@@ -117,6 +119,7 @@ struct Resources {
 
     SkString fPaintServer;
     SkString fClip;
+    SkString fColorFilter;
 };
 
 static SkTypeface::Encoding to_encoding(SkPaint::TextEncoding e) {
@@ -272,7 +275,12 @@ bool RequiresViewportReset(const SkPaint& paint) {
 class SkSVGDevice::ResourceBucket : ::SkNoncopyable {
 public:
     ResourceBucket()
-            : fGradientCount(0), fClipCount(0), fPathCount(0), fImageCount(0), fPatternCount(0) {}
+            : fGradientCount(0)
+            , fClipCount(0)
+            , fPathCount(0)
+            , fImageCount(0)
+            , fPatternCount(0)
+            , fColorFilterCount(0) {}
 
     SkString addLinearGradient() {
         return SkStringPrintf("gradient_%d", fGradientCount++);
@@ -290,6 +298,8 @@ public:
         return SkStringPrintf("img_%d", fImageCount++);
     }
 
+    SkString addColorFilter() { return SkStringPrintf("cfilter_%d", fColorFilterCount++); }
+
     SkString addPattern() {
       return SkStringPrintf("pattern_%d", fPatternCount++);
     }
@@ -300,6 +310,7 @@ private:
     uint32_t fPathCount;
     uint32_t fImageCount;
     uint32_t fPatternCount;
+    uint32_t fColorFilterCount;
 };
 
 struct SkSVGDevice::MxCp {
@@ -375,6 +386,7 @@ private:
     void addShaderResources(const SkPaint& paint, Resources* resources);
     void addGradientShaderResources(const SkShader* shader, const SkPaint& paint,
                                     Resources* resources);
+    void addColorFilterResources(const SkColorFilter& cf, Resources* resources);
     void addImageShaderResources(const SkShader* shader, const SkPaint& paint,
                                  Resources* resources);
 
@@ -401,6 +413,10 @@ void SkSVGDevice::AutoElement::addPaint(const SkPaint& paint, const Resources& r
     } else {
         SkASSERT(style == SkPaint::kStroke_Style);
         this->addAttribute("fill", "none");
+    }
+
+    if (!resources.fColorFilter.isEmpty()) {
+        this->addAttribute("filter", resources.fColorFilter.c_str());
     }
 
     if (style == SkPaint::kStroke_Style || style == SkPaint::kStrokeAndFill_Style) {
@@ -454,6 +470,13 @@ Resources SkSVGDevice::AutoElement::addResources(const MxCp& mc, const SkPaint& 
         }
     }
 
+    if (const SkColorFilter* cf = paint.getColorFilter()) {
+        // TODO: Implement skia color filters for blend modes other than SrcIn
+        SkBlendMode mode;
+        if (cf->asColorMode(nullptr, &mode) && mode == SkBlendMode::kSrcIn) {
+            this->addColorFilterResources(*cf, &resources);
+        }
+    }
     return resources;
 }
 
@@ -478,6 +501,41 @@ void SkSVGDevice::AutoElement::addGradientShaderResources(const SkShader* shader
     SkASSERT(grInfo.fColorCount <= grOffsets.count());
 
     resources->fPaintServer.printf("url(#%s)", addLinearGradientDef(grInfo, shader).c_str());
+}
+
+void SkSVGDevice::AutoElement::addColorFilterResources(const SkColorFilter& cf,
+                                                       Resources* resources) {
+    SkString colorfilterID = fResourceBucket->addColorFilter();
+    {
+        AutoElement filterElement("filter", fWriter);
+        filterElement.addAttribute("id", colorfilterID);
+        filterElement.addAttribute("x", "0%");
+        filterElement.addAttribute("y", "0%");
+        filterElement.addAttribute("width", "100%");
+        filterElement.addAttribute("height", "100%");
+
+        SkColor filterColor;
+        SkBlendMode mode;
+        bool asColorMode = cf.asColorMode(&filterColor, &mode);
+        SkAssertResult(asColorMode);
+        SkASSERT(mode == SkBlendMode::kSrcIn);
+
+        {
+            // first flood with filter color
+            AutoElement floodElement("feFlood", fWriter);
+            floodElement.addAttribute("flood-color", svg_color(filterColor));
+            floodElement.addAttribute("flood-opacity", svg_opacity(filterColor));
+            floodElement.addAttribute("result", "flood");
+        }
+
+        {
+            // apply the transform to filter color
+            AutoElement compositeElement("feComposite", fWriter);
+            compositeElement.addAttribute("in", "flood");
+            compositeElement.addAttribute("operator", "in");
+        }
+    }
+    resources->fColorFilter.printf("url(#%s)", colorfilterID.c_str());
 }
 
 // Returns data uri from bytes.
