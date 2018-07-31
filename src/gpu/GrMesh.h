@@ -9,7 +9,7 @@
 #define GrMesh_DEFINED
 
 #include "GrBuffer.h"
-#include "GrGpuResourceRef.h"
+#include "GrPendingIOResource.h"
 
 class GrPrimitiveProcessor;
 
@@ -74,8 +74,6 @@ public:
     };
 
     void sendToGpu(SendToGpuImpl*) const;
-
-    struct PatternBatch;
 
 private:
     using PendingBuffer = GrPendingIOResource<const GrBuffer, kRead_GrIOType>;

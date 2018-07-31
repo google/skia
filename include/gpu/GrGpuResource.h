@@ -133,8 +133,6 @@ private:
     mutable int32_t fPendingReads;
     mutable int32_t fPendingWrites;
 
-    // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrGpuResourceRef;
     friend class GrResourceCache; // to check IO ref counts.
 
     template <typename, GrIOType> friend class GrPendingIOResource;
