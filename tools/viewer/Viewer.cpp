@@ -530,10 +530,12 @@ void Viewer::initSlides() {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
 #endif
+#if defined(SK_XML)
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}
         },
+#endif
 #if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
         { ".nima", "nima-dir", FLAGS_nimas,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {

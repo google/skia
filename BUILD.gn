@@ -1674,15 +1674,17 @@ if (skia_enable_tools) {
     ]
   }
 
-  test_app("create_test_font_color") {
-    sources = [
-      "tools/fonts/create_test_font_color.cpp",
-    ]
-    deps = [
-      ":flags",
-      ":skia",
-      ":tool_utils",
-    ]
+  if (skia_use_expat) {
+    test_app("create_test_font_color") {
+      sources = [
+        "tools/fonts/create_test_font_color.cpp",
+      ]
+      deps = [
+        ":flags",
+        ":skia",
+        ":tool_utils",
+      ]
+    }
   }
 
   test_app("get_images_from_skps") {

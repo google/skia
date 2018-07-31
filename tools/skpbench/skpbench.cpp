@@ -533,6 +533,7 @@ static sk_sp<SkPicture> create_skp_from_svg(SkStream* stream, const char* filena
     return recorder.finishRecordingAsPicture();
 #endif
     exitf(ExitErr::kData, "SK_XML is disabled; cannot open svg file %s", filename);
+    return nullptr;
 }
 
 bool mkdir_p(const SkString& dirname) {
