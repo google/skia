@@ -7,8 +7,6 @@
 
 #include "SkottieSlide.h"
 
-#if defined(SK_ENABLE_SKOTTIE)
-
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "Skottie.h"
@@ -134,5 +132,3 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState st
 
     return false;
 }
-
-#endif // SK_ENABLE_SKOTTIE

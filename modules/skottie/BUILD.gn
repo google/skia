@@ -4,78 +4,68 @@
 # found in the LICENSE file.
 
 declare_args() {
-  skia_enable_skottie = true
 }
 
 config("public_config") {
-  if (skia_enable_skottie) {
-    defines = [ "SK_ENABLE_SKOTTIE" ]
-    include_dirs = [ "include" ]
-  }
+  include_dirs = [ "include" ]
 }
 
-source_set("skottie") {
-  if (skia_enable_skottie) {
-    public_configs = [ ":public_config" ]
-    public = [
-      "include/Skottie.h",
-    ]
-    sources = [
-      "src/Skottie.cpp",
-      "src/SkottieAdapter.cpp",
-      "src/SkottieAdapter.h",
-      "src/SkottieAnimator.cpp",
-      "src/SkottieAnimator.h",
-      "src/SkottieJson.cpp",
-      "src/SkottieJson.h",
-      "src/SkottieValue.cpp",
-      "src/SkottieValue.h",
-    ]
-    configs += [ "../../:skia_private" ]
-    deps = [
-      "../..:skia",
-      "../sksg",
-    ]
-  }
+component("skottie") {
+  public_configs = [ ":public_config" ]
+  public = [
+    "include/Skottie.h",
+  ]
+  sources = [
+    "src/Skottie.cpp",
+    "src/SkottieAdapter.cpp",
+    "src/SkottieAdapter.h",
+    "src/SkottieAnimator.cpp",
+    "src/SkottieAnimator.h",
+    "src/SkottieJson.cpp",
+    "src/SkottieJson.h",
+    "src/SkottieValue.cpp",
+    "src/SkottieValue.h",
+  ]
+  configs += [ "../../:skia_private" ]
+  deps = [
+    "../..:skia",
+    "../sksg",
+  ]
 }
 
 source_set("tests") {
-  if (skia_enable_skottie) {
-    testonly = true
+  testonly = true
 
-    configs += [
-      "../..:skia_private",
-      "../..:tests_config",
-    ]
-    sources = [
-      "src/SkottieTest.cpp",
-    ]
+  configs += [
+    "../..:skia_private",
+    "../..:tests_config",
+  ]
+  sources = [
+    "src/SkottieTest.cpp",
+  ]
 
-    deps = [
-      ":skottie",
-      "../..:gpu_tool_utils",
-      "../..:skia",
-    ]
-  }
+  deps = [
+    ":skottie",
+    "../..:gpu_tool_utils",
+    "../..:skia",
+  ]
 }
 
 source_set("fuzz") {
-  if (skia_enable_skottie) {
-    testonly = true
+  testonly = true
 
-    configs += [ "../..:skia_private" ]
-    sources = [
-      "fuzz/FuzzSkottieJSON.cpp",
-    ]
+  configs += [ "../..:skia_private" ]
+  sources = [
+    "fuzz/FuzzSkottieJSON.cpp",
+  ]
 
-    deps = [
-      "../..:skia",
-    ]
+  deps = [
+    "../..:skia",
+  ]
 
-    public_deps = [
-      ":skottie",
-    ]
-  }
+  public_deps = [
+    ":skottie",
+  ]
 }
 
 source_set("tool") {

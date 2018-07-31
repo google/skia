@@ -1873,6 +1873,7 @@ if (skia_enable_tools) {
     deps = [
       ":gm",
       ":skia",
+      "modules/skottie",
     ]
   }
   test_app("list_gpu_unit_tests") {

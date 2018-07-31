@@ -249,7 +249,6 @@ private:
 };
 
 
-#if defined(SK_ENABLE_SKOTTIE)
 class SkottieSrc final : public Src {
 public:
     explicit SkottieSrc(Path path);
@@ -269,7 +268,6 @@ private:
 
     Path                      fPath;
 };
-#endif
 
 #if defined(SK_XML)
 } // namespace DM
