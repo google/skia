@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "816d9b8a_701d27a6",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "Maybe have this line first to better match following method ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf7439aa_84136034",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "GrTexture -\u003e GrSurfaceProxy ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "962c9ac7_0bbceea0",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "Same here ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "629b55d8_53466b88",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "Can \u0027j\u0027 not also go in the initialization section of the for loop ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cce242df_15adfbb1",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "Same here ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b43915a_8c2459ea",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "genMipMapsIfNeeds ? Maybe? Dunno?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d9c85c3_f5e3204b",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-07-31T16:49:41Z",
+      "side": 1,
+      "message": "Can this be made to look more like the earlier replacement or vice versa?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
