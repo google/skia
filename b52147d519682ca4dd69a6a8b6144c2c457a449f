@@ -22,6 +22,30 @@
       "revId": "b52147d519682ca4dd69a6a8b6144c2c457a449f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa509bd3_cb951570",
+        "filename": "src/core/SkUtils.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-07-31T20:08:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a990f0fc_2da0c445",
+      "range": {
+        "startLine": 32,
+        "startChar": 3,
+        "endLine": 32,
+        "endChar": 9
+      },
+      "revId": "b52147d519682ca4dd69a6a8b6144c2c457a449f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
