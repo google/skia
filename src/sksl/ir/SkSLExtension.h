@@ -20,6 +20,10 @@ struct Extension : public ProgramElement {
     : INHERITED(offset, kExtension_Kind)
     , fName(std::move(name)) {}
 
+    std::unique_ptr<ProgramElement> clone() const override {
+        return std::unique_ptr<ProgramElement>(new Extension(fOffset, fName));
+    }
+
     String description() const override {
         return "#extension " + fName + " : enable";
     }
