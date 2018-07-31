@@ -137,20 +137,29 @@ SkGlyphRunListDrawer::SkGlyphRunListDrawer(const GrRenderTargetContext& rtc)
         : SkGlyphRunListDrawer{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
 #endif
 
-bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
-    // hairline glyphs are fast enough so we don't need to cache them
-    if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
-        return true;
-    }
-
-    // we don't cache perspective
-    if (matrix.hasPerspective()) {
-        return true;
-    }
-
+// The main goal of the function is to not have any glyph have a bounding box edge be larger than
+// 256; the maximum size the atlas can accommodate.
+bool SkGlyphRunListDrawer::TooBigForAtlas(const SkPaint& paint, const SkMatrix& matrix) {
     SkMatrix textM;
     SkPaintPriv::MakeTextMatrix(&textM, paint);
-    return SkPaint::TooBigToUseCache(matrix, textM, 1024);
+    SkMatrix emToDevice;
+    emToDevice.setConcat(matrix, textM);
+
+    auto typeface = SkPaintPriv::GetTypefaceOrDefault(paint);
+    SkRect maxGlyphBounds = typeface->getBounds();
+    SkRect mappedMaxEm = emToDevice.mapRect(maxGlyphBounds);
+
+    bool tooLargeForAtlas = false;
+    #if SK_SUPPORT_GPU
+    tooLargeForAtlas =
+            GrDrawOpAtlas::GlyphTooLargeForAtlas(mappedMaxEm.width(), mappedMaxEm.height());
+    #endif
+    return tooLargeForAtlas;
+}
+
+bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+    // TODO: move this to SkGlyphRunListDrawer when everything is centralized.
+    return SkDraw::ShouldDrawTextAsPaths(paint, matrix);
 }
 
 bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {

@@ -142,6 +142,9 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
     context->freeGpuResources();
     draw(canvasNoLCD, 1, blobs);
 
+    // TODO: remove the following when bug skia:8212 is fixed.
+    context->flush();
+
     // test draw after abandon
     context->abandonContext();
     draw(canvas, 1, blobs);

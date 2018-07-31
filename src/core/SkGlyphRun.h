@@ -127,9 +127,10 @@ public:
     void drawUsingMasks(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun, SkPoint origin,
             const SkMatrix& deviceMatrix, PerMask perMask);
+    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
+    static bool TooBigForAtlas(const SkPaint& paint, const SkMatrix& matrix);
 
 private:
-    static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
     bool ensureBitmapBuffers(size_t runSize);
     void drawUsingPaths(
             const SkGlyphRun& glyphRun, SkPoint origin,

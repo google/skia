@@ -108,8 +108,46 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
         }
         cacheBlob->setRunPaintFlags(runIndex, runPaint.skPaint().getFlags());
 
-        if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
-                                    shaderCaps.supportsDistanceFieldText(), fOptions)) {
+        if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)
+            || SkGlyphRunListDrawer::TooBigForAtlas(runPaint, viewMatrix)) {
+            // Ensure the blob is set for bitmaptext
+            cacheBlob->setHasBitmap();
+
+            // setup our std runPaint, in hopes of getting hits in the cache
+            SkPaint pathPaint(runPaint);
+            SkScalar matrixScale = pathPaint.setupForAsPaths();
+
+            FallbackGlyphRunHelper fallbackTextHelper(
+                    viewMatrix, runPaint, glyphCache->getGlyphSizeLimit(), matrixScale);
+
+            // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
+            pathPaint.setStyle(SkPaint::kFill_Style);
+            pathPaint.setPathEffect(nullptr);
+
+            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+                    pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
+
+            const SkPoint* positionCursor = glyphRun.positions().data();
+            for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+                SkPoint loc = origin + *positionCursor++;
+                if (glyph.fWidth > 0) {
+                    if (glyph.fMaskFormat == SkMask::kARGB32_Format) {
+                        fallbackTextHelper.appendText(glyph, glyphID, loc);
+                    } else {
+                        const SkPath* path = cache->findPath(glyph);
+                        if (path != nullptr) {
+                            cacheBlob->appendPathGlyph(runIndex, *path, loc.fX, loc.fY, matrixScale, false);
+                        }
+                    }
+                }
+            }
+
+            fallbackTextHelper.drawText(
+                    cacheBlob, runIndex, glyphCache, props, runPaint, scalerContextFlags);
+
+        } else if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
+                                           shaderCaps.supportsDistanceFieldText(), fOptions)) {
             bool hasWCoord = viewMatrix.hasPerspective()
                              || fOptions.fDistanceFieldVerticesAlwaysHaveW;
 
@@ -151,44 +189,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             fallbackTextHelper.drawText(
                     cacheBlob, runIndex, glyphCache, props, runPaint, scalerContextFlags);
 
-        } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
-            // Ensure the blob is set for bitmaptext
-            cacheBlob->setHasBitmap();
-
-            // setup our std runPaint, in hopes of getting hits in the cache
-            SkPaint pathPaint(runPaint);
-            SkScalar matrixScale = pathPaint.setupForAsPaths();
-
-            FallbackGlyphRunHelper fallbackTextHelper(
-                    viewMatrix, runPaint, glyphCache->getGlyphSizeLimit(), matrixScale);
-
-            // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-            pathPaint.setStyle(SkPaint::kFill_Style);
-            pathPaint.setPathEffect(nullptr);
-
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-                    pathPaint, &props, SkScalerContextFlags::kFakeGammaAndBoostContrast, nullptr);
-
-            const SkPoint* positionCursor = glyphRun.positions().data();
-            for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
-                const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-                SkPoint loc = origin + *positionCursor++;
-                if (glyph.fWidth > 0) {
-                    if (glyph.fMaskFormat == SkMask::kARGB32_Format) {
-                        fallbackTextHelper.appendText(glyph, glyphID, loc);
-                    } else {
-                        const SkPath* path = cache->findPath(glyph);
-                        if (path != nullptr) {
-                            cacheBlob->appendPathGlyph(runIndex, *path, loc.fX, loc.fY, matrixScale, false);
-                        }
-                    }
-                }
-            }
-
-            fallbackTextHelper.drawText(
-                    cacheBlob, runIndex, glyphCache, props, runPaint, scalerContextFlags);
-
-        } else {
+        }  else {
             // Ensure the blob is set for bitmaptext
             cacheBlob->setHasBitmap();
             sk_sp<GrTextStrike> currStrike;
@@ -375,7 +376,8 @@ void GrTextContext::DrawBmpPosText(GrTextBlob* blob, int runIndex,
     // Ensure the blob is set for bitmaptext
     blob->setHasBitmap();
 
-    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)) {
+    if (SkDraw::ShouldDrawTextAsPaths(paint, viewMatrix)
+        || SkGlyphRunListDrawer::TooBigForAtlas(paint, viewMatrix)) {
         DrawBmpPosTextAsPaths(blob, runIndex, glyphCache, props, paint, scalerContextFlags,
                               viewMatrix, text, byteLength, pos, scalarsPerPosition, offset);
         return;

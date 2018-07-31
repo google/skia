@@ -281,7 +281,8 @@ private:
 #endif
 
         // If the matrix has perspective, we fall back to using distance field text or paths.
-        if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
+        if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)
+            || SkGlyphRunListDrawer::TooBigForAtlas(runPaint, runMatrix)) {
             this->processGlyphRunForPaths(it, runPaint, runMatrix);
             return;
         }
@@ -822,14 +823,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 auto* glyphPath = allocatedGlyph->fPathData;
                 *allocatedGlyph = glyph;
                 allocatedGlyph->fPathData = glyphPath;
-            }
-
-            bool tooLargeForAtlas = false;
-#if SK_SUPPORT_GPU
-            tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
-#endif
-            if (tooLargeForAtlas) {
-                if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
             }
 
             auto imageSize = glyph.computeImageSize();
