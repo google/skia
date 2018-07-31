@@ -1678,16 +1678,16 @@ void SkCanvas::drawVertices(const SkVertices* vertices, SkBlendMode mode, const 
     this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
 }
 
-void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, const SkMatrix* bones, int boneCount,
-                            SkBlendMode mode, const SkPaint& paint) {
+void SkCanvas::drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone bones[],
+                            int boneCount, SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
     SkASSERT(boneCount <= 80);
     this->onDrawVerticesObject(vertices.get(), bones, boneCount, mode, paint);
 }
 
-void SkCanvas::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
-                            SkBlendMode mode, const SkPaint& paint) {
+void SkCanvas::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                            int boneCount, SkBlendMode mode, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     RETURN_ON_NULL(vertices);
     SkASSERT(boneCount <= 80);
@@ -2576,7 +2576,7 @@ void SkCanvas::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
     this->onDrawTextBlob(blob, x, y, paint);
 }
 
-void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+void SkCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                     int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     LOOPER_BEGIN(paint, nullptr)
 

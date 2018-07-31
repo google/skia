@@ -18,20 +18,6 @@
 using namespace sk_app;
 using namespace nima;
 
-// NIMA stores its matrices as 6 floats to represent translation and scale. This function takes
-// that format and converts it into a 3x3 matrix representation.
-static void nima_to_skmatrix(const float* nimaData, SkMatrix& matrix) {
-    matrix[0] = nimaData[0];
-    matrix[1] = nimaData[2];
-    matrix[2] = nimaData[4];
-    matrix[3] = nimaData[1];
-    matrix[4] = nimaData[3];
-    matrix[5] = nimaData[5];
-    matrix[6] = 0.0f;
-    matrix[7] = 0.0f;
-    matrix[8] = 1.0f;
-}
-
 // ImGui expects an array of const char* when displaying a ListBox. This function is for an
 // overload of ImGui::ListBox that takes a getter so that ListBox works with
 // std::vector<std::string>.
@@ -113,7 +99,7 @@ public:
                 const SkRect originalBounds = fBones[0].mapRect(fVertices->bounds());
                 bounds = originalBounds;
                 for (size_t i = 1; i < fBones.size(); i++) {
-                    const SkMatrix& matrix = fBones[i];
+                    const SkVertices::Bone& matrix = fBones[i];
                     bounds.join(matrix.mapRect(originalBounds));
                 }
             }
@@ -177,8 +163,8 @@ private:
             fTexs[i].set(attrTex[0] * fTexture->width(), attrTex[1] * fTexture->height());
             if (fSkinned) {
                 for (uint32_t k = 0; k < 4; k ++) {
-                    fBoneIdx[i].indices[k] = static_cast<uint32_t>(attrBoneIdx[k]);
-                    fBoneWgt[i].weights[k] = attrBoneWgt[k];
+                    fBoneIdx[i][k] = static_cast<uint32_t>(attrBoneIdx[k]);
+                    fBoneWgt[i][k] = attrBoneWgt[k];
                 }
             }
         }
@@ -195,21 +181,21 @@ private:
             if (fSkinned) {
                 numMatrices = fActorImage->boneInfluenceMatricesLength() / kNIMAMatrixSize;
             }
-            fBones.assign(numMatrices, SkMatrix());
+
+            // Initialize all matrices to the identity matrix.
+            fBones.assign(numMatrices, {{ 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f }});
         }
 
         if (fSkinned) {
             // Update the matrices.
             float* matrixData = fActorImage->boneInfluenceMatrices();
-            for (uint32_t i = 1; i < fBones.size(); i ++) {
-                SkMatrix& matrix = fBones[i];
-                float* data = matrixData + i * kNIMAMatrixSize;
-                nima_to_skmatrix(data, matrix);
-            }
+            memcpy(fBones.data(), matrixData, fBones.size() * kNIMAMatrixSize * sizeof(float));
         }
 
         // Set the zero matrix to be the world transform.
-        nima_to_skmatrix(fActorImage->worldTransform().values(), fBones[0]);
+        memcpy(fBones.data(),
+               fActorImage->worldTransform().values(),
+               kNIMAMatrixSize * sizeof(float));
     }
 
     void updateVerticesObject(bool applyDeforms, bool isVolatile) {
@@ -332,8 +318,8 @@ private:
     std::vector<SkVertices::BoneWeights> fBoneWgt;
     std::vector<uint16_t>                fIndices;
 
-    std::vector<SkMatrix> fBones;
-    sk_sp<SkVertices>     fVertices;
+    std::vector<SkVertices::Bone> fBones;
+    sk_sp<SkVertices>             fVertices;
 
     uint32_t fRenderFlags;
 };
