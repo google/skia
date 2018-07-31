@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aa4bcb97_7e03251b",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-07-31T00:19:59Z",
+      "side": 1,
+      "message": "Ah, I found the reference -- SkAtlasTextTarget was originally created for VR/AR applications, so SDF text makes sense. Is SkAtlasTextTarget still going to only be used for that?",
+      "parentUuid": "7f3446d2_b548c75c",
+      "range": {
+        "startLine": 78,
+        "startChar": 24,
+        "endLine": 78,
+        "endChar": 51
+      },
+      "revId": "b766f459bba5b9ad7411d6fd5a9cfced84e24b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7119e20a_0d7e229d",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 6
