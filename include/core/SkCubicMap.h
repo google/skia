@@ -10,7 +10,7 @@
 
 #include "SkPoint.h"
 
-class SkCubicMap {
+class SK_API SkCubicMap {
 public:
     void setPts(SkPoint p1, SkPoint p2);
     void setPts(float x1, float y1, float x2, float y2) {

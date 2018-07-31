@@ -9,8 +9,6 @@
 #define SkottieSlide_DEFINED
 
 #include "Slide.h"
-
-#if defined(SK_ENABLE_SKOTTIE)
 #include "Skottie.h"
 
 namespace sksg    { class Scene;     }
@@ -42,7 +40,5 @@ private:
 
     typedef Slide INHERITED;
 };
-
-#endif // SK_ENABLE_SKOTTIE
 
 #endif // SkottieSlide_DEFINED

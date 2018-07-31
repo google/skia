@@ -68,9 +68,7 @@
     #include <XpsObjectModel.h>
 #endif
 
-#if defined(SK_ENABLE_SKOTTIE)
-    #include "Skottie.h"
-#endif
+#include "Skottie.h"
 
 #if defined(SK_XML)
     #include "SkSVGCanvas.h"
@@ -1201,7 +1199,6 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if defined(SK_ENABLE_SKOTTIE)
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Error SkottieSrc::draw(SkCanvas* canvas) const {
@@ -1256,7 +1253,6 @@ bool SkottieSrc::veto(SinkFlags flags) const {
 
     return !type_ok || flags.approach != SinkFlags::kDirect;
 }
-#endif
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 #if defined(SK_XML)

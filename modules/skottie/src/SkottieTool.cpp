@@ -15,9 +15,7 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 
-#if defined(SK_ENABLE_SKOTTIE)
 #include "Skottie.h"
-#endif
 
 DEFINE_string2(input    , i, nullptr, "Input .json file.");
 DEFINE_string2(writePath, w, nullptr, "Output directory.  Frames are names [0-9]{6}.png.");
