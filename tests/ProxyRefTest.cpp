@@ -10,8 +10,8 @@
 #include "Test.h"
 
 #include "GrContextPriv.h"
-#include "GrGpuResourceRef.h"
 #include "GrProxyProvider.h"
+#include "GrPendingIOResource.h"
 #include "GrRenderTargetProxy.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxy.h"

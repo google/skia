@@ -12,6 +12,7 @@
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingProgramElement.h"
+#include "GrPendingIOResource.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrRect.h"
@@ -27,7 +28,6 @@
 #include "effects/GrSimpleTextureEffect.h"
 
 class GrAppliedClip;
-class GrDeviceCoordTexture;
 class GrOp;
 class GrRenderTargetContext;
 
