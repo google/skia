@@ -51,6 +51,9 @@ public:
                        const SkIRect& srcRect, const SkIPoint& dstPoint,
                        bool areDstSrcSameObj) const;
 
+    bool canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
+                       GrPixelConfig srcConfig, bool srcIsTextureable) const;
+
     bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                         const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
 

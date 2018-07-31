@@ -14,6 +14,8 @@
 #include "GrTexture.h"
 
 #include "GrMtlCaps.h"
+#include "GrMtlCopyManager.h"
+#include "GrMtlResourceProvider.h"
 
 #import <Metal/Metal.h>
 
@@ -21,18 +23,24 @@ class GrMtlTexture;
 class GrSemaphore;
 struct GrMtlBackendContext;
 
+namespace SkSL {
+    class Compiler;
+}
+
 class GrMtlGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
                              id<MTLDevice> device, id<MTLCommandQueue> queue);
 
-    ~GrMtlGpu() override {}
+    ~GrMtlGpu() override = default;
 
     const GrMtlCaps& mtlCaps() const { return *fMtlCaps.get(); }
 
     id<MTLDevice> device() const { return fDevice; }
 
     id<MTLCommandBuffer> commandBuffer() const { return fCmdBuffer; }
+
+    GrMtlResourceProvider& resourceProvider() { return fResourceProvider; }
 
     enum SyncQueue {
         kForce_SyncQueue,
@@ -72,6 +80,8 @@ public:
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
     GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+
+    SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
@@ -161,6 +171,10 @@ private:
     id<MTLCommandQueue> fQueue;
 
     id<MTLCommandBuffer> fCmdBuffer;
+
+    std::unique_ptr<SkSL::Compiler> fCompiler;
+    GrMtlCopyManager fCopyManager;
+    GrMtlResourceProvider fResourceProvider;
 
     typedef GrGpu INHERITED;
 };

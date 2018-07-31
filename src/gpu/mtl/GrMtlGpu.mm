@@ -13,6 +13,9 @@
 #include "GrMtlUtil.h"
 #include "GrTexturePriv.h"
 #include "SkConvertPixels.h"
+#include "SkSLCompiler.h"
+
+#import <simd/simd.h>
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -90,7 +93,10 @@ GrMtlGpu::GrMtlGpu(GrContext* context, const GrContextOptions& options,
                    id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet)
         : INHERITED(context)
         , fDevice(device)
-        , fQueue(queue) {
+        , fQueue(queue)
+        , fCompiler(new SkSL::Compiler())
+        , fCopyManager(this)
+        , fResourceProvider(this) {
 
     fMtlCaps.reset(new GrMtlCaps(options, fDevice, featureSet));
     fCaps = fMtlCaps;
@@ -527,28 +533,6 @@ void GrMtlGpu::testingOnly_flushGpuAndSync() {
 }
 #endif // GR_TEST_UTILS
 
-id<MTLTexture> get_mtl_texture_from_surface(GrSurface* surface, bool doResolve) {
-    id<MTLTexture> mtlTexture = nil;
-
-    GrMtlRenderTarget* renderTarget = static_cast<GrMtlRenderTarget*>(surface->asRenderTarget());
-    GrMtlTexture* texture;
-    if (renderTarget) {
-        if (doResolve) {
-            // TODO: do resolve and set mtlTexture to resolved texture. As of now, we shouldn't
-            // have any multisampled render targets.
-            SkASSERT(false);
-        } else {
-            mtlTexture = renderTarget->mtlRenderTexture();
-        }
-    } else {
-        texture = static_cast<GrMtlTexture*>(surface->asTexture());
-        if (texture) {
-            mtlTexture = texture->mtlTexture();
-        }
-    }
-    return mtlTexture;
-}
-
 static int get_surface_sample_cnt(GrSurface* surf) {
     if (const GrRenderTarget* rt = surf->asRenderTarget()) {
         return rt->numColorSamples();
@@ -566,8 +550,8 @@ bool GrMtlGpu::copySurfaceAsBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                                            src->config(), srcSampleCnt, srcOrigin,
                                            srcRect, dstPoint, dst == src));
 #endif
-    id<MTLTexture> dstTex = get_mtl_texture_from_surface(dst, false);
-    id<MTLTexture> srcTex = get_mtl_texture_from_surface(src, false);
+    id<MTLTexture> dstTex = GrGetMTLTextureFromSurface(dst, false);
+    id<MTLTexture> srcTex = GrGetMTLTextureFromSurface(src, false);
 
     // Flip rect if necessary
     SkIRect srcMtlRect;
@@ -625,9 +609,13 @@ bool GrMtlGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     }
 
     bool success = false;
-    if (this->mtlCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstOrigin,
-                                      srcConfig, srcSampleCnt, srcOrigin,
-                                      srcRect, dstPoint, dst == src)) {
+    if (this->mtlCaps().canCopyAsDraw(dst->config(), SkToBool(dst->asRenderTarget()),
+                                      src->config(), SkToBool(src->asTexture()))) {
+        success = fCopyManager.copySurfaceAsDraw(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint,
+                                                 canDiscardOutsideDstRect);
+    } else if (this->mtlCaps().canCopyAsBlit(dstConfig, dstSampleCnt, dstOrigin,
+                                             srcConfig, srcSampleCnt, srcOrigin,
+                                             srcRect, dstPoint, dst == src)) {
         success = this->copySurfaceAsBlit(dst, dstOrigin, src, srcOrigin, srcRect, dstPoint);
     }
     if (success) {
@@ -668,7 +656,7 @@ bool GrMtlGpu::onReadPixels(GrSurface* surface, int left, int top, int width, in
     }
 
     bool doResolve = get_surface_sample_cnt(surface) > 1;
-    id<MTLTexture> mtlTexture = get_mtl_texture_from_surface(surface, doResolve);
+    id<MTLTexture> mtlTexture = GrGetMTLTextureFromSurface(surface, doResolve);
     if (!mtlTexture) {
         return false;
     }
