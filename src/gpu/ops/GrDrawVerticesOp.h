@@ -38,16 +38,16 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&&,
                                           sk_sp<SkVertices>,
-                                          const SkMatrix bones[],
+                                          const SkVertices::Bone bones[],
                                           int boneCount,
                                           const SkMatrix& viewMatrix,
                                           GrAAType,
                                           sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
-    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>, const SkMatrix bones[],
-                     int boneCount, GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>,
-                     const SkMatrix& viewMatrix);
+    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>,
+                     const SkVertices::Bone bones[], int boneCount, GrPrimitiveType, GrAAType,
+                     sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -160,8 +160,8 @@ private:
 
     Helper fHelper;
     SkSTArray<1, Mesh, true> fMeshes;
-    std::vector<float> fBones; // Bone transformation matrices stored in GPU format.
-    std::vector<float> fTransforms; // World/view transforms stored in GPU format.
+    std::vector<SkVertices::Bone> fBones; // Bone transformation matrices.
+    std::vector<float> fTransforms; // World/view transforms.
     // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
     // the SkVertices mode (though fPrimitiveType may have been inferred from it).
     GrPrimitiveType fPrimitiveType;

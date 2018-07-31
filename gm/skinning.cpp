@@ -17,14 +17,14 @@ static const int kCellSize = 60;
 static const int kColumnSize = 36;
 
 static const int kBoneCount = 7;
-static const SkMatrix kBones[] = {
-    SkMatrix::I(),
-    SkMatrix::MakeTrans(10, 0),
-    SkMatrix::MakeTrans(0, 10),
-    SkMatrix::MakeTrans(-10, 0),
-    SkMatrix::MakeTrans(0, -10),
-    SkMatrix::MakeScale(0.5f),
-    SkMatrix::MakeScale(1.5f),
+static const SkVertices::Bone kBones[] = {
+    {{ 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f }},   // SkMatrix::I()
+    {{ 1.0f, 0.0f, 0.0f, 1.0f, 10.0f, 0.0f }},  // SkMatrix::MakeTrans(10, 0)
+    {{ 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 10.0f }},  // SkMatrix::MakeTrans(0, 10)
+    {{ 1.0f, 0.0f, 0.0f, 1.0f, -10.0f, 0.0f }}, // SkMatrix::MakeTrans(-10, 0)
+    {{ 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -10.0f }}, // SkMatrix::MakeTrans(0, -10)
+    {{ 0.5f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f }},   // SkMatrix::MakeScale(0.5)
+    {{ 1.5f, 0.0f, 0.0f, 1.5f, 0.0f, 0.0f }},   // SkMatrix::MakeScale(1.5)
 };
 
 static const int kVertexCount = 4;
@@ -59,9 +59,9 @@ static const uint16_t kIndices[] = {
     2, 3, 0,
 };
 
-// Swap two SkMatrix pointers in place.
-static void swap(const SkMatrix** x, const SkMatrix** y) {
-    const SkMatrix* temp = *x;
+// Swap two SkVertices::Bone pointers in place.
+static void swap(const SkVertices::Bone** x, const SkVertices::Bone** y) {
+    const SkVertices::Bone* temp = *x;
     *x = *y;
     *y = temp;
 }
@@ -115,7 +115,7 @@ protected:
         int ypos = kCellSize;
 
         // Create the mutable set of bones.
-        const SkMatrix* bones[kBoneCount];
+        const SkVertices::Bone* bones[kBoneCount];
         for (int i = 0; i < kBoneCount; i ++) {
             bones[i] = &kBones[i];
         }
@@ -128,14 +128,14 @@ private:
     void drawPermutations(SkCanvas* canvas,
                           int& xpos,
                           int& ypos,
-                          const SkMatrix** bones,
+                          const SkVertices::Bone** bones,
                           int start) {
         if (start == kBoneCount) {
             // Reached the end of the permutations, so draw.
             canvas->save();
 
             // Copy the bones.
-            SkMatrix copiedBones[kBoneCount];
+            SkVertices::Bone copiedBones[kBoneCount];
             for (int i = 0; i < kBoneCount; i ++) {
                 copiedBones[i] = *bones[i];
             }
@@ -153,11 +153,10 @@ private:
 
                     // Apply deformations.
                     SkPoint& result = positions[i];
-                    SkPoint transformed;
                     for (uint32_t j = 0; j < 4; j ++) {
                         // Get the bone attachment data.
-                        uint32_t index = indices.indices[j];
-                        float weight = weights.weights[j];
+                        uint32_t index = indices.at(j);
+                        float weight = weights.at(j);
 
                         // Skip the bone is there is no weight.
                         if (weight == 0.0f) {
@@ -165,11 +164,8 @@ private:
                         }
                         SkASSERT(index != 0);
 
-                        // transformed = M * v
-                        copiedBones[index].mapPoints(&transformed, &kPositions[i], 1);
-
-                        // result += transformed * w
-                        result += transformed * weight;
+                        // result += M * v * w
+                        result += copiedBones[index].mapPoint(kPositions[i]) * weight;
                     }
                 }
 
