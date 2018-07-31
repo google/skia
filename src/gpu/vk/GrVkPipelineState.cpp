@@ -209,9 +209,9 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
     }
 
     if (GrTextureProxy* dstTextureProxy = pipeline.dstTextureProxy()) {
-        samplerBindings[currTextureBinding++] =
-                {GrSamplerState::ClampNearest(),
-                 static_cast<GrVkTexture*>(dstTextureProxy->priv().peekTexture())};
+        samplerBindings[currTextureBinding++] = {
+                GrSamplerState::ClampNearest(),
+                static_cast<GrVkTexture*>(dstTextureProxy->peekTexture())};
     }
 
     // Get new descriptor sets
@@ -345,7 +345,7 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu, const SamplerBindings bindin
 }
 
 void GrVkPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) {
-    GrRenderTarget* rt = proxy->priv().peekRenderTarget();
+    GrRenderTarget* rt = proxy->peekRenderTarget();
 
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
     if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&

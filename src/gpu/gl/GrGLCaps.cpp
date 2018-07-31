@@ -2185,8 +2185,8 @@ bool GrGLCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
     const GrTextureProxy* dstTex = dst->asTextureProxy();
     const GrTextureProxy* srcTex = src->asTextureProxy();
 
-    bool dstIsTex2D = dstTex ? (dstTex->texPriv().textureType() == GrTextureType::k2D) : false;
-    bool srcIsTex2D = srcTex ? (srcTex->texPriv().textureType() == GrTextureType::k2D) : false;
+    bool dstIsTex2D = dstTex ? (dstTex->textureType() == GrTextureType::k2D) : false;
+    bool srcIsTex2D = srcTex ? (srcTex->textureType() == GrTextureType::k2D) : false;
 
     // One of the possible requirements for copy as blit is that the srcRect must match the bounds
     // of the src surface. If we have a approx fit surface we can't know for sure what the src
@@ -2234,7 +2234,7 @@ bool GrGLCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc*
     {
         // The only way we could see a non-GR_GL_TEXTURE_2D texture would be if it were
         // wrapped. In that case the proxy would already be instantiated.
-        const GrTexture* srcTexture = src->priv().peekTexture();
+        const GrTexture* srcTexture = src->peekTexture();
         const GrGLTexture* glSrcTexture = static_cast<const GrGLTexture*>(srcTexture);
         if (glSrcTexture && glSrcTexture->target() != GR_GL_TEXTURE_2D) {
             // Not supported for FBO blit or CopyTexSubImage

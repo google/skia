@@ -150,7 +150,7 @@ static void basic_test(GrContext* context,
 
     // Once instantiated, the backing resource should have the same key
     SkAssertResult(proxy->instantiate(resourceProvider));
-    const GrUniqueKey& texKey = proxy->priv().peekSurface()->getUniqueKey();
+    const GrUniqueKey& texKey = proxy->peekSurface()->getUniqueKey();
     REPORTER_ASSERT(reporter, texKey.isValid());
     REPORTER_ASSERT(reporter, key == texKey);
     if (proxyIsCached) {
@@ -266,7 +266,7 @@ static void invalidation_and_instantiation_test(GrContext* context, skiatest::Re
     SkAssertResult(proxy->instantiate(resourceProvider));
 
     REPORTER_ASSERT(reporter, !proxy->getUniqueKey().isValid());
-    REPORTER_ASSERT(reporter, !proxy->priv().peekTexture()->getUniqueKey().isValid());
+    REPORTER_ASSERT(reporter, !proxy->peekTexture()->getUniqueKey().isValid());
     REPORTER_ASSERT(reporter, 0 == proxyProvider->numUniqueKeyProxies_TestOnly());
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
 

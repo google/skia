@@ -137,7 +137,7 @@ public:
 
     GrTexture* peekDstTexture(SkIPoint* offset = nullptr) const {
         if (GrTextureProxy* dstProxy = this->dstTextureProxy(offset)) {
-            return dstProxy->priv().peekTexture();
+            return dstProxy->peekTexture();
         }
 
         return nullptr;
@@ -165,7 +165,7 @@ public:
      * @return    The currently set render target.
      */
     GrRenderTargetProxy* proxy() const { return fProxy.get(); }
-    GrRenderTarget* renderTarget() const { return fProxy.get()->priv().peekRenderTarget(); }
+    GrRenderTarget* renderTarget() const { return fProxy.get()->peekRenderTarget(); }
 
     const GrUserStencilSettings* getUserStencil() const { return fUserStencilSettings; }
 

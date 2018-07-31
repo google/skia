@@ -169,15 +169,13 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(EGLImageTest, reporter, ctxInfo) {
 
     GrTextureProxy* proxy = surfaceContext->asTextureProxy();
     REPORTER_ASSERT(reporter, proxy->mipMapped() == GrMipMapped::kNo);
-    REPORTER_ASSERT(reporter,
-                    proxy->priv().peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().mipMapped() == GrMipMapped::kNo);
 
-    REPORTER_ASSERT(reporter, proxy->texPriv().textureType() == GrTextureType::kExternal);
-    REPORTER_ASSERT(
-            reporter,
-            proxy->priv().peekTexture()->texturePriv().textureType() == GrTextureType::kExternal);
-    REPORTER_ASSERT(reporter, proxy->texPriv().hasRestrictedSampling());
-    REPORTER_ASSERT(reporter, proxy->priv().peekTexture()->texturePriv().hasRestrictedSampling());
+    REPORTER_ASSERT(reporter, proxy->textureType() == GrTextureType::kExternal);
+    REPORTER_ASSERT(reporter,
+                    proxy->peekTexture()->texturePriv().textureType() == GrTextureType::kExternal);
+    REPORTER_ASSERT(reporter, proxy->hasRestrictedSampling());
+    REPORTER_ASSERT(reporter, proxy->peekTexture()->texturePriv().hasRestrictedSampling());
 
     // Should not be able to wrap as a RT
     {

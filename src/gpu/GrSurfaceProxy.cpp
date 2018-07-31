@@ -231,7 +231,7 @@ bool GrSurfaceProxy::instantiateImpl(GrResourceProvider* resourceProvider, int s
 }
 
 void GrSurfaceProxy::deInstantiate() {
-    SkASSERT(this->priv().isInstantiated());
+    SkASSERT(this->isInstantiated());
 
     this->release();
 }

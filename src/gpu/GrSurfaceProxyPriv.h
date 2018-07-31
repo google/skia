@@ -17,26 +17,6 @@
     data members or virtual methods. */
 class GrSurfaceProxyPriv {
 public:
-    bool isInstantiated() const { return SkToBool(fProxy->fTarget); }
-
-    // This should only be called after a successful call to instantiate
-    GrSurface* peekSurface() const {
-        SkASSERT(fProxy->fTarget);
-        return fProxy->fTarget;
-    }
-
-    // If the proxy is already instantiated, return its backing GrTexture; if not,
-    // return null
-    GrTexture* peekTexture() const {
-        return fProxy->fTarget ? fProxy->fTarget->asTexture() : nullptr;
-    }
-
-    // This should only be called after a successful call to instantiate
-    GrRenderTarget* peekRenderTarget() const {
-        SkASSERT(fProxy->fTarget && fProxy->fTarget->asRenderTarget());
-        return fProxy->fTarget ? fProxy->fTarget->asRenderTarget() : nullptr;
-    }
-
     // Beware! Woe betide anyone whosoever calls this method.
     // The refs on proxies and their backing GrSurfaces shift around based on whether the proxy
     // is instantiated or not. Additionally, the lifetime of a proxy (and a GrSurface) also

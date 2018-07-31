@@ -91,8 +91,8 @@ static void overlap_test(skiatest::Reporter* reporter, GrResourceProvider* resou
     alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
-    REPORTER_ASSERT(reporter, p1->priv().peekSurface());
-    REPORTER_ASSERT(reporter, p2->priv().peekSurface());
+    REPORTER_ASSERT(reporter, p1->peekSurface());
+    REPORTER_ASSERT(reporter, p2->peekSurface());
     bool doTheBackingStoresMatch = p1->underlyingUniqueID() == p2->underlyingUniqueID();
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
 }
@@ -114,8 +114,8 @@ static void non_overlap_test(skiatest::Reporter* reporter, GrResourceProvider* r
     alloc.assign(&startIndex, &stopIndex, &uninstantiateTracker, &error);
     REPORTER_ASSERT(reporter, GrResourceAllocator::AssignError::kNoError == error);
 
-    REPORTER_ASSERT(reporter, p1->priv().peekSurface());
-    REPORTER_ASSERT(reporter, p2->priv().peekSurface());
+    REPORTER_ASSERT(reporter, p1->peekSurface());
+    REPORTER_ASSERT(reporter, p2->peekSurface());
     bool doTheBackingStoresMatch = p1->underlyingUniqueID() == p2->underlyingUniqueID();
     REPORTER_ASSERT(reporter, expectedResult == doTheBackingStoresMatch);
 }

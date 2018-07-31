@@ -608,7 +608,7 @@ void GrGLDisplacementMapEffect::onSetData(const GrGLSLProgramDataManager& pdman,
                                           const GrFragmentProcessor& proc) {
     const GrDisplacementMapEffect& displacementMap = proc.cast<GrDisplacementMapEffect>();
     GrSurfaceProxy* proxy = displacementMap.textureSampler(1).proxy();
-    GrTexture* colorTex = proxy->priv().peekTexture();
+    GrTexture* colorTex = proxy->peekTexture();
 
     SkScalar scaleX = displacementMap.scale().fX / colorTex->width();
     SkScalar scaleY = displacementMap.scale().fY / colorTex->height();

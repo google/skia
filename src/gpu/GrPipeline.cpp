@@ -93,7 +93,7 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&
-        fDstTextureProxy.get()->priv().peekTexture() == fProxy.get()->priv().peekTexture()) {
+        fDstTextureProxy.get()->peekTexture() == fProxy.get()->peekTexture()) {
         return kTexture_GrXferBarrierType;
     }
     return this->getXferProcessor().xferBarrierType(caps);

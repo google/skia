@@ -72,7 +72,7 @@ void GrTextureOpList::dump(bool printDependencies) const {
 #endif
 
 void GrTextureOpList::onPrepare(GrOpFlushState* flushState) {
-    SkASSERT(fTarget.get()->priv().peekTexture());
+    SkASSERT(fTarget.get()->peekTexture());
     SkASSERT(this->isClosed());
 
     // Loop over the ops that haven't yet generated their geometry
@@ -96,10 +96,10 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(fTarget.get()->priv().peekTexture());
+    SkASSERT(fTarget.get()->peekTexture());
 
     std::unique_ptr<GrGpuTextureCommandBuffer> commandBuffer(
-                         flushState->gpu()->createCommandBuffer(fTarget.get()->priv().peekTexture(),
+                         flushState->gpu()->createCommandBuffer(fTarget.get()->peekTexture(),
                                                                 fTarget.get()->origin()));
     flushState->setCommandBuffer(commandBuffer.get());
 
@@ -158,8 +158,8 @@ bool GrTextureOpList::copySurface(GrContext* context,
 
 void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [ &hasUninstantiatedProxy ] (GrSurfaceProxy* p) {
-        if (!p->priv().isInstantiated()) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p) {
+        if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
     };

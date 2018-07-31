@@ -354,7 +354,7 @@ public:
         if (!fRenderTargetProxy->instantiate(fContext->contextPriv().resourceProvider())) {
             return nullptr;
         }
-        return fRenderTargetProxy->priv().peekRenderTarget();
+        return fRenderTargetProxy->peekRenderTarget();
     }
 
     GrSurfaceProxy* asSurfaceProxy() override { return fRenderTargetProxy.get(); }

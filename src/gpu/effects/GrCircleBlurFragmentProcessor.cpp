@@ -299,7 +299,7 @@ private:
         auto solidRadius = _outer.solidRadius();
         (void)solidRadius;
         GrSurfaceProxy& blurProfileSamplerProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& blurProfileSampler = *blurProfileSamplerProxy.priv().peekTexture();
+        GrTexture& blurProfileSampler = *blurProfileSamplerProxy.peekTexture();
         (void)blurProfileSampler;
         UniformHandle& circleData = fCircleDataVar;
         (void)circleData;

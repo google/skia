@@ -86,8 +86,7 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     // same resource (rather than re-wrapping). When a wrapped resource is no longer referenced,
     // it will always be released - it is never converted to a scratch resource.
     if (SkBudgeted::kNo == proxy->isBudgeted() &&
-                    (!proxy->priv().isInstantiated() ||
-                     !proxy->priv().peekSurface()->resourcePriv().refsWrappedObjects())) {
+        (!proxy->isInstantiated() || !proxy->peekSurface()->resourcePriv().refsWrappedObjects())) {
         return false;
     }
 
@@ -667,7 +666,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::MakeFullyLazyProxy(LazyInstantiateCallbac
 }
 
 bool GrProxyProvider::IsFunctionallyExact(GrSurfaceProxy* proxy) {
-    const bool isInstantiated = proxy->priv().isInstantiated();
+    const bool isInstantiated = proxy->isInstantiated();
     // A proxy is functionally exact if:
     //   it is exact (obvs)
     //   when it is instantiated it will be exact (i.e., power of two dimensions)
@@ -696,8 +695,8 @@ void GrProxyProvider::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTex
     fUniquelyKeyedProxies.remove(key);
     proxy->cacheAccess().clearUniqueKey();
 
-    if (invalidateSurface && proxy->priv().isInstantiated()) {
-        GrSurface* surface = proxy->priv().peekSurface();
+    if (invalidateSurface && proxy->isInstantiated()) {
+        GrSurface* surface = proxy->peekSurface();
         if (surface) {
             surface->resourcePriv().removeUniqueKey();
         }

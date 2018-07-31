@@ -114,7 +114,7 @@ private:
         auto sigma = _outer.sigma();
         (void)sigma;
         GrSurfaceProxy& blurProfileProxy = *_outer.textureSampler(0).proxy();
-        GrTexture& blurProfile = *blurProfileProxy.priv().peekTexture();
+        GrTexture& blurProfile = *blurProfileProxy.peekTexture();
         (void)blurProfile;
         UniformHandle& proxyRectHalf = fProxyRectHalfVar;
         (void)proxyRectHalf;

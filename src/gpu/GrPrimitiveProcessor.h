@@ -212,8 +212,8 @@ public:
 
     // 'peekTexture' should only ever be called after a successful 'instantiate' call
     GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.get()->priv().peekTexture());
-        return fProxyRef.get()->priv().peekTexture();
+        SkASSERT(fProxyRef.get()->peekTexture());
+        return fProxyRef.get()->peekTexture();
     }
 
     GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }

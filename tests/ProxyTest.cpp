@@ -47,9 +47,9 @@ static void check_rendertarget(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, rtProxy->numStencilSamples() == numSamples);
 
     GrSurfaceProxy::UniqueID idBefore = rtProxy->uniqueID();
-    bool preinstantiated = rtProxy->priv().isInstantiated();
+    bool preinstantiated = rtProxy->isInstantiated();
     REPORTER_ASSERT(reporter, rtProxy->instantiate(provider));
-    GrRenderTarget* rt = rtProxy->priv().peekRenderTarget();
+    GrRenderTarget* rt = rtProxy->peekRenderTarget();
 
     REPORTER_ASSERT(reporter, rtProxy->uniqueID() == idBefore);
     // Deferred resources should always have a different ID from their instantiated rendertarget
@@ -80,9 +80,9 @@ static void check_texture(skiatest::Reporter* reporter,
                           SkBackingFit fit) {
     GrSurfaceProxy::UniqueID idBefore = texProxy->uniqueID();
 
-    bool preinstantiated = texProxy->priv().isInstantiated();
+    bool preinstantiated = texProxy->isInstantiated();
     REPORTER_ASSERT(reporter, texProxy->instantiate(provider));
-    GrTexture* tex = texProxy->priv().peekTexture();
+    GrTexture* tex = texProxy->peekTexture();
 
     REPORTER_ASSERT(reporter, texProxy->uniqueID() == idBefore);
     // Deferred resources should always have a different ID from their instantiated texture

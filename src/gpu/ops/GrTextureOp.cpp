@@ -842,7 +842,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
         float iw[kMaxTextures];
         float ih[kMaxTextures];
         for (int t = 0; t < fProxyCnt; ++t) {
-            const auto* texture = proxies[t]->priv().peekTexture();
+            const auto* texture = proxies[t]->peekTexture();
             iw[t] = 1.f / texture->width();
             ih[t] = 1.f / texture->height();
         }
@@ -986,7 +986,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             if (thatProxies[j]->config() != config) {
                 return -1;
             }
-            if (GrTexture* tex = thatProxies[j]->priv().peekTexture()) {
+            if (GrTexture* tex = thatProxies[j]->peekTexture()) {
                 if (tex->texturePriv().textureType() != GrTextureType::k2D) {
                     return -1;
                 }

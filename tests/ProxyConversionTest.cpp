@@ -35,8 +35,8 @@ static sk_sp<GrSurfaceProxy> make_wrapped_rt(GrProxyProvider* provider,
 
 void clean_up_wrapped_rt(GrGpu* gpu, sk_sp<GrSurfaceProxy> proxy) {
     SkASSERT(proxy->isUnique_debugOnly());
-    SkASSERT(proxy->priv().peekRenderTarget());
-    GrBackendRenderTarget rt = proxy->priv().peekRenderTarget()->getBackendRenderTarget();
+    SkASSERT(proxy->peekRenderTarget());
+    GrBackendRenderTarget rt = proxy->peekRenderTarget()->getBackendRenderTarget();
     proxy.reset();
     gpu->deleteTestingOnlyBackendRenderTarget(rt);
 }

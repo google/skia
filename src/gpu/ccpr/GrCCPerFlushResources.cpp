@@ -287,7 +287,7 @@ bool GrCCPerFlushResources::finalize(GrOnFlushResourceProvider* onFlushRP,
         sk_sp<GrTexture> backingTexture;
         if (stashedAtlasProxy && atlas->currentWidth() == stashedAtlasProxy->width() &&
             atlas->currentHeight() == stashedAtlasProxy->height()) {
-            backingTexture = sk_ref_sp(stashedAtlasProxy->priv().peekTexture());
+            backingTexture = sk_ref_sp(stashedAtlasProxy->peekTexture());
             stashedAtlasProxy = nullptr;
         }
 

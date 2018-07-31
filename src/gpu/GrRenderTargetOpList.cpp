@@ -81,7 +81,7 @@ void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& fu
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
-    SkASSERT(fTarget.get()->priv().peekRenderTarget());
+    SkASSERT(fTarget.get()->peekRenderTarget());
     SkASSERT(this->isClosed());
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -160,16 +160,17 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         return false;
     }
 
-    SkASSERT(fTarget.get()->priv().peekRenderTarget());
+    SkASSERT(fTarget.get()->peekRenderTarget());
     TRACE_EVENT0("skia", TRACE_FUNC);
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
     std::unique_ptr<GrGpuRTCommandBuffer> commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
-                                                    fTarget.get()->priv().peekRenderTarget(),
+                                                    fTarget.get()->peekRenderTarget(),
                                                     fTarget.get()->origin(),
-                                                    fColorLoadOp, fLoadClearColor,
+                                                    fColorLoadOp,
+                                                    fLoadClearColor,
                                                     fStencilLoadOp);
     flushState->setCommandBuffer(commandBuffer.get());
     commandBuffer->begin();
@@ -262,8 +263,8 @@ bool GrRenderTargetOpList::copySurface(GrContext* context,
 
 void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     bool hasUninstantiatedProxy = false;
-    auto checkInstantiation = [ &hasUninstantiatedProxy ] (GrSurfaceProxy* p) {
-        if (!p->priv().isInstantiated()) {
+    auto checkInstantiation = [&hasUninstantiatedProxy](GrSurfaceProxy* p) {
+        if (!p->isInstantiated()) {
             hasUninstantiatedProxy = true;
         }
     };
@@ -283,7 +284,7 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
     unsigned int cur = alloc->numOps();
 
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
-        SkASSERT(!fDeferredProxies[i]->priv().isInstantiated());
+        SkASSERT(!fDeferredProxies[i]->isInstantiated());
         // We give all the deferred proxies a write usage at the very start of flushing. This
         // locks them out of being reused for the entire flush until they are read - and then
         // they can be recycled. This is a bit unfortunate because a flush can proceed in waves

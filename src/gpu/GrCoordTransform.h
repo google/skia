@@ -116,10 +116,7 @@ public:
 
     // This should only ever be called at flush time after the backing texture has been
     // successfully instantiated
-    GrTexture* peekTexture() const {
-        SkASSERT(fProxy->priv().peekTexture());
-        return fProxy->priv().peekTexture();
-    }
+    GrTexture* peekTexture() const { return fProxy->peekTexture(); }
 
 private:
     // The textures' effect is to optionally normalize the final matrix, so a blind

@@ -162,7 +162,7 @@ void GrTextureDomain::GLDomain::sampleTexture(GrGLSLShaderBuilder* builder,
 void GrTextureDomain::GLDomain::setData(const GrGLSLProgramDataManager& pdman,
                                         const GrTextureDomain& textureDomain,
                                         GrSurfaceProxy* proxy) {
-    GrTexture* tex = proxy->priv().peekTexture();
+    GrTexture* tex = proxy->peekTexture();
     SkASSERT(fHasMode && textureDomain.mode() == fMode);
     if (kIgnore_Mode != textureDomain.mode()) {
         SkScalar wInv = SK_Scalar1 / tex->width();
@@ -383,7 +383,7 @@ GrGLSLFragmentProcessor* GrDeviceSpaceTextureDecalFragmentProcessor::onCreateGLS
             const GrDeviceSpaceTextureDecalFragmentProcessor& dstdfp =
                     fp.cast<GrDeviceSpaceTextureDecalFragmentProcessor>();
             GrSurfaceProxy* proxy = dstdfp.textureSampler(0).proxy();
-            GrTexture* texture = proxy->priv().peekTexture();
+            GrTexture* texture = proxy->peekTexture();
 
             fGLDomain.setData(pdman, dstdfp.fTextureDomain, proxy);
             float iw = 1.f / texture->width();
