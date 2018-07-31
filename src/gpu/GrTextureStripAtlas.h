@@ -20,119 +20,135 @@ class GrSurfaceContext;
 class GrTextureProxy;
 
 /**
- * Maintains a single large texture whose rows store many textures of a small fixed height,
- * stored in rows across the x-axis such that we can safely wrap/repeat them horizontally.
+ * Base class for the texture strip atlases.
+ * It is ref counted because the GradientShader and TableColorFilter are given a pointer to it
+ * so that they can lock and unlock rows.
  */
-class GrTextureStripAtlas : public SkRefCnt {
+class GrTextureStripAtlasBase : public SkRefCnt {
 public:
     /**
-     * Descriptor struct which we'll use as a hash table key
+     * Descriptor struct which we'll use as a hash table key in the GrTextureStripAtlasManager.
      */
-    struct Desc {
-        Desc() { sk_bzero(this, sizeof(*this)); }
-        GrPixelConfig fConfig;
-        uint16_t fWidth, fHeight, fRowHeight;
+    struct Desc1 {
+        Desc1() { sk_bzero(this, sizeof(*this)); }
+        SkColorType fColorType7;
+        uint16_t fWidth;
+        uint16_t fHeight; // the max height for the DDL version, the size of the atlas for normal
+        uint16_t fRowHeight;
         uint16_t fUnusedPadding;
-        bool operator==(const Desc& other) const {
-            return 0 == memcmp(this, &other, sizeof(Desc));
+
+        bool operator==(const Desc1& other) const {
+            return 0 == memcmp(this, &other, sizeof(Desc1));
         }
     };
 
-    ~GrTextureStripAtlas();
+    ~GrTextureStripAtlasBase() override {}
 
-    /**
-     * Add a texture to the atlas
-     *  @param data Bitmap data to copy into the row
-     *  @return The row index we inserted into, or -1 if we failed to find an open row. The caller
-     *      is responsible for calling unlockRow() with this row index when it's done with it.
-     */
-    int lockRow(GrContext*, const SkBitmap&);
+    const Desc1& desc() { return fDesc77; }
 
     /**
      * This is intended to be used when cloning a processor that already holds a lock. It is
      * assumed that the row already has at least one lock.
      */
-    void lockRow(int row);
-    void unlockRow(int row);
+    virtual void lockRow1(int row) = 0;
 
     /**
-     * These functions help turn an integer row index in [0, 1, 2, ... numRows] into a scalar y
-     * texture coordinate in [0, 1] that we can use in a shader.
-     *
-     * If a regular texture access without using the atlas looks like:
-     *
-     *      texture2D(sampler, float2(x, y))
-     *
-     * Then when using the atlas we'd replace it with:
-     *
-     *       texture2D(sampler, float2(x, yOffset + y * scaleFactor))
-     *
-     * Where yOffset, returned by getYOffset(), is the offset to the start of the row within the
-     * atlas and scaleFactor, returned by getNormalizedTexelHeight, is the normalized height of
-     * one texel row.
+     * Some user of a given row is done. Release that row for reuse.
      */
-    SkScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
-    SkScalar getNormalizedTexelHeight() const { return fNormalizedYHeight; }
+    virtual void unlockRow1(int row) = 0;
 
-    sk_sp<GrTextureProxy> asTextureProxyRef() const;
+    /**
+     * Get the texture proxy backing this atlas. Note that the texture proxy may be fully lazy
+     * (i.e., when recording DDLs) and, in particular, the final height may not be known.
+     */
+    virtual sk_sp<GrTextureProxy> asTextureProxyRef7() const = 0;
+
+protected:
+    GrTextureStripAtlasBase(const Desc1& desc) : fDesc77(desc) {}
+
+private:
+    friend class GrTextureStripAtlasManager; // for addStrip, finish
+
+    /**
+     * Add a texture strip to the atlas
+     *  @param context Everyone's favorite class
+     *  @param data    Bitmap data to copy into the row
+     *  @return The row index we inserted into, or -1 if we failed to find an open row. The caller
+     *      is responsible for calling unlockRow() with this row index when it's done with it.
+     */
+    virtual int addStrip(GrContext*, const SkBitmap&) = 0;
+
+    /**
+     * This method is called when an atlas needs to finish its work on the current texture.
+     * Currently it is only called in DDL mode and when either:
+     *        a given atlas has become full or,
+     *        a DDL is being snapped from a DDL recorder
+     */
+    virtual void finish(GrContext*) = 0;
+
+    Desc1 fDesc77;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * The DDL version of the texture strip atlas consolidates individual strips into a larger texture
+ * until some limit is reached, at which point a new large texture is started.
+ * This can lead to the same strip being duplicated in VRAM. This can happen if a strip appears once
+ * early in a rendering (that has, say, a lot of gradients) and then again later in the rendering
+ * when one of the large textures has been filled. The second, probably more common, case is
+ * if the same strip is used in different DDL recordings. Since the texture strip atlases aren't
+ * dedupped across threads, if the same strip is used in two different DDL recordings it will
+ * be duplicated in both of the DDL recorders' atlases.
+ * Note, one additional feature of the DDL texture strip atlases is that, if DDL recording is ended
+ * before one of the large textures is full, the large texture will be "shrunk" to fit its
+ * contents.
+ */
+class GrDDLTextureStripAtlas : public GrTextureStripAtlasBase {
+public:
+    ~GrDDLTextureStripAtlas() override;
+
+    // Overrides from GrTextureStripAtlasBase
+    void lockRow1(int row) override { /* The DDL version doesn't lock & unlock individual rows */}
+    void unlockRow1(int row) override { /* The DDL version doesn't lock & unlock individual rows */}
+    sk_sp<GrTextureProxy> asTextureProxyRef7() const override;
 
 private:
     friend class GrTextureStripAtlasManager; // for ctor
 
-    static uint32_t CreateUniqueID();
+    // Overrides from GrTextureStripAtlasBase
+    int addStrip(GrContext*, const SkBitmap&) override;
+    void finish(GrContext*) override;
+
+//    static uint32_t CreateUniqueID();
 
     // Key to indicate an atlas row without any meaningful data stored in it
-    const static uint32_t kEmptyAtlasRowKey = 0xffffffff;
+//    const static uint32_t kEmptyAtlasRowKey = 0x0;
 
     /**
-     * The state of a single row in our cache, next/prev pointers allow these to be chained
-     * together to represent LRU status
+     * The state of a single row in our cache. For the DDL texture strip atlas we hold onto all
+     * the individual strip bitmaps and, upon finish, combine them all into a single bitmap.
      */
     struct AtlasRow : ::SkNoncopyable {
-        AtlasRow() : fKey(kEmptyAtlasRowKey), fLocks(0), fNext(nullptr), fPrev(nullptr) { }
-        // GenerationID of the bitmap that is represented by this row, 0xffffffff means "empty"
-        uint32_t fKey;
-        // How many times this has been locked (0 == unlocked)
-        int32_t fLocks;
-        // We maintain an LRU linked list between unlocked nodes with these pointers
-        AtlasRow* fNext;
-        AtlasRow* fPrev;
+        AtlasRow() {}
+
+        SkBitmap fBitmap1;
     };
 
     /**
      * Only the GrTextureStripAtlasManager is allowed to create GrTextureStripAtlases
      */
-    GrTextureStripAtlas(const Desc& desc);
+    GrDDLTextureStripAtlas(const GrCaps* caps, const Desc1& desc);
 
-    void lockTexture(GrContext*);
-    void unlockTexture();
+//    void lockTexture(GrContext*);
+//    void unlockTexture();
 
-    /**
-     * Initialize our LRU list (if one already exists, clear it and start anew)
-     */
-    void initLRU();
-
-    /**
-     * Grabs the least recently used free row out of the LRU list, returns nullptr if no rows
-     * are free.
-     */
-    AtlasRow* getLRU();
-
-    void appendLRU(AtlasRow* row);
-    void removeFromLRU(AtlasRow* row);
 
     /**
      * Searches the key table for a key and returns the index if found; if not found, it returns
      * the bitwise not of the index at which we could insert the key to maintain a sorted list.
      **/
-    int searchByKey(uint32_t key);
-
-    /**
-     * Compare two atlas rows by key, so we can sort/search by key
-     */
-    static bool KeyLess(const AtlasRow& lhs, const AtlasRow& rhs) {
-        return lhs.fKey < rhs.fKey;
-    }
+    int searchByKey21(uint32_t key);
 
 #ifdef SK_DEBUG
     void validate();
@@ -140,31 +156,30 @@ private:
 
     // A unique ID for this atlas, so we can be sure that if we
     // get a texture back from the texture cache, that it's the same one we last used.
-    const uint32_t fCacheKey;
+//    const uint32_t fCacheKey;
 
-    // Total locks on all rows (when this reaches zero, we can unlock our texture)
-    int32_t fLockedRows;
+    // This is the lazy proxy that will be split off in the finish call.
+    sk_sp<GrTextureProxy> fCurProxy;
 
-    const Desc fDesc;
-    const uint16_t fNumRows;
-    sk_sp<GrSurfaceContext> fTexContext;
+    SkBitmap* fAtlasBitmap;
 
-    SkScalar fNormalizedYHeight;
+    const Desc1 fDesc1;
+    const uint16_t fMaxNumRows;
+    uint16_t fCurRow;
+//    sk_sp<GrSurfaceContext> fTexContext;
 
     // Array of AtlasRows which store the state of all our rows. Stored in a contiguous array, in
     // order that they appear in our texture, this means we can subtract this pointer from a row
     // pointer to get its index in the texture, and can save storing a row number in AtlasRow.
-    AtlasRow* fRows;
-
-    // Head and tail for linked list of least-recently-used rows (front = least recently used).
-    // Note that when a texture is locked, it gets removed from this list until it is unlocked.
-    AtlasRow* fLRUFront;
-    AtlasRow* fLRUBack;
+    AtlasRow* fRows; // make a unique_ptr?
 
     // A list of pointers to AtlasRows that currently contain cached images, sorted by key
     SkTDArray<AtlasRow*> fKeyTable;
+
+    typedef GrTextureStripAtlasBase INHERITED;
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
 class GrTextureStripAtlasManager {
 public:
     GrTextureStripAtlasManager() {}
@@ -175,7 +190,9 @@ public:
     /**
      * Try to find an atlas with the required parameters, creates a new one if necessary
      */
-    sk_sp<GrTextureStripAtlas> refAtlas(const GrTextureStripAtlas::Desc&);
+    sk_sp<GrTextureStripAtlasBase> addStrip(GrContext*,
+                                            const GrTextureStripAtlasBase::Desc1&,
+                                            const SkBitmap&, int* row);
 
 private:
     void deleteAllAtlases();
@@ -183,27 +200,23 @@ private:
     // Hash table entry for atlases
     class AtlasEntry : public ::SkNoncopyable {
     public:
-        AtlasEntry(const GrTextureStripAtlas::Desc& desc, sk_sp<GrTextureStripAtlas> atlas)
-            : fDesc(desc)
-            , fAtlas(std::move(atlas)) {
-        }
+        AtlasEntry(sk_sp<GrTextureStripAtlasBase> atlas) : fAtlas(std::move(atlas)) {}
         ~AtlasEntry() { }
 
         // for SkTDynamicHash
-        static const GrTextureStripAtlas::Desc& GetKey(const AtlasEntry& entry) {
-            return entry.fDesc;
+        static const GrTextureStripAtlasBase::Desc1& GetKey(const AtlasEntry& entry) {
+            return entry.fAtlas->desc();
         }
-        static uint32_t Hash(const GrTextureStripAtlas::Desc& desc) {
-            return SkOpts::hash(&desc, sizeof(GrTextureStripAtlas::Desc));
+        static uint32_t Hash(const GrTextureStripAtlasBase::Desc1& desc) {
+            return SkOpts::hash(&desc, sizeof(GrTextureStripAtlasBase::Desc1));
         }
 
-        const GrTextureStripAtlas::Desc fDesc;
-        sk_sp<GrTextureStripAtlas> fAtlas;
+        sk_sp<GrTextureStripAtlasBase> fAtlas;
     };
 
-    typedef SkTDynamicHash<AtlasEntry, GrTextureStripAtlas::Desc> AtlasHash;
+    typedef SkTDynamicHash<AtlasEntry, GrTextureStripAtlasBase::Desc1> AtlasHash;
 
-    AtlasHash fAtlasCache;
+    AtlasHash  fAtlasCache;
 };
 
 #endif
