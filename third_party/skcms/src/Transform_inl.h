@@ -64,90 +64,100 @@
 // It helps codegen to call __builtin_memcpy() when we know the byte count at compile time.
 #if defined(__clang__) || defined(__GNUC__)
     #define SI static inline __attribute__((always_inline))
-    #define small_memcpy __builtin_memcpy
 #else
     #define SI static inline
-    #define small_memcpy memcpy
 #endif
 
-// (T)v is a cast when N == 1 and a bit-pun when N>1, so we must use cast<T>(v) to actually cast.
+template <typename T, typename P>
+SI ATTR T load(const P* ptr) {
+    T val;
+    small_memcpy(&val, ptr, sizeof(val));
+    return val;
+}
+template <typename T, typename P>
+SI ATTR void store(P* ptr, const T& val) {
+    small_memcpy(ptr, &val, sizeof(val));
+}
+
+// (T)v is a cast when N == 1 and a bit-pun when N>1,
+// so we use cast<T>(v) to actually cast or bit_pun<T>(v) to bit-pun.
+template <typename D, typename S>
+SI ATTR D cast(const S& v) {
 #if N == 1
-    template <typename D, typename S>
-    SI ATTR D cast(const S& v) { return (D)v; }
+    return (D)v;
 #elif defined(__clang__)
-    template <typename D, typename S>
-    SI ATTR D cast(const S& v) { return __builtin_convertvector(v, D); }
+    return __builtin_convertvector(v, D);
 #elif N == 4
-    template <typename D, typename S>
-    SI ATTR D cast(const S& v) { return D{v[0],v[1],v[2],v[3]}; }
+    return D{v[0],v[1],v[2],v[3]};
 #elif N == 8
-    template <typename D, typename S>
-    SI ATTR D cast(const S& v) { return D{v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7]}; }
+    return D{v[0],v[1],v[2],v[3], v[4],v[5],v[6],v[7]};
 #elif N == 16
-    template <typename D, typename S>
-    SI ATTR D cast(const S& v) { return D{v[0],v[1],v[ 2],v[ 3], v[ 4],v[ 5],v[ 6],v[ 7],
-                                          v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]}; }
+    return D{v[0],v[1],v[ 2],v[ 3], v[ 4],v[ 5],v[ 6],v[ 7],
+             v[8],v[9],v[10],v[11], v[12],v[13],v[14],v[15]}; }
 #endif
+}
+
+template <typename D, typename S>
+SI ATTR D bit_pun(const S& v) {
+    static_assert(sizeof(D) == sizeof(v), "");
+    return load<D>(&v);
+}
 
 // When we convert from float to fixed point, it's very common to want to round,
 // and for some reason compilers generate better code when converting to int32_t.
 // To serve both those ends, we use this function to_fixed() instead of direct cast().
 SI ATTR I32 to_fixed(F f) {  return cast<I32>(f + 0.5f); }
 
-// Comparisons result in bool when N == 1, in an I32 mask when N > 1.
-// We've made this a macro so it can be type-generic...
-// always (T) cast the result to the type you expect the result to be.
+template <typename T>
+SI ATTR T if_then_else(I32 cond, T t, T e) {
 #if N == 1
-    #define if_then_else(c,t,e) ( (c) ? (t) : (e) )
+    return cond ? t : e;
 #else
-    #define if_then_else(c,t,e) ( ((c) & (I32)(t)) | (~(c) & (I32)(e)) )
+    return bit_pun<T>( ( cond & bit_pun<I32>(t)) |
+                       (~cond & bit_pun<I32>(e)) );
 #endif
+}
 
+SI ATTR F F_from_Half(U16 half) {
 #if defined(USING_NEON_F16C)
-    SI ATTR F   F_from_Half(U16 half) { return      vcvt_f32_f16((float16x4_t)half); }
-    SI ATTR U16 Half_from_F(F      f) { return (U16)vcvt_f16_f32(                f); }
+    return vcvt_f32_f16((float16x4_t)half);
 #elif defined(__AVX512F__)
-    SI ATTR F   F_from_Half(U16 half) { return (F)_mm512_cvtph_ps((__m256i)half); }
-    SI ATTR U16 Half_from_F(F f) {
-        return (U16)_mm512_cvtps_ph((__m512 )f, _MM_FROUND_CUR_DIRECTION );
-    }
+    return (F)_mm512_cvtph_ps((__m256i)half);
 #elif defined(USING_AVX_F16C)
-    SI ATTR F F_from_Half(U16 half) {
-        typedef int16_t __attribute__((vector_size(16))) I16;
-        return __builtin_ia32_vcvtph2ps256((I16)half);
-    }
-    SI ATTR U16 Half_from_F(F f) {
-        return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
-    }
+    typedef int16_t __attribute__((vector_size(16))) I16;
+    return __builtin_ia32_vcvtph2ps256((I16)half);
 #else
-    SI ATTR F F_from_Half(U16 half) {
-        U32 wide = cast<U32>(half);
-        // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
-        U32 s  = wide & 0x8000,
-            em = wide ^ s;
+    U32 wide = cast<U32>(half);
+    // A half is 1-5-10 sign-exponent-mantissa, with 15 exponent bias.
+    U32 s  = wide & 0x8000,
+        em = wide ^ s;
 
-        // Constructing the float is easy if the half is not denormalized.
-        U32 norm_bits = (s<<16) + (em<<13) + ((127-15)<<23);
-        F norm;
-        small_memcpy(&norm, &norm_bits, sizeof(norm));
+    // Constructing the float is easy if the half is not denormalized.
+    F norm = bit_pun<F>( (s<<16) + (em<<13) + ((127-15)<<23) );
 
-        // Simply flush all denorm half floats to zero.
-        return (F)if_then_else(em < 0x0400, F0, norm);
-    }
-
-    SI ATTR U16 Half_from_F(F f) {
-        // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
-        U32 sem;
-        small_memcpy(&sem, &f, sizeof(sem));
-
-        U32 s  = sem & 0x80000000,
-            em = sem ^ s;
-
-        // For simplicity we flush denorm half floats (including all denorm floats) to zero.
-        return cast<U16>((U32)if_then_else(em < 0x38800000, (U32)F0
-                                                          , (s>>16) + (em>>13) - ((127-15)<<10)));
-    }
+    // Simply flush all denorm half floats to zero.
+    return if_then_else(em < 0x0400, F0, norm);
 #endif
+}
+
+SI ATTR U16 Half_from_F(F f) {
+#if defined(USING_NEON_F16C)
+    return (U16)vcvt_f16_f32(f);
+#elif defined(__AVX512F__)
+    return (U16)_mm512_cvtps_ph((__m512 )f, _MM_FROUND_CUR_DIRECTION );
+#elif defined(USING_AVX_F16C)
+    return (U16)__builtin_ia32_vcvtps2ph256(f, 0x04/*_MM_FROUND_CUR_DIRECTION*/);
+#else
+    // A float is 1-8-23 sign-exponent-mantissa, with 127 exponent bias.
+    U32 sem = bit_pun<U32>(f),
+        s   = sem & 0x80000000,
+         em = sem ^ s;
+
+    // For simplicity we flush denorm half floats (including all denorm floats) to zero.
+    return cast<U16>(if_then_else(em < 0x38800000, (U32)F0
+                                                 , (s>>16) + (em>>13) - ((127-15)<<10)));
+#endif
+}
 
 // Swap high and low bytes of 16-bit lanes, converting between big-endian and little-endian.
 #if defined(USING_NEON)
@@ -165,8 +175,8 @@ SI ATTR U64 swap_endian_16x4(const U64& rgba) {
     SI ATTR F min_(F x, F y) { return (F)vminq_f32((float32x4_t)x, (float32x4_t)y); }
     SI ATTR F max_(F x, F y) { return (F)vmaxq_f32((float32x4_t)x, (float32x4_t)y); }
 #else
-    SI ATTR F min_(F x, F y) { return (F)if_then_else(x > y, y, x); }
-    SI ATTR F max_(F x, F y) { return (F)if_then_else(x < y, y, x); }
+    SI ATTR F min_(F x, F y) { return if_then_else(x > y, y, x); }
+    SI ATTR F max_(F x, F y) { return if_then_else(x < y, y, x); }
 #endif
 
 SI ATTR F floor_(F x) {
@@ -184,7 +194,7 @@ SI ATTR F floor_(F x) {
     // Round trip through integers with a truncating cast.
     F roundtrip = cast<F>(cast<I32>(x));
     // If x is negative, truncating gives the ceiling instead of the floor.
-    return roundtrip - (F)if_then_else(roundtrip > x, F1, F0);
+    return roundtrip - if_then_else(roundtrip > x, F1, F0);
 
     // This implementation fails for values of x that are outside
     // the range an integer can represent.  We expect most x to be small.
@@ -193,15 +203,12 @@ SI ATTR F floor_(F x) {
 
 SI ATTR F approx_log2(F x) {
     // The first approximation of log2(x) is its exponent 'e', minus 127.
-    I32 bits;
-    small_memcpy(&bits, &x, sizeof(bits));
+    I32 bits = bit_pun<I32>(x);
 
     F e = cast<F>(bits) * (1.0f / (1<<23));
 
     // If we use the mantissa too we can refine the error signficantly.
-    I32 m_bits = (bits & 0x007fffff) | 0x3f000000;
-    F m;
-    small_memcpy(&m, &m_bits, sizeof(m));
+    F m = bit_pun<F>( (bits & 0x007fffff) | 0x3f000000 );
 
     return e - 124.225514990f
              -   1.498030302f*m
@@ -214,68 +221,89 @@ SI ATTR F approx_exp2(F x) {
     I32 bits = cast<I32>((1.0f * (1<<23)) * (x + 121.274057500f
                                                -   1.490129070f*fract
                                                +  27.728023300f/(4.84252568f - fract)));
-    small_memcpy(&x, &bits, sizeof(x));
-    return x;
+    return bit_pun<F>(bits);
 }
 
 SI ATTR F approx_pow(F x, float y) {
-    return (F)if_then_else((x == F0) | (x == F1), x
-                                                , approx_exp2(approx_log2(x) * y));
+    return if_then_else((x == F0) | (x == F1), x
+                                             , approx_exp2(approx_log2(x) * y));
 }
 
 // Return tf(x).
 SI ATTR F apply_tf(const skcms_TransferFunction* tf, F x) {
-    F sign = (F)if_then_else(x < 0, -F1, F1);
+    F sign = if_then_else(x < 0, -F1, F1);
     x *= sign;
 
     F linear    =            tf->c*x + tf->f;
     F nonlinear = approx_pow(tf->a*x + tf->b, tf->g) + tf->e;
 
-    return sign * (F)if_then_else(x < tf->d, linear, nonlinear);
+    return sign * if_then_else(x < tf->d, linear, nonlinear);
 }
 
+
 // Strided loads and stores of N values, starting from p.
+template <typename T, typename P>
+SI ATTR T load_3(const P* p) {
 #if N == 1
-    #define LOAD_3(T, p) (T)(p)[0]
-    #define LOAD_4(T, p) (T)(p)[0]
-    #define STORE_3(p, v) (p)[0] = v
-    #define STORE_4(p, v) (p)[0] = v
-#elif N == 4 && !defined(USING_NEON)
-    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9]}
-    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12]};
-    #define STORE_3(p, v) (p)[0] = (v)[0]; (p)[3] = (v)[1]; (p)[6] = (v)[2]; (p)[ 9] = (v)[3]
-    #define STORE_4(p, v) (p)[0] = (v)[0]; (p)[4] = (v)[1]; (p)[8] = (v)[2]; (p)[12] = (v)[3]
+    return (T)p[0];
+#elif N == 4
+    return T{p[ 0],p[ 3],p[ 6],p[ 9]};
 #elif N == 8
-    #define LOAD_3(T, p) T{(p)[0], (p)[3], (p)[6], (p)[ 9],  (p)[12], (p)[15], (p)[18], (p)[21]}
-    #define LOAD_4(T, p) T{(p)[0], (p)[4], (p)[8], (p)[12],  (p)[16], (p)[20], (p)[24], (p)[28]}
-    #define STORE_3(p, v) (p)[ 0] = (v)[0]; (p)[ 3] = (v)[1]; (p)[ 6] = (v)[2]; (p)[ 9] = (v)[3]; \
-                          (p)[12] = (v)[4]; (p)[15] = (v)[5]; (p)[18] = (v)[6]; (p)[21] = (v)[7]
-    #define STORE_4(p, v) (p)[ 0] = (v)[0]; (p)[ 4] = (v)[1]; (p)[ 8] = (v)[2]; (p)[12] = (v)[3]; \
-                          (p)[16] = (v)[4]; (p)[20] = (v)[5]; (p)[24] = (v)[6]; (p)[28] = (v)[7]
+    return T{p[ 0],p[ 3],p[ 6],p[ 9], p[12],p[15],p[18],p[21]};
 #elif N == 16
-    // TODO: revisit with AVX-512 gathers and scatters?
-    #define LOAD_3(T, p) T{(p)[ 0], (p)[ 3], (p)[ 6], (p)[ 9], \
-                           (p)[12], (p)[15], (p)[18], (p)[21], \
-                           (p)[24], (p)[27], (p)[30], (p)[33], \
-                           (p)[36], (p)[39], (p)[42], (p)[45]}
-
-    #define LOAD_4(T, p) T{(p)[ 0], (p)[ 4], (p)[ 8], (p)[12], \
-                           (p)[16], (p)[20], (p)[24], (p)[28], \
-                           (p)[32], (p)[36], (p)[40], (p)[44], \
-                           (p)[48], (p)[52], (p)[56], (p)[60]}
-
-    #define STORE_3(p, v) \
-        (p)[ 0] = (v)[ 0]; (p)[ 3] = (v)[ 1]; (p)[ 6] = (v)[ 2]; (p)[ 9] = (v)[ 3]; \
-        (p)[12] = (v)[ 4]; (p)[15] = (v)[ 5]; (p)[18] = (v)[ 6]; (p)[21] = (v)[ 7]; \
-        (p)[24] = (v)[ 8]; (p)[27] = (v)[ 9]; (p)[30] = (v)[10]; (p)[33] = (v)[11]; \
-        (p)[36] = (v)[12]; (p)[39] = (v)[13]; (p)[42] = (v)[14]; (p)[45] = (v)[15]
-
-    #define STORE_4(p, v) \
-        (p)[ 0] = (v)[ 0]; (p)[ 4] = (v)[ 1]; (p)[ 8] = (v)[ 2]; (p)[12] = (v)[ 3]; \
-        (p)[16] = (v)[ 4]; (p)[20] = (v)[ 5]; (p)[24] = (v)[ 6]; (p)[28] = (v)[ 7]; \
-        (p)[32] = (v)[ 8]; (p)[36] = (v)[ 9]; (p)[40] = (v)[10]; (p)[44] = (v)[11]; \
-        (p)[48] = (v)[12]; (p)[52] = (v)[13]; (p)[56] = (v)[14]; (p)[60] = (v)[15]
+    return T{p[ 0],p[ 3],p[ 6],p[ 9], p[12],p[15],p[18],p[21],
+             p[24],p[27],p[30],p[33], p[36],p[39],p[42],p[45]};
 #endif
+}
+
+template <typename T, typename P>
+SI ATTR T load_4(const P* p) {
+#if N == 1
+    return (T)p[0];
+#elif N == 4
+    return T{p[ 0],p[ 4],p[ 8],p[12]};
+#elif N == 8
+    return T{p[ 0],p[ 4],p[ 8],p[12], p[16],p[20],p[24],p[28]};
+#elif N == 16
+    return T{p[ 0],p[ 4],p[ 8],p[12], p[16],p[20],p[24],p[28],
+             p[32],p[36],p[40],p[44], p[48],p[52],p[56],p[60]};
+#endif
+}
+
+template <typename T, typename P>
+SI ATTR void store_3(P* p, const T& v) {
+#if N == 1
+    p[0] = v;
+#elif N == 4
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+#elif N == 8
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+    p[12] = v[ 4]; p[15] = v[ 5]; p[18] = v[ 6]; p[21] = v[ 7];
+#elif N == 16
+    p[ 0] = v[ 0]; p[ 3] = v[ 1]; p[ 6] = v[ 2]; p[ 9] = v[ 3];
+    p[12] = v[ 4]; p[15] = v[ 5]; p[18] = v[ 6]; p[21] = v[ 7];
+    p[24] = v[ 8]; p[27] = v[ 9]; p[30] = v[10]; p[33] = v[11];
+    p[36] = v[12]; p[39] = v[13]; p[42] = v[14]; p[45] = v[15];
+#endif
+}
+
+template <typename T, typename P>
+SI ATTR void store_4(P* p, const T& v) {
+#if N == 1
+    p[0] = v;
+#elif N == 4
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+#elif N == 8
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+    p[16] = v[ 4]; p[20] = v[ 5]; p[24] = v[ 6]; p[28] = v[ 7];
+#elif N == 16
+    p[ 0] = v[ 0]; p[ 4] = v[ 1]; p[ 8] = v[ 2]; p[12] = v[ 3];
+    p[16] = v[ 4]; p[20] = v[ 5]; p[24] = v[ 6]; p[28] = v[ 7];
+    p[32] = v[ 8]; p[36] = v[ 9]; p[40] = v[10]; p[44] = v[11];
+    p[48] = v[12]; p[52] = v[13]; p[56] = v[14]; p[60] = v[15];
+#endif
+}
+
 
 SI ATTR U8 gather_8(const uint8_t* p, I32 ix) {
 #if N == 1
@@ -296,9 +324,7 @@ SI ATTR U8 gather_8(const uint8_t* p, I32 ix) {
 
 // Helper for gather_16(), loading the ix'th 16-bit value from p.
 SI ATTR uint16_t load_16(const uint8_t* p, int ix) {
-    uint16_t v;
-    small_memcpy(&v, p + 2*ix, 2);
-    return v;
+    return load<uint16_t>(p + 2*ix);
 }
 
 SI ATTR U16 gather_16(const uint8_t* p, I32 ix) {
@@ -321,14 +347,10 @@ SI ATTR U16 gather_16(const uint8_t* p, I32 ix) {
 #if !defined(__AVX2__)
     // Helpers for gather_24/48(), loading the ix'th 24/48-bit value from p, and 1/2 extra bytes.
     SI ATTR uint32_t load_24_32(const uint8_t* p, int ix) {
-        uint32_t v;
-        small_memcpy(&v, p + 3*ix, 4);
-        return v;
+        return load<uint32_t>(p + 3*ix);
     }
     SI ATTR uint64_t load_48_64(const uint8_t* p, int ix) {
-        uint64_t v;
-        small_memcpy(&v, p + 6*ix, 8);
-        return v;
+        return load<uint64_t>(p + 6*ix);
     }
 #endif
 
@@ -348,8 +370,7 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
 #elif N == 8
     // The gather instruction here doesn't need any particular alignment,
     // but the intrinsic takes a const int*.
-    const int* p4;
-    small_memcpy(&p4, &p, sizeof(p4));
+    const int* p4 = bit_pun<const int*>(p);
     I32 zero = { 0, 0, 0, 0,  0, 0, 0, 0},
         mask = {-1,-1,-1,-1, -1,-1,-1,-1};
     #if defined(__clang__)
@@ -360,8 +381,7 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
 #elif N == 16
     // The intrinsic is supposed to take const void* now, but it takes const int*, just like AVX2.
     // And AVX-512 swapped the order of arguments.  :/
-    const int* p4;
-    small_memcpy(&p4, &p, sizeof(p4));
+    const int* p4 = bit_pun<const int*>(p);
     U32 v = (U32)_mm512_i32gather_epi32((__m512i)(3*ix), p4, 1);
 #endif
 
@@ -391,8 +411,7 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
 
         // The gather instruction here doesn't need any particular alignment,
         // but the intrinsic takes a const long long*.
-        const long long int* p8;
-        small_memcpy(&p8, &p, sizeof(p8));
+        const long long int* p8 = bit_pun<const long long int*>(p);
 
         Half_I64 zero = { 0, 0, 0, 0},
                  mask = {-1,-1,-1,-1};
@@ -408,15 +427,14 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
             Half_I64 lo = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_lo, mask, 1),
                      hi = (Half_I64)__builtin_ia32_gathersiv4di(zero, p8, ix_hi, mask, 1);
         #endif
-        small_memcpy((char*)v +  0, &lo, 32);
-        small_memcpy((char*)v + 32, &hi, 32);
+        store((char*)v +  0, lo);
+        store((char*)v + 32, hi);
     #elif N == 16
-        const long long int* p8;
-        small_memcpy(&p8, &p, sizeof(p8));
+        const long long int* p8 = bit_pun<const long long int*>(p);
         __m512i lo = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 0), p8, 1),
                 hi = _mm512_i32gather_epi64(_mm512_extracti32x8_epi32((__m512i)(6*ix), 1), p8, 1);
-        small_memcpy((char*)v +  0, &lo, 64);
-        small_memcpy((char*)v + 64, &hi, 64);
+        store((char*)v +  0, lo);
+        store((char*)v + 64, hi);
     #endif
 
         *v >>= 16;
@@ -435,11 +453,7 @@ SI ATTR F F_from_U16_BE(U16 v) {
 }
 
 SI ATTR F minus_1_ulp(F v) {
-    I32 bits;
-    small_memcpy(&bits, &v, sizeof(bits));
-    bits = bits - 1;
-    small_memcpy(&v, &bits, sizeof(bits));
-    return v;
+    return bit_pun<F>( bit_pun<I32>(v) - 1 );
 }
 
 SI ATTR F table_8(const skcms_Curve* curve, F v) {
@@ -559,20 +573,15 @@ static void exec_ops(const Op* ops, const void** args,
             case Op_noop: break;
 
             case Op_load_a8:{
-                U8 alpha;
-                small_memcpy(&alpha, src + i, N);
-                a = F_from_U8(alpha);
+                a = F_from_U8(load<U8>(src + 1*i));
             } break;
 
             case Op_load_g8:{
-                U8 gray;
-                small_memcpy(&gray, src + i, N);
-                r = g = b = F_from_U8(gray);
+                r = g = b = F_from_U8(load<U8>(src + 1*i));
             } break;
 
             case Op_load_4444:{
-                U16 abgr;
-                small_memcpy(&abgr, src + 2*i, 2*N);
+                U16 abgr = load<U16>(src + 2*i);
 
                 r = cast<F>((abgr >> 12) & 0xf) * (1/15.0f);
                 g = cast<F>((abgr >>  8) & 0xf) * (1/15.0f);
@@ -581,8 +590,7 @@ static void exec_ops(const Op* ops, const void** args,
             } break;
 
             case Op_load_565:{
-                U16 rgb;
-                small_memcpy(&rgb, src + 2*i, 2*N);
+                U16 rgb = load<U16>(src + 2*i);
 
                 r = cast<F>(rgb & (uint16_t)(31<< 0)) * (1.0f / (31<< 0));
                 g = cast<F>(rgb & (uint16_t)(63<< 5)) * (1.0f / (63<< 5));
@@ -609,16 +617,15 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>((U16)v.val[1]) * (1/255.0f);
                 b = cast<F>((U16)v.val[2]) * (1/255.0f);
             #else
-                r = cast<F>(LOAD_3(U32, rgb+0) ) * (1/255.0f);
-                g = cast<F>(LOAD_3(U32, rgb+1) ) * (1/255.0f);
-                b = cast<F>(LOAD_3(U32, rgb+2) ) * (1/255.0f);
+                r = cast<F>(load_3<U32>(rgb+0) ) * (1/255.0f);
+                g = cast<F>(load_3<U32>(rgb+1) ) * (1/255.0f);
+                b = cast<F>(load_3<U32>(rgb+2) ) * (1/255.0f);
             #endif
                 a = F1;
             } break;
 
             case Op_load_8888:{
-                U32 rgba;
-                small_memcpy(&rgba, src + 4*i, 4*N);
+                U32 rgba = load<U32>(src + 4*i);
 
                 r = cast<F>((rgba >>  0) & 0xff) * (1/255.0f);
                 g = cast<F>((rgba >>  8) & 0xff) * (1/255.0f);
@@ -627,8 +634,7 @@ static void exec_ops(const Op* ops, const void** args,
             } break;
 
             case Op_load_1010102:{
-                U32 rgba;
-                small_memcpy(&rgba, src + 4*i, 4*N);
+                U32 rgba = load<U32>(src + 4*i);
 
                 r = cast<F>((rgba >>  0) & 0x3ff) * (1/1023.0f);
                 g = cast<F>((rgba >> 10) & 0x3ff) * (1/1023.0f);
@@ -646,9 +652,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>(swap_endian_16((U16)v.val[1])) * (1/65535.0f);
                 b = cast<F>(swap_endian_16((U16)v.val[2])) * (1/65535.0f);
             #else
-                U32 R = LOAD_3(U32, rgb+0),
-                    G = LOAD_3(U32, rgb+1),
-                    B = LOAD_3(U32, rgb+2);
+                U32 R = load_3<U32>(rgb+0),
+                    G = load_3<U32>(rgb+1),
+                    B = load_3<U32>(rgb+2);
                 // R,G,B are big-endian 16-bit, so byte swap them before converting to float.
                 r = cast<F>((R & 0x00ff)<<8 | (R & 0xff00)>>8) * (1/65535.0f);
                 g = cast<F>((G & 0x00ff)<<8 | (G & 0xff00)>>8) * (1/65535.0f);
@@ -668,10 +674,8 @@ static void exec_ops(const Op* ops, const void** args,
                 b = cast<F>(swap_endian_16((U16)v.val[2])) * (1/65535.0f);
                 a = cast<F>(swap_endian_16((U16)v.val[3])) * (1/65535.0f);
             #else
-                U64 px;
-                small_memcpy(&px, rgba, 8*N);
+                U64 px = swap_endian_16x4(load<U64>(rgba));
 
-                px = swap_endian_16x4(px);
                 r = cast<F>((px >>  0) & 0xffff) * (1/65535.0f);
                 g = cast<F>((px >> 16) & 0xffff) * (1/65535.0f);
                 b = cast<F>((px >> 32) & 0xffff) * (1/65535.0f);
@@ -689,9 +693,9 @@ static void exec_ops(const Op* ops, const void** args,
                     G = (U16)v.val[1],
                     B = (U16)v.val[2];
             #else
-                U16 R = LOAD_3(U16, rgb+0),
-                    G = LOAD_3(U16, rgb+1),
-                    B = LOAD_3(U16, rgb+2);
+                U16 R = load_3<U16>(rgb+0),
+                    G = load_3<U16>(rgb+1),
+                    B = load_3<U16>(rgb+2);
             #endif
                 r = F_from_Half(R);
                 g = F_from_Half(G);
@@ -710,8 +714,7 @@ static void exec_ops(const Op* ops, const void** args,
                     B = (U16)v.val[2],
                     A = (U16)v.val[3];
             #else
-                U64 px;
-                small_memcpy(&px, rgba, 8*N);
+                U64 px = load<U64>(rgba);
                 U16 R = cast<U16>((px >>  0) & 0xffff),
                     G = cast<U16>((px >> 16) & 0xffff),
                     B = cast<U16>((px >> 32) & 0xffff),
@@ -733,9 +736,9 @@ static void exec_ops(const Op* ops, const void** args,
                 g = (F)v.val[1];
                 b = (F)v.val[2];
             #else
-                r = LOAD_3(F, rgb+0);
-                g = LOAD_3(F, rgb+1);
-                b = LOAD_3(F, rgb+2);
+                r = load_3<F>(rgb+0);
+                g = load_3<F>(rgb+1);
+                b = load_3<F>(rgb+2);
             #endif
                 a = F1;
             } break;
@@ -751,10 +754,10 @@ static void exec_ops(const Op* ops, const void** args,
                 b = (F)v.val[2];
                 a = (F)v.val[3];
             #else
-                r = LOAD_4(F, rgba+0);
-                g = LOAD_4(F, rgba+1);
-                b = LOAD_4(F, rgba+2);
-                a = LOAD_4(F, rgba+3);
+                r = load_4<F>(rgba+0);
+                g = load_4<F>(rgba+1);
+                b = load_4<F>(rgba+2);
+                a = load_4<F>(rgba+3);
             #endif
             } break;
 
@@ -789,7 +792,7 @@ static void exec_ops(const Op* ops, const void** args,
             } break;
 
             case Op_unpremul:{
-                F scale = (F)if_then_else(F1 / a < INFINITY_, F1 / a, F0);
+                F scale = if_then_else(F1 / a < INFINITY_, F1 / a, F0);
                 r *= scale;
                 g *= scale;
                 b *= scale;
@@ -832,9 +835,9 @@ static void exec_ops(const Op* ops, const void** args,
                   X = Y + A*(1/500.0f),
                   Z = Y - B*(1/200.0f);
 
-                X = (F)if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
-                Y = (F)if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
-                Z = (F)if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
+                X = if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
+                Y = if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
+                Z = if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
 
                 // Adjust to XYZD50 illuminant, and stuff back into r,g,b for the next op.
                 r = X * 0.9642f;
@@ -884,29 +887,25 @@ static void exec_ops(const Op* ops, const void** args,
     // Notice, from here on down the store_ ops all return, ending the loop.
 
             case Op_store_a8: {
-                U8 alpha = cast<U8>(to_fixed(a * 255));
-                small_memcpy(dst + i, &alpha, N);
+                store(dst + 1*i, cast<U8>(to_fixed(a * 255)));
             } return;
 
             case Op_store_g8: {
                 // g should be holding luminance (Y) (r,g,b ~~~> X,Y,Z)
-                U8 gray = cast<U8>(to_fixed(g * 255));
-                small_memcpy(dst + i, &gray, N);
+                store(dst + 1*i, cast<U8>(to_fixed(g * 255)));
             } return;
 
             case Op_store_4444: {
-                U16 abgr = cast<U16>(to_fixed(r * 15) << 12)
-                         | cast<U16>(to_fixed(g * 15) <<  8)
-                         | cast<U16>(to_fixed(b * 15) <<  4)
-                         | cast<U16>(to_fixed(a * 15) <<  0);
-                small_memcpy(dst + 2*i, &abgr, 2*N);
+                store<U16>(dst + 2*i, cast<U16>(to_fixed(r * 15) << 12)
+                                    | cast<U16>(to_fixed(g * 15) <<  8)
+                                    | cast<U16>(to_fixed(b * 15) <<  4)
+                                    | cast<U16>(to_fixed(a * 15) <<  0));
             } return;
 
             case Op_store_565: {
-                U16 rgb = cast<U16>(to_fixed(r * 31) <<  0 )
-                        | cast<U16>(to_fixed(g * 63) <<  5 )
-                        | cast<U16>(to_fixed(b * 31) << 11 );
-                small_memcpy(dst + 2*i, &rgb, 2*N);
+                store<U16>(dst + 2*i, cast<U16>(to_fixed(r * 31) <<  0 )
+                                    | cast<U16>(to_fixed(g * 63) <<  5 )
+                                    | cast<U16>(to_fixed(b * 31) << 11 ));
             } return;
 
             case Op_store_888: {
@@ -925,26 +924,24 @@ static void exec_ops(const Op* ops, const void** args,
                 vst3_lane_u8(rgb+6, v, 4);
                 vst3_lane_u8(rgb+9, v, 6);
             #else
-                STORE_3(rgb+0, cast<U8>(to_fixed(r * 255)) );
-                STORE_3(rgb+1, cast<U8>(to_fixed(g * 255)) );
-                STORE_3(rgb+2, cast<U8>(to_fixed(b * 255)) );
+                store_3(rgb+0, cast<U8>(to_fixed(r * 255)) );
+                store_3(rgb+1, cast<U8>(to_fixed(g * 255)) );
+                store_3(rgb+2, cast<U8>(to_fixed(b * 255)) );
             #endif
             } return;
 
             case Op_store_8888: {
-                U32 rgba = cast<U32>(to_fixed(r * 255) <<  0)
-                         | cast<U32>(to_fixed(g * 255) <<  8)
-                         | cast<U32>(to_fixed(b * 255) << 16)
-                         | cast<U32>(to_fixed(a * 255) << 24);
-                small_memcpy(dst + 4*i, &rgba, 4*N);
+                store(dst + 4*i, cast<U32>(to_fixed(r * 255) <<  0)
+                               | cast<U32>(to_fixed(g * 255) <<  8)
+                               | cast<U32>(to_fixed(b * 255) << 16)
+                               | cast<U32>(to_fixed(a * 255) << 24));
             } return;
 
             case Op_store_1010102: {
-                U32 rgba = cast<U32>(to_fixed(r * 1023) <<  0)
-                         | cast<U32>(to_fixed(g * 1023) << 10)
-                         | cast<U32>(to_fixed(b * 1023) << 20)
-                         | cast<U32>(to_fixed(a *    3) << 30);
-                small_memcpy(dst + 4*i, &rgba, 4*N);
+                store(dst + 4*i, cast<U32>(to_fixed(r * 1023) <<  0)
+                               | cast<U32>(to_fixed(g * 1023) << 10)
+                               | cast<U32>(to_fixed(b * 1023) << 20)
+                               | cast<U32>(to_fixed(a *    3) << 30));
             } return;
 
             case Op_store_161616: {
@@ -962,9 +959,9 @@ static void exec_ops(const Op* ops, const void** args,
                 I32 R = to_fixed(r * 65535),
                     G = to_fixed(g * 65535),
                     B = to_fixed(b * 65535);
-                STORE_3(rgb+0, cast<U16>((R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
-                STORE_3(rgb+1, cast<U16>((G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
-                STORE_3(rgb+2, cast<U16>((B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
+                store_3(rgb+0, cast<U16>((R & 0x00ff) << 8 | (R & 0xff00) >> 8) );
+                store_3(rgb+1, cast<U16>((G & 0x00ff) << 8 | (G & 0xff00) >> 8) );
+                store_3(rgb+2, cast<U16>((B & 0x00ff) << 8 | (B & 0xff00) >> 8) );
             #endif
 
             } return;
@@ -986,8 +983,7 @@ static void exec_ops(const Op* ops, const void** args,
                        | cast<U64>(to_fixed(g * 65535)) << 16
                        | cast<U64>(to_fixed(b * 65535)) << 32
                        | cast<U64>(to_fixed(a * 65535)) << 48;
-                px = swap_endian_16x4(px);
-                small_memcpy(rgba, &px, 8*N);
+                store(rgba, swap_endian_16x4(px));
             #endif
             } return;
 
@@ -1007,9 +1003,9 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst3_u16(rgb, v);
             #else
-                STORE_3(rgb+0, R);
-                STORE_3(rgb+1, G);
-                STORE_3(rgb+2, B);
+                store_3(rgb+0, R);
+                store_3(rgb+1, G);
+                store_3(rgb+2, B);
             #endif
             } return;
 
@@ -1031,11 +1027,10 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst4_u16(rgba, v);
             #else
-                U64 px = cast<U64>(R) <<  0
-                       | cast<U64>(G) << 16
-                       | cast<U64>(B) << 32
-                       | cast<U64>(A) << 48;
-                small_memcpy(rgba, &px, 8*N);
+                store(rgba, cast<U64>(R) <<  0
+                          | cast<U64>(G) << 16
+                          | cast<U64>(B) << 32
+                          | cast<U64>(A) << 48);
             #endif
 
             } return;
@@ -1052,9 +1047,9 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst3q_f32(rgb, v);
             #else
-                STORE_3(rgb+0, r);
-                STORE_3(rgb+1, g);
-                STORE_3(rgb+2, b);
+                store_3(rgb+0, r);
+                store_3(rgb+1, g);
+                store_3(rgb+2, b);
             #endif
             } return;
 
@@ -1071,10 +1066,10 @@ static void exec_ops(const Op* ops, const void** args,
                 }};
                 vst4q_f32(rgba, v);
             #else
-                STORE_4(rgba+0, r);
-                STORE_4(rgba+1, g);
-                STORE_4(rgba+2, b);
-                STORE_4(rgba+3, a);
+                store_4(rgba+0, r);
+                store_4(rgba+1, g);
+                store_4(rgba+2, b);
+                store_4(rgba+3, a);
             #endif
             } return;
         }
@@ -1113,17 +1108,4 @@ static void run_program(const Op* program, const void** arguments,
 
 #if defined(USING_AVX_F16C)
     #undef  USING_AVX_F16C
-#endif
-
-#if defined(LOAD_3)
-    #undef  LOAD_3
-#endif
-#if defined(LOAD_4)
-    #undef  LOAD_4
-#endif
-#if defined(STORE_3)
-    #undef  STORE_3
-#endif
-#if defined(STORE_4)
-    #undef  STORE_4
 #endif
