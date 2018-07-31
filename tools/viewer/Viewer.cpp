@@ -47,9 +47,7 @@
     #include "SlideDir.h"
 #endif
 
-#if defined(SK_ENABLE_SKOTTIE)
-    #include "SkottieSlide.h"
-#endif
+#include "SkottieSlide.h"
 
 #if !(defined(SK_BUILD_FOR_WIN) && defined(__clang__))
     #include "NIMASlide.h"
@@ -526,12 +524,10 @@ void Viewer::initSlides() {
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<ImageSlide>(name, path);}
         },
-#if defined(SK_ENABLE_SKOTTIE)
         { ".json", "skottie-dir", FLAGS_lotties,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SkottieSlide>(name, path);}
         },
-#endif
         { ".svg", "svg-dir", FLAGS_svgs,
             [](const SkString& name, const SkString& path) -> sk_sp<Slide> {
                 return sk_make_sp<SvgSlide>(name, path);}

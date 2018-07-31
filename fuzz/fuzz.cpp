@@ -60,9 +60,7 @@ static constexpr char g_type_message[] = "How to interpret --bytes, one of:\n"
                                          "region_set_path\n"
                                          "skp\n"
                                          "sksl2glsl\n"
-#if defined(SK_ENABLE_SKOTTIE)
                                          "skottie_json\n"
-#endif
                                          "textblob";
 
 DEFINE_string2(type, t, "", g_type_message);
@@ -91,9 +89,7 @@ static void print_api_names();
 static void fuzz_sksl2glsl(sk_sp<SkData>);
 #endif
 
-#if defined(SK_ENABLE_SKOTTIE)
 static void fuzz_skottie_json(sk_sp<SkData>);
-#endif
 
 int main(int argc, char** argv) {
     SkCommandLineFlags::SetUsage("Usage: fuzz -t <type> -b <path/to/file> [-n api-to-fuzz]\n"
@@ -189,12 +185,10 @@ static int fuzz_file(SkString path, SkString type) {
         fuzz_skpipe(bytes);
         return 0;
     }
-#if defined(SK_ENABLE_SKOTTIE)
     if (type.equals("skottie_json")) {
         fuzz_skottie_json(bytes);
         return 0;
     }
-#endif
     if (type.equals("skp")) {
         fuzz_skp(bytes);
         return 0;
@@ -279,14 +273,12 @@ static void fuzz_json(sk_sp<SkData> bytes){
     SkDebugf("[terminated] Done parsing!\n");
 }
 
-#if defined(SK_ENABLE_SKOTTIE)
 void FuzzSkottieJSON(sk_sp<SkData> bytes);
 
 static void fuzz_skottie_json(sk_sp<SkData> bytes){
     FuzzSkottieJSON(bytes);
     SkDebugf("[terminated] Done animating!\n");
 }
-#endif
 
 // This adds up the first 1024 bytes and returns it as an 8 bit integer.  This allows afl-fuzz to
 // deterministically excercise different paths, or *options* (such as different scaling sizes or

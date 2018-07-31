@@ -10,8 +10,6 @@
 #include "SkPath.h"
 #include "SkPoint3.h"
 
-#ifdef SK_ENABLE_SKOTTIE
-
 #include "SkAnimTimer.h"
 #include "Resources.h"
 #include "SkStream.h"
@@ -204,6 +202,3 @@ protected:
 };
 
 DEF_GM(return new GM3d;)
-
-#endif
-
