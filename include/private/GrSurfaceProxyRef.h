@@ -15,7 +15,17 @@ class GrSurfaceProxy;
 
 class GrSurfaceProxyRef : SkNoncopyable {
 public:
-    virtual ~GrSurfaceProxyRef();
+    GrSurfaceProxyRef();
+
+    /** ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    GrSurfaceProxyRef(sk_sp<GrSurfaceProxy>, GrIOType);
+
+    ~GrSurfaceProxyRef();
+
+    /** ioType expresses what type of IO operations will be marked as
+        pending on the resource when markPendingIO is called. */
+    void setProxy(sk_sp<GrSurfaceProxy>, GrIOType);
 
     GrSurfaceProxy* get() const { return fProxy; }
 
@@ -30,18 +40,6 @@ public:
         is called. */
     void reset();
 
-protected:
-    GrSurfaceProxyRef();
-
-    /** ioType expresses what type of IO operations will be marked as
-        pending on the resource when markPendingIO is called. */
-    GrSurfaceProxyRef(sk_sp<GrSurfaceProxy>, GrIOType);
-
-    /** ioType expresses what type of IO operations will be marked as
-        pending on the resource when markPendingIO is called. */
-    void setProxy(sk_sp<GrSurfaceProxy>, GrIOType);
-
-private:
     /** Called by owning GrProgramElement when the program element is first scheduled for
         execution. It can only be called once. */
     void markPendingIO() const;
@@ -58,9 +56,7 @@ private:
         called. */
     void pendingIOComplete() const;
 
-    friend class GrResourceIOProcessor;
-    friend class GrOpList;                 // for setProxy
-
+private:
     GrSurfaceProxy* fProxy;
     mutable bool    fOwnRef;
     mutable bool    fPendingIO;

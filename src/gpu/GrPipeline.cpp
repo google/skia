@@ -80,7 +80,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
 void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         GrFragmentProcessor::TextureAccessIter iter(fFragmentProcessors[i].get());
-        while (const GrResourceIOProcessor::TextureSampler* sampler = iter.next()) {
+        while (const GrFragmentProcessor::TextureSampler* sampler = iter.next()) {
             opList->addDependency(sampler->proxy(), caps);
         }
     }

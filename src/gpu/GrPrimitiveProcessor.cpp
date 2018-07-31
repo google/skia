@@ -17,7 +17,12 @@ enum MatrixType {
     kGeneral_MatrixType  = 1,
 };
 
-GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrResourceIOProcessor(classID) {}
+GrPrimitiveProcessor::GrPrimitiveProcessor(ClassID classID) : GrProcessor(classID) {}
+
+const GrPrimitiveProcessor::TextureSampler& GrPrimitiveProcessor::textureSampler(int i) const {
+    SkASSERT(i >= 0 && i < this->numTextureSamplers());
+    return this->onTextureSampler(i);
+}
 
 const GrPrimitiveProcessor::Attribute& GrPrimitiveProcessor::vertexAttribute(int i) const {
     SkASSERT(i >= 0 && i < this->numVertexAttributes());
@@ -69,6 +74,33 @@ size_t GrPrimitiveProcessor::debugOnly_instanceAttributeOffset(int i) const {
 }
 #endif
 
+void GrPrimitiveProcessor::addPendingIOs() const {
+    for (int i = 0; i < fTextureSamplerCnt; ++i) {
+        this->textureSampler(i).programProxy()->markPendingIO();
+    }
+}
+
+void GrPrimitiveProcessor::removeRefs() const {
+    for (int i = 0; i < fTextureSamplerCnt; ++i) {
+        this->textureSampler(i).programProxy()->removeRef();
+    }
+}
+
+void GrPrimitiveProcessor::pendingIOComplete() const {
+    for (int i = 0; i < fTextureSamplerCnt; ++i) {
+        this->textureSampler(i).programProxy()->pendingIOComplete();
+    }
+}
+
+bool GrPrimitiveProcessor::instantiate(GrResourceProvider* resourceProvider) const {
+    for (int i = 0; i < fTextureSamplerCnt; ++i) {
+        if (!this->textureSampler(i).instantiate(resourceProvider)) {
+            return false;
+        }
+    }
+    return true;
+}
+
 uint32_t
 GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, true>& coords,
                                       int numCoords) const {
@@ -86,4 +118,38 @@ GrPrimitiveProcessor::getTransformKey(const SkTArray<const GrCoordTransform*, tr
         totalKey |= key;
     }
     return totalKey;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+GrPrimitiveProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
+                                                     const GrSamplerState& samplerState,
+                                                     GrShaderFlags visibility) {
+    this->reset(std::move(proxy), samplerState, visibility);
+}
+
+GrPrimitiveProcessor::TextureSampler::TextureSampler(sk_sp<GrTextureProxy> proxy,
+                                                     GrSamplerState::Filter filterMode,
+                                                     GrSamplerState::WrapMode wrapXAndY,
+                                                     GrShaderFlags visibility) {
+    this->reset(std::move(proxy), filterMode, wrapXAndY, visibility);
+}
+
+void GrPrimitiveProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
+                                                 const GrSamplerState& samplerState,
+                                                 GrShaderFlags visibility) {
+    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
+    fSamplerState = samplerState;
+    fSamplerState.setFilterMode(SkTMin(samplerState.filter(), this->proxy()->highestFilterMode()));
+    fVisibility = visibility;
+}
+
+void GrPrimitiveProcessor::TextureSampler::reset(sk_sp<GrTextureProxy> proxy,
+                                                 GrSamplerState::Filter filterMode,
+                                                 GrSamplerState::WrapMode wrapXAndY,
+                                                 GrShaderFlags visibility) {
+    fProxyRef.setProxy(std::move(proxy), kRead_GrIOType);
+    filterMode = SkTMin(filterMode, this->proxy()->highestFilterMode());
+    fSamplerState = GrSamplerState(wrapXAndY, filterMode);
+    fVisibility = visibility;
 }
