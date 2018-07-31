@@ -38,7 +38,7 @@ private:
      * the GrFragmentProcessor that generated the GLSLFP. For example, this is used to provide a
      * variable holding transformed coords for each GrCoordTransform owned by the FP.
      */
-    template <typename T, typename FPBASE, int (FPBASE::*COUNT)() const>
+    template <typename T, int (GrFragmentProcessor::*COUNT)() const>
     class BuilderInputProvider {
     public:
         BuilderInputProvider(const GrFragmentProcessor* fp, const T* ts) : fFP(fp) , fTs(ts) {}
@@ -67,10 +67,10 @@ private:
     };
 
 public:
-    using TransformedCoordVars = BuilderInputProvider<GrShaderVar, GrFragmentProcessor,
-                                                      &GrFragmentProcessor::numCoordTransforms>;
-    using TextureSamplers = BuilderInputProvider<SamplerHandle, GrResourceIOProcessor,
-                                                 &GrResourceIOProcessor::numTextureSamplers>;
+    using TransformedCoordVars =
+            BuilderInputProvider<GrShaderVar, &GrFragmentProcessor::numCoordTransforms>;
+    using TextureSamplers =
+            BuilderInputProvider<SamplerHandle, &GrFragmentProcessor::numTextureSamplers>;
 
     /** Called when the program stage should insert its code into the shaders. The code in each
         shader will be in its own block ({}) and so locally scoped names will not collide across
