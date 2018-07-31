@@ -561,7 +561,7 @@ DM_INCLUDES = [
 ################################################################################
 
 def DM_ARGS(asan):
-    source = ["tests", "gm", "image"]
+    source = ["tests", "gm", "image", "lottie"]
 
     # TODO(benjaminwagner): f16, pic-8888, serialize-8888, and tiles_rt-8888 fail.
     config = ["565", "8888", "pdf"]
