@@ -78,8 +78,6 @@ private:
         called. */
     void pendingIOComplete() const;
 
-    friend class GrResourceIOProcessor;
-
     GrGpuResource*  fResource;
     mutable bool    fOwnRef;
     mutable bool    fPendingIO;
