@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3d653047_6f4316fc",
+        "filename": "src/gpu/GrFragmentProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "816d9b8a_701d27a6",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf7439aa_84136034",
         "filename": "src/gpu/GrFragmentProcessor.h",
         "patchSetId": 10
@@ -33,6 +51,24 @@
       "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b55bcbb_fff77220",
+        "filename": "src/gpu/GrFragmentProcessor.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Went with GrTextureProxy since even though it is a GrSurfaceProxy it has to also be a GrTextureProxy (and upcoming change may make it actually be GrTextureProxy).",
+      "parentUuid": "bf7439aa_84136034",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "5dccef55_975bff0d",
+        "filename": "src/gpu/GrPrimitiveProcessor.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "962c9ac7_0bbceea0",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "629b55d8_53466b88",
         "filename": "src/gpu/GrProgramDesc.cpp",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2018-07-31T16:49:41Z",
       "side": 1,
       "message": "Can \u0027j\u0027 not also go in the initialization section of the for loop ?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8677b2b6_dd575ff3",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Looking at this now I don\u0027t know why there are two counters. This must have been structured differently in the past. Removed j.",
+      "parentUuid": "629b55d8_53466b88",
       "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "e200606d_8d905ee2",
+        "filename": "src/gpu/GrProgramDesc.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cce242df_15adfbb1",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9b43915a_8c2459ea",
         "filename": "src/gpu/gl/GrGLProgram.cpp",
         "patchSetId": 10
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "0b80733d_337bf648",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9b43915a_8c2459ea",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3d9c85c3_f5e3204b",
         "filename": "src/gpu/gl/GrGLProgram.cpp",
         "patchSetId": 10
@@ -115,6 +223,24 @@
       "writtenOn": "2018-07-31T16:49:41Z",
       "side": 1,
       "message": "Can this be made to look more like the earlier replacement or vice versa?",
+      "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f1886dd_87fe633a",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-07-31T17:13:48Z",
+      "side": 1,
+      "message": "like which?",
+      "parentUuid": "3d9c85c3_f5e3204b",
       "revId": "72ef601d21f1bb257f2fe6849dc1bd0598cf5931",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
