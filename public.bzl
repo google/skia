@@ -592,7 +592,9 @@ def base_copts(os_conditions):
                 "-Wno-error=attributes",
             ],
             # IOS
-            [],
+            [
+                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
+            ],
         ],
     )
 
