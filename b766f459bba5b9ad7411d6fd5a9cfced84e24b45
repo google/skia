@@ -74,6 +74,30 @@
     },
     {
       "key": {
+        "uuid": "263e8c24_5a2d2f22",
+        "filename": "src/atlastext/SkAtlasTextTarget.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-07-31T13:28:47Z",
+      "side": 1,
+      "message": "I lifted this value from SkInternalAtlasTextTarget::drawText, which is the only place where I see props created for the atlas text targe.",
+      "parentUuid": "7f3446d2_b548c75c",
+      "range": {
+        "startLine": 78,
+        "startChar": 24,
+        "endLine": 78,
+        "endChar": 51
+      },
+      "revId": "b766f459bba5b9ad7411d6fd5a9cfced84e24b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7119e20a_0d7e229d",
         "filename": "src/core/SkGlyphRun.h",
         "patchSetId": 6
@@ -94,6 +118,30 @@
       "revId": "b766f459bba5b9ad7411d6fd5a9cfced84e24b45",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "882d5472_b17dc50d",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-07-31T13:28:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7119e20a_0d7e229d",
+      "range": {
+        "startLine": 113,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 84
+      },
+      "revId": "b766f459bba5b9ad7411d6fd5a9cfced84e24b45",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
