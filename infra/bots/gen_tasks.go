@@ -79,6 +79,10 @@ const (
 	SERVICE_ACCOUNT_UPLOAD_COVERAGE    = "skia-external-coverage-uploade@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_GM          = "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
 	SERVICE_ACCOUNT_UPLOAD_NANO        = "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+
+	// Copied from
+	// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#44
+	XCODE_BUILD_VERSION = "9c40b"
 )
 
 var (
@@ -744,7 +748,13 @@ func timeout(task *specs.TaskSpec, timeout time.Duration) {
 // compile generates a compile task. Returns the name of the last task in the
 // generated chain of tasks, which the Job should add as a dependency.
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
-	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), nil, OUTPUT_BUILD)
+	var extraProps map[string]string
+	if strings.Contains(name, "Mac") {
+		extraProps = map[string]string{
+			"xcode_build_version": XCODE_BUILD_VERSION,
+		}
+	}
+	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), extraProps, OUTPUT_BUILD)
 	usesGit(task, name)
 
 	// Android bots require a toolchain.
@@ -775,8 +785,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 		}
-	} else if strings.Contains(name, "CommandBuffer") {
-		timeout(task, 2*time.Hour)
 	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
@@ -810,10 +818,26 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Vulkan") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
 		}
-	}
-
-	if strings.Contains(name, "MoltenVK") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+	} else if strings.Contains(name, "Mac") {
+		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
+		// This package is really just an installer for XCode.
+		task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
+			Name:    "infra/tools/mac_toolchain/${platform}",
+			Path:    "mac_toolchain",
+			Version: "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a",
+		})
+		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
+		// All our Mac builders are used for both Mac and iOS, so we always use the "iOS" XCode.
+		task.Caches = append(task.Caches, &specs.Cache{
+			Name: fmt.Sprintf("xcode_ios_%s", XCODE_BUILD_VERSION),
+			Path: fmt.Sprintf("cache/xcode_ios_%s.app", XCODE_BUILD_VERSION),
+		})
+		if strings.Contains(name, "CommandBuffer") {
+			timeout(task, 2*time.Hour)
+		}
+		if strings.Contains(name, "MoltenVK") {
+			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+		}
 	}
 
 	task.MaxAttempts = 1
