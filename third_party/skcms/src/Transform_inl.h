@@ -236,13 +236,17 @@ SI ATTR F approx_pow(F x, float y) {
 
 // Return tf(x).
 SI ATTR F apply_tf(const skcms_TransferFunction* tf, F x) {
-    F sign = if_then_else(x < 0, -F1, F1);
-    x *= sign;
+    // Peel off the sign bit and set x = |x|.
+    U32 bits = bit_pun<U32>(x),
+        sign = bits & 0x80000000;
+    x = bit_pun<F>(bits ^ sign);
 
-    F linear    =            tf->c*x + tf->f;
-    F nonlinear = approx_pow(tf->a*x + tf->b, tf->g) + tf->e;
+    // The transfer function has a linear part up to d, exponential at d and after.
+    F v = if_then_else(x < tf->d,            tf->c*x + tf->f
+                                , approx_pow(tf->a*x + tf->b, tf->g) + tf->e);
 
-    return sign * if_then_else(x < tf->d, linear, nonlinear);
+    // Tack the sign bit back on.
+    return bit_pun<F>(sign | bit_pun<U32>(v));
 }
 
 
