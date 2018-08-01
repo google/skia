@@ -454,7 +454,8 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     if (colorFilter) {
         if (applyColorFilterToPaintColor) {
             grPaint->setColor4f(GrColor4f::FromSkColor4f(
-                    colorFilter->filterColor4f(origColor.toSkColor4f())).premul());
+                    colorFilter->filterColor4f(origColor.toSkColor4f(),
+                                               colorSpaceInfo.colorSpace())).premul());
         } else {
             auto cfFP = colorFilter->asFragmentProcessor(context, colorSpaceInfo);
             if (cfFP) {
