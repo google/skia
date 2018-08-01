@@ -54,6 +54,9 @@ public:
     bool canCopyAsDraw(GrPixelConfig dstConfig, bool dstIsRenderable,
                        GrPixelConfig srcConfig, bool srcIsTextureable) const;
 
+    bool canCopyAsDrawThenBlit(GrPixelConfig dstConfig, GrPixelConfig srcConfig,
+                               bool srcIsTextureable) const;
+
     bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                         const SkIRect& srcRect, const SkIPoint& dstPoint) const override;
 

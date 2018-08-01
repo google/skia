@@ -477,6 +477,8 @@
       "_",
       ".SRW",
       "--match",
+      "CopySurface",
+      "GrTestingBackendTextureUploadTest",
       "GrUploadPixelsTests",
       "--nonativeFonts",
       "--verbose"
