@@ -783,8 +783,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("armhf_sysroot"))
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("chromebook_arm_gles"))
 		}
-	} else if strings.Contains(name, "CommandBuffer") {
-		timeout(task, 2*time.Hour)
 	} else if strings.Contains(name, "Debian") {
 		if strings.Contains(name, "Clang") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("clang_linux"))
@@ -818,10 +816,24 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Vulkan") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
 		}
-	}
-
-	if strings.Contains(name, "MoltenVK") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+	} else if strings.Contains(name, "Mac") {
+		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
+		// This package is really just an installer for XCode.
+		task.CipdPackages = append(task.CipdPackages, &specs.CipdPackage{
+			Name:    "infra/tools/mac_toolchain/${platform}",
+			Path:    ".",
+			Version: "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a",
+		})
+		task.Caches = append(task.Caches, &specs.Cache{
+			Name: "xcode",
+			Path: "cache/Xcode.app",
+		})
+		if strings.Contains(name, "CommandBuffer") {
+			timeout(task, 2*time.Hour)
+		}
+		if strings.Contains(name, "MoltenVK") {
+			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("moltenvk"))
+		}
 	}
 
 	task.MaxAttempts = 1
