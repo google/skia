@@ -75,23 +75,6 @@ void GrTextBlob::appendGlyph(int runIndex,
                                   GrGlyph* glyph,
                                   SkGlyphCache* cache, const SkGlyph& skGlyph,
                                   SkScalar x, SkScalar y, SkScalar scale, bool preTransformed) {
-    if (positions.isEmpty()) {
-        return;
-    }
-
-    // If the glyph is too large we fall back to paths
-    if (glyph->fTooLargeForAtlas) {
-        if (nullptr == glyph->fPath) {
-            const SkPath* glyphPath = cache->findPath(skGlyph);
-            if (!glyphPath) {
-                return;
-            }
-
-            glyph->fPath = new SkPath(*glyphPath);
-        }
-        this->appendPathGlyph(runIndex, *glyph->fPath, x, y, scale, preTransformed);
-        return;
-    }
 
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;
