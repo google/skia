@@ -17,6 +17,7 @@
 #include "vk/GrVkTypes.h"
 #include <functional>
 
+class GrVkExtensions;
 struct GrVkBackendContext;
 
 namespace sk_gpu_test {
@@ -27,6 +28,7 @@ namespace sk_gpu_test {
 
     bool CreateVkBackendContext(GrVkGetProc getProc,
                                 GrVkBackendContext* ctx,
+                                GrVkExtensions*,
                                 VkDebugReportCallbackEXT* debugCallback,
                                 uint32_t* presentQueueIndexPtr = nullptr,
                                 CanPresentFn canPresent = CanPresentFn());

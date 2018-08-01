@@ -15,7 +15,7 @@
 GrVkInterface::GrVkInterface(GrVkGetProc getProc,
                              VkInstance instance,
                              VkDevice device,
-                             uint32_t extensionFlags) {
+                             const GrVkExtensions* extensions) {
     if (getProc == nullptr) {
         return;
     }
@@ -39,7 +39,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     ACQUIRE_PROC(EnumerateDeviceExtensionProperties, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceLayerProperties, instance, VK_NULL_HANDLE);
 
-    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
+    if (extensions->hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
         // Also instance Procs.
         ACQUIRE_PROC(CreateDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
         ACQUIRE_PROC(DebugReportMessageEXT, instance, VK_NULL_HANDLE);
@@ -178,7 +178,7 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     if (kIsDebug) { SkDebugf("%s:%d GrVkInterface::validate() failed.\n", __FILE__, __LINE__); } \
     return false;
 
-bool GrVkInterface::validate(uint32_t extensionFlags) const {
+bool GrVkInterface::validate(const GrVkExtensions* extensions) const {
     // functions that are always required
     if (nullptr == fFunctions.fCreateInstance ||
         nullptr == fFunctions.fDestroyInstance ||
@@ -318,7 +318,7 @@ bool GrVkInterface::validate(uint32_t extensionFlags) const {
         RETURN_FALSE_INTERFACE
     }
 
-    if (extensionFlags & kEXT_debug_report_GrVkExtensionFlag) {
+    if (extensions->hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
         if (nullptr == fFunctions.fCreateDebugReportCallbackEXT ||
             nullptr == fFunctions.fDebugReportMessageEXT ||
             nullptr == fFunctions.fDestroyDebugReportCallbackEXT) {
