@@ -43,6 +43,7 @@ declare_args() {
   skia_enable_spirv_validation = is_skia_dev_build && is_debug
   skia_enable_tools = is_skia_dev_build
   skia_enable_vulkan_debug_layers = is_skia_dev_build && is_debug
+  skia_vulkan_header = ""  # temporary as we remove the use from clients
   skia_qt_path = getenv("QT_PATH")
   skia_compile_processors = false
   skia_generate_workarounds = false
@@ -614,11 +615,7 @@ optional("gpu") {
   }
 
   if (skia_use_vulkan) {
-    # TODO: We should make this deps be //third_party/vulkan and then update clients to have a
-    # //third_party/vulkan directory in their trees so they can set up the vulkan library however
-    # they want. For example this would allow us to remove the fuchsia specific vulkan code in our
-    # vulkan files.
-    public_deps += [ "third_party/vulkan" ]
+    public_defines += [ "SK_VULKAN" ]
     deps += [ "third_party/vulkanmemoryallocator" ]
     sources += skia_vk_sources
     if (skia_enable_vulkan_debug_layers) {
@@ -826,6 +823,7 @@ component("skia") {
     ":fontmgr_empty",
     ":fontmgr_fontconfig",
     ":fontmgr_fuchsia",
+    ":gpu",
     ":heif",
     ":hsw",
     ":jpeg",
@@ -840,12 +838,6 @@ component("skia") {
     ":ssse3",
     ":webp",
     ":xml",
-  ]
-
-  # We need the public deps here for Vulkan. Our third_party/vulkan target sets some defines that
-  # need to get propagated up to the tools that depend on :skia and thus :gpu.
-  public_deps = [
-    ":gpu",
   ]
 
   # This file (and all GN files in Skia) are designed to work with an
@@ -992,10 +984,6 @@ if (skia_enable_tools) {
 
   config("skia.h_config") {
     include_dirs = [ "$target_gen_dir" ]
-    if (skia_use_vulkan) {
-      # So we can get the header which includes vulkan
-      include_dirs += [ "tools/gpu/vk" ]
-    }
   }
   action("skia.h") {
     public_configs = [ ":skia.h_config" ]
@@ -1230,12 +1218,42 @@ if (skia_enable_tools) {
     }
   }
 
+  config("moltenvk_config") {
+    if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
+      if (is_ios) {
+        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/iOS"
+      } else {
+        moltenvk_framework_path = "$skia_moltenvk_path/MoltenVK/macOS"
+      }
+      cflags = [ "-F$moltenvk_framework_path" ]
+      ldflags = [ "-F$moltenvk_framework_path" ]
+      libs = [
+        "MoltenVK.framework",
+        "Metal.framework",
+        "IOSurface.framework",
+        "QuartzCore.framework",
+        "Foundation.framework",
+      ]
+      if (is_ios) {
+        libs += [ "UIKit.framework" ]
+      } else {
+        libs += [ "IOKit.framework" ]
+      }
+      defines = [ "SK_MOLTENVK" ]
+    }
+  }
+
+  source_set("moltenvk") {
+    public_configs = [ ":moltenvk_config" ]
+  }
+
   test_lib("gpu_tool_utils") {
     public_include_dirs = []
     public_defines = []
     public_include_dirs += [ "tools/gpu" ]
 
     deps = []
+    public_deps = []
     sources = [
       "tools/gpu/GrContextFactory.cpp",
       "tools/gpu/GrTest.cpp",
@@ -1279,8 +1297,12 @@ if (skia_enable_tools) {
       sources += [ "tools/gpu/gl/angle/GLTestContext_angle.cpp" ]
     }
     if (skia_use_vulkan) {
+      public_include_dirs += [ "third_party/vulkan" ]
       sources += [ "tools/gpu/vk/VkTestContext.cpp" ]
       sources += [ "tools/gpu/vk/VkTestUtils.cpp" ]
+      if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
+        public_deps += [ ":moltenvk" ]
+      }
     }
     if (skia_use_metal) {
       sources += [ "tools/gpu/mtl/MtlTestContext.mm" ]
@@ -1301,6 +1323,8 @@ if (skia_enable_tools) {
     ]
     deps = [
       ":flags",
+    ]
+    public_deps = [
       ":gpu_tool_utils",
     ]
   }
@@ -1354,12 +1378,12 @@ if (skia_enable_tools) {
       defines += [ "SK_TOOLS_REQUIRE_RESOURCES" ]
     }
     deps = [
-      ":common_flags",
       ":experimental_svg_model",
       ":flags",
       "//third_party/libpng",
     ]
     public_deps = [
+      ":common_flags",
       "//third_party/jsoncpp",
     ]
   }
@@ -1370,11 +1394,13 @@ if (skia_enable_tools) {
     sources = gm_sources
     deps = [
       ":flags",
-      ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
       "modules/skottie",
       "modules/sksg",
+    ]
+    public_deps = [
+      ":gpu_tool_utils",
     ]
   }
 
