@@ -65,8 +65,7 @@ public:
     inline const GrTexturePriv texturePriv() const;
 
 protected:
-    GrTexture(GrGpu*, const GrSurfaceDesc&, GrTextureType, GrSamplerState::Filter highestFilterMode,
-              GrMipMapsStatus);
+    GrTexture(GrGpu*, const GrSurfaceDesc&, GrTextureType, GrMipMapsStatus);
 
     virtual bool onStealBackendTexture(GrBackendTexture*, SkImage::BackendTextureReleaseProc*) = 0;
 
@@ -77,7 +76,6 @@ private:
     void markMipMapsClean();
 
     GrTextureType                 fTextureType;
-    GrSamplerState::Filter        fHighestFilterMode;
     GrMipMapsStatus               fMipMapsStatus;
     int                           fMaxMipMapLevel;
     friend class GrTexturePriv;
