@@ -41,22 +41,11 @@ static inline GrGLenum target_from_texture_type(GrTextureType type) {
     return GR_GL_TEXTURE_2D;
 }
 
-// This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerState::Filter highest_filter_mode(const GrGLTexture::IDDesc& idDesc,
-                                                         GrPixelConfig config) {
-    if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
-        idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        return GrSamplerState::Filter::kBilerp;
-    }
-    return GrSamplerState::Filter::kMipMap;
-}
-
 // Because this class is virtually derived from GrSurface we must explicitly call its constructor.
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc& desc,
                          const IDDesc& idDesc, GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
-                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCache(budgeted);
 }
@@ -64,8 +53,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, SkBudgeted budgeted, const GrSurfaceDesc&
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
                          GrMipMapsStatus mipMapsStatus, const IDDesc& idDesc)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
-                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
     this->registerWithCacheWrapped();
 }
@@ -73,8 +61,7 @@ GrGLTexture::GrGLTexture(GrGLGpu* gpu, Wrapped, const GrSurfaceDesc& desc,
 GrGLTexture::GrGLTexture(GrGLGpu* gpu, const GrSurfaceDesc& desc, const IDDesc& idDesc,
                          GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget),
-                    highest_filter_mode(idDesc, desc.fConfig), mipMapsStatus) {
+        , INHERITED(gpu, desc, TextureTypeFromTarget(idDesc.fInfo.fTarget), mipMapsStatus) {
     this->init(desc, idDesc);
 }
 
