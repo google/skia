@@ -136,10 +136,11 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     SkPoint glyphPos = origin + *positionCursor++;
                     if (glyph.fWidth > 0) {
                         if (glyph.fMaskFormat == SkMask::kSDF_Format) {
-                            DfAppendGlyph(
-                                    cacheBlob, runIndex, glyphCache, &currStrike, glyph,
+                            AppendGlyph(
+                                    cacheBlob, runIndex, glyphCache, &currStrike,
+                                    glyph, GrGlyph::kDistance_MaskStyle,
                                     glyphPos.fX, glyphPos.fY, runPaint.filteredPremulColor(),
-                                    cache.get(), textRatio);
+                                    cache.get(), textRatio, true);
                         } else {
                             // can't append non-SDF glyph to SDF batch, send to fallback
                             fallbackTextHelper.appendText(glyph, glyphID, glyphPos);
@@ -197,7 +198,8 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             auto drawOneGlyph =
                     [cacheBlob, runIndex, glyphCache, &currStrike, runPaint, cache{cache.get()}]
                     (const SkMask& mask, const SkGlyph& glyph, SkPoint position) {
-                BmpAppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike, glyph,
+                AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
+                               glyph, GrGlyph::kCoverage_MaskStyle,
                                SkScalarFloorToScalar(position.fX),
                                SkScalarFloorToScalar(position.fY),
                                runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
@@ -387,7 +389,8 @@ void GrTextContext::DrawBmpPosText(GrTextBlob* blob, int runIndex,
             scalarsPerPosition, cache.get(),
             [&](const SkGlyph& glyph, SkPoint position, SkPoint rounding) {
                 position += rounding;
-                BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
+                AppendGlyph(blob, runIndex, glyphCache, &currStrike,
+                               glyph, GrGlyph::kCoverage_MaskStyle,
                                SkScalarFloorToScalar(position.fX),
                                SkScalarFloorToScalar(position.fY),
                                paint.filteredPremulColor(), cache.get(), SK_Scalar1, false);
@@ -450,12 +453,13 @@ void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
     fallbackTextHelper.drawText(blob, runIndex, glyphCache, props, origPaint, scalerContextFlags);
 }
 
-void GrTextContext::BmpAppendGlyph(GrTextBlob* blob, int runIndex,
-                                   GrGlyphCache* grGlyphCache,
-                                   sk_sp<GrTextStrike>* strike,
-                                   const SkGlyph& skGlyph, SkScalar sx, SkScalar sy,
-                                   GrColor color, SkGlyphCache* skGlyphCache,
-                                   SkScalar textRatio, bool needsTransform) {
+void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
+                                GrGlyphCache* grGlyphCache,
+                                sk_sp<GrTextStrike>* strike,
+                                const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
+                                SkScalar sx, SkScalar sy,
+                                GrColor color, SkGlyphCache* skGlyphCache,
+                                SkScalar textRatio, bool needsTransform) {
     if (!*strike) {
         *strike = grGlyphCache->getStrike(skGlyphCache);
     }
@@ -463,7 +467,7 @@ void GrTextContext::BmpAppendGlyph(GrTextBlob* blob, int runIndex,
     GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
                                          skGlyph.getSubXFixed(),
                                          skGlyph.getSubYFixed(),
-                                         GrGlyph::kCoverage_MaskStyle);
+                                         maskStyle);
     GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, skGlyphCache);
     if (!glyph) {
         return;
@@ -476,6 +480,13 @@ void GrTextContext::BmpAppendGlyph(GrTextBlob* blob, int runIndex,
     SkScalar dy = SkIntToScalar(glyph->fBounds.fTop);
     SkScalar width = SkIntToScalar(glyph->fBounds.width());
     SkScalar height = SkIntToScalar(glyph->fBounds.height());
+
+    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
+    }
 
     dx *= textRatio;
     dy *= textRatio;
@@ -653,8 +664,10 @@ void GrTextContext::drawDFPosText(GrTextBlob* blob, int runIndex,
                 glyphPos.fY += (2 == scalarsPerPosition ? pos[1] : 0);
 
                 if (glyph.fMaskFormat == SkMask::kSDF_Format) {
-                    DfAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph, glyphPos.fX,
-                                  glyphPos.fY, paint.filteredPremulColor(), cache.get(), textRatio);
+                    AppendGlyph(blob, runIndex, glyphCache, &currStrike,
+                                   glyph, GrGlyph::kDistance_MaskStyle,
+                                   glyphPos.fX, glyphPos.fY, paint.filteredPremulColor(),
+                                   cache.get(), textRatio, true);
                 } else {
                     // can't append non-SDF glyph to SDF batch, send to fallback
                     fallbackTextHelper.appendText(glyph, SkToInt(text - lastText), lastText,
@@ -666,40 +679,6 @@ void GrTextContext::drawDFPosText(GrTextBlob* blob, int runIndex,
     }
 
     fallbackTextHelper.drawText(blob, runIndex, glyphCache, props, paint, scalerContextFlags);
-}
-
-// TODO: merge with BmpAppendGlyph
-void GrTextContext::DfAppendGlyph(GrTextBlob* blob, int runIndex,
-                                  GrGlyphCache* grGlyphCache, sk_sp<GrTextStrike>* strike,
-                                  const SkGlyph& skGlyph, SkScalar sx, SkScalar sy,
-                                  GrColor color, SkGlyphCache* skGlyphCache,
-                                  SkScalar textRatio) {
-    if (!*strike) {
-        *strike = grGlyphCache->getStrike(skGlyphCache);
-    }
-
-    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
-                                         skGlyph.getSubXFixed(),
-                                         skGlyph.getSubYFixed(),
-                                         GrGlyph::kDistance_MaskStyle);
-    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, skGlyphCache);
-    if (!glyph) {
-        return;
-    }
-
-    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft + SK_DistanceFieldInset);
-    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop + SK_DistanceFieldInset);
-    SkScalar width = SkIntToScalar(glyph->fBounds.width() - 2 * SK_DistanceFieldInset);
-    SkScalar height = SkIntToScalar(glyph->fBounds.height() - 2 * SK_DistanceFieldInset);
-
-    dx *= textRatio;
-    dy *= textRatio;
-    width *= textRatio;
-    height *= textRatio;
-    SkRect glyphRect = SkRect::MakeXYWH(sx + dx, sy + dy, width, height);
-
-    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, skGlyphCache, skGlyph, sx, sy,
-                      textRatio, false);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -761,9 +740,10 @@ void GrTextContext::FallbackTextHelper::drawText(GrTextBlob* blob, int runIndex,
                 glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);
                 glyphPos->fY = SkScalarFloorToScalar(glyphPos->fY);
             }
-            GrTextContext::BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
-                                               glyphPos->fX, glyphPos->fY, textColor,
-                                               cache.get(), textRatio, fUseTransformedFallback);
+            GrTextContext::AppendGlyph(blob, runIndex, glyphCache, &currStrike,
+                                          glyph, GrGlyph::kCoverage_MaskStyle,
+                                          glyphPos->fX, glyphPos->fY, textColor,
+                                          cache.get(), textRatio, fUseTransformedFallback);
             glyphPos++;
         }
     }
@@ -831,7 +811,8 @@ void GrTextContext::FallbackGlyphRunHelper::drawText(
                 glyphPos->fX = SkScalarFloorToScalar(glyphPos->fX);
                 glyphPos->fY = SkScalarFloorToScalar(glyphPos->fY);
             }
-            GrTextContext::BmpAppendGlyph(blob, runIndex, glyphCache, &currStrike, glyph,
+            GrTextContext::AppendGlyph(blob, runIndex, glyphCache, &currStrike,
+                                          glyph, GrGlyph::kCoverage_MaskStyle,
                                           glyphPos->fX, glyphPos->fY, textColor,
                                           cache.get(), textRatio, fUseTransformedFallback);
             glyphPos++;

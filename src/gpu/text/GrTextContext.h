@@ -197,14 +197,12 @@ private:
                        size_t byteLength, const SkScalar pos[], int scalarsPerPosition,
                        const SkPoint& offset) const;
 
+    static void AppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
+                            sk_sp<GrTextStrike>*, const SkGlyph&, GrGlyph::MaskStyle maskStyle,
+                            SkScalar sx, SkScalar sy,
+                            GrColor color, SkGlyphCache*, SkScalar textRatio,
+                            bool needsTransform);
 
-    static void BmpAppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
-                               sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
-                               GrColor color, SkGlyphCache*, SkScalar textRatio, bool needsXform);
-
-    static void DfAppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
-                              sk_sp<GrTextStrike>*, const SkGlyph&, SkScalar sx, SkScalar sy,
-                              GrColor color, SkGlyphCache* cache, SkScalar textRatio);
 
     const GrDistanceFieldAdjustTable* dfAdjustTable() const { return fDistanceAdjustTable.get(); }
 
