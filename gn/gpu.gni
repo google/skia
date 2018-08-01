@@ -536,7 +536,6 @@ skia_null_gpu_sources = []
 skia_vk_sources = [
   "$_include/gpu/vk/GrVkBackendContext.h",
   "$_include/gpu/vk/GrVkDefines.h",
-  "$_include/gpu/vk/GrVkInterface.h",
   "$_include/gpu/vk/GrVkMemoryAllocator.h",
   "$_include/gpu/vk/GrVkTypes.h",
   "$_include/private/GrVkTypesPriv.h",
@@ -576,6 +575,7 @@ skia_vk_sources = [
   "$_src/gpu/vk/GrVkIndexBuffer.cpp",
   "$_src/gpu/vk/GrVkIndexBuffer.h",
   "$_src/gpu/vk/GrVkInterface.cpp",
+  "$_src/gpu/vk/GrVkInterface.h",
   "$_src/gpu/vk/GrVkMemory.cpp",
   "$_src/gpu/vk/GrVkMemory.h",
   "$_src/gpu/vk/GrVkPipeline.cpp",
