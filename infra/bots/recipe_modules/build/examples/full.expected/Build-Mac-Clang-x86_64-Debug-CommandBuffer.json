@@ -1,6 +1,15 @@
 [
   {
     "cmd": [
+      "sudo",
+      "xcode-select",
+      "-switch",
+      "/Applications/Xcode9.2.app"
+    ],
+    "name": "select xcode"
+  },
+  {
+    "cmd": [
       "python",
       "-u",
       "[START_DIR]/cache/work/skia/tools/build_command_buffer.py",
