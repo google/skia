@@ -138,13 +138,17 @@ public:
                 std::forward<Args>(args)...);
     }
 
+    GrTextureProxy** allocatePrimitiveProcessorTextureArray(int count) {
+        return this->pipelineArena()->makeArrayDefault<GrTextureProxy*>(count);
+    }
+
     // Once we have C++17 structured bindings make this just be a tuple because then we can do:
     //      auto [pipeline, fixedDynamicState] = target->makePipeline(...);
     // in addition to:
     //      std::tie(flushInfo.fPipeline, flushInfo.fFixedState) = target->makePipeline(...);
     struct PipelineAndFixedDynamicState {
         const GrPipeline* fPipeline;
-        const GrPipeline::FixedDynamicState* fFixedDynamicState;
+        GrPipeline::FixedDynamicState* fFixedDynamicState;
     };
 
     /**
@@ -159,7 +163,7 @@ public:
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        const auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
+        auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
         return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)), state};
     }
 

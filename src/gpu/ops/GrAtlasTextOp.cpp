@@ -415,7 +415,11 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                                                                       samplerState);
         }
     }
-
+    flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures =
+            target->allocatePrimitiveProcessorTextureArray(numActiveProxies);
+    for (int i = 0; i < numActiveProxies; ++i) {
+        flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+    }
     GrMesh mesh(GrPrimitiveType::kTriangles);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);

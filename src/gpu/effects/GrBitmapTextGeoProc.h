@@ -44,6 +44,7 @@ public:
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesW() const { return fUsesW; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -64,6 +65,7 @@ private:
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
     bool             fUsesW;
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     TextureSampler   fTextureSamplers[kMaxTextures];
     Attribute        fInPosition;
     Attribute        fInColor;

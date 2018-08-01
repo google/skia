@@ -26,6 +26,7 @@
 #include "effects/GrDisableColorXP.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "effects/GrSimpleTextureEffect.h"
+#include "GrPrimitiveProcessor.h"
 
 class GrAppliedClip;
 class GrOp;
@@ -76,8 +77,11 @@ public:
      * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
      **/
     struct FixedDynamicState {
-        FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
-        SkIRect fScissorRect;
+        explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
+        FixedDynamicState() = default;
+        SkIRect fScissorRect = SkIRect::EmptyIRect();
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries if not null.
+        GrTextureProxy* fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
@@ -86,6 +90,10 @@ public:
      */
     struct DynamicStateArrays {
         const SkIRect* fScissorRects = nullptr;
+#if 0
+        // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries if not null.
+        GrTextureProxy* fPrimitiveProcessorTextures = nullptr;
+#endif
     };
 
     /**

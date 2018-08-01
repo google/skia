@@ -79,12 +79,13 @@ sk_sp<const GrBuffer> GrCCPathProcessor::FindIndexBuffer(GrOnFlushResourceProvid
     }
 }
 
-GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
-                                     sk_sp<GrTextureProxy> atlas,
+GrCCPathProcessor::GrCCPathProcessor(GrTextureProxy* atlas,
                                      const SkMatrix& viewMatrixIfUsingLocalCoords)
         : INHERITED(kGrCCPathProcessor_ClassID)
-        , fAtlasAccess(std::move(atlas), GrSamplerState::Filter::kNearest,
-                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag) {
+        , fAtlasAccess(atlas->textureType(), atlas->config(), GrSamplerState::Filter::kNearest,
+                       GrSamplerState::WrapMode::kClamp, kFragment_GrShaderFlag)
+        , fAtlasSize{atlas->width(), atlas->height()}
+        , fAtlasOrigin(atlas->origin()) {
     this->setInstanceAttributeCnt(kNumInstanceAttribs);
     // Check that instance attributes exactly match Instance struct layout.
     SkASSERT(!strcmp(this->instanceAttribute(0).name(), "devbounds"));
@@ -98,8 +99,6 @@ GrCCPathProcessor::GrCCPathProcessor(GrResourceProvider* resourceProvider,
     SkASSERT(this->debugOnly_instanceStride() == sizeof(Instance));
 
     this->setVertexAttributeCnt(1);
-
-    fAtlasAccess.instantiate(resourceProvider);
     this->setTextureSamplerCnt(1);
 
     if (!viewMatrixIfUsingLocalCoords.invert(&fLocalMatrix)) {
@@ -115,8 +114,8 @@ private:
     void setData(const GrGLSLProgramDataManager& pdman, const GrPrimitiveProcessor& primProc,
                  FPCoordTransformIter&& transformIter) override {
         const GrCCPathProcessor& proc = primProc.cast<GrCCPathProcessor>();
-        pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlas()->width(),
-                    1.0f / proc.atlas()->height());
+        pdman.set2f(fAtlasAdjustUniform, 1.0f / proc.atlasSize().fWidth,
+                    1.0f / proc.atlasSize().fHeight);
         this->setTransformDataHelper(proc.localMatrix(), pdman, &transformIter);
     }
 

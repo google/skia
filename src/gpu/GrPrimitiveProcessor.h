@@ -190,9 +190,9 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&, GrShaderFlags visibility);
+    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, GrShaderFlags visibility);
 
-    explicit TextureSampler(sk_sp<GrTextureProxy>,
+    explicit TextureSampler(GrTextureType, GrPixelConfig,
                             GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                             GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
@@ -200,36 +200,25 @@ public:
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(sk_sp<GrTextureProxy>, const GrSamplerState&,
+    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(sk_sp<GrTextureProxy>,
+    void reset(GrTextureType, GrPixelConfig,
                GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
-    bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
-    }
+    GrTextureType textureType() const { return fTextureType; }
+    GrPixelConfig config() const { return fConfig; }
 
-    // 'peekTexture' should only ever be called after a successful 'instantiate' call
-    GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.get()->peekTexture());
-        return fProxyRef.get()->peekTexture();
-    }
-
-    GrTextureProxy* proxy() const { return fProxyRef.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
-    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
-    /**
-     * For internal use by GrPrimitiveProcessor.
-     */
-    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
+    bool isInitialized() const { return fConfig != kUnknown_GrPixelConfig; }
 
 private:
-    GrTextureProxyRef fProxyRef;
     GrSamplerState fSamplerState;
+    GrTextureType fTextureType = GrTextureType::k2D;
+    GrPixelConfig fConfig = kUnknown_GrPixelConfig;
     GrShaderFlags fVisibility = kNone_GrShaderFlags;
 };
 

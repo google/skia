@@ -84,6 +84,7 @@ public:
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
     uint32_t getFlags() const { return fFlags; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
@@ -108,6 +109,7 @@ private:
 
     static constexpr int kMaxTextures = 4;
 
+    SkISize          fAtlasSize;
     TextureSampler   fTextureSamplers[kMaxTextures];
     SkMatrix         fLocalMatrix;
     Attribute        fInPosition;
@@ -151,6 +153,7 @@ public:
     const Attribute& inTextureCoords() const { return kInTextureCoords; }
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -170,6 +173,7 @@ private:
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
     SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
+    SkISize          fAtlasSize;
     TextureSampler   fTextureSamplers[kMaxTextures];
     uint32_t         fFlags;
     static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
@@ -225,6 +229,7 @@ public:
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -242,6 +247,7 @@ private:
 
     static constexpr int kMaxTextures = 4;
 
+    SkISize          fAtlasSize;
     TextureSampler   fTextureSamplers[kMaxTextures];
     const SkMatrix   fLocalMatrix;
     DistanceAdjust   fDistanceAdjust;
