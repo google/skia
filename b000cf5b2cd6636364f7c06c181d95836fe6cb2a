@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32834b48_d7042401",
+        "filename": "src/gpu/text/GrTextContext.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-01T18:57:42Z",
+      "side": 1,
+      "message": "indent",
+      "range": {
+        "startLine": 201,
+        "startChar": 30,
+        "endLine": 201,
+        "endChar": 31
+      },
+      "revId": "b000cf5b2cd6636364f7c06c181d95836fe6cb2a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
