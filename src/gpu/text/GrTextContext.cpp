@@ -163,11 +163,26 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     if (glyph.fWidth > 0) {
                         if (glyph.fMaskFormat == SkMask::kSDF_Format) {
 
-                            AppendGlyph(
-                                    cacheBlob, runIndex, glyphCache, &currStrike,
-                                    glyph, GrGlyph::kDistance_MaskStyle,
-                                    glyphPos.fX, glyphPos.fY, runPaint.filteredPremulColor(),
-                                    cache.get(), textRatio, true);
+                            SkScalar sx = glyphPos.fX,
+                                     sy = glyphPos.fY;
+
+                            if (glyph_too_big_for_atlas(glyph)) {
+                                SkRect glyphRect =
+                                        rect_to_draw(glyph, glyphPos, textRatio,
+                                                     GrGlyph::kDistance_MaskStyle);
+                                if (!glyphRect.isEmpty()) {
+                                    const SkPath* glyphPath = cache->findPath(glyph);
+                                    if (glyphPath != nullptr) {
+                                        cacheBlob->appendPathGlyph(
+                                                runIndex, *glyphPath, sx, sy, textRatio, false);
+                                    }
+                                }
+                            } else {
+                                AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
+                                            glyph, GrGlyph::kDistance_MaskStyle, sx, sy,
+                                            runPaint.filteredPremulColor(), cache.get(), textRatio, true);
+                            }
+
                         } else {
                             // can't append non-SDF glyph to SDF batch, send to fallback
                             fallbackTextHelper.appendText(glyph, glyphID, glyphPos);
@@ -225,11 +240,25 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             auto drawOneGlyph =
                     [cacheBlob, runIndex, glyphCache, &currStrike, runPaint, cache{cache.get()}]
                     (const SkMask& mask, const SkGlyph& glyph, SkPoint position) {
-                AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
-                            glyph, GrGlyph::kCoverage_MaskStyle,
-                            SkScalarFloorToScalar(position.fX),
-                            SkScalarFloorToScalar(position.fY),
-                            runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
+                        SkScalar sx = SkScalarFloorToScalar(position.fX),
+                                 sy = SkScalarFloorToScalar(position.fY);
+
+                        if (glyph_too_big_for_atlas(glyph)) {
+                            SkRect glyphRect =
+                                    rect_to_draw(glyph, {sx, sy}, SK_Scalar1,
+                                                 GrGlyph::kCoverage_MaskStyle);
+                            if (!glyphRect.isEmpty()) {
+                                const SkPath* glyphPath = cache->findPath(glyph);
+                                if (glyphPath != nullptr) {
+                                    cacheBlob->appendPathGlyph(
+                                            runIndex, *glyphPath, sx, sy, SK_Scalar1, true);
+                                }
+                            }
+                        } else {
+                            AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
+                                        glyph, GrGlyph::kCoverage_MaskStyle, sx, sy,
+                                        runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
+                        }
             };
 
             glyphDrawer->drawUsingMasks(cache.get(), glyphRun, origin, viewMatrix, drawOneGlyph);
