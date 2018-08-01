@@ -204,23 +204,19 @@ GrVkPipelineState* GrVkPipelineStateBuilder::finalize(const GrStencilSettings& s
 
 //////////////////////////////////////////////////////////////////////////////
 
-uint32_t get_pipeline_info_key(const GrPipeline& pipeline) {
+uint32_t get_blend_info_key(const GrPipeline& pipeline) {
+    GrXferProcessor::BlendInfo blendInfo;
+    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
+
+    static const uint32_t kBlendWriteShift = 1;
     static const uint32_t kBlendCoeffShift = 5;
     GR_STATIC_ASSERT(kLast_GrBlendCoeff < (1 << kBlendCoeffShift));
     GR_STATIC_ASSERT(kFirstAdvancedGrBlendEquation - 1 < 4);
 
-    GrXferProcessor::BlendInfo blendInfo;
-    pipeline.getXferProcessor().getBlendInfo(&blendInfo);
-
-    GrSurfaceOrigin origin = pipeline.proxy()->origin();
-    SkASSERT(0 == origin || 1 == origin);
-
-    uint32_t key;
-    key = blendInfo.fEquation;
-    key = blendInfo.fDstBlend | (key << kBlendCoeffShift);
-    key = blendInfo.fSrcBlend | (key << kBlendCoeffShift);
-    key = (int)blendInfo.fWriteColor | (key << 1);
-    key = origin | (key << 1);
+    uint32_t key = blendInfo.fWriteColor;
+    key |= (blendInfo.fSrcBlend << kBlendWriteShift);
+    key |= (blendInfo.fDstBlend << (kBlendWriteShift + kBlendCoeffShift));
+    key |= (blendInfo.fEquation << (kBlendWriteShift + 2 * kBlendCoeffShift));
 
     return key;
 }
@@ -242,7 +238,7 @@ bool GrVkPipelineStateBuilder::Desc::Build(Desc* desc,
 
     stencil.genKey(&b);
 
-    b.add32(get_pipeline_info_key(pipeline));
+    b.add32(get_blend_info_key(pipeline));
 
     b.add32((uint32_t)primitiveType);
 

@@ -1765,6 +1765,15 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
         this->writeWord(oneId, out);
         return flipped;
     }
+    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_CLOCKWISE_BUILTIN &&
+        !fProgram.fSettings.fFlipY) {
+        // FrontFacing in Vulkan is defined in terms of a top-down render target. In skia, we use
+        // the default convention of "counter-clockwise face is front".
+        SpvId inverse = this->nextId();
+        this->writeInstruction(SpvOpLogicalNot, this->getType(*fContext.fBool_Type), inverse,
+                               result, out);
+        return inverse;
+    }
     return result;
 }
 

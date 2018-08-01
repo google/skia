@@ -436,9 +436,7 @@ static void setup_raster_state(const GrPipeline& pipeline,
     rasterInfo->polygonMode = caps->wireframeMode() ? VK_POLYGON_MODE_LINE
                                                     : VK_POLYGON_MODE_FILL;
     rasterInfo->cullMode = VK_CULL_MODE_NONE;
-    // A triangle is front-facing if it winds clockwise in device space.
-    rasterInfo->frontFace = (kTopLeft_GrSurfaceOrigin == pipeline.proxy()->origin())
-        ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    rasterInfo->frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterInfo->depthBiasEnable = VK_FALSE;
     rasterInfo->depthBiasConstantFactor = 0.0f;
     rasterInfo->depthBiasClamp = 0.0f;
