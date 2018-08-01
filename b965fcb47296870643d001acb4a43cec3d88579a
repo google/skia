@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf446ec0_9a6a59ff",
+        "filename": "BUILD.gn",
+        "patchSetId": 13
+      },
+      "lineNbr": 2085,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-08-01T17:26:26Z",
+      "side": 0,
+      "message": "this change seems unrelated to this CL.  Let\u0027s leave it be.",
+      "revId": "b965fcb47296870643d001acb4a43cec3d88579a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
