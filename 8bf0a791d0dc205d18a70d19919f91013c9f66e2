@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02e7e00b_a4ed42fd",
+        "filename": "tools/viewer/Viewer.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 595,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-01T15:26:36Z",
+      "side": 1,
+      "message": "Can we use \u0027skiagm::GMFactory\u0027 here for consistency with the other places which iterate over gms?",
+      "range": {
+        "startLine": 595,
+        "startChar": 9,
+        "endLine": 595,
+        "endChar": 13
+      },
+      "revId": "8bf0a791d0dc205d18a70d19919f91013c9f66e2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
