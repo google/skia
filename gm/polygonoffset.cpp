@@ -377,12 +377,14 @@ const size_t gConvexSizes[] = {
 static_assert(SK_ARRAY_COUNT(gConvexSizes) == SK_ARRAY_COUNT(gConvexPoints), "array_mismatch");
 
 const SkPoint* gSimplePoints[] = {
+    gPoints11,
     gPoints0, gPoints1, gPoints2, gPoints4, gPoints5, gPoints7,
     gPoints8, gPoints11, gPoints12, gPoints13, gPoints14, gPoints15,
     gPoints16, gPoints17, gPoints18,
 };
 
 const size_t gSimpleSizes[] = {
+    SK_ARRAY_COUNT(gPoints11),
     SK_ARRAY_COUNT(gPoints0),
     SK_ARRAY_COUNT(gPoints1),
     SK_ARRAY_COUNT(gPoints2),
