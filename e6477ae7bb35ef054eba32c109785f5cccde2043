@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96813413_6cd88bfd",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-01T21:08:15Z",
+      "side": 1,
+      "message": "This may not be the best place to put this, but we can discuss that more on https://skia-review.googlesource.com/c/skia/+/144608.",
+      "revId": "e6477ae7bb35ef054eba32c109785f5cccde2043",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
