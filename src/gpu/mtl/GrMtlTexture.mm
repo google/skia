@@ -11,18 +11,13 @@
 #include "GrMtlUtil.h"
 #include "GrTexturePriv.h"
 
-// This method parallels GrTextureProxy::highestFilterMode
-static inline GrSamplerState::Filter highest_filter_mode(GrPixelConfig config) {
-    return GrSamplerState::Filter::kMipMap;
-}
-
 GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            SkBudgeted budgeted,
                            const GrSurfaceDesc& desc,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     this->registerWithCache(budgeted);
@@ -34,7 +29,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
     this->registerWithCacheWrapped();
@@ -45,7 +40,7 @@ GrMtlTexture::GrMtlTexture(GrMtlGpu* gpu,
                            id<MTLTexture> texture,
                            GrMipMapsStatus mipMapsStatus)
         : GrSurface(gpu, desc)
-        , INHERITED(gpu, desc, GrTextureType::k2D, highest_filter_mode(desc.fConfig), mipMapsStatus)
+        , INHERITED(gpu, desc, GrTextureType::k2D, mipMapsStatus)
         , fTexture(texture) {
     SkASSERT((GrMipMapsStatus::kNotAllocated == mipMapsStatus) == (1 == texture.mipmapLevelCount));
 }

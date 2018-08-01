@@ -119,16 +119,9 @@ void GrTextureProxyPriv::resetDeferredUploader() {
     fTextureProxy->fDeferredUploader.reset();
 }
 
-// This method parallels the highest_filter_mode functions in GrGLTexture & GrVkTexture.
 GrSamplerState::Filter GrTextureProxy::highestFilterMode() const {
-    if (fTarget) {
-        return fTarget->asTexture()->texturePriv().highestFilterMode();
-    }
-
-    // In OpenGL, GR_GL_TEXTURE_RECTANGLE and GR_GL_TEXTURE_EXTERNAL (which have a highest filter
-    // mode of bilerp) can only be created via wrapping.
-
-    return GrSamplerState::Filter::kMipMap;
+    return this->hasRestrictedSampling() ? GrSamplerState::Filter::kBilerp
+                                         : GrSamplerState::Filter::kMipMap;
 }
 
 GrMipMapped GrTextureProxy::mipMapped() const {
