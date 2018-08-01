@@ -68,6 +68,10 @@ public:
                            GrSurface* src, GrSurfaceOrigin srcOrigin,
                            const SkIRect& srcRect, const SkIPoint& dstPoint);
 
+    bool copySurfaceAsDrawThenBlit(GrSurface* dst, GrSurfaceOrigin dstOrigin,
+                                   GrSurface* src, GrSurfaceOrigin srcOrigin,
+                                   const SkIRect& srcRect, const SkIPoint& dstPoint);
+
     bool onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
                        GrSurface* src, GrSurfaceOrigin srcOrigin,
                        const SkIRect& srcRect,
