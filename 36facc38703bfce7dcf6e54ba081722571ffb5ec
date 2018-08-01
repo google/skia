@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4f8c2b90_fb9e7c20",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-01T22:48:33Z",
+      "side": 1,
+      "message": "I didn\u0027t realize that I can pass a nullptr stream to the base class SkCodec. In that case, can I ignore onRewind, and manage the stream entirely by myself (in SkWuffsGifCodec)? I\u0027d therefore avoid SkCodec\u0027s overly aggressive rewinding. Any subtleties that I\u0027d be missing?",
+      "parentUuid": "4d3fc489_c2c4ec57",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 49
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f7dca708_67de81a1",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -82,6 +106,30 @@
       "writtenOn": "2018-07-31T20:23:30Z",
       "side": 1,
       "message": "This is supposed to represent the alpha of the first frame. You\u0027re right; we don\u0027t yet know what the alpha is of all frames.\n\nThis is another case where we started off with an API that only supported reading the first frame. SkCodec has an SkImageInfo (which I\u0027m in the process of removing) which requires an SkAlphaType. I\u0027ve added FrameInfo\u0027s fAlphaType, which represents the type for that frame, but it\u0027s a little confusing to have one on the SkCodec, too.",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 28
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e02d5f70_c2c05d10",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-01T22:48:33Z",
+      "side": 1,
+      "message": "\u003e This is another case where we started off with an API that only supported reading the first frame.\n\nThat explains a few things. I mean that in a genuine way, not a snarky way.",
+      "parentUuid": "5703ffa3_0452657b",
       "range": {
         "startLine": 183,
         "startChar": 0,
@@ -243,6 +291,30 @@
       "writtenOn": "2018-07-31T20:23:30Z",
       "side": 1,
       "message": "Given the existing architecture, I think that would make more sense. That would both rewind the stream and call onRewind.",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88a63460_1cc8ca4a",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-01T22:48:33Z",
+      "side": 1,
+      "message": "My point was subtle. The superclass\u0027 SkCodec::rewindIfNeeded method doesn\u0027t just rewind the stream and call this.onRewind. It also does:\n\n    // startScanlineDecode will need to be called before decoding scanlines.\n    fCurrScanline \u003d -1;\n    // startIncrementalDecode will need to be called before incrementalDecode.\n    fStartedIncrementalDecode \u003d false;\n\nDo I also want to be doing that here, by calling SkCodec::rewindIfNeeded?",
+      "parentUuid": "2da2fdbf_5a030328",
       "range": {
         "startLine": 429,
         "startChar": 46,
