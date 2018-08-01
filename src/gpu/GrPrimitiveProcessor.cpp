@@ -76,19 +76,19 @@ size_t GrPrimitiveProcessor::debugOnly_instanceAttributeOffset(int i) const {
 
 void GrPrimitiveProcessor::addPendingIOs() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        this->textureSampler(i).programProxy()->markPendingIO();
+        this->textureSampler(i).proxyRef()->markPendingIO();
     }
 }
 
 void GrPrimitiveProcessor::removeRefs() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        this->textureSampler(i).programProxy()->removeRef();
+        this->textureSampler(i).proxyRef()->removeRef();
     }
 }
 
 void GrPrimitiveProcessor::pendingIOComplete() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        this->textureSampler(i).programProxy()->pendingIOComplete();
+        this->textureSampler(i).proxyRef()->pendingIOComplete();
     }
 }
 

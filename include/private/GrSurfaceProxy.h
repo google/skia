@@ -189,8 +189,7 @@ protected:
 
 private:
     // This class is used to manage conversion of refs to pending reads/writes.
-    friend class GrSurfaceProxyRef;
-    template <typename, GrIOType> friend class GrPendingIOResource;
+    template <typename> friend class GrProxyRef;
 
     void didRemoveRefOrPendingIO() const {
         if (0 == fPendingReads && 0 == fPendingWrites && 0 == fRefCnt) {
