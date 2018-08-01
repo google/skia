@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Google Inc.
+ * Copyright 2018 Google Inc.
  *
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
@@ -13,11 +13,15 @@ dependencies {
 
 android {
     compileSdkVersion 23
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     flavorDimensions "tier"
     defaultConfig {
-        applicationId "org.skia.viewer"
-        minSdkVersion 19
-        targetSdkVersion 19
+        applicationId "org.skia.skottie"
+        minSdkVersion 23
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
         signingConfig signingConfigs.debug
@@ -27,5 +31,5 @@ android {
     sourceSets.main.jniLibs.srcDir "src/main/libs"
     productFlavors { universal{}; arm {}; arm64 {}; x86 {}; x64 {}; arm64vulkan{}; }
 
-    setupSkiaLibraryBuild(project, applicationVariants, "libviewer")
+    setupSkiaLibraryBuild(project, applicationVariants, "libskottie_android")
 }
