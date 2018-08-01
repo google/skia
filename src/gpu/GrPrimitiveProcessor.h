@@ -10,6 +10,7 @@
 
 #include "GrColor.h"
 #include "GrProcessor.h"
+#include "GrProxyRef.h"
 #include "GrShaderVar.h"
 
 class GrCoordTransform;
@@ -216,7 +217,7 @@ public:
         return fProxyRef.get()->peekTexture();
     }
 
-    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
+    GrTextureProxy* proxy() const { return fProxyRef.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
@@ -224,10 +225,10 @@ public:
     /**
      * For internal use by GrPrimitiveProcessor.
      */
-    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
+    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
 
 private:
-    GrSurfaceProxyRef fProxyRef;
+    GrTextureProxyRef fProxyRef;
     GrSamplerState fSamplerState;
     GrShaderFlags fVisibility = kNone_GrShaderFlags;
 };
