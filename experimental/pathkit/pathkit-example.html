@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<title>Including Skia WASM</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<svg id=svg xmlns='http://www.w3.org/2000/svg' width=100 height=100 viewPort='0 0 100 100'>
+</svg>
+
+<script type="text/javascript" src="./npm-wasm/bin/pathkit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  PathKitInit({
+    locateFile: (file) => './npm-wasm/bin/'+file,
+  }).then((PathKit) => {
+    function floatTypedArrayFrom2D(arr) {
+      // expects 2d array where index 0 is verb and index 1-n are args
+      let len = 0;
+      for (let cmd of arr) {
+        len += cmd.length;
+      }
+
+      const ta = new Float32Array(len);
+      let i = 0;
+      for (let cmd of arr) {
+        for (let c of cmd) {
+          ta[i] = c;
+          i++;
+        }
+      }
+
+      retVal = PathKit._malloc(ta.length * ta.BYTES_PER_ELEMENT);
+      PathKit.HEAPF32.set(ta, retVal / ta.BYTES_PER_ELEMENT);
+      return [retVal, len];
+    }
+
+    function SkPathFromCmdTyped(cmdArr) {
+      let [cmd, len] = floatTypedArrayFrom2D(cmdArr);
+      let path = PathKit.FromCmds(cmd, len);
+      PathKit._free(cmd);
+      return path;
+    }
+
+    // TODO(kjlubick): Show SVG string in as one way and Path2d-like syntax for the other way
+    // since those are most familiar to outside users.
+    let commands = [];
+
+    commands.push([PathKit.MOVE_VERB, 0, 0]);
+    commands.push([PathKit.LINE_VERB, 40, 0]);
+    commands.push([PathKit.LINE_VERB, 20, 20]);
+    commands.push([PathKit.CLOSE_VERB]);
+
+    commands.push([PathKit.MOVE_VERB, 20, 0]);
+    commands.push([PathKit.LINE_VERB, 60, 0]);
+    commands.push([PathKit.LINE_VERB, 40, 20]);
+    commands.push([PathKit.CLOSE_VERB]);
+
+    let path = SkPathFromCmdTyped(commands);
+
+    let simplePath = PathKit.SimplifyPath(path);
+    let simpleStr = PathKit.ToSVGString(simplePath);
+
+    let newPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    newPath.setAttribute('stroke', 'rgb(0,0,200)');
+    newPath.setAttribute('fill', 'white');
+    newPath.setAttribute('d', simpleStr);
+    document.getElementById('svg').appendChild(newPath);
+
+  });
+
+  // var PathKit = {
+  //   postRun:[entryPoint],
+  //   locateFile: (file) => "./npm-wasm/bin/"+file,
+  // };
+</script>

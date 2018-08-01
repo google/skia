@@ -1,0 +1,10 @@
+{
+  "name": "pathkit-wasm",
+  "version": "0.1.0",
+  "description": "A WASM version of Skia's PathOps toolkit",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "Apache-2.0"
+}
