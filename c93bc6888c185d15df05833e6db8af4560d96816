@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b344428d_47eeb510",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-01T16:34:59Z",
+      "side": 1,
+      "message": "Nit: I might tag this with [infra]",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 1
+      },
+      "revId": "c93bc6888c185d15df05833e6db8af4560d96816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6884c254_4a4ec632",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-01T16:34:59Z",
+      "side": 1,
+      "message": "Nit: Maybe \"gold_hashes_url\" to be specific, here and elsewhere.",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 13
+      },
+      "revId": "c93bc6888c185d15df05833e6db8af4560d96816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
