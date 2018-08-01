@@ -762,6 +762,11 @@ public:
         return this->getPixels() != nullptr;
     }
 
+    /**
+      Value returned if SkPixelRef is nullptr
+    */
+    static const uint32_t kInvalidGenID  = 0;
+
     /** Returns a unique value corresponding to the pixels in SkPixelRef.
         Returns a different value after notifyPixelsChanged() has been called.
         Returns zero if SkPixelRef is nullptr.
