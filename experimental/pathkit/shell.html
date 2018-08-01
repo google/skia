@@ -150,83 +150,6 @@
 
         //==============================================================================
 
-        function uint8TypedArray(arr) {
-          const ta = new Uint8ClampedArray(arr.length);
-          for (let i = 0; i < arr.length; i++){
-            ta[i] = arr[i];
-          }
-
-          retVal = Module._malloc(ta.length * ta.BYTES_PER_ELEMENT);
-          Module.HEAPU8.set(ta, retVal / ta.BYTES_PER_ELEMENT);
-          return retVal;
-        }
-
-        function floatTypedArray(arr) {
-          const ta = new Float32Array(arr.length);
-          for (let i = 0; i < arr.length; i++){
-            ta[i] = arr[i];
-          }
-
-          retVal = Module._malloc(ta.length * ta.BYTES_PER_ELEMENT);
-          Module.HEAPF32.set(ta, retVal / ta.BYTES_PER_ELEMENT);
-          return retVal;
-        }
-        var path4;
-        for (let i = 0; i< FAST_TIMES; i++) {
-          if (i === 10) {
-            console.time('path_with_typed_array'); // about 3.6s for 1M iterations
-          }
-          let verbs = [];
-          let args = [];
-
-          verbs.push(Module.MOVE_VERB);
-          args.push(100); args.push(0);
-          verbs.push(Module.LINE_VERB);
-          args.push(140); args.push(0);
-          verbs.push(Module.LINE_VERB);
-          args.push(120); args.push(20);
-          verbs.push(Module.CLOSE_VERB);
-
-          verbs.push(Module.MOVE_VERB);
-          args.push(120); args.push(0);
-          verbs.push(Module.LINE_VERB);
-          args.push(160); args.push(0);
-          verbs.push(Module.LINE_VERB);
-          args.push(140); args.push(20);
-          verbs.push(Module.CLOSE_VERB);
-
-          let tVerbs = uint8TypedArray(verbs);
-          let tArgs =  floatTypedArray(args);
-
-          path4 = Module.SkPathFromVerbsArgsTyped(tVerbs, verbs.length,
-                                                  tArgs, args.length);
-          if (i < FAST_TIMES - 1) {
-            path4.delete();
-          }
-          Module._free(tVerbs);
-          Module._free(tArgs);
-        }
-        console.timeEnd('path_with_typed_array');
-        //path4.dump();
-
-        var v4, a4;
-        for (let i = 0; i< FAST_TIMES; i++) {
-          if (i === 10) {
-            console.time('to_verbs_args_array'); // about 5.4s for 1M iterations
-          }
-          v4 = [];
-          a4 = [];
-          Module.SkPathToVerbsArgsArray(path4, v4, a4);
-        }
-        console.timeEnd('to_verbs_args_array');
-
-        Module.print(`Got path with ${v4.length} verbs and ${a4.length} args`);
-        Module.print(v4[0] + ' (0 for value is MoveTo, 1 for LineTo, etc)');
-        Module.print(a4[0], a4[1] + ' (coordinates)');
-
-        path4.delete();
-        //==============================================================================
-
         let p1 = new Module.SkPath();
         p1.moveTo(0,60);
         p1.lineTo(40,60);
@@ -312,9 +235,9 @@
           return [retVal, len];
         }
 
-        function SkPathFromCmdTyped(cmdArr) {
+        function FromCmds(cmdArr) {
           let [cmd, len] = floatTypedArrayFrom2D(cmdArr);
-          let path = Module.SkPathFromCmdTyped(cmd, len);
+          let path = Module.FromCmds(cmd, len);
           Module._free(cmd);
           return path;
         }
@@ -336,7 +259,7 @@
           commands.push([Module.LINE_VERB, 140, 80]);
           commands.push([Module.CLOSE_VERB]);
 
-          path5 = SkPathFromCmdTyped(commands);
+          path5 = FromCmds(commands);
 
           if (i < FAST_TIMES - 1) {
             path5.delete();
@@ -355,7 +278,7 @@
           if (i === 10) {
             console.time('to_cmd_array'); // about 9.1s for 1M iterations
           }
-          cmd5 = Module.SkPathToCmdArray(path5);
+          cmd5 = Module.ToCmds(path5);
         }
         console.timeEnd('to_cmd_array');
 
@@ -390,7 +313,7 @@
         newPath.setAttribute('d', androidSimple);
         document.getElementById('svg').appendChild(newPath);
 
-        androidCMDs = Module.SkPathToCmdArray(android);
+        androidCMDs = Module.ToCmds(android);
 
         android.delete();
         result.delete();
@@ -401,7 +324,7 @@
             console.time('path_cmd_typed (moderate)'); // about 2.2s for 100k
           }
 
-          android2 = SkPathFromCmdTyped(androidCMDs);
+          android2 = FromCmds(androidCMDs);
 
           if (i < FAST_TIMES - 1) {
             android2.delete();
@@ -426,38 +349,40 @@
         android2.delete();
 
         // ===========================================================
+        // This Region specific stuff only exists on Debug/Testing builds.
+        if (Module.SkBits2Float) {
+          let float = Module.SkBits2Float(parseInt("0x3f2aaaab"));
+          Module.print('SkBits2Float(0x3f2aaaab) = 0.666667', float);
 
-        let float = Module.SkBits2Float(parseInt("0x3f2aaaab"));
-        Module.print('SkBits2Float(0x3f2aaaab) = 0.666667', float);
+          p1 = new Module.SkPath();
+          p1.moveTo(0,60);
+          p1.lineTo(40,60);
+          p1.lineTo(20,80);
+          p1.close();
+          p2 = new Module.SkPath();
+          p2.moveTo(20,60);
+          p2.lineTo(60,60);
+          p2.lineTo(40,80);
+          p2.close();
 
-        p1 = new Module.SkPath();
-        p1.moveTo(0,60);
-        p1.lineTo(40,60);
-        p1.lineTo(20,80);
-        p1.close();
-        p2 = new Module.SkPath();
-        p2.moveTo(20,60);
-        p2.lineTo(60,60);
-        p2.lineTo(40,80);
-        p2.close();
+          let rgnA = new Module.SkRegion();
+          let rgnB = new Module.SkRegion();
+          let openClip = new Module.SkRegion();
+          let rgnOut = new Module.SkRegion();
+          openClip.setRect(-16000, -16000, 16000, 16000);
+          rgnA.setPath(p1, openClip);
+          rgnB.setPath(p2, openClip);
+          rgnOut.opRegionAB(rgnA, rgnB, Module.RegionOp.INTERSECT);
+          let pathOut = Module.GetBoundaryPathFromRegion(rgnOut);
 
-        let rgnA = new Module.SkRegion();
-        let rgnB = new Module.SkRegion();
-        let openClip = new Module.SkRegion();
-        let rgnOut = new Module.SkRegion();
-        openClip.setRect(-16000, -16000, 16000, 16000);
-        rgnA.setPath(p1, openClip);
-        rgnB.setPath(p2, openClip);
-        rgnOut.opRegionAB(rgnA, rgnB, Module.RegionOp.INTERSECT);
-        let pathOut = Module.GetBoundaryPathFromRegion(rgnOut);
-
-        p1.delete();
-        p2.delete();
-        rgnA.delete();
-        rgnB.delete();
-        openClip.delete();
-        rgnOut.delete();
-        pathOut.delete();
+          p1.delete();
+          p2.delete();
+          rgnA.delete();
+          rgnB.delete();
+          openClip.delete();
+          rgnOut.delete();
+          pathOut.delete();
+        }
       }
     </script>
     <script type='text/javascript'>
