@@ -44,6 +44,10 @@
 #include <unistd.h>
 #endif // !defined(SK_BUILD_FOR_WIN)
 
+#if defined(SK_BUILD_FOR_WIN) && defined(SK_DEBUG)
+#include "SkLeanWindows.h"
+#endif
+
 #define VK_CALL(X) GR_VK_CALL(this->vkInterface(), X)
 #define VK_CALL_RET(RET, X) GR_VK_CALL_RET(this->vkInterface(), RET, X)
 #define VK_CALL_ERRCHECK(X) GR_VK_CALL_ERRCHECK(this->vkInterface(), X)
