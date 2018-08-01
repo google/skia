@@ -362,6 +362,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrDisableColorXP.h",
   "$_src/gpu/effects/GrDistanceFieldGeoProc.cpp",
   "$_src/gpu/effects/GrDistanceFieldGeoProc.h",
+  "$_src/gpu/effects/GrDynamicTextureStripAtlas.cpp",
+  "$_src/gpu/effects/GrDynamicTextureStripAtlas.h",
   "$_src/gpu/effects/GrEllipseEffect.cpp",
   "$_src/gpu/effects/GrEllipseEffect.h",
   "$_src/gpu/effects/GrGaussianConvolutionFragmentProcessor.cpp",
