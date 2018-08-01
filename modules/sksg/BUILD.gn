@@ -7,7 +7,7 @@ config("public_config") {
   include_dirs = [ "include" ]
 }
 
-source_set("sksg") {
+component("sksg") {
   public_configs = [ ":public_config" ]
   sources = [
     "src/SkSGClipEffect.cpp",
