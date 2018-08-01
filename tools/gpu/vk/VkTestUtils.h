@@ -12,6 +12,7 @@
 
 #ifdef SK_VULKAN
 
+#include "GrVulkanDefines.h"
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkTypes.h"
 #include <functional>

@@ -10,9 +10,11 @@ config("vulkanmemoryallocator_public") {
 source_set("vulkanmemoryallocator") {
   public_configs = [ ":vulkanmemoryallocator_public" ]
 
+  include_dirs = [ "../vulkan" ]
+
   # Need to add this so when we include GrVkDefines.h it internally can find SkTypes.h which is
   # needed in case the user set defines in SkUserConfig.h.
-  include_dirs = [ "../../include/core" ]
+  include_dirs += [ "../../include/core" ]
   include_dirs += [ "../../include/config" ]
   if (defined(is_skia_standalone) && is_skia_standalone && !is_official_build) {
     include_dirs += [ "../../tools/gpu/vk" ]
@@ -22,12 +24,6 @@ source_set("vulkanmemoryallocator") {
   sources = [
     "GrVulkanMemoryAllocator.cpp",
     "GrVulkanMemoryAllocator.h",
-  ]
-
-  # TODO: As described in the main skia BUILD.gn file we eventually want to move this to be
-  # //third_party/vulkan once clients have created their own //third_party/vulkan directory.
-  deps = [
-    "../vulkan",
   ]
 
   # Warnings are just noise if we're not maintaining the code.

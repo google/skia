@@ -12,6 +12,7 @@
 
 #ifdef SK_VULKAN
 
+#include "GrVulkanDefines.h"
 #include "vk/GrVkBackendContext.h"
 
 namespace sk_gpu_test {
