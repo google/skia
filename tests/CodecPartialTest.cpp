@@ -180,7 +180,7 @@ DEF_TEST(Codec_requiredFrame, r) {
 
     std::vector<SkCodec::FrameInfo> partialInfo;
     size_t frameToCompare = 0;
-    for (; stream->getLength() <= file->size(); stream->addNewData(1)) {
+    while (true) {
         partialInfo = partialCodec->getFrameInfo();
         for (; frameToCompare < partialInfo.size(); frameToCompare++) {
             REPORTER_ASSERT(r, partialInfo[frameToCompare].fRequiredFrame
@@ -190,6 +190,12 @@ DEF_TEST(Codec_requiredFrame, r) {
         if (frameToCompare == frameInfo.size()) {
             break;
         }
+
+        if (stream->getLength() == file->size()) {
+            ERRORF(r, "Should have found all frames for %s", path);
+            return;
+        }
+        stream->addNewData(1);
     }
 }
 
