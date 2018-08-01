@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85c79966_203865be",
+        "filename": "src/gpu/mtl/GrMtlGpu.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-01T13:50:11Z",
+      "side": 1,
+      "message": "lets a little comment on this function to say why it is needed, i.e. to handle the case where origins are different but the dst is not a RT",
+      "range": {
+        "startLine": 71,
+        "startChar": 4,
+        "endLine": 73,
+        "endChar": 85
+      },
+      "revId": "7c3c8240517eecce711ad6f200aef43ebd968c8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
