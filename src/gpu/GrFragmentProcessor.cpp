@@ -92,9 +92,9 @@ bool GrFragmentProcessor::instantiate(GrResourceProvider* resourceProvider) cons
 
 void GrFragmentProcessor::markPendingExecution() const {
     for (int i = 0; i < fTextureSamplerCnt; ++i) {
-        auto* proxy = this->textureSampler(i).programProxy();
-        proxy->markPendingIO();
-        proxy->removeRef();
+        auto* ref = this->textureSampler(i).proxyRef();
+        ref->markPendingIO();
+        ref->removeRef();
     }
     for (int i = 0; i < this->numChildProcessors(); ++i) {
         this->childProcessor(i).markPendingExecution();

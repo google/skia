@@ -9,7 +9,7 @@
 #define GrOpList_DEFINED
 
 #include "GrColor.h"
-#include "GrSurfaceProxyRef.h"
+#include "GrProxyRef.h"
 #include "GrTextureProxy.h"
 #include "SkRefCnt.h"
 #include "SkTDArray.h"

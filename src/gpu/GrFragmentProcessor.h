@@ -9,10 +9,10 @@
 #define GrFragmentProcessor_DEFINED
 
 #include "GrProcessor.h"
+#include "GrProxyRef.h"
 
 class GrCoordTransform;
 class GrGLSLFragmentProcessor;
-class GrInvariantOutput;
 class GrPaint;
 class GrPipeline;
 class GrProcessorKeyBuilder;
@@ -441,17 +441,17 @@ public:
         return fProxyRef.get()->peekTexture();
     }
 
-    GrTextureProxy* proxy() const { return fProxyRef.get()->asTextureProxy(); }
+    GrTextureProxy* proxy() const { return fProxyRef.get(); }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
     bool isInitialized() const { return SkToBool(fProxyRef.get()); }
     /**
      * For internal use by GrFragmentProcessor.
      */
-    const GrSurfaceProxyRef* programProxy() const { return &fProxyRef; }
+    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
 
 private:
-    GrSurfaceProxyRef fProxyRef;
+    GrTextureProxyRef fProxyRef;
     GrSamplerState fSamplerState;
 };
 

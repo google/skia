@@ -16,7 +16,6 @@
 #include "GrSamplerState.h"
 #include "GrShaderVar.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrSurfaceProxyRef.h"
 #include "GrTextureProxy.h"
 #include "SkMath.h"
 #include "SkString.h"
