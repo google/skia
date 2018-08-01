@@ -63,6 +63,13 @@ def compile_fn(api, checkout_root, out_dir):
   args = {}
   env = {}
 
+  if os == 'Mac':
+    # In the future we will use CIPD to install Xcode on Mac builders. If we are
+    # backfilling after a task that used XCode from CIPD, we need to select the
+    # default Xcode again.
+    api.step('select xcode', [
+        'sudo', 'xcode-select', '-switch', '/Applications/Xcode9.2.app'])
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'
