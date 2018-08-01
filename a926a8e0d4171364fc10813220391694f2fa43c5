@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "df53467f_6cb85d39",
+        "filename": "BUILD.gn",
+        "patchSetId": 2
+      },
+      "lineNbr": 2015,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "I cleaned the dependencies. Skottie has been moved from experimental to module.",
+      "parentUuid": "e43af0fd_d6971ab1",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6e117feb_29367046",
         "filename": "platform_tools/android/apps/skottie/CMakeLists.txt",
         "patchSetId": 2
@@ -33,6 +51,24 @@
       "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf7786ed_17b8cb97",
+        "filename": "platform_tools/android/apps/skottie/CMakeLists.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "libskottie is coming from main BUILD.gn, on top of it there is a cmake library that allows Android Studio debugger to work. I\u0027ll delete the cmake library.",
+      "parentUuid": "6e117feb_29367046",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "8d9dfb40_93e573e6",
+        "filename": "platform_tools/android/apps/skottie/build.gradle",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "deleted",
+      "parentUuid": "72d582b0_61330f95",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a6716f3b_dae97e02",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 2
@@ -67,6 +121,24 @@
       "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e11fe5c3_21281043",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "a6716f3b_dae97e02",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "29561f7a_ccece375",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "73c9d32f_50e47933",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3009d2ab_070a9f15",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 2
@@ -101,6 +191,24 @@
       "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "697aa146_7e04bbd4",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "Image layers is a rarely used lottie file feature. I think we can leave it for latter.",
+      "parentUuid": "3009d2ab_070a9f15",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -127,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "21e27c10_73ad2be0",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "This is JNI notation for nested java class.",
+      "parentUuid": "83d55bfd_0028910c",
+      "range": {
+        "startLine": 358,
+        "startChar": 35,
+        "endLine": 358,
+        "endChar": 41
+      },
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "56b3e8a6_5ac20114",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieActivity.java",
         "patchSetId": 2
@@ -144,6 +276,24 @@
     },
     {
       "key": {
+        "uuid": "16514fe7_55f104db",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieActivity.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "deleted",
+      "parentUuid": "56b3e8a6_5ac20114",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0251223_e4da9ed4",
         "filename": "tools/skottie/jni/skottie_android.cpp",
         "patchSetId": 2
@@ -158,6 +308,24 @@
       "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2c4200f2_1db08ae8",
+        "filename": "tools/skottie/jni/skottie_android.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-01T21:14:34Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "a0251223_e4da9ed4",
+      "revId": "a926a8e0d4171364fc10813220391694f2fa43c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
