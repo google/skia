@@ -153,6 +153,7 @@ public:
         GrVkExtensions* extensions;
         bool ownsContext = true;
         VkDebugReportCallbackEXT debugCallback = VK_NULL_HANDLE;
+        PFN_vkDestroyDebugReportCallbackEXT destroyCallback = nullptr;
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
             extensions = const_cast<GrVkExtensions*>(sharedContext->getVkExtensions());
@@ -177,8 +178,13 @@ public:
                                                      &debugCallback)) {
                 return nullptr;
             }
+            if (debugCallback != VK_NULL_HANDLE) {
+                destroyCallback = (PFN_vkDestroyDebugReportCallbackEXT) instProc(
+                        backendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
+            }
         }
-        return new VkTestContextImpl(backendContext, extensions, ownsContext, debugCallback);
+        return new VkTestContextImpl(backendContext, extensions, ownsContext, debugCallback,
+                                     destroyCallback);
     }
 
     ~VkTestContextImpl() override { this->teardown(); }
@@ -225,8 +231,10 @@ protected:
 
 private:
     VkTestContextImpl(const GrVkBackendContext& backendContext, const GrVkExtensions* extensions,
-                      bool ownsContext, VkDebugReportCallbackEXT debugCallback)
-            : VkTestContext(backendContext, extensions, ownsContext, debugCallback) {
+                      bool ownsContext, VkDebugReportCallbackEXT debugCallback,
+                      PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
+            : VkTestContext(backendContext, extensions, ownsContext, debugCallback,
+                            destroyCallback) {
         fFenceSync.reset(new VkFenceSync(fVk.fGetProc, fVk.fDevice, fVk.fQueue,
                                          fVk.fGraphicsQueueIndex));
     }

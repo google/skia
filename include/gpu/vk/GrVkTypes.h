@@ -9,23 +9,9 @@
 #ifndef GrVkTypes_DEFINED
 #define GrVkTypes_DEFINED
 
+#include <functional>
 #include "GrTypes.h"
 #include "GrVkDefines.h"
-
-/**
- * KHR_debug
- */
-/*typedef void (GR_GL_FUNCTION_TYPE* GrVkDEBUGPROC)(GrVkenum source,
-                                                  GrVkenum type,
-                                                  GrVkuint id,
-                                                  GrVkenum severity,
-                                                  GrVksizei length,
-                                                  const GrVkchar* message,
-                                                  const void* userParam);*/
-
-
-
-///////////////////////////////////////////////////////////////////////////////
 
 typedef intptr_t GrVkBackendMemory;
 
@@ -114,5 +100,12 @@ struct GrVkImageInfo {
                fFormat == that.fFormat && fLevelCount == that.fLevelCount;
     }
 };
+
+using GrVkGetProc = std::function<PFN_vkVoidFunction(
+        const char*, // function name
+        VkInstance,  // instance or VK_NULL_HANDLE
+        VkDevice     // device or VK_NULL_HANDLE
+        )>;
+
 
 #endif

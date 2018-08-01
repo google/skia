@@ -8,7 +8,6 @@
 #ifndef GrVkBackendContext_DEFINED
 #define GrVkBackendContext_DEFINED
 
-#include <functional>
 #include "GrVkTypes.h"
 #include "SkRefCnt.h"
 #include "vk/GrVkMemoryAllocator.h"
@@ -30,12 +29,6 @@ enum GrVkFeatureFlags {
     kDualSrcBlend_GrVkFeatureFlag      = 0x0002,
     kSampleRateShading_GrVkFeatureFlag = 0x0004,
 };
-
-using GrVkGetProc = std::function<PFN_vkVoidFunction(
-        const char*, // function name
-        VkInstance,  // instance or VK_NULL_HANDLE
-        VkDevice     // device or VK_NULL_HANDLE
-        )>;
 
 // The BackendContext contains all of the base Vulkan objects needed by the GrVkGpu. The assumption
 // is that the client will set these up and pass them to the GrVkGpu constructor. The VkDevice

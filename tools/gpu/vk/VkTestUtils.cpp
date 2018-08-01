@@ -571,7 +571,8 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     VkQueue queue;
     grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
 
-    extensions->init((uint32_t) instanceExtensionNames.count(),
+    extensions->init(getProc, inst, physDev,
+                     (uint32_t) instanceExtensionNames.count(),
                      instanceExtensionNames.begin(),
                      (uint32_t) deviceExtensionNames.count(),
                      deviceExtensionNames.begin());

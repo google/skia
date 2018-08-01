@@ -37,6 +37,7 @@
 #include "SkSLCompiler.h"
 #include "SkTo.h"
 
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkTypes.h"
 
 #include <utility>
