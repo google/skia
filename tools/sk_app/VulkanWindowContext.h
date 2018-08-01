@@ -93,6 +93,7 @@ private:
 
     PFN_vkDestroyInstance fDestroyInstance = nullptr;
     PFN_vkDeviceWaitIdle fDeviceWaitIdle = nullptr;
+    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
     PFN_vkQueueWaitIdle fQueueWaitIdle = nullptr;
     PFN_vkDestroyDevice fDestroyDevice = nullptr;
     PFN_vkGetDeviceQueue fGetDeviceQueue = nullptr;
