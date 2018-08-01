@@ -63,6 +63,30 @@ def compile_fn(api, checkout_root, out_dir):
   args = {}
   env = {}
 
+  if os == 'Mac':
+    mac_toolchain_cmd = api.vars.slave_dir.join('mac_toolchain')
+    # When this changes, also update lib_dir below.
+    xcode_build_version = '9c40b'
+    xcode_app_path = api.path['cache'].join('Xcode.app')
+    # Copied from
+    # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
+    with api.step.nest('ensure xcode') as step_result:
+      step_result.presentation.step_text = (
+          'Ensuring Xcode version %s in %s' % (
+              xcode_build_version, xcode_app_path))
+      install_xcode_cmd = [
+          mac_toolchain_cmd, 'install',
+          # We don't need the iOS simulator, so "mac" is sufficient.
+          '-kind', 'mac',
+          '-xcode-version', xcode_build_version,
+          '-output-dir', xcode_app_path,
+      ]
+      api.step('install xcode', install_xcode_cmd)
+      api.step('select xcode', [
+          'sudo', 'xcode-select', '-switch', xcode_app_path])
+      extra_cflags.append(
+          '-DDUMMY_xcode_build_version=%s' % xcode_build_version)
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'
@@ -280,7 +304,27 @@ def compile_fn(api, checkout_root, out_dir):
 
 
 def copy_extra_build_products(api, src, dst):
-  if 'SwiftShader' in api.vars.extra_tokens:
+  extra_tokens  = api.vars.extra_tokens
+  os            = api.vars.builder_cfg.get('os',            '')
+
+  if 'SwiftShader' in extra_tokens:
     util.copy_whitelisted_build_products(api,
         src.join('swiftshader_out'),
         api.vars.swarming_out_dir.join('swiftshader_out'))
+
+  if os == 'Mac' and any('SAN' in t for t in extra_tokens):
+    # Hardcoding this path because it should only change when we upgrade to a
+    # new Xcode.
+    lib_dir = api.path['cache'].join(
+        'Xcode.app', 'Contents', 'Developer', 'Toolchains',
+        'XcodeDefault.xctoolchain', 'usr', 'lib', 'clang', '9.0.0', 'lib',
+        'darwin')
+    dylibs = api.file.glob_paths('find xSAN dylibs', lib_dir,
+                                 'libclang_rt.*san_osx_dynamic.dylib',
+                                 test_data=[
+                                     'libclang_rt.asan_osx_dynamic.dylib',
+                                     'libclang_rt.tsan_osx_dynamic.dylib',
+                                     'libclang_rt.ubsan_osx_dynamic.dylib',
+                                 ])
+    for f in dylibs:
+      api.file.copy('copy %s' % api.path.basename(f), f, dst)
