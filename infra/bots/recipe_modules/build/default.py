@@ -63,6 +63,28 @@ def compile_fn(api, checkout_root, out_dir):
   args = {}
   env = {}
 
+  if os == 'Mac':
+    mac_toolchain_cmd = api.vars.slave_dir.join('mac_toolchain')
+    xcode_build_version = '9c40b'
+    xcode_app_path = api.path['cache'].join('Xcode.app')
+    # Copied from
+    # https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#322
+    with api.step.nest('ensure xcode') as step_result:
+      step_result.presentation.step_text = (
+          'Ensuring Xcode version %s in %s' % (
+              xcode_build_version, xcode_app_path))
+      install_xcode_cmd = [
+          mac_toolchain_cmd, 'install',
+          '-kind', 'ios',
+          '-xcode-version', xcode_build_version,
+          '-output-dir', xcode_app_path,
+      ]
+      api.step('install xcode', install_xcode_cmd)
+      api.step('select xcode', [
+          'sudo', 'xcode-select', '-switch', xcode_app_path])
+      extra_cflags.append(
+          '-DDUMMY_xcode_build_version=%s' % xcode_build_version)
+
   if compiler == 'Clang' and api.vars.is_linux:
     cc  = clang_linux + '/bin/clang'
     cxx = clang_linux + '/bin/clang++'

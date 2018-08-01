@@ -1,5 +1,40 @@
 [
   {
+    "cmd": [],
+    "name": "ensure xcode",
+    "~followup_annotations": [
+      "@@@STEP_TEXT@Ensuring Xcode version 9c40b in [CACHE]/Xcode.app@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "[START_DIR]/mac_toolchain",
+      "install",
+      "-kind",
+      "ios",
+      "-xcode-version",
+      "9c40b",
+      "-output-dir",
+      "[CACHE]/Xcode.app"
+    ],
+    "name": "ensure xcode.install xcode",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "sudo",
+      "xcode-select",
+      "-switch",
+      "[CACHE]/Xcode.app"
+    ],
+    "name": "ensure xcode.select xcode",
+    "~followup_annotations": [
+      "@@@STEP_NEST_LEVEL@1@@@"
+    ]
+  },
+  {
     "cmd": [
       "python",
       "-u",
@@ -37,7 +72,7 @@
       "[START_DIR]/cache/work/skia/bin/gn",
       "gen",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-CommandBuffer/Debug",
-      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-O1\"] target_cpu=\"x86_64\""
+      "--args=cc=\"clang\" cxx=\"clang++\" extra_cflags=[\"-DDUMMY_xcode_build_version=9c40b\", \"-O1\"] target_cpu=\"x86_64\""
     ],
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
