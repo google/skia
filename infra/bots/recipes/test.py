@@ -891,7 +891,7 @@ def test_steps(api):
         import time
         import urllib2
 
-        HASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'
+        HASHES_URL = sys.argv[1]
         RETRIES = 5
         TIMEOUT = 60
         WAIT_BASE = 15
@@ -902,7 +902,7 @@ def test_steps(api):
             with contextlib.closing(
                 urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:
               hashes = w.read()
-              with open(sys.argv[1], 'w') as f:
+              with open(sys.argv[2], 'w') as f:
                 f.write(hashes)
                 break
           except Exception as e:
@@ -914,7 +914,7 @@ def test_steps(api):
             print 'Retry in %d seconds.' % waittime
             time.sleep(waittime)
         """,
-        args=[host_hashes_file],
+        args=[api.properties['hashes_url'], host_hashes_file],
         abort_on_failure=False,
         fail_build_on_failure=False,
         infra_step=True)
@@ -1086,6 +1086,7 @@ def GenTests(api):
                      buildbucket_build_id='123454321',
                      revision='abc123',
                      path_config='kitchen',
+                     hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
       api.path.exists(
           api.path['start_dir'].join('skia'),
@@ -1124,6 +1125,7 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.properties(patch_storage='gerrit') +
     api.properties.tryserver(
@@ -1150,6 +1152,7 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
@@ -1171,6 +1174,7 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
@@ -1193,6 +1197,7 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
@@ -1218,6 +1223,7 @@ def GenTests(api):
                    buildbucket_build_id='123454321',
                    revision='abc123',
                    path_config='kitchen',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    swarm_out_dir='[SWARM_OUT_DIR]') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
@@ -1242,6 +1248,7 @@ def GenTests(api):
                    revision='abc123',
                    path_config='kitchen',
                    swarm_out_dir='[SWARM_OUT_DIR]',
+                   hashes_url='https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt',
                    internal_hardware_label='2') +
     api.path.exists(
         api.path['start_dir'].join('skia'),
