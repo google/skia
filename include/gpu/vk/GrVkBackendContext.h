@@ -13,6 +13,8 @@
 #include "SkRefCnt.h"
 #include "vk/GrVkMemoryAllocator.h"
 
+class GrVkExtensions;
+
 enum GrVkExtensionFlags {
     kEXT_debug_report_GrVkExtensionFlag    = 0x0001,
     kNV_glsl_shader_GrVkExtensionFlag      = 0x0002,
@@ -50,11 +52,11 @@ struct SK_API GrVkBackendContext {
     VkQueue                    fQueue;
     uint32_t                   fGraphicsQueueIndex;
     uint32_t                   fMinAPIVersion;
-    uint32_t                   fExtensions;
-    uint32_t                   fFeatures;
+    uint32_t                   fExtensions = 0;
+    const GrVkExtensions*      fVkExtensions = nullptr;
+    uint32_t                   fFeatures = 0;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
     GrVkGetProc                fGetProc = nullptr;
-
     // This is deprecated and should be set to false. The client is responsible for managing the
     // lifetime of the VkInstance and VkDevice objects.
     bool                       fOwnsInstanceAndDevice = false;
