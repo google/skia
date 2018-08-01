@@ -146,7 +146,8 @@ SkVector SkEvalQuadTangentAt(const SkPoint src[3], SkScalar t) {
 }
 
 static inline Sk2s interp(const Sk2s& v0, const Sk2s& v1, const Sk2s& t) {
-    return v0 + (v1 - v0) * t;
+    //return v0 + (v1 - v0) * t;
+    return (v0 * (Sk2s(1.0f) - t)) + (v1 * t);
 }
 
 void SkChopQuadAt(const SkPoint src[3], SkPoint dst[5], SkScalar t) {
