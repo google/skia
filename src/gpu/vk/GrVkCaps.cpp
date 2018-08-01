@@ -10,9 +10,9 @@
 #include "GrRenderTargetProxy.h"
 #include "GrRenderTarget.h"
 #include "GrShaderCaps.h"
+#include "GrVkInterface.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkBackendContext.h"
-#include "vk/GrVkInterface.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, uint32_t featureFlags, uint32_t extensionFlags)

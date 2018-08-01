@@ -7,7 +7,7 @@
 
 #include "GrVkAMDMemoryAllocator.h"
 
-#include "vk/GrVkInterface.h"
+#include "GrVkInterface.h"
 #include "GrVkMemory.h"
 #include "GrVkUtil.h"
 

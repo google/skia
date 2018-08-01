@@ -49,8 +49,17 @@ VulkanWindowContext::VulkanWindowContext(const DisplayParams& params,
 void VulkanWindowContext::initializeContext() {
     // any config code here (particularly for msaa)?
 
+    PFN_vkGetInstanceProcAddr getInstanceProc = fGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr getDeviceProc = fGetDeviceProcAddr;
+    auto getProc = [getInstanceProc, getDeviceProc](const char* proc_name,
+                                                    VkInstance instance, VkDevice device) {
+        if (device != VK_NULL_HANDLE) {
+            return getDeviceProc(device, proc_name);
+        }
+        return getInstanceProc(instance, proc_name);
+    };
     GrVkBackendContext backendContext;
-    if (!sk_gpu_test::CreateVkBackendContext(fGetInstanceProcAddr, fGetDeviceProcAddr,
+    if (!sk_gpu_test::CreateVkBackendContext(getProc,
                                              &backendContext, &fDebugCallback,
                                              &fPresentQueueIndex, fCanPresentFn)) {
         return;
