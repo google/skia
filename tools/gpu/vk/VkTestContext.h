@@ -32,16 +32,19 @@ public:
 
 protected:
     VkTestContext(const GrVkBackendContext& vk, const GrVkExtensions* extensions, bool ownsContext,
-                  VkDebugReportCallbackEXT debugCallback)
+                  VkDebugReportCallbackEXT debugCallback,
+                  PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
             : fVk(vk)
             , fExtensions(extensions)
             , fOwnsContext(ownsContext)
-            , fDebugCallback(debugCallback) {}
+            , fDebugCallback(debugCallback)
+            , fDestroyDebugReportCallbackEXT(destroyCallback) {}
 
-    GrVkBackendContext       fVk;
-    const GrVkExtensions*    fExtensions;
-    bool                     fOwnsContext;
-    VkDebugReportCallbackEXT fDebugCallback = VK_NULL_HANDLE;
+    GrVkBackendContext                  fVk;
+    const GrVkExtensions*               fExtensions;
+    bool                                fOwnsContext;
+    VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
+    PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;
 
 private:
     typedef TestContext INHERITED;

@@ -12,7 +12,9 @@
 
 #include "vk/GrVkBackendContext.h"
 #include "vk/GrVkTypes.h"
-#include "vk/GrVkExtensions.h"
+#include "vk/GrVkDefines.h"
+
+class GrVkExtensions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +24,7 @@
  * available based on the Vulkan's version must be non-NULL or GrContext creation
  * will fail. This can be tested with the validate() method.
  */
-struct SK_API GrVkInterface : public SkRefCnt {
+struct GrVkInterface : public SkRefCnt {
 private:
     // simple wrapper class that exists only to initialize a pointer to NULL
     template <typename FNPTR_TYPE> class VkPtr {
@@ -186,10 +188,6 @@ public:
         VkPtr<PFN_vkCmdNextSubpass> fCmdNextSubpass;
         VkPtr<PFN_vkCmdEndRenderPass> fCmdEndRenderPass;
         VkPtr<PFN_vkCmdExecuteCommands> fCmdExecuteCommands;
-
-        VkPtr<PFN_vkCreateDebugReportCallbackEXT> fCreateDebugReportCallbackEXT;
-        VkPtr<PFN_vkDebugReportMessageEXT> fDebugReportMessageEXT;
-        VkPtr<PFN_vkDestroyDebugReportCallbackEXT> fDestroyDebugReportCallbackEXT;
     } fFunctions;
 };
 

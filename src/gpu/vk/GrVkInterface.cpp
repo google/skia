@@ -7,6 +7,7 @@
 
 #include "GrVkInterface.h"
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkExtensions.h"
 #include "vk/GrVkUtil.h"
 
 #define ACQUIRE_PROC(name, instance, device) fFunctions.f##name = \
@@ -38,13 +39,6 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
     ACQUIRE_PROC(DestroyDevice, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceExtensionProperties, instance, VK_NULL_HANDLE);
     ACQUIRE_PROC(EnumerateDeviceLayerProperties, instance, VK_NULL_HANDLE);
-
-    if (extensions->hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        // Also instance Procs.
-        ACQUIRE_PROC(CreateDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DebugReportMessageEXT, instance, VK_NULL_HANDLE);
-        ACQUIRE_PROC(DestroyDebugReportCallbackEXT, instance, VK_NULL_HANDLE);
-    }
 
     // Device Procs.
     ACQUIRE_PROC(GetDeviceQueue, VK_NULL_HANDLE, device);
@@ -318,13 +312,6 @@ bool GrVkInterface::validate(const GrVkExtensions* extensions) const {
         RETURN_FALSE_INTERFACE
     }
 
-    if (extensions->hasExtension(VK_EXT_DEBUG_REPORT_EXTENSION_NAME)) {
-        if (nullptr == fFunctions.fCreateDebugReportCallbackEXT ||
-            nullptr == fFunctions.fDebugReportMessageEXT ||
-            nullptr == fFunctions.fDestroyDebugReportCallbackEXT) {
-            RETURN_FALSE_INTERFACE
-        }
-    }
     return true;
 }
 
