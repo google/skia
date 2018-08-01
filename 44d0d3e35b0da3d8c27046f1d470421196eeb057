@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11c6e878_5d58420d",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-01T21:01:53Z",
+      "side": 1,
+      "message": "can we set fMappedBuffer \u003d fMtlBuffer here and then for didModifyRange (and maybe other stuff) in unmap we can just reference fMappedBuffer.",
+      "range": {
+        "startLine": 111,
+        "startChar": 9,
+        "endLine": 111,
+        "endChar": 38
+      },
+      "revId": "44d0d3e35b0da3d8c27046f1d470421196eeb057",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61d145c2_ca58ed82",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 10
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-01T21:01:53Z",
+      "side": 1,
+      "message": "I don\u0027t think we always want to do the entire buffer. We could have allocated a massive buffer but only updated a small amount. We should probably track what needs to be updated and just do that size.",
+      "range": {
+        "startLine": 136,
+        "startChar": 51,
+        "endLine": 136,
+        "endChar": 69
+      },
+      "revId": "44d0d3e35b0da3d8c27046f1d470421196eeb057",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
