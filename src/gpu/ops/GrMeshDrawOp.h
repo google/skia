@@ -159,8 +159,12 @@ public:
         pipelineArgs.fDstProxy = this->dstProxy();
         pipelineArgs.fCaps = &this->caps();
         pipelineArgs.fResourceProvider = this->resourceProvider();
-        const auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
-        return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)), state};
+        GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+        if (clip.scissorState().enabled()) {
+            fixedDynamicState = this->allocFixedDynamicState(clip.scissorState().rect());
+        }
+        return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)),
+                fixedDynamicState};
     }
 
     virtual GrRenderTargetProxy* proxy() const = 0;
