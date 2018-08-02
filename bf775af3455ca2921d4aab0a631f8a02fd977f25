@@ -22,6 +22,30 @@
       "revId": "bf775af3455ca2921d4aab0a631f8a02fd977f25",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30262834_04ddbb9c",
+        "filename": "infra/bots/recipe_modules/flavor/default.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-02T15:06:27Z",
+      "side": 1,
+      "message": "I hope we never do...",
+      "parentUuid": "5f9373e9_a91dcd90",
+      "range": {
+        "startLine": 209,
+        "startChar": 51,
+        "endLine": 209,
+        "endChar": 54
+      },
+      "revId": "bf775af3455ca2921d4aab0a631f8a02fd977f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
