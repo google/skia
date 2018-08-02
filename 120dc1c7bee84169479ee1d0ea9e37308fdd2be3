@@ -22,6 +22,30 @@
       "revId": "120dc1c7bee84169479ee1d0ea9e37308fdd2be3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "21058929_0988e045",
+        "filename": "src/gpu/GrTextureStripAtlas.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-02T15:16:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96e70fa5_a0b7b6af",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 21
+      },
+      "revId": "120dc1c7bee84169479ee1d0ea9e37308fdd2be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
