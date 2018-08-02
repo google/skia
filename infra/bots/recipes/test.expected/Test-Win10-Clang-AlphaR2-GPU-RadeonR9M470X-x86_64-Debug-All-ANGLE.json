@@ -130,7 +130,8 @@
     "cmd": [
       "python",
       "-u",
-      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[1], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "\nimport contextlib\nimport math\nimport socket\nimport sys\nimport time\nimport urllib2\n\nHASHES_URL = sys.argv[1]\nRETRIES = 5\nTIMEOUT = 60\nWAIT_BASE = 15\n\nsocket.setdefaulttimeout(TIMEOUT)\nfor retry in range(RETRIES):\n  try:\n    with contextlib.closing(\n        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:\n      hashes = w.read()\n      with open(sys.argv[2], 'w') as f:\n        f.write(hashes)\n        break\n  except Exception as e:\n    print 'Failed to get uninteresting hashes from %s:' % HASHES_URL\n    print e\n    if retry == RETRIES:\n      raise\n    waittime = WAIT_BASE * math.pow(2, retry)\n    print 'Retry in %d seconds.' % waittime\n    time.sleep(waittime)\n",
+      "https://example.com/hashes.txt",
       "[START_DIR]\\tmp\\uninteresting_hashes.txt"
     ],
     "env": {
@@ -148,7 +149,7 @@
       "@@@STEP_LOG_LINE@python.inline@import time@@@",
       "@@@STEP_LOG_LINE@python.inline@import urllib2@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
-      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = 'https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt'@@@",
+      "@@@STEP_LOG_LINE@python.inline@HASHES_URL = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@RETRIES = 5@@@",
       "@@@STEP_LOG_LINE@python.inline@TIMEOUT = 60@@@",
       "@@@STEP_LOG_LINE@python.inline@WAIT_BASE = 15@@@",
@@ -159,7 +160,7 @@
       "@@@STEP_LOG_LINE@python.inline@    with contextlib.closing(@@@",
       "@@@STEP_LOG_LINE@python.inline@        urllib2.urlopen(HASHES_URL, timeout=TIMEOUT)) as w:@@@",
       "@@@STEP_LOG_LINE@python.inline@      hashes = w.read()@@@",
-      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[1], 'w') as f:@@@",
+      "@@@STEP_LOG_LINE@python.inline@      with open(sys.argv[2], 'w') as f:@@@",
       "@@@STEP_LOG_LINE@python.inline@        f.write(hashes)@@@",
       "@@@STEP_LOG_LINE@python.inline@        break@@@",
       "@@@STEP_LOG_LINE@python.inline@  except Exception as e:@@@",

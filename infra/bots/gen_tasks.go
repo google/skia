@@ -92,6 +92,7 @@ var (
 	CONFIG struct {
 		GsBucketCoverage string   `json:"gs_bucket_coverage"`
 		GsBucketGm       string   `json:"gs_bucket_gm"`
+		GoldHashesURL    string   `json:"gold_hashes_url"`
 		GsBucketNano     string   `json:"gs_bucket_nano"`
 		GsBucketCalm     string   `json:"gs_bucket_calm"`
 		NoUpload         []string `json:"no_upload"`
@@ -997,7 +998,9 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		// running hs_bench or kx, it will be easier to fit into the current job name schema.
 		recipe = "compute_test"
 	}
-	extraProps := map[string]string{}
+	extraProps := map[string]string{
+		"gold_hashes_url": CONFIG.GoldHashesURL,
+	}
 	iid := internalHardwareLabel(parts)
 	if iid != nil {
 		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)

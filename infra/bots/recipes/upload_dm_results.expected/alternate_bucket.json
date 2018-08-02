@@ -93,7 +93,7 @@
       "-m",
       "cp",
       "[START_DIR]/test/*.png",
-      "gs://skia-infra-gm/dm-images-v1"
+      "gs://skia-infra-gm-alt/dm-images-v1"
     ],
     "name": "upload images"
   },
