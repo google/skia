@@ -238,31 +238,27 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             auto cache = cacheBlob->setupCache(
                     runIndex, props, scalerContextFlags, runPaint, &viewMatrix);
 
-            auto drawOneGlyph =
+            auto perGlyph =
                     [cacheBlob, runIndex, glyphCache, &currStrike, runPaint, cache{cache.get()}]
-                    (const SkMask& mask, const SkGlyph& glyph, SkPoint position) {
-                        SkScalar sx = SkScalarFloorToScalar(position.fX),
-                                 sy = SkScalarFloorToScalar(position.fY);
-
-                        if (glyph_too_big_for_atlas(glyph)) {
-                            SkRect glyphRect =
-                                    rect_to_draw(glyph, {sx, sy}, SK_Scalar1,
-                                                 GrGlyph::kCoverage_MaskStyle);
-                            if (!glyphRect.isEmpty()) {
-                                const SkPath* glyphPath = cache->findPath(glyph);
-                                if (glyphPath != nullptr) {
-                                    cacheBlob->appendPathGlyph(
-                                            runIndex, *glyphPath, sx, sy, SK_Scalar1, true);
-                                }
-                            }
-                        } else {
-                            AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
-                                        glyph, GrGlyph::kCoverage_MaskStyle, sx, sy,
-                                        runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
-                        }
+                    (const SkGlyph& glyph, SkPoint mappedPt) {
+                        SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
+                                 sy = SkScalarFloorToScalar(mappedPt.fY);
+                        AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
+                                    glyph, GrGlyph::kCoverage_MaskStyle, sx, sy,
+                                    runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
             };
 
-            glyphDrawer->drawUsingMasks(cache.get(), glyphRun, origin, viewMatrix, drawOneGlyph);
+            auto perPath =
+                    [cacheBlob, runIndex]
+                    (const SkPath* path, const SkGlyph& glyph, SkPoint position) {
+                        SkScalar sx = SkScalarFloorToScalar(position.fX),
+                                 sy = SkScalarFloorToScalar(position.fY);
+                        cacheBlob->appendPathGlyph(
+                                runIndex, *path, sx, sy, SK_Scalar1, true);
+            };
+
+            glyphDrawer->drawGlyphRunAsGlyphWithPathFallback(
+                    cache.get(), glyphRun, origin, viewMatrix, perGlyph, perPath);
         }
         runIndex += 1;
     }
