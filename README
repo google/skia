@@ -1,3 +1,10 @@
 Skia is a complete 2D graphic library for drawing Text, Geometries, and Images.
 
 See full details, and build instructions, at https://skia.org.
+
+
+## Notes:
+- ndk=23, so have android-23 installed in ndk (ndk/platforms/android-23/)
+    * so if you build >= M you'll get references to stdin/stdout/stderr. if you build < M, you'll get references to __sF instead. glibc (afaik) only has stdin/stdout/stderr symbols. 
+
+-build-arm64.sh to build for arm64
