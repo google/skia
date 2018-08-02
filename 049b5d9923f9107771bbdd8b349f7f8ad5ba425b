@@ -16,6 +16,24 @@
       "revId": "049b5d9923f9107771bbdd8b349f7f8ad5ba425b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c4fb9652_01e1067b",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 0,
+      "message": "Reverted. I agree these need to be addressed separately.",
+      "parentUuid": "dc22c502_e90d875f",
+      "revId": "049b5d9923f9107771bbdd8b349f7f8ad5ba425b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

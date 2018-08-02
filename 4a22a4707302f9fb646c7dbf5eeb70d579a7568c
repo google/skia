@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e322358_b8d7b01c",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "8d83b0c8_580c094b",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "adf31392_11e79155",
         "filename": "platform_tools/android/apps/settings.gradle",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "90dd87ae_61dec133",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "Reverted. This got in by mistake.",
+      "parentUuid": "adf31392_11e79155",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "451b8081_03c089f1",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
         "patchSetId": 5
@@ -50,6 +86,24 @@
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32068df3_5a436ee9",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "451b8081_03c089f1",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "38f5cc9c_8ed3dfd1",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "used SK_ABORT",
+      "parentUuid": "6a8d4010_cd6fa6d8",
+      "range": {
+        "startLine": 30,
+        "startChar": 10,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c52b4410_21ada1bd",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 5
@@ -90,6 +168,24 @@
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "599dcef3_c0c212f7",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "deleted the provider and passed nullptr",
+      "parentUuid": "c52b4410_21ada1bd",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "2a284e2c_a69ce03f",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "There are Lottie animations that reference image layers stored in PNG (or other) image format. This code is needed to load the additional assets for the animation.",
+      "parentUuid": "b8911eda_d19a96f3",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e2bb2e3f_cc3175c4",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 5
@@ -124,6 +238,24 @@
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9622531_74605a29",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "I deleted this code as per Florin suggestion. I put global variables static, unless I need to reference them from another file. I think the only difference is the linker does not export the symbol.",
+      "parentUuid": "e2bb2e3f_cc3175c4",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -150,6 +282,30 @@
     },
     {
       "key": {
+        "uuid": "a296e565_7e12adad",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "2e9ddab1_b431f71a",
+      "range": {
+        "startLine": 115,
+        "startChar": 30,
+        "endLine": 115,
+        "endChar": 39
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dc4d6ff9_cbad85d7",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 5
@@ -170,6 +326,30 @@
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "135d1640_da3af410",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "I had to look that one too. It is a JNI notation for nested Java classes. That is because SkottieAnimation is nested in SkottieRunner.",
+      "parentUuid": "dc4d6ff9_cbad85d7",
+      "range": {
+        "startLine": 120,
+        "startChar": 36,
+        "endLine": 120,
+        "endChar": 41
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -196,6 +376,30 @@
     },
     {
       "key": {
+        "uuid": "18722b76_1ce56b72",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "removed stats",
+      "parentUuid": "7596d4b1_6794de67",
+      "range": {
+        "startLine": 138,
+        "startChar": 61,
+        "endLine": 138,
+        "endChar": 95
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75b6e458_24185f87",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 5
@@ -219,6 +423,30 @@
     },
     {
       "key": {
+        "uuid": "986001e0_e45d07bc",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "deleted the line",
+      "parentUuid": "75b6e458_24185f87",
+      "range": {
+        "startLine": 143,
+        "startChar": 38,
+        "endLine": 143,
+        "endChar": 57
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6357b3fe_24a171e6",
         "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
         "patchSetId": 5
@@ -236,6 +464,24 @@
     },
     {
       "key": {
+        "uuid": "9294d9be_669721e7",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "fixed line length in the project",
+      "parentUuid": "6357b3fe_24a171e6",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "35a0957a_ebe59148",
         "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieActivity.java",
         "patchSetId": 5
@@ -247,6 +493,24 @@
       "writtenOn": "2018-08-02T13:37:28Z",
       "side": 1,
       "message": "are we good to check-in all of these lottie files?",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29c37620_0f6f275a",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieActivity.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "These files are from www.lottiefiles.com. I\u0027m not sure what is the license for content on this web site.\nI did not include files from internal sources.",
+      "parentUuid": "35a0957a_ebe59148",
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -276,6 +540,30 @@
     },
     {
       "key": {
+        "uuid": "4eea619a_a868cc31",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "renamed to \"SkottieAnimator\"",
+      "parentUuid": "4e0d10b6_ded26e71",
+      "range": {
+        "startLine": 86,
+        "startChar": 45,
+        "endLine": 86,
+        "endChar": 53
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a25cab27_0891bf1f",
         "filename": "platform_tools/android/apps/skottie/src/main/res/values/integers.xml",
         "patchSetId": 5
@@ -296,6 +584,30 @@
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "362d5a04_9989dd90",
+        "filename": "platform_tools/android/apps/skottie/src/main/res/values/integers.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-02T15:03:00Z",
+      "side": 1,
+      "message": "deleted",
+      "parentUuid": "a25cab27_0891bf1f",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
