@@ -1674,6 +1674,31 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
     }
 }
 
+void GrGLGpu::generateMipmapsForProcessorTextures(const GrPrimitiveProcessor& primProc,
+                                                  const GrPipeline& pipeline) {
+    auto genLevelsIfNeeded = [this](GrTexture* tex, const GrSamplerState& sampler) {
+        if (sampler.filter() == GrSamplerState::Filter::kMipMap &&
+            tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
+            tex->texturePriv().mipMapsAreDirty()) {
+            SkASSERT(this->caps()->mipMapSupport());
+            this->regenerateMipMapLevels(static_cast<GrGLTexture*>(tex));
+        }
+    };
+
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        const auto& textureSampler = primProc.textureSampler(i);
+        genLevelsIfNeeded(textureSampler.peekTexture(), textureSampler.samplerState());
+    }
+
+    GrFragmentProcessor::Iter iter(pipeline);
+    while (const GrFragmentProcessor* fp = iter.next()) {
+        for (int i = 0; i < fp->numTextureSamplers(); ++i) {
+            const auto& textureSampler = fp->textureSampler(i);
+            genLevelsIfNeeded(textureSampler.peekTexture(), textureSampler.samplerState());
+        }
+    }
+}
+
 bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
                            const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
@@ -1684,7 +1709,7 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
         return false;
     }
 
-    program->generateMipmaps(primProc, pipeline);
+    this->generateMipmapsForProcessorTextures(primProc, pipeline);
 
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);

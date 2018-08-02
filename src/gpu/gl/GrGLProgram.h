@@ -117,11 +117,6 @@ public:
      */
     void setData(const GrPrimitiveProcessor&, const GrPipeline&);
 
-    /**
-     * This function retrieves the textures that need to be used by each GrGL*Processor, and
-     * ensures that any textures requiring mipmaps have their mipmaps correctly built.
-     */
-    void generateMipmaps(const GrPrimitiveProcessor&, const GrPipeline&);
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }
 
