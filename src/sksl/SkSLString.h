@@ -22,6 +22,8 @@
     #include "SkString.h"
 #endif
 
+#include "SkSLUtil.h"
+
 namespace SkSL {
 
 // Represents a (not necessarily null-terminated) slice of a string.
@@ -120,9 +122,9 @@ String to_string(int64_t value);
 
 String to_string(uint64_t value);
 
-int stoi(const String& s);
+SKSL_INT stoi(const String& s);
 
-double stod(const String& s);
+SKSL_FLOAT stod(const String& s);
 
 long stol(const String& s);
 

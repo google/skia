@@ -121,7 +121,7 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, String when, Key key, StringFragment ctype)
+           int invocations, StringFragment when, Key key, StringFragment ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -304,7 +304,7 @@ struct Layout {
             result += separator + "invocations = " + to_string(fInvocations);
             separator = ", ";
         }
-        if (fWhen.size()) {
+        if (fWhen.fLength) {
             result += separator + "when = " + fWhen;
             separator = ", ";
         }
@@ -352,7 +352,7 @@ struct Layout {
     Primitive fPrimitive;
     int fMaxVertices;
     int fInvocations;
-    String fWhen;
+    StringFragment fWhen;
     Key fKey;
     StringFragment fCType;
 };

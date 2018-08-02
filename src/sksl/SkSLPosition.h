@@ -8,6 +8,7 @@
 #ifndef SKSL_POSITION
 #define SKSL_POSITION
 
+#include "SkSLString.h"
 #include "SkSLUtil.h"
 
 namespace SkSL {

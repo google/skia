@@ -28,7 +28,7 @@ public:
         fragBuilder->codeAppendf(
                 "half factor = half(1.0 - float(%s.w));\n@switch (%d) {\n    case 0:\n        "
                 "factor = half(exp(float(float(-factor * factor) * 4.0)) - "
-                "0.017999999999999999);\n        break;\n    case 1:\n        factor = "
+                "0.017999999225139618);\n        break;\n    case 1:\n        factor = "
                 "half(smoothstep(1.0, 0.0, float(factor)));\n        break;\n}\n%s = "
                 "half4(factor);\n",
                 args.fInputColor ? args.fInputColor : "half4(1)", (int)_outer.mode(),

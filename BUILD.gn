@@ -153,6 +153,7 @@ config("skia_private") {
     "src/utils/win",
     "src/xml",
     "third_party/gif",
+    "/Users/ethannicholas/Downloads/boost_1_67_0",
   ]
   if (skia_llvm_path != "") {
     include_dirs += [ "$skia_llvm_path/include" ]
@@ -506,6 +507,7 @@ if (skia_compile_processors) {
     include_dirs = [
       "src/gpu",
       "src/sksl",
+      "/Users/ethannicholas/Downloads/boost_1_67_0",
     ]
     deps = [
       ":run_sksllex",

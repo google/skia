@@ -7,6 +7,8 @@
 
 #include "SkSLUtil.h"
 
+#include "SkSLStringStream.h"
+
 #ifndef __STDC_FORMAT_MACROS
 #define __STDC_FORMAT_MACROS
 #endif

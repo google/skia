@@ -14,6 +14,7 @@
 #include "ir/SkSLIndexExpression.h"
 #include "ir/SkSLVariableReference.h"
 #include "SkSLCompiler.h"
+#include "SkSLStringStream.h"
 
 namespace SkSL {
 

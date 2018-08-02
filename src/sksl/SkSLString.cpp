@@ -233,16 +233,16 @@ String to_string(double value) {
 #undef MAX_DOUBLE_CHARS
 }
 
-int stoi(const String& s) {
+SKSL_INT stoi(const String& s) {
     char* p;
     SkDEBUGCODE(errno = 0;)
     long result = strtoul(s.c_str(), &p, 0);
     SkASSERT(*p == 0);
     SkASSERT(!errno);
-    return (int) result;
+    return result;
 }
 
-double stod(const String& s) {
+SKSL_FLOAT stod(const String& s) {
     double result;
     std::string str(s.c_str(), s.size());
     std::stringstream buffer(str);

@@ -12,14 +12,14 @@
 #include <memory>
 #include "stdlib.h"
 #include "string.h"
-#include "assert.h"
-#include "SkSLString.h"
-#include "SkSLStringStream.h"
 
-#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
+#ifndef SKSL_STANDALONE
+#include "SkTypes.h"
+#if SK_SUPPORT_GPU
 #include "GrContextOptions.h"
 #include "GrShaderCaps.h"
-#endif
+#endif // SK_SUPPORT_GPU
+#endif // SKSL_STANDALONE
 
 #ifdef SKSL_STANDALONE
 #if defined(_WIN32) || defined(__SYMBIAN32__)
@@ -31,9 +31,15 @@
 #endif // SK_BUILD_FOR_WIN
 #endif // SKSL_STANDALONE
 
+using SKSL_INT = uint32_t;
+using SKSL_FLOAT = float;
+
 class GrShaderCaps;
 
 namespace SkSL {
+
+class OutputStream;
+class StringStream;
 
 #if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 

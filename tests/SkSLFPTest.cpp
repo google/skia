@@ -8,6 +8,7 @@
 #include "SkSLCompiler.h"
 
 #include "Test.h"
+#include "SkSLStringStream.h"
 
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
                  std::vector<const char*> expectedH, std::vector<const char*> expectedCPP) {
