@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ce54bf0_6bdc8754",
+        "filename": "experimental/pathkit/npm-wasm/example.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-02T01:53:08Z",
+      "side": 1,
+      "message": "rename to PathKit.NewPath() ?",
+      "range": {
+        "startLine": 35,
+        "startChar": 33,
+        "endLine": 35,
+        "endChar": 39
+      },
+      "revId": "865afe2463878727162295d592bd8915a51d0e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d40b0d17_7878b6fd",
+        "filename": "experimental/pathkit/npm-wasm/example.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-02T01:53:08Z",
+      "side": 1,
+      "message": "necessary or are we just being nice? i.e. does JS perform this sort of native GC eventually for us?",
+      "range": {
+        "startLine": 71,
+        "startChar": 14,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "865afe2463878727162295d592bd8915a51d0e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
