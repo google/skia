@@ -330,8 +330,8 @@ private:
     LLVMValueRef fChannels[CHANNELS];
     // when processing a stage function, this points to the SkSL color parameter (an inout float4)
     const Variable* fColorParam;
-    std::map<const FunctionDeclaration*, LLVMValueRef> fFunctions;
-    std::map<const Variable*, LLVMValueRef> fVariables;
+    std::unordered_map<const FunctionDeclaration*, LLVMValueRef> fFunctions;
+    std::unordered_map<const Variable*, LLVMValueRef> fVariables;
     // LLVM function parameters are read-only, so when modifying function parameters we need to
     // first promote them to variables. This keeps track of which parameters have been promoted.
     std::set<const Variable*> fPromotedParameters;
