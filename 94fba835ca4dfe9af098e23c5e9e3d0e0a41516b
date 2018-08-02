@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32e97578_1c17f772",
+        "filename": "src/gpu/ops/GrMeshDrawOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-02T21:49:51Z",
+      "side": 1,
+      "message": "This is just a rant that doesn\u0027t has to be changed in this CL. But the use of auto here along with a return using the \"{....}\" makes this very difficult to know the return value. The name of the function would suggests it returns a GrPipeline but it isn\u0027t really exactly that either. Anyways rant over.",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 4
+      },
+      "revId": "94fba835ca4dfe9af098e23c5e9e3d0e0a41516b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
