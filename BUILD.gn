@@ -1893,6 +1893,23 @@ if (skia_enable_tools) {
       libs = [ "android" ]
     }
   }
+  if (is_android && skia_enable_gpu) {
+    test_app("skottie_android") {
+      is_shared_library = true
+
+      sources = [
+        "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
+        "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+      ]
+      libs = []
+
+      include_dirs = []
+      deps = [
+        ":skia",
+        "modules/skottie",
+      ]
+    }
+  }
 
   test_app("list_gms") {
     sources = [
