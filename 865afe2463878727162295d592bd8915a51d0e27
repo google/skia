@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b2a3d8fc_0ca40527",
+        "filename": "experimental/pathkit/npm-wasm/example.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-02T12:42:06Z",
+      "side": 1,
+      "message": "Done. I kept the constructor because we need it, but added a NewPath() helper that doesn\u0027t require the \"new\" keyword.",
+      "parentUuid": "2ce54bf0_6bdc8754",
+      "range": {
+        "startLine": 35,
+        "startChar": 33,
+        "endLine": 35,
+        "endChar": 39
+      },
+      "revId": "865afe2463878727162295d592bd8915a51d0e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d40b0d17_7878b6fd",
         "filename": "experimental/pathkit/npm-wasm/example.html",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "865afe2463878727162295d592bd8915a51d0e27",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f3d244c8_fcf767a5",
+        "filename": "experimental/pathkit/npm-wasm/example.html",
+        "patchSetId": 9
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-02T12:42:06Z",
+      "side": 1,
+      "message": "For normal JS objects (Arrays, etc), the JS runtime will GC these for us.  However, we are on our own for WASM objects (e.g. SkPath) that we create.\n\nI added this link to the docs:\n\nhttp://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html?highlight\u003dmemory#memory-management",
+      "parentUuid": "d40b0d17_7878b6fd",
+      "range": {
+        "startLine": 71,
+        "startChar": 14,
+        "endLine": 71,
+        "endChar": 20
+      },
+      "revId": "865afe2463878727162295d592bd8915a51d0e27",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
