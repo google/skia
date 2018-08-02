@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0109a299_100aa704",
+        "filename": "src/gpu/mtl/GrMtlBuffer.mm",
+        "patchSetId": 12
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-02T17:21:23Z",
+      "side": 1,
+      "message": "since both didModifyRange\u0027s are now using fMappedBuffer you can move it above the if and just have a case for !dynamic",
+      "range": {
+        "startLine": 145,
+        "startChar": 8,
+        "endLine": 145,
+        "endChar": 67
+      },
+      "revId": "c4c8a0d65993298735ba2ab44d8c4ff1b049c1d0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
