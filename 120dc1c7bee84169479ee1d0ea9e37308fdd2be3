@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "96e70fa5_a0b7b6af",
+        "filename": "src/gpu/GrTextureStripAtlas.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-02T14:19:13Z",
+      "side": 1,
+      "message": "nit you mention param data but don\u0027t actually call the SkBitmp data in below.",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 21
+      },
+      "revId": "120dc1c7bee84169479ee1d0ea9e37308fdd2be3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
