@@ -160,9 +160,8 @@ public:
     // descriptor
     void initOverride(int runIndex) {
         Run& run = fRuns[runIndex];
-        // Push back a new subrun to fill and set the override descriptor
+        // Push back a new subrun.
         run.push_back();
-        run.fOverrideDescriptor.reset(new SkAutoDescriptor);
     }
 
     SkExclusiveStrikePtr setupCache(int runIndex,
@@ -438,6 +437,10 @@ private:
             }
             bool needsTransform() const { return SkToBool(fFlags & kNeedsTransform_Flag); }
 
+            SkAutoDescriptor* autoDescriptor() { return &fDescriptor; }
+            const SkDescriptor& descriptor() const { return *fDescriptor.getDesc(); }
+
+
         private:
             enum Flag {
                 kDrawAsSDF_Flag = 0x01,
@@ -449,6 +452,7 @@ private:
 
             GrDrawOpAtlas::BulkUseTokenUpdater fBulkUseToken;
             sk_sp<GrTextStrike> fStrike;
+            SkAutoDescriptor fDescriptor;
             SkMatrix fCurrentViewMatrix;
             SkRect fVertexBounds;
             uint64_t fAtlasGeneration;
@@ -471,20 +475,16 @@ private:
             newSubRun.setAsSuccessor(prevSubRun);
             return newSubRun;
         }
+        SkAutoDescriptor* subRunDescriptor() {
+            return fSubRunInfo.back().autoDescriptor();
+        }
         static const int kMinSubRuns = 1;
         sk_sp<SkTypeface> fTypeface;
         SkSTArray<kMinSubRuns, SubRunInfo> fSubRunInfo;
-        SkAutoDescriptor fDescriptor;
 
         // Effects from the paint that are used to build a SkScalerContext.
         sk_sp<SkPathEffect> fPathEffect;
         sk_sp<SkMaskFilter> fMaskFilter;
-
-        // Distance field text cannot draw coloremoji, and so has to fall back.  However,
-        // though the distance field text and the coloremoji may share the same run, they
-        // will have different descriptors.  If fOverrideDescriptor is non-nullptr, then it
-        // will be used in place of the run's descriptor to regen texture coords
-        std::unique_ptr<SkAutoDescriptor> fOverrideDescriptor; // df properties
 
         // Any glyphs that can't be rendered with the base or override descriptor
         // are rendered as paths

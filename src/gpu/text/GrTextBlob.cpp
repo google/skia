@@ -56,9 +56,7 @@ SkExclusiveStrikePtr GrTextBlob::setupCache(int runIndex,
                                                  const SkMatrix* viewMatrix) {
     GrTextBlob::Run* run = &fRuns[runIndex];
 
-    // if we have an override descriptor for the run, then we should use that
-    SkAutoDescriptor* desc = run->fOverrideDescriptor.get() ? run->fOverrideDescriptor.get() :
-                                                              &run->fDescriptor;
+    SkAutoDescriptor* desc = run->subRunDescriptor();
     SkScalerContextEffects effects;
     SkScalerContext::CreateDescriptorAndEffectsUsingPaint(
         skPaint, &props, scalerContextFlags, viewMatrix, desc, &effects);
@@ -405,20 +403,6 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
             SkASSERT_RELEASE(!rRun.fTypeface.get());
         }
 
-
-        SkASSERT_RELEASE(lRun.fDescriptor.getDesc());
-        SkASSERT_RELEASE(rRun.fDescriptor.getDesc());
-        SkASSERT_RELEASE(*lRun.fDescriptor.getDesc() == *rRun.fDescriptor.getDesc());
-
-        if (lRun.fOverrideDescriptor.get()) {
-            SkASSERT_RELEASE(lRun.fOverrideDescriptor->getDesc());
-            SkASSERT_RELEASE(rRun.fOverrideDescriptor.get() && rRun.fOverrideDescriptor->getDesc());
-            SkASSERT_RELEASE(*lRun.fOverrideDescriptor->getDesc() ==
-                             *rRun.fOverrideDescriptor->getDesc());
-        } else {
-            SkASSERT_RELEASE(!rRun.fOverrideDescriptor.get());
-        }
-
         // color can be changed
         //SkASSERT(lRun.fColor == rRun.fColor);
         SkASSERT_RELEASE(lRun.fInitialized == rRun.fInitialized);
@@ -439,6 +423,8 @@ void GrTextBlob::AssertEqual(const GrTextBlob& l, const GrTextBlob& r) {
             } else {
                 SkASSERT_RELEASE(!rSubRun.strike());
             }
+
+            SkASSERT_RELEASE(lSubRun.descriptor() == rSubRun.descriptor());
 
             SkASSERT_RELEASE(lSubRun.vertexStartIndex() == rSubRun.vertexStartIndex());
             SkASSERT_RELEASE(lSubRun.vertexEndIndex() == rSubRun.vertexEndIndex());

@@ -236,9 +236,7 @@ bool Regenerator::doRegen(Regenerator::Result* result) {
     if (regenTexCoords) {
         fSubRun->resetBulkUseToken();
 
-        const SkDescriptor* desc = (fRun->fOverrideDescriptor && !fSubRun->drawAsDistanceFields())
-                                           ? fRun->fOverrideDescriptor->getDesc()
-                                           : fRun->fDescriptor.getDesc();
+        const SkDescriptor* desc = &fSubRun->descriptor();
 
         if (!*fLazyCache || (*fLazyCache)->getDescriptor() != *desc) {
             SkScalerContextEffects effects;
