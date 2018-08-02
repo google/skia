@@ -9,6 +9,9 @@
 #define GrMtlGpuCommandBuffer_DEFINED
 
 #include "GrGpuCommandBuffer.h"
+#include "GrMtlGpu.h"
+
+#import <metal/metal.h>
 
 class GrMtlGpu;
 class GrMtlRenderTarget;
@@ -30,7 +33,9 @@ public:
     void insertEventMarker(const char* msg) override {}
 
 private:
-    void submit() override {}
+    void submit() override {
+        fGpu->submitCommandBuffer(GrMtlGpu::kSkip_SyncQueue);
+    }
 
     GrMtlGpu* fGpu;
 
@@ -67,7 +72,9 @@ public:
         fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
-    void submit() override {}
+    void submit() override {
+        fGpu->submitCommandBuffer(GrMtlGpu::kSkip_SyncQueue);
+    }
 
 private:
     GrGpu* gpu() override { return fGpu; }
@@ -78,11 +85,17 @@ private:
                 const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                 const GrMesh mesh[],
                 int meshCount,
-                const SkRect& bounds) override {}
+                const SkRect& bounds) override;
 
     void onClear(const GrFixedClip& clip, GrColor color) override {}
 
     void onClearStencilClip(const GrFixedClip& clip, bool insideStencilMask) override {}
+
+    /*
+     * This function will be actually useful when we are using indirect (secondary) command buffers
+     * for Metal.
+     */
+    id<MTLCommandBuffer> currentCmdBuffer() { return fGpu->commandBuffer(); }
 
     GrMtlGpu*                                     fGpu;
     GrGpuRTCommandBuffer::LoadAndStoreInfo        fColorLoadAndStoreInfo;
