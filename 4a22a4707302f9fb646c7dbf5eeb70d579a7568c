@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "8d83b0c8_580c094b",
+        "filename": "BUILD.gn",
+        "patchSetId": 5
+      },
+      "lineNbr": 1910,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-02T13:49:08Z",
+      "side": 1,
+      "message": "Since we\u0027re not using sksg directly, I think we can skip this dep (skottie would pull it for its own use).",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "adf31392_11e79155",
         "filename": "platform_tools/android/apps/settings.gradle",
         "patchSetId": 5
@@ -53,6 +70,23 @@
         "endLine": 30,
         "endChar": 26
       },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c52b4410_21ada1bd",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-02T13:49:08Z",
+      "side": 1,
+      "message": "The resource provider arg for skottie::Animation::Make is optional now, so we no longer need to write stubs like this.  We can add it back when it does something useful -- for now just pass nullptr.",
       "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
