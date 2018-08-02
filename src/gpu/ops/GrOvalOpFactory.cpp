@@ -185,8 +185,8 @@ private:
                 }
                 if (cgp.fInUnionPlane.isInitialized()) {
                     fragBuilder->codeAppend(
-                            "clip += (1.0 - clip)*clamp(circleEdge.z * dot(circleEdge.xy, "
-                            "unionPlane.xy) + unionPlane.z, 0.0, 1.0);");
+                            "clip = clamp(clip + clamp(circleEdge.z * dot(circleEdge.xy, "
+                            "unionPlane.xy) + unionPlane.z, 0.0, 1.0), 0.0, 1.0);");
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
                 if (cgp.fInRoundCapCenters.isInitialized()) {
