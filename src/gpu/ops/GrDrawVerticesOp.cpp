@@ -20,23 +20,42 @@ static constexpr int kMinVertexUniformComponents = 1536; // If we want to batch 
                                                          // we need the vertex shader to accept a
                                                          // minimum number of uniform components.
 
-static void write_skmatrix(const SkMatrix& matrix, std::vector<float>& destination) {
-    destination.push_back(matrix.get(SkMatrix::kMScaleX));
-    destination.push_back(matrix.get(SkMatrix::kMSkewY));
-    destination.push_back(matrix.get(SkMatrix::kMPersp0));
-    destination.push_back(matrix.get(SkMatrix::kMSkewX));
-    destination.push_back(matrix.get(SkMatrix::kMScaleY));
-    destination.push_back(matrix.get(SkMatrix::kMPersp1));
-    destination.push_back(matrix.get(SkMatrix::kMTransX));
-    destination.push_back(matrix.get(SkMatrix::kMTransY));
-    destination.push_back(matrix.get(SkMatrix::kMPersp2));
+// Writes an SkMatrix as column-major order floats into a vector.
+static inline void write_skmatrix(const SkMatrix& matrix, std::vector<float>& destination) {
+    destination.insert(destination.end(), {
+        matrix.get(SkMatrix::kMScaleX),
+        matrix.get(SkMatrix::kMSkewY),
+        matrix.get(SkMatrix::kMPersp0),
+        matrix.get(SkMatrix::kMSkewX),
+        matrix.get(SkMatrix::kMScaleY),
+        matrix.get(SkMatrix::kMPersp1),
+        matrix.get(SkMatrix::kMTransX),
+        matrix.get(SkMatrix::kMTransY),
+        matrix.get(SkMatrix::kMPersp2),
+    });
 }
 
+// Writes an SkVertices::Bone as column-major order floats into a vector.
+static inline void write_bone(const SkVertices::Bone bone, std::vector<float>& destination) {
+    destination.insert(destination.end(), {
+        bone.at(0),
+        bone.at(1),
+        0.0f,
+        bone.at(2),
+        bone.at(3),
+        0.0f,
+        bone.at(4),
+        bone.at(5),
+        1.0f,
+    });
+}
+
+// Maps a 3x3 matrix in column major order to a point.
 static SkPoint map_point(const SkPoint& point, const float* matrix, bool perspective = false) {
     float x = matrix[0] * point.x() + matrix[3] * point.y() + matrix[6];
     float y = matrix[1] * point.x() + matrix[4] * point.y() + matrix[7];
 
-    // Perform the perspective divide.
+    // Do perspective divide.
     if (perspective) {
         float z = matrix[2] * point.x() + matrix[5] * point.y() + matrix[8];
         x /= z;
@@ -49,7 +68,7 @@ static SkPoint map_point(const SkPoint& point, const float* matrix, bool perspec
 std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
                                                  GrPaint&& paint,
                                                  sk_sp<SkVertices> vertices,
-                                                 const SkMatrix bones[],
+                                                 const SkVertices::Bone bones[],
                                                  int boneCount,
                                                  const SkMatrix& viewMatrix,
                                                  GrAAType aaType,
@@ -64,7 +83,7 @@ std::unique_ptr<GrDrawOp> GrDrawVerticesOp::Make(GrContext* context,
 }
 
 GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor color,
-                                   sk_sp<SkVertices> vertices, const SkMatrix bones[],
+                                   sk_sp<SkVertices> vertices, const SkVertices::Bone bones[],
                                    int boneCount, GrPrimitiveType primitiveType, GrAAType aaType,
                                    sk_sp<GrColorSpaceXform> colorSpaceXform,
                                    const SkMatrix& viewMatrix)
@@ -88,18 +107,24 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     mesh.fIgnoreColors = false;
     mesh.fIgnoreBones = false;
 
-    if (bones && boneCount > 1) {
-        // Copy the bone data over in the format that the GPU would upload.
-        fBones.reserve(boneCount * kNumFloatsPerSkMatrix);
-        for (int i = 1; i < boneCount; i ++) {
-            const SkMatrix& matrix = bones[i];
-            write_skmatrix(matrix, fBones);
-        }
+    if (mesh.fVertices->hasBones() &&
+        bones &&
+        mesh.fVertices->vertexCount() < kGPUSkinningThreshold) {
+        // If the mesh has too few vertices for GPU skinning to outperform CPU skinning, then do
+        // the skinning right away.
+        mesh.fVertices = mesh.fVertices->applyBones(bones, boneCount);
+    } else {
+        // If the mesh does have enough vertices to make GPU skinning worth it, then copy over the
+        // data.
+        if (bones && boneCount > 1) {
+            // Copy the bone data.
+            fBones.assign(bones + 1, bones + boneCount);
 
-        // Copy the world and view matrices.
-        fTransforms.reserve(2 * kNumFloatsPerSkMatrix);
-        write_skmatrix(bones[0], fTransforms);
-        write_skmatrix(viewMatrix, fTransforms);
+            // Copy the world and view matrices.
+            fTransforms.reserve(2 * kNumFloatsPerSkMatrix);
+            write_bone(bones[0], fTransforms);
+            write_skmatrix(viewMatrix, fTransforms);
+        }
     }
 
     fFlags = 0;
@@ -116,7 +141,9 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
     // Special case for meshes with a world transform but no bone weights.
     // These will be considered normal vertices draws without bones.
     if (!mesh.fVertices->hasBones() && boneCount == 1) {
-        mesh.fViewMatrix.preConcat(bones[0]);
+        SkMatrix worldTransform;
+        worldTransform.setAffine(bones[0].values);
+        mesh.fViewMatrix.preConcat(worldTransform);
     }
 
     IsZeroArea zeroArea;
@@ -132,7 +159,7 @@ GrDrawVerticesOp::GrDrawVerticesOp(const Helper::MakeArgs& helperArgs, GrColor c
         SkRect bounds = SkRect::MakeEmpty();
         const SkRect originalBounds = bones[0].mapRect(mesh.fVertices->bounds());
         for (int i = 1; i < boneCount; i++) {
-            const SkMatrix& matrix = bones[i];
+            const SkVertices::Bone& matrix = bones[i];
             bounds.join(matrix.mapRect(originalBounds));
         }
 
@@ -221,18 +248,23 @@ sk_sp<GrGeometryProcessor> GrDrawVerticesOp::makeGP(const GrShaderCaps* shaderCa
     const SkMatrix& vm = (this->hasMultipleViewMatrices() || this->hasBones()) ?
             SkMatrix::I() : fMeshes[0].fViewMatrix;
 
-    Bones bones(fBones.data(),
-                fBones.size() / kNumFloatsPerSkMatrix,
+    // The bones are packed as 6 floats in column major order, so we can directly upload them to
+    // the GPU as groups of 3 vec2s.
+    Bones bones(reinterpret_cast<const float*>(fBones.data()),
+                fBones.size(),
                 fTransforms.data(),
                 fTransforms.size() / kNumFloatsPerSkMatrix);
     *hasBoneAttribute = this->hasBones();
 
     // Determine whether to do bone transforms on the CPU before passing to the GPU.
+    // We don't transform and make a copy of the SkVertices at this point because we are going to
+    // make another copy of the data in fillBuffers(), which would result in an extraneous copy, so
+    // we defer the transforms until then.
     *doBoneTransforms = false;
     if (this->hasBones() && fMeshes[0].fVertices->isVolatile()) {
-        int averageVerticesPerMesh = fVertexCount / fMeshes.count();
-        if (averageVerticesPerMesh < kGPUSkinningThreshold &&
-            shaderCaps->maxVertexUniformComponents() < kMinVertexUniformComponents) {
+        // If the target GPU isn't able to handle doing the transforms due to memory limitations,
+        // we do the transforms on the CPU first before passing them to the GPU.
+        if (shaderCaps->maxVertexUniformComponents() > kMinVertexUniformComponents) {
             *doBoneTransforms = true;
             *hasBoneAttribute = false;
         }
@@ -569,13 +601,10 @@ SkPoint GrDrawVerticesOp::transformWithBones(const SkPoint& position,
         index += boneIndexOffset - 1;
 
         // Get the matrix.
-        const float* matrix = fBones.data() + index * kNumFloatsPerSkMatrix;
+        const SkVertices::Bone& matrix = fBones[index];
 
-        // Perform the transform.
-        SkPoint transformedPosition = map_point(worldPosition, matrix);
-
-        // Add to the final position.
-        result += transformedPosition * weight;
+        // result += M * v * w;
+        result += matrix.mapPoint(worldPosition) * weight;
     }
 
     // Apply the view transform.
@@ -643,7 +672,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
         }
 
         // We can only upload 80 bones of data.
-        if (this->fBones.size() + that->fBones.size() > kMaxBones * kNumFloatsPerSkMatrix) {
+        if (this->fBones.size() + that->fBones.size() > kMaxBones) {
             return false;
         }
     }
