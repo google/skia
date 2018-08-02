@@ -17,6 +17,7 @@
 #endif
 
 #include "SkDevice.h"
+#include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
 #include "SkFindAndPlaceGlyph.h"
 #include "SkGlyphCache.h"
@@ -137,6 +138,76 @@ SkGlyphRunListDrawer::SkGlyphRunListDrawer(const GrRenderTargetContext& rtc)
         : SkGlyphRunListDrawer{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
 #endif
 
+// TODO: all this logic should move to the glyph cache.
+static const SkGlyph& lookup_glyph_by_subpixel(
+        SkAxisAlignment axisAlignment, SkPoint position, SkGlyphID glyphID, SkGlyphCache* cache) {
+    SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.x())),
+            lookupY = SkScalarToFixed(SkScalarFraction(position.y()));
+
+    // Snap to a given axis if alignment is requested.
+    if (axisAlignment == kX_SkAxisAlignment) {
+        lookupY = 0;
+    } else if (axisAlignment == kY_SkAxisAlignment) {
+        lookupX = 0;
+    }
+
+    return cache->getGlyphIDMetrics(glyphID, lookupX, lookupY);
+}
+
+
+// forEachMappedDrawableGlyph handles positioning for mask type glyph handling for both sub-pixel
+// and full pixel positioning.
+template <typename EachGlyph>
+void SkGlyphRunListDrawer::forEachMappedDrawableGlyph(
+        const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
+        SkGlyphCache* cache, EachGlyph eachGlyph) {
+    bool isSubpixel = cache->isSubpixel();
+
+    SkAxisAlignment axisAlignment = kNone_SkAxisAlignment;
+    SkMatrix mapping = deviceMatrix;
+    mapping.preTranslate(origin.x(), origin.y());
+    // TODO: all this logic should move to the glyph cache.
+    if (isSubpixel) {
+        axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
+        SkPoint rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
+        mapping.postTranslate(rounding.x(), rounding.y());
+    } else {
+        mapping.postTranslate(SK_ScalarHalf, SK_ScalarHalf);
+    }
+
+    auto runSize = glyphRun.runSize();
+    if (this->ensureBitmapBuffers(runSize)) {
+        mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+        const SkPoint* mappedPtCursor = fPositions;
+        const SkPoint* ptCursor = glyphRun.positions().data();
+        for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+            auto mappedPt = *mappedPtCursor++;
+            auto pt = origin + *ptCursor++;
+            if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+                // TODO: all this logic should move to the glyph cache.
+                const SkGlyph& glyph =
+                    isSubpixel ? lookup_glyph_by_subpixel(axisAlignment, mappedPt, glyphID, cache)
+                               : cache->getGlyphIDMetrics(glyphID);
+                if (!glyph.isEmpty()) {
+                    // Prevent glyphs from being drawn outside of or straddling the edge
+                    // of device space. Comparisons written a little weirdly so that NaN
+                    // coordinates are treated safely.
+                    auto le = [](float a, int b) { return a <= (float)b; };
+                    auto ge = [](float a, int b) { return a >= (float)b; };
+                    if (le(mappedPt.fX, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) &&
+                        ge(mappedPt.fX, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)) &&
+                        le(mappedPt.fY, INT_MAX - (INT16_MAX + SkTo<int>(UINT16_MAX))) &&
+                        ge(mappedPt.fY, INT_MIN - (INT16_MIN + 0 /*UINT16_MIN*/)))
+                    {
+                        eachGlyph(glyph, pt, mappedPt);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
@@ -218,6 +289,10 @@ static bool prepare_mask(
     return true;
 }
 
+static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
+    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
+}
+
 void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
@@ -256,6 +331,29 @@ void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
     }
 }
 
+void SkGlyphRunListDrawer::drawGlyphRunAsGlyphWithPathFallback(
+        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerGlyph perGlyph, PerPath perPath) {
+    auto eachGlyph =
+            [cache, perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
+            (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
+        if (glyph_too_big_for_atlas(glyph)) {
+            const SkPath* glyphPath = cache->findPath(glyph);
+            if (glyphPath != nullptr) {
+                perPath(glyphPath, glyph, mappedPt);
+            }
+        } else {
+            const void* glyphImage = cache->findImage(glyph);
+            if (glyphImage != nullptr) {
+                perGlyph(glyph, mappedPt);
+            }
+        }
+    };
+
+    this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
+}
+
 void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
@@ -282,6 +380,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
         }
     }
 }
+
 
 void SkGlyphRunListDrawer::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
@@ -322,8 +421,7 @@ void SkGlyphRunListDrawer::drawForBitmapDevice(
 
 void SkGlyphRunListDrawer::drawUsingMasks(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
-                                           SkPoint origin, const SkMatrix& deviceMatrix,
-                                           SkGlyphRunListDrawer::PerMask perMask) {
+        SkPoint origin, const SkMatrix& deviceMatrix, PerMask perMask) {
     if (cache->isSubpixel()) {
         this->drawGlyphRunAsSubpixelMask(cache, glyphRun, origin, deviceMatrix, perMask);
     } else {
