@@ -247,5 +247,6 @@ protected:
     friend class GrGLSLVaryingHandler; // to access noperspective interpolation feature.
     friend class GrGLPathProgramBuilder; // to access fInputs.
     friend class GrVkPipelineStateBuilder;
+    friend class GrMtlPipelineStateBuilder;
 };
 #endif

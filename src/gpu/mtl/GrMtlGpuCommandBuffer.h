@@ -9,6 +9,9 @@
 #define GrMtlGpuCommandBuffer_DEFINED
 
 #include "GrGpuCommandBuffer.h"
+#include "GrMtlGpu.h"
+
+#import <metal/metal.h>
 
 class GrMtlGpu;
 class GrMtlRenderTarget;
