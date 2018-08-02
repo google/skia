@@ -66,6 +66,7 @@ struct GrMockOptions {
     bool fFlatInterpolationSupport = false;
     int fMaxVertexSamplers = 0;
     int fMaxFragmentSamplers = 8;
+    int fMaxVertexUniformComponents = 2048;
     bool fShaderDerivativeSupport = true;
 
     // GrMockGpu options.

@@ -204,6 +204,8 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
+    int maxVertexUniformComponents() const { return fMaxVertexUniformComponents; }
+
     /**
      * In general using multiple texture units for image rendering seems to be a win at smaller
      * sizes of dst rects and a loss at larger sizes. Dst rects above this pixel area threshold will
@@ -288,6 +290,7 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
+    int fMaxVertexUniformComponents;
 
     size_t fDisableImageMultitexturingDstRectAreaThreshold;
 

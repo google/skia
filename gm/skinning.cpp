@@ -9,7 +9,6 @@
 #include "SkCanvas.h"
 #include "SkVertices.h"
 #include "SkPoint.h"
-#include <iostream>
 #include <vector>
 
 using namespace skiagm;
