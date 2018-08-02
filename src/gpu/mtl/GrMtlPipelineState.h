@@ -12,6 +12,10 @@
 
 class GrMtlGpu;
 
+/**
+ * Wraps a MTLRenderPipelineState object and also contains more info about the pipeline as needed
+ * by Ganesh
+ */
 class GrMtlPipelineState {
 public:
     GrMtlPipelineState(id<MTLRenderPipelineState> pipelineState,
@@ -24,8 +28,12 @@ public:
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
 private:
+    GrMtlGpu* fGpu;
+
     id<MTLRenderPipelineState> fPipelineState;
-    MTLPixelFormat fPixelFormat;
+    MTLPixelFormat             fPixelFormat;
+    id<MTLBuffer>              fGeometryUniformBuffer;
+    id<MTLBuffer>              fFragmentUniformBuffer;
 };
 
 #endif
