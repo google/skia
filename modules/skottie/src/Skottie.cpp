@@ -11,7 +11,6 @@
 #include "SkData.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
-#include "SkOSPath.h"
 #include "SkPaint.h"
 #include "SkParse.h"
 #include "SkPoint.h"
@@ -46,7 +45,11 @@
 #include <cmath>
 #include <vector>
 
-#include "stdlib.h"
+#include <stdlib.h>
+
+#if defined(SK_ENABLE_SKOTTIE_DEFAULT_RESOURCE_MANAGER)
+    #include "SkOSPath.h"
+#endif
 
 namespace skottie {
 
@@ -694,7 +697,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
     return draws.empty() ? nullptr : shape_wrapper;
 }
 
-sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* ctx) {
+sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* name, AttachContext* ctx) {
     class SkottieSGAdapter final : public sksg::RenderNode {
     public:
         explicit SkottieSGAdapter(sk_sp<Animation> animation)
@@ -734,15 +737,15 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
         const float            fTimeScale;
     };
 
-    const auto resStream  = ctx->fResources.openStream(path);
+    const auto resStream  = ctx->fResources.openStream("", name);
     if (!resStream || !resStream->hasLength()) {
-        LOG("!! Could not open: %s\n", path);
+        LOG("!! Could not open: %s\n", name);
         return nullptr;
     }
 
     auto animation = Animation::Make(resStream.get(), &ctx->fResources);
     if (!animation) {
-        LOG("!! Could not load nested animation: %s\n", path);
+        LOG("!! Could not load nested animation: %s\n", name);
         return nullptr;
     }
 
@@ -874,11 +877,9 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, Atta
     if (name.isEmpty())
         return nullptr;
 
-    // TODO: plumb resource paths explicitly to ResourceProvider?
-    const auto resName    = path.isEmpty() ? name : SkOSPath::Join(path.c_str(), name.c_str());
-    const auto resStream  = ctx->fResources.openStream(resName.c_str());
+    const auto resStream  = ctx->fResources.openStream(path.c_str(), name.c_str());
     if (!resStream || !resStream->hasLength()) {
-        LOG("!! Could not load image resource: %s\n", resName.c_str());
+        LOG("!! Could not load image resource: %s/%s\n", path.c_str(), name.c_str());
         return nullptr;
     }
 
@@ -1292,7 +1293,7 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provi
     }
 
     class NullResourceProvider final : public ResourceProvider {
-        std::unique_ptr<SkStream> openStream(const char[]) const { return nullptr; }
+        std::unique_ptr<SkStream> openStream(const char[], const char[]) const { return nullptr; }
     };
 
     NullResourceProvider null_provider;
@@ -1307,27 +1308,32 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provi
 
 sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res,
                                          Stats* stats) {
+    const auto jsonStream =  SkStream::MakeFromFile(path);
+    if (!jsonStream)
+        return nullptr;
+
+    std::unique_ptr<ResourceProvider> defaultProvider;
+
+#if defined(SK_ENABLE_SKOTTIE_DEFAULT_RESOURCE_MANAGER)
     class DirectoryResourceProvider final : public ResourceProvider {
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
 
-        std::unique_ptr<SkStream> openStream(const char resource[]) const override {
-            const auto resPath = SkOSPath::Join(fDir.c_str(), resource);
-            return SkStream::MakeFromFile(resPath.c_str());
+        std::unique_ptr<SkStream> openStream(const char resource_path[],
+                                             const char resource_name[]) const override {
+            const auto full_dir  = SkOSPath::Join(fDir.c_str(), resource_path),
+                       full_path = SkOSPath::Join(full_dir.c_str(), resource_name);
+            return SkStream::MakeFromFile(full_path.c_str());
         }
 
     private:
         const SkString fDir;
     };
 
-    const auto jsonStream =  SkStream::MakeFromFile(path);
-    if (!jsonStream)
-        return nullptr;
-
-    std::unique_ptr<ResourceProvider> defaultProvider;
     if (!res) {
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
+#endif // SK_ENABLE_SKOTTIE_DEFAULT_RESOURCE_MANAGER
 
     return Make(jsonStream.get(), res ? res : defaultProvider.get(), stats);
 }

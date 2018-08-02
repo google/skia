@@ -31,7 +31,8 @@ public:
     ResourceProvider(const ResourceProvider&) = delete;
     ResourceProvider& operator=(const ResourceProvider&) = delete;
 
-    virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
+    virtual std::unique_ptr<SkStream> openStream(const char resource_path[],
+                                                 const char resource_name[]) const = 0;
 };
 
 class SK_API Animation : public SkRefCnt {
