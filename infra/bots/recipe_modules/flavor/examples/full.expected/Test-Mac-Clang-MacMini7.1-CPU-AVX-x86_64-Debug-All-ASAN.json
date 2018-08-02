@@ -141,6 +141,15 @@
   },
   {
     "cmd": [
+      "sudo",
+      "xcode-select",
+      "-switch",
+      "/Applications/Xcode9.2.app"
+    ],
+    "name": "select xcode"
+  },
+  {
+    "cmd": [
       "[START_DIR]/build/dm",
       "--some-flag"
     ],

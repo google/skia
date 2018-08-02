@@ -206,6 +206,11 @@ class DefaultFlavor(object):
       ld_library_path.append(clang_linux + '/msan')
 
     if any('SAN' in t for t in extra_tokens):
+      if self.m.vars.builder_cfg.get('os', '') == 'Mac':
+        # TODO(dogben): Remove after isolating xSAN libraries in Build tasks.
+        self.m.step('select xcode', [
+            'sudo', 'xcode-select', '-switch', '/Applications/Xcode9.2.app'])
+
       # Sanitized binaries may want to run clang_linux/bin/llvm-symbolizer.
       path.append(clang_linux + '/bin')
       # We find that testing sanitizer builds with libc++ uncovers more issues
