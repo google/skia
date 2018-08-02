@@ -31,8 +31,9 @@ enum GPFlag {
     kBonesAttribute_GPFlag          = 0x10,
 };
 
-static constexpr int kMaxBones = 80; // Due to GPU memory limitations, only up to 80 bone
-                                     // matrices are accepted.
+static constexpr int kNumVec2sPerBone = 3; // Our bone matrices are 3x2 matrices passed in as
+                                           // vec2s in column major order, and thus there are 3
+                                           // vec2s per bone.
 
 class DefaultGeoProc : public GrGeometryProcessor {
 public:
@@ -111,21 +112,27 @@ public:
             }
 
             // Setup bone transforms
+            // NOTE: This code path is currently unused. Benchmarks have found that for all
+            // reasonable cases of skinned vertices, the overhead involved in copying and uploading
+            // bone data makes performing the transformations on the CPU faster than doing so on
+            // the GPU. This is being kept here in case that changes.
             const char* transformedPositionName = gp.fInPosition.name();
             if (gp.hasBones()) {
                 const char* vertBonesUniformName;
                 fBonesUniform = uniformHandler->addUniformArray(kVertex_GrShaderFlag,
-                                                                kFloat3x3_GrSLType,
+                                                                kFloat2_GrSLType,
                                                                 "Bones",
-                                                                kMaxBones,
+                                                                kMaxBones * kNumVec2sPerBone,
                                                                 &vertBonesUniformName);
                 vertBuilder->codeAppendf(
-                        "float3 originalPosition = %s[0] * float3(%s, 1);"
-                        "float2 transformedPosition = float2(0);"
+                        "float3 worldPosition = %s[0] * float3(%s, 1);"
+                        "float3 transformedPosition = float3(0, 0, 1);"
                         "for (int i = 0; i < 4; i++) {",
                         vertBonesUniformName,
                         gp.fInPosition.name());
 
+                // If the GPU supports unsigned integers, then we can read the index. Otherwise,
+                // we have to estimate it given the float representation.
                 if (args.fShaderCaps->unsignedSupport()) {
                     vertBuilder->codeAppendf(
                         "    byte index = %s[i];",
@@ -136,13 +143,23 @@ public:
                         gp.fInBoneIndices.name());
                 }
 
+                // The bone matrices are passed in as 3x2 matrices in column-major order as groups
+                // of 3 float2s. This code takes those float2s and performs the matrix operation.
                 vertBuilder->codeAppendf(
                         "    float weight = %s[i];"
-                        "    transformedPosition += (%s[index] * originalPosition * weight).xy;"
+                        "    float c0 = %s[index * 3];"
+                        "    float c1 = %s[index * 3 + 1];"
+                        "    float c2 = %s[index * 3 + 2];"
+                        "    float x = c0.x * worldPosition.x + c1.x * worldPosition.y + c2.x;"
+                        "    float y = c0.y * worldPosition.x + c1.y * worldPosition.y + c2.y;"
+                        "    transformedPosition.x += x * weight;"
+                        "    transformedPosition.y += y * weight;"
                         "}",
                         gp.fInBoneWeights.name(),
+                        vertBonesUniformName,
+                        vertBonesUniformName,
                         vertBonesUniformName);
-                transformedPositionName = "transformedPosition";
+                transformedPositionName = "transformedPosition.xy / transformedPosition.z";
             }
 
             // Setup position
@@ -336,13 +353,13 @@ private:
 GR_DEFINE_GEOMETRY_PROCESSOR_TEST(DefaultGeoProc);
 
 #if GR_TEST_UTILS
-static constexpr int kNumFloatsPerSkMatrix = 9;
+static constexpr int kNumFloatsPerBone = 6;
 static constexpr int kTestBoneCount = 4;
-static constexpr float kTestBones[kTestBoneCount * kNumFloatsPerSkMatrix] = {
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-    1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+static constexpr float kTestBones[kTestBoneCount * kNumFloatsPerBone] = {
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 };
 
 sk_sp<GrGeometryProcessor> DefaultGeoProc::TestCreate(GrProcessorTestData* d) {

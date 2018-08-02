@@ -38,16 +38,16 @@ public:
     static std::unique_ptr<GrDrawOp> Make(GrContext* context,
                                           GrPaint&&,
                                           sk_sp<SkVertices>,
-                                          const SkMatrix bones[],
+                                          const SkVertices::Bone bones[],
                                           int boneCount,
                                           const SkMatrix& viewMatrix,
                                           GrAAType,
                                           sk_sp<GrColorSpaceXform>,
                                           GrPrimitiveType* overridePrimType = nullptr);
 
-    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>, const SkMatrix bones[],
-                     int boneCount, GrPrimitiveType, GrAAType, sk_sp<GrColorSpaceXform>,
-                     const SkMatrix& viewMatrix);
+    GrDrawVerticesOp(const Helper::MakeArgs&, GrColor, sk_sp<SkVertices>,
+                     const SkVertices::Bone bones[], int boneCount, GrPrimitiveType, GrAAType,
+                     sk_sp<GrColorSpaceXform>, const SkMatrix& viewMatrix);
 
     const char* name() const override { return "DrawVerticesOp"; }
 
@@ -103,7 +103,6 @@ private:
     struct Mesh {
         GrColor fColor;  // Used if this->hasPerVertexColors() is false.
         sk_sp<SkVertices> fVertices;
-        std::vector<float> fBones; // Transformation matrices stored in GPU format.
         SkMatrix fViewMatrix;
         bool fIgnoreTexCoords;
         bool fIgnoreColors;
@@ -118,7 +117,7 @@ private:
         }
 
         bool hasBones() const {
-            return fVertices->hasBones() && fBones.size() && !fIgnoreBones;
+            return fVertices->hasBones() && !fIgnoreBones;
         }
     };
 
@@ -152,6 +151,7 @@ private:
 
     Helper fHelper;
     SkSTArray<1, Mesh, true> fMeshes;
+    std::vector<SkVertices::Bone> fBones; // Bone transformation matrices.
     // GrPrimitiveType is more expressive than fVertices.mode() so it is used instead and we ignore
     // the SkVertices mode (though fPrimitiveType may have been inferred from it).
     GrPrimitiveType fPrimitiveType;
