@@ -80,7 +80,7 @@ private:
                     const SkIRect& maskDevIBounds, Visibility maskVisibility,
                     const SkRect& devBounds, GrPaint&&);
 
-    void recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx);
+    void recordInstance(GrTextureProxy* atlasProxy, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
 
@@ -110,7 +110,7 @@ private:
     GrProcessorSet fProcessors;
 
     struct InstanceRange {
-        const GrTextureProxy* fAtlasProxy;
+        GrTextureProxy* fAtlasProxy;
         int fEndInstanceIdx;
     };
 

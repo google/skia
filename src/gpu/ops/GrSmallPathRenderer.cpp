@@ -304,7 +304,7 @@ private:
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         const GrPipeline* fPipeline;
-        const GrPipeline::FixedDynamicState* fFixedDynamicState;
+        GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -312,7 +312,15 @@ private:
     void onPrepareDraws(Target* target) override {
         int instanceCount = fShapes.count();
 
-        auto pipe = fHelper.makePipeline(target);
+        static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;
+        GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
+
+        auto pipe = fHelper.makePipeline(target, kMaxTextures);
+        int numActiveProxies = fAtlas->numActivePages();
+        const auto proxies = fAtlas->getProxies();
+        for (int i = 0; i < numActiveProxies; ++i) {
+            pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+        }
 
         FlushInfo flushInfo;
         flushInfo.fPipeline = pipe.fPipeline;
@@ -807,7 +815,12 @@ private:
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
-        if (gp->numTextureSamplers() != (int)fAtlas->numActivePages()) {
+        int numAtlasTextures = SkToInt(fAtlas->numActivePages());
+        auto proxies = fAtlas->getProxies();
+        if (gp->numTextureSamplers() != numAtlasTextures) {
+            for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
+                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+            }
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {

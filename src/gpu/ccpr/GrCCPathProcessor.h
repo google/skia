@@ -69,12 +69,12 @@ public:
     static sk_sp<const GrBuffer> FindVertexBuffer(GrOnFlushResourceProvider*);
     static sk_sp<const GrBuffer> FindIndexBuffer(GrOnFlushResourceProvider*);
 
-    GrCCPathProcessor(GrResourceProvider*, sk_sp<GrTextureProxy> atlas,
+    GrCCPathProcessor(const GrTextureProxy* atlas,
                       const SkMatrix& viewMatrixIfUsingLocalCoords = SkMatrix::I());
 
     const char* name() const override { return "GrCCPathProcessor"; }
-    const GrSurfaceProxy* atlasProxy() const { return fAtlasAccess.proxy(); }
-    const GrTexture* atlas() const { return fAtlasAccess.peekTexture(); }
+    const SkISize& atlasSize() const { return fAtlasSize; }
+    GrSurfaceOrigin atlasOrigin() const { return fAtlasOrigin; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     const Attribute& getInstanceAttrib(InstanceAttribs attribID) const {
         int idx = static_cast<int>(attribID);
@@ -96,6 +96,9 @@ private:
     const TextureSampler& onTextureSampler(int) const override { return fAtlasAccess; }
 
     const TextureSampler fAtlasAccess;
+    SkISize fAtlasSize;
+    GrSurfaceOrigin fAtlasOrigin;
+
     SkMatrix fLocalMatrix;
     static constexpr Attribute kInstanceAttribs[kNumInstanceAttribs] = {
             {"devbounds", kFloat4_GrVertexAttribType},
