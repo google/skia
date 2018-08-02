@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ae2afa21_d927a8d4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-02T06:53:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b344428d_47eeb510",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 1
+      },
+      "revId": "c93bc6888c185d15df05833e6db8af4560d96816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6884c254_4a4ec632",
         "filename": "infra/bots/cfg.json",
         "patchSetId": 3
@@ -45,6 +69,30 @@
       "revId": "c93bc6888c185d15df05833e6db8af4560d96816",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "729c6aa4_d06d8ae5",
+        "filename": "infra/bots/cfg.json",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-02T06:53:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6884c254_4a4ec632",
+      "range": {
+        "startLine": 3,
+        "startChar": 3,
+        "endLine": 3,
+        "endChar": 13
+      },
+      "revId": "c93bc6888c185d15df05833e6db8af4560d96816",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
