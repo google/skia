@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f9373e9_a91dcd90",
+        "filename": "infra/bots/recipe_modules/flavor/default.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-02T14:55:54Z",
+      "side": 1,
+      "message": "Nit: it seems safer to do:\n\u0027Mac\u0027 in self.m.vars.builder_cfg.get(\u0027os\u0027, \u0027\u0027)\nBut I guess we don\u0027t have any instances of anything other than \u0027Mac\u0027.",
+      "range": {
+        "startLine": 209,
+        "startChar": 51,
+        "endLine": 209,
+        "endChar": 54
+      },
+      "revId": "bf775af3455ca2921d4aab0a631f8a02fd977f25",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
