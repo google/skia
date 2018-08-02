@@ -63,7 +63,8 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
 //////////////////////////////////////////////////////////////////////////////
 
 auto GrMeshDrawOp::Target::makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
-                                        GrAppliedClip&& clip) -> PipelineAndFixedDynamicState {
+                                        GrAppliedClip&& clip, int numPrimProcTextures)
+        -> PipelineAndFixedDynamicState {
     GrPipeline::InitArgs pipelineArgs;
     pipelineArgs.fFlags = pipelineFlags;
     pipelineArgs.fProxy = this->proxy();
@@ -71,8 +72,12 @@ auto GrMeshDrawOp::Target::makePipeline(uint32_t pipelineFlags, GrProcessorSet&&
     pipelineArgs.fCaps = &this->caps();
     pipelineArgs.fResourceProvider = this->resourceProvider();
     GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
-    if (clip.scissorState().enabled()) {
+    if (clip.scissorState().enabled() || numPrimProcTextures) {
         fixedDynamicState = this->allocFixedDynamicState(clip.scissorState().rect());
+        if (numPrimProcTextures) {
+            fixedDynamicState->fPrimitiveProcessorTextures =
+                    this->allocPrimitiveProcessorTextureArray(numPrimProcTextures);
+        }
     }
     return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)),
             fixedDynamicState};

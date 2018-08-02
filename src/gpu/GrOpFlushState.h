@@ -118,6 +118,11 @@ private:
     // that share a geometry processor into a Draw is that it allows the Gpu object to setup
     // the shared state once and then issue draws for each mesh.
     struct Draw {
+        ~Draw() {
+            for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
+                fFixedDynamicState->fPrimitiveProcessorTextures[i]->completedRead();
+            }
+        }
         int fMeshCnt = 0;
         GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
         const GrPipeline* fPipeline;
