@@ -162,7 +162,7 @@ public:
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 
-    bool isEmpty() {
+    bool isEmpty() const {
         return fWidth == 0 || fHeight == 0;
     }
 
