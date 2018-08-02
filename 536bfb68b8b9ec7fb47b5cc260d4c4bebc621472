@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "aa99a118_3104da86",
+        "filename": "include/core/SkCanvas.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 2387,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2ac1e6a1_f22984d6",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "acf7cbec_4e052329",
         "filename": "include/core/SkDocument.h",
         "patchSetId": 13
@@ -33,6 +51,24 @@
       "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c294f73f_7460d0b2",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "acf7cbec_4e052329",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "033db4fe_bafb107d",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 13
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2befc9b4_79705bf4",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "166ba372_09bc24ab",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 13
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "518388ae_d9156203",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "166ba372_09bc24ab",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cab941b1_5ef220c1",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 13
@@ -81,6 +153,24 @@
       "writtenOn": "2018-08-01T17:26:26Z",
       "side": 1,
       "message": "why have a fParent field at all?  Why not :\n\nSkPDFTag::SkPDFTag(int64_t nodeId, SkDocumentStructureType type, sk_sp\u003cSkPDFTag\u003e parent)\n    : SkPDFDict(\"StructElem\")\n    , fNodeId(nodeId)\n    , fType(type)\n{\n    if (parent) {\n        this-\u003einsertObjRef(\"P\", std::move(parent));\n    }\n}",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "628940fb_3fc38077",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "No problem.\n\nMy only logic was to try to keep all of the code that builds the SkPDFDict\nin one place so it\u0027s easier to see all of the keys it writes. Your approach\nalso makes sense, it\u0027s less code.",
+      "parentUuid": "cab941b1_5ef220c1",
       "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "ae6ff106_6aa07bda",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a5fa086_c971b51c",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a02571e7_ea85d3ed",
         "filename": "src/pdf/SkPDFTag.cpp",
         "patchSetId": 13
@@ -118,6 +226,24 @@
       "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f52c0acf_58b8c727",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-02T07:00:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a02571e7_ea85d3ed",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
