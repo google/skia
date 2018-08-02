@@ -5,6 +5,8 @@
 
 is_skia_standalone = true
 
+# target_cpu="arm64"
+
 # It's best to keep the names and defaults of is_foo flags consistent with Chrome.
 
 declare_args() {
@@ -14,9 +16,10 @@ declare_args() {
 
   # It's nice to keep ndk_api set to what Clank targets, but probably no big deal if we can't.
   if (target_cpu == "x86" || target_cpu == "arm") {
-    ndk_api = 16
+    ndk_api = 23
   } else {
-    ndk_api = 21
+    # ndk_api = 21
+    ndk_api = 23
   }
 
   sanitize = ""
