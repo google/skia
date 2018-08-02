@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c3428115_a62cce8a",
+        "filename": "modules/skottie/BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-02T15:35:37Z",
+      "side": 1,
+      "message": "seems unfortunate that this isn\u0027t in a list somewhere. Maybe skia_skottie_public?",
+      "range": {
+        "startLine": 22,
+        "startChar": 6,
+        "endLine": 22,
+        "endChar": 25
+      },
+      "revId": "8a7f111b9501dd6d663ad870a331559fc8fbd89c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
