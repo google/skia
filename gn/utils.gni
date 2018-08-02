@@ -64,7 +64,6 @@ skia_utils_sources = [
   "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkUTF.cpp",
   "$_src/utils/SkUTF.h",
-  "$_src/utils/SkWhitelistTypefaces.cpp",
 
   #mac
   "$_include/utils/mac/SkCGUtils.h",
