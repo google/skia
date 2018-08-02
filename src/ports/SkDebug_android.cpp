@@ -11,7 +11,7 @@
 #include <stdio.h>
 
 #define LOG_TAG "skia"
-#include <android/log.h>
+//#include <android/log.h>
 
 // Print debug output to stdout as well.  This is useful for command line
 // applications (e.g. skia_launcher).
@@ -27,7 +27,7 @@ void SkDebugf(const char format[], ...) {
         va_end(args2);
     }
 
-    __android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, format, args1);
+ //   __android_log_vprint(ANDROID_LOG_DEBUG, LOG_TAG, format, args1);
 
     va_end(args1);
 }
