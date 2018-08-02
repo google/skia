@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a782c055_6c7e7e57",
+        "filename": "src/gpu/ops/GrOvalOpFactory.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-02T19:31:04Z",
+      "side": 1,
+      "message": "min(clip + clamp(...), 1)?",
+      "range": {
+        "startLine": 188,
+        "startChar": 36,
+        "endLine": 189,
+        "endChar": 82
+      },
+      "revId": "a2debd346f2214fcd3ce1dc91922ea927e3eb81f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
