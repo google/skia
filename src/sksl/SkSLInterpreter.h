@@ -80,7 +80,7 @@ private:
     std::unique_ptr<Program> fProgram;
     SkRasterPipeline& fPipeline;
     std::vector<StatementIndex> fCurrentIndex;
-    std::vector<std::map<const Variable*, StackIndex>> fVars;
+    std::vector<std::unordered_map<const Variable*, StackIndex>> fVars;
     std::vector<Value> &fStack;
 };
 
