@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe36980a_3d90d5f1",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-02T23:37:19Z",
+      "side": 1,
+      "message": "SkPoint::Length takes the square root. Then later, intersections squares the result.\nAvoid that?",
+      "revId": "a76abffaf50092e7faa157643afd0b11f47a87cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e8dfd8f_d2129adf",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-02T23:37:19Z",
+      "side": 1,
+      "message": "(probably unmeasurable, but) since isConvex() may require computation but other tests immediately short-circuit condition, put it last?",
+      "revId": "a76abffaf50092e7faa157643afd0b11f47a87cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89f6ecc5_e33197e8",
+        "filename": "src/core/SkScan_AntiPath.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-02T23:37:19Z",
+      "side": 1,
+      "message": "I\u0027m curious why this code change is bracketed by legacy define but the changes above are not.",
+      "revId": "a76abffaf50092e7faa157643afd0b11f47a87cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
