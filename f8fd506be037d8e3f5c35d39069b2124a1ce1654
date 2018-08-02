@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0972f6f9_a282cebb",
+        "filename": "platform_tools/android/apps/skqp/src/main/assets/skqp/KnownGMs.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T20:25:47Z",
+      "side": 0,
+      "message": "I think this needed to be path_reverse",
+      "range": {
+        "startLine": 473,
+        "startChar": 0,
+        "endLine": 473,
+        "endChar": 4
+      },
+      "revId": "f8fd506be037d8e3f5c35d39069b2124a1ce1654",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
