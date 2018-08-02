@@ -114,9 +114,12 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = new SkSL::Compiler();
 
+    uint32_t instanceVersion = backendContext.fInstanceVersion ? backendContext.fInstanceVersion
+                                                               : backendContext.fMinAPIVersion;
+
     if (backendContext.fFeatures & kIgnoreAllFlags_GrVkFeatureFlag) {
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   backendContext.fDeviceFeatures));
+                                   backendContext.fDeviceFeatures, instanceVersion));
     } else {
         VkPhysicalDeviceFeatures features;
         if (backendContext.fFeatures & kGeometryShader_GrVkFeatureFlag) {
@@ -129,7 +132,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
             features.sampleRateShading = true;
         }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features));
+                                   features, instanceVersion));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 

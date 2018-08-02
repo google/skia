@@ -27,7 +27,8 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, const VkPhysicalDeviceFeatures& features);
+             VkPhysicalDevice device, const VkPhysicalDeviceFeatures& features,
+             uint32_t instanceVersion);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);

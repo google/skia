@@ -45,8 +45,9 @@ struct SK_API GrVkBackendContext {
     VkDevice                   fDevice;
     VkQueue                    fQueue;
     uint32_t                   fGraphicsQueueIndex;
-    uint32_t                   fMinAPIVersion;
-    uint32_t                   fExtensions = 0;
+    uint32_t                   fMinAPIVersion; // Deprecated. Set fInstanceVersion instead.
+    uint32_t                   fInstanceVersion = 0;
+    uint32_t                   fExtensions = 0; // Deprecated. Use fVkExtensions instead.
     const GrVkExtensions*      fVkExtensions = nullptr;
     uint32_t                   fFeatures = kIgnoreAllFlags_GrVkFeatureFlag;
     VkPhysicalDeviceFeatures   fDeviceFeatures;
