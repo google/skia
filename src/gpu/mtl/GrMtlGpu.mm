@@ -7,6 +7,7 @@
 
 #include "GrMtlGpu.h"
 
+#include "GrMtlBuffer.h"
 #include "GrMtlGpuCommandBuffer.h"
 #include "GrMtlTexture.h"
 #include "GrMtlTextureRenderTarget.h"
@@ -123,6 +124,11 @@ void GrMtlGpu::submitCommandBuffer(SyncQueue sync) {
         [fCmdBuffer waitUntilCompleted];
     }
     fCmdBuffer = [fQueue commandBuffer];
+}
+
+GrBuffer* GrMtlGpu::onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern accessPattern,
+                                   const void* data) {
+    return GrMtlBuffer::Create(this, size, type, accessPattern, data);
 }
 
 static bool check_max_blit_width(int widthInPixels) {
