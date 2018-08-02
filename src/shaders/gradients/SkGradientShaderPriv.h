@@ -156,7 +156,6 @@ struct SkColor4fXformer {
 #include "glsl/GrGLSLProgramDataManager.h"
 
 class GrInvariantOutput;
-class GrTextureStripAtlas;
 
 /*
  * The interpretation of the texture matrix depends on the sample mode. The
@@ -180,6 +179,8 @@ class GrTextureStripAtlas;
  *  The angle from the origin of texture coordinates in post-matrix space
  *  determines the gradient value.
  */
+
+ class GrTextureStripAtlas;
 
 // Base class for Gr gradient effects
 class GrGradientEffect : public GrFragmentProcessor {
