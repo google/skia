@@ -13,6 +13,7 @@
 #include "SkPDFFont.h"
 
 class SkPDFDevice;
+class SkPDFTag;
 
 /*  @param rasterDpi the DPI at which features without native PDF
  *         support will be rasterized (e.g. draw image with
@@ -76,7 +77,13 @@ public:
     void registerFont(SkPDFFont* f) { fFonts.add(f); }
     const PDFMetadata& metadata() const { return fMetadata; }
 
+    sk_sp<SkPDFDict> getPage(int pageIndex);
+    // Returns -1 if no mark ID.
+    int getMarkIdForNodeId(int nodeId);
+
 private:
+    sk_sp<SkPDFTag> recursiveBuildTagTree(const PDFTag& tag, sk_sp<SkPDFTag> parent);
+
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
     SkTArray<sk_sp<SkPDFDict>> fPages;
@@ -87,6 +94,15 @@ private:
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
     SkDocument::PDFMetadata fMetadata;
+
+    // For tagged PDFs.
+
+    // The tag root, which owns its child tags and so on.
+    sk_sp<SkPDFTag> fTagRoot;
+    // Array of page -> array of marks mapping to tags.
+    SkTArray<SkTArray<sk_sp<SkPDFTag>>> fMarksPerPage;
+    // A mapping from node ID to tag for fast lookup.
+    SkTHashMap<int, sk_sp<SkPDFTag>> fNodeIdToTag;
 
     void reset();
 };

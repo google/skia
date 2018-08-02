@@ -26,6 +26,54 @@ struct IXpsOMObjectFactory;
 */
 #define SK_ScalarDefaultRasterDPI           72.0f
 
+// Table 333 in PDF 32000-1:2008
+enum class SkPDFDocumentStructureType {
+    kDocument,
+    kPart,
+    kArt,         // Article
+    kSect,        // Section
+    kDiv,
+    kBlockQuote,
+    kCaption,
+    kTOC,         // Table of Contents
+    kTOCI,        // Table of Contents Item
+    kIndex,
+    kNonStruct,
+    kPrivate,
+    kH,           // Heading
+    kH1,          // Heading level 1
+    kH2,
+    kH3,
+    kH4,
+    kH5,
+    kH6,          // Heading level 6
+    kP,           // Paragraph
+    kL,           // List
+    kLI,          // List item
+    kLbl,         // List item label
+    kLBody,       // List item body
+    kTable,
+    kTR,
+    kTH,
+    kTD,
+    kTHead,
+    kTBody,
+    kTFoot,
+    kSpan,
+    kQuote,
+    kNote,
+    kReference,
+    kBibEntry,
+    kCode,
+    kLink,
+    kAnnot,
+    kRuby,
+    kWarichu,
+    kFigure,
+    kFormula,
+    kForm,        // Form control (not like an HTML FORM element)
+};
+
 /**
  *  High-level API for creating a document-based canvas. To use..
  *
@@ -42,6 +90,18 @@ public:
         SkTime::DateTime fDateTime;
         bool fEnabled;
         OptionalTimestamp() : fEnabled(false) {}
+    };
+
+    /**
+     *  A tag in a document structure tree, giving a semantic representation
+     *  of the content in PDF files.  Each node ID is associated with content
+     *  by calling SkCanvas::setNodeId() when drawing.
+     */
+    struct PDFTag {
+        int fNodeId;
+        SkPDFDocumentStructureType fType;
+        std::unique_ptr<PDFTag[]> fChildren;
+        size_t fChildCount;
     };
 
     /**
@@ -110,6 +170,13 @@ public:
          *  quality setting.
          */
         int fEncodingQuality = 101;
+
+        /**
+         *  An optional tree of structured document tags that provide
+         *  a semantic representation of the content. The caller
+         *  should retain ownership.
+         */
+        const PDFTag* fStructureElementTreeRoot = nullptr;
     };
 
     /**

@@ -83,6 +83,7 @@ DRAW(SaveLayer, saveLayer(SkCanvas::SaveLayerRec(r.bounds,
                                                  r.clipMatrix,
                                                  r.saveLayerFlags)));
 DRAW(SetMatrix, setMatrix(SkMatrix::Concat(fInitialCTM, r.matrix)));
+DRAW(SetNodeId, setNodeId(r.node_id));
 DRAW(Concat, concat(r.matrix));
 DRAW(Translate, translate(r.dx, r.dy));
 
@@ -354,6 +355,7 @@ private:
 
     Bounds bounds(const DrawPaint&) const { return fCullRect; }
     Bounds bounds(const NoOp&)  const { return Bounds::MakeEmpty(); }    // NoOps don't draw.
+    Bounds bounds(const SetNodeId&)  const { return Bounds::MakeEmpty(); }
 
     Bounds bounds(const DrawRect& op) const { return this->adjustAndMap(op.rect, &op.paint); }
     Bounds bounds(const DrawRegion& op) const {
@@ -573,4 +575,3 @@ void SkRecordFillBounds(const SkRect& cullRect, const SkRecord& record, SkRect b
     }
     visitor.cleanUp();
 }
-

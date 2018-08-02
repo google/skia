@@ -697,6 +697,10 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             SkScalar dy = reader->readScalar();
             canvas->translate(dx, dy);
         } break;
+        case SET_NODE_ID: {
+            int node_id = reader->readInt();
+            canvas->setNodeId(node_id);
+        } break;
         default:
             reader->validate(false);    // unknown op
             break;

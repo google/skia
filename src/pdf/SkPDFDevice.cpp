@@ -549,6 +549,7 @@ SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc)
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
     , fPageSize(pageSize)
     , fInitialTransform(SkMatrix::I())
+    , fNodeId(0)
     , fDocument(doc)
 {
     SkASSERT(!pageSize.isEmpty());
@@ -1246,6 +1247,19 @@ void SkPDFDevice::internalDrawGlyphRun(const SkGlyphRun& glyphRun, SkPoint offse
         SkDynamicMemoryWStream* out = content.stream();
 
         out->writeText("BT\n");
+
+        int markId = -1;
+        if (fNodeId) {
+            markId = fDocument->getMarkIdForNodeId(fNodeId);
+        }
+
+        if (markId != -1) {
+            out->writeText("/P <</MCID ");
+            out->writeDecAsText(markId);
+            out->writeText(" >>BDC\n");
+        }
+        SK_AT_SCOPE_EXIT(if (markId != -1) out->writeText("EMC\n"));
+
         SK_AT_SCOPE_EXIT(out->writeText("ET\n"));
 
         const SkGlyphID maxGlyphID = SkToU16(typeface->countGlyphs() - 1);
@@ -1453,6 +1467,10 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
 
     sk_sp<SkPDFObject> xObject = pdfDevice->makeFormXObjectFromDevice();
     SkPDFUtils::DrawFormXObject(this->addXObjectResource(xObject.get()), content.stream());
+}
+
+void SkPDFDevice::setNodeId(int nodeId) {
+    fNodeId = nodeId;
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
