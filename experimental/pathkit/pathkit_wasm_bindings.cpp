@@ -38,47 +38,9 @@ void VisitPath(const SkPath& p, VisitFunc&& f) {
     }
 }
 
-void EMSCRIPTEN_KEEPALIVE SkPathToVerbsArgsArray(const SkPath& path,
-                                                 emscripten::val /*Array*/ verbs,
-                                                 emscripten::val /*Array*/ args) {
-    VisitPath(path, [&verbs, &args](SkPath::Verb verb, const SkPoint pts[4]) {
-        switch (verb) {
-        case SkPath::kMove_Verb:
-            verbs.call<void>("push", MOVE);
-            args.call<void>("push", pts[0].x(), pts[0].y());
-            break;
-        case SkPath::kLine_Verb:
-            verbs.call<void>("push", LINE);
-            args.call<void>("push", pts[1].x(), pts[1].y());
-            break;
-        case SkPath::kQuad_Verb:
-            verbs.call<void>("push", QUAD);
-            args.call<void>("push", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
-            break;
-        case SkPath::kConic_Verb:
-            printf("unsupported conic verb\n");
-            // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
-            break;
-        case SkPath::kCubic_Verb:
-            verbs.call<void>("push", CUBIC);
-            args.call<void>("push",
-                            pts[1].x(), pts[1].y(),
-                            pts[2].x(), pts[2].y(),
-                            pts[3].x(), pts[3].y());
-            break;
-        case SkPath::kClose_Verb:
-            verbs.call<void>("push", CLOSE);
-            break;
-        case SkPath::kDone_Verb:
-            SkASSERT(false);
-            break;
-        }
-    });
-}
-
 emscripten::val JSArray = emscripten::val::global("Array");
 
-emscripten::val EMSCRIPTEN_KEEPALIVE SkPathToCmdArray(SkPath path) {
+emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(SkPath path) {
     val cmds = JSArray.new_();
 
     VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4]) {
@@ -125,62 +87,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE SkPathToCmdArray(SkPath path) {
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
-SkPath EMSCRIPTEN_KEEPALIVE SkPathFromVerbsArgsTyped(uintptr_t /* uint8_t* */ vptr, int numVerbs,
-                                                     uintptr_t /* float*   */ aptr, int numArgs) {
-    const auto* verbs = reinterpret_cast<const uint8_t*>(vptr);
-    const auto* args = reinterpret_cast<const float*>(aptr);
-    SkPath path;
-    int argsIndex = 0;
-    float x1, y1, x2, y2, x3, y3;
-
-    // if there are not enough arguments, bail with the path we've constructed so far.
-    #define CHECK_NUM_ARGS(n) \
-        if ((argsIndex + n) > numArgs) { \
-            SkDebugf("Not enough args to match the verbs. Saw %d args\n", numArgs); \
-            return path; \
-        }
-
-    for(int i = 0; i < numVerbs; i++){
-         switch (verbs[i]) {
-            case MOVE:
-                CHECK_NUM_ARGS(2);
-                x1 = args[argsIndex++], y1 = args[argsIndex++];
-                path.moveTo(x1, y1);
-                break;
-            case LINE:
-                CHECK_NUM_ARGS(2);
-                x1 = args[argsIndex++], y1 = args[argsIndex++];
-                path.lineTo(x1, y1);
-                break;
-            case QUAD:
-                CHECK_NUM_ARGS(4);
-                x1 = args[argsIndex++], y1 = args[argsIndex++];
-                x2 = args[argsIndex++], y2 = args[argsIndex++];
-                path.quadTo(x1, y1, x2, y2);
-                break;
-            case CUBIC:
-                CHECK_NUM_ARGS(6);
-                x1 = args[argsIndex++], y1 = args[argsIndex++];
-                x2 = args[argsIndex++], y2 = args[argsIndex++];
-                x3 = args[argsIndex++], y3 = args[argsIndex++];
-                path.cubicTo(x1, y1, x2, y2, x3, y3);
-                break;
-            case CLOSE:
-                path.close();
-                break;
-            default:
-                SkDebugf("  path: UNKNOWN VERB %d, aborting dump...\n", verbs[i]);
-                return path;
-        }
-    }
-
-    #undef CHECK_NUM_ARGS
-
-    return path;
-}
-
-// See above comment for rational of pointer mess
-SkPath EMSCRIPTEN_KEEPALIVE SkPathFromCmdTyped(uintptr_t /* float* */ cptr, int numCmds) {
+SkPath EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     const auto* cmds = reinterpret_cast<const float*>(cptr);
     SkPath path;
     float x1, y1, x2, y2, x3, y3;
@@ -231,6 +138,10 @@ SkPath EMSCRIPTEN_KEEPALIVE SkPathFromCmdTyped(uintptr_t /* float* */ cptr, int 
     return path;
 }
 
+SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
+    return SkPath();
+}
+
 //========================================================================================
 // SVG THINGS
 //========================================================================================
@@ -278,36 +189,43 @@ SkPath EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder builder) {
 // Canvas THINGS
 //========================================================================================
 
-emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path, val/* Path2D&*/ retVal) {
+void EMSCRIPTEN_KEEPALIVE ToCanvas(SkPath path, val/* Path2D or Canvas*/ ctx) {
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     SkPath::Verb verb;
     while ((verb = iter.next(pts, false)) != SkPath::kDone_Verb) {
         switch (verb) {
             case SkPath::kMove_Verb:
-                retVal.call<void>("moveTo", pts[0].x(), pts[0].y());
+                ctx.call<void>("moveTo", pts[0].x(), pts[0].y());
                 break;
             case SkPath::kLine_Verb:
-                retVal.call<void>("lineTo", pts[1].x(), pts[1].y());
+                ctx.call<void>("lineTo", pts[1].x(), pts[1].y());
                 break;
             case SkPath::kQuad_Verb:
-                retVal.call<void>("quadraticCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
+                ctx.call<void>("quadraticCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
                 break;
             case SkPath::kConic_Verb:
                 printf("unsupported conic verb\n");
                 // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
                 break;
             case SkPath::kCubic_Verb:
-                retVal.call<void>("bezierCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y(),
+                ctx.call<void>("bezierCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y(),
                                                    pts[3].x(), pts[3].y());
                 break;
             case SkPath::kClose_Verb:
-                retVal.call<void>("closePath");
+                ctx.call<void>("closePath");
                 break;
             case SkPath::kDone_Verb:
                 break;
         }
     }
+}
+
+emscripten::val JSPath2D = emscripten::val::global("Path2D");
+
+emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path) {
+    val retVal = JSPath2D.new_();
+    ToCanvas(path, retVal);
     return retVal;
 }
 
@@ -315,11 +233,13 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path, val/* Path2D&*/ retVa
 // Region things
 //========================================================================================
 
+#ifdef PATHKIT_TESTING
 SkPath GetBoundaryPathFromRegion(SkRegion region) {
     SkPath p;
     region.getBoundaryPath(&p);
     return p;
 }
+#endif
 
 // Binds the classes to the JS
 EMSCRIPTEN_BINDINGS(skia) {
@@ -335,13 +255,68 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("cubicTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
         .function("close", &SkPath::close)
-        // Uncomment below for debugging.
-        .function("dump", select_overload<void() const>(&SkPath::dump));
+#ifdef PATHKIT_TESTING
+        .function("dump", select_overload<void() const>(&SkPath::dump))
+#endif
+        ;
 
     class_<SkOpBuilder>("SkOpBuilder")
         .constructor<>()
 
         .function("add", &SkOpBuilder::add);
+
+
+    // Without these function() bindings, the function would be exposed but oblivious to
+    // our types (e.g. SkPath)
+
+    // Import
+    function("FromSVGString", &FromSVGString);
+    function("FromCmds", &FromCmds);
+    function("NewPath", &NewPath);
+    // Path2D is opaque, so we can't read in from it.
+
+    // Export
+    function("ToPath2D", &ToPath2D);
+    function("ToCanvas", &ToCanvas);
+    function("ToSVGString", &ToSVGString);
+    function("ToCmds", &ToCmds);
+
+    // PathOps
+    function("SimplifyPath", &SimplifyPath);
+    function("ApplyPathOp", &ApplyPathOp);
+    function("ResolveBuilder", &ResolveBuilder);
+
+    enum_<SkPathOp>("PathOp")
+        .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
+        .value("INTERSECT",          SkPathOp::kIntersect_SkPathOp)
+        .value("UNION",              SkPathOp::kUnion_SkPathOp)
+        .value("XOR",                SkPathOp::kXOR_SkPathOp)
+        .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
+
+    constant("MOVE_VERB",  MOVE);
+    constant("LINE_VERB",  LINE);
+    constant("QUAD_VERB",  QUAD);
+    constant("CUBIC_VERB", CUBIC);
+    constant("CLOSE_VERB", CLOSE);
+
+    // coming soon - Stroke
+
+    // coming soon - Matrix
+
+    // coming soon - Bounds/Trim
+
+#ifdef PATHKIT_TESTING
+    function("SkBits2Float", &SkBits2Float);
+
+    function("GetBoundaryPathFromRegion", &GetBoundaryPathFromRegion);
+
+    enum_<SkRegion::Op>("RegionOp")
+        .value("DIFFERENCE",         SkRegion::Op::kDifference_Op)
+        .value("INTERSECT",          SkRegion::Op::kIntersect_Op)
+        .value("UNION",              SkRegion::Op::kUnion_Op)
+        .value("XOR",                SkRegion::Op::kXOR_Op)
+        .value("REVERSE_DIFFERENCE", SkRegion::Op::kReverseDifference_Op)
+        .value("REPLACE",            SkRegion::Op::kReplace_Op);
 
     class_<SkRegion>("SkRegion")
         .constructor<>()
@@ -354,48 +329,6 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("opRegion",
             select_overload<bool(const SkRegion&, SkRegion::Op)>(&SkRegion::op))
         .function("opRegionAB",
-            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op))
-        ;
-
-
-    // Without this, module._ToPath2D (yes with an underscore)
-    // would be exposed, but be unable to correctly handle the SkPath type.
-    function("ToPath2D", &ToPath2D);
-    function("ToSVGString", &ToSVGString);
-    function("FromSVGString", &FromSVGString);
-
-    function("SkPathToVerbsArgsArray", &SkPathToVerbsArgsArray);
-    function("SkPathFromVerbsArgsTyped", &SkPathFromVerbsArgsTyped);
-
-    function("SkPathFromCmdTyped", &SkPathFromCmdTyped);
-    function("SkPathToCmdArray", &SkPathToCmdArray);
-
-    function("SimplifyPath", &SimplifyPath);
-    function("ApplyPathOp", &ApplyPathOp);
-    function("ResolveBuilder", &ResolveBuilder);
-
-    function("SkBits2Float", &SkBits2Float);
-
-    function("GetBoundaryPathFromRegion", &GetBoundaryPathFromRegion);
-
-    enum_<SkPathOp>("PathOp")
-        .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
-        .value("INTERSECT",          SkPathOp::kIntersect_SkPathOp)
-        .value("UNION",              SkPathOp::kUnion_SkPathOp)
-        .value("XOR",                SkPathOp::kXOR_SkPathOp)
-        .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
-
-    enum_<SkRegion::Op>("RegionOp")
-        .value("DIFFERENCE",         SkRegion::Op::kDifference_Op)
-        .value("INTERSECT",          SkRegion::Op::kIntersect_Op)
-        .value("UNION",              SkRegion::Op::kUnion_Op)
-        .value("XOR",                SkRegion::Op::kXOR_Op)
-        .value("REVERSE_DIFFERENCE", SkRegion::Op::kReverseDifference_Op)
-        .value("REPLACE",            SkRegion::Op::kReplace_Op);
-
-    constant("MOVE_VERB",  MOVE);
-    constant("LINE_VERB",  LINE);
-    constant("QUAD_VERB",  QUAD);
-    constant("CUBIC_VERB", CUBIC);
-    constant("CLOSE_VERB", CLOSE);
+            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op));
+#endif
 }
