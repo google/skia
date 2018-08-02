@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<title>PathKit (Skia + WASM)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  canvas {
+    width: 200px;
+    height: 200px;
+  }
+
+</style>
+
+<svg id=svg xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
+
+<canvas id="canvas1"></canvas>
+
+<canvas id="canvas2"></canvas>
+
+<script type="text/javascript" src="/node_modules/experimental-pathkit-wasm/bin/pathkit.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  PathKitInit({
+    locateFile: (file) => '/node_modules/experimental-pathkit-wasm/bin/'+file,
+  }).then((PathKit) => {
+
+    let firstPath = PathKit.FromSVGString('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
+
+    let secondPath = PathKit.NewPath();
+    // Acts somewhat like the Canvas API
+    secondPath.moveTo(1, 1);
+    secondPath.lineTo(20, 1);
+    secondPath.lineTo(10, 30);
+    secondPath.close();
+
+    let combinedPath = PathKit.ApplyPathOp(firstPath, secondPath, PathKit.PathOp.INTERSECT);
+    let simpleStr = PathKit.ToSVGString(combinedPath);
+
+    let newSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    newSVG.setAttribute('stroke', 'rgb(0,0,200)');
+    newSVG.setAttribute('fill', 'white');
+    newSVG.setAttribute('transform', 'scale(5,5)');
+    newSVG.setAttribute('d', simpleStr);
+    document.getElementById('svg').appendChild(newSVG);
+
+    // Draw directly to Canvas
+    let ctx = document.getElementById('canvas1').getContext('2d');
+    ctx.strokeStyle = 'green';
+    ctx.fillStyle = 'white';
+    ctx.scale(8, 4);
+    ctx.beginPath();
+    PathKit.ToCanvas(combinedPath, ctx);
+    ctx.stroke();
+
+    // create Path2D object and use it in a Canvas.
+    let path2D = PathKit.ToPath2D(combinedPath);
+    ctx = document.getElementById('canvas2').getContext('2d');
+    ctx.scale(8, 4);
+    ctx.fillStyle = 'purple';
+    ctx.strokeStyle = 'orange';
+    ctx.fill(path2D);
+    ctx.stroke(path2D);
+
+    // clean up WASM memory
+    // See http://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html?highlight=memory#memory-management
+    firstPath.delete();
+    secondPath.delete();
+    combinedPath.delete();
+  });
+
+</script>
