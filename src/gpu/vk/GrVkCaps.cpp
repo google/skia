@@ -15,7 +15,8 @@
 #include "vk/GrVkBackendContext.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features)
+                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features,
+                   uint32_t instanceVersion)
     : INHERITED(contextOptions) {
     fMustDoCopiesFromOrigin = false;
     fMustSubmitCommandsBeforeCopyOp = false;
