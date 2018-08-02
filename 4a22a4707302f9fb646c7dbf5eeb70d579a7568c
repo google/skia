@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "adf31392_11e79155",
+        "filename": "platform_tools/android/apps/settings.gradle",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "why do you need to remove the other app when you add skottie?",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "451b8081_03c089f1",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "If this code was pulled from AOSP then it should keep the original copyright.",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6a8d4010_cd6fa6d8",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/JavaInputStreamAdaptor.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "Use SK_ABORT or SkASSERT_RELEASE instead of commenting it out.",
+      "range": {
+        "startLine": 30,
+        "startChar": 10,
+        "endLine": 30,
+        "endChar": 26
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8911eda_d19a96f3",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "what does this mean?",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e2bb2e3f_cc3175c4",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "why does this need to be static?",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dc4d6ff9_cbad85d7",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "maybe just my JNI ignorance but what are these numbers for?",
+      "range": {
+        "startLine": 120,
+        "startChar": 36,
+        "endLine": 120,
+        "endChar": 41
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6357b3fe_24a171e6",
+        "filename": "platform_tools/android/apps/skottie/src/main/cpp/native-lib.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "format line length for all functions to be \u003c 100 characters",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "35a0957a_ebe59148",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieActivity.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "are we good to check-in all of these lottie files?",
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e0d10b6_ded26e71",
+        "filename": "platform_tools/android/apps/skottie/src/main/java/org/skia/skottie/SkottieRunner.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "call it something like \"SkottieAnimator\" to make it clear that this is where the animation is happening.",
+      "range": {
+        "startLine": 86,
+        "startChar": 45,
+        "endLine": 86,
+        "endChar": 53
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a25cab27_0891bf1f",
+        "filename": "platform_tools/android/apps/skottie/src/main/res/values/integers.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 1,
+      "message": "remove these empty files from the CL",
+      "range": {
+        "startLine": 1,
+        "startChar": 2,
+        "endLine": 1,
+        "endChar": 5
+      },
+      "revId": "4a22a4707302f9fb646c7dbf5eeb70d579a7568c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

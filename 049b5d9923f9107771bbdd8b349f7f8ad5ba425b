@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc22c502_e90d875f",
+        "filename": "platform_tools/android/apps/skqp/build.gradle",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-02T13:37:28Z",
+      "side": 0,
+      "message": "please don\u0027t change the build tools and other properties for viewer/skqp in this CL",
+      "revId": "049b5d9923f9107771bbdd8b349f7f8ad5ba425b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
