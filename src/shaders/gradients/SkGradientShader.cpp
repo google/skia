@@ -919,7 +919,6 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrShaderCaps.h"
-#include "GrTexture.h"
 #include "GrTextureStripAtlas.h"
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -967,8 +966,7 @@ void GrGradientEffect::GLSLProcessor::onSetData(const GrGLSLProgramDataManager& 
             break;
         case GrGradientEffect::InterpolationStrategy::kTexture:
             if (e.fYCoord != fCachedYCoord) {
-                SkScalar yDelta = 1.0f / e.fTextureSampler.peekTexture()->height();
-                pdman.set1f(fFSYUni, e.fYCoord * yDelta);
+                pdman.set1f(fFSYUni, e.fYCoord);
                 fCachedYCoord = e.fYCoord;
             }
             break;
@@ -1248,8 +1246,6 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         SkBitmap bitmap;
         shader.getGradientTableBitmap(xformedColors.fColors, &bitmap, colorType);
         SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
-        SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
-        SkASSERT(bitmap.isImmutable());
 
         auto atlasManager = args.fContext->contextPriv().textureStripAtlasManager();
 
@@ -1257,24 +1253,18 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fColorType = bitmap.colorType();
-
-        int row;
-        fAtlas = atlasManager->addStrip(args.fContext, desc, bitmap, &row);
-        if (!args.fContext->contextPriv().resourceProvider()) {
-            // In DDL mode we should always be able to atlas
-            SkASSERT(fAtlas && row >= 0);
-        }
+        desc.fConfig = SkColorType2GrPixelConfig(bitmap.colorType());
+        fAtlas = atlasManager->refAtlas(desc);
+        SkASSERT(fAtlas);
 
         // We always filter the gradient table. Each table is one row of a texture, always
         // y-clamp.
         GrSamplerState samplerState(args.fWrapMode, GrSamplerState::Filter::kBilerp);
 
+        fRow = fAtlas->lockRow(args.fContext, bitmap);
         if (-1 != fRow) {
-            SkASSERT(fAtlas);
-
-            fYCoord = fAtlas->rowToTextureY(fRow);
-            // This is 1/2 places where auto-normalization is disabled bc the gradient T is 0..1
+            fYCoord = fAtlas->getYOffset(fRow)+SK_ScalarHalf*fAtlas->getNormalizedTexelHeight();
+            // This is 1/2 places where auto-normalization is disabled
             fCoordTransform.reset(*args.fMatrix, fAtlas->asTextureProxyRef().get(), false);
             fTextureSampler.reset(fAtlas->asTextureProxyRef(), samplerState);
         } else {
@@ -1286,6 +1276,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
             // that GrMakeCachedImageProxy is sufficient (i.e., it won't need to be
             // extracted to a subset or mipmapped).
 
+            SkASSERT(bitmap.isImmutable());
             sk_sp<SkImage> srcImage = SkImage::MakeFromBitmap(bitmap);
             if (!srcImage) {
                 return;
@@ -1298,13 +1289,11 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
                 SkDebugf("Gradient won't draw. Could not create texture.");
                 return;
             }
-            // This is 2/2 places where auto-normalization is disabled because the graient T is 0..1
+            // This is 2/2 places where auto-normalization is disabled
             fCoordTransform.reset(*args.fMatrix, proxy.get(), false);
             fTextureSampler.reset(std::move(proxy), samplerState);
-            SkASSERT(1 == bitmap.height());
             fYCoord = SK_ScalarHalf;
         }
-
         this->setTextureSamplerCnt(1);
     }
 
