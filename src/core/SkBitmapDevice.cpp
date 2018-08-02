@@ -639,9 +639,11 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
     if (SkImageFilter* filter = paint->getImageFilter()) {
         SkIPoint offset = SkIPoint::Make(0, 0);
+        // The MatrixImageFilter needs to see the final landing position in order
+        // to transform it correctly
         const SkMatrix matrix = SkMatrix::Concat(
-            SkMatrix::MakeTrans(SkIntToScalar(-x), SkIntToScalar(-y)), this->ctm());
-        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(-x, -y);
+            SkMatrix::MakeTrans(SkIntToScalar(x), SkIntToScalar(y)), this->ctm());
+        const SkIRect clipBounds = fRCStack.rc().getBounds().makeOffset(x, y);
         sk_sp<SkImageFilterCache> cache(this->getImageFilterCache());
         SkImageFilter::OutputProperties outputProperties(fBitmap.colorType(), fBitmap.colorSpace());
         SkImageFilter::Context ctx(matrix, clipBounds, cache.get(), outputProperties);
@@ -653,8 +655,9 @@ void SkBitmapDevice::drawSpecial(SkSpecialImage* src, int x, int y, const SkPain
 
         src = filteredImage.get();
         paint.writable()->setImageFilter(nullptr);
-        x += offset.x();
-        y += offset.y();
+
+        x = offset.x();
+        y = offset.y();
     }
 
     if (paint->getMaskFilter()) {
