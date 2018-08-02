@@ -8,33 +8,9 @@ config("public_config") {
 }
 
 source_set("sksg") {
+  import("sksg.gni")
   public_configs = [ ":public_config" ]
-  sources = [
-    "src/SkSGClipEffect.cpp",
-    "src/SkSGColor.cpp",
-    "src/SkSGDraw.cpp",
-    "src/SkSGEffectNode.cpp",
-    "src/SkSGGeometryNode.cpp",
-    "src/SkSGGeometryTransform.cpp",
-    "src/SkSGGradient.cpp",
-    "src/SkSGGroup.cpp",
-    "src/SkSGImage.cpp",
-    "src/SkSGInvalidationController.cpp",
-    "src/SkSGMaskEffect.cpp",
-    "src/SkSGMerge.cpp",
-    "src/SkSGNode.cpp",
-    "src/SkSGOpacityEffect.cpp",
-    "src/SkSGPaintNode.cpp",
-    "src/SkSGPath.cpp",
-    "src/SkSGPlane.cpp",
-    "src/SkSGRect.cpp",
-    "src/SkSGRenderNode.cpp",
-    "src/SkSGRoundEffect.cpp",
-    "src/SkSGScene.cpp",
-    "src/SkSGText.cpp",
-    "src/SkSGTransform.cpp",
-    "src/SkSGTrimEffect.cpp",
-  ]
+  sources = skia_sksg_sources
   configs += [ "../../:skia_private" ]
   deps = [
     "../..:skia",

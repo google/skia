@@ -1,0 +1,22 @@
+# Copyright 2018 Google Inc.
+#
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Things are easiest for everyone if these source paths are absolute.
+_src = get_path_info("src", "abspath")
+_include = get_path_info("include", "abspath")
+
+skia_skottie_public = [ "$_include/Skottie.h" ]
+
+skia_skottie_sources = [
+  "$_src/Skottie.cpp",
+  "$_src/SkottieAdapter.cpp",
+  "$_src/SkottieAdapter.h",
+  "$_src/SkottieAnimator.cpp",
+  "$_src/SkottieAnimator.h",
+  "$_src/SkottieJson.cpp",
+  "$_src/SkottieJson.h",
+  "$_src/SkottieValue.cpp",
+  "$_src/SkottieValue.h",
+]
