@@ -114,8 +114,23 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
 
     fCompiler = new SkSL::Compiler();
 
-    fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                               backendContext.fFeatures));
+    if (backendContext.fFeatures & kIgnoreAllFlags_GrVkFeatureFlag) {
+        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
+                                   backendContext.fDeviceFeatures));
+    } else {
+        VkPhysicalDeviceFeatures features;
+        if (backendContext.fFeatures & kGeometryShader_GrVkFeatureFlag) {
+            features.geometryShader = true;
+        }
+        if (backendContext.fFeatures & kDualSrcBlend_GrVkFeatureFlag) {
+            features.dualSrcBlend = true;
+        }
+        if (backendContext.fFeatures & kSampleRateShading_GrVkFeatureFlag) {
+            features.sampleRateShading = true;
+        }
+        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
+                                   features));
+    }
     fCaps.reset(SkRef(fVkCaps.get()));
 
     VK_CALL(GetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &fPhysDevProps));
