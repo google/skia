@@ -7,7 +7,7 @@
 
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
-BUILD_DIR="out/pathkit"
+BUILD_DIR=${BUILD_DIR:="out/pathkit"}
 
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
@@ -17,6 +17,8 @@ fi
 
 # Navigate to SKIA_HOME from where this file is located.
 pushd $BASE_DIR/../..
+
+echo "Putting output in $BUILD_DIR (pwd = `pwd`)"
 
 # Run this from $SKIA_HOME, not from the directory this file is in.
 if [[ ! -d ./src ]]; then
@@ -51,7 +53,6 @@ if [[ $@ == *asm.js* ]]; then
 fi
 
 OUTPUT="-o $BUILD_DIR/pathkit.js"
-
 source $EMSDK/emsdk_env.sh
 
 echo "Compiling"
