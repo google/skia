@@ -208,30 +208,6 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
     return true;
 }
 
-// computes the line intersection and then the distance to s0's endpoint
-static SkScalar compute_crossing_distance(const OffsetSegment& s0, const OffsetSegment& s1) {
-    const SkVector& v0 = s0.fV;
-    const SkVector& v1 = s1.fV;
-
-    SkScalar perpDot = v0.cross(v1);
-    if (SkScalarNearlyZero(perpDot)) {
-        // segments are parallel
-        return SK_ScalarMax;
-    }
-
-    SkVector d = s1.fP0 - s0.fP0;
-    SkScalar localS = d.cross(v1) / perpDot;
-    if (localS < 0) {
-        localS = -localS;
-    } else {
-        localS -= SK_Scalar1;
-    }
-
-    localS *= v0.length();
-
-    return localS;
-}
-
 bool SkIsConvexPolygon(const SkPoint* polygonVerts, int polygonSize) {
     if (polygonSize < 3) {
         return false;
@@ -315,6 +291,33 @@ struct OffsetEdge {
 
         return compute_intersection(this->fInset, that->fInset, p, s, t);
     }
+
+    // computes the line intersection and then the distance from that to this
+    SkScalar computeCrossingDistance(const OffsetEdge* that) {
+        const OffsetSegment& s0 = this->fInset;
+        const OffsetSegment& s1 = that->fInset;
+        const SkVector& v0 = s0.fV;
+        const SkVector& v1 = s1.fV;
+
+        SkScalar perpDot = v0.cross(v1);
+        if (SkScalarNearlyZero(perpDot)) {
+            // segments are parallel
+            return SK_ScalarMax;
+        }
+
+        SkVector d = s1.fP0 - s0.fP0;
+        SkScalar localS = d.cross(v1) / perpDot;
+        if (localS < 0) {
+            localS = -localS;
+        } else {
+            localS -= SK_Scalar1;
+        }
+
+        localS *= v0.length();
+
+        return localS;
+    }
+
 };
 
 static void remove_node(const OffsetEdge* node, OffsetEdge** head) {
@@ -747,7 +750,7 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 // helper function for SkOffsetSimplePolygon
 static void setup_offset_edge(OffsetEdge* currEdge,
                               const SkPoint& endpoint0, const SkPoint& endpoint1,
-                              int startIndex, int endIndex) {
+                              uint16_t startIndex, uint16_t endIndex) {
     currEdge->fInset.fP0 = endpoint0;
     currEdge->fInset.fV = endpoint1 - endpoint0;
     currEdge->init(startIndex, endIndex);
@@ -797,9 +800,9 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
 
     // build initial offset edge list
     SkSTArray<64, OffsetEdge> edgeData(inputPolygonSize);
-    int prevIndex = inputPolygonSize - 1;
-    int currIndex = 0;
-    int nextIndex = 1;
+    uint16_t prevIndex = inputPolygonSize - 1;
+    uint16_t currIndex = 0;
+    uint16_t nextIndex = 1;
     while (currIndex < inputPolygonSize) {
         int side = compute_side(inputPolygonVerts[prevIndex],
                                 inputPolygonVerts[currIndex] - inputPolygonVerts[prevIndex],
@@ -830,7 +833,6 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                               inputPolygonVerts[currIndex] + normal0[currIndex],
                               currIndex, currIndex);
             ++currEdge;
-
         }
 
         // Add the edge
@@ -900,10 +902,33 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             // the point where the segment lines cross and the segments themselves.
             OffsetEdge* prevPrevEdge = prevEdge->fPrev;
             OffsetEdge* currNextEdge = currEdge->fNext;
-            SkScalar dist0 = compute_crossing_distance(currEdge->fInset,
-                                                       prevPrevEdge->fInset);
-            SkScalar dist1 = compute_crossing_distance(prevEdge->fInset,
-                                                       currNextEdge->fInset);
+            SkScalar dist0 = currEdge->computeCrossingDistance(prevPrevEdge);
+            SkScalar dist1 = prevEdge->computeCrossingDistance(currNextEdge);
+            // if both lead to direct collision
+            if (dist0 < 0 && dist1 < 0) {
+                // check first to see if either represent parts of one contour
+                SkPoint p1 = prevPrevEdge->fInset.fP0 + prevPrevEdge->fInset.fV;
+                bool prevSameContour = SkPointPriv::EqualsWithinTolerance(p1,
+                                                                          prevEdge->fInset.fP0);
+                p1 = currEdge->fInset.fP0 + currEdge->fInset.fV;
+                bool currSameContour = SkPointPriv::EqualsWithinTolerance(p1,
+                                                                          currNextEdge->fInset.fP0);
+
+                // want to step along contour to find intersections rather than jump to new one
+                if (currSameContour && !prevSameContour) {
+                    remove_node(currEdge, &head);
+                    currEdge = currNextEdge;
+                    --offsetVertexCount;
+                    continue;
+                } else if (prevSameContour && !currSameContour) {
+                    remove_node(prevEdge, &head);
+                    prevEdge = prevPrevEdge;
+                    --offsetVertexCount;
+                    continue;
+                }
+            }
+
+            // otherwise minimize collision distance along segment
             if (dist0 < dist1) {
                 remove_node(prevEdge, &head);
                 prevEdge = prevPrevEdge;
