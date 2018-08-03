@@ -68,8 +68,6 @@ def compile_fn(api, checkout_root, out_dir):
     # If this is the SkQP build, set up the environment and run the script
     # to build the universal APK. This should only run the skqp branches.
     if 'SKQP' in extra_tokens:
-      api.infra.update_go_deps()
-
       output_binary = out_dir.join('run_testlab')
       build_target = skia_dir.join('infra', 'cts', 'run_testlab.go')
       build_cmd = ['go', 'build', '-o', output_binary, build_target]

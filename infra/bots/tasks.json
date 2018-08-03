@@ -583,6 +583,11 @@
         "Housekeeper-PerCommit-InfraTests"
       ]
     },
+    "Housekeeper-PerCommit-IsolateGoDeps": {
+      "tasks": [
+        "Housekeeper-PerCommit-IsolateGoDeps"
+      ]
+    },
     "Housekeeper-PerCommit-IsolateSKP": {
       "tasks": [
         "Housekeeper-PerCommit-IsolateSKP"
@@ -17013,7 +17018,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateGoDeps"
       ],
       "dimensions": [
         "pool:SkiaCT",
@@ -17640,7 +17646,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateGoDeps"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -17678,6 +17685,29 @@
         "/bin/cp",
         "-rL",
         "android_ndk_linux",
+        "${ISOLATED_OUTDIR}"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "isolate": "empty.isolate"
+    },
+    "Housekeeper-PerCommit-IsolateGoDeps": {
+      "cipd_packages": [
+        {
+          "name": "skia/bots/go_deps",
+          "path": "go_deps",
+          "version": "version:1"
+        }
+      ],
+      "command": [
+        "/bin/cp",
+        "-rL",
+        "go_deps",
         "${ISOLATED_OUTDIR}"
       ],
       "dimensions": [
@@ -17891,7 +17921,8 @@
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
-        "Housekeeper-PerCommit-BundleRecipes"
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Housekeeper-PerCommit-IsolateGoDeps"
       ],
       "dimensions": [
         "pool:SkiaCT",
