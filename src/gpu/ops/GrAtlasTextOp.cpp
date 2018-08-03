@@ -295,9 +295,16 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
     SkASSERT(proxies[0]);
 
+    static constexpr int kMaxTextures = GrBitmapTextGeoProc::kMaxTextures;
+    GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
+    GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
+
     static const uint32_t kPipelineFlags = 0;
     auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
-                                     target->detachAppliedClip());
+                                     target->detachAppliedClip(), kMaxTextures);
+    for (unsigned i = 0; i < numActiveProxies; ++i) {
+        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+    }
 
     FlushInfo flushInfo;
     flushInfo.fPipeline = pipe.fPipeline;
@@ -400,6 +407,9 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     if (gp->numTextureSamplers() != (int) numActiveProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
+        for (unsigned i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
+            flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
+        }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
@@ -415,7 +425,6 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                                                                       samplerState);
         }
     }
-
     GrMesh mesh(GrPrimitiveType::kTriangles);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);

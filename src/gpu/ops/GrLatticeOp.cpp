@@ -32,10 +32,10 @@ public:
         GrColor fColor;
     };
 
-    static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* proxy,
                                            sk_sp<GrColorSpaceXform> csxf,
                                            GrSamplerState::Filter filter) {
-        return sk_sp<GrGeometryProcessor>(new LatticeGP(std::move(proxy), std::move(csxf), filter));
+        return sk_sp<GrGeometryProcessor>(new LatticeGP(proxy, std::move(csxf), filter));
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -92,10 +92,10 @@ public:
     }
 
 private:
-    LatticeGP(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
+    LatticeGP(const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
-        fSampler.reset(std::move(proxy), filter);
+        fSampler.reset(proxy->textureType(), proxy->config(), filter);
         this->setTextureSamplerCnt(1);
         this->setVertexAttributeCnt(4);
     }
@@ -202,7 +202,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        auto gp = LatticeGP::Make(fProxy, fColorSpaceXform, fFilter);
+        auto gp = LatticeGP::Make(fProxy.get(), fColorSpaceXform, fFilter);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -281,7 +281,8 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto pipe = fHelper.makePipeline(target);
+        auto pipe = fHelper.makePipeline(target, 1);
+        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
         helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
