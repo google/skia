@@ -52,7 +52,6 @@ protected:
             override;
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kPNG; }
     bool onRewind() override;
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
 
     SkSampler* getSampler(bool createIfNecessary) override;
     void applyXformRow(void* dst, const void* src);

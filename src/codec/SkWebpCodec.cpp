@@ -442,7 +442,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     SkASSERT(srcInfo.bounds().contains(frameRect));
     const bool frameIsSubset = frameRect != srcInfo.bounds();
     if (independent && frameIsSubset) {
-        SkSampler::Fill(dstInfo, dst, rowBytes, 0, options.fZeroInitialized);
+        SkSampler::Fill(dstInfo, dst, rowBytes, options.fZeroInitialized);
     }
 
     int dstX = frameRect.x();

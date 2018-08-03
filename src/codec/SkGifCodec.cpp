@@ -357,8 +357,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
                 // fill ignores the width (replaces it with the actual, scaled width).
                 // But we need to scale in Y.
                 auto fillInfo = dstInfo.makeWH(0, scaledHeight);
-                fSwizzler->fill(fillInfo, fDst, fDstRowBytes, this->getFillValue(dstInfo),
-                                opts.fZeroInitialized);
+                fSwizzler->fill(fillInfo, fDst, fDstRowBytes, opts.fZeroInitialized);
                 filledBackground = true;
             }
         } else {
@@ -395,12 +394,6 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
     }
 
     return kSuccess;
-}
-
-uint64_t SkGifCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
-    // Using transparent as the fill value matches the behavior in Chromium,
-    // which ignores the background color.
-    return SK_ColorTRANSPARENT;
 }
 
 void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint8_t* src) const {

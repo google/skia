@@ -284,7 +284,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     // Set the background as transparent.  Then, if the RLE code skips pixels,
     // the skipped pixels will be transparent.
     if (dst) {
-        SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, opts.fZeroInitialized);
     }
 
     // Adjust the height and the dst if the previous call to decodeRows() left us

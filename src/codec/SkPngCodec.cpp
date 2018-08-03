@@ -1162,17 +1162,6 @@ SkCodec::Result SkPngCodec::onIncrementalDecode(int* rowsDecoded) {
     return this->decode(rowsDecoded);
 }
 
-uint64_t SkPngCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
-    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-    if (colorPtr) {
-        SkAlphaType alphaType = select_xform_alpha(dstInfo.alphaType(),
-                                                   this->getInfo().alphaType());
-        return get_color_table_fill_value(dstInfo.colorType(), alphaType, colorPtr, 0,
-                                          this->colorXform(), true);
-    }
-    return INHERITED::onGetFillValue(dstInfo);
-}
-
 std::unique_ptr<SkCodec> SkPngCodec::MakeFromStream(std::unique_ptr<SkStream> stream,
                                                     Result* result, SkPngChunkReader* chunkReader) {
     SkCodec* outCodec = nullptr;

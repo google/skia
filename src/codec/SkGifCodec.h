@@ -47,8 +47,6 @@ protected:
 
     bool onRewind() override;
 
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
-
     int onGetFrameCount() override;
     bool onGetFrameInfo(int, FrameInfo*) const override;
     int onGetRepetitionCount() override;
