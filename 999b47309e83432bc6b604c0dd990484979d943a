@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50fe5d01_26d9dd16",
+        "filename": "infra/bots/assets/go_deps/common.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5145
+      },
+      "writtenOn": "2018-08-03T12:29:00Z",
+      "side": 1,
+      "message": "nit: 2018 here and in other places (should probably update the template as well)",
+      "range": {
+        "startLine": 3,
+        "startChar": 12,
+        "endLine": 3,
+        "endChar": 16
+      },
+      "revId": "999b47309e83432bc6b604c0dd990484979d943a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
