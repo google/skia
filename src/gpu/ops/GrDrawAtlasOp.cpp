@@ -147,7 +147,7 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
         vertPtr += allocSize;
     }
     auto pipe = fHelper.makePipeline(target);
-    helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

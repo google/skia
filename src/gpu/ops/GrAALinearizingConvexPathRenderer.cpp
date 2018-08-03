@@ -210,7 +210,7 @@ public:
     }
 
 private:
-    void draw(Target* target, const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
               const GrPipeline::FixedDynamicState* fixedDynamicState, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
@@ -238,7 +238,7 @@ private:
         mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
                         GrPrimitiveRestart::kNo);
         mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp, pipeline, fixedDynamicState, mesh);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -279,7 +279,7 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                this->draw(target, gp, pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
                            vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
@@ -311,7 +311,7 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+            this->draw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
                        vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);

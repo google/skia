@@ -840,7 +840,7 @@ private:
                                      kVerticesPerQuad, flushInfo->fInstancesToFlush,
                                      maxInstancesPerDraw);
             mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-            target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline,
+            target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
                          flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;

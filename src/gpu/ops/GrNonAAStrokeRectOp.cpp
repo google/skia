@@ -192,7 +192,7 @@ private:
         mesh.setNonIndexedNonInstanced(vertexCount);
         mesh.setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps&) override {

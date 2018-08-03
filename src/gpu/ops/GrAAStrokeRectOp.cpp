@@ -308,7 +308,7 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
                                            fHelper.compatibleWithAlphaAsCoverage());
     }
     auto pipe = fHelper.makePipeline(target);
-    helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
 sk_sp<const GrBuffer> AAStrokeRectOp::GetIndexBuffer(GrResourceProvider* resourceProvider,

@@ -112,7 +112,7 @@ private:
         SkPointPriv::SetRectTriStrip(vertices, 0.f, 0.f, 1.f, 1.f, vertexStride);
         auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     int fNumAttribs;
