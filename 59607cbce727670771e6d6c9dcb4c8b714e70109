@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "18363b10_7dfdff47",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T12:08:08Z",
+      "side": 1,
+      "message": "My only concern is that we don\u0027t control the CIPD package and so it could potentially contain something which conflicts with something else in the directory.  That\u0027s probably unlikely though.",
+      "parentUuid": "1aef8973_d1e87f0a",
+      "range": {
+        "startLine": 825,
+        "startChar": 12,
+        "endLine": 825,
+        "endChar": 15
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c0d1e2b_81b16c0f",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-02T21:58:53Z",
       "side": 1,
       "message": "This seems to change fairly frequently, but the version number is not in the file with all the kitchen-related CIPD packages. Should I move this above with the kitchen stuff anyway?\n\n(There is also a file with this version number at https://chromium.googlesource.com/chromium/tools/depot_tools/+/29b7b99e5d9fa6ae4d3ce6273b537cab2dc89b2f/cipd_manifest.txt#20, which might be easier to parse.)",
+      "range": {
+        "startLine": 826,
+        "startChar": 26,
+        "endLine": 826,
+        "endChar": 66
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd325299_4ecc7640",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T12:08:08Z",
+      "side": 1,
+      "message": "Yes please, let\u0027s keep all of the upstream dependencies grouped together.  At some point I really need to write a roller for them and it\u0027ll be easier if they\u0027re grouped.",
+      "parentUuid": "1c0d1e2b_81b16c0f",
       "range": {
         "startLine": 826,
         "startChar": 26,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "206d5808_c9bf477a",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T12:08:08Z",
+      "side": 1,
+      "message": "I think this is fine.  If anything I\u0027d guess it\u0027s more likely to build with different XCode versions on the same Mac OS version.",
+      "parentUuid": "57055c70_25933bbb",
+      "range": {
+        "startLine": 66,
+        "startChar": 5,
+        "endLine": 66,
+        "endChar": 16
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e49c8b09_67051d5b",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 12
@@ -82,6 +154,30 @@
       "writtenOn": "2018-08-02T21:58:53Z",
       "side": 1,
       "message": "Not sure if:\n A. We should move \"ensure xcode\" to the caller or create a mac-specific build function.\n B. We should pass in the cache dir rather than reading it directly.",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 56
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9144aeec_f321c4de",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T12:08:08Z",
+      "side": 1,
+      "message": "A. This seems like a reasonable place for it.\nB. How does this differ from https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/vars/api.py#34 ?  I\u0027m not familiar with path[\u0027cache\u0027].",
+      "parentUuid": "e49c8b09_67051d5b",
       "range": {
         "startLine": 72,
         "startChar": 4,
