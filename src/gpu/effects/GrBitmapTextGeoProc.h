@@ -21,6 +21,7 @@ class GrInvariantOutput;
  */
 class GrBitmapTextGeoProc : public GrGeometryProcessor {
 public:
+    static constexpr int kMaxTextures = 4;
 
     static sk_sp<GrGeometryProcessor> Make(GrColor color,
                                            const sk_sp<GrTextureProxy>* proxies,
@@ -44,6 +45,7 @@ public:
     bool hasVertexColor() const { return fInColor.isInitialized(); }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
     bool usesW() const { return fUsesW; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -52,8 +54,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps& caps) const override;
 
 private:
-    static constexpr int kMaxTextures = 4;
-
     GrBitmapTextGeoProc(GrColor, const sk_sp<GrTextureProxy>* proxies, int numProxies,
                         const GrSamplerState& params, GrMaskFormat format,
                         const SkMatrix& localMatrix, bool usesW);
@@ -64,6 +64,7 @@ private:
     GrColor          fColor;
     SkMatrix         fLocalMatrix;
     bool             fUsesW;
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     TextureSampler   fTextureSamplers[kMaxTextures];
     Attribute        fInPosition;
     Attribute        fInColor;
