@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "658433af_9c37b5a7",
+        "filename": "infra/bots/recipe_modules/build/wasm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T11:42:00Z",
+      "side": 1,
+      "message": "Have you verified that this works?  I suspect that the recipe engine will error out on \"/tmp\" (it doesn\u0027t want you to write anything permanent on the machine).  There are ways to hack around it (see https://skia.googlesource.com/skia/+/master/infra/bots/recipes/ct_skps.py#42) but the better approach would probably be to use a named cache.  You\u0027d specify it in gen_tasks.go, similar to https://skia.googlesource.com/skia/+/master/infra/bots/gen_tasks.go#132 and then use it like self.m.vars.cache_dir.join(\u0027wasm\u0027).",
+      "range": {
+        "startLine": 15,
+        "startChar": 2,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "56ec23f8911d4a05bc452a2537d9b086c7f7d57a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
