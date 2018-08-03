@@ -50,6 +50,7 @@ struct StringFragment {
 
     const char* fChars;
     size_t fLength;
+    mutable size_t fHash;
 };
 
 bool operator==(const char* s1, StringFragment s2);
@@ -131,10 +132,12 @@ long stol(const String& s);
 namespace std {
     template<> struct hash<SkSL::StringFragment> {
         size_t operator()(const SkSL::StringFragment& s) const {
+//            if (!s.fHash) {
             size_t result = 0;
-            for (size_t i = 0; i < s.fLength; ++i) {
-                result = result * 101 + s.fChars[i];
-            }
+                for (size_t i = 0; i < s.fLength; ++i) {
+                    result = result * 101 + s.fChars[i];
+                }
+//            }
             return result;
         }
     };
