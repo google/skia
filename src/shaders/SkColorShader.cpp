@@ -105,7 +105,12 @@ static unsigned unit_to_byte(float unit) {
     return (unsigned)(unit * 255 + 0.5);
 }
 
-static SkColor unit_to_skcolor(const SkColor4f& unit, SkColorSpace* cs) {
+static SkColor unit_to_skcolor(SkColor4f unit, SkColorSpace* cs) {
+    if (cs) {
+        SkColorSpaceXformSteps steps =
+                SkColorSpaceXformSteps::UnpremulToUnpremul(cs, sk_srgb_singleton());
+        steps.apply(unit.vec());
+    }
     return SkColorSetARGB(unit_to_byte(unit.fA), unit_to_byte(unit.fR),
                           unit_to_byte(unit.fG), unit_to_byte(unit.fB));
 }
@@ -113,7 +118,7 @@ static SkColor unit_to_skcolor(const SkColor4f& unit, SkColorSpace* cs) {
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
     : fColorSpace(std::move(space))
     , fColor4(color)
-    , fCachedByteColor(unit_to_skcolor(color.pin(), space.get()))
+    , fCachedByteColor(unit_to_skcolor(color.pin(), fColorSpace.get()))
 {}
 
 sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
