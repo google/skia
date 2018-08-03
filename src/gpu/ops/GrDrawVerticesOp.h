@@ -80,7 +80,7 @@ private:
                      uint16_t* indices) const;
 
     void drawVertices(Target*,
-                      GrGeometryProcessor*,
+                      sk_sp<const GrGeometryProcessor>,
                       const GrBuffer* vertexBuffer,
                       int firstVertex,
                       const GrBuffer* indexBuffer,
