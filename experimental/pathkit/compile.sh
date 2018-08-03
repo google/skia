@@ -112,7 +112,8 @@ src/pathops/*.cpp \
 src/ports/SkDebug_stdio.cpp \
 src/ports/SkMemory_malloc.cpp \
 src/utils/SkParse.cpp \
-src/utils/SkParsePath.cpp
+src/utils/SkParsePath.cpp \
+src/utils/SkUTF.cpp
 
 if [[ $@ == *serve* ]]; then
   pushd $BUILD_DIR

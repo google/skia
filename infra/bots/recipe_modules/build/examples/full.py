@@ -42,6 +42,7 @@ TEST_BUILDERS = [
   'Build-Debian9-Clang-x86_64-Release-Static',
   'Build-Debian9-Clang-x86_64-Release-SwiftShader',
   'Build-Debian9-Clang-x86_64-Release-Vulkan',
+  'Build-Debian9-EMCC-wasm-Debug-PathKit',
   'Build-Debian9-EMCC-wasm-Release-PathKit',
   'Build-Debian9-GCC-arm-Release-Chromecast',
   'Build-Debian9-GCC-loongson3a-Release',

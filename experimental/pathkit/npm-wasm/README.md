@@ -33,7 +33,7 @@ In the JS code, use require():
 
 Since WebPack does not expose the entire `/node_modules/` directory, but instead
 packages only the needed pieces, we have to copy pathkit.wasm into the build directory.
-One such solution is to use [CopyWebpackPlugin](https://github.com/webpack-contrib/copy-webpack-plugin)
+One such solution is to use [CopyWebpackPlugin](https://github.com/webpack-contrib/copy-webpack-plugin).
 For example, add the following plugin:
 
     config.plugins.push(
