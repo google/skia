@@ -158,6 +158,8 @@ public:
 
     SkDescriptor* getDesc() const { SkASSERT(fDesc); return fDesc; }
 private:
+    SkAutoDescriptor(SkAutoDescriptor&&) = delete;
+    SkAutoDescriptor& operator =(SkAutoDescriptor&&) = delete;
     void free() {
         if (fDesc != (SkDescriptor*)(void*)fStorage) {
             delete fDesc;
