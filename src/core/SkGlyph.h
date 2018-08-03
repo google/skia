@@ -162,10 +162,6 @@ public:
 
     void initWithGlyphID(SkPackedGlyphID glyph_id);
 
-    bool isEmpty() {
-        return fWidth == 0 || fHeight == 0;
-    }
-
     size_t formatAlignment() const;
     size_t allocImage(SkArenaAlloc* alloc);
 

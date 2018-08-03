@@ -84,32 +84,6 @@ SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(
     }
 }
 
-bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
-}
-
-static SkRect rect_to_draw(
-        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, GrGlyph::MaskStyle maskStyle) {
-
-    SkScalar dx = SkIntToScalar(glyph.fLeft);
-    SkScalar dy = SkIntToScalar(glyph.fTop);
-    SkScalar width = SkIntToScalar(glyph.fWidth);
-    SkScalar height = SkIntToScalar(glyph.fHeight);
-
-    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
-        dx += SK_DistanceFieldInset;
-        dy += SK_DistanceFieldInset;
-        width -= 2 * SK_DistanceFieldInset;
-        height -= 2 * SK_DistanceFieldInset;
-    }
-
-    dx *= textScale;
-    dy *= textScale;
-    width *= textScale;
-    height *= textScale;
-
-    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
-}
 
 void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            GrGlyphCache* glyphCache,
@@ -162,7 +136,6 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     SkPoint glyphPos = origin + *positionCursor++;
                     if (glyph.fWidth > 0) {
                         if (glyph.fMaskFormat == SkMask::kSDF_Format) {
-
                             AppendGlyph(
                                     cacheBlob, runIndex, glyphCache, &currStrike,
                                     glyph, GrGlyph::kDistance_MaskStyle,
@@ -226,57 +199,15 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     [cacheBlob, runIndex, glyphCache, &currStrike, runPaint, cache{cache.get()}]
                     (const SkMask& mask, const SkGlyph& glyph, SkPoint position) {
                 AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
-                            glyph, GrGlyph::kCoverage_MaskStyle,
-                            SkScalarFloorToScalar(position.fX),
-                            SkScalarFloorToScalar(position.fY),
-                            runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
+                               glyph, GrGlyph::kCoverage_MaskStyle,
+                               SkScalarFloorToScalar(position.fX),
+                               SkScalarFloorToScalar(position.fY),
+                               runPaint.filteredPremulColor(), cache, SK_Scalar1, false);
             };
 
             glyphDrawer->drawUsingMasks(cache.get(), glyphRun, origin, viewMatrix, drawOneGlyph);
         }
         runIndex += 1;
-    }
-}
-
-void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
-                                GrGlyphCache* grGlyphCache,
-                                sk_sp<GrTextStrike>* strike,
-                                const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
-                                SkScalar sx, SkScalar sy,
-                                GrColor color, SkGlyphCache* skGlyphCache,
-                                SkScalar textRatio, bool needsTransform) {
-    if (!*strike) {
-        *strike = grGlyphCache->getStrike(skGlyphCache);
-    }
-
-    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
-                                         skGlyph.getSubXFixed(),
-                                         skGlyph.getSubYFixed(),
-                                         maskStyle);
-    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, skGlyphCache);
-    if (!glyph) {
-        return;
-    }
-
-    SkASSERT(skGlyph.fWidth == glyph->width());
-    SkASSERT(skGlyph.fHeight == glyph->height());
-
-    SkRect glyphRect = rect_to_draw(skGlyph, {sx, sy}, textRatio, maskStyle);
-
-    if (!glyphRect.isEmpty()) {
-        // If the glyph is too large we fall back to paths
-        if (glyph_too_big_for_atlas(skGlyph)) {
-            if (glyph->fPath != nullptr) {
-                const SkPath* glyphPath = skGlyphCache->findPath(skGlyph);
-                if (glyphPath != nullptr) {
-                    glyph->fPath = new SkPath(*glyphPath);
-                }
-                blob->appendPathGlyph(runIndex, *glyph->fPath, sx, sy, textRatio, !needsTransform);
-            }
-        } else {
-            blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph,
-                              skGlyphCache, skGlyph, sx, sy, textRatio, !needsTransform);
-        }
     }
 }
 
@@ -520,6 +451,52 @@ void GrTextContext::DrawBmpPosTextAsPaths(GrTextBlob* blob, int runIndex,
     }
 
     fallbackTextHelper.drawText(blob, runIndex, glyphCache, props, origPaint, scalerContextFlags);
+}
+
+void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
+                                GrGlyphCache* grGlyphCache,
+                                sk_sp<GrTextStrike>* strike,
+                                const SkGlyph& skGlyph, GrGlyph::MaskStyle maskStyle,
+                                SkScalar sx, SkScalar sy,
+                                GrColor color, SkGlyphCache* skGlyphCache,
+                                SkScalar textRatio, bool needsTransform) {
+    if (!*strike) {
+        *strike = grGlyphCache->getStrike(skGlyphCache);
+    }
+
+    GrGlyph::PackedID id = GrGlyph::Pack(skGlyph.getGlyphID(),
+                                         skGlyph.getSubXFixed(),
+                                         skGlyph.getSubYFixed(),
+                                         maskStyle);
+    GrGlyph* glyph = (*strike)->getGlyph(skGlyph, id, skGlyphCache);
+    if (!glyph) {
+        return;
+    }
+
+    SkASSERT(skGlyph.fWidth == glyph->width());
+    SkASSERT(skGlyph.fHeight == glyph->height());
+
+    SkScalar dx = SkIntToScalar(glyph->fBounds.fLeft);
+    SkScalar dy = SkIntToScalar(glyph->fBounds.fTop);
+    SkScalar width = SkIntToScalar(glyph->fBounds.width());
+    SkScalar height = SkIntToScalar(glyph->fBounds.height());
+
+    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
+    }
+
+    dx *= textRatio;
+    dy *= textRatio;
+    width *= textRatio;
+    height *= textRatio;
+
+    SkRect glyphRect = SkRect::MakeXYWH(sx + dx, sy + dy, width, height);
+
+    blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, skGlyphCache, skGlyph, sx, sy,
+                      textRatio, !needsTransform);
 }
 
 void GrTextContext::SanitizeOptions(Options* options) {
