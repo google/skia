@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bdfab071_36d88382",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-03T15:48:12Z",
+      "side": 1,
+      "message": "sgtm",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ee1aba7_81186e52",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-03T15:48:12Z",
+      "side": 1,
+      "message": "uint32_t seems very specific here",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "906edc58_413a5694",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-03T15:48:12Z",
+      "side": 1,
+      "message": "Do we still want to pass \u0027proxy\u0027 in as a sk_sp ?",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
