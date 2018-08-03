@@ -237,7 +237,7 @@ bool zero_rect(const SkImageInfo& dstInfo, void* pixels, size_t rowBytes,
     const size_t bpp = dstInfo.bytesPerPixel();
     const size_t offset = prevRect.x() * bpp + prevRect.y() * rowBytes;
     void* eraseDst = SkTAddOffset<void>(pixels, offset);
-    SkSampler::Fill(info, eraseDst, rowBytes, 0, SkCodec::kNo_ZeroInitialized);
+    SkSampler::Fill(info, eraseDst, rowBytes, SkCodec::kNo_ZeroInitialized);
     return true;
 }
 
@@ -575,28 +575,12 @@ int SkCodec::onOutputScanline(int inputScanline) const {
     }
 }
 
-uint64_t SkCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
-    switch (dstInfo.colorType()) {
-        case kRGBA_F16_SkColorType: {
-            static constexpr uint64_t transparentColor = 0;
-            static constexpr uint64_t opaqueColor = ((uint64_t) SK_Half1) << 48;
-            return (kOpaque_SkAlphaType == fSrcInfo.alphaType()) ? opaqueColor : transparentColor;
-        }
-        default: {
-            // This not only handles the kN32 case, but also k565, kGray8, since
-            // the low bits are zeros.
-            return (kOpaque_SkAlphaType == fSrcInfo.alphaType()) ?
-                    SK_ColorBLACK : SK_ColorTRANSPARENT;
-        }
-    }
-}
-
 static void fill_proc(const SkImageInfo& info, void* dst, size_t rowBytes,
-        uint64_t colorOrIndex, SkCodec::ZeroInitialized zeroInit, SkSampler* sampler) {
+                      SkCodec::ZeroInitialized zeroInit, SkSampler* sampler) {
     if (sampler) {
-        sampler->fill(info, dst, rowBytes, colorOrIndex, zeroInit);
+        sampler->fill(info, dst, rowBytes, zeroInit);
     } else {
-        SkSampler::Fill(info, dst, rowBytes, colorOrIndex, zeroInit);
+        SkSampler::Fill(info, dst, rowBytes, zeroInit);
     }
 }
 
@@ -604,7 +588,6 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
         ZeroInitialized zeroInit, int linesRequested, int linesDecoded) {
 
     void* fillDst;
-    const uint64_t fillValue = this->getFillValue(info);
     const int linesRemaining = linesRequested - linesDecoded;
     SkSampler* sampler = this->getSampler(false);
 
@@ -617,13 +600,13 @@ void SkCodec::fillIncompleteImage(const SkImageInfo& info, void* dst, size_t row
         case kTopDown_SkScanlineOrder: {
             const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
             fillDst = SkTAddOffset<void>(dst, linesDecoded * rowBytes);
-            fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
+            fill_proc(fillInfo, fillDst, rowBytes, zeroInit, sampler);
             break;
         }
         case kBottomUp_SkScanlineOrder: {
             fillDst = dst;
             const SkImageInfo fillInfo = info.makeWH(fillWidth, linesRemaining);
-            fill_proc(fillInfo, fillDst, rowBytes, fillValue, zeroInit, sampler);
+            fill_proc(fillInfo, fillDst, rowBytes, zeroInit, sampler);
             break;
         }
     }

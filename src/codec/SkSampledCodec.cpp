@@ -327,7 +327,6 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
 
             // We handle filling uninitialized memory here instead of using this->codec().
             // this->codec() does not know that we are sampling.
-            const uint64_t fillValue = this->codec()->getFillValue(info);
             const SkImageInfo fillInfo = info.makeWH(info.width(), 1);
             for (; y < nativeSize.height(); y++) {
                 int srcY = this->codec()->outputScanline(y);
@@ -336,7 +335,7 @@ SkCodec::Result SkSampledCodec::sampledDecode(const SkImageInfo& info, void* pix
                 }
 
                 void* rowPtr = SkTAddOffset<void>(pixels, rowBytes * get_dst_coord(srcY, sampleY));
-                SkSampler::Fill(fillInfo, rowPtr, rowBytes, fillValue, options.fZeroInitialized);
+                SkSampler::Fill(fillInfo, rowPtr, rowBytes, options.fZeroInitialized);
             }
             return SkCodec::kIncompleteInput;
         }

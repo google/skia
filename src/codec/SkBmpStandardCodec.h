@@ -57,9 +57,6 @@ protected:
     SkCodec::Result onPrepareToDecode(const SkImageInfo& dstInfo,
             const SkCodec::Options& options) override;
 
-
-    uint64_t onGetFillValue(const SkImageInfo&) const override;
-
     SkSampler* getSampler(bool createIfNecessary) override {
         SkASSERT(fSwizzler);
         return fSwizzler.get();

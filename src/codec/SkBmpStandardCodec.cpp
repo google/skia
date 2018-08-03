@@ -327,12 +327,3 @@ void SkBmpStandardCodec::decodeIcoMask(SkStream* stream, const SkImageInfo& dstI
         }
     }
 }
-
-uint64_t SkBmpStandardCodec::onGetFillValue(const SkImageInfo& dstInfo) const {
-    const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());
-    if (colorPtr) {
-        return get_color_table_fill_value(dstInfo.colorType(), dstInfo.alphaType(), colorPtr, 0,
-                                          this->colorXform(), false);
-    }
-    return INHERITED::onGetFillValue(dstInfo);
-}

@@ -107,35 +107,6 @@ static inline const SkPMColor* get_color_ptr(SkColorTable* colorTable) {
 }
 
 /*
- * Given that the encoded image uses a color table, return the fill value
- */
-static inline uint64_t get_color_table_fill_value(SkColorType dstColorType, SkAlphaType alphaType,
-        const SkPMColor* colorPtr, uint8_t fillIndex, SkColorSpaceXform* colorXform, bool isRGBA) {
-    SkASSERT(nullptr != colorPtr);
-    switch (dstColorType) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            return colorPtr[fillIndex];
-        case kRGB_565_SkColorType:
-            return SkPixel32ToPixel16(colorPtr[fillIndex]);
-        case kRGBA_F16_SkColorType: {
-            SkASSERT(colorXform);
-            uint64_t dstColor;
-            uint32_t srcColor = colorPtr[fillIndex];
-            SkColorSpaceXform::ColorFormat srcFormat =
-                    isRGBA ? SkColorSpaceXform::kRGBA_8888_ColorFormat
-                           : SkColorSpaceXform::kBGRA_8888_ColorFormat;
-            SkAssertResult(colorXform->apply(select_xform_format(dstColorType), &dstColor,
-                                             srcFormat, &srcColor, 1, alphaType));
-            return dstColor;
-        }
-        default:
-            SkASSERT(false);
-            return 0;
-    }
-}
-
-/*
  * Compute row bytes for an image using pixels per byte
  */
 static inline size_t compute_row_bytes_ppb(int width, uint32_t pixelsPerByte) {
