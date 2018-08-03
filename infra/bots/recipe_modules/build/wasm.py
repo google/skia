@@ -12,6 +12,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
 
 def compile_fn(api, checkout_root, _ignore):
   out_dir = api.vars.cache_dir.join('docker', 'wasm')
+  configuration = api.vars.builder_cfg.get('configuration', '')
 
   # We want to make sure the directories exist and were created by chrome-bot,
   # because if that isn' the case, docker will make them and they will be
@@ -30,13 +31,15 @@ def compile_fn(api, checkout_root, _ignore):
   # toolchain changes.
   # Of note, the wasm build doesn't re-use any intermediate steps from the
   # previous builds, so it's essentially a build from scratch every time.
+  cmd = ['docker', 'run', '--rm', '-v', '%s:/SRC' % checkout_root,
+         '-v', '%s:/OUT' % out_dir,
+         DOCKER_IMAGE, INNER_BUILD_SCRIPT]
+  if configuration == 'Debug':
+    cmd += ['dev']
   api.run(
     api.step,
     'Build PathKit with Docker',
-    cmd=['docker', 'run', '--rm', '-v', '%s:/SRC' % checkout_root,
-         '-v', '%s:/OUT' % out_dir,
-         DOCKER_IMAGE, INNER_BUILD_SCRIPT]
-    )
+    cmd=cmd)
 
 
 def copy_extra_build_products(api, _ignore, dst):
