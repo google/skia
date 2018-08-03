@@ -142,13 +142,16 @@ auto GrSimpleMeshDrawOpHelper::internalMakePipeline(GrMeshDrawOp::Target* target
     SkASSERT(!fMadePipeline);
     SkDEBUGCODE(fMadePipeline = true);
     auto clip = target->detachAppliedClip();
-    auto* dynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+    if (clip.scissorState().enabled()) {
+        fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
+    }
     if (fProcessors) {
         return {target->allocPipeline(args, std::move(*fProcessors), std::move(clip)),
-                dynamicState};
+                fixedDynamicState};
     } else {
         return {target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip)),
-                dynamicState};
+                fixedDynamicState};
     }
 }
 

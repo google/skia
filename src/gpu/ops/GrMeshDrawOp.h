@@ -151,17 +151,8 @@ public:
      * Helper that makes a pipeline targeting the op's render target that incorporates the op's
      * GrAppliedClip and uses a fixed dynamic state.
      */
-    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&& processorSet,
-                                              GrAppliedClip&& clip) {
-        GrPipeline::InitArgs pipelineArgs;
-        pipelineArgs.fFlags = pipelineFlags;
-        pipelineArgs.fProxy = this->proxy();
-        pipelineArgs.fDstProxy = this->dstProxy();
-        pipelineArgs.fCaps = &this->caps();
-        pipelineArgs.fResourceProvider = this->resourceProvider();
-        const auto* state = this->allocFixedDynamicState(clip.scissorState().rect());
-        return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)), state};
-    }
+    PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&&,
+                                              GrAppliedClip&&);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 

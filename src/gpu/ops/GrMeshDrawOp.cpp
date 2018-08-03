@@ -59,3 +59,21 @@ void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int qu
 void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
     state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), this->bounds());
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrMeshDrawOp::Target::PipelineAndFixedDynamicState GrMeshDrawOp::Target::makePipeline(
+        uint32_t pipelineFlags, GrProcessorSet&& processorSet, GrAppliedClip&& clip) {
+    GrPipeline::InitArgs pipelineArgs;
+    pipelineArgs.fFlags = pipelineFlags;
+    pipelineArgs.fProxy = this->proxy();
+    pipelineArgs.fDstProxy = this->dstProxy();
+    pipelineArgs.fCaps = &this->caps();
+    pipelineArgs.fResourceProvider = this->resourceProvider();
+    GrPipeline::FixedDynamicState* fixedDynamicState = nullptr;
+    if (clip.scissorState().enabled()) {
+        fixedDynamicState = this->allocFixedDynamicState(clip.scissorState().rect());
+    }
+    return {this->allocPipeline(pipelineArgs, std::move(processorSet), std::move(clip)),
+            fixedDynamicState};
+}
