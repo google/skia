@@ -59,13 +59,19 @@ struct AssetInfo {
     mutable bool               fIsAttaching; // Used for cycle detection
 };
 
-using AssetMap = SkTHashMap<SkString, AssetInfo>;
+using AssetMap   = SkTHashMap<SkString, AssetInfo>;
+using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
 
 struct AttachContext {
+    AttachContext makeScoped(sksg::AnimatorList& animators) const {
+        return { fResources, fAssets, fDuration, fFrameRate, fAssetCache, animators };
+    }
+
     const ResourceProvider& fResources;
     const AssetMap&         fAssets;
     const float             fDuration,
                             fFrameRate;
+    AssetCache&             fAssetCache;
     sksg::AnimatorList&     fAnimators;
 };
 
@@ -794,12 +800,8 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, Attac
                                        time_remap;
 
     sksg::AnimatorList local_animators;
-    AttachContext local_ctx = { ctx->fResources,
-                                ctx->fAssets,
-                                ctx->fDuration,
-                                ctx->fFrameRate,
-                                requires_time_mapping ? local_animators : ctx->fAnimators };
-
+    AttachContext local_ctx = ctx->makeScoped(requires_time_mapping ? local_animators
+                                                                    : ctx->fAnimators);
     auto comp_layer = AttachAssetRef(jlayer, &local_ctx, AttachComposition);
 
     // Applies a bias/scale/remap t-adjustment to child animators.
@@ -876,6 +878,11 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, Atta
 
     // TODO: plumb resource paths explicitly to ResourceProvider?
     const auto resName    = path.isEmpty() ? name : SkOSPath::Join(path.c_str(), name.c_str());
+
+    if (auto* attached_image = ctx->fAssetCache.find(resName)) {
+        return *attached_image;
+    }
+
     const auto resStream  = ctx->fResources.openStream(resName.c_str());
     if (!resStream || !resStream->hasLength()) {
         LOG("!! Could not load image resource: %s\n", resName.c_str());
@@ -883,8 +890,8 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, Atta
     }
 
     // TODO: non-intrisic image sizing
-    return sksg::Image::Make(
-        SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength())));
+    return *ctx->fAssetCache.set(resName, sksg::Image::Make(
+        SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength()))));
 }
 
 sk_sp<sksg::RenderNode> AttachImageLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx) {
@@ -1125,11 +1132,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
     }
 
     sksg::AnimatorList layer_animators;
-    AttachContext local_ctx = { layerCtx->fCtx->fResources,
-                                layerCtx->fCtx->fAssets,
-                                layerCtx->fCtx->fDuration,
-                                layerCtx->fCtx->fFrameRate,
-                                layer_animators};
+    AttachContext local_ctx = layerCtx->fCtx->makeScoped(layer_animators);
 
     // Layer content.
     auto layer = gLayerAttachers[type](*jlayer, &local_ctx);
@@ -1350,8 +1353,9 @@ Animation::Animation(const ResourceProvider& resources,
         }
     }
 
+    AssetCache asset_cache;
     sksg::AnimatorList animators;
-    AttachContext ctx = { resources, assets, this->duration(), fFrameRate, animators };
+    AttachContext ctx = { resources, assets, this->duration(), fFrameRate, asset_cache, animators };
     auto root = AttachComposition(json, &ctx);
 
     stats->fAnimatorCount = animators.size();
