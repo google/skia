@@ -1035,11 +1035,11 @@ public:
             if (useCenter) {
                 SkVector norm0 = {startPoint.fY, -startPoint.fX};
                 SkVector norm1 = {stopPoint.fY, -stopPoint.fX};
-                if (arcParams->fSweepAngleRadians > 0) {
-                    norm0.negate();
-                } else {
-                    norm1.negate();
+                // This ensures that norm0 is always the clockwise plane, and norm1 is CCW.
+                if (arcParams->fSweepAngleRadians < 0) {
+                    std::swap(norm0, norm1);
                 }
+                norm0.negate();
                 fClipPlane = true;
                 if (absSweep > SK_ScalarPI) {
                     fCircles.emplace_back(Circle{
@@ -1219,51 +1219,73 @@ private:
             SkScalar halfWidth = 0.5f * bounds.width();
             SkScalar octOffset = 0.41421356237f;  // sqrt(2) - 1
 
-            v0->fPos = center + SkPoint::Make(-octOffset * halfWidth, -halfWidth);
+            SkVector geoClipPlane = { 0, 0 };
+            SkScalar offsetClipDist = SK_Scalar1;
+            if (!circle.fStroked && fClipPlane && fClipPlaneIsect &&
+                    (circle.fClipPlane[0] * circle.fIsectPlane[0] +
+                     circle.fClipPlane[1] * circle.fIsectPlane[1]) < 0.0f) {
+                // Acute arc. Clip the vertices to the perpendicular half-plane. We've constructed
+                // fClipPlane to be clockwise, and fISectPlane to be CCW, so we can can rotate them
+                // each 90 degrees to point "out", then average them. We back off by 1/2 pixel so
+                // the AA can extend just past the center of the circle.
+                geoClipPlane.set(circle.fClipPlane[1] - circle.fIsectPlane[1],
+                                 circle.fIsectPlane[0] - circle.fClipPlane[0]);
+                SkAssertResult(geoClipPlane.normalize());
+                offsetClipDist = 0.5f / halfWidth;
+            }
+
+            auto clipOffset = [geoClipPlane, offsetClipDist](const SkPoint& p) {
+                // This clips the normalized offset to the half-plane we computed above. Then we
+                // compute the vertex position from this.
+                SkScalar dist = SkTMin(p.dot(geoClipPlane) + offsetClipDist, 0.0f);
+                return p - geoClipPlane * dist;
+            };
+
+            v0->fOffset = clipOffset(SkPoint::Make(-octOffset, -1));
+            v0->fPos = center + v0->fOffset * halfWidth;
             v0->fColor = color;
-            v0->fOffset = SkPoint::Make(-octOffset, -1);
             v0->fOuterRadius = outerRadius;
             v0->fInnerRadius = innerRadius;
 
-            v1->fPos = center + SkPoint::Make(octOffset * halfWidth, -halfWidth);
+            v1->fOffset = clipOffset(SkPoint::Make(octOffset, -1));
+            v1->fPos = center + v1->fOffset * halfWidth;
             v1->fColor = color;
-            v1->fOffset = SkPoint::Make(octOffset, -1);
             v1->fOuterRadius = outerRadius;
             v1->fInnerRadius = innerRadius;
 
-            v2->fPos = center + SkPoint::Make(halfWidth, -octOffset * halfWidth);
+            v2->fOffset = clipOffset(SkPoint::Make(1, -octOffset));
+            v2->fPos = center + v2->fOffset * halfWidth;
             v2->fColor = color;
-            v2->fOffset = SkPoint::Make(1, -octOffset);
             v2->fOuterRadius = outerRadius;
             v2->fInnerRadius = innerRadius;
 
-            v3->fPos = center + SkPoint::Make(halfWidth, octOffset * halfWidth);
+            v3->fOffset = clipOffset(SkPoint::Make(1, octOffset));
+            v3->fPos = center + v3->fOffset * halfWidth;
             v3->fColor = color;
-            v3->fOffset = SkPoint::Make(1, octOffset);
             v3->fOuterRadius = outerRadius;
             v3->fInnerRadius = innerRadius;
 
-            v4->fPos = center + SkPoint::Make(octOffset * halfWidth, halfWidth);
+            v4->fOffset = clipOffset(SkPoint::Make(octOffset, 1));
+            v4->fPos = center + v4->fOffset * halfWidth;
             v4->fColor = color;
-            v4->fOffset = SkPoint::Make(octOffset, 1);
             v4->fOuterRadius = outerRadius;
             v4->fInnerRadius = innerRadius;
 
-            v5->fPos = center + SkPoint::Make(-octOffset * halfWidth, halfWidth);
+            v5->fOffset = clipOffset(SkPoint::Make(-octOffset, 1));
+            v5->fPos = center + v5->fOffset * halfWidth;
             v5->fColor = color;
-            v5->fOffset = SkPoint::Make(-octOffset, 1);
             v5->fOuterRadius = outerRadius;
             v5->fInnerRadius = innerRadius;
 
-            v6->fPos = center + SkPoint::Make(-halfWidth, octOffset * halfWidth);
+            v6->fOffset = clipOffset(SkPoint::Make(-1, octOffset));
+            v6->fPos = center + v6->fOffset * halfWidth;
             v6->fColor = color;
-            v6->fOffset = SkPoint::Make(-1, octOffset);
             v6->fOuterRadius = outerRadius;
             v6->fInnerRadius = innerRadius;
 
-            v7->fPos = center + SkPoint::Make(-halfWidth, -octOffset * halfWidth);
+            v7->fOffset = clipOffset(SkPoint::Make(-1, -octOffset));
+            v7->fPos = center + v7->fOffset * halfWidth;
             v7->fColor = color;
-            v7->fOffset = SkPoint::Make(-1, -octOffset);
             v7->fOuterRadius = outerRadius;
             v7->fInnerRadius = innerRadius;
 
