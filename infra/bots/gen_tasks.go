@@ -134,6 +134,10 @@ var (
 			Name: "work",
 			Path: "cache/work",
 		},
+		&specs.Cache{
+			Name: "docker",
+			Path: "cache/docker",
+		},
 	}
 
 	// Versions of the following copied from
@@ -792,9 +796,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 		if strings.Contains(name, "Vulkan") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
-		}
-		if strings.Contains(name, "EMCC") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("emscripten_sdk"))
 		}
 		if parts["target_arch"] == "mips64el" || parts["target_arch"] == "loongson3a" {
 			if parts["compiler"] != "GCC" {

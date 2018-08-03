@@ -281,9 +281,9 @@
         "Build-Debian9-Clang-x86_64-Release-Vulkan"
       ]
     },
-    "Build-Debian9-EMCC-wasm-Release": {
+    "Build-Debian9-EMCC-wasm-Release-PathKit": {
       "tasks": [
-        "Build-Debian9-EMCC-wasm-Release"
+        "Build-Debian9-EMCC-wasm-Release-PathKit"
       ]
     },
     "Build-Debian9-GCC-loongson3a-Debug": {
@@ -2932,6 +2932,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3057,6 +3061,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3182,6 +3190,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3321,6 +3333,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3455,6 +3471,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3580,6 +3600,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3705,6 +3729,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3830,6 +3858,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -3955,6 +3987,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4080,6 +4116,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4219,6 +4259,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4353,6 +4397,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4478,6 +4526,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4603,6 +4655,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4728,6 +4784,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4853,6 +4913,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -4978,6 +5042,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5197,6 +5265,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5322,6 +5394,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5447,6 +5523,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5576,6 +5656,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5701,6 +5785,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5826,6 +5914,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -5951,6 +6043,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6076,6 +6172,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6205,6 +6305,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6334,6 +6438,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6468,6 +6576,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6602,6 +6714,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6731,6 +6847,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6860,6 +6980,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -6999,6 +7123,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7128,6 +7256,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7257,6 +7389,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7386,6 +7522,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7520,6 +7660,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7654,6 +7798,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7788,6 +7936,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -7917,6 +8069,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8046,6 +8202,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8175,6 +8335,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8309,6 +8473,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8443,6 +8611,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8572,6 +8744,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8826,6 +9002,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -8955,6 +9135,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9084,6 +9268,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9213,6 +9401,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9342,6 +9534,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9471,6 +9667,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9600,6 +9800,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9734,6 +9938,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9863,6 +10071,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -9997,6 +10209,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10114,7 +10330,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Debian9-EMCC-wasm-Release": {
+    "Build-Debian9-EMCC-wasm-Release-PathKit": {
       "caches": [
         {
           "name": "vpython",
@@ -10131,6 +10347,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10163,11 +10383,6 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
-        },
-        {
-          "name": "skia/bots/emscripten_sdk",
-          "path": "emscripten_sdk",
-          "version": "version:2"
         }
       ],
       "command": [
@@ -10208,7 +10423,7 @@
         "-recipe",
         "compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-EMCC-wasm-Release\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-EMCC-wasm-Release-PathKit\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"build\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -10260,6 +10475,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10389,6 +10608,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10518,6 +10741,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10647,6 +10874,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10776,6 +11007,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -10900,6 +11135,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11024,6 +11263,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11148,6 +11391,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11272,6 +11519,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11396,6 +11647,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11521,6 +11776,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11645,6 +11904,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11769,6 +12032,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -11893,6 +12160,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12016,6 +12287,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12139,6 +12414,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12267,6 +12546,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12390,6 +12673,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12513,6 +12800,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12636,6 +12927,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12759,6 +13054,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -12882,6 +13181,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13005,6 +13308,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13128,6 +13435,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13256,6 +13567,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13379,6 +13694,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13502,6 +13821,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13625,6 +13948,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13753,6 +14080,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -13876,6 +14207,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14011,6 +14346,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14147,6 +14486,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14283,6 +14626,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14419,6 +14766,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14555,6 +14906,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14691,6 +15046,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14827,6 +15186,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -14964,6 +15327,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15100,6 +15467,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15236,6 +15607,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15372,6 +15747,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15509,6 +15888,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15640,6 +16023,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15771,6 +16158,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -15902,6 +16293,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16034,6 +16429,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16165,6 +16564,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16297,6 +16700,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16428,6 +16835,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16550,6 +16961,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16786,6 +17201,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -16907,6 +17326,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -17025,6 +17448,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -17186,6 +17613,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -17291,6 +17722,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -29427,6 +29862,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -29551,6 +29990,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -55559,6 +56002,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -55683,6 +56130,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -55807,6 +56258,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -87716,6 +88171,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -92230,6 +92689,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
@@ -92872,6 +93335,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "docker",
+          "path": "cache/docker"
         }
       ],
       "cipd_packages": [
