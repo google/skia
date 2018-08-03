@@ -31,10 +31,6 @@ static SkSL::String base_name(const char* fpPath, const char* prefix, const char
  * Very simple standalone executable to facilitate testing.
  */
 int main(int argc, const char** argv) {
-    if (argc != 3) {
-        printf("usage: skslc <input> <output>\n");
-        exit(1);
-    }
     SkSL::Program::Kind kind;
     SkSL::String input(argv[1]);
     if (input.endsWith(".vert")) {
