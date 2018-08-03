@@ -12,7 +12,6 @@
 #include "GrDrawOp.h"
 #include "GrGeometryProcessor.h"
 #include "GrMesh.h"
-#include "GrPendingProgramElement.h"
 
 class GrAtlasManager;
 class GrCaps;
@@ -41,7 +40,7 @@ protected:
                    int indicesPerRepetition, int repeatCount);
 
         /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
-        void recordDraw(Target*, const GrGeometryProcessor*, const GrPipeline*,
+        void recordDraw(Target*, sk_sp<const GrGeometryProcessor>, const GrPipeline*,
                         const GrPipeline::FixedDynamicState*);
 
     private:
@@ -78,7 +77,7 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void draw(const GrGeometryProcessor*, const GrPipeline*,
+    virtual void draw(sk_sp<const GrGeometryProcessor>, const GrPipeline*,
                       const GrPipeline::FixedDynamicState*, const GrMesh&) = 0;
 
     /**
