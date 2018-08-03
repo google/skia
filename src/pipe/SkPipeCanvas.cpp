@@ -728,7 +728,7 @@ void SkPipeCanvas::onDrawRegion(const SkRegion& region, const SkPaint& paint) {
     write_paint(writer, paint, kGeometry_PaintUsage);
 }
 
-void SkPipeCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+void SkPipeCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                         int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     unsigned extra = static_cast<unsigned>(bmode);
 
@@ -737,7 +737,7 @@ void SkPipeCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkMatr
     // TODO: dedup vertices?
     writer.writeDataAsByteArray(vertices->encode().get());
     writer.write32(boneCount);
-    writer.write(bones, sizeof(SkMatrix) * boneCount);
+    writer.write(bones, sizeof(SkVertices::Bone) * boneCount);
     write_paint(writer, paint, kVertices_PaintUsage);
 }
 
