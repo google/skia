@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f9e764ef_722b2c9f",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-03T18:42:28Z",
+      "side": 1,
+      "message": "Add more comments to briefly describe them.",
+      "parentUuid": "31653081_1f215ef3",
+      "revId": "192a677e0d06056736e4019a778c034c98b098a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fd4ce7f_924e535e",
         "filename": "src/gpu/vk/GrVkInterface.h",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "192a677e0d06056736e4019a778c034c98b098a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "064c6c24_20e84494",
+        "filename": "src/gpu/vk/GrVkInterface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-03T18:42:28Z",
+      "side": 1,
+      "message": "Yeah I think going overlength is the best option here.",
+      "parentUuid": "7fd4ce7f_924e535e",
+      "revId": "192a677e0d06056736e4019a778c034c98b098a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
