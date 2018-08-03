@@ -1358,6 +1358,36 @@
         "Upload-Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
       ]
     },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All": {
+      "tasks": [
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE": {
+      "tasks": [
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan": {
+      "tasks": [
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "tasks": [
+        "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "tasks": [
+        "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "tasks": [
+        "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan"
+      ]
+    },
     "Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All": {
       "tasks": [
         "Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All"
@@ -2591,6 +2621,36 @@
     "Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan": {
       "tasks": [
         "Upload-Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "tasks": [
+        "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan"
       ]
     },
     "Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Debug-All": {
@@ -30670,7 +30730,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30786,7 +30846,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -30902,7 +30962,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -31018,7 +31078,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -31134,7 +31194,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -31250,7 +31310,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -32832,7 +32892,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -32948,7 +33008,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33064,7 +33124,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33180,7 +33240,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33296,7 +33356,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33412,7 +33472,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33528,7 +33588,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33644,7 +33704,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33760,7 +33820,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33876,7 +33936,703 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "perf_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "perf"
+      ]
+    },
+    "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "perf",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -33992,7 +34748,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34108,7 +34864,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34224,7 +34980,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34340,7 +35096,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34456,7 +35212,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34572,7 +35328,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34688,7 +35444,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34804,7 +35560,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -34920,7 +35676,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35036,7 +35792,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35152,7 +35908,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35268,7 +36024,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35384,7 +36140,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35500,7 +36256,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35616,7 +36372,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35732,7 +36488,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35849,7 +36605,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -35966,7 +36722,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36083,7 +36839,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36200,7 +36956,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36317,7 +37073,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36434,7 +37190,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36550,7 +37306,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36666,7 +37422,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36782,7 +37538,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -36898,7 +37654,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37014,7 +37770,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -37130,7 +37886,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58662,7 +59418,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58778,7 +59534,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -58894,7 +59650,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -59010,7 +59766,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -59126,7 +59882,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -59242,7 +59998,7 @@
       ],
       "dimensions": [
         "gpu:1002:6646-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -60876,7 +61632,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-i7-5557U",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -60992,7 +61748,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61108,7 +61864,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61224,7 +61980,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61340,7 +62096,7 @@
       ],
       "dimensions": [
         "gpu:8086:162b-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61456,7 +62212,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61572,7 +62328,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61688,7 +62444,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61804,7 +62560,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -61920,7 +62676,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62036,7 +62792,7 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62152,7 +62908,703 @@
       ],
       "dimensions": [
         "gpu:8086:1926-23.20.16.4982",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Debug-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release-ANGLE"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 14400000000000,
+      "expiration_ns": 72000000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 14400000000000,
+      "isolate": "test_skia_bundled.isolate",
+      "max_attempts": 1,
+      "outputs": [
+        "test"
+      ]
+    },
+    "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "skia/bots/skimage",
+          "path": "skimage",
+          "version": "version:34"
+        },
+        {
+          "name": "skia/bots/skp",
+          "path": "skp",
+          "version": "version:136"
+        },
+        {
+          "name": "skia/bots/svg",
+          "path": "svg",
+          "version": "version:9"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "test",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Build-Win-Clang-x86_64-Release-Vulkan"
+      ],
+      "dimensions": [
+        "gpu:10de:1c8d-22.21.13.8307",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62268,7 +63720,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62384,7 +63836,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62500,7 +63952,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62616,7 +64068,7 @@
       ],
       "dimensions": [
         "gpu:8086:0a16-20.19.15.4835",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62732,7 +64184,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62848,7 +64300,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -62964,7 +64416,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63080,7 +64532,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63196,7 +64648,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63312,7 +64764,7 @@
       ],
       "dimensions": [
         "gpu:10de:11c0-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63428,7 +64880,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63544,7 +64996,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63660,7 +65112,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63776,7 +65228,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -63892,7 +65344,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64008,7 +65460,7 @@
       ],
       "dimensions": [
         "gpu:1002:683d-23.20.15033.5003",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64125,7 +65577,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64242,7 +65694,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64359,7 +65811,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64476,7 +65928,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64593,7 +66045,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64710,7 +66162,7 @@
       "dimensions": [
         "cpu:x86-64-i7-6700K",
         "gpu:10de:1401-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64826,7 +66278,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -64942,7 +66394,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -65058,7 +66510,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -65174,7 +66626,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -65290,7 +66742,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -65406,7 +66858,7 @@
       ],
       "dimensions": [
         "gpu:10de:1ba1-23.21.13.9101",
-        "os:Windows-10-17134.165",
+        "os:Windows-10-17134.191",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -77788,6 +79240,318 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_nano_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_nano_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_nano_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Perf-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -96300,6 +98064,630 @@
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
         "Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Debug-All-Vulkan"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-ANGLE"
+      ],
+      "dimensions": [
+        "cpu:x86-64-Haswell_GCE",
+        "gpu:none",
+        "machine_type:n1-highmem-2",
+        "os:Debian-9.4",
+        "pool:Skia"
+      ],
+      "env_prefixes": {
+        "PATH": [
+          "cipd_bin_packages",
+          "cipd_bin_packages/bin"
+        ],
+        "VPYTHON_VIRTUALENV_ROOT": [
+          "${cache_dir}/vpython"
+        ]
+      },
+      "execution_timeout_ns": 3600000000000,
+      "extra_tags": {
+        "log_location": "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      },
+      "io_timeout_ns": 3600000000000,
+      "isolate": "swarm_recipe.isolate",
+      "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
+    },
+    "Upload-Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan": {
+      "caches": [
+        {
+          "name": "vpython",
+          "path": "cache/vpython"
+        }
+      ],
+      "cipd_packages": [
+        {
+          "name": "infra/tools/luci/kitchen/${platform}",
+          "path": ".",
+          "version": "git_revision:546aae39f1fb9dce9add528e2011afa574535ecd"
+        },
+        {
+          "name": "infra/tools/luci-auth/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/luci/vpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+        },
+        {
+          "name": "infra/python/cpython/${platform}",
+          "path": "cipd_bin_packages",
+          "version": "version:2.7.14.chromium14"
+        },
+        {
+          "name": "infra/gsutil",
+          "path": "cipd_bin_packages",
+          "version": "version:4.28"
+        }
+      ],
+      "command": [
+        "./kitchen${EXECUTABLE_SUFFIX}",
+        "cook",
+        "-checkout-dir",
+        "recipe_bundle",
+        "-mode",
+        "swarming",
+        "-luci-system-account",
+        "system",
+        "-cache-dir",
+        "cache",
+        "-temp-dir",
+        "tmp",
+        "-known-gerrit-host",
+        "android.googlesource.com",
+        "-known-gerrit-host",
+        "boringssl.googlesource.com",
+        "-known-gerrit-host",
+        "chromium.googlesource.com",
+        "-known-gerrit-host",
+        "dart.googlesource.com",
+        "-known-gerrit-host",
+        "fuchsia.googlesource.com",
+        "-known-gerrit-host",
+        "go.googlesource.com",
+        "-known-gerrit-host",
+        "llvm.googlesource.com",
+        "-known-gerrit-host",
+        "skia.googlesource.com",
+        "-known-gerrit-host",
+        "webrtc.googlesource.com",
+        "-output-result-json",
+        "${ISOLATED_OUTDIR}/build_result_filename",
+        "-workdir",
+        ".",
+        "-recipe",
+        "upload_dm_results",
+        "-properties",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "-logdog-annotation-url",
+        "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
+      ],
+      "dependencies": [
+        "Housekeeper-PerCommit-BundleRecipes",
+        "Test-Win10-Clang-NUC7i5BNK-GPU-GTX1050-x86_64-Release-All-Vulkan"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
