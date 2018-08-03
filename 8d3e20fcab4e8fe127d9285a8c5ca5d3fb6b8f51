@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "851f15f5_3dc45ee8",
+        "filename": "src/gpu/ccpr/GrCCPathProcessor.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-03T15:53:57Z",
+      "side": 1,
+      "message": "Will do as follow up",
+      "parentUuid": "bdfab071_36d88382",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4ee1aba7_81186e52",
         "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "379d88d2_6a2141ad",
+        "filename": "src/gpu/ops/GrAtlasTextOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-03T15:53:57Z",
+      "side": 1,
+      "message": "Made unsigned.",
+      "parentUuid": "4ee1aba7_81186e52",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "906edc58_413a5694",
         "filename": "src/gpu/ops/GrLatticeOp.cpp",
         "patchSetId": 6
@@ -50,6 +86,24 @@
       "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da863f9a_fa6e41ce",
+        "filename": "src/gpu/ops/GrLatticeOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-03T15:53:57Z",
+      "side": 1,
+      "message": "Made bare ptr.",
+      "parentUuid": "906edc58_413a5694",
+      "revId": "8d3e20fcab4e8fe127d9285a8c5ca5d3fb6b8f51",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
