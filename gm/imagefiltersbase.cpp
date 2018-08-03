@@ -43,7 +43,7 @@ protected:
         return nullptr;
     }
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override {
-        return nullptr;
+        return sk_ref_sp(this);
     }
 
 private:
