@@ -287,6 +287,7 @@ sk_sp<SkColorFilter> SkTable_ColorFilter::onMakeComposed(sk_sp<SkColorFilter> in
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
+#include "GrTexture.h"
 #include "SkGr.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -304,6 +305,10 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override {
         return std::unique_ptr<GrFragmentProcessor>(
             new ColorTableEffect(sk_ref_sp(fTextureSampler.proxy())));
+    }
+
+    int peekBackingHeight() const {
+        return fTextureSampler.peekTexture()->height();
     }
 
 private:
@@ -387,6 +392,7 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
                                                             const SkBitmap& bitmap) {
+    SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
     if (kUnknown_GrPixelConfig == SkColorType2GrPixelConfig(bitmap.colorType())) {

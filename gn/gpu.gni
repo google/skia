@@ -358,6 +358,8 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrBicubicEffect.h",
   "$_src/gpu/effects/GrBitmapTextGeoProc.cpp",
   "$_src/gpu/effects/GrBitmapTextGeoProc.h",
+  "$_src/gpu/effects/GrDDLTextureStripAtlas.cpp",
+  "$_src/gpu/effects/GrDDLTextureStripAtlas.h",
   "$_src/gpu/effects/GrDisableColorXP.cpp",
   "$_src/gpu/effects/GrDisableColorXP.h",
   "$_src/gpu/effects/GrDistanceFieldGeoProc.cpp",
