@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f50056cf_73a86799",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-03T15:32:36Z",
+      "side": 1,
+      "message": "My editor did this. Presumably gofmt got updated. /shrug",
+      "revId": "b3917d326712c49f1f16d836e164a5f874447a57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a0817dc6_cc390b14",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-03T15:32:36Z",
+      "side": 1,
+      "message": "Made these \"constants.\"",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 0
+      },
+      "revId": "b3917d326712c49f1f16d836e164a5f874447a57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}

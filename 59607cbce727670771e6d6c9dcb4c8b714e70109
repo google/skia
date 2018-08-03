@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "d397f2d2_976c690f",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-03T15:32:36Z",
+      "side": 1,
+      "message": "Changed back to mac_toolchain.",
+      "parentUuid": "18363b10_7dfdff47",
+      "range": {
+        "startLine": 825,
+        "startChar": 12,
+        "endLine": 825,
+        "endChar": 15
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c0d1e2b_81b16c0f",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 12
@@ -93,6 +117,30 @@
       "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67b3bf30_b11def79",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-03T15:32:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd325299_4ecc7640",
+      "range": {
+        "startLine": 826,
+        "startChar": 26,
+        "endLine": 826,
+        "endChar": 66
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -178,6 +226,30 @@
       "side": 1,
       "message": "A. This seems like a reasonable place for it.\nB. How does this differ from https://skia.googlesource.com/skia/+/master/infra/bots/recipe_modules/vars/api.py#34 ?  I\u0027m not familiar with path[\u0027cache\u0027].",
       "parentUuid": "e49c8b09_67051d5b",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 56
+      },
+      "revId": "59607cbce727670771e6d6c9dcb4c8b714e70109",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "003540a2_9717fc8a",
+        "filename": "infra/bots/recipe_modules/build/default.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-03T15:32:36Z",
+      "side": 1,
+      "message": "B. They appear to be the same. Replaced with api.vars.cache_dir.",
+      "parentUuid": "9144aeec_f321c4de",
       "range": {
         "startLine": 72,
         "startChar": 4,
