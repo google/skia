@@ -105,29 +105,43 @@ static unsigned unit_to_byte(float unit) {
     return (unsigned)(unit * 255 + 0.5);
 }
 
-static SkColor unit_to_skcolor(const SkColor4f& unit, SkColorSpace* cs) {
-    return SkColorSetARGB(unit_to_byte(unit.fA), unit_to_byte(unit.fR),
-                          unit_to_byte(unit.fG), unit_to_byte(unit.fB));
+static SkColor to_skcolor(SkColor4f color, SkColorSpace* cs) {
+    if (cs) {
+        SkColorSpaceXformSteps steps =
+                SkColorSpaceXformSteps::UnpremulToUnpremul(cs, sk_srgb_singleton());
+        steps.apply(color.vec());
+    }
+    color = color.pin();
+    return SkColorSetARGB(unit_to_byte(color.fA), unit_to_byte(color.fR),
+                          unit_to_byte(color.fG), unit_to_byte(color.fB));
 }
 
 SkColor4Shader::SkColor4Shader(const SkColor4f& color, sk_sp<SkColorSpace> space)
     : fColorSpace(std::move(space))
     , fColor4(color)
-    , fCachedByteColor(unit_to_skcolor(color.pin(), space.get()))
+    , fCachedByteColor(to_skcolor(color, fColorSpace.get()))
 {}
 
 sk_sp<SkFlattenable> SkColor4Shader::CreateProc(SkReadBuffer& buffer) {
     SkColor4f color;
+    sk_sp<SkColorSpace> colorSpace;
     buffer.readColor4f(&color);
     if (buffer.readBool()) {
-        // TODO how do we unflatten colorspaces
+        sk_sp<SkData> data = buffer.readByteArrayAsData();
+        colorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
     }
-    return SkShader::MakeColorShader(color, nullptr);
+    return SkShader::MakeColorShader(color, std::move(colorSpace));
 }
 
 void SkColor4Shader::flatten(SkWriteBuffer& buffer) const {
     buffer.writeColor4f(fColor4);
-    buffer.writeBool(false);    // TODO how do we flatten colorspaces?
+    sk_sp<SkData> colorSpaceData = fColorSpace ? fColorSpace->serialize() : nullptr;
+    if (colorSpaceData) {
+        buffer.writeBool(true);
+        buffer.writeDataAsByteArray(colorSpaceData.get());
+    } else {
+        buffer.writeBool(false);
+    }
 }
 
 uint32_t SkColor4Shader::Color4Context::getFlags() const {
