@@ -3791,11 +3791,11 @@ device bounds empty = true
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_3'>drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_3'>drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[], int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_4'>drawVertices(const sk sp&lt;SkVertices&gt;& vertices, const SkMatrix* bones, int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_drawVertices_4'>drawVertices(const sk sp&lt;SkVertices&gt;& vertices, const SkVertices::Bone bones[], int boneCount, SkBlendMode mode, const SkPaint& paint)</a></td>
   </tr>
 </table>
 
@@ -6516,8 +6516,7 @@ contains <a href='undocumented#Shader'>Shader</a>, <a href='SkBlendMode_Referenc
 <a name='SkCanvas_drawVertices_3'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawVertices'>drawVertices</a>(const <a href='undocumented#SkVertices'>SkVertices</a>* vertices, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* bones, int boneCount, <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode,
-                  const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
+void <a href='#SkCanvas_drawVertices'>drawVertices</a>(const <a href='undocumented#SkVertices'>SkVertices</a>* vertices, const
 </pre>
 
 Draws <a href='undocumented#Vertices'>Vertices</a> <a href='#SkCanvas_drawVertices_3_vertices'>vertices</a>, a triangle mesh, using <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>. Bone data is used to
@@ -6548,10 +6547,6 @@ it should be the identity matrix.
   </tr>
 </table>
 
-### Example
-
-<div><fiddle-embed name="7db6ad6b01931d713d7390736239001b"></fiddle-embed></div>
-
 ### See Also
 
 <a href='#SkCanvas_drawPatch'>drawPatch</a><sup><a href='#SkCanvas_drawPatch_2'>[2]</a></sup> <a href='#SkCanvas_drawPicture'>drawPicture</a><sup><a href='#SkCanvas_drawPicture_2'>[2]</a></sup><sup><a href='#SkCanvas_drawPicture_3'>[3]</a></sup><sup><a href='#SkCanvas_drawPicture_4'>[4]</a></sup>
@@ -6561,8 +6556,7 @@ it should be the identity matrix.
 <a name='SkCanvas_drawVertices_4'></a>
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawVertices'>drawVertices</a>(const <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkVertices'>SkVertices</a>&gt;& vertices, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* bones, int boneCount,
-                  <a href='SkBlendMode_Reference#SkBlendMode'>SkBlendMode</a> mode, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
+void <a href='#SkCanvas_drawVertices'>drawVertices</a>(const <a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkVertices'>SkVertices</a>&gt;& vertices, const
 </pre>
 
 Draws <a href='undocumented#Vertices'>Vertices</a> <a href='#SkCanvas_drawVertices_4_vertices'>vertices</a>, a triangle mesh, using <a href='#Clip'>Clip</a> and <a href='#Matrix'>Matrix</a>. Bone data is used to
@@ -6592,10 +6586,6 @@ it should be the identity matrix.
     <td>specifies the <a href='undocumented#Shader'>Shader</a>, used as <a href='undocumented#Vertices'>Vertices</a> texture, may be nullptr</td>
   </tr>
 </table>
-
-### Example
-
-<div><fiddle-embed name="cc1fc7f3462abc79ec6dec3405e2812d"></fiddle-embed></div>
 
 ### See Also
 
