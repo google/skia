@@ -95,7 +95,7 @@ private:
     LatticeGP(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
-        fSampler.reset(std::move(proxy), filter);
+        fSampler.reset(proxy->textureType(), proxy->config(), filter);
         this->setTextureSamplerCnt(1);
         this->setVertexAttributeCnt(4);
     }
@@ -281,7 +281,8 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto pipe = fHelper.makePipeline(target);
+        auto pipe = fHelper.makePipeline(target, 1);
+        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
         helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
