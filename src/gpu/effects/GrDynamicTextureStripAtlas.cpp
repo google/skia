@@ -18,7 +18,7 @@
     #define VALIDATE
 #endif
 
-uint32_t GrTextureStripAtlas::CreateUniqueID() {
+uint32_t GrDynamicTextureStripAtlas::CreateUniqueID() {
     static int32_t gUniqueID = SK_InvalidUniqueID;
     uint32_t id;
     // Loop in case our global wraps around, as we never want to return a 0.
@@ -28,30 +28,30 @@ uint32_t GrTextureStripAtlas::CreateUniqueID() {
     return id;
 }
 
-GrTextureStripAtlas::GrTextureStripAtlas(const Desc& desc)
-    : fCacheKey(CreateUniqueID())
-    , fLockedRows(0)
-    , fDesc(desc)
-    , fNumRows(desc.fHeight / desc.fRowHeight)
-    , fRows(new AtlasRow[fNumRows])
-    , fLRUFront(nullptr)
-    , fLRUBack(nullptr) {
+GrDynamicTextureStripAtlas::GrDynamicTextureStripAtlas(const Desc& desc)
+        : INHERITED(desc)
+        , fCacheKey(CreateUniqueID())
+        , fLockedRows(0)
+        , fNumRows(desc.fHeight / desc.fRowHeight)
+        , fRows(new AtlasRow[fNumRows])
+        , fLRUFront(nullptr)
+        , fLRUBack(nullptr) {
     SkASSERT(fNumRows * fDesc.fRowHeight == fDesc.fHeight);
     this->initLRU();
     fNormalizedYHeight = SK_Scalar1 / fDesc.fHeight;
     VALIDATE;
 }
 
-GrTextureStripAtlas::~GrTextureStripAtlas() { delete[] fRows; }
+GrDynamicTextureStripAtlas::~GrDynamicTextureStripAtlas() { delete[] fRows; }
 
-void GrTextureStripAtlas::lockRow(int row) {
+void GrDynamicTextureStripAtlas::lockRow(int row) {
     // This should only be called on a row that is already locked.
     SkASSERT(fRows[row].fLocks);
     fRows[row].fLocks++;
     ++fLockedRows;
 }
 
-int GrTextureStripAtlas::lockRow(GrContext* context, const SkBitmap& bitmap) {
+int GrDynamicTextureStripAtlas::addStrip(GrContext* context, const SkBitmap& bitmap) {
     VALIDATE;
 
     if (!context->contextPriv().resourceProvider()) {
@@ -142,11 +142,11 @@ int GrTextureStripAtlas::lockRow(GrContext* context, const SkBitmap& bitmap) {
     return rowNumber;
 }
 
-sk_sp<GrTextureProxy> GrTextureStripAtlas::asTextureProxyRef() const {
+sk_sp<GrTextureProxy> GrDynamicTextureStripAtlas::asTextureProxyRef() const {
     return fTexContext->asTextureProxyRef();
 }
 
-void GrTextureStripAtlas::unlockRow(int row) {
+void GrDynamicTextureStripAtlas::unlockRow(int row) {
     VALIDATE;
     --fRows[row].fLocks;
     --fLockedRows;
@@ -160,13 +160,13 @@ void GrTextureStripAtlas::unlockRow(int row) {
     VALIDATE;
 }
 
-GrTextureStripAtlas::AtlasRow* GrTextureStripAtlas::getLRU() {
+GrDynamicTextureStripAtlas::AtlasRow* GrDynamicTextureStripAtlas::getLRU() {
     // Front is least-recently-used
     AtlasRow* row = fLRUFront;
     return row;
 }
 
-void GrTextureStripAtlas::lockTexture(GrContext* context) {
+void GrDynamicTextureStripAtlas::lockTexture(GrContext* context) {
 
     static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
     GrUniqueKey key;
@@ -179,10 +179,12 @@ void GrTextureStripAtlas::lockTexture(GrContext* context) {
     sk_sp<GrTextureProxy> proxy = proxyProvider->findOrCreateProxyByUniqueKey(
                                                                 key, kTopLeft_GrSurfaceOrigin);
     if (!proxy) {
+        GrPixelConfig pixelConfig = SkColorType2GrPixelConfig(fDesc.fColorType);
+
         GrSurfaceDesc texDesc;
         texDesc.fWidth  = fDesc.fWidth;
         texDesc.fHeight = fDesc.fHeight;
-        texDesc.fConfig = fDesc.fConfig;
+        texDesc.fConfig = pixelConfig;
 
         proxy = proxyProvider->createProxy(texDesc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact,
                                            SkBudgeted::kYes, GrInternalSurfaceFlags::kNoPendingIO);
@@ -200,12 +202,12 @@ void GrTextureStripAtlas::lockTexture(GrContext* context) {
     fTexContext = context->contextPriv().makeWrappedSurfaceContext(std::move(proxy));
 }
 
-void GrTextureStripAtlas::unlockTexture() {
+void GrDynamicTextureStripAtlas::unlockTexture() {
     SkASSERT(fTexContext && 0 == fLockedRows);
     fTexContext.reset();
 }
 
-void GrTextureStripAtlas::initLRU() {
+void GrDynamicTextureStripAtlas::initLRU() {
     fLRUFront = nullptr;
     fLRUBack = nullptr;
     // Initially all the rows are in the LRU list
@@ -219,7 +221,7 @@ void GrTextureStripAtlas::initLRU() {
     SkASSERT(nullptr == fLRUBack || nullptr == fLRUBack->fNext);
 }
 
-void GrTextureStripAtlas::appendLRU(AtlasRow* row) {
+void GrDynamicTextureStripAtlas::appendLRU(AtlasRow* row) {
     SkASSERT(nullptr == row->fPrev && nullptr == row->fNext);
     if (nullptr == fLRUFront && nullptr == fLRUBack) {
         fLRUFront = row;
@@ -231,7 +233,7 @@ void GrTextureStripAtlas::appendLRU(AtlasRow* row) {
     }
 }
 
-void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
+void GrDynamicTextureStripAtlas::removeFromLRU(AtlasRow* row) {
     SkASSERT(row);
     if (row->fNext && row->fPrev) {
         row->fPrev->fNext = row->fNext;
@@ -256,19 +258,17 @@ void GrTextureStripAtlas::removeFromLRU(AtlasRow* row) {
     row->fPrev = nullptr;
 }
 
-int GrTextureStripAtlas::searchByKey(uint32_t key) {
+int GrDynamicTextureStripAtlas::searchByKey(uint32_t key) {
     AtlasRow target;
     target.fKey = key;
-    return SkTSearch<const AtlasRow,
-                     GrTextureStripAtlas::KeyLess>((const AtlasRow**)fKeyTable.begin(),
-                                                   fKeyTable.count(),
-                                                   &target,
-                                                   sizeof(AtlasRow*));
+    return SkTSearch<const AtlasRow, KeyLess>((const AtlasRow**)fKeyTable.begin(),
+                                              fKeyTable.count(),
+                                              &target,
+                                              sizeof(AtlasRow*));
 }
 
 #ifdef SK_DEBUG
-void GrTextureStripAtlas::validate() {
-
+void GrDynamicTextureStripAtlas::validate() {
     // Our key table should be sorted
     uint32_t prev = 1 > fKeyTable.count() ? 0 : fKeyTable[0]->fKey;
     for (int i = 1; i < fKeyTable.count(); ++i) {
