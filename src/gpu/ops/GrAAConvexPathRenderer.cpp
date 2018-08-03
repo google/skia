@@ -611,7 +611,7 @@ public:
             fragBuilder->codeAppendf("edgeAlpha = (%s.x*%s.x - %s.y);", v.fsIn(), v.fsIn(),
                                      v.fsIn());
             fragBuilder->codeAppendf("edgeAlpha = "
-                                     "clamp(0.5 - edgeAlpha / length(gF), 0.0, 1.0);}");
+                                     "saturate(0.5 - edgeAlpha / length(gF));}");
 
             fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
         }

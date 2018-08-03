@@ -343,7 +343,7 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fragBuilder->codeAppendf("}");
 
     // Clamp.
-    fragBuilder->codeAppendf("color = clamp(color, 0, 1);");
+    fragBuilder->codeAppendf("color = saturate(color);");
 
     if (hcfe.linearize()) {
         fragBuilder->codeAppend("color.rgb = sqrt(color.rgb);");

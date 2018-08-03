@@ -218,6 +218,22 @@ protected:
     bool fSetupFragPositionLocal = false;
     bool fSetupFragCoordWorkaround = false;
 
+    // We map function names to function class so we can quickly deal with function calls that need
+    // extra processing
+    enum class FunctionClass {
+        kAtan,
+        kDeterminant,
+        kDerivative,
+        kFract,
+        kInverse,
+        kInverseSqrt,
+        kMin,
+        kSaturate,
+        kTexture,
+        kTranspose
+    };
+    static std::unordered_map<StringFragment, FunctionClass>* fFunctionClasses;
+
     typedef CodeGenerator INHERITED;
 };
 
