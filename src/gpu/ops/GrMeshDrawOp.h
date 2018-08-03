@@ -132,10 +132,19 @@ public:
         return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
 
-    template <typename... Args>
-    GrPipeline::FixedDynamicState* allocFixedDynamicState(Args&... args) {
-        return this->pipelineArena()->make<GrPipeline::FixedDynamicState>(
-                std::forward<Args>(args)...);
+    GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
+                                                          int numPrimitiveProcessorTextures = 0) {
+        auto result = this->pipelineArena()->make<GrPipeline::FixedDynamicState>(rect);
+        if (numPrimitiveProcessorTextures) {
+            result->fPrimitiveProcessorTextures =
+                    this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures);
+        }
+        return result;
+    }
+
+    GrTextureProxy** allocPrimitiveProcessorTextureArray(int n) {
+        SkASSERT(n > 0);
+        return this->pipelineArena()->makeArrayDefault<GrTextureProxy*>(n);
     }
 
     // Once we have C++17 structured bindings make this just be a tuple because then we can do:
@@ -144,7 +153,7 @@ public:
     //      std::tie(flushInfo.fPipeline, flushInfo.fFixedState) = target->makePipeline(...);
     struct PipelineAndFixedDynamicState {
         const GrPipeline* fPipeline;
-        const GrPipeline::FixedDynamicState* fFixedDynamicState;
+        GrPipeline::FixedDynamicState* fFixedDynamicState;
     };
 
     /**
@@ -152,7 +161,8 @@ public:
      * GrAppliedClip and uses a fixed dynamic state.
      */
     PipelineAndFixedDynamicState makePipeline(uint32_t pipelineFlags, GrProcessorSet&&,
-                                              GrAppliedClip&&);
+                                              GrAppliedClip&&,
+                                              int numPrimitiveProcessorTextures = 0);
 
     virtual GrRenderTargetProxy* proxy() const = 0;
 

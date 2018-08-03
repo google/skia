@@ -104,23 +104,22 @@ public:
         return caps.integerSupport() && caps.maxFragmentSamplers() > 1;
     }
 
-    static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxies[], int proxyCnt,
+    static sk_sp<GrGeometryProcessor> Make(GrTextureType textureType, GrPixelConfig textureConfig,
+                                           int textureCnt,
                                            sk_sp<GrColorSpaceXform> textureColorSpaceXform,
                                            sk_sp<GrColorSpaceXform> paintColorSpaceXform,
-                                           bool coverageAA,
-                                           bool perspective, Domain domain,
+                                           bool coverageAA, bool perspective, Domain domain,
                                            const GrSamplerState::Filter filters[],
                                            const GrShaderCaps& caps) {
         // We use placement new to avoid always allocating space for kMaxTextures TextureSampler
         // instances.
-        int samplerCnt = NumSamplersToUse(proxyCnt, caps);
+        int samplerCnt = NumSamplersToUse(textureCnt, caps);
         size_t size = sizeof(TextureGeometryProcessor) + sizeof(TextureSampler) * (samplerCnt - 1);
         void* mem = GrGeometryProcessor::operator new(size);
-        return sk_sp<TextureGeometryProcessor>(
-                new (mem) TextureGeometryProcessor(proxies, proxyCnt, samplerCnt,
-                                                   std::move(textureColorSpaceXform),
-                                                   std::move(paintColorSpaceXform),
-                                                   coverageAA, perspective, domain, filters, caps));
+        return sk_sp<TextureGeometryProcessor>(new (mem) TextureGeometryProcessor(
+                textureType, textureConfig, textureCnt, samplerCnt,
+                std::move(textureColorSpaceXform), std::move(paintColorSpaceXform), coverageAA,
+                perspective, domain, filters, caps));
     }
 
     ~TextureGeometryProcessor() override {
@@ -286,20 +285,20 @@ private:
         return SkTMin(SkNextPow2(numRealProxies), SkTMin(kMaxTextures, caps.maxFragmentSamplers()));
     }
 
-    TextureGeometryProcessor(sk_sp<GrTextureProxy> proxies[], int proxyCnt, int samplerCnt,
-                             sk_sp<GrColorSpaceXform> textureColorSpaceXform,
-                             sk_sp<GrColorSpaceXform> paintColorSpaceXform,
-                             bool coverageAA, bool perspective, Domain domain,
+    TextureGeometryProcessor(GrTextureType textureType, GrPixelConfig textureConfig, int textureCnt,
+                             int samplerCnt, sk_sp<GrColorSpaceXform> textureColorSpaceXform,
+                             sk_sp<GrColorSpaceXform> paintColorSpaceXform, bool coverageAA,
+                             bool perspective, Domain domain,
                              const GrSamplerState::Filter filters[], const GrShaderCaps& caps)
             : INHERITED(kTextureGeometryProcessor_ClassID)
             , fTextureColorSpaceXform(std::move(textureColorSpaceXform))
             , fPaintColorSpaceXform(std::move(paintColorSpaceXform)) {
-        SkASSERT(proxyCnt > 0 && samplerCnt >= proxyCnt);
-        fSamplers[0].reset(std::move(proxies[0]), filters[0]);
-        for (int i = 1; i < proxyCnt; ++i) {
+        SkASSERT(textureCnt > 0 && samplerCnt >= textureCnt);
+        fSamplers[0].reset(textureType, textureConfig, filters[0]);
+        for (int i = 1; i < textureCnt; ++i) {
             // This class has one sampler built in, the rest come from memory this processor was
             // placement-newed into and so haven't been constructed.
-            new (&fSamplers[i]) TextureSampler(std::move(proxies[i]), filters[i]);
+            new (&fSamplers[i]) TextureSampler(textureType, textureConfig, filters[i]);
         }
 
         if (perspective) {
@@ -312,11 +311,11 @@ private:
         int vertexAttributeCnt = 3;
 
         if (samplerCnt > 1) {
-            // Here we initialize any extra samplers by repeating the last one samplerCnt - proxyCnt
-            // times.
-            GrTextureProxy* dupeProxy = fSamplers[proxyCnt - 1].proxy();
-            for (int i = proxyCnt; i < samplerCnt; ++i) {
-                new (&fSamplers[i]) TextureSampler(sk_ref_sp(dupeProxy), filters[proxyCnt - 1]);
+            // Here we initialize any extra samplers. We repeat the first filter because our caller
+            // will specify the first texture for all the extra samplers. In GL the filter is
+            // implemented as a texture parameter and the last sampler will win.
+            for (int i = textureCnt; i < samplerCnt; ++i) {
+                new (&fSamplers[i]) TextureSampler(textureType, textureConfig, filters[0]);
             }
             SkASSERT(caps.integerSupport());
             fTextureIdx = {"textureIdx", kInt_GrVertexAttribType};
@@ -764,22 +763,20 @@ __attribute__((no_sanitize("float-cast-overflow")))
     }
 
     void onPrepareDraws(Target* target) override {
-        sk_sp<GrTextureProxy> proxiesSPs[kMaxTextures];
         auto proxies = this->proxies();
         auto filters = this->filters();
         for (int i = 0; i < fProxyCnt; ++i) {
             if (!proxies[i]->instantiate(target->resourceProvider())) {
                 return;
             }
-            proxiesSPs[i] = sk_ref_sp(proxies[i]);
         }
 
         Domain domain = fDomain ? Domain::kYes : Domain::kNo;
         bool coverageAA = GrAAType::kCoverage == this->aaType();
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
-                proxiesSPs, fProxyCnt, std::move(fTextureColorSpaceXform),
-                std::move(fPaintColorSpaceXform), coverageAA, fPerspective,
-                domain, filters, *target->caps().shaderCaps());
+                proxies[0]->textureType(), proxies[0]->config(), fProxyCnt,
+                std::move(fTextureColorSpaceXform), std::move(fPaintColorSpaceXform), coverageAA,
+                fPerspective, domain, filters, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -790,7 +787,17 @@ __attribute__((no_sanitize("float-cast-overflow")))
         }
 
         auto clip = target->detachAppliedClip();
-        const auto* fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect());
+        auto* fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(),
+                                                                 gp->numTextureSamplers());
+        for (int i = 0; i < fProxyCnt; ++i) {
+            SkASSERT(proxies[i]->textureType() == proxies[0]->textureType());
+            SkASSERT(proxies[i]->config() == proxies[0]->config());
+            fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i];
+        }
+        // Rebind texture proxy 0 to the extra samplers.
+        for (int i = fProxyCnt; i < gp->numTextureSamplers(); ++i) {
+            fixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[0];
+        }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
         using TessFn =
