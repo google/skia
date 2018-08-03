@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bdce1542_d3195839",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 13
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T17:10:39Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f50056cf_73a86799",
+      "revId": "b3917d326712c49f1f16d836e164a5f874447a57",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a0817dc6_cc390b14",
         "filename": "infra/bots/recipe_modules/build/default.py",
         "patchSetId": 13
