@@ -263,6 +263,7 @@ def dm_flags(api, bot):
         # These tests produce slightly different pixels run to run on NV.
         blacklist('gltestpersistentcache gm _ atlastext')
         blacklist('gltestpersistentcache gm _ dftext')
+        blacklist('gltestpersistentcache gm _ glyph_pos_h_b')
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
