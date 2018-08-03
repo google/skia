@@ -22,6 +22,30 @@
       "revId": "94fba835ca4dfe9af098e23c5e9e3d0e0a41516b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0c9c168_7ebe7731",
+        "filename": "src/gpu/ops/GrMeshDrawOp.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-03T00:55:33Z",
+      "side": 1,
+      "message": "Happy to change it,but maybe it\u0027s a case of getting used to trailing return syntax. The type is explicitly stated after the arrow below this comment. I don\u0027t always favor trailing returns but in this case the type is really long when fully qualified. Maybe naming the constructor would be clearer.",
+      "parentUuid": "32e97578_1c17f772",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 65,
+        "endChar": 4
+      },
+      "revId": "94fba835ca4dfe9af098e23c5e9e3d0e0a41516b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
