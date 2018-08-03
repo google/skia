@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93334ea8_1fa75e42",
+        "filename": "src/codec/SkSampler.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-03T20:19:21Z",
+      "side": 1,
+      "message": "Perhaps I should rename these to \"Erase\"...",
+      "range": {
+        "startLine": 48,
+        "startChar": 7,
+        "endLine": 48,
+        "endChar": 51
+      },
+      "revId": "c82466f7adf30a8f9ad1a2326e62c9a2191492af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

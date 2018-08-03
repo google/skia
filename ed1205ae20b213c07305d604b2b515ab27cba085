@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79bf8c10_e02af19e",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-03T20:19:21Z",
+      "side": 0,
+      "message": "As I was working on the switch to skcms, I came across this bit of code. Rather than blindly switch it, I thought about it a bit, and I don\u0027t think we need it anymore, resulting in this CL.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 1
+      },
+      "revId": "ed1205ae20b213c07305d604b2b515ab27cba085",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
