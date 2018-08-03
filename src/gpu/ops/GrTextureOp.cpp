@@ -255,7 +255,7 @@ public:
                     if (mulByFragCoordW) {
                         args.fFragBuilder->codeAppend("mindist *= sk_FragCoord.w;");
                     }
-                    args.fFragBuilder->codeAppendf("%s = float4(clamp(mindist, 0, 1));",
+                    args.fFragBuilder->codeAppendf("%s = float4(saturate(mindist));",
                                                    args.fOutputCoverage);
                 } else {
                     args.fFragBuilder->codeAppendf("%s = float4(1);", args.fOutputCoverage);

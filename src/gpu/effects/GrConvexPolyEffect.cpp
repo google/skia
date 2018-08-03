@@ -54,7 +54,7 @@ void GrGLConvexPolyEffect::emitCode(EmitArgs& args) {
                                                              "1));\n",
                                  edgeArrayName, i);
         if (GrProcessorEdgeTypeIsAA(cpe.getEdgeType())) {
-            fragBuilder->codeAppend("\t\tedge = clamp(edge, 0.0, 1.0);\n");
+            fragBuilder->codeAppend("\t\tedge = saturate(edge);\n");
         } else {
             fragBuilder->codeAppend("\t\tedge = edge >= 0.5 ? 1.0 : 0.0;\n");
         }
