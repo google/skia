@@ -261,7 +261,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
                       indices);
 
     // Draw the vertices.
-    this->drawVertices(target, gp.get(), vertexBuffer, firstVertex, indexBuffer, firstIndex);
+    this->drawVertices(target, std::move(gp), vertexBuffer, firstVertex, indexBuffer, firstIndex);
 }
 
 void GrDrawVerticesOp::drawNonVolatile(Target* target) {
@@ -298,7 +298,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
 
     // Draw using the cached buffers if possible.
     if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->drawVertices(target, gp.get(), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+        this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
         return;
     }
 
@@ -353,7 +353,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
 
     // Draw the vertices.
-    this->drawVertices(target, gp.get(), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+    this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
 }
 
 void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
@@ -465,7 +465,7 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
 }
 
 void GrDrawVerticesOp::drawVertices(Target* target,
-                                    GrGeometryProcessor* gp,
+                                    sk_sp<const GrGeometryProcessor> gp,
                                     const GrBuffer* vertexBuffer,
                                     int firstVertex,
                                     const GrBuffer* indexBuffer,
@@ -480,7 +480,7 @@ void GrDrawVerticesOp::drawVertices(Target* target,
     }
     mesh.setVertexData(vertexBuffer, firstVertex);
     auto pipe = fHelper.makePipeline(target);
-    target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+    target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }
 
 bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {

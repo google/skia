@@ -283,7 +283,7 @@ private:
         }
         auto pipe = fHelper.makePipeline(target, 1);
         pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {

@@ -65,12 +65,12 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline,
+                   sk_sp<const GrGeometryProcessor> geometryProcessor, const GrPipeline* pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState)
             : fMesh(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
-            , fGeometryProcessor(geometryProcessor)
+            , fGeometryProcessor(std::move(geometryProcessor))
             , fPipeline(pipeline)
             , fFixedDynamicState(fixedDynamicState)
             , fIndexBuffer(nullptr)
@@ -314,7 +314,7 @@ private:
     GrMesh fMesh;
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
-    GrGeometryProcessor* fGeometryProcessor;
+    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
     const GrPipeline* fPipeline;
     const GrPipeline::FixedDynamicState* fFixedDynamicState;
 
@@ -428,7 +428,7 @@ private:
             primitiveType = GrPrimitiveType::kTriangles;
         }
         auto pipe = fHelper.makePipeline(target);
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(), pipe.fPipeline,
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp), pipe.fPipeline,
                                       pipe.fFixedDynamicState);
 
         // fill buffers

@@ -9,6 +9,7 @@
 #define GrPrimitiveProcessor_DEFINED
 
 #include "GrColor.h"
+#include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
 #include "GrProxyRef.h"
 #include "GrShaderVar.h"
@@ -41,9 +42,10 @@ class GrGLSLPrimitiveProcessor;
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
  *
- * TODO: Overrides of GrProgramElement virtuals don't do anything anymore. Remove this base class.
+ * TODO: This class does not really need to be ref counted. Instances should be allocated using
+ * GrOpFlushState's arena and destroyed when the arena is torn down.
  */
-class GrPrimitiveProcessor : public GrProcessor, public GrProgramElement {
+class GrPrimitiveProcessor : public GrProcessor, public GrNonAtomicRef<GrPrimitiveProcessor> {
 public:
     class TextureSampler;
 
@@ -138,8 +140,6 @@ public:
 
     virtual float getSampleShading() const { return 0.0; }
 
-    bool instantiate(GrResourceProvider*) const { return true; }
-
 protected:
     void setVertexAttributeCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -166,11 +166,6 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    void addPendingIOs() const final {}
-    void removeRefs() const final {}
-    void pendingIOComplete() const final {}
-    void notifyRefCntIsZero() const final {}
-
     virtual const Attribute& onVertexAttribute(int) const = 0;
     virtual const Attribute& onInstanceAttribute(int) const = 0;
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }

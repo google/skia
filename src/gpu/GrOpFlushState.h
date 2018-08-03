@@ -74,8 +74,8 @@ public:
 
     /** Overrides of GrMeshDrawOp::Target. */
 
-    void draw(const GrGeometryProcessor*, const GrPipeline*, const GrPipeline::FixedDynamicState*,
-              const GrMesh&) final;
+    void draw(sk_sp<const GrGeometryProcessor>, const GrPipeline*,
+              const GrPipeline::FixedDynamicState*, const GrMesh&) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) final;
@@ -124,7 +124,7 @@ private:
             }
         }
         int fMeshCnt = 0;
-        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
+        sk_sp<const GrGeometryProcessor> fGeometryProcessor;
         const GrPipeline* fPipeline;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;

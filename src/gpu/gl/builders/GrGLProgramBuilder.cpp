@@ -33,11 +33,7 @@ GrGLProgram* GrGLProgramBuilder::CreateProgram(const GrPrimitiveProcessor& primP
                                                const GrPipeline& pipeline,
                                                GrProgramDesc* desc,
                                                GrGLGpu* gpu) {
-#ifdef SK_DEBUG
-    GrResourceProvider* resourceProvider = gpu->getContext()->contextPriv().resourceProvider();
-
-    SkASSERT(!pipeline.isBad() && primProc.instantiate(resourceProvider));
-#endif
+    SkASSERT(!pipeline.isBad());
 
     ATRACE_ANDROID_FRAMEWORK("Shader Compile");
     GrAutoLocaleSetter als("C");

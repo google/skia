@@ -292,7 +292,7 @@ private:
             info = this->next(info);
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
