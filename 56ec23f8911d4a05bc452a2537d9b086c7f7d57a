@@ -46,6 +46,30 @@
       "revId": "56ec23f8911d4a05bc452a2537d9b086c7f7d57a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e2f2475_7570d65e",
+        "filename": "infra/bots/recipe_modules/build/wasm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-03T14:05:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb611846_4599f5eb",
+      "range": {
+        "startLine": 15,
+        "startChar": 2,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "56ec23f8911d4a05bc452a2537d9b086c7f7d57a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
