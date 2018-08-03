@@ -204,7 +204,7 @@ private:
         mesh.setVertexData(vertexBuffer, firstVertex);
         auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Mode fMode;

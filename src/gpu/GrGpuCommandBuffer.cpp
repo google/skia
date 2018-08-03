@@ -44,7 +44,7 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
 
     auto resourceProvider = this->gpu()->getContext()->contextPriv().resourceProvider();
 
-    if (pipeline.isBad() || !primProc.instantiate(resourceProvider)) {
+    if (pipeline.isBad()) {
         return false;
     }
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
