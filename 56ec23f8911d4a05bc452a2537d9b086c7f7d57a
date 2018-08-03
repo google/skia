@@ -22,6 +22,30 @@
       "revId": "56ec23f8911d4a05bc452a2537d9b086c7f7d57a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bb611846_4599f5eb",
+        "filename": "infra/bots/recipe_modules/build/wasm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-03T11:55:38Z",
+      "side": 1,
+      "message": "Didn\u0027t run it yet, on the off chance it breaks stuff.  I\u0027ll set up a named cache the proper way when I get into the office.",
+      "parentUuid": "658433af_9c37b5a7",
+      "range": {
+        "startLine": 15,
+        "startChar": 2,
+        "endLine": 15,
+        "endChar": 61
+      },
+      "revId": "56ec23f8911d4a05bc452a2537d9b086c7f7d57a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
