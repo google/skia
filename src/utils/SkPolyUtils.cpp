@@ -756,6 +756,15 @@ static void setup_offset_edge(OffsetEdge* currEdge,
     currEdge->init(startIndex, endIndex);
 }
 
+static bool is_reflex_vertex(const SkPoint* inputPolygonVerts, int winding, SkScalar offset,
+                             uint16_t prevIndex, uint16_t currIndex, uint16_t nextIndex) {
+    int side = compute_side(inputPolygonVerts[prevIndex],
+                            inputPolygonVerts[currIndex] - inputPolygonVerts[prevIndex],
+                            inputPolygonVerts[nextIndex]);
+    // if reflex point, we need to add extra edges
+    return (side*winding*offset < 0);
+}
+
 bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize,
                            std::function<SkScalar(const SkPoint&)> offsetDistanceFunc,
                            SkTDArray<SkPoint>* offsetPolygon, SkTDArray<int>* polygonIndices) {
@@ -777,43 +786,74 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // build normals
     SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
     SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
-    SkScalar currOffset = offsetDistanceFunc(inputPolygonVerts[0]);
+    SkScalar baseOffset = offsetDistanceFunc(inputPolygonVerts[0]);
+    SkScalar currOffset = baseOffset;
     if (!SkScalarIsFinite(currOffset)) {
         return false;
     }
-    for (int curr = 0; curr < inputPolygonSize; ++curr) {
-        if (!inputPolygonVerts[curr].isFinite()) {
+    int numEdges = 0;
+    for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
+         currIndex < inputPolygonSize;
+         prevIndex = currIndex, ++currIndex) {
+        if (!inputPolygonVerts[currIndex].isFinite()) {
             return false;
         }
-        int next = (curr + 1) % inputPolygonSize;
-        SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[next]);
+        int nextIndex = (currIndex + 1) % inputPolygonSize;
+        SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[nextIndex]);
+        // all offsets should either inset or outset
+        if (currOffset*nextOffset < 0) {
+            return false;
+        }
         if (!SkScalarIsFinite(nextOffset)) {
             return false;
         }
-        if (!compute_offset_vectors(inputPolygonVerts[curr], inputPolygonVerts[next],
+        if (!compute_offset_vectors(inputPolygonVerts[currIndex], inputPolygonVerts[nextIndex],
                                     currOffset, nextOffset, winding,
-                                    &normal0[curr], &normal1[next])) {
+                                    &normal0[currIndex], &normal1[nextIndex])) {
             return false;
         }
+        if (currIndex > 0) {
+            // if reflex point, we need to add extra edges
+            if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset,
+                                 prevIndex, currIndex, nextIndex)) {
+                SkScalar rotSin, rotCos;
+                int numSteps;
+                if (!SkComputeRadialSteps(normal1[currIndex], normal0[currIndex],
+                                          normal0[currIndex].length(),
+                                          &rotSin, &rotCos, &numSteps)) {
+                    return false;
+                }
+                numEdges += SkTMax(numSteps, 1);
+            }
+        }
+        numEdges++;
         currOffset = nextOffset;
+    }
+    // finish up the edge counting
+    if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset, inputPolygonSize-1, 0, 1)) {
+        SkScalar rotSin, rotCos;
+        int numSteps;
+        if (!SkComputeRadialSteps(normal1[0], normal0[0], currOffset,
+                                  &rotSin, &rotCos, &numSteps)) {
+            return false;
+        }
+        numEdges += SkTMax(numSteps, 1);
     }
 
     // build initial offset edge list
-    SkSTArray<64, OffsetEdge> edgeData(inputPolygonSize);
-    uint16_t prevIndex = inputPolygonSize - 1;
-    uint16_t currIndex = 0;
-    uint16_t nextIndex = 1;
-    while (currIndex < inputPolygonSize) {
-        int side = compute_side(inputPolygonVerts[prevIndex],
-                                inputPolygonVerts[currIndex] - inputPolygonVerts[prevIndex],
-                                inputPolygonVerts[nextIndex]);
-        SkScalar offset = offsetDistanceFunc(inputPolygonVerts[currIndex]);
+    SkSTArray<64, OffsetEdge> edgeData(numEdges);
+    OffsetEdge* prevEdge = nullptr;
+    for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
+         currIndex < inputPolygonSize;
+         prevIndex = currIndex, ++currIndex) {
+        int nextIndex = (currIndex + 1) % inputPolygonSize;
         // if reflex point, fill in curve
-        if (side*winding*offset < 0) {
+        if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset,
+                             prevIndex, currIndex, nextIndex)) {
             SkScalar rotSin, rotCos;
             int numSteps;
             SkVector prevNormal = normal1[currIndex];
-            if (!SkComputeRadialSteps(prevNormal, normal0[currIndex], SkScalarAbs(offset),
+            if (!SkComputeRadialSteps(prevNormal, normal0[currIndex], normal0[currIndex].length(),
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
@@ -826,48 +866,51 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
                                   inputPolygonVerts[currIndex] + currNormal,
                                   currIndex, currIndex);
                 prevNormal = currNormal;
+                currEdge->fPrev = prevEdge;
+                if (prevEdge) {
+                    prevEdge->fNext = currEdge;
+                }
+                prevEdge = currEdge;
                 ++currEdge;
             }
             setup_offset_edge(currEdge,
                               inputPolygonVerts[currIndex] + prevNormal,
                               inputPolygonVerts[currIndex] + normal0[currIndex],
                               currIndex, currIndex);
-            ++currEdge;
+            currEdge->fPrev = prevEdge;
+            if (prevEdge) {
+                prevEdge->fNext = currEdge;
+            }
+            prevEdge = currEdge;
         }
 
         // Add the edge
-        auto edge = edgeData.push_back_n(1);
-        setup_offset_edge(edge,
+        auto currEdge = edgeData.push_back_n(1);
+        setup_offset_edge(currEdge,
                           inputPolygonVerts[currIndex] + normal0[currIndex],
                           inputPolygonVerts[nextIndex] + normal1[nextIndex],
                           currIndex, nextIndex);
-
-        prevIndex = currIndex;
-        currIndex++;
-        nextIndex = (nextIndex + 1) % inputPolygonSize;
+        currEdge->fPrev = prevEdge;
+        if (prevEdge) {
+            prevEdge->fNext = currEdge;
+        }
+        prevEdge = currEdge;
     }
-
-    // build linked list
-    // we have to do this as a post-process step because we might have reallocated
-    // the array when adding fans for reflex verts
-    prevIndex = edgeData.count()-1;
-    for (int currIndex = 0; currIndex < edgeData.count(); prevIndex = currIndex, ++currIndex) {
-        int nextIndex = (currIndex + 1) % edgeData.count();
-        edgeData[currIndex].fPrev = &edgeData[prevIndex];
-        edgeData[currIndex].fNext = &edgeData[nextIndex];
-    }
+    // close up the linked list
+    SkASSERT(prevEdge);
+    prevEdge->fNext = &edgeData[0];
+    edgeData[0].fPrev = prevEdge;
 
     // now clip edges
-    int edgeDataSize = edgeData.count();
+    SkASSERT(edgeData.count() == numEdges);
     auto head = &edgeData[0];
     auto currEdge = head;
-    auto prevEdge = currEdge->fPrev;
-    int offsetVertexCount = edgeDataSize;
+    int offsetVertexCount = numEdges;
     int iterations = 0;
     while (head && prevEdge != currEdge) {
         ++iterations;
         // we should check each edge against each other edge at most once
-        if (iterations > edgeDataSize*edgeDataSize) {
+        if (iterations > numEdges*numEdges) {
             return false;
         }
 
