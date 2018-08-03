@@ -215,7 +215,8 @@ struct Token {
 
     Token() : fKind(Kind::INVALID), fOffset(-1), fLength(-1) {}
 
-    Token(Kind kind, int offset, int length) : fKind(kind), fOffset(offset), fLength(length) {}
+    Token(Kind kind, int32_t offset, int32_t length)
+            : fKind(kind), fOffset(offset), fLength(length) {}
 
     Kind fKind;
     int fOffset;
@@ -224,7 +225,7 @@ struct Token {
 
 class Lexer {
 public:
-    void start(const char* text, size_t length) {
+    void start(const char* text, int32_t length) {
         fText = text;
         fLength = length;
         fOffset = 0;
@@ -234,9 +235,9 @@ public:
 
 private:
     const char* fText;
-    int fLength;
-    int fOffset;
+    int32_t fLength;
+    int32_t fOffset;
 };
 
-}  // namespace SkSL
+}  // namespace
 #endif
