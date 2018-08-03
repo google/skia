@@ -14,6 +14,7 @@ from . import chromecast
 from . import default
 from . import flutter
 from . import util
+from . import wasm
 
 
 class BuildApi(recipe_api.RecipeApi):
@@ -31,6 +32,9 @@ class BuildApi(recipe_api.RecipeApi):
     elif 'Flutter' in b:
       self.compile_fn = flutter.compile_fn
       self.copy_fn = flutter.copy_extra_build_products
+    elif 'EMCC' in b:
+      self.compile_fn = wasm.compile_fn
+      self.copy_fn = wasm.copy_extra_build_products
     else:
       self.compile_fn = default.compile_fn
       self.copy_fn = default.copy_extra_build_products

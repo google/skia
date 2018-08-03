@@ -49,7 +49,6 @@ def compile_fn(api, checkout_root, out_dir):
   target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
   clang_linux        = str(api.vars.slave_dir.join('clang_linux'))
-  emscripten_sdk     = str(api.vars.slave_dir.join('emscripten_sdk'))
   linux_vulkan_sdk   = str(api.vars.slave_dir.join('linux_vulkan_sdk'))
   win_toolchain = str(api.vars.slave_dir.join(
     't', 'depot_tools', 'win_toolchain', 'vs_files',
@@ -109,12 +108,7 @@ def compile_fn(api, checkout_root, out_dir):
       })
     else:
       cc, cxx = 'gcc', 'g++'
-  elif compiler == 'EMCC':
-    cc   = emscripten_sdk + '/emscripten/incoming/emcc'
-    cxx  = emscripten_sdk + '/emscripten/incoming/em++'
-    extra_cflags.append('-Wno-unknown-warning-option')
-    extra_cflags.append('-DDUMMY_emscripten_sdk_version=%s' %
-                        api.run.asset_version('emscripten_sdk', skia_dir))
+
   if 'Coverage' in extra_tokens:
     # See https://clang.llvm.org/docs/SourceBasedCodeCoverage.html for
     # more info on using llvm to gather coverage information.
@@ -229,14 +223,6 @@ def compile_fn(api, checkout_root, out_dir):
     args['clang_win'] = '"%s"' % api.vars.slave_dir.join('clang_win')
     extra_cflags.append('-DDUMMY_clang_win_version=%s' %
                         api.run.asset_version('clang_win', skia_dir))
-  if target_arch == 'wasm':
-    args.update({
-      'skia_use_freetype':   'false',
-      'skia_use_fontconfig': 'false',
-      'skia_use_dng_sdk':    'false',
-      'skia_use_icu':        'false',
-      'skia_enable_gpu':     'false',
-    })
 
   sanitize = ''
   for t in extra_tokens:
@@ -276,9 +262,6 @@ def compile_fn(api, checkout_root, out_dir):
               'fetch-clang-format',
               script=skia_dir.join('bin', 'fetch-clang-format'),
               infra_step=True)
-    if target_arch == 'wasm':
-      fastcomp = emscripten_sdk + '/clang/fastcomp/build_incoming_64/bin'
-      env['PATH'] = '%s:%%(PATH)s' % fastcomp
 
     with api.env(env):
       api.run(api.step, 'gn gen',

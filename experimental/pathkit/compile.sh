@@ -7,7 +7,7 @@
 
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 HTML_SHELL=$BASE_DIR/shell.html
-BUILD_DIR="out/pathkit"
+BUILD_DIR=${BUILD_DIR:="out/pathkit"}
 
 # This expects the environment variable EMSDK to be set
 if [[ ! -d $EMSDK ]]; then
@@ -18,6 +18,8 @@ fi
 # Navigate to SKIA_HOME from where this file is located.
 pushd $BASE_DIR/../..
 
+echo "Putting output in $BUILD_DIR (pwd = `pwd`)"
+
 # Run this from $SKIA_HOME, not from the directory this file is in.
 if [[ ! -d ./src ]]; then
   echo "Cannot locate Skia source. Is the source checkout okay? Exiting."
@@ -27,9 +29,11 @@ fi
 if [[ $@ == *help* ]]; then
   echo "By default, this script builds a production WASM build of PathKit."
   echo ""
+  echo "It is put in ${BUILD_DIR}, configured by the BUILD_DIR environment"
+  echo "variable. Additionally, the EMSDK environment variable must be set."
   echo "This script takes several optional parameters:"
   echo "  dev = Make a build suitable for running tests or debugging"
-  echo "  asm.js = Build for asm.js instead of WASM"
+  echo "  asm.js = Build for asm.js instead of WASM (very experimental)"
   echo "  serve = starts a webserver allowing a user to navigate to"
   echo "          localhost:8000/pathkit.html to view the demo page."
   exit 0
@@ -51,7 +55,6 @@ if [[ $@ == *asm.js* ]]; then
 fi
 
 OUTPUT="-o $BUILD_DIR/pathkit.js"
-
 source $EMSDK/emsdk_env.sh
 
 echo "Compiling"
