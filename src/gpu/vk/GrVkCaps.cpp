@@ -13,16 +13,23 @@
 #include "GrVkInterface.h"
 #include "GrVkUtil.h"
 #include "vk/GrVkBackendContext.h"
+#include "vk/GrVkExtensions.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features,
-                   uint32_t instanceVersion)
+                   uint32_t instanceVersion, const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
     fMustDoCopiesFromOrigin = false;
     fMustSubmitCommandsBeforeCopyOp = false;
     fMustSleepOnTearDown  = false;
     fNewCBOnPipelineChange = false;
     fShouldAlwaysUseDedicatedImageMemory = false;
+
+    fSupportsPhysicalDeviceProperties2 = false;
+    fSupportsMemoryRequirements2 = false;
+    fSupportsMaintenance1 = false;
+    fSupportsMaintenance2 = false;
+    fSupportsMaintenance3 = false;
 
     /**************************************************************************
     * GrDrawTargetCaps fields
@@ -48,7 +55,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
-    this->init(contextOptions, vkInterface, physDev, features);
+    this->init(contextOptions, vkInterface, physDev, features, extensions);
 }
 
 bool GrVkCaps::initDescForDstCopy(const GrRenderTargetProxy* src, GrSurfaceDesc* desc,
@@ -196,13 +203,41 @@ bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features) {
+                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features,
+                    const GrVkExtensions& extensions) {
 
     VkPhysicalDeviceProperties properties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties(physDev, &properties));
 
     VkPhysicalDeviceMemoryProperties memoryProperties;
     GR_VK_CALL(vkInterface, GetPhysicalDeviceMemoryProperties(physDev, &memoryProperties));
+
+    uint32_t physicalDeviceVersion = properties.apiVersion;
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
+        fSupportsPhysicalDeviceProperties2 = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME, 1)) {
+        fSupportsMemoryRequirements2 = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
+        fSupportsMaintenance1 = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_MAINTENANCE2_EXTENSION_NAME, 1)) {
+        fSupportsMaintenance2 = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
+        fSupportsMaintenance3 = true;
+    }
 
     this->initGrCaps(properties, memoryProperties, features);
     this->initShaderCaps(properties, features);

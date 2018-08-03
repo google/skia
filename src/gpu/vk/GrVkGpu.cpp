@@ -66,14 +66,30 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         return nullptr;
     }
 
+    PFN_vkGetPhysicalDeviceProperties localGetPhysicalDeviceProperties =
+            reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(
+                    backendContext.fGetProc("vkGetPhysicalDeviceProperties",
+                                            backendContext.fInstance,
+                                            VK_NULL_HANDLE));
+
+    if (!localGetPhysicalDeviceProperties) {
+        return nullptr;
+    }
+    VkPhysicalDeviceProperties physDeviceProperties;
+    localGetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &physDeviceProperties);
+    uint32_t physDevVersion = physDeviceProperties.apiVersion;
+
     sk_sp<const GrVkInterface> interface;
 
     if (backendContext.fVkExtensions) {
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,
+                                          backendContext.fInstanceVersion,
+                                          physDevVersion,
                                           backendContext.fVkExtensions));
-        if (!interface->validate(backendContext.fVkExtensions)) {
+        if (!interface->validate(backendContext.fInstanceVersion, physDevVersion,
+                                 backendContext.fVkExtensions)) {
             return nullptr;
         }
     } else {
@@ -83,8 +99,10 @@ sk_sp<GrGpu> GrVkGpu::Make(const GrVkBackendContext& backendContext,
         interface.reset(new GrVkInterface(backendContext.fGetProc,
                                           backendContext.fInstance,
                                           backendContext.fDevice,
+                                          backendContext.fInstanceVersion,
+                                          physDevVersion,
                                           &extensions));
-        if (!interface->validate(&extensions)) {
+        if (!interface->validate(backendContext.fInstanceVersion, physDevVersion, &extensions)) {
             return nullptr;
         }
     }
@@ -118,8 +136,10 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
                                                                : backendContext.fMinAPIVersion;
 
     if (backendContext.fFeatures & kIgnoreAllFlags_GrVkFeatureFlag) {
+        SkASSERT(backendContext.fVkExtensions);
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   backendContext.fDeviceFeatures, instanceVersion));
+                                   backendContext.fDeviceFeatures, instanceVersion,
+                                   *backendContext.fVkExtensions));
     } else {
         VkPhysicalDeviceFeatures features;
         if (backendContext.fFeatures & kGeometryShader_GrVkFeatureFlag) {
@@ -132,7 +152,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
             features.sampleRateShading = true;
         }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   features, instanceVersion));
+                                   features, instanceVersion, GrVkExtensions()));
     }
     fCaps.reset(SkRef(fVkCaps.get()));
 

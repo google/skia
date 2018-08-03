@@ -76,7 +76,21 @@ void VulkanWindowContext::initializeContext() {
     fDevice = backendContext.fDevice;
     fGraphicsQueueIndex = backendContext.fGraphicsQueueIndex;
     fGraphicsQueue = backendContext.fQueue;
+
+    PFN_vkGetPhysicalDeviceProperties localGetPhysicalDeviceProperties =
+            reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(
+                    backendContext.fGetProc("vkGetPhysicalDeviceProperties",
+                                            backendContext.fInstance,
+                                            VK_NULL_HANDLE));
+    if (!localGetPhysicalDeviceProperties) {
+        return;
+    }
+    VkPhysicalDeviceProperties physDeviceProperties;
+    localGetPhysicalDeviceProperties(backendContext.fPhysicalDevice, &physDeviceProperties);
+    uint32_t physDevVersion = physDeviceProperties.apiVersion;
+
     fInterface.reset(new GrVkInterface(backendContext.fGetProc, fInstance, fDevice,
+                                       backendContext.fInstanceVersion, physDevVersion,
                                        &extensions));
 
     GET_PROC(DestroyInstance);
