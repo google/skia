@@ -91,13 +91,13 @@ void main() {
             alpha = approx_dist > 0.0 ? 0.0 : 1.0;
             break;
         case GrClipEdgeType::kFillAA:
-            alpha = clamp(0.5 - approx_dist, 0.0, 1.0);
+            alpha = saturate(0.5 - approx_dist);
             break;
         case GrClipEdgeType::kInverseFillBW:
             alpha = approx_dist > 0.0 ? 1.0 : 0.0;
             break;
         case GrClipEdgeType::kInverseFillAA:
-            alpha = clamp(0.5 + approx_dist, 0.0, 1.0);
+            alpha = saturate(0.5 + approx_dist);
             break;
         default:
             // hairline not supported

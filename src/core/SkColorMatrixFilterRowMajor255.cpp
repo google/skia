@@ -221,7 +221,7 @@ private:
                                      uniformHandler->getUniformCStr(fMatrixHandle),
                                      args.fInputColor,
                                      uniformHandler->getUniformCStr(fVectorHandle));
-            fragBuilder->codeAppendf("\t%s = clamp(%s, 0.0, 1.0);\n",
+            fragBuilder->codeAppendf("\t%s = saturate(%s);\n",
                                      args.fOutputColor, args.fOutputColor);
             fragBuilder->codeAppendf("\t%s.rgb *= %s.a;\n", args.fOutputColor, args.fOutputColor);
         }

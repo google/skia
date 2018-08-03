@@ -1025,7 +1025,7 @@ void GrGradientEffect::GLSLProcessor::emitAnalyticalColor(GrGLSLFPFragmentBuilde
                     break;
                 default:
                     // regular [0, 1] clamping
-                    fragBuilder->codeAppendf("half tiled_t = clamp(%s, 0.0, 1.0);", t);
+                    fragBuilder->codeAppendf("half tiled_t = saturate(%s);", t);
             }
             break;
         case GrSamplerState::WrapMode::kRepeat:

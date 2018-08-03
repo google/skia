@@ -166,27 +166,27 @@ private:
 
             fragBuilder->codeAppend("float d = length(circleEdge.xy);");
             fragBuilder->codeAppend("half distanceToOuterEdge = circleEdge.z * (1.0 - d);");
-            fragBuilder->codeAppend("half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);");
+            fragBuilder->codeAppend("half edgeAlpha = saturate(distanceToOuterEdge);");
             if (cgp.fStroke) {
                 fragBuilder->codeAppend(
                         "half distanceToInnerEdge = circleEdge.z * (d - circleEdge.w);");
-                fragBuilder->codeAppend("half innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);");
+                fragBuilder->codeAppend("half innerAlpha = saturate(distanceToInnerEdge);");
                 fragBuilder->codeAppend("edgeAlpha *= innerAlpha;");
             }
 
             if (cgp.fInClipPlane.isInitialized()) {
                 fragBuilder->codeAppend(
-                        "half clip = clamp(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
-                        "clipPlane.z, 0.0, 1.0);");
+                        "half clip = saturate(circleEdge.z * dot(circleEdge.xy, clipPlane.xy) + "
+                        "clipPlane.z);");
                 if (cgp.fInIsectPlane.isInitialized()) {
                     fragBuilder->codeAppend(
-                            "clip *= clamp(circleEdge.z * dot(circleEdge.xy, isectPlane.xy) + "
-                            "isectPlane.z, 0.0, 1.0);");
+                            "clip *= saturate(circleEdge.z * dot(circleEdge.xy, isectPlane.xy) + "
+                            "isectPlane.z);");
                 }
                 if (cgp.fInUnionPlane.isInitialized()) {
                     fragBuilder->codeAppend(
-                            "clip = clamp(clip + clamp(circleEdge.z * dot(circleEdge.xy, "
-                            "unionPlane.xy) + unionPlane.z, 0.0, 1.0), 0.0, 1.0);");
+                            "clip = saturate(clip + saturate(circleEdge.z * dot(circleEdge.xy, "
+                            "unionPlane.xy) + unionPlane.z));");
                 }
                 fragBuilder->codeAppend("edgeAlpha *= clip;");
                 if (cgp.fInRoundCapCenters.isInitialized()) {
@@ -403,7 +403,7 @@ private:
                     float linearDist;
                     angleToEdge = clamp(angleToEdge, -3.1415, 3.1415);
                     linearDist = diameter * sin(angleToEdge / 2);
-                    return clamp(linearDist + 0.5, 0, 1);
+                    return saturate(linearDist + 0.5);
             )",
                                       &fnName);
             fragBuilder->codeAppend(R"(
@@ -411,9 +411,9 @@ private:
 
                     // Compute coverage from outer/inner edges of the stroke.
                     half distanceToOuterEdge = circleEdge.z - d;
-                    half edgeAlpha = clamp(distanceToOuterEdge, 0.0, 1.0);
+                    half edgeAlpha = saturate(distanceToOuterEdge);
                     half distanceToInnerEdge = d - circleEdge.z * circleEdge.w;
-                    half innerAlpha = clamp(distanceToInnerEdge, 0.0, 1.0);
+                    half innerAlpha = saturate(distanceToInnerEdge);
                     edgeAlpha *= innerAlpha;
 
                     half angleFromStart = atan(circleEdge.y, circleEdge.x) - dashParams.z;
@@ -597,7 +597,7 @@ private:
             // avoid calling inversesqrt on zero.
             fragBuilder->codeAppend("grad_dot = max(grad_dot, 1.0e-4);");
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
-            fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+            fragBuilder->codeAppend("half edgeAlpha = saturate(0.5-test*invlen);");
 
             // for inner curve
             if (egp.fStroke) {
@@ -606,7 +606,7 @@ private:
                 fragBuilder->codeAppend("test = dot(offset, offset) - 1.0;");
                 fragBuilder->codeAppendf("grad = 2.0*offset*%s.zw;", ellipseRadii.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
-                fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 
             fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
@@ -751,10 +751,10 @@ private:
             fragBuilder->codeAppend("half invlen = inversesqrt(grad_dot);");
             if (DIEllipseStyle::kHairline == diegp.fStyle) {
                 // can probably do this with one step
-                fragBuilder->codeAppend("half edgeAlpha = clamp(1.0-test*invlen, 0.0, 1.0);");
-                fragBuilder->codeAppend("edgeAlpha *= clamp(1.0+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("half edgeAlpha = saturate(1.0-test*invlen);");
+                fragBuilder->codeAppend("edgeAlpha *= saturate(1.0+test*invlen);");
             } else {
-                fragBuilder->codeAppend("half edgeAlpha = clamp(0.5-test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("half edgeAlpha = saturate(0.5-test*invlen);");
             }
 
             // for inner curve
@@ -768,7 +768,7 @@ private:
                         "             2.0*%s.x*duvdy.x + 2.0*%s.y*duvdy.y);",
                         offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn(), offsets1.fsIn());
                 fragBuilder->codeAppend("invlen = inversesqrt(dot(grad, grad));");
-                fragBuilder->codeAppend("edgeAlpha *= clamp(0.5+test*invlen, 0.0, 1.0);");
+                fragBuilder->codeAppend("edgeAlpha *= saturate(0.5+test*invlen);");
             }
 
             fragBuilder->codeAppendf("%s = half4(edgeAlpha);", args.fOutputCoverage);
