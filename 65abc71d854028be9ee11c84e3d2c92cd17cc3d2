@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "229b5fdf_46734b9b",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-03T21:11:06Z",
+      "side": 1,
+      "message": "The CL makes sense to me except for this -- I guess this is a merge of drawGlyphRunAsSubpixelMask and drawGlyphRunAsFullpixelMask?",
+      "range": {
+        "startLine": 157,
+        "startChar": 5,
+        "endLine": 157,
+        "endChar": 53
+      },
+      "revId": "65abc71d854028be9ee11c84e3d2c92cd17cc3d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
