@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cf546f91_353d11e6",
+        "filename": "experimental/pathkit/docker/emsdk-base/Dockerfile",
+        "patchSetId": 14
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T14:19:47Z",
+      "side": 1,
+      "message": "Just curious why these are capitalized.",
+      "range": {
+        "startLine": 24,
+        "startChar": 13,
+        "endLine": 24,
+        "endChar": 22
+      },
+      "revId": "b58ba742dcd884c43d8a9443072974df59fc7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "585bff6e_5924cdba",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T14:19:47Z",
+      "side": 1,
+      "message": "Rather than requesting this on every task, let\u0027s just use it on the EMCC one.",
+      "range": {
+        "startLine": 137,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 4
+      },
+      "revId": "b58ba742dcd884c43d8a9443072974df59fc7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93a66c50_ac56ccef",
+        "filename": "infra/bots/recipe_modules/build/wasm.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-03T14:19:47Z",
+      "side": 1,
+      "message": "Just curious, is this that can be done but isn\u0027t, or is there some reason why it can/should not be done?",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 73
+      },
+      "revId": "b58ba742dcd884c43d8a9443072974df59fc7771",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
