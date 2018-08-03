@@ -92,6 +92,7 @@
   "Build-Win-Clang-x86-Release",
   "Build-Win-Clang-x86_64-Debug",
   "Build-Win-Clang-x86_64-Debug-ANGLE",
+  "Build-Win-Clang-x86_64-Debug-OpenCL",
   "Build-Win-Clang-x86_64-Debug-UBSAN",
   "Build-Win-Clang-x86_64-Debug-Vulkan",
   "Build-Win-Clang-x86_64-Release",
