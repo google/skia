@@ -12,7 +12,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingIOResource.h"
-#include "GrPendingProgramElement.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrRect.h"
