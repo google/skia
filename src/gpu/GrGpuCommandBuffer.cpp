@@ -47,6 +47,11 @@ bool GrGpuRTCommandBuffer::draw(const GrPrimitiveProcessor& primProc, const GrPi
     if (pipeline.isBad() || !primProc.instantiate(resourceProvider)) {
         return false;
     }
+    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+        if (!fixedDynamicState->fPrimitiveProcessorTextures[i]->instantiate(resourceProvider)) {
+            return false;
+        }
+    }
 
     if (primProc.numVertexAttributes() > this->gpu()->caps()->maxVertexAttributes()) {
         this->gpu()->stats()->incNumFailedDraws();

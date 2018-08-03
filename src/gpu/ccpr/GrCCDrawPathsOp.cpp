@@ -312,7 +312,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
     }
 }
 
-inline void GrCCDrawPathsOp::recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx) {
+inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
     if (fInstanceRanges.empty()) {
         fInstanceRanges.push_back({atlasProxy, instanceIdx});
         return;
@@ -347,8 +347,9 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
     for (const InstanceRange& range : fInstanceRanges) {
         SkASSERT(range.fEndInstanceIdx > baseInstance);
 
-        GrCCPathProcessor pathProc(flushState->resourceProvider(), sk_ref_sp(range.fAtlasProxy),
-                                   fViewMatrixIfUsingLocalCoords);
+        GrCCPathProcessor pathProc(range.fAtlasProxy, fViewMatrixIfUsingLocalCoords);
+        GrTextureProxy* atlasProxy = range.fAtlasProxy;
+        fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
                            range.fEndInstanceIdx, this->bounds());
 

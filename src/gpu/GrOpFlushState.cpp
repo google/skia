@@ -129,6 +129,9 @@ void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipel
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
 
+    for (int i = 0; i < gp->numTextureSamplers(); ++i) {
+        fixedDynamicState->fPrimitiveProcessorTextures[i]->addPendingRead();
+    }
     draw.fGeometryProcessor.reset(gp);
     draw.fPipeline = pipeline;
     draw.fFixedDynamicState = fixedDynamicState;

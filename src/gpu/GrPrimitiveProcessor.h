@@ -36,10 +36,12 @@ class GrCoordTransform;
 
 class GrGLSLPrimitiveProcessor;
 
-/*
+/**
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
+ *
+ * TODO: Overrides of GrProgramElement virtuals don't do anything anymore. Remove this base class.
  */
 class GrPrimitiveProcessor : public GrProcessor, public GrProgramElement {
 public:
@@ -136,7 +138,7 @@ public:
 
     virtual float getSampleShading() const { return 0.0; }
 
-    bool instantiate(GrResourceProvider*) const;
+    bool instantiate(GrResourceProvider*) const { return true; }
 
 protected:
     void setVertexAttributeCnt(int cnt) {
@@ -164,9 +166,9 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    void addPendingIOs() const final;
-    void removeRefs() const final;
-    void pendingIOComplete() const final;
+    void addPendingIOs() const final {}
+    void removeRefs() const final {}
+    void pendingIOComplete() const final {}
     void notifyRefCntIsZero() const final {}
 
     virtual const Attribute& onVertexAttribute(int) const = 0;
@@ -190,9 +192,9 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&, GrShaderFlags visibility);
+    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, GrShaderFlags visibility);
 
-    explicit TextureSampler(sk_sp<GrTextureProxy>,
+    explicit TextureSampler(GrTextureType, GrPixelConfig,
                             GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                             GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
@@ -200,36 +202,25 @@ public:
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(sk_sp<GrTextureProxy>, const GrSamplerState&,
+    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(sk_sp<GrTextureProxy>,
+    void reset(GrTextureType, GrPixelConfig,
                GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
-    bool instantiate(GrResourceProvider* resourceProvider) const {
-        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
-    }
+    GrTextureType textureType() const { return fTextureType; }
+    GrPixelConfig config() const { return fConfig; }
 
-    // 'peekTexture' should only ever be called after a successful 'instantiate' call
-    GrTexture* peekTexture() const {
-        SkASSERT(fProxyRef.get()->peekTexture());
-        return fProxyRef.get()->peekTexture();
-    }
-
-    GrTextureProxy* proxy() const { return fProxyRef.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
-    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
-    /**
-     * For internal use by GrPrimitiveProcessor.
-     */
-    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
+    bool isInitialized() const { return fConfig != kUnknown_GrPixelConfig; }
 
 private:
-    GrTextureProxyRef fProxyRef;
     GrSamplerState fSamplerState;
+    GrTextureType fTextureType = GrTextureType::k2D;
+    GrPixelConfig fConfig = kUnknown_GrPixelConfig;
     GrShaderFlags fVisibility = kNone_GrShaderFlags;
 };
 

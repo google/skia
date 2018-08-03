@@ -76,8 +76,11 @@ public:
      * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
      **/
     struct FixedDynamicState {
-        FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
-        SkIRect fScissorRect;
+        explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
+        FixedDynamicState() = default;
+        SkIRect fScissorRect = SkIRect::EmptyIRect();
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**

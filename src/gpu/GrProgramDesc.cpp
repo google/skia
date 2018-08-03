@@ -80,8 +80,7 @@ static void add_sampler_keys(GrProcessorKeyBuilder* b, const GrPrimitiveProcesso
     uint16_t* k16 = reinterpret_cast<uint16_t*>(b->add32n(word32Count));
     for (int i = 0; i < numTextureSamplers; ++i) {
         const GrPrimitiveProcessor::TextureSampler& sampler = pp.textureSampler(i);
-        const GrTexture* tex = sampler.peekTexture();
-        k16[i] = sampler_key(tex->texturePriv().textureType(), tex->config(), caps);
+        k16[i] = sampler_key(sampler.textureType(), sampler.config(), caps);
     }
     // zero the last 16 bits if the number of uniforms for samplers is odd.
     if (numTextureSamplers & 0x1) {

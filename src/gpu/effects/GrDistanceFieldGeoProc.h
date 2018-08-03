@@ -53,6 +53,8 @@ enum GrDistanceFieldEffectFlags {
  */
 class GrDistanceFieldA8TextGeoProc : public GrGeometryProcessor {
 public:
+    static constexpr int kMaxTextures = 4;
+
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
 #ifdef SK_GAMMA_APPLY_TO_A8
     static sk_sp<GrGeometryProcessor> Make(const sk_sp<GrTextureProxy>* proxies,
@@ -84,6 +86,7 @@ public:
     float getDistanceAdjust() const { return fDistanceAdjust; }
 #endif
     uint32_t getFlags() const { return fFlags; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>* proxies, int numProxies, const GrSamplerState&);
 
@@ -106,9 +109,8 @@ private:
 
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
-    static constexpr int kMaxTextures = 4;
-
     TextureSampler   fTextureSamplers[kMaxTextures];
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     SkMatrix         fLocalMatrix;
     Attribute        fInPosition;
     uint32_t         fFlags;
@@ -132,6 +134,7 @@ private:
  */
 class GrDistanceFieldPathGeoProc : public GrGeometryProcessor {
 public:
+    static constexpr int kMaxTextures = 4;
 
     /** The local matrix should be identity if local coords are not required by the GrPipeline. */
     static sk_sp<GrGeometryProcessor> Make(const SkMatrix& matrix,
@@ -151,6 +154,7 @@ public:
     const Attribute& inTextureCoords() const { return kInTextureCoords; }
     const SkMatrix& matrix() const { return fMatrix; }
     uint32_t getFlags() const { return fFlags; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -159,8 +163,6 @@ public:
     GrGLSLPrimitiveProcessor* createGLSLInstance(const GrShaderCaps&) const override;
 
 private:
-    static constexpr int kMaxTextures = 4;
-
     GrDistanceFieldPathGeoProc(const SkMatrix& matrix,
                                const sk_sp<GrTextureProxy>* proxies,
                                int numActiveProxies,
@@ -169,8 +171,9 @@ private:
     const Attribute& onVertexAttribute(int i) const override;
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
-    SkMatrix         fMatrix;      // view matrix if perspective, local matrix otherwise
+    SkMatrix         fMatrix;     // view matrix if perspective, local matrix otherwise
     TextureSampler   fTextureSamplers[kMaxTextures];
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     uint32_t         fFlags;
     static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
     static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
@@ -189,6 +192,8 @@ private:
  */
 class GrDistanceFieldLCDTextGeoProc : public GrGeometryProcessor {
 public:
+    static constexpr int kMaxTextures = 4;
+
     struct DistanceAdjust {
         SkScalar fR, fG, fB;
         static DistanceAdjust Make(SkScalar r, SkScalar g, SkScalar b) {
@@ -225,6 +230,7 @@ public:
     DistanceAdjust getDistanceAdjust() const { return fDistanceAdjust; }
     uint32_t getFlags() const { return fFlags; }
     const SkMatrix& localMatrix() const { return fLocalMatrix; }
+    const SkISize& atlasSize() const { return fAtlasSize; }
 
     void addNewProxies(const sk_sp<GrTextureProxy>*, int numActiveProxies, const GrSamplerState&);
 
@@ -240,9 +246,8 @@ private:
     const Attribute& onVertexAttribute(int) const override;
     const TextureSampler& onTextureSampler(int i) const override { return fTextureSamplers[i]; }
 
-    static constexpr int kMaxTextures = 4;
-
     TextureSampler   fTextureSamplers[kMaxTextures];
+    SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     const SkMatrix   fLocalMatrix;
     DistanceAdjust   fDistanceAdjust;
     Attribute        fInPosition;
