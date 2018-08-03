@@ -22,6 +22,30 @@
       "revId": "eb4b5d87c4bf38703be319c1b1a2fdd293cc2f92",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a8390d2c_9e7d91e0",
+        "filename": "src/effects/SkTableColorFilter.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-03T14:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28c67962_da508180",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 35
+      },
+      "revId": "eb4b5d87c4bf38703be319c1b1a2fdd293cc2f92",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
