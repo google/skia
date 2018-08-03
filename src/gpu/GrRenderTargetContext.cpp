@@ -273,9 +273,22 @@ void GrRenderTargetContext::discard() {
     this->getRTOpList()->discard();
 }
 
+bool GrRenderTargetContext::isPartialClear(const SkIRect* rect) const {
+    return rect && !rect->contains(SkIRect::MakeWH(this->width(), this->height()));
+}
+
 void GrRenderTargetContext::clear(const SkIRect* rect,
                                   const GrColor color,
                                   CanClearFullscreen canClearFullscreen) {
+    if (this->caps()->useDrawForClear() && this->isPartialClear(rect)) {
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        GrFixedClip clip;
+        clip.setScissor(*rect);
+        this->drawPaint(clip, std::move(paint), SkMatrix::I());
+        return;
+    }
+
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -287,6 +300,17 @@ void GrRenderTargetContext::clear(const SkIRect* rect,
 }
 
 void GrRenderTargetContextPriv::absClear(const SkIRect* clearRect, const GrColor color) {
+
+    if (fRenderTargetContext->caps()->useDrawForClear() &&
+            fRenderTargetContext->isPartialClear(clearRect)) {
+        GrPaint paint;
+        paint.setColor4f(GrColor4f::FromGrColor(color));
+        GrFixedClip clip;
+        clip.setScissor(*clearRect);
+        fRenderTargetContext->drawPaint(clip, std::move(paint), SkMatrix::I());
+        return;
+    }
+
     ASSERT_SINGLE_OWNER_PRIV
     RETURN_IF_ABANDONED_PRIV
     SkDEBUGCODE(fRenderTargetContext->validate();)

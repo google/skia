@@ -35,6 +35,7 @@ class GrGpu;
 class GrIndexBuffer;
 struct GrMockOptions;
 class GrOpMemoryPool;
+struct GrNXTBackendContext;
 class GrOvalRenderer;
 class GrPath;
 class GrProxyProvider;
@@ -83,6 +84,11 @@ public:
      */
     static sk_sp<GrContext> MakeMetal(void* device, void* queue, const GrContextOptions& options);
     static sk_sp<GrContext> MakeMetal(void* device, void* queue);
+#endif
+
+#ifdef SK_NXT
+    static sk_sp<GrContext> MakeNXT(sk_sp<const GrNXTBackendContext>, const GrContextOptions& options);
+    static sk_sp<GrContext> MakeNXT(sk_sp<const GrNXTBackendContext>);
 #endif
 
     static sk_sp<GrContext> MakeMock(const GrMockOptions*, const GrContextOptions&);

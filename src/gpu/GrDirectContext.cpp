@@ -20,6 +20,9 @@
 #ifdef SK_VULKAN
 #include "vk/GrVkGpu.h"
 #endif
+#ifdef SK_NXT
+#include "nxt/GrNXTGpu.h"
+#endif
 
 class SK_API GrDirectContext : public GrContext {
 public:
@@ -193,3 +196,23 @@ sk_sp<GrContext> GrContext::MakeMetal(void* device, void* queue, const GrContext
 }
 #endif
 
+#ifdef SK_NXT
+sk_sp<GrContext> GrContext::MakeNXT(sk_sp<const GrNXTBackendContext> backendContext) {
+    GrContextOptions defaultOptions;
+    return MakeNXT(backendContext, defaultOptions);
+}
+
+sk_sp<GrContext> GrContext::MakeNXT(sk_sp<const GrNXTBackendContext> backendContext, const GrContextOptions& options) {
+    sk_sp<GrContext> context(new GrDirectContext(kNXT_GrBackend));
+
+    context->fGpu = GrNXTGpu::Make(backendContext, options, context.get());
+    if (!context->fGpu) {
+        return nullptr;
+    }
+    context->fCaps = context->fGpu->refCaps();
+    if (!context->init(options)) {
+        return nullptr;
+    }
+    return context;
+}
+#endif
