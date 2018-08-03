@@ -135,7 +135,12 @@ var (
 			Path: "cache/work",
 		},
 	}
-
+	CACHES_DOCKER = []*specs.Cache{
+		&specs.Cache{
+			Name: "docker",
+			Path: "cache/docker",
+		},
+	}
 	// Versions of the following copied from
 	// https://chrome-internal.googlesource.com/infradata/config/+/master/configs/cr-buildbucket/swarming_task_template_canary.json#42
 	// to test the fix for chromium:836196.
@@ -744,6 +749,14 @@ func usesGit(t *specs.TaskSpec, name string) {
 	t.CipdPackages = append(t.CipdPackages, CIPD_PKGS_GIT...)
 }
 
+// usesDocker adds attributes to tasks which use docker.
+func usesDocker(t *specs.TaskSpec, name string) {
+	// currently, just the WASM (using EMCC) builder uses Docker.
+	if strings.Contains(name, "EMCC") {
+		t.Caches = append(t.Caches, CACHES_DOCKER...)
+	}
+}
+
 // timeout sets the timeout(s) for this task.
 func timeout(task *specs.TaskSpec, timeout time.Duration) {
 	task.ExecutionTimeout = timeout
@@ -755,6 +768,7 @@ func timeout(task *specs.TaskSpec, timeout time.Duration) {
 func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) string {
 	task := kitchenTask(name, "compile", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, swarmDimensions(parts), nil, OUTPUT_BUILD)
 	usesGit(task, name)
+	usesDocker(task, name)
 
 	// Android bots require a toolchain.
 	if strings.Contains(name, "Android") {
@@ -792,9 +806,6 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		}
 		if strings.Contains(name, "Vulkan") {
 			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
-		}
-		if strings.Contains(name, "EMCC") {
-			task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("emscripten_sdk"))
 		}
 		if parts["target_arch"] == "mips64el" || parts["target_arch"] == "loongson3a" {
 			if parts["compiler"] != "GCC" {
