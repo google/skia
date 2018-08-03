@@ -37,13 +37,13 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
             [gpu->device() newBufferWithLength: size
                                        options: fIsDynamic ? MTLResourceStorageModeManaged
                                                            : MTLResourceStorageModePrivate];
-    VALIDATE();
     this->registerWithCache(SkBudgeted::kYes);
 
     // TODO: We are treating all buffers as static access since we don't have an implementation to
     // synchronize gpu and cpu access of a resource yet. See comments in GrMtlBuffer::internalMap()
     // and interalUnmap() for more details.
     fIsDynamic = false;
+    VALIDATE();
 }
 
 GrMtlBuffer::~GrMtlBuffer() {
