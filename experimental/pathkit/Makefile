@@ -34,6 +34,15 @@ update-patch:
 dev:
 	./compile.sh dev
 
+npm-dev:
+	# This compile time is typically faster than release and good for use with
+	# local-example-debug
+	mkdir -p ./npm-wasm/bin/debug
+	mkdir -p ./npm-asmjs/bin/debug
+	./compile.sh dev
+	cp ../../out/pathkit/pathkit.js ./npm-wasm/bin/debug/pathkit.js
+	cp ../../out/pathkit/pathkit.wasm ./npm-wasm/bin/debug/pathkit.wasm
+
 example:
 	npm install experimental-pathkit-wasm
 	echo "Go check out localhost:8000/npm-wasm/example.html"
