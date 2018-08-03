@@ -296,7 +296,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"${cache_dir}/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -525,6 +525,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			if strings.Contains(parts["os"], "Win") {
 				gpu, ok := map[string]string{
 					"GT610":         "10de:104a-23.21.13.9101",
+					"GTX1050":       "10de:1c8d-22.21.13.8307",
 					"GTX1070":       "10de:1ba1-23.21.13.9101",
 					"GTX660":        "10de:11c0-23.21.13.9101",
 					"GTX960":        "10de:1401-23.21.13.9101",
