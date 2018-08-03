@@ -32,6 +32,7 @@ import (
 const (
 	BUNDLE_RECIPES_NAME         = "Housekeeper-PerCommit-BundleRecipes"
 	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
+	ISOLATE_GO_DEPS_NAME        = "Housekeeper-PerCommit-IsolateGoDeps"
 	ISOLATE_GO_LINUX_NAME       = "Housekeeper-PerCommit-IsolateGoLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
@@ -662,6 +663,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "gcloud_linux",
 		path:    "gcloud_linux",
 	},
+	ISOLATE_GO_DEPS_NAME: {
+		cipdPkg: "go_deps",
+		path:    "go_deps",
+	},
 	ISOLATE_GO_LINUX_NAME: {
 		cipdPkg: "go",
 		path:    "go",
@@ -769,7 +774,7 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		} else {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
 			if strings.Contains(name, "SKQP") {
-				task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME), isolateCIPDAsset(b, ISOLATE_GO_LINUX_NAME))
+				task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_SDK_LINUX_NAME), isolateCIPDAsset(b, ISOLATE_GO_LINUX_NAME), isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 			}
 		}
 	} else if strings.Contains(name, "Chromecast") {
@@ -862,6 +867,7 @@ func recreateSKPs(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "recreate_skps", "swarm_recipe.isolate", SERVICE_ACCOUNT_RECREATE_SKPS, dims, nil, OUTPUT_NONE)
 	task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_GIT...)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
+	task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 	timeout(task, 4*time.Hour)
 	b.MustAddTask(name, task)
 	return name
@@ -934,6 +940,7 @@ func infra(b *specs.TasksCfgBuilder, name string) string {
 	task := kitchenTask(name, "infra", "swarm_recipe.isolate", SERVICE_ACCOUNT_COMPILE, linuxGceDimensions(MACHINE_TYPE_SMALL), nil, OUTPUT_NONE)
 	usesGit(task, name)
 	task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("go"))
+	task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_GO_DEPS_NAME))
 	b.MustAddTask(name, task)
 	return name
 }

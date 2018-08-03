@@ -34,7 +34,7 @@ class InfraApi(recipe_api.RecipeApi):
 
   @property
   def gopath(self):
-    return self.m.vars.slave_dir.join('gopath')
+    return self.m.vars.slave_dir.join('go_deps')
 
   def go_version(self):
     """Print the Go version."""
@@ -49,21 +49,6 @@ class InfraApi(recipe_api.RecipeApi):
           self.m.step,
           'env go version',
           cmd=['go', 'version'])
-
-  def update_go_deps(self):
-    """Attempt to update go dependencies.
-
-    This fails flakily sometimes, so perform multiple attempts.
-    """
-    self.go_version()
-    env = self.m.context.env
-    env.update(self.go_env)
-    with self.m.context(env=env):
-      self.m.run.with_retry(
-          self.m.step,
-          'update go pkgs',
-          UPDATE_GO_ATTEMPTS,
-          cmd=[self.go_exe, 'get', '-u', '-t', '%s/...' % INFRA_GO_PKG])
 
   class MetadataFetch():
     def __init__(self, api, metadata_key, local_file, **kwargs):

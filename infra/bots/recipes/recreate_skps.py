@@ -84,7 +84,6 @@ def RunSteps(api):
 
   # Upload the SKPs.
   if 'Canary' not in api.properties['buildername']:
-    api.infra.update_go_deps()
     cmd = ['python',
            skia_dir.join('infra', 'bots', 'upload_skps.py'),
            '--target_dir', output_dir]
