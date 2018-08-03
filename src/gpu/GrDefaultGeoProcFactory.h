@@ -12,6 +12,8 @@
 #include "GrGeometryProcessor.h"
 #include "GrShaderCaps.h"
 
+constexpr int kMaxBones = 80; // Supports up to 80 bones per mesh.
+
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
  * view matrix and wire through color, coverage, UV coords if requested.
