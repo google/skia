@@ -93,7 +93,7 @@ class CIPDStore(object):
       if 'no such package' in e.output:
         return []
       raise
-    return [r['instance_id'] for r in res]
+    return [r['instance_id'] for r in res or []]
 
   def _describe(self, pkg_name, instance_id):
     """Obtain details about the given package and instance ID."""

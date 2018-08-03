@@ -114,6 +114,7 @@
   "Housekeeper-PerCommit-BundleRecipes",
   "Housekeeper-PerCommit-CheckGeneratedFiles",
   "Housekeeper-PerCommit-InfraTests",
+  "Housekeeper-PerCommit-IsolateGoDeps",
   "Housekeeper-PerCommit-IsolateSKP",
   "Housekeeper-PerCommit-IsolateSVG",
   "Housekeeper-PerCommit-IsolateSkImage",

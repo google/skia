@@ -100,9 +100,9 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "go version"
   },
@@ -113,9 +113,9 @@
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "env go version"
   },
@@ -123,15 +123,13 @@
     "cmd": [
       "[START_DIR]/go/go/bin/go",
       "get",
-      "-u",
-      "-t",
       "go.skia.org/infra/fiddlek/go/fiddlecli"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "go get fiddlecli"
   },
@@ -145,9 +143,9 @@
     "cwd": "[START_DIR]/cache/work/skia",
     "env": {
       "CHROME_HEADLESS": "1",
-      "GOPATH": "[START_DIR]/gopath",
+      "GOPATH": "[START_DIR]/go_deps",
       "GOROOT": "[START_DIR]/go/go",
-      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/gopath:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
+      "PATH": "[START_DIR]/go/go/bin:[START_DIR]/go_deps:<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "Validate docs match include/core/*.h"
   },
