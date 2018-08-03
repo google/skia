@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22d5004c_c1f27cf7",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-03T14:10:22Z",
+      "side": 1,
+      "message": "This is not the issue, but I think you should be using GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight) instead, just to keep the max bounds centralized in GrDrawOpAtlas.",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 88,
+        "endChar": 55
+      },
+      "revId": "6de0fca928153c38fcbd4d6c7b199161a0571dee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8718b71b_68587460",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-03T14:10:22Z",
+      "side": 1,
+      "message": "My guess is that the SkGlyph doesn\u0027t have the blur applied in the bounds, but the GrGlyph does. Not sure why that would be, but...",
+      "range": {
+        "startLine": 268,
+        "startChar": 36,
+        "endLine": 268,
+        "endChar": 43
+      },
+      "revId": "6de0fca928153c38fcbd4d6c7b199161a0571dee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
