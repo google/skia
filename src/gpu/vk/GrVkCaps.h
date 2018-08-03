@@ -12,8 +12,9 @@
 #include "GrVkStencilAttachment.h"
 #include "vk/GrVkDefines.h"
 
-struct GrVkInterface;
 class GrShaderCaps;
+class GrVkExtensions;
+struct GrVkInterface;
 
 /**
  * Stores some capabilities of a Vk backend.
@@ -28,7 +29,7 @@ public:
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
              VkPhysicalDevice device, const VkPhysicalDeviceFeatures& features,
-             uint32_t instanceVersion);
+             uint32_t instanceVersion, const GrVkExtensions& extensions);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
         return SkToBool(ConfigInfo::kTextureable_Flag & fConfigTable[config].fOptimalFlags);
@@ -105,6 +106,15 @@ public:
     }
 
     /**
+     *  Queries for some core extension support.
+     */
+    bool supportsPhysicalDeviceProperties2() const { return fSupportsPhysicalDeviceProperties2; }
+    bool supportsMemoryRequirements2() const { return fSupportsMemoryRequirements2; }
+    bool supportsMaintenance1() const { return fSupportsMaintenance1; }
+    bool supportsMaintenance2() const { return fSupportsMaintenance2; }
+    bool supportsMaintenance3() const { return fSupportsMaintenance3; }
+
+    /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
      * target.
@@ -147,7 +157,7 @@ private:
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, const VkPhysicalDeviceFeatures&);
+              VkPhysicalDevice device, const VkPhysicalDeviceFeatures&, const GrVkExtensions&);
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
                     const VkPhysicalDeviceFeatures&);
@@ -192,6 +202,12 @@ private:
     bool fMustSleepOnTearDown;
     bool fNewCBOnPipelineChange;
     bool fShouldAlwaysUseDedicatedImageMemory;
+
+    bool fSupportsPhysicalDeviceProperties2;
+    bool fSupportsMemoryRequirements2;
+    bool fSupportsMaintenance1;
+    bool fSupportsMaintenance2;
+    bool fSupportsMaintenance3;
 
     typedef GrCaps INHERITED;
 };

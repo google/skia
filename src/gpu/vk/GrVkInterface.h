@@ -42,11 +42,14 @@ public:
     GrVkInterface(GrVkGetProc getProc,
                   VkInstance instance,
                   VkDevice device,
+                  uint32_t instanceVersion,
+                  uint32_t physicalDeviceVersion,
                   const GrVkExtensions*);
 
     // Validates that the GrVkInterface supports its advertised standard. This means the necessary
     // function pointers have been initialized for Vulkan version.
-    bool validate(const GrVkExtensions*) const;
+    bool validate(uint32_t instanceVersion, uint32_t physicalDeviceVersion,
+                  const GrVkExtensions*) const;
 
     /**
      * The function pointers are in a struct so that we can have a compiler generated assignment
@@ -188,6 +191,26 @@ public:
         VkPtr<PFN_vkCmdNextSubpass> fCmdNextSubpass;
         VkPtr<PFN_vkCmdEndRenderPass> fCmdEndRenderPass;
         VkPtr<PFN_vkCmdExecuteCommands> fCmdExecuteCommands;
+
+        // Functions for VK_KHR_get_physical_device_properties2 or vulkan 1.1
+        VkPtr<PFN_vkGetPhysicalDeviceFeatures2> fGetPhysicalDeviceFeatures2;
+        VkPtr<PFN_vkGetPhysicalDeviceProperties2> fGetPhysicalDeviceProperties2;
+        VkPtr<PFN_vkGetPhysicalDeviceFormatProperties2> fGetPhysicalDeviceFormatProperties2;
+        VkPtr<PFN_vkGetPhysicalDeviceImageFormatProperties2> fGetPhysicalDeviceImageFormatProperties2;
+        VkPtr<PFN_vkGetPhysicalDeviceQueueFamilyProperties2> fGetPhysicalDeviceQueueFamilyProperties2;
+        VkPtr<PFN_vkGetPhysicalDeviceMemoryProperties2> fGetPhysicalDeviceMemoryProperties2;
+        VkPtr<PFN_vkGetPhysicalDeviceSparseImageFormatProperties2> fGetPhysicalDeviceSparseImageFormatProperties2;
+
+        // Functions for VK_KHR_get_memory_requirements2 or vulkan 1.1
+        VkPtr<PFN_vkGetImageMemoryRequirements2> fGetImageMemoryRequirements2;
+        VkPtr<PFN_vkGetBufferMemoryRequirements2> fGetBufferMemoryRequirements2;
+        VkPtr<PFN_vkGetImageSparseMemoryRequirements2> fGetImageSparseMemoryRequirements2;
+
+        // Functions for VK_KHR_maintenance1 or vulkan 1.1
+        VkPtr<PFN_vkTrimCommandPool> fTrimCommandPool;
+
+        // Functions for VK_KHR_maintenance3 or vulkan 1.1
+        VkPtr<PFN_vkGetDescriptorSetLayoutSupport> fGetDescriptorSetLayoutSupport;
     } fFunctions;
 };
 
