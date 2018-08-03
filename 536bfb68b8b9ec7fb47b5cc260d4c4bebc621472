@@ -244,6 +244,23 @@
       "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3d39dee_a39a9750",
+        "filename": "src/pdf/SkPDFTag.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-08-03T14:59:12Z",
+      "side": 1,
+      "message": "Can we call `fChildren.reset()` now to free up memory we know we\u0027ll never need anymore?",
+      "revId": "536bfb68b8b9ec7fb47b5cc260d4c4bebc621472",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
