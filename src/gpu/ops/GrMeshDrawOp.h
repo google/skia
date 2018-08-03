@@ -76,9 +76,22 @@ class GrMeshDrawOp::Target {
 public:
     virtual ~Target() {}
 
+    virtual GrMesh* allocMeshes(int n) = 0;
+
     /** Adds a draw of a mesh. */
-    virtual void draw(sk_sp<const GrGeometryProcessor>, const GrPipeline*,
-                      const GrPipeline::FixedDynamicState*, const GrMesh&) = 0;
+    virtual void draw(sk_sp<const GrGeometryProcessor>,
+                      const GrPipeline*,
+                      const GrPipeline::FixedDynamicState*,
+                      const GrPipeline::DynamicStateArrays*,
+                      const GrMesh[],
+                      int meshCount) = 0;
+    /** Helper for drawing a single GrMesh. */
+    void draw(sk_sp<const GrGeometryProcessor> gp,
+              const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState,
+              const GrMesh& mesh) {
+        this->draw(std::move(gp), pipeline, fixedDynamicState, nullptr, &mesh, 1);
+    }
 
     /**
      * Makes space for vertex data. The returned pointer is the location where vertex data
@@ -132,14 +145,10 @@ public:
     }
 
     GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
-                                                          int numPrimitiveProcessorTextures = 0) {
-        auto result = this->pipelineArena()->make<GrPipeline::FixedDynamicState>(rect);
-        if (numPrimitiveProcessorTextures) {
-            result->fPrimitiveProcessorTextures =
-                    this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures);
-        }
-        return result;
-    }
+                                                          int numPrimitiveProcessorTextures = 0);
+
+    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(
+            int numMeshes, int numPrimitiveProcessorTextures, bool allocScissors);
 
     GrTextureProxy** allocPrimitiveProcessorTextureArray(int n) {
         SkASSERT(n > 0);

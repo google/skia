@@ -1704,17 +1704,22 @@ void GrGLGpu::generateMipmapsForProcessorTextures(const GrPrimitiveProcessor& pr
 bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
                            const GrPipeline& pipeline,
                            const GrPipeline::FixedDynamicState* fixedDynamicState,
+                           const GrPipeline::DynamicStateArrays* dynamicStateArrays,
                            bool willDrawPoints) {
     sk_sp<GrGLProgram> program(fProgramCache->refProgram(this, primProc, pipeline, willDrawPoints));
     if (!program) {
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
     }
-    const GrTextureProxy* const* primProcProxies = nullptr;
-    if (fixedDynamicState) {
-        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
+    const GrTextureProxy* const* primProcProxiesForMipRegen = nullptr;
+    const GrTextureProxy* const* primProcProxiesToBind = nullptr;
+    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+        primProcProxiesForMipRegen = dynamicStateArrays->fPrimitiveProcessorTextures;
+    } else if (fixedDynamicState && fixedDynamicState->fPrimitiveProcessorTextures) {
+        primProcProxiesForMipRegen = fixedDynamicState->fPrimitiveProcessorTextures;
+        primProcProxiesToBind = fixedDynamicState->fPrimitiveProcessorTextures;
     }
-    this->generateMipmapsForProcessorTextures(primProc, pipeline, primProcProxies);
+    this->generateMipmapsForProcessorTextures(primProc, pipeline, primProcProxiesForMipRegen);
 
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
@@ -1731,7 +1736,7 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
         this->flushBlend(blendInfo, swizzle);
     }
 
-    fHWProgram->updateUniformsAndTextureBindings(primProc, pipeline, primProcProxies);
+    fHWProgram->updateUniformsAndTextureBindings(primProc, pipeline, primProcProxiesToBind);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
     GrStencilSettings stencil;
@@ -2245,30 +2250,39 @@ void GrGLGpu::draw(const GrPrimitiveProcessor& primProc,
             break;
         }
     }
-    if (!this->flushGLState(primProc, pipeline, fixedDynamicState, hasPoints)) {
+    if (!this->flushGLState(primProc, pipeline, fixedDynamicState, dynamicStateArrays, hasPoints)) {
         return;
     }
 
-    bool dynamicScissor =
-            pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
-    for (int i = 0; i < meshCount; ++i) {
+    bool dynamicScissor = false;
+    bool dynamicPrimProcTextures = false;
+    if (dynamicStateArrays) {
+        dynamicScissor = pipeline.isScissorEnabled() && dynamicStateArrays->fScissorRects;
+        dynamicPrimProcTextures = dynamicStateArrays->fPrimitiveProcessorTextures;
+    }
+    for (int m = 0; m < meshCount; ++m) {
         if (GrXferBarrierType barrierType = pipeline.xferBarrierType(*this->caps())) {
             this->xferBarrier(pipeline.renderTarget(), barrierType);
         }
 
         if (dynamicScissor) {
             GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
-            this->flushScissor(GrScissorState(dynamicStateArrays->fScissorRects[i]),
+            this->flushScissor(GrScissorState(dynamicStateArrays->fScissorRects[m]),
                                glRT->getViewport(), pipeline.proxy()->origin());
         }
+        if (dynamicPrimProcTextures) {
+            auto texProxyArray = dynamicStateArrays->fPrimitiveProcessorTextures +
+                    m * primProc.numTextureSamplers();
+            fHWProgram->updatePrimitiveProcessorTextureBindings(primProc, texProxyArray);
+        }
         if (this->glCaps().requiresCullFaceEnableDisableWhenDrawingLinesAfterNonLines() &&
-            GrIsPrimTypeLines(meshes[i].primitiveType()) &&
+            GrIsPrimTypeLines(meshes[m].primitiveType()) &&
             !GrIsPrimTypeLines(fLastPrimitiveType)) {
             GL_CALL(Enable(GR_GL_CULL_FACE));
             GL_CALL(Disable(GR_GL_CULL_FACE));
         }
-        meshes[i].sendToGpu(this);
-        fLastPrimitiveType = meshes[i].primitiveType();
+        meshes[m].sendToGpu(this);
+        fLastPrimitiveType = meshes[m].primitiveType();
     }
 
 #if SWAP_PER_DRAW

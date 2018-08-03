@@ -62,6 +62,29 @@ void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+GrPipeline::FixedDynamicState* GrMeshDrawOp::Target::allocFixedDynamicState(
+        const SkIRect& rect, int numPrimitiveProcessorTextures) {
+    auto result = this->pipelineArena()->make<GrPipeline::FixedDynamicState>(rect);
+    if (numPrimitiveProcessorTextures) {
+        result->fPrimitiveProcessorTextures =
+                this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures);
+    }
+    return result;
+}
+
+GrPipeline::DynamicStateArrays* GrMeshDrawOp::Target::allocDynamicStateArrays(
+        int numMeshes, int numPrimitiveProcessorTextures, bool allocScissors) {
+    auto result = this->pipelineArena()->make<GrPipeline::DynamicStateArrays>();
+    if (allocScissors) {
+        result->fScissorRects = this->pipelineArena()->makeArray<SkIRect>(numMeshes);
+    }
+    if (numPrimitiveProcessorTextures) {
+        result->fPrimitiveProcessorTextures =
+                this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures * numMeshes);
+    }
+    return result;
+}
+
 GrMeshDrawOp::Target::PipelineAndFixedDynamicState GrMeshDrawOp::Target::makePipeline(
         uint32_t pipelineFlags, GrProcessorSet&& processorSet, GrAppliedClip&& clip,
         int numPrimProcTextures) {
