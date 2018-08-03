@@ -469,7 +469,6 @@ if (skia_lex) {
       ":sksllex(//gn/toolchain:$host_toolchain)",
     ]
     sources = [
-      "src/sksl/lex/layout.lex",
       "src/sksl/lex/sksl.lex",
     ]
 
