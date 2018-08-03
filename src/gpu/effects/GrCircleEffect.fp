@@ -60,7 +60,7 @@ void main() {
     @if (edgeType == GrClipEdgeType::kFillAA ||
          edgeType == GrClipEdgeType::kInverseFillAA ||
          edgeType == GrClipEdgeType::kHairlineAA) {
-        d = clamp(d, 0.0, 1.0);
+        d = saturate(d);
     } else {
         d = d > 0.5 ? 1.0 : 0.0;
     }

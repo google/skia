@@ -951,7 +951,7 @@ void GLDashingCircleEffect::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs) {
     if (dce.aaMode() != AAMode::kNone) {
         fragBuilder->codeAppendf("half diff = dist - %s.x;", circleParams.fsIn());
         fragBuilder->codeAppend("diff = 1.0 - diff;");
-        fragBuilder->codeAppend("half alpha = clamp(diff, 0.0, 1.0);");
+        fragBuilder->codeAppend("half alpha = saturate(diff);");
     } else {
         fragBuilder->codeAppendf("half alpha = 1.0;");
         fragBuilder->codeAppendf("alpha *=  dist < %s.x + 0.5 ? 1.0 : 0.0;", circleParams.fsIn());

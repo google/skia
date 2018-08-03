@@ -69,6 +69,7 @@ void SPIRVCodeGenerator::setupIntrinsics() {
     fIntrinsicMap[String("min")]           = SPECIAL(Min);
     fIntrinsicMap[String("max")]           = SPECIAL(Max);
     fIntrinsicMap[String("clamp")]         = SPECIAL(Clamp);
+    fIntrinsicMap[String("saturate")]      = SPECIAL(Saturate);
     fIntrinsicMap[String("dot")]           = std::make_tuple(kSPIRV_IntrinsicKind, SpvOpDot,
                                                              SpvOpUndef, SpvOpUndef, SpvOpUndef);
     fIntrinsicMap[String("mix")]           = SPECIAL(Mix);
@@ -940,6 +941,17 @@ SpvId SPIRVCodeGenerator::writeSpecialIntrinsic(const FunctionCall& c, SpecialIn
             SkASSERT(args.size() == 3);
             this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FMix, SpvOpUndef,
                                                SpvOpUndef, args, out);
+            break;
+        }
+        case kSaturate_SpecialIntrinsic: {
+            SkASSERT(c.fArguments.size() == 1);
+            std::vector<std::unique_ptr<Expression>> finalArgs;
+            finalArgs.push_back(c.fArguments[0]->clone());
+            finalArgs.emplace_back(new FloatLiteral(fContext, -1, 0));
+            finalArgs.emplace_back(new FloatLiteral(fContext, -1, 1));
+            std::vector<SpvId> spvArgs = this->vectorize(finalArgs, out);
+            this->writeGLSLExtendedInstruction(c.fType, result, GLSLstd450FClamp, GLSLstd450SClamp,
+                                               GLSLstd450UClamp, spvArgs, out);
             break;
         }
     }

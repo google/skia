@@ -73,6 +73,7 @@ $genIType clamp($genIType x, $genIType minVal, $genIType maxVal);
 $genIType clamp($genIType x, int minVal, int maxVal);
 //$genUType clamp($genUType x, $genUType minVal, $genUType maxVal);
 //$genUType clamp($genUType x, uint minVal, uint maxVal);
+$genType saturate($genType x);
 $genType mix($genType x, $genType y, $genType a);
 $genType mix($genType x, $genType y, float a);
 //$genDType mix($genDType x, $genDType y, $genDType a);
