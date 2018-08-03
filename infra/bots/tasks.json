@@ -10156,7 +10156,7 @@
         {
           "name": "infra/tools/luci/vpython/${platform}",
           "path": "cipd_bin_packages",
-          "version": "git_revision:b9c4670197dcefd8762d6e509302acd3efc6e303"
+          "version": "git_revision:b6cdec8586c9f8d3d728b1bc0bd4331330ba66fc"
         },
         {
           "name": "infra/git/${platform}",
@@ -12116,7 +12116,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12248,7 +12248,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12376,7 +12376,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12508,7 +12508,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12640,7 +12640,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12772,7 +12772,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -12904,7 +12904,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13036,7 +13036,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13168,7 +13168,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13300,7 +13300,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13437,7 +13437,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13569,7 +13569,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13701,7 +13701,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13833,7 +13833,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -13970,7 +13970,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -14102,7 +14102,7 @@
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
         "gpu:none",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29095,7 +29095,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29206,7 +29206,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29317,7 +29317,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29429,7 +29429,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29541,7 +29541,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -29653,7 +29653,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -54893,7 +54893,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55004,7 +55004,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55115,7 +55115,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55226,7 +55226,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55337,7 +55337,7 @@
       ],
       "dimensions": [
         "cpu:x86-64-E5-2697_v2",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55449,7 +55449,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55561,7 +55561,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55673,7 +55673,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
@@ -55785,7 +55785,7 @@
       "dimensions": [
         "cpu:x86-64-i7-4578U",
         "gpu:8086:0a2e",
-        "os:Mac-10.13.3",
+        "os:Mac-10.13.6",
         "pool:Skia"
       ],
       "env_prefixes": {
