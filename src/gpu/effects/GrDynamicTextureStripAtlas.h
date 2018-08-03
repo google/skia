@@ -8,39 +8,35 @@
 #ifndef GrDynamicTextureStripAtlas_DEFINED
 #define GrDynamicTextureStripAtlas_DEFINED
 
-#include "GrTypesPriv.h"
-
-#include "SkNoncopyable.h"
-#include "SkRefCnt.h"
-#include "SkScalar.h"
+#include "GrTextureStripAtlas.h"
 #include "SkTDArray.h"
 
-class GrContext;
 class GrSurfaceContext;
-class GrTextureProxy;
-
-class SkBitmap;
 
 /**
  * Maintains a single large texture whose rows store many textures of a small fixed height,
  * stored in rows across the x-axis such that we can safely wrap/repeat them horizontally.
  */
-class GrTextureStripAtlas : public SkRefCnt {
+class GrDynamicTextureStripAtlas final : public GrTextureStripAtlas {
 public:
-    /**
-     * Descriptor struct which we'll use as a hash table key
-     */
-    struct Desc {
-        Desc() { sk_bzero(this, sizeof(*this)); }
-        GrPixelConfig fConfig;
-        uint16_t fWidth, fHeight, fRowHeight;
-        uint16_t fUnusedPadding;
-        bool operator==(const Desc& other) const {
-            return 0 == memcmp(this, &other, sizeof(Desc));
-        }
-    };
+    ~GrDynamicTextureStripAtlas() final;
 
-    ~GrTextureStripAtlas();
+    /**
+     * This is intended to be used when cloning a processor that already holds a lock. It is
+     * assumed that the row already has at least one lock.
+     */
+    void lockRow(int row) final;
+    void unlockRow(int row) final;
+
+    sk_sp<GrTextureProxy> asTextureProxyRef() const final;
+
+private:
+    friend class GrTextureStripAtlasManager; // for ctor
+
+    /**
+     * Only the GrTextureStripAtlasManager is allowed to create GrTextureStripAtlases
+     */
+    GrDynamicTextureStripAtlas(const Desc& desc);
 
     /**
      * Add a texture to the atlas
@@ -48,38 +44,9 @@ public:
      *  @return The row index we inserted into, or -1 if we failed to find an open row. The caller
      *      is responsible for calling unlockRow() with this row index when it's done with it.
      */
-    int lockRow(GrContext*, const SkBitmap&);
+    int addStrip(GrContext*, const SkBitmap&) final;
 
-    /**
-     * This is intended to be used when cloning a processor that already holds a lock. It is
-     * assumed that the row already has at least one lock.
-     */
-    void lockRow(int row);
-    void unlockRow(int row);
-
-    /**
-     * These functions help turn an integer row index in [0, 1, 2, ... numRows] into a scalar y
-     * texture coordinate in [0, 1] that we can use in a shader.
-     *
-     * If a regular texture access without using the atlas looks like:
-     *
-     *      texture2D(sampler, float2(x, y))
-     *
-     * Then when using the atlas we'd replace it with:
-     *
-     *       texture2D(sampler, float2(x, yOffset + y * scaleFactor))
-     *
-     * Where yOffset, returned by getYOffset(), is the offset to the start of the row within the
-     * atlas and scaleFactor, returned by getNormalizedTexelHeight, is the normalized height of
-     * one texel row.
-     */
-    SkScalar getYOffset(int row) const { return SkIntToScalar(row) / fNumRows; }
-    SkScalar getNormalizedTexelHeight() const { return fNormalizedYHeight; }
-
-    sk_sp<GrTextureProxy> asTextureProxyRef() const;
-
-private:
-    friend class GrTextureStripAtlasManager; // for ctor
+    void finish(GrProxyProvider*) final { SkASSERT(0); }  // this is only called in DDL mode
 
     static uint32_t CreateUniqueID();
 
@@ -100,11 +67,6 @@ private:
         AtlasRow* fNext;
         AtlasRow* fPrev;
     };
-
-    /**
-     * Only the GrTextureStripAtlasManager is allowed to create GrTextureStripAtlases
-     */
-    GrTextureStripAtlas(const Desc& desc);
 
     void lockTexture(GrContext*);
     void unlockTexture();
@@ -147,7 +109,6 @@ private:
     // Total locks on all rows (when this reaches zero, we can unlock our texture)
     int32_t fLockedRows;
 
-    const Desc fDesc;
     const uint16_t fNumRows;
     sk_sp<GrSurfaceContext> fTexContext;
 
@@ -165,6 +126,8 @@ private:
 
     // A list of pointers to AtlasRows that currently contain cached images, sorted by key
     SkTDArray<AtlasRow*> fKeyTable;
+
+    typedef GrTextureStripAtlas INHERITED;
 };
 
 #endif

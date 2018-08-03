@@ -8,10 +8,10 @@
 #include "GrTextureStripAtlas.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrDDLTextureStripAtlas.h"
 #include "GrDynamicTextureStripAtlas.h"
 #include "SkBitmap.h"
 
-////////////////////////////////////////////////////////////////////////////////
 GrTextureStripAtlasManager::~GrTextureStripAtlasManager() {
     this->deleteAllAtlases();
 }
@@ -30,15 +30,40 @@ void GrTextureStripAtlasManager::abandon() {
     this->deleteAllAtlases();
 }
 
-sk_sp<GrTextureStripAtlas> GrTextureStripAtlasManager::refAtlas(
-                                                          const GrTextureStripAtlas::Desc& desc) {
+void GrTextureStripAtlasManager::finish(GrProxyProvider* proxyProvider) {
+    for (AtlasHash::Iter iter(&fAtlasCache); !iter.done(); ++iter) {
+        AtlasEntry* tmp = &(*iter);
+        tmp->fAtlas->finish(proxyProvider);
+    }
+}
+
+
+sk_sp<GrTextureStripAtlas> GrTextureStripAtlasManager::addStrip(
+                                                          GrContext* context,
+                                                          const GrTextureStripAtlas::Desc& desc,
+                                                          const SkBitmap& bitmap,
+                                                          int* row) {
+    SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
+
     AtlasEntry* entry = fAtlasCache.find(desc);
     if (!entry) {
-        // TODO: Does the AtlasEntry need a copy of the Desc if the GrTextureStripAtlas has one?
-        entry = new AtlasEntry(desc, sk_sp<GrTextureStripAtlas>(new GrTextureStripAtlas(desc)));
+        sk_sp<GrTextureStripAtlas> atlas;
 
+        if (!context->contextPriv().resourceProvider()) {
+            atlas.reset(new GrDDLTextureStripAtlas(desc));
+        } else {
+            atlas.reset(new GrDynamicTextureStripAtlas(desc));
+        }
+
+        entry = new AtlasEntry(sk_sp<GrTextureStripAtlas>(std::move(atlas)));
         fAtlasCache.add(entry);
+    }
+
+    *row = entry->fAtlas->addStrip(context, bitmap);
+    if (*row < 0) {
+        return nullptr;
     }
 
     return entry->fAtlas;
 }
+

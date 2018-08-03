@@ -387,6 +387,7 @@ void GLColorTableEffect::emitCode(EmitArgs& args) {
 ///////////////////////////////////////////////////////////////////////////////
 std::unique_ptr<GrFragmentProcessor> ColorTableEffect::Make(GrContext* context,
                                                             const SkBitmap& bitmap) {
+    SkASSERT(kPremul_SkAlphaType == bitmap.alphaType());
     SkASSERT(bitmap.isImmutable());
 
     if (kUnknown_GrPixelConfig == SkColorType2GrPixelConfig(bitmap.colorType())) {
