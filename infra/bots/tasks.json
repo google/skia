@@ -12025,6 +12025,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12057,6 +12061,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12148,6 +12157,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12180,6 +12193,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12399,6 +12417,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12431,6 +12453,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12522,6 +12549,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12554,6 +12585,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12645,6 +12681,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12677,6 +12717,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12768,6 +12813,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12800,6 +12849,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -12891,6 +12945,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -12923,6 +12981,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13014,6 +13077,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13046,6 +13113,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13137,6 +13209,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13169,6 +13245,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13260,6 +13341,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13292,6 +13377,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
           "name": "skia/bots/moltenvk",
@@ -13388,6 +13478,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13420,6 +13514,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13511,6 +13610,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13543,6 +13646,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13634,6 +13742,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13666,6 +13778,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
@@ -13757,6 +13874,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13789,6 +13910,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         },
         {
           "name": "skia/bots/moltenvk",
@@ -13885,6 +14011,10 @@
         {
           "name": "work",
           "path": "cache/work"
+        },
+        {
+          "name": "xcode",
+          "path": "cache/Xcode.app"
         }
       ],
       "cipd_packages": [
@@ -13917,6 +14047,11 @@
           "name": "infra/tools/luci/git-credential-luci/${platform}",
           "path": "cipd_bin_packages",
           "version": "git_revision:e1abc57be62d198b5c2f487bfb2fa2d2eb0e867c"
+        },
+        {
+          "name": "infra/tools/mac_toolchain/${platform}",
+          "path": "mac_toolchain",
+          "version": "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a"
         }
       ],
       "command": [
