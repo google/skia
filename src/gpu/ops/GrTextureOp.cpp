@@ -871,7 +871,7 @@ __attribute__((no_sanitize("float-cast-overflow")))
             mesh.setNonIndexedNonInstanced(4);
         }
         mesh.setVertexData(vbuffer, vstart);
-        target->draw(gp.get(), pipeline, fixedDynamicState, mesh);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
     bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
