@@ -15,7 +15,7 @@ deps = {
   "third_party/externals/googletest"      : "https://android.googlesource.com/platform/external/googletest@dd43b9998e9a44a579a7aba6c1309407d1a5ed95",
   "third_party/externals/harfbuzz"        : "https://skia.googlesource.com/third_party/harfbuzz.git@1.4.2",
   "third_party/externals/icu"             : "https://chromium.googlesource.com/chromium/deps/icu.git@ec9c1133693148470ffe2e5e53576998e3650c1d",
-  "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@00418d13e369bf53cc4b8f817eb10b8ce65f0904",
+  "third_party/externals/imgui"           : "https://skia.googlesource.com/external/github.com/ocornut/imgui.git@bc6ac8b2aee0614debd940e45bc9cd0d9b355c86",
   # TODO: remove jsoncpp after migrating clients to SkJSON
   "third_party/externals/jsoncpp"         : "https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git@1.0.0",
   "third_party/externals/libjpeg-turbo"   : "https://skia.googlesource.com/external/github.com/libjpeg-turbo/libjpeg-turbo.git@26f109290dc4ffc9c522d9f5d5a7d5d1ee2c0e0a",
