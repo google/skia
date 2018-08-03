@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "31215acc_08462560",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-03T17:18:05Z",
+      "side": 1,
+      "message": "That\u0027s exactly what SkGifCodec does, so I don\u0027t think it should cause any problems.",
+      "parentUuid": "4f8c2b90_fb9e7c20",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 49
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f7dca708_67de81a1",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -315,6 +339,30 @@
       "side": 1,
       "message": "My point was subtle. The superclass\u0027 SkCodec::rewindIfNeeded method doesn\u0027t just rewind the stream and call this.onRewind. It also does:\n\n    // startScanlineDecode will need to be called before decoding scanlines.\n    fCurrScanline \u003d -1;\n    // startIncrementalDecode will need to be called before incrementalDecode.\n    fStartedIncrementalDecode \u003d false;\n\nDo I also want to be doing that here, by calling SkCodec::rewindIfNeeded?",
       "parentUuid": "2da2fdbf_5a030328",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad79b494_032c62a5",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-03T17:18:05Z",
+      "side": 1,
+      "message": "I think so. Since you\u0027re rewinding and reading the stream, I\u0027m guessing you wouldn\u0027t be able to continue an in-progress incremental decode.",
+      "parentUuid": "88a63460_1cc8ca4a",
       "range": {
         "startLine": 429,
         "startChar": 46,
