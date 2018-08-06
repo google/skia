@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "SkOpSegment.h"
 #include "SkOpSpan.h"
 #include "SkPathOpsPoint.h"
 #include "SkPathWriter.h"
@@ -214,6 +215,49 @@ void SkPathWriter::assemble() {
                 eStart->fPt.fX, eStart->fPt.fY, eEnd->fPt.fX, eEnd->fPt.fY);
     }
 #endif
+    // lengthen any partial contour adjacent to a simple segment
+    for (int pIndex = 0; pIndex < endCount; pIndex++) {
+        SkOpPtT* opPtT = const_cast<SkOpPtT*>(runs[pIndex]);
+        SkPath dummy;
+        SkPathWriter partWriter(dummy);
+        do {
+            if (!zero_or_one(opPtT->fT)) {
+                break;
+            }
+            SkOpSpanBase* opSpanBase = opPtT->span();
+            SkOpSpanBase* start = opPtT->fT ? opSpanBase->prev() : opSpanBase->upCast()->next();
+            int step = opPtT->fT ? 1 : -1;
+            const SkOpSegment* opSegment = opSpanBase->segment();
+            const SkOpSegment* nextSegment = opSegment->isSimple(&start, &step);
+            if (!nextSegment) {
+                break;
+            }
+            SkOpSpanBase* opSpanEnd = start->t() ? start->prev() : start->upCast()->next();
+            if (start->starter(opSpanEnd)->alreadyAdded()) {
+                break;
+            }
+            nextSegment->addCurveTo(start, opSpanEnd, &partWriter);
+            opPtT = opSpanEnd->ptT();
+            SkOpPtT** runsPtr = const_cast<SkOpPtT**>(&runs[pIndex]);
+            *runsPtr = opPtT;
+        } while (true);
+        partWriter.finishContour();
+        const SkTArray<SkPath>& partPartials = partWriter.partials();
+        if (!partPartials.count()) {
+            continue;
+        }
+        // if pIndex is even, reverse and prepend to fPartials; otherwise, append
+        SkPath& partial = const_cast<SkPath&>(fPartials[pIndex >> 1]);
+        const SkPath& part = partPartials[0];
+        if (pIndex & 1) {
+            partial.addPath(part, SkPath::kExtend_AddPathMode);
+        } else {
+            SkPath reverse;
+            reverse.reverseAddPath(part);
+            reverse.addPath(partial, SkPath::kExtend_AddPathMode);
+            partial = reverse;
+        }
+    }
     SkTDArray<int> sLink, eLink;
     int linkCount = endCount / 2; // number of partial contours
     sLink.append(linkCount);

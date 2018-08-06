@@ -251,7 +251,7 @@ public:
         return fBounds.fTop == fBounds.fBottom;
     }
 
-    SkOpSegment* isSimple(SkOpSpanBase** end, int* step) {
+    SkOpSegment* isSimple(SkOpSpanBase** end, int* step) const {
         return nextChase(end, step, nullptr, nullptr);
     }
 

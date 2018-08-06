@@ -421,7 +421,6 @@ public:
         if (fAlreadyAdded) {
             return true;
         }
-        fAlreadyAdded = true;
         return false;
     }
 
@@ -487,6 +486,10 @@ public:
     bool isCoincident() const {
         SkASSERT(!final());
         return fCoincident != this;
+    }
+
+    void markAdded() {
+        fAlreadyAdded = true;
     }
 
     SkOpSpanBase* next() const {
@@ -569,7 +572,7 @@ private:  // no direct access to internals to avoid treating a span base as a sp
     int fOppValue;  // normally 0 -- when binary coincident edges combine, opp value goes here
     int fTopTTry; // specifies direction and t value to try next
     bool fDone;  // if set, this span to next higher T has been processed
-    mutable bool fAlreadyAdded;
+    bool fAlreadyAdded;
 };
 
 #endif
