@@ -313,26 +313,77 @@ static void destroy_instance(GrVkGetProc getProc, VkInstance inst,
     grVkDestroyInstance(inst, nullptr);
 }
 
+static void setup_extension_features(GrVkGetProc getProc, VkInstance inst, VkPhysicalDevice physDev,
+                                     uint32_t physDeviceVersion, GrVkExtensions* extensions,
+                                     VkPhysicalDeviceFeatures2* features) {
+    SkDebugf("Spot 1\n");
+    SkASSERT(physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+             extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1));
+
+    // Setup all extension feature structs we may want to use.
+
+    void** tailPNext = &features->pNext;
+
+    VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* blend = nullptr;
+    if (extensions->hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2)) {
+    SkDebugf("Spot 2\n");
+        blend = (VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT*) sk_malloc_throw(
+                sizeof(VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT));
+        blend->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT;
+        blend->pNext = nullptr;
+        *tailPNext = blend;
+        tailPNext = &blend->pNext;
+    SkDebugf("Spot 3\n");
+    }
+
+    SkDebugf("Spot 4\n");
+    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        SkDebugf("Spot 5\n");
+        ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2, inst, VK_NULL_HANDLE);
+        SkDebugf("Spot 6\n");
+        grVkGetPhysicalDeviceFeatures2(physDev, features);
+        SkDebugf("Spot 7\n");
+    } else {
+        SkDebugf("Spot 8\n");
+        SkASSERT(extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME,
+                                          1));
+        SkDebugf("Spot 9\n");
+        ACQUIRE_VK_PROC_LOCAL(GetPhysicalDeviceFeatures2KHR, inst, VK_NULL_HANDLE);
+        SkDebugf("Spot 10\n");
+        SkDebugf("function ptr: %p\n", grVkGetPhysicalDeviceFeatures2KHR);
+        SkDebugf("Spot 10.5\n");
+        grVkGetPhysicalDeviceFeatures2KHR(physDev, features);
+        SkDebugf("Spot 11\n");
+    }
+
+    // If we want to disable any extension features do so here.
+}
+
 bool CreateVkBackendContext(GrVkGetProc getProc,
                             GrVkBackendContext* ctx,
                             GrVkExtensions* extensions,
+                            VkPhysicalDeviceFeatures2* features,
                             VkDebugReportCallbackEXT* debugCallback,
                             uint32_t* presentQueueIndexPtr,
                             CanPresentFn canPresent) {
     VkResult err;
 
+    SkDebugf("Here 1\n");
     ACQUIRE_VK_PROC_NOCHECK(EnumerateInstanceVersion, VK_NULL_HANDLE, VK_NULL_HANDLE);
     uint32_t instanceVersion = 0;
     if (!grVkEnumerateInstanceVersion) {
+        SkDebugf("test 1\n");
         instanceVersion = VK_MAKE_VERSION(1, 0, 0);
     } else {
         err = grVkEnumerateInstanceVersion(&instanceVersion);
+        SkDebugf("test 2\n");
         if (err) {
             SkDebugf("failed ot enumerate instance version. Err: %d\n", err);
             return false;
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    SkDebugf("Instance version: %d\n", instanceVersion);
 
     VkPhysicalDevice physDev;
     VkDevice device;
@@ -449,6 +500,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     VkPhysicalDeviceProperties physDeviceProperties;
     grVkGetPhysicalDeviceProperties(physDev, &physDeviceProperties);
     int physDeviceVersion = physDeviceProperties.apiVersion;
+    SkDebugf("Phys Dev version: %d\n", physDeviceVersion);
 
     // query to get the initial queue props size
     uint32_t queueCount;
@@ -525,12 +577,37 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     }
 
-    // query to get the physical device properties
-    VkPhysicalDeviceFeatures deviceFeatures;
-    grVkGetPhysicalDeviceFeatures(physDev, &deviceFeatures);
+    SkDebugf("Here 2\n");
+    extensions->init(getProc, inst, physDev,
+                     (uint32_t) instanceExtensionNames.count(),
+                     instanceExtensionNames.begin(),
+                     (uint32_t) deviceExtensionNames.count(),
+                     deviceExtensionNames.begin());
+
+    SkDebugf("Here 3\n");
+    memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
+    features->sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features->pNext = nullptr;
+
+    VkPhysicalDeviceFeatures* deviceFeatures = &features->features;
+    void* pointerToFeatures = nullptr;
+    if (physDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME, 1)) {
+        SkDebugf("Here 4\n");
+        setup_extension_features(getProc, inst, physDev, physDeviceVersion, extensions, features);
+        // If we set the pNext of the VkDeviceCreateInfo to our VkPhysicalDeviceFeatures2 struct,
+        // the device creation will use that instead of the ppEnabledFeatures.
+        pointerToFeatures = features;
+        SkDebugf("Here 5\n");
+    } else {
+        SkDebugf("Here 6\n");
+        grVkGetPhysicalDeviceFeatures(physDev, deviceFeatures);
+        SkDebugf("Here 7\n");
+    }
+
     // this looks like it would slow things down,
     // and we can't depend on it on all platforms
-    deviceFeatures.robustBufferAccess = VK_FALSE;
+    deviceFeatures->robustBufferAccess = VK_FALSE;
 
     float queuePriorities[1] = { 0.0 };
     // Here we assume no need for swapchain queue
@@ -555,20 +632,23 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     };
     uint32_t queueInfoCount = (presentQueueIndex != graphicsQueueIndex) ? 2 : 1;
 
+    SkDebugf("Here 8\n");
     const VkDeviceCreateInfo deviceInfo = {
-        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,    // sType
-        nullptr,                                 // pNext
-        0,                                       // VkDeviceCreateFlags
-        queueInfoCount,                          // queueCreateInfoCount
-        queueInfo,                               // pQueueCreateInfos
-        (uint32_t) deviceLayerNames.count(),     // layerCount
-        deviceLayerNames.begin(),                // ppEnabledLayerNames
-        (uint32_t) deviceExtensionNames.count(), // extensionCount
-        deviceExtensionNames.begin(),            // ppEnabledExtensionNames
-        &deviceFeatures                          // ppEnabledFeatures
+        VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,        // sType
+        pointerToFeatures,                           // pNext
+        0,                                           // VkDeviceCreateFlags
+        queueInfoCount,                              // queueCreateInfoCount
+        queueInfo,                                   // pQueueCreateInfos
+        (uint32_t) deviceLayerNames.count(),         // layerCount
+        deviceLayerNames.begin(),                    // ppEnabledLayerNames
+        (uint32_t) deviceExtensionNames.count(),     // extensionCount
+        deviceExtensionNames.begin(),                // ppEnabledExtensionNames
+        pointerToFeatures ? nullptr : deviceFeatures // ppEnabledFeatures
     };
 
+    SkDebugf("Here 9\n");
     err = grVkCreateDevice(physDev, &deviceInfo, nullptr, &device);
+    SkDebugf("Here 10\n");
     if (err) {
         SkDebugf("CreateDevice failed: %d\n", err);
         destroy_instance(getProc, inst, debugCallback, hasDebugExtension);
@@ -578,12 +658,7 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     VkQueue queue;
     grVkGetDeviceQueue(device, graphicsQueueIndex, 0, &queue);
 
-    extensions->init(getProc, inst, physDev,
-                     (uint32_t) instanceExtensionNames.count(),
-                     instanceExtensionNames.begin(),
-                     (uint32_t) deviceExtensionNames.count(),
-                     deviceExtensionNames.begin());
-
+    SkDebugf("Here 11\n");
     ctx->fInstance = inst;
     ctx->fPhysicalDevice = physDev;
     ctx->fDevice = device;
@@ -591,11 +666,33 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
     ctx->fGraphicsQueueIndex = graphicsQueueIndex;
     ctx->fInstanceVersion = instanceVersion;
     ctx->fVkExtensions = extensions;
-    ctx->fDeviceFeatures = deviceFeatures;
+    ctx->fDeviceFeatures2 = features;
     ctx->fGetProc = getProc;
     ctx->fOwnsInstanceAndDevice = false;
 
+    SkDebugf("Here 12\n");
     return true;
+}
+
+void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2* features) {
+    // All Vulkan structs that could be part of the features chain will start with the
+    // structure type followed by the pNext pointer. We cast to the CommonVulkanHeader
+    // so we can get access to the pNext for the next struct.
+    struct CommonVulkanHeader {
+        VkStructureType sType;
+        void*           pNext;
+    };
+
+    SkDebugf("hmmmm 1\n");
+    void* pNext = features->pNext;
+    while (pNext) {
+    SkDebugf("hmmmm 2\n");
+        void* current = pNext;
+        pNext = static_cast<CommonVulkanHeader*>(current)->pNext;
+        sk_free(current);
+    SkDebugf("hmmmm 3\n");
+    }
+    SkDebugf("hmmmm 4\n");
 }
 
 }

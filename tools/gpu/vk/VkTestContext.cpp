@@ -151,18 +151,22 @@ public:
     static VkTestContext* Create(VkTestContext* sharedContext) {
         GrVkBackendContext backendContext;
         GrVkExtensions* extensions;
+        VkPhysicalDeviceFeatures2* features;
         bool ownsContext = true;
         VkDebugReportCallbackEXT debugCallback = VK_NULL_HANDLE;
         PFN_vkDestroyDebugReportCallbackEXT destroyCallback = nullptr;
         if (sharedContext) {
             backendContext = sharedContext->getVkBackendContext();
             extensions = const_cast<GrVkExtensions*>(sharedContext->getVkExtensions());
+            features = const_cast<VkPhysicalDeviceFeatures2*>(sharedContext->getVkFeatures());
             // We always delete the parent context last so make sure the child does not think they
             // own the vulkan context.
             ownsContext = false;
         } else {
+            SkDebugf("arggg 1\n");
             PFN_vkGetInstanceProcAddr instProc;
             PFN_vkGetDeviceProcAddr devProc;
+            SkDebugf("arggg 2\n");
             if (!sk_gpu_test::LoadVkLibraryAndGetProcAddrFuncs(&instProc, &devProc)) {
                 return nullptr;
             }
@@ -174,8 +178,16 @@ public:
                 return instProc(instance, proc_name);
             };
             extensions = new GrVkExtensions();
+            SkDebugf("arggg 3\n");
+            features = new VkPhysicalDeviceFeatures2;
+            SkDebugf("arggg 4\n");
             if (!sk_gpu_test::CreateVkBackendContext(getProc, &backendContext, extensions,
-                                                     &debugCallback)) {
+                                                     features, &debugCallback)) {
+                SkDebugf("arggg 5\n");
+                sk_gpu_test::FreeVulkanFeaturesStructs(features);
+                SkDebugf("arggg 6\n");
+                delete features;
+                SkDebugf("arggg 7\n");
                 return nullptr;
             }
             if (debugCallback != VK_NULL_HANDLE) {
@@ -183,8 +195,9 @@ public:
                         backendContext.fInstance, "vkDestroyDebugReportCallbackEXT");
             }
         }
-        return new VkTestContextImpl(backendContext, extensions, ownsContext, debugCallback,
-                                     destroyCallback);
+                SkDebugf("arggg 8\n");
+        return new VkTestContextImpl(backendContext, extensions, features, ownsContext,
+                                     debugCallback, destroyCallback);
     }
 
     ~VkTestContextImpl() override { this->teardown(); }
@@ -210,9 +223,11 @@ protected:
     }
 
     void teardown() override {
+        SkDebugf("blah 1\n");
         INHERITED::teardown();
         fVk.fMemoryAllocator.reset();
         if (fOwnsContext) {
+        SkDebugf("blah 2\n");
             ACQUIRE_VK_PROC_LOCAL(DeviceWaitIdle, fVk.fInstance);
             ACQUIRE_VK_PROC_LOCAL(DestroyDevice, fVk.fInstance);
             ACQUIRE_VK_PROC_LOCAL(DestroyInstance, fVk.fInstance);
@@ -226,14 +241,20 @@ protected:
 #endif
             grVkDestroyInstance(fVk.fInstance, nullptr);
             delete fExtensions;
+
+        SkDebugf("blah 3\n");
+            sk_gpu_test::FreeVulkanFeaturesStructs(fFeatures);
+        SkDebugf("blah 4\n");
+            delete fFeatures;
         }
     }
 
 private:
     VkTestContextImpl(const GrVkBackendContext& backendContext, const GrVkExtensions* extensions,
-                      bool ownsContext, VkDebugReportCallbackEXT debugCallback,
+                      VkPhysicalDeviceFeatures2* features, bool ownsContext,
+                      VkDebugReportCallbackEXT debugCallback,
                       PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
-            : VkTestContext(backendContext, extensions, ownsContext, debugCallback,
+            : VkTestContext(backendContext, extensions, features, ownsContext, debugCallback,
                             destroyCallback) {
         fFenceSync.reset(new VkFenceSync(fVk.fGetProc, fVk.fDevice, fVk.fQueue,
                                          fVk.fGraphicsQueueIndex));
