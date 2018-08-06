@@ -272,7 +272,7 @@ static MTLRenderPipelineColorAttachmentDescriptor* create_color_attachment(
 
     // pixel format
     MTLPixelFormat format;
-    SkASSERT(GrPixelConfigToMTLFormat(pipeline.renderTarget()->config(), &format));
+    SkAssertResult(GrPixelConfigToMTLFormat(pipeline.renderTarget()->config(), &format));
     mtlColorAttachment.pixelFormat = format;
 
     // blending
