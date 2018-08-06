@@ -354,6 +354,16 @@ bool Window_win::attach(BackendType attachType) {
             fWindowContext = window_context_factory::NewANGLEForWin(fHWnd, fRequestedDisplayParams);
             break;
 #endif
+#ifdef SK_NXT
+        case kNXT_BackendType:
+#ifdef SK_NXT_OPENGL
+            fWindowContext = window_context_factory::NewNXTGLForWin(fHWnd, fRequestedDisplayParams);
+#endif
+#ifdef SK_NXT_D3D12
+            fWindowContext = window_context_factory::NewNXTD3D12ForWin(fHWnd, fRequestedDisplayParams);
+#endif
+            break;
+#endif
         case kRaster_BackendType:
             fWindowContext = window_context_factory::NewRasterForWin(fHWnd,
                                                                      fRequestedDisplayParams);
