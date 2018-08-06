@@ -678,10 +678,11 @@ void CPPCodeGenerator::writeClone() {
                          fieldName.c_str(),
                          fieldName.c_str());
         }
-        for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-            String fieldName = HCodeGenerator::FieldName(s->fArgument.c_str());
-            this->writef("\n, %sCoordTransform(src.%sCoordTransform)", fieldName.c_str(),
-                         fieldName.c_str());
+        const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+        for (size_t i = 0; i < transforms.size(); ++i) {
+            const Section& s = *transforms[i];
+            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
+            this->writef("\n, %s(src.%s)", fieldName.c_str(), fieldName.c_str());
         }
         this->writef(" {\n");
         int childCount = 0;
@@ -697,9 +698,10 @@ void CPPCodeGenerator::writeClone() {
         if (samplerCount) {
             this->writef("     this->setTextureSamplerCnt(%d);", samplerCount);
         }
-        for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-            String field = HCodeGenerator::FieldName(s->fArgument.c_str());
-            this->writef("    this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
+        for (size_t i = 0; i < transforms.size(); ++i) {
+            const Section& s = *transforms[i];
+            String fieldName = HCodeGenerator::CoordTransformName(s.fArgument, i);
+            this->writef("    this->addCoordTransform(&%s);\n", fieldName.c_str());
         }
         this->write("}\n");
         this->writef("std::unique_ptr<GrFragmentProcessor> %s::clone() const {\n",

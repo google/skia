@@ -216,10 +216,17 @@ void HCodeGenerator::writeConstructor() {
             this->writef("\n    , %s(%s)", FieldName(name).c_str(), name);
         }
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("\n    , %sCoordTransform(%s, %s.proxy())", field.c_str(), s->fText.c_str(),
-                     field.c_str());
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        String field = CoordTransformName(s.fArgument.c_str(), i);
+        if (s.fArgument.size()) {
+            this->writef("\n    , %s(%s, %s.proxy())", field.c_str(), s.fText.c_str(),
+                         FieldName(s.fArgument.c_str()).c_str());
+        }
+        else {
+            this->writef("\n    , %s(%s)", field.c_str(), s.fText.c_str());
+        }
     }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
@@ -235,9 +242,10 @@ void HCodeGenerator::writeConstructor() {
     if (samplerCount) {
         this->writef("        this->setTextureSamplerCnt(%d);", samplerCount);
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        String field = FieldName(s->fArgument.c_str());
-        this->writef("        this->addCoordTransform(&%sCoordTransform);\n", field.c_str());
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        String field = CoordTransformName(s.fArgument.c_str(), i);
+        this->writef("        this->addCoordTransform(&%s);\n", field.c_str());
     }
     this->writef("    }\n");
 }
@@ -252,9 +260,11 @@ void HCodeGenerator::writeFields() {
                                                param->fModifiers.fLayout).c_str(),
                      FieldName(String(param->fName).c_str()).c_str());
     }
-    for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
-        this->writef("    GrCoordTransform %sCoordTransform;\n",
-                     FieldName(s->fArgument.c_str()).c_str());
+    const auto transforms = fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION);
+    for (size_t i = 0; i < transforms.size(); ++i) {
+        const Section& s = *transforms[i];
+        this->writef("    GrCoordTransform %s;\n",
+                     CoordTransformName(s.fArgument.c_str(), i).c_str());
     }
 }
 

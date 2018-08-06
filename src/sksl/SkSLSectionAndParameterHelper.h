@@ -54,13 +54,12 @@ public:
                 case ProgramElement::kSection_Kind: {
                     const Section& s = (const Section&) p;
                     if (IsSupportedSection(s.fName.c_str())) {
-                        if (SectionAcceptsArgument(s.fName.c_str())) {
-                            if (!s.fArgument.size()) {
-                                errors.error(s.fOffset,
-                                             ("section '@" + s.fName +
-                                              "' requires one parameter").c_str());
-                            }
-                        } else if (s.fArgument.size()) {
+                        if (SectionRequiresArgument(s.fName.c_str()) && !s.fArgument.size()) {
+                            errors.error(s.fOffset,
+                                         ("section '@" + s.fName +
+                                          "' requires one parameter").c_str());
+                        }
+                        if (!SectionAcceptsArgument(s.fName.c_str()) && s.fArgument.size()) {
                             errors.error(s.fOffset,
                                          ("section '@" + s.fName + "' has no parameters").c_str());
                         }
@@ -133,6 +132,12 @@ public:
     static bool SectionAcceptsArgument(const char* name) {
         return !strcmp(name, COORD_TRANSFORM_SECTION) ||
                !strcmp(name, SAMPLER_PARAMS_SECTION) ||
+               !strcmp(name, SET_DATA_SECTION) ||
+               !strcmp(name, TEST_CODE_SECTION);
+    }
+
+    static bool SectionRequiresArgument(const char* name) {
+        return !strcmp(name, SAMPLER_PARAMS_SECTION) ||
                !strcmp(name, SET_DATA_SECTION) ||
                !strcmp(name, TEST_CODE_SECTION);
     }
