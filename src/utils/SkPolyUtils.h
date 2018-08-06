@@ -104,18 +104,18 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
 
 /**
  * Compute the number of points needed for a circular join when offsetting a vertex.
- * The lengths of offset0 and offset1 don't have to equal r -- only the direction matters.
+ * The lengths of offset0 and offset1 don't have to equal |offset| -- only the direction matters.
  * The segment lengths will be approximately four pixels.
  *
  * @param offset0  Starting offset vector direction.
  * @param offset1  Ending offset vector direction.
- * @param r  Length of offset.
+ * @param offset  Offset value (can be negative).
  * @param rotSin  Sine of rotation delta per step.
  * @param rotCos  Cosine of rotation delta per step.
  * @param n  Number of steps to fill out the arc.
  * @return true for success, false otherwise
  */
-bool SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar r,
+bool SkComputeRadialSteps(const SkVector& offset0, const SkVector& offset1, SkScalar offset,
                           SkScalar* rotSin, SkScalar* rotCos, int* n);
 
 /**
