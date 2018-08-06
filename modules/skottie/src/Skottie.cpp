@@ -1252,19 +1252,11 @@ sk_sp<sksg::RenderNode> AttachComposition(const skjson::ObjectValue& comp, Attac
 } // namespace
 
 sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provider, Stats* stats) {
-    Stats stats_storage;
-    if (!stats)
-        stats = &stats_storage;
-    memset(stats, 0, sizeof(struct Stats));
-
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
         return nullptr;
     }
-
-    stats->fJsonSize = stream->getLength();
-    const auto t0 = SkTime::GetMSecs();
 
     auto data = SkData::MakeFromStream(stream, stream->getLength());
     if (!data) {
@@ -1272,7 +1264,20 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provi
         return nullptr;
     }
 
-    const skjson::DOM dom(static_cast<const char*>(data->data()), data->size());
+    return Make(static_cast<const char*>(data->data()), data->size(), provider, stats);
+}
+
+sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
+                                 const ResourceProvider* provider, Stats* stats) {
+    Stats stats_storage;
+    if (!stats)
+        stats = &stats_storage;
+    memset(stats, 0, sizeof(struct Stats));
+
+    stats->fJsonSize = data_len;
+    const auto t0 = SkTime::GetMSecs();
+
+    const skjson::DOM dom(data, data_len);
     if (!dom.root().is<skjson::ObjectValue>()) {
         // TODO: more error info.
         SkDebugf("!! Failed to parse JSON input.\n");
@@ -1323,8 +1328,8 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         const SkString fDir;
     };
 
-    const auto jsonStream =  SkStream::MakeFromFile(path);
-    if (!jsonStream)
+    const auto data =  SkData::MakeFromFileName(path);
+    if (!data)
         return nullptr;
 
     std::unique_ptr<ResourceProvider> defaultProvider;
@@ -1332,7 +1337,8 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
-    return Make(jsonStream.get(), res ? res : defaultProvider.get(), stats);
+    return Make(static_cast<const char*>(data->data()), data->size(),
+                res ? res : defaultProvider.get(), stats);
 }
 
 Animation::Animation(const ResourceProvider& resources,
