@@ -153,17 +153,19 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
         const SkRect* bounds;
         const SkScalar matrix[9];
     } kConfigs[] = {
-        { nullptr, { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 } },
+//        { nullptr, { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 } },
         { nullptr, { 2     ,  0     ,   0,   0     , 2     ,   0,   0, 0, 1 } },
         { nullptr, { 2     ,  0     , -50,   0     , 2     , -50,   0, 0, 1 } },
         { nullptr, { 0.707f, -0.707f,  50,   0.707f, 0.707f, -20,   0, 0, 1 } },
         { nullptr, { 0.5f  ,  0     ,  25,   0     , 0.5f  ,  25,   0, 0, 1 } },
 
+#if 0
         { &kLayerBounds, { 1     ,  0     ,   0,   0     , 1     ,   0,   0, 0, 1 } },
         { &kLayerBounds, { 2     ,  0     ,   0,   0     , 2     ,   0,   0, 0, 1 } },
         { &kLayerBounds, { 2     ,  0     , -50,   0     , 2     , -50,   0, 0, 1 } },
         { &kLayerBounds, { 0.707f, -0.707f,  50,   0.707f, 0.707f, -20,   0, 0, 1 } },
         { &kLayerBounds, { 0.5f  ,  0     ,  25,   0     , 0.5f  ,  25,   0, 0, 1 } },
+#endif
     };
 
     using MaskMakerFunc = sk_sp<SkImage> (*)(int size);
@@ -206,6 +208,8 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
     SkCanvas::SaveLayerRec rec;
     rec.fClipMatrix = &clipMatrix;
 
+    int foo = 0;
+
     for (const auto& paintMaker : kPaintMakers) {
         auto layerPaint = paintMaker();
         rec.fPaint = &layerPaint;
@@ -232,6 +236,11 @@ DEF_SIMPLE_GM(savelayer_clipmask, canvas, 1200, 1200) {
 
                 canvas->restore();
                 canvas->translate(120, 0);
+
+                foo++;
+                if (2 == foo) {
+                    canvas->flush();
+                }
             }
             canvas->restore();
             canvas->translate(0, 120);

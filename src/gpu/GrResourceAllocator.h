@@ -20,7 +20,7 @@ class GrResourceProvider;
 class GrUninstantiateProxyTracker;
 
 // Print out explicit allocation information
-#define GR_ALLOCATION_SPEW 0
+#define GR_ALLOCATION_SPEW 1
 
 // Print out information about interval creation
 #define GR_TRACK_INTERVAL_CREATION 0
@@ -109,11 +109,11 @@ private:
     class Interval {
     public:
         Interval(GrSurfaceProxy* proxy, unsigned int start, unsigned int end)
-            : fProxy(proxy)
-            , fProxyID(proxy->uniqueID().asUInt())
-            , fStart(start)
-            , fEnd(end)
-            , fNext(nullptr) {
+                : fProxy(proxy)
+                , fProxyID(proxy->uniqueID().asUInt())
+                , fStart(start)
+                , fEnd(end)
+                , fNext(nullptr) {
             SkASSERT(proxy);
 #if GR_TRACK_INTERVAL_CREATION
             fUniqueID = CreateUniqueID();
