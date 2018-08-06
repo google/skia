@@ -1601,7 +1601,6 @@ if (skia_enable_tools) {
         "dm/DMGpuTestProcs.cpp",
         "dm/DMJsonWriter.cpp",
         "dm/DMSrcSink.cpp",
-        "dm/ValidateGMNames.cpp",
       ]
       include_dirs = [ "tests" ]
       deps = [
