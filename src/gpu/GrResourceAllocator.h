@@ -161,7 +161,11 @@ private:
 
         void assign(sk_sp<GrSurface>);
         bool wasAssignedSurface() const { return fAssignedSurface != nullptr; }
-        sk_sp<GrSurface> detachSurface() { return std::move(fAssignedSurface); }
+        sk_sp<GrSurface> detachSurface() {
+            auto surface = std::move(fAssignedSurface);
+            SkDEBUGCODE(fAssignedSurface.reset());  // suppress use-after-release assert
+            return surface;
+        }
 
         // for SkTDynamicHash
         static const uint32_t& GetKey(const Interval& intvl) {

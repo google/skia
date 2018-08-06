@@ -283,8 +283,6 @@ void GrCoverageCountingPathRenderer::preFlush(GrOnFlushResourceProvider* onFlush
     if (!resources->finalize(onFlushRP, std::move(stashedAtlasProxy), out)) {
         return;
     }
-    // Verify the stashed atlas got released so its texture could be recycled.
-    SkASSERT(!stashedAtlasProxy);
 
     // Commit flushing paths to the resources once they are successfully completed.
     for (auto& flushingPaths : fFlushingPaths) {

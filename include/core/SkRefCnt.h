@@ -246,6 +246,11 @@ public:
      *  Calls unref() on the underlying object pointer.
      */
     ~sk_sp() {
+#ifdef SK_DEBUG
+        if (fPtr == ReleasedPointer()) {
+            fPtr = nullptr;
+        }
+#endif
         SkSafeUnref(fPtr);
         SkDEBUGCODE(fPtr = nullptr);
     }
@@ -293,7 +298,10 @@ public:
 
     explicit operator bool() const { return this->get() != nullptr; }
 
-    T* get() const { return fPtr; }
+    T* get() const {
+        SkASSERT(fPtr != ReleasedPointer());
+        return fPtr;
+    }
     T* operator->() const { return fPtr; }
 
     /**
@@ -306,17 +314,29 @@ public:
         // http://wg21.cmeerw.net/lwg/issue2262
         T* oldPtr = fPtr;
         fPtr = ptr;
+#ifdef SK_DEBUG
+        if (oldPtr == ReleasedPointer()) {
+            oldPtr = nullptr;
+        }
+#endif
         SkSafeUnref(oldPtr);
     }
 
     /**
      *  Return the bare pointer, and set the internal object pointer to nullptr.
+     *  In debug builds this sets the internal pointer to a sentinel that will trigger an assert
+     *  if this pointer is used in any way without first calling reset.
      *  The caller must assume ownership of the object, and manage its reference count directly.
      *  No call to unref() will be made.
      */
     T* SK_WARN_UNUSED_RESULT release() {
+        SkASSERT(fPtr != ReleasedPointer());
         T* ptr = fPtr;
+#ifdef SK_DEBUG
+        fPtr = ReleasedPointer();
+#else
         fPtr = nullptr;
+#endif
         return ptr;
     }
 
@@ -326,6 +346,8 @@ public:
     }
 
 private:
+    static constexpr T* ReleasedPointer() { return reinterpret_cast<T*>(1); }
+
     T*  fPtr;
 };
 

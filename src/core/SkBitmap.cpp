@@ -53,7 +53,6 @@ SkBitmap::SkBitmap(SkBitmap&& other)
     , fPixmap        (std::move(other.fPixmap))
     , fFlags                   (other.fFlags)
 {
-    SkASSERT(!other.fPixelRef);
     other.fPixmap.reset();
     other.fFlags          = 0;
 }
@@ -75,7 +74,6 @@ SkBitmap& SkBitmap::operator=(SkBitmap&& other) {
         fPixelRef       = std::move(other.fPixelRef);
         fPixmap         = std::move(other.fPixmap);
         fFlags          = other.fFlags;
-        SkASSERT(!other.fPixelRef);
         other.fPixmap.reset();
         other.fFlags          = 0;
     }
