@@ -92,9 +92,9 @@ private:
             : INHERITED(std::move(gp), rect, color, ClassID()) {}
 
     void onPrepareDraws(Target* target) override {
-        QuadHelper helper;
         SkASSERT(this->gp()->debugOnly_vertexStride() == sizeof(SkPoint));
-        SkPoint* pts = reinterpret_cast<SkPoint*>(helper.init(target, sizeof(SkPoint), 1));
+        QuadHelper helper(target, sizeof(SkPoint), 1);
+        SkPoint* pts = reinterpret_cast<SkPoint*>(helper.vertices());
         if (!pts) {
             return;
         }
@@ -284,9 +284,9 @@ private:
     };
 
     void onPrepareDraws(Target* target) override {
-        QuadHelper helper;
         SkASSERT(this->gp()->debugOnly_vertexStride() == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, sizeof(Vertex), 1));
+        QuadHelper helper(target, sizeof(Vertex), 1);
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
             return;
         }
@@ -506,9 +506,9 @@ private:
     };
 
     void onPrepareDraws(Target* target) override {
-        QuadHelper helper;
         SkASSERT(this->gp()->debugOnly_vertexStride() == sizeof(Vertex));
-        Vertex* verts = reinterpret_cast<Vertex*>(helper.init(target, sizeof(Vertex), 1));
+        QuadHelper helper(target, sizeof(Vertex), 1);
+        Vertex* verts = reinterpret_cast<Vertex*>(helper.vertices());
         if (!verts) {
             return;
         }

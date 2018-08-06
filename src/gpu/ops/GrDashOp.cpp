@@ -625,7 +625,6 @@ private:
             return;
         }
 
-        QuadHelper helper;
         size_t vertexStride;
         if (fullDash) {
             vertexStride =
@@ -634,7 +633,8 @@ private:
             vertexStride = sizeof(SkPoint);
         }
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-        void* vertices = helper.init(target, vertexStride, totalRectCount);
+        QuadHelper helper(target, vertexStride, totalRectCount);
+        void* vertices = helper.vertices();
         if (!vertices) {
             return;
         }

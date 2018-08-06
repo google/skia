@@ -265,10 +265,9 @@ private:
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
         sk_sp<const GrBuffer> indexBuffer = get_index_buffer(target->resourceProvider());
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices =
-                helper.init(target, vertexStride, indexBuffer.get(), kVertsPerAAFillRect,
-                            kIndicesPerAAFillRect, fRectCnt);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+                             kVertsPerAAFillRect, kIndicesPerAAFillRect, fRectCnt);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;

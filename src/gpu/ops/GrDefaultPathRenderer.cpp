@@ -67,7 +67,7 @@ public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
                    sk_sp<const GrGeometryProcessor> geometryProcessor, const GrPipeline* pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState)
-            : fMesh(primitiveType)
+            : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
             , fGeometryProcessor(std::move(geometryProcessor))
@@ -200,15 +200,15 @@ private:
      *  TODO: Cache some of these for better performance, rather than re-computing?
      */
     bool isIndexed() const {
-        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
-               GrPrimitiveType::kTriangles == fMesh.primitiveType();
+        return GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kTriangles == fPrimitiveType;
     }
     bool isHairline() const {
-        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
-               GrPrimitiveType::kLineStrip == fMesh.primitiveType();
+        return GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kLineStrip == fPrimitiveType;
     }
     int indexScale() const {
-        switch (fMesh.primitiveType()) {
+        switch (fPrimitiveType) {
             case GrPrimitiveType::kLines:
                 return 2;
             case GrPrimitiveType::kTriangles:
@@ -271,14 +271,15 @@ private:
         SkASSERT(indexCount <= fIndicesInChunk);
 
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
+            GrMesh* mesh = fTarget->allocMesh(fPrimitiveType);
             if (!this->isIndexed()) {
-                fMesh.setNonIndexedNonInstanced(vertexCount);
+                mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
-                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
+                mesh->setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
                                  GrPrimitiveRestart::kNo);
             }
-            fMesh.setVertexData(fVertexBuffer, fFirstVertex);
-            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, fMesh);
+            mesh->setVertexData(fVertexBuffer, fFirstVertex);
+            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -311,7 +312,7 @@ private:
         }
     }
 
-    GrMesh fMesh;
+    GrPrimitiveType fPrimitiveType;
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
     sk_sp<const GrGeometryProcessor> fGeometryProcessor;
