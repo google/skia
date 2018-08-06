@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
-DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-release:1.38.6'
+DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-release:1.38.6_jre'
 INNER_BUILD_SCRIPT = '/SRC/skia/experimental/pathkit/docker/build_pathkit.sh'
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
@@ -35,7 +35,7 @@ def compile_fn(api, checkout_root, _ignore):
          '-v', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
   if configuration == 'Debug':
-    cmd += ['dev']
+    cmd += ['debug']
   api.run(
     api.step,
     'Build PathKit with Docker',
