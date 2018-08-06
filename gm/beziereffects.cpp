@@ -60,8 +60,6 @@ protected:
     GrColor color() const { return fColor; }
 
 private:
-    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
-
     SkRect fRect;
     GrColor fColor;
     sk_sp<const GrGeometryProcessor> fGeometryProcessor;

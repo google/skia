@@ -708,27 +708,27 @@ private:
         target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (!GrColorSpaceXform::Equals(fPaintColorSpaceXform.get(),
                                        that->fPaintColorSpaceXform.get())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (this->aaType() != that->aaType()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (fProxy->uniqueID() != that->fProxy->uniqueID() || fFilter != that->fFilter) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());
         this->joinBounds(*that);
         fPerspective |= that->fPerspective;
         fDomain |= that->fDomain;
-        return true;
+        return CombineResult::kMerged;
     }
 
     GrAAType aaType() const { return static_cast<GrAAType>(fAAType); }

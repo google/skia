@@ -366,8 +366,6 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
-
     Helper fHelper;
     GrColor                 fColor;
     GrShape                 fShape;

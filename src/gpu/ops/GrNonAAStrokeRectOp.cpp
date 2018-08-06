@@ -195,11 +195,7 @@ private:
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
-        // NonAA stroke rects cannot combine right now
-        // TODO make these combinable.
-        return false;
-    }
+    // TODO: override onCombineIfPossible
 
     Helper fHelper;
     GrColor fColor;

@@ -75,9 +75,21 @@ public:
         // This default implementation assumes the op has no proxies
     }
 
-    bool combineIfPossible(GrOp* that, const GrCaps& caps) {
+    enum class CombineResult {
+        /**
+         * The op that combineIfPossible was called on now represents its own work plus that of
+         * the passed op. The passed op should be destroyed without being flushed.
+         */
+        kMerged,
+        /**
+         * The ops cannot be combined.
+         */
+        kCannotCombine
+    };
+
+    CombineResult combineIfPossible(GrOp* that, const GrCaps& caps) {
         if (this->classID() != that->classID()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         return this->onCombineIfPossible(that, caps);
@@ -211,7 +223,9 @@ protected:
     static uint32_t GenOpClassID() { return GenID(&gCurrOpClassID); }
 
 private:
-    virtual bool onCombineIfPossible(GrOp*, const GrCaps& caps) = 0;
+    virtual CombineResult onCombineIfPossible(GrOp*, const GrCaps&) {
+        return CombineResult::kCannotCombine;
+    }
 
     virtual void onPrepare(GrOpFlushState*) = 0;
     virtual void onExecute(GrOpFlushState*) = 0;

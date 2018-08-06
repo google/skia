@@ -117,7 +117,7 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
     return RequiresDstTexture(analysis.requiresDstTexture());
 }
 
-bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
+GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
     GrCCDrawPathsOp* that = op->cast<GrCCDrawPathsOp>();
     SkASSERT(fOwningPerOpListPaths);
     SkASSERT(fNumDraws);
@@ -126,7 +126,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
 
     if (fProcessors != that->fProcessors ||
         fViewMatrixIfUsingLocalCoords != that->fViewMatrixIfUsingLocalCoords) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     fDraws.append(std::move(that->fDraws), &fOwningPerOpListPaths->fAllocator);
@@ -134,7 +134,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
 
     SkDEBUGCODE(fNumDraws += that->fNumDraws);
     SkDEBUGCODE(that->fNumDraws = 0);
-    return true;
+    return CombineResult::kMerged;
 }
 
 void GrCCDrawPathsOp::wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths) {
