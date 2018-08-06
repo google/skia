@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0efd16c5_4073af78",
+        "filename": "DEPS",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-06T17:58:59Z",
+      "side": 1,
+      "message": "Yeah, this feels like something we should mirror, perhaps build ourselves?  Does it make sense to ship as a CIPD package instead of pulling via DEPS?",
+      "revId": "3e0d82d3c2785a3905521fa4e833d19144fe089d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
