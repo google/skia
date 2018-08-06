@@ -15,12 +15,15 @@
 #include "SkImage_Base.h"
 #include "SkImageFilter.h"
 #include "SkImagePriv.h"
+#include "SkPM4fPriv.h"
 #include "SkShaderBase.h"
 
 SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst,
-                                         std::unique_ptr<SkColorSpaceXform> fromSRGB)
+                                         std::unique_ptr<SkColorSpaceXform> fromSRGB,
+                                         const SkColorSpaceXformSteps& fromSRGBSteps)
     : fDst(std::move(dst))
     , fFromSRGB(std::move(fromSRGB))
+    , fFromSRGBSteps(fromSRGBSteps)
     , fReentryCount(0) {}
 
 SkColorSpaceXformer::~SkColorSpaceXformer() {}
@@ -30,8 +33,9 @@ std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpac
             sk_srgb_singleton(), dst.get());
 
     return fromSRGB
-        ? std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer(std::move(dst),
-                                                                       std::move(fromSRGB)))
+        ? std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer(
+                std::move(dst), std::move(fromSRGB),
+                SkColorSpaceXformSteps::UnpremulToUnpremul(sk_srgb_singleton(), dst.get())))
         : nullptr;
 }
 
@@ -144,9 +148,10 @@ void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
 }
 
 SkColor SkColorSpaceXformer::apply(SkColor srgb) {
-    SkColor xformed;
-    this->apply(&xformed, &srgb, 1);
-    return xformed;
+    SkColor4f color4f;
+    swizzle_rb(Sk4f_fromL32(srgb)).store(color4f.vec());
+    fFromSRGBSteps.apply(color4f.vec());
+    return Sk4f_toL32(swizzle_rb(Sk4f::Load(color4f.vec())));
 }
 
 SkPaint SkColorSpaceXformer::apply(const SkPaint& src) {
