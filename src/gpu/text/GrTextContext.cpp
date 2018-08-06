@@ -290,8 +290,7 @@ void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
     SkRect glyphRect = rect_to_draw(skGlyph, {sx, sy}, textRatio, maskStyle);
 
     if (!glyphRect.isEmpty()) {
-        blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph,
-                          skGlyphCache, skGlyph, sx, sy, textRatio, !needsTransform);
+        blob->appendGlyph(runIndex, glyphRect, color, *strike, glyph, !needsTransform);
     }
 }
 
