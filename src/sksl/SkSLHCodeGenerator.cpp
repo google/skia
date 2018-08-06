@@ -218,8 +218,13 @@ void HCodeGenerator::writeConstructor() {
     }
     for (const Section* s : fSectionAndParameterHelper.getSections(COORD_TRANSFORM_SECTION)) {
         String field = FieldName(s->fArgument.c_str());
-        this->writef("\n    , %sCoordTransform(%s, %s.proxy())", field.c_str(), s->fText.c_str(),
-                     field.c_str());
+        if (s->fArgument.size()) {
+            this->writef("\n    , %sCoordTransform(%s, %s.proxy())", field.c_str(),
+                         s->fText.c_str(), field.c_str());
+        }
+        else {
+            this->writef("\n    , %sCoordTransform(%s)", field.c_str(), s->fText.c_str());
+        }
     }
     this->writef(" {\n");
     this->writeSection(CONSTRUCTOR_CODE_SECTION);
