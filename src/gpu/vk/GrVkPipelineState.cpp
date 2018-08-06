@@ -167,9 +167,7 @@ void GrVkPipelineState::abandonGPUResources() {
 
 void GrVkPipelineState::setData(GrVkGpu* gpu,
                                 const GrPrimitiveProcessor& primProc,
-                                const GrPipeline& pipeline,
-                                const GrTextureProxy* const primProcTextures[]) {
-    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
+                                const GrPipeline& pipeline) {
     // This is here to protect against someone calling setData multiple times in a row without
     // freeing the tempData between calls.
     this->freeTempResources(gpu);
@@ -183,8 +181,8 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
         const auto& sampler = primProc.textureSampler(i);
-        auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
-        samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
+        samplerBindings[currTextureBinding++] = {sampler.samplerState(),
+                                                 static_cast<GrVkTexture*>(sampler.peekTexture())};
     }
 
     GrFragmentProcessor::Iter iter(pipeline);

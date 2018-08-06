@@ -295,16 +295,9 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     }
     SkASSERT(proxies[0]);
 
-    static constexpr int kMaxTextures = GrBitmapTextGeoProc::kMaxTextures;
-    GR_STATIC_ASSERT(GrDistanceFieldA8TextGeoProc::kMaxTextures == kMaxTextures);
-    GR_STATIC_ASSERT(GrDistanceFieldLCDTextGeoProc::kMaxTextures == kMaxTextures);
-
     static const uint32_t kPipelineFlags = 0;
     auto pipe = target->makePipeline(kPipelineFlags, std::move(fProcessors),
-                                     target->detachAppliedClip(), kMaxTextures);
-    for (unsigned i = 0; i < numActiveProxies; ++i) {
-        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-    }
+                                     target->detachAppliedClip());
 
     FlushInfo flushInfo;
     flushInfo.fPipeline = pipe.fPipeline;
@@ -407,9 +400,6 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     if (gp->numTextureSamplers() != (int) numActiveProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
-        for (unsigned i = gp->numTextureSamplers(); i < numActiveProxies; ++i) {
-            flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-        }
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
@@ -425,60 +415,62 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
                                                                       samplerState);
         }
     }
+
+    GrMesh mesh(GrPrimitiveType::kTriangles);
     int maxGlyphsPerDraw =
             static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-    GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-    mesh->setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
-                              flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
-    mesh->setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-    target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline, flushInfo->fFixedDynamicState,
-                 mesh);
+    mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerGlyph, kVerticesPerGlyph,
+                             flushInfo->fGlyphsToFlush, maxGlyphsPerDraw);
+    mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
+    target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline,
+                 flushInfo->fFixedDynamicState, mesh);
     flushInfo->fVertexOffset += kVerticesPerGlyph * flushInfo->fGlyphsToFlush;
     flushInfo->fGlyphsToFlush = 0;
 }
 
-GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrAtlasTextOp* that = t->cast<GrAtlasTextOp>();
     if (fProcessors != that->fProcessors) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (!fCanCombineOnTouchOrOverlap && GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fMaskType != that->fMaskType) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     const SkMatrix& thisFirstMatrix = fGeoData[0].fViewMatrix;
     const SkMatrix& thatFirstMatrix = that->fGeoData[0].fViewMatrix;
 
     if (this->usesLocalCoords() && !thisFirstMatrix.cheapEqualTo(thatFirstMatrix)) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fNeedsGlyphTransform != that->fNeedsGlyphTransform) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (fNeedsGlyphTransform &&
         (thisFirstMatrix.hasPerspective() != thatFirstMatrix.hasPerspective())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (this->usesDistanceFields()) {
         if (fDFGPFlags != that->fDFGPFlags) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fLuminanceColor != that->fLuminanceColor) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
     } else {
         if (kColorBitmapMask_MaskType == fMaskType && this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
+
     }
 
     // Keep the batch vertex buffer size below 32K so we don't have to create a special one
@@ -486,7 +478,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     static const int kVertexSize = sizeof(SkPoint) + sizeof(SkColor) + 2 * sizeof(uint16_t);
     static const int kMaxGlyphs = 32768 / (kVerticesPerGlyph * kVertexSize);
     if (this->fNumGlyphs + that->fNumGlyphs > kMaxGlyphs) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     fNumGlyphs += that->numGlyphs();
@@ -516,7 +508,7 @@ GrOp::CombineResult GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& ca
     fGeoCount = newGeoCount;
 
     this->joinBounds(*that);
-    return CombineResult::kMerged;
+    return true;
 }
 
 // TODO trying to figure out why lcd is so whack

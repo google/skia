@@ -73,11 +73,9 @@ public:
     GrDeferredUploadToken addASAPUpload(GrDeferredTextureUploadFn&&) final;
 
     /** Overrides of GrMeshDrawOp::Target. */
-    void draw(sk_sp<const GrGeometryProcessor>,
-              const GrPipeline*,
-              const GrPipeline::FixedDynamicState*,
-              const GrMesh[],
-              int meshCount) final;
+
+    void draw(const GrGeometryProcessor*, const GrPipeline*, const GrPipeline::FixedDynamicState*,
+              const GrMesh&) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) final;
@@ -120,18 +118,12 @@ private:
     // that share a geometry processor into a Draw is that it allows the Gpu object to setup
     // the shared state once and then issue draws for each mesh.
     struct Draw {
-        ~Draw() {
-            for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
-                fFixedDynamicState->fPrimitiveProcessorTextures[i]->completedRead();
-            }
-        }
-        sk_sp<const GrGeometryProcessor> fGeometryProcessor;
-        const GrPipeline* fPipeline = nullptr;
+        int fMeshCnt = 0;
+        GrPendingProgramElement<const GrGeometryProcessor> fGeometryProcessor;
+        const GrPipeline* fPipeline;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;
         const GrPipeline::DynamicStateArrays* fDynamicStateArrays;
-        const GrMesh* fMeshes = nullptr;
-        int fMeshCnt = 0;
-        uint32_t fOpID = SK_InvalidUniqueID;
+        uint32_t fOpID;
     };
 
     // Storage for ops' pipelines, draws, and inline uploads.
@@ -145,6 +137,9 @@ private:
     SkArenaAllocList<GrDeferredTextureUploadFn> fASAPUploads;
     SkArenaAllocList<InlineUpload> fInlineUploads;
     SkArenaAllocList<Draw> fDraws;
+    // TODO: These should go in the arena. However, GrGpuCommandBuffer and other classes currently
+    // accept contiguous arrays of meshes.
+    SkSTArray<16, GrMesh> fMeshes;
 
     // All draws we store have an implicit draw token. This is the draw token for the first draw
     // in fDraws.
@@ -161,6 +156,7 @@ private:
 
     // Variables that are used to track where we are in lists as ops are executed
     SkArenaAllocList<Draw>::Iter fCurrDraw;
+    int fCurrMesh;
     SkArenaAllocList<InlineUpload>::Iter fCurrUpload;
 
     // Used to track the proxies that need to be uninstantiated after we finish a flush

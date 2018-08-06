@@ -240,9 +240,6 @@ public:
         SkASSERT(LazyState::kFully != this->lazyInstantiationState());
         return fHeight;
     }
-
-    SkISize isize() const { return {fWidth, fHeight}; }
-
     int worstCaseWidth() const;
     int worstCaseHeight() const;
     /**

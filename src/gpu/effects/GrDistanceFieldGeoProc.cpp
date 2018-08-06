@@ -172,13 +172,15 @@ public:
         }
 #endif
 
-        const SkISize& atlasSize = dfa8gp.atlasSize();
-        SkASSERT(SkIsPow2(atlasSize.fWidth) && SkIsPow2(atlasSize.fHeight));
+        SkASSERT(dfa8gp.numTextureSamplers() >= 1);
+        GrTexture* atlas = dfa8gp.textureSampler(0).peekTexture();
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
-        if (fAtlasSize != atlasSize) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlasSize.fWidth, 1.0f / atlasSize.fHeight);
-            fAtlasSize = atlasSize;
+        if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
+            fAtlasSize.set(atlas->width(), atlas->height());
+            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
         }
+
         this->setTransformDataHelper(dfa8gp.localMatrix(), pdman, &transformIter);
     }
 
@@ -232,13 +234,9 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const sk_sp<GrTexture
     }
     this->setVertexAttributeCnt(3);
 
-    if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
-    }
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
-        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+        fTextureSamplers[i].reset(std::move(proxies[i]), params);
     }
     this->setTextureSamplerCnt(numProxies);
 }
@@ -248,15 +246,10 @@ void GrDistanceFieldA8TextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* pr
                                                  const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
 
-    if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
         }
     }
     this->setTextureSamplerCnt(numProxies);
@@ -467,11 +460,13 @@ public:
             pdman.setMatrix3f(fMatrixUniform, matrix);
         }
 
-        const SkISize& atlasSize = dfpgp.atlasSize();
-        SkASSERT(SkIsPow2(atlasSize.fWidth) && SkIsPow2(atlasSize.fHeight));
-        if (fAtlasSize != atlasSize) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlasSize.fWidth, 1.0f / atlasSize.fHeight);
-            fAtlasSize = atlasSize;
+        SkASSERT(dfpgp.numTextureSamplers() >= 1);
+        GrTexture* atlas = dfpgp.textureSampler(0).peekTexture();
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
+
+        if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
+            fAtlasSize.set(atlas->width(), atlas->height());
+            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
         }
 
         if (dfpgp.matrix().hasPerspective()) {
@@ -520,15 +515,9 @@ GrDistanceFieldPathGeoProc::GrDistanceFieldPathGeoProc(const SkMatrix& matrix,
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
     this->setVertexAttributeCnt(3);
-
-    if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
-        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+        fTextureSamplers[i].reset(std::move(proxies[i]), params);
     }
     this->setTextureSamplerCnt(numProxies);
 }
@@ -538,16 +527,11 @@ void GrDistanceFieldPathGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* prox
                                                const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
 
-    if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
         }
     }
     this->setTextureSamplerCnt(numProxies);
@@ -789,11 +773,13 @@ public:
             fDistanceAdjust = wa;
         }
 
-        const SkISize& atlasSize = dflcd.atlasSize();
-        SkASSERT(SkIsPow2(atlasSize.fWidth) && SkIsPow2(atlasSize.fHeight));
-        if (fAtlasSize != atlasSize) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlasSize.fWidth, 1.0f / atlasSize.fHeight);
-            fAtlasSize = atlasSize;
+        SkASSERT(dflcd.numTextureSamplers() >= 1);
+        GrTexture* atlas = dflcd.textureSampler(0).peekTexture();
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
+
+        if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
+            fAtlasSize.set(atlas->width(), atlas->height());
+            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
         }
         this->setTransformDataHelper(dflcd.localMatrix(), pdman, &transformIter);
     }
@@ -843,14 +829,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextu
     }
     this->setVertexAttributeCnt(3);
 
-    if (numProxies) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
-        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+        fTextureSamplers[i].reset(std::move(proxies[i]), params);
     }
     this->setTextureSamplerCnt(numProxies);
 }
@@ -860,16 +841,11 @@ void GrDistanceFieldLCDTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* p
                                                   const GrSamplerState& params) {
     SkASSERT(numProxies <= kMaxTextures);
 
-    if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
         }
     }
     this->setTextureSamplerCnt(numProxies);

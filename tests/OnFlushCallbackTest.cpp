@@ -89,6 +89,8 @@ protected:
     SkRect  fRect;
 
 private:
+    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
+
     void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
@@ -157,12 +159,12 @@ private:
             }
         }
 
-        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
-        mesh->setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        GrMesh mesh(GrPrimitiveType::kTriangles);
+        mesh.setIndexed(indexBuffer, 6, firstIndex, 0, 3, GrPrimitiveRestart::kNo);
+        mesh.setVertexData(vertexBuffer, firstVertex);
 
         auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Helper fHelper;

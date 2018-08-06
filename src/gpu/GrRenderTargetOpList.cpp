@@ -339,7 +339,7 @@ bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
     } else if (a.fDstProxy.proxy()) {
         return false;
     }
-    return a.fOp->combineIfPossible(b, caps) == GrOp::CombineResult::kMerged;
+    return a.fOp->combineIfPossible(b, caps);
 }
 
 uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,

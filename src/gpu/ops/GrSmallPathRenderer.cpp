@@ -304,7 +304,7 @@ private:
         sk_sp<const GrBuffer> fIndexBuffer;
         sk_sp<GrGeometryProcessor>   fGeometryProcessor;
         const GrPipeline* fPipeline;
-        GrPipeline::FixedDynamicState* fFixedDynamicState;
+        const GrPipeline::FixedDynamicState* fFixedDynamicState;
         int fVertexOffset;
         int fInstancesToFlush;
     };
@@ -312,15 +312,7 @@ private:
     void onPrepareDraws(Target* target) override {
         int instanceCount = fShapes.count();
 
-        static constexpr int kMaxTextures = GrDistanceFieldPathGeoProc::kMaxTextures;
-        GR_STATIC_ASSERT(GrBitmapTextGeoProc::kMaxTextures == kMaxTextures);
-
-        auto pipe = fHelper.makePipeline(target, kMaxTextures);
-        int numActiveProxies = fAtlas->numActivePages();
-        const auto proxies = fAtlas->getProxies();
-        for (int i = 0; i < numActiveProxies; ++i) {
-            pipe.fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-        }
+        auto pipe = fHelper.makePipeline(target);
 
         FlushInfo flushInfo;
         flushInfo.fPipeline = pipe.fPipeline;
@@ -815,12 +807,7 @@ private:
 
     void flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) const {
         GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
-        int numAtlasTextures = SkToInt(fAtlas->numActivePages());
-        auto proxies = fAtlas->getProxies();
-        if (gp->numTextureSamplers() != numAtlasTextures) {
-            for (int i = gp->numTextureSamplers(); i < numAtlasTextures; ++i) {
-                flushInfo->fFixedDynamicState->fPrimitiveProcessorTextures[i] = proxies[i].get();
-            }
+        if (gp->numTextureSamplers() != (int)fAtlas->numActivePages()) {
             // During preparation the number of atlas pages has increased.
             // Update the proxies used in the GP to match.
             if (fUsesDistanceField) {
@@ -833,14 +820,14 @@ private:
         }
 
         if (flushInfo->fInstancesToFlush) {
-            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            GrMesh mesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-            mesh->setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
-                                      kVerticesPerQuad, flushInfo->fInstancesToFlush,
-                                      maxInstancesPerDraw);
-            mesh->setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
-            target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
+            mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
+                                     kVerticesPerQuad, flushInfo->fInstancesToFlush,
+                                     maxInstancesPerDraw);
+            mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
+            target->draw(flushInfo->fGeometryProcessor.get(), flushInfo->fPipeline,
                          flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;
             flushInfo->fInstancesToFlush = 0;
@@ -850,41 +837,41 @@ private:
     GrColor color() const { return fShapes[0].fColor; }
     bool usesDistanceField() const { return fUsesDistanceField; }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         SmallPathOp* that = t->cast<SmallPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->usesDistanceField() != that->usesDistanceField()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         const SkMatrix& thisCtm = this->fShapes[0].fViewMatrix;
         const SkMatrix& thatCtm = that->fShapes[0].fViewMatrix;
 
         if (thisCtm.hasPerspective() != thatCtm.hasPerspective()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // We can position on the cpu unless we're in perspective,
         // but also need to make sure local matrices are identical
         if ((thisCtm.hasPerspective() || fHelper.usesLocalCoords()) &&
             !thisCtm.cheapEqualTo(thatCtm)) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // Depending on the ctm we may have a different shader for SDF paths
         if (this->usesDistanceField()) {
             if (thisCtm.isScaleTranslate() != thatCtm.isScaleTranslate() ||
                 thisCtm.isSimilarity() != thatCtm.isSimilarity()) {
-                return CombineResult::kCannotCombine;
+                return false;
             }
         }
 
         fShapes.push_back_n(that->fShapes.count(), that->fShapes.begin());
         this->joinBounds(*that);
-        return CombineResult::kMerged;
+        return true;
     }
 
     bool fUsesDistanceField;

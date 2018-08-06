@@ -64,6 +64,10 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
+
+    // TODO: Default this to 0 and only enable image multitexturing when a "safe" threshold is
+    // known for a GPU class.
+    fDisableImageMultitexturingDstRectAreaThreshold = std::numeric_limits<size_t>::max();
 }
 
 void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
@@ -119,6 +123,8 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
+    writer->appendU64("Disable image multitexturing dst area threshold",
+                      fDisableImageMultitexturingDstRectAreaThreshold);
 
     writer->endObject();
 }
@@ -139,5 +145,8 @@ void GrShaderCaps::applyOptionsOverrides(const GrContextOptions& options) {
     }
 #if GR_TEST_UTILS
     fDualSourceBlendingSupport = fDualSourceBlendingSupport && !options.fSuppressDualSourceBlending;
+    if (options.fDisableImageMultitexturing) {
+        fDisableImageMultitexturingDstRectAreaThreshold = 0;
+    }
 #endif
 }

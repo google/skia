@@ -130,9 +130,9 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
             sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
+    QuadHelper helper;
     int numQuads = this->quadCount();
-    QuadHelper helper(target, vertexStride, numQuads);
-    void* verts = helper.vertices();
+    void* verts = helper.init(target, vertexStride, numQuads);
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;
@@ -147,34 +147,34 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
         vertPtr += allocSize;
     }
     auto pipe = fHelper.makePipeline(target);
-    helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+    helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
 }
 
-GrOp::CombineResult GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+bool GrDrawAtlasOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawAtlasOp* that = t->cast<GrDrawAtlasOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     // We currently use a uniform viewmatrix for this op.
     if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (this->hasColors() != that->hasColors()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     if (!this->hasColors() && this->color() != that->color()) {
-        return CombineResult::kCannotCombine;
+        return false;
     }
 
     fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
     fQuadCount += that->quadCount();
 
     this->joinBounds(*that);
-    return CombineResult::kMerged;
+    return true;
 }
 
 GrDrawOp::FixedFunctionFlags GrDrawAtlasOp::fixedFunctionFlags() const {

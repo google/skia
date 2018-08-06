@@ -625,6 +625,7 @@ private:
             return;
         }
 
+        QuadHelper helper;
         size_t vertexStride;
         if (fullDash) {
             vertexStride =
@@ -633,8 +634,7 @@ private:
             vertexStride = sizeof(SkPoint);
         }
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
-        QuadHelper helper(target, vertexStride, totalRectCount);
-        void* vertices = helper.vertices();
+        void* vertices = helper.init(target, vertexStride, totalRectCount);
         if (!vertices) {
             return;
         }
@@ -696,43 +696,43 @@ private:
         }
         auto pipe = target->makePipeline(pipelineFlags, std::move(fProcessorSet),
                                          target->detachAppliedClip());
-        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DashOp* that = t->cast<DashOp>();
         if (fProcessorSet != that->fProcessorSet) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
         if (fDisallowCombineOnTouchOrOverlap &&
             GrRectsTouchOrOverlap(this->bounds(), that->bounds())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->aaMode() != that->aaMode()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->fullDash() != that->fullDash()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (this->cap() != that->cap()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         // TODO vertex color
         if (this->color() != that->color()) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         if (fUsesLocalCoords && !this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return CombineResult::kCannotCombine;
+            return false;
         }
 
         fLines.push_back_n(that->fLines.count(), that->fLines.begin());
         this->joinBounds(*that);
-        return CombineResult::kMerged;
+        return true;
     }
 
     GrColor color() const { return fColor; }
