@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a7598fe_4d098cf0",
+        "filename": "experimental/pathkit/pathkit_wasm_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-06T16:37:33Z",
+      "side": 1,
+      "message": "(here and below)\n\nIf we\u0027re not changing the inputs: const SkPath\u0026?",
+      "range": {
+        "startLine": 154,
+        "startChar": 37,
+        "endLine": 154,
+        "endChar": 44
+      },
+      "revId": "9ba1c69a6fc603e2879206b59e3e53ba79ef0ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7f405fe_3ad255b3",
+        "filename": "experimental/pathkit/pathkit_wasm_bindings.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-06T16:37:33Z",
+      "side": 1,
+      "message": "nit: would something like this work instead\n\n  const auto sweep \u003d SkRadiansToDegrees(endAngle - startAngle) - 360 * ccw;\n  path.addArc(bounds, startAngle, sweep);",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 263,
+        "endChar": 43
+      },
+      "revId": "9ba1c69a6fc603e2879206b59e3e53ba79ef0ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
