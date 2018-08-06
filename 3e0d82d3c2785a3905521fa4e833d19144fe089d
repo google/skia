@@ -16,6 +16,24 @@
       "revId": "3e0d82d3c2785a3905521fa4e833d19144fe089d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60776dbd_ee1a74e9",
+        "filename": "DEPS",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-06T18:23:37Z",
+      "side": 1,
+      "message": "Requested mirror here: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8226\n\nRe CIPD vs DEPS, I think the biggest difference is whether devs need to sync it to their local workspace, and based on the size, I\u0027m not too worried about it.\n\n...skia/third_party/externals]\u003e du --summarize -h * | sort -h\n4.0K\tmojo\n8.0K\tyasm\n612K\tNima-Math-Cpp\n732K\tNima-Cpp\n772K\topencl-headers\n3.5M\tspirv-headers\n3.6M\tzlib\n3.7M\topencl-lib\n3.8M\tpiex\n5.2M\texpat\n6.6M\tjsoncpp\n7.1M\tdng_sdk\n9.2M\tmicrohttpd\n10M\tlua\n11M\tegl-registry\n13M\tspirv-tools\n14M\tgoogletest\n20M\tharfbuzz\n26M\tlibjpeg-turbo\n28M\trapidjson\n31M\tlibwebp\n40M\timgui\n50M\tfreetype\n54M\tlibpng\n102M\tsfntly\n159M\tsdl\n162M\tangle2\n266M\tswiftshader\n289M\topengl-registry\n661M\ticu",
+      "parentUuid": "0efd16c5_4073af78",
+      "revId": "3e0d82d3c2785a3905521fa4e833d19144fe089d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
