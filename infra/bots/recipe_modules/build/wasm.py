@@ -35,7 +35,7 @@ def compile_fn(api, checkout_root, _ignore):
          '-v', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
   if configuration == 'Debug':
-    cmd += ['dev']
+    cmd += ['debug']
   api.run(
     api.step,
     'Build PathKit with Docker',
