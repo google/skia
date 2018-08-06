@@ -469,6 +469,7 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
 
         // need the original bounds, sans our maskfilter
         SkMaskFilter* mf = fMaskFilter.release();   // temp disable
+        SkDEBUGCODE(fMaskFilter.reset());           // suppress use-after-release assert
         this->getMetrics(&tmpGlyph);
         fMaskFilter = sk_sp<SkMaskFilter>(mf);      // restore
 

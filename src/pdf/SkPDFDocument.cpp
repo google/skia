@@ -133,6 +133,7 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
             if (i > 0 && i + 1 == curNodes.count()) {
                 SkASSERT(curNodes[i]);
                 nextRoundNodes.emplace_back(std::move(curNodes[i]));
+                SkDEBUGCODE(curNodes[i].reset());
                 break;
             }
 
@@ -145,6 +146,7 @@ static sk_sp<SkPDFDict> generate_page_tree(SkTArray<sk_sp<SkPDFDict>>* pages) {
                 SkASSERT(curNodes[i]);
                 curNodes[i]->insertObjRef("Parent", newNode);
                 kids->appendObjRef(std::move(curNodes[i]));
+                SkDEBUGCODE(curNodes[i].reset());
             }
 
             // treeCapacity is the number of leaf nodes possible for the

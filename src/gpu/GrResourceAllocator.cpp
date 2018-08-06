@@ -220,7 +220,6 @@ void GrResourceAllocator::expire(unsigned int curIndex) {
         }
 
         // Add temp to the free interval list so it can be reused
-        SkASSERT(!temp->wasAssignedSurface()); // it had better not have a ref on a surface
         temp->setNext(fFreeIntervalList);
         fFreeIntervalList = temp;
     }

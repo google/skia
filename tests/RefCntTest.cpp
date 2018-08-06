@@ -234,7 +234,10 @@ DEF_TEST(sk_sp, reporter) {
     check(reporter, 0, 0, 1, 0);
     paint.set(std::move(baz));
     check(reporter, 0, 0, 1, 0);
+#if !defined(SK_DEBUG)
+    // Oddly, we can't test this in debug builds, because our use-after-release assert will fire
     REPORTER_ASSERT(reporter, !baz);
+#endif
     paint.set(nullptr);
     check(reporter, 0, 1, 1, 1);
 

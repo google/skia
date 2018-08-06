@@ -87,8 +87,12 @@ sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPicture(uint32_t finishFlag
     for (int i = 0; pictList && i < pictList->count(); i++) {
         subPictureBytes += pictList->begin()[i]->approximateBytesUsed();
     }
-    return sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
-                                    subPictureBytes);
+    auto pic = sk_make_sp<SkBigPicture>(fCullRect, fRecord.release(), pictList, fBBH.release(),
+                                        subPictureBytes);
+
+    SkDEBUGCODE(fRecord.reset());  // suppress use-after-release assert
+    SkDEBUGCODE(fBBH.reset());
+    return std::move(pic);
 }
 
 sk_sp<SkPicture> SkPictureRecorder::finishRecordingAsPictureWithCull(const SkRect& cullRect,
@@ -130,5 +134,7 @@ sk_sp<SkDrawable> SkPictureRecorder::finishRecordingAsDrawable(uint32_t finishFl
          sk_make_sp<SkRecordedDrawable>(std::move(fRecord), std::move(fBBH),
                                         fRecorder->detachDrawableList(), fCullRect);
 
+    SkDEBUGCODE(fRecord.reset());  // suppress use-after-release assert
+    SkDEBUGCODE(fBBH.reset());
     return drawable;
 }
