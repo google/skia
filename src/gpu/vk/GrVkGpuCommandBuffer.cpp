@@ -585,11 +585,7 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     }
     fLastPipelineState = pipelineState;
 
-    const GrTextureProxy* const* primProcProxies = nullptr;
-    if (fixedDynamicState) {
-        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-    }
-    pipelineState->setData(fGpu, primProc, pipeline, primProcProxies);
+    pipelineState->setData(fGpu, primProc, pipeline);
 
     pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
 
@@ -647,8 +643,8 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     };
 
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-        prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
+        const GrPrimitiveProcessor::TextureSampler& sampler = primProc.textureSampler(i);
+        prepareSampledImage(sampler.peekTexture(), sampler.samplerState().filter());
     }
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp = iter.next()) {

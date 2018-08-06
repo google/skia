@@ -37,7 +37,7 @@ public:
     const char* name() const override { return "GrCCDrawPathsOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override;
-    CombineResult onCombineIfPossible(GrOp*, const GrCaps&) override;
+    bool onCombineIfPossible(GrOp*, const GrCaps&) override;
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
     void onPrepare(GrOpFlushState*) override {}
 
@@ -80,7 +80,7 @@ private:
                     const SkIRect& maskDevIBounds, Visibility maskVisibility,
                     const SkRect& devBounds, GrPaint&&);
 
-    void recordInstance(GrTextureProxy* atlasProxy, int instanceIdx);
+    void recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
 
@@ -110,7 +110,7 @@ private:
     GrProcessorSet fProcessors;
 
     struct InstanceRange {
-        GrTextureProxy* fAtlasProxy;
+        const GrTextureProxy* fAtlasProxy;
         int fEndInstanceIdx;
     };
 

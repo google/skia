@@ -39,6 +39,8 @@ private:
         this->makeFullScreen(proxy);
     }
 
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
+
     void onPrepare(GrOpFlushState*) override {}
 
     void onExecute(GrOpFlushState* state) override;

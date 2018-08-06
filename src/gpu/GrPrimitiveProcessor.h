@@ -9,7 +9,6 @@
 #define GrPrimitiveProcessor_DEFINED
 
 #include "GrColor.h"
-#include "GrNonAtomicRef.h"
 #include "GrProcessor.h"
 #include "GrProxyRef.h"
 #include "GrShaderVar.h"
@@ -37,15 +36,12 @@ class GrCoordTransform;
 
 class GrGLSLPrimitiveProcessor;
 
-/**
+/*
  * GrPrimitiveProcessor defines an interface which all subclasses must implement.  All
  * GrPrimitiveProcessors must proivide seed color and coverage for the Ganesh color / coverage
  * pipelines, and they must provide some notion of equality
- *
- * TODO: This class does not really need to be ref counted. Instances should be allocated using
- * GrOpFlushState's arena and destroyed when the arena is torn down.
  */
-class GrPrimitiveProcessor : public GrProcessor, public GrNonAtomicRef<GrPrimitiveProcessor> {
+class GrPrimitiveProcessor : public GrProcessor, public GrProgramElement {
 public:
     class TextureSampler;
 
@@ -140,6 +136,8 @@ public:
 
     virtual float getSampleShading() const { return 0.0; }
 
+    bool instantiate(GrResourceProvider*) const;
+
 protected:
     void setVertexAttributeCnt(int cnt) {
         SkASSERT(cnt >= 0);
@@ -166,6 +164,11 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
+    void addPendingIOs() const final;
+    void removeRefs() const final;
+    void pendingIOComplete() const final;
+    void notifyRefCntIsZero() const final {}
+
     virtual const Attribute& onVertexAttribute(int) const = 0;
     virtual const Attribute& onInstanceAttribute(int) const = 0;
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
@@ -187,9 +190,9 @@ class GrPrimitiveProcessor::TextureSampler {
 public:
     TextureSampler() = default;
 
-    TextureSampler(GrTextureType, GrPixelConfig, const GrSamplerState&, GrShaderFlags visibility);
+    TextureSampler(sk_sp<GrTextureProxy>, const GrSamplerState&, GrShaderFlags visibility);
 
-    explicit TextureSampler(GrTextureType, GrPixelConfig,
+    explicit TextureSampler(sk_sp<GrTextureProxy>,
                             GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                             GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                             GrShaderFlags visibility = kFragment_GrShaderFlag);
@@ -197,25 +200,36 @@ public:
     TextureSampler(const TextureSampler&) = delete;
     TextureSampler& operator=(const TextureSampler&) = delete;
 
-    void reset(GrTextureType, GrPixelConfig, const GrSamplerState&,
+    void reset(sk_sp<GrTextureProxy>, const GrSamplerState&,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
-    void reset(GrTextureType, GrPixelConfig,
+    void reset(sk_sp<GrTextureProxy>,
                GrSamplerState::Filter = GrSamplerState::Filter::kNearest,
                GrSamplerState::WrapMode wrapXAndY = GrSamplerState::WrapMode::kClamp,
                GrShaderFlags visibility = kFragment_GrShaderFlag);
 
-    GrTextureType textureType() const { return fTextureType; }
-    GrPixelConfig config() const { return fConfig; }
+    bool instantiate(GrResourceProvider* resourceProvider) const {
+        return SkToBool(fProxyRef.get()->instantiate(resourceProvider));
+    }
 
+    // 'peekTexture' should only ever be called after a successful 'instantiate' call
+    GrTexture* peekTexture() const {
+        SkASSERT(fProxyRef.get()->peekTexture());
+        return fProxyRef.get()->peekTexture();
+    }
+
+    GrTextureProxy* proxy() const { return fProxyRef.get(); }
     GrShaderFlags visibility() const { return fVisibility; }
     const GrSamplerState& samplerState() const { return fSamplerState; }
 
-    bool isInitialized() const { return fConfig != kUnknown_GrPixelConfig; }
+    bool isInitialized() const { return SkToBool(fProxyRef.get()); }
+    /**
+     * For internal use by GrPrimitiveProcessor.
+     */
+    const GrTextureProxyRef* proxyRef() const { return &fProxyRef; }
 
 private:
+    GrTextureProxyRef fProxyRef;
     GrSamplerState fSamplerState;
-    GrTextureType fTextureType = GrTextureType::k2D;
-    GrPixelConfig fConfig = kUnknown_GrPixelConfig;
     GrShaderFlags fVisibility = kNone_GrShaderFlags;
 };
 
