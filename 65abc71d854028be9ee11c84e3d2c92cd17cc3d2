@@ -22,6 +22,30 @@
       "revId": "65abc71d854028be9ee11c84e3d2c92cd17cc3d2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34350314_fbe6bc71",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-08-06T17:15:48Z",
+      "side": 1,
+      "message": "Yes. This is both the logic for fullpixel and subpixel positioning. In addition, all the checks for making sure a glyph is to be drawn are incorporated here. Only one positioning loop in the prior system had all the checks. Now, all the checks are in one place.",
+      "parentUuid": "229b5fdf_46734b9b",
+      "range": {
+        "startLine": 157,
+        "startChar": 5,
+        "endLine": 157,
+        "endChar": 53
+      },
+      "revId": "65abc71d854028be9ee11c84e3d2c92cd17cc3d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
