@@ -87,8 +87,8 @@ private:
                 SkMatrix::I()));
 
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(SkPoint));
-        QuadHelper helper;
-        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.init(target, sizeof(SkPoint), 1));
+        QuadHelper helper(target, sizeof(SkPoint), 1);
+        SkPoint* verts = reinterpret_cast<SkPoint*>(helper.vertices());
         if (!verts) {
             return;
         }
