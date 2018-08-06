@@ -138,7 +138,8 @@ private:
         }
 
         ~Interval() {
-            SkASSERT(!fAssignedSurface);
+            // TODO: Alternate pattern to ensure this is null after detach?
+//            SkASSERT(!fAssignedSurface);
         }
 
         const GrSurfaceProxy* proxy() const { return fProxy; }

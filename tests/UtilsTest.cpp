@@ -34,7 +34,9 @@ static void test_autounref(skiatest::Reporter* reporter) {
 
     REPORTER_ASSERT(reporter, &obj == tmp.release());
     REPORTER_ASSERT(reporter, obj.unique());
+    SkDEBUGCODE(tmp.reset());  // suppress use-after-release assert
     REPORTER_ASSERT(reporter, nullptr == tmp.release());
+    SkDEBUGCODE(tmp.reset());  // suppress use-after-release assert
     REPORTER_ASSERT(reporter, nullptr == tmp.get());
 
     obj.ref();

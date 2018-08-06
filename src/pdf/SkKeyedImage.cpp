@@ -43,7 +43,6 @@ SkKeyedImage SkKeyedImage::subset(SkIRect subset) const {
 
 sk_sp<SkImage> SkKeyedImage::release() {
     sk_sp<SkImage> image = std::move(fImage);
-    SkASSERT(nullptr == fImage);
     fKey = {{0, 0, 0, 0}, 0};
     return image;
 }
