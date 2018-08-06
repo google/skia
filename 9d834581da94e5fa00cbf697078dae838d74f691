@@ -22,6 +22,30 @@
       "revId": "9d834581da94e5fa00cbf697078dae838d74f691",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04a14a45_aa289d35",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-06T17:32:26Z",
+      "side": 0,
+      "message": "Yup. This sent me on a hunt for similar bugs last friday, by augmenting sk_sp with a fMoved field... Found lots of crazy tautological assertions in our code, but no other bugs like this.",
+      "parentUuid": "250d23fb_35f76b0d",
+      "range": {
+        "startLine": 116,
+        "startChar": 52,
+        "endLine": 116,
+        "endChar": 63
+      },
+      "revId": "9d834581da94e5fa00cbf697078dae838d74f691",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
