@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "250d23fb_35f76b0d",
+        "filename": "src/shaders/SkColorShader.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-06T17:16:15Z",
+      "side": 0,
+      "message": "Ouch, that\u0027s subtle.",
+      "range": {
+        "startLine": 116,
+        "startChar": 52,
+        "endLine": 116,
+        "endChar": 63
+      },
+      "revId": "9d834581da94e5fa00cbf697078dae838d74f691",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
