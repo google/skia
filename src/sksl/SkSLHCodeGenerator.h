@@ -39,6 +39,13 @@ public:
         return String::printf("f%c%s", toupper(varName[0]), varName + 1);
     }
 
+    static String CoordTransformName(const String& arg, int index) {
+        if (arg.size()) {
+            return HCodeGenerator::FieldName(arg.c_str()) + "CoordTransform";
+        }
+        return "fCoordTransform" + to_string(index);
+    }
+
     static String GetHeader(const Program& program, ErrorReporter& errors);
 
 private:
