@@ -205,6 +205,15 @@ public:
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
     /**
+     * In general using multiple texture units for image rendering seems to be a win at smaller
+     * sizes of dst rects and a loss at larger sizes. Dst rects above this pixel area threshold will
+     * not use multitexturing.
+     */
+    size_t disableImageMultitexturingDstRectAreaThreshold() const {
+        return fDisableImageMultitexturingDstRectAreaThreshold;
+    }
+
+    /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
      * texture in generated shader code. Swizzling may be implemented in texture parameters or a
      * sampler rather than in the shader. In this case the returned swizzle will always be "rgba".

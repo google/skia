@@ -181,7 +181,7 @@ void SkInternalAtlasTextTarget::addDrawOp(const GrClip& clip, std::unique_ptr<Gr
     int n = SkTMin(kMaxBatchLookBack, fOps.count());
     for (int i = 0; i < n; ++i) {
         GrAtlasTextOp* other = fOps.fromBack(i).get();
-        if (other->combineIfPossible(op.get(), caps) == GrOp::CombineResult::kMerged) {
+        if (other->combineIfPossible(op.get(), caps)) {
             fOpMemoryPool->release(std::move(op));
             return;
         }

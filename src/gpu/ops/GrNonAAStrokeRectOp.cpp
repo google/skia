@@ -188,14 +188,18 @@ private:
             vertex[4].set(fRect.fLeft, fRect.fTop);
         }
 
-        GrMesh* mesh = target->allocMesh(primType);
-        mesh->setNonIndexedNonInstanced(vertexCount);
-        mesh->setVertexData(vertexBuffer, firstVertex);
+        GrMesh mesh(primType);
+        mesh.setNonIndexedNonInstanced(vertexCount);
+        mesh.setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    // TODO: override onCombineIfPossible
+    bool onCombineIfPossible(GrOp* t, const GrCaps&) override {
+        // NonAA stroke rects cannot combine right now
+        // TODO make these combinable.
+        return false;
+    }
 
     Helper fHelper;
     GrColor fColor;

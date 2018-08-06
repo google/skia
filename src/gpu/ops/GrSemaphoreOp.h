@@ -34,6 +34,7 @@ protected:
     sk_sp<GrSemaphore> fSemaphore;
 
 private:
+    bool onCombineIfPossible(GrOp* that, const GrCaps& caps) override { return false; }
     void onPrepare(GrOpFlushState*) override {}
 
     typedef GrOp INHERITED;

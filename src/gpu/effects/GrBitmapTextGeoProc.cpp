@@ -86,12 +86,13 @@ public:
             fColor = btgp.color();
         }
 
-        const SkISize& atlasSize = btgp.atlasSize();
-        SkASSERT(SkIsPow2(atlasSize.fWidth) && SkIsPow2(atlasSize.fHeight));
+        SkASSERT(btgp.numTextureSamplers() >= 1);
+        GrTexture* atlas = btgp.textureSampler(0).peekTexture();
+        SkASSERT(atlas && SkIsPow2(atlas->width()) && SkIsPow2(atlas->height()));
 
-        if (fAtlasSize != atlasSize) {
-            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlasSize.fWidth, 1.0f / atlasSize.fHeight);
-            fAtlasSize = atlasSize;
+        if (fAtlasSize.fWidth != atlas->width() || fAtlasSize.fHeight != atlas->height()) {
+            pdman.set2f(fAtlasSizeInvUniform, 1.0f / atlas->width(), 1.0f / atlas->height());
+            fAtlasSize.set(atlas->width(), atlas->height());
         }
         this->setTransformDataHelper(btgp.localMatrix(), pdman, &transformIter);
     }
@@ -148,13 +149,9 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
 
     this->setVertexAttributeCnt(cnt);
 
-    if (numActiveProxies) {
-        fAtlasSize = proxies[0]->isize();
-    }
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
-        fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+        fTextureSamplers[i].reset(std::move(proxies[i]), params);
     }
     this->setTextureSamplerCnt(numActiveProxies);
 }
@@ -168,16 +165,11 @@ void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
                                         const GrSamplerState& params) {
     SkASSERT(numActiveProxies <= kMaxTextures);
 
-    if (!fTextureSamplers[0].isInitialized()) {
-        fAtlasSize = proxies[0]->isize();
-    }
-
     for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
-        SkASSERT(proxies[i]->isize() == fAtlasSize);
 
         if (!fTextureSamplers[i].isInitialized()) {
-            fTextureSamplers[i].reset(proxies[i]->textureType(), proxies[i]->config(), params);
+            fTextureSamplers[i].reset(std::move(proxies[i]), params);
         }
     }
     this->setTextureSamplerCnt(numActiveProxies);
