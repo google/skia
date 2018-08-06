@@ -36,13 +36,12 @@
 #include "SkPngEncoder.h"
 #include "SkScan.h"
 #include "SkSpinlock.h"
+#include "SkTestFontMgr.h"
 #include "SkTHash.h"
 #include "SkTaskGroup.h"
-#include "SkTestFontMgr.h"
 #include "SkTypeface_win.h"
 #include "Test.h"
 #include "Timer.h"
-#include "ValidateGMNames.h"
 #include "ios_utils.h"
 #include "picture_utils.h"
 #include "sk_tool_utils.h"
@@ -1353,8 +1352,6 @@ int main(int argc, char** argv) {
     JsonWriter::DumpJson();  // It's handy for the bots to assume this is ~never missing.
     SkAutoGraphics ag;
     SkTaskGroup::Enabler enabled(FLAGS_threads);
-
-    ValidateGMNames();
 
     if (nullptr == GetResourceAsData("images/color_wheel.png")) {
         info("Some resources are missing.  Do you need to set --resourcePath?\n");
