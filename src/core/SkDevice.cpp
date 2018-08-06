@@ -139,40 +139,6 @@ void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
     }
 }
 
-void SkBaseDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
-                                const SkPaint &paint) {
-
-    SkPaint runPaint = paint;
-
-    SkTextBlobRunIterator it(blob);
-    for (;!it.done(); it.next()) {
-        size_t textLen = it.glyphCount() * sizeof(uint16_t);
-        const SkPoint& offset = it.offset();
-        // applyFontToPaint() always overwrites the exact same attributes,
-        // so it is safe to not re-seed the paint for this reason.
-        it.applyFontToPaint(&runPaint);
-
-        switch (it.positioning()) {
-        case SkTextBlobRunIterator::kDefault_Positioning: {
-            auto origin = SkPoint::Make(x + offset.x(), y + offset.y());
-            SkGlyphRunBuilder builder;
-            builder.drawText(runPaint, (const char*) it.glyphs(), textLen, origin);
-            auto glyphRunList = builder.useGlyphRunList();
-            glyphRunList.temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
-        }
-        break;
-        case SkTextBlobRunIterator::kHorizontal_Positioning:
-            this->drawPosText(it.glyphs(), textLen, it.pos(), 1,
-                              SkPoint::Make(x, y + offset.y()), runPaint);
-            break;
-        case SkTextBlobRunIterator::kFull_Positioning:
-            this->drawPosText(it.glyphs(), textLen, it.pos(), 2,
-                              SkPoint::Make(x, y), runPaint);
-            break;
-        }
-    }
-}
-
 void SkBaseDevice::drawImage(const SkImage* image, SkScalar x, SkScalar y,
                              const SkPaint& paint) {
     SkBitmap bm;

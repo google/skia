@@ -345,11 +345,6 @@ private:
                              const SkScalar pos[], int scalarsPerPos,
                              const SkPoint& offset, const SkPaint& paint) = 0;
 
-    // Does not handle text decoration.
-    // Decorations (underline and stike-thru) will be handled by SkCanvas.
-    // default implementation unrolls the blob runs.
-    virtual void drawTextBlob(const SkTextBlob*, SkScalar x, SkScalar y, const SkPaint& paint);
-
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
     // any clip information.
