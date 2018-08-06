@@ -29,9 +29,12 @@ namespace sk_gpu_test {
     bool CreateVkBackendContext(GrVkGetProc getProc,
                                 GrVkBackendContext* ctx,
                                 GrVkExtensions*,
+                                VkPhysicalDeviceFeatures2*,
                                 VkDebugReportCallbackEXT* debugCallback,
                                 uint32_t* presentQueueIndexPtr = nullptr,
                                 CanPresentFn canPresent = CanPresentFn());
+
+    void FreeVulkanFeaturesStructs(const VkPhysicalDeviceFeatures2*);
 }
 
 #endif
