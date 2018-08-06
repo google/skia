@@ -152,8 +152,6 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
-
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
 

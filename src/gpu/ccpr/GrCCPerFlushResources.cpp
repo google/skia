@@ -27,9 +27,9 @@ public:
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;
     }
-    bool onCombineIfPossible(GrOp* other, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* other, const GrCaps&) override {
         SK_ABORT("Only expected one Op per CCPR atlas.");
-        return true;
+        return CombineResult::kMerged;
     }
     void onPrepare(GrOpFlushState*) override {}
 
