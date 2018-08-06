@@ -599,14 +599,27 @@ struct ActiveEdge {
     }
 
     bool intersect(const ActiveEdge& that) const {
-        SkPoint intersection;
-        SkScalar s, t;
         // check first to see if these edges are neighbors in the polygon
         if (this->fIndex0 == that.fIndex0 || this->fIndex1 == that.fIndex0 ||
             this->fIndex0 == that.fIndex1 || this->fIndex1 == that.fIndex1) {
             return false;
         }
-        return compute_intersection(this->fSegment, that.fSegment, &intersection, &s, &t);
+
+        // we only care that they intersect, not where
+        const SkPoint& p0 = this->fSegment.fP0;
+        const SkVector& v0 = this->fSegment.fV;
+        const SkPoint& p1 = that.fSegment.fP0;
+        const SkVector& v1 = that.fSegment.fV;
+
+        // this doesn't capture collinear cases....
+        if (compute_side(p0, v0, p1) == compute_side(p0, v0, p1 + v1)) {
+            return false;
+        }
+        if (compute_side(p1, v1, p0) == compute_side(p1, v1, p0 + v0)) {
+            return false;
+        }
+
+        return true;
     }
 
     bool lessThan(const ActiveEdge& that) const {
