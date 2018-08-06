@@ -10,6 +10,7 @@
 
 #include "SkCanvas.h"
 #include "SkColor.h"
+#include "SkColorSpaceXformSteps.h"
 #include "SkRefCnt.h"
 #include "SkTHash.h"
 
@@ -42,7 +43,8 @@ public:
     SkCanvas::Lattice apply(const SkCanvas::Lattice&, SkColor*, int);
 
 private:
-    SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB);
+    SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB,
+                        const SkColorSpaceXformSteps& fromSRGBSteps);
 
     template <typename T>
     using Cache = SkTHashMap<sk_sp<T>, sk_sp<T>>;
@@ -56,6 +58,7 @@ private:
 
     sk_sp<SkColorSpace>                fDst;
     std::unique_ptr<SkColorSpaceXform> fFromSRGB;
+    SkColorSpaceXformSteps             fFromSRGBSteps;
 
     size_t fReentryCount; // tracks the number of nested apply() calls for cache purging.
 
