@@ -93,8 +93,6 @@ private:
         this->setTransformedBounds(path->getBounds(), viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override { return false; }
-
     void onExecute(GrOpFlushState* state) override;
 
     GrPendingIOResource<const GrPath, kRead_GrIOType> fPath;

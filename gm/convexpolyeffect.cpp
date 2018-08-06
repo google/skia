@@ -99,8 +99,6 @@ private:
         helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
-
     GrColor fColor;
     GrProcessorSet fProcessors;
     SkRect fRect;
