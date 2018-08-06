@@ -1470,10 +1470,10 @@ private:
             vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -1786,10 +1786,10 @@ private:
             vertices += circle_type_to_vert_count(true) * kVertexStride;
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -1984,10 +1984,9 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        QuadHelper helper;
         SkASSERT(sizeof(EllipseVertex) == gp->debugOnly_vertexStride());
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-                helper.init(target, sizeof(EllipseVertex), fEllipses.count()));
+        QuadHelper helper(target, sizeof(EllipseVertex), fEllipses.count());
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
         if (!verts) {
             return;
         }
@@ -2219,9 +2218,8 @@ private:
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
 
         SkASSERT(sizeof(DIEllipseVertex) == gp->debugOnly_vertexStride());
-        QuadHelper helper;
-        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(
-                helper.init(target, sizeof(DIEllipseVertex), fEllipses.count()));
+        QuadHelper helper(target, sizeof(DIEllipseVertex), fEllipses.count());
+        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(helper.vertices());
         if (!verts) {
             return;
         }
@@ -2725,10 +2723,10 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
@@ -2927,10 +2925,10 @@ private:
         sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-                helper.init(target, sizeof(EllipseVertex), indexBuffer.get(),
-                            kVertsPerStandardRRect, indicesPerInstance, fRRects.count()));
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, sizeof(EllipseVertex),
+                             indexBuffer.get(), kVertsPerStandardRRect, indicesPerInstance,
+                             fRRects.count());
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;

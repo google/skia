@@ -14,50 +14,61 @@ GrMeshDrawOp::GrMeshDrawOp(uint32_t classID) : INHERITED(classID) {}
 
 void GrMeshDrawOp::onPrepare(GrOpFlushState* state) { this->onPrepareDraws(state); }
 
-void* GrMeshDrawOp::PatternHelper::init(Target* target, size_t vertexStride,
-                                        const GrBuffer* indexBuffer, int verticesPerRepetition,
-                                        int indicesPerRepetition, int repeatCount) {
+void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
+    state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), this->bounds());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+GrMeshDrawOp::PatternHelper::PatternHelper(Target* target, GrPrimitiveType primitiveType,
+                                           size_t vertexStride, const GrBuffer* indexBuffer,
+                                           int verticesPerRepetition, int indicesPerRepetition,
+                                           int repeatCount) {
+    this->init(target, primitiveType, vertexStride, indexBuffer, verticesPerRepetition,
+               indicesPerRepetition, repeatCount);
+}
+
+void GrMeshDrawOp::PatternHelper::init(Target* target, GrPrimitiveType primitiveType,
+                                       size_t vertexStride, const GrBuffer* indexBuffer,
+                                       int verticesPerRepetition, int indicesPerRepetition,
+                                       int repeatCount) {
     SkASSERT(target);
     if (!indexBuffer) {
-        return nullptr;
+        return;
     }
     const GrBuffer* vertexBuffer;
     int firstVertex;
     int vertexCount = verticesPerRepetition * repeatCount;
-    void* vertices =
-            target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
-    if (!vertices) {
-        SkDebugf("Vertices could not be allocated for instanced rendering.");
-        return nullptr;
+    fVertices = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer, &firstVertex);
+    if (!fVertices) {
+        SkDebugf("Vertices could not be allocated for patterned rendering.");
+        return;
     }
     SkASSERT(vertexBuffer);
     size_t ibSize = indexBuffer->gpuMemorySize();
     int maxRepetitions = static_cast<int>(ibSize / (sizeof(uint16_t) * indicesPerRepetition));
-
-    fMesh.setIndexedPatterned(indexBuffer, indicesPerRepetition, verticesPerRepetition,
-                              repeatCount, maxRepetitions);
-    fMesh.setVertexData(vertexBuffer, firstVertex);
-    return vertices;
+    fMesh = target->allocMesh(primitiveType);
+    fMesh->setIndexedPatterned(indexBuffer, indicesPerRepetition, verticesPerRepetition,
+                               repeatCount, maxRepetitions);
+    fMesh->setVertexData(vertexBuffer, firstVertex);
 }
 
 void GrMeshDrawOp::PatternHelper::recordDraw(
         Target* target, sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
-        const GrPipeline::FixedDynamicState* fixedDynamicState) {
+        const GrPipeline::FixedDynamicState* fixedDynamicState) const {
     target->draw(std::move(gp), pipeline, fixedDynamicState, fMesh);
 }
 
-void* GrMeshDrawOp::QuadHelper::init(Target* target, size_t vertexStride, int quadsToDraw) {
+//////////////////////////////////////////////////////////////////////////////
+
+GrMeshDrawOp::QuadHelper::QuadHelper(Target* target, size_t vertexStride, int quadsToDraw) {
     sk_sp<const GrBuffer> quadIndexBuffer = target->resourceProvider()->refQuadIndexBuffer();
     if (!quadIndexBuffer) {
         SkDebugf("Could not get quad index buffer.");
-        return nullptr;
+        return;
     }
-    return this->INHERITED::init(target, vertexStride, quadIndexBuffer.get(), kVerticesPerQuad,
-                                 kIndicesPerQuad, quadsToDraw);
-}
-
-void GrMeshDrawOp::onExecute(GrOpFlushState* state) {
-    state->executeDrawsAndUploadsForMeshDrawOp(this->uniqueID(), this->bounds());
+    this->init(target, GrPrimitiveType::kTriangles, vertexStride, quadIndexBuffer.get(),
+               kVerticesPerQuad, kIndicesPerQuad, quadsToDraw);
 }
 
 //////////////////////////////////////////////////////////////////////////////

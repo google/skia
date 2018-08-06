@@ -33,18 +33,23 @@ protected:
         space for the vertices and flushes the draws to the GrMeshDrawOp::Target. */
     class PatternHelper {
     public:
-        PatternHelper(GrPrimitiveType primitiveType) : fMesh(primitiveType) {}
-        /** Returns the allocated storage for the vertices. The caller should populate the vertices
-            before calling recordDraws(). */
-        void* init(Target*, size_t vertexStride, const GrBuffer*, int verticesPerRepetition,
-                   int indicesPerRepetition, int repeatCount);
+        PatternHelper(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
+                      int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
 
-        /** Call after init() to issue draws to the GrMeshDrawOp::Target.*/
+        /** Called to issue draws to the GrMeshDrawOp::Target.*/
         void recordDraw(Target*, sk_sp<const GrGeometryProcessor>, const GrPipeline*,
-                        const GrPipeline::FixedDynamicState*);
+                        const GrPipeline::FixedDynamicState*) const;
+
+        void* vertices() const { return fVertices; }
+
+    protected:
+        PatternHelper() = default;
+        void init(Target*, GrPrimitiveType, size_t vertexStride, const GrBuffer*,
+                  int verticesPerRepetition, int indicesPerRepetition, int repeatCount);
 
     private:
-        GrMesh fMesh;
+        void* fVertices = nullptr;
+        GrMesh* fMesh = nullptr;
     };
 
     static const int kVerticesPerQuad = 4;
@@ -53,13 +58,11 @@ protected:
     /** A specialization of InstanceHelper for quad rendering. */
     class QuadHelper : private PatternHelper {
     public:
-        QuadHelper() : INHERITED(GrPrimitiveType::kTriangles) {}
-        /** Finds the cached quad index buffer and reserves vertex space. Returns nullptr on failure
-            and on success a pointer to the vertex data that the caller should populate before
-            calling recordDraws(). */
-        void* init(Target*, size_t vertexStride, int quadsToDraw);
+        QuadHelper() = delete;
+        QuadHelper(Target* target, size_t vertexStride, int quadsToDraw);
 
         using PatternHelper::recordDraw;
+        using PatternHelper::vertices;
 
     private:
         typedef PatternHelper INHERITED;
@@ -77,8 +80,19 @@ public:
     virtual ~Target() {}
 
     /** Adds a draw of a mesh. */
-    virtual void draw(sk_sp<const GrGeometryProcessor>, const GrPipeline*,
-                      const GrPipeline::FixedDynamicState*, const GrMesh&) = 0;
+    virtual void draw(sk_sp<const GrGeometryProcessor>,
+                      const GrPipeline*,
+                      const GrPipeline::FixedDynamicState*,
+                      const GrMesh[],
+                      int meshCount) = 0;
+
+    /** Helper for drawing a single GrMesh. */
+    void draw(sk_sp<const GrGeometryProcessor> gp,
+              const GrPipeline* pipeline,
+              const GrPipeline::FixedDynamicState* fixedDynamicState,
+              const GrMesh* mesh) {
+        this->draw(std::move(gp), pipeline, fixedDynamicState, mesh, 1);
+    }
 
     /**
      * Makes space for vertex data. The returned pointer is the location where vertex data
@@ -130,6 +144,12 @@ public:
     GrPipeline* allocPipeline(Args&&... args) {
         return this->pipelineArena()->make<GrPipeline>(std::forward<Args>(args)...);
     }
+
+    GrMesh* allocMesh(GrPrimitiveType primitiveType) {
+        return this->pipelineArena()->make<GrMesh>(primitiveType);
+    }
+
+    GrMesh* allocMeshes(int n) { return this->pipelineArena()->makeArray<GrMesh>(n); }
 
     GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
                                                           int numPrimitiveProcessorTextures = 0) {

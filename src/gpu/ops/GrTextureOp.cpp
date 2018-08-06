@@ -858,19 +858,19 @@ __attribute__((no_sanitize("float-cast-overflow")))
 
         GrPrimitiveType primitiveType =
                 fDraws.count() > 1 ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleStrip;
-        GrMesh mesh(primitiveType);
+        GrMesh* mesh = target->allocMesh(primitiveType);
         if (fDraws.count() > 1) {
             sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
             if (!ibuffer) {
                 SkDebugf("Could not allocate quad indices\n");
                 return;
             }
-            mesh.setIndexedPatterned(ibuffer.get(), 6, 4, fDraws.count(),
-                                     GrResourceProvider::QuadCountOfQuadBuffer());
+            mesh->setIndexedPatterned(ibuffer.get(), 6, 4, fDraws.count(),
+                                      GrResourceProvider::QuadCountOfQuadBuffer());
         } else {
-            mesh.setNonIndexedNonInstanced(4);
+            mesh->setNonIndexedNonInstanced(4);
         }
-        mesh.setVertexData(vbuffer, vstart);
+        mesh->setVertexData(vbuffer, vstart);
         target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 

@@ -470,15 +470,14 @@ void GrDrawVerticesOp::drawVertices(Target* target,
                                     int firstVertex,
                                     const GrBuffer* indexBuffer,
                                     int firstIndex) {
-    GrMesh mesh(this->primitiveType());
+    GrMesh* mesh = target->allocMesh(this->primitiveType());
     if (this->isIndexed()) {
-        mesh.setIndexed(indexBuffer, fIndexCount,
-                        firstIndex, 0, fVertexCount - 1,
-                        GrPrimitiveRestart::kNo);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1,
+                         GrPrimitiveRestart::kNo);
     } else {
-        mesh.setNonIndexedNonInstanced(fVertexCount);
+        mesh->setNonIndexedNonInstanced(fVertexCount);
     }
-    mesh.setVertexData(vertexBuffer, firstVertex);
+    mesh->setVertexData(vertexBuffer, firstVertex);
     auto pipe = fHelper.makePipeline(target);
     target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }

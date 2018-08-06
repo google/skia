@@ -833,13 +833,13 @@ private:
         }
 
         if (flushInfo->fInstancesToFlush) {
-            GrMesh mesh(GrPrimitiveType::kTriangles);
+            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
             int maxInstancesPerDraw =
                 static_cast<int>(flushInfo->fIndexBuffer->gpuMemorySize() / sizeof(uint16_t) / 6);
-            mesh.setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
-                                     kVerticesPerQuad, flushInfo->fInstancesToFlush,
-                                     maxInstancesPerDraw);
-            mesh.setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
+            mesh->setIndexedPatterned(flushInfo->fIndexBuffer.get(), kIndicesPerQuad,
+                                      kVerticesPerQuad, flushInfo->fInstancesToFlush,
+                                      maxInstancesPerDraw);
+            mesh->setVertexData(flushInfo->fVertexBuffer.get(), flushInfo->fVertexOffset);
             target->draw(flushInfo->fGeometryProcessor, flushInfo->fPipeline,
                          flushInfo->fFixedDynamicState, mesh);
             flushInfo->fVertexOffset += kVerticesPerQuad * flushInfo->fInstancesToFlush;

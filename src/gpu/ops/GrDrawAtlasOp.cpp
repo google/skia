@@ -130,9 +130,9 @@ void GrDrawAtlasOp::onPrepareDraws(Target* target) {
             sizeof(SkPoint) + sizeof(SkPoint) + (this->hasColors() ? sizeof(GrColor) : 0);
     SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
-    QuadHelper helper;
     int numQuads = this->quadCount();
-    void* verts = helper.init(target, vertexStride, numQuads);
+    QuadHelper helper(target, vertexStride, numQuads);
+    void* verts = helper.vertices();
     if (!verts) {
         SkDebugf("Could not allocate vertices\n");
         return;

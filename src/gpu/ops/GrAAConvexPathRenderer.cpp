@@ -843,10 +843,10 @@ private:
             extract_lines_only_verts(tess, verts, vertexStride, args.fColor, idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
-                            GrPrimitiveRestart::kNo);
-            mesh.setVertexData(vertexBuffer, firstVertex);
+            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            mesh->setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
+                             GrPrimitiveRestart::kNo);
+            mesh->setVertexData(vertexBuffer, firstVertex);
             target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
         }
     }
@@ -928,17 +928,18 @@ private:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, args.fColor, &draws, verts, idxs);
 
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-
+            GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1,
-                                GrPrimitiveRestart::kNo);
-                mesh.setVertexData(vertexBuffer, firstVertex);
-                target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+                meshes[j].setPrimitiveType(GrPrimitiveType::kTriangles);
+                meshes[j].setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0,
+                                     draw.fVertexCnt - 1, GrPrimitiveRestart::kNo);
+                meshes[j].setVertexData(vertexBuffer, firstVertex);
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
+            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, meshes,
+                         draws.count());
         }
     }
 
