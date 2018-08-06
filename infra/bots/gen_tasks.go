@@ -503,8 +503,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"Golo":       "x86-64-E5-2670",
 				},
 				"AVX2": {
-					"GCE":       "x86-64-Haswell_GCE",
-					"NUC5i7RYH": "x86-64-i7-5557U",
+					"GCE":            "x86-64-Haswell_GCE",
+					"MacBookPro11.5": "x86-64-i7-4870HQ",
+					"NUC5i7RYH":      "x86-64-i7-5557U",
 				},
 				"AVX512": {
 					"GCE": "x86-64-Skylake_GCE",
