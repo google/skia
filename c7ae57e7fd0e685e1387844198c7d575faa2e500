@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c46f7824_148946e6",
+        "filename": "src/gpu/mtl/GrMtlGpuCommandBuffer.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-06T13:29:31Z",
+      "side": 1,
+      "message": "not need to forward declare here since you\u0027re are now including the .h",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 16,
+        "endChar": 15
+      },
+      "revId": "c7ae57e7fd0e685e1387844198c7d575faa2e500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80dc9697_1519c304",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 8
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-06T13:29:31Z",
+      "side": 1,
+      "message": "I don\u0027t think there will ever be a workaround. In the caps the report that we don\u0027t have geometry shader support, so code higher up in the stack is making the correct decisions not to use it.\n\nLets just change this to SkASSERT(!this-\u003eprimitiveProcessor().willUseGeoShader());",
+      "range": {
+        "startLine": 336,
+        "startChar": 67,
+        "endLine": 336,
+        "endChar": 84
+      },
+      "revId": "c7ae57e7fd0e685e1387844198c7d575faa2e500",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
