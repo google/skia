@@ -700,7 +700,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
     return draws.empty() ? nullptr : shape_wrapper;
 }
 
-sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* ctx) {
+sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* name, AttachContext* ctx) {
     class SkottieSGAdapter final : public sksg::RenderNode {
     public:
         explicit SkottieSGAdapter(sk_sp<Animation> animation)
@@ -740,15 +740,16 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* path, AttachContext* c
         const float            fTimeScale;
     };
 
-    const auto resStream  = ctx->fResources.openStream(path);
-    if (!resStream || !resStream->hasLength()) {
-        LOG("!! Could not open: %s\n", path);
+    const auto data = ctx->fResources.load("", name);
+    if (!data) {
+        LOG("!! Could not load: %s\n", name);
         return nullptr;
     }
 
-    auto animation = Animation::Make(resStream.get(), &ctx->fResources);
+    auto animation = Animation::Make(static_cast<const char*>(data->data()), data->size(),
+                                     &ctx->fResources);
     if (!animation) {
-        LOG("!! Could not load nested animation: %s\n", path);
+        LOG("!! Could not parse nested animation: %s\n", name);
         return nullptr;
     }
 
@@ -876,22 +877,19 @@ sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, Atta
     if (name.isEmpty())
         return nullptr;
 
-    // TODO: plumb resource paths explicitly to ResourceProvider?
-    const auto resName    = path.isEmpty() ? name : SkOSPath::Join(path.c_str(), name.c_str());
-
-    if (auto* attached_image = ctx->fAssetCache.find(resName)) {
+    const auto res_id = SkStringPrintf("%s|%s", path.c_str(), name.c_str());
+    if (auto* attached_image = ctx->fAssetCache.find(res_id)) {
         return *attached_image;
     }
 
-    const auto resStream  = ctx->fResources.openStream(resName.c_str());
-    if (!resStream || !resStream->hasLength()) {
-        LOG("!! Could not load image resource: %s\n", resName.c_str());
+    const auto data = ctx->fResources.load(path.c_str(), name.c_str());
+    if (!data) {
+        LOG("!! Could not load image resource: %s/%s\n", path.c_str(), name.c_str());
         return nullptr;
     }
 
     // TODO: non-intrisic image sizing
-    return *ctx->fAssetCache.set(resName, sksg::Image::Make(
-        SkImage::MakeFromEncoded(SkData::MakeFromStream(resStream.get(), resStream->getLength()))));
+    return *ctx->fAssetCache.set(res_id, sksg::Image::Make(SkImage::MakeFromEncoded(data)));
 }
 
 sk_sp<sksg::RenderNode> AttachImageLayer(const skjson::ObjectValue& jlayer, AttachContext* ctx) {
@@ -1300,7 +1298,7 @@ sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
     }
 
     class NullResourceProvider final : public ResourceProvider {
-        std::unique_ptr<SkStream> openStream(const char[]) const { return nullptr; }
+        sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
     };
 
     NullResourceProvider null_provider;
@@ -1319,9 +1317,10 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
 
-        std::unique_ptr<SkStream> openStream(const char resource[]) const override {
-            const auto resPath = SkOSPath::Join(fDir.c_str(), resource);
-            return SkStream::MakeFromFile(resPath.c_str());
+        sk_sp<SkData> load(const char resource_path[], const char resource_name[]) const override {
+            const auto full_dir  = SkOSPath::Join(fDir.c_str(), resource_path),
+                       full_path = SkOSPath::Join(full_dir.c_str(), resource_name);
+            return SkData::MakeFromFileName(full_path.c_str());
         }
 
     private:
