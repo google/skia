@@ -89,8 +89,6 @@ protected:
     SkRect  fRect;
 
 private:
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
-
     void onPrepareDraws(Target* target) override {
         using namespace GrDefaultGeoProcFactory;
 
