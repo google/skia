@@ -786,11 +786,12 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // build normals
     SkAutoSTMalloc<64, SkVector> normal0(inputPolygonSize);
     SkAutoSTMalloc<64, SkVector> normal1(inputPolygonSize);
-    SkScalar baseOffset = offsetDistanceFunc(inputPolygonVerts[0]);
-    SkScalar currOffset = baseOffset;
+    SkAutoSTMalloc<64, SkScalar> offset(inputPolygonSize);
+    SkScalar currOffset = offsetDistanceFunc(inputPolygonVerts[0]);
     if (!SkScalarIsFinite(currOffset)) {
         return false;
     }
+    offset[0] = currOffset;
     int numEdges = 0;
     for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
          currIndex < inputPolygonSize;
@@ -800,13 +801,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         }
         int nextIndex = (currIndex + 1) % inputPolygonSize;
         SkScalar nextOffset = offsetDistanceFunc(inputPolygonVerts[nextIndex]);
-        // all offsets should either inset or outset
-        if (currOffset*nextOffset < 0) {
-            return false;
-        }
         if (!SkScalarIsFinite(nextOffset)) {
             return false;
         }
+        offset[nextIndex] = nextOffset;
         if (!compute_offset_vectors(inputPolygonVerts[currIndex], inputPolygonVerts[nextIndex],
                                     currOffset, nextOffset, winding,
                                     &normal0[currIndex], &normal1[nextIndex])) {
@@ -814,12 +812,12 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         }
         if (currIndex > 0) {
             // if reflex point, we need to add extra edges
-            if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset,
+            if (is_reflex_vertex(inputPolygonVerts, winding, currOffset,
                                  prevIndex, currIndex, nextIndex)) {
                 SkScalar rotSin, rotCos;
                 int numSteps;
                 if (!SkComputeRadialSteps(normal1[currIndex], normal0[currIndex],
-                                          normal0[currIndex].length(),
+                                          SkScalarAbs(currOffset),
                                           &rotSin, &rotCos, &numSteps)) {
                     return false;
                 }
@@ -830,10 +828,10 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
         currOffset = nextOffset;
     }
     // finish up the edge counting
-    if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset, inputPolygonSize-1, 0, 1)) {
+    if (is_reflex_vertex(inputPolygonVerts, winding, currOffset, inputPolygonSize-1, 0, 1)) {
         SkScalar rotSin, rotCos;
         int numSteps;
-        if (!SkComputeRadialSteps(normal1[0], normal0[0], currOffset,
+        if (!SkComputeRadialSteps(normal1[0], normal0[0], SkScalarAbs(currOffset),
                                   &rotSin, &rotCos, &numSteps)) {
             return false;
         }
@@ -848,12 +846,13 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
          prevIndex = currIndex, ++currIndex) {
         int nextIndex = (currIndex + 1) % inputPolygonSize;
         // if reflex point, fill in curve
-        if (is_reflex_vertex(inputPolygonVerts, winding, baseOffset,
+        if (is_reflex_vertex(inputPolygonVerts, winding, offset[currIndex],
                              prevIndex, currIndex, nextIndex)) {
             SkScalar rotSin, rotCos;
             int numSteps;
             SkVector prevNormal = normal1[currIndex];
-            if (!SkComputeRadialSteps(prevNormal, normal0[currIndex], normal0[currIndex].length(),
+            if (!SkComputeRadialSteps(prevNormal, normal0[currIndex],
+                                      SkScalarAbs(offset[currIndex]),
                                       &rotSin, &rotCos, &numSteps)) {
                 return false;
             }
