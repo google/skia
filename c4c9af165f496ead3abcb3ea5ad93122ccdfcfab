@@ -16,6 +16,24 @@
       "revId": "c4c9af165f496ead3abcb3ea5ad93122ccdfcfab",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "badd91cd_2355bb73",
+        "filename": "bench/CompositingImagesBench.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-06T19:25:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9210d3ee_fbf62c57",
+      "revId": "c4c9af165f496ead3abcb3ea5ad93122ccdfcfab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
