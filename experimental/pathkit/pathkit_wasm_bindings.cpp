@@ -10,6 +10,7 @@
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkRect.h"
 #include "SkRegion.h"
 #include "SkString.h"
 
@@ -25,7 +26,7 @@ static const int CUBIC = 4;
 static const int CLOSE = 5;
 
 // =================================================================================
-// Creating/Exporting Paths
+// Creating/Exporting Paths with cmd arrays
 // =================================================================================
 
 template <typename VisitFunc>
@@ -34,16 +35,16 @@ void VisitPath(const SkPath& p, VisitFunc&& f) {
     SkPoint pts[4];
     SkPath::Verb verb;
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
-        f(verb, pts);
+        f(verb, pts, iter);
     }
 }
 
 emscripten::val JSArray = emscripten::val::global("Array");
 
-emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(SkPath path) {
+emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(SkPath& path) {
     val cmds = JSArray.new_();
 
-    VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4]) {
+    VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4], SkPath::RawIter iter) {
         val cmd = JSArray.new_();
         switch (verb) {
         case SkPath::kMove_Verb:
@@ -56,8 +57,12 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(SkPath path) {
             cmd.call<void>("push", QUAD, pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
             break;
         case SkPath::kConic_Verb:
-            printf("unsupported conic verb\n");
-            // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
+            SkPoint quads[5];
+            // approximate with 2^1=2 quads.
+            SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
+            cmd.call<void>("push", MOVE, quads[0].x(), quads[0].y());
+            cmd.call<void>("push", QUAD, quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
+            cmd.call<void>("push", QUAD, quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
             break;
         case SkPath::kCubic_Verb:
             cmd.call<void>("push", CUBIC,
@@ -143,10 +148,10 @@ SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
 }
 
 //========================================================================================
-// SVG THINGS
+// SVG things
 //========================================================================================
 
-val EMSCRIPTEN_KEEPALIVE ToSVGString(SkPath path) {
+val EMSCRIPTEN_KEEPALIVE ToSVGString(SkPath& path) {
     SkString s;
     SkParsePath::ToSVGString(path, &s);
     // Wrapping it in val automatically turns it into a JS string.
@@ -164,32 +169,32 @@ SkPath EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
 }
 
 //========================================================================================
-// PATHOP THINGS
+// PATHOP things
 //========================================================================================
 
-SkPath EMSCRIPTEN_KEEPALIVE SimplifyPath(SkPath path) {
+SkPath EMSCRIPTEN_KEEPALIVE SimplifyPath(SkPath& path) {
     SkPath simple;
     Simplify(path, &simple);
     return simple;
 }
 
-SkPath EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath pathOne, SkPath pathTwo, SkPathOp op) {
+SkPath EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, SkPath& pathTwo, SkPathOp op) {
     SkPath path;
     Op(pathOne, pathTwo, op, &path);
     return path;
 }
 
-SkPath EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder builder) {
+SkPath EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
     SkPath path;
     builder.resolve(&path);
     return path;
 }
 
 //========================================================================================
-// Canvas THINGS
+// Canvas things
 //========================================================================================
 
-void EMSCRIPTEN_KEEPALIVE ToCanvas(SkPath path, val/* Path2D or Canvas*/ ctx) {
+void EMSCRIPTEN_KEEPALIVE ToCanvas(SkPath& path, val/* Path2D or Canvas*/ ctx) {
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     SkPath::Verb verb;
@@ -205,8 +210,12 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(SkPath path, val/* Path2D or Canvas*/ ctx) {
                 ctx.call<void>("quadraticCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
                 break;
             case SkPath::kConic_Verb:
-                printf("unsupported conic verb\n");
-                // TODO(kjlubick): Port in the logic from SkParsePath::ToSVGString?
+                SkPoint quads[5];
+                // approximate with 2^1=2 quads.
+                SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
+                ctx.call<void>("moveTo", quads[0].x(), quads[0].y());
+                ctx.call<void>("quadraticCurveTo", quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
+                ctx.call<void>("quadraticCurveTo", quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
                 break;
             case SkPath::kCubic_Verb:
                 ctx.call<void>("bezierCurveTo", pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y(),
@@ -223,10 +232,35 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(SkPath path, val/* Path2D or Canvas*/ ctx) {
 
 emscripten::val JSPath2D = emscripten::val::global("Path2D");
 
-emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path) {
+emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath& path) {
     val retVal = JSPath2D.new_();
     ToCanvas(path, retVal);
     return retVal;
+}
+
+// ======================================================================================
+// Path2D API things
+// ======================================================================================
+void Path2DAddRect(SkPath& path, SkScalar x, SkScalar y, SkScalar width, SkScalar height) {
+    path.addRect(x, y, x+width, y+height);
+}
+
+void Path2DAddArc(SkPath& path, SkScalar x, SkScalar y, SkScalar radius,
+                  SkScalar startAngle, SkScalar endAngle, bool ccw) {
+    // The arc method appears to have a lineTo involved
+    // before drawing the arc (in Chrome, at least).
+    SkScalar lx = x + radius*SkScalarCos(startAngle);
+    SkScalar ly = y + radius*SkScalarSin(startAngle);
+    path.lineTo(lx, ly);
+
+    SkRect bounds = SkRect::MakeLTRB(x-radius, y-radius, x+radius, y+radius);
+    if (ccw) {
+        SkScalar sweep = SkRadiansToDegrees(endAngle - startAngle)-360;
+        path.addArc(bounds, startAngle, sweep);
+        return;
+    }
+    SkScalar sweep = SkRadiansToDegrees(endAngle - startAngle);
+    path.addArc(bounds, startAngle, sweep);
 }
 
 //========================================================================================
@@ -234,7 +268,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(SkPath path) {
 //========================================================================================
 
 #ifdef PATHKIT_TESTING
-SkPath GetBoundaryPathFromRegion(SkRegion region) {
+SkPath GetBoundaryPathFromRegion(SkRegion& region) {
     SkPath p;
     region.getBoundaryPath(&p);
     return p;
@@ -242,19 +276,52 @@ SkPath GetBoundaryPathFromRegion(SkRegion region) {
 #endif
 
 // Binds the classes to the JS
+//
+// See https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#non-member-functions-on-the-javascript-prototype
+// for more on binding non-member functions to the JS object, allowing us to rewire
+// various functions.  That is, we can make the SkPath we expose appear to have methods
+// that the original SkPath does not, like rect(x, y, width, height) and toPath2D().
+//
+// An important detail for binding non-member functions is that the first argument
+// must be SkPath& (the reference part is very important).
 EMSCRIPTEN_BINDINGS(skia) {
     class_<SkPath>("SkPath")
         .constructor<>()
 
-        .function("moveTo",
-            select_overload<void(SkScalar, SkScalar)>(&SkPath::moveTo))
+        // TODO: addPath, which is potentially tricky because WASM doesn't support
+        // optional/default args very well. Might have to do a check for undefined
+        // or something?
+        .function("arc", &Path2DAddArc)
+        .function("arcTo",
+            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::arcTo))
+        .function("bezierCurveTo",
+            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
+        .function("closePath", &SkPath::close)
         .function("lineTo",
             select_overload<void(SkScalar, SkScalar)>(&SkPath::lineTo))
+        .function("moveTo",
+            select_overload<void(SkScalar, SkScalar)>(&SkPath::moveTo))
+        .function("quadraticCurveTo",
+            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
+        .function("rect", &Path2DAddRect)
+
+        // Some shorthand helpers, to mirror SkPath.cpp's API
         .function("quadTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
         .function("cubicTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
         .function("close", &SkPath::close)
+
+        // PathOps
+        .function("simplify", &SimplifyPath)
+        .function("op", &ApplyPathOp)
+
+        // Exporting
+        .function("toCmds", &ToCmds)
+        .function("toPath2D", &ToPath2D)
+        .function("toCanvas", &ToCanvas)
+        .function("toSVGString", &ToSVGString)
+
 #ifdef PATHKIT_TESTING
         .function("dump", select_overload<void() const>(&SkPath::dump))
 #endif
@@ -263,8 +330,8 @@ EMSCRIPTEN_BINDINGS(skia) {
     class_<SkOpBuilder>("SkOpBuilder")
         .constructor<>()
 
-        .function("add", &SkOpBuilder::add);
-
+        .function("add", &SkOpBuilder::add)
+        .function("resolve", &ResolveBuilder);
 
     // Without these function() bindings, the function would be exposed but oblivious to
     // our types (e.g. SkPath)
@@ -275,16 +342,8 @@ EMSCRIPTEN_BINDINGS(skia) {
     function("NewPath", &NewPath);
     // Path2D is opaque, so we can't read in from it.
 
-    // Export
-    function("ToPath2D", &ToPath2D);
-    function("ToCanvas", &ToCanvas);
-    function("ToSVGString", &ToSVGString);
-    function("ToCmds", &ToCmds);
-
     // PathOps
-    function("SimplifyPath", &SimplifyPath);
     function("ApplyPathOp", &ApplyPathOp);
-    function("ResolveBuilder", &ResolveBuilder);
 
     enum_<SkPathOp>("PathOp")
         .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
@@ -308,8 +367,6 @@ EMSCRIPTEN_BINDINGS(skia) {
 #ifdef PATHKIT_TESTING
     function("SkBits2Float", &SkBits2Float);
 
-    function("GetBoundaryPathFromRegion", &GetBoundaryPathFromRegion);
-
     enum_<SkRegion::Op>("RegionOp")
         .value("DIFFERENCE",         SkRegion::Op::kDifference_Op)
         .value("INTERSECT",          SkRegion::Op::kIntersect_Op)
@@ -329,6 +386,8 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("opRegion",
             select_overload<bool(const SkRegion&, SkRegion::Op)>(&SkRegion::op))
         .function("opRegionAB",
-            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op));
+            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op))
+
+        .function("getBoundaryPath", &GetBoundaryPathFromRegion);
 #endif
 }
