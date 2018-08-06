@@ -16,6 +16,7 @@
 #include "GrRenderTargetContext.h"
 #endif
 
+#include "GrDrawOpAtlas.h"
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
@@ -289,10 +290,6 @@ static bool prepare_mask(
     return true;
 }
 
-static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
-}
-
 void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
@@ -338,7 +335,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsGlyphWithPathFallback(
     auto eachGlyph =
             [cache, perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
             (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
-        if (glyph_too_big_for_atlas(glyph)) {
+        if (GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight)) {
             const SkPath* glyphPath = cache->findPath(glyph);
             if (glyphPath != nullptr) {
                 perPath(glyphPath, glyph, mappedPt);
