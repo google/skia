@@ -44,7 +44,7 @@ const (
 
 	DEFAULT_OS_DEBIAN    = "Debian-9.4"
 	DEFAULT_OS_LINUX_GCE = DEFAULT_OS_DEBIAN
-	DEFAULT_OS_MAC       = "Mac-10.13.3"
+	DEFAULT_OS_MAC       = "Mac-10.13.6"
 	DEFAULT_OS_UBUNTU    = "Ubuntu-14.04"
 	DEFAULT_OS_WIN       = "Windows-2016Server-14393"
 
@@ -452,14 +452,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// TODO(dogben): Temporarily add image dimension during upgrade.
 			d["image"] = "windows-server-2016-dc-v20180710"
 		}
-		// TODO(dogben): Most Mac bots are on 10.13.6. Mac builders are stuck on
-		// 10.13.3 for now because of unresolved issues with building iOS and
-		// MoltenVK. MacMini7.1 are stuck on 10.13.3 because they run *SAN, which
-		// (currently) needs to have an XCode installed that matches the XCode of
-		// the builder.
-		if d["os"] == DEFAULT_OS_MAC && !(parts["model"] == "MacMini7.1" || parts["role"] == "Build") {
-			d["os"] = "Mac-10.13.6"
-		}
 	} else {
 		d["os"] = DEFAULT_OS_DEBIAN
 	}
@@ -625,6 +617,10 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
+			if strings.Contains(parts["extra_config"], "iOS") {
+				// iOS builds held back due to issue 'ERROR: Install failed. Got error "APIInternalError".'
+				d["os"] = "Mac-10.13.3"
+			}
 		}
 	}
 
