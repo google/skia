@@ -1630,13 +1630,6 @@ void SkGpuDevice::drawPosText(const void* text, size_t byteLength,
                               const SkPoint& offset, const SkPaint& paint) {
 
     SK_ABORT("Oh no!!! There is not drawPosText for GPU device anymore!");
-    ASSERT_SINGLE_OWNER
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPosText", fContext.get());
-    SkDEBUGCODE(this->validate();)
-
-    fRenderTargetContext->drawPosText(this->clip(), paint, this->ctm(), (const char*)text,
-                                      byteLength, pos, scalarsPerPos, offset,
-                                      this->devClipBounds());
 }
 
 void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
