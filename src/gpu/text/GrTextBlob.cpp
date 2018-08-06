@@ -72,9 +72,7 @@ void GrTextBlob::appendGlyph(int runIndex,
                                   const SkRect& positions,
                                   GrColor color,
                                   sk_sp<GrTextStrike> strike,
-                                  GrGlyph* glyph,
-                                  SkGlyphCache* cache, const SkGlyph& skGlyph,
-                                  SkScalar x, SkScalar y, SkScalar scale, bool preTransformed) {
+                                  GrGlyph* glyph, bool preTransformed) {
 
     Run& run = fRuns[runIndex];
     GrMaskFormat format = glyph->fMaskFormat;
