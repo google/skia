@@ -270,7 +270,7 @@ template("gcc_like_toolchain") {
     tool("link") {
       rspfile = "{{output}}.rsp"
       rspfile_content = "{{inputs}}"
-      command = "$cc_wrapper $cxx {{ldflags}} @$rspfile {{solibs}} {{libs}} -o {{output}}"
+      command = "$cc_wrapper $cxx {{ldflags}} -Wl,--start-group @$rspfile {{solibs}} -Wl,--end-group {{libs}} -o {{output}}"
       outputs = [
         "{{root_out_dir}}/{{target_output_name}}{{output_extension}}",
       ]
