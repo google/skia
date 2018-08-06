@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9210d3ee_fbf62c57",
+        "filename": "bench/CompositingImagesBench.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-06T19:12:15Z",
+      "side": 1,
+      "message": "drawImage(..., x * fTileSize.fWidth, y * fTileSize.fHeight, ...), and get rid of tx ty entirely?",
+      "revId": "c4c9af165f496ead3abcb3ea5ad93122ccdfcfab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
