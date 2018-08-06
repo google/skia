@@ -5,7 +5,8 @@ FROM launcher.gcr.io/google/clang-debian9 AS build
 RUN apt-get update && apt-get upgrade -y && apt-get install -y \
   git \
   python \
-  nodejs
+  nodejs \
+  default-jre
 
 RUN cd /opt \
   && git clone https://github.com/juj/emsdk.git

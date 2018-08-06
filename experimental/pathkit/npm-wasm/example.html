@@ -14,13 +14,21 @@
     height: 200px;
   }
 
+  canvas.big {
+    width: 300px;
+    height: 300px;
+  }
+
 </style>
 
+<h2> Can output to an SVG Path, a Canvas, or a Path2D object </h2>
 <svg id=svg xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
+<canvas id=canvas1></canvas>
+<canvas id=canvas2></canvas>
 
-<canvas id="canvas1"></canvas>
-
-<canvas id="canvas2"></canvas>
+<h2> Interact with NewPath() just like a Path2D Object </h2>
+<canvas class=big id=canvas3></canvas>
+<canvas class=big id=canvas4></canvas>
 
 <script type="text/javascript" src="/node_modules/experimental-pathkit-wasm/bin/pathkit.js"></script>
 
@@ -29,7 +37,16 @@
   PathKitInit({
     locateFile: (file) => '/node_modules/experimental-pathkit-wasm/bin/'+file,
   }).then((PathKit) => {
+    OutputsExample(PathKit);
+    Path2DExample(PathKit);
+  });
 
+  function setCanvasSize(ctx, width, height) {
+    ctx.canvas.width = width;
+    ctx.canvas.height = height;
+  }
+
+  function OutputsExample(PathKit) {
     let firstPath = PathKit.FromSVGString('M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z');
 
     let secondPath = PathKit.NewPath();
@@ -37,31 +54,34 @@
     secondPath.moveTo(1, 1);
     secondPath.lineTo(20, 1);
     secondPath.lineTo(10, 30);
-    secondPath.close();
+    secondPath.closePath();
 
-    let combinedPath = PathKit.ApplyPathOp(firstPath, secondPath, PathKit.PathOp.INTERSECT);
-    let simpleStr = PathKit.ToSVGString(combinedPath);
+    let combinedPath = firstPath.op(secondPath, PathKit.PathOp.INTERSECT);
+    let simpleStr = combinedPath.toSVGString();
 
     let newSVG = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     newSVG.setAttribute('stroke', 'rgb(0,0,200)');
     newSVG.setAttribute('fill', 'white');
-    newSVG.setAttribute('transform', 'scale(5,5)');
+    newSVG.setAttribute('transform', 'scale(8,8)');
     newSVG.setAttribute('d', simpleStr);
     document.getElementById('svg').appendChild(newSVG);
 
     // Draw directly to Canvas
     let ctx = document.getElementById('canvas1').getContext('2d');
+    setCanvasSize(ctx, 200, 200);
     ctx.strokeStyle = 'green';
     ctx.fillStyle = 'white';
-    ctx.scale(8, 4);
+    ctx.scale(8, 8);
     ctx.beginPath();
-    PathKit.ToCanvas(combinedPath, ctx);
+    combinedPath.toCanvas(ctx);
     ctx.stroke();
 
     // create Path2D object and use it in a Canvas.
-    let path2D = PathKit.ToPath2D(combinedPath);
+    let path2D = combinedPath.toPath2D();
     ctx = document.getElementById('canvas2').getContext('2d');
-    ctx.scale(8, 4);
+    setCanvasSize(ctx, 200, 200);
+    ctx.canvas.width = 200
+    ctx.scale(8, 8);
     ctx.fillStyle = 'purple';
     ctx.strokeStyle = 'orange';
     ctx.fill(path2D);
@@ -72,6 +92,70 @@
     firstPath.delete();
     secondPath.delete();
     combinedPath.delete();
-  });
+  }
+
+  function Path2DExample(PathKit) {
+    let objs = [new Path2D(), PathKit.NewPath(), new Path2D(), PathKit.NewPath()];
+    let canvases = [
+        document.getElementById('canvas3').getContext('2d'),
+        document.getElementById('canvas4').getContext('2d')
+    ];
+
+    for (i = 0; i <= 1; i++) {
+        let path = objs[i];
+
+        path.moveTo(20, 5);
+        path.lineTo(30, 20);
+        path.lineTo(40, 10);
+        path.lineTo(50, 20);
+        path.lineTo(60, 0);
+        path.lineTo(20, 5);
+
+        path.moveTo(20, 80);
+        path.bezierCurveTo(90, 10, 160, 150, 190, 10);
+
+        path.moveTo(36, 148);
+        path.quadraticCurveTo(66, 188, 120, 136);
+        path.lineTo(36, 148);
+
+        path.rect(5, 170, 20, 20);
+
+        path.moveTo(150, 180);
+        path.arcTo(150, 100, 50, 200, 20);
+        path.lineTo(160, 160);
+
+        path.moveTo(20, 120);
+        path.arc(20, 120, 18, 0, 1.75 * Math.PI);
+        path.lineTo(20, 120);
+
+        let secondPath = objs[i+2];
+        secondPath.ellipse(130, 25, 30, 10, -1*Math.PI/8, Math.PI/6, 1.5*Math.PI, false);
+
+        path.addPath(secondPath);
+
+        let m = document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGMatrix();
+        m.a = 1; m.b = 0;
+        m.c = 0; m.d = 1;
+        m.e = 0; m.f = 20.5;
+
+        path.addPath(secondPath, m);
+        // With PathKit, one can also just provide the 6 params as floats, to avoid
+        // the overhead of making an SVGMatrix
+        // path.addPath(secondPath, 1, 0, 0, 1, 0, 20.5);
+
+        canvasCtx = canvases[i];
+        canvasCtx.fillStyle = 'blue';
+        setCanvasSize(canvasCtx, 300, 300);
+        canvasCtx.scale(1.5, 1.5);
+        if (path.toPath2D) {
+            canvasCtx.stroke(path.toPath2D());
+        } else {
+            canvasCtx.stroke(path);
+        }
+    }
+
+
+    objs[1].delete();
+  }
 
 </script>
