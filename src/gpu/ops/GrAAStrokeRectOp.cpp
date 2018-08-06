@@ -283,10 +283,9 @@ void AAStrokeRectOp::onPrepareDraws(Target* target) {
     int instanceCount = fRects.count();
 
     sk_sp<const GrBuffer> indexBuffer = GetIndexBuffer(target->resourceProvider(), this->miterStroke());
-    PatternHelper helper(GrPrimitiveType::kTriangles);
-    void* vertices =
-            helper.init(target, vertexStride, indexBuffer.get(),
-                        verticesPerInstance, indicesPerInstance, instanceCount);
+    PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+                         verticesPerInstance, indicesPerInstance, instanceCount);
+    void* vertices = helper.vertices();
     if (!vertices || !indexBuffer) {
         SkDebugf("Could not allocate vertices\n");
         return;

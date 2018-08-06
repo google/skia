@@ -358,9 +358,10 @@ private:
 
     void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrBuffer* vb,
                       int firstVertex, int count) {
-        GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
-        mesh.setNonIndexedNonInstanced(count);
-        mesh.setVertexData(vb, firstVertex);
+        GrMesh* mesh = target->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
+                                                               : GrPrimitiveType::kTriangles);
+        mesh->setNonIndexedNonInstanced(count);
+        mesh->setVertexData(vb, firstVertex);
         auto pipe = fHelper.makePipeline(target);
         target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }

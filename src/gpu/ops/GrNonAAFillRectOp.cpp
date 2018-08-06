@@ -192,9 +192,9 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, kVertexStride, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, rectCount);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
+                             kVertsPerRect, kIndicesPerRect, rectCount);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -325,9 +325,9 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, rectCount);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+                             kVertsPerRect, kIndicesPerRect, rectCount);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
