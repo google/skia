@@ -1337,9 +1337,10 @@ sk_sp<GrTexture> GrGLGpu::onCreateTexture(const GrSurfaceDesc& desc,
         tex = sk_make_sp<GrGLTexture>(this, budgeted, desc, idDesc, mipMapsStatus);
     }
     tex->setCachedTexParams(initialTexParams, this->getResetTimestamp());
-#ifdef TRACE_TEXTURE_CREATION
+#if 1
     SkDebugf("--- new texture [%d] size=(%d %d) config=%d\n",
-             idDesc.fInfo.fID, desc.fWidth, desc.fHeight, desc.fConfig);
+             tex->uniqueID().asUInt(),
+             desc.fWidth, desc.fHeight, desc.fConfig);
 #endif
     if (tex && performClear) {
         if (this->glCaps().clearTextureSupport()) {
