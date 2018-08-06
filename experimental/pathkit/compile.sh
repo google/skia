@@ -32,7 +32,8 @@ if [[ $@ == *help* ]]; then
   echo "It is put in ${BUILD_DIR}, configured by the BUILD_DIR environment"
   echo "variable. Additionally, the EMSDK environment variable must be set."
   echo "This script takes several optional parameters:"
-  echo "  dev = Make a build suitable for running tests or debugging"
+  echo "  test = Make a build suitable for running tests or profiling"
+  echo "  debug = Make a build suitable for debugging (defines SK_DEBUG)"
   echo "  asm.js = Build for asm.js instead of WASM (very experimental)"
   echo "  serve = starts a webserver allowing a user to navigate to"
   echo "          localhost:8000/pathkit.html to view the demo page."
@@ -42,10 +43,15 @@ fi
 
 # Use -O0 for larger builds (but generally quicker)
 # Use -Oz for (much slower, but smaller/faster) production builds
-RELEASE_CONF="-Oz"
-if [[ $@ == *dev* ]]; then
-  echo "Building a Debug/Testing build"
-  RELEASE_CONF="-O0 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -g2 -DPATHKIT_TESTING"
+RELEASE_CONF="-Oz -s NO_FILESYSTEM=1 --closure 1"
+if [[ $@ == *test* ]]; then
+  echo "Building a Testing/Profiling build"
+  RELEASE_CONF="-O2 --profiling -DPATHKIT_TESTING -DSK_RELEASE"
+elif [[ $@ == *debug* ]]; then
+  echo "Building a Debug build"
+  # -g4 creates source maps that can apparently let you see the C++ code
+  # in the browser's debugger.
+  RELEASE_CONF="-O0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -g4 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
 WASM_CONF="-s WASM=1"
@@ -75,6 +81,7 @@ em++ $RELEASE_CONF -std=c++14 \
 -Isrc/shaders \
 -Isrc/opts \
 --bind \
+-fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \
 -s MODULARIZE=1 \
 -s EXPORT_NAME="PathKitInit" \
