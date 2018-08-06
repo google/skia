@@ -636,6 +636,7 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlGpu.mm",
   "$_src/gpu/mtl/GrMtlGpuCommandBuffer.h",
   "$_src/gpu/mtl/GrMtlPipelineState.h",
+  "$_src/gpu/mtl/GrMtlPipelineState.mm",
   "$_src/gpu/mtl/GrMtlPipelineStateBuilder.h",
   "$_src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
   "$_src/gpu/mtl/GrMtlRenderTarget.h",
@@ -648,8 +649,12 @@ skia_metal_sources = [
   "$_src/gpu/mtl/GrMtlTextureRenderTarget.mm",
   "$_src/gpu/mtl/GrMtlTrampoline.h",
   "$_src/gpu/mtl/GrMtlTrampoline.mm",
+  "$_src/gpu/mtl/GrMtlUniformHandler.h",
+  "$_src/gpu/mtl/GrMtlUniformHandler.mm",
   "$_src/gpu/mtl/GrMtlUtil.h",
   "$_src/gpu/mtl/GrMtlUtil.mm",
+  "$_src/gpu/mtl/GrMtlVaryingHandler.h",
+  "$_src/gpu/mtl/GrMtlVaryingHandler.mm",
 ]
 
 skia_native_gpu_sources = [

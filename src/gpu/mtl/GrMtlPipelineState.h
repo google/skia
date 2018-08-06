@@ -8,24 +8,33 @@
 #ifndef GrMtlPipelineState_DEFINED
 #define GrMtlPipelineState_DEFINED
 
+#include "GrMtlBuffer.h"
+
 #import <metal/metal.h>
 
 class GrMtlGpu;
 
+/**
+ * Wraps a MTLRenderPipelineState object and also contains more info about the pipeline as needed
+ * by Ganesh
+ */
 class GrMtlPipelineState {
 public:
-    GrMtlPipelineState(id<MTLRenderPipelineState> pipelineState,
-                       MTLPixelFormat pixelFormat)
-            : fPipelineState(pipelineState)
-            , fPixelFormat(pixelFormat) {
-        (void) fPixelFormat; // Silence unused-var warning.
-}
+    GrMtlPipelineState(GrMtlGpu* gpu,
+                       id<MTLRenderPipelineState> pipelineState,
+                       MTLPixelFormat pixelFormat,
+                       uint32_t geometryUniformSize,
+                       uint32_t fragmentUniformSize);
 
     id<MTLRenderPipelineState> mtlPipelineState() { return fPipelineState; }
 
 private:
+    GrMtlGpu* fGpu;
+
     id<MTLRenderPipelineState> fPipelineState;
-    MTLPixelFormat fPixelFormat;
+    MTLPixelFormat             fPixelFormat;
+    sk_sp<GrMtlBuffer>         fGeometryUniformBuffer;
+    sk_sp<GrMtlBuffer>         fFragmentUniformBuffer;
 };
 
 #endif
