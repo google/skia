@@ -175,23 +175,18 @@ SkScalar glyph_size_limit(const SkTextBlobCacheDiffCanvas::Settings& settings) {
 }
 
 void add_glyph_to_cache(SkStrikeServer::SkGlyphCacheState* cache, SkTypeface* tf,
-                        const SkScalerContextEffects& effects, const char** text) {
+                        const SkScalerContextEffects& effects, SkGlyphID glyphID) {
     SkASSERT(cache != nullptr);
-    SkASSERT(text != nullptr);
 
-    const uint16_t* ptr = *(const uint16_t**)text;
-    unsigned glyphID = *ptr;
-    ptr += 1;
-    *text = (const char*)ptr;
     cache->addGlyph(tf, effects, SkPackedGlyphID(glyphID, 0, 0), false);
 }
 
-void add_fallback_text_to_cache(const GrTextContext::FallbackTextHelper& helper,
+void add_fallback_text_to_cache(const GrTextContext::FallbackGlyphRunHelper& helper,
                                 const SkSurfaceProps& props,
                                 const SkMatrix& matrix,
                                 const SkPaint& origPaint,
                                 SkStrikeServer* server) {
-    if (!helper.fallbackText().count()) return;
+    if (helper.fallbackText().empty()) return;
 
     TRACE_EVENT0("skia", "add_fallback_text_to_cache");
     SkPaint fallbackPaint{origPaint};
@@ -204,10 +199,8 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackTextHelper& helper,
             server->getOrCreateCache(fallbackPaint, &props, &fallbackMatrix,
                                      SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
-    const char* text = helper.fallbackText().begin();
-    const char* stop = text + helper.fallbackText().count();
-    while (text < stop) {
-        add_glyph_to_cache(glyphCacheState, fallbackPaint.getTypeface(), effects, &text);
+    for (auto glyphID : helper.fallbackText()) {
+        add_glyph_to_cache(glyphCacheState, fallbackPaint.getTypeface(), effects, glyphID);
     }
 }
 #endif
@@ -343,7 +336,7 @@ private:
         SkPaint pathPaint(runPaint);
 #if SK_SUPPORT_GPU
         SkScalar matrixScale = pathPaint.setupForAsPaths();
-        GrTextContext::FallbackTextHelper fallbackTextHelper(
+        GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(
                 runMatrix, runPaint, glyph_size_limit(fSettings), matrixScale);
         const SkPoint emptyPosition{0, 0};
 #else
@@ -359,18 +352,16 @@ private:
                 SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
         const bool asPath = true;
-        const SkIPoint subPixelPos{0, 0};
-        const uint16_t* glyphs = it.glyphs();
+        const SkGlyphID* glyphs = it.glyphs();
         for (uint32_t index = 0; index < it.glyphCount(); index++) {
-            auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
+            auto glyphID = glyphs[index];
 #if SK_SUPPORT_GPU
             const auto& glyph =
                     glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
             if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
                 // Note that we send data for the original glyph even in the case of fallback
                 // since its glyph metrics will still be used on the client.
-                fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
-                                              emptyPosition);
+                fallbackTextHelper.appendGlyph(glyph, glyphID, emptyPosition);
             }
 #endif
             glyphCacheState->addGlyph(runPaint.getTypeface(), effects, glyphID, asPath);
@@ -407,27 +398,25 @@ private:
         auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(),
                                                                 nullptr, flags, &effects);
 
-        GrTextContext::FallbackTextHelper fallbackTextHelper(
+        GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(
                 runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
         const bool asPath = false;
-        const SkIPoint subPixelPos{0, 0};
         const SkPoint emptyPosition{0, 0};
         const uint16_t* glyphs = it.glyphs();
         for (uint32_t index = 0; index < it.glyphCount(); index++) {
-            auto glyphID = SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y());
+            auto glyphID = glyphs[index];
             const auto& glyph =
                     glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);
             if (glyph.fMaskFormat != SkMask::kSDF_Format) {
                 // Note that we send data for the original glyph even in the case of fallback
                 // since its glyph metrics will still be used on the client.
-                fallbackTextHelper.appendText(glyph, sizeof(uint16_t), (const char*)&glyphs[index],
-                                              emptyPosition);
+                fallbackTextHelper.appendGlyph(glyph, glyphID, emptyPosition);
             }
 
             glyphCacheState->addGlyph(
                     runPaint.getTypeface(),
                     effects,
-                    SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                    SkPackedGlyphID(glyphs[index]),
                     asPath);
         }
 
