@@ -16,7 +16,7 @@
 #include "vk/GrVkExtensions.h"
 
 GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features,
+                   VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                    uint32_t instanceVersion, const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
     fMustDoCopiesFromOrigin = false;
@@ -203,7 +203,7 @@ bool GrVkCaps::canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* s
 }
 
 void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures& features,
+                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                     const GrVkExtensions& extensions) {
 
     VkPhysicalDeviceProperties properties;
@@ -346,7 +346,7 @@ int get_max_sample_count(VkSampleCountFlags flags) {
 
 void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
-                          const VkPhysicalDeviceFeatures& features) {
+                          const VkPhysicalDeviceFeatures2& features) {
     // So GPUs, like AMD, are reporting MAX_INT support vertex attributes. In general, there is no
     // need for us ever to support that amount, and it makes tests which tests all the vertex
     // attribs timeout looping over that many. For now, we'll cap this at 64 max and can raise it if
@@ -375,11 +375,11 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
     fMapBufferFlags = kCanMap_MapFlag | kSubset_MapFlag;
 
     fOversizedStencilSupport = true;
-    fSampleShadingSupport = features.sampleRateShading;
+    fSampleShadingSupport = features.features.sampleRateShading;
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
-                              const VkPhysicalDeviceFeatures& features) {
+                              const VkPhysicalDeviceFeatures2& features) {
     GrShaderCaps* shaderCaps = fShaderCaps.get();
     shaderCaps->fVersionDeclString = "#version 330\n";
 
@@ -420,10 +420,10 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    shaderCaps->fGeometryShaderSupport = features.geometryShader;
+    shaderCaps->fGeometryShaderSupport = features.features.geometryShader;
     shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
 
-    shaderCaps->fDualSourceBlendingSupport = features.dualSrcBlend;
+    shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
 
     shaderCaps->fIntegerSupport = true;
     shaderCaps->fVertexIDSupport = true;
