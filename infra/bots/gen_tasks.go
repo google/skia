@@ -840,6 +840,11 @@ func compile(b *specs.TasksCfgBuilder, name string, parts map[string]string) str
 		if strings.Contains(name, "Vulkan") {
 			task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_WIN_VULKAN_SDK_NAME))
 		}
+		if strings.Contains(name, "OpenCL") {
+			task.CipdPackages = append(task.CipdPackages,
+				b.MustGetCipdPackageFromAsset("opencl_headers"),
+			)
+		}
 	} else if strings.Contains(name, "Mac") {
 		task.CipdPackages = append(task.CipdPackages, CIPD_PKGS_XCODE...)
 		task.Caches = append(task.Caches, &specs.Cache{
