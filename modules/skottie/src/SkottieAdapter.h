@@ -11,8 +11,7 @@
 #include "SkPoint.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
-
-#include <vector>
+#include "SkottieValue.h"
 
 namespace sksg {
 
@@ -100,9 +99,9 @@ private:
 
 class GradientAdapter : public SkRefCnt {
 public:
-    ADAPTER_PROPERTY(StartPoint, SkPoint              , SkPoint::Make(0, 0)    )
-    ADAPTER_PROPERTY(EndPoint  , SkPoint              , SkPoint::Make(0, 0)    )
-    ADAPTER_PROPERTY(ColorStops, std::vector<SkScalar>, std::vector<SkScalar>())
+    ADAPTER_PROPERTY(StartPoint, SkPoint        , SkPoint::Make(0, 0)   )
+    ADAPTER_PROPERTY(EndPoint  , SkPoint        , SkPoint::Make(0, 0)   )
+    ADAPTER_PROPERTY(ColorStops, VectorValue    , VectorValue()         )
 
 protected:
     GradientAdapter(sk_sp<sksg::Gradient>, size_t stopCount);
