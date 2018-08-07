@@ -577,7 +577,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
+#ifdef SK_MOLTENVK
                 this->write(to_string(intf.fVariable.fModifiers.fLayout.fSet));
+#else
+                this->write(to_string(intf.fVariable.fModifiers.fLayout.fBinding));
+#endif
                 this->write(")]]");
             }
         }
@@ -782,6 +786,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                               to_string((int) alignment));
             }
         }
+#ifdef SK_MOLTENVK
         if (fieldType->kind() == Type::kVector_Kind &&
             fieldType->columns() == 3) {
             // Pack all vec3 types so that their size in bytes will match what was expected in the
@@ -789,6 +794,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             // has vec3 equal to 3 * component type.
             this->write(PACKED_PREFIX);
         }
+#endif
         currentOffset += memoryLayout.size(*fieldType);
         std::vector<int> sizes;
         while (fieldType->kind() == Type::kArray_Kind) {
