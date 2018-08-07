@@ -341,6 +341,9 @@ public:
 #endif
     static bool gRunFail;
     static bool gVeryVerbose;
+    static bool gJson;
+    static bool gOutFirst;
+    static FILE* gOut;
 
 #if DEBUG_ACTIVE_SPANS
     static SkString gActiveSpans;

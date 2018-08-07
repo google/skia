@@ -23,6 +23,10 @@ bool SkPathOpsDebug::gVerifyOp;  // set to true to compare result against region
 bool SkPathOpsDebug::gRunFail;  // set to true to check for success on tests known to fail
 bool SkPathOpsDebug::gVeryVerbose;  // set to true to run extensive checking tests
 
+bool SkPathOpsDebug::gJson;
+bool SkPathOpsDebug::gOutFirst;
+FILE* SkPathOpsDebug::gOut;
+
 #undef FAIL_IF
 #define FAIL_IF(cond, coin) \
          do { if (cond) log->record(SkPathOpsDebug::kFail_Glitch, coin); } while (false)

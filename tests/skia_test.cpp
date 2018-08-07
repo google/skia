@@ -29,6 +29,7 @@ DEFINE_bool2(dumpOp, d, false, "dump the pathOps to a file to recover mid-crash.
 DEFINE_bool2(extendedTest, x, false, "run extended tests for pathOps.");
 DEFINE_bool2(runFail, f, false, "check for success on tests known to fail.");
 DEFINE_bool2(verifyOp, y, false, "compare the pathOps result against a region.");
+DEFINE_string2(json, J, "", "write json version of tests.");
 
 #if DEBUG_COIN
 DEFINE_bool2(coinTest, c, false, "detect unused coincidence algorithms.");
@@ -134,6 +135,12 @@ int main(int argc, char** argv) {
 #endif
     SkPathOpsDebug::gRunFail = FLAGS_runFail;
     SkPathOpsDebug::gVeryVerbose = FLAGS_veryVerbose;
+    SkPathOpsDebug::gOutFirst = true;
+    if ((SkPathOpsDebug::gJson = !FLAGS_json.isEmpty())) {
+        SkPathOpsDebug::gOut = fopen(FLAGS_json[0], "wb");
+        fprintf(SkPathOpsDebug::gOut, "{\n");
+        FLAGS_threads = 1;
+    }
     SetupCrashHandler();
 
     SkAutoGraphics ag;
@@ -245,6 +252,9 @@ int main(int argc, char** argv) {
         SkPathOpsDebug::DumpCoinDict();
     }
 #endif
-
+    if (SkPathOpsDebug::gJson) {
+        fprintf(SkPathOpsDebug::gOut, "\n}\n");
+        fclose(SkPathOpsDebug::gOut);
+    }
     return (status.failCount() == 0) ? 0 : 1;
 }

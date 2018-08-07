@@ -12,6 +12,7 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
+#include "SkParsePath.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 
@@ -534,12 +535,35 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
+static void jsonStatus(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bool opSucceeded) {
+    fprintf(SkPathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
+            ExpectSuccess::kNo == expectSuccess ? "no" :
+            ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
+    fprintf(SkPathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
+            ExpectMatch::kNo == expectMatch ? "no" :
+            ExpectMatch::kYes == expectMatch ? "yes" : "flaky");
+    fprintf(SkPathOpsDebug::gOut, "  \"succeeded\": %s,\n", opSucceeded ? "true" : "false");
+}
+
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
         SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
+    if (SkPathOpsDebug::gJson) {
+        SkString aStr, bStr;
+        SkParsePath::ToSVGString(a, &aStr);
+        SkParsePath::ToSVGString(b, &bStr);
+        if (!SkPathOpsDebug::gOutFirst) {
+            fprintf(SkPathOpsDebug::gOut, ",\n");
+        }
+        SkPathOpsDebug::gOutFirst = false;
+        fprintf(SkPathOpsDebug::gOut, "\"%s\": {\n", testName);
+        fprintf(SkPathOpsDebug::gOut, "  \"p1\": \"%s\",\n", aStr.c_str());
+        fprintf(SkPathOpsDebug::gOut, "  \"p2\": \"%s\",\n", bStr.c_str());
+        fprintf(SkPathOpsDebug::gOut, "  \"op\": \"%s\",\n", opStrs[shapeOp]);
+    }
     SkPath out;
     if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
             SkDEBUGPARAMS(testName))) {
@@ -547,11 +571,21 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
             SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);
         }
+        if (SkPathOpsDebug::gJson) {
+            jsonStatus(expectSuccess, expectMatch, false);
+            fprintf(SkPathOpsDebug::gOut, "  \"out\": \"\"\n}");
+        }
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
                 SkDebugf("%s %s unexpected success\n", __FUNCTION__, testName);
                 REPORTER_ASSERT(reporter, 0);
+        }
+        if (SkPathOpsDebug::gJson) {
+            jsonStatus(expectSuccess, expectMatch, true);
+            SkString outStr;
+            SkParsePath::ToSVGString(out, &outStr);
+            fprintf(SkPathOpsDebug::gOut, "  \"out\": \"%s\"\n}", outStr.c_str());
         }
     }
     if (!reporter->verbose()) {
