@@ -17,6 +17,7 @@
 #include "SkPoint.h"
 #include "SkSGClipEffect.h"
 #include "SkSGColor.h"
+#include "SkSGColorFilter.h"
 #include "SkSGDraw.h"
 #include "SkSGGeometryTransform.h"
 #include "SkSGGradient.h"
@@ -258,9 +259,10 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
     return std::move(path_node);
 }
 
-sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AttachContext* ctx) {
+sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AttachContext* ctx,
+                               const char prop_name[]) {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
-    BindProperty<VectorValue>(jcolor["c"], &ctx->fAnimators,
+    BindProperty<VectorValue>(jcolor[prop_name], &ctx->fAnimators,
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });
@@ -357,7 +359,7 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke, AttachCo
 }
 
 sk_sp<sksg::PaintNode> AttachColorFill(const skjson::ObjectValue& jfill, AttachContext* ctx) {
-    return AttachPaint(jfill, ctx, AttachColor(jfill, ctx));
+    return AttachPaint(jfill, ctx, AttachColor(jfill, ctx, "c"));
 }
 
 sk_sp<sksg::PaintNode> AttachGradientFill(const skjson::ObjectValue& jfill, AttachContext* ctx) {
@@ -365,7 +367,7 @@ sk_sp<sksg::PaintNode> AttachGradientFill(const skjson::ObjectValue& jfill, Atta
 }
 
 sk_sp<sksg::PaintNode> AttachColorStroke(const skjson::ObjectValue& jstroke, AttachContext* ctx) {
-    return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachColor(jstroke, ctx)));
+    return AttachStroke(jstroke, ctx, AttachPaint(jstroke, ctx, AttachColor(jstroke, ctx, "c")));
 }
 
 sk_sp<sksg::PaintNode> AttachGradientStroke(const skjson::ObjectValue& jstroke,
@@ -1106,13 +1108,54 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     return sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
 }
 
+
+sk_sp<sksg::RenderNode> AttachFillLayerEffect(const skjson::ArrayValue* jeffect_props,
+                                              AttachContext* ctx,
+                                              sk_sp<sksg::RenderNode> layer) {
+    if (!jeffect_props) return layer;
+
+    sk_sp<sksg::Color> color_node;
+
+    for (const skjson::ObjectValue* jprop : *jeffect_props) {
+        if (!jprop) continue;
+
+        switch (const auto ty = ParseDefault<int>((*jprop)["ty"], -1)) {
+        case 2: // color
+            color_node = AttachColor(*jprop, ctx, "v");
+            break;
+        default:
+            LOG("?? Ignoring unsupported fill effect poperty type: %d\n", ty);
+            break;
+        }
+    }
+
+    return color_node
+        ? sksg::ColorModeFilter::Make(std::move(layer), std::move(color_node), SkBlendMode::kSrcIn)
+        : nullptr;
+}
+
+sk_sp<sksg::RenderNode> AttachLayerEffects(const skjson::ArrayValue& jeffects,
+                                           AttachContext* ctx,
+                                           sk_sp<sksg::RenderNode> layer) {
+    for (const skjson::ObjectValue* jeffect : jeffects) {
+        if (!jeffect) continue;
+
+        switch (const auto ty = ParseDefault<int>((*jeffect)["ty"], -1)) {
+        case 21: // Fill
+            layer = AttachFillLayerEffect((*jeffect)["ef"], ctx, std::move(layer));
+            break;
+        default:
+            LOG("?? Unsupported layer effect type: %d\n", ty);
+            break;
+        }
+    }
+
+    return layer;
+}
+
 sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer) return nullptr;
-
-    if (!(*jlayer)["ef"].is<skjson::NullValue>()) {
-        LOG("?? Unsupported layer effect.\n");
-    }
 
     using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const skjson::ObjectValue&, AttachContext*);
     static constexpr LayerAttacher gLayerAttachers[] = {
@@ -1155,6 +1198,11 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
     // TODO: de-dupe this "ks" lookup with matrix above.
     if (const skjson::ObjectValue* jtransform = (*jlayer)["ks"]) {
         layer = AttachOpacity(*jtransform, &local_ctx, std::move(layer));
+    }
+
+    // Optional layer effects.
+    if (const skjson::ArrayValue* jeffects = (*jlayer)["ef"]) {
+        layer = AttachLayerEffects(*jeffects, &local_ctx, std::move(layer));
     }
 
     class LayerController final : public sksg::GroupAnimator {
