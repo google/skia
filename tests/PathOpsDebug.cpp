@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "PathOpsDebug.h"
 #include "PathOpsTSectDebug.h"
 #include "SkOpCoincidence.h"
 #include "SkOpContour.h"
@@ -12,6 +13,11 @@
 #include "SkMutex.h"
 #include "SkOpSegment.h"
 #include "SkString.h"
+
+bool PathOpsDebug::gJson;
+bool PathOpsDebug::gOutFirst;
+FILE* PathOpsDebug::gOut;
+std::vector<std::string> PathOpsDebug::gJsonNames;
 
 inline void DebugDumpDouble(double x) {
     if (x == floor(x)) {
