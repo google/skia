@@ -21,12 +21,12 @@ class GrPrimitiveProcessor;
  */
 class GrMesh {
 public:
-    GrMesh(GrPrimitiveType primitiveType)
-        : fPrimitiveType(primitiveType)
-        , fBaseVertex(0) {
+    GrMesh(GrPrimitiveType primitiveType = GrPrimitiveType::kTriangles)
+            : fPrimitiveType(primitiveType), fBaseVertex(0) {
         SkDEBUGCODE(fNonIndexNonInstanceData.fVertexCount = -1;)
     }
 
+    void setPrimitiveType(GrPrimitiveType type) { fPrimitiveType = type; }
     GrPrimitiveType primitiveType() const { return fPrimitiveType; }
 
     bool isIndexed() const { return SkToBool(fIndexBuffer.get()); }

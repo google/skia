@@ -1675,8 +1675,10 @@ void GrGLGpu::flushMinSampleShading(float minSampleShading) {
 }
 
 void GrGLGpu::generateMipmapsForProcessorTextures(const GrPrimitiveProcessor& primProc,
-                                                  const GrPipeline& pipeline) {
+                                                  const GrPipeline& pipeline,
+                                                  const GrTextureProxy* const primProcTextures[]) {
     auto genLevelsIfNeeded = [this](GrTexture* tex, const GrSamplerState& sampler) {
+        SkASSERT(tex);
         if (sampler.filter() == GrSamplerState::Filter::kMipMap &&
             tex->texturePriv().mipMapped() == GrMipMapped::kYes &&
             tex->texturePriv().mipMapsAreDirty()) {
@@ -1686,8 +1688,8 @@ void GrGLGpu::generateMipmapsForProcessorTextures(const GrPrimitiveProcessor& pr
     };
 
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        const auto& textureSampler = primProc.textureSampler(i);
-        genLevelsIfNeeded(textureSampler.peekTexture(), textureSampler.samplerState());
+        GrTexture* tex = primProcTextures[i]->peekTexture();
+        genLevelsIfNeeded(tex, primProc.textureSampler(i).samplerState());
     }
 
     GrFragmentProcessor::Iter iter(pipeline);
@@ -1708,8 +1710,11 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
         GrCapsDebugf(this->caps(), "Failed to create program!\n");
         return false;
     }
-
-    this->generateMipmapsForProcessorTextures(primProc, pipeline);
+    const GrTextureProxy* const* primProcProxies = nullptr;
+    if (fixedDynamicState) {
+        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
+    }
+    this->generateMipmapsForProcessorTextures(primProc, pipeline, primProcProxies);
 
     GrXferProcessor::BlendInfo blendInfo;
     pipeline.getXferProcessor().getBlendInfo(&blendInfo);
@@ -1726,7 +1731,7 @@ bool GrGLGpu::flushGLState(const GrPrimitiveProcessor& primProc,
         this->flushBlend(blendInfo, swizzle);
     }
 
-    fHWProgram->setData(primProc, pipeline);
+    fHWProgram->updateUniformsAndTextureBindings(primProc, pipeline, primProcProxies);
 
     GrGLRenderTarget* glRT = static_cast<GrGLRenderTarget*>(pipeline.renderTarget());
     GrStencilSettings stencil;

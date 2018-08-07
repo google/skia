@@ -843,11 +843,11 @@ private:
             extract_lines_only_verts(tess, verts, vertexStride, args.fColor, idxs,
                                      fHelper.compatibleWithAlphaAsCoverage());
 
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-            mesh.setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
-                            GrPrimitiveRestart::kNo);
-            mesh.setVertexData(vertexBuffer, firstVertex);
-            target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+            GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+            mesh->setIndexed(indexBuffer, tess.numIndices(), firstIndex, 0, tess.numPts() - 1,
+                             GrPrimitiveRestart::kNo);
+            mesh->setVertexData(vertexBuffer, firstVertex);
+            target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
         }
     }
 
@@ -928,37 +928,38 @@ private:
             SkSTArray<kPreallocDrawCnt, Draw, true> draws;
             create_vertices(segments, fanPt, args.fColor, &draws, verts, idxs);
 
-            GrMesh mesh(GrPrimitiveType::kTriangles);
-
+            GrMesh* meshes = target->allocMeshes(draws.count());
             for (int j = 0; j < draws.count(); ++j) {
                 const Draw& draw = draws[j];
-                mesh.setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0, draw.fVertexCnt - 1,
-                                GrPrimitiveRestart::kNo);
-                mesh.setVertexData(vertexBuffer, firstVertex);
-                target->draw(quadProcessor.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+                meshes[j].setPrimitiveType(GrPrimitiveType::kTriangles);
+                meshes[j].setIndexed(indexBuffer, draw.fIndexCnt, firstIndex, 0,
+                                     draw.fVertexCnt - 1, GrPrimitiveRestart::kNo);
+                meshes[j].setVertexData(vertexBuffer, firstVertex);
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
+            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, meshes,
+                         draws.count());
         }
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAConvexPathOp* that = t->cast<AAConvexPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (fHelper.usesLocalCoords() &&
             !fPaths[0].fViewMatrix.cheapEqualTo(that->fPaths[0].fViewMatrix)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fLinesOnly != that->fLinesOnly) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct PathData {

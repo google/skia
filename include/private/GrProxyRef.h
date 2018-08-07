@@ -80,8 +80,10 @@ public:
         fProxy = nullptr;
     }
 
-    /** Called by owning GrProgramElement when the program element is first scheduled for
-        execution. It can only be called once. */
+    /**
+     * Called when transferring into an op list and therefore scheduled for an IO operation. It can
+     * only be called once.
+     */
     void markPendingIO() const {
         // This should only be called when the owning GrProgramElement gets its first
         // pendingExecution ref.

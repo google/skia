@@ -80,7 +80,7 @@ private:
                      uint16_t* indices) const;
 
     void drawVertices(Target*,
-                      GrGeometryProcessor*,
+                      sk_sp<const GrGeometryProcessor>,
                       const GrBuffer* vertexBuffer,
                       int firstVertex,
                       const GrBuffer* indexBuffer,
@@ -98,7 +98,7 @@ private:
                GrPrimitiveType::kPoints == fPrimitiveType;
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps&) override;
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override;
 
     struct Mesh {
         GrColor fColor;  // Used if this->hasPerVertexColors() is false.

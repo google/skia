@@ -45,8 +45,7 @@ void GrOpFlushState::executeDrawsAndUploadsForMeshDrawOp(uint32_t opID, const Sk
         SkASSERT(fCurrDraw->fPipeline->proxy() == this->drawOpArgs().fProxy);
         this->rtCommandBuffer()->draw(*fCurrDraw->fGeometryProcessor, *fCurrDraw->fPipeline,
                                       fCurrDraw->fFixedDynamicState, fCurrDraw->fDynamicStateArrays,
-                                      fMeshes.begin() + fCurrMesh, fCurrDraw->fMeshCnt, opBounds);
-        fCurrMesh += fCurrDraw->fMeshCnt;
+                                      fCurrDraw->fMeshes, fCurrDraw->fMeshCnt, opBounds);
         fTokenTracker->flushToken();
         ++fCurrDraw;
     }
@@ -61,7 +60,6 @@ void GrOpFlushState::preExecuteDraws() {
     // Setup execution iterators.
     fCurrDraw = fDraws.begin();
     fCurrUpload = fInlineUploads.begin();
-    fCurrMesh = 0;
 }
 
 void GrOpFlushState::reset() {
@@ -73,8 +71,6 @@ void GrOpFlushState::reset() {
     fASAPUploads.reset();
     fInlineUploads.reset();
     fDraws.reset();
-    fMeshes.reset();
-    fCurrMesh = 0;
     fBaseDrawToken = GrDeferredUploadToken::AlreadyFlushedToken();
 }
 
@@ -104,36 +100,23 @@ GrDeferredUploadToken GrOpFlushState::addASAPUpload(GrDeferredTextureUploadFn&& 
     return fTokenTracker->nextTokenToFlush();
 }
 
-void GrOpFlushState::draw(const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+void GrOpFlushState::draw(sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
                           const GrPipeline::FixedDynamicState* fixedDynamicState,
-                          const GrMesh& mesh) {
+                          const GrMesh meshes[], int meshCnt) {
     SkASSERT(fOpArgs);
     SkASSERT(fOpArgs->fOp);
-    fMeshes.push_back(mesh);
     bool firstDraw = fDraws.begin() == fDraws.end();
-    if (!firstDraw) {
-        Draw& lastDraw = *fDraws.begin();
-        // If the last draw shares a geometry processor and pipeline and there are no intervening
-        // uploads, add this mesh to it.
-        // Note, we could attempt to convert fixed dynamic states into dynamic state arrays here
-        // if everything else is equal. Maybe it's better to rely on Ops to do that?
-        if (lastDraw.fGeometryProcessor == gp && lastDraw.fPipeline == pipeline &&
-            lastDraw.fFixedDynamicState == fixedDynamicState) {
-            if (fInlineUploads.begin() == fInlineUploads.end() ||
-                fInlineUploads.tail()->fUploadBeforeToken != fTokenTracker->nextDrawToken()) {
-                ++lastDraw.fMeshCnt;
-                return;
-            }
-        }
-    }
     auto& draw = fDraws.append(&fArena);
     GrDeferredUploadToken token = fTokenTracker->issueDrawToken();
-
-    draw.fGeometryProcessor.reset(gp);
+    for (int i = 0; i < gp->numTextureSamplers(); ++i) {
+        fixedDynamicState->fPrimitiveProcessorTextures[i]->addPendingRead();
+    }
+    draw.fGeometryProcessor = std::move(gp);
     draw.fPipeline = pipeline;
     draw.fFixedDynamicState = fixedDynamicState;
     draw.fDynamicStateArrays = nullptr;
-    draw.fMeshCnt = 1;
+    draw.fMeshes = meshes;
+    draw.fMeshCnt = meshCnt;
     draw.fOpID = fOpArgs->fOp->uniqueID();
     if (firstDraw) {
         fBaseDrawToken = token;

@@ -60,8 +60,6 @@ private:
 
     void onPrepareDraws(Target* target) override { return; }
 
-    bool onCombineIfPossible(GrOp* op, const GrCaps& caps) override { return false; }
-
     GrProcessorSet fProcessors;
 
     typedef GrMeshDrawOp INHERITED;

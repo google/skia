@@ -129,9 +129,9 @@ private:
             return;
         }
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, kVertexStride, indexBuffer.get(), kVertsPerInstance,
-                                     kIndicesPerInstance, numRects);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
+                             kVertsPerInstance, kIndicesPerInstance, numRects);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -144,22 +144,22 @@ private:
             verts += numRectsInRegion * kVertsPerInstance * kVertexStride;
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         RegionOp* that = t->cast<RegionOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fViewMatrix != that->fViewMatrix) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fRegions.push_back_n(that->fRegions.count(), that->fRegions.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RegionInfo {

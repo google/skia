@@ -237,7 +237,7 @@ private:
         return path;
     }
 
-    void draw(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
+    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
         SkASSERT(!fAntiAlias);
         GrResourceProvider* rp = target->resourceProvider();
         bool inverseFill = fShape.inverseFilled();
@@ -261,7 +261,7 @@ private:
         SkScalar tol = GrPathUtils::kDefaultTolerance;
         tol = GrPathUtils::scaleToleranceToSrc(tol, fViewMatrix, fShape.bounds());
         if (cache_match(cachedVertexBuffer.get(), tol, &actualCount)) {
-            this->drawVertices(target, gp, cachedVertexBuffer.get(), 0, actualCount);
+            this->drawVertices(target, std::move(gp), cachedVertexBuffer.get(), 0, actualCount);
             return;
         }
 
@@ -280,7 +280,7 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, gp, allocator.vertexBuffer(), 0, count);
+        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), 0, count);
         TessInfo info;
         info.fTolerance = isLinear ? 0 : tol;
         info.fCount = count;
@@ -289,7 +289,7 @@ private:
         fShape.addGenIDChangeListener(sk_make_sp<PathInvalidator>(key, target->contextUniqueID()));
     }
 
-    void drawAA(Target* target, const GrGeometryProcessor* gp, size_t vertexStride) {
+    void drawAA(Target* target, sk_sp<const GrGeometryProcessor> gp, size_t vertexStride) {
         SkASSERT(fAntiAlias);
         SkPath path = getPath();
         if (path.isEmpty()) {
@@ -306,7 +306,8 @@ private:
         if (count == 0) {
             return;
         }
-        this->drawVertices(target, gp, allocator.vertexBuffer(), allocator.firstVertex(), count);
+        this->drawVertices(target, std::move(gp), allocator.vertexBuffer(), allocator.firstVertex(),
+                           count);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -349,22 +350,21 @@ private:
         }
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
         if (fAntiAlias) {
-            this->drawAA(target, gp.get(), vertexStride);
+            this->drawAA(target, std::move(gp), vertexStride);
         } else {
-            this->draw(target, gp.get(), vertexStride);
+            this->draw(target, std::move(gp), vertexStride);
         }
     }
 
-    void drawVertices(Target* target, const GrGeometryProcessor* gp, const GrBuffer* vb,
+    void drawVertices(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrBuffer* vb,
                       int firstVertex, int count) {
-        GrMesh mesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines : GrPrimitiveType::kTriangles);
-        mesh.setNonIndexedNonInstanced(count);
-        mesh.setVertexData(vb, firstVertex);
+        GrMesh* mesh = target->allocMesh(TESSELLATOR_WIREFRAME ? GrPrimitiveType::kLines
+                                                               : GrPrimitiveType::kTriangles);
+        mesh->setNonIndexedNonInstanced(count);
+        mesh->setVertexData(vb, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
-
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
 
     Helper fHelper;
     GrColor                 fColor;

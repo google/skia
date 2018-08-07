@@ -1470,29 +1470,29 @@ private:
             vertices += circle_type_to_vert_count(circle.fStroked) * vertexStride;
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircleOp* that = t->cast<CircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         // Because we've set up the ops that don't use the planes with noop values
@@ -1507,7 +1507,7 @@ private:
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct Circle {
@@ -1786,36 +1786,36 @@ private:
             vertices += circle_type_to_vert_count(true) * kVertexStride;
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ButtCapDashedCircleOp* that = t->cast<ButtCapDashedCircleOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fCircles.push_back_n(that->fCircles.count(), that->fCircles.begin());
         this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct Circle {
@@ -1984,10 +1984,9 @@ private:
         // Setup geometry processor
         sk_sp<GrGeometryProcessor> gp(new EllipseGeometryProcessor(fStroked, localMatrix));
 
-        QuadHelper helper;
         SkASSERT(sizeof(EllipseVertex) == gp->debugOnly_vertexStride());
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-                helper.init(target, sizeof(EllipseVertex), fEllipses.count()));
+        QuadHelper helper(target, sizeof(EllipseVertex), fEllipses.count());
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
         if (!verts) {
             return;
         }
@@ -2040,28 +2039,28 @@ private:
             verts += kVerticesPerQuad;
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipseOp* that = t->cast<EllipseOp>();
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fStroked != that->fStroked) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct Ellipse {
@@ -2219,9 +2218,8 @@ private:
                 new DIEllipseGeometryProcessor(this->viewMatrix(), this->style()));
 
         SkASSERT(sizeof(DIEllipseVertex) == gp->debugOnly_vertexStride());
-        QuadHelper helper;
-        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(
-                helper.init(target, sizeof(DIEllipseVertex), fEllipses.count()));
+        QuadHelper helper(target, sizeof(DIEllipseVertex), fEllipses.count());
+        DIEllipseVertex* verts = reinterpret_cast<DIEllipseVertex*>(helper.vertices());
         if (!verts) {
             return;
         }
@@ -2274,27 +2272,27 @@ private:
             verts += kVerticesPerQuad;
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DIEllipseOp* that = t->cast<DIEllipseOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (this->style() != that->style()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         // TODO rewrite to allow positioning on CPU
         if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fEllipses.push_back_n(that->fEllipses.count(), that->fEllipses.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     const SkMatrix& viewMatrix() const { return fEllipses[0].fViewMatrix; }
@@ -2725,29 +2723,29 @@ private:
             currStartVertex += rrect_type_to_vert_count(rrect.fType);
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = fHelper.makePipeline(target);
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         CircularRRectOp* that = t->cast<CircularRRectOp>();
 
         // can only represent 65535 unique vertices with 16-bit indices
         if (fVertCount + that->fVertCount > 65536) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
@@ -2755,7 +2753,7 @@ private:
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
         fAllFill = fAllFill && that->fAllFill;
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RRect {
@@ -2927,10 +2925,10 @@ private:
         sk_sp<const GrBuffer> indexBuffer = get_rrect_index_buffer(
                 fStroked ? kStroke_RRectType : kFill_RRectType, target->resourceProvider());
 
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(
-                helper.init(target, sizeof(EllipseVertex), indexBuffer.get(),
-                            kVertsPerStandardRRect, indicesPerInstance, fRRects.count()));
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, sizeof(EllipseVertex),
+                             indexBuffer.get(), kVertsPerStandardRRect, indicesPerInstance,
+                             fRRects.count());
+        EllipseVertex* verts = reinterpret_cast<EllipseVertex*>(helper.vertices());
         if (!verts || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -2997,28 +2995,28 @@ private:
             }
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         EllipticalRRectOp* that = t->cast<EllipticalRRectOp>();
 
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fStroked != that->fStroked) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (fHelper.usesLocalCoords() &&
             !fViewMatrixIfUsingLocalCoords.cheapEqualTo(that->fViewMatrixIfUsingLocalCoords)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fRRects.push_back_n(that->fRRects.count(), that->fRRects.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RRect {

@@ -192,9 +192,9 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, kVertexStride, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, rectCount);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStride, indexBuffer.get(),
+                             kVertsPerRect, kIndicesPerRect, rectCount);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -207,17 +207,17 @@ private:
                       fRects[i].fRect, &fRects[i].fLocalQuad);
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAAFillRectOp* that = t->cast<NonAAFillRectOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RectInfo {
@@ -325,9 +325,9 @@ private:
         int rectCount = fRects.count();
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, vertexStride, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, rectCount);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+                             kVertsPerRect, kIndicesPerRect, rectCount);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -345,29 +345,29 @@ private:
             }
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAAFillRectPerspectiveOp* that = t->cast<NonAAFillRectPerspectiveOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         // We could combine across perspective vm changes if we really wanted to.
         if (!fViewMatrix.cheapEqualTo(that->fViewMatrix)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (fHasLocalRect != that->fHasLocalRect) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (fHasLocalMatrix && !fLocalMatrix.cheapEqualTo(that->fLocalMatrix)) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fRects.push_back_n(that->fRects.count(), that->fRects.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RectInfo {

@@ -210,14 +210,13 @@ public:
     }
 
 private:
-    void draw(Target* target, const GrGeometryProcessor* gp, const GrPipeline* pipeline,
+    void draw(Target* target, sk_sp<const GrGeometryProcessor> gp, const GrPipeline* pipeline,
               const GrPipeline::FixedDynamicState* fixedDynamicState, int vertexCount,
               size_t vertexStride, void* vertices, int indexCount, uint16_t* indices) const {
         if (vertexCount == 0 || indexCount == 0) {
             return;
         }
         const GrBuffer* vertexBuffer;
-        GrMesh mesh(GrPrimitiveType::kTriangles);
         int firstVertex;
         void* verts = target->makeVertexSpace(vertexStride, vertexCount, &vertexBuffer,
                                               &firstVertex);
@@ -235,10 +234,11 @@ private:
             return;
         }
         memcpy(idxs, indices, indexCount * sizeof(uint16_t));
-        mesh.setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp, pipeline, fixedDynamicState, mesh);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, indexCount, firstIndex, 0, vertexCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
     }
 
     void onPrepareDraws(Target* target) override {
@@ -279,7 +279,7 @@ private:
             if (vertexCount + currentVertices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
-                this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+                this->draw(target, gp, pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
                            vertexStride, vertices, indexCount, indices);
                 vertexCount = 0;
                 indexCount = 0;
@@ -311,22 +311,22 @@ private:
             indexCount += currentIndices;
         }
         if (vertexCount <= SK_MaxS32 && indexCount <= SK_MaxS32) {
-            this->draw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
+            this->draw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, vertexCount,
                        vertexStride, vertices, indexCount, indices);
         }
         sk_free(vertices);
         sk_free(indices);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFlatteningConvexPathOp* that = t->cast<AAFlatteningConvexPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     const SkMatrix& viewMatrix() const { return fPaths[0].fViewMatrix; }
