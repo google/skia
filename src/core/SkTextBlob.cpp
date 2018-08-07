@@ -939,6 +939,10 @@ sk_sp<SkTextBlob> SkTextBlob::Deserialize(const void* data, size_t length,
     return SkTextBlobPriv::MakeFromBuffer(buffer);
 }
 
+void SkTextBlob::testRefreshUnique() const {
+    *((uint32_t*)&fUniqueID) = next_id();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 size_t SkTextBlob::serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const {

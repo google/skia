@@ -14,6 +14,7 @@
 #include "SkString.h"
 #include "SkRefCnt.h"
 
+class SkTextBlobBench;
 struct SkSerialProcs;
 struct SkDeserialProcs;
 
@@ -49,6 +50,7 @@ public:
 
 private:
     friend class SkNVRefCnt<SkTextBlob>;
+
     class RunRecord;
 
     enum GlyphPositioning : uint8_t;
@@ -70,6 +72,10 @@ private:
     void notifyAddedToCache(uint32_t cacheID) const {
         fCacheID.store(cacheID);
     }
+
+    // Used for testing first time cache creation in benchmarks.
+    friend class SkTextBlobBench;
+    void testRefreshUnique() const;
 
     friend class SkGlyphRunList;
     friend class GrTextBlobCache;
