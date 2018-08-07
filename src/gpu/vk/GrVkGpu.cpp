@@ -2029,3 +2029,16 @@ sk_sp<GrSemaphore> GrVkGpu::prepareTextureForCrossContextUsage(GrTexture* textur
     return nullptr;
 }
 
+void GrVkGpu::xferBarrier(GrRenderTarget* rt, GrXferBarrierType type) {
+    SkASSERT(type);
+    switch (type) {
+        case kBlend_GrXferBarrierType:
+            SkASSERT(GrCaps::kAdvanced_BlendEquationSupport ==
+                     this->caps()->blendEquationSupport());
+            return;
+        case kTexture_GrXferBarrierType:
+            break;
+        default: break; // placate compiler warnings that kNone not handled
+    }
+}
+
