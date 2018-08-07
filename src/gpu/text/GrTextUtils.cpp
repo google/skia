@@ -31,31 +31,3 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
     return true;
 }
 
-bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** path, SkScalar* xpos) {
-    SkASSERT(skGlyph);
-    SkASSERT(path);
-    SkASSERT(xpos);
-    if (fText < fStop) {
-        const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText, fStop);
-
-        fXPos += fPrevAdvance * fScale;
-        SkASSERT(0 == fXYIndex || 1 == fXYIndex);
-        fPrevAdvance = SkFloatToScalar((&glyph.fAdvanceX)[fXYIndex]);
-
-        if (glyph.fWidth) {
-            if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
-                *skGlyph = &glyph;
-                *path = nullptr;
-            } else {
-                *skGlyph = nullptr;
-                *path = fCache->findPath(glyph);
-            }
-        } else {
-            *skGlyph = nullptr;
-            *path = nullptr;
-        }
-        *xpos = fXPos;
-        return true;
-    }
-    return false;
-}
