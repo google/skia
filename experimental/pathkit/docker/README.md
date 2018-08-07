@@ -14,7 +14,7 @@ It gets manually pushed anytime there's an update to the Dockerfile or relevant
 installed libraries.
 
     docker build -t emsdk-base ./docker/emsdk-base/
-    EMSDK_VERSION="1.38.6"
+    EMSDK_VERSION="1.38.6_jre"
     docker tag emsdk-base gcr.io/skia-public/emsdk-release:$EMSDK_VERSION
     docker push gcr.io/skia-public/emsdk-release:$EMSDK_VERSION
 
