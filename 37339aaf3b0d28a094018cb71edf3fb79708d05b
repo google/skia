@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bcdc0801_5b7b5227",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T17:49:15Z",
+      "side": 1,
+      "message": "As talked about offline, I general overview of the algorithm and description of terms used later (i.e. what the range means) would be very helpful here.",
+      "range": {
+        "startLine": 114,
+        "startChar": 48,
+        "endLine": 115,
+        "endChar": 66
+      },
+      "revId": "37339aaf3b0d28a094018cb71edf3fb79708d05b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
