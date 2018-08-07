@@ -358,6 +358,7 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
 #endif
 
 static inline bool skpaint_to_grpaint_impl(GrContext* context,
+                                           const SkISize& deviceSize,
                                            const GrColorSpaceInfo& colorSpaceInfo,
                                            const SkPaint& skPaint,
                                            const SkMatrix& viewM,
@@ -367,7 +368,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     // Convert SkPaint color to 4f format in the destination color space
     GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
-    const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
+    const GrFPArgs fpArgs(context, &deviceSize, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
@@ -499,14 +500,19 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
     return true;
 }
 
-bool SkPaintToGrPaint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
-                      const SkPaint& skPaint, const SkMatrix& viewM, GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, viewM, nullptr, nullptr,
-                                   grPaint);
+bool SkPaintToGrPaint(GrContext* context,
+                      const SkISize& deviceSize,
+                      const GrColorSpaceInfo& colorSpaceInfo,
+                      const SkPaint& skPaint,
+                      const SkMatrix& viewM,
+                      GrPaint* grPaint) {
+    return skpaint_to_grpaint_impl(context, deviceSize, colorSpaceInfo, skPaint, viewM, nullptr,
+                                   nullptr, grPaint);
 }
 
 /** Replaces the SkShader (if any) on skPaint with the passed in GrFragmentProcessor. */
 bool SkPaintToGrPaintReplaceShader(GrContext* context,
+                                   const SkISize& deviceSize,
                                    const GrColorSpaceInfo& colorSpaceInfo,
                                    const SkPaint& skPaint,
                                    std::unique_ptr<GrFragmentProcessor> shaderFP,
@@ -514,34 +520,37 @@ bool SkPaintToGrPaintReplaceShader(GrContext* context,
     if (!shaderFP) {
         return false;
     }
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &shaderFP,
-                                   nullptr, grPaint);
+    return skpaint_to_grpaint_impl(context, deviceSize, colorSpaceInfo, skPaint, SkMatrix::I(),
+                                   &shaderFP, nullptr, grPaint);
 }
 
 /** Ignores the SkShader (if any) on skPaint. */
 bool SkPaintToGrPaintNoShader(GrContext* context,
+                              const SkISize& deviceSize,
                               const GrColorSpaceInfo& colorSpaceInfo,
                               const SkPaint& skPaint,
                               GrPaint* grPaint) {
     // Use a ptr to a nullptr to to indicate that the SkShader is ignored and not replaced.
     std::unique_ptr<GrFragmentProcessor> nullShaderFP(nullptr);
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, SkMatrix::I(), &nullShaderFP,
-                                   nullptr, grPaint);
+    return skpaint_to_grpaint_impl(context, deviceSize, colorSpaceInfo, skPaint, SkMatrix::I(),
+                                   &nullShaderFP, nullptr, grPaint);
 }
 
 /** Blends the SkPaint's shader (or color if no shader) with a per-primitive color which must
 be setup as a vertex attribute using the specified SkBlendMode. */
 bool SkPaintToGrPaintWithXfermode(GrContext* context,
+                                  const SkISize& deviceSize,
                                   const GrColorSpaceInfo& colorSpaceInfo,
                                   const SkPaint& skPaint,
                                   const SkMatrix& viewM,
                                   SkBlendMode primColorMode,
                                   GrPaint* grPaint) {
-    return skpaint_to_grpaint_impl(context, colorSpaceInfo, skPaint, viewM, nullptr, &primColorMode,
-                                   grPaint);
+    return skpaint_to_grpaint_impl(context, deviceSize, colorSpaceInfo, skPaint, viewM, nullptr,
+                                   &primColorMode, grPaint);
 }
 
 bool SkPaintToGrPaintWithTexture(GrContext* context,
+                                 const SkISize& deviceSize,
                                  const GrColorSpaceInfo& colorSpaceInfo,
                                  const SkPaint& paint,
                                  const SkMatrix& viewM,
@@ -552,7 +561,7 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
     if (textureIsAlphaOnly) {
         if (const auto* shader = as_SB(paint.getShader())) {
             shaderFP = shader->asFragmentProcessor(GrFPArgs(
-                    context, &viewM, paint.getFilterQuality(), &colorSpaceInfo));
+                    context, &deviceSize, &viewM, paint.getFilterQuality(), &colorSpaceInfo));
             if (!shaderFP) {
                 return false;
             }
@@ -565,8 +574,8 @@ bool SkPaintToGrPaintWithTexture(GrContext* context,
         shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
     }
 
-    return SkPaintToGrPaintReplaceShader(context, colorSpaceInfo, paint, std::move(shaderFP),
-                                         grPaint);
+    return SkPaintToGrPaintReplaceShader(context, deviceSize, colorSpaceInfo, paint,
+                                         std::move(shaderFP), grPaint);
 }
 
 
