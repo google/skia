@@ -1843,7 +1843,8 @@ void Viewer::onIdle() {
     // more than one active window. Newly created windows are active but not visible for one frame
     // while they determine their layout and sizing.
     if (animateWantsInval || fStatsLayer.getActive() || fRefresh ||
-        io.MetricsActiveWindows > 1 || io.MetricsRenderWindows > 0) {
+        io.MetricsActiveWindows > 1 || io.MetricsRenderVertices > 0 ||
+        io.MetricsRenderIndices > 0) {
         fWindow->inval();
     }
 }

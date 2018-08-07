@@ -300,7 +300,9 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaintWithTexture(fContext.get(), deviceSize,
+                                     fRenderTargetContext->colorSpaceInfo(), paint,
                                      viewMatrix, std::move(fp), producer->isAlphaOnly(),
                                      &grPaint)) {
         return;

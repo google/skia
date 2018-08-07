@@ -95,6 +95,10 @@ void SkBinaryWriteBuffer::writePoint(const SkPoint& point) {
     fWriter.writeScalar(point.fY);
 }
 
+void SkBinaryWriteBuffer::writePoint3(const SkPoint3& point) {
+    fWriter.write(&point, sizeof(SkPoint3));
+}
+
 void SkBinaryWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     fWriter.write32(count);
     fWriter.write(point, count * sizeof(SkPoint));

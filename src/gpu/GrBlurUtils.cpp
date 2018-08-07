@@ -22,6 +22,7 @@
 #include "SkGr.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaint.h"
+#include "SkSize.h"
 #include "SkTLazy.h"
 
 static bool clip_bounds_quick_reject(const SkIRect& clipBounds, const SkIRect& rect) {
@@ -305,8 +306,9 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(context, renderTargetContext->colorSpaceInfo(), paint, viewMatrix,
-                          &grPaint)) {
+    SkISize deviceSize = SkISize::Make(renderTargetContext->width(), renderTargetContext->height());
+    if (!SkPaintToGrPaint(context, deviceSize, renderTargetContext->colorSpaceInfo(), paint,
+                          viewMatrix, &grPaint)) {
         return;
     }
     GrAA aa = GrAA(paint.isAntiAlias());

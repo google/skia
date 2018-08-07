@@ -630,14 +630,17 @@ static SkPath create_path_43() {
     return path;
 }
 
-static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(GrContext* ctx) {
+static std::unique_ptr<GrFragmentProcessor> create_linear_gradient_processor(
+        GrContext* ctx, GrRenderTargetContext* renderTargetContext) {
 
     SkPoint pts[2] = { {0, 0}, {1, 1} };
     SkColor colors[2] = { SK_ColorGREEN, SK_ColorBLUE };
     sk_sp<SkShader> shader = SkGradientShader::MakeLinear(
         pts, colors, nullptr, SK_ARRAY_COUNT(colors), SkShader::kClamp_TileMode);
     GrColorSpaceInfo colorSpaceInfo(nullptr, kRGBA_8888_GrPixelConfig);
-    GrFPArgs args(ctx, &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, &colorSpaceInfo);
+    SkISize deviceSize = SkISize::Make(renderTargetContext->width(), renderTargetContext->height());
+
+    GrFPArgs args(ctx, &deviceSize, &SkMatrix::I(), SkFilterQuality::kLow_SkFilterQuality, &colorSpaceInfo);
     return as_SB(shader)->asFragmentProcessor(args);
 }
 
@@ -704,7 +707,7 @@ DEF_GPUTEST_FOR_ALL_CONTEXTS(TessellatingPathRendererTests, reporter, ctxInfo) {
     test_path(ctx, rtc.get(), create_path_15());
     test_path(ctx, rtc.get(), create_path_16());
     SkMatrix nonInvertibleMatrix = SkMatrix::MakeScale(0, 0);
-    std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx));
+    std::unique_ptr<GrFragmentProcessor> fp(create_linear_gradient_processor(ctx, rtc.get()));
     test_path(ctx, rtc.get(), create_path_17(), nonInvertibleMatrix, GrAAType::kCoverage,
               std::move(fp));
     test_path(ctx, rtc.get(), create_path_18());
