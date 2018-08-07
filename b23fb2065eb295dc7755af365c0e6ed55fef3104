@@ -67,6 +67,24 @@
       "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a317aacf_2f842cb9",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 8209
+      },
+      "writtenOn": "2018-08-07T19:57:10Z",
+      "side": 1,
+      "message": "We don\u0027t want to check whether the SkVertices object has bone indices or weights, which I\u0027ve added a comment addressing in the next patch set.",
+      "parentUuid": "53c7ec76_0b3b7ca3",
+      "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
