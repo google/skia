@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "02a2f6b3_aa18760b",
+        "filename": "experimental/pathkit/pathkit_wasm_bindings.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-07T15:17:29Z",
+      "side": 1,
+      "message": "nit - type alias instead of macro?\n\n  using SkPathOrVal \u003d emscripten::val;",
+      "revId": "20d7ab0b4424048000c91abbcf3cac9ca9616a7b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
