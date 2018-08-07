@@ -329,7 +329,8 @@
       "~blendmode_mask_",
       "~desk_carsvg.skp",
       "~^path_text_clipped",
-      "~shapes_rrect_inner_rrect_50_500x500"
+      "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
