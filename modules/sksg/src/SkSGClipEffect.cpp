@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkSGGeometryNode.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 
@@ -24,16 +25,16 @@ ClipEffect::~ClipEffect() {
     this->unobserveInval(fClipNode);
 }
 
-void ClipEffect::onRender(SkCanvas* canvas) const {
+void ClipEffect::onRender(const RenderContext& ctx) const {
     if (this->bounds().isEmpty())
         return;
 
-    SkAutoCanvasRestore acr(canvas, !fNoop);
+    SkAutoCanvasRestore acr(ctx.canvas(), !fNoop);
     if (!fNoop) {
-        fClipNode->clip(canvas, fAntiAlias);
+        fClipNode->clip(ctx.canvas(), fAntiAlias);
     }
 
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(ctx);
 }
 
 SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

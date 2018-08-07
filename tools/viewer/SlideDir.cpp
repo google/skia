@@ -16,6 +16,7 @@
 #include "SkSGGroup.h"
 #include "SkSGPlane.h"
 #include "SkSGRect.h"
+#include "SkSGRenderContext.h"
 #include "SkSGRenderNode.h"
 #include "SkSGScene.h"
 #include "SkSGText.h"
@@ -72,10 +73,10 @@ protected:
         return SkRect::MakeIWH(isize.width(), isize.height());
     }
 
-    void onRender(SkCanvas* canvas) const override {
-        SkAutoCanvasRestore acr(canvas, true);
-        canvas->clipRect(SkRect::Make(fSlide->getDimensions()), true);
-        fSlide->draw(canvas);
+    void onRender(const sksg::RenderContext& ctx) const override {
+        SkAutoCanvasRestore acr(ctx.canvas(), true);
+        ctx.canvas()->clipRect(SkRect::Make(fSlide->getDimensions()), true);
+        fSlide->draw(ctx.canvas());
     }
 
 private:

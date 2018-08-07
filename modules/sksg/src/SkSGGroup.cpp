@@ -7,6 +7,9 @@
 
 #include "SkSGGroup.h"
 
+#include "SkSGRenderContext.h"
+#include "SkTLazy.h"
+
 namespace sksg {
 
 Group::Group() {}
@@ -45,9 +48,15 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
     this->invalidate();
 }
 
-void Group::onRender(SkCanvas* canvas) const {
+void Group::onRender(const RenderContext& ctx) const {
+    auto local_ctx = ctx.makeLocal();
+
+    if (fChildren.count() > 1) {
+        local_ctx.modulateLayer(this->bounds());
+    }
+
     for (const auto& child : fChildren) {
-        child->render(canvas);
+        child->render(local_ctx);
     }
 }
 

@@ -32,7 +32,7 @@ public:
 protected:
     ClipEffect(sk_sp<RenderNode>, sk_sp<GeometryNode>, bool aa);
 
-    void onRender(SkCanvas*) const override;
+    void onRender(const RenderContext&) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

@@ -9,17 +9,18 @@
 
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 
 Image::Image(sk_sp<SkImage> image) : fImage(std::move(image)) {}
 
-void Image::onRender(SkCanvas* canvas) const {
+void Image::onRender(const RenderContext& ctx) const {
     SkPaint paint;
     paint.setAntiAlias(fAntiAlias);
     paint.setFilterQuality(fQuality);
 
-    canvas->drawImage(fImage, 0, 0, &paint);
+    ctx.canvas()->drawImage(fImage, 0, 0, &paint);
 }
 
 SkRect Image::onRevalidate(InvalidationController*, const SkMatrix& ctm) {

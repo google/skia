@@ -11,6 +11,7 @@
 #include "SkMatrix.h"
 #include "SkPaint.h"
 #include "SkSGInvalidationController.h"
+#include "SkSGRenderContext.h"
 #include "SkSGRenderNode.h"
 
 namespace sksg {
@@ -44,7 +45,7 @@ Scene::~Scene() = default;
 void Scene::render(SkCanvas* canvas) const {
     InvalidationController ic;
     fRoot->revalidate(&ic, SkMatrix::I());
-    fRoot->render(canvas);
+    fRoot->render(RenderContext(canvas));
 
     if (fShowInval) {
         SkPaint fill, stroke;

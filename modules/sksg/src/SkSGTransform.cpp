@@ -8,6 +8,7 @@
 #include "SkSGTransform.h"
 
 #include "SkCanvas.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 // Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
@@ -47,11 +48,11 @@ Transform::~Transform() {
     this->unobserveInval(fMatrix);
 }
 
-void Transform::onRender(SkCanvas* canvas) const {
+void Transform::onRender(const RenderContext& ctx) const {
     const auto& m = fMatrix->getTotalMatrix();
-    SkAutoCanvasRestore acr(canvas, !m.isIdentity());
-    canvas->concat(m);
-    this->INHERITED::onRender(canvas);
+    SkAutoCanvasRestore acr(ctx.canvas(), !m.isIdentity());
+    ctx.canvas()->concat(m);
+    this->INHERITED::onRender(ctx);
 }
 
 SkRect Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

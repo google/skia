@@ -11,9 +11,9 @@ namespace sksg {
 
 RenderNode::RenderNode() : INHERITED(0) {}
 
-void RenderNode::render(SkCanvas* canvas) const {
+void RenderNode::render(const RenderContext& ctx) const {
     SkASSERT(!this->hasInval());
-    this->onRender(canvas);
+    this->onRender(ctx);
 }
 
 } // namespace sksg
