@@ -228,7 +228,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikeDeletionServer, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
-DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
+DEF_GPUTEST(SkRemoteGlyphCache_StrikePinningClient, reporter, unused) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
@@ -267,7 +267,7 @@ DEF_TEST(SkRemoteGlyphCache_StrikePinningClient, reporter) {
     discardableManager->unlockAndDeleteAll();
 }
 
-DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
+DEF_GPUTEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter, unused) {
     sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
     SkStrikeServer server(discardableManager.get());
     SkStrikeClient client(discardableManager, false);
