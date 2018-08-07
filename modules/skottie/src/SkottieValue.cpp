@@ -20,9 +20,10 @@ size_t ValueTraits<ScalarValue>::Cardinality(const ScalarValue&) {
 }
 
 template <>
-ScalarValue ValueTraits<ScalarValue>::Lerp(const ScalarValue& v0, const ScalarValue& v1, float t) {
+void ValueTraits<ScalarValue>::Lerp(const ScalarValue& v0, const ScalarValue& v1, float t,
+                                    ScalarValue* result) {
     SkASSERT(t >= 0 && t <= 1);
-    return v0 + (v1 - v0) * t;
+    *result = v0 + (v1 - v0) * t;
 }
 
 template <>
@@ -37,17 +38,15 @@ size_t ValueTraits<VectorValue>::Cardinality(const VectorValue& vec) {
 }
 
 template <>
-VectorValue ValueTraits<VectorValue>::Lerp(const VectorValue& v0, const VectorValue& v1, float t) {
+void ValueTraits<VectorValue>::Lerp(const VectorValue& v0, const VectorValue& v1, float t,
+                                    VectorValue* result) {
     SkASSERT(v0.size() == v1.size());
 
-    VectorValue v;
-    v.reserve(v0.size());
+    result->resize(v0.size());
 
     for (size_t i = 0; i < v0.size(); ++i) {
-        v.push_back(ValueTraits<ScalarValue>::Lerp(v0[i], v1[i], t));
+        ValueTraits<ScalarValue>::Lerp(v0[i], v1[i], t, &(*result)[i]);
     }
-
-    return v;
 }
 
 template <>
@@ -97,27 +96,25 @@ static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
 }
 
 template <>
-ShapeValue ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t) {
+void ValueTraits<ShapeValue>::Lerp(const ShapeValue& v0, const ShapeValue& v1, float t,
+                                   ShapeValue* result) {
     SkASSERT(t >= 0 && t <= 1);
     SkASSERT(v0.fVertices.size() == v1.fVertices.size());
     SkASSERT(v0.fClosed == v1.fClosed);
 
-    ShapeValue v;
-    v.fClosed = v0.fClosed;
-    v.fVolatile = true; // interpolated values are volatile
+    result->fClosed = v0.fClosed;
+    result->fVolatile = true; // interpolated values are volatile
 
     const auto t2f = Sk2f(t);
-    v.fVertices.reserve(v0.fVertices.size());
+    result->fVertices.resize(v0.fVertices.size());
 
     for (size_t i = 0; i < v0.fVertices.size(); ++i) {
-        v.fVertices.emplace_back(BezierVertex({
+        result->fVertices[i] = BezierVertex({
             lerp_point(v0.fVertices[i].fInPoint , v1.fVertices[i].fInPoint , t2f),
             lerp_point(v0.fVertices[i].fOutPoint, v1.fVertices[i].fOutPoint, t2f),
             lerp_point(v0.fVertices[i].fVertex  , v1.fVertices[i].fVertex  , t2f)
-        }));
+        });
     }
-
-    return v;
 }
 
 template <>
