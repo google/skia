@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5bef3d0c_9105d57f",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-07T19:26:50Z",
+      "side": 1,
+      "message": "I\u0027d just make this be an overload of operator[] (w/const) (rather than ::at)",
+      "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "345cd0c6_5bc85f90",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-07T19:26:50Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c25df37e_e27bbd2a",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-07T19:26:50Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53c7ec76_0b3b7ca3",
+        "filename": "src/core/SkVertices.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-07T19:26:50Z",
+      "side": 1,
+      "message": "Should we assert (or check) that this-\u003ehasBoneIndices and this-\u003ehasBoneWeights? Maybe just return this if not?\n\nRelated, we\u0027re not currently checking for accessing off the end of the bones array in any code, right? Seems like we could either check that per-lookup (eg in the deformation loop below), or the vertices object could calculate the max bone index once when it\u0027s built, and then we could compare that to the boneCount here?",
+      "revId": "b23fb2065eb295dc7755af365c0e6ed55fef3104",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
