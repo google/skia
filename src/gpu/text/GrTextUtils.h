@@ -96,10 +96,7 @@ public:
 
         operator const SkPaint&() const { return this->skPaint(); }
 
-        // Just for RunPaint's constructor
-        const GrColorSpaceInfo* dstColorSpaceInfo() const { return fDstColorSpaceInfo; }
 
-    protected:
         void initFilteredColor();
 
         Paint() = default;
@@ -121,13 +118,19 @@ public:
     public:
         RunPaint(const Paint* paint) : fOriginalPaint(paint) {
             // Initially we represent the original paint.
-            fPaint = &fOriginalPaint->skPaint();
-            fDstColorSpaceInfo = fOriginalPaint->dstColorSpaceInfo();
-            fFilteredPremulColor = fOriginalPaint->filteredPremulColor();
+            fPaint = paint->fPaint;
+            fDstColorSpaceInfo = paint->fDstColorSpaceInfo;
+            fFilteredPremulColor = paint->fFilteredPremulColor;
         }
 
-        bool modifyForRun(std::function<void(SkPaint*)> paintModFunc);
-
+        bool modifyForRun(std::function<void(SkPaint*)> paintModFunc) {
+            if (!fModifiedPaint.isValid()) {
+                fModifiedPaint.init(fOriginalPaint->skPaint());
+                fPaint = fModifiedPaint.get();
+            }
+            paintModFunc(fModifiedPaint.get());
+            return true;
+        }
     private:
         SkTLazy<SkPaint> fModifiedPaint;
         const Paint* fOriginalPaint;
