@@ -8,6 +8,7 @@
 #include "GrTestUtils.h"
 #include "GrColorSpaceInfo.h"
 #include "GrProcessorUnitTest.h"
+#include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "SkDashPathPriv.h"
 #include "SkMakeUnique.h"
@@ -15,6 +16,7 @@
 #include "SkPath.h"
 #include "SkRectPriv.h"
 #include "SkRRect.h"
+#include "SkSize.h"
 
 #if GR_TEST_UTILS
 
@@ -334,9 +336,10 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
 
 TestAsFPArgs::TestAsFPArgs(GrProcessorTestData* d)
     : fViewMatrixStorage(TestMatrix(d->fRandom))
+    , fDeviceSize(SkISize::Make(d->fRenderTargetContext->width(), d->fRenderTargetContext->height()))
     , fColorSpaceInfoStorage(skstd::make_unique<GrColorSpaceInfo>(TestColorSpace(d->fRandom),
                                                                   kRGBA_8888_GrPixelConfig))
-    , fArgs(d->context(), &fViewMatrixStorage, kNone_SkFilterQuality, fColorSpaceInfoStorage.get())
+    , fArgs(d->context(), &fDeviceSize, &fViewMatrixStorage, kNone_SkFilterQuality, fColorSpaceInfoStorage.get())
 {}
 
 TestAsFPArgs::~TestAsFPArgs() {}
