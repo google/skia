@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a658783a_9be58cb2",
+        "filename": "src/gpu/mtl/GrMtlPipelineState.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "Over 100 chars. Also lets make the buffers in the Builder class and pass them in since it is making all the other objects.",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 25,
+        "endChar": 79
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f6740d0_bffcef27",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "What is a constant next binding? Maybe we need a better name for this?",
+      "range": {
+        "startLine": 144,
+        "startChar": 22,
+        "endLine": 144,
+        "endChar": 55
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "99c409e5_c1a033d4",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "How does metal handle uniforms in general? Do they have the same concept of descriptor sets?",
+      "range": {
+        "startLine": 24,
+        "startChar": 5,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "779a6054_1831570c",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "align fVariable with the others (or the others with fVariable)",
+      "range": {
+        "startLine": 35,
+        "startChar": 18,
+        "endLine": 37,
+        "endChar": 34
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a24f1f7_221fcd89",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "extra \\n",
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b091894_7da255d0",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "Do you know if metal has uniform buffer alignment requirements? Are they the same as Vulkans (i.e. std140 alignment)",
+      "range": {
+        "startLine": 179,
+        "startChar": 5,
+        "endLine": 179,
+        "endChar": 27
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da9f8c25_32a5153f",
+        "filename": "src/gpu/mtl/GrMtlVaryingHandler.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T12:24:00Z",
+      "side": 1,
+      "message": "Metal? Also is this requirement true for metal?",
+      "range": {
+        "startLine": 100,
+        "startChar": 7,
+        "endLine": 100,
+        "endChar": 13
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
