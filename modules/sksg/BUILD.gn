@@ -7,7 +7,7 @@ config("public_config") {
   include_dirs = [ "include" ]
 }
 
-source_set("sksg") {
+component("sksg") {
   import("sksg.gni")
   public_configs = [ ":public_config" ]
   sources = skia_sksg_sources
