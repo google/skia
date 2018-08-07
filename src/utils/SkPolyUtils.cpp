@@ -22,13 +22,15 @@ struct OffsetSegment {
     SkVector fV;
 };
 
-// Computes perpDot for point p compared to segment defined by origin s0 and vector v0.
+constexpr SkScalar kCrossTolerance = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
+
+// Computes perpDot for point p compared to segment defined by origin p0 and vector v.
 // A positive value means the point is to the left of the segment,
 // negative is to the right, 0 is collinear.
-static int compute_side(const SkPoint& s0, const SkVector& v0, const SkPoint& p) {
-    SkVector v1 = p - s0;
-    SkScalar perpDot = v0.cross(v1);
-    if (!SkScalarNearlyZero(perpDot)) {
+static int compute_side(const SkPoint& p0, const SkVector& v, const SkPoint& p) {
+    SkVector w = p - p0;
+    SkScalar perpDot = v.cross(w);
+    if (!SkScalarNearlyZero(perpDot, kCrossTolerance)) {
         return ((perpDot > 0) ? 1 : -1);
     }
 
@@ -50,7 +52,7 @@ int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize) {
         quadArea += v0.cross(v1);
         v0 = v1;
     }
-    if (SkScalarNearlyZero(quadArea)) {
+    if (SkScalarNearlyZero(quadArea, kCrossTolerance)) {
         return 0;
     }
     // 1 == ccw, -1 == cw
@@ -63,7 +65,7 @@ inline void compute_offset(SkScalar d, const SkPoint& polyPoint, int side,
     SkScalar dsq = d * d;
     SkVector dP = outerTangentIntersect - polyPoint;
     SkScalar dPlenSq = SkPointPriv::LengthSqd(dP);
-    if (SkScalarNearlyZero(dPlenSq)) {
+    if (SkScalarNearlyZero(dPlenSq, SK_ScalarNearlyZero*SK_ScalarNearlyZero)) {
         v->set(0, 0);
     } else {
         SkScalar discrim = SkScalarSqrt(dPlenSq - dsq);
@@ -118,13 +120,10 @@ bool SkOffsetSegment(const SkPoint& p0, const SkPoint& p1, SkScalar d0, SkScalar
     return true;
 }
 
-// compute fraction of d along v
-static inline SkScalar compute_param(const SkVector& v, const SkVector& d) {
-    if (SkScalarNearlyZero(v.fX)) {
-        return d.fY / v.fY;
-    } else {
-        return d.fX / v.fX;
-    }
+// check interval to see if intersection is in segment
+static inline bool outside_interval(SkScalar numer, SkScalar denom, bool denomPositive) {
+    return (denomPositive && (numer < 0 || numer > denom)) ||
+           (!denomPositive && (numer > 0 || numer < denom));
 }
 
 // Compute the intersection 'p' between segments s0 and s1, if any.
@@ -134,21 +133,23 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                                  SkPoint* p, SkScalar* s, SkScalar* t) {
     const SkVector& v0 = s0.fV;
     const SkVector& v1 = s1.fV;
-    SkVector d = s1.fP0 - s0.fP0;
-    SkScalar perpDot = v0.cross(v1);
-    SkScalar localS, localT;
-    if (SkScalarNearlyZero(perpDot)) {
+    SkVector w = s1.fP0 - s0.fP0;
+    SkScalar denom = v0.cross(v1);
+    bool denomPositive = (denom > 0);
+    SkScalar sNumer, tNumer;
+    if (SkScalarNearlyZero(denom, kCrossTolerance)) {
         // segments are parallel, but not collinear
-        if (!SkScalarNearlyZero(d.cross(v0)) || !SkScalarNearlyZero(d.cross(v1))) {
+        if (!SkScalarNearlyZero(w.cross(v0), kCrossTolerance) ||
+            !SkScalarNearlyZero(w.cross(v1), kCrossTolerance)) {
             return false;
         }
 
-        // Check for degenerate segments
+        // Check for zero-length segments
         if (!SkPointPriv::CanNormalize(v0.fX, v0.fY)) {
-            // Both are degenerate
+            // Both are zero-length
             if (!SkPointPriv::CanNormalize(v1.fX, v1.fY)) {
                 // Check if they're the same point
-                if (!SkPointPriv::CanNormalize(d.fX, d.fY)) {
+                if (!SkPointPriv::CanNormalize(w.fX, w.fY)) {
                     *p = s0.fP0;
                     *s = 0;
                     *t = 0;
@@ -157,17 +158,19 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                     return false;
                 }
             }
-            // Otherwise project onto segment1
-            localT = compute_param(v1, -d);
-            if (localT < 0 || localT > SK_Scalar1) {
+            // Otherwise project segment0's origin onto segment1
+            tNumer = v1.dot(-w);
+            denom = v1.length();
+            if (outside_interval(tNumer, denom, true)) {
                 return false;
             }
-            localS = 0;
+            sNumer = 0;
         } else {
             // Project segment1's endpoints onto segment0
-            localS = compute_param(v0, d);
-            localT = 0;
-            if (localS < 0 || localS > SK_Scalar1) {
+            sNumer = v0.dot(w);
+            denom = v0.length();
+            tNumer = 0;
+            if (outside_interval(sNumer, denom, true)) {
                 // The first endpoint doesn't lie on segment0
                 // If segment1 is degenerate, then there's no collision
                 if (!SkPointPriv::CanNormalize(v1.fX, v1.fY)) {
@@ -175,31 +178,35 @@ static bool compute_intersection(const OffsetSegment& s0, const OffsetSegment& s
                 }
 
                 // Otherwise try the other one
-                SkScalar oldLocalS = localS;
-                localS = compute_param(v0, d + v1);
-                localT = SK_Scalar1;
-                if (localS < 0 || localS > SK_Scalar1) {
+                SkScalar oldSNumer = sNumer;
+                sNumer = v0.dot(w + v1);
+                tNumer = denom;
+                if (outside_interval(sNumer, denom, true)) {
                     // it's possible that segment1's interval surrounds segment0
                     // this is false if params have the same signs, and in that case no collision
-                    if (localS*oldLocalS > 0) {
+                    if (sNumer*oldSNumer > 0) {
                         return false;
                     }
                     // otherwise project segment0's endpoint onto segment1 instead
-                    localS = 0;
-                    localT = compute_param(v1, -d);
+                    sNumer = 0;
+                    tNumer = v1.dot(-w);
+                    denom = v1.length();
                 }
             }
         }
     } else {
-        localS = d.cross(v1) / perpDot;
-        if (localS < 0 || localS > SK_Scalar1) {
+        sNumer = w.cross(v1);
+        if (outside_interval(sNumer, denom, denomPositive)) {
             return false;
         }
-        localT = d.cross(v0) / perpDot;
-        if (localT < 0 || localT > SK_Scalar1) {
+        tNumer = w.cross(v0);
+        if (outside_interval(tNumer, denom, denomPositive)) {
             return false;
         }
     }
+
+    SkScalar localS = sNumer/denom;
+    SkScalar localT = tNumer/denom;
 
     *p = s0.fP0 + v0*localS;
     *s = localS;
@@ -299,14 +306,14 @@ struct OffsetEdge {
         const SkVector& v0 = s0.fV;
         const SkVector& v1 = s1.fV;
 
-        SkScalar perpDot = v0.cross(v1);
-        if (SkScalarNearlyZero(perpDot)) {
+        SkScalar denom = v0.cross(v1);
+        if (SkScalarNearlyZero(denom, kCrossTolerance)) {
             // segments are parallel
             return SK_ScalarMax;
         }
 
         SkVector d = s1.fP0 - s0.fP0;
-        SkScalar localS = d.cross(v1) / perpDot;
+        SkScalar localS = d.cross(v1) / denom;
         if (localS < 0) {
             localS = -localS;
         } else {
@@ -521,6 +528,13 @@ static bool left(const SkPoint& p0, const SkPoint& p1) {
     return p0.fX < p1.fX || (!(p0.fX > p1.fX) && p0.fY < p1.fY);
 }
 
+// checks to see if a point that is collinear with a segment lies in the segment's range
+static bool in_segment(const SkPoint& p0, const SkVector& v, const SkPoint& p) {
+    SkVector w = p - p0;
+    SkScalar numer = w.dot(v);
+    return (numer >= 0 && numer*numer <= v.dot(v));
+}
+
 struct Vertex {
     static bool Left(const Vertex& qv0, const Vertex& qv1) {
         return left(qv0.fPosition, qv1.fPosition);
@@ -548,7 +562,6 @@ struct ActiveEdge {
     // returns true if "this" is above "that"
     bool above(const ActiveEdge& that) const {
         SkASSERT(this->fSegment.fP0.fX <= that.fSegment.fP0.fX);
-        const SkScalar kTolerance = SK_ScalarNearlyZero * SK_ScalarNearlyZero;
         const SkVector& u = this->fSegment.fV;
         SkVector dv = that.fSegment.fP0 - this->fSegment.fP0;
         // The idea here is that if the vector between the origins of the two segments (dv)
@@ -556,9 +569,9 @@ struct ActiveEdge {
         // then we know that "this" is above that. If the result is clockwise we say it's below.
         if (this->fIndex0 != that.fIndex0) {
             SkScalar cross = dv.cross(u);
-            if (cross > kTolerance) {
+            if (cross > kCrossTolerance) {
                 return true;
-            } else if (cross < -kTolerance) {
+            } else if (cross < -kCrossTolerance) {
                 return false;
             }
         } else if (this->fIndex1 == that.fIndex1) {
@@ -574,9 +587,9 @@ struct ActiveEdge {
         //    = old_dv + that.fV
         dv += that.fSegment.fV;
         SkScalar cross = dv.cross(u);
-        if (cross > kTolerance) {
+        if (cross > kCrossTolerance) {
             return true;
-        } else if (cross < -kTolerance) {
+        } else if (cross < -kCrossTolerance) {
             return false;
         }
         // If the previous check fails, the two segments are nearly collinear
@@ -599,14 +612,50 @@ struct ActiveEdge {
     }
 
     bool intersect(const ActiveEdge& that) const {
-        SkPoint intersection;
-        SkScalar s, t;
         // check first to see if these edges are neighbors in the polygon
         if (this->fIndex0 == that.fIndex0 || this->fIndex1 == that.fIndex0 ||
             this->fIndex0 == that.fIndex1 || this->fIndex1 == that.fIndex1) {
             return false;
         }
-        return compute_intersection(this->fSegment, that.fSegment, &intersection, &s, &t);
+
+        // We don't need the exact intersection point so we can do a simpler test here.
+        const SkPoint& p0 = this->fSegment.fP0;
+        const SkVector& v = this->fSegment.fV;
+        SkPoint p1 = p0 + v;
+        const SkPoint& q0 = that.fSegment.fP0;
+        const SkVector& w = that.fSegment.fV;
+        SkPoint q1 = q0 + w;
+
+        int side0 = compute_side(p0, v, q0);
+        int side1 = compute_side(p0, v, q1);
+        int side2 = compute_side(q0, w, p0);
+        int side3 = compute_side(q0, w, p1);
+
+        // if each segment straddles the other (i.e., the endpoints have different sides)
+        // then they intersect
+        if (side0*side1 < 0 && side2*side3 < 0) {
+            return true;
+        }
+
+        // check collinear cases
+        // q0 lies on segment0's line, see if it's inside the segment
+        if (side0 == 0 && in_segment(p0, v, q0)) {
+            return true;
+        }
+        // q0 + w lies on segment0's line, see if it's inside the segment
+        if (side1 == 0 && in_segment(p0, v, q1)) {
+            return true;
+        }
+        // p0 lies on segment1's line, see if it's inside the segment
+        if (side2 == 0 && in_segment(q0, w, p0)) {
+            return true;
+        }
+        // p0 + v lies on segment0's line, see if it's inside the segment
+        if (side3 == 0 && in_segment(q0, w, p1)) {
+            return true;
+        }
+
+        return false;
     }
 
     bool lessThan(const ActiveEdge& that) const {
