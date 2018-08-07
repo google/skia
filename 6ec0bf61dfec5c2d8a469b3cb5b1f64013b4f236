@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "788c22a3_99030523",
+        "filename": "bench/TextBlobBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-07T17:53:39Z",
+      "side": 1,
+      "message": "Can you note why we\u0027ve chosen this particular text?",
+      "revId": "6ec0bf61dfec5c2d8a469b3cb5b1f64013b4f236",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
