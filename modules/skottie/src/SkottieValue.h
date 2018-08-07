@@ -22,7 +22,7 @@ struct ValueTraits {
     template <typename U>
     static U As(const T&);
 
-    static T Lerp(const T&, const T&, float);
+    static void Lerp(const T&, const T&, float, T*);
 };
 
 using ScalarValue = SkScalar;
