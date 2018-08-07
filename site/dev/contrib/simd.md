@@ -69,7 +69,7 @@ Building an abstraction layer over 8- and 16-bit fixed point math has proven to 
 
     SkPx::LoadN(const uint32_t*)   -> SkPx  // Load full cruising-speed SkPx.
     SkPx::Load(n, const uint32_t*) -> SkPx  // For the 0<n<N ragged tail.
-    
+
     SkPx.storeN(uint32_t*)   // Store a full SkPx.
     SkPx.store(n, uint32_t*) // For the ragged 0<n<N tail.
 

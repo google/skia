@@ -87,9 +87,9 @@ status line for one of those tasks.
 
 This status line tells us several things.
 
-  1. The maximum amount of memory DM had ever used was 25MB. Note this is a 
-  high water mark, not the current memory usage.  This is mostly useful for us 
-  to track on our buildbots, some of which run perilously close to the system 
+  1. The maximum amount of memory DM had ever used was 25MB. Note this is a
+  high water mark, not the current memory usage.  This is mostly useful for us
+  to track on our buildbots, some of which run perilously close to the system
   memory limit.
 
   2. The number of unfinished tasks, in this example there are 1857, either
@@ -98,7 +98,7 @@ This status line tells us several things.
   once.  Sometimes the counts appear to show up out of order, particularly at DM
   startup; it's harmless, and doesn't affect the correctness of the run.
 
-  3. Next, we see this task took 1.36 milliseconds to run.  Generally, the 
+  3. Next, we see this task took 1.36 milliseconds to run.  Generally, the
   precision of this timer is around 1 microsecond.  The time is purely there for
   informational purposes, to make it easier for us to find slow tests.
 

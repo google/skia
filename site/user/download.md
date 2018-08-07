@@ -6,7 +6,7 @@ Install `depot_tools` and Git
 
 Follow the instructions on [Installing Chromium's
 depot_tools](http://www.chromium.org/developers/how-tos/install-depot-tools)
-to download `depot_tools` (which includes gclient, git-cl, and Ninja). 
+to download `depot_tools` (which includes gclient, git-cl, and Ninja).
 Below is a summary of the necessary steps.
 
 <!--?prettify lang=sh?-->

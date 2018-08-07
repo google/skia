@@ -1,7 +1,7 @@
 Path Ops
 ========
 
-View the PathOps presentations with speaker notes enabled for full content. 
+View the PathOps presentations with speaker notes enabled for full content.
 
 2013 Path Ops Presentation
 ------------

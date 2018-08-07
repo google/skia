@@ -8,7 +8,7 @@ A color space is a **gamut** and a **transfer function**.
 
 Gamut refers to the **available range of colors** in an image or on a display device.  Being
 gamut correct means that we will display colors as the designer intended and consistently across
-display devices.  A common problem with new “wide gamut” devices and uncorrected colors is 
+display devices.  A common problem with new “wide gamut” devices and uncorrected colors is
 illustrated below.
 
 Device Dependent Color (Wrong)
