@@ -22,6 +22,30 @@
       "revId": "bc0fbfe8050d6e931fe634cc0822d71b98eadeda",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88562449_9982b90c",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-07T16:12:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fe2ca3fb_b7cf5a6c",
+      "range": {
+        "startLine": 27,
+        "startChar": 70,
+        "endLine": 27,
+        "endChar": 72
+      },
+      "revId": "bc0fbfe8050d6e931fe634cc0822d71b98eadeda",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
