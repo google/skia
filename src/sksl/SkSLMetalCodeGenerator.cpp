@@ -577,7 +577,11 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write("& " );
                 this->write(fInterfaceBlockNameMap[&intf]);
                 this->write(" [[buffer(");
+#ifdef SK_MOLTENVK
                 this->write(to_string(intf.fVariable.fModifiers.fLayout.fSet));
+#else
+                this->write(to_string(intf.fVariable.fModifiers.fLayout.fBinding));
+#endif
                 this->write(")]]");
             }
         }
