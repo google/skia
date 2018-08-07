@@ -52,20 +52,4 @@ struct SkColorSpaceXformSteps {
     float src_to_dst_matrix[9];       // Apply this 3x3 column-major matrix for gamut_transform.
 };
 
-/* TODO?
-struct BakedXformSteps {
-
-    SkColorSpaceXformSteps                              fSteps;
-
-    SkSTArenaAlloc<exactly_the_right_size>              fAlloc;
-    std::function<void(size_t, size_t, size_t, size_t)> fXform8888,
-                                                        fXformFFFF;
-    SkJumper_MemoryCtx                                  fSrc = {nullptr,0},
-                                                        fDst = {nullptr,0};
-
-    void apply(SkColor src       , float dst[4]);
-    void apply(const float src[4], float dst[4]);
-};
-*/
-
 #endif//SkColorSpaceXformSteps_DEFINED

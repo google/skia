@@ -17,15 +17,31 @@
 #include "SkImagePriv.h"
 #include "SkShaderBase.h"
 
-SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst,
-                                         std::unique_ptr<SkColorSpaceXform> fromSRGB)
-    : fDst(std::move(dst))
-    , fFromSRGB(std::move(fromSRGB))
-    , fReentryCount(0) {}
+#ifdef SK_LEGACY_COLORSPACE_XFORMER_IMPL
+    SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst,
+                                             std::unique_ptr<SkColorSpaceXform> fromSRGB)
+        : fDst(std::move(dst))
+        , fFromSRGB(std::move(fromSRGB))
+        , fReentryCount(0) {}
+#else
+    SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst)
+        : fDst(std::move(dst))
+        , fFromSRGBSteps(SkColorSpaceXformSteps::UnpremulToUnpremul(sk_srgb_singleton(),
+                                                                    fDst.get()))
+        , fReentryCount(0) {
+
+        SkRasterPipeline p(&fAlloc);
+        p.append(SkRasterPipeline::load_bgra, &fFromSRGBSrc);
+        fFromSRGBSteps.apply(&p);
+        p.append(SkRasterPipeline::store_bgra, &fFromSRGBDst);
+        fFromSRGB = p.compile();
+    }
+#endif
 
 SkColorSpaceXformer::~SkColorSpaceXformer() {}
 
 std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpace> dst) {
+#ifdef SK_LEGACY_COLORSPACE_XFORMER_IMPL
     std::unique_ptr<SkColorSpaceXform> fromSRGB = SkMakeColorSpaceXform(
             sk_srgb_singleton(), dst.get());
 
@@ -33,6 +49,9 @@ std::unique_ptr<SkColorSpaceXformer> SkColorSpaceXformer::Make(sk_sp<SkColorSpac
         ? std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer(std::move(dst),
                                                                        std::move(fromSRGB)))
         : nullptr;
+#else
+    return std::unique_ptr<SkColorSpaceXformer>(new SkColorSpaceXformer{std::move(dst)});
+#endif
 }
 
 // So what's up with these caches?
@@ -138,9 +157,15 @@ sk_sp<SkShader> SkColorSpaceXformer::apply(const SkShader* shader) {
 }
 
 void SkColorSpaceXformer::apply(SkColor* xformed, const SkColor* srgb, int n) {
+#ifdef SK_LEGACY_COLORSPACE_XFORMER_IMPL
     SkAssertResult(fFromSRGB->apply(SkColorSpaceXform::kBGRA_8888_ColorFormat, xformed,
                                     SkColorSpaceXform::kBGRA_8888_ColorFormat, srgb,
                                     n, kUnpremul_SkAlphaType));
+#else
+    fFromSRGBSrc.pixels = const_cast<SkColor*>(srgb);
+    fFromSRGBDst.pixels = xformed;
+    fFromSRGB(0,0,n,1);
+#endif
 }
 
 SkColor SkColorSpaceXformer::apply(SkColor srgb) {
