@@ -207,6 +207,63 @@ uint16_t* SkVertices::Builder::indices() {
     return const_cast<uint16_t*>(fVertices->indices());
 }
 
+/** Makes a copy of the SkVertices and applies a set of bones, then returns the deformed
+    vertices.
+
+    @param bones      The bones to apply.
+    @param boneCount  The number of bones.
+    @return           The transformed SkVertices.
+*/
+sk_sp<SkVertices> SkVertices::applyBones(const SkVertices::Bone bones[], int boneCount) const {
+    // If there aren't any bones, then nothing changes.
+    if (!bones || !boneCount) {
+        return sk_ref_sp(this);
+    }
+    SkASSERT(boneCount >= 1);
+
+    // Copy the SkVertices.
+    sk_sp<SkVertices> copy = SkVertices::MakeCopy(this->mode(),
+                                                  this->vertexCount(),
+                                                  this->positions(),
+                                                  this->texCoords(),
+                                                  this->colors(),
+                                                  nullptr,
+                                                  nullptr,
+                                                  this->indexCount(),
+                                                  this->indices());
+
+    // Transform the positions.
+    for (int i = 0; i < this->vertexCount(); i++) {
+        SkPoint& position = copy->fPositions[i];
+
+        // Apply the world transform.
+        position = bones[0].mapPoint(position);
+
+        // Apply the bone deformations.
+        if (boneCount > 1) {
+            SkPoint result = SkPoint::Make(0.0f, 0.0f);
+            const SkVertices::BoneIndices& indices = this->boneIndices()[i];
+            const SkVertices::BoneWeights& weights = this->boneWeights()[i];
+            for (int j = 0; j < 4; j++) {
+                int index = indices.at(j);
+                float weight = weights.at(j);
+                if (index == 0 || weight == 0.0f) {
+                    continue;
+                }
+
+                // result += M * v * w.
+                result += bones[index].mapPoint(position) * weight;
+            }
+            position = result;
+        }
+    }
+
+    // Recalculate the bounds.
+    copy->fBounds.set(copy->fPositions, copy->fVertexCnt);
+
+    return copy;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<SkVertices> SkVertices::MakeCopy(VertexMode mode, int vertexCount,

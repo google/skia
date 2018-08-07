@@ -455,7 +455,7 @@ namespace {
         SkBlendMode mode;
         SkPaint paint;
         void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawVertices(vertices, pod<SkMatrix>(this), boneCount, mode, paint);
+            c->drawVertices(vertices, pod<SkVertices::Bone>(this), boneCount, mode, paint);
         }
     };
     struct DrawAtlas final : Op {
@@ -660,9 +660,9 @@ void SkLiteDL::drawPoints(SkCanvas::PointMode mode, size_t count, const SkPoint 
     void* pod = this->push<DrawPoints>(count*sizeof(SkPoint), mode, count, paint);
     copy_v(pod, points,count);
 }
-void SkLiteDL::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
-                            SkBlendMode mode, const SkPaint& paint) {
-    void* pod = this->push<DrawVertices>(boneCount * sizeof(SkMatrix),
+void SkLiteDL::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                            int boneCount, SkBlendMode mode, const SkPaint& paint) {
+    void* pod = this->push<DrawVertices>(boneCount * sizeof(SkVertices::Bone),
                                          vertices,
                                          boneCount,
                                          mode,
