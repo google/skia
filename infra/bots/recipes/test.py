@@ -272,6 +272,9 @@ def dm_flags(api, bot):
     if 'Chromecast' in bot:
       configs = ['gles']
 
+    if 'NoExplicitAlloc' in bot:
+      args.extend(['--disableExplicitAlloc', 'true'])
+
     # Test coverage counting path renderer.
     if 'CCPR' in bot:
       configs = [c for c in configs if c == 'gl' or c == 'gles']
