@@ -25,7 +25,7 @@ class SK_API SkRegion {
 public:
     SkRegion();
     SkRegion(const SkRegion& region);
-    explicit SkRegion(const SkIRect& region);
+    explicit SkRegion(const SkIRect& rect);
     ~SkRegion();
 
     SkRegion& operator=(const SkRegion& region);
@@ -279,14 +279,14 @@ public:
      *  rectangle and region: this = (rect op rgn).
      *  Return true if the resulting region is non-empty.
      */
-    bool op(const SkIRect& rect, const SkRegion& rgn, Op);
+    bool op(const SkIRect& rect, const SkRegion& rgn, Op op);
 
     /**
      *  Set this region to the result of applying the Op to the specified
      *  region and rectangle: this = (rgn op rect).
      *  Return true if the resulting region is non-empty.
      */
-    bool op(const SkRegion& rgn, const SkIRect& rect, Op);
+    bool op(const SkRegion& rgn, const SkIRect& rect, Op op);
 
     /**
      *  Set this region to the result of applying the Op to the specified
