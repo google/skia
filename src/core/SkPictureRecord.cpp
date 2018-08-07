@@ -47,7 +47,7 @@ void SkPictureRecord::onFlush() {
 void SkPictureRecord::willSave() {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
-    fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
+    fRestoreOffsetStack.push_back(-(int32_t)fWriter.bytesWritten());
     this->recordSave();
 
     this->INHERITED::willSave();
@@ -64,7 +64,7 @@ void SkPictureRecord::recordSave() {
 SkCanvas::SaveLayerStrategy SkPictureRecord::getSaveLayerStrategy(const SaveLayerRec& rec) {
     // record the offset to us, making it non-positive to distinguish a save
     // from a clip entry.
-    fRestoreOffsetStack.push(-(int32_t)fWriter.bytesWritten());
+    fRestoreOffsetStack.push_back(-(int32_t)fWriter.bytesWritten());
     this->recordSaveLayer(rec);
 
     (void)this->INHERITED::getSaveLayerStrategy(rec);

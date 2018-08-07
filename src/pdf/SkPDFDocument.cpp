@@ -61,7 +61,7 @@ void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
         // always free and has a generation number of 65,535; it is
         // the head of the linked list of free objects."
         SkASSERT(fOffsets.count() == fNextToBeSerialized);
-        fOffsets.push(this->offset(wStream));
+        fOffsets.push_back(this->offset(wStream));
         wStream->writeDecAsText(index);
         wStream->writeText(" 0 obj\n");  // Generation number is always 0.
         object->emitObject(wStream, fObjNumMap);
