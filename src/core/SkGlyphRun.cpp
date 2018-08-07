@@ -1009,6 +1009,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
 
     // Regenerate GrTextBlob
     GrTextUtils::RunPaint runPaint(&paint);
+    const SkPaint& skPaint = glyphRunList.paint();
     int runIndex = 0;
     for (const auto& glyphRun : glyphRunList) {
         cacheBlob->push_back_run(runIndex);
@@ -1016,7 +1017,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
         if (!runPaint.modifyForRun([glyphRun](SkPaint* p) { *p = glyphRun.paint(); })) {
             continue;
         }
-        cacheBlob->setRunPaintFlags(runIndex, runPaint.skPaint().getFlags());
+        cacheBlob->setRunPaintFlags(runIndex, skPaint.getFlags());
 
         if (CanDrawAsDistanceFields(runPaint, viewMatrix, props,
                                     shaderCaps.supportsDistanceFieldText(), fOptions)) {
