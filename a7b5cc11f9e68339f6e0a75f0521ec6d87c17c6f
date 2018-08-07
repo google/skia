@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e494d18_e95ac4bd",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-07T12:11:26Z",
+      "side": 1,
+      "message": "Doesn\u0027t this feel like we could be moving it instead of releasing?\n\n  sk_sp\u003cSkMaskFilter\u003e saved \u003d std::move(fMaskFilter);\n  this-\u003egetMetrics(\u0026tmpGlyph);\n  fMaskFilter \u003d std::move(saved);",
+      "revId": "a7b5cc11f9e68339f6e0a75f0521ec6d87c17c6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
