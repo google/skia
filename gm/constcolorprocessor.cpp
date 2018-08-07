@@ -14,6 +14,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkGr.h"
 #include "SkGradientShader.h"
+#include "SkSize.h"
 #include "effects/GrConstColorProcessor.h"
 #include "ops/GrDrawOp.h"
 #include "ops/GrRectOpFactory.h"
@@ -57,6 +58,8 @@ protected:
             return;
         }
 
+        SkISize deviceSize = SkISize::Make(renderTargetContext->width(), renderTargetContext->height());
+
         constexpr GrColor kColors[] = {
             0xFFFFFFFF,
             0xFFFF00FF,
@@ -99,7 +102,8 @@ protected:
                     } else {
                         skPaint.setColor(kPaintColors[paintType]);
                     }
-                    SkAssertResult(SkPaintToGrPaint(context, renderTargetContext->colorSpaceInfo(),
+
+                    SkAssertResult(SkPaintToGrPaint(context, deviceSize, renderTargetContext->colorSpaceInfo(),
                                                     skPaint, viewMatrix, &grPaint));
 
                     GrConstColorProcessor::InputMode mode = (GrConstColorProcessor::InputMode) m;

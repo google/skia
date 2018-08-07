@@ -109,6 +109,7 @@ public:
         kGrDitherEffect_ClassID,
         kGrEllipseEffect_ClassID,
         kGrGaussianConvolutionFragmentProcessor_ClassID,
+        kGrGLTFLightingFragmentProcessor_ClassID,
         kGrImprovedPerlinNoiseEffect_ClassID,
         kGrLightingEffect_ClassID,
         kGrLinearGradient_ClassID,
