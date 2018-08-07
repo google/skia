@@ -559,6 +559,9 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         hb_buffer_set_content_type(buffer, HB_BUFFER_CONTENT_TYPE_UNICODE);
         hb_buffer_set_cluster_level(buffer, HB_BUFFER_CLUSTER_LEVEL_MONOTONE_CHARACTERS);
 
+        // Add precontext.
+        hb_buffer_add_utf8(buffer, utf8, utf8Start - utf8, utf8Start - utf8, 0);
+
         // Populate the hb_buffer directly with utf8 cluster indexes.
         const char* utf8Current = utf8Start;
         while (utf8Current < utf8End) {
@@ -566,6 +569,9 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             hb_codepoint_t u = utf8_next(&utf8Current, utf8End);
             hb_buffer_add(buffer, u, cluster);
         }
+
+        // Add postcontext.
+        hb_buffer_add_utf8(buffer, utf8Current, utf8 + utf8Bytes - utf8Current, 0, 0);
 
         size_t utf8runLength = utf8End - utf8Start;
         if (!SkTFitsIn<int>(utf8runLength)) {
