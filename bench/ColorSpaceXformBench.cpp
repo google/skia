@@ -9,13 +9,14 @@
 #include "Benchmark.h"
 #include "SkColor.h"
 #include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformer.h"
 #include "SkColorSpaceXformSteps.h"
 #include "SkMakeUnique.h"
 #include "SkPM4fPriv.h"
 #include "SkRandom.h"
 #include "SkRasterPipeline.h"
 
-enum class Mode { xform, steps, pipeA, pipeB };
+enum class Mode { xform, steps, pipeA, pipeB, xformer };
 
 struct ColorSpaceXformBench : public Benchmark {
     ColorSpaceXformBench(Mode mode) : fMode(mode) {}
@@ -30,12 +31,15 @@ struct ColorSpaceXformBench : public Benchmark {
                        fPipeDst = {nullptr,0};
     SkSTArenaAlloc<1024> fAlloc;
 
+    std::unique_ptr<SkColorSpaceXformer> fXformer;
+
     const char* onGetName() override {
         switch (fMode) {
-            case Mode::xform: return "ColorSpaceXformBench_xform";
-            case Mode::steps: return "ColorSpaceXformBench_steps";
-            case Mode::pipeA: return "ColorSpaceXformBench_pipeA";
-            case Mode::pipeB: return "ColorSpaceXformBench_pipeB";
+            case Mode::xform  : return "ColorSpaceXformBench_xform";
+            case Mode::steps  : return "ColorSpaceXformBench_steps";
+            case Mode::pipeA  : return "ColorSpaceXformBench_pipeA";
+            case Mode::pipeB  : return "ColorSpaceXformBench_pipeB";
+            case Mode::xformer: return "ColorSpaceXformBench_xformer";
         }
         return "";
     }
@@ -58,6 +62,8 @@ struct ColorSpaceXformBench : public Benchmark {
         p.append(SkRasterPipeline::store_bgra, &fPipeDst);
 
         fPipeA = p.compile();
+
+        fXformer = SkColorSpaceXformer::Make(dst);  // src is implicitly sRGB, what we want anyway
     }
 
     void onDraw(int n, SkCanvas* canvas) override {
@@ -96,6 +102,10 @@ struct ColorSpaceXformBench : public Benchmark {
                     p.append(SkRasterPipeline::store_bgra, &fPipeDst);
                     p.run(0,0,1,1);
                 } break;
+
+                case Mode::xformer: {
+                    dst = fXformer->apply(src);
+                } break;
             }
 
             if (false && i == 0) {
@@ -107,7 +117,8 @@ struct ColorSpaceXformBench : public Benchmark {
     }
 };
 
-DEF_BENCH(return new ColorSpaceXformBench{Mode::xform};)
-DEF_BENCH(return new ColorSpaceXformBench{Mode::steps};)
-DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeA};)
-DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeB};)
+DEF_BENCH(return new ColorSpaceXformBench{Mode::xform  };)
+DEF_BENCH(return new ColorSpaceXformBench{Mode::steps  };)
+DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeA  };)
+DEF_BENCH(return new ColorSpaceXformBench{Mode::pipeB  };)
+DEF_BENCH(return new ColorSpaceXformBench{Mode::xformer};)
