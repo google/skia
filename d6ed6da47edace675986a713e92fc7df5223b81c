@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fd910e1_9b862fe8",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-07T15:51:18Z",
+      "side": 1,
+      "message": "Maybe comment that, where this is referenced, it could live on the stack, but that causes some malloc/free churn...",
+      "range": {
+        "startLine": 232,
+        "startChar": 40,
+        "endLine": 232,
+        "endChar": 48
+      },
+      "revId": "d6ed6da47edace675986a713e92fc7df5223b81c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
