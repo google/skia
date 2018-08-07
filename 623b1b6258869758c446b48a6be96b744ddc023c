@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "295c3e90_1dd7a23f",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateDataManager.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T20:52:31Z",
+      "side": 1,
+      "message": "need space in fron to align the *",
+      "range": {
+        "startLine": 2,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 2
+      },
+      "revId": "623b1b6258869758c446b48a6be96b744ddc023c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17d2ce7a_63ea75ba",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateDataManager.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T20:52:31Z",
+      "side": 1,
+      "message": "I don\u0027t think you need mtl here.",
+      "range": {
+        "startLine": 12,
+        "startChar": 10,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "623b1b6258869758c446b48a6be96b744ddc023c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8cf0150_ad2f7700",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateDataManager.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-07T20:52:31Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 2
+      },
+      "revId": "623b1b6258869758c446b48a6be96b744ddc023c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
