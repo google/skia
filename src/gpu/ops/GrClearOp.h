@@ -62,23 +62,23 @@ private:
         this->setBounds(SkRect::Make(rect), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         // This could be much more complicated. Currently we look at cases where the new clear
         // contains the old clear, or when the new clear is a subset of the old clear and is the
         // same color.
         GrClearOp* cb = t->cast<GrClearOp>();
         if (fClip.windowRectsState() != cb->fClip.windowRectsState()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (cb->contains(this)) {
             fClip = cb->fClip;
             this->replaceBounds(*t);
             fColor = cb->fColor;
-            return true;
+            return CombineResult::kMerged;
         } else if (cb->fColor == fColor && this->contains(cb)) {
-            return true;
+            return CombineResult::kMerged;
         }
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     bool contains(const GrClearOp* that) const {

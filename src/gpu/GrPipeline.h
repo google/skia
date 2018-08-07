@@ -12,7 +12,6 @@
 #include "GrFragmentProcessor.h"
 #include "GrNonAtomicRef.h"
 #include "GrPendingIOResource.h"
-#include "GrPendingProgramElement.h"
 #include "GrProcessorSet.h"
 #include "GrProgramDesc.h"
 #include "GrRect.h"
@@ -76,8 +75,11 @@ public:
      * 2) DynamicStateArrays - use this to specify per mesh values for dynamic state.
      **/
     struct FixedDynamicState {
-        FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
-        SkIRect fScissorRect;
+        explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
+        FixedDynamicState() = default;
+        SkIRect fScissorRect = SkIRect::EmptyIRect();
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**

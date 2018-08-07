@@ -32,10 +32,10 @@ public:
         GrColor fColor;
     };
 
-    static sk_sp<GrGeometryProcessor> Make(sk_sp<GrTextureProxy> proxy,
+    static sk_sp<GrGeometryProcessor> Make(const GrTextureProxy* proxy,
                                            sk_sp<GrColorSpaceXform> csxf,
                                            GrSamplerState::Filter filter) {
-        return sk_sp<GrGeometryProcessor>(new LatticeGP(std::move(proxy), std::move(csxf), filter));
+        return sk_sp<GrGeometryProcessor>(new LatticeGP(proxy, std::move(csxf), filter));
     }
 
     const char* name() const override { return "LatticeGP"; }
@@ -92,10 +92,10 @@ public:
     }
 
 private:
-    LatticeGP(sk_sp<GrTextureProxy> proxy, sk_sp<GrColorSpaceXform> csxf,
+    LatticeGP(const GrTextureProxy* proxy, sk_sp<GrColorSpaceXform> csxf,
               GrSamplerState::Filter filter)
             : INHERITED(kLatticeGP_ClassID), fColorSpaceXform(std::move(csxf)) {
-        fSampler.reset(std::move(proxy), filter);
+        fSampler.reset(proxy->textureType(), proxy->config(), filter);
         this->setTextureSamplerCnt(1);
         this->setVertexAttributeCnt(4);
     }
@@ -202,7 +202,7 @@ public:
 
 private:
     void onPrepareDraws(Target* target) override {
-        auto gp = LatticeGP::Make(fProxy, fColorSpaceXform, fFilter);
+        auto gp = LatticeGP::Make(fProxy.get(), fColorSpaceXform, fFilter);
         if (!gp) {
             SkDebugf("Couldn't create GrGeometryProcessor\n");
             return;
@@ -223,9 +223,9 @@ private:
         }
 
         sk_sp<const GrBuffer> indexBuffer = target->resourceProvider()->refQuadIndexBuffer();
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices = helper.init(target, kVertexStide, indexBuffer.get(), kVertsPerRect,
-                                     kIndicesPerRect, numRects);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, kVertexStide, indexBuffer.get(),
+                             kVertsPerRect, kIndicesPerRect, numRects);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -281,28 +281,29 @@ private:
                                                   kVertsPerRect * patch.fIter->numRectsToDraw());
             }
         }
-        auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        auto pipe = fHelper.makePipeline(target, 1);
+        pipe.fFixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy.get();
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         NonAALatticeOp* that = t->cast<NonAALatticeOp>();
         if (fProxy != that->fProxy) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (fFilter != that->fFilter) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (GrColorSpaceXform::Equals(fColorSpaceXform.get(), that->fColorSpaceXform.get())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fPatches.move_back_n(that->fPatches.count(), that->fPatches.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct Patch {

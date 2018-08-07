@@ -117,7 +117,7 @@ GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
     return RequiresDstTexture(analysis.requiresDstTexture());
 }
 
-bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
+GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
     GrCCDrawPathsOp* that = op->cast<GrCCDrawPathsOp>();
     SkASSERT(fOwningPerOpListPaths);
     SkASSERT(fNumDraws);
@@ -126,7 +126,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
 
     if (fProcessors != that->fProcessors ||
         fViewMatrixIfUsingLocalCoords != that->fViewMatrixIfUsingLocalCoords) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     fDraws.append(std::move(that->fDraws), &fOwningPerOpListPaths->fAllocator);
@@ -134,7 +134,7 @@ bool GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&) {
 
     SkDEBUGCODE(fNumDraws += that->fNumDraws);
     SkDEBUGCODE(that->fNumDraws = 0);
-    return true;
+    return CombineResult::kMerged;
 }
 
 void GrCCDrawPathsOp::wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths) {
@@ -312,7 +312,7 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
     }
 }
 
-inline void GrCCDrawPathsOp::recordInstance(const GrTextureProxy* atlasProxy, int instanceIdx) {
+inline void GrCCDrawPathsOp::recordInstance(GrTextureProxy* atlasProxy, int instanceIdx) {
     if (fInstanceRanges.empty()) {
         fInstanceRanges.push_back({atlasProxy, instanceIdx});
         return;
@@ -347,8 +347,9 @@ void GrCCDrawPathsOp::onExecute(GrOpFlushState* flushState) {
     for (const InstanceRange& range : fInstanceRanges) {
         SkASSERT(range.fEndInstanceIdx > baseInstance);
 
-        GrCCPathProcessor pathProc(flushState->resourceProvider(), sk_ref_sp(range.fAtlasProxy),
-                                   fViewMatrixIfUsingLocalCoords);
+        GrCCPathProcessor pathProc(range.fAtlasProxy, fViewMatrixIfUsingLocalCoords);
+        GrTextureProxy* atlasProxy = range.fAtlasProxy;
+        fixedDynamicState.fPrimitiveProcessorTextures = &atlasProxy;
         pathProc.drawPaths(flushState, pipeline, &fixedDynamicState, *resources, baseInstance,
                            range.fEndInstanceIdx, this->bounds());
 

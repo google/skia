@@ -152,8 +152,6 @@ public:
 private:
     friend class ::GrOpMemoryPool;
 
-    bool onCombineIfPossible(GrOp*, const GrCaps&) override { return false; }
-
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
 
@@ -199,12 +197,12 @@ private:
             }
         }
 
-        GrMesh mesh(GrPrimitiveType::kTriangleStrip);
-        mesh.setNonIndexedNonInstanced(kVertexCount);
-        mesh.setVertexData(vertexBuffer, firstVertex);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangleStrip);
+        mesh->setNonIndexedNonInstanced(kVertexCount);
+        mesh->setVertexData(vertexBuffer, firstVertex);
         auto pipe = target->makePipeline(0, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
     Mode fMode;

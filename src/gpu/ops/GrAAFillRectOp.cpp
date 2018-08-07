@@ -265,10 +265,9 @@ private:
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
         sk_sp<const GrBuffer> indexBuffer = get_index_buffer(target->resourceProvider());
-        PatternHelper helper(GrPrimitiveType::kTriangles);
-        void* vertices =
-                helper.init(target, vertexStride, indexBuffer.get(), kVertsPerAAFillRect,
-                            kIndicesPerAAFillRect, fRectCnt);
+        PatternHelper helper(target, GrPrimitiveType::kTriangles, vertexStride, indexBuffer.get(),
+                             kVertsPerAAFillRect, kIndicesPerAAFillRect, fRectCnt);
+        void* vertices = helper.vertices();
         if (!vertices || !indexBuffer) {
             SkDebugf("Could not allocate vertices\n");
             return;
@@ -292,19 +291,19 @@ private:
             info = this->next(info);
         }
         auto pipe = fHelper.makePipeline(target);
-        helper.recordDraw(target, gp.get(), pipe.fPipeline, pipe.fFixedDynamicState);
+        helper.recordDraw(target, std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         AAFillRectOp* that = t->cast<AAFillRectOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fRectData.push_back_n(that->fRectData.count(), that->fRectData.begin());
         fRectCnt += that->fRectCnt;
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     struct RectInfo {

@@ -627,20 +627,20 @@ private:
         auto pipe = target->makePipeline(kPipelineFlags, GrProcessorSet::MakeEmptySet(),
                                          target->detachAppliedClip());
 
-        GrMesh mesh(GrPrimitiveType::kTriangles);
-        mesh.setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
-                        GrPrimitiveRestart::kNo);
-        mesh.setVertexData(vertexBuffer, firstVertex);
-        target->draw(gp.get(), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+        GrMesh* mesh = target->allocMesh(GrPrimitiveType::kTriangles);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertCount - 1,
+                         GrPrimitiveRestart::kNo);
+        mesh->setVertexData(vertexBuffer, firstVertex);
+        target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         ShadowCircularRRectOp* that = t->cast<ShadowCircularRRectOp>();
         fGeoData.push_back_n(that->fGeoData.count(), that->fGeoData.begin());
         this->joinBounds(*that);
         fVertCount += that->fVertCount;
         fIndexCount += that->fIndexCount;
-        return true;
+        return CombineResult::kMerged;
     }
 
     SkSTArray<1, Geometry, true> fGeoData;

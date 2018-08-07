@@ -27,9 +27,9 @@ public:
     RequiresDstTexture finalize(const GrCaps&, const GrAppliedClip*) override {
         return RequiresDstTexture::kNo;
     }
-    bool onCombineIfPossible(GrOp* other, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* other, const GrCaps&) override {
         SK_ABORT("Only expected one Op per CCPR atlas.");
-        return true;
+        return CombineResult::kMerged;
     }
     void onPrepare(GrOpFlushState*) override {}
 
@@ -65,14 +65,18 @@ public:
 
     void onExecute(GrOpFlushState* flushState) override {
         SkASSERT(fStashedAtlasProxy);
+        GrPipeline::FixedDynamicState dynamicState;
+        auto atlasProxy = fStashedAtlasProxy.get();
+        dynamicState.fPrimitiveProcessorTextures = &atlasProxy;
+
         GrPipeline pipeline(flushState->proxy(), GrPipeline::ScissorState::kDisabled,
                             SkBlendMode::kSrc);
-        GrCCPathProcessor pathProc(flushState->resourceProvider(), std::move(fStashedAtlasProxy));
-        pathProc.drawPaths(flushState, pipeline, nullptr, *fResources, fBaseInstance, fEndInstance,
-                           this->bounds());
+        GrCCPathProcessor pathProc(atlasProxy);
+        pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
+                           fEndInstance, this->bounds());
         // Ensure we released the stashed atlas proxy. This allows its underlying texture to be
         // reused as the current flush's mainline CCPR atlas if needed.
-        SkASSERT(!fStashedAtlasProxy);
+        fStashedAtlasProxy.reset();
     }
 
 private:

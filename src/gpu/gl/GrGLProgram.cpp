@@ -72,7 +72,10 @@ void GrGLProgram::abandon() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline& pipeline) {
+void GrGLProgram::updateUniformsAndTextureBindings(const GrPrimitiveProcessor& primProc,
+                                                   const GrPipeline& pipeline,
+                                                   const GrTextureProxy* const primProcTextures[]) {
+    SkASSERT(primProcTextures || !primProc.numTextureSamplers());
     this->setRenderTargetState(primProc, pipeline.proxy());
 
     // we set the textures, and uniforms for installed processors in a generic way, but subclasses
@@ -85,9 +88,8 @@ void GrGLProgram::setData(const GrPrimitiveProcessor& primProc, const GrPipeline
     fPrimitiveProcessor->setData(fProgramDataManager, primProc,
                                  GrFragmentProcessor::CoordTransformIter(pipeline));
     for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        const GrPrimitiveProcessor::TextureSampler& sampler = primProc.textureSampler(i);
-        fGpu->bindTexture(nextTexSamplerIdx++, sampler.samplerState(),
-                          static_cast<GrGLTexture*>(sampler.peekTexture()));
+        auto* tex = static_cast<GrGLTexture*>(primProcTextures[i]->peekTexture());
+        fGpu->bindTexture(nextTexSamplerIdx++, primProc.textureSampler(i).samplerState(), tex);
     }
 
     this->setFragmentData(pipeline, &nextTexSamplerIdx);

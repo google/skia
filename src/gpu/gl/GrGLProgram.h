@@ -19,6 +19,7 @@ class GrGLSLXferProcessor;
 class GrPipeline;
 class GrPrimitiveProcessor;
 class GrRenderTargetProxy;
+class GrTextureProxy;
 
 /**
  * This class manages a GPU program and records per-program information. It also records the vertex
@@ -110,12 +111,13 @@ public:
     };
 
     /**
-     * This function uploads uniforms, calls each GrGL*Processor's setData, and retrieves the
-     * textures that need to be bound on each unit. It is the caller's responsibility to ensure
-     * the program is bound before calling, and to bind the outgoing textures to their respective
-     * units upon return. (Each index in the array corresponds to its matching GL texture unit.)
+     * This function uploads uniforms, calls each GrGLSL*Processor's setData. It binds all fragment
+     * processor textures. Primitive process textures are also bound here but are passed separately.
+     *
+     * It is the caller's responsibility to ensure the program is bound before calling.
      */
-    void setData(const GrPrimitiveProcessor&, const GrPipeline&);
+    void updateUniformsAndTextureBindings(const GrPrimitiveProcessor&, const GrPipeline&,
+                                          const GrTextureProxy* const primitiveProcessorTextures[]);
 
     int vertexStride() const { return fVertexStride; }
     int instanceStride() const { return fInstanceStride; }

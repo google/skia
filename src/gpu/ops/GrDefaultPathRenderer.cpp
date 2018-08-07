@@ -65,12 +65,12 @@ namespace {
 class PathGeoBuilder {
 public:
     PathGeoBuilder(GrPrimitiveType primitiveType, GrMeshDrawOp::Target* target,
-                   GrGeometryProcessor* geometryProcessor, const GrPipeline* pipeline,
+                   sk_sp<const GrGeometryProcessor> geometryProcessor, const GrPipeline* pipeline,
                    const GrPipeline::FixedDynamicState* fixedDynamicState)
-            : fMesh(primitiveType)
+            : fPrimitiveType(primitiveType)
             , fTarget(target)
             , fVertexStride(sizeof(SkPoint))
-            , fGeometryProcessor(geometryProcessor)
+            , fGeometryProcessor(std::move(geometryProcessor))
             , fPipeline(pipeline)
             , fFixedDynamicState(fixedDynamicState)
             , fIndexBuffer(nullptr)
@@ -200,15 +200,15 @@ private:
      *  TODO: Cache some of these for better performance, rather than re-computing?
      */
     bool isIndexed() const {
-        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
-               GrPrimitiveType::kTriangles == fMesh.primitiveType();
+        return GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kTriangles == fPrimitiveType;
     }
     bool isHairline() const {
-        return GrPrimitiveType::kLines == fMesh.primitiveType() ||
-               GrPrimitiveType::kLineStrip == fMesh.primitiveType();
+        return GrPrimitiveType::kLines == fPrimitiveType ||
+               GrPrimitiveType::kLineStrip == fPrimitiveType;
     }
     int indexScale() const {
-        switch (fMesh.primitiveType()) {
+        switch (fPrimitiveType) {
             case GrPrimitiveType::kLines:
                 return 2;
             case GrPrimitiveType::kTriangles:
@@ -271,14 +271,15 @@ private:
         SkASSERT(indexCount <= fIndicesInChunk);
 
         if (this->isIndexed() ? SkToBool(indexCount) : SkToBool(vertexCount)) {
+            GrMesh* mesh = fTarget->allocMesh(fPrimitiveType);
             if (!this->isIndexed()) {
-                fMesh.setNonIndexedNonInstanced(vertexCount);
+                mesh->setNonIndexedNonInstanced(vertexCount);
             } else {
-                fMesh.setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
+                mesh->setIndexed(fIndexBuffer, indexCount, fFirstIndex, 0, vertexCount - 1,
                                  GrPrimitiveRestart::kNo);
             }
-            fMesh.setVertexData(fVertexBuffer, fFirstVertex);
-            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, fMesh);
+            mesh->setVertexData(fVertexBuffer, fFirstVertex);
+            fTarget->draw(fGeometryProcessor, fPipeline, fFixedDynamicState, mesh);
         }
 
         fTarget->putBackIndices((size_t)(fIndicesInChunk - indexCount));
@@ -311,10 +312,10 @@ private:
         }
     }
 
-    GrMesh fMesh;
+    GrPrimitiveType fPrimitiveType;
     GrMeshDrawOp::Target* fTarget;
     size_t fVertexStride;
-    GrGeometryProcessor* fGeometryProcessor;
+    sk_sp<const GrGeometryProcessor> fGeometryProcessor;
     const GrPipeline* fPipeline;
     const GrPipeline::FixedDynamicState* fFixedDynamicState;
 
@@ -428,7 +429,7 @@ private:
             primitiveType = GrPrimitiveType::kTriangles;
         }
         auto pipe = fHelper.makePipeline(target);
-        PathGeoBuilder pathGeoBuilder(primitiveType, target, gp.get(), pipe.fPipeline,
+        PathGeoBuilder pathGeoBuilder(primitiveType, target, std::move(gp), pipe.fPipeline,
                                       pipe.fFixedDynamicState);
 
         // fill buffers
@@ -438,31 +439,31 @@ private:
         }
     }
 
-    bool onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         DefaultPathOp* that = t->cast<DefaultPathOp>();
         if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (this->color() != that->color()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (this->coverage() != that->coverage()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (!this->viewMatrix().cheapEqualTo(that->viewMatrix())) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         if (this->isHairline() != that->isHairline()) {
-            return false;
+            return CombineResult::kCannotCombine;
         }
 
         fPaths.push_back_n(that->fPaths.count(), that->fPaths.begin());
         this->joinBounds(*that);
-        return true;
+        return CombineResult::kMerged;
     }
 
     GrColor color() const { return fColor; }

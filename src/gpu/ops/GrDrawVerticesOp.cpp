@@ -261,7 +261,7 @@ void GrDrawVerticesOp::drawVolatile(Target* target) {
                       indices);
 
     // Draw the vertices.
-    this->drawVertices(target, gp.get(), vertexBuffer, firstVertex, indexBuffer, firstIndex);
+    this->drawVertices(target, std::move(gp), vertexBuffer, firstVertex, indexBuffer, firstIndex);
 }
 
 void GrDrawVerticesOp::drawNonVolatile(Target* target) {
@@ -298,7 +298,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
 
     // Draw using the cached buffers if possible.
     if (vertexBuffer && (!this->isIndexed() || indexBuffer)) {
-        this->drawVertices(target, gp.get(), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+        this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
         return;
     }
 
@@ -353,7 +353,7 @@ void GrDrawVerticesOp::drawNonVolatile(Target* target) {
     rp->assignUniqueKeyToResource(indexKey, indexBuffer.get());
 
     // Draw the vertices.
-    this->drawVertices(target, gp.get(), vertexBuffer.get(), 0, indexBuffer.get(), 0);
+    this->drawVertices(target, std::move(gp), vertexBuffer.get(), 0, indexBuffer.get(), 0);
 }
 
 void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
@@ -465,59 +465,58 @@ void GrDrawVerticesOp::fillBuffers(bool hasColorAttribute,
 }
 
 void GrDrawVerticesOp::drawVertices(Target* target,
-                                    GrGeometryProcessor* gp,
+                                    sk_sp<const GrGeometryProcessor> gp,
                                     const GrBuffer* vertexBuffer,
                                     int firstVertex,
                                     const GrBuffer* indexBuffer,
                                     int firstIndex) {
-    GrMesh mesh(this->primitiveType());
+    GrMesh* mesh = target->allocMesh(this->primitiveType());
     if (this->isIndexed()) {
-        mesh.setIndexed(indexBuffer, fIndexCount,
-                        firstIndex, 0, fVertexCount - 1,
-                        GrPrimitiveRestart::kNo);
+        mesh->setIndexed(indexBuffer, fIndexCount, firstIndex, 0, fVertexCount - 1,
+                         GrPrimitiveRestart::kNo);
     } else {
-        mesh.setNonIndexedNonInstanced(fVertexCount);
+        mesh->setNonIndexedNonInstanced(fVertexCount);
     }
-    mesh.setVertexData(vertexBuffer, firstVertex);
+    mesh->setVertexData(vertexBuffer, firstVertex);
     auto pipe = fHelper.makePipeline(target);
-    target->draw(gp, pipe.fPipeline, pipe.fFixedDynamicState, mesh);
+    target->draw(std::move(gp), pipe.fPipeline, pipe.fFixedDynamicState, mesh);
 }
 
-bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
+GrOp::CombineResult GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     GrDrawVerticesOp* that = t->cast<GrDrawVerticesOp>();
 
     if (!fHelper.isCompatible(that->fHelper, caps, this->bounds(), that->bounds())) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     // Meshes with bones cannot be combined because different meshes use different bones, so to
     // combine them, the matrices would have to be combined, and the bone indices on each vertex
     // would change, thus making the vertices uncacheable.
     if (this->hasBones() || that->hasBones()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     // Non-volatile meshes cannot batch, because if a non-volatile mesh batches with another mesh,
     // then on the next frame, if that non-volatile mesh is drawn, it will draw the other mesh
     // that was saved in its vertex buffer, which is not necessarily there anymore.
     if (!this->fMeshes[0].fVertices->isVolatile() || !that->fMeshes[0].fVertices->isVolatile()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (!this->combinablePrimitive() || this->primitiveType() != that->primitiveType()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (fMeshes[0].fVertices->hasIndices() != that->fMeshes[0].fVertices->hasIndices()) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (fColorArrayType != that->fColorArrayType) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     if (fVertexCount + that->fVertexCount > SkTo<int>(UINT16_MAX)) {
-        return false;
+        return CombineResult::kCannotCombine;
     }
 
     // NOTE: For SkColor vertex colors, the source color space is always sRGB, and the destination
@@ -542,7 +541,7 @@ bool GrDrawVerticesOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
     fIndexCount += that->fIndexCount;
 
     this->joinBounds(*that);
-    return true;
+    return CombineResult::kMerged;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

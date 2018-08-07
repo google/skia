@@ -101,9 +101,8 @@ void GrGLSLProgramBuilder::emitAndInstallPrimProc(const GrPrimitiveProcessor& pr
         SkString name;
         name.printf("TextureSampler_%d", i);
         const auto& sampler = proc.textureSampler(i);
-        GrTextureType textureType = sampler.peekTexture()->texturePriv().textureType();
-        texSamplers[i] = this->emitSampler(textureType, sampler.peekTexture()->config(),
-                                           name.c_str(), sampler.visibility());
+        texSamplers[i] = this->emitSampler(sampler.textureType(), sampler.config(), name.c_str(),
+                                           sampler.visibility());
     }
 
     GrGLSLPrimitiveProcessor::FPCoordTransformHandler transformHandler(fPipeline,

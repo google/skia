@@ -88,8 +88,10 @@ public:
 
     using PipelineAndFixedDynamicState = GrOpFlushState::PipelineAndFixedDynamicState;
     /** Makes a pipeline that consumes the processor set and the op's applied clip. */
-    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target* target) {
-        return this->internalMakePipeline(target, this->pipelineInitArgs(target));
+    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target* target,
+                                              int numPrimitiveProcessorTextures = 0) {
+        return this->internalMakePipeline(target, this->pipelineInitArgs(target),
+                                          numPrimitiveProcessorTextures);
     }
 
     struct MakeArgs {
@@ -116,7 +118,8 @@ protected:
     GrPipeline::InitArgs pipelineInitArgs(GrMeshDrawOp::Target* target) const;
 
     PipelineAndFixedDynamicState internalMakePipeline(GrMeshDrawOp::Target*,
-                                                      const GrPipeline::InitArgs&);
+                                                      const GrPipeline::InitArgs&,
+                                                      int numPrimitiveProcessorTextures);
 
 private:
     GrProcessorSet* fProcessors;
@@ -162,7 +165,8 @@ public:
     bool isCompatible(const GrSimpleMeshDrawOpHelperWithStencil& that, const GrCaps&,
                       const SkRect& thisBounds, const SkRect& thatBounds) const;
 
-    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*);
+    PipelineAndFixedDynamicState makePipeline(GrMeshDrawOp::Target*,
+                                              int numPrimitiveProcessorTextures = 0);
 
     SkString dumpInfo() const;
 

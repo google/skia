@@ -56,7 +56,8 @@ public:
 
     ~GrVkPipelineState();
 
-    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
+    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
+                 const GrTextureProxy* const primitiveProcessorTextures[]);
 
     void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 

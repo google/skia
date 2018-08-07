@@ -12,7 +12,6 @@
 #include "GrBuffer.h"
 #include "GrColor.h"
 #include "GrProcessorUnitTest.h"
-#include "GrProgramElement.h"
 #include "GrSamplerState.h"
 #include "GrShaderVar.h"
 #include "GrSurfaceProxyPriv.h"
