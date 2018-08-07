@@ -643,6 +643,9 @@ def dm_flags(api, bot):
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
+  if 'NoExplicitAlloc' in bot:
+    args.extend(['--disableExplicitAlloc', 'true'])
+
   if 'Vulkan' in bot and 'Adreno530' in bot:
       # skia:5777
       match.extend(['~CopySurface'])
