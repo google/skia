@@ -34,7 +34,9 @@ GrMtlPipelineStateBuilder::GrMtlPipelineStateBuilder(const GrPrimitiveProcessor&
                                                      GrProgramDesc* desc,
                                                      GrMtlGpu* gpu)
         : INHERITED(primProc, pipeline, desc)
-        , fGpu(gpu) {
+        , fGpu(gpu)
+        , fUniformHandler(this)
+        , fVaryingHandler(this) {
 }
 
 const GrCaps* GrMtlPipelineStateBuilder::caps() const {
@@ -139,7 +141,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
 static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor& primProc) {
     uint32_t vertexBinding = 0, instanceBinding = 0;
 
-    int nextBinding = 0;
+    int nextBinding = GrMtlUniformHandler::kLastUniformBinding + 1;
     if (primProc.hasVertexAttributes()) {
         vertexBinding = nextBinding++;
     }
@@ -359,6 +361,15 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
         pipelineState = nil;
     }
-    return new GrMtlPipelineState(pipelineState,
-                                  pipelineDescriptor.colorAttachments[0].pixelFormat);
+    return new GrMtlPipelineState(fGpu,
+                                  pipelineState,
+                                  pipelineDescriptor.colorAttachments[0].pixelFormat,
+                                  GrMtlBuffer::Create(fGpu,
+                                                      fUniformHandler.fCurrentGeometryUBOOffset,
+                                                      kVertex_GrBufferType,
+                                                      kStatic_GrAccessPattern),
+                                  GrMtlBuffer::Create(fGpu,
+                                                      fUniformHandler.fCurrentFragmentUBOOffset,
+                                                      kVertex_GrBufferType,
+                                                      kStatic_GrAccessPattern));
 }
