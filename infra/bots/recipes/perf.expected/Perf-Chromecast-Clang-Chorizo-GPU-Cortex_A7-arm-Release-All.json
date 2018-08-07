@@ -362,6 +362,7 @@
       "~desk_carsvg.skp",
       "~^path_text_clipped",
       "~shapes_rrect_inner_rrect_50_500x500",
+      "~compositing_images",
       "--outResultsFile",
       "/cache/skia/perf/nanobench_abc123_1337000001.json",
       "--properties",
