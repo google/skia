@@ -187,10 +187,9 @@ public:
 
 protected:
     void onTick(float t) override {
-        T val;
-        this->eval(this->frame(t), t, &val);
+        this->eval(this->frame(t), t, &fScratch);
 
-        fApplyFunc(val);
+        fApplyFunc(fScratch);
     }
 
 private:
@@ -224,13 +223,18 @@ private:
             const auto lt = this->localT(rec, t);
             const auto& v0 = fVs[rec.vidx0];
             const auto& v1 = fVs[rec.vidx1];
-            *v = ValueTraits<T>::Lerp(v0, v1, lt);
+            ValueTraits<T>::Lerp(v0, v1, lt, v);
         }
     }
 
     const std::function<void(const T&)> fApplyFunc;
     SkTArray<T>                         fVs;
 
+    // LERP storage: we use this to temporarily store interpolation results.
+    // Alternatively, the temp result could live on the stack -- but for vector values that would
+    // involve dynamic allocations on each tick.  This a trade-off to avoid allocator pressure
+    // during animation.
+    T                                   fScratch; // lerp storage
 
     using INHERITED = KeyframeAnimatorBase;
 };
