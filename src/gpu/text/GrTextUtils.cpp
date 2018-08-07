@@ -21,13 +21,3 @@ void GrTextUtils::Paint::initFilteredColor() {
     fFilteredPremulColor = filteredColor.premul().toGrColor();
 }
 
-
-bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModFunc) {
-    if (!fModifiedPaint.isValid()) {
-        fModifiedPaint.init(fOriginalPaint->skPaint());
-        fPaint = fModifiedPaint.get();
-    }
-    paintModFunc(fModifiedPaint.get());
-    return true;
-}
-
