@@ -10,6 +10,7 @@
 #include "SkSGGeometryNode.h"
 #include "SkSGInvalidationController.h"
 #include "SkSGPaintNode.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 
@@ -25,13 +26,14 @@ Draw::~Draw() {
     this->unobserveInval(fPaint);
 }
 
-void Draw::onRender(SkCanvas* canvas) const {
+void Draw::onRender(const RenderContext& ctx) const {
     const auto& paint   = fPaint->makePaint();
     const auto skipDraw = paint.nothingToDraw() ||
             (paint.getStyle() == SkPaint::kStroke_Style && paint.getStrokeWidth() <= 0);
 
     if (!skipDraw) {
-        fGeometry->draw(canvas, paint);
+        const auto modulated_paint = ctx.modulatePaint(paint);
+        fGeometry->draw(ctx.canvas(), *modulated_paint);
     }
 }
 

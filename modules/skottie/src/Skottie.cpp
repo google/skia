@@ -29,6 +29,7 @@
 #include "SkSGOpacityEffect.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGRenderContext.h"
 #include "SkSGRoundEffect.h"
 #include "SkSGScene.h"
 #include "SkSGTransform.h"
@@ -715,8 +716,8 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* name, AttachContext* c
             return SkRect::MakeSize(fAnimation->size());
         }
 
-        void onRender(SkCanvas* canvas) const override {
-            fAnimation->render(canvas);
+        void onRender(const sksg::RenderContext& ctx) const override {
+            fAnimation->render(ctx.canvas());
         }
 
     private:

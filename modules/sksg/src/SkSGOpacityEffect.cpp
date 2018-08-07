@@ -8,6 +8,7 @@
 #include "SkSGOpacityEffect.h"
 
 #include "SkCanvas.h"
+#include "SkSGRenderContext.h"
 
 #include <math.h>
 
@@ -17,19 +18,20 @@ OpacityEffect::OpacityEffect(sk_sp<RenderNode> child, float opacity)
     : INHERITED(std::move(child))
     , fOpacity(opacity) {}
 
-void OpacityEffect::onRender(SkCanvas* canvas) const {
+void OpacityEffect::onRender(const RenderContext& ctx) const {
     // opacity <= 0 disables rendering
     if (fOpacity <= 0)
         return;
 
-    // TODO: we could avoid savelayer if there is no more than one drawing primitive
-    //       in the sub-DAG.
-    SkAutoCanvasRestore acr(canvas, false);
-    if (fOpacity < 1) {
-        canvas->saveLayerAlpha(&this->bounds(), roundf(fOpacity * 255));
-    }
+    auto local_ctx = ctx.makeLocal();
+    local_ctx.applyOpacity(fOpacity);
 
-    this->INHERITED::onRender(canvas);
+//    SkAutoCanvasRestore acr(ctx.canvas(), false);
+//    if (fOpacity < 1) {
+//        ctx.canvas()->saveLayerAlpha(&this->bounds(), roundf(fOpacity * 255));
+//    }
+
+    this->INHERITED::onRender(local_ctx);
 }
 
 SkRect OpacityEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

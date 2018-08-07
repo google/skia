@@ -10,25 +10,26 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkSGColor.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 
 ColorFilter::ColorFilter(sk_sp<RenderNode> child)
     : INHERITED(std::move(child)) {}
 
-void ColorFilter::onRender(SkCanvas* canvas) const {
+void ColorFilter::onRender(const RenderContext& ctx) const {
     if (this->bounds().isEmpty())
         return;
 
-    SkAutoCanvasRestore acr(canvas, false);
+    SkAutoCanvasRestore acr(ctx.canvas(), false);
 
     if (fColorFilter) {
         SkPaint p;
         p.setColorFilter(fColorFilter);
-        canvas->saveLayer(this->bounds(), &p);
+        ctx.canvas()->saveLayer(this->bounds(), &p);
     }
 
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(ctx);
 }
 
 ColorModeFilter::ColorModeFilter(sk_sp<RenderNode> child, sk_sp<Color> color, SkBlendMode mode)

@@ -8,6 +8,7 @@
 #include "SkSGMaskEffect.h"
 
 #include "SkCanvas.h"
+#include "SkSGRenderContext.h"
 
 namespace sksg {
 
@@ -22,21 +23,21 @@ MaskEffect::~MaskEffect() {
     this->unobserveInval(fMaskNode);
 }
 
-void MaskEffect::onRender(SkCanvas* canvas) const {
+void MaskEffect::onRender(const RenderContext& ctx) const {
     if (this->bounds().isEmpty())
         return;
 
-    SkAutoCanvasRestore acr(canvas, false);
+    SkAutoCanvasRestore acr(ctx.canvas(), false);
 
-    canvas->saveLayer(this->bounds(), nullptr);
-    fMaskNode->render(canvas);
+    ctx.canvas()->saveLayer(this->bounds(), nullptr);
+    fMaskNode->render(ctx);
 
 
     SkPaint p;
     p.setBlendMode(fMaskMode == Mode::kNormal ? SkBlendMode::kSrcIn : SkBlendMode::kSrcOut);
-    canvas->saveLayer(this->bounds(), &p);
+    ctx.canvas()->saveLayer(this->bounds(), &p);
 
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(ctx);
 }
 
 
