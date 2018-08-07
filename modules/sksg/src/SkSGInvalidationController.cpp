@@ -25,7 +25,7 @@ void InvalidationController::inval(const SkRect& r, const SkMatrix& ctm) {
         ctm.mapRect(rect.writable());
     }
 
-    fRects.push(*rect);
+    fRects.push_back(*rect);
     fBounds.join(*rect);
 }
 

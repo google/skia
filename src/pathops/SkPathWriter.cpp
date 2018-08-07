@@ -97,8 +97,8 @@ void SkPathWriter::finishContour() {
         this->close();
     } else {
         SkASSERT(fDefer[1]);
-        fEndPtTs.push(fFirstPtT);
-        fEndPtTs.push(fDefer[1]);
+        fEndPtTs.push_back(fFirstPtT);
+        fEndPtTs.push_back(fDefer[1]);
         fPartials.push_back(fCurrent);
         this->init();
     }
