@@ -567,7 +567,7 @@ static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCa
         vertices = SkVertices::Decode(data->data(), data->size());
     }
     int boneCount = reader.read32();
-    const SkMatrix* bones = boneCount ? reader.skipT<SkMatrix>(boneCount) : nullptr;
+    const SkVertices::Bone* bones = boneCount ? reader.skipT<SkVertices::Bone>(boneCount) : nullptr;
     if (vertices) {
         canvas->drawVertices(vertices, bones, boneCount, bmode, read_paint(reader));
     }

@@ -127,6 +127,7 @@ Complete rebuilding of all bookmaker output looks like:
 $ ./out/skia/bookmaker -a docs/status.json -e fiddle.json
 $ ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json
 $ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
+$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
 $ ./out/skia/bookmaker -a docs/status.json -x
 $ ./out/skia/bookmaker -a docs/status.json -p
 </pre>
