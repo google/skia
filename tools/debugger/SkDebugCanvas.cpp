@@ -445,7 +445,7 @@ void SkDebugCanvas::onDrawPatch(const SkPoint cubics[12], const SkColor colors[4
     this->addDrawCommand(new SkDrawPatchCommand(cubics, colors, texCoords, bmode, paint));
 }
 
-void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                          int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     // TODO: ANIMATION NOT LOGGED
     this->addDrawCommand(new SkDrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)),

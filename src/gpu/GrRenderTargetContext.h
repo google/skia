@@ -226,7 +226,7 @@ public:
                       GrPaint&& paint,
                       const SkMatrix& viewMatrix,
                       sk_sp<SkVertices> vertices,
-                      const SkMatrix bones[],
+                      const SkVertices::Bone bones[],
                       int boneCount,
                       GrPrimitiveType* overridePrimType = nullptr);
 
