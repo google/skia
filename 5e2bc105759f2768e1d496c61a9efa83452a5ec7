@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1dfb01db_b64f4cdc",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-07T21:13:34Z",
+      "side": 1,
+      "message": "I think we need a\n\n#ifdef FT_COLOR_H\n#include FT_COLOR_H\n#nedif",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 20
+      },
+      "revId": "5e2bc105759f2768e1d496c61a9efa83452a5ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "964d3551_00706512",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 16
+      },
+      "lineNbr": 1168,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-07T21:13:34Z",
+      "side": 1,
+      "message": "Could probably be\n\n#ifdef FT_COLOR_H",
+      "range": {
+        "startLine": 1168,
+        "startChar": 0,
+        "endLine": 1168,
+        "endChar": 52
+      },
+      "revId": "5e2bc105759f2768e1d496c61a9efa83452a5ec7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
