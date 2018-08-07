@@ -483,7 +483,6 @@
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-DDL3_TSAN_Vulkan",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-PreAbandonGpuContext",
-  "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-TSAN",
   "Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-Vulkan",
   "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41",
   "Test-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-Valgrind_PreAbandonGpuContext_SK_CPU_LIMIT_SSE41",
