@@ -30,18 +30,25 @@ public:
         return fExtensions;
     }
 
+    const VkPhysicalDeviceFeatures2* getVkFeatures() const {
+        return fFeatures;
+    }
+
 protected:
-    VkTestContext(const GrVkBackendContext& vk, const GrVkExtensions* extensions, bool ownsContext,
+    VkTestContext(const GrVkBackendContext& vk, const GrVkExtensions* extensions,
+                  const VkPhysicalDeviceFeatures2* features, bool ownsContext,
                   VkDebugReportCallbackEXT debugCallback,
                   PFN_vkDestroyDebugReportCallbackEXT destroyCallback)
             : fVk(vk)
             , fExtensions(extensions)
+            , fFeatures(features)
             , fOwnsContext(ownsContext)
             , fDebugCallback(debugCallback)
             , fDestroyDebugReportCallbackEXT(destroyCallback) {}
 
     GrVkBackendContext                  fVk;
     const GrVkExtensions*               fExtensions;
+    const VkPhysicalDeviceFeatures2*    fFeatures;
     bool                                fOwnsContext;
     VkDebugReportCallbackEXT            fDebugCallback = VK_NULL_HANDLE;
     PFN_vkDestroyDebugReportCallbackEXT fDestroyDebugReportCallbackEXT = nullptr;

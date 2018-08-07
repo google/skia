@@ -135,21 +135,28 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
     uint32_t instanceVersion = backendContext.fInstanceVersion ? backendContext.fInstanceVersion
                                                                : backendContext.fMinAPIVersion;
 
-    if (backendContext.fFeatures & kIgnoreAllFlags_GrVkFeatureFlag) {
-        SkASSERT(backendContext.fVkExtensions);
+    if (backendContext.fDeviceFeatures2) {
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
-                                   backendContext.fDeviceFeatures, instanceVersion,
+                                   *backendContext.fDeviceFeatures2, instanceVersion,
                                    *backendContext.fVkExtensions));
+    } else if (backendContext.fDeviceFeatures) {
+        VkPhysicalDeviceFeatures2 features2;
+        features2.pNext = nullptr;
+        features2.features = *backendContext.fDeviceFeatures;
+        fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
+                                   features2, instanceVersion, *backendContext.fVkExtensions));
     } else {
-        VkPhysicalDeviceFeatures features;
+        VkPhysicalDeviceFeatures2 features;
+        memset(&features, 0, sizeof(VkPhysicalDeviceFeatures2));
+        features.pNext = nullptr;
         if (backendContext.fFeatures & kGeometryShader_GrVkFeatureFlag) {
-            features.geometryShader = true;
+            features.features.geometryShader = true;
         }
         if (backendContext.fFeatures & kDualSrcBlend_GrVkFeatureFlag) {
-            features.dualSrcBlend = true;
+            features.features.dualSrcBlend = true;
         }
         if (backendContext.fFeatures & kSampleRateShading_GrVkFeatureFlag) {
-            features.sampleRateShading = true;
+            features.features.sampleRateShading = true;
         }
         fVkCaps.reset(new GrVkCaps(options, this->vkInterface(), backendContext.fPhysicalDevice,
                                    features, instanceVersion, GrVkExtensions()));
