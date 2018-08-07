@@ -241,14 +241,17 @@ public:
 
     // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
-    virtual GrGpuRTCommandBuffer* createCommandBuffer(
+    virtual std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
 
+    virtual void finishCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer>) = 0;
+
     // Creates a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
     // directly to the Gpu object.
-    virtual GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
+    virtual std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                           GrSurfaceOrigin) = 0;
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also

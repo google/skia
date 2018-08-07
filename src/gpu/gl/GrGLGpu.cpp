@@ -2138,16 +2138,30 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     return true;
 }
 
-GrGpuRTCommandBuffer* GrGLGpu::createCommandBuffer(
+std::unique_ptr<GrGpuRTCommandBuffer> GrGLGpu::createCommandBuffer(
         GrRenderTarget* rt, GrSurfaceOrigin origin,
         const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
+    if (fCachedRTCommandBuffer) {
+        ((GrGLGpuRTCommandBuffer*)fCachedRTCommandBuffer.get())->set(rt, origin,
+                                                                     colorInfo, stencilInfo);
+        return std::move(fCachedRTCommandBuffer);
+    }
+
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrGLGpuRTCommandBuffer(this, rt, origin,
+                                                                            colorInfo,
+                                                                            stencilInfo));
 }
 
-GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
-                                                        GrSurfaceOrigin origin) {
-    return new GrGLGpuTextureCommandBuffer(this, texture, origin);
+void GrGLGpu::finishCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer> buffer) {
+    fCachedRTCommandBuffer = std::move(buffer);
+}
+
+std::unique_ptr<GrGpuTextureCommandBuffer> GrGLGpu::createCommandBuffer(GrTexture* texture,
+                                                                        GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrGLGpuTextureCommandBuffer(this,
+                                                                                      texture,
+                                                                                      origin));
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,
