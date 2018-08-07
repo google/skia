@@ -20,7 +20,7 @@ Skia bugs found in Chrome may be filed in the [Chromium Tracker](https://bugs.ch
 ### Triage for Chromium developers
   * To have an issue triaged by the Skia team, add `Component:Internals>Skia`.
   * For problems related to Skia rolls where an obvious owner cannot be found in
-    the list of CLs, assign to the Skia Sheriff, listed at the top of 
+    the list of CLs, assign to the Skia Sheriff, listed at the top of
     [status.skia.org](https://status.skia.org) and as a reviewer on the roll CL.
     * If the Sheriff cannot be assigned, cc them and assign the issue to hcm@.
   * For GPU specific issues, add label `Hotlist-Ganesh`.

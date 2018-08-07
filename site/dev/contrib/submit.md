@@ -154,7 +154,7 @@ code, commit it again locally, and then run git cl upload again e.g.
     git cl upload
 
 Once you're ready for another review, use **Reply** again to send another
-notification (it is helpful to tell the reviewer what you did with respect to 
+notification (it is helpful to tell the reviewer what you did with respect to
 each of their comments). When the reviewer is happy with your patch, they will
 approve your change by setting the Code-Review label to "+1".
 
@@ -213,7 +213,7 @@ by uploading a new codereview containing your patch (perhaps with some small
 adjustments at his/her discretion).  If so, you can mark your change as
 "Abandoned", and update it with a link to the new codereview.
 
-### Skia committers 
+### Skia committers
   *  tips on how to apply an externally provided patch are [here](./patch)
   *  when landing externally contributed patches, please note the original
      contributor's identity (and provide a link to the original codereview) in the commit message
@@ -223,9 +223,9 @@ adjustments at his/her discretion).  If so, you can mark your change as
     ~~~~
     git cl land
     ~~~~
-    
+
     or
-    
+
     ~~~~
     git cl land -c 'Contributor Name <email@example.com>'
     ~~~~

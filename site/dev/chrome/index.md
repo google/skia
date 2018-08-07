@@ -16,6 +16,6 @@ For problems in Chromium related to Skia rolls:
   * If an obvious owner cannot be found in the list of CLs, assign to the Skia
     Sheriff, listed at the top of https://status.skia.org and as a reviewer
     on the roll CL.
-  * If the Sheriff cannot be assigned, cc them and assign the issue to hcm@. 
+  * If the Sheriff cannot be assigned, cc them and assign the issue to hcm@.
 
 For more tips on bug triage and labeling, see the [Issue Tracker page](../../user/issue-tracker/).

@@ -19,9 +19,9 @@ monthly updates and OKRs
 
 Infrastructure related
 ----------------------
-*   [iOS tools](https://sites.google.com/a/google.com/skia/key-resources/ios-provisioning) 
+*   [iOS tools](https://sites.google.com/a/google.com/skia/key-resources/ios-provisioning)
 for machine setup and provisioning  
-*   [SKP Playback](https://docs.google.com/a/google.com/document/d/1oJpuY8XKc212RsfUm6oEH2tp26Veb-Gez3clBuqapE4/edit?usp=sharing) 
+*   [SKP Playback](https://docs.google.com/a/google.com/document/d/1oJpuY8XKc212RsfUm6oEH2tp26Veb-Gez3clBuqapE4/edit?usp=sharing)
 for downloading buildbot SKPs
 
 Chrome related
