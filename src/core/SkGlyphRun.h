@@ -117,7 +117,6 @@ public:
     explicit SkGlyphRunListDrawer(const GrRenderTargetContext& renderTargetContext);
     #endif
 
-    using PerGlyph = std::function<void(const SkGlyph&, SkPoint)>;
     using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;
     using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
     using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
@@ -132,10 +131,12 @@ public:
     void drawUsingPaths(
             const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const;
 
+    //using PerGlyph = std::function<void(const SkGlyph&, SkPoint)>;
+    template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsGlyphWithPathFallback(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
-            PerGlyph perGlyph, PerPath perPath);
+            PerGlyphT perGlyph, PerPathT perPath);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
