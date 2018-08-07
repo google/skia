@@ -134,6 +134,9 @@ def nanobench_flags(api, bot):
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
+  if 'NoExplicitAlloc' in bot:
+    args.extend(['--disableExplitiAlloc', 'true'])
+
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
