@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6859eaf_35562d94",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b45e0f12_316d058e",
+      "range": {
+        "startLine": 55,
+        "startChar": 39,
+        "endLine": 55,
+        "endChar": 74
+      },
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "623673dc_29fbe073",
         "filename": "tests/IncrTopoSortTest.cpp",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-07T13:47:50Z",
       "side": 1,
       "message": "since tmp is an sk_sp and fNodes stores sk_sps, this isn\u0027t really \"getting the creation ref\".",
+      "range": {
+        "startLine": 91,
+        "startChar": 37,
+        "endLine": 91,
+        "endChar": 71
+      },
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2262cef8_5d2da886",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "623673dc_29fbe073",
       "range": {
         "startLine": 91,
         "startChar": 37,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "cc69de39_99958852",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "Remove the code - it wasn\u0027t that interesting.",
+      "parentUuid": "0b3fba11_0679751f",
+      "range": {
+        "startLine": 136,
+        "startChar": 24,
+        "endLine": 136,
+        "endChar": 39
+      },
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "16f749d1_22554b50",
         "filename": "tests/IncrTopoSortTest.cpp",
         "patchSetId": 11
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "57bd2fdc_f858e7b1",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16f749d1_22554b50",
+      "range": {
+        "startLine": 238,
+        "startChar": 5,
+        "endLine": 238,
+        "endChar": 27
+      },
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b41afbbe_a2dc1048",
         "filename": "tests/IncrTopoSortTest.cpp",
         "patchSetId": 11
@@ -105,6 +201,30 @@
       "writtenOn": "2018-08-07T13:47:50Z",
       "side": 1,
       "message": "Do we actually care about the specific state being true that we want to test it? Or is all that matters is that validate passed above?",
+      "range": {
+        "startLine": 311,
+        "startChar": 7,
+        "endLine": 312,
+        "endChar": 34
+      },
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4dd84d47_fa182243",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "In this case, probably the specific state. The incremental topological sort actually has an interesting minimal movement property (which isn\u0027t actually displayed in this test case).",
+      "parentUuid": "b41afbbe_a2dc1048",
       "range": {
         "startLine": 311,
         "startChar": 7,
@@ -134,6 +254,24 @@
     },
     {
       "key": {
+        "uuid": "a0c5bdbe_be77bb00",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "addEdges has validate calls.",
+      "parentUuid": "d9f4abdd_e3cb2bca",
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b07740e1_37fa8fff",
         "filename": "tests/IncrTopoSortTest.cpp",
         "patchSetId": 11
@@ -151,6 +289,24 @@
     },
     {
       "key": {
+        "uuid": "a30c25b6_52e690b3",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "b07740e1_37fa8fff",
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d4627313_a208b562",
         "filename": "tests/IncrTopoSortTest.cpp",
         "patchSetId": 11
@@ -162,6 +318,24 @@
       "writtenOn": "2018-08-07T13:47:50Z",
       "side": 1,
       "message": "g.validate() here?",
+      "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fe6881c_48f0fb37",
+        "filename": "tests/IncrTopoSortTest.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-07T15:17:19Z",
+      "side": 1,
+      "message": "same",
+      "parentUuid": "d4627313_a208b562",
       "revId": "caf07567b4846af00d6e2de698c762f875f09a46",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
