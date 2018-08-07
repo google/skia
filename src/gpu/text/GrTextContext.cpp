@@ -233,13 +233,13 @@ void GrTextContext::FallbackGlyphRunHelper::appendGlyph(
 
 void GrTextContext::FallbackGlyphRunHelper::drawGlyphs(
         GrTextBlob* blob, int runIndex, GrGlyphCache* glyphCache, const SkSurfaceProps& props,
-        const GrTextUtils::Paint& paint, SkScalerContextFlags scalerContextFlags) {
+        const SkPaint& paint, GrColor filteredColor, SkScalerContextFlags scalerContextFlags) {
     if (!fFallbackTxt.empty()) {
         blob->initOverride(runIndex);
         blob->setHasBitmap();
         blob->setSubRunHasW(runIndex, fViewMatrix.hasPerspective());
-        const SkPaint& skPaint = paint.skPaint();
-        SkColor textColor = paint.filteredPremulColor();
+        const SkPaint& skPaint = paint;
+        SkColor textColor = filteredColor;
 
         SkScalar textRatio = SK_Scalar1;
         SkPaint fallbackPaint(skPaint);
@@ -312,8 +312,8 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
                 ComputeScalerContextFlags(rtc->colorSpaceInfo());
         textContext->regenerateGlyphRunList(
                 blob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(), utilsPaint,
-                scalerContextFlags, viewMatrix, surfaceProps, glyphRunList,
-                rtc->textTarget()->glyphDrawer());
+                utilsPaint.filteredPremulColor(), scalerContextFlags, viewMatrix, surfaceProps,
+                glyphRunList, rtc->textTarget()->glyphDrawer());
     }
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, surfaceProps,
