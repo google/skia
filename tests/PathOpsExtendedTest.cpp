@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkBitmap.h"
@@ -12,6 +13,7 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
+#include "SkParsePath.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 
@@ -534,12 +536,51 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
+static void jsonStatus(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bool opSucceeded) {
+    fprintf(PathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
+            ExpectSuccess::kNo == expectSuccess ? "no" :
+            ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
+            ExpectMatch::kNo == expectMatch ? "no" :
+            ExpectMatch::kYes == expectMatch ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"succeeded\": %s,\n", opSucceeded ? "true" : "false");
+}
+
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
         SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
+    if (PathOpsDebug::gJson) {
+        SkString aStr, bStr;
+        SkParsePath::ToSVGString(a, &aStr);
+        SkParsePath::ToSVGString(b, &bStr);
+        if (!PathOpsDebug::gOutFirst) {
+            fprintf(PathOpsDebug::gOut, ",\n");
+        }
+        PathOpsDebug::gOutFirst = false;
+        std::string unique(testName);
+        while (PathOpsDebug::gJsonNames.end() != std::find(PathOpsDebug::gJsonNames.begin(),
+                PathOpsDebug::gJsonNames.end(), unique)) {
+            int number = 0;
+            int tens = 1;
+            size_t end = unique.size() - 1;
+            while (isdigit(unique[end])) {
+                number += tens * (unique[end] - '0');
+                --end;
+                tens *= 10;
+            }
+            unique = unique.substr(0, ++end);
+            ++number;
+            unique += std::to_string(number);
+        }
+        PathOpsDebug::gJsonNames.push_back(unique);
+        fprintf(PathOpsDebug::gOut, "\"%s\": {\n", unique.c_str());
+        fprintf(PathOpsDebug::gOut, "  \"p1\": \"%s\",\n", aStr.c_str());
+        fprintf(PathOpsDebug::gOut, "  \"p2\": \"%s\",\n", bStr.c_str());
+        fprintf(PathOpsDebug::gOut, "  \"op\": \"%s\",\n", opStrs[shapeOp]);
+    }
     SkPath out;
     if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
             SkDEBUGPARAMS(testName))) {
@@ -547,11 +588,21 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
             SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);
         }
+        if (PathOpsDebug::gJson) {
+            jsonStatus(expectSuccess, expectMatch, false);
+            fprintf(PathOpsDebug::gOut, "  \"out\": \"\"\n}");
+        }
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
                 SkDebugf("%s %s unexpected success\n", __FUNCTION__, testName);
                 REPORTER_ASSERT(reporter, 0);
+        }
+        if (PathOpsDebug::gJson) {
+            jsonStatus(expectSuccess, expectMatch, true);
+            SkString outStr;
+            SkParsePath::ToSVGString(out, &outStr);
+            fprintf(PathOpsDebug::gOut, "  \"out\": \"%s\"\n}", outStr.c_str());
         }
     }
     if (!reporter->verbose()) {
