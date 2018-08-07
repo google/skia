@@ -166,6 +166,8 @@ DEFINE_string(pr, "all",
               "[~]none [~]dashline [~]nvpr [~]ccpr [~]aahairline [~]aaconvex [~]aalinearizing "
               "[~]small [~]tess] [~]all");
 
+DEFINE_bool(disableExplicitAlloc, false, "Disable explicit allocation of GPU resources");
+
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     static std::unique_ptr<SkExecutor> gGpuExecutor = (0 != FLAGS_gpuThreads)
         ? SkExecutor::MakeFIFOThreadPool(FLAGS_gpuThreads) : nullptr;
@@ -174,4 +176,10 @@ void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {
     ctxOptions->fSuppressGeometryShaders = FLAGS_noGS;
     ctxOptions->fGpuPathRenderers = CollectGpuPathRenderersFromFlags();
     ctxOptions->fDisableDriverCorrectnessWorkarounds = FLAGS_disableDriverCorrectnessWorkarounds;
+
+    if (FLAGS_disableExplicitAlloc) {
+        ctxOptions->fExplicitlyAllocateGPUResources = GrContextOptions::Enable::kNo;
+        // Can't have sorting enabled when explicit allocation is disabled.
+        ctxOptions->fSortRenderTargets = GrContextOptions::Enable::kNo;
+    }
 }
