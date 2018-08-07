@@ -48,16 +48,17 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
 }
 
 
-GrGpuRTCommandBuffer* GrMockGpu::createCommandBuffer(
+std::unique_ptr<GrGpuRTCommandBuffer> GrMockGpu::createCommandBuffer(
                                             GrRenderTarget* rt, GrSurfaceOrigin origin,
                                             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
-    return new GrMockGpuRTCommandBuffer(this, rt, origin);
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrMockGpuRTCommandBuffer(this, rt, origin));
 }
 
-GrGpuTextureCommandBuffer* GrMockGpu::createCommandBuffer(GrTexture* texture,
-                                                          GrSurfaceOrigin origin) {
-    return new GrMockGpuTextureCommandBuffer(texture, origin);
+std::unique_ptr<GrGpuTextureCommandBuffer> GrMockGpu::createCommandBuffer(GrTexture* texture,
+                                                                          GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrMockGpuTextureCommandBuffer(texture,
+                                                                                        origin));
 }
 
 

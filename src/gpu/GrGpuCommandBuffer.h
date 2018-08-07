@@ -127,6 +127,12 @@ protected:
             , fRenderTarget(rt) {
     }
 
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
+        SkASSERT(!fRenderTarget);
+        fRenderTarget = rt;
+        fOrigin = origin;
+    }
+
     GrRenderTarget* fRenderTarget;
 
 private:

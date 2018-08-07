@@ -118,12 +118,15 @@ public:
 
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    void finishCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer> buffer) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -559,7 +562,7 @@ private:
         }
     }                                       fHWBlendState;
 
-    TriState fMSAAEnabled;
+    TriState                                fMSAAEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
     TriState                                fHWStencilTestEnabled;
@@ -615,6 +618,8 @@ private:
     float fHWMinSampleShading;
     GrPrimitiveType fLastPrimitiveType;
     bool fRequiresFlushBeforeNextInstancedDraw = false;
+
+    std::unique_ptr<GrGpuRTCommandBuffer> fCachedRTCommandBuffer;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

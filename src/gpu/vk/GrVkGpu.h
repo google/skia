@@ -90,12 +90,15 @@ public:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    void finishCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer>) override {}
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,

@@ -24,12 +24,15 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
                                     GrRenderTarget*, GrSurfaceOrigin,
                                     const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
                                     const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    void finishCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer>) override {}
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
