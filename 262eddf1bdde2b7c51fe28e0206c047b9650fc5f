@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dff37bfe_da3c5e3b",
+        "filename": "src/gpu/mtl/GrMtlPipelineState.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a658783a_9be58cb2",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 25,
+        "endChar": 79
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f6740d0_bffcef27",
         "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ca2eaa5d_ac1cf051",
+        "filename": "src/gpu/mtl/GrMtlPipelineStateBuilder.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5f6740d0_bffcef27",
+      "range": {
+        "startLine": 144,
+        "startChar": 22,
+        "endLine": 144,
+        "endChar": 55
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "db857212_12e82e45",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99c409e5_c1a033d4",
+      "range": {
+        "startLine": 24,
+        "startChar": 5,
+        "endLine": 25,
+        "endChar": 26
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "779a6054_1831570c",
         "filename": "src/gpu/mtl/GrMtlUniformHandler.h",
         "patchSetId": 5
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "d64d0aee_e91e31e2",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "779a6054_1831570c",
+      "range": {
+        "startLine": 35,
+        "startChar": 18,
+        "endLine": 37,
+        "endChar": 34
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8a24f1f7_221fcd89",
         "filename": "src/gpu/mtl/GrMtlUniformHandler.mm",
         "patchSetId": 5
@@ -108,6 +204,24 @@
       "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "db622eca_82ede7cc",
+        "filename": "src/gpu/mtl/GrMtlUniformHandler.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8a24f1f7_221fcd89",
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -154,6 +268,30 @@
       "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a78b189c_b0c0e546",
+        "filename": "src/gpu/mtl/GrMtlVaryingHandler.mm",
+        "patchSetId": 5
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-07T19:01:12Z",
+      "side": 1,
+      "message": "Do not see a requirement for Metal, removing it.",
+      "parentUuid": "da9f8c25_32a5153f",
+      "range": {
+        "startLine": 100,
+        "startChar": 7,
+        "endLine": 100,
+        "endChar": 13
+      },
+      "revId": "262eddf1bdde2b7c51fe28e0206c047b9650fc5f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
