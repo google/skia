@@ -26,6 +26,11 @@ static const int QUAD = 2;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
 
+// Just for self-documenting purposes where the main thing being returned is an
+// SkPath, but in an error case, something of type val (e.g. null) could also be
+// returned;
+using SkPathOrVal = emscripten::val;
+
 // =================================================================================
 // Creating/Exporting Paths with cmd arrays
 // =================================================================================
@@ -41,10 +46,10 @@ void VisitPath(const SkPath& p, VisitFunc&& f) {
 }
 
 emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
-    val cmds = emscripten::val::array();
+    emscripten::val cmds = emscripten::val::array();
 
     VisitPath(path, [&cmds](SkPath::Verb verb, const SkPoint pts[4], SkPath::RawIter iter) {
-        val cmd = emscripten::val::array();
+        emscripten::val cmd = emscripten::val::array();
         switch (verb) {
         case SkPath::kMove_Verb:
             cmd.call<void>("push", MOVE, pts[0].x(), pts[0].y());
@@ -95,7 +100,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
-SkPath EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
+SkPathOrVal EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     const auto* cmds = reinterpret_cast<const float*>(cptr);
     SkPath path;
     float x1, y1, x2, y2, x3, y3;
@@ -104,7 +109,7 @@ SkPath EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     #define CHECK_NUM_ARGS(n) \
         if ((i + n) > numCmds) { \
             SkDebugf("Not enough args to match the verbs. Saw %d commands\n", numCmds); \
-            return path; \
+            return emscripten::val::null(); \
         }
 
     for(int i = 0; i < numCmds;){
@@ -137,13 +142,13 @@ SkPath EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
                 break;
             default:
                 SkDebugf("  path: UNKNOWN command %f, aborting dump...\n", cmds[i-1]);
-                return path;
+                return emscripten::val::null();
         }
     }
 
     #undef CHECK_NUM_ARGS
 
-    return path;
+    return emscripten::val(path);
 }
 
 SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
@@ -154,50 +159,58 @@ SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
 // SVG things
 //========================================================================================
 
-val EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
+emscripten::val EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
     SkString s;
     SkParsePath::ToSVGString(path, &s);
     // Wrapping it in val automatically turns it into a JS string.
     // Not too sure on performance implications, but is is simpler than
     // returning a raw pointer to const char * and then using
     // Pointer_stringify() on the calling side.
-    return val(s.c_str());
+    return emscripten::val(s.c_str());
 }
 
 
-SkPath EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
+SkPathOrVal EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
     SkPath path;
-    SkParsePath::FromSVGString(str.c_str(), &path);
-    return path;
+    if (SkParsePath::FromSVGString(str.c_str(), &path)) {
+        return emscripten::val(path);
+    }
+    return emscripten::val::null();
 }
 
 //========================================================================================
 // PATHOP things
 //========================================================================================
 
-SkPath EMSCRIPTEN_KEEPALIVE SimplifyPath(const SkPath& path) {
+SkPathOrVal EMSCRIPTEN_KEEPALIVE SimplifyPath(const SkPath& path) {
     SkPath simple;
-    Simplify(path, &simple);
-    return simple;
+    if (Simplify(path, &simple)) {
+        return emscripten::val(simple);
+    }
+    return emscripten::val::null();
 }
 
-SkPath EMSCRIPTEN_KEEPALIVE ApplyPathOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+SkPathOrVal EMSCRIPTEN_KEEPALIVE ApplyPathOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
     SkPath path;
-    Op(pathOne, pathTwo, op, &path);
-    return path;
+    if (Op(pathOne, pathTwo, op, &path)) {
+        return emscripten::val(path);
+    }
+    return emscripten::val::null();
 }
 
-SkPath EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
+SkPathOrVal EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
     SkPath path;
-    builder.resolve(&path);
-    return path;
+    if (builder.resolve(&path)) {
+        return emscripten::val(path);
+    }
+    return emscripten::val::null();
 }
 
 //========================================================================================
 // Canvas things
 //========================================================================================
 
-void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, val/* Path2D or Canvas*/ ctx) {
+void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D or Canvas*/ ctx) {
     SkPath::Iter iter(path, false);
     SkPoint pts[4];
     SkPath::Verb verb;
@@ -236,7 +249,7 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, val/* Path2D or Canvas*/ 
 emscripten::val JSPath2D = emscripten::val::global("Path2D");
 
 emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(const SkPath& path) {
-    val retVal = JSPath2D.new_();
+    emscripten::val retVal = JSPath2D.new_();
     ToCanvas(path, retVal);
     return retVal;
 }
@@ -285,7 +298,7 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath) {
     orig.addPath(newPath);
 }
 
-void Path2DAddPath(SkPath& orig, const SkPath& newPath, val /* SVGMatrix*/ t) {
+void Path2DAddPath(SkPath& orig, const SkPath& newPath, emscripten::val /* SVGMatrix*/ t) {
     SkMatrix m = SkMatrix::MakeAll(
                      t["a"].as<SkScalar>(), t["c"].as<SkScalar>(), t["e"].as<SkScalar>(),
                      t["b"].as<SkScalar>(), t["d"].as<SkScalar>(), t["f"].as<SkScalar>(),
@@ -319,10 +332,12 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath,
 //========================================================================================
 
 #ifdef PATHKIT_TESTING
-SkPath GetBoundaryPathFromRegion(SkRegion& region) {
+SkPathOrVal GetBoundaryPathFromRegion(SkRegion& region) {
     SkPath p;
-    region.getBoundaryPath(&p);
-    return p;
+    if (region.getBoundaryPath(&p)) {
+        return emscripten::val(p);
+    }
+    return emscripten::val::null();
 }
 #endif
 
@@ -343,7 +358,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("addPath",
             select_overload<void(SkPath&, const SkPath&)>(&Path2DAddPath))
         .function("addPath",
-            select_overload<void(SkPath&, const SkPath&, val)>(&Path2DAddPath))
+            select_overload<void(SkPath&, const SkPath&, emscripten::val)>(&Path2DAddPath))
         .function("arc",
             select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&Path2DAddArc))
         .function("arc",
