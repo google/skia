@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkBitmap.h"
@@ -12,6 +13,7 @@
 #include "SkMatrix.h"
 #include "SkMutex.h"
 #include "SkPaint.h"
+#include "SkParsePath.h"
 #include "SkRegion.h"
 #include "SkStream.h"
 
@@ -534,12 +536,50 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
+static void json_status(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bool opSucceeded) {
+    fprintf(PathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
+            ExpectSuccess::kNo == expectSuccess ? "no" :
+            ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
+            ExpectMatch::kNo == expectMatch ? "no" :
+            ExpectMatch::kYes == expectMatch ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"succeeded\": %s,\n", opSucceeded ? "true" : "false");
+}
+
+static void json_path_out(const SkPath& path, const char* pathName, const char* fillTypeName,
+        bool lastField) {
+    char const * const gFillTypeStrs[] = {
+        "Winding",
+        "EvenOdd",
+        "InverseWinding",
+        "InverseEvenOdd",
+    };
+    SkString svg;
+    SkParsePath::ToSVGString(path, &svg);
+    fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
+    fprintf(PathOpsDebug::gOut, "  \"fillType%s\": \"k%s_FillType\"%s", fillTypeName,
+            gFillTypeStrs[(int) path.getFillType()], lastField ? "\n}" : ",\n");
+}
+
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
         SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showName(a, b, shapeOp);
 #endif
+    if (PathOpsDebug::gJson) {
+        SkString aStr, bStr;
+        SkParsePath::ToSVGString(a, &aStr);
+        SkParsePath::ToSVGString(b, &bStr);
+        if (!PathOpsDebug::gOutFirst) {
+            fprintf(PathOpsDebug::gOut, ",\n");
+        }
+        PathOpsDebug::gOutFirst = false;
+        fprintf(PathOpsDebug::gOut, "\"%s\": {\n", testName);
+        json_path_out(a, "p1", "1", false);
+        json_path_out(b, "p2", "2", false);
+        fprintf(PathOpsDebug::gOut, "  \"op\": \"%s\",\n", opStrs[shapeOp]);
+    }
     SkPath out;
     if (!OpDebug(a, b, shapeOp, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
             SkDEBUGPARAMS(testName))) {
@@ -547,11 +587,19 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
             SkDebugf("%s %s did not expect failure\n", __FUNCTION__, testName);
             REPORTER_ASSERT(reporter, 0);
         }
+        if (PathOpsDebug::gJson) {
+            json_status(expectSuccess, expectMatch, false);
+            fprintf(PathOpsDebug::gOut, "  \"out\": \"\"\n}");
+        }
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
                 SkDebugf("%s %s unexpected success\n", __FUNCTION__, testName);
                 REPORTER_ASSERT(reporter, 0);
+        }
+        if (PathOpsDebug::gJson) {
+            json_status(expectSuccess, expectMatch, true);
+            json_path_out(out, "out", "Out", true);
         }
     }
     if (!reporter->verbose()) {
