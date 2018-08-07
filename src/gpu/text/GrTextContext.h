@@ -87,7 +87,7 @@ public:
         void appendGlyph(const SkGlyph& glyph, SkGlyphID glyphID, SkPoint glyphPos);
         void drawGlyphs(
                 GrTextBlob* blob, int runIndex, GrGlyphCache* cache,
-                const SkSurfaceProps& props, const GrTextUtils::Paint& flags,
+                const SkSurfaceProps& props, const SkPaint& paint, GrColor filteredColor,
                 SkScalerContextFlags scalerContextFlags);
 
         void initializeForDraw(SkPaint* paint, SkScalar* textRatio, SkMatrix* matrix) const;
@@ -118,6 +118,7 @@ private:
                             GrGlyphCache*,
                             const GrShaderCaps&,
                             const GrTextUtils::Paint&,
+                            GrColor filteredColor,
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
