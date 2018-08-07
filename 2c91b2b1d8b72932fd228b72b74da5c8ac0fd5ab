@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4035347b_f8670ed2",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-07T14:43:53Z",
+      "side": 1,
+      "message": "I think this needs to be wrapped in a SK_SUPPORT_GPU",
+      "range": {
+        "startLine": 338,
+        "startChar": 1,
+        "endLine": 343,
+        "endChar": 14
+      },
+      "revId": "2c91b2b1d8b72932fd228b72b74da5c8ac0fd5ab",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
