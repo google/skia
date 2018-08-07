@@ -21,52 +21,68 @@
 /*
  * A trivial test which benchmarks the performance of a textblob with a single run.
  */
-class TextBlobBench : public Benchmark {
+class SkTextBlobBench : public Benchmark {
 public:
-    TextBlobBench() {}
+    SkTextBlobBench() {}
 
-protected:
     void onDelayedSetup() override {
-        fTypeface = sk_tool_utils::create_portable_typeface("serif", SkFontStyle());
-        // make textblob
-        SkPaint paint;
-        paint.setTypeface(fTypeface);
-        const char* text = "Hello blob!";
-        SkTDArray<uint16_t> glyphs;
-        size_t len = strlen(text);
-        glyphs.append(paint.textToGlyphs(text, len, nullptr));
-        paint.textToGlyphs(text, len, glyphs.begin());
+        fPaint.setTypeface(sk_tool_utils::create_portable_typeface("serif", SkFontStyle()));
+        fPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-        SkTextBlobBuilder builder;
+        // This text seems representative in both length and letter frequency.
+        const char* text = "Keep your sentences short, but not overly so.";
 
-        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
-        const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(paint, glyphs.count(), 10, 10,
-                                                                   nullptr);
-        memcpy(run.glyphs, glyphs.begin(), glyphs.count() * sizeof(uint16_t));
-
-        fBlob = builder.make();
+        fGlyphs.setCount(fPaint.textToGlyphs(text, strlen(text), nullptr));
+        fPaint.textToGlyphs(text, strlen(text), fGlyphs.begin());
     }
 
+    sk_sp<SkTextBlob> makeBlob() {
+        const SkTextBlobBuilder::RunBuffer& run =
+            fBuilder.allocRunPosH(fPaint, fGlyphs.count(), 10, nullptr);
+        for (int i = 0; i < fGlyphs.count(); i++) {
+            run.glyphs[i] = fGlyphs[i];
+            run.   pos[i] = (i+1) * 10;
+        }
+        return fBuilder.make();
+    }
+
+private:
+    SkTextBlobBuilder    fBuilder;
+    SkPaint              fPaint;
+    SkTDArray<uint16_t>  fGlyphs;
+
+    typedef Benchmark INHERITED;
+};
+
+class TextBlobCachedBench : public SkTextBlobBench {
     const char* onGetName() override {
-        return "TextBlobBench";
+        return "TextBlobCachedBench";
     }
 
     void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
 
-        // To ensure maximum caching, we just redraw the blob at the same place everytime
+        auto blob = this->makeBlob();
         for (int i = 0; i < loops; i++) {
-            canvas->drawTextBlob(fBlob, 0, 0, paint);
+            // To ensure maximum caching, we just redraw the blob at the same place everytime
+            canvas->drawTextBlob(blob, 0, 0, paint);
         }
     }
-
-private:
-
-    sk_sp<SkTextBlob>   fBlob;
-    SkTDArray<uint16_t> fGlyphs;
-    sk_sp<SkTypeface>   fTypeface;
-
-    typedef Benchmark INHERITED;
 };
 
-DEF_BENCH( return new TextBlobBench(); )
+class TextBlobFirstTimeBench : public SkTextBlobBench {
+    const char* onGetName() override {
+        return "TextBlobFirstTimeBench";
+    }
+
+    void onDraw(int loops, SkCanvas* canvas) override {
+        SkPaint paint;
+
+        for (int i = 0; i < loops; i++) {
+            canvas->drawTextBlob(this->makeBlob(), 0, 0, paint);
+        }
+    }
+};
+
+DEF_BENCH( return new TextBlobCachedBench(); )
+DEF_BENCH( return new TextBlobFirstTimeBench(); )
