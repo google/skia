@@ -82,7 +82,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(CopySurface, reporter, ctxInfo) {
 
                                 // Should always work if the color type is RGBA, but may not work
                                 // for BGRA
-                                if (ii.colorType() == kBGRA_8888_SkColorType) {
+                                if (ii.colorType() == kRGBA_8888_SkColorType) {
                                     if (!src || !dst) {
                                         ERRORF(reporter,
                                                "Could not create surfaces for copy surface test.");
