@@ -61,6 +61,14 @@ public:
 
     ~GrGLGpuRTCommandBuffer() override {}
 
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+        this->INHERITED::set(rt, origin);
+        fColorLoadAndStoreInfo = colorInfo;
+        fStencilLoadAndStoreInfo = stencilInfo;
+    }
+
     void begin() override;
     void end() override {}
 
