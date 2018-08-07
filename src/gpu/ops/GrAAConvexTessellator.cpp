@@ -451,10 +451,10 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
             SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[cur].length()));
         }
 
-        fNorms.push(SkPoint::Make(-fNorms[0].fX, -fNorms[0].fY));
+        fNorms.push_back(SkPoint::Make(-fNorms[0].fX, -fNorms[0].fY));
         // we won't actually use the bisectors, so just push zeroes
-        fBisectors.push(SkPoint::Make(0.0, 0.0));
-        fBisectors.push(SkPoint::Make(0.0, 0.0));
+        fBisectors.push_back(SkPoint::Make(0.0, 0.0));
+        fBisectors.push_back(SkPoint::Make(0.0, 0.0));
     } else {
         return false;
     }

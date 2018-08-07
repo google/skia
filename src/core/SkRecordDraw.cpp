@@ -169,7 +169,7 @@ public:
         fCTM = SkMatrix::I();
 
         // We push an extra save block to track the bounds of any top-level control operations.
-        fSaveStack.push({ 0, Bounds::MakeEmpty(), nullptr, fCTM });
+        fSaveStack.push_back({ 0, Bounds::MakeEmpty(), nullptr, fCTM });
     }
 
     void cleanUp() {
@@ -275,7 +275,7 @@ private:
         sb.paint = paint;
         sb.ctm = this->fCTM;
 
-        fSaveStack.push(sb);
+        fSaveStack.push_back(sb);
         this->pushControl();
     }
 
@@ -329,7 +329,7 @@ private:
     }
 
     void pushControl() {
-        fControlIndices.push(fCurrentOp);
+        fControlIndices.push_back(fCurrentOp);
         if (!fSaveStack.isEmpty()) {
             fSaveStack.top().controlOps++;
         }

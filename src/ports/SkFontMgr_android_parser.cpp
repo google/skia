@@ -556,7 +556,7 @@ static void XMLCALL start_element_handler(void *data, const char *tag, const cha
             if (child->start) {
                 child->start(self, tag, attributes);
             }
-            self->fHandler.push(child);
+            self->fHandler.push_back(child);
             XML_SetCharacterDataHandler(self->fParser, child->chars);
         } else {
             SK_FONTCONFIGPARSER_WARNING("'%s' tag not recognized, skipping", tag);

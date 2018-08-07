@@ -351,7 +351,7 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
     // TODO(halcanary): sfntly should take a more compact format.
     SkTDArray<unsigned> subset;
     if (!glyphUsage.has(0)) {
-        subset.push(0);  // Always include glyph 0.
+        subset.push_back(0);  // Always include glyph 0.
     }
     glyphUsage.exportTo(&subset);
 

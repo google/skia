@@ -281,7 +281,7 @@ public:
         }
 
         if (!header) {
-            fOps.push({opListID, nullptr});
+            fOps.push_back({opListID, nullptr});
             header = &(fOps[fOps.count()-1]);
         }
 
@@ -334,7 +334,7 @@ public:
         SkTDArray<LinkedListHeader*> lists;
         for (int i = 0; i < numOpListIDs; ++i) {
             if (LinkedListHeader* list = this->getList(opListIDs[i])) {
-                lists.push(list);
+                lists.push_back(list);
             }
         }
 
