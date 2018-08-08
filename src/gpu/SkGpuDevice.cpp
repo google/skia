@@ -39,6 +39,7 @@
 #include "SkRasterClip.h"
 #include "SkReadPixelsRec.h"
 #include "SkRecord.h"
+#include "SkSize.h"
 #include "SkSpecialImage.h"
 #include "SkStroke.h"
 #include "SkSurface.h"
@@ -281,8 +282,9 @@ void SkGpuDevice::drawPaint(const SkPaint& paint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPaint", fContext.get());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -314,8 +316,9 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
     if (paint.getPathEffect() && 2 == count && SkCanvas::kLines_PointMode == mode) {
         GrStyle style(paint, SkPaint::kStroke_Style);
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                              this->ctm(), &grPaint)) {
+        SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+        if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                              paint, this->ctm(), &grPaint)) {
             return;
         }
         SkPath path;
@@ -359,8 +362,9 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 #endif
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          *viewMatrix, &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, *viewMatrix, &grPaint)) {
         return;
     }
 
@@ -389,8 +393,9 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -405,8 +410,9 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext.get());
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -472,8 +478,9 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
 
     if (stroke.isFillStyle() && !paint.getMaskFilter() && !paint.getPathEffect()) {
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                              this->ctm(), &grPaint)) {
+        SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+        if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                              paint, this->ctm(), &grPaint)) {
             return;
         }
 
@@ -504,8 +511,9 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -524,8 +532,9 @@ void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -542,8 +551,9 @@ void SkGpuDevice::drawArc(const SkRect& oval, SkScalar startAngle,
         return;
     }
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                          this->ctm(), &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          paint, this->ctm(), &grPaint)) {
         return;
     }
 
@@ -598,8 +608,9 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
     m.postConcat(this->ctm());
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), newPaint, m,
-                          &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                          newPaint, m, &grPaint)) {
         return;
     }
 
@@ -630,8 +641,9 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
     if (!prePathMatrix && !paint.getMaskFilter()) {
         GrPaint grPaint;
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                              this->ctm(), &grPaint)) {
+        SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+        if (!SkPaintToGrPaint(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                              paint, this->ctm(), &grPaint)) {
             return;
         }
         fRenderTargetContext->drawPath(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
@@ -1028,8 +1040,9 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
     fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(),
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                                     viewMatrix, std::move(fp),
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaintWithTexture(this->context(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                                     paint, viewMatrix, std::move(fp),
                                      kAlpha_8_SkColorType == bitmap.colorType(), &grPaint)) {
         return;
     }
@@ -1107,7 +1120,9 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     }
 
     GrPaint grPaint;
-    if (!SkPaintToGrPaintReplaceShader(this->context(), fRenderTargetContext->colorSpaceInfo(),
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaintReplaceShader(this->context(), deviceSize,
+                                       fRenderTargetContext->colorSpaceInfo(),
                                        tmpUnfiltered, std::move(fp), &grPaint)) {
         return;
     }
@@ -1408,7 +1423,9 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
         paint.writable()->setColor(SkColorSetARGB(origPaint.getAlpha(), 0xFF, 0xFF, 0xFF));
     }
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), fRenderTargetContext->colorSpaceInfo(),
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), deviceSize,
+                                            fRenderTargetContext->colorSpaceInfo(),
                                             *paint, &grPaint)) {
         return;
     }
@@ -1461,26 +1478,28 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
     this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
-static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
+static bool init_vertices_paint(GrContext* context, const SkISize&deviceSize,
+                                const GrColorSpaceInfo& colorSpaceInfo,
                                 const SkPaint& skPaint, const SkMatrix& matrix, SkBlendMode bmode,
                                 bool hasTexs, bool hasColors, GrPaint* grPaint) {
     if (hasTexs && skPaint.getShader()) {
         if (hasColors) {
             // When there are texs and colors the shader and colors are combined using bmode.
-            return SkPaintToGrPaintWithXfermode(context, colorSpaceInfo, skPaint, matrix, bmode,
-                                                grPaint);
+            return SkPaintToGrPaintWithXfermode(context, deviceSize, colorSpaceInfo, skPaint,
+                                                matrix, bmode, grPaint);
         } else {
             // We have a shader, but no colors to blend it against.
-            return SkPaintToGrPaint(context, colorSpaceInfo, skPaint, matrix, grPaint);
+            return SkPaintToGrPaint(context, deviceSize, colorSpaceInfo, skPaint, matrix, grPaint);
         }
     } else {
         if (hasColors) {
             // We have colors, but either have no shader or no texture coords (which implies that
             // we should ignore the shader).
-            return SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
+            return SkPaintToGrPaintWithPrimitiveColor(context, deviceSize, colorSpaceInfo, skPaint,
+                                                      grPaint);
         } else {
             // No colors and no shaders. Just draw with the paint color.
-            return SkPaintToGrPaintNoShader(context, colorSpaceInfo, skPaint, grPaint);
+            return SkPaintToGrPaintNoShader(context, deviceSize, colorSpaceInfo, skPaint, grPaint);
         }
     }
 }
@@ -1500,8 +1519,10 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
 
     GrPaint grPaint;
     // we ignore the shader since we have no texture coordinates.
-    if (!SkPaintToGrPaintNoShader(this->context(), fRenderTargetContext->colorSpaceInfo(), copy,
-                                  &grPaint)) {
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!SkPaintToGrPaintNoShader(this->context(), deviceSize,
+                                  fRenderTargetContext->colorSpaceInfo(),
+                                  copy, &grPaint)) {
         return;
     }
 
@@ -1567,8 +1588,10 @@ void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix bones[
                                 paint);
         return;
     }
-    if (!init_vertices_paint(fContext.get(), fRenderTargetContext->colorSpaceInfo(), paint,
-                             this->ctm(), mode, hasTexs, hasColors, &grPaint)) {
+
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
+    if (!init_vertices_paint(fContext.get(), deviceSize, fRenderTargetContext->colorSpaceInfo(),
+                             paint, this->ctm(), mode, hasTexs, hasColors, &grPaint)) {
         return;
     }
     fRenderTargetContext->drawVertices(this->clip(), std::move(grPaint), this->ctm(),
@@ -1606,14 +1629,17 @@ void SkGpuDevice::drawAtlas(const SkImage* atlas, const SkRSXform xform[],
     p.setShader(atlas->makeShader());
 
     GrPaint grPaint;
+    SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
     if (colors) {
-        if (!SkPaintToGrPaintWithXfermode(this->context(), fRenderTargetContext->colorSpaceInfo(),
+        if (!SkPaintToGrPaintWithXfermode(this->context(), deviceSize,
+                                          fRenderTargetContext->colorSpaceInfo(),
                                           p, this->ctm(), (SkBlendMode)mode, &grPaint)) {
             return;
         }
     } else {
-        if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), p,
-                              this->ctm(), &grPaint)) {
+        if (!SkPaintToGrPaint(this->context(), deviceSize,
+                              fRenderTargetContext->colorSpaceInfo(),
+                              p, this->ctm(), &grPaint)) {
             return;
         }
     }

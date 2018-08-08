@@ -13,13 +13,16 @@
 
 class GrContext;
 class GrColorSpaceInfo;
+struct SkSize;
 
 struct GrFPArgs {
     GrFPArgs(GrContext* context,
+             const SkISize* deviceSize,
              const SkMatrix* viewMatrix,
              SkFilterQuality filterQuality,
              const GrColorSpaceInfo* dstColorSpaceInfo)
     : fContext(context)
+    , fDeviceSize(deviceSize)
     , fViewMatrix(viewMatrix)
     , fFilterQuality(filterQuality)
     , fDstColorSpaceInfo(dstColorSpaceInfo) {
@@ -31,6 +34,7 @@ struct GrFPArgs {
     class WithPostLocalMatrix;
 
     GrContext* fContext;
+    const SkISize* fDeviceSize;
     const SkMatrix* fViewMatrix;
 
     // We track both pre and post local matrix adjustments.  For a given FP:

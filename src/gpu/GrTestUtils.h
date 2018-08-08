@@ -30,6 +30,7 @@ class SkMatrix;
 class SkPath;
 class SkRRect;
 struct SkRect;
+struct SkISize;
 
 namespace GrTest {
 /**
@@ -60,6 +61,8 @@ public:
 
 private:
     SkMatrix fViewMatrixStorage;
+    SkISize fDeviceSize;
+
     std::unique_ptr<GrColorSpaceInfo> fColorSpaceInfoStorage;
     GrFPArgs fArgs;
 };

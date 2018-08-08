@@ -78,12 +78,13 @@ public:
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
                      GrPaint* grPaint) override {
+        SkISize deviceSize = SkISize::Make(fRenderTargetContext->width(), fRenderTargetContext->height());
         GrContext* context = fRenderTargetContext->fContext;
         const GrColorSpaceInfo& colorSpaceInfo = fRenderTargetContext->colorSpaceInfo();
         if (kARGB_GrMaskFormat == maskFormat) {
-            SkPaintToGrPaintWithPrimitiveColor(context, colorSpaceInfo, skPaint, grPaint);
+            SkPaintToGrPaintWithPrimitiveColor(context, deviceSize, colorSpaceInfo, skPaint, grPaint);
         } else {
-            SkPaintToGrPaint(context, colorSpaceInfo, skPaint, viewMatrix, grPaint);
+            SkPaintToGrPaint(context, deviceSize, colorSpaceInfo, skPaint, viewMatrix, grPaint);
         }
     }
 
