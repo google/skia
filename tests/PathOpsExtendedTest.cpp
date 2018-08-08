@@ -18,6 +18,11 @@
 #include "SkStream.h"
 
 #include <stdlib.h>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+std::vector<std::string> gUniqueNames;
 
 #ifdef SK_BUILD_FOR_MAC
 #include <sys/sysctl.h>
@@ -472,11 +477,59 @@ bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& st
     return result == 0;
 }
 
+static void json_status(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bool opSucceeded) {
+    fprintf(PathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
+            ExpectSuccess::kNo == expectSuccess ? "no" :
+            ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
+            ExpectMatch::kNo == expectMatch ? "no" :
+            ExpectMatch::kYes == expectMatch ? "yes" : "flaky");
+    fprintf(PathOpsDebug::gOut, "  \"succeeded\": %s,\n", opSucceeded ? "true" : "false");
+}
+
+static void json_path_out(const SkPath& path, const char* pathName, const char* fillTypeName,
+        bool lastField) {
+    char const * const gFillTypeStrs[] = {
+        "Winding",
+        "EvenOdd",
+        "InverseWinding",
+        "InverseEvenOdd",
+    };
+    SkString svg;
+    SkParsePath::ToSVGString(path, &svg);
+    fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
+    fprintf(PathOpsDebug::gOut, "  \"fillType%s\": \"k%s_FillType\"%s", fillTypeName,
+            gFillTypeStrs[(int) path.getFillType()], lastField ? "\n}" : ",\n");
+}
+
+static bool check_for_duplicate_names(const char* testName) {
+    if (PathOpsDebug::gCheckForDuplicateNames) {
+        if (gUniqueNames.end() != std::find(gUniqueNames.begin(), gUniqueNames.end(),
+                std::string(testName))) {
+            SkDebugf("");  // convenience for setting breakpoints
+        }
+        gUniqueNames.push_back(std::string(testName));
+        return true;
+    }
+    return false;
+}
+
 static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
         ExpectSuccess expectSuccess, SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showPathData(path);
 #endif
+    if (PathOpsDebug::gJson) {
+        if (check_for_duplicate_names(filename)) {
+            return true;
+        }
+        if (!PathOpsDebug::gOutFirst) {
+            fprintf(PathOpsDebug::gOut, ",\n");
+        }
+        PathOpsDebug::gOutFirst = false;
+        fprintf(PathOpsDebug::gOut, "\"%s\": {\n", filename);
+        json_path_out(path, "path", "", false);
+    }
     SkPath out;
     if (!SimplifyDebug(path, &out  SkDEBUGPARAMS(SkipAssert::kYes == skipAssert)
             SkDEBUGPARAMS(testName))) {
@@ -484,11 +537,19 @@ static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, con
             SkDebugf("%s did not expect %s failure\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
         }
+        if (PathOpsDebug::gJson) {
+            json_status(expectSuccess, expectMatch, false);
+            fprintf(PathOpsDebug::gOut, "  \"out\": \"\"\n}");
+        }
         return false;
     } else {
         if (ExpectSuccess::kNo == expectSuccess) {
             SkDebugf("%s %s unexpected success\n", __FUNCTION__, filename);
             REPORTER_ASSERT(reporter, 0);
+        }
+        if (PathOpsDebug::gJson) {
+            json_status(expectSuccess, expectMatch, true);
+            json_path_out(out, "out", "Out", true);
         }
     }
     SkBitmap bitmap;
@@ -536,31 +597,6 @@ static void showName(const SkPath& a, const SkPath& b, const SkPathOp shapeOp) {
 }
 #endif
 
-static void json_status(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bool opSucceeded) {
-    fprintf(PathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
-            ExpectSuccess::kNo == expectSuccess ? "no" :
-            ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
-    fprintf(PathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
-            ExpectMatch::kNo == expectMatch ? "no" :
-            ExpectMatch::kYes == expectMatch ? "yes" : "flaky");
-    fprintf(PathOpsDebug::gOut, "  \"succeeded\": %s,\n", opSucceeded ? "true" : "false");
-}
-
-static void json_path_out(const SkPath& path, const char* pathName, const char* fillTypeName,
-        bool lastField) {
-    char const * const gFillTypeStrs[] = {
-        "Winding",
-        "EvenOdd",
-        "InverseWinding",
-        "InverseEvenOdd",
-    };
-    SkString svg;
-    SkParsePath::ToSVGString(path, &svg);
-    fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
-    fprintf(PathOpsDebug::gOut, "  \"fillType%s\": \"k%s_FillType\"%s", fillTypeName,
-            gFillTypeStrs[(int) path.getFillType()], lastField ? "\n}" : ",\n");
-}
-
 static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkPath& b,
         const SkPathOp shapeOp, const char* testName, ExpectSuccess expectSuccess,
         SkipAssert skipAssert, ExpectMatch expectMatch) {
@@ -568,9 +604,9 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     showName(a, b, shapeOp);
 #endif
     if (PathOpsDebug::gJson) {
-        SkString aStr, bStr;
-        SkParsePath::ToSVGString(a, &aStr);
-        SkParsePath::ToSVGString(b, &bStr);
+        if (check_for_duplicate_names(testName)) {
+            return true;
+        }
         if (!PathOpsDebug::gOutFirst) {
             fprintf(PathOpsDebug::gOut, ",\n");
         }

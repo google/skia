@@ -14,6 +14,7 @@ class PathOpsDebug {
 public:
     static bool gJson;
     static bool gOutFirst;
+    static bool gCheckForDuplicateNames;
     static FILE* gOut;
 };
 

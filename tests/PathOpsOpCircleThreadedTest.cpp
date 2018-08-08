@@ -4,11 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
 
 static int loopNo = 4;
+static int gCirclesTestNo = 0;
 
 static void testOpCirclesMain(PathOpsThreadState* data) {
         SkASSERT(data);
@@ -47,12 +49,15 @@ static void testOpCirclesMain(PathOpsThreadState* data) {
                 pathStr.appendf("}\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "circles")) {
+            SkString testName;
+            testName.printf("thread_circles%d", ++gCirclesTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }

@@ -3808,7 +3808,7 @@ static void testQuadLineIntersect3(skiatest::Reporter* reporter, const char* fil
     testSimplify(reporter, path, filename);
 }
 
-static void skphealth_com76(skiatest::Reporter* reporter, const char* filename) {
+static void skphealth_com76s(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(708.099182f, 7.09919119f);
@@ -3841,7 +3841,7 @@ static void tooCloseTest(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
-static void testRect1(skiatest::Reporter* reporter, const char* filename) {
+static void testRect1s(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.addRect(0, 0, 60, 60, SkPath::kCCW_Direction);
     path.addRect(30, 20, 50, 50, SkPath::kCCW_Direction);
@@ -3850,7 +3850,7 @@ static void testRect1(skiatest::Reporter* reporter, const char* filename) {
     testSimplify(reporter, path, filename);
 }
 
-static void testRect2(skiatest::Reporter* reporter, const char* filename) {
+static void testRect2s(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kWinding_FillType);
     path.moveTo(0, 0);
@@ -9388,10 +9388,10 @@ static TestDesc tests[] = {
     TEST(testQuad9),
     TEST(testTriangles4x),
     TEST(testTriangles3x),
-    TEST(testRect2),
-    TEST(testRect1),
+    TEST(testRect2s),
+    TEST(testRect1s),
     TEST(tooCloseTest),
-    TEST(skphealth_com76),
+    TEST(skphealth_com76s),
     TEST(testQuadLineIntersect1),
     TEST(testQuadLineIntersect2),
     TEST(testQuadLineIntersect3),
@@ -9468,7 +9468,6 @@ static TestDesc tests[] = {
     TEST(testQuadratic64),
     TEST(testQuadratic63),
     TEST(testLine1a),
-    TEST(testLine1ax),
     TEST(testQuadratic59),
     TEST(testQuadratic59x),
     TEST(testQuadratic58),
