@@ -822,6 +822,8 @@ def dm_flags(api, bot):
     match.append('CopySurface')
     match.append('GrTestingBackendTextureUploadTest')
     match.append('GrUploadPixelsTests')
+    match.append('ReadPixels')
+    match.append('WritePixels')
 
   if match:
     args.append('--match')

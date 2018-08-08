@@ -481,6 +481,8 @@
       "CopySurface",
       "GrTestingBackendTextureUploadTest",
       "GrUploadPixelsTests",
+      "ReadPixels",
+      "WritePixels",
       "--nonativeFonts",
       "--verbose"
     ],
