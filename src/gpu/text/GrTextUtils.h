@@ -108,32 +108,5 @@ public:
         // the fragment shader.
         GrColor fFilteredPremulColor;
     };
-
-    /**
-     *  An extension of Paint that incorporated per-run modifications to the paint text settings and
-     *  application of a draw filter. It expects its constructor arguments to remain alive and const
-     *  during its lifetime.
-     */
-    class RunPaint : public Paint {
-    public:
-        RunPaint(const Paint* paint) : fOriginalPaint(paint) {
-            // Initially we represent the original paint.
-            fPaint = paint->fPaint;
-            fDstColorSpaceInfo = paint->fDstColorSpaceInfo;
-            fFilteredPremulColor = paint->fFilteredPremulColor;
-        }
-
-        bool modifyForRun(std::function<void(SkPaint*)> paintModFunc) {
-            if (!fModifiedPaint.isValid()) {
-                fModifiedPaint.init(fOriginalPaint->skPaint());
-                fPaint = fModifiedPaint.get();
-            }
-            paintModFunc(fModifiedPaint.get());
-            return true;
-        }
-    private:
-        SkTLazy<SkPaint> fModifiedPaint;
-        const Paint* fOriginalPaint;
-    };
 };
 #endif
