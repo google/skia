@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
@@ -17,12 +17,11 @@
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
 #include "SkUtils.h"
-#include "SkView.h"
 #include "sk_tool_utils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class ShadowsView : public SampleView {
+class ShadowsView : public Sample {
     SkPath    fRectPath;
     SkPath    fRRPath;
     SkPath    fCirclePath;
@@ -107,15 +106,14 @@ protected:
         fLightPos = SkPoint3::Make(350, 0, 600);
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AndroidShadows");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AndroidShadows");
             return true;
         }
 
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;
             switch (uni) {
                 case 'W':
@@ -353,10 +351,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ShadowsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ShadowsView(); )

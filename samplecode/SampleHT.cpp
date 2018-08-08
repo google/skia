@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkInterpolator.h"
@@ -114,7 +113,7 @@ public:
     SkRect onGetBounds() override { return fR; }
 };
 
-class HTView : public SampleView {
+class HTView : public Sample {
 public:
     enum {
         N = 50,
@@ -143,9 +142,9 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "HT");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "HT");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -163,7 +162,7 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         // search backwards to find the top-most
         for (int i = N - 1; i >= 0; --i) {
             if (fArray[i].fDrawable->hitTest(x, y)) {
@@ -175,10 +174,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new HTView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new HTView(); )

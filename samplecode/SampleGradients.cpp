@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 
@@ -112,16 +111,16 @@ static const GradMaker gGradMakers[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class GradientsView : public SampleView {
+class GradientsView : public Sample {
 public:
     GradientsView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Gradients");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Gradients");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -163,10 +162,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new GradientsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new GradientsView(); )

@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkUtils.h"
 #include "SkColorPriv.h"
@@ -40,7 +39,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 //            -- this feature boosts the rendering out of the small point-size
 //               SDF-text special case (which falls back to bitmap fonts for small points)
 
-class AnimatedTextView : public SampleView {
+class AnimatedTextView : public Sample {
 public:
     AnimatedTextView() : fScale(1.0f), fScaleInc(0.1f), fRotation(0.0f), fSizeScale(1) {
         fCurrentTime = 0;
@@ -49,15 +48,14 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AnimatedText");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AnimatedText");
             return true;
         }
 
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             if ('2' == uni) {
                 if (fSizeScale == 2) {
                     fSizeScale = 1;
@@ -155,10 +153,9 @@ private:
     int         fCurrentTime;
 
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new AnimatedTextView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AnimatedTextView(); )

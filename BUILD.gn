@@ -1359,6 +1359,7 @@ if (skia_enable_tools) {
       "tools/fonts/sk_tool_utils_font.cpp",
       "tools/random_parse_path.cpp",
       "tools/sk_tool_utils.cpp",
+      "tools/timer/SkAnimTimer.h",
       "tools/timer/Timer.cpp",
       "tools/trace/SkChromeTracingTracer.cpp",
       "tools/trace/SkChromeTracingTracer.h",
@@ -1477,18 +1478,6 @@ if (skia_enable_tools) {
     }
   }
 
-  if (target_cpu != "wasm") {
-    test_lib("views") {
-      public_include_dirs = [ "include/views" ]
-      sources = [
-        "src/views/SkEvent.cpp",
-        "src/views/SkEventSink.cpp",
-        "src/views/SkTouchGesture.cpp",
-        "src/views/SkView.cpp",
-      ]
-    }
-  }
-
   if (skia_use_lua) {
     test_lib("lua") {
       public_include_dirs = []
@@ -1562,14 +1551,13 @@ if (skia_enable_tools) {
       public_include_dirs = [ "samplecode" ]
       include_dirs = [ "experimental" ]
       sources = samples_sources
+      public_deps = [
+        ":tool_utils",
+      ]
       deps = [
         ":experimental_svg_model",
         ":flags",
-        ":gm",
-        ":tool_utils",
-        ":views",
         ":xml",
-        "modules/sksg:samples",
         "modules/skshaper",
       ]
 
@@ -2006,7 +1994,6 @@ if (skia_enable_tools) {
       ":gpu_tool_utils",
       ":skia",
       ":tool_utils",
-      ":views",
     ]
     if (is_android) {
       deps += [ "//third_party/native_app_glue" ]
@@ -2034,6 +2021,8 @@ if (skia_enable_tools) {
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
+      "tools/viewer/TouchGesture.h",
+      "tools/viewer/TouchGesture.cpp",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []
@@ -2048,9 +2037,9 @@ if (skia_enable_tools) {
       ":sk_app",
       ":skia",
       ":tool_utils",
-      ":views",
       "modules/skottie",
       "modules/sksg",
+      "modules/sksg:samples",
       "//third_party/imgui",
     ]
 
@@ -2129,7 +2118,6 @@ if (skia_enable_tools) {
         ":sk_app",
         ":skia",
         ":tool_utils",
-        ":views",
       ]
     }
   }

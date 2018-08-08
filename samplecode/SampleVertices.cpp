@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -46,7 +45,7 @@ static sk_sp<SkShader> make_shader1(const SkIPoint& size) {
                     SK_ARRAY_COUNT(colors), SkShader::kMirror_TileMode);
 }
 
-class VerticesView : public SampleView {
+class VerticesView : public Sample {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
 
@@ -67,10 +66,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Vertices");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Vertices");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -107,7 +105,7 @@ protected:
         }
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         return new Click(this);
     }
 
@@ -210,10 +208,9 @@ private:
 
     Rec fRecs[3];
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new VerticesView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new VerticesView(); )

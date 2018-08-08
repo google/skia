@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -22,15 +21,14 @@
 
 #include "SkGeometry.h"
 
-class ConcavePathView : public SampleView {
+class ConcavePathView : public Sample {
 public:
     ConcavePathView() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ConcavePaths");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "ConcavePaths");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -135,10 +133,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ConcavePathView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ConcavePathView(); )

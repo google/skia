@@ -16,9 +16,9 @@
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
 #include "SkScan.h"
-#include "SkTouchGesture.h"
 #include "Slide.h"
 #include "StatsLayer.h"
+#include "TouchGesture.h"
 
 class SkCanvas;
 
@@ -153,7 +153,7 @@ private:
         kMouse,
     };
 
-    SkTouchGesture         fGesture;
+    TouchGesture           fGesture;
     GestureDevice          fGestureDevice;
 
     // identity unless the window initially scales the content to fit the screen.

@@ -10,7 +10,7 @@
 
 #include "DisplayParams.h"
 #include "SkRect.h"
-#include "SkTouchGesture.h"
+#include "SkTDArray.h"
 #include "SkTypes.h"
 
 class GrContext;

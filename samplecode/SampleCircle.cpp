@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkView.h"
 
 // ensure that we don't accidentally screw up the bounds when the oval is
 // fractional, and the impl computes the center and radii, and uses them to
@@ -22,7 +21,7 @@ static void test_circlebounds(SkCanvas*) {
     SkASSERT(r == p.getBounds());
 }
 
-class CircleView : public SampleView {
+class CircleView : public Sample {
 public:
     static const SkScalar ANIM_DX;
     static const SkScalar ANIM_DY;
@@ -35,10 +34,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Circles");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Circles");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -107,7 +105,7 @@ protected:
 
 private:
     int fN;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 const SkScalar CircleView::ANIM_DX(SK_Scalar1 / 67);
@@ -116,5 +114,4 @@ const SkScalar CircleView::ANIM_RAD(SK_Scalar1 / 19);
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new CircleView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new CircleView(); )

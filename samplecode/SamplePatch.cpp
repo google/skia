@@ -6,9 +6,8 @@
  */
 
 #include "DecodeFile.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -203,7 +202,7 @@ static void drawpatches(SkCanvas* canvas, const SkPaint& paint, int nu, int nv,
 const SkScalar DX = 20;
 const SkScalar DY = 0;
 
-class PatchView : public SampleView {
+class PatchView : public Sample {
     SkScalar    fAngle;
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
@@ -238,10 +237,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt)  override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Patch");
+    bool onQuery(Sample::Event* evt)  override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Patch");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -302,14 +300,14 @@ protected:
     class PtClick : public Click {
     public:
         int fIndex;
-        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
+        PtClick(Sample* view, int index) : Click(view), fIndex(index) {}
     };
 
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         x -= DX;
         y -= DY;
         for (size_t i = 0; i < SK_ARRAY_COUNT(fPts); i++) {
@@ -326,10 +324,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PatchView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new PatchView(); )

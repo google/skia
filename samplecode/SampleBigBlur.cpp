@@ -4,22 +4,20 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkMaskFilter.h"
-#include "SkView.h"
 
-class BigBlurView : public SampleView {
+class BigBlurView : public Sample {
 public:
     BigBlurView() {
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "BigBlur");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "BigBlur");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -38,10 +36,9 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new BigBlurView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new BigBlurView(); )

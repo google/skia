@@ -6,8 +6,7 @@
  */
 
 #include "DecodeFile.h"
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkCornerPathEffect.h"
 #include "SkGradientShader.h"
@@ -24,15 +23,14 @@
 #include "SkStream.h"
 #include "SkColorPriv.h"
 
-class LinesView : public SampleView {
+class LinesView : public Sample {
 public:
     LinesView() {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Lines");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Lines");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -92,17 +90,16 @@ protected:
         canvas->drawLine(x, y, x + SkIntToScalar(90), y + SkIntToScalar(90), paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         fAlpha = SkScalarRoundToInt(y);
         return nullptr;
     }
 private:
 
     int fAlpha;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new LinesView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new LinesView(); )

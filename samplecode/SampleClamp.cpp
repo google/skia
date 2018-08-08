@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkRandom.h"
@@ -18,7 +17,7 @@ static sk_sp<SkShader> make_linear() {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-class ClampView : public SampleView {
+class ClampView : public Sample {
     sk_sp<SkShader> fGrad;
 
 public:
@@ -27,10 +26,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Clamp");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Clamp");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -52,10 +50,10 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ClampView; }
-static SkViewRegister reg(MyFactory);
+static Sample* MyFactory() { return new ClampView; }
+static SampleRegister reg(MyFactory);

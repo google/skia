@@ -14,13 +14,12 @@
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRectPriv.h"
-#include "SkView.h"
 #include "ccpr/GrCCCoverageProcessor.h"
 #include "ccpr/GrCCGeometry.h"
 #include "gl/GrGLGpu.cpp"
@@ -39,14 +38,14 @@ static constexpr float kDebugBloat = 40;
  * coverage=0 -> black, coverage=-1 -> red). Use the keys 1-7 to cycle through the different
  * geometry processors.
  */
-class CCPRGeometryView : public SampleView {
+class CCPRGeometryView : public Sample {
 public:
     CCPRGeometryView() { this->updateGpuData(); }
     void onDrawContent(SkCanvas*) override;
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
-    bool onClick(SampleView::Click*) override;
-    bool onQuery(SkEvent* evt) override;
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override;
+    bool onClick(Sample::Click*) override;
+    bool onQuery(Sample::Event* evt) override;
 
 private:
     class Click;
@@ -69,7 +68,7 @@ private:
     SkTArray<TriPointInstance> fTriPointInstances;
     SkTArray<QuadPointInstance> fQuadPointInstances;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 class CCPRGeometryView::DrawCoverageCountOp : public GrDrawOp {
@@ -365,9 +364,9 @@ void CCPRGeometryView::DrawCoverageCountOp::onExecute(GrOpFlushState* state) {
     }
 }
 
-class CCPRGeometryView::Click : public SampleView::Click {
+class CCPRGeometryView::Click : public Sample::Click {
 public:
-    Click(SkView* target, int ptIdx) : SampleView::Click(target), fPtIdx(ptIdx) {}
+    Click(Sample* target, int ptIdx) : Sample::Click(target), fPtIdx(ptIdx) {}
 
     void doClick(SkPoint points[]) {
         if (fPtIdx >= 0) {
@@ -388,7 +387,7 @@ private:
     int fPtIdx;
 };
 
-SkView::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsigned) {
+Sample::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsigned) {
     for (int i = 0; i < 4; ++i) {
         if (PrimitiveType::kCubics != fPrimitiveType && 2 == i) {
             continue;
@@ -400,20 +399,20 @@ SkView::Click* CCPRGeometryView::onFindClickHandler(SkScalar x, SkScalar y, unsi
     return new Click(this, -1);
 }
 
-bool CCPRGeometryView::onClick(SampleView::Click* click) {
+bool CCPRGeometryView::onClick(Sample::Click* click) {
     Click* myClick = (Click*)click;
     myClick->doClick(fPoints);
     this->updateAndInval();
     return true;
 }
 
-bool CCPRGeometryView::onQuery(SkEvent* evt) {
-    if (SampleCode::TitleQ(*evt)) {
-        SampleCode::TitleR(evt, "CCPRGeometry");
+bool CCPRGeometryView::onQuery(Sample::Event* evt) {
+    if (Sample::TitleQ(*evt)) {
+        Sample::TitleR(evt, "CCPRGeometry");
         return true;
     }
     SkUnichar unichar;
-    if (SampleCode::CharQ(*evt, &unichar)) {
+    if (Sample::CharQ(*evt, &unichar)) {
         if (unichar >= '1' && unichar <= '4') {
             fPrimitiveType = PrimitiveType(unichar - '1');
             if (fPrimitiveType >= PrimitiveType::kWeightedTriangles) {

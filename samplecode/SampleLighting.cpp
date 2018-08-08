@@ -6,7 +6,7 @@
  */
 
 #include "DecodeFile.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "Resources.h"
 #include "SkCanvas.h"
 #include "SkLightingShader.h"
@@ -29,7 +29,7 @@ static sk_sp<SkLights> create_lights(SkScalar angle, SkScalar blue) {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class LightingView : public SampleView {
+class LightingView : public Sample {
 public:
     LightingView() : fLightAngle(0.0f) , fColorFactor(0.0f) {
         {
@@ -57,10 +57,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Lighting");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Lighting");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -78,7 +77,7 @@ protected:
         canvas->drawRect(fRect, paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
@@ -100,10 +99,9 @@ private:
     SkScalar              fLightAngle;
     SkScalar              fColorFactor;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new LightingView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new LightingView(); )

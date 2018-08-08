@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkLua.h"
 #include "SkCanvas.h"
 #include "Resources.h"
@@ -35,7 +34,7 @@ static const char gMissingCode[] = ""
     "end"
     ;
 
-class LuaView : public SampleView {
+class LuaView : public Sample {
 public:
     LuaView() : fLua(nullptr) {}
 
@@ -69,13 +68,13 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Lua");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Lua");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             lua_State* L = this->ensureLua();
             lua_getglobal(L, gUnicharName);
             if (lua_isfunction(L, -1)) {
@@ -114,7 +113,7 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) override {
         lua_State* L = this->ensureLua();
         lua_getglobal(L, gClickName);
@@ -160,10 +159,9 @@ protected:
 private:
     SkLua* fLua;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new LuaView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new LuaView(); )

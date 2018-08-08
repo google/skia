@@ -6,10 +6,8 @@
  */
 
 #include "DecodeFile.h"
-#include "gm.h"
-
 #include "Resources.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -22,7 +20,7 @@
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
 
-class IdentityScaleView : public SampleView {
+class IdentityScaleView : public Sample {
 public:
     IdentityScaleView(const char imageFilename[]) {
         if (!DecodeDataToBitmap(GetResourceAsData(imageFilename), &fBM)) {
@@ -34,10 +32,9 @@ public:
 protected:
     SkBitmap fBM;
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "IdentityScale");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "IdentityScale");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -74,10 +71,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new IdentityScaleView("images/mandrill_256.png"); }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new IdentityScaleView("images/mandrill_256.png"); )

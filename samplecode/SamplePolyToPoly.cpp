@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkPath.h"
@@ -13,7 +12,7 @@
 #include "SkString.h"
 #include "SkTime.h"
 
-class PolyToPolyView : public SampleView {
+class PolyToPolyView : public Sample {
 public:
     PolyToPolyView() {
         // tests
@@ -67,10 +66,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt)  {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PolyToPolyView");
+    virtual bool onQuery(Sample::Event* evt)  {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "PolyToPolyView");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -153,10 +151,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PolyToPolyView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new PolyToPolyView(); )

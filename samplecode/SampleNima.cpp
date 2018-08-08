@@ -5,16 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SampleNimaActor.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include <nima/Animation/ActorAnimationInstance.hpp>
 #include <cmath>
 
 using namespace nima;
 
-class NimaView : public SampleView {
+class NimaView : public Sample {
 public:
     NimaView()
         : fActor(nullptr)
@@ -22,10 +21,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Nima");
+    virtual bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Nima");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -65,10 +63,9 @@ private:
     std::unique_ptr<SampleActor> fActor;
     ActorAnimationInstance*      fAnimation;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new NimaView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new NimaView(); )
