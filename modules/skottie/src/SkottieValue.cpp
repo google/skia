@@ -123,6 +123,9 @@ SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& shape) {
     SkPath path;
 
     if (!shape.fVertices.empty()) {
+        // conservatively assume all cubics
+        path.incReserve(1 + SkToU32(shape.fVertices.size() * 3));
+
         path.moveTo(shape.fVertices.front().fVertex);
     }
 
