@@ -37,10 +37,10 @@ GrOp::CombineResult GrOp::combineIfPossible(GrOp* that, const GrCaps& caps) {
     if (this->classID() != that->classID()) {
         return CombineResult::kCannotCombine;
     }
-    SkDEBUGCODE(bool thatChained = that->isChained());
+    SkDEBUGCODE(bool thatWasChained = that->isChained());
     auto result = this->onCombineIfPossible(that, caps);
     // Merging a chained 'that' would cause problems given the way op lists currently manage chains.
-    SkASSERT(!(thatChained && result == CombineResult::kMerged));
+    SkASSERT(!(thatWasChained && result == CombineResult::kMerged));
     return result;
 }
 

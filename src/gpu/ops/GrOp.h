@@ -31,13 +31,11 @@ class GrRenderTargetOpList;
  * subclasses complete freedom to decide how/when to combine in order to produce fewer draw calls
  * and minimize state changes.
  *
- * Ops of the same subclass may be merged using combineIfPossible. When two ops merge, one
- * takes on the union of the data and the other is left empty. The merged op becomes responsible
- * for drawing the data from both the original ops.
- *
- * If there are any possible optimizations which might require knowing more about the full state of
- * the draw, e.g. whether or not the GrOp is allowed to tweak alpha for coverage, then this
- * information will be communicated to the GrOp prior to geometry generation.
+ * Ops of the same subclass may be merged or chained using combineIfPossible. When two ops merge,
+ * one takes on the union of the data and the other is left empty. The merged op becomes responsible
+ * for drawing the data from both the original ops. When ops are chained each op maintains its own
+ * data but they are linked in a list and the head op becomes responsible for executing the work for
+ * the chain.
  *
  * The bounds of the op must contain all the vertices in device space *irrespective* of the clip.
  * The bounds are used in determining which clip elements must be applied and thus the bounds cannot
