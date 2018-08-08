@@ -33,16 +33,21 @@ GrMtlBuffer::GrMtlBuffer(GrMtlGpu* gpu, size_t size, GrBufferType intendedType,
         : INHERITED(gpu, size, intendedType, accessPattern)
         , fIntendedType(intendedType)
         , fIsDynamic(accessPattern == kDynamic_GrAccessPattern) {
-    fMtlBuffer =
-            [gpu->device() newBufferWithLength: size
-                                       options: fIsDynamic ? MTLResourceStorageModeManaged
-                                                           : MTLResourceStorageModePrivate];
-    this->registerWithCache(SkBudgeted::kYes);
-
     // TODO: We are treating all buffers as static access since we don't have an implementation to
     // synchronize gpu and cpu access of a resource yet. See comments in GrMtlBuffer::internalMap()
     // and interalUnmap() for more details.
     fIsDynamic = false;
+
+    // The managed resource mode is only available for macOS. iOS should use shared.
+    fMtlBuffer =
+            [gpu->device() newBufferWithLength: size
+                                       options: !fIsDynamic ? MTLResourceStorageModePrivate
+#ifdef SK_BUILD_FOR_MAC
+                                                            : MTLResourceStorageModeManaged];
+#else
+                                                            : MTLResourceStorageModeShared];
+#endif
+    this->registerWithCache(SkBudgeted::kYes);
     VALIDATE();
 }
 
@@ -120,7 +125,11 @@ void GrMtlBuffer::internalMap(size_t sizeInBytes) {
         // SkASSERT(fMappedBuffer == nil);
         fMappedBuffer =
                 [this->mtlGpu()->device() newBufferWithLength: sizeInBytes
+#ifdef SK_BUILD_FOR_MAC
                                                       options: MTLResourceStorageModeManaged];
+#else
+                                                      options: MTLResourceStorageModeShared];
+#endif
         fMapPtr = fMappedBuffer.contents;
     }
     VALIDATE();
@@ -138,10 +147,11 @@ void GrMtlBuffer::internalUnmap(size_t sizeInBytes) {
         fMapPtr = nullptr;
         return;
     }
+#ifdef SK_BUILD_FOR_MAC
     // TODO: by calling didModifyRange here we invalidate the buffer. This will cause problems for
     // dynamic access buffers if they are being used by the gpu.
     [fMappedBuffer didModifyRange: NSMakeRange(0, sizeInBytes)];
-
+#endif
     if (!fIsDynamic) {
         id<MTLBlitCommandEncoder> blitCmdEncoder =
                 [this->mtlGpu()->commandBuffer() blitCommandEncoder];
