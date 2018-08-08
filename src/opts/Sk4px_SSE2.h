@@ -65,7 +65,8 @@ inline Sk4px Sk4px::Wide::div255() const {
     }
 
     inline Sk4px Sk4px::Load4Alphas(const SkAlpha a[4]) {
-        uint32_t as = *(const uint32_t*)a;
+        uint32_t as;
+        memcpy(&as, a, 4);
         __m128i splat = _mm_set_epi8(3,3,3,3, 2,2,2,2, 1,1,1,1, 0,0,0,0);
         return Sk16b(_mm_shuffle_epi8(_mm_cvtsi32_si128(as), splat));
     }
@@ -88,8 +89,11 @@ inline Sk4px Sk4px::Wide::div255() const {
 #endif
 
 inline Sk4px Sk4px::Load2Alphas(const SkAlpha a[2]) {
-    uint32_t as = *(const uint16_t*)a;   // Aa -> Aa00
-    return Load4Alphas((const SkAlpha*)&as);
+    uint16_t alphas;
+    memcpy(&alphas, a, 2);
+    uint32_t alphas_and_two_zeros = alphas;   // Aa -> Aa00
+
+    return Load4Alphas((const SkAlpha*)&alphas_and_two_zeros);
 }
 
 inline Sk4px Sk4px::zeroColors() const {
