@@ -46,9 +46,7 @@ public:
         virtual ~Target() = default;
 
         int width() const { return fWidth; }
-
         int height() const { return fHeight; }
-
         const GrColorSpaceInfo& colorSpaceInfo() const { return fColorSpaceInfo; }
 
         virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
@@ -56,7 +54,6 @@ public:
         virtual void drawPath(const GrClip&, const SkPath&, const SkPaint&,
                               const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
                               const SkIRect& clipBounds) = 0;
-
         virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                                  GrPaint*) = 0;
 
@@ -89,11 +86,9 @@ public:
         // These expose the paint's color run through its color filter (if any). This is only valid
         // when drawing grayscale/lcd glyph masks and not when drawing color glyphs.
         GrColor filteredPremulColor() const { return fFilteredPremulColor; }
-
         SkColor luminanceColor() const { return fPaint->computeLuminanceColor(); }
 
         const SkPaint& skPaint() const { return *fPaint; }
-
         operator const SkPaint&() const { return this->skPaint(); }
 
         // Just for RunPaint's constructor
@@ -101,9 +96,7 @@ public:
 
     protected:
         void initFilteredColor();
-
         Paint() = default;
-
         const SkPaint* fPaint;
         const GrColorSpaceInfo* fDstColorSpaceInfo;
         // This is the paint's color run through its color filter, if present. This color should
@@ -133,4 +126,5 @@ public:
         const Paint* fOriginalPaint;
     };
 };
+
 #endif
