@@ -29,12 +29,7 @@ class SkImageCacherator {
 public:
     virtual ~SkImageCacherator() {}
 
-    enum CachedFormat {
-        kLegacy_CachedFormat,    // The format from the generator, with any color space stripped out
-        kNumCachedFormats,
-    };
-
-    virtual SkImageInfo buildCacheInfo(CachedFormat) const = 0;
+    virtual SkImageInfo buildCacheInfo() const = 0;
 
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. If the cacherator is generating the texture and wants to cache it,
@@ -51,8 +46,7 @@ public:
     // Separate code path to allow querying of the color space for textures that cached (even
     // externally).
     virtual sk_sp<SkColorSpace> getColorSpace(GrContext*, SkColorSpace* dstColorSpace) = 0;
-    virtual void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, CachedFormat,
-                                         GrUniqueKey* cacheKey) = 0;
+    virtual void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) = 0;
 #endif
 };
 
