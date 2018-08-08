@@ -391,6 +391,12 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("quadTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
 
+        // Extra features
+        .function("setFillType", &SkPath::setFillType)
+        .function("getFillType", &SkPath::getFillType)
+        .function("getBounds", &SkPath::getBounds)
+        .function("computeTightBounds", &SkPath::computeTightBounds)
+
         // PathOps
         .function("simplify", &SimplifyPath)
         .function("op", &ApplyPathOp)
@@ -431,11 +437,26 @@ EMSCRIPTEN_BINDINGS(skia) {
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
 
+    enum_<SkPath::FillType>("FillType")
+        .value("WINDING",            SkPath::FillType::kWinding_FillType)
+        .value("EVENODD",            SkPath::FillType::kEvenOdd_FillType)
+        .value("INVERSE_WINDING",    SkPath::FillType::kInverseWinding_FillType)
+        .value("INVERSE_EVENODD",    SkPath::FillType::kInverseEvenOdd_FillType);
+
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);
     constant("QUAD_VERB",  QUAD);
     constant("CUBIC_VERB", CUBIC);
     constant("CLOSE_VERB", CLOSE);
+
+    // A value object is much simpler than a class - it is returned as a JS
+    // object and does not require delete().
+    // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+    value_object<SkRect>("SkRect")
+        .field("fLeft",   &SkRect::fLeft)
+        .field("fTop",    &SkRect::fTop)
+        .field("fRight",  &SkRect::fRight)
+        .field("fBottom", &SkRect::fBottom);
 
     // coming soon - Stroke
 
