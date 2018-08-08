@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ecef0634_4c2f5219",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T19:40:08Z",
+      "side": 1,
+      "message": "Is goimports going to complain about this?",
+      "range": {
+        "startLine": 315,
+        "startChar": 8,
+        "endLine": 315,
+        "endChar": 12
+      },
+      "revId": "894b5b50764ce9f0886e9c0b20613371963509b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e9aaf3a6_4f28ac64",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-08T19:40:08Z",
+      "side": 1,
+      "message": "Intentional?",
+      "range": {
+        "startLine": 838,
+        "startChar": 0,
+        "endLine": 841,
+        "endChar": 3
+      },
+      "revId": "894b5b50764ce9f0886e9c0b20613371963509b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
