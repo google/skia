@@ -89,7 +89,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
 
     // Loop over the ops that haven't yet been prepared.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        if (fRecordedOps[i].fOp) {
+        if (fRecordedOps[i].fOp && fRecordedOps[i].fOp->isChainHead()) {
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
             TRACE_EVENT0("skia", fRecordedOps[i].fOp->name());
 #endif
@@ -177,7 +177,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 
     // Draw all the generated geometry.
     for (int i = 0; i < fRecordedOps.count(); ++i) {
-        if (!fRecordedOps[i].fOp) {
+        if (!fRecordedOps[i].fOp || !fRecordedOps[i].fOp->isChainHead()) {
             continue;
         }
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -318,28 +318,28 @@ void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) cons
 
 static inline bool can_reorder(const SkRect& a, const SkRect& b) { return !GrRectsOverlap(a, b); }
 
-bool GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
-                                             const GrAppliedClip* bClip,
-                                             const DstProxy* bDstProxy,
-                                             const GrCaps& caps) {
+GrOp::CombineResult GrRenderTargetOpList::combineIfPossible(const RecordedOp& a, GrOp* b,
+                                                            const GrAppliedClip* bClip,
+                                                            const DstProxy* bDstProxy,
+                                                            const GrCaps& caps) {
     if (a.fAppliedClip) {
         if (!bClip) {
-            return false;
+            return GrOp::CombineResult::kCannotCombine;
         }
         if (*a.fAppliedClip != *bClip) {
-            return false;
+            return GrOp::CombineResult::kCannotCombine;
         }
     } else if (bClip) {
-        return false;
+        return GrOp::CombineResult::kCannotCombine;
     }
     if (bDstProxy) {
         if (a.fDstProxy != *bDstProxy) {
-            return false;
+            return GrOp::CombineResult::kCannotCombine;
         }
     } else if (a.fDstProxy.proxy()) {
-        return false;
+        return GrOp::CombineResult::kCannotCombine;
     }
-    return a.fOp->combineIfPossible(b, caps) == GrOp::CombineResult::kMerged;
+    return a.fOp->combineIfPossible(b, caps);
 }
 
 uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
@@ -366,20 +366,30 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
     GrOP_INFO(SkTabString(op->dumpInfo(), 1).c_str());
     GrOP_INFO("\tOutcome:\n");
     int maxCandidates = SkTMin(kMaxOpLookback, fRecordedOps.count());
-    // If we don't have a valid destination render target then we cannot reorder.
+    int firstChainableIdx = -1;
     if (maxCandidates) {
         int i = 0;
         while (true) {
             const RecordedOp& candidate = fRecordedOps.fromBack(i);
-
-            if (this->combineIfPossible(candidate, op.get(), clip, dstProxy, caps)) {
-                GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n", candidate.fOp->name(),
-                          candidate.fOp->uniqueID());
-                GrOP_INFO("\t\t\tBackward: Combined op info:\n");
-                GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
-                fOpMemoryPool->release(std::move(op));
-                return SK_InvalidUniqueID;
+            auto combineResult = this->combineIfPossible(candidate, op.get(), clip, dstProxy, caps);
+            switch (combineResult) {
+                case GrOp::CombineResult::kMayChain:
+                    if (candidate.fOp->isChainTail() && firstChainableIdx < 0) {
+                        GrOP_INFO("\t\tBackward: Can chain with (%s, opID: %u)\n",
+                                  candidate.fOp->name(), candidate.fOp->uniqueID());
+                        firstChainableIdx = i;
+                    }
+                    break;
+                case GrOp::CombineResult::kMerged:
+                    GrOP_INFO("\t\tBackward: Combining with (%s, opID: %u)\n",
+                              candidate.fOp->name(), candidate.fOp->uniqueID());
+                    GrOP_INFO("\t\t\tBackward: Combined op info:\n");
+                    GrOP_INFO(SkTabString(candidate.fOp->dumpInfo(), 4).c_str());
+                    GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, candidate.fOp.get(), op.get());
+                    fOpMemoryPool->release(std::move(op));
+                    return SK_InvalidUniqueID;
+                case GrOp::CombineResult::kCannotCombine:
+                    break;
             }
             // Stop going backwards if we would cause a painter's order violation.
             if (!can_reorder(fRecordedOps.fromBack(i).fOp->bounds(), op->bounds())) {
@@ -401,6 +411,10 @@ uint32_t GrRenderTargetOpList::recordOp(std::unique_ptr<GrOp> op,
         clip = fClipAllocator.make<GrAppliedClip>(std::move(*clip));
         SkDEBUGCODE(fNumClips++;)
     }
+    if (firstChainableIdx >= 0) {
+        GrOP_INFO("\t\t\tBackward: Chained\n");
+        fRecordedOps.fromBack(firstChainableIdx).fOp->setNextInChain(op.get());
+    }
     fRecordedOps.emplace_back(std::move(op), clip, dstProxy);
     return this->uniqueID();
 }
@@ -415,17 +429,33 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
 
         int maxCandidateIdx = SkTMin(i + kMaxOpLookahead, fRecordedOps.count() - 1);
         int j = i + 1;
+        int firstChainableIdx = -1;
         while (true) {
             const RecordedOp& candidate = fRecordedOps[j];
-
-            if (this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
-                                        candidate.fAppliedClip, &candidate.fDstProxy, caps)) {
-                GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n",
-                          i, op->name(), op->uniqueID(),
-                          candidate.fOp->name(), candidate.fOp->uniqueID());
-                GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
-                fOpMemoryPool->release(std::move(fRecordedOps[j].fOp));
-                fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
+            auto combineResult =
+                    this->combineIfPossible(fRecordedOps[i], candidate.fOp.get(),
+                                            candidate.fAppliedClip, &candidate.fDstProxy, caps);
+            switch (combineResult) {
+                case GrOp::CombineResult::kMayChain:
+                    if (firstChainableIdx < 0 && !fRecordedOps[i].fOp->isChained() &&
+                        !fRecordedOps[j].fOp->isChained()) {
+                        GrOP_INFO("\t\tForward: Can chain with (%s, opID: %u)\n",
+                                  candidate.fOp->name(), candidate.fOp->uniqueID());
+                        firstChainableIdx = j;
+                    }
+                    break;
+                case GrOp::CombineResult::kMerged:
+                    GrOP_INFO("\t\t%d: (%s opID: %u) -> Combining with (%s, opID: %u)\n", i,
+                              op->name(), op->uniqueID(), candidate.fOp->name(),
+                              candidate.fOp->uniqueID());
+                    GR_AUDIT_TRAIL_OPS_RESULT_COMBINED(fAuditTrail, op, candidate.fOp.get());
+                    fOpMemoryPool->release(std::move(fRecordedOps[j].fOp));
+                    fRecordedOps[j].fOp = std::move(fRecordedOps[i].fOp);
+                    break;
+                case GrOp::CombineResult::kCannotCombine:
+                    break;
+            }
+            if (!fRecordedOps[i].fOp) {
                 break;
             }
             // Stop traversing if we would cause a painter's order violation.
@@ -437,8 +467,18 @@ void GrRenderTargetOpList::forwardCombine(const GrCaps& caps) {
             }
             ++j;
             if (j > maxCandidateIdx) {
-                GrOP_INFO("\t\t%d: (%s opID: %u) -> Reached max lookahead or end of array\n",
-                          i, op->name(), op->uniqueID());
+                if (firstChainableIdx >= 0) {
+                    GrOP_INFO("\t\t\tForward: Chained\n");
+                    // We have to chain i before firstChainableIdx in order to preserve their
+                    // relative order as they may overlap.
+                    fRecordedOps[i].fOp->setNextInChain(fRecordedOps[firstChainableIdx].fOp.get());
+                    // However we want to draw them *after* any ops that occur between them. So move
+                    // the head of the new chain to the later slot as we only execute chain heads.
+                    std::swap(fRecordedOps[i].fOp, fRecordedOps[firstChainableIdx].fOp);
+                } else {
+                    GrOP_INFO("\t\t%d: (%s opID: %u) -> Reached max lookahead or end of array\n", i,
+                              op->name(), op->uniqueID());
+                }
                 break;
             }
         }
