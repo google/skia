@@ -134,6 +134,9 @@ def nanobench_flags(api, bot):
   if 'NoGPUThreads' in bot:
     args.extend(['--gpuThreads', '0'])
 
+  if 'NoExplicitAlloc' in bot:
+    args.extend(['--disableExplicitAlloc', 'true'])
+
   if 'Valgrind' in bot:
     # Don't care about Valgrind performance.
     args.extend(['--loops',   '1'])
@@ -364,6 +367,8 @@ TEST_BUILDERS = [
   ('Perf-Android-Clang-Nexus5x-GPU-Adreno418-arm64-Release-All-'
    'Android_NoGPUThreads'),
   'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
+  ('Perf-Android-Clang-Pixel2XL-GPU-Adreno540-arm64-Release-All-'
+   'Android_NoExplicitAlloc'),
   'Perf-ChromeOS-Clang-ASUSChromebookFlipC100-GPU-MaliT764-arm-Release-All',
   'Perf-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Debug-All',
   'Perf-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
