@@ -715,7 +715,8 @@ sk_sp<sksg::RenderNode> AttachNestedAnimation(const char* name, AttachContext* c
             return SkRect::MakeSize(fAnimation->size());
         }
 
-        void onRender(SkCanvas* canvas) const override {
+        void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
+            // TODO: commit ctx
             fAnimation->render(canvas);
         }
 

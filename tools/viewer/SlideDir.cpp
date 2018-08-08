@@ -72,9 +72,11 @@ protected:
         return SkRect::MakeIWH(isize.width(), isize.height());
     }
 
-    void onRender(SkCanvas* canvas) const override {
+    void onRender(SkCanvas* canvas, const RenderContext* ctx) const override {
         SkAutoCanvasRestore acr(canvas, true);
         canvas->clipRect(SkRect::Make(fSlide->getDimensions()), true);
+
+        // TODO: commit the context?
         fSlide->draw(canvas);
     }
 
