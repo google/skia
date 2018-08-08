@@ -83,15 +83,15 @@ public:
     virtual void draw(sk_sp<const GrGeometryProcessor>,
                       const GrPipeline*,
                       const GrPipeline::FixedDynamicState*,
+                      const GrPipeline::DynamicStateArrays*,
                       const GrMesh[],
                       int meshCount) = 0;
-
     /** Helper for drawing a single GrMesh. */
     void draw(sk_sp<const GrGeometryProcessor> gp,
               const GrPipeline* pipeline,
               const GrPipeline::FixedDynamicState* fixedDynamicState,
               const GrMesh* mesh) {
-        this->draw(std::move(gp), pipeline, fixedDynamicState, mesh, 1);
+        this->draw(std::move(gp), pipeline, fixedDynamicState, nullptr, mesh, 1);
     }
 
     /**
@@ -152,14 +152,11 @@ public:
     GrMesh* allocMeshes(int n) { return this->pipelineArena()->makeArray<GrMesh>(n); }
 
     GrPipeline::FixedDynamicState* allocFixedDynamicState(const SkIRect& rect,
-                                                          int numPrimitiveProcessorTextures = 0) {
-        auto result = this->pipelineArena()->make<GrPipeline::FixedDynamicState>(rect);
-        if (numPrimitiveProcessorTextures) {
-            result->fPrimitiveProcessorTextures =
-                    this->allocPrimitiveProcessorTextureArray(numPrimitiveProcessorTextures);
-        }
-        return result;
-    }
+                                                          int numPrimitiveProcessorTextures = 0);
+
+    GrPipeline::DynamicStateArrays* allocDynamicStateArrays(int numMeshes,
+                                                            int numPrimitiveProcessorTextures,
+                                                            bool allocScissors);
 
     GrTextureProxy** allocPrimitiveProcessorTextureArray(int n) {
         SkASSERT(n > 0);

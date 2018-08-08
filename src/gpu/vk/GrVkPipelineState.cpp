@@ -181,10 +181,12 @@ void GrVkPipelineState::setData(GrVkGpu* gpu,
 
     fGeometryProcessor->setData(fDataManager, primProc,
                                 GrFragmentProcessor::CoordTransformIter(pipeline));
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        const auto& sampler = primProc.textureSampler(i);
-        auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
-        samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
+    if (primProcTextures) {
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            const auto& sampler = primProc.textureSampler(i);
+            auto texture = static_cast<GrVkTexture*>(primProcTextures[i]->peekTexture());
+            samplerBindings[currTextureBinding++] = {sampler.samplerState(), texture};
+        }
     }
 
     GrFragmentProcessor::Iter iter(pipeline);
