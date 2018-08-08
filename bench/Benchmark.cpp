@@ -11,15 +11,9 @@
 #include "SkPaint.h"
 #include "SkParse.h"
 
-const char* SkTriState::Name[] = { "default", "true", "false" };
-
 template BenchRegistry* BenchRegistry::gHead;
 
-Benchmark::Benchmark() {
-    fForceAlpha = 0xFF;
-    fDither = SkTriState::kDefault;
-    fOrMask = fClearMask = 0;
-}
+Benchmark::Benchmark() {}
 
 const char* Benchmark::getName() {
     return this->onGetName();
@@ -59,15 +53,7 @@ void Benchmark::draw(int loops, SkCanvas* canvas) {
 }
 
 void Benchmark::setupPaint(SkPaint* paint) {
-    paint->setAlpha(fForceAlpha);
     paint->setAntiAlias(true);
-    paint->setFilterQuality(kNone_SkFilterQuality);
-
-    paint->setFlags((paint->getFlags() & ~fClearMask) | fOrMask);
-
-    if (SkTriState::kDefault != fDither) {
-        paint->setDither(SkTriState::kTrue == fDither);
-    }
 }
 
 SkIPoint Benchmark::onGetSize() {

@@ -31,16 +31,6 @@ struct GrContextOptions;
 class SkCanvas;
 class SkPaint;
 
-class SkTriState {
-public:
-    enum State {
-        kDefault,
-        kTrue,
-        kFalse
-    };
-    static const char* Name[];
-};
-
 class Benchmark : public SkRefCnt {
 public:
     Benchmark();
@@ -87,46 +77,6 @@ public:
     // Bench framework can tune loops to be large enough for stable timing.
     void draw(int loops, SkCanvas*);
 
-    void setForceAlpha(int alpha) {
-        fForceAlpha = alpha;
-    }
-
-    void setDither(SkTriState::State state) {
-        fDither = state;
-    }
-
-    /** Assign masks for paint-flags. These will be applied when setupPaint()
-     *  is called.
-     *
-     *  Performs the following on the paint:
-     *      uint32_t flags = paint.getFlags();
-     *      flags &= ~clearMask;
-     *      flags |= orMask;
-     *      paint.setFlags(flags);
-     */
-    void setPaintMasks(uint32_t orMask, uint32_t clearMask) {
-        fOrMask = orMask;
-        fClearMask = clearMask;
-    }
-
-    /*
-     * Benches which support running in a visual mode can advertise this functionality
-     */
-    virtual bool isVisual() { return false; }
-
-    /*
-     * VisualBench frequently resets the canvas.  As a result we need to bulk call all of the hooks
-     */
-    void preTimingHooks(SkCanvas* canvas) {
-        this->perCanvasPreDraw(canvas);
-        this->preDraw(canvas);
-    }
-
-    void postTimingHooks(SkCanvas* canvas)  {
-        this->postDraw(canvas);
-        this->perCanvasPostDraw(canvas);
-    }
-
     virtual void getGpuStats(SkCanvas*, SkTArray<SkString>* keys, SkTArray<double>* values) {}
 
 protected:
@@ -146,10 +96,6 @@ protected:
     virtual SkIPoint onGetSize();
 
 private:
-    int     fForceAlpha;
-    SkTriState::State  fDither;
-    uint32_t    fOrMask, fClearMask;
-
     typedef SkRefCnt INHERITED;
 };
 
