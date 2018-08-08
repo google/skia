@@ -45,6 +45,54 @@
       "revId": "103293eefd0332280c03f76ce21395b0929f4e1b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e3b1989e_9ea63971",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-08-08T17:21:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4cbc5706_c33d8e15",
+      "range": {
+        "startLine": 505,
+        "startChar": 86,
+        "endLine": 505,
+        "endChar": 92
+      },
+      "revId": "103293eefd0332280c03f76ce21395b0929f4e1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06b715dd_953900fd",
+        "filename": "tests/PathOpsExtendedTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-08-08T17:21:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8df9aae9_10957db7",
+      "range": {
+        "startLine": 505,
+        "startChar": 35,
+        "endLine": 505,
+        "endChar": 41
+      },
+      "revId": "103293eefd0332280c03f76ce21395b0929f4e1b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
