@@ -282,7 +282,7 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
     int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
-    GrTextUtils::RunPaint runPaint(&paint);
+    SkPaint runPaint{paint};
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
         Run& run = fRuns[runIndex];
 
@@ -290,12 +290,8 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
         if (run.fPathGlyphs.count()) {
             SkScalar transX, transY;
             uint16_t paintFlags = run.fPaintFlags;
-            if (!runPaint.modifyForRun(
-                [paintFlags](SkPaint* p) {
-                    p->setFlags((p->getFlags() & ~Run::kPaintFlagsMask) | paintFlags);
-                })) {
-                continue;
-            }
+            runPaint.setFlags((runPaint.getFlags() & ~Run::kPaintFlagsMask) | paintFlags);
+
             for (int i = 0; i < run.fPathGlyphs.count(); i++) {
                 GrTextBlob::Run::PathGlyph& pathGlyph = run.fPathGlyphs[i];
                 calculate_translation(pathGlyph.fPreTransformed, viewMatrix, x, y,
@@ -349,7 +345,7 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
 
             if (submitOp) {
                 auto op = this->makeOp(info, glyphCount, runIndex, subRun, viewMatrix, x, y,
-                                       clipRect, std::move(paint), props, distanceAdjustTable,
+                                       clipRect, paint, props, distanceAdjustTable,
                                        target);
                 if (op) {
                     if (skipClip) {
