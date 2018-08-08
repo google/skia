@@ -22,8 +22,6 @@ public:
         computeName("shadows");
     }
 
-    bool isVisual() override { return true; }
-
 protected:
     enum {
         kWidth = 640,
