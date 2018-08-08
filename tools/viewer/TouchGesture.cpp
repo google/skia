@@ -7,7 +7,7 @@
 
 #include <algorithm>
 
-#include "SkTouchGesture.h"
+#include "TouchGesture.h"
 #include "SkMatrix.h"
 #include "SkTime.h"
 
@@ -47,7 +47,7 @@ static void unit_axis_align(SkVector* unit) {
     }
 }
 
-void SkFlingState::reset(float sx, float sy) {
+void TouchGesture::FlingState::reset(float sx, float sy) {
     fActive = true;
     fDirection.set(sx, sy);
     fSpeed0 = SkPoint::Normalize(&fDirection);
@@ -58,7 +58,7 @@ void SkFlingState::reset(float sx, float sy) {
 //    printf("---- speed %g dir %g %g\n", fSpeed0, fDirection.fX, fDirection.fY);
 }
 
-bool SkFlingState::evaluateMatrix(SkMatrix* matrix) {
+bool TouchGesture::FlingState::evaluateMatrix(SkMatrix* matrix) {
     if (!fActive) {
         return false;
     }
@@ -101,14 +101,14 @@ static bool close_enough_for_jitter(float x0, float y0, float x1, float y1) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkTouchGesture::SkTouchGesture() {
+TouchGesture::TouchGesture() {
     this->reset();
 }
 
-SkTouchGesture::~SkTouchGesture() {
+TouchGesture::~TouchGesture() {
 }
 
-void SkTouchGesture::resetTouchState() {
+void TouchGesture::resetTouchState() {
     fIsTransLimited = false;
     fTouches.reset();
     fState = kEmpty_State;
@@ -118,17 +118,17 @@ void SkTouchGesture::resetTouchState() {
     fLastUpP.set(0, 0);
 }
 
-void SkTouchGesture::reset() {
+void TouchGesture::reset() {
     fGlobalM.reset();
     this->resetTouchState();
 }
 
-void SkTouchGesture::flushLocalM() {
+void TouchGesture::flushLocalM() {
     fGlobalM.postConcat(fLocalM);
     fLocalM.reset();
 }
 
-const SkMatrix& SkTouchGesture::localM() {
+const SkMatrix& TouchGesture::localM() {
     if (fFlinger.isActive()) {
         if (!fFlinger.evaluateMatrix(&fLocalM)) {
             this->flushLocalM();
@@ -137,7 +137,7 @@ const SkMatrix& SkTouchGesture::localM() {
     return fLocalM;
 }
 
-void SkTouchGesture::appendNewRec(void* owner, float x, float y) {
+void TouchGesture::appendNewRec(void* owner, float x, float y) {
     Rec* rec = fTouches.append();
     rec->fOwner = owner;
     rec->fStartX = rec->fPrevX = rec->fLastX = x;
@@ -145,7 +145,7 @@ void SkTouchGesture::appendNewRec(void* owner, float x, float y) {
     rec->fLastT = rec->fPrevT = static_cast<float>(SkTime::GetSecs());
 }
 
-void SkTouchGesture::touchBegin(void* owner, float x, float y) {
+void TouchGesture::touchBegin(void* owner, float x, float y) {
 //    SkDebugf("--- %d touchBegin %p %g %g\n", fTouches.count(), owner, x, y);
 
     int index = this->findRec(owner);
@@ -176,7 +176,7 @@ void SkTouchGesture::touchBegin(void* owner, float x, float y) {
     }
 }
 
-int SkTouchGesture::findRec(void* owner) const {
+int TouchGesture::findRec(void* owner) const {
     for (int i = 0; i < fTouches.count(); i++) {
         if (owner == fTouches[i].fOwner) {
             return i;
@@ -192,7 +192,7 @@ static SkScalar center(float pos0, float pos1) {
 static const float MAX_ZOOM_SCALE = 4;
 static const float MIN_ZOOM_SCALE = 0.25f;
 
-float SkTouchGesture::limitTotalZoom(float scale) const {
+float TouchGesture::limitTotalZoom(float scale) const {
     // this query works 'cause we know that we're square-scale w/ no skew/rotation
     const float curr = SkScalarToFloat(fGlobalM[0]);
 
@@ -204,7 +204,7 @@ float SkTouchGesture::limitTotalZoom(float scale) const {
     return scale;
 }
 
-void SkTouchGesture::touchMoved(void* owner, float x, float y) {
+void TouchGesture::touchMoved(void* owner, float x, float y) {
 //    SkDebugf("--- %d touchMoved %p %g %g\n", fTouches.count(), owner, x, y);
 
     if (kEmpty_State == fState) {
@@ -259,7 +259,7 @@ void SkTouchGesture::touchMoved(void* owner, float x, float y) {
     }
 }
 
-void SkTouchGesture::touchEnd(void* owner) {
+void TouchGesture::touchEnd(void* owner) {
 //    SkDebugf("--- %d touchEnd   %p\n", fTouches.count(), owner);
 
     int index = this->findRec(owner);
@@ -300,7 +300,7 @@ void SkTouchGesture::touchEnd(void* owner) {
     limitTrans();
 }
 
-bool SkTouchGesture::isFling(SkPoint* dir) {
+bool TouchGesture::isFling(SkPoint* dir) {
     if (fFlinger.isActive()) {
         SkScalar speed;
         fFlinger.get(dir, &speed);
@@ -311,7 +311,7 @@ bool SkTouchGesture::isFling(SkPoint* dir) {
     return false;
 }
 
-float SkTouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
+float TouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
     double dx = rec0.fStartX - rec1.fStartX;
     double dy = rec0.fStartY - rec1.fStartY;
     double dist0 = sqrt(dx*dx + dy*dy);
@@ -324,7 +324,7 @@ float SkTouchGesture::computePinch(const Rec& rec0, const Rec& rec1) {
     return (float)scale;
 }
 
-bool SkTouchGesture::handleDblTap(float x, float y) {
+bool TouchGesture::handleDblTap(float x, float y) {
     bool found = false;
     double now = SkTime::GetMSecs();
     if (now - fLastUpMillis <= MAX_DBL_TAP_INTERVAL) {
@@ -344,7 +344,7 @@ bool SkTouchGesture::handleDblTap(float x, float y) {
     return found;
 }
 
-void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
+void TouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& windowRect,
                                    const SkMatrix& preTouchMatrix) {
     fIsTransLimited = true;
     fContentRect = contentRect;
@@ -352,7 +352,7 @@ void SkTouchGesture::setTransLimit(const SkRect& contentRect, const SkRect& wind
     fPreTouchM = preTouchMatrix;
 }
 
-void SkTouchGesture::limitTrans() {
+void TouchGesture::limitTrans() {
     if (!fIsTransLimited) {
         return;
     }

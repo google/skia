@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
-#include "SkView.h"
 
 static void makebm(SkBitmap* bm, int w, int h) {
     bm->allocN32Pixels(w, h);
@@ -94,17 +93,16 @@ static const GradMaker gGradMakers[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class ShaderTextView : public SampleView {
+class ShaderTextView : public Sample {
 public:
     ShaderTextView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Shader Text");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Shader Text");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -190,10 +188,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ShaderTextView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ShaderTextView(); )

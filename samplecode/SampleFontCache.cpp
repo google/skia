@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkRandom.h"
@@ -75,7 +74,7 @@ static void* draw_proc(void* context) {
     return nullptr;
 }
 
-class FontCacheView : public SampleView {
+class FontCacheView : public Sample {
 public:
     enum { N = 4 };
 
@@ -112,10 +111,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FontCache");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "FontCache");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -132,10 +130,10 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FontCacheView; }
-static SkViewRegister reg(MyFactory);
+static Sample* MyFactory() { return new FontCacheView; }
+static SampleRegister reg(MyFactory);

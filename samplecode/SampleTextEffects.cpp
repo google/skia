@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -103,67 +102,63 @@ static sk_sp<SkPathEffect> makepe(float interp, SkTDArray<SkPoint>* pts) {
     return sk_make_sp<Dot2DPathEffect>(rad, lattice, pts);
 }
 
-class ClockFaceView : public SkView {
+class TextEffectsView : public Sample {
     sk_sp<SkTypeface> fFace;
     SkScalar fInterp;
     SkScalar fDx;
 
 public:
-    ClockFaceView() {
+    TextEffectsView() {
         fFace = SkTypeface::MakeFromFile("/Users/reed/Downloads/p052024l.pfb");
         fInterp = 0;
         fDx = SK_Scalar1/64;
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Text Effects");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Text Effects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
     }
 
     void drawBG(SkCanvas* canvas) {
-//        canvas->drawColor(0xFFDDDDDD);
         canvas->drawColor(SK_ColorWHITE);
     }
 
-    static void drawdots(SkCanvas* canvas, const SkPaint& orig) {
+    void drawdots(SkCanvas* canvas, SkString s, SkScalar x, SkScalar y, const SkPaint& p) {
         SkTDArray<SkPoint> pts;
-        auto pe = makepe(0, &pts);
+        auto pe = makepe(fInterp, &pts);
 
         SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
         SkPath path, dstPath;
-        orig.getTextPath("9", 1, 0, 0, &path);
+        p.getTextPath(s.c_str(), s.size(), x, y, &path);
         pe->filterPath(&dstPath, path, &rec, nullptr);
 
-        SkPaint p;
-        p.setAntiAlias(true);
-        p.setStrokeWidth(10);
-        p.setColor(SK_ColorRED);
-        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts.count(), pts.begin(), p);
+        SkPaint paint;
+        paint.setAntiAlias(true);
+        paint.setStrokeWidth(10);
+        paint.setColor(SK_ColorRED);
+        canvas->drawPoints(SkCanvas::kPoints_PointMode, pts.count(), pts.begin(), paint);
     }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
-        SkScalar    x = SkIntToScalar(20);
-        SkScalar    y = SkIntToScalar(300);
-        SkPaint     paint;
+        SkScalar x = SkIntToScalar(20);
+        SkScalar y = SkIntToScalar(300);
 
+        SkPaint paint;
         paint.setAntiAlias(true);
         paint.setTextSize(SkIntToScalar(240));
         paint.setTypeface(SkTypeface::MakeFromName("sans-serif", SkFontStyle::Bold()));
+        paint.setTypeface(fFace);
 
         SkString str("9");
 
-        paint.setTypeface(fFace);
-
         canvas->drawString(str, x, y, paint);
-
-    //    drawdots(canvas, paint);
+        drawdots(canvas, str, x, y, paint);
 
         if (false) {
             fInterp += fDx;
@@ -178,10 +173,9 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ClockFaceView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextEffectsView(); )

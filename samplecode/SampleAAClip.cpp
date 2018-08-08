@@ -5,11 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAAClip.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
-#include "SkView.h"
 
 static void testop(const SkIRect& r0, const SkIRect& r1, SkRegion::Op op,
                    const SkIRect& expectedR) {
@@ -55,17 +54,16 @@ static void drawClip(SkCanvas* canvas, const SkAAClip& clip) {
                        &paint);
 }
 
-class AAClipView : public SampleView {
+class AAClipView : public Sample {
 public:
     AAClipView() {
         testop();
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AAClip");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AAClip");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -116,10 +114,9 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new AAClipView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AAClipView(); )

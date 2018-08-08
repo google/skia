@@ -5,10 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
 #include "Resources.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkInterpolator.h"
@@ -138,7 +136,7 @@ static void draw_box_frame(SkCanvas* canvas, int width, int height) {
     canvas->drawLine(r.left(), r.bottom(), r.right(), r.top(), p);
 }
 
-class FilterQualityView : public SampleView {
+class FilterQualityView : public Sample {
     sk_sp<SkImage>  fImage;
     AnimValue       fScale, fAngle;
     SkSize          fCell;
@@ -167,13 +165,13 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FilterQuality");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "FilterQuality");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case '1': fAngle.inc(-ANGLE_DELTA); return true;
                 case '2': fAngle.inc( ANGLE_DELTA); return true;
@@ -297,10 +295,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FilterQualityView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new FilterQualityView(); )

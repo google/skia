@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkBitmapProcShader.h"
 #include "SkCanvas.h"
@@ -15,7 +15,6 @@
 #include "SkNormalSource.h"
 #include "SkRandom.h"
 #include "SkRSXform.h"
-#include "SkView.h"
 
 #include "sk_tool_utils.h"
 
@@ -448,18 +447,18 @@ private:
     typedef SkDrawable INHERITED;
 };
 
-class DrawLitAtlasView : public SampleView {
+class DrawLitAtlasView : public Sample {
 public:
     DrawLitAtlasView() : fDrawable(new DrawLitAtlasDrawable(SkRect::MakeWH(640, 480))) {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "DrawLitAtlas");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "DrawLitAtlas");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 'C':
                     fDrawable->toggleUseColors();
@@ -494,10 +493,9 @@ protected:
 private:
     sk_sp<DrawLitAtlasDrawable> fDrawable;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DrawLitAtlasView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DrawLitAtlasView(); )

@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
@@ -103,7 +102,7 @@ static void pre_dither(const SkBitmap& bm) {
     }
 }
 
-class DitherView : public SampleView {
+class DitherView : public Sample {
 public:
     SkBitmap    fBM, fBMPreDither, fBM16;
     SkScalar fAngle;
@@ -120,10 +119,9 @@ protected:
         this->setBGColor(0xFF181818);
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Dither");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Dither");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -162,10 +160,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DitherView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DitherView(); )

@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
@@ -68,7 +67,7 @@ static sk_sp<SkPathEffect> make_warp_pe(SkScalar phase) {
 
 #include "SkColorFilter.h"
 
-class PathEffectView : public SampleView {
+class PathEffectView : public Sample {
     SkPath  fPath;
     SkPoint fClickPt;
     SkScalar fPhase;
@@ -109,9 +108,9 @@ protected:
         this->setBGColor(0xFFDDDDDD);
     }
 
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PathEffects");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "PathEffects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -145,10 +144,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PathEffectView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new PathEffectView(); )

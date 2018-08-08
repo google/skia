@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGeometry.h"
@@ -16,7 +16,6 @@
 // #include "SkPathStroker.h"
 #include "SkPointPriv.h"
 #include "SkString.h"
-#include "SkView.h"
 
 #if 0
 void SkStrokeSegment::dump() const {
@@ -645,7 +644,7 @@ struct BiControl : public UniControl {
 };
 
 
-class MyClick : public SampleView::Click {
+class MyClick : public Sample::Click {
 public:
     enum ClickType {
         kInvalidType = -1,
@@ -684,7 +683,7 @@ public:
     SkPath::Verb fVerb;
     SkScalar fWeight;
 
-    MyClick(SkView* target, ClickType type, ControlType control)
+    MyClick(Sample* target, ClickType type, ControlType control)
         : Click(target)
         , fType(type)
         , fControl(control)
@@ -692,7 +691,7 @@ public:
         , fWeight(1) {
     }
 
-    MyClick(SkView* target, ClickType type, int index)
+    MyClick(Sample* target, ClickType type, int index)
         : Click(target)
         , fType(type)
         , fControl((ControlType) index)
@@ -700,7 +699,7 @@ public:
         , fWeight(1) {
     }
 
-    MyClick(SkView* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
+    MyClick(Sample* target, ClickType type, int index, SkPath::Verb verb, SkScalar weight)
         : Click(target)
         , fType(type)
         , fControl((ControlType) index)
@@ -783,7 +782,7 @@ struct PathUndo {
     PathUndo* fNext;
 };
 
-class AAGeometryView : public SampleView {
+class AAGeometryView : public Sample {
     SkPaint fActivePaint;
     SkPaint fComplexPaint;
     SkPaint fCoveragePaint;
@@ -971,8 +970,7 @@ public:
 
     #undef SET_BUTTON
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override;
+    bool onQuery(Sample::Event* evt) override;
 
     void onSizeChange() override {
         setControlButtonsPos();
@@ -1611,7 +1609,7 @@ public:
         return -1;
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         SkPoint pt = {x, y};
         int ptHit = hittest_pt(pt);
         if (ptHit >= 0) {
@@ -1787,7 +1785,7 @@ public:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 static struct KeyCommand {
@@ -1822,17 +1820,16 @@ void AAGeometryView::draw_legend(SkCanvas* canvas) {
     }
 }
 
-// overrides from SkEventSink
-bool AAGeometryView::onQuery(SkEvent* evt) {
-    if (SampleCode::TitleQ(*evt)) {
-        SampleCode::TitleR(evt, "AAGeometry");
+bool AAGeometryView::onQuery(Sample::Event* evt) {
+    if (Sample::TitleQ(*evt)) {
+        Sample::TitleR(evt, "AAGeometry");
         return true;
     }
     SkUnichar uni;
     if (false) {
         return this->INHERITED::onQuery(evt);
     }
-    if (SampleCode::CharQ(*evt, &uni)) {
+    if (Sample::CharQ(*evt, &uni)) {
         for (int index = 0; index < kButtonCount; ++index) {
             Button* button = kButtonList[index].fButton;
             if (button->fVisible && uni == button->fLabel) {

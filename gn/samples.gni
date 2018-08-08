@@ -7,8 +7,9 @@
 _samplecode = get_path_info("../samplecode", "abspath")
 
 samples_sources = [
-  "$_samplecode/ClockFaceView.cpp",
   "$_samplecode/PerlinPatch.cpp",
+  "$_samplecode/Sample.cpp",
+  "$_samplecode/Sample.h",
   "$_samplecode/Sample2PtRadial.cpp",
   "$_samplecode/SampleAAClip.cpp",
   "$_samplecode/SampleAAGeometry.cpp",
@@ -33,7 +34,6 @@ samples_sources = [
   "$_samplecode/SampleClip.cpp",
   "$_samplecode/SampleClipDrawMatch.cpp",
   "$_samplecode/SampleClock.cpp",
-  "$_samplecode/SampleCode.cpp",
   "$_samplecode/SampleColorFilter.cpp",
   "$_samplecode/SampleComplexClip.cpp",
   "$_samplecode/SampleConcavePaths.cpp",
@@ -98,6 +98,7 @@ samples_sources = [
   "$_samplecode/SampleText.cpp",
   "$_samplecode/SampleTextAlpha.cpp",
   "$_samplecode/SampleTextBox.cpp",
+  "$_samplecode/SampleTextEffects.cpp",
   "$_samplecode/SampleTextOnPath.cpp",
   "$_samplecode/SampleTextureDomain.cpp",
   "$_samplecode/SampleTiling.cpp",

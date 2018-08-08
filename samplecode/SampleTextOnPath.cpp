@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
@@ -85,7 +85,7 @@ static void textPathMatrix(SkCanvas* canvas) {
     canvas->drawTextOnPath(text, len, path, &matrix, paint);
 }
 
-class TextOnPathView : public SampleView {
+class TextOnPathView : public Sample {
 public:
     SkPath      fPath;
     SkScalar    fHOffset;
@@ -101,10 +101,9 @@ protected:
         fHOffset = SkIntToScalar(50);
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Text On Path");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Text On Path");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -145,20 +144,16 @@ protected:
         textPathMatrix(canvas);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fHints += 1;
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
 private:
     int fHints;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() {
-    return new TextOnPathView;
-}
-
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextOnPathView(); )

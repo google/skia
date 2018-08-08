@@ -608,13 +608,11 @@ void Viewer::initSlides() {
     }
 
     // samples
-    const SkViewRegister* reg = SkViewRegister::Head();
-    while (reg) {
-        sk_sp<Slide> slide(new SampleSlide(reg->factory()));
+    for (const SampleFactory factory : SampleRegistry::Range()) {
+        sk_sp<Slide> slide(new SampleSlide(factory));
         if (!SkCommandLineFlags::ShouldSkip(FLAGS_match, slide->getName().c_str())) {
             fSlides.push_back(slide);
         }
-        reg = reg->next();
     }
 
     for (const auto& info : gExternalSlidesInfo) {

@@ -6,7 +6,7 @@
  */
 
 #include "Resources.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "sk_tool_utils.h"
 
 #include "SkCanvas.h"
@@ -46,14 +46,14 @@ static sk_sp<SkTypeface> chinese_typeface() {
 #endif
 }
 
-class ChineseFlingView : public SampleView {
+class ChineseFlingView : public Sample {
 public:
     ChineseFlingView() : fBlobs(kNumBlobs) {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "chinese-fling");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "chinese-fling");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -126,21 +126,21 @@ private:
     SkRandom                    fRand;
     int                         fIndex;
 
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
-class ChineseZoomView : public SampleView {
+class ChineseZoomView : public Sample {
 public:
     ChineseZoomView() : fBlobs(kNumBlobs), fScale(15.0f), fTranslate(0.0f) {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "chinese-zoom");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "chinese-zoom");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             if ('>' == uni) {
                 fScale += 0.125f;
                 return true;
@@ -260,13 +260,10 @@ private:
     SkScalar                    fTranslate;
     int                         fIndex;
 
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* FlingFactory() { return new ChineseFlingView; }
-static SkViewRegister regFling(FlingFactory);
-
-static SkView* ZoomFactory() { return new ChineseZoomView; }
-static SkViewRegister regZoom(ZoomFactory);
+DEF_SAMPLE( return new ChineseFlingView(); )
+DEF_SAMPLE( return new ChineseZoomView(); )

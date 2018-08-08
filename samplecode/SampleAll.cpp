@@ -4,10 +4,9 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
-#include "SkView.h"
 #include "Sk1DPathEffect.h"
 #include "Sk2DPathEffect.h"
 #include "SkBlurMaskFilter.h"
@@ -58,15 +57,14 @@ private:
     typedef Sk2DPathEffect INHERITED;
 };
 
-class DemoView : public SampleView {
+class DemoView : public Sample {
 public:
     DemoView() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Demo");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Demo");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -273,7 +271,7 @@ protected:
         canvas->restore();
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) {
         fClickPt.set(x, y);
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
@@ -316,10 +314,9 @@ protected:
 private:
     SkPoint fClickPt;
     SkBitmap fBug, fTb, fTx;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DemoView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DemoView(); )

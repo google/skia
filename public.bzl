@@ -66,7 +66,6 @@ def skia_public_hdrs():
         ["include/**/*.h"],
         exclude = [
             "include/private/**/*",
-            "include/views/**/*",  # Not used.
         ],
     )
 
@@ -239,9 +238,6 @@ BASE_SRCS_ALL = struct(
         "src/utils/android/**/*",
         "src/utils/mac/**/*",
         "src/utils/win/**/*",
-        "src/views/sdl/*",
-        "src/views/win/*",
-        "src/views/unix/*",
 
         # Exclude multiple definitions.
         # TODO(mtklein): Move to opts?
@@ -254,9 +250,6 @@ BASE_SRCS_ALL = struct(
 
         # Conflicting dependencies among Lua versions. See cl/107087297.
         "src/utils/SkLua*",
-
-        # Not used.
-        "src/views/**/*",
 
         # Currently exclude all vulkan specific files
         "src/gpu/vk/*",

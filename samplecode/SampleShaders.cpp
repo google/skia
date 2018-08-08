@@ -6,8 +6,7 @@
  */
 
 #include "DecodeFile.h"
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -36,7 +35,7 @@ static sk_sp<SkShader> make_bitmapfade(const SkBitmap& bm) {
     return SkShader::MakeComposeShader(std::move(shaderB), std::move(shaderA), SkBlendMode::kDstIn);
 }
 
-class ShaderView : public SampleView {
+class ShaderView : public Sample {
 public:
     sk_sp<SkShader> fShader;
     SkBitmap        fBitmap;
@@ -64,10 +63,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Shaders");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Shaders");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -101,10 +99,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ShaderView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ShaderView(); )

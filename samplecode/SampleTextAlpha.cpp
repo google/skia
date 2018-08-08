@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -20,22 +20,20 @@
 #include "SkColorFilter.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkView.h"
 
 #include "SkOSFile.h"
 #include "SkStream.h"
 
-class TextAlphaView : public SampleView {
+class TextAlphaView : public Sample {
 public:
     TextAlphaView() {
         fByte = 0xFF;
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "TextAlpha");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "TextAlpha");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -65,7 +63,7 @@ protected:
         }
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         return new Click(this);
     }
 
@@ -83,10 +81,9 @@ protected:
 private:
     int fByte;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new TextAlphaView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextAlphaView(); )

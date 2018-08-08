@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
@@ -22,7 +21,7 @@
 #include "SkTime.h"
 #include "SkTypeface.h"
 
-class EmbossView : public SampleView {
+class EmbossView : public Sample {
     SkEmbossMaskFilter::Light   fLight;
 public:
     EmbossView() {
@@ -34,10 +33,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Emboss");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Emboss");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -59,10 +57,9 @@ protected:
 
 private:
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new EmbossView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new EmbossView(); )

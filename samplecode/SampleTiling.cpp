@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
@@ -54,7 +53,7 @@ static const SkColorType gColorTypes[] = {
 static const int gWidth = 32;
 static const int gHeight = 32;
 
-class TilingView : public SampleView {
+class TilingView : public Sample {
     sk_sp<SkPicture>     fTextPicture;
     sk_sp<SkDrawLooper>  fLooper;
 public:
@@ -73,10 +72,9 @@ public:
     SkBitmap    fTexture[SK_ARRAY_COUNT(gColorTypes)];
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Tiling");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Tiling");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -162,10 +160,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new TilingView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TilingView(); )

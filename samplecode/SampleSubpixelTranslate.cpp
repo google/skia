@@ -6,10 +6,8 @@
  */
 
 #include "DecodeFile.h"
-#include "gm.h"
-
 #include "Resources.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -19,7 +17,7 @@
 // Intended to exercise pixel snapping observed with scaled images (and
 // with non-scaled images, but for a different reason):  Bug 1145
 
-class SubpixelTranslateView : public SampleView {
+class SubpixelTranslateView : public Sample {
 public:
     SubpixelTranslateView(const char imageFilename[],
                           float horizontalVelocity,
@@ -42,10 +40,9 @@ protected:
 
     SkPoint fCurPos;
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "SubpixelTranslate");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "SubpixelTranslate");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -103,10 +100,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new SubpixelTranslateView("images/mandrill_256.png", .05f, .05f); }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new SubpixelTranslateView("images/mandrill_256.png", .05f, .05f); )

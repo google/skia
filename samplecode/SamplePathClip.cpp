@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkColorPriv.h"
@@ -18,11 +18,10 @@
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
-#include "SkView.h"
 
 #include <utility>
 
-class PathClipView : public SampleView {
+class PathClipView : public Sample {
 public:
     SkRect fOval;
     SkPoint fCenter;
@@ -30,9 +29,9 @@ public:
     PathClipView() : fOval(SkRect::MakeWH(200, 50)), fCenter(SkPoint::Make(250, 250)) {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PathClip");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "PathClip");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -59,7 +58,7 @@ protected:
         canvas->drawOval(oval, p);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         return new Click(this);
     }
 
@@ -69,7 +68,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new PathClipView; )
 
@@ -152,7 +151,7 @@ static void draw_clipped_line(SkCanvas* canvas, const SkRect& bounds,
 
 // Demonstrate edge-clipping that is used in the scan converter
 //
-class EdgeClipView : public SampleView {
+class EdgeClipView : public Sample {
     enum {
         N = 3
     };
@@ -172,9 +171,9 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "EdgeClip");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "EdgeClip");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -240,21 +239,21 @@ protected:
 
     class MyClick : public Click {
     public:
-        MyClick(SkView* view) : Click(view) {}
+        MyClick(Sample* view) : Click(view) {}
         virtual void handleMove() = 0;
     };
 
     class VertClick : public MyClick {
         SkPoint* fPt;
     public:
-        VertClick(SkView* view, SkPoint* pt) : MyClick(view), fPt(pt) {}
+        VertClick(Sample* view, SkPoint* pt) : MyClick(view), fPt(pt) {}
         void handleMove() override { *fPt = snap(fCurr); }
     };
 
     class DragRectClick : public MyClick {
         SkRect* fRect;
     public:
-        DragRectClick(SkView* view, SkRect* rect) : MyClick(view), fRect(rect) {}
+        DragRectClick(Sample* view, SkRect* rect) : MyClick(view), fRect(rect) {}
         void handleMove() override { fRect->offset(fCurr.x() - fPrev.x(), fCurr.y() - fPrev.y()); }
     };
 
@@ -263,7 +262,7 @@ protected:
         SkPoint* fPoly;
         int fCount;
     public:
-        DragPolyClick(SkView* view, SkPoint poly[], int count)
+        DragPolyClick(Sample* view, SkPoint poly[], int count)
             : MyClick(view), fPoly(poly), fCount(count)
         {
             SkASSERT((size_t)count <= SK_ARRAY_COUNT(fSrc));
@@ -280,7 +279,7 @@ protected:
 
     class DoNothingClick : public MyClick {
     public:
-        DoNothingClick(SkView* view) : MyClick(view) {}
+        DoNothingClick(Sample* view) : MyClick(view) {}
         void handleMove() override {}
     };
 
@@ -291,7 +290,7 @@ protected:
         return dx*dx + dy*dy <= rad*rad;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         for (int i = 0; i < N; ++i) {
             if (hit_test(fPoly[i], x, y)) {
                 return new VertClick(this, &fPoly[i]);
@@ -316,6 +315,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
+
 DEF_SAMPLE( return new EdgeClipView; )

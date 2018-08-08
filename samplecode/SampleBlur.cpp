@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
@@ -13,18 +13,16 @@
 #include "SkGradientShader.h"
 #include "SkMaskFilter.h"
 #include "SkUtils.h"
-#include "SkView.h"
 
-class BlurView : public SampleView {
+class BlurView : public Sample {
     SkBitmap    fBM;
 public:
     BlurView() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Blur");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Blur");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -83,10 +81,9 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new BlurView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new BlurView(); )

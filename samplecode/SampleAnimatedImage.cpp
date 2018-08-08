@@ -15,13 +15,13 @@
 #include "SkScalar.h"
 #include "SkString.h"
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "Resources.h"
 
 static constexpr char kPauseKey = 'p';
 static constexpr char kResetKey = 'r';
 
-class SampleAnimatedImage : public SampleView {
+class SampleAnimatedImage : public Sample {
 public:
     SampleAnimatedImage()
         : INHERITED()
@@ -97,14 +97,14 @@ protected:
         fDrawable = recorder.finishRecordingAsDrawable();
     }
 
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AnimatedImage");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AnimatedImage");
             return true;
         }
 
         SkUnichar uni;
-        if (fImage && SampleCode::CharQ(*evt, &uni)) {
+        if (fImage && Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case kPauseKey:
                     fRunning = !fRunning;
@@ -133,13 +133,9 @@ private:
     double                  fCurrentTime = 0.0;
     double                  fLastWallTime = 0.0;
     double                  fTimeToShowNextFrame = 0.0;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() {
-    return new SampleAnimatedImage;
-}
-
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new SampleAnimatedImage(); )

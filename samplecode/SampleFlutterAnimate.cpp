@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkUtils.h"
 #include "SkColorPriv.h"
@@ -24,7 +23,7 @@
 
 // Create an animation of a bunch of letters that rotate in place. This is intended to stress
 // the glyph atlas and test that we don't see corruption or bad slowdowns.
-class FlutterAnimateView : public SampleView {
+class FlutterAnimateView : public Sample {
 public:
     FlutterAnimateView() : fCurrTime(0), fResetTime(0) {}
 
@@ -34,10 +33,9 @@ protected:
         initChars();
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FlutterAnimate");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "FlutterAnimate");
             return true;
         }
 
@@ -106,10 +104,9 @@ private:
     static constexpr int kNumChars = 40;
     AnimatedChar fChars[kNumChars];
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new FlutterAnimateView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new FlutterAnimateView(); )

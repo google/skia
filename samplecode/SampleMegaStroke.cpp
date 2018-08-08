@@ -5,12 +5,12 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 
-class MegaStrokeView : public SampleView {
+class MegaStrokeView : public Sample {
 public:
     MegaStrokeView() {
         fClip.set(0, 0, 950, 600);
@@ -26,15 +26,14 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "MegaStroke");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "MegaStroke");
             return true;
         }
 
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
            fClip.set(0, 0, 950, 600);
         }
         if (evt->isType("SampleCode_Key_Event")) {
@@ -88,10 +87,9 @@ private:
     SkRect      fClip;
     int         fAngle;
     int         fPlusMinus;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new MegaStrokeView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new MegaStrokeView(); )

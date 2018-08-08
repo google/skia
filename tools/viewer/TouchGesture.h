@@ -5,37 +5,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkTouchGesture_DEFINED
-#define SkTouchGesture_DEFINED
+#ifndef TouchGesture_DEFINED
+#define TouchGesture_DEFINED
 
 #include "../private/SkTDArray.h"
 #include "SkMatrix.h"
 
-struct SkFlingState {
-    SkFlingState() : fActive(false) {}
-
-    bool isActive() const { return fActive; }
-    void stop() { fActive = false; }
-
-    void reset(float sx, float sy);
-    bool evaluateMatrix(SkMatrix* matrix);
-
-    void get(SkPoint* dir, SkScalar* speed) {
-        *dir = fDirection;
-        *speed = fSpeed0;
-    }
-
-private:
-    SkPoint     fDirection;
-    SkScalar    fSpeed0;
-    double      fTime0;
-    bool        fActive;
-};
-
-class SkTouchGesture {
+class TouchGesture {
 public:
-    SkTouchGesture();
-    ~SkTouchGesture();
+    TouchGesture();
+    ~TouchGesture();
 
     void touchBegin(void* owner, float x, float y);
     void touchMoved(void* owner, float x, float y);
@@ -72,7 +51,28 @@ private:
 
     State           fState;
     SkMatrix        fLocalM, fGlobalM, fPreTouchM;
-    SkFlingState    fFlinger;
+
+    struct FlingState {
+        FlingState() : fActive(false) {}
+
+        bool isActive() const { return fActive; }
+        void stop() { fActive = false; }
+
+        void reset(float sx, float sy);
+        bool evaluateMatrix(SkMatrix* matrix);
+
+        void get(SkPoint* dir, SkScalar* speed) {
+            *dir = fDirection;
+            *speed = fSpeed0;
+        }
+
+    private:
+        SkPoint     fDirection;
+        SkScalar    fSpeed0;
+        double      fTime0;
+        bool        fActive;
+    };
+    FlingState      fFlinger;
     double          fLastUpMillis;
     SkPoint         fLastUpP;
 

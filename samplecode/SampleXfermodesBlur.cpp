@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
@@ -33,7 +32,7 @@ static void setNamedTypeface(SkPaint* paint, const char name[]) {
 
 static uint16_t gBG[] = { 0xFFFF, 0xCCCF, 0xCCCF, 0xFFFF };
 
-class XfermodesBlurView : public SampleView {
+class XfermodesBlurView : public Sample {
     SkBitmap    fBG;
     SkBitmap    fSrcB, fDstB;
 
@@ -72,10 +71,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "XfermodesBlur");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "XfermodesBlur");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -173,10 +171,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new XfermodesBlurView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new XfermodesBlurView(); )

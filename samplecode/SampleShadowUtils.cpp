@@ -5,7 +5,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
@@ -17,12 +17,11 @@
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
 #include "SkUtils.h"
-#include "SkView.h"
 #include "sk_tool_utils.h"
 
 ////////////////////////////////////////////////////////////////////////////
 
-class ShadowUtilsView : public SampleView {
+class ShadowUtilsView : public Sample {
     SkTArray<SkPath> fConvexPaths;
     SkTArray<SkPath> fConcavePaths;
     SkScalar         fZDelta;
@@ -74,15 +73,14 @@ protected:
         fConcavePaths.back().cubicTo(0, -25, 40, -50, 50, 0);
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ShadowUtils");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "ShadowUtils");
             return true;
         }
 
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             bool handled = false;
             switch (uni) {
                 case 'W':
@@ -257,10 +255,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ShadowUtilsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ShadowUtilsView(); )

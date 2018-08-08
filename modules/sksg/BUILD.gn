@@ -47,9 +47,8 @@ source_set("samples") {
     ]
     deps = [
       ":sksg",
-      "../..:gm",  # TODO: refactor to make this nicer
       "../..:skia",
-      "../..:views",  # TODO: refactor to make this nicer
+      "../..:samples",
     ]
   }
 }

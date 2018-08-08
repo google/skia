@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "sk_tool_utils.h"
 
 #include "SkAnimTimer.h"
@@ -17,7 +17,7 @@
 // Implementation in C++ of Animated Emoji
 // See https://t.d3fc.io/status/705212795936247808
 
-class GlyphTransformView : public SampleView {
+class GlyphTransformView : public Sample {
 public:
     GlyphTransformView() {}
 
@@ -27,10 +27,9 @@ protected:
         fEmojiFont.fText = sk_tool_utils::emoji_sample_text();
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Glyph Transform");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Glyph Transform");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -72,10 +71,9 @@ private:
     SkScalar fScale;
     SkScalar fRotate;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new GlyphTransformView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new GlyphTransformView(); )

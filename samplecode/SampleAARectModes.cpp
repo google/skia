@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
@@ -72,7 +71,7 @@ static sk_sp<SkShader> make_bg_shader() {
                                       &m);
 }
 
-class AARectsModesView : public SampleView {
+class AARectsModesView : public Sample {
     SkPaint fBGPaint;
 public:
     AARectsModesView () {
@@ -80,10 +79,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AARectsModes");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AARectsModes");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -120,10 +118,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new AARectsModesView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AARectsModesView(); )

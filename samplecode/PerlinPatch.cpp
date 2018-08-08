@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -59,7 +59,7 @@ static void draw_control_points(SkCanvas* canvas, const SkPoint cubics[12]) {
 const SkScalar TexWidth = 100.0f;
 const SkScalar TexHeight = 100.0f;
 
-class PerlinPatchView : public SampleView {
+class PerlinPatchView : public Sample {
     sk_sp<SkShader> fShader0;
     sk_sp<SkShader> fShader1;
     sk_sp<SkShader> fShaderCompose;
@@ -110,14 +110,13 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt)  override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "PerlinPatch");
+    bool onQuery(Sample::Event* evt)  override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "PerlinPatch");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 'g': fShowGrid = !fShowGrid; return true;
                 default: break;
@@ -167,14 +166,14 @@ protected:
     class PtClick : public Click {
     public:
         int fIndex;
-        PtClick(SkView* view, int index) : Click(view), fIndex(index) {}
+        PtClick(Sample* view, int index) : Click(view), fIndex(index) {}
     };
 
     static bool hittest(const SkPoint& pt, SkScalar x, SkScalar y) {
         return SkPoint::Length(pt.fX - x, pt.fY - y) < SkIntToScalar(5);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         // holding down shift
         if (1 == modi) {
             return new PtClick(this, -1);
@@ -211,7 +210,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 DEF_SAMPLE( return new PerlinPatchView(); )

@@ -4,20 +4,18 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 
-class StrokeRectSample : public SampleView {
+class StrokeRectSample : public Sample {
 public:
     StrokeRectSample() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Stroke Rects");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Stroke Rects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -64,10 +62,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new StrokeRectSample; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new StrokeRectSample(); )

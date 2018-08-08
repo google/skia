@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCamera.h"
@@ -96,15 +95,14 @@ static void test_fade(SkCanvas* canvas) {
     canvas->drawRect(r, paint);
 }
 
-class LayersView : public SkView {
+class LayersView : public Sample {
 public:
     LayersView() {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Layers");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Layers");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -114,7 +112,7 @@ protected:
         canvas->drawColor(SK_ColorGRAY);
     }
 
-    void onDraw(SkCanvas* canvas) override {
+    void onDrawContent(SkCanvas* canvas) override {
         this->drawBG(canvas);
 
         if (true) {
@@ -176,7 +174,7 @@ protected:
     }
 
 private:
-    typedef SkView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new LayersView; )
 
@@ -189,7 +187,7 @@ DEF_SAMPLE( return new LayersView; )
 #include "Resources.h"
 #include "SkAnimTimer.h"
 
-class BackdropView : public SampleView {
+class BackdropView : public Sample {
     SkPoint fCenter;
     SkScalar fAngle;
     sk_sp<SkImage> fImage;
@@ -203,10 +201,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Backdrop");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Backdrop");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -239,7 +236,7 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         return new Click(this);
     }
 
@@ -249,6 +246,6 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new BackdropView; )
