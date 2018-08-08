@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c25def64_2aa41f61",
+        "filename": "tests/PathOpsChalkboardTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T21:42:11Z",
+      "side": 1,
+      "message": "I think the failing TSAN bots are saying that most of these globals need to be atomic.\n\nI think if you write this as\n\n    static std::atomic gTestNo{0};\n\nyou should be able to leave the rest of the code mostly unchanged.",
+      "revId": "4533f3d00b26672c123ae6205bff74adea2808b7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
