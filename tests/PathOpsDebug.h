@@ -15,6 +15,7 @@ public:
     static bool gJson;
     static bool gOutFirst;
     static bool gCheckForDuplicateNames;
+    static bool gOutputSVG;
     static FILE* gOut;
 };
 
