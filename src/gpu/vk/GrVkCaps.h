@@ -159,9 +159,12 @@ private:
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
               VkPhysicalDevice device, const VkPhysicalDeviceFeatures2&, const GrVkExtensions&);
-    void initGrCaps(const VkPhysicalDeviceProperties&,
+    void initGrCaps(const GrVkInterface* vkInterface,
+                    VkPhysicalDevice physDev,
+                    const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
-                    const VkPhysicalDeviceFeatures2&);
+                    const VkPhysicalDeviceFeatures2&,
+                    const GrVkExtensions&);
     void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
 #ifdef GR_TEST_UTILS

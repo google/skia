@@ -343,14 +343,47 @@ static VkBlendFactor blend_coeff_to_vk_blend(GrBlendCoeff coeff) {
 
 static VkBlendOp blend_equation_to_vk_blend_op(GrBlendEquation equation) {
     static const VkBlendOp gTable[] = {
-        VK_BLEND_OP_ADD,               // kAdd_GrBlendEquation
-        VK_BLEND_OP_SUBTRACT,          // kSubtract_GrBlendEquation
-        VK_BLEND_OP_REVERSE_SUBTRACT,  // kReverseSubtract_GrBlendEquation
+        // Basic blend ops
+        VK_BLEND_OP_ADD,
+        VK_BLEND_OP_SUBTRACT,
+        VK_BLEND_OP_REVERSE_SUBTRACT,
+
+        // Advanced blend ops
+        VK_BLEND_OP_SCREEN_EXT,
+        VK_BLEND_OP_OVERLAY_EXT,
+        VK_BLEND_OP_DARKEN_EXT,
+        VK_BLEND_OP_LIGHTEN_EXT,
+        VK_BLEND_OP_COLORDODGE_EXT,
+        VK_BLEND_OP_COLORBURN_EXT,
+        VK_BLEND_OP_HARDLIGHT_EXT,
+        VK_BLEND_OP_SOFTLIGHT_EXT,
+        VK_BLEND_OP_DIFFERENCE_EXT,
+        VK_BLEND_OP_EXCLUSION_EXT,
+        VK_BLEND_OP_MULTIPLY_EXT,
+        VK_BLEND_OP_HSL_HUE_EXT,
+        VK_BLEND_OP_HSL_SATURATION_EXT,
+        VK_BLEND_OP_HSL_COLOR_EXT,
+        VK_BLEND_OP_HSL_LUMINOSITY_EXT
     };
-    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kFirstAdvancedGrBlendEquation);
     GR_STATIC_ASSERT(0 == kAdd_GrBlendEquation);
     GR_STATIC_ASSERT(1 == kSubtract_GrBlendEquation);
     GR_STATIC_ASSERT(2 == kReverseSubtract_GrBlendEquation);
+    GR_STATIC_ASSERT(3 == kScreen_GrBlendEquation);
+    GR_STATIC_ASSERT(4 == kOverlay_GrBlendEquation);
+    GR_STATIC_ASSERT(5 == kDarken_GrBlendEquation);
+    GR_STATIC_ASSERT(6 == kLighten_GrBlendEquation);
+    GR_STATIC_ASSERT(7 == kColorDodge_GrBlendEquation);
+    GR_STATIC_ASSERT(8 == kColorBurn_GrBlendEquation);
+    GR_STATIC_ASSERT(9 == kHardLight_GrBlendEquation);
+    GR_STATIC_ASSERT(10 == kSoftLight_GrBlendEquation);
+    GR_STATIC_ASSERT(11 == kDifference_GrBlendEquation);
+    GR_STATIC_ASSERT(12 == kExclusion_GrBlendEquation);
+    GR_STATIC_ASSERT(13 == kMultiply_GrBlendEquation);
+    GR_STATIC_ASSERT(14 == kHSLHue_GrBlendEquation);
+    GR_STATIC_ASSERT(15 == kHSLSaturation_GrBlendEquation);
+    GR_STATIC_ASSERT(16 == kHSLColor_GrBlendEquation);
+    GR_STATIC_ASSERT(17 == kHSLLuminosity_GrBlendEquation);
+    GR_STATIC_ASSERT(SK_ARRAY_COUNT(gTable) == kGrBlendEquationCnt);
 
     SkASSERT((unsigned)equation < kGrBlendCoeffCnt);
     return gTable[equation];
