@@ -37,29 +37,15 @@ Request::~Request() {
     }
 }
 
-SkBitmap* Request::getBitmapFromCanvas(SkCanvas* canvas) {
-    SkBitmap* bmp = new SkBitmap();
-    if (!bmp->tryAllocPixels(canvas->imageInfo()) || !canvas->readPixels(*bmp, 0, 0)) {
-        fprintf(stderr, "Can't read pixels\n");
-        delete bmp;
-        return nullptr;
-    }
-    return bmp;
-}
-
 sk_sp<SkData> Request::writeCanvasToPng(SkCanvas* canvas) {
     // capture pixels
-    std::unique_ptr<SkBitmap> bmp(this->getBitmapFromCanvas(canvas));
-    SkASSERT(bmp);
-
-    // Convert to format suitable for PNG output
-    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bmp);
-    SkASSERT(encodedBitmap.get());
+    SkBitmap bmp;
+    bmp.allocPixels(canvas->imageInfo());
+    SkAssertResult(canvas->readPixels(bmp, 0, 0));
 
     // write to an opaque png (black background)
     SkDynamicMemoryWStream buffer;
-    SkDrawCommand::WritePNG(encodedBitmap->bytes(), bmp->width(), bmp->height(),
-                            buffer, true);
+    SkDrawCommand::WritePNG(bmp, buffer);
     return buffer.detachAsData();
 }
 
@@ -84,14 +70,9 @@ SkCanvas* Request::getCanvas() {
     return target;
 }
 
-void Request::drawToCanvas(int n, int m) {
-    SkCanvas* target = this->getCanvas();
-    fDebugCanvas->drawTo(target, n, m);
-}
-
 sk_sp<SkData> Request::drawToPng(int n, int m) {
     //fDebugCanvas->setOverdrawViz(true);
-    this->drawToCanvas(n, m);
+    fDebugCanvas->drawTo(this->getCanvas(), n, m);
     //fDebugCanvas->setOverdrawViz(false);
     return writeCanvasToPng(this->getCanvas());
 }
@@ -279,16 +260,8 @@ sk_sp<SkData> Request::getJsonInfo(int n) {
 }
 
 SkColor Request::getPixel(int x, int y) {
-    SkCanvas* canvas = this->getCanvas();
-    canvas->flush();
-    std::unique_ptr<SkBitmap> bitmap(this->getBitmapFromCanvas(canvas));
-    SkASSERT(bitmap);
-
-    // Convert to format suitable for inspection
-    sk_sp<SkData> encodedBitmap = sk_tools::encode_bitmap_for_png(*bitmap);
-    SkASSERT(encodedBitmap);
-
-    const uint8_t* start = encodedBitmap->bytes() + ((y * bitmap->width() + x) * 4);
-    SkColor result = SkColorSetARGB(start[3], start[0], start[1], start[2]);
-    return result;
+    SkBitmap bmp;
+    bmp.allocPixels(this->getCanvas()->imageInfo().makeWH(1, 1));
+    SkAssertResult(this->getCanvas()->readPixels(bmp, x, y));
+    return bmp.getColor(0, 0);
 }

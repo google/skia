@@ -73,8 +73,7 @@ public:
 
     static const int kOpTypeCount = kLast_OpType + 1;
 
-    static void WritePNG(const uint8_t* rgba, unsigned width, unsigned height,
-                         SkWStream& out, bool isOpaque);
+    static void WritePNG(SkBitmap bitmap, SkWStream& out);
 
     SkDrawCommand(OpType opType);
 
