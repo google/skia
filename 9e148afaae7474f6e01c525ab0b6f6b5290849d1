@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "36022ab6_7b77521d",
+        "filename": "include/private/SkTDArray.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T14:38:07Z",
+      "side": 1,
+      "message": "Yeah, but not in release mode.\n\ntemplate \u003ctypename D, typename S\u003e constexpr D SkTo(S s) {\n    return SkASSERT(SkTFitsIn\u003cD\u003e(s)),\n           static_cast\u003cD\u003e(s);\n}",
+      "parentUuid": "18d53f8d_08bf6bd5",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 44
+      },
+      "revId": "9e148afaae7474f6e01c525ab0b6f6b5290849d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "57a86793_db88e87c",
         "filename": "include/private/SkTDArray.h",
         "patchSetId": 4
