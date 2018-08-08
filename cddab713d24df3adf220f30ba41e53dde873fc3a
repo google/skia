@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "941efbe5_772348e4",
+        "filename": "tools/skiaserve/Request.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T22:08:43Z",
+      "side": 1,
+      "message": "I feel like we can even use this one to avoid the need to malloc up that 1x1 bitmap?\n\n    bool readPixels(const SkImageInfo\u0026 dstInfo, void* dstPixels, size_t dstRowBytes,\n                    int srcX, int srcY);",
+      "revId": "cddab713d24df3adf220f30ba41e53dde873fc3a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
