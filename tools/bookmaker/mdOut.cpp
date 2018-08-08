@@ -2121,7 +2121,7 @@ void MdOut::subtopicsOut(Definition* def) {
 
 void MdOut::subtopicOut(string name) {
     const Definition* topicParent = fSubtopic ? fSubtopic->topicParent() : nullptr;
-    Definition* csParent = this->csParent();
+    Definition* csParent = fRoot && fRoot->isStructOrClass() ? fRoot : this->csParent();
     if (!csParent) {
         auto csIter = std::find_if(topicParent->fChildren.begin(), topicParent->fChildren.end(),
                 [](const Definition* def){ return MarkType::kEnum == def->fMarkType
