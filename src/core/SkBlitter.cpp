@@ -927,12 +927,6 @@ private:
 
 #include "SkCoreBlitters.h"
 
-SkShaderBase::ContextRec::DstType SkBlitter::PreferredShaderDest(const SkImageInfo& dstInfo) {
-    return (dstInfo.gammaCloseToSRGB() || dstInfo.colorType() == kRGBA_F16_SkColorType)
-            ? SkShaderBase::ContextRec::kPM4f_DstType
-            : SkShaderBase::ContextRec::kPMColor_DstType;
-}
-
 // hack for testing, not to be exposed to clients
 bool gSkForceRasterPipelineBlitter;
 
@@ -1085,9 +1079,7 @@ SkBlitter* SkBlitter::Choose(const SkPixmap& device,
      */
     SkShaderBase::Context* shaderContext = nullptr;
     if (shader) {
-        const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr,
-                                       PreferredShaderDest(device.info()),
-                                       device.colorSpace());
+        const SkShaderBase::ContextRec rec(*legacyPaint, matrix, nullptr, device.colorSpace());
         // Try to create the ShaderContext
         shaderContext = shader->makeContext(rec, alloc);
         if (!shaderContext) {
