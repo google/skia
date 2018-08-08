@@ -119,8 +119,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 
     // Check whether the shader prefers to run in burst mode.
     if (auto* burstCtx = shader->makeBurstPipelineContext(
-        SkShaderBase::ContextRec(paint, ctm, nullptr, SkShaderBase::ContextRec::kPM4f_DstType,
-                                 dstCS), alloc)) {
+        SkShaderBase::ContextRec(paint, ctm, nullptr, dstCS), alloc)) {
         return SkRasterPipelineBlitter::Create(dst, paint, alloc,
                                                shaderPipeline, burstCtx,
                                                is_opaque, is_constant);

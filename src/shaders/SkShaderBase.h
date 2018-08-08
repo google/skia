@@ -63,23 +63,16 @@ public:
      *  ContextRec acts as a parameter bundle for creating Contexts.
      */
     struct ContextRec {
-        enum DstType {
-            kPMColor_DstType, // clients prefer shading into PMColor dest
-            kPM4f_DstType,    // clients prefer shading into PM4f dest
-        };
-
         ContextRec(const SkPaint& paint, const SkMatrix& matrix, const SkMatrix* localM,
-                   DstType dstType, SkColorSpace* dstColorSpace)
+                   SkColorSpace* dstColorSpace)
             : fPaint(&paint)
             , fMatrix(&matrix)
             , fLocalMatrix(localM)
-            , fPreferredDstType(dstType)
             , fDstColorSpace(dstColorSpace) {}
 
         const SkPaint*  fPaint;            // the current paint associated with the draw
         const SkMatrix* fMatrix;           // the current matrix in the canvas
         const SkMatrix* fLocalMatrix;      // optional local matrix
-        const DstType   fPreferredDstType; // the "natural" client dest type
         SkColorSpace*   fDstColorSpace;    // the color space of the dest surface (if any)
     };
 

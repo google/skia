@@ -116,8 +116,6 @@ SkShaderBase::Context* SkShaderBase::makeContext(const ContextRec& rec, SkArenaA
 SkShaderBase::Context* SkShaderBase::makeBurstPipelineContext(const ContextRec& rec,
                                                               SkArenaAlloc* alloc) const {
 
-    SkASSERT(rec.fPreferredDstType == ContextRec::kPM4f_DstType);
-
     // Always use vanilla stages for perspective.
     if (rec.fMatrix->hasPerspective() || fLocalMatrix.hasPerspective()) {
         return nullptr;
@@ -221,7 +219,7 @@ bool SkShaderBase::onAppendStages(const StageRec& rec) const {
         opaquePaint.writable()->setAlpha(SK_AlphaOPAQUE);
     }
 
-    ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, ContextRec::kPM4f_DstType, rec.fDstCS);
+    ContextRec cr(*opaquePaint, rec.fCTM, rec.fLocalM, rec.fDstCS);
 
     struct CallbackCtx : SkJumper_CallbackCtx {
         sk_sp<SkShader> shader;
