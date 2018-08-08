@@ -29,7 +29,6 @@ public:
             fReserve = fCount = count;
         }
     }
-    SkTDArray(const std::initializer_list<T>& list) : SkTDArray(list.begin(), list.size()) {}
     SkTDArray(const SkTDArray<T>& src) : fArray(nullptr), fReserve(0), fCount(0) {
         SkTDArray<T> tmp(src.fArray, src.fCount);
         this->swap(tmp);
@@ -78,13 +77,11 @@ public:
     }
 
     bool isEmpty() const { return fCount == 0; }
-    bool empty() const { return this->isEmpty(); }
 
     /**
      *  Return the number of elements in the array
      */
     int count() const { return fCount; }
-    size_t size() const { return fCount; }
 
     /**
      *  Return the total number of elements allocated.
@@ -98,12 +95,10 @@ public:
      */
     size_t bytes() const { return fCount * sizeof(T); }
 
-    T*        begin() { return fArray; }
+    T*  begin() { return fArray; }
     const T*  begin() const { return fArray; }
-    const T* cbegin() const { return fArray; }
-    T*        end() { return fArray ? fArray + fCount : nullptr; }
+    T*  end() { return fArray ? fArray + fCount : nullptr; }
     const T*  end() const { return fArray ? fArray + fCount : nullptr; }
-    const T* cend() const { return fArray ? fArray + fCount : nullptr; }
 
     T&  operator[](int index) {
         SkASSERT(index < fCount);
@@ -155,10 +150,6 @@ public:
         if (reserve > fReserve) {
             this->resizeStorageToAtLeast(reserve);
         }
-    }
-    void reserve(size_t n) {
-        SkASSERT_RELEASE(SkTFitsIn<int>(n));
-        this->setReserve(SkToInt(n));
     }
 
     T* prepend() {
@@ -272,15 +263,12 @@ public:
     }
 
     // routines to treat the array like a stack
-    void push_back(const T& v) { *this->append() = v; }
-    T*      push() { return this->append(); }
+    T*       push() { return this->append(); }
+    void     push(const T& elem) { *this->append() = elem; }
     const T& top() const { return (*this)[fCount - 1]; }
     T&       top() { return (*this)[fCount - 1]; }
     void     pop(T* elem) { SkASSERT(fCount > 0); if (elem) *elem = (*this)[fCount - 1]; --fCount; }
     void     pop() { SkASSERT(fCount > 0); --fCount; }
-
-    // DEPRECATED -- update call-sites to remove
-    void push(const T& v) { this->push_back(v); }
 
     void deleteAll() {
         T*  iter = fArray;

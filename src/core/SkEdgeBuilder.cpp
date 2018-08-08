@@ -127,7 +127,7 @@ void SkEdgeBuilder::addLine(const SkPoint pts[]) {
     if (fEdgeType == kBezier) {
         SkLine* line = fAlloc.make<SkLine>();
         if (line->set(pts)) {
-            fList.push_back(line);
+            fList.push(line);
         }
     } else if (fEdgeType == kAnalyticEdge) {
         SkAnalyticEdge* edge = fAlloc.make<SkAnalyticEdge>();
@@ -141,7 +141,7 @@ void SkEdgeBuilder::addLine(const SkPoint pts[]) {
                     goto unallocate_analytic_edge;
                 }
             }
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
 unallocate_analytic_edge:
             ;
@@ -159,7 +159,7 @@ unallocate_analytic_edge:
                     goto unallocate_edge;
                 }
             }
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
 unallocate_edge:
             ;
@@ -172,19 +172,19 @@ void SkEdgeBuilder::addQuad(const SkPoint pts[]) {
     if (fEdgeType == kBezier) {
         SkQuad* quad = fAlloc.make<SkQuad>();
         if (quad->set(pts)) {
-            fList.push_back(quad);
+            fList.push(quad);
         }
     } else if (fEdgeType == kAnalyticEdge) {
         SkAnalyticQuadraticEdge* edge = fAlloc.make<SkAnalyticQuadraticEdge>();
         if (edge->setQuadratic(pts)) {
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }
     } else {
         SkQuadraticEdge* edge = fAlloc.make<SkQuadraticEdge>();
         if (edge->setQuadratic(pts, fShiftUp)) {
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }
@@ -195,19 +195,19 @@ void SkEdgeBuilder::addCubic(const SkPoint pts[]) {
     if (fEdgeType == kBezier) {
         SkCubic* cubic = fAlloc.make<SkCubic>();
         if (cubic->set(pts)) {
-            fList.push_back(cubic);
+            fList.push(cubic);
         }
     } else if (fEdgeType == kAnalyticEdge) {
         SkAnalyticCubicEdge* edge = fAlloc.make<SkAnalyticCubicEdge>();
         if (edge->setCubic(pts)) {
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }
     } else {
         SkCubicEdge* edge = fAlloc.make<SkCubicEdge>();
         if (edge->setCubic(pts, fShiftUp)) {
-            fList.push_back(edge);
+            fList.push(edge);
         } else {
             // TODO: unallocate edge from storage...
         }

@@ -63,7 +63,7 @@ void Node::observeInval(const sk_sp<Node>& node) {
 
         auto observers = new SkTDArray<Node*>();
         observers->setReserve(2);
-        observers->push_back(node->fInvalObserver);
+        observers->push(node->fInvalObserver);
 
         node->fInvalObserverArray = observers;
         node->fFlags |= kObserverArray_Flag;
@@ -72,7 +72,7 @@ void Node::observeInval(const sk_sp<Node>& node) {
     // No duplicate observers.
     SkASSERT(node->fInvalObserverArray->find(this) < 0);
 
-    node->fInvalObserverArray->push_back(this);
+    node->fInvalObserverArray->push(this);
 }
 
 void Node::unobserveInval(const sk_sp<Node>& node) {

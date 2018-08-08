@@ -1464,7 +1464,7 @@ sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() const {
     SkTDArray<SkPDFObject*> fonts;
     fonts.setReserve(fFontResources.count());
     for (SkPDFFont* font : fFontResources) {
-        fonts.push_back(font);
+        fonts.push(font);
     }
     return SkPDFResourceDict::Make(
             &fGraphicStateResources,
@@ -1900,7 +1900,7 @@ void SkPDFDevice::populateGraphicStateEntryFromPaint(
                 int resourceIndex = fShaderResources.find(pdfShader.get());
                 if (resourceIndex < 0) {
                     resourceIndex = fShaderResources.count();
-                    fShaderResources.push_back(pdfShader.get());
+                    fShaderResources.push(pdfShader.get());
                     pdfShader.get()->ref();
                 }
                 entry->fShaderIndex = resourceIndex;
@@ -1933,7 +1933,7 @@ int SkPDFDevice::addGraphicStateResource(SkPDFObject* gs) {
     int result = fGraphicStateResources.find(gs);
     if (result < 0) {
         result = fGraphicStateResources.count();
-        fGraphicStateResources.push_back(gs);
+        fGraphicStateResources.push(gs);
         gs->ref();
     }
     return result;
@@ -1946,7 +1946,7 @@ int SkPDFDevice::addXObjectResource(SkPDFObject* xObject) {
     int result = fXObjectResources.find(xObject);
     if (result < 0) {
         result = fXObjectResources.count();
-        fXObjectResources.push_back(SkRef(xObject));
+        fXObjectResources.push(SkRef(xObject));
     }
     return result;
 }
@@ -1960,7 +1960,7 @@ int SkPDFDevice::getFontResourceIndex(SkTypeface* typeface, uint16_t glyphID) {
     if (resourceIndex < 0) {
         fDocument->registerFont(newFont.get());
         resourceIndex = fFontResources.count();
-        fFontResources.push_back(newFont.release());
+        fFontResources.push(newFont.release());
     }
     return resourceIndex;
 }
