@@ -30,7 +30,6 @@ static_assert(52 == kNumGlyphs, "expected 52 glyphs");
 class PathTextBench : public Benchmark {
 public:
     PathTextBench(bool clipped, bool uncached) : fClipped(clipped), fUncached(uncached) {}
-    bool isVisual() override { return true; }
 
 private:
     const char* onGetName() override {

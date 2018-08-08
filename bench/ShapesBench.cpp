@@ -97,8 +97,6 @@ public:
     }
 #endif
 
-    bool isVisual() override { return true; }
-
 private:
     void clampShapeSize() {
         float maxDiagonal = static_cast<float>(SkTMin(kBenchWidth, kBenchHeight));
