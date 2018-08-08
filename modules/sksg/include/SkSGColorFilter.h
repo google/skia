@@ -26,7 +26,7 @@ class ColorFilter : public EffectNode {
 protected:
     explicit ColorFilter(sk_sp<RenderNode>);
 
-    void onRender(SkCanvas*) const final;
+    void onRender(SkCanvas*, const RenderContext*) const final;
 
     sk_sp<SkColorFilter> fColorFilter;
 
