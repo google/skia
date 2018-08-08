@@ -161,7 +161,11 @@ bool GrMtlGpu::uploadToTexture(GrMtlTexture* tex, int left, int top, int width, 
     MTLTextureDescriptor* transferDesc = GrGetMTLTextureDescriptor(mtlTexture);
     transferDesc.mipmapLevelCount = mipLevelCount;
     transferDesc.cpuCacheMode = MTLCPUCacheModeWriteCombined;
+#ifdef SK_BUILD_FOR_MAC
     transferDesc.storageMode = MTLStorageModeManaged;
+#else
+    transferDesc.storageMode = MTLStorageModeShared;
+#endif
     // TODO: implement some way of reusing transfer textures
     id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor:transferDesc];
     SkASSERT(transferTexture);
@@ -421,8 +425,11 @@ bool GrMtlGpu::createTestingOnlyMtlTextureInfo(GrPixelConfig config, int w, int 
         srcData = srcBuffer;
     }
     SkASSERT(srcData);
-
+#ifdef SK_BUILD_FOR_MAC
     desc.storageMode = MTLStorageModeManaged;
+#else
+    desc.storageMode = MTLStorageModeShared;
+#endif
     id<MTLTexture> transferTexture = [fDevice newTextureWithDescriptor: desc];
     auto colorType = GrPixelConfigToColorType(config);
     int rowBytes = w * GrColorTypeBytesPerPixel(colorType);
