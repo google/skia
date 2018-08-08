@@ -6,7 +6,6 @@
  */
 
 #include "SkRRectPriv.h"
-#include "SkScopeExit.h"
 #include "SkBuffer.h"
 #include "SkMalloc.h"
 #include "SkMatrix.h"
@@ -323,14 +322,13 @@ static bool radii_are_nine_patch(const SkVector radii[4]) {
 
 // There is a simplified version of this method in setRectXY
 void SkRRect::computeType() {
-    SK_AT_SCOPE_EXIT(SkASSERT(this->isValid()));
-
     if (fRect.isEmpty()) {
         SkASSERT(fRect.isSorted());
         for (size_t i = 0; i < SK_ARRAY_COUNT(fRadii); ++i) {
             SkASSERT((fRadii[i] == SkVector{0, 0}));
         }
         fType = kEmpty_Type;
+        SkASSERT(this->isValid());
         return;
     }
 
@@ -350,6 +348,7 @@ void SkRRect::computeType() {
 
     if (allCornersSquare) {
         fType = kRect_Type;
+        SkASSERT(this->isValid());
         return;
     }
 
@@ -360,6 +359,7 @@ void SkRRect::computeType() {
         } else {
             fType = kSimple_Type;
         }
+        SkASSERT(this->isValid());
         return;
     }
 
@@ -368,6 +368,7 @@ void SkRRect::computeType() {
     } else {
         fType = kComplex_Type;
     }
+    SkASSERT(this->isValid());
 }
 
 static bool matrix_only_scale_and_translate(const SkMatrix& matrix) {

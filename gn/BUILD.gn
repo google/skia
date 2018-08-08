@@ -231,7 +231,7 @@ config("default") {
     fyi_sanitizers = fyi_sanitize
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,pointer-overflow,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
+      sanitizers = "alignment,bool,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,pointer-overflow,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
 
       if (fyi_sanitize == "" && !is_android) {
         fyi_sanitizers = "float-divide-by-zero"
@@ -266,9 +266,13 @@ config("default") {
       sanitizers = "memory"
     }
 
+    _blacklist = rebase_path("../tools/xsan.blacklist")
+
     cflags += [
       "-fsanitize=$sanitizers,$fyi_sanitizers",
       "-fno-sanitize-recover=$sanitizers",
+      "-fsanitize-blacklist=$_blacklist",
+      "-include$_blacklist",
     ]
     if (!is_win) {
       cflags += [ "-fno-omit-frame-pointer" ]

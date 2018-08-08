@@ -113,7 +113,9 @@ public:
     }
 
     void writePtr(void* value) {
-        *(void**)this->reserve(sizeof(value)) = value;
+        // this->reserve() only returns 4-byte aligned pointers,
+        // so this may be an under-aligned write if we were to do this like the others.
+        memcpy(this->reserve(sizeof(value)), &value, sizeof(value));
     }
 
     void writeScalar(SkScalar value) {

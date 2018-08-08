@@ -13,15 +13,22 @@
 #include "SkTemplates.h"
 #include "SkUtils.h"
 
-static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
+static SkUnichar next_unichar_UTF16BE(const char** srcPtr) {
     SkASSERT(srcPtr && *srcPtr);
 
-    const uint16_t* src = *srcPtr;
-    SkUnichar c = SkEndian_SwapBE16(*src++);
+    const char* src = *srcPtr;
+    uint16_t lo;
+    memcpy(&lo, src, 2);
+    src += 2;
+
+    SkUnichar c = SkEndian_SwapBE16(lo);
 
     SkASSERT(!SkUTF16_IsLowSurrogate(c));
     if (SkUTF16_IsHighSurrogate(c)) {
-        unsigned c2 = SkEndian_SwapBE16(*src++);
+        uint16_t hi;
+        memcpy(&hi, src, 2);
+        src += 2;
+        unsigned c2 = SkEndian_SwapBE16(hi);
         SkASSERT(SkUTF16_IsLowSurrogate(c2));
 
         c = (c << 10) + c2 + (0x10000 - (0xD800 << 10) - 0xDC00);
@@ -30,14 +37,15 @@ static SkUnichar SkUTF16BE_NextUnichar(const uint16_t** srcPtr) {
     return c;
 }
 
-static void SkStringFromUTF16BE(const uint16_t* utf16be, size_t length, SkString& utf8) {
+static void SkString_from_UTF16BE(const char* utf16be, size_t length, SkString& utf8) {
+    // Note that utf16be may not be 2-byte aligned.
     SkASSERT(utf16be != nullptr);
 
     utf8.reset();
     size_t numberOf16BitValues = length / 2;
-    const uint16_t* end = utf16be + numberOf16BitValues;
+    const char* end = utf16be + numberOf16BitValues*2;
     while (utf16be < end) {
-        utf8.appendUnichar(SkUTF16BE_NextUnichar(&utf16be));
+        utf8.appendUnichar(next_unichar_UTF16BE(&utf16be));
     }
 }
 
@@ -475,7 +483,7 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
             }
         case SkOTTableName::Record::PlatformID::Unicode:
         case SkOTTableName::Record::PlatformID::ISO:
-            SkStringFromUTF16BE((const uint16_t*)nameString, nameLength, record.name);
+            SkString_from_UTF16BE(nameString, nameLength, record.name);
             break;
 
         case SkOTTableName::Record::PlatformID::Macintosh:
@@ -513,8 +521,8 @@ bool SkOTTableName::Iterator::next(SkOTTableName::Iterator::Record& record) {
 
             uint16_t offset = SkEndian_SwapBE16(languageTagRecord[languageTagRecordIndex].offset);
             uint16_t length = SkEndian_SwapBE16(languageTagRecord[languageTagRecordIndex].length);
-            const uint16_t* string = SkTAddOffset<const uint16_t>(stringTable, offset);
-            SkStringFromUTF16BE(string, length, record.language);
+            const char* string = SkTAddOffset<const char>(stringTable, offset);
+            SkString_from_UTF16BE(string, length, record.language);
             return true;
         }
     }
