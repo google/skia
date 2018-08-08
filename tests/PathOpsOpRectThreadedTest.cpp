@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
@@ -16,6 +17,7 @@
 // cw or ccw (1 bit)
 
 static int loopNo = 6;
+static int gRectsTestNo = 0;
 
 static void testPathOpsRectsMain(PathOpsThreadState* data)
 {
@@ -66,12 +68,15 @@ static void testPathOpsRectsMain(PathOpsThreadState* data)
                 pathStr.appendf("}\n\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "rects")) {
+            SkString testName;
+            testName.printf("thread_rects%d", ++gRectsTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }
@@ -100,13 +105,14 @@ finish:
     testRunner.render();
 }
 
+static int gFastTestNo = 0;
+
 static void testPathOpsFastMain(PathOpsThreadState* data)
 {
     SkASSERT(data);
     PathOpsThreadState& state = *data;
     SkString pathStr;
     int step = data->fReporter->allowExtendedTest() ? 2 : 5;
-
     for (bool a : { false, true } ) {
         for (bool b : { false, true } ) {
             for (int c = 0; c < 6; c += step) {
@@ -148,12 +154,15 @@ static void testPathOpsFastMain(PathOpsThreadState* data)
                 pathStr.appendf("}\n\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "fast")) {
+            SkString testName;
+            testName.printf("fast%d", ++gFastTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }

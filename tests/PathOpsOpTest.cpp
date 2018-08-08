@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsTestCommon.h"
 
@@ -1195,7 +1196,9 @@ static void rRect1(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType(SkPath::kInverseEvenOdd_FillType);
     for (int index = 0; index < 5; ++index) {
-        testPathOp(reporter, path, paths[index], ops[index], filename);
+        SkString uniqueName;
+        uniqueName.printf("%s%d", filename, index);
+        testPathOp(reporter, path, paths[index], ops[index], uniqueName.c_str());
         REPORTER_ASSERT(reporter, Op(path, paths[index], ops[index], &path));
     }
 }
@@ -12470,6 +12473,9 @@ static struct TestDesc repTests[] = {
 };
 
 DEF_TEST(PathOpsRepOp, reporter) {
+    if (PathOpsDebug::gJson) {
+        return;
+    }
   for (int index = 0; index < 1; ++index)
     RunTestSet(reporter, repTests, SK_ARRAY_COUNT(repTests), nullptr, nullptr, nullptr, false);
 }

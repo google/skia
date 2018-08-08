@@ -137,6 +137,7 @@ int main(int argc, char** argv) {
     SkPathOpsDebug::gRunFail = FLAGS_runFail;
     SkPathOpsDebug::gVeryVerbose = FLAGS_veryVerbose;
     PathOpsDebug::gOutFirst = true;
+    PathOpsDebug::gCheckForDuplicateNames = false;
     if ((PathOpsDebug::gJson = !FLAGS_json.isEmpty())) {
         PathOpsDebug::gOut = fopen(FLAGS_json[0], "wb");
         fprintf(PathOpsDebug::gOut, "{\n");

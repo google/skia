@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 
@@ -132,6 +133,8 @@ path.close();
 testSimplify(reporter, path, filename);
 }
 
+int gTigerTests = 0;
+
 static void tiger8a_x(skiatest::Reporter* reporter, uint64_t testlines) {
     SkPath path;
 uint64_t i = 0;
@@ -172,7 +175,9 @@ if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f63638), SkBits2Float
 if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f6b333), SkBits2Float(0x4360e666));  // 493.4f, 224.9f
 if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f639c5), SkBits2Float(0x4361375a));  // 492.451f, 225.216f
 if (testlines & (1LL << i++)) path.close();
-testSimplify(reporter, path, "tiger");
+SkString testName;
+testName.printf("tiger8a_x%d", ++gTigerTests);
+testSimplify(reporter, path, testName.c_str());
 }
 
 #include "SkRandom.h"
@@ -223,7 +228,9 @@ if (testlines & (1LL << i++)) path.lineTo(SkBits2Float(0x43f8e5e7), SkBits2Float
 if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f84300), SkBits2Float(0x435b88fd), SkBits2Float(0x43f7b75b), SkBits2Float(0x435c5e8e));  // 496.523f, 219.535f, 495.432f, 220.369f
 if (testlines & (1LL << i++)) path.quadTo(SkBits2Float(0x43f6b984), SkBits2Float(0x435de2c4), SkBits2Float(0x43f72ca1), SkBits2Float(0x43609572));  // 493.449f, 221.886f, 494.349f, 224.584f
 if (testlines & (1LL << i++)) path.close();
-testSimplify(reporter, path, "tiger");
+SkString testName;
+testName.printf("tiger8b_x%d", ++gTigerTests);
+testSimplify(reporter, path, testName.c_str());
 }
 
 static void testTiger(PathOpsThreadState* data) {

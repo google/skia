@@ -4,11 +4,13 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
 
 static int loopNo = 158;
+static int gCubicsTestNo = 0;
 
 static void testOpCubicsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
@@ -58,12 +60,15 @@ static void testOpCubicsMain(PathOpsThreadState* data) {
                 pathStr.appendf("}\n");
                 state.outputProgress(pathStr.c_str(), (SkPathOp) op);
             }
-            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, "cubics")) {
+            SkString testName;
+            testName.printf("thread_cubics%d", ++gCubicsTestNo);
+            if (!testPathOp(state.fReporter, pathA, pathB, (SkPathOp) op, testName.c_str())) {
                 if (state.fReporter->verbose()) {
                     ++loopNo;
                     goto skipToNext;
                 }
             }
+            if (PathOpsDebug::gCheckForDuplicateNames) return;
         }
     }
                     }

@@ -4,6 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
+#include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
@@ -25,6 +26,8 @@ static void add_point(SkString* str, SkScalar x, SkScalar y) {
         str->appendf("%1.9gf", y);
     }
 }
+
+static int gLoopsTestNo = 0;
 
 static void testOpLoopsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
@@ -78,7 +81,10 @@ static void testOpLoopsMain(PathOpsThreadState* data) {
             pathStr.appendf("}\n");
             state.outputProgress(pathStr.c_str(), kIntersect_SkPathOp);
         }
-        testPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, "loops");
+        SkString testName;
+        testName.printf("thread_loops%d", ++gLoopsTestNo);
+        testPathOp(state.fReporter, pathA, pathB, kIntersect_SkPathOp, testName.c_str());
+        if (PathOpsDebug::gCheckForDuplicateNames) return;
                 }
             }
         }
