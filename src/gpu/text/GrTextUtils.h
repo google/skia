@@ -73,40 +73,5 @@ public:
         int fHeight;
         const GrColorSpaceInfo& fColorSpaceInfo;
     };
-
-    /**
-     *  This is used to wrap a SkPaint and its post-color filter color. It is also used by RunPaint
-     *  (below). This keeps a pointer to the SkPaint it is initialized with and expects it to remain
-     *  const. It is also used to transform to GrPaint.
-     */
-    class Paint {
-    public:
-        explicit Paint(const SkPaint* paint, const GrColorSpaceInfo* dstColorSpaceInfo)
-                : fPaint(paint), fDstColorSpaceInfo(dstColorSpaceInfo) {
-            this->initFilteredColor();
-        }
-
-        // These expose the paint's color run through its color filter (if any). This is only valid
-        // when drawing grayscale/lcd glyph masks and not when drawing color glyphs.
-        GrColor filteredPremulColor() const { return fFilteredPremulColor; }
-
-        SkColor luminanceColor() const { return fPaint->computeLuminanceColor(); }
-
-        const SkPaint& skPaint() const { return *fPaint; }
-
-        operator const SkPaint&() const { return this->skPaint(); }
-
-
-        void initFilteredColor();
-
-        Paint() = default;
-
-        const SkPaint* fPaint;
-        const GrColorSpaceInfo* fDstColorSpaceInfo;
-        // This is the paint's color run through its color filter, if present. This color should
-        // be used except when rendering bitmap text, in which case the bitmap must be filtered in
-        // the fragment shader.
-        GrColor fFilteredPremulColor;
-    };
 };
 #endif
