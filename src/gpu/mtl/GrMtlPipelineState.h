@@ -117,6 +117,8 @@ private:
     int fFragmentProcessorCnt;
 
     GrMtlPipelineStateDataManager fDataManager;
+
+    friend class GrMtlGpuRTCommandBuffer;
 };
 
 #endif
