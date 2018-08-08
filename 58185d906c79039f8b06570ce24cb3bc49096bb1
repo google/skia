@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6414a1d1_66411932",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T22:04:12Z",
+      "side": 1,
+      "message": "I don\u0027t think I understand how the race can have anything to do with DiscarableManager.\n\nThese two changed tests both use their own distinct DiscardableManagers, right?\n\nAre the races really about some other global, like the way they\u0027re purging caches or calling SkStrikeCache::ValidateGlyphCacheDataSize()?",
+      "revId": "58185d906c79039f8b06570ce24cb3bc49096bb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
