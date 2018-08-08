@@ -10,6 +10,8 @@
 
 #include "GrPipeline.h"
 #include "GrProgramDesc.h"
+#include "GrMtlUniformHandler.h"
+#include "GrMtlVaryingHandler.h"
 #include "SkSLCompiler.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
@@ -31,11 +33,11 @@ private:
 
     const GrCaps* caps() const override;
 
-    GrGLSLUniformHandler* uniformHandler() override { return nullptr; }
+    GrGLSLUniformHandler* uniformHandler() override { return &fUniformHandler; }
 
-    const GrGLSLUniformHandler* uniformHandler() const override { return nullptr; }
+    const GrGLSLUniformHandler* uniformHandler() const override { return &fUniformHandler; }
 
-    GrGLSLVaryingHandler* varyingHandler() override { return nullptr; }
+    GrGLSLVaryingHandler* varyingHandler() override { return &fVaryingHandler; }
 
     void finalizeFragmentOutputColor(GrShaderVar& outputColor) override;
 
@@ -46,10 +48,11 @@ private:
                                           const SkSL::Program::Settings& settings,
                                           GrProgramDesc* desc);
 
-    GrMtlPipelineState* finalize(const GrPrimitiveProcessor&, const GrPipeline&,
-                                 GrProgramDesc*);
+    GrMtlPipelineState* finalize(const GrPrimitiveProcessor&, const GrPipeline&, GrProgramDesc*);
 
     GrMtlGpu* fGpu;
+    GrMtlUniformHandler fUniformHandler;
+    GrMtlVaryingHandler fVaryingHandler;
 
     typedef GrGLSLProgramBuilder INHERITED;
 };
