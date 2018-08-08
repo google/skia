@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "18d53f8d_08bf6bd5",
+        "filename": "include/private/SkTDArray.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-08T14:36:40Z",
+      "side": 1,
+      "message": "I think SkToInt asserts the same internally.",
+      "range": {
+        "startLine": 160,
+        "startChar": 8,
+        "endLine": 160,
+        "endChar": 44
+      },
+      "revId": "9e148afaae7474f6e01c525ab0b6f6b5290849d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "57a86793_db88e87c",
+        "filename": "include/private/SkTDArray.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-08T14:36:40Z",
+      "side": 1,
+      "message": "-\u003e pop_back() at some point?",
+      "range": {
+        "startLine": 280,
+        "startChar": 13,
+        "endLine": 280,
+        "endChar": 16
+      },
+      "revId": "9e148afaae7474f6e01c525ab0b6f6b5290849d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
