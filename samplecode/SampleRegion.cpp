@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
@@ -148,7 +147,7 @@ static void paint_rgn(SkCanvas* canvas, const SkRegion& rgn,
     }
 }
 
-class RegionView : public SampleView {
+class RegionView : public Sample {
 public:
     RegionView() {
         fBase.set(100, 100, 150, 150);
@@ -172,10 +171,9 @@ public:
 
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Regions");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Regions");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -328,7 +326,7 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) override {
         return fRect.contains(SkScalarRoundToInt(x),
                               SkScalarRoundToInt(y)) ? new Click(this) : nullptr;
@@ -343,10 +341,9 @@ protected:
 private:
     SkIRect    fBase, fRect;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new RegionView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new RegionView(); )

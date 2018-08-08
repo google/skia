@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkDrawable.h"
 #include "SkPath.h"
@@ -201,7 +200,7 @@ private:
     typedef SkDrawable INHERITED;
 };
 
-class DrawAtlasView : public SampleView {
+class DrawAtlasView : public Sample {
     const char* fName;
     DrawAtlasProc fProc;
     sk_sp<DrawAtlasDrawable> fDrawable;
@@ -210,13 +209,13 @@ public:
     DrawAtlasView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) { }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, fName);
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, fName);
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 'C': fDrawable->toggleUseColors(); return true;
                 default: break;
@@ -246,7 +245,7 @@ protected:
 #endif
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

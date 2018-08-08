@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlendMode.h"
 #include "SkCanvas.h"
 #include "SkClipOpPriv.h"
@@ -23,7 +23,6 @@
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTypes.h"
-#include "SkView.h"
 #include "sk_tool_utils.h"
 
 class SkEvent;
@@ -362,17 +361,17 @@ void FatBits::drawTriangle(SkCanvas* canvas, SkPoint pts[3]) {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IndexClick : public SkView::Click {
+class IndexClick : public Sample::Click {
     int fIndex;
 public:
-    IndexClick(SkView* v, int index) : SkView::Click(v), fIndex(index) {}
+    IndexClick(Sample* v, int index) : Sample::Click(v), fIndex(index) {}
 
-    static int GetIndex(SkView::Click* click) {
+    static int GetIndex(Sample::Click* click) {
         return ((IndexClick*)click)->fIndex;
     }
 };
 
-class DrawLineView : public SampleView {
+class DrawLineView : public Sample {
     FatBits fFB;
     SkPoint fPts[3];
     bool    fIsRect;
@@ -392,13 +391,13 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "FatBits");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "FatBits");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 'c':
                     fFB.setUseClip(!fFB.getUseClip());
@@ -475,7 +474,7 @@ protected:
         }
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         SkPoint pt = { x, y };
         int index = -1;
         int count = fFB.getTriangle() ? 3 : 2;
@@ -506,10 +505,9 @@ protected:
 
 private:
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DrawLineView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new DrawLineView(); )

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkBlurMaskFilter.h"
 #include "SkCanvas.h"
@@ -13,7 +13,6 @@
 #include "SkGradientShader.h"
 #include "SkPaint.h"
 #include "SkVertices.h"
-#include "SkView.h"
 
 #include "sk_tool_utils.h"
 
@@ -470,7 +469,7 @@ static const SlideProc gProc[] = {
     mesh_slide,
 };
 
-class SlideView : public SampleView {
+class SlideView : public Sample {
     int fIndex;
     bool fOnce;
 public:
@@ -504,10 +503,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Slides");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Slides");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -518,17 +516,16 @@ protected:
         gProc[fIndex](canvas);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         this->init();
         fIndex = (fIndex + 1) % SK_ARRAY_COUNT(gProc);
         return nullptr;
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new SlideView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new SlideView(); )

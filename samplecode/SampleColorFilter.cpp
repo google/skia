@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 #include "sk_tool_utils.h"
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkPaint.h"
@@ -107,7 +106,7 @@ static SkBitmap createBitmap(int n) {
     return bitmap;
 }
 
-class ColorFilterView : public SampleView {
+class ColorFilterView : public Sample {
     SkBitmap fBitmap;
     sk_sp<SkShader> fShader;
     enum {
@@ -125,10 +124,9 @@ protected:
         }
     }
 
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "ColorFilter");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "ColorFilter");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -190,10 +188,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ColorFilterView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ColorFilterView(); )

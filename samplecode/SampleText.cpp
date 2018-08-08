@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkReadBuffer.h"
 #include "SkWriteBuffer.h"
@@ -66,7 +65,7 @@ static void DrawTheText(SkCanvas* canvas, const char text[], size_t length, SkSc
 #endif
 }
 
-class TextSpeedView : public SampleView {
+class TextSpeedView : public Sample {
 public:
     TextSpeedView() {
         fHints = 0;
@@ -74,10 +73,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Text");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Text");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -144,7 +142,7 @@ protected:
         }
     }
 
-    virtual SkView::Click* onFindClickHandler(SkScalar x, SkScalar y,
+    virtual Sample::Click* onFindClickHandler(SkScalar x, SkScalar y,
                                               unsigned modi) override {
         fClickX = x;
         return this->INHERITED::onFindClickHandler(x, y, modi);
@@ -158,10 +156,9 @@ private:
     int fHints;
     SkScalar fClickX;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new TextSpeedView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new TextSpeedView(); )

@@ -30,7 +30,6 @@ public:
     ExtractBitmapGM() {}
 
 protected:
-    // overrides from SkEventSink
     SkString onShortName() override {
         return SkString("extractbitmap");
     }

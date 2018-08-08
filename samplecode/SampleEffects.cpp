@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkColorMatrixFilter.h"
@@ -12,7 +12,6 @@
 #include "SkEmbossMaskFilter.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
-#include "SkView.h"
 
 
 //#define COLOR 0xFFFF8844
@@ -56,7 +55,7 @@ const PaintProc gPaintProcs[] = {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class EffectsView : public SampleView {
+class EffectsView : public Sample {
 public:
     SkPath fPath;
     SkPaint fPaint[SK_ARRAY_COUNT(gPaintProcs)];
@@ -91,10 +90,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Effects");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Effects");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -110,10 +108,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new EffectsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new EffectsView(); )

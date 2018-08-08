@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkShader.h"
@@ -39,17 +38,16 @@ static void make_paint(SkPaint* paint, SkShader::TileMode tm) {
     paint->setShader(SkShader::MakeBitmapShader(bm, tm, tm));
 }
 
-class RepeatTileView : public SampleView {
+class RepeatTileView : public Sample {
 public:
     RepeatTileView() {
         this->setBGColor(SK_ColorGRAY);
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "RepeatTile");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "RepeatTile");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -65,10 +63,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new RepeatTileView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new RepeatTileView(); )

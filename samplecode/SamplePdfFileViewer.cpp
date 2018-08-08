@@ -9,8 +9,7 @@
 
 #ifdef SAMPLE_PDF_FILE_VIEWER
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -27,7 +26,7 @@
 #include "SkTypeface.h"
 #include "SkPdfRenderer.h"
 
-class PdfFileViewer : public SampleView {
+class PdfFileViewer : public Sample {
 private:
     SkString    fFilename;
     SkPicture*  fPicture;  // TODO(edisonn): multiple pages, one page / picture, make it an array
@@ -56,13 +55,12 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
             SkString name("P:");
             const char* basename = strrchr(fFilename.c_str(), SkPATH_SEPARATOR);
             name.append(basename ? basename+1: fFilename.c_str());
-            SampleCode::TitleR(evt, name.c_str());
+            Sample::TitleR(evt, name.c_str());
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -85,19 +83,19 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
-SampleView* CreateSamplePdfFileViewer(const char filename[]);
-SampleView* CreateSamplePdfFileViewer(const char filename[]) {
+Sample* CreateSamplePdfFileViewer(const char filename[]);
+Sample* CreateSamplePdfFileViewer(const char filename[]) {
     return new PdfFileViewer(filename);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 #if 0
-static SkView* MyFactory() { return new PdfFileViewer; }
-static SkViewRegister reg(MyFactory);
+static Sample* MyFactory() { return new PdfFileViewer; }
+static SampleRegister reg(MyFactory);
 #endif
 
 #endif  // SAMPLE_PDF_FILE_VIEWER

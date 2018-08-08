@@ -5,10 +5,9 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "Resources.h"
 #include "SkAnimTimer.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkRSXform.h"
 #include "SkSurface.h"
@@ -45,7 +44,7 @@ static void draw_atlas_sim(SkCanvas* canvas, SkImage* atlas, const SkRSXform xfo
 }
 
 
-class DrawShipView : public SampleView {
+class DrawShipView : public Sample {
 public:
     DrawShipView(const char name[], DrawAtlasProc proc) : fName(name), fProc(proc) {
         fAtlas = GetResourceAsImage("images/ship.png");
@@ -88,10 +87,9 @@ public:
     ~DrawShipView() override {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, fName);
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, fName);
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -174,7 +172,7 @@ private:
     int         fCurrentTime;
 
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////

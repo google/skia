@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkMakeUnique.h"
@@ -17,14 +16,14 @@ static sk_sp<SkShader> make_grad(SkScalar w, SkScalar h) {
     return SkGradientShader::MakeLinear(pts, colors, nullptr, 2, SkShader::kClamp_TileMode);
 }
 
-class BigGradientView : public SampleView {
+class BigGradientView : public Sample {
 public:
     BigGradientView() {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "BigGradient");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "BigGradient");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -39,13 +38,12 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new BigGradientView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new BigGradientView(); )
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -261,14 +259,14 @@ public:
 #endif
 
 #ifdef MyAllocator
-class RasterAllocatorSample : public SampleView {
+class RasterAllocatorSample : public Sample {
 public:
     RasterAllocatorSample() {}
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "raster-allocator");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "raster-allocator");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -310,7 +308,7 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 DEF_SAMPLE( return new RasterAllocatorSample; )
 #endif

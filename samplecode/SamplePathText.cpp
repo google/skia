@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
 #include "SkGlyphCache.h"
@@ -18,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 // Static text from paths.
-class PathText : public SampleView {
+class PathText : public Sample {
 public:
     constexpr static int kNumPaths = 1500;
     virtual const char* getName() const { return "PathText"; }
@@ -49,13 +49,13 @@ public:
     void onOnceBeforeDraw() final { this->INHERITED::onOnceBeforeDraw(); this->reset(); }
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
-    bool onQuery(SkEvent* evt) final {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, this->getName());
+    bool onQuery(Sample::Event* evt) final {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, this->getName());
             return true;
         }
         SkUnichar unichar;
-        if (SampleCode::CharQ(*evt, &unichar)) {
+        if (Sample::CharQ(*evt, &unichar)) {
             if (unichar == 'X') {
                 fDoClip = !fDoClip;
                 return true;
@@ -106,7 +106,7 @@ protected:
     SkPath     fClipPath = sk_tool_utils::make_star(SkRect{0,0,1,1}, 11, 3);
     bool       fDoClip = false;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 void PathText::Glyph::init(SkRandom& rand, const SkPath& path) {

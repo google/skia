@@ -5,12 +5,10 @@
  * found in the LICENSE file.
  */
 
-#include "gm.h"
-
 #include "sk_tool_utils.h"
 #include "DecodeFile.h"
 #include "Resources.h"
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBlurMask.h"
 #include "SkBlurDrawLooper.h"
 #include "SkCanvas.h"
@@ -21,7 +19,6 @@
 #include "SkString.h"
 #include "SkTypes.h"
 #include "SkUtils.h"
-#include "SkView.h"
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the
@@ -35,7 +32,7 @@ static SkPMColor premultiply_unpmcolor(SkPMColor c) {
     return SkPreMultiplyARGB(a, r, g, b);
 }
 
-class UnpremulView : public SampleView {
+class UnpremulView : public Sample {
 public:
     UnpremulView(SkString res)
     : fResPath(res)
@@ -45,14 +42,13 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "unpremul");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "unpremul");
             return true;
         }
         SkUnichar uni;
-        if (SampleCode::CharQ(*evt, &uni)) {
+        if (Sample::CharQ(*evt, &uni)) {
             char utf8[SkUTF::kMaxBytesInUTF8Sequence];
             size_t size = SkUTF::ToUTF8(uni, utf8);
             // Only consider events for single char keys
@@ -170,12 +166,9 @@ private:
         this->decodeCurrFile();
     }
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() {
-    return new UnpremulView(GetResourcePath("images"));
-}
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new UnpremulView(GetResourcePath("images")); )

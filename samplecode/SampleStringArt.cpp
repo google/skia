@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPath.h"
 
@@ -15,15 +15,14 @@
 // The particular shape rendered can be controlled by clicking horizontally, thereby
 // generating an angle from 0 to 1.
 
-class StringArtView : public SampleView {
+class StringArtView : public Sample {
 public:
     StringArtView() : fAngle(0.305f) {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "StringArt");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "StringArt");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -57,17 +56,16 @@ protected:
         canvas->drawPath(path, paint);
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned) override {
         fAngle = x/width();
         return nullptr;
     }
 private:
 
     SkScalar fAngle;
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new StringArtView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new StringArtView(); )

@@ -4,8 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGraphics.h"
 #include "SkRandom.h"
@@ -32,17 +31,16 @@ static void setBitmapDash(SkPaint* paint, int width) {
     paint->setShader(s)->unref();
 }
 
-class DashView : public SampleView {
+class DashView : public Sample {
 public:
     DashView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Dash");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Dash");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -82,10 +80,10 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new DashView; }
-static SkViewRegister reg(MyFactory);
+static Sample* MyFactory() { return new DashView; }
+static SampleRegister reg(MyFactory);

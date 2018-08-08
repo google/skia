@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
@@ -23,7 +23,6 @@
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkUtils.h"
-#include "SkView.h"
 
 static SkRandom gRand;
 
@@ -168,7 +167,7 @@ static int cycle_hairproc_index(int index) {
     return (index + 1) % SK_ARRAY_COUNT(gProcs);
 }
 
-class HairlineView : public SampleView {
+class HairlineView : public Sample {
     SkMSec fNow;
     int fProcIndex;
     bool fDoAA;
@@ -180,12 +179,11 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
             SkString str;
             str.printf("Hair-%s", gProcs[fProcIndex].fName);
-            SampleCode::TitleR(evt, str.c_str());
+            Sample::TitleR(evt, str.c_str());
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -227,17 +225,16 @@ protected:
         return true;
     }
 
-    SkView::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
+    Sample::Click* onFindClickHandler(SkScalar x, SkScalar y, unsigned modi) override {
         fDoAA = !fDoAA;
         return this->INHERITED::onFindClickHandler(x, y, modi);
     }
 
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new HairlineView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new HairlineView(); )

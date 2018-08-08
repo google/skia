@@ -5,8 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
-#include "SkView.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -21,15 +20,14 @@
 #include "SkTypeface.h"
 #include "SkStream.h"
 
-class PointsView : public SampleView {
+class PointsView : public Sample {
 public:
     PointsView() {}
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Points");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Points");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -69,10 +67,9 @@ protected:
 
 private:
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new PointsView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new PointsView(); )

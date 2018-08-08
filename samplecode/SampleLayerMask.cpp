@@ -5,26 +5,24 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
-#include "SkView.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 
-class LayerMaskView : public SampleView {
+class LayerMaskView : public Sample {
 public:
     LayerMaskView() {
         this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "LayerMask");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "LayerMask");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -66,10 +64,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new LayerMaskView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new LayerMaskView(); )

@@ -4,7 +4,7 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#include "SampleCode.h"
+#include "Sample.h"
 
 #include "SkCanvas.h"
 #include "SkPath.h"
@@ -17,15 +17,14 @@
 
 #define USE_PATH 1
 
-class ClockView : public SampleView {
+class ClockView : public Sample {
 public:
     ClockView() {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Clock");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Clock");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -223,10 +222,9 @@ protected:
 
 private:
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ClockView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ClockView(); )

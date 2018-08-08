@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAnimTimer.h"
 #include "SkColorPriv.h"
 #include "SkCanvas.h"
@@ -22,15 +22,14 @@ SkScalar get_anim_sin(double secs, SkScalar amplitude, SkScalar periodInSec, SkS
     return amplitude * SkDoubleToScalar(sin(t)) + amplitude;
 }
 
-class AnimBlurView : public SampleView {
+class AnimBlurView : public Sample {
 public:
     AnimBlurView() : fBlurSigma(0), fCircleRadius(100) {}
 
 protected:
-    // overrides from SkEventSink
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "AnimBlur");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "AnimBlur");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -65,10 +64,9 @@ protected:
 private:
     SkScalar fBlurSigma, fCircleRadius;
 
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new AnimBlurView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new AnimBlurView(); )

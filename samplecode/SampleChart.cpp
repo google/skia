@@ -5,12 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkCanvas.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
-#include "SkView.h"
 
 // Generates y values for the chart plots.
 static void gen_data(SkScalar yAvg, SkScalar ySpread, int count, SkTDArray<SkScalar>* dataPts) {
@@ -81,7 +80,7 @@ static void gen_paths(const SkTDArray<SkScalar>& topData,
 
 // A set of scrolling line plots with the area between each plot filled. Stresses out GPU path
 // filling
-class ChartView : public SampleView {
+class ChartView : public Sample {
 public:
     ChartView() {
         fShift = 0;
@@ -89,9 +88,9 @@ public:
     }
 
 protected:
-    bool onQuery(SkEvent* evt) override {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Chart");
+    bool onQuery(Sample::Event* evt) override {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Chart");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -175,10 +174,9 @@ private:
     int                 fShift;
     SkISize             fSize;
     SkTDArray<SkScalar> fData[kNumGraphs];
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ChartView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ChartView(); )

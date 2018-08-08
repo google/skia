@@ -5,9 +5,8 @@
  * found in the LICENSE file.
  */
 
-#include "SampleCode.h"
+#include "Sample.h"
 #include "SkAAClip.h"
-#include "SkView.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"
 #include "SkPaint.h"
@@ -103,7 +102,7 @@ static void show_thick(SkCanvas* canvas, bool doAA) {
 
 typedef void (*CanvasProc)(SkCanvas*, bool);
 
-class ClipView : public SampleView {
+class ClipView : public Sample {
 public:
     ClipView() {
         SkAAClip clip;
@@ -115,10 +114,9 @@ public:
     }
 
 protected:
-    // overrides from SkEventSink
-    virtual bool onQuery(SkEvent* evt) {
-        if (SampleCode::TitleQ(*evt)) {
-            SampleCode::TitleR(evt, "Clip");
+    virtual bool onQuery(Sample::Event* evt) {
+        if (Sample::TitleQ(*evt)) {
+            Sample::TitleR(evt, "Clip");
             return true;
         }
         return this->INHERITED::onQuery(evt);
@@ -155,10 +153,9 @@ protected:
     }
 
 private:
-    typedef SampleView INHERITED;
+    typedef Sample INHERITED;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-static SkView* MyFactory() { return new ClipView; }
-static SkViewRegister reg(MyFactory);
+DEF_SAMPLE( return new ClipView(); )
