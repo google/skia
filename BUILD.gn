@@ -1479,12 +1479,19 @@ if (skia_enable_tools) {
 
   if (target_cpu != "wasm") {
     test_lib("views") {
-      public_include_dirs = [ "include/views" ]
+      public_include_dirs = [ "tools/views" ]
+      public = [
+        "tools/views/SkEvent.h",
+        "tools/views/SkEventSink.h",
+        "tools/views/SkKey.h",
+        "tools/views/SkTouchGesture.h",
+        "tools/views/SkView.h",
+      ]
       sources = [
-        "src/views/SkEvent.cpp",
-        "src/views/SkEventSink.cpp",
-        "src/views/SkTouchGesture.cpp",
-        "src/views/SkView.cpp",
+        "tools/views/SkEvent.cpp",
+        "tools/views/SkEventSink.cpp",
+        "tools/views/SkTouchGesture.cpp",
+        "tools/views/SkView.cpp",
       ]
     }
   }
