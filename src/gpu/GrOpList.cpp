@@ -138,6 +138,7 @@ bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
     return false;
 }
 
+bool GrOpList::isInstantiated() const { return fTarget.get()->isInstantiated(); }
 
 void GrOpList::addDependent(GrOpList* dependent) {
     fDependents.push_back(dependent);
@@ -163,7 +164,13 @@ void GrOpList::validate() const {
 }
 #endif
 
-bool GrOpList::isInstantiated() const { return fTarget.get()->isInstantiated(); }
+void GrOpList::closeThoseWhoDependOnMe(const GrCaps& caps) {
+    for (int i = 0; i < fDependents.count(); ++i) {
+        if (!fDependents[i]->isClosed()) {
+            fDependents[i]->makeClosed(caps);
+        }
+    }
+}
 
 bool GrOpList::isFullyInstantiated() const {
     if (!this->isInstantiated()) {
