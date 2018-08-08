@@ -791,11 +791,11 @@ static sk_sp<SkPDFDict> get_gradient_resource_dict(SkPDFObject* functionShader,
                                                    SkPDFObject* gState) {
     SkTDArray<SkPDFObject*> patterns;
     if (functionShader) {
-        patterns.push(functionShader);
+        patterns.push_back(functionShader);
     }
     SkTDArray<SkPDFObject*> graphicStates;
     if (gState) {
-        graphicStates.push(gState);
+        graphicStates.push_back(gState);
     }
     return SkPDFResourceDict::Make(&graphicStates, &patterns, nullptr, nullptr);
 }

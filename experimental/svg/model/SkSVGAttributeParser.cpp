@@ -559,7 +559,7 @@ bool SkSVGAttributeParser::parsePoints(SkSVGPointsType* points) {
             break;
         }
 
-        pts.push(SkPoint::Make(x, y));
+        pts.push_back(SkPoint::Make(x, y));
         parsedValue = true;
     }
 
@@ -636,7 +636,7 @@ bool SkSVGAttributeParser::parseDashArray(SkSVGDashArray* dashArray) {
                 break;
             }
 
-            dashes.push(dash);
+            dashes.push_back(dash);
             parsedValue = true;
         }
 

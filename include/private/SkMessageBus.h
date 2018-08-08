@@ -70,7 +70,7 @@ SkMessageBus<Message>::Inbox::Inbox(uint32_t uniqueID) : fUniqueID(uniqueID) {
     // Register ourselves with the corresponding message bus.
     SkMessageBus<Message>* bus = SkMessageBus<Message>::Get();
     SkAutoMutexAcquire lock(bus->fInboxesMutex);
-    bus->fInboxes.push(this);
+    bus->fInboxes.push_back(this);
 }
 
 template<typename Message>

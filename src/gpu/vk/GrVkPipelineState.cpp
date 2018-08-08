@@ -308,16 +308,16 @@ void GrVkPipelineState::writeSamplers(GrVkGpu* gpu, const SamplerBindings bindin
         const GrSamplerState& state = bindings[i].fState;
         GrVkTexture* texture = bindings[i].fTexture;
 
-        fSamplers.push(gpu->resourceProvider().findOrCreateCompatibleSampler(
+        fSamplers.push_back(gpu->resourceProvider().findOrCreateCompatibleSampler(
                 state, texture->texturePriv().maxMipMapLevel()));
 
         const GrVkResource* textureResource = texture->resource();
         textureResource->ref();
-        fTextures.push(textureResource);
+        fTextures.push_back(textureResource);
 
         const GrVkImageView* textureView = texture->textureView();
         textureView->ref();
-        fTextureViews.push(textureView);
+        fTextureViews.push_back(textureView);
 
         VkDescriptorImageInfo imageInfo;
         memset(&imageInfo, 0, sizeof(VkDescriptorImageInfo));

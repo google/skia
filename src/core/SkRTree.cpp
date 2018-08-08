@@ -172,7 +172,7 @@ void SkRTree::search(Node* node, const SkRect& query, SkTDArray<int>* results) c
     for (int i = 0; i < node->fNumChildren; ++i) {
         if (SkRect::Intersects(node->fChildren[i].fBounds, query)) {
             if (0 == node->fLevel) {
-                results->push(node->fChildren[i].fOpIndex);
+                results->push_back(node->fChildren[i].fOpIndex);
             } else {
                 this->search(node->fChildren[i].fSubtree, query, results);
             }

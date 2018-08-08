@@ -30,7 +30,7 @@ static bool verify_query(SkRect query, SkRect rects[], SkTDArray<int>& found) {
     // manually intersect with every rectangle
     for (int i = 0; i < NUM_RECTS; ++i) {
         if (SkRect::Intersects(query, rects[i])) {
-            expected.push(i);
+            expected.push_back(i);
         }
     }
 

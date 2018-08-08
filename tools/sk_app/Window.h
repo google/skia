@@ -158,7 +158,7 @@ public:
 
     void pushLayer(Layer* layer) {
         layer->onAttach(this);
-        fLayers.push(layer);
+        fLayers.push_back(layer);
     }
 
     void onBackendCreated();

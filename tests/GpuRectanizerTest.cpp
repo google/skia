@@ -61,8 +61,8 @@ DEF_GPUTEST(GpuRectanizer, reporter, factory) {
     SkRandom rand;
 
     for (int i = 0; i < 50; i++) {
-        rects.push(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
-                                 rand.nextRangeU(1, kHeight / 2)));
+        rects.push_back(SkISize::Make(rand.nextRangeU(1, kWidth / 2),
+                                      rand.nextRangeU(1, kHeight / 2)));
     }
 
     test_skyline(reporter, rects);

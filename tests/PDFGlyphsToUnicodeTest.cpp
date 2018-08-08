@@ -39,41 +39,41 @@ DEF_TEST(SkPDF_ToUnicode, reporter) {
     SkTDArray<uint16_t> glyphsInSubset;
     SkBitSet subset(kMaximumGlyphCount);
 
-    glyphToUnicode.push(0);  // 0
-    glyphToUnicode.push(0);  // 1
-    glyphToUnicode.push(0);  // 2
-    glyphsInSubset.push(3);
-    glyphToUnicode.push(0x20);  // 3
-    glyphsInSubset.push(4);
-    glyphToUnicode.push(0x25);  // 4
-    glyphsInSubset.push(5);
-    glyphToUnicode.push(0x27);  // 5
-    glyphsInSubset.push(6);
-    glyphToUnicode.push(0x28);  // 6
-    glyphsInSubset.push(7);
-    glyphToUnicode.push(0x29);  // 7
-    glyphsInSubset.push(8);
-    glyphToUnicode.push(0x2F);  // 8
-    glyphsInSubset.push(9);
-    glyphToUnicode.push(0x33);  // 9
-    glyphToUnicode.push(0);  // 10
-    glyphsInSubset.push(11);
-    glyphToUnicode.push(0x35);  // 11
-    glyphsInSubset.push(12);
-    glyphToUnicode.push(0x36);  // 12
-    glyphsInSubset.push(13);
-    glyphToUnicode.push(0x37);  // 13
+    glyphToUnicode.push_back(0);  // 0
+    glyphToUnicode.push_back(0);  // 1
+    glyphToUnicode.push_back(0);  // 2
+    glyphsInSubset.push_back(3);
+    glyphToUnicode.push_back(0x20);  // 3
+    glyphsInSubset.push_back(4);
+    glyphToUnicode.push_back(0x25);  // 4
+    glyphsInSubset.push_back(5);
+    glyphToUnicode.push_back(0x27);  // 5
+    glyphsInSubset.push_back(6);
+    glyphToUnicode.push_back(0x28);  // 6
+    glyphsInSubset.push_back(7);
+    glyphToUnicode.push_back(0x29);  // 7
+    glyphsInSubset.push_back(8);
+    glyphToUnicode.push_back(0x2F);  // 8
+    glyphsInSubset.push_back(9);
+    glyphToUnicode.push_back(0x33);  // 9
+    glyphToUnicode.push_back(0);  // 10
+    glyphsInSubset.push_back(11);
+    glyphToUnicode.push_back(0x35);  // 11
+    glyphsInSubset.push_back(12);
+    glyphToUnicode.push_back(0x36);  // 12
+    glyphsInSubset.push_back(13);
+    glyphToUnicode.push_back(0x37);  // 13
     for (uint16_t i = 14; i < 0xFE; ++i) {
-        glyphToUnicode.push(0);  // Zero from index 0x9 to 0xFD
+        glyphToUnicode.push_back(0);  // Zero from index 0x9 to 0xFD
     }
-    glyphsInSubset.push(0xFE);
-    glyphToUnicode.push(0x1010);
-    glyphsInSubset.push(0xFF);
-    glyphToUnicode.push(0x1011);
-    glyphsInSubset.push(0x100);
-    glyphToUnicode.push(0x1012);
-    glyphsInSubset.push(0x101);
-    glyphToUnicode.push(0x1013);
+    glyphsInSubset.push_back(0xFE);
+    glyphToUnicode.push_back(0x1010);
+    glyphsInSubset.push_back(0xFF);
+    glyphToUnicode.push_back(0x1011);
+    glyphsInSubset.push_back(0x100);
+    glyphToUnicode.push_back(0x1012);
+    glyphsInSubset.push_back(0x101);
+    glyphToUnicode.push_back(0x1013);
 
     SkGlyphID lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
 
@@ -160,16 +160,16 @@ endbfrange\n";
     // Glyph id 2c 51 56 57 44 4f
     // Unicode  49 6e 73 74 61 6c
     for (SkUnichar i = 0; i < 100; ++i) {
-      glyphToUnicode.push(i + 29);
+      glyphToUnicode.push_back(i + 29);
     }
     lastGlyphID = SkToU16(glyphToUnicode.count() - 1);
 
-    glyphsInSubset.push(0x2C);
-    glyphsInSubset.push(0x44);
-    glyphsInSubset.push(0x4F);
-    glyphsInSubset.push(0x51);
-    glyphsInSubset.push(0x56);
-    glyphsInSubset.push(0x57);
+    glyphsInSubset.push_back(0x2C);
+    glyphsInSubset.push_back(0x44);
+    glyphsInSubset.push_back(0x4F);
+    glyphsInSubset.push_back(0x51);
+    glyphsInSubset.push_back(0x56);
+    glyphsInSubset.push_back(0x57);
 
     SkDynamicMemoryWStream buffer2;
     subset2.setAll(glyphsInSubset.begin(), glyphsInSubset.count());

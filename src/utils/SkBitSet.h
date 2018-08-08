@@ -55,7 +55,7 @@ public:
                 unsigned int index = i * 32;
                 for (unsigned int j = 0; j < 32; ++j) {
                     if (0x1 & (value >> j)) {
-                        array->push(index + j);
+                        array->push_back(index + j);
                     }
                 }
             }
