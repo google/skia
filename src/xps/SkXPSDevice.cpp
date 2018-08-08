@@ -1328,28 +1328,28 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
             }
             case SkPath::kLine_Verb:
                 if (iter.isCloseLine()) break; //ignore the line, auto-closed
-                segmentTypes.push(XPS_SEGMENT_TYPE_LINE);
-                segmentStrokes.push(stroke);
-                segmentData.push(SkScalarToFLOAT(points[1].fX));
-                segmentData.push(SkScalarToFLOAT(points[1].fY));
+                segmentTypes.push_back(XPS_SEGMENT_TYPE_LINE);
+                segmentStrokes.push_back(stroke);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
                 break;
             case SkPath::kQuad_Verb:
-                segmentTypes.push(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
-                segmentStrokes.push(stroke);
-                segmentData.push(SkScalarToFLOAT(points[1].fX));
-                segmentData.push(SkScalarToFLOAT(points[1].fY));
-                segmentData.push(SkScalarToFLOAT(points[2].fX));
-                segmentData.push(SkScalarToFLOAT(points[2].fY));
+                segmentTypes.push_back(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
+                segmentStrokes.push_back(stroke);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fY));
                 break;
             case SkPath::kCubic_Verb:
-                segmentTypes.push(XPS_SEGMENT_TYPE_BEZIER);
-                segmentStrokes.push(stroke);
-                segmentData.push(SkScalarToFLOAT(points[1].fX));
-                segmentData.push(SkScalarToFLOAT(points[1].fY));
-                segmentData.push(SkScalarToFLOAT(points[2].fX));
-                segmentData.push(SkScalarToFLOAT(points[2].fY));
-                segmentData.push(SkScalarToFLOAT(points[3].fX));
-                segmentData.push(SkScalarToFLOAT(points[3].fY));
+                segmentTypes.push_back(XPS_SEGMENT_TYPE_BEZIER);
+                segmentStrokes.push_back(stroke);
+                segmentData.push_back(SkScalarToFLOAT(points[1].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[1].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[2].fY));
+                segmentData.push_back(SkScalarToFLOAT(points[3].fX));
+                segmentData.push_back(SkScalarToFLOAT(points[3].fY));
                 break;
             case SkPath::kConic_Verb: {
                 const SkScalar tol = SK_Scalar1 / 4;
@@ -1357,12 +1357,12 @@ HRESULT SkXPSDevice::addXpsPathGeometry(
                 const SkPoint* quads =
                     converter.computeQuads(points, iter.conicWeight(), tol);
                 for (int i = 0; i < converter.countQuads(); ++i) {
-                    segmentTypes.push(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
-                    segmentStrokes.push(stroke);
-                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 1].fX));
-                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 1].fY));
-                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 2].fX));
-                    segmentData.push(SkScalarToFLOAT(quads[2 * i + 2].fY));
+                    segmentTypes.push_back(XPS_SEGMENT_TYPE_QUADRATIC_BEZIER);
+                    segmentStrokes.push_back(stroke);
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 1].fX));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 1].fY));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 2].fX));
+                    segmentData.push_back(SkScalarToFLOAT(quads[2 * i + 2].fY));
                 }
                 break;
             }

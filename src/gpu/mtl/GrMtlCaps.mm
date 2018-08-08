@@ -204,10 +204,10 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
     fMaxTextureSize = fMaxRenderTargetSize;
 
     // Init sample counts. All devices support 1 (i.e. 0 in skia).
-    fSampleCounts.push(1);
+    fSampleCounts.push_back(1);
     for (auto sampleCnt : {2, 4, 8}) {
         if ([device supportsTextureSampleCount:sampleCnt]) {
-            fSampleCounts.push(sampleCnt);
+            fSampleCounts.push_back(sampleCnt);
         }
     }
 

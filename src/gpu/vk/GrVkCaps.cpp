@@ -583,29 +583,29 @@ void GrVkCaps::ConfigInfo::initSampleCounts(const GrVkInterface* interface,
                                                                  &properties));
     VkSampleCountFlags flags = properties.sampleCounts;
     if (flags & VK_SAMPLE_COUNT_1_BIT) {
-        fColorSampleCounts.push(1);
+        fColorSampleCounts.push_back(1);
     }
     if (kImagination_VkVendor == physProps.vendorID) {
         // MSAA does not work on imagination
         return;
     }
     if (flags & VK_SAMPLE_COUNT_2_BIT) {
-        fColorSampleCounts.push(2);
+        fColorSampleCounts.push_back(2);
     }
     if (flags & VK_SAMPLE_COUNT_4_BIT) {
-        fColorSampleCounts.push(4);
+        fColorSampleCounts.push_back(4);
     }
     if (flags & VK_SAMPLE_COUNT_8_BIT) {
-        fColorSampleCounts.push(8);
+        fColorSampleCounts.push_back(8);
     }
     if (flags & VK_SAMPLE_COUNT_16_BIT) {
-        fColorSampleCounts.push(16);
+        fColorSampleCounts.push_back(16);
     }
     if (flags & VK_SAMPLE_COUNT_32_BIT) {
-        fColorSampleCounts.push(32);
+        fColorSampleCounts.push_back(32);
     }
     if (flags & VK_SAMPLE_COUNT_64_BIT) {
-        fColorSampleCounts.push(64);
+        fColorSampleCounts.push_back(64);
     }
 }
 

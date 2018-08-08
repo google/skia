@@ -280,9 +280,6 @@ public:
     void     pop(T* elem) { SkASSERT(fCount > 0); if (elem) *elem = (*this)[fCount - 1]; --fCount; }
     void     pop() { SkASSERT(fCount > 0); --fCount; }
 
-    // DEPRECATED -- update call-sites to remove
-    void push(const T& v) { this->push_back(v); }
-
     void deleteAll() {
         T*  iter = fArray;
         T*  stop = fArray + fCount;

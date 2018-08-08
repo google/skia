@@ -65,12 +65,12 @@ private:
     void setIndexInSort(int indexInSort) { fIndexInSort = indexInSort; }
     void setVisited(bool visited) { fVisited = visited; }
     void addDependency(Node* dependedOn) {
-        fNodesIDependOn.push(dependedOn);
+        fNodesIDependOn.push_back(dependedOn);
 
         dependedOn->addDependent(this);
     }
     void addDependent(Node* dependent) {
-        fNodesThatDependOnMe.push(dependent);
+        fNodesThatDependOnMe.push_back(dependent);
     }
 
     char             fID;
@@ -424,8 +424,8 @@ static void test_diamond(skiatest::Reporter* reporter) {
 
     {
         SkTDArray<Node*> dependedOn;
-        dependedOn.push(nodeB);
-        dependedOn.push(nodeC);
+        dependedOn.push_back(nodeB);
+        dependedOn.push_back(nodeC);
 
         g.addEdges(&dependedOn, nodeD); // nodes B and C must come before node D
     }
