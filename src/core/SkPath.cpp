@@ -3077,7 +3077,7 @@ static void tangent_cubic(const SkPoint pts[], SkScalar x, SkScalar y,
         }
         SkVector tangent;
         SkEvalCubicAt(c, t, nullptr, &tangent, nullptr);
-        tangents->push_back(tangent);
+        tangents->push(tangent);
     }
 }
 
@@ -3104,7 +3104,7 @@ static void tangent_conic(const SkPoint pts[], SkScalar x, SkScalar y, SkScalar 
             continue;
         }
         SkConic conic(pts, w);
-        tangents->push_back(conic.evalTangentAt(t));
+        tangents->push(conic.evalTangentAt(t));
     }
 }
 
@@ -3130,7 +3130,7 @@ static void tangent_quad(const SkPoint pts[], SkScalar x, SkScalar y,
         if (!SkScalarNearlyEqual(x, xt)) {
             continue;
         }
-        tangents->push_back(SkEvalQuadTangentAt(pts, t));
+        tangents->push(SkEvalQuadTangentAt(pts, t));
     }
 }
 
@@ -3153,7 +3153,7 @@ static void tangent_line(const SkPoint pts[], SkScalar x, SkScalar y,
     }
     SkVector v;
     v.set(dx, dy);
-    tangents->push_back(v);
+    tangents->push(v);
 }
 
 static bool contains_inclusive(const SkRect& r, SkScalar x, SkScalar y) {

@@ -182,7 +182,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
                     currentRangeEntry.fUnicode + i - currentRangeEntry.fStart;
             if (!inSubset || !inRange) {
                 if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
-                    bfrangeEntries.push_back(currentRangeEntry);
+                    bfrangeEntries.push(currentRangeEntry);
                 } else {
                     BFChar* entry = bfcharEntries.append();
                     entry->fGlyphId = currentRangeEntry.fStart;

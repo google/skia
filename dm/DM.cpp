@@ -1269,9 +1269,9 @@ static void gather_tests() {
             continue;
         }
         if (test.needsGpu && FLAGS_gpu) {
-            (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push_back(test);
+            (FLAGS_gpu_threading ? gParallelTests : gSerialTests).push(test);
         } else if (!test.needsGpu && FLAGS_cpu) {
-            gParallelTests.push_back(test);
+            gParallelTests.push(test);
         }
     }
 }

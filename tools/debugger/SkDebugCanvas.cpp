@@ -84,7 +84,7 @@ SkDebugCanvas::~SkDebugCanvas() {
 }
 
 void SkDebugCanvas::addDrawCommand(SkDrawCommand* command) {
-    fCommandVector.push_back(command);
+    fCommandVector.push(command);
 }
 
 void SkDebugCanvas::draw(SkCanvas* canvas) {
