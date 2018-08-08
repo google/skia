@@ -17,6 +17,7 @@
 bool PathOpsDebug::gJson;
 bool PathOpsDebug::gOutFirst;
 bool PathOpsDebug::gCheckForDuplicateNames;
+bool PathOpsDebug::gOutputSVG;
 FILE* PathOpsDebug::gOut;
 
 inline void DebugDumpDouble(double x) {
