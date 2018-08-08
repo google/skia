@@ -171,9 +171,8 @@ private:
 
     void forwardCombine(const GrCaps&);
 
-    // If this returns true then b has been merged into a's op.
-    bool combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
-                           const DstProxy* bDstTexture, const GrCaps&);
+    GrOp::CombineResult combineIfPossible(const RecordedOp& a, GrOp* b, const GrAppliedClip* bClip,
+                                          const DstProxy* bDstTexture, const GrCaps&);
 
     uint32_t                       fLastClipStackGenID;
     SkIRect                        fLastDevClipBounds;
