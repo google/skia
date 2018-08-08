@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "80e1a7bd_b2f89ac2",
+        "filename": "modules/sksg/src/SkSGGroup.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-08T14:01:39Z",
+      "side": 1,
+      "message": "do you need a local_ctx if count \u003c\u003d 1 ?",
+      "range": {
+        "startLine": 54,
+        "startChar": 18,
+        "endLine": 54,
+        "endChar": 23
+      },
+      "revId": "5442f7a1360ec66c5a099f654a16b502636d3dfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cdff53de_dfecbbbb",
+        "filename": "modules/sksg/src/SkSGOpacityEffect.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-08T14:01:39Z",
+      "side": 1,
+      "message": "do we need this copy if fOpacity \u003d\u003d 1?",
+      "range": {
+        "startLine": 26,
+        "startChar": 21,
+        "endLine": 26,
+        "endChar": 24
+      },
+      "revId": "5442f7a1360ec66c5a099f654a16b502636d3dfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf975dd6_ac43a9b5",
+        "filename": "modules/sksg/src/SkSGRenderContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-08T14:01:39Z",
+      "side": 1,
+      "message": "nit: might compute this byte first, and check against that instead of against the float.\n\nAlso, sk_float_round2int()",
+      "revId": "5442f7a1360ec66c5a099f654a16b502636d3dfd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
