@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75422af6_fb464539",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-08T14:28:51Z",
+      "side": 1,
+      "message": "rm \u0027order\u0027",
+      "range": {
+        "startLine": 472,
+        "startChar": 66,
+        "endLine": 472,
+        "endChar": 71
+      },
+      "revId": "207d71084817bb8cd939629f6ff02fbec406a498",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d5148dc_3f8fff8e",
+        "filename": "src/gpu/ops/GrOp.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-08T14:28:51Z",
+      "side": 1,
+      "message": "\u0027almost always\u0027 or \u0027always\u0027 ?",
+      "revId": "207d71084817bb8cd939629f6ff02fbec406a498",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
