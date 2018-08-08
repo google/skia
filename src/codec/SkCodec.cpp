@@ -280,8 +280,8 @@ SkCodec::Result SkCodec::handleFrameIndex(const SkImageInfo& info, void* pixels,
     }
 
     const int requiredFrame = frame->getRequiredFrame();
-    if (requiredFrame != kNone) {
-        if (options.fPriorFrame != kNone) {
+    if (requiredFrame != kNoRequiredFrame) {
+        if (options.fPriorFrame != kNoRequiredFrame) {
             // Check for a valid frame as a starting point. Alternatively, we could
             // treat an invalid frame as not providing one, but rejecting it will
             // make it easier to catch the mistake.
@@ -745,7 +745,7 @@ static SkIRect frame_rect_on_screen(SkIRect frameRect,
 }
 
 static bool independent(const SkFrame& frame) {
-    return frame.getRequiredFrame() == SkCodec::kNone;
+    return frame.getRequiredFrame() == SkCodec::kNoRequiredFrame;
 }
 
 static bool restore_bg(const SkFrame& frame) {
@@ -760,7 +760,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     const int i = frame->frameId();
     if (0 == i) {
         frame->setHasAlpha(reportsAlpha || frameRect != screenRect);
-        frame->setRequiredFrame(SkCodec::kNone);
+        frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
         return;
     }
 
@@ -768,7 +768,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     const bool blendWithPrevFrame = frame->getBlend() == SkCodecAnimation::Blend::kPriorFrame;
     if ((!reportsAlpha || !blendWithPrevFrame) && frameRect == screenRect) {
         frame->setHasAlpha(reportsAlpha);
-        frame->setRequiredFrame(SkCodec::kNone);
+        frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
         return;
     }
 
@@ -777,7 +777,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
         const int prevId = prevFrame->frameId();
         if (0 == prevId) {
             frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNone);
+            frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
             return;
         }
 
@@ -790,7 +790,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     if (clearPrevFrame) {
         if (prevFrameRect == screenRect || independent(*prevFrame)) {
             frame->setHasAlpha(true);
-            frame->setRequiredFrame(SkCodec::kNone);
+            frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
             return;
         }
     }
@@ -807,8 +807,8 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
 
     while (frameRect.contains(prevFrameRect)) {
         const int prevRequiredFrame = prevFrame->getRequiredFrame();
-        if (prevRequiredFrame == SkCodec::kNone) {
-            frame->setRequiredFrame(SkCodec::kNone);
+        if (prevRequiredFrame == SkCodec::kNoRequiredFrame) {
+            frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
             frame->setHasAlpha(true);
             return;
         }
@@ -820,7 +820,7 @@ void SkFrameHolder::setAlphaAndRequiredFrame(SkFrame* frame) {
     if (restore_bg(*prevFrame)) {
         frame->setHasAlpha(true);
         if (prevFrameRect == screenRect || independent(*prevFrame)) {
-            frame->setRequiredFrame(SkCodec::kNone);
+            frame->setRequiredFrame(SkCodec::kNoRequiredFrame);
         } else {
             // Note: As above, frame could still be independent, e.g. if
             // prevFrame covers its required frame and that frame is

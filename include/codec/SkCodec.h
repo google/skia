@@ -252,7 +252,7 @@ public:
             : fZeroInitialized(kNo_ZeroInitialized)
             , fSubset(nullptr)
             , fFrameIndex(0)
-            , fPriorFrame(kNone)
+            , fPriorFrame(kNoRequiredFrame)
         {}
 
         ZeroInitialized            fZeroInitialized;
@@ -283,7 +283,8 @@ public:
         int                        fFrameIndex;
 
         /**
-         *  If not kNone, the dst already contains the prior frame at this index.
+         *  If not kNoRequiredFrame, the dst already contains the prior frame
+         *  at this index.
          *
          *  Only meaningful for multi-frame images.
          *
@@ -293,7 +294,8 @@ public:
          *  indicate that that frame is already in the dst. Options.fZeroInitialized
          *  is ignored in this case.
          *
-         *  If set to kNone, the codec will decode any necessary required frame(s) first.
+         *  If set to kNoRequiredFrame, the codec will decode any necessary
+         *  required frame(s) first.
          */
         int                        fPriorFrame;
     };
@@ -572,8 +574,13 @@ public:
     }
 
     // The required frame for an independent frame is marked as
-    // kNone.
-    static constexpr int kNone = -1;
+    // kNoRequiredFrame.
+    static constexpr int kNoRequiredFrame = -1;
+
+    // This transitional definition was added on August 2018, and will eventually be removed.
+#ifdef SK_LEGACY_SKCODEC_NONE_ENUM
+    static constexpr int kNone = kNoRequiredFrame;
+#endif
 
     /**
      *  Information about individual frames in a multi-framed image.
@@ -581,7 +588,7 @@ public:
     struct FrameInfo {
         /**
          *  The frame that this frame needs to be blended with, or
-         *  kNone if this frame is independent.
+         *  kNoRequiredFrame if this frame is independent.
          *
          *  Note that this is the *earliest* frame that can be used
          *  for blending. Any frame from [fRequiredFrame, i) can be
