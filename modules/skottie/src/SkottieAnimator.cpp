@@ -187,9 +187,7 @@ public:
 
 protected:
     void onTick(float t) override {
-        this->eval(this->frame(t), t, &fScratch);
-
-        fApplyFunc(fScratch);
+        fApplyFunc(*this->eval(this->frame(t), t, &fScratch));
     }
 
 private:
@@ -213,18 +211,20 @@ private:
         return fVs.count() - 1;
     }
 
-    void eval(const KeyframeRec& rec, float t, T* v) const {
+    const T* eval(const KeyframeRec& rec, float t, T* v) const {
         SkASSERT(rec.isValid());
         if (rec.isConstant() || t <= rec.t0) {
-            *v = fVs[rec.vidx0];
+            return &fVs[rec.vidx0];
         } else if (t >= rec.t1) {
-            *v = fVs[rec.vidx1];
-        } else {
-            const auto lt = this->localT(rec, t);
-            const auto& v0 = fVs[rec.vidx0];
-            const auto& v1 = fVs[rec.vidx1];
-            ValueTraits<T>::Lerp(v0, v1, lt, v);
+            return &fVs[rec.vidx1];
         }
+
+        const auto lt = this->localT(rec, t);
+        const auto& v0 = fVs[rec.vidx0];
+        const auto& v1 = fVs[rec.vidx1];
+        ValueTraits<T>::Lerp(v0, v1, lt, v);
+
+        return v;
     }
 
     const std::function<void(const T&)> fApplyFunc;
