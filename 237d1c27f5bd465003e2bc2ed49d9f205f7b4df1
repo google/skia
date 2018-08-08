@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fb1674b_ca4a25db",
+        "filename": "src/gpu/gl/GrGLProgram.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-08T16:26:59Z",
+      "side": 1,
+      "message": "Reuse helper? eg:\nif (primProcTextures) {\n    this-\u003eupdatePrimitiveProcessorTextureBindings(primProc, primProcTextures);\n}\nint nextTexSamplerIdx \u003d primProc.numTextureSamplers();",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 97,
+        "endChar": 0
+      },
+      "revId": "237d1c27f5bd465003e2bc2ed49d9f205f7b4df1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
