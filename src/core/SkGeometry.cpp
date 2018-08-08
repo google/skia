@@ -295,10 +295,10 @@ void SkConvertQuadToCubic(const SkPoint src[3], SkPoint dst[4]) {
     Sk2s s1 = from_point(src[1]);
     Sk2s s2 = from_point(src[2]);
 
-    dst[0] = src[0];
+    dst[0] = to_point(s0);
     dst[1] = to_point(s0 + (s1 - s0) * scale);
     dst[2] = to_point(s2 + (s1 - s2) * scale);
-    dst[3] = src[2];
+    dst[3] = to_point(s2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -391,13 +391,13 @@ void SkChopCubicAt(const SkPoint src[4], SkPoint dst[7], SkScalar t) {
     Sk2s    bcd = interp(bc, cd, tt);
     Sk2s    abcd = interp(abc, bcd, tt);
 
-    dst[0] = src[0];
+    dst[0] = to_point(p0);
     dst[1] = to_point(ab);
     dst[2] = to_point(abc);
     dst[3] = to_point(abcd);
     dst[4] = to_point(bcd);
     dst[5] = to_point(cd);
-    dst[6] = src[3];
+    dst[6] = to_point(p3);
 }
 
 /*  http://code.google.com/p/skia/issues/detail?id=32
