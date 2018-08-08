@@ -636,20 +636,27 @@ public:
      *
      *  As such, future decoding calls may require a rewind.
      *
-     *  For single-frame images, this will return an empty vector.
+     *  This will return an empty vector for still (non-animated) image formats, but will return
+     *  a one-element vector for a single-frame animation.
      */
     std::vector<FrameInfo> getFrameInfo();
 
     static constexpr int kRepetitionCountInfinite = -1;
 
     /**
-     *  Return the number of times to repeat, if this image is animated.
+     *  Return the number of times to repeat, if this image is animated. This number does not
+     *  include the first play through of each frame. For example, a repetition count of 4 means
+     *  that each frame is played 5 times and then the animation stops.
+     *
+     *  It can return kRepetitionCountInfinite, a negative number, meaning that the animation
+     *  should loop forever.
      *
      *  May require reading the stream to find the repetition count.
      *
      *  As such, future decoding calls may require a rewind.
      *
-     *  For single-frame images, this will return 0.
+     *  This will return 0 for still (non-animated) image formats, but may return non-zero for a
+     *  single-frame animation.
      */
     int getRepetitionCount() {
         return this->onGetRepetitionCount();
