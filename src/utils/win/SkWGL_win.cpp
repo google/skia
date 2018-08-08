@@ -304,8 +304,8 @@ static void get_pixel_formats_to_try(HDC dc, const SkWGLExtensions& extensions,
                                      bool doubleBuffered, int msaaSampleCount, bool deepColor,
                                      int formatsToTry[2]) {
     auto appendAttr = [](SkTDArray<int>& attrs, int attr, int value) {
-        attrs.push(attr);
-        attrs.push(value);
+        attrs.push_back(attr);
+        attrs.push_back(value);
     };
 
     SkTDArray<int> iAttrs;

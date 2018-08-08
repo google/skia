@@ -100,7 +100,7 @@ struct SkPathOpsDebug::GlitchLog {
     }
 
     SpanGlitch* recordCommon(GlitchType type) {
-        SpanGlitch* glitch = fGlitches.push();
+        SpanGlitch* glitch = fGlitches.push_back();
         glitch->fBase = nullptr;
         glitch->fSuspect = nullptr;
         glitch->fSegment = nullptr;
@@ -1394,7 +1394,7 @@ void SkOpAngle::debugValidateNext() const {
     SkTDArray<const SkOpAngle*>(angles);
     do {
 //        SkASSERT_RELEASE(next->fSegment->debugContains(next));
-        angles.push(next);
+        angles.push_back(next);
         next = next->next();
         if (next == first) {
             break;
