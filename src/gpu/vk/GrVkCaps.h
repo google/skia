@@ -28,7 +28,7 @@ public:
      * be called to fill out the caps.
      */
     GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-             VkPhysicalDevice device, const VkPhysicalDeviceFeatures& features,
+             VkPhysicalDevice device, const VkPhysicalDeviceFeatures2& features,
              uint32_t instanceVersion, const GrVkExtensions& extensions);
 
     bool isConfigTexturable(GrPixelConfig config) const override {
@@ -158,11 +158,11 @@ private:
     };
 
     void init(const GrContextOptions& contextOptions, const GrVkInterface* vkInterface,
-              VkPhysicalDevice device, const VkPhysicalDeviceFeatures&, const GrVkExtensions&);
+              VkPhysicalDevice device, const VkPhysicalDeviceFeatures2&, const GrVkExtensions&);
     void initGrCaps(const VkPhysicalDeviceProperties&,
                     const VkPhysicalDeviceMemoryProperties&,
-                    const VkPhysicalDeviceFeatures&);
-    void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures&);
+                    const VkPhysicalDeviceFeatures2&);
+    void initShaderCaps(const VkPhysicalDeviceProperties&, const VkPhysicalDeviceFeatures2&);
 
 #ifdef GR_TEST_UTILS
     GrBackendFormat onCreateFormatFromBackendTexture(const GrBackendTexture&) const override;

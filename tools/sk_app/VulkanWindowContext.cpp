@@ -61,13 +61,16 @@ void VulkanWindowContext::initializeContext() {
     };
     GrVkBackendContext backendContext;
     GrVkExtensions extensions;
-    if (!sk_gpu_test::CreateVkBackendContext(getProc, &backendContext, &extensions, &fDebugCallback,
-                                             &fPresentQueueIndex, fCanPresentFn)) {
+    VkPhysicalDeviceFeatures2 features;
+    if (!sk_gpu_test::CreateVkBackendContext(getProc, &backendContext, &extensions, &features,
+                                             &fDebugCallback, &fPresentQueueIndex, fCanPresentFn)) {
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
 
     if (!extensions.hasExtension(VK_KHR_SURFACE_EXTENSION_NAME, 25) ||
         !extensions.hasExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME, 68)) {
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
 
@@ -83,6 +86,7 @@ void VulkanWindowContext::initializeContext() {
                                             backendContext.fInstance,
                                             VK_NULL_HANDLE));
     if (!localGetPhysicalDeviceProperties) {
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
     VkPhysicalDeviceProperties physDeviceProperties;
@@ -117,6 +121,7 @@ void VulkanWindowContext::initializeContext() {
     fSurface = fCreateVkSurfaceFn(fInstance);
     if (VK_NULL_HANDLE == fSurface) {
         this->destroyContext();
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
 
@@ -125,16 +130,19 @@ void VulkanWindowContext::initializeContext() {
                                                        fSurface, &supported);
     if (VK_SUCCESS != res) {
         this->destroyContext();
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
 
     if (!this->createSwapchain(-1, -1, fDisplayParams)) {
         this->destroyContext();
+        sk_gpu_test::FreeVulkanFeaturesStructs(&features);
         return;
     }
 
     // create presentQueue
     fGetDeviceQueue(fDevice, fPresentQueueIndex, 0, &fPresentQueue);
+    sk_gpu_test::FreeVulkanFeaturesStructs(&features);
 }
 
 bool VulkanWindowContext::createSwapchain(int width, int height,
