@@ -48,7 +48,7 @@ DEF_TEST(Codec_565, r) {
 
     SkCodec::Options options;
     options.fFrameIndex = 1;
-    options.fPriorFrame = SkCodec::kNone;
+    options.fPriorFrame = SkCodec::kNoRequiredFrame;
 
     const auto result = codec->getPixels(info, bm.getPixels(), bm.rowBytes(),
                                          &options);
@@ -65,6 +65,7 @@ DEF_TEST(Codec_frames, r) {
     #define kKeep           SkCodecAnimation::DisposalMethod::kKeep
     #define kRestoreBG      SkCodecAnimation::DisposalMethod::kRestoreBGColor
     #define kRestorePrev    SkCodecAnimation::DisposalMethod::kRestorePrevious
+    static constexpr int kNoRequiredFrame = SkCodec::kNoRequiredFrame;
     static const struct {
         const char*                                   fName;
         int                                           fFrameCount;
@@ -86,8 +87,7 @@ DEF_TEST(Codec_frames, r) {
             0,
             { kKeep, kRestoreBG, kKeep, kKeep, kKeep, kRestoreBG, kKeep } },
         { "images/alphabetAnim.gif", 13,
-            { SkCodec::kNone, 0, 0, 0, 0, 5, 6, SkCodec::kNone,
-              SkCodec::kNone, 9, 10, 11 },
+            { kNoRequiredFrame, 0, 0, 0, 0, 5, 6, kNoRequiredFrame, kNoRequiredFrame, 9, 10, 11 },
             { kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul,
               kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul, kUnpremul },
             { 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100 },
@@ -139,13 +139,13 @@ DEF_TEST(Codec_frames, r) {
         { "images/webp-animated.webp", 3, { 0, 1 }, { kOpaque, kOpaque },
             { 1000, 500, 1000 }, SkCodec::kRepetitionCountInfinite,
             { kKeep, kKeep, kKeep } },
-        { "images/blendBG.webp", 7, { 0, SkCodec::kNone, SkCodec::kNone, SkCodec::kNone,
-                               4, 4 },
+        { "images/blendBG.webp", 7,
+            { 0, kNoRequiredFrame, kNoRequiredFrame, kNoRequiredFrame, 4, 4 },
             { kOpaque, kOpaque, kUnpremul, kOpaque, kUnpremul, kUnpremul },
             { 525, 500, 525, 437, 609, 729, 444 }, 7,
             { kKeep, kKeep, kKeep, kKeep, kKeep, kKeep, kKeep } },
         { "images/required.webp", 7,
-            { 0, 1, 1, SkCodec::kNone, 4, 4 },
+            { 0, 1, 1, kNoRequiredFrame, 4, 4 },
             { kOpaque, kUnpremul, kUnpremul, kOpaque, kOpaque, kOpaque },
             { 100, 100, 100, 100, 100, 100, 100 },
             1,
@@ -281,7 +281,7 @@ DEF_TEST(Codec_frames, r) {
                 }
 
                 if (0 == i) {
-                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNone);
+                    REPORTER_ASSERT(r, frameInfo.fRequiredFrame == SkCodec::kNoRequiredFrame);
                 } else if (rec.fRequiredFrames[i-1] != frameInfo.fRequiredFrame) {
                     ERRORF(r, "%s's frame %i has wrong dependency! expected: %i\tactual: %i",
                            rec.fName, i, rec.fRequiredFrames[i-1], frameInfo.fRequiredFrame);
@@ -311,7 +311,7 @@ DEF_TEST(Codec_frames, r) {
                     decodeInfo = info.makeAlphaType(frameInfos[index].fAlphaType);
                 }
                 bm->allocPixels(decodeInfo);
-                if (cachedIndex != SkCodec::kNone) {
+                if (cachedIndex != SkCodec::kNoRequiredFrame) {
                     // First copy the pixels from the cached frame
                     const bool success = sk_tool_utils::copy_to(bm, kN32_SkColorType,
                             cachedFrames[cachedIndex]);
@@ -322,7 +322,8 @@ DEF_TEST(Codec_frames, r) {
                 opts.fPriorFrame = cachedIndex;
                 const auto result = codec->getPixels(decodeInfo, bm->getPixels(), bm->rowBytes(),
                                                      &opts);
-                if (cachedIndex != SkCodec::kNone && restore_previous(frameInfos[cachedIndex])) {
+                if (cachedIndex != SkCodec::kNoRequiredFrame &&
+                        restore_previous(frameInfos[cachedIndex])) {
                     if (result == SkCodec::kInvalidParameters) {
                         return true;
                     }
@@ -338,11 +339,11 @@ DEF_TEST(Codec_frames, r) {
 
             for (int i = 0; i < frameCount; i++) {
                 SkBitmap& cachedFrame = cachedFrames[i];
-                if (!decode(&cachedFrame, i, SkCodec::kNone)) {
+                if (!decode(&cachedFrame, i, SkCodec::kNoRequiredFrame)) {
                     continue;
                 }
                 const auto reqFrame = frameInfos[i].fRequiredFrame;
-                if (reqFrame == SkCodec::kNone) {
+                if (reqFrame == SkCodec::kNoRequiredFrame) {
                     // Nothing to compare against.
                     continue;
                 }
@@ -430,7 +431,7 @@ DEF_TEST(AndroidCodec_animated, r) {
             SkBitmap bm2;
             bm2.allocPixels(info);
 
-            options.fPriorFrame = SkCodec::kNone;
+            options.fPriorFrame = SkCodec::kNoRequiredFrame;
             result = codec->codec()->getPixels(info, bm2.getPixels(), bm2.rowBytes(),
                                                &options);
             REPORTER_ASSERT(r, result == SkCodec::kSuccess);
