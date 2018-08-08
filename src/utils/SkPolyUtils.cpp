@@ -557,10 +557,13 @@ enum VertexFlags {
 };
 
 struct ActiveEdge {
+    ActiveEdge() : fChild{nullptr, nullptr}, fRed(false) {}
     ActiveEdge(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1)
         : fSegment({p0, p1-p0})
         , fIndex0(index0)
-        , fIndex1(index1) {}
+        , fIndex1(index1)
+        , fChild{nullptr, nullptr}
+        , fRed(true) {}
 
     // returns true if "this" is above "that"
     bool above(const ActiveEdge& that) const {
@@ -614,6 +617,7 @@ struct ActiveEdge {
         }
     }
 
+    //**** change to pointer
     bool intersect(const ActiveEdge& that) const {
         // check first to see if these edges are neighbors in the polygon
         if (this->fIndex0 == that.fIndex0 || this->fIndex1 == that.fIndex0 ||
@@ -678,26 +682,93 @@ struct ActiveEdge {
     }
 
     OffsetSegment fSegment;
-    uint16_t fIndex0;   // indices for previous and next vertex
+    uint16_t fIndex0;   // indices for previous and next vertex in polygon
     uint16_t fIndex1;
+    ActiveEdge* fChild[2];  //*** switch to indices after it's working
+    int32_t  fRed;
 };
 
 class ActiveEdgeList {
 public:
+    ActiveEdgeList() : fEdgeTree(nullptr) {}
+
     bool insert(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1) {
-        std::pair<Iterator, bool> result = fEdgeTree.emplace(p0, p1, index0, index1);
-        if (!result.second) {
+        ActiveEdge* newNode = new ActiveEdge(p0, p1, index0, index1);
+        SkASSERT(newNode);
+        if (!newNode) {
             return false;
         }
 
-        Iterator& curr = result.first;
-        if (curr != fEdgeTree.begin() && curr->intersect(*std::prev(curr))) {
-            return false;
+        // empty tree case -- easy
+        if (!fEdgeTree) {
+            fEdgeTree = newNode;
+            fEdgeTree->fRed = false;
+            return true;
         }
-        Iterator next = std::next(curr);
-        if (next != fEdgeTree.end() && curr->intersect(*next)) {
-            return false;
+
+        // set up helpers
+        ActiveEdge head;
+        ActiveEdge* top = &head;
+        ActiveEdge *grandparent = nullptr;
+        ActiveEdge *parent = nullptr;
+        ActiveEdge *curr = top->fChild[1] = fEdgeTree;
+        int dir = 0;
+        int last = 1; // ?
+        // predecessor and successor, for intersection check
+        ActiveEdge* pred = nullptr;
+        ActiveEdge* succ = nullptr;
+
+        // search down the tree
+        for (;;) {
+            if (!curr) {
+                // check for intersection with predecessor and successor
+                if ((pred && pred->intersect(*curr)) || (succ && succ->intersect(*curr))) {
+                    return false;
+                }
+                // insert new node at bottom
+                parent->fChild[dir] = curr = newNode;
+            } else if (is_red(curr->fChild[0]) && is_red(curr->fChild[1])) {
+                // color flip
+                curr->fRed = true;
+                curr->fChild[0]->fRed = false;
+                curr->fChild[1]->fRed = false;
+            }
+
+            // fixup red violation
+            if (is_red(curr) && is_red(parent)) {
+                int dir2 = (top->fChild[1] == grandparent);
+                if (curr == parent->fChild[last]) {
+                    top->fChild[dir2] = single_rotation(grandparent, !last);
+                } else {
+                    top->fChild[dir2] = double_rotation(grandparent, !last);
+                }
+            }
+
+            // stop if found (*** why not just stop if inserted?)
+            if (curr->fIndex0 == index0 && curr->fIndex1 == index1) {
+                break;
+            }
+
+            last = dir;
+            dir = curr->operator<(*newNode);
+            if (0 == dir) {
+                succ = curr;
+            } else {
+                pred = curr;
+            }
+
+            // update helpers
+            if (grandparent) {
+                top = grandparent;
+            }
+
+            grandparent = parent;
+            parent = curr;
+            curr = curr->fChild[dir];
         }
+
+        fEdgeTree = head.fChild[1];
+        fEdgeTree->fRed = false;
 
         return true;
     }
@@ -721,8 +792,68 @@ public:
     }
 
 private:
-    std::set<ActiveEdge> fEdgeTree;
-    typedef std::set<ActiveEdge>::iterator Iterator;
+    ///////////////////////////////////////////////////////////////////////////////////
+    // Red-black tree methods
+    ///////////////////////////////////////////////////////////////////////////////////
+    static bool is_red(const ActiveEdge* node) {
+        return node && node->fRed;
+    }
+
+    static ActiveEdge* single_rotation(ActiveEdge* node, int dir) {
+        ActiveEdge* tmp = node->fChild[!dir];
+
+        node->fChild[!dir] = tmp->fChild[dir];
+        tmp->fChild[dir] = node;
+
+        node->fRed = true;
+        tmp->fRed = false;
+
+        return tmp;
+    }
+
+    static ActiveEdge* double_rotation(ActiveEdge* node, int dir) {
+        node->fChild[!dir] = single_rotation(node, dir);
+
+        return single_rotation(node, dir);
+    }
+
+    static int verify_tree(const ActiveEdge* tree) {
+        if (!tree) {
+            return 1;
+        }
+
+        const ActiveEdge* left = tree->fChild[0];
+        const ActiveEdge* right = tree->fChild[1];
+
+        // no consecutive red links
+        if (is_red(tree) && (is_red(left) || is_red(right))) {
+            SkASSERT(false);
+            return 0;
+        }
+
+        // violates binary tree order
+        if (left && tree->operator<(*left) || right && right->operator<(*tree)) {
+            SkASSERT(false);
+            return 0;
+        }
+
+        int leftCount = verify_tree(left);
+        int rightCount = verify_tree(right);
+
+        // return black link count
+        if (leftCount != 0 && rightCount != 0) {
+            // black height mismatch
+            if (leftCount != rightCount) {
+                SkASSERT(false);
+                return 0;
+            }
+            return is_red(tree) ? leftCount : leftCount + 1;
+        } else {
+            return 0;
+        }
+    }
+
+    ActiveEdge* fEdgeTree;
 };
 
 // Here we implement a sweep line algorithm to determine whether the provided points
