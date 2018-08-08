@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb12fba0_5e02dad8",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-08T11:55:53Z",
+      "side": 1,
+      "message": "here\u0027s a case where even I would use auto.",
+      "revId": "c610ddd669226f63e262a4bd28f22d0967513d11",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
