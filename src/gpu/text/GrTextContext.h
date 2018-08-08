@@ -117,7 +117,7 @@ private:
     void regenerateGlyphRunList(GrTextBlob* bmp,
                             GrGlyphCache*,
                             const GrShaderCaps&,
-                            const GrTextUtils::Paint&,
+                            const SkPaint&,
                             GrColor filteredColor,
                             SkScalerContextFlags scalerContextFlags,
                             const SkMatrix& viewMatrix,

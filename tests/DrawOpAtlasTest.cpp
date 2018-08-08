@@ -194,14 +194,11 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAtlasTextOpPreparation, reporter, ctxInfo) 
     paint.setLCDRenderText(false);
     paint.setAntiAlias(false);
     paint.setSubpixelText(false);
-    GrTextUtils::Paint utilsPaint(&paint, &rtc->colorSpaceInfo());
 
     const char* text = "a";
 
-    std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(context, textContext,
-                                                                     rtc.get(), paint,
-                                                                     SkMatrix::I(), text,
-                                                                     16, 16);
+    std::unique_ptr<GrDrawOp> op = textContext->createOp_TestingOnly(
+            context, textContext, rtc.get(), paint, SkMatrix::I(), text, 16, 16);
     op->finalize(*context->contextPriv().caps(), nullptr);
 
     TestingUploadTarget uploadTarget;

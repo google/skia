@@ -282,44 +282,6 @@ void GrTextContext::FallbackGlyphRunHelper::initializeForDraw(
 
 #include "GrRenderTargetContext.h"
 
-std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context,
-                                                              GrTextContext* textContext,
-                                                              GrRenderTargetContext* rtc,
-                                                              const SkPaint& skPaint,
-                                                              const SkMatrix& viewMatrix,
-                                                              const char* text,
-                                                              int x,
-                                                              int y) {
-    auto glyphCache = context->contextPriv().getGlyphCache();
-
-    static SkSurfaceProps surfaceProps(SkSurfaceProps::kLegacyFontHost_InitType);
-
-    size_t textLen = (int)strlen(text);
-
-    GrTextUtils::Paint utilsPaint(&skPaint, &rtc->colorSpaceInfo());
-
-    auto origin = SkPoint::Make(x, y);
-    SkGlyphRunBuilder builder;
-    builder.drawText(skPaint, text, textLen, origin);
-
-
-    auto glyphRunList = builder.useGlyphRunList();
-    sk_sp<GrTextBlob> blob;
-    if (!glyphRunList.empty()) {
-        blob = context->contextPriv().getTextBlobCache()->makeBlob(glyphRunList);
-        // Use the text and textLen below, because we don't want to mess with the paint.
-        SkScalerContextFlags scalerContextFlags =
-                ComputeScalerContextFlags(rtc->colorSpaceInfo());
-        textContext->regenerateGlyphRunList(
-                blob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(), utilsPaint,
-                utilsPaint.filteredPremulColor(), scalerContextFlags, viewMatrix, surfaceProps,
-                glyphRunList, rtc->textTarget()->glyphDrawer());
-    }
-
-    return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, utilsPaint, surfaceProps,
-                             textContext->dfAdjustTable(), rtc->textTarget());
-}
-
 GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
     static uint32_t gContextID = SK_InvalidGenID;
     static std::unique_ptr<GrTextContext> gTextContext;

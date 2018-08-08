@@ -195,12 +195,12 @@ public:
         }
     }
 
-    bool mustRegenerate(const GrTextUtils::Paint&, const SkMaskFilterBase::BlurRec& blurRec,
+    bool mustRegenerate(const SkPaint&, const SkMaskFilterBase::BlurRec& blurRec,
                         const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     void flush(GrTextUtils::Target*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
-               const GrTextUtils::Paint& paint, const GrClip& clip,
+               const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
                const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
                SkScalar y);
 
@@ -276,8 +276,8 @@ public:
     // Internal test methods
     std::unique_ptr<GrDrawOp> test_makeOp(int glyphCount, uint16_t run, uint16_t subRun,
                                           const SkMatrix& viewMatrix, SkScalar x, SkScalar y,
-                                          const GrTextUtils::Paint&, const SkSurfaceProps&,
-                                          const GrDistanceFieldAdjustTable*,
+                                          const SkPaint& paint, GrColor filteredColor,
+                                          const SkSurfaceProps&, const GrDistanceFieldAdjustTable*,
                                           GrTextUtils::Target*);
 
 private:
@@ -513,7 +513,7 @@ private:
     inline std::unique_ptr<GrAtlasTextOp> makeOp(
             const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
             const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
-            const GrTextUtils::Paint&, const SkSurfaceProps&,
+            const SkPaint& paint, GrColor filteredColor, const SkSurfaceProps&,
             const GrDistanceFieldAdjustTable*, GrTextUtils::Target*);
 
     struct StrokeInfo {
