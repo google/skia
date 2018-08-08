@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d25a5733_675a38a9",
+        "filename": "bench/Benchmark.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T21:51:36Z",
+      "side": 0,
+      "message": "I think I don\u0027t really care about removing this, but this does change the behavior of the function right?  Even if fForceAlpha was never changed from 0xFF, not calling setAlpha() isn\u0027t the same as calling setAlpha(0xFF), right?\n\nSame deal with the filter quality change?",
+      "revId": "c09e2b9eaea0847f7fd752748581d535394a534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
