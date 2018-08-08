@@ -28,8 +28,11 @@ enum GrVkFeatureFlags {
     kGeometryShader_GrVkFeatureFlag    = 0x0001,
     kDualSrcBlend_GrVkFeatureFlag      = 0x0002,
     kSampleRateShading_GrVkFeatureFlag = 0x0004,
-    kIgnoreAllFlags_GrVkFeatureFlag    = 0x0008,
 };
+
+// It is not guarenteed VkPhysicalDeviceProperties2 will be in the client's header so we forward
+// declare it here to be safe.
+struct VkPhysicalDeviceFeatures2;
 
 // The BackendContext contains all of the base Vulkan objects needed by the GrVkGpu. The assumption
 // is that the client will set these up and pass them to the GrVkGpu constructor. The VkDevice
@@ -49,8 +52,14 @@ struct SK_API GrVkBackendContext {
     uint32_t                   fInstanceVersion = 0;
     uint32_t                   fExtensions = 0; // Deprecated. Use fVkExtensions instead.
     const GrVkExtensions*      fVkExtensions = nullptr;
-    uint32_t                   fFeatures = kIgnoreAllFlags_GrVkFeatureFlag;
-    VkPhysicalDeviceFeatures   fDeviceFeatures;
+    uint32_t                   fFeatures; // Deprecated. Use either fDeviceFeatures[2] instead.
+    // The client can create their VkDevice with either a VkPhysicalDeviceFeatures or
+    // VkPhysicalDeviceFeatures2 struct, thus we have to support taking both. The
+    // VkPhysicalDeviceFeatures2 struct is needed so we know if the client enabled any extension
+    // specific features. If fDeviceFeatures2 is not null then we ignore fDeviceFeatures. If both
+    // fDeviceFeatures and fDeviceFeatures2 are null we will assume no features are enabled.
+    VkPhysicalDeviceFeatures*  fDeviceFeatures = nullptr;
+    VkPhysicalDeviceFeatures2* fDeviceFeatures2 = nullptr;
     sk_sp<GrVkMemoryAllocator> fMemoryAllocator;
     GrVkGetProc                fGetProc = nullptr;
     // This is deprecated and should be set to false. The client is responsible for managing the
