@@ -239,7 +239,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         fSupportsMaintenance3 = true;
     }
 
-    this->initGrCaps(properties, memoryProperties, features);
+    this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);
 
     if (!contextOptions.fDisableDriverCorrectnessWorkarounds) {
@@ -344,9 +344,33 @@ int get_max_sample_count(VkSampleCountFlags flags) {
     return 64;
 }
 
-void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
+template<typename T> T* get_extension_feature_struct(const VkPhysicalDeviceFeatures2& features,
+                                                     VkStructureType type) {
+    // All Vulkan structs that could be part of the features chain will start with the
+    // structure type followed by the pNext pointer. We cast to the CommonVulkanHeader
+    // so we can get access to the pNext for the next struct.
+    struct CommonVulkanHeader {
+        VkStructureType sType;
+        void*           pNext;
+    };
+
+    void* pNext = features.pNext;
+    while (pNext) {
+        CommonVulkanHeader* header = static_cast<CommonVulkanHeader*>(pNext);
+        if (header->sType == type) {
+            return static_cast<T*>(pNext);
+        }
+        pNext = header->pNext;
+    }
+    return nullptr;
+}
+
+void GrVkCaps::initGrCaps(const GrVkInterface* vkInterface,
+                          VkPhysicalDevice physDev,
+                          const VkPhysicalDeviceProperties& properties,
                           const VkPhysicalDeviceMemoryProperties& memoryProperties,
-                          const VkPhysicalDeviceFeatures2& features) {
+                          const VkPhysicalDeviceFeatures2& features,
+                          const GrVkExtensions& extensions) {
     // So GPUs, like AMD, are reporting MAX_INT support vertex attributes. In general, there is no
     // need for us ever to support that amount, and it makes tests which tests all the vertex
     // attribs timeout looping over that many. For now, we'll cap this at 64 max and can raise it if
@@ -376,6 +400,37 @@ void GrVkCaps::initGrCaps(const VkPhysicalDeviceProperties& properties,
 
     fOversizedStencilSupport = true;
     fSampleShadingSupport = features.features.sampleRateShading;
+
+    if (extensions.hasExtension(VK_EXT_BLEND_OPERATION_ADVANCED_EXTENSION_NAME, 2) &&
+        this->supportsPhysicalDeviceProperties2()) {
+
+        VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blendProps;
+        blendProps.sType =
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_PROPERTIES_EXT;
+        blendProps.pNext = nullptr;
+
+        VkPhysicalDeviceProperties2 props;
+        props.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+        props.pNext = &blendProps;
+
+        GR_VK_CALL(vkInterface, GetPhysicalDeviceProperties2(physDev, &props));
+
+        if (blendProps.advancedBlendAllOperations == VK_TRUE) {
+            fShaderCaps->fAdvBlendEqInteraction = GrShaderCaps::kAutomatic_AdvBlendEqInteraction;
+
+            auto blendFeatures =
+                get_extension_feature_struct<VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT>(
+                    features,
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT);
+            if (blendFeatures && blendFeatures->advancedBlendCoherentOperations == VK_TRUE) {
+                fBlendEquationSupport = kAdvancedCoherent_BlendEquationSupport;
+            } else {
+                // TODO: Currently non coherent blends are not supported in our vulkan backend. They
+                // require us to support self dependencies in our render passes.
+                // fBlendEquationSupport = kAdvanced_BlendEquationSupport;
+            }
+        }
+    }
 }
 
 void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
