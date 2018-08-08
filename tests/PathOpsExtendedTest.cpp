@@ -495,9 +495,40 @@ static void json_path_out(const SkPath& path, const char* pathName, const char* 
         "InverseWinding",
         "InverseEvenOdd",
     };
-    SkString svg;
-    SkParsePath::ToSVGString(path, &svg);
-    fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
+    if (PathOpsDebug::gOutputSVG) {
+        SkString svg;
+        SkParsePath::ToSVGString(path, &svg);
+        fprintf(PathOpsDebug::gOut, "  \"%s\": \"%s\",\n", pathName, svg.c_str());
+    } else {
+        SkPath::RawIter iter(path);
+        SkPath::Verb verb;
+        const char* verbStr[] =  { "MOVE", "LINE", "QUAD", "CONIC", "CUBIC", "CLOSE", "DONE" };
+        const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };
+        fprintf(PathOpsDebug::gOut, "  \"%s\": [", pathName);
+        bool first = true;
+        do {
+            SkPoint points[4];
+            verb = iter.next(points);
+            if (SkPath::kDone_Verb == verb) {
+                break;
+            }
+            if (first) {
+                first = false;
+            } else {
+                fprintf(PathOpsDebug::gOut, ",\n    ");
+            }
+            fprintf(PathOpsDebug::gOut, "[\"%s\"", verbStr[(int) verb]);
+            for (int i = 0; i < pointCount[(int) verb]; ++i) {
+                fprintf(PathOpsDebug::gOut, ", \"0x%08x\", \"0x%08x\"",
+                        SkFloat2Bits(points[i].fX), SkFloat2Bits(points[i].fY));
+            }
+            fprintf(PathOpsDebug::gOut, "]");
+            if (SkPath::kConic_Verb == verb) {
+                fprintf(PathOpsDebug::gOut, ", \"0x%08x\"", SkFloat2Bits(iter.conicWeight()));
+            }
+        } while (SkPath::kDone_Verb != verb);
+        fprintf(PathOpsDebug::gOut, "],\n");
+    }
     fprintf(PathOpsDebug::gOut, "  \"fillType%s\": \"k%s_FillType\"%s", fillTypeName,
             gFillTypeStrs[(int) path.getFillType()], lastField ? "\n}" : ",\n");
 }
@@ -514,12 +545,28 @@ static bool check_for_duplicate_names(const char* testName) {
     return false;
 }
 
+static bool check_for_conics(const SkPath& path) {
+    SkPath::RawIter iter(path);
+    SkPath::Verb verb;
+    do {
+        SkPoint pts[4];
+        verb = iter.next(pts);
+        if (SkPath::kConic_Verb == verb) {
+            return true;
+        }
+     } while (SkPath::kDone_Verb != verb);
+     return false;
+}
+
 static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
         ExpectSuccess expectSuccess, SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showPathData(path);
 #endif
     if (PathOpsDebug::gJson) {
+        if (check_for_conics(path)) {
+            return true;
+        }
         if (check_for_duplicate_names(filename)) {
             return true;
         }
@@ -604,6 +651,9 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     showName(a, b, shapeOp);
 #endif
     if (PathOpsDebug::gJson) {
+        if (check_for_conics(a) || check_for_conics(b)) {
+            return true;
+        }
         if (check_for_duplicate_names(testName)) {
             return true;
         }
