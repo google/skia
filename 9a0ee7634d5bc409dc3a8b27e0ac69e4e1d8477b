@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48e2f6c0_7c0dcd1d",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T15:33:01Z",
+      "side": 1,
+      "message": "we can probably streamline this a step further, changing the argument name or s/skPaint/paint/g below?",
+      "range": {
+        "startLine": 241,
+        "startChar": 8,
+        "endLine": 241,
+        "endChar": 39
+      },
+      "revId": "9a0ee7634d5bc409dc3a8b27e0ac69e4e1d8477b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b68f5d5b_c87ebc3b",
+        "filename": "src/gpu/text/GrTextUtils.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T15:33:01Z",
+      "side": 1,
+      "message": "If we\u0027re inlining this, it probably also makes sense to switch to\n\ntemplate \u003ctypename Fn\u003e\nbool modifyForRun(Fn\u0026\u0026 paintModFunc /*void(SkPaint*)*/) {\n...\n}\n\nto pass the lambdas directly and avoid the overhead of ever creating the std::functions?",
+      "revId": "9a0ee7634d5bc409dc3a8b27e0ac69e4e1d8477b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
