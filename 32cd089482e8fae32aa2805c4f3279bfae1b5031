@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3fa25c68_0997c862",
+        "filename": "src/gpu/text/GrTextBlob.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-08T16:02:57Z",
+      "side": 1,
+      "message": "clean up?",
+      "revId": "32cd089482e8fae32aa2805c4f3279bfae1b5031",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
