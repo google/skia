@@ -16,6 +16,24 @@
       "revId": "c09e2b9eaea0847f7fd752748581d535394a534c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "636f9ef4_07759aff",
+        "filename": "bench/Benchmark.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-09T13:03:54Z",
+      "side": 0,
+      "message": "Yeah. Looking through all the benchmarks, 90% of them are calling setupPaint on a default constructed SkPaint, or one that has only been configured with state disjoint from the state in here. The other ones are jumping through hoops to override the behavior of this function and re-set alpha and flags after calling setupPaint. :/",
+      "parentUuid": "d25a5733_675a38a9",
+      "revId": "c09e2b9eaea0847f7fd752748581d535394a534c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
