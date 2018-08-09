@@ -37,7 +37,7 @@ uint16_t SkScalerContextProxy::generateCharToGlyph(SkUnichar) {
     return 0;
 }
 
-void SkScalerContextProxy::generateAdvance(SkGlyph* glyph) { this->generateMetrics(glyph); }
+bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) { return false; }
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
     TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
