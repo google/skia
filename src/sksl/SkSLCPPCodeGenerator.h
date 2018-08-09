@@ -49,6 +49,8 @@ private:
 
     void writeIfStatement(const IfStatement& s) override;
 
+    void writeReturnStatement(const ReturnStatement& s) override;
+
     void writeSwitchStatement(const SwitchStatement& s) override;
 
     void writeFunctionCall(const FunctionCall& c) override;
@@ -92,6 +94,7 @@ private:
     std::set<int> fWrittenTransformedCoords;
     // if true, we are writing a C++ expression instead of a GLSL expression
     bool fCPPMode = false;
+    bool fInMain = false;
 
     typedef GLSLCodeGenerator INHERITED;
 };

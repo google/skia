@@ -190,7 +190,7 @@ protected:
 
     virtual void writeSwitchStatement(const SwitchStatement& s);
 
-    void writeReturnStatement(const ReturnStatement& r);
+    virtual void writeReturnStatement(const ReturnStatement& r);
 
     virtual void writeProgramElement(const ProgramElement& e);
 
