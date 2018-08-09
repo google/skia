@@ -23,7 +23,7 @@ protected:
     explicit EffectNode(sk_sp<RenderNode>);
     ~EffectNode() override;
 
-    void onRender(SkCanvas*) const override;
+    void onRender(SkCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
