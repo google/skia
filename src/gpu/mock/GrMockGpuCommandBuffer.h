@@ -24,8 +24,6 @@ public:
     void insertEventMarker(const char*) override {}
 
 private:
-    void submit() override {}
-
     typedef GrGpuTextureCommandBuffer INHERITED;
 };
 
@@ -46,8 +44,6 @@ public:
               const SkIPoint& dstPoint) override {}
 
     int numDraws() const { return fNumDraws; }
-
-    void submit() override { fGpu->submitCommandBuffer(this); }
 
 private:
     void onDraw(const GrPrimitiveProcessor&, const GrPipeline&,

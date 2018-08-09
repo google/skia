@@ -36,29 +36,27 @@ public:
     virtual void insertEventMarker(const char*) = 0;
 
     virtual GrGpuRTCommandBuffer* asRTCommandBuffer() { return nullptr; }
-
-    // Sends the command buffer off to the GPU object to execute the commands built up in the
-    // buffer. The gpu object is allowed to defer execution of the commands until it is flushed.
-    virtual void submit() = 0;
-
-protected:
-    GrGpuCommandBuffer(GrSurfaceOrigin origin) : fOrigin(origin) {}
-
-    GrSurfaceOrigin fOrigin;
 };
 
 class GrGpuTextureCommandBuffer : public GrGpuCommandBuffer{
 public:
-    virtual ~GrGpuTextureCommandBuffer() {}
+    void set(GrTexture* texture, GrSurfaceOrigin origin) {
+        SkASSERT(!fTexture);
 
-    virtual void submit() = 0;
+        fOrigin = origin;
+        fTexture = texture;
+    }
 
 protected:
-    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
-            : INHERITED(origin)
-            , fTexture(texture) {}
+    GrGpuTextureCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fTexture(nullptr) {}
 
-    GrTexture* fTexture;
+    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
+            : fOrigin(origin)
+            , fTexture(texture) {
+    }
+
+    GrSurfaceOrigin fOrigin;
+    GrTexture*      fTexture;
 
 private:
     typedef GrGpuCommandBuffer INHERITED;
@@ -84,8 +82,6 @@ public:
         GrLoadOp  fLoadOp;
         GrStoreOp fStoreOp;
     };
-
-    virtual ~GrGpuRTCommandBuffer() {}
 
     GrGpuRTCommandBuffer* asRTCommandBuffer() { return this; }
 
@@ -122,11 +118,21 @@ public:
     virtual void discard() = 0;
 
 protected:
+    GrGpuRTCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
+
     GrGpuRTCommandBuffer(GrRenderTarget* rt, GrSurfaceOrigin origin)
-            : INHERITED(origin)
+            : fOrigin(origin)
             , fRenderTarget(rt) {
     }
 
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
+        SkASSERT(!fRenderTarget);
+
+        fRenderTarget = rt;
+        fOrigin = origin;
+    }
+
+    GrSurfaceOrigin fOrigin;
     GrRenderTarget* fRenderTarget;
 
 private:

@@ -32,8 +32,6 @@ public:
     void insertEventMarker(const char* msg) override {}
 
 private:
-    void submit() override {}
-
     GrMtlGpu* fGpu;
 
     typedef GrGpuTextureCommandBuffer INHERITED;
@@ -53,8 +51,6 @@ public:
         (void)fStencilLoadAndStoreInfo;
     }
 
-    ~GrMtlGpuRTCommandBuffer() override {}
-
     void begin() override {}
     void end() override {}
 
@@ -68,8 +64,6 @@ public:
               const SkIPoint& dstPoint) override {
         fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
-
-    void submit() override {}
 
 private:
     GrGpu* gpu() override { return fGpu; }
