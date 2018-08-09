@@ -1507,12 +1507,9 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendRenderTarget:
             if (1 == fSampleCount) {
-                auto srgbEncoded = info.colorSpace() && info.colorSpace()->gammaCloseToSRGB()
-                                           ? GrSRGBEncoded::kYes
-                                           : GrSRGBEncoded::kNo;
                 auto colorType = SkColorTypeToGrColorType(info.colorType());
                 backendRT = context->contextPriv().getGpu()->createTestingOnlyBackendRenderTarget(
-                        info.width(), info.height(), colorType, srgbEncoded);
+                        info.width(), info.height(), colorType);
                 surface = SkSurface::MakeFromBackendRenderTarget(
                         context, backendRT, kBottomLeft_GrSurfaceOrigin, info.colorType(),
                         info.refColorSpace(), &props);

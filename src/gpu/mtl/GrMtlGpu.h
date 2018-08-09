@@ -61,8 +61,7 @@ public:
 
     void deleteTestingOnlyBackendTexture(const GrBackendTexture&) override;
 
-    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
-                                                               GrSRGBEncoded) override;
+    GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType) override;
 
     void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) override;
 

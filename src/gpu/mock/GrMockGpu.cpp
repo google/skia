@@ -216,9 +216,8 @@ void GrMockGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 }
 
 GrBackendRenderTarget GrMockGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                      GrColorType colorType,
-                                                                      GrSRGBEncoded srgbEncoded) {
-    auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
+                                                                      GrColorType colorType) {
+    auto config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
     if (kUnknown_GrPixelConfig == config) {
         return {};
     }
