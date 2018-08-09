@@ -100,8 +100,8 @@ bool GrTextureOpList::onExecute(GrOpFlushState* flushState) {
     SkASSERT(fTarget.get()->peekTexture());
 
     std::unique_ptr<GrGpuTextureCommandBuffer> commandBuffer(
-                         flushState->gpu()->createCommandBuffer(fTarget.get()->peekTexture(),
-                                                                fTarget.get()->origin()));
+                         flushState->gpu()->getCommandBuffer(fTarget.get()->peekTexture(),
+                                                             fTarget.get()->origin()));
     flushState->setCommandBuffer(commandBuffer.get());
 
     for (int i = 0; i < fRecordedOps.count(); ++i) {

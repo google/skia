@@ -90,13 +90,6 @@ public:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,
                           bool byRegion,
@@ -150,6 +143,14 @@ private:
     void onResetContext(uint32_t resetBits) override {}
 
     void destroyResources();
+
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer1(
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer2(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel[],
                                      int mipLevelCount) override;

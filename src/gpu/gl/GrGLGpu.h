@@ -118,13 +118,6 @@ public:
 
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
@@ -175,6 +168,14 @@ private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
     // GrGpu overrides
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer1(
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer2(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
+
     void onResetContext(uint32_t resetBits) override;
 
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override;
@@ -567,7 +568,7 @@ private:
         }
     }                                       fHWBlendState;
 
-    TriState fMSAAEnabled;
+    TriState                                fMSAAEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
     TriState                                fHWStencilTestEnabled;
