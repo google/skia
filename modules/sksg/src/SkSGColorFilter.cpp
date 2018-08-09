@@ -16,7 +16,7 @@ namespace sksg {
 ColorFilter::ColorFilter(sk_sp<RenderNode> child)
     : INHERITED(std::move(child)) {}
 
-void ColorFilter::onRender(SkCanvas* canvas) const {
+void ColorFilter::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     if (this->bounds().isEmpty())
         return;
 
@@ -28,7 +28,7 @@ void ColorFilter::onRender(SkCanvas* canvas) const {
         canvas->saveLayer(this->bounds(), &p);
     }
 
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(canvas, ctx);
 }
 
 ColorModeFilter::ColorModeFilter(sk_sp<RenderNode> child, sk_sp<Color> color, SkBlendMode mode)

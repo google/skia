@@ -14,10 +14,14 @@ namespace sksg {
 
 Image::Image(sk_sp<SkImage> image) : fImage(std::move(image)) {}
 
-void Image::onRender(SkCanvas* canvas) const {
+void Image::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     SkPaint paint;
     paint.setAntiAlias(fAntiAlias);
     paint.setFilterQuality(fQuality);
+
+    if (ctx) {
+        ctx->modulatePaint(&paint);
+    }
 
     canvas->drawImage(fImage, 0, 0, &paint);
 }

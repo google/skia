@@ -47,11 +47,11 @@ Transform::~Transform() {
     this->unobserveInval(fMatrix);
 }
 
-void Transform::onRender(SkCanvas* canvas) const {
+void Transform::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     const auto& m = fMatrix->getTotalMatrix();
     SkAutoCanvasRestore acr(canvas, !m.isIdentity());
     canvas->concat(m);
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(canvas, ctx);
 }
 
 SkRect Transform::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

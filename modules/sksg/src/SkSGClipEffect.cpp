@@ -24,7 +24,7 @@ ClipEffect::~ClipEffect() {
     this->unobserveInval(fClipNode);
 }
 
-void ClipEffect::onRender(SkCanvas* canvas) const {
+void ClipEffect::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
     if (this->bounds().isEmpty())
         return;
 
@@ -33,7 +33,7 @@ void ClipEffect::onRender(SkCanvas* canvas) const {
         fClipNode->clip(canvas, fAntiAlias);
     }
 
-    this->INHERITED::onRender(canvas);
+    this->INHERITED::onRender(canvas, ctx);
 }
 
 SkRect ClipEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

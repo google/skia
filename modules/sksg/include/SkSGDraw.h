@@ -32,7 +32,7 @@ protected:
     Draw(sk_sp<GeometryNode>, sk_sp<PaintNode> paint);
     ~Draw() override;
 
-    void onRender(SkCanvas*) const override;
+    void onRender(SkCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 

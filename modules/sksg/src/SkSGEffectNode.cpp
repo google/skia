@@ -18,8 +18,8 @@ EffectNode::~EffectNode() {
     this->unobserveInval(fChild);
 }
 
-void EffectNode::onRender(SkCanvas* canvas) const {
-    fChild->render(canvas);
+void EffectNode::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
+    fChild->render(canvas, ctx);
 }
 
 SkRect EffectNode::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {

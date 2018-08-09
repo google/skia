@@ -64,7 +64,7 @@ public:
     const sk_sp<Matrix>& getMatrix() const { return fMatrix; }
 
 protected:
-    void onRender(SkCanvas*) const override;
+    void onRender(SkCanvas*, const RenderContext*) const override;
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
