@@ -45,11 +45,7 @@ public:
     SkCanvas::Lattice apply(const SkCanvas::Lattice&, SkColor*, int);
 
 private:
-#ifdef SK_LEGACY_COLORSPACE_XFORMER_IMPL
-    SkColorSpaceXformer(sk_sp<SkColorSpace> dst, std::unique_ptr<SkColorSpaceXform> fromSRGB);
-#else
     explicit SkColorSpaceXformer(sk_sp<SkColorSpace> dst);
-#endif
 
     template <typename T>
     using Cache = SkTHashMap<sk_sp<T>, sk_sp<T>>;
@@ -61,16 +57,12 @@ private:
 
     class AutoCachePurge;
 
-    sk_sp<SkColorSpace>                fDst;
-#ifdef SK_LEGACY_COLORSPACE_XFORMER_IMPL
-    std::unique_ptr<SkColorSpaceXform> fFromSRGB;
-#else
+    sk_sp<SkColorSpace>                                 fDst;
     SkSTArenaAlloc<256>                                 fAlloc;
     std::function<void(size_t, size_t, size_t, size_t)> fFromSRGB;
     SkColorSpaceXformSteps                              fFromSRGBSteps;
     SkJumper_MemoryCtx                                  fFromSRGBSrc{nullptr,0};
     SkJumper_MemoryCtx                                  fFromSRGBDst{nullptr,0};
-#endif
 
     size_t fReentryCount; // tracks the number of nested apply() calls for cache purging.
 
