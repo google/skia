@@ -9,6 +9,8 @@
 #define SkSGRenderNode_DEFINED
 
 #include "SkSGNode.h"
+
+#include "SkColorFilter.h"
 #include "SkTLazy.h"
 
 class SkCanvas;
@@ -36,7 +38,8 @@ protected:
     // These are deferred until we can determine whether they can be applied to the individual
     // draw paints, or whether they require content isolation (applied to a layer).
     struct RenderContext {
-        float fOpacity = 1;
+        sk_sp<SkColorFilter> fColorFilter;
+        float                fOpacity = 1;
 
         // Returns true if the paint was modified.
         bool modulatePaint(SkPaint*) const;
@@ -64,6 +67,9 @@ protected:
 
         // Add opacity to a render node sub-DAG.
         ScopedRenderContext&& modulateOpacity(float opacity);
+
+        // Add opacity to a render node sub-DAG.
+        ScopedRenderContext&& modulateColorFilter(sk_sp<SkColorFilter>);
 
         // Force content isolation for a node sub-DAG by applying the RenderContext
         // overrides via a layer.
