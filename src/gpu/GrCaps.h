@@ -240,10 +240,6 @@ public:
     virtual bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
 
-    bool dynamicStateArrayGeometryProcessorTextureSupport() const {
-        return fDynamicStateArrayGeometryProcessorTextureSupport;
-    }
-
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
      * used for doing dst copies needed in blends, thus the src is always a GrRenderTargetProxy. It

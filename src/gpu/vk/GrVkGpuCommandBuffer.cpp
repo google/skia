@@ -585,13 +585,21 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     }
     fLastPipelineState = pipelineState;
 
-    const GrTextureProxy* const* primProcProxies = nullptr;
-    if (fixedDynamicState) {
-        primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
-    }
-    pipelineState->setData(fGpu, primProc, pipeline, primProcProxies);
+    pipelineState->bindPipeline(fGpu, cbInfo.currentCmdBuf());
 
-    pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
+    pipelineState->setUniforms(fGpu, primProc, pipeline);
+    pipelineState->bindUniforms(fGpu, cbInfo.currentCmdBuf());
+
+    // Check whether we need to bind textures between each GrMesh. If not we can bind them all now.
+    bool setTextures = !(dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures);
+    if (setTextures) {
+        const GrTextureProxy* const* primProcProxies = nullptr;
+        if (fixedDynamicState) {
+            primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
+        }
+        pipelineState->setTextures(fGpu, primProc, pipeline, primProcProxies);
+        pipelineState->bindTextures(fGpu, cbInfo.currentCmdBuf());
+    }
 
     GrRenderTarget* rt = pipeline.renderTarget();
 
@@ -646,9 +654,18 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         cbInfo.fSampledImages.push_back(vkTexture);
     };
 
-    for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
-        auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
-        prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
+    if (dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures) {
+        for (int m = 0, i = 0; m < meshCount; ++m) {
+            for (int s = 0; s < primProc.numTextureSamplers(); ++s, ++i) {
+                auto texture = dynamicStateArrays->fPrimitiveProcessorTextures[i]->peekTexture();
+                prepareSampledImage(texture, primProc.textureSampler(s).samplerState().filter());
+            }
+        }
+    } else {
+        for (int i = 0; i < primProc.numTextureSamplers(); ++i) {
+            auto texture = fixedDynamicState->fPrimitiveProcessorTextures[i]->peekTexture();
+            prepareSampledImage(texture, primProc.textureSampler(i).samplerState().filter());
+        }
     }
     GrFragmentProcessor::Iter iter(pipeline);
     while (const GrFragmentProcessor* fp = iter.next()) {
@@ -670,10 +687,13 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
 
     bool dynamicScissor =
             pipeline.isScissorEnabled() && dynamicStateArrays && dynamicStateArrays->fScissorRects;
+    bool dynamicTextures =
+            dynamicStateArrays && dynamicStateArrays->fPrimitiveProcessorTextures;
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
         if (mesh.primitiveType() != primitiveType) {
+            SK_ABORT("no pipe switches");
             // Technically we don't have to call this here (since there is a safety check in
             // pipelineState:setData but this will allow for quicker freeing of resources if the
             // pipelineState sits in a cache for a while.
@@ -688,11 +708,19 @@ void GrVkGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
         }
 
         if (dynamicScissor) {
+            SK_ABORT("no scissor changes");
+
             GrVkPipeline::SetDynamicScissorRectState(fGpu, cbInfo.currentCmdBuf(), fRenderTarget,
                                                      pipeline.proxy()->origin(),
                                                      dynamicStateArrays->fScissorRects[i]);
         }
-
+        if (dynamicTextures) {
+            GrTextureProxy* const* meshProxies = dynamicStateArrays->fPrimitiveProcessorTextures + primProc.numTextureSamplers() * i;
+            pipelineState->bindPipeline(fGpu, cbInfo.currentCmdBuf());
+            pipelineState->bindUniforms(fGpu, cbInfo.currentCmdBuf());
+            pipelineState->setTextures(fGpu, primProc, pipeline, meshProxies);
+            pipelineState->bindTextures(fGpu, cbInfo.currentCmdBuf());
+        }
         SkASSERT(pipelineState);
         mesh.sendToGpu(this);
     }

@@ -32,7 +32,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSupportsMaintenance3 = false;
 
     /**************************************************************************
-    * GrDrawTargetCaps fields
+    * GrCaps fields
     **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
