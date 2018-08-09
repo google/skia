@@ -526,9 +526,9 @@ bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar offse
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 
-// a point is "left" to another if its x coordinate is less, or if equal, its y coordinate
+// a point is "left" to another if its x-coord is less, or if equal, its y-coord is greater
 static bool left(const SkPoint& p0, const SkPoint& p1) {
-    return p0.fX < p1.fX || (!(p0.fX > p1.fX) && p0.fY < p1.fY);
+    return p0.fX < p1.fX || (!(p0.fX > p1.fX) && p0.fY > p1.fY);
 }
 
 // checks to see if a point that is collinear with a segment lies in the segment's range
@@ -556,68 +556,83 @@ enum VertexFlags {
     kNextLeft_VertexFlag = 0x2,
 };
 
-struct ActiveEdge {
-    ActiveEdge(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1)
-        : fSegment({p0, p1-p0})
-        , fIndex0(index0)
-        , fIndex1(index1) {}
-
-    // returns true if "this" is above "that"
-    bool above(const ActiveEdge& that) const {
-        SkASSERT(this->fSegment.fP0.fX <= that.fSegment.fP0.fX);
-        const SkVector& u = this->fSegment.fV;
-        SkVector dv = that.fSegment.fP0 - this->fSegment.fP0;
-        // The idea here is that if the vector between the origins of the two segments (dv)
-        // rotates counterclockwise up to the vector representing the "this" segment (u),
-        // then we know that "this" is above that. If the result is clockwise we say it's below.
-        if (this->fIndex0 != that.fIndex0) {
-            SkScalar cross = dv.cross(u);
-            if (cross > kCrossTolerance) {
-                return true;
-            } else if (cross < -kCrossTolerance) {
-                return false;
-            }
-        } else if (this->fIndex1 == that.fIndex1) {
-            // they're the same edge
-            return false;
-        }
-        // At this point either the two origins are nearly equal or the origin of "that"
-        // lies on dv. So then we try the same for the vector from the tail of "this"
-        // to the head of "that". Again, ccw means "this" is above "that".
-        // dv = that.P1 - this.P0
-        //    = that.fP0 + that.fV - this.fP0
-        //    = that.fP0 - this.fP0 + that.fV
-        //    = old_dv + that.fV
-        dv += that.fSegment.fV;
-        SkScalar cross = dv.cross(u);
+// returns true if segment p0->v ("this") is above q0->w ("that")
+static bool above(const SkPoint& p0, const SkVector& v, uint16_t p0Index, uint16_t p1Index,
+                  const SkPoint& q0, const SkVector& w, uint16_t q0Index, uint16_t q1Index) {
+    SkASSERT(p0.fX <= q0.fX);
+    SkASSERT(!(p0Index == q0Index && p1Index == q1Index));
+    SkVector d = q0 - p0;
+    // The idea here is that if the vector between the origins of the two segments (d)
+    // rotates counterclockwise up to the vector representing the "this" segment (v),
+    // then we know that "this" is above "that". If the result is clockwise we say it's below.
+    if (p0Index != q0Index) {
+        SkScalar cross = d.cross(v);
         if (cross > kCrossTolerance) {
             return true;
         } else if (cross < -kCrossTolerance) {
             return false;
         }
-        // If the previous check fails, the two segments are nearly collinear
-        // First check y-coord of first endpoints
-        if (this->fSegment.fP0.fX < that.fSegment.fP0.fX) {
-            return (this->fSegment.fP0.fY >= that.fSegment.fP0.fY);
-        } else if (this->fSegment.fP0.fY > that.fSegment.fP0.fY) {
-            return true;
-        } else if (this->fSegment.fP0.fY < that.fSegment.fP0.fY) {
-            return false;
-        }
-        // The first endpoints are the same, so check the other endpoint
-        SkPoint thisP1 = this->fSegment.fP0 + this->fSegment.fV;
-        SkPoint thatP1 = that.fSegment.fP0 + that.fSegment.fV;
-        if (thisP1.fX < thatP1.fX) {
-            return (thisP1.fY >= thatP1.fY);
-        } else {
-            return (thisP1.fY > thatP1.fY);
-        }
+    }
+    // At this point either the two origins are nearly equal or the origin of "that"
+    // lies on dv. So then we try the same for the vector from the tail of "this"
+    // to the head of "that". Again, ccw means "this" is above "that".
+    // d = that.P1 - this.P0
+    //   = that.fP0 + that.fV - this.fP0
+    //   = that.fP0 - this.fP0 + that.fV
+    //   = old_d + that.fV
+    d += w;
+    SkScalar cross = d.cross(v);
+    if (cross > kCrossTolerance) {
+        return true;
+    } else if (cross < -kCrossTolerance) {
+        return false;
+    }
+    // If the previous check fails, the two segments are nearly collinear
+    // First check y-coord of first endpoints
+    if (p0.fX < q0.fX) {
+        return (p0.fY >= q0.fY);
+    } else if (p0.fY > q0.fY) {
+        return true;
+    } else if (p0.fY < q0.fY) {
+        return false;
+    }
+    // The first endpoints are the same, so check the other endpoint
+    SkPoint p1 = p0 + v;
+    SkPoint q1 = q0 + w;
+    if (p1.fX < q1.fX) {
+        return (p1.fY >= q1.fY);
+    } else {
+        return (p1.fY > q1.fY);
+    }
+}
+
+static bool isLessThan(const SkPoint& p0, const SkVector& v, uint16_t p0Index, uint16_t p1Index,
+                     const SkPoint& q0, const SkVector& w, uint16_t q0Index, uint16_t q1Index) {
+    if (p0Index == q0Index && p1Index == q1Index) {
+        return false;
+    }
+    if (left(p0, q0)) {
+        return above(p0, v, p0Index, q0Index, q0, w, q0Index, q1Index);
+    } else {
+        return !above(q0, w, q0Index, q1Index, p0, v, p0Index, p1Index);
+    }
+}
+
+struct ActiveEdge {
+    ActiveEdge() : fChild{ nullptr, nullptr }, fRed(false) {}
+    ActiveEdge(const SkPoint& p0, const SkVector& v, uint16_t index0, uint16_t index1)
+        : fSegment({ p0, v })
+        , fIndex0(index0)
+        , fIndex1(index1)
+        , fRed(true) {
+        fChild[0] = nullptr;
+        fChild[1] = nullptr;
     }
 
-    bool intersect(const ActiveEdge& that) const {
+    bool intersect(const SkPoint& q0, const SkVector& w, uint16_t index0, uint16_t index1) const {
         // check first to see if these edges are neighbors in the polygon
-        if (this->fIndex0 == that.fIndex0 || this->fIndex1 == that.fIndex0 ||
-            this->fIndex0 == that.fIndex1 || this->fIndex1 == that.fIndex1) {
+        if (this->fIndex0 == index0 || this->fIndex1 == index0 ||
+            this->fIndex0 == index1 || this->fIndex1 == index1) {
             return false;
         }
 
@@ -625,8 +640,6 @@ struct ActiveEdge {
         const SkPoint& p0 = this->fSegment.fP0;
         const SkVector& v = this->fSegment.fV;
         SkPoint p1 = p0 + v;
-        const SkPoint& q0 = that.fSegment.fP0;
-        const SkVector& w = that.fSegment.fV;
         SkPoint q1 = q0 + w;
 
         int side0 = compute_side(p0, v, q0);
@@ -661,68 +674,312 @@ struct ActiveEdge {
         return false;
     }
 
-    bool lessThan(const ActiveEdge& that) const {
-        if (this->fSegment.fP0.fX > that.fSegment.fP0.fX ||
-            (this->fSegment.fP0.fX == that.fSegment.fP0.fX &&
-             this->fSegment.fP0.fY < that.fSegment.fP0.fY)) {
-            return !that.above(*this);
-        }
-        return this->above(that);
+    bool intersect(const ActiveEdge* edge) {
+        return this->intersect(edge->fSegment.fP0, edge->fSegment.fV, edge->fIndex0, edge->fIndex1);
     }
 
-    bool operator<(const ActiveEdge& that) const {
-        SkASSERT(!this->lessThan(*this));
-        SkASSERT(!that.lessThan(that));
-        SkASSERT(!(this->lessThan(that) && that.lessThan(*this)));
-        return this->lessThan(that);
+    bool lessThan(const SkPoint& p0, const SkVector& v, uint16_t index0, uint16_t index1) const {
+        SkASSERT(!isLessThan(this->fSegment.fP0, this->fSegment.fV, this->fIndex0, this->fIndex1,
+                             this->fSegment.fP0, this->fSegment.fV, this->fIndex0, this->fIndex1));
+        SkASSERT(!isLessThan(p0, v, index0, index1, p0, v, index0, index1));
+        SkASSERT(!(isLessThan(this->fSegment.fP0, this->fSegment.fV, this->fIndex0, this->fIndex1,
+                              p0, v, index0, index1) &&
+                   isLessThan(p0, v, index0, index1,
+                              this->fSegment.fP0, this->fSegment.fV, this->fIndex0, this->fIndex1))
+                );
+        return isLessThan(this->fSegment.fP0, this->fSegment.fV, this->fIndex0, this->fIndex1,
+                          p0, v, index0, index1);
+    }
+
+    bool equals(uint16_t index0, uint16_t index1) const {
+        return (this->fIndex0 == index0 && this->fIndex1 == index1);
     }
 
     OffsetSegment fSegment;
-    uint16_t fIndex0;   // indices for previous and next vertex
+    uint16_t fIndex0;   // indices for previous and next vertex in polygon
     uint16_t fIndex1;
+    ActiveEdge* fChild[2];  //*** switch to indices after it's working
+    int32_t  fRed;
 };
 
 class ActiveEdgeList {
 public:
+    ActiveEdgeList() : fEdgeTree(nullptr) {}
+    ~ActiveEdgeList() { destroy(fEdgeTree); fEdgeTree = nullptr; }
+
     bool insert(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1) {
-        std::pair<Iterator, bool> result = fEdgeTree.emplace(p0, p1, index0, index1);
-        if (!result.second) {
-            return false;
+        SkVector v = p1 - p0;
+        // empty tree case -- easy
+        if (!fEdgeTree) {
+            fEdgeTree = new ActiveEdge(p0, v, index0, index1);
+            SkASSERT(fEdgeTree);
+            if (!fEdgeTree) {
+                return false;
+            }
+            fEdgeTree->fRed = false;
+            return true;
         }
 
-        Iterator& curr = result.first;
-        if (curr != fEdgeTree.begin() && curr->intersect(*std::prev(curr))) {
-            return false;
+        // set up helpers
+        ActiveEdge head;  //*** just use a head pointer all the time?
+        ActiveEdge* top = &head;
+        ActiveEdge *grandparent = nullptr;
+        ActiveEdge *parent = nullptr;
+        ActiveEdge *curr = top->fChild[1] = fEdgeTree;
+        int dir = 0;
+        int last = 0; // ?
+        // predecessor and successor, for intersection check
+        ActiveEdge* pred = nullptr;
+        ActiveEdge* succ = nullptr;
+
+        // search down the tree
+        for (;;) {
+            if (!curr) {
+                // check for intersection with predecessor and successor
+                if ((pred && pred->intersect(p0, v, index0, index1)) ||
+                    (succ && succ->intersect(p0, v, index0, index1))) {
+                    return false;
+                }
+                // insert new node at bottom
+                parent->fChild[dir] = curr = new ActiveEdge(p0, v, index0, index1);
+                SkASSERT(curr);
+                if (!curr) {
+                    return false;
+                }
+            } else if (is_red(curr->fChild[0]) && is_red(curr->fChild[1])) {
+                // color flip
+                curr->fRed = true;
+                curr->fChild[0]->fRed = false;
+                curr->fChild[1]->fRed = false;
+            }
+
+            // fixup red violation
+            if (is_red(curr) && is_red(parent)) {
+                int dir2 = (top->fChild[1] == grandparent);
+                if (curr == parent->fChild[last]) {
+                    top->fChild[dir2] = single_rotation(grandparent, !last);
+                } else {
+                    top->fChild[dir2] = double_rotation(grandparent, !last);
+                }
+            }
+
+            // stop if found (*** why not just stop if inserted?)
+            if (curr->equals(index0, index1)) {
+                break;
+            }
+
+            last = dir;
+            dir = curr->lessThan(p0, v, index0, index1);
+            if (0 == dir) {
+                succ = curr;
+            } else {
+                pred = curr;
+            }
+
+            // update helpers
+            if (grandparent) {
+                top = grandparent;
+            }
+
+            grandparent = parent;
+            parent = curr;
+            curr = curr->fChild[dir];
         }
-        Iterator next = std::next(curr);
-        if (next != fEdgeTree.end() && curr->intersect(*next)) {
-            return false;
-        }
+
+        // update root and make it black
+        fEdgeTree = head.fChild[1];
+        fEdgeTree->fRed = false;
+
+        //verify_tree(fEdgeTree);
 
         return true;
     }
 
-    bool remove(const ActiveEdge& edge) {
-        auto element = fEdgeTree.find(edge);
-        // this better not happen
-        if (element == fEdgeTree.end()) {
-            return false;
-        }
-        if (element != fEdgeTree.begin() && element->intersect(*std::prev(element))) {
-            return false;
-        }
-        Iterator next = std::next(element);
-        if (next != fEdgeTree.end() && element->intersect(*next)) {
+    bool remove(const SkPoint& p0, const SkPoint& p1, uint16_t index0, uint16_t index1) {
+        if (!fEdgeTree) {
             return false;
         }
 
-        fEdgeTree.erase(element);
+        SkVector v = p1 - p0;
+        ActiveEdge head;
+        ActiveEdge* curr = &head;
+        ActiveEdge* parent = nullptr;
+        ActiveEdge* grandparent = nullptr;
+        ActiveEdge* found = nullptr;
+        curr->fChild[1] = fEdgeTree;
+        int dir = 1;
+
+        // search and push a red node down
+        while (curr->fChild[dir] != nullptr) {
+            int last = dir;
+
+            // update helpers
+            grandparent = parent;
+            parent = curr;
+            curr = curr->fChild[dir];
+            dir = curr->lessThan(p0, v, index0, index1);
+
+            // save found node
+            if (curr->equals(index0, index1)) {
+                found = curr;
+            }
+
+            // push the red node down
+            if (!is_red(curr) && !is_red(curr->fChild[dir])) {
+                if (is_red(curr->fChild[!dir])) {
+                    parent = parent->fChild[last] = single_rotation(curr, dir);
+                } else if (!is_red(curr->fChild[!dir])) {
+                    ActiveEdge *s = parent->fChild[!last];
+
+                    if (s != NULL) {
+                        if (!is_red(s->fChild[!last]) && !is_red(s->fChild[last])) {
+                            // color flip
+                            parent->fRed = false;
+                            s->fRed = true;
+                            curr->fRed = true;
+                        } else {
+                            int dir2 = grandparent->fChild[1] == parent;
+
+                            if (is_red(s->fChild[last])) {
+                                grandparent->fChild[dir2] = double_rotation(parent, last);
+                            } else if (is_red(s->fChild[!last])) {
+                                grandparent->fChild[dir2] = single_rotation(parent, last);
+                            }
+
+                            // ensure correct coloring
+                            curr->fRed = grandparent->fChild[dir2]->fRed = true;
+                            grandparent->fChild[dir2]->fChild[0]->fRed = false;
+                            grandparent->fChild[dir2]->fChild[1]->fRed = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        // replace and remove if found
+        if (found) {
+            ActiveEdge* pred = nullptr;
+            ActiveEdge* succ = nullptr;
+            // we will end up at the predecessor if there's more than one node in the tree
+            if (grandparent) {
+                pred = curr;
+            }
+            // search for successor
+            if (found->fChild[1]) {
+                // find the minimum value in the right subtree
+                succ = found->fChild[1];
+                while (succ->fChild[0]) {
+                    succ = succ->fChild[0];
+                }
+            } else {
+                // search from the top
+                ActiveEdge* node = fEdgeTree;
+                while (node) {
+                    dir = node->lessThan(p0, v, index0, index1);
+                    if (dir == 1) {
+                        succ = node;
+                    }
+                    node = node->fChild[dir];
+                }
+            }
+            if ((pred && pred->intersect(found)) || (succ && succ->intersect(found))) {
+                return false;
+            }
+            // this isn't ideal...
+            found->fSegment = curr->fSegment;
+            found->fIndex0 = curr->fIndex0;
+            found->fIndex1 = curr->fIndex1;
+            parent->fChild[parent->fChild[1] == curr] = curr->fChild[!curr->fChild[0]];
+            delete curr;
+        }
+
+        // update root and make it black
+        fEdgeTree = head.fChild[1];
+        if (fEdgeTree) {
+            fEdgeTree->fRed = false;
+        }
+
+        //verify_tree(fEdgeTree);
+
         return true;
     }
 
 private:
-    std::set<ActiveEdge> fEdgeTree;
-    typedef std::set<ActiveEdge>::iterator Iterator;
+    ///////////////////////////////////////////////////////////////////////////////////
+    // Red-black tree methods
+    ///////////////////////////////////////////////////////////////////////////////////
+    static bool is_red(const ActiveEdge* node) {
+        return node && node->fRed;
+    }
+
+    static ActiveEdge* single_rotation(ActiveEdge* node, int dir) {
+        ActiveEdge* tmp = node->fChild[!dir];
+
+        node->fChild[!dir] = tmp->fChild[dir];
+        tmp->fChild[dir] = node;
+
+        node->fRed = true;
+        tmp->fRed = false;
+
+        return tmp;
+    }
+
+    static ActiveEdge* double_rotation(ActiveEdge* node, int dir) {
+        node->fChild[!dir] = single_rotation(node->fChild[!dir], !dir);
+
+        return single_rotation(node, dir);
+    }
+
+    static void destroy(ActiveEdge* node) {
+        if (!node) {
+            return;
+        }
+
+        destroy(node->fChild[0]);
+        destroy(node->fChild[1]);
+        delete node;
+    }
+
+    static int verify_tree(const ActiveEdge* tree) {
+        if (!tree) {
+            return 1;
+        }
+
+        const ActiveEdge* left = tree->fChild[0];
+        const ActiveEdge* right = tree->fChild[1];
+
+        // no consecutive red links
+        if (is_red(tree) && (is_red(left) || is_red(right))) {
+            SkASSERT(false);
+            return 0;
+        }
+
+        // violates binary tree order
+        if ((left && tree->lessThan(left->fSegment.fP0, left->fSegment.fV,
+                                   left->fIndex0, left->fIndex1)) ||
+            (right && right->lessThan(tree->fSegment.fP0, tree->fSegment.fV,
+                                     tree->fIndex0, tree->fIndex1))) {
+            SkASSERT(false);
+            return 0;
+        }
+
+        int leftCount = verify_tree(left);
+        int rightCount = verify_tree(right);
+
+        // return black link count
+        if (leftCount != 0 && rightCount != 0) {
+            // black height mismatch
+            if (leftCount != rightCount) {
+                SkASSERT(false);
+                return 0;
+            }
+            return is_red(tree) ? leftCount : leftCount + 1;
+        } else {
+            return 0;
+        }
+    }
+
+    ActiveEdge* fEdgeTree;
 };
 
 // Here we implement a sweep line algorithm to determine whether the provided points
@@ -769,8 +1026,7 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 
         // check edge to previous vertex
         if (v.fFlags & kPrevLeft_VertexFlag) {
-            ActiveEdge edge(polygon[v.fPrevIndex], v.fPosition, v.fPrevIndex, v.fIndex);
-            if (!sweepLine.remove(edge)) {
+            if (!sweepLine.remove(polygon[v.fPrevIndex], v.fPosition, v.fPrevIndex, v.fIndex)) {
                 break;
             }
         } else {
@@ -781,8 +1037,7 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
 
         // check edge to next vertex
         if (v.fFlags & kNextLeft_VertexFlag) {
-            ActiveEdge edge(polygon[v.fNextIndex], v.fPosition, v.fNextIndex, v.fIndex);
-            if (!sweepLine.remove(edge)) {
+            if (!sweepLine.remove(polygon[v.fNextIndex], v.fPosition, v.fNextIndex, v.fIndex)) {
                 break;
             }
         } else {
