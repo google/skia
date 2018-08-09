@@ -272,11 +272,16 @@ config("default") {
       "-fsanitize=$sanitizers,$fyi_sanitizers",
       "-fno-sanitize-recover=$sanitizers",
       "-fsanitize-blacklist=$_blacklist",
-      "-include$_blacklist",
     ]
-    if (!is_win) {
-      cflags += [ "-fno-omit-frame-pointer" ]
+    if (is_win) {
+      cflags += [ "/FI$_blacklist" ]
+    } else {
+      cflags += [
+        "-include$_blacklist",
+        "-fno-omit-frame-pointer",
+      ]
     }
+
     if (is_linux) {
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
