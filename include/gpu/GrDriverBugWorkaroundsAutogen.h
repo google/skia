@@ -14,6 +14,8 @@
          disallow_large_instanced_draw)                 \
   GPU_OP(GL_CLEAR_BROKEN,                               \
          gl_clear_broken)                               \
+  GPU_OP(MAX_FRAGMENT_UNIFORM_VECTORS_32,               \
+         max_fragment_uniform_vectors_32)               \
   GPU_OP(MAX_MSAA_SAMPLE_COUNT_4,                       \
          max_msaa_sample_count_4)                       \
   GPU_OP(MAX_TEXTURE_SIZE_LIMIT_4096,                   \
