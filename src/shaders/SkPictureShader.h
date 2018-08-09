@@ -8,8 +8,8 @@
 #ifndef SkPictureShader_DEFINED
 #define SkPictureShader_DEFINED
 
-#include "SkAtomics.h"
 #include "SkShaderBase.h"
+#include <atomic>
 
 class SkArenaAlloc;
 class SkBitmap;
@@ -73,8 +73,8 @@ private:
     // forces a deferred color space xform.
     sk_sp<SkColorSpace>    fColorSpace;
 
-    const uint32_t         fUniqueID;
-    mutable SkAtomic<bool> fAddedToCache;
+    const uint32_t            fUniqueID;
+    mutable std::atomic<bool> fAddedToCache;
 
     typedef SkShaderBase INHERITED;
 };

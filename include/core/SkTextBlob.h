@@ -9,10 +9,10 @@
 #define SkTextBlob_DEFINED
 
 #include "../private/SkTemplates.h"
-#include "../private/SkAtomics.h"
 #include "SkPaint.h"
 #include "SkString.h"
 #include "SkRefCnt.h"
+#include <atomic>
 
 struct SkSerialProcs;
 struct SkDeserialProcs;
@@ -84,9 +84,9 @@ private:
     friend class SkTextBlobPriv;
     friend class SkTextBlobRunIterator;
 
-    const SkRect               fBounds;
-    const uint32_t             fUniqueID;
-    mutable SkAtomic<uint32_t> fCacheID;
+    const SkRect                  fBounds;
+    const uint32_t                fUniqueID;
+    mutable std::atomic<uint32_t> fCacheID;
 
     SkDEBUGCODE(size_t fStorageSize;)
 

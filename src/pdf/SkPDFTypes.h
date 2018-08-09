@@ -25,7 +25,7 @@ class SkString;
 class SkWStream;
 
 #ifdef SK_PDF_IMAGE_STATS
-#include "SkAtomics.h"
+    #include <atomic>
 #endif
 
 /** \class SkPDFObject
@@ -396,9 +396,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_PDF_IMAGE_STATS
-extern SkAtomic<int> gDrawImageCalls;
-extern SkAtomic<int> gJpegImageObjects;
-extern SkAtomic<int> gRegularImageObjects;
+extern std::atomic<int> gDrawImageCalls;
+extern std::atomic<int> gJpegImageObjects;
+extern std::atomic<int> gRegularImageObjects;
 extern void SkPDFImageDumpStats();
 #endif // SK_PDF_IMAGE_STATS
 

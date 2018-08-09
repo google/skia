@@ -12,7 +12,6 @@
 #include "GrContext.h"
 #include "GrGpuResourcePriv.h"
 #include "GrSurfaceProxyPriv.h"
-#include "SkAtomics.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImagePriv.h"
@@ -140,13 +139,11 @@ public:
     }
 
 private:
-    sk_sp<GrContext>       fContext;
-    sk_sp<GrTextureProxy>  fProxy;
-    const SkAlphaType      fAlphaType;
-    const SkBudgeted       fBudgeted;
-    sk_sp<SkColorSpace>    fColorSpace;
-    mutable SkAtomic<bool> fAddedRasterVersionToCache;
-
+    sk_sp<GrContext>      fContext;
+    sk_sp<GrTextureProxy> fProxy;
+    const SkAlphaType     fAlphaType;
+    const SkBudgeted      fBudgeted;
+    sk_sp<SkColorSpace>   fColorSpace;
 
     typedef SkImage_Base INHERITED;
 };
