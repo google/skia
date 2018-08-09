@@ -218,8 +218,8 @@ sk_sp<sksg::GeometryNode> AttachPolystarGeometry(const skjson::ObjectValue& jsta
         PolyStarAdapter::Type::kPoly, // "sy": 2
     };
 
-    const auto type = ParseDefault<int>(jstar["sy"], 0) - 1;
-    if (type < 0 || type >= SkTo<int>(SK_ARRAY_COUNT(gTypes))) {
+    const auto type = ParseDefault<size_t>(jstar["sy"], 0) - 1;
+    if (type >= SK_ARRAY_COUNT(gTypes)) {
         LogFail(jstar, "Unknown polystar type");
         return nullptr;
     }
@@ -344,16 +344,16 @@ sk_sp<sksg::PaintNode> AttachStroke(const skjson::ObjectValue& jstroke, AttachCo
         SkPaint::kRound_Join,
         SkPaint::kBevel_Join,
     };
-    stroke_node->setStrokeJoin(gJoins[SkTPin<int>(ParseDefault<int>(jstroke["lj"], 1) - 1,
-                                                  0, SK_ARRAY_COUNT(gJoins) - 1)]);
+    stroke_node->setStrokeJoin(gJoins[SkTMin<size_t>(ParseDefault<size_t>(jstroke["lj"], 1) - 1,
+                                                     SK_ARRAY_COUNT(gJoins) - 1)]);
 
     static constexpr SkPaint::Cap gCaps[] = {
         SkPaint::kButt_Cap,
         SkPaint::kRound_Cap,
         SkPaint::kSquare_Cap,
     };
-    stroke_node->setStrokeCap(gCaps[SkTPin<int>(ParseDefault(jstroke["lc"], 1) - 1,
-                                                0, SK_ARRAY_COUNT(gCaps) - 1)]);
+    stroke_node->setStrokeCap(gCaps[SkTMin<size_t>(ParseDefault<size_t>(jstroke["lc"], 1) - 1,
+                                                   SK_ARRAY_COUNT(gCaps) - 1)]);
 
     return stroke_node;
 }
@@ -398,8 +398,8 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachMergeGeometryEffect(
         sksg::Merge::Mode::kXOR      ,  // "mm": 5
     };
 
-    const auto mode = gModes[SkTPin<int>(ParseDefault<int>(jmerge["mm"], 1) - 1,
-                                         0, SK_ARRAY_COUNT(gModes) - 1)];
+    const auto mode = gModes[SkTMin<size_t>(ParseDefault<size_t>(jmerge["mm"], 1) - 1,
+                                            SK_ARRAY_COUNT(gModes) - 1)];
 
     std::vector<sk_sp<sksg::GeometryNode>> merged;
     merged.push_back(Merge(std::move(geos), mode));
@@ -416,8 +416,8 @@ std::vector<sk_sp<sksg::GeometryNode>> AttachTrimGeometryEffect(
         kSeparate, // "m": 2
     } gModes[] = { Mode::kMerged, Mode::kSeparate };
 
-    const auto mode = gModes[SkTPin<int>(ParseDefault<int>(jtrim["m"], 1) - 1,
-                                         0, SK_ARRAY_COUNT(gModes) - 1)];
+    const auto mode = gModes[SkTMin<size_t>(ParseDefault<size_t>(jtrim["m"], 1) - 1,
+                                            SK_ARRAY_COUNT(gModes) - 1)];
 
     std::vector<sk_sp<sksg::GeometryNode>> inputs;
     if (mode == Mode::kMerged) {
@@ -1258,9 +1258,9 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
             sksg::MaskEffect::Mode::kNormal, // tt: 1
             sksg::MaskEffect::Mode::kInvert, // tt: 2
         };
-        const auto matteType = ParseDefault<int>((*jlayer)["tt"], 1) - 1;
+        const auto matteType = ParseDefault<size_t>((*jlayer)["tt"], 1) - 1;
 
-        if (matteType >= 0 && matteType < SkTo<int>(SK_ARRAY_COUNT(gMaskModes))) {
+        if (matteType < SK_ARRAY_COUNT(gMaskModes)) {
             return sksg::MaskEffect::Make(std::move(controller_node),
                                           std::move(layerCtx->fCurrentMatte),
                                           gMaskModes[matteType]);
