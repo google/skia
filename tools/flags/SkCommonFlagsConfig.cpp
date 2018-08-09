@@ -84,6 +84,9 @@ static const struct {
     { "angle_gl_es3_msaa8",    "gpu", "api=angle_gl_es3,samples=8" },
     { "commandbuffer",         "gpu", "api=commandbuffer" },
     { "mock",                  "gpu", "api=mock" }
+#ifdef SK_NXT
+    ,{ "nxt",                  "gpu", "api=nxt" }
+#endif
 #ifdef SK_VULKAN
     ,{ "vk",                   "gpu", "api=vulkan" }
     ,{ "vknostencils",         "gpu", "api=vulkan,stencils=false" }
@@ -274,6 +277,12 @@ static bool parse_option_gpu_api(const SkString& value,
 #ifdef SK_METAL
     if (value.equals("metal")) {
         *outContextType = GrContextFactory::kMetal_ContextType;
+        return true;
+    }
+#endif
+#ifdef SK_NXT
+    if (value.equals("nxt")) {
+        *outContextType = GrContextFactory::kNXT_ContextType;
         return true;
     }
 #endif

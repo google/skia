@@ -69,6 +69,8 @@ public:
     // initialize each tile with a constant value rather than loading each pixel from memory.
     bool preferFullscreenClears() const { return fPreferFullscreenClears; }
 
+    bool useDrawForClear() const { return fUseDrawForClear; }
+
     bool preferVRAMUseOverFlushes() const { return fPreferVRAMUseOverFlushes; }
 
     bool blacklistCoverageCounting() const { return fBlacklistCoverageCounting; }
@@ -217,6 +219,8 @@ public:
         return GrPixelConfigToColorType(config);
     }
 
+    virtual GrSurfaceOrigin renderTargetOrigin() const { return kBottomLeft_GrSurfaceOrigin; }
+
     bool suppressPrints() const { return fSuppressPrints; }
 
     size_t bufferMapThreshold() const {
@@ -299,6 +303,7 @@ protected:
 
     bool fNPOTTextureTileSupport                     : 1;
     bool fMipMapSupport                              : 1;
+    bool fUseDrawForClear                            : 1;
     bool fSRGBSupport                                : 1;
     bool fSRGBWriteControl                           : 1;
     bool fDiscardRenderTargetSupport                 : 1;
