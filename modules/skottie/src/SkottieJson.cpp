@@ -65,6 +65,11 @@ bool Parse<int>(const Value& v, int* i) {
 }
 
 template <>
+bool Parse<unsigned>(const Value& v, unsigned* u) {
+    return Parse<int>(v, reinterpret_cast<int*>(u));
+}
+
+template <>
 bool Parse<SkString>(const Value& v, SkString* s) {
     if (const skjson::StringValue* sv = v) {
         s->set(sv->begin(), sv->size());
