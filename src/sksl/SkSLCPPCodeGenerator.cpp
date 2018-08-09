@@ -284,6 +284,13 @@ void CPPCodeGenerator::writeIfStatement(const IfStatement& s) {
     INHERITED::writeIfStatement(s);
 }
 
+void CPPCodeGenerator::writeReturnStatement(const ReturnStatement& s) {
+    if (fInMain) {
+        fErrors.error(s.fOffset, "fragmentProcessor main() may not contain return statements");
+    }
+    INHERITED::writeReturnStatement(s);
+}
+
 void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     if (s.fIsStatic) {
         this->write("@");
@@ -339,10 +346,12 @@ void CPPCodeGenerator::writeFunction(const FunctionDefinition& f) {
         OutputStream* oldOut = fOut;
         StringStream buffer;
         fOut = &buffer;
+        fInMain = true;
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();
         }
+        fInMain = false;
 
         fOut = oldOut;
         this->write(fFunctionHeader);
