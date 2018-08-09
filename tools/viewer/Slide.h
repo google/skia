@@ -28,6 +28,7 @@ public:
     virtual void draw(SkCanvas* canvas) = 0;
     virtual bool animate(const SkAnimTimer&) { return false;  }
     virtual void load(SkScalar winWidth, SkScalar winHeight) {}
+    virtual void resize(SkScalar winWidth, SkScalar winHeight) {}
     virtual void unload() {}
 
     virtual bool onChar(SkUnichar c) { return false; }

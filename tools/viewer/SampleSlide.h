@@ -18,6 +18,9 @@ public:
 
     void draw(SkCanvas* canvas) override;
     void load(SkScalar winWidth, SkScalar winHeight) override;
+    void resize(SkScalar winWidth, SkScalar winHeight) override {
+        fSample->setSize(winWidth, winHeight);
+    }
     void unload() override;
     bool animate(const SkAnimTimer& timer) override {
         return fSample->animate(timer);

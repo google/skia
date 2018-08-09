@@ -1155,6 +1155,10 @@ void Viewer::onPaint(SkCanvas* canvas) {
     this->drawImGui();
 }
 
+void Viewer::onResize(int width, int height) {
+    fSlides[fCurrentSlide]->resize(width, height);
+}
+
 SkPoint Viewer::mapEvent(float x, float y) {
     const auto m = this->computeMatrix();
     SkMatrix inv;

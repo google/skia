@@ -92,6 +92,7 @@ void Window::onResize(int w, int h) {
         return;
     }
     fWindowContext->resize(w, h);
+    this->visitLayers([=](Layer* layer) { layer->onResize(w, h); });
 }
 
 int Window::width() {

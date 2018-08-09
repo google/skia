@@ -150,6 +150,7 @@ public:
         virtual void onUIStateChanged(const SkString& stateName, const SkString& stateValue) {}
         virtual void onPrePaint() {}
         virtual void onPaint(SkCanvas*) {}
+        virtual void onResize(int width, int height) {}
 
     private:
         friend class Window;
