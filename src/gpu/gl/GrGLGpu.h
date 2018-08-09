@@ -25,8 +25,11 @@
 #include "SkTypes.h"
 
 class GrGLBuffer;
+class GrGLGpuRTCommandBuffer;
+class GrGLGpuTextureCommandBuffer;
 class GrPipeline;
 class GrSwizzle;
+
 
 #ifdef SK_DEBUG
 #define PROGRAM_CACHE_STATS
@@ -118,12 +121,12 @@ public:
 
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
+    GrGpuRTCommandBuffer* getCommandBuffer(
             GrRenderTarget*, GrSurfaceOrigin,
             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
 
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
+    GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
@@ -150,6 +153,8 @@ public:
 
     void testingOnly_flushGpuAndSync() override;
 #endif
+
+    void submit(GrGpuCommandBuffer* buffer) override;
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override;
     bool waitFence(GrFence, uint64_t timeout) override;
@@ -567,7 +572,7 @@ private:
         }
     }                                       fHWBlendState;
 
-    TriState fMSAAEnabled;
+    TriState                                fMSAAEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
     TriState                                fHWStencilTestEnabled;
@@ -624,8 +629,12 @@ private:
     GrPrimitiveType fLastPrimitiveType;
     bool fRequiresFlushBeforeNextInstancedDraw = false;
 
-    typedef GrGpu INHERITED;
+    std::unique_ptr<GrGLGpuRTCommandBuffer>      fCachedRTCommandBuffer1;
+    std::unique_ptr<GrGLGpuTextureCommandBuffer> fCachedTexCommandBuffer;
+
     friend class GrGLPathRendering; // For accessing setTextureUnit.
+
+    typedef GrGpu INHERITED;
 };
 
 #endif

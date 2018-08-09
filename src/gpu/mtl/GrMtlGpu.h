@@ -86,13 +86,6 @@ public:
                        const SkIPoint& dstPoint,
                        bool canDiscardOutsideDstRect) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin,
-                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     SkSL::Compiler* shaderCompiler() const { return fCompiler.get(); }
 
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
@@ -132,6 +125,13 @@ private:
                                                              int sampleCnt) override;
 
     GrBuffer* onCreateBuffer(size_t, GrBufferType, GrAccessPattern, const void*) override;
+
+    GrGpuRTCommandBuffer* createCommandBuffer(
+                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
                       void* buffer, size_t rowBytes) override;

@@ -36,29 +36,34 @@ public:
     virtual void insertEventMarker(const char*) = 0;
 
     virtual GrGpuRTCommandBuffer* asRTCommandBuffer() { return nullptr; }
-
-    // Sends the command buffer off to the GPU object to execute the commands built up in the
-    // buffer. The gpu object is allowed to defer execution of the commands until it is flushed.
-    virtual void submit() = 0;
-
-protected:
-    GrGpuCommandBuffer(GrSurfaceOrigin origin) : fOrigin(origin) {}
-
-    GrSurfaceOrigin fOrigin;
 };
 
 class GrGpuTextureCommandBuffer : public GrGpuCommandBuffer{
 public:
-    virtual ~GrGpuTextureCommandBuffer() {}
 
-    virtual void submit() = 0;
+    void set(GrTexture* texture, GrSurfaceOrigin origin) {
+        SkASSERT(fGpu);
+        SkASSERT(!fTexture);
+        SkASSERT(fGpu == texture->getContext()->contextPriv().getGpu());
+
+        fOrigin = origin;
+        fTexture = texture;
+    }
+
+    void reset() {
+        fTexture = nullptr;
+    }
 
 protected:
-    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
-            : INHERITED(origin)
-            , fTexture(texture) {}
+    GrGpuTextureCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fTexture(nullptr) {}
 
-    GrTexture* fTexture;
+    GrGpuTextureCommandBuffer(GrTexture* texture, GrSurfaceOrigin origin)
+            : fOrigin(origin)
+            , fTexture(texture) {
+    }
+
+    GrSurfaceOrigin fOrigin;
+    GrTexture*      fTexture;
 
 private:
     typedef GrGpuCommandBuffer INHERITED;
@@ -84,8 +89,6 @@ public:
         GrLoadOp  fLoadOp;
         GrStoreOp fStoreOp;
     };
-
-    virtual ~GrGpuRTCommandBuffer() {}
 
     GrGpuRTCommandBuffer* asRTCommandBuffer() { return this; }
 
@@ -121,12 +124,24 @@ public:
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
 
+    void reset() {
+        fRenderTarget = nullptr;
+    }
+
 protected:
+    GrGpuRTCommandBuffer() : fOrigin(kTopLeft_GrSurfaceOrigin), fRenderTarget(nullptr) {}
+
     GrGpuRTCommandBuffer(GrRenderTarget* rt, GrSurfaceOrigin origin)
-            : INHERITED(origin)
+            : fOrigin(origin)
             , fRenderTarget(rt) {
     }
 
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
+        fRenderTarget = rt;
+        fOrigin = origin;
+    }
+
+    GrSurfaceOrigin fOrigin;
     GrRenderTarget* fRenderTarget;
 
 private:
