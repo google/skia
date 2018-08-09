@@ -34,15 +34,9 @@ template <typename T>
 T sk_atomic_fetch_add(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 
 template <typename T>
-T sk_atomic_fetch_sub(T*, T, sk_memory_order = sk_memory_order_seq_cst);
-
-template <typename T>
 bool sk_atomic_compare_exchange(T*, T* expected, T desired,
                                 sk_memory_order success = sk_memory_order_seq_cst,
                                 sk_memory_order failure = sk_memory_order_seq_cst);
-
-template <typename T>
-T sk_atomic_exchange(T*, T, sk_memory_order = sk_memory_order_seq_cst);
 
 // A little wrapper class for small T (think, builtins: int, float, void*) to
 // ensure they're always used atomically.  This is our stand-in for std::atomic<T>.
@@ -71,20 +65,6 @@ public:
     T operator=(const T& v) {
         this->store(v);
         return v;
-    }
-
-    T fetch_add(const T& val, sk_memory_order mo = default_memory_order) {
-        return sk_atomic_fetch_add(&fVal, val, mo);
-    }
-
-    T fetch_sub(const T& val, sk_memory_order mo = default_memory_order) {
-        return sk_atomic_fetch_sub(&fVal, val, mo);
-    }
-
-    bool compare_exchange(T* expected, const T& desired,
-                          sk_memory_order success = default_memory_order,
-                          sk_memory_order failure = default_memory_order) {
-        return sk_atomic_compare_exchange(&fVal, expected, desired, success, failure);
     }
 private:
     T fVal;
@@ -119,13 +99,6 @@ T sk_atomic_fetch_add(T* ptr, T val, sk_memory_order mo) {
 }
 
 template <typename T>
-T sk_atomic_fetch_sub(T* ptr, T val, sk_memory_order mo) {
-    // All values of mo are valid.
-    std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_fetch_sub_explicit(ap, val, (std::memory_order)mo);
-}
-
-template <typename T>
 bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
                                 sk_memory_order success,
                                 sk_memory_order failure) {
@@ -139,13 +112,6 @@ bool sk_atomic_compare_exchange(T* ptr, T* expected, T desired,
     return std::atomic_compare_exchange_strong_explicit(ap, expected, desired,
                                                         (std::memory_order)success,
                                                         (std::memory_order)failure);
-}
-
-template <typename T>
-T sk_atomic_exchange(T* ptr, T val, sk_memory_order mo) {
-    // All values of mo are valid.
-    std::atomic<T>* ap = reinterpret_cast<std::atomic<T>*>(ptr);
-    return std::atomic_exchange_explicit(ap, val, (std::memory_order)mo);
 }
 
 // ~~~~~~~~ Legacy APIs ~~~~~~~~~
