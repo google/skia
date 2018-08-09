@@ -9,6 +9,58 @@
 #include "SkNx.h"
 #include "../../src/pathops/SkPathOpsCubic.h"
 
+static bool valid(float r) {
+    return r >= 0 && r <= 1;
+}
+
+static float solve_nice_cubic(float A, float a, float b, float c) {
+    float inv_a = 1.0f / A;
+    a *= inv_a;
+    b *= inv_a;
+    c *= inv_a;
+
+    const float one_third = 1.0f / 3;
+
+    float a2 = a * a;
+    float Q = (a2 - b * 3) / 9;
+    float R = (2 * a2 * a - 9 * a * b + 27 * c) / 54;
+    float R2 = R * R;
+    float Q3 = Q * Q * Q;
+    float R2MinusQ3 = R2 - Q3;
+    float adiv3 = a * one_third;
+    float r;
+
+    if (R2MinusQ3 < 0) {   // we have 3 real roots
+        // the divide/root can, due to finite precisions, be slightly outside of -1...1
+        float theta = sk_float_acos(SkTPin(R / sk_float_sqrt(Q3), -1.f, 1.f));
+        float neg2RootQ = -2 * sk_float_sqrt(Q);
+
+        r = neg2RootQ * sk_float_cos(theta / 3) - adiv3;
+        if (valid(r)) {
+            return r;
+        }
+
+        r = neg2RootQ * sk_float_cos((theta + 2 * SK_ScalarPI) / 3) - adiv3;
+        if (valid(r)) {
+            return r;
+        }
+        r = neg2RootQ * sk_float_cos((theta - 2 * SK_ScalarPI) / 3) - adiv3;
+        SkASSERT(valid(r));
+    } else {
+        float sqrtR2MinusQ3 = sk_float_sqrt(R2MinusQ3);
+        float A = sk_float_abs(R) + sqrtR2MinusQ3;
+        A = powf(A, one_third);
+        if (R > 0) {
+            A = -A;
+        }
+        if (A != 0) {
+            A += Q / A;
+        }
+        r = A - adiv3;
+    }
+    return r;
+}
+
 void SkCubicMap::setPts(SkPoint p1, SkPoint p2) {
     Sk2s s1 = Sk2s::Load(&p1) * 3;
     Sk2s s2 = Sk2s::Load(&p2) * 3;
@@ -50,10 +102,16 @@ float SkCubicMap::hackYFromX(float x) const {
 }
 
 static float compute_t_from_x(float A, float B, float C, float x) {
+#if 0
     double roots[3];
     SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, -x, roots);
     SkASSERT(count == 1);
+    float r = solve_nice_cubic(A, B, C, -x);
+    SkDebugf("cary %g, cheap %g\n", (float)roots[0], r);
     return (float)roots[0];
+#else
+    return solve_nice_cubic(A, B, C, -x);
+#endif
 }
 
 void SkCubicMap::buildXTable() {
