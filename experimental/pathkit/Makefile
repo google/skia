@@ -65,7 +65,7 @@ npm-test:
 	# local-example-test
 	mkdir -p ./npm-wasm/bin/test
 	mkdir -p ./npm-asmjs/bin/test
-	./compile.sh test
+	./compile.sh # TODO(kjlubick) fix
 	cp ../../out/pathkit/pathkit.js ./npm-wasm/bin/test/pathkit.js
 	cp ../../out/pathkit/pathkit.wasm ./npm-wasm/bin/test/pathkit.wasm
 
