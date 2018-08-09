@@ -73,22 +73,10 @@ void get_vk_load_store_ops(GrLoadOp loadOpIn, GrStoreOp storeOpIn,
     }
 }
 
-GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu,
-                                               GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                               const LoadAndStoreInfo& colorInfo,
-                                               const StencilLoadAndStoreInfo& stencilInfo)
-        : INHERITED(rt, origin)
+GrVkGpuRTCommandBuffer::GrVkGpuRTCommandBuffer(GrVkGpu* gpu)
+        : fCurrentCmdInfo(-1)
         , fGpu(gpu)
-        , fClearColor(GrColor4f::FromGrColor(colorInfo.fClearColor))
         , fLastPipelineState(nullptr) {
-    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
-                          &fVkColorLoadOp, &fVkColorStoreOp);
-
-    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
-                          &fVkStencilLoadOp, &fVkStencilStoreOp);
-    fCurrentCmdInfo = -1;
-
-    this->init();
 }
 
 void GrVkGpuRTCommandBuffer::init() {
@@ -137,13 +125,7 @@ void GrVkGpuRTCommandBuffer::init() {
 
 
 GrVkGpuRTCommandBuffer::~GrVkGpuRTCommandBuffer() {
-    for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
-        CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
-        for (int j = 0; j < cbInfo.fCommandBuffers.count(); ++j) {
-            cbInfo.fCommandBuffers[j]->unref(fGpu);
-        }
-        cbInfo.fRenderPass->unref(fGpu);
-    }
+    this->reset();
 }
 
 GrGpu* GrVkGpuRTCommandBuffer::gpu() { return fGpu; }
@@ -239,6 +221,44 @@ void GrVkGpuRTCommandBuffer::submit() {
                                                &cbInfo.fColorClearValue, vkRT, fOrigin, iBounds);
         }
     }
+}
+
+void GrVkGpuRTCommandBuffer::set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                 const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+                                 const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    SkASSERT(!fRenderTarget);
+    SkASSERT(fCommandBufferInfos.empty());
+    SkASSERT(-1 == fCurrentCmdInfo);
+    SkASSERT(fGpu == rt->getContext()->contextPriv().getGpu());
+    SkASSERT(!fLastPipelineState);
+
+    this->INHERITED::set(rt, origin);
+
+    fClearColor = GrColor4f::FromGrColor(colorInfo.fClearColor);
+
+    get_vk_load_store_ops(colorInfo.fLoadOp, colorInfo.fStoreOp,
+                          &fVkColorLoadOp, &fVkColorStoreOp);
+
+    get_vk_load_store_ops(stencilInfo.fLoadOp, stencilInfo.fStoreOp,
+                          &fVkStencilLoadOp, &fVkStencilStoreOp);
+
+    this->init();
+}
+
+void GrVkGpuRTCommandBuffer::reset() {
+    for (int i = 0; i < fCommandBufferInfos.count(); ++i) {
+        CommandBufferInfo& cbInfo = fCommandBufferInfos[i];
+        for (int j = 0; j < cbInfo.fCommandBuffers.count(); ++j) {
+            cbInfo.fCommandBuffers[j]->unref(fGpu);
+        }
+        cbInfo.fRenderPass->unref(fGpu);
+    }
+    fCommandBufferInfos.reset();
+
+    fCurrentCmdInfo = -1;
+
+    fLastPipelineState = nullptr;
+    fRenderTarget = nullptr;
 }
 
 void GrVkGpuRTCommandBuffer::discard() {

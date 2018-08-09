@@ -19,14 +19,7 @@ class GrGLRenderTarget;
 
 class GrGLGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrGLGpuTextureCommandBuffer(GrGLGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-        : INHERITED(texture, origin)
-        , fGpu(gpu) {
-    }
-
-    ~GrGLGpuTextureCommandBuffer() override {}
-
-    void submit() override {}
+    GrGLGpuTextureCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override {
@@ -50,16 +43,7 @@ class GrGLGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
  * pass through functions to corresponding calls in the GrGLGpu class.
  */
 public:
-    GrGLGpuRTCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
-                           const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-                           const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
-            : INHERITED(rt, origin)
-            , fGpu(gpu)
-            , fColorLoadAndStoreInfo(colorInfo)
-            , fStencilLoadAndStoreInfo(stencilInfo) {
-    }
-
-    ~GrGLGpuRTCommandBuffer() override {}
+    GrGLGpuRTCommandBuffer(GrGLGpu* gpu) : fGpu(gpu) {}
 
     void begin() override;
     void end() override {}
@@ -79,7 +63,13 @@ public:
         fGpu->copySurface(fRenderTarget, fOrigin, src, srcOrigin, srcRect, dstPoint);
     }
 
-    void submit() override {}
+    void set(GrRenderTarget*, GrSurfaceOrigin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
+
+    void reset() {
+        fRenderTarget = nullptr;
+    }
 
 private:
     GrGpu* gpu() override { return fGpu; }
