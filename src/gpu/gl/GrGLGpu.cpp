@@ -2156,16 +2156,20 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
     return true;
 }
 
-GrGpuRTCommandBuffer* GrGLGpu::createCommandBuffer(
+std::unique_ptr<GrGpuRTCommandBuffer> GrGLGpu::createCommandBuffer1(
         GrRenderTarget* rt, GrSurfaceOrigin origin,
         const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
         const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrGLGpuRTCommandBuffer(this, rt, origin,
+                                                                            colorInfo,
+                                                                            stencilInfo));
 }
 
-GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
-                                                        GrSurfaceOrigin origin) {
-    return new GrGLGpuTextureCommandBuffer(this, texture, origin);
+std::unique_ptr<GrGpuTextureCommandBuffer> GrGLGpu::createCommandBuffer2(GrTexture* texture,
+                                                                        GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrGLGpuTextureCommandBuffer(this,
+                                                                                      texture,
+                                                                                      origin));
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,

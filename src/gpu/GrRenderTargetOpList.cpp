@@ -129,20 +129,17 @@ static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
         GrStoreOp::kStore,
     };
 
-    std::unique_ptr<GrGpuRTCommandBuffer> buffer(
-                            gpu->createCommandBuffer(rt, origin,
-                                                     kColorLoadStoreInfo,
-                                                     stencilLoadAndStoreInfo));
-    return buffer;
+    return gpu->getCommandBuffer(rt, origin, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
 }
 
-static inline void finish_command_buffer(GrGpuRTCommandBuffer* buffer) {
+static inline void finish_command_buffer(GrGpu* gpu, std::unique_ptr<GrGpuRTCommandBuffer> buffer) {
     if (!buffer) {
         return;
     }
 
     buffer->end();
     buffer->submit();
+    gpu->returnCommandBuffer(std::move(buffer));
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -196,7 +193,7 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
-    finish_command_buffer(commandBuffer.get());
+    finish_command_buffer(flushState->gpu(), std::move(commandBuffer));
     flushState->setCommandBuffer(nullptr);
 
     return true;

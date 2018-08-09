@@ -53,13 +53,27 @@ public:
     GrGLGpuRTCommandBuffer(GrGLGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
                            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
                            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo)
-            : INHERITED(rt, origin)
-            , fGpu(gpu)
-            , fColorLoadAndStoreInfo(colorInfo)
-            , fStencilLoadAndStoreInfo(stencilInfo) {
+            : fGpu(gpu) {
+        this->set(rt, origin, colorInfo, stencilInfo);
     }
 
-    ~GrGLGpuRTCommandBuffer() override {}
+    ~GrGLGpuRTCommandBuffer() override {
+        this->reset();
+    }
+
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) override {
+        SkASSERT(!fRenderTarget);
+        SkASSERT(fGpu == rt->getContext()->contextPriv().getGpu());
+
+        this->INHERITED::set(rt, origin);
+        fColorLoadAndStoreInfo = colorInfo;
+        fStencilLoadAndStoreInfo = stencilInfo;
+    }
+    void reset() override {
+        this->INHERITED::reset();
+    }
 
     void begin() override;
     void end() override {}

@@ -121,10 +121,28 @@ public:
     // TODO: This should be removed in the future to favor using the load and store ops for discard
     virtual void discard() = 0;
 
+    virtual void reset() {
+        fRenderTarget = nullptr;
+    }
+
+    virtual void set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+                     const LoadAndStoreInfo& colorInfo,
+                     const StencilLoadAndStoreInfo& stencilInfo) = 0;
+
 protected:
+    GrGpuRTCommandBuffer()
+            : INHERITED(kTopLeft_GrSurfaceOrigin)
+            , fRenderTarget(nullptr) {
+    }
+
     GrGpuRTCommandBuffer(GrRenderTarget* rt, GrSurfaceOrigin origin)
             : INHERITED(origin)
             , fRenderTarget(rt) {
+    }
+
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin) {
+        fRenderTarget = rt;
+        fOrigin = origin;
     }
 
     GrRenderTarget* fRenderTarget;
