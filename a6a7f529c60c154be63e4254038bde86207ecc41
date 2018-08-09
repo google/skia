@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "44ef1b39_6026a54d",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-09T01:41:15Z",
+      "side": 1,
+      "message": "Boy, the language could use a more convenient way to do this, maybe some variant of a lambda looking thing, saying run this block of code during the lifetime of this class:\n\nMyClassConstructor(...) {\n    some code\n}",
+      "range": {
+        "startLine": 719,
+        "startChar": 23,
+        "endLine": 719,
+        "endChar": 34
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed5578a4_fcab271c",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-09T01:41:15Z",
+      "side": 1,
+      "message": "this is fine, but it might be clearer (in intent) if we wrote:\n\nif (alpha !\u003d initial_alpha) {\n    paint-\u003esetAlpha(alpha);\n    return true;\n}\nreturn false;\n\nEven though this is longer. Just a thought.",
+      "range": {
+        "startLine": 26,
+        "startChar": 11,
+        "endLine": 26,
+        "endChar": 19
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3ca6bec_b7d16d08",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-09T01:41:15Z",
+      "side": 1,
+      "message": "not sure I follow: do you need the return statement on this line, given the one on line 50? If so, it is not clear to me (as a reader) why.",
+      "range": {
+        "startLine": 48,
+        "startChar": 20,
+        "endLine": 48,
+        "endChar": 28
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
