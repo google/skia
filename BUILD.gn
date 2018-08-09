@@ -3,6 +3,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+#test
+#
 import("gn/flutter_defines.gni")
 import("gn/shared_sources.gni")
 
@@ -2021,8 +2023,8 @@ if (skia_enable_tools) {
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
-      "tools/viewer/TouchGesture.h",
       "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []
