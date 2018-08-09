@@ -52,14 +52,14 @@
 #include "ops/GrStencilPathOp.h"
 #include "ops/GrTextureOp.h"
 #include "text/GrTextContext.h"
-#include "text/GrTextUtils.h"
+#include "text/GrTextTarget.h"
 
 
 
-class GrRenderTargetContext::TextTarget : public GrTextUtils::Target {
+class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:
     TextTarget(GrRenderTargetContext* renderTargetContext)
-            : Target(renderTargetContext->width(), renderTargetContext->height(),
+            : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
                      renderTargetContext->colorSpaceInfo())
             , fRenderTargetContext(renderTargetContext)
             , fGlyphDrawer{*renderTargetContext}{}

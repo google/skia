@@ -19,7 +19,7 @@
 #include "SkCanvas.h"
 #include "SkRefCnt.h"
 #include "SkSurfaceProps.h"
-#include "text/GrTextUtils.h"
+#include "text/GrTextTarget.h"
 
 class GrBackendSemaphore;
 class GrCCPRAtlas;
@@ -365,7 +365,7 @@ public:
     GrRenderTargetContextPriv priv();
     const GrRenderTargetContextPriv priv() const;
 
-    GrTextUtils::Target* textTarget() { return fTextTarget.get(); }
+    GrTextTarget* textTarget() { return fTextTarget.get(); }
 
     bool isWrapped_ForTesting() const;
 
@@ -444,7 +444,7 @@ private:
     GrRenderTargetOpList* getRTOpList();
     GrOpList* getOpList() override;
 
-    std::unique_ptr<GrTextUtils::Target> fTextTarget;
+    std::unique_ptr<GrTextTarget> fTextTarget;
     sk_sp<GrRenderTargetProxy> fRenderTargetProxy;
 
     // In MDB-mode the GrOpList can be closed by some other renderTargetContext that has picked

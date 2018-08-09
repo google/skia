@@ -79,12 +79,12 @@ static const SkSurfaceProps kProps(
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SkInternalAtlasTextTarget : public GrTextUtils::Target, public SkAtlasTextTarget {
+class SkInternalAtlasTextTarget : public GrTextTarget, public SkAtlasTextTarget {
 public:
     SkInternalAtlasTextTarget(sk_sp<SkAtlasTextContext> context,
                               int width, int height,
                               void* handle)
-            : GrTextUtils::Target(width, height, kColorSpaceInfo)
+            : GrTextTarget(width, height, kColorSpaceInfo)
             , SkAtlasTextTarget(std::move(context), width, height, handle)
             , fGlyphDrawer(kProps, kColorSpaceInfo) {
         fOpMemoryPool = fContext->internal().grContext()->contextPriv().refOpMemoryPool();
@@ -94,7 +94,7 @@ public:
         this->deleteOps();
     }
 
-    /** GrTextUtils::Target overrides */
+    /** GrTextTarget overrides */
 
     void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
 

@@ -52,7 +52,7 @@
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
-#include "text/GrTextUtils.h"
+#include "text/GrTextTarget.h"
 
 #define ASSERT_SINGLE_OWNER \
 SkDEBUGCODE(GrSingleOwner::AutoEnforce debug_SingleOwner(fContext->contextPriv().debugSingleOwner());)

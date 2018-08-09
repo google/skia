@@ -34,7 +34,7 @@
 #include "ops/GrDrawOp.h"
 #include "text/GrAtlasManager.h"
 #include "text/GrTextContext.h"
-#include "text/GrTextUtils.h"
+#include "text/GrTextTarget.h"
 
 #include <memory>
 

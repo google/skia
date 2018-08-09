@@ -1532,7 +1532,6 @@ private:
     friend class GrTextContext;
     friend class GrGLPathRendering;
     friend class GrPathRendering;
-    friend class GrTextUtils;
     friend class SkAutoGlyphCacheNoGamma;
     friend class SkCanonicalizePaint;
     friend class SkCanvas;

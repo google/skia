@@ -298,8 +298,6 @@ GR_DRAW_OP_TEST_DEFINE(GrAtlasTextOp) {
 
     SkMatrix viewMatrix = GrTest::TestMatrixInvertible(random);
 
-    // Because we the GrTextUtils::Paint requires an SkPaint for font info, we ignore the GrPaint
-    // param.
     SkPaint skPaint;
     skPaint.setColor(random->nextU());
     skPaint.setLCDRenderText(random->nextBool());

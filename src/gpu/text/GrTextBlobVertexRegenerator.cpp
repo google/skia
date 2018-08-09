@@ -7,7 +7,7 @@
 
 #include "GrAtlasManager.h"
 #include "GrTextBlob.h"
-#include "GrTextUtils.h"
+#include "GrTextTarget.h"
 #include "SkDistanceFieldGen.h"
 #include "SkGlyphCache.h"
 #include "ops/GrAtlasTextOp.h"
