@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d8eadbd1_7258f4b5",
+        "filename": "src/core/SkScalerContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-09T20:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "522eb14e_44d66a47",
+      "range": {
+        "startLine": 806,
+        "startChar": 15,
+        "endLine": 806,
+        "endChar": 20
+      },
+      "revId": "822ab7c5808cbded772a17311bccb0514df970cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2579bd1_62163098",
         "filename": "src/ports/SkFontHost_mac.cpp",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "822ab7c5808cbded772a17311bccb0514df970cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ccaac74a_bce6a01c",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-09T20:18:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2579bd1_62163098",
+      "range": {
+        "startLine": 1160,
+        "startChar": 4,
+        "endLine": 1161,
+        "endChar": 16
+      },
+      "revId": "822ab7c5808cbded772a17311bccb0514df970cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
