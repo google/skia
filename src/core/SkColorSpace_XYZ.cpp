@@ -51,7 +51,7 @@ const SkMatrix44* SkColorSpace_XYZ::onFromXYZD50() const {
 }
 
 bool SkColorSpace_XYZ::onGammaCloseToSRGB() const {
-    return kSRGB_SkGammaNamed == fGammaNamed || k2Dot2Curve_SkGammaNamed == fGammaNamed;
+    return kSRGB_SkGammaNamed == fGammaNamed;
 }
 
 bool SkColorSpace_XYZ::onGammaIsLinear() const {
