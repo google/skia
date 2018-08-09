@@ -189,7 +189,7 @@ Viewer::Viewer(int argc, char** argv, void* platformData)
     , fColorSpaceTransferFn(g2Dot2_TransferFn)
     , fZoomLevel(0.0f)
     , fRotation(0.0f)
-    , fOffset{0.0f, 0.0f}
+    , fOffset{0.5f, 0.5f}
     , fGestureDevice(GestureDevice::kNone)
     , fPerspectiveMode(kPerspective_Off)
 {
@@ -911,7 +911,7 @@ SkMatrix Viewer::computePreTouchMatrix() {
     SkMatrix m = fDefaultMatrix;
     SkScalar zoomScale = (fZoomLevel < 0) ? SK_Scalar1 / (SK_Scalar1 - fZoomLevel)
                                           : SK_Scalar1 + fZoomLevel;
-    m.preTranslate(fOffset.x(), fOffset.y());
+    m.preTranslate((fOffset.x() - 0.5f) * 2.0f, (fOffset.y() - 0.5f) * 2.0f);
     m.preScale(zoomScale, zoomScale);
 
     const SkISize slideSize = fSlides[fCurrentSlide]->getDimensions();
@@ -1525,6 +1525,10 @@ void Viewer::drawImGui() {
                         this->preTouchMatrixChanged();
                         paramsChanged = true;
                     }
+                } else if (fOffset != SkVector{0.5f, 0.5f}) {
+                    this->preTouchMatrixChanged();
+                    paramsChanged = true;
+                    fOffset = {0.5f, 0.5f};
                 }
                 int perspectiveMode = static_cast<int>(fPerspectiveMode);
                 if (ImGui::Combo("Perspective", &perspectiveMode, "Off\0Real\0Fake\0\0")) {
