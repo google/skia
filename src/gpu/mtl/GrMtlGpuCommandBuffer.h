@@ -71,6 +71,10 @@ public:
 
     void submit() override {}
 
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) override;
+
 private:
     GrGpu* gpu() override { return fGpu; }
 

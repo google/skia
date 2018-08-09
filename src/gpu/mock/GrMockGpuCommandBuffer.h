@@ -31,9 +31,14 @@ private:
 
 class GrMockGpuRTCommandBuffer : public GrGpuRTCommandBuffer {
 public:
-    GrMockGpuRTCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin)
-            : INHERITED(rt, origin)
-            , fGpu(gpu) {
+    GrMockGpuRTCommandBuffer(GrMockGpu* gpu, GrRenderTarget* rt, GrSurfaceOrigin origin,
+                             const LoadAndStoreInfo& colorInfo,
+                             const StencilLoadAndStoreInfo& stencilInfo)
+            : fGpu(gpu) {
+        this->set(rt, origin, colorInfo, stencilInfo);
+    }
+    ~GrMockGpuRTCommandBuffer() {
+        this->reset();
     }
 
     GrGpu* gpu() override { return fGpu; }
@@ -48,6 +53,21 @@ public:
     int numDraws() const { return fNumDraws; }
 
     void submit() override { fGpu->submitCommandBuffer(this); }
+
+    void set(GrRenderTarget* rt, GrSurfaceOrigin origin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override {
+        SkASSERT(!fRenderTarget);
+        SkASSERT(fGpu == rt->getContext()->contextPriv().getGpu());
+        SkASSERT(0 == fNumDraws);
+
+        this->INHERITED::set(rt, origin);
+    }
+
+    void reset() override {
+        fNumDraws = 0;
+        this->INHERITED::reset();
+    }
 
 private:
     void onDraw(const GrPrimitiveProcessor&, const GrPipeline&,

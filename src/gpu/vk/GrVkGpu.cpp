@@ -274,18 +274,6 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GrGpuRTCommandBuffer* GrVkGpu::createCommandBuffer(
-            GrRenderTarget* rt, GrSurfaceOrigin origin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrVkGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
-}
-
-GrGpuTextureCommandBuffer* GrVkGpu::createCommandBuffer(GrTexture* texture,
-                                                        GrSurfaceOrigin origin) {
-    return new GrVkGpuTextureCommandBuffer(this, texture, origin);
-}
-
 void GrVkGpu::submitCommandBuffer(SyncQueue sync) {
     SkASSERT(fCurrentCmdBuffer);
     fCurrentCmdBuffer->end(this);
@@ -1761,6 +1749,21 @@ bool GrVkGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
     }
 
     return false;
+}
+
+std::unique_ptr<GrGpuRTCommandBuffer> GrVkGpu::createCommandBuffer1(
+            GrRenderTarget* rt, GrSurfaceOrigin origin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrVkGpuRTCommandBuffer(this, rt, origin,
+                                                                            colorInfo,
+                                                                            stencilInfo));
+}
+
+std::unique_ptr<GrGpuTextureCommandBuffer> GrVkGpu::createCommandBuffer2(GrTexture* texture,
+                                                                        GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrVkGpuTextureCommandBuffer(this, texture,
+                                                                                      origin));
 }
 
 bool GrVkGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int height,

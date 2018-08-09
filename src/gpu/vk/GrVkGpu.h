@@ -90,13 +90,6 @@ public:
 
     void clearStencil(GrRenderTarget* target, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     void addMemoryBarrier(VkPipelineStageFlags srcStageMask,
                           VkPipelineStageFlags dstStageMask,
                           bool byRegion,
@@ -165,6 +158,14 @@ private:
 
     GrBuffer* onCreateBuffer(size_t size, GrBufferType type, GrAccessPattern,
                              const void* data) override;
+
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer1(
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer2(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
                       void* buffer, size_t rowBytes) override;

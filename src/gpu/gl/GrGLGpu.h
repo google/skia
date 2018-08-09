@@ -118,13 +118,6 @@ public:
 
     void clearStencil(GrRenderTarget*, int clearValue) override;
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     void invalidateBoundRenderTarget() {
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
@@ -205,6 +198,14 @@ private:
     bool createTextureImpl(const GrSurfaceDesc& desc, GrGLTextureInfo* info, bool renderTarget,
                            GrGLTexture::TexParams* initialTexParams, const GrMipLevel texels[],
                            int mipLevelCount, GrMipMapsStatus* mipMapsStatus);
+
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer1(
+            GrRenderTarget*, GrSurfaceOrigin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer2(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     // Checks whether glReadPixels can be called to get pixel values in readConfig from the
     // render target.
@@ -567,7 +568,7 @@ private:
         }
     }                                       fHWBlendState;
 
-    TriState fMSAAEnabled;
+    TriState                                fMSAAEnabled;
 
     GrStencilSettings                       fHWStencilSettings;
     TriState                                fHWStencilTestEnabled;
