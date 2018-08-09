@@ -422,7 +422,7 @@ skia_gpu_sources = [
   "$_src/gpu/text/GrTextContext.cpp",
   "$_src/gpu/text/GrTextContext.h",
   "$_src/gpu/text/GrTextBlobVertexRegenerator.cpp",
-  "$_src/gpu/text/GrTextUtils.h",
+  "$_src/gpu/text/GrTextTarget.h",
 
   "$_src/gpu/gl/GrGLAssembleInterface.cpp",
   "$_src/gpu/gl/GrGLBuffer.cpp",

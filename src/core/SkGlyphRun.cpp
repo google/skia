@@ -19,6 +19,7 @@
 #include "text/GrTextContext.h"
 #endif
 
+#include "SkColorFilter.h"
 #include "SkDevice.h"
 #include "SkDistanceFieldGen.h"
 #include "SkDraw.h"
@@ -862,7 +863,7 @@ GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& co
 }
 
 void GrTextContext::drawGlyphRunList(
-        GrContext* context, GrTextUtils::Target* target, const GrClip& clip,
+        GrContext* context, GrTextTarget* target, const GrClip& clip,
         const SkMatrix& viewMatrix, const SkSurfaceProps& props, const SkGlyphRunList& glyphRunList,
         const SkIRect& clipBounds) {
     SkPoint origin = glyphRunList.origin();
