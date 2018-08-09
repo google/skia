@@ -86,6 +86,7 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     }
 }
 
+#ifdef SK_LEGACY_CONVERT_PIXELS_IMPL
 // Fast Path 3: Color space xform.
 static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
     // Unpremultiplication is unsupported by SkColorSpaceXform.  Note that if |src| is non-linearly
@@ -157,6 +158,7 @@ static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
     }
     return true;
 }
+#endif
 
 // Fast Path 4: Alpha 8 dsts.
 static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
@@ -421,12 +423,14 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         return;
     }
 
+#ifdef SK_LEGACY_CONVERT_PIXELS_IMPL
     // Fast Path 3: Color space xform.
     if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
         if (apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB)) {
             return;
         }
     }
+#endif
 
     // Fast Path 4: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
