@@ -1357,7 +1357,6 @@ if (skia_enable_tools) {
       "tools/fonts/SkTestTypeface.cpp",
       "tools/fonts/SkTestTypeface.h",
       "tools/fonts/sk_tool_utils_font.cpp",
-      "tools/picture_utils.cpp",
       "tools/random_parse_path.cpp",
       "tools/sk_tool_utils.cpp",
       "tools/timer/Timer.cpp",
@@ -1786,7 +1785,6 @@ if (skia_enable_tools) {
       "tools/debugger/SkDebugCanvas.cpp",
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
-      "tools/picture_utils.cpp",
     ]
     deps = [
       ":flags",
@@ -2195,7 +2193,6 @@ if (skia_enable_tools) {
         "tools/mdbviz/MainWindow.cpp",
         "tools/mdbviz/Model.cpp",
         "tools/mdbviz/main.cpp",
-        "tools/picture_utils.cpp",
 
         # generated files
         "$target_gen_dir/mdbviz/MainWindow_moc.cpp",

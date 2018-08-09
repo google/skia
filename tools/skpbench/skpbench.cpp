@@ -34,7 +34,6 @@
 #include "SkTaskGroup.h"
 #include "flags/SkCommandLineFlags.h"
 #include "flags/SkCommonFlagsConfig.h"
-#include "picture_utils.h"
 #include "sk_tool_utils.h"
 
 #ifdef SK_XML
@@ -470,12 +469,10 @@ int main(int argc, char** argv) {
         if (!surface->getCanvas()->readPixels(bmp, 0, 0)) {
             exitf(ExitErr::kUnavailable, "failed to read canvas pixels for png");
         }
-        const SkString &dirname = SkOSPath::Dirname(FLAGS_png[0]),
-                       &basename = SkOSPath::Basename(FLAGS_png[0]);
-        if (!mkdir_p(dirname)) {
-            exitf(ExitErr::kIO, "failed to create directory \"%s\" for png", dirname.c_str());
+        if (!mkdir_p(SkOSPath::Dirname(FLAGS_png[0]))) {
+            exitf(ExitErr::kIO, "failed to create directory for png \"%s\"", FLAGS_png[0]);
         }
-        if (!sk_tools::write_bitmap_to_disk(bmp, dirname, nullptr, basename)) {
+        if (!sk_tool_utils::EncodeImageToFile(FLAGS_png[0], bmp, SkEncodedImageFormat::kPNG, 100)) {
             exitf(ExitErr::kIO, "failed to save png to \"%s\"", FLAGS_png[0]);
         }
     }
