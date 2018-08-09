@@ -483,8 +483,6 @@ DM_SRCS_ALL = struct(
         "tools/fonts/test_font_index.inc",
         "tools/gpu/**/*.cpp",
         "tools/gpu/**/*.h",
-        "tools/picture_utils.cpp",
-        "tools/picture_utils.h",
         "tools/random_parse_path.cpp",
         "tools/random_parse_path.h",
         "tools/sk_pixel_iter.h",
