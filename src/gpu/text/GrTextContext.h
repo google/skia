@@ -11,7 +11,7 @@
 #include "GrDistanceFieldAdjustTable.h"
 #include "GrGeometryProcessor.h"
 #include "GrTextBlob.h"
-#include "GrTextUtils.h"
+#include "GrTextTarget.h"
 #include "SkGlyphRun.h"
 
 #if GR_TEST_UTILS
@@ -44,7 +44,7 @@ public:
 
     static std::unique_ptr<GrTextContext> Make(const Options& options);
 
-    void drawGlyphRunList(GrContext*, GrTextUtils::Target*, const GrClip&,
+    void drawGlyphRunList(GrContext*, GrTextTarget*, const GrClip&,
                           const SkMatrix& viewMatrix, const SkSurfaceProps&, const SkGlyphRunList&,
                           const SkIRect& clipBounds);
 

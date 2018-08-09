@@ -9,7 +9,7 @@
 #include "GrBlurUtils.h"
 #include "GrClip.h"
 #include "GrContext.h"
-#include "GrTextUtils.h"
+#include "GrTextTarget.h"
 #include "SkColorFilter.h"
 #include "SkGlyphCache.h"
 #include "SkMaskFilterBase.h"
@@ -223,7 +223,7 @@ inline std::unique_ptr<GrAtlasTextOp> GrTextBlob::makeOp(
         const Run::SubRunInfo& info, int glyphCount, uint16_t run, uint16_t subRun,
         const SkMatrix& viewMatrix, SkScalar x, SkScalar y, const SkIRect& clipRect,
         const SkPaint& paint, GrColor filteredColor, const SkSurfaceProps& props,
-        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextUtils::Target* target) {
+        const GrDistanceFieldAdjustTable* distanceAdjustTable, GrTextTarget* target) {
     GrMaskFormat format = info.maskFormat();
 
     GrPaint grPaint;
@@ -273,11 +273,11 @@ static void calculate_translation(bool applyVM,
     }
 }
 
-void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
-                            const GrDistanceFieldAdjustTable* distanceAdjustTable,
-                            const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
-                            const SkMatrix& viewMatrix, const SkIRect& clipBounds,
-                            SkScalar x, SkScalar y) {
+void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
+                       const GrDistanceFieldAdjustTable* distanceAdjustTable,
+                       const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
+                       const SkMatrix& viewMatrix, const SkIRect& clipBounds,
+                       SkScalar x, SkScalar y) {
 
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
@@ -365,7 +365,7 @@ std::unique_ptr<GrDrawOp> GrTextBlob::test_makeOp(
         int glyphCount, uint16_t run, uint16_t subRun, const SkMatrix& viewMatrix,
         SkScalar x, SkScalar y, const SkPaint& paint, GrColor filteredColor,
         const SkSurfaceProps& props, const GrDistanceFieldAdjustTable* distanceAdjustTable,
-        GrTextUtils::Target* target) {
+        GrTextTarget* target) {
     const GrTextBlob::Run::SubRunInfo& info = fRuns[run].fSubRunInfo[subRun];
     SkIRect emptyRect = SkIRect::MakeEmpty();
     return this->makeOp(info, glyphCount, run, subRun, viewMatrix, x, y, emptyRect,
