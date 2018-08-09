@@ -5444,15 +5444,15 @@ void draw(SkCanvas* canvas) {
 Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
-Typeface, Paint_Text_Size, Paint_Text_Scale_X, Paint_Text_Skew_X,
-Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
-Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
-Subpixel_Text, and Paint_Vertical_Text.
+#paint_font_metrics#.
 
 Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
-Elements of paint: Path_Effect, Mask_Filter, Shader, Color_Filter,
-Image_Filter, and Draw_Looper; apply to blob.
+Elements of paint: Anti_Alias, Blend_Mode, Color including Color_Alpha,
+Color_Filter, Paint_Dither, Draw_Looper, Mask_Filter, Path_Effect, Shader, and
+Paint_Style; apply to blob. If Paint contains SkPaint::kStroke_Style: 
+Paint_Miter_Limit, Paint_Stroke_Cap, Paint_Stroke_Join, and Paint_Stroke_Width;
+apply to Path created from blob.
 
 #Param  blob     Glyphs, positions, and their paints' text size, typeface, and so on ##
 #Param  x        horizontal offset applied to blob ##
@@ -5497,10 +5497,7 @@ void draw(SkCanvas* canvas) {
 Draws Text_Blob blob at (x, y), using Clip, Matrix, and Paint paint.
 
 blob contains Glyphs, their positions, and paint attributes specific to text:
-Typeface, Paint_Text_Size, Paint_Text_Scale_X, Paint_Text_Skew_X,
-Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
-Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
-Subpixel_Text, and Paint_Vertical_Text.
+#paint_font_metrics#.
 
 Paint_Text_Encoding must be set to SkPaint::kGlyphID_TextEncoding.
 
