@@ -1,4 +1,4 @@
-Anmiation Player
+Animation Player
 ================
 
 Skia now offers a performant, secure native player for JSON animations derived
