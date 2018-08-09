@@ -15,6 +15,7 @@
 #include "ImGuiLayer.h"
 #include "SkAnimTimer.h"
 #include "SkExecutor.h"
+#include "SkRealTimeTracer.h"
 #include "SkScan.h"
 #include "Slide.h"
 #include "StatsLayer.h"
@@ -172,7 +173,8 @@ private:
     SkPaint fPaint;
     SkPaintFields fPaintOverrides;
     bool fPixelGeometryOverrides = false;
-};
 
+    SkRealTimeTracer* fTracer;
+};
 
 #endif
