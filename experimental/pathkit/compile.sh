@@ -43,6 +43,7 @@ fi
 
 # Use -O0 for larger builds (but generally quicker)
 # Use -Oz for (much slower, but smaller/faster) production builds
+export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/helper_externs.js "
 RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1"
 if [[ $@ == *test* ]]; then
   echo "Building a Testing/Profiling build"
@@ -72,15 +73,12 @@ mkdir -p $BUILD_DIR
 em++ $RELEASE_CONF -std=c++14 \
 -Iinclude/config \
 -Iinclude/core \
--Iinclude/gpu \
 -Iinclude/pathops \
 -Iinclude/private \
 -Iinclude/utils \
 -Isrc/core \
--Isrc/gpu \
--Isrc/shaders \
--Isrc/opts \
 --bind \
+--pre-js $BASE_DIR/helper.js \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \
 -s MODULARIZE=1 \
@@ -93,27 +91,15 @@ $WASM_CONF \
 -s STRICT=1 \
 $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
-src/core/SkAnalyticEdge.cpp \
 src/core/SkArenaAlloc.cpp \
-src/core/SkBlitter.cpp \
-src/core/SkCoverageDelta.cpp \
-src/core/SkEdge.cpp \
-src/core/SkEdgeBuilder.cpp \
-src/core/SkEdgeClipper.cpp \
-src/core/SkFDot6Constants.cpp \
 src/core/SkGeometry.cpp \
-src/core/SkLineClipper.cpp \
 src/core/SkMallocPixelRef.cpp \
 src/core/SkMath.cpp \
 src/core/SkMatrix.cpp \
-src/core/SkOpts.cpp \
 src/core/SkPath.cpp \
 src/core/SkPathRef.cpp \
 src/core/SkPoint.cpp \
 src/core/SkRect.cpp \
-src/core/SkRegion.cpp \
-src/core/SkRegion_path.cpp \
-src/core/SkScan_Path.cpp \
 src/core/SkStream.cpp \
 src/core/SkString.cpp \
 src/core/SkStringUtils.cpp \

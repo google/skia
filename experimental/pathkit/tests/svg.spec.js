@@ -39,19 +39,36 @@ describe('PathKit\'s SVG Behavior', function() {
 
     it('can create an SVG string from a path', function(done){
         LoadPathKit.then(() => {
-            //.This is a parallelagram from
-            // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
-            let path = PathKit.NewPath();
-            path.moveTo(205, 5);
-            path.lineTo(795, 5);
-            path.lineTo(595, 295);
-            path.lineTo(5, 295);
-            path.lineTo(205, 5);
-            path.closePath();
+            let cmds = [[PathKit.MOVE_VERB, 205, 5],
+                       [PathKit.LINE_VERB, 795, 5],
+                       [PathKit.LINE_VERB, 595, 295],
+                       [PathKit.LINE_VERB, 5, 295],
+                       [PathKit.LINE_VERB, 205, 5],
+                       [PathKit.CLOSE_VERB]];
+            let [ptr, len] = PathKit.loadCmdsTypedArray(cmds);
+            let path = PathKit.FromCmds(ptr, len);
 
             let svgStr = path.toSVGString();
             // We output it in terse form, which is different than Wikipedia's version
             expect(svgStr).toEqual('M205 5L795 5L595 295L5 295L205 5Z');
+            path.delete();
+            done();
+        });
+    });
+
+    it('can create an SVG string from hex values', function(done){
+        LoadPathKit.then(() => {
+            let cmds = [[PathKit.MOVE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
+                       [PathKit.LINE_VERB, 795, 5],
+                       [PathKit.LINE_VERB, 595, 295],
+                       [PathKit.LINE_VERB, 5, 295],
+                       [PathKit.LINE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
+                       [PathKit.CLOSE_VERB]];
+            let [ptr, len] = PathKit.loadCmdsTypedArray(cmds);
+            let path = PathKit.FromCmds(ptr, len);
+
+            let svgStr = path.toSVGString();
+            expect(svgStr).toEqual('M9.37088e-26 2.0003L795 5L595 295L5 295L9.37088e-26 2.0003Z');
             path.delete();
             done();
         });

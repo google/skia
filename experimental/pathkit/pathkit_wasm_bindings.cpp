@@ -12,7 +12,6 @@
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkRect.h"
-#include "SkRegion.h"
 #include "SkString.h"
 
 #include <emscripten/emscripten.h>
@@ -328,18 +327,17 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath,
 }
 
 //========================================================================================
-// Region things
+// Testing things
 //========================================================================================
 
-#ifdef PATHKIT_TESTING
-SkPathOrVal GetBoundaryPathFromRegion(SkRegion& region) {
-    SkPath p;
-    if (region.getBoundaryPath(&p)) {
-        return emscripten::val(p);
-    }
-    return emscripten::val::null();
+// The use case for this is on the JS side is something like:
+//     PathKit.SkBits2FloatUnsigned(parseInt("0xc0a00000"))
+// to have precise float values for tests. In the C++ tests, we can use SkBits2Float because
+// it takes int32_t, but the JS parseInt basically returns an unsigned int. So, we add in
+// this helper which casts for us on the way to SkBits2Float.
+float SkBits2FloatUnsigned(uint32_t floatAsBits) {
+    return SkBits2Float((int32_t) floatAsBits);
 }
-#endif
 
 // Binds the classes to the JS
 //
@@ -391,6 +389,12 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("quadTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
 
+        // Extra features
+        .function("setFillType", &SkPath::setFillType)
+        .function("getFillType", &SkPath::getFillType)
+        .function("getBounds", &SkPath::getBounds)
+        .function("computeTightBounds", &SkPath::computeTightBounds)
+
         // PathOps
         .function("simplify", &SimplifyPath)
         .function("op", &ApplyPathOp)
@@ -431,42 +435,35 @@ EMSCRIPTEN_BINDINGS(skia) {
         .value("XOR",                SkPathOp::kXOR_SkPathOp)
         .value("REVERSE_DIFFERENCE", SkPathOp::kReverseDifference_SkPathOp);
 
+    enum_<SkPath::FillType>("FillType")
+        .value("WINDING",            SkPath::FillType::kWinding_FillType)
+        .value("EVENODD",            SkPath::FillType::kEvenOdd_FillType)
+        .value("INVERSE_WINDING",    SkPath::FillType::kInverseWinding_FillType)
+        .value("INVERSE_EVENODD",    SkPath::FillType::kInverseEvenOdd_FillType);
+
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);
     constant("QUAD_VERB",  QUAD);
     constant("CUBIC_VERB", CUBIC);
     constant("CLOSE_VERB", CLOSE);
 
+    // A value object is much simpler than a class - it is returned as a JS
+    // object and does not require delete().
+    // https://kripken.github.io/emscripten-site/docs/porting/connecting_cpp_and_javascript/embind.html#value-types
+    value_object<SkRect>("SkRect")
+        .field("fLeft",   &SkRect::fLeft)
+        .field("fTop",    &SkRect::fTop)
+        .field("fRight",  &SkRect::fRight)
+        .field("fBottom", &SkRect::fBottom);
+
+    function("MakeLTRBRect", &SkRect::MakeLTRB);
+
     // coming soon - Stroke
 
     // coming soon - Matrix
 
-    // coming soon - Bounds/Trim
+    // coming soon - Trim
 
-#ifdef PATHKIT_TESTING
-    function("SkBits2Float", &SkBits2Float);
-
-    enum_<SkRegion::Op>("RegionOp")
-        .value("DIFFERENCE",         SkRegion::Op::kDifference_Op)
-        .value("INTERSECT",          SkRegion::Op::kIntersect_Op)
-        .value("UNION",              SkRegion::Op::kUnion_Op)
-        .value("XOR",                SkRegion::Op::kXOR_Op)
-        .value("REVERSE_DIFFERENCE", SkRegion::Op::kReverseDifference_Op)
-        .value("REPLACE",            SkRegion::Op::kReplace_Op);
-
-    class_<SkRegion>("SkRegion")
-        .constructor<>()
-
-        .function("setRect",
-            select_overload<bool(int32_t, int32_t, int32_t, int32_t)>(&SkRegion::setRect))
-        .function("setPath", &SkRegion::setPath)
-        .function("opLTRB",
-            select_overload<bool(int32_t, int32_t, int32_t, int32_t, SkRegion::Op)>(&SkRegion::op))
-        .function("opRegion",
-            select_overload<bool(const SkRegion&, SkRegion::Op)>(&SkRegion::op))
-        .function("opRegionAB",
-            select_overload<bool(const SkRegion&, const SkRegion&, SkRegion::Op)>(&SkRegion::op))
-
-        .function("getBoundaryPath", &GetBoundaryPathFromRegion);
-#endif
+    // Test Utils
+    function("SkBits2FloatUnsigned", &SkBits2FloatUnsigned);
 }
