@@ -31,6 +31,7 @@ public:
 
     void onBackendCreated() override;
     void onPaint(SkCanvas* canvas) override;
+    void onResize(int width, int height) override;
     bool onTouch(intptr_t owner, sk_app::Window::InputState state, float x, float y) override;
     bool onMouse(int x, int y, sk_app::Window::InputState state, uint32_t modifiers) override;
     void onUIStateChanged(const SkString& stateName, const SkString& stateValue) override;
