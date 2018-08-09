@@ -489,7 +489,7 @@ public:
 protected:
     unsigned generateGlyphCount() override;
     uint16_t generateCharToGlyph(SkUnichar uni) override;
-    void generateAdvance(SkGlyph* glyph) override;
+    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyphID, SkPath* path) override;
@@ -1023,35 +1023,36 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
     return 0;
 }
 
-void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
+bool SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
    /* unhinted and light hinted text have linearly scaled advances
     * which are very cheap to compute with some font formats...
     */
-    if (fDoLinearMetrics) {
-        SkAutoMutexAcquire  ac(gFTMutex);
-
-        if (this->setupSize()) {
-            glyph->zeroMetrics();
-            return;
-        }
-
-        FT_Error    error;
-        FT_Fixed    advance;
-
-        error = FT_Get_Advance( fFace, glyph->getGlyphID(),
-                                fLoadGlyphFlags | FT_ADVANCE_FLAG_FAST_ONLY,
-                                &advance );
-        if (0 == error) {
-            const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
-            glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
-            glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
-            return;
-        }
+    if (!fDoLinearMetrics) {
+        return false;
     }
 
-    /* otherwise, we need to load/hint the glyph, which is slower */
-    this->generateMetrics(glyph);
-    return;
+    SkAutoMutexAcquire  ac(gFTMutex);
+
+    if (this->setupSize()) {
+        glyph->zeroMetrics();
+        return true;
+    }
+
+    FT_Error    error;
+    FT_Fixed    advance;
+
+    error = FT_Get_Advance( fFace, glyph->getGlyphID(),
+                            fLoadGlyphFlags | FT_ADVANCE_FLAG_FAST_ONLY,
+                            &advance );
+
+    if (error != 0) {
+        return false;
+    }
+
+    const SkScalar advanceScalar = SkFT_FixedToScalar(advance);
+    glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getScaleX() * advanceScalar);
+    glyph->fAdvanceY = SkScalarToFloat(fMatrix22Scalar.getSkewY() * advanceScalar);
+    return true;
 }
 
 void SkScalerContext_FreeType::getBBoxForCurrentGlyph(SkGlyph* glyph,
@@ -1107,7 +1108,7 @@ bool SkScalerContext_FreeType::getCBoxForLetter(char letter, FT_BBox* bbox) {
 }
 
 void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
-    if (isLCD(fRec)) {
+    if (glyph->fMaskFormat == SkMask::kLCD16_Format) {
         if (fLCDIsVert) {
             glyph->fHeight += gFTLibrary->lcdExtra();
             glyph->fTop -= gFTLibrary->lcdExtra() >> 1;
@@ -1138,6 +1139,8 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
     SkAutoMutexAcquire  ac(gFTMutex);
 
     FT_Error    err;
+
+    glyph->fMaskFormat = fRec.fMaskFormat;
 
     if (this->setupSize()) {
         glyph->zeroMetrics();

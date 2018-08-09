@@ -37,13 +37,17 @@ uint16_t SkScalerContextProxy::generateCharToGlyph(SkUnichar) {
     return 0;
 }
 
-void SkScalerContextProxy::generateAdvance(SkGlyph* glyph) { this->generateMetrics(glyph); }
+bool SkScalerContextProxy::generateAdvance(SkGlyph* glyph) {
+    return false;
+}
 
 void SkScalerContextProxy::generateMetrics(SkGlyph* glyph) {
     TRACE_EVENT1("skia", "generateMetrics", "rec", TRACE_STR_COPY(this->getRec().dump().c_str()));
     if (this->getProxyTypeface()->isLogging()) {
         SkDebugf("GlyphCacheMiss generateMetrics: %s\n", this->getRec().dump().c_str());
     }
+
+    glyph->fMaskFormat = fRec.fMaskFormat;
 
     // Since the scaler context is being called, we don't have the needed data. Try to find a
     // fallback before failing.
