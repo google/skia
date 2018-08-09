@@ -183,6 +183,11 @@ bool GrOpList::isFullyInstantiated() const {
         }
     }
 
+    GrSurface* surface = proxy->peekSurface();
+    if (surface->wasDestroyed()) {
+        return false;
+    }
+
     return true;
 }
 
