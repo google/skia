@@ -239,22 +239,48 @@ public:
                      const SkIPoint& dstPoint,
                      bool canDiscardOutsideDstRect = false);
 
-    // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
+    // Returns a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
-    virtual GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
+    virtual GrGpuRTCommandBuffer* getCommandBuffer(
+            GrRenderTarget* rt, GrSurfaceOrigin origin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) = 0;
 
-    // Creates a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
+#if 0
+        if (fCachedRTCommandBuffer) {
+            fCachedRTCommandBuffer.get()->set(rt, origin, colorInfo, stencilInfo);
+            return std::move(fCachedRTCommandBuffer);
+        }
+
+        return this->createCommandBuffer(rt, origin, colorInfo, stencilInfo);
+    }
+#endif
+
+#if 0
+    // Return the GrGpuRTCommandBuffer, retrieved in getCommandBuffer, for possible reuse.
+    void returnCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer> buffer) {
+        buffer->reset();
+        fCachedRTCommandBuffer = std::move(buffer);
+    }
+#endif
+
+    // Returns a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
     // directly to the Gpu object.
-    virtual GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
+    virtual GrGpuTextureCommandBuffer* getCommandBuffer(GrTexture* tex,
+                                                        GrSurfaceOrigin origin) = 0;
+#if 0
+        // We currently don't cache the texture command buffers
+        return this->createCommandBuffer(tex, origin);
+    }
+#endif
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
     // insert any numSemaphore semaphores on the gpu and set the backendSemaphores to match the
     // inserted semaphores.
     GrSemaphoresSubmitted finishFlush(int numSemaphores, GrBackendSemaphore backendSemaphores[]);
+
+    virtual void submit(GrGpuCommandBuffer*) = 0;
 
     virtual GrFence SK_WARN_UNUSED_RESULT insertFence() = 0;
     virtual bool waitFence(GrFence, uint64_t timeout = 1000) = 0;

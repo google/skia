@@ -23,10 +23,7 @@ class GrVkSecondaryCommandBuffer;
 
 class GrVkGpuTextureCommandBuffer : public GrGpuTextureCommandBuffer {
 public:
-    GrVkGpuTextureCommandBuffer(GrVkGpu* gpu, GrTexture* texture, GrSurfaceOrigin origin)
-        : INHERITED(texture, origin)
-        , fGpu(gpu) {
-    }
+    GrVkGpuTextureCommandBuffer(GrVkGpu* gpu) : fGpu(gpu) {}
 
     ~GrVkGpuTextureCommandBuffer() override;
 
@@ -35,9 +32,9 @@ public:
 
     void insertEventMarker(const char*) override;
 
-private:
-    void submit() override;
+    void submit();
 
+private:
     struct CopyInfo {
         CopyInfo(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
                  const SkIPoint& dstPoint)
@@ -57,9 +54,7 @@ private:
 
 class GrVkGpuRTCommandBuffer : public GrGpuRTCommandBuffer, private GrMesh::SendToGpuImpl {
 public:
-    GrVkGpuRTCommandBuffer(GrVkGpu*, GrRenderTarget*, GrSurfaceOrigin,
-                           const LoadAndStoreInfo&,
-                           const StencilLoadAndStoreInfo&);
+    GrVkGpuRTCommandBuffer(GrVkGpu*);
 
     ~GrVkGpuRTCommandBuffer() override;
 
@@ -74,7 +69,12 @@ public:
     void copy(GrSurface* src, GrSurfaceOrigin srcOrigin, const SkIRect& srcRect,
               const SkIPoint& dstPoint) override;
 
-    void submit() override;
+    void set(GrRenderTarget*, GrSurfaceOrigin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&);
+    void reset();
+
+    void submit();
 
 private:
     void init();
