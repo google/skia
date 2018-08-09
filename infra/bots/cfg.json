@@ -12,6 +12,7 @@
     "MSAN",
     "Metal",
     "OpenCL",
+    "PathKit",
     "SKQP",
     "TSAN",
     "UBSAN",

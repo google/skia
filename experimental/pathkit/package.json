@@ -1,0 +1,22 @@
+{
+  "name": "pathkit-local",
+  "version": "0.0.0",
+  "description": "private",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "experimental-pathkit-wasm": "^0.1.2"
+  },
+  "devDependencies": {
+    "jasmine-core": "^3.1.0",
+    "karma": "^2.0.5",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-jasmine": "^1.1.2",
+    "requirejs": "^2.3.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

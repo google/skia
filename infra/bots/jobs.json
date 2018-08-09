@@ -402,6 +402,7 @@
   "Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All",
   "Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Debug-All",
   "Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All",
+  "Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86-Debug-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All",
   "Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN",

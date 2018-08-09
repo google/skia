@@ -36,8 +36,29 @@ update-patch:
 	cd npm-wasm; npm version patch
 	echo "Don't forget to publish."
 
-test:
-	./compile.sh test
+# Build the library and run the tests. If developing locally, test-continuous is better
+# suited for that, although if you make changes to the C++/WASM code, you will need
+# to manually call make npm-test to re-build.
+test: npm-test
+	npm install
+	npx karma start ./karma.conf.js --single-run
+
+test-continuous:
+	echo "Assuming npm install has been run by user"
+	echo "Also assuming make npm-test has also been run by a user (if needed)"
+	npx karma start ./karma.conf.js --no-single-run --watch-poll
+
+# Build the library and run the tests using the docker image.  If developing locally,
+# test-docker-continuous is better, although if you make changes to the C++/WASM code,
+# you will need to manually call make npm-test to re-build.
+test-docker: npm-test
+	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1 \
+karma start /SRC/experimental/pathkit/karma-docker.conf.js --single-run
+
+test-docker-continuous:
+	echo "Assuming make npm-test has also been run by a user (if needed)"
+	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1 \
+karma start /SRC/experimental/pathkit/karma-docker.conf.js --no-single-run
 
 npm-test:
 	# This compile time is typically faster than release and good for use with
