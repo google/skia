@@ -56,8 +56,10 @@ public:
 
     ~GrVkPipelineState();
 
-    void setData(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
-                 const GrTextureProxy* const primitiveProcessorTextures[]);
+    void setUniforms(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&);
+    /** This must be called after setUniforms() since that function invalidates texture bindings. */
+    void setTextures(GrVkGpu*, const GrPrimitiveProcessor&, const GrPipeline&,
+                     const GrTextureProxy* const primitiveProcessorTextures[]);
 
     void bind(const GrVkGpu* gpu, GrVkCommandBuffer* commandBuffer);
 

@@ -589,7 +589,8 @@ GrVkPipelineState* GrVkGpuRTCommandBuffer::prepareDrawState(
     if (fixedDynamicState) {
         primProcProxies = fixedDynamicState->fPrimitiveProcessorTextures;
     }
-    pipelineState->setData(fGpu, primProc, pipeline, primProcProxies);
+    pipelineState->setUniforms(fGpu, primProc, pipeline);
+    pipelineState->setTextures(fGpu, primProc, pipeline, primProcProxies);
 
     pipelineState->bind(fGpu, cbInfo.currentCmdBuf());
 
