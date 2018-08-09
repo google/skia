@@ -24,7 +24,7 @@ public:
 protected:
     unsigned generateGlyphCount() override;
     uint16_t generateCharToGlyph(SkUnichar) override;
-    void generateAdvance(SkGlyph*) override;
+    bool generateAdvance(SkGlyph*) override;
     void generateMetrics(SkGlyph*) override;
     void generateImage(const SkGlyph&) override;
     bool generatePath(SkGlyphID, SkPath*) override;
@@ -57,8 +57,8 @@ uint16_t SkRandomScalerContext::generateCharToGlyph(SkUnichar uni) {
     return fProxy->charToGlyphID(uni);
 }
 
-void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
-    fProxy->getAdvance(glyph);
+bool SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
+    return fProxy->generateAdvance(glyph);
 }
 
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
@@ -72,6 +72,13 @@ void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {
     }
 
     fProxy->getMetrics(glyph);
+
+    switch (glyph->getGlyphID() % 4) {
+        case 0: glyph->fMaskFormat = SkMask::kLCD16_Format; break;
+        case 1: glyph->fMaskFormat = SkMask::kA8_Format; break;
+        case 2: glyph->fMaskFormat = SkMask::kARGB32_Format; break;
+        case 3: glyph->fMaskFormat = SkMask::kBW_Format; break;
+    }
 
     if (fFakeIt || (glyph->getGlyphID() % 4) != 2) {
         return;
@@ -141,7 +148,7 @@ bool SkRandomScalerContext::generatePath(SkGlyphID glyph, SkPath* path) {
 }
 
 void SkRandomScalerContext::generateFontMetrics(SkPaint::FontMetrics* metrics) {
-    fProxy->getFontMetrics(metrics);
+    fProxy->generateFontMetrics(metrics);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
