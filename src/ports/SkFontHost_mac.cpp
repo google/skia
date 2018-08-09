@@ -895,7 +895,7 @@ public:
 protected:
     unsigned generateGlyphCount(void) override;
     uint16_t generateCharToGlyph(SkUnichar uni) override;
-    void generateAdvance(SkGlyph* glyph) override;
+    bool generateAdvance(SkGlyph* glyph) override;
     void generateMetrics(SkGlyph* glyph) override;
     void generateImage(const SkGlyph& glyph) override;
     bool generatePath(SkGlyphID glyph, SkPath* path) override;
@@ -1156,12 +1156,14 @@ uint16_t SkScalerContext_Mac::generateCharToGlyph(SkUnichar uni) {
     return cgGlyph[0];
 }
 
-void SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
-    this->generateMetrics(glyph);
+bool SkScalerContext_Mac::generateAdvance(SkGlyph* glyph) {
+    return false;
 }
 
 void SkScalerContext_Mac::generateMetrics(SkGlyph* glyph) {
     AUTO_CG_LOCK();
+
+    glyph->fMaskFormat = fRec.fMaskFormat;
 
     const CGGlyph cgGlyph = (CGGlyph) glyph->getGlyphID();
     glyph->zeroMetrics();

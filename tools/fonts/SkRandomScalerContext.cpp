@@ -24,7 +24,7 @@ public:
 protected:
     unsigned generateGlyphCount() override;
     uint16_t generateCharToGlyph(SkUnichar) override;
-    void generateAdvance(SkGlyph*) override;
+    bool generateAdvance(SkGlyph*) override;
     void generateMetrics(SkGlyph*) override;
     void generateImage(const SkGlyph&) override;
     bool generatePath(SkGlyphID, SkPath*) override;
@@ -57,8 +57,8 @@ uint16_t SkRandomScalerContext::generateCharToGlyph(SkUnichar uni) {
     return fProxy->charToGlyphID(uni);
 }
 
-void SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
-    fProxy->getAdvance(glyph);
+bool SkRandomScalerContext::generateAdvance(SkGlyph* glyph) {
+    return fProxy->generateAdvance(glyph);
 }
 
 void SkRandomScalerContext::generateMetrics(SkGlyph* glyph) {

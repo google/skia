@@ -144,33 +144,40 @@ bool SkScalerContext::GetGammaLUTData(SkScalar contrast, SkScalar paintGamma, Sk
 }
 
 void SkScalerContext::getAdvance(SkGlyph* glyph) {
-    // mark us as just having a valid advance
-    glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
-    // we mark the format before making the call, in case the impl
-    // internally ends up calling its generateMetrics, which is OK
-    // albeit slower than strictly necessary
-    generateAdvance(glyph);
+    if (generateAdvance(glyph)) {
+        glyph->fMaskFormat = MASK_FORMAT_JUST_ADVANCE;
+    } else {
+        this->getMetrics(glyph);
+        SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
+    }
 }
 
 void SkScalerContext::getMetrics(SkGlyph* glyph) {
     bool generatingImageFromPath = fGenerateImageFromPath;
     if (!generatingImageFromPath) {
         generateMetrics(glyph);
-        if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
-            glyph->fMaskFormat = fRec.fMaskFormat;
-        }
+        SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
     } else {
         SkPath devPath;
         generatingImageFromPath = this->internalGetPath(glyph->getPackedID(), &devPath);
         if (!generatingImageFromPath) {
             generateMetrics(glyph);
-            if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
+            SkASSERT(glyph->fMaskFormat != MASK_FORMAT_UNKNOWN);
+        } else {
+            uint8_t originMaskFormat = glyph->fMaskFormat;
+            if (!generateAdvance(glyph)) {
+                generateMetrics(glyph);
+            }
+
+            if (originMaskFormat != MASK_FORMAT_UNKNOWN) {
+                glyph->fMaskFormat = originMaskFormat;
+            } else {
                 glyph->fMaskFormat = fRec.fMaskFormat;
             }
-        } else {
-            generateAdvance(glyph);
-            if (glyph->fMaskFormat == MASK_FORMAT_UNKNOWN) {
-                glyph->fMaskFormat = fRec.fMaskFormat;
+
+            // If we are going to create the mask, then we cannot keep the color
+            if (SkMask::kARGB32_Format == glyph->fMaskFormat) {
+                glyph->fMaskFormat = SkMask::kA8_Format;
             }
 
             const SkIRect ir = devPath.getBounds().roundOut();
@@ -203,11 +210,6 @@ void SkScalerContext::getMetrics(SkGlyph* glyph) {
         glyph->fLeft    = 0;
         glyph->fMaskFormat = 0;
         return;
-    }
-
-    // If we are going to create the mask, then we cannot keep the color
-    if (generatingImageFromPath && SkMask::kARGB32_Format == glyph->fMaskFormat) {
-        glyph->fMaskFormat = SkMask::kA8_Format;
     }
 
     if (fMaskFilter) {
@@ -468,9 +470,9 @@ void SkScalerContext::getImage(const SkGlyph& origGlyph) {
         tmpGlyph.initWithGlyphID(origGlyph.getPackedID());
 
         // need the original bounds, sans our maskfilter
-        SkMaskFilter* mf = fMaskFilter.release();   // temp disable
+        sk_sp<SkMaskFilter> mf = std::move(fMaskFilter);
         this->getMetrics(&tmpGlyph);
-        fMaskFilter = sk_sp<SkMaskFilter>(mf);      // restore
+        fMaskFilter = std::move(mf);
 
         // we need the prefilter bounds to be <= filter bounds
         SkASSERT(tmpGlyph.fWidth <= origGlyph.fWidth);
@@ -806,10 +808,12 @@ protected:
     uint16_t generateCharToGlyph(SkUnichar uni) override {
         return 0;
     }
-    void generateAdvance(SkGlyph* glyph) override {
+    bool generateAdvance(SkGlyph* glyph) override {
         glyph->zeroMetrics();
+        return true;
     }
     void generateMetrics(SkGlyph* glyph) override {
+        glyph->fMaskFormat = fRec.fMaskFormat;
         glyph->zeroMetrics();
     }
     void generateImage(const SkGlyph& glyph) override {}
