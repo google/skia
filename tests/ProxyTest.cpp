@@ -209,8 +209,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(WrappedProxyTest, reporter, ctxInfo) {
             // sample counts :(.
             if (ctxInfo.grContext()->colorTypeSupportedAsSurface(colorType)) {
                 GrBackendRenderTarget backendRT = gpu->createTestingOnlyBackendRenderTarget(
-                        kWidthHeight, kWidthHeight, SkColorTypeToGrColorType(colorType),
-                        GrSRGBEncoded::kNo);
+                        kWidthHeight, kWidthHeight, SkColorTypeToGrColorType(colorType));
                 sk_sp<GrSurfaceProxy> sProxy(
                         proxyProvider->wrapBackendRenderTarget(backendRT, origin));
                 check_surface(reporter, sProxy.get(), origin, kWidthHeight, kWidthHeight,

@@ -3986,13 +3986,12 @@ void GrGLGpu::deleteTestingOnlyBackendTexture(const GrBackendTexture& tex) {
 }
 
 GrBackendRenderTarget GrGLGpu::createTestingOnlyBackendRenderTarget(int w, int h,
-                                                                    GrColorType colorType,
-                                                                    GrSRGBEncoded srgbEncoded) {
+                                                                    GrColorType colorType) {
     if (w > this->caps()->maxRenderTargetSize() || h > this->caps()->maxRenderTargetSize()) {
         return GrBackendRenderTarget();  // invalid
     }
     this->handleDirtyContext();
-    auto config = GrColorTypeToPixelConfig(colorType, srgbEncoded);
+    auto config = GrColorTypeToPixelConfig(colorType, GrSRGBEncoded::kNo);
     GrGLenum colorBufferFormat;
     if (!this->glCaps().getRenderbufferFormat(config, &colorBufferFormat)) {
         return {};

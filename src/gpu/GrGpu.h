@@ -355,8 +355,8 @@ public:
      */
     virtual void deleteTestingOnlyBackendTexture(const GrBackendTexture&) = 0;
 
-    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h, GrColorType,
-                                                                       GrSRGBEncoded) = 0;
+    virtual GrBackendRenderTarget createTestingOnlyBackendRenderTarget(int w, int h,
+                                                                       GrColorType) = 0;
 
     virtual void deleteTestingOnlyBackendRenderTarget(const GrBackendRenderTarget&) = 0;
 
