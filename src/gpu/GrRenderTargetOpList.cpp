@@ -107,12 +107,12 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
     }
 }
 
-static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
-                                                                   GrRenderTarget* rt,
-                                                                   GrSurfaceOrigin origin,
-                                                                   GrLoadOp colorLoadOp,
-                                                                   GrColor loadClearColor,
-                                                                   GrLoadOp stencilLoadOp) {
+static GrGpuRTCommandBuffer* create_command_buffer(GrGpu* gpu,
+                                                   GrRenderTarget* rt,
+                                                   GrSurfaceOrigin origin,
+                                                   GrLoadOp colorLoadOp,
+                                                   GrColor loadClearColor,
+                                                   GrLoadOp stencilLoadOp) {
     const GrGpuRTCommandBuffer::LoadAndStoreInfo kColorLoadStoreInfo {
         colorLoadOp,
         GrStoreOp::kStore,
@@ -129,20 +129,7 @@ static std::unique_ptr<GrGpuRTCommandBuffer> create_command_buffer(GrGpu* gpu,
         GrStoreOp::kStore,
     };
 
-    std::unique_ptr<GrGpuRTCommandBuffer> buffer(
-                            gpu->createCommandBuffer(rt, origin,
-                                                     kColorLoadStoreInfo,
-                                                     stencilLoadAndStoreInfo));
-    return buffer;
-}
-
-static inline void finish_command_buffer(GrGpuRTCommandBuffer* buffer) {
-    if (!buffer) {
-        return;
-    }
-
-    buffer->end();
-    buffer->submit();
+    return gpu->getCommandBuffer(rt, origin, kColorLoadStoreInfo, stencilLoadAndStoreInfo);
 }
 
 // TODO: this is where GrOp::renderTarget is used (which is fine since it
@@ -165,14 +152,14 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
 
     // TODO: at the very least, we want the stencil store op to always be discard (at this
     // level). In Vulkan, sub-command buffers would still need to load & store the stencil buffer.
-    std::unique_ptr<GrGpuRTCommandBuffer> commandBuffer = create_command_buffer(
+    GrGpuRTCommandBuffer* commandBuffer = create_command_buffer(
                                                     flushState->gpu(),
                                                     fTarget.get()->peekRenderTarget(),
                                                     fTarget.get()->origin(),
                                                     fColorLoadOp,
                                                     fLoadClearColor,
                                                     fStencilLoadOp);
-    flushState->setCommandBuffer(commandBuffer.get());
+    flushState->setCommandBuffer(commandBuffer);
     commandBuffer->begin();
 
     // Draw all the generated geometry.
@@ -196,7 +183,8 @@ bool GrRenderTargetOpList::onExecute(GrOpFlushState* flushState) {
         flushState->setOpArgs(nullptr);
     }
 
-    finish_command_buffer(commandBuffer.get());
+    commandBuffer->end();
+    flushState->gpu()->submit(commandBuffer);
     flushState->setCommandBuffer(nullptr);
 
     return true;
