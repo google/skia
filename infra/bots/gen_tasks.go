@@ -207,8 +207,10 @@ var (
 		// https://chromium.googlesource.com/chromium/tools/build/+/e19b7d9390e2bb438b566515b141ed2b9ed2c7c2/scripts/slave/recipe_modules/ios/api.py#317
 		// This package is really just an installer for XCode.
 		&specs.CipdPackage{
-			Name:    "infra/tools/mac_toolchain/${platform}",
-			Path:    "mac_toolchain",
+			Name: "infra/tools/mac_toolchain/${platform}",
+			Path: "mac_toolchain",
+			// When this is updated, also update
+			// https://skia.googlesource.com/skcms.git/+/f1e2b45d18facbae2dece3aca673fe1603077846/infra/bots/gen_tasks.go#56
 			Version: "git_revision:796d2b92cff93fc2059623ce0a66284373ceea0a",
 		},
 	}
@@ -312,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"${cache_dir}/vpython"},
 		},
 		ExtraTags: map[string]string{
