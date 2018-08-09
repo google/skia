@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3c3cabee_ab6d0273",
+        "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-08-09T13:31:02Z",
+      "side": 1,
+      "message": "typo?",
+      "range": {
+        "startLine": 20,
+        "startChar": 73,
+        "endLine": 20,
+        "endChar": 79
+      },
+      "revId": "d1caaa949a99e87d916b9a6eb2eb00b742f32ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63edefa9_ac86b7c5",
+        "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-08-09T13:31:02Z",
+      "side": 1,
+      "message": "Use the user name and group name \"skia\" and uid and pid of 2000 to be consistent with all of our other images.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "d1caaa949a99e87d916b9a6eb2eb00b742f32ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
