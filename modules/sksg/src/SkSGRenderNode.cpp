@@ -23,8 +23,10 @@ bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
     const auto initial_alpha = paint->getAlpha(),
                        alpha = SkToU8(sk_float_round2int(initial_alpha * fOpacity));
 
-    if (alpha != initial_alpha) {
+    if (alpha != initial_alpha || fColorFilter) {
         paint->setAlpha(alpha);
+        paint->setColorFilter(SkColorFilter::MakeComposeFilter(fColorFilter,
+                                                               paint->refColorFilter()));
         return true;
     }
 
@@ -59,6 +61,15 @@ RenderNode::ScopedRenderContext::modulateOpacity(float opacity) {
     SkASSERT(opacity >= 0 && opacity <= 1);
     if (opacity < 1) {
         this->writableContext()->fOpacity *= opacity;
+    }
+    return std::move(*this);
+}
+
+RenderNode::ScopedRenderContext&&
+RenderNode::ScopedRenderContext::modulateColorFilter(sk_sp<SkColorFilter> cf) {
+    if (cf) {
+        auto* ctx = this->writableContext();
+        ctx->fColorFilter = SkColorFilter::MakeComposeFilter(std::move(ctx->fColorFilter), cf);
     }
     return std::move(*this);
 }

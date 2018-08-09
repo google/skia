@@ -7,10 +7,6 @@
 
 #include "SkSGOpacityEffect.h"
 
-#include "SkCanvas.h"
-
-#include <math.h>
-
 namespace sksg {
 
 OpacityEffect::OpacityEffect(sk_sp<RenderNode> child, float opacity)
