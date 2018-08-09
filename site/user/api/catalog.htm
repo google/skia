@@ -371,11 +371,25 @@
     "name": "SkCanvas::MakeRasterDirectN32",
         "stdout": "---\\n-x-\\n---\\n"
     },
-        "SkCanvas_SaveLayerRec_empty_constructor": {
+        "SkCanvas_SaveLayerRec_SaveLayerRec": {
     "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    rec1.fSaveLayerFlags = SkCanvas::kPreserveLCDText_SaveLayerFlag;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, SkCanvas::kPreserveLCDText_SaveLayerFlag);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
     "hash": "b5cea1eed80a0eb04ddbab3f36dff73f",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SaveLayerRec::SaveLayerRec()",
+        "stdout": "rec1 == rec2\\n"
+    },
+        "SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
+    "hash": "027f920259888fc19591ea9a90d92873",
+    "file": "SkCanvas_Reference",
+    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)",
+        "stdout": "rec1 == rec2\\n"
+    },
+        "SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, nullptr, 0);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
+    "hash": "9b7fa2fe855642ffff6538829db15328",
+    "file": "SkCanvas_Reference",
+    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,                     SaveLayerFlags saveLayerFlags)",
         "stdout": "rec1 == rec2\\n"
     },
         "SkCanvas_accessTopRasterHandle": {
@@ -391,20 +405,6 @@
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::SkCanvas(const SkBitmap& bitmap, const SkSurfaceProps& props)",
         "stdout": "-----\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n---x-\\n-----\\n---x-\\n---x-\\n-----\\n"
-    },
-        "SkCanvas_const_SkRect_star_const_SkPaint_star": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
-    "hash": "027f920259888fc19591ea9a90d92873",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0)",
-        "stdout": "rec1 == rec2\\n"
-    },
-        "SkCanvas_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkCanvas::SaveLayerRec rec1;\n    SkCanvas::SaveLayerRec rec2(nullptr, nullptr, nullptr, 0);\n    SkDebugf(\"rec1 %c= rec2\\n\", rec1.fBounds == rec2.fBounds\n            && rec1.fPaint == rec2.fPaint\n            && rec1.fBackdrop == rec2.fBackdrop\n            && rec1.fSaveLayerFlags == rec2.fSaveLayerFlags ? '=' : '!');\n}",
-    "hash": "9b7fa2fe855642ffff6538829db15328",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::SaveLayerRec::SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,                     SaveLayerFlags saveLayerFlags)",
-        "stdout": "rec1 == rec2\\n"
     },
         "SkCanvas_copy_const_SkBitmap": {
     "code": "void draw(SkCanvas* ) {\n    SkBitmap bitmap;\n    // create a bitmap 5 wide and 11 high\n    bitmap.allocPixels(SkImageInfo::MakeN32Premul(5, 11));\n    SkCanvas canvas(bitmap);\n    canvas.clear(SK_ColorWHITE);  // white is Unpremultiplied, in ARGB order\n    SkPixmap pixmap;  // provides guaranteed access to the drawn pixels\n    if (!canvas.peekPixels(&pixmap)) {\n        SkDebugf(\"peekPixels should never fail.\\n\");\n    }\n    const SkPMColor* pixels = pixmap.addr32();  // points to top-left of bitmap\n    SkPMColor pmWhite = pixels[0];  // the Premultiplied format may vary\n    SkPaint paint;  // by default, draws black, 12 point text\n    canvas.drawString(\"!\", 1, 10, paint);  // 1 char at baseline (1, 10)\n    for (int y = 0; y < bitmap.height(); ++y) {\n        for (int x = 0; x < bitmap.width(); ++x) {\n            SkDebugf(\"%c\", *pixels++ == pmWhite ? '-' : 'x');\n        }\n        SkDebugf(\"\\n\");\n    }\n}",
@@ -2002,6 +2002,13 @@
     "name": "SkPath::IsQuadDegenerate",
         "stdout": "quad (100,100), (100.00001,100.00001), (100.00002,100.00002) is degenerate, nearly\\nquad (1100,1100), (1100,1100), (1100,1100) is degenerate, nearly\\nquad (100,100), (100.00001,100.00001), (100.00002,100.00002) is not degenerate, exactly\\nquad (1100,1100), (1100,1100), (1100,1100) is degenerate, exactly\\n"
     },
+        "SkPath_Iter_Iter": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPath::Iter iter;\n    SkPoint points[4];\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n    SkPath path;\n    iter.setPath(path, false);\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n}\n",
+    "hash": "01648775cb9b354b2f1836dad82a25ab",
+    "file": "SkPath_Reference",
+    "name": "SkPath::Iter::Iter()",
+        "stdout": "iter is done\\niter is done\\n"
+    },
         "SkPath_Iter_conicWeight": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPath path;\n   path.conicTo(1, 2, 3, 4, .5f);\n   SkPath::Iter iter(path, false);\n   SkPoint p[4];\n   SkDebugf(\"first verb is \" \"%s\" \"move\\n\", SkPath::kMove_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"next verb is \" \"%s\" \"conic\\n\", SkPath::kConic_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"conic points: {%g,%g}, {%g,%g}, {%g,%g}\\n\", p[0].fX, p[0].fY, p[1].fX, p[1].fY,\n                p[2].fX, p[2].fY);\n   SkDebugf(\"conic weight: %g\\n\", iter.conicWeight());\n}\n",
     "hash": "7cdea37741d50f0594c6244eb07fd175",
@@ -2009,12 +2016,12 @@
     "name": "SkPath::Iter::conicWeight",
         "stdout": "first verb is move\\nnext verb is conic\\nconic points: {0,0}, {1,2}, {3,4}\\nconic weight: 0.5\\n"
     },
-        "SkPath_Iter_empty_constructor": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPath::Iter iter;\n    SkPoint points[4];\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n    SkPath path;\n    iter.setPath(path, false);\n    SkDebugf(\"iter is \" \"%s\" \"done\\n\", SkPath::kDone_Verb == iter.next(points) ? \"\" : \"not \");\n}\n",
-    "hash": "01648775cb9b354b2f1836dad82a25ab",
+        "SkPath_Iter_const_SkPath": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, SkPath::Iter& iter) -> void {\n        SkDebugf(\"%s:\\n\", prefix);\n        const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n        const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n        SkPath::Verb verb;\n        do {\n           SkPoint points[4];\n           verb = iter.next(points);\n           SkDebugf(\"k%s_Verb \", verbStr[(int) verb]);\n           for (int i = 0; i < pointCount[(int) verb]; ++i) {\n                SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n           }\n           if (SkPath::kConic_Verb == verb) {\n               SkDebugf(\"weight = %g\", iter.conicWeight());\n           }\n           SkDebugf(\"\\n\");\n        } while (SkPath::kDone_Verb != verb);\n        SkDebugf(\"\\n\");\n    };\n    SkPath path;\n    path.quadTo(10, 20, 30, 40);\n    SkPath::Iter openIter(path, false);\n    debugster(\"open\", openIter);\n    SkPath::Iter closedIter(path, true);\n    debugster(\"closed\", closedIter);\n}\n",
+    "hash": "13044dbf68885c0f15322c0633b633a3",
     "file": "SkPath_Reference",
-    "name": "SkPath::Iter::Iter()",
-        "stdout": "iter is done\\niter is done\\n"
+    "name": "SkPath::Iter::Iter(const SkPath& path, bool forceClose)",
+        "stdout": "open:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkDone_Verb \\n\\nclosed:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkLine_Verb {30, 40}, {0, 0}, \\nkClose_Verb {0, 0}, \\nkDone_Verb \\n\\n"
     },
         "SkPath_Iter_isCloseLine": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPath path;\n   path.moveTo(6, 7);\n   path.conicTo(1, 2, 3, 4, .5f);\n   path.close();\n   SkPath::Iter iter(path, false);\n   SkPoint p[4];\n   SkDebugf(\"1st verb is \" \"%s\" \"move\\n\", SkPath::kMove_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"moveTo point: {%g,%g}\\n\", p[0].fX, p[0].fY);\n   SkDebugf(\"2nd verb is \" \"%s\" \"conic\\n\", SkPath::kConic_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"3rd verb is \" \"%s\" \"line\\n\", SkPath::kLine_Verb == iter.next(p) ? \"\" : \"not \");\n   SkDebugf(\"line points: {%g,%g}, {%g,%g}\\n\", p[0].fX, p[0].fY, p[1].fX, p[1].fY);\n   SkDebugf(\"line \" \"%s\" \"generated by close\\n\", iter.isCloseLine() ? \"\" : \"not \");\n   SkDebugf(\"4th verb is \" \"%s\" \"close\\n\", SkPath::kClose_Verb == iter.next(p) ? \"\" : \"not \");\n}\n",
@@ -2099,13 +2106,6 @@
     "file": "SkPath_Reference",
     "name": "SkPath::computeTightBounds",
         "stdout": "empty bounds = 0, 0, 0, 0\\ncircle bounds = 25, 20, 75, 70\\nrotated circle bounds = 25, 20, 75, 70\\n"
-    },
-        "SkPath_const_SkPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, SkPath::Iter& iter) -> void {\n        SkDebugf(\"%s:\\n\", prefix);\n        const char* verbStr[] =  { \"Move\", \"Line\", \"Quad\", \"Conic\", \"Cubic\", \"Close\", \"Done\" };\n        const int pointCount[] = {     1 ,     2 ,     3 ,      3 ,      4 ,      1 ,     0  };\n        SkPath::Verb verb;\n        do {\n           SkPoint points[4];\n           verb = iter.next(points);\n           SkDebugf(\"k%s_Verb \", verbStr[(int) verb]);\n           for (int i = 0; i < pointCount[(int) verb]; ++i) {\n                SkDebugf(\"{%g, %g}, \", points[i].fX, points[i].fY);\n           }\n           if (SkPath::kConic_Verb == verb) {\n               SkDebugf(\"weight = %g\", iter.conicWeight());\n           }\n           SkDebugf(\"\\n\");\n        } while (SkPath::kDone_Verb != verb);\n        SkDebugf(\"\\n\");\n    };\n    SkPath path;\n    path.quadTo(10, 20, 30, 40);\n    SkPath::Iter openIter(path, false);\n    debugster(\"open\", openIter);\n    SkPath::Iter closedIter(path, true);\n    debugster(\"closed\", closedIter);\n}\n",
-    "hash": "13044dbf68885c0f15322c0633b633a3",
-    "file": "SkPath_Reference",
-    "name": "SkPath::Iter::Iter(const SkPath& path, bool forceClose)",
-        "stdout": "open:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkDone_Verb \\n\\nclosed:\\nkMove_Verb {0, 0}, \\nkQuad_Verb {0, 0}, {10, 20}, {30, 40}, \\nkLine_Verb {30, 40}, {0, 0}, \\nkClose_Verb {0, 0}, \\nkDone_Verb \\n\\n"
     },
         "SkPath_copy_const_SkPath": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.lineTo(20, 20);\n    SkPath path2(path);\n    path2.close();\n    SkDebugf(\"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n    path.reset();\n    SkDebugf(\"after reset\\n\" \"path verbs: %d\\n\", path.countVerbs());\n    SkDebugf(\"path2 verbs: %d\\n\", path2.countVerbs());\n}",
@@ -2311,11 +2311,11 @@
         "stdout": "volatile by default is false\\n"
     },
         "SkPath_notequal_operator": {
-    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPath& a, const SkPath& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a != b ? '!' : '=');\n    };\n    SkPath one;\n    SkPath two;\n    debugster(\"empty\", one, two);\n    one.addRect({10, 20, 30, 40});\n    two.addRect({10, 20, 30, 40});\n    debugster(\"addRect\", one, two);\n    one.setConvexity(SkPath::kConcave_Convexity);\n    debugster(\"setConvexity\", one, two);\n    SkDebugf(\"convexity %c=\\n\", one.getConvexity() == two.getConvexity() ? '=' : '!');\n}\n",
-    "hash": "0c6870ba1cea85ce6da5abd489c23d83",
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkPath& a, const SkPath& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a != b ? '!' : '=');\n    };\n    SkPath one;\n    SkPath two;\n    debugster(\"empty\", one, two);\n    one.addRect({10, 20, 30, 40});\n    two.addRect({10, 20, 30, 40});\n    debugster(\"add rect\", one, two);\n    one.setConvexity(SkPath::kConcave_Convexity);\n    debugster(\"setConvexity\", one, two);\n    SkDebugf(\"convexity %c=\\n\", one.getConvexity() == two.getConvexity() ? '=' : '!');\n}\n",
+    "hash": "bbbda1cc818d96c9c0d2a06c0c48902b",
     "file": "SkPath_Reference",
     "name": "SkPath::operator!=(const SkPath& a, const SkPath& b)",
-        "stdout": "empty one == two\\naddRect one == two\\nsetConvexity one == two\\nconvexity !=\\n"
+        "stdout": "empty one == two\\nadd rect one == two\\nsetConvexity one == two\\nconvexity !=\\n"
     },
         "SkPath_readFromMemory": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path, copy;\n    path.lineTo(6.f / 7, 2.f / 3);\n    size_t size = path.writeToMemory(nullptr);\n    SkTDArray<char> storage;\n    storage.setCount(size);\n    path.writeToMemory(storage.begin());\n    size_t wrongSize = size - 4;\n    size_t bytesRead = copy.readFromMemory(storage.begin(), wrongSize);\n    SkDebugf(\"length = %u; returned by readFromMemory = %u\\n\", wrongSize, bytesRead);\n    size_t largerSize = size + 4;\n    bytesRead = copy.readFromMemory(storage.begin(), largerSize);\n    SkDebugf(\"length = %u; returned by readFromMemory = %u\\n\", largerSize, bytesRead);\n}\n",
@@ -3241,6 +3241,258 @@
     "name": "SkRect::y()",
         "stdout": "unsorted.fTop: 25 unsorted.y(): 25\\nsorted.fTop: 5 sorted.y(): 5\\n"
     },
+        "SkRegion_Cliperator_const_SkRegion_const_SkIRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    region.setRect({1, 2, 3, 4});\n    SkRegion::Cliperator clipper(region, {0, 0, 2, 3});\n    auto r = clipper.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "3831fb6006a7e0ad5d140c266c22be78",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Cliperator::Cliperator(const SkRegion& region, const SkIRect& clip)",
+        "stdout": "rect={1,2,2,3}\\n"
+    },
+        "SkRegion_Cliperator_done": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        SkRegion::Cliperator clipper(region, {0, 0, 5, 5});\n        SkDebugf(\"%14s done=%s\\n\", label, clipper.done() ? \"true\" : \"false\"); \n    };\n    SkRegion region;\n    debugster(\"empty region\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"after add rect\", region);\n}",
+    "hash": "6cca7b96836266800d852664a1366453",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Cliperator::done()",
+        "stdout": "empty region done=true\\nafter add rect done=false\\n"
+    },
+        "SkRegion_Cliperator_next": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkIRect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};\n    region.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkRegion::Cliperator clipper(region, {0, 3, 8, 7});\n    do {\n        auto r2 = clipper.rect();\n        SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r2.fLeft, r2.fTop, r2.fRight, r2.fBottom);\n        clipper.next();\n    } while (!clipper.done());\n}",
+    "hash": "3bbcc7eec19c808a8167bbcc987199f8",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Cliperator::next()",
+        "stdout": "rect={1,3,3,4}\\nrect={5,6,7,7}\\n"
+    },
+        "SkRegion_Cliperator_rect": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        SkRegion::Cliperator clipper(region, {0, 0, 5, 3});\n        auto r = clipper.rect();\n        SkDebugf(\"%14s rect={%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom); \n    };\n    SkRegion region;\n    debugster(\"empty region\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"after set rect\", region);\n}",
+    "hash": "05791751f00b4c2426093fa143b43bc7",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Cliperator::rect()",
+        "stdout": "empty region rect={1094713344,1065353216,0,-1}\\nafter set rect rect={1,2,3,3}\\n\\n"
+    },
+        "SkRegion_Iterator_Iterator": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion::Iterator iter;\n    SkRegion region;\n    region.setRect({1, 2, 3, 4});\n    iter.reset(region);\n    auto r = iter.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "a2db43ee3cbf6893e9b23927fb44298a",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::Iterator()",
+        "stdout": "rect={1,2,3,4}\\n"
+    },
+        "SkRegion_Iterator_copy_const_SkRegion": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    region.setRect({1, 2, 3, 4});\n    SkRegion::Iterator iter(region);\n    auto r = iter.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "e317ceca48a6a7504219af58f35d2c95",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::Iterator(const SkRegion& region)",
+        "stdout": "rect={1,2,3,4}\\n"
+    },
+        "SkRegion_Iterator_done": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkRegion::Iterator iter(region);\n    SkDebugf(\"done=%s\\n\", iter.done() ? \"true\" : \"false\"); \n    region.setRect({1, 2, 3, 4});\n    iter.rewind();\n    SkDebugf(\"done=%s\\n\", iter.done() ? \"true\" : \"false\");\n}",
+    "hash": "814efa7d7f4ae52dfc861a937c1b5c25",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::done()",
+        "stdout": "done=true\\ndone=false\\n"
+    },
+        "SkRegion_Iterator_next": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkIRect rects[] = {{1, 2, 3, 4}, {5, 6, 7, 8}};\n    region.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkRegion::Iterator iter(region);\n    do {\n        auto r2 = iter.rect();\n        SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r2.fLeft, r2.fTop, r2.fRight, r2.fBottom);\n        iter.next();\n    } while (!iter.done());\n}",
+    "hash": "771236c2eadfc2fcd02a3e61a0875d39",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::next()",
+        "stdout": "rect={1,2,3,4}\\nrect={5,6,7,8}\\n"
+    },
+        "SkRegion_Iterator_rect": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkRegion::Iterator iter(region);\n    auto r1 = iter.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r1.fLeft, r1.fTop, r1.fRight, r1.fBottom); \n    region.setRect({1, 2, 3, 4});\n    iter.rewind();\n    auto r2 = iter.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r2.fLeft, r2.fTop, r2.fRight, r2.fBottom);\n}",
+    "hash": "0e7c58ab5d3bcfb36b1f8464cf6c7d89",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::rect()",
+        "stdout": "rect={0,0,0,0}\\nrect={1,2,3,4}\\n\\n"
+    },
+        "SkRegion_Iterator_reset": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion::Iterator& iter) -> void {\n        SkDebugf(\"%14s: done=%s\\n\", label, iter.done() ? \"true\" : \"false\");\n    };\n    SkRegion region;\n    SkRegion::Iterator iter(region);\n    debugster(\"empty region\", iter);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"after set rect\", iter);\n    iter.reset(region);\n    debugster(\"after reset\", iter);\n}",
+    "hash": "d153f87bd518a4ab947b7e407ea1db79",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::reset()",
+        "stdout": "empty region: done=true\\nafter set rect: done=true\\n   after reset: done=false\\n"
+    },
+        "SkRegion_Iterator_rewind": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion::Iterator& iter, bool addRewind) -> void {\n        if (addRewind) {\n            bool success = iter.rewind();\n            SkDebugf(\"%14s rewind success=%s\\n\", label, success ? \"true\" : \"false\");\n        }\n        auto r = iter.rect();\n        SkDebugf(\"%14s rect={%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion::Iterator iter;\n    debugster(\"empty iter\", iter, true);\n    SkRegion region;\n    iter.reset(region);\n    debugster(\"empty region\", iter, true);\n    region.setRect({1, 2, 3, 4});\n    iter.reset(region);\n    debugster(\"after set rect\", iter, false);\n    debugster(\"after rewind\", iter, true);\n}",
+    "hash": "32d51e959d6cc720a74ec4822511e2cd",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::rewind()",
+        "stdout": "empty iter rewind success=false\\nempty iter rect={0,0,0,0}\\nempty region rewind success=true\\nempty region rect={0,0,0,0}\\nafter set rect rect={1,2,3,4}\\nafter rewind rewind success=true\\nafter rewind rect={1,2,3,4}\\n\\n"
+    },
+        "SkRegion_Iterator_rgn": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkIRect rects[] = {{1, 2, 3, 4}, {3, 4, 5, 6}};\n    region.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkRegion::Iterator iter(region);\n    auto r = iter.rect();\n    SkDebugf(\"rect={%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n    auto b = iter.rgn()->getBounds();\n    SkDebugf(\"bounds={%d,%d,%d,%d}\\n\", b.fLeft, b.fTop, b.fRight, b.fBottom);\n}",
+    "hash": "bbc3c454a21186e2a16e843a5b061c44",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Iterator::rgn()",
+        "stdout": "rect={1,2,3,4}\\nbounds={1,2,5,6}\\n"
+    },
+        "SkRegion_Spanerator_const_SkRegion_int_int_int": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    region.setRect({1, 2, 3, 4});\n    SkRegion::Spanerator spanner(region, 3, 2, 4);\n    int left, right;\n    bool result = spanner.next(&left, &right);\n    SkDebugf(\"result=%s left=%d right=%d\\n\", result ? \"true\" : \"false\", left, right);\n}",
+    "hash": "3073b3f8ea7252871b6156ff674dc385",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Spanerator::Spanerator(const SkRegion& region, int y, int left, int right)",
+        "stdout": "result=true left=2 right=3\\n"
+    },
+        "SkRegion_Spanerator_next": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        SkRegion::Spanerator spanner(region, 3, 2, 4);\n        int left, right;\n        bool result = spanner.next(&left, &right);\n        SkDebugf(\"%14s: result=%s\", label, result ? \"true\" : \"false\");\n        if (result) SkDebugf(\" left=%d right=%d\", left, right);\n        SkDebugf(\"\\n\");\n    };\n    SkRegion region;\n    debugster(\"empty region\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"after set rect\", region);\n}",
+    "hash": "03d02180fee5f64ec4a3347e118fb2ec",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Spanerator::next()",
+        "stdout": "empty region: result=false\\nafter set rect: result=true left=2 right=3\\n"
+    },
+        "SkRegion_computeRegionComplexity": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, const SkRegion& region) -> void {\n                SkDebugf(\"%s: region complexity %d\\n\", label, region.computeRegionComplexity());\n    };\n    SkRegion region;\n    debugster(\"initial\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", region);\n    region.op({2, 3, 4, 5}, SkRegion::kUnion_Op);\n    debugster(\"op rect\", region);\n}",
+    "hash": "c4984fefdcecdd1090be160f80939d87",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::computeRegionComplexity",
+        "stdout": "initial: region complexity 0\\nset rect: region complexity 1\\nop rect: region complexity 3\\n"
+    },
+        "SkRegion_copy_const_SkIRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    SkRegion region2;\n    region2.setRect({1, 2, 3, 4});\n    SkDebugf(\"region %c= region2\\n\", region == region2 ? '=' : '!');\n}",
+    "hash": "5253910233f7961c30b4c18ab911e917",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::SkRegion(const SkIRect& rect)",
+        "stdout": "region == region2\\n"
+    },
+        "SkRegion_copy_const_SkRegion": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region({1, 2, 3, 4});\n    SkRegion region2(region);\n    debugster(\"region bounds\", region);\n    debugster(\"region2 bounds\", region2);\n    region.setEmpty();\n    SkDebugf(\"    after region set empty:\\n\");\n    debugster(\"region bounds\", region);\n    debugster(\"region2 bounds\", region2);\n}",
+    "hash": "3daa83fca809b9ec6560d2ef9e2da5e6",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::SkRegion(const SkRegion& region)",
+        "stdout": "region bounds: {1,2,3,4}\\nregion2 bounds: {1,2,3,4}\\n    after region set empty:\\n region bounds: {0,0,0,0}\\nregion2 bounds: {1,2,3,4}\\n"
+    },
+        "SkRegion_copy_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region1({1, 2, 3, 4});\n    SkRegion region2 = region1;\n    debugster(\"region1 bounds\", region1);\n    debugster(\"region2 bounds\", region2);\n}",
+    "hash": "e8513f6394c24efaa301d41921c5241a",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::operator=(const SkRegion& region)",
+        "stdout": "region1 bounds: {1,2,3,4}\\nregion2 bounds: {1,2,3,4}\\n"
+    },
+        "SkRegion_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion* region = new SkRegion({1, 2, 3, 4});\n    SkRegion region2(*region);\n    delete region;\n    auto r = region2.getBounds();\n    SkDebugf(\"region2 bounds: {%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "985ff654a6b67288d322c748132a088e",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::~SkRegion()",
+        "stdout": "region2 bounds: {1,2,3,4}\\n"
+    },
+        "SkRegion_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    SkIRect r = region.getBounds();\n    SkDebugf(\"region bounds: {%d, %d, %d, %d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "4549dcda3e0f9a41b3daee0ed37deca8",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::SkRegion()",
+        "stdout": "region bounds: {0, 0, 0, 0}\\n"
+    },
+        "SkRegion_equal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a == b ? '=' : '!');\n    };\n    SkRegion one;\n    SkRegion two;\n    debugster(\"empty\", one, two);\n    one.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", one, two);\n    one.setEmpty();\n    debugster(\"set empty\", one, two);\n}",
+    "hash": "d7f4fdc8bc63ca8410ed166ecef0aef3",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::operator==(const SkRegion& other)_const",
+        "stdout": "empty one == two\\nset rect one != two\\nset empty one == two\\n"
+    },
+        "SkRegion_getBounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    region.op({2, 3, 4, 5}, SkRegion::kUnion_Op);\n    auto r = region.getBounds();\n    SkDebugf(\"bounds: {%d,%d,%d,%d}\\n\", r.fLeft, r.fTop, r.fRight, r.fBottom);\n}",
+    "hash": "651632582d385d2531e7aa551c31e331",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::getBounds",
+        "stdout": "bounds: {1,2,4,5}\\n"
+    },
+        "SkRegion_isComplex": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, const SkRegion& region) -> void {\n                SkDebugf(\"%s: region is %s\" \"complex\\n\", label, region.isComplex() ? \"\" : \"not \");\n    };\n    SkRegion region;\n    debugster(\"initial\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", region);\n    region.op({2, 3, 4, 5}, SkRegion::kUnion_Op);\n    debugster(\"op rect\", region);\n}",
+    "hash": "1fbd76d75ca2d280e81856311de4e54e",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::isComplex",
+        "stdout": "initial: region is not complex\\nset rect: region is not complex\\nop rect: region is complex\\n"
+    },
+        "SkRegion_isEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        SkDebugf(\"%14s: region is %s\" \"empty\\n\", label, region.isEmpty() ? \"\" : \"not \");\n    };\n    SkRegion region;\n    debugster(\"initial\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", region);\n    region.setEmpty();\n    debugster(\"set empty\", region);\n}",
+    "hash": "10ef0de39e8553dd97cf8668ce185070",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::isEmpty",
+        "stdout": "initial: region is empty\\n      set rect: region is not empty\\n     set empty: region is empty\\n"
+    },
+        "SkRegion_isRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, const SkRegion& region) -> void {\n                SkDebugf(\"%s: region is %s\" \"rect\\n\", label, region.isRect() ? \"\" : \"not \");\n    };\n    SkRegion region;\n    debugster(\"initial\", region);\n    region.setRect({1, 2, 3, 4});\n    debugster(\"set rect\", region);\n    region.setEmpty();\n    debugster(\"set empty\", region);\n}",
+    "hash": "b6adbdddf7fe45a1098121c4e5fd57ea",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::isRect",
+        "stdout": "initial: region is not rect\\nset rect: region is rect\\nset empty: region is not rect\\n"
+    },
+        "SkRegion_notequal1_operator": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* prefix, const SkRegion& a, const SkRegion& b) -> void {\n                SkDebugf(\"%s one %c= two\\n\", prefix, a != b ? '!' : '=');\n    };\n    SkRegion one;\n    SkRegion two;\n    debugster(\"empty\", one, two);\n    one.setRect({1, 2, 3, 4});\n    two.setRect({1, 2, 3, 3});\n    debugster(\"set rect\", one, two);\n    two.op({1, 3, 3, 4}, SkRegion::kUnion_Op);\n    debugster(\"union rect\", one, two);\n}",
+    "hash": "3357caa9d8d810f200cbccb668182496",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::operator!=(const SkRegion& other)_const",
+        "stdout": "empty one == two\\nset rect one != two\\nunion rect one == two\\n"
+    },
+        "SkRegion_quickContains": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    SkIRect test = {2, 2, 3, 3};\n    SkDebugf(\"quickContains 1: %s\\n\", region.quickContains(test) ? \"true\" : \"false\");\n    region.op({1, 4, 3, 6}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickContains 2: %s\\n\", region.quickContains(test) ? \"true\" : \"false\");\n    region.op({1, 7, 3, 8}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickContains 3: %s\\n\", region.quickContains(test) ? \"true\" : \"false\");\n}",
+    "hash": "d8e5eac373e2e7cfc1b8cd0229647ba6",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::quickContains",
+        "stdout": "quickContains 1: true\\nquickContains 2: true\\nquickContains 3: false\\n"
+    },
+        "SkRegion_quickContains_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        SkDebugf(\"%s: %s\\n\", label, region.quickContains(2, 2, 3, 3) ? \"true\" : \"false\");\n    };\n    SkRegion region({1, 2, 3, 4});\n    debugster(\"quickContains 1\", region);\n    region.op({1, 4, 3, 6}, SkRegion::kUnion_Op);\n    debugster(\"quickContains 2\", region);\n    region.op({1, 7, 3, 8}, SkRegion::kUnion_Op);\n    debugster(\"quickContains 3\", region);\n}",
+    "hash": "eb6d290887e1a3a0b051b4d7b012f5e1",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::quickContains_2",
+        "stdout": "quickContains 1: true\\nquickContains 2: true\\nquickContains 3: false\\n"
+    },
+        "SkRegion_quickReject": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    SkIRect test = {4, 2, 5, 3};\n    SkDebugf(\"quickReject 1: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n    region.op({1, 4, 3, 6}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickReject 2: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n    region.op({4, 7, 5, 8}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickReject 3: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n}",
+    "hash": "71ac24b7d91ac5ca7c14b43930d5f85d",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::quickReject",
+        "stdout": "quickReject 1: true\\nquickReject 2: true\\nquickReject 3: false\\n"
+    },
+        "SkRegion_quickReject_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    SkRegion test;\n    SkIRect rects[] = {{4, 2, 5, 3}, {7, 2, 8, 3}};\n    test.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkDebugf(\"quickReject 1: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n    region.op({1, 4, 3, 6}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickReject 2: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n    region.op({4, 7, 5, 8}, SkRegion::kUnion_Op);\n    SkDebugf(\"quickReject 3: %s\\n\", region.quickReject(test) ? \"true\" : \"false\");\n}",
+    "hash": "def7dba38947c33b203e4f9db6c88be3",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::quickReject_2",
+        "stdout": "quickReject 1: true\\nquickReject 2: true\\nquickReject 3: false\\n"
+    },
+        "SkRegion_set": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region1({1, 2, 3, 4});\n    SkRegion region2;\n    region2.set(region1);\n    debugster(\"region1 bounds\", region1);\n    debugster(\"region2 bounds\", region2);\n}",
+    "hash": "b3538117c7ae2cb7de3b42ca45fe1b13",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::set()",
+        "stdout": "region1 bounds: {1,2,3,4}\\nregion2 bounds: {1,2,3,4}\\n"
+    },
+        "SkRegion_setEmpty": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region({1, 2, 3, 4});\n    debugster(\"region bounds\", region);\n    region.setEmpty();\n    SkDebugf(\"    after region set empty:\\n\");\n    debugster(\"region bounds\", region);\n}",
+    "hash": "1314f7250963775c5ee89cc5981eee24",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setEmpty",
+        "stdout": "region bounds: {1,2,3,4}\\n    after region set empty:\\n region bounds: {0,0,0,0}\\n"
+    },
+        "SkRegion_setRect": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({1, 2, 3, 4});\n    SkDebugf(\"region is %s\" \"empty\\n\", region.isEmpty() ? \"\" : \"not \");\n    bool setEmpty = region.setRect({1, 2, 1, 4});\n    SkDebugf(\"region is %s\" \"empty\\n\", region.isEmpty() ? \"\" : \"not \");\n    SkDebugf(\"setEmpty: %s\\n\", setEmpty ? \"true\" : \"false\");\n}",
+    "hash": "e12575ffcd262f2364e0e6bece98a825",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setRect",
+        "stdout": "region is not empty\\nregion is empty\\nsetEmpty: false\\n"
+    },
+        "SkRegion_setRect_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, bool success, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: success:%s {%d,%d,%d,%d}\\n\", label, success ? \"true\" : \"false\",\n                 r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region;\n    bool success = region.setRect(1, 2, 3, 4);\n    debugster(\"set to: 1,2,3,4\", success, region);\n    success = region.setRect(3, 2, 1, 4);\n    debugster(\"set to: 3,2,1,4\", success, region);\n}",
+    "hash": "5b31a1b077818a8150ad50f3b19e7bfe",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setRect_2",
+        "stdout": "set to: 1,2,3,4: success:true {1,2,3,4}\\nset to: 3,2,1,4: success:false {0,0,0,0}\\n"
+    },
+        "SkRegion_setRegion": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region({1, 2, 3, 4});\n    SkRegion region2;\n    region2.setRegion(region);\n    debugster(\"region bounds\", region);\n    debugster(\"region2 bounds\", region2);\n    region2.setEmpty();\n    SkDebugf(\"    after region set empty:\\n\");\n    debugster(\"region bounds\", region);\n    debugster(\"region2 bounds\", region2);\n}",
+    "hash": "5d75d22bd155576838155762ab040751",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setRegion",
+        "stdout": "region bounds: {1,2,3,4}\\nregion2 bounds: {1,2,3,4}\\n    after region set empty:\\n region bounds: {1,2,3,4}\\nregion2 bounds: {0,0,0,0}\\n"
+    },
+        "SkRegion_swap": {
+    "code": "void draw(SkCanvas* canvas) {\n    auto debugster = [](const char* label, SkRegion& region) -> void {\n        auto r = region.getBounds();\n        SkDebugf(\"%14s: {%d,%d,%d,%d}\\n\", label, r.fLeft, r.fTop, r.fRight, r.fBottom);\n    };\n    SkRegion region1({1, 2, 3, 4});\n    SkRegion region2;\n    region1.swap(region2);\n    debugster(\"region1 bounds\", region1);\n    debugster(\"region2 bounds\", region2);\n}",
+    "hash": "ae67b7b4c198b46c58e48f5af061c8f1",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::swap()",
+        "stdout": "region1 bounds: {0,0,0,0}\\nregion2 bounds: {1,2,3,4}\\n"
+    },
         "SkSurface_MakeNull": {
     "code": "void draw(SkCanvas* canvas) {\n    SkDebugf(\"SkSurface::MakeNull(0, 0) %c= nullptr\\n\", SkSurface::MakeNull(0, 0) == nullptr ?\n             '=' : '!');\n    const int w = 37;\n    const int h = 1000;\n    auto surf = SkSurface::MakeNull(w, h);\n    auto nullCanvas = surf->getCanvas();\n    nullCanvas->drawPaint(SkPaint());   // does not crash, nothing draws\n    SkDebugf(\"surf->makeImageSnapshot() %c= nullptr\\n\", surf->makeImageSnapshot() == nullptr ?\n            '=' : '!');\n}",
     "hash": "99a54b814ccab7d2b1143c88581649ff",
@@ -3317,6 +3569,20 @@
     "file": "SkSurface_Reference",
     "name": "SkSurface::width()",
         "stdout": "surface width=37  canvas width=37\\n"
+    },
+        "SkTextBlobBuilder_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "hash": "d9dbabfe24aad92ee3c8144513e90d81",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::SkTextBlobBuilder()",
+        "stdout": "blob equals nullptr"
+    },
+        "SkTextBlobBuilder_make": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    sk_sp<SkTextBlob> blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    SkPaint paint;\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    paint.textToGlyphs(\"x\", 1, builder.allocRun(paint, 1, 20, 20).glyphs);\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n    blob = builder.make();\n    SkDebugf(\"blob \" \"%s\" \" nullptr\\n\", blob == nullptr ? \"equals\" : \"does not equal\");\n}",
+    "hash": "595f6ae785a623ac26059f0573fda995",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::make()",
+        "stdout": "blob equals nullptr\\nblob does not equal nullptr\\nblob equals nullptr\\n"
     }
     }
 
@@ -5344,6 +5610,286 @@
     "file": "SkImageInfo_Reference",
     "name": "SkColorTypeValidateAlphaType"
 },
+    "SkDynamicMemoryWStream_bytesWritten": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::bytesWritten"
+},
+    "SkDynamicMemoryWStream_copyTo": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::copyTo"
+},
+    "SkDynamicMemoryWStream_copyToAndReset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::copyToAndReset"
+},
+    "SkDynamicMemoryWStream_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::~SkDynamicMemoryWStream()"
+},
+    "SkDynamicMemoryWStream_detachAsData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::detachAsData"
+},
+    "SkDynamicMemoryWStream_detachAsStream": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::detachAsStream"
+},
+    "SkDynamicMemoryWStream_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::SkDynamicMemoryWStream()"
+},
+    "SkDynamicMemoryWStream_padToAlign4": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::padToAlign4"
+},
+    "SkDynamicMemoryWStream_read": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::read()"
+},
+    "SkDynamicMemoryWStream_reset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::reset()"
+},
+    "SkDynamicMemoryWStream_write": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::write()"
+},
+    "SkDynamicMemoryWStream_writeToAndReset": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::writeToAndReset"
+},
+    "SkDynamicMemoryWStream_writeToStream": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkDynamicMemoryWStream_Reference",
+    "name": "SkDynamicMemoryWStream::writeToStream"
+},
+    "SkFILEStream_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::Make"
+},
+    "SkFILEStream_close": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::close()"
+},
+    "SkFILEStream_copy_const": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::SkFILEStream(const char path[] = nullptr)"
+},
+    "SkFILEStream_copy_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::SkFILEStream(FILE* file)"
+},
+    "SkFILEStream_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::~SkFILEStream()"
+},
+    "SkFILEStream_duplicate": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::duplicate()"
+},
+    "SkFILEStream_fork": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::fork()"
+},
+    "SkFILEStream_getLength": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::getLength"
+},
+    "SkFILEStream_getPosition": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::getPosition"
+},
+    "SkFILEStream_isAtEnd": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::isAtEnd"
+},
+    "SkFILEStream_isValid": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::isValid"
+},
+    "SkFILEStream_move": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::move()"
+},
+    "SkFILEStream_read": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::read()"
+},
+    "SkFILEStream_rewind": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::rewind()"
+},
+    "SkFILEStream_seek": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEStream_Reference",
+    "name": "SkFILEStream::seek()"
+},
+    "SkFILEWStream_bytesWritten": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::bytesWritten"
+},
+    "SkFILEWStream_copy_const": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::SkFILEWStream(const char path[])"
+},
+    "SkFILEWStream_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::~SkFILEWStream()"
+},
+    "SkFILEWStream_flush": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::flush()"
+},
+    "SkFILEWStream_fsync": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::fsync()"
+},
+    "SkFILEWStream_isValid": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::isValid"
+},
+    "SkFILEWStream_write": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkFILEWStream_Reference",
+    "name": "SkFILEWStream::write()"
+},
     "SkHSVToColor": {
     "code": "void draw(SkCanvas* canvas) {\n    canvas->drawBitmap(source, 0, 0);\n    for (int y = 0; y < 256; ++y) {\n       for (int x = 0; x < 256; ++x) {\n         SkColor color = source.getColor(x, y);\n         SkScalar hsv[3];\n         SkColorToHSV(color, hsv);\n         hsv[0] = hsv[0] + 90 >= 360 ? hsv[0] - 270 : hsv[0] + 90;\n         SkPaint paint;\n         paint.setColor(SkHSVToColor(x + y, hsv));\n         canvas->drawRect(SkRect::MakeXYWH(x, y, 1, 1), paint);\n      }\n    }\n}",
     "width": 256,
@@ -6423,6 +6969,198 @@
     "hash": "ccfc734aff2ddea0b097c83f5621de5e",
     "file": "SkMatrix_Reference",
     "name": "SkMatrix::setTranslate_2"
+},
+    "SkMemoryStream_Make": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::Make"
+},
+    "SkMemoryStream_MakeCopy": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::MakeCopy"
+},
+    "SkMemoryStream_MakeDirect": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::MakeDirect"
+},
+    "SkMemoryStream_asData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::asData"
+},
+    "SkMemoryStream_const_star": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::SkMemoryStream(const void* data, size_t length, bool copyData = false)"
+},
+    "SkMemoryStream_copy_": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::SkMemoryStream(size_t length)"
+},
+    "SkMemoryStream_copy_SkData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::SkMemoryStream(sk_sp<SkData> data)"
+},
+    "SkMemoryStream_duplicate": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::duplicate()"
+},
+    "SkMemoryStream_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::SkMemoryStream()"
+},
+    "SkMemoryStream_fork": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::fork()"
+},
+    "SkMemoryStream_getAtPos": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::getAtPos"
+},
+    "SkMemoryStream_getLength": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::getLength"
+},
+    "SkMemoryStream_getMemoryBase": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::getMemoryBase"
+},
+    "SkMemoryStream_getPosition": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::getPosition"
+},
+    "SkMemoryStream_isAtEnd": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::isAtEnd"
+},
+    "SkMemoryStream_move": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::move()"
+},
+    "SkMemoryStream_peek": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::peek()"
+},
+    "SkMemoryStream_read": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::read()"
+},
+    "SkMemoryStream_rewind": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::rewind()"
+},
+    "SkMemoryStream_seek": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::seek()"
+},
+    "SkMemoryStream_setData": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::setData"
+},
+    "SkMemoryStream_setMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::setMemory"
+},
+    "SkMemoryStream_setMemoryOwned": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::setMemoryOwned"
+},
+    "SkMemoryStream_skipToAlign4": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkMemoryStream_Reference",
+    "name": "SkMemoryStream::skipToAlign4"
 },
     "SkPaint_Join": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPath path;\n    path.moveTo(10, 50);\n    path.quadTo(35, 110, 60, 210);\n    path.quadTo(105, 110, 130, 10);\n    SkPaint paint;  // set to default kMiter_Join\n    paint.setAntiAlias(true);\n    paint.setStyle(SkPaint::kStroke_Style);\n    paint.setStrokeWidth(20);\n    canvas->drawPath(path, paint);\n    canvas->translate(150, 0);\n    paint.setStrokeJoin(SkPaint::kBevel_Join);\n    canvas->drawPath(path, paint);\n    canvas->translate(150, 0);\n    paint.setStrokeJoin(SkPaint::kRound_Join);\n    canvas->drawPath(path, paint);\n}\n",
@@ -7872,6 +8610,366 @@
     "file": "SkRRect_Reference",
     "name": "SkRRect::writeToMemory"
 },
+    "SkRegion_Op": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion operand({35, 35, 85, 85});\n    const char* labels[] = {\"difference\", \"intersect\", \"union\", \"xor\", \"reverse diff\", \"replace\"};\n    int index = 0;\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    for (auto op : { SkRegion::kDifference_Op, SkRegion::kIntersect_Op, SkRegion::kUnion_Op,\n                     SkRegion::kXOR_Op, SkRegion::kReverseDifference_Op, SkRegion::kReplace_Op } ) {\n        SkRegion target({10, 10, 60, 60});\n        target.op(operand, op);\n        canvas->drawRegion(target, paint);\n        canvas->drawString(labels[index++], 40, 100, paint);\n        canvas->translate(80, 0);\n        if (SkRegion::kUnion_Op == op) {\n            canvas->translate(-240, 120);\n        }\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "fb82d2d3ec51912215a0eb9b45dcbc3c",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::Op"
+},
+    "SkRegion_contains": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    SkRegion xRegion;\n    xRegion.setPath(xPath, SkRegion({0, 0, 256, 256}));\n    canvas->drawRegion(xRegion, paint);\n    for (int y = 0; y < 128; y += 8) {\n        for (int x = 0; x < 128; x += 8) {\n           paint.setColor(xRegion.contains(x, y) ? SK_ColorWHITE : SK_ColorRED);\n           canvas->drawPoint(x, y, paint);\n        }\n    }\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "e3899c2715c332bfc7648d5f2b9eefc6",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::contains()"
+},
+    "SkRegion_contains_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    SkRegion xRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    xRegion.op(drawBounds, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n    SkIRect test = SkIRect::MakeXYWH(frame* 128, 64, 5, 5);\n    if (xRegion.contains(test)) {\n        paint.setColor(SK_ColorYELLOW);\n        canvas->drawRect(SkRect::Make(test), paint);\n    }\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "100b4cbd5dd7406804e40035833a433c",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::contains_2"
+},
+    "SkRegion_contains_3": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath, testPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    paint.getTextPath(\"`\", 1, frame * 150 - 40, 150, &testPath);\n    SkRegion xRegion, testRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    testRegion.setPath(testPath, SkRegion(drawBounds));\n    xRegion.op(drawBounds, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n    if (xRegion.contains(testRegion)) {\n        paint.setColor(SK_ColorYELLOW);\n        canvas->drawRegion(testRegion, paint);\n    }\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "46de22da2f3e08a8d7f064634fc1c7b5",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::contains_3"
+},
+    "SkRegion_getBoundaryPath": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region;\n    region.setRect({10, 20, 90, 60});\n    region.op({30, 40, 60, 80}, SkRegion::kXOR_Op);\n    canvas->drawRegion(region, SkPaint());\n    SkPath path;\n    region.getBoundaryPath(&path);\n    path.offset(100, 0);\n    canvas->drawPath(path, SkPaint());\n}",
+    "width": 256,
+    "height": 100,
+    "hash": "6631d36406efa3b3e27960c876421a7f",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::getBoundaryPath"
+},
+    "SkRegion_intersects": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath textPath;\n    paint.getTextPath(\"W\", 1, 20, 110, &textPath);\n    SkRegion region;\n    region.setPath(textPath, SkRegion({0, 0, 256, 256}));\n    canvas->drawRegion(region, SkPaint());\n    SkIRect iRect = SkIRect::MakeXYWH(frame * 160, 55, 10, 10);\n    paint.setColor(region.intersects(iRect) ? SK_ColorBLUE : SK_ColorRED);\n    canvas->drawRect(SkRect::Make(iRect), paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "42bde0ef8c2ee372751428cd6e21c1ca",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::intersects()"
+},
+    "SkRegion_intersects_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath hPath, dotPath;\n    paint.getTextPath(\"H\", 1, 40, 110, &hPath);\n    paint.getTextPath(\",\", 1, frame * 180, 95, &dotPath);\n    SkRegion hRegion, dotRegion;\n    hRegion.setPath(hPath, SkRegion({0, 0, 256, 256}));\n    dotRegion.setPath(dotPath, SkRegion({0, 0, 256, 256}));\n    canvas->drawRegion(hRegion, paint);\n    paint.setColor(hRegion.intersects(dotRegion) ? SK_ColorBLUE : SK_ColorRED);\n    canvas->drawRegion(dotRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "4263d79ac0e7df02e90948fdde9fa965",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::intersects_2"
+},
+    "SkRegion_op": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    SkRegion xRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    xRegion.op(drawBounds, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "1790b2e054c536a54601138365700ac3",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op()"
+},
+    "SkRegion_op_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    SkRegion xRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    xRegion.op(drawBounds.fLeft + frame * drawBounds.width(), drawBounds.fTop,\n               drawBounds.fRight, drawBounds.fBottom, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "2e3497890d523235f96680716c321098",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op_2"
+},
+    "SkRegion_op_3": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath, opPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    opPath.addCircle(64, 64, frame * 64);\n    SkRegion xRegion, opRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    opRegion.setPath(opPath, SkRegion(drawBounds));\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    xRegion.op(opRegion, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "65f4eccea3514ed7e37b5067e15efddb",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op_3"
+},
+    "SkRegion_op_4": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath, opPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    opPath.addCircle(64, 64, frame * 64);\n    SkRegion xRegion, opRegion, rectRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    opRegion.setPath(opPath, SkRegion(drawBounds));\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    drawBounds.inset(frame * drawBounds.width() / 2, 0);    \n    rectRegion.op(drawBounds, opRegion, SkRegion::kIntersect_Op);\n    xRegion.op(rectRegion, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "3f964be1e1fd2fbb977b655d3a928f0a",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op_4"
+},
+    "SkRegion_op_5": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath, opPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    opPath.addCircle(64, 64, frame * 64);\n    SkRegion xRegion, opRegion, rectRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    opRegion.setPath(opPath, SkRegion(drawBounds));\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    drawBounds.inset(frame * drawBounds.width() / 2, 0);    \n    rectRegion.op(opRegion, drawBounds, SkRegion::kUnion_Op);\n    xRegion.op(rectRegion, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "e623208dd44f0b24499ac5f1593d1b39",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op_5"
+},
+    "SkRegion_op_6": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath, opPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    xPath.setFillType(SkPath::kInverseWinding_FillType);\n    opPath.addCircle(64, 64, frame * 64);\n    opPath.setFillType(SkPath::kInverseWinding_FillType);\n    SkRegion xRegion, opRegion, rectRegion;\n    SkIRect drawBounds = {0, 0, 128, 128};\n    opRegion.setPath(opPath, SkRegion(drawBounds));\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    drawBounds.inset(frame * drawBounds.width() / 2, 0);\n    rectRegion.setRect(drawBounds);    \n    rectRegion.op(xRegion, SkRegion::kIntersect_Op);\n    xRegion.op(rectRegion, opRegion, SkRegion::kReverseDifference_Op);\n    canvas->drawRegion(xRegion, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "13de1a6fcb2302a2a30278cb88d3e17d",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::op_6"
+},
+    "SkRegion_readFromMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion region({20, 20, 80, 80});\n    size_t size = region.writeToMemory(nullptr);\n    sk_sp<SkData> data = SkData::MakeUninitialized(size);\n    region.writeToMemory(data->writable_data());\n    SkRegion copy;\n    copy.readFromMemory(data->data(), data->size());\n    canvas->drawRegion(copy, SkPaint());\n}",
+    "width": 256,
+    "height": 100,
+    "hash": "1ede346c430ef23df0eaaf0773dd6a15",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::readFromMemory"
+},
+    "SkRegion_setPath": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath textPath;\n    paint.getTextPath(\"Q\", 1, 0, 110, &textPath);\n    SkIRect clipRect = {20, 20, 100, 120};\n    SkRegion clipRegion(clipRect);\n    SkRegion region;\n    region.setPath(textPath, clipRegion);\n    canvas->drawRegion(region, SkPaint());\n    clipRect.offset(100, 0);\n    textPath.offset(100, 0);\n    canvas->clipRect(SkRect::Make(clipRect), false);\n    canvas->drawPath(textPath, SkPaint());\n}",
+    "width": 256,
+    "height": 120,
+    "hash": "45b9ea2247b9ca7f10aa22ea29a426f4",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setPath"
+},
+    "SkRegion_setRects": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkIRect rects[] = { {10, 10, 40, 40}, {20, 20, 50, 50}, {30, 30, 60, 60} };\n    SkRegion region;\n    region.setRects(rects, SK_ARRAY_COUNT(rects));\n    canvas->drawRegion(region, SkPaint());\n    region.setEmpty();\n    for (auto add : rects) {\n        region.op(add, SkRegion::kUnion_Op);\n    }\n    region.translate(100, 0);\n    canvas->drawRegion(region, SkPaint());\n}",
+    "width": 256,
+    "height": 70,
+    "hash": "fc793a14ed76c096a68a755c963c1ee0",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::setRects"
+},
+    "SkRegion_translate": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion test;\n    SkIRect rects[] = {{40, 20, 50, 30}, {70, 40, 80, 50}, { 60, 10, 70, 20}};\n    test.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkPaint paint;\n    for (auto color :  { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorMAGENTA } ) {\n        paint.setColor(color);\n        canvas->drawRegion(test, paint);\n        test.translate(10, 10);\n    }\n}",
+    "width": 256,
+    "height": 90,
+    "hash": "4e5b9e53aa1b200fed3ee6596ca01f0e",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::translate()"
+},
+    "SkRegion_translate_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkRegion test;\n    SkIRect rects[] = {{40, 20, 50, 30}, {70, 40, 80, 50}, { 60, 10, 70, 20}};\n    test.setRects(rects, SK_ARRAY_COUNT(rects));\n    SkPaint paint;\n    for (auto color :  { SK_ColorRED, SK_ColorBLUE, SK_ColorGREEN, SK_ColorMAGENTA } ) {\n        paint.setColor(color);\n        canvas->drawRegion(test, paint);\n        SkRegion second;\n        test.translate(10, test.getBounds().fBottom, &second);\n        test.op(second, SkRegion::kXOR_Op);\n        test.translate(30, 0);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "024200960eb52fee1f471514607e6001",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::translate_2"
+},
+    "SkRegion_writeToMemory": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(128);\n    SkPath xPath;\n    paint.getTextPath(\"X\", 1, 20, 110, &xPath);\n    SkIRect drawBounds = {0, 0, 128, 128};\n    SkRegion xRegion;\n    xRegion.setPath(xPath, SkRegion(drawBounds));\n    size_t size = xRegion.writeToMemory(nullptr);\n    sk_sp<SkData> data = SkData::MakeUninitialized(size);\n    xRegion.writeToMemory(data->writable_data());\n    SkRegion copy;\n    copy.readFromMemory(data->data(), data->size());\n    canvas->drawRegion(copy, paint);\n}",
+    "width": 256,
+    "height": 128,
+    "hash": "1419d2a8c22c355ab46240865d056ee5",
+    "file": "SkRegion_Reference",
+    "name": "SkRegion::writeToMemory"
+},
+    "SkStream_MakeFromFile": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::MakeFromFile"
+},
+    "SkStream_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::~SkStream()"
+},
+    "SkStream_duplicate": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::duplicate()"
+},
+    "SkStream_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::SkStream()"
+},
+    "SkStream_fork": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::fork()"
+},
+    "SkStream_getLength": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::getLength"
+},
+    "SkStream_getMemoryBase": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::getMemoryBase"
+},
+    "SkStream_getPosition": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::getPosition"
+},
+    "SkStream_hasLength": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::hasLength"
+},
+    "SkStream_hasPosition": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::hasPosition"
+},
+    "SkStream_isAtEnd": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::isAtEnd"
+},
+    "SkStream_move": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::move()"
+},
+    "SkStream_peek": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::peek()"
+},
+    "SkStream_read": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::read()"
+},
+    "SkStream_readBool": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readBool"
+},
+    "SkStream_readPackedUInt": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readPackedUInt"
+},
+    "SkStream_readS16": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readS16"
+},
+    "SkStream_readS32": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readS32"
+},
+    "SkStream_readS8": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readS8"
+},
+    "SkStream_readScalar": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readScalar"
+},
+    "SkStream_readU16": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readU16"
+},
+    "SkStream_readU32": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readU32"
+},
+    "SkStream_readU8": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::readU8"
+},
+    "SkStream_rewind": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::rewind()"
+},
+    "SkStream_seek": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::seek()"
+},
+    "SkStream_skip": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkStream_Reference",
+    "name": "SkStream::skip()"
+},
     "SkSurface_MakeFromBackendTexture": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setTextSize(32);\n    GrContext* context = canvas->getGrContext();\n    if (!context) {\n         canvas->drawString(\"GPU only!\", 20, 40, paint);\n         return;\n    }\n    sk_sp<SkSurface> gpuSurface = SkSurface::MakeFromBackendTexture(context,\n            backEndTexture, kTopLeft_GrSurfaceOrigin, 0,\n            kRGBA_8888_SkColorType, nullptr, nullptr);\n    auto surfaceCanvas = gpuSurface->getCanvas();\n    surfaceCanvas->drawString(\"GPU rocks!\", 20, 40, paint);\n    sk_sp<SkImage> image(gpuSurface->makeImageSnapshot());\n    canvas->drawImage(image, 0, 0);\n}",
     "width": 256,
@@ -8007,6 +9105,238 @@
     "hash": "d77790dd3bc9f678fa4f582347fb8fba",
     "file": "SkSurface_Reference",
     "name": "SkSurface::writePixels_2"
+},
+    "SkTextBlobBuilder_allocRun": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, glyphPaint;\n    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(glyphPaint, 5, 20, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    canvas->drawRect({20, 20, 30, 30}, paint);\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
+    "width": 256,
+    "height": 60,
+    "hash": "aedc51083fadd99451fe5180b8ff4c7d",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::allocRun"
+},
+    "SkTextBlobBuilder_allocRunPos": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, glyphPaint;\n    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(glyphPaint, 5);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
+    "width": 256,
+    "height": 90,
+    "hash": "f65c92ff5bfcc95ba58a2ba4d67f944f",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::allocRunPos"
+},
+    "SkTextBlobBuilder_allocRunPosH": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder builder;\n    SkPaint paint, glyphPaint;\n    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(glyphPaint, 5, 20);\n    paint.textToGlyphs(\"hello\", 5, run.glyphs);\n    SkScalar positions[] = {0, 10, 20, 40, 80};\n    memcpy(run.pos, positions, sizeof(positions));\n    canvas->drawTextBlob(builder.make(), 20, 20, paint);\n}",
+    "width": 256,
+    "height": 60,
+    "hash": "735c352787b24e490740dedd035987d2",
+    "file": "SkTextBlobBuilder_Reference",
+    "name": "SkTextBlobBuilder::allocRunPosH"
+},
+    "SkTextBlob_Deserialize": {
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World!\", 12, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "width": 256,
+    "height": 24,
+    "hash": "b49322e0363bd2930f4c7b98a3ff250e",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::Deserialize"
+},
+    "SkTextBlob_MakeFromString": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setColor(SK_ColorRED); // ignored\n    blobPaint.setTextSize(24);  // respected\n    blobPaint.setAntiAlias(true); // ignored\n    SkPaint canvasPaint = blobPaint;\n    canvasPaint.setColor(SK_ColorBLUE); // respected\n    canvasPaint.setTextSize(2); // ignored\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromString(\"Hello World\", blobPaint);\n    canvas->drawTextBlob(blob, 20, 20, canvasPaint);\n}",
+    "width": 256,
+    "height": 24,
+    "hash": "705b26bb5e361369d897eeb511b6a184",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::MakeFromString"
+},
+    "SkTextBlob_MakeFromText": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setColor(SK_ColorRED); // ignored\n    blobPaint.setTextSize(24);  // respected\n    blobPaint.setAntiAlias(true); // ignored\n    SkPaint canvasPaint = blobPaint;\n    canvasPaint.setColor(SK_ColorBLUE); // respected\n    canvasPaint.setTextSize(2); // ignored\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobPaint);\n    canvas->drawTextBlob(blob, 20, 20, canvasPaint);\n}",
+    "width": 256,
+    "height": 24,
+    "hash": "74686684967a310dc06fe2915b0a4798",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::MakeFromText"
+},
+    "SkTextBlob_bounds": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkTextBlobBuilder textBlobBuilder;\n    const char bunny[] = \"/(^x^)\\\\\";\n    const int len = sizeof(bunny) - 1;\n    uint16_t glyphs[len];\n    SkPaint paint;\n    paint.textToGlyphs(bunny, len, glyphs);\n    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n    int runs[] = { 3, 1, 3 };\n    SkPoint textPos = { 20, 50 };\n    int glyphIndex = 0;\n    for (auto runLen : runs) {\n        paint.setTextSize(1 == runLen ? 20 : 50);\n        const SkTextBlobBuilder::RunBuffer& run =\n                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n        glyphIndex += runLen;\n    }\n    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n    paint.reset();\n    canvas->drawTextBlob(blob.get(), 0, 0, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    canvas->drawRect(blob->bounds(), paint);\n}",
+    "width": 256,
+    "height": 70,
+    "hash": "52ba6c8a9483df8c373fdb49b32a5e19",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::bounds()"
+},
+    "SkTextBlob_serialize": {
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World\", 11, blobPaint);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
+    "width": 256,
+    "height": 64,
+    "hash": "adf1f5687736356419c0114327ea6df9",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::serialize()"
+},
+    "SkTextBlob_serialize_2": {
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World\", 11, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "width": 256,
+    "height": 24,
+    "hash": "ae23af73f49735177dd5cc1040ed1255",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::serialize_2"
+},
+    "SkTextBlob_uniqueID": {
+    "code": "void draw(SkCanvas* canvas) {\n    for (int index = 0; index < 2; ++index) {\n        SkTextBlobBuilder textBlobBuilder;\n        const char bunny[] = \"/(^x^)\\\\\";\n        const int len = sizeof(bunny) - 1;\n        uint16_t glyphs[len];\n        SkPaint paint;\n        paint.textToGlyphs(bunny, len, glyphs);\n        paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);\n        paint.setTextScaleX(0.5);\n        int runs[] = { 3, 1, 3 };\n        SkPoint textPos = { 20, 50 };\n        int glyphIndex = 0;\n        for (auto runLen : runs) {\n            paint.setTextSize(1 == runLen ? 20 : 50);\n            const SkTextBlobBuilder::RunBuffer& run =\n                    textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);\n            memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);\n            textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);\n            glyphIndex += runLen;\n        }\n        sk_sp<const SkTextBlob> blob = textBlobBuilder.make();\n        paint.reset();\n        canvas->drawTextBlob(blob.get(), 0, 0, paint);\n        std::string id = \"unique ID:\" + std::to_string(blob->uniqueID());\n        canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);\n        canvas->translate(blob->bounds().fRight + 10, 0);\n    }\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "5a29bcc0076950339c955149c34e1d46",
+    "file": "SkTextBlob_Reference",
+    "name": "SkTextBlob::uniqueID"
+},
+    "SkWStream_SizeOfPackedUInt": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::SizeOfPackedUInt"
+},
+    "SkWStream_bytesWritten": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::bytesWritten"
+},
+    "SkWStream_destructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::~SkWStream()"
+},
+    "SkWStream_empty_constructor": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::SkWStream()"
+},
+    "SkWStream_flush": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::flush()"
+},
+    "SkWStream_newline": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::newline()"
+},
+    "SkWStream_write": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::write()"
+},
+    "SkWStream_write16": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::write16"
+},
+    "SkWStream_write32": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::write32"
+},
+    "SkWStream_write8": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::write8"
+},
+    "SkWStream_writeBigDecAsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeBigDecAsText"
+},
+    "SkWStream_writeBool": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeBool"
+},
+    "SkWStream_writeDecAsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeDecAsText"
+},
+    "SkWStream_writeHexAsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeHexAsText"
+},
+    "SkWStream_writePackedUInt": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writePackedUInt"
+},
+    "SkWStream_writeScalar": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeScalar"
+},
+    "SkWStream_writeScalarAsText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeScalarAsText"
+},
+    "SkWStream_writeStream": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeStream"
+},
+    "SkWStream_writeText": {
+    "code": "void draw(SkCanvas* canvas) {\n    // incomplete\n}",
+    "width": 256,
+    "height": 256,
+    "hash": "882e8e0103048009a25cfc20400492f7",
+    "file": "SkWStream_Reference",
+    "name": "SkWStream::writeText"
 }
     }
     var canvas

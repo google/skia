@@ -250,6 +250,8 @@ void <a href='#GrContext_flush'>flush</a>()
 
 # <a name='Glyph'>Glyph</a>
 
+## <a name='ID'>ID</a>
+
 # <a name='Grayscale'>Grayscale</a>
 
 # <a name='HTML_Aqua'>HTML Aqua</a>
@@ -463,10 +465,6 @@ static std::unique_ptr&lt;<a href='SkCanvas_Reference#SkCanvas'>SkCanvas</a>&gt;
 
 # <a name='sk_sp'>Class sk_sp</a>
 
-# <a name='Region'>Region</a>
-
-# <a name='SkRegion'>Class SkRegion</a>
-
 # <a name='RenderTarget'>RenderTarget</a>
 
 # <a name='GrBackendRenderTarget'>Class GrBackendRenderTarget</a>
@@ -562,9 +560,9 @@ static <a href='#sk_sp'>sk sp</a>&lt;<a href='#SkShader'>SkShader</a>&gt; <a hre
 
 # <a name='Sprite'>Sprite</a>
 
-# <a name='Stream'>Stream</a>
+# <a name='Stream_Asset'>Stream Asset</a>
 
-# <a name='SkStream'>Class SkStream</a>
+# <a name='SkStreamAsset'>Class SkStreamAsset</a>
 
 # <a name='String'>String</a>
 
@@ -605,10 +603,6 @@ Topic
 
 # <a name='Text'>Text</a>
 
-# <a name='Text_Blob'>Text Blob</a>
-
-# <a name='SkTextBlob'>Class SkTextBlob</a>
-
 # <a name='Texture'>Texture</a>
 
 # <a name='GrBackendTexture'>Class GrBackendTexture</a>
@@ -626,7 +620,20 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 
 # <a name='Typeface'>Typeface</a>
 
+## <a name='ID'>ID</a>
+
+## <a name='SkFontID'>Typedef SkFontID</a>
+
 # <a name='SkTypeface'>Class SkTypeface</a>
+
+<a name='SkTypeface_uniqueID'></a>
+## uniqueID
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='#SkFontID'>SkFontID</a> <a href='#SkTypeface_uniqueID'>uniqueID</a>() const
+</pre>
+
+---
 
 # <a name='UV_Mapping'>UV Mapping</a>
 
@@ -641,10 +648,6 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 ## <a name='Colors'>Colors</a>
 
 ## <a name='Texs'>Texs</a>
-
-# <a name='WStream'>WStream</a>
-
-# <a name='SkWStream'>Class SkWStream</a>
 
 # <a name='Xfermode_Image_Filter'>Xfermode Image Filter</a>
 

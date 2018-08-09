@@ -2691,6 +2691,7 @@ bool IncludeWriter::writeHeader(std::pair<const string, Definition>& include) {
 
     // find end of copyright header
     fChar = fStart;
+    this->skipWhiteSpace();
     if (!this->skipExact(
             "/*\n"
             " * Copyright ")) {
