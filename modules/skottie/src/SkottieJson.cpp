@@ -53,15 +53,25 @@ bool Parse<bool>(const Value& v, bool* b) {
     return false;
 }
 
-template <>
-bool Parse<int>(const Value& v, int* i) {
+template <typename T>
+bool ParseIntegral(const Value& v, T* result) {
     if (const skjson::NumberValue* num = v) {
         const auto dbl = **num;
-        *i = dbl;
-        return *i == dbl;
+        *result = static_cast<T>(dbl);
+        return static_cast<double>(*result) == dbl;
     }
 
     return false;
+}
+
+template <>
+bool Parse<int>(const Value& v, int* i) {
+    return ParseIntegral(v, i);
+}
+
+template <>
+bool Parse<size_t>(const Value& v, size_t* sz) {
+    return ParseIntegral(v, sz);
 }
 
 template <>
