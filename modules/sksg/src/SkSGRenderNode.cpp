@@ -45,11 +45,7 @@ RenderNode::ScopedRenderContext::~ScopedRenderContext() {
 RenderNode::RenderContext* RenderNode::ScopedRenderContext::writableContext() {
     // If no inherited context is present, allocate one in local storage.
     if (!fCtx.get()) {
-        // N.B.: we have to force a copy while the default source is in scope.
-        // TODO: add SkTCopyOnWrite::init_copy() to simplify this
-        RenderContext default_ctx;
-        fCtx.init(default_ctx);
-        return fCtx.writable();
+        fCtx.init(RenderContext());
     }
     return fCtx.writable();
 }

@@ -171,10 +171,23 @@ public:
     }
 
     // Should only be called once, and only if the default constructor was used.
-    void init(const T& initial) {
+    void init(const T* initial) {
         SkASSERT(nullptr == fObj);
         SkASSERT(!fLazy.isValid());
-        fObj = &initial;
+        fObj = initial;
+    }
+
+    // Similar to the above, but moving the rvalue into local storage.
+    void init(T&& initial) {
+        SkASSERT(nullptr == fObj);
+        SkASSERT(!fLazy.isValid());
+        fLazy.set(std::move(initial));
+        fObj = fLazy.get();
+    }
+
+    // DEPRECATED - do not use
+    void init(const T& initial) {
+        this->init(&initial);
     }
 
     /**
