@@ -75,3 +75,36 @@ DEF_TEST(TCopyOnFirstWrite_copy, r) {
         REPORTER_ASSERT(r, cow.get() !=  cow_copy.get());
     }
 }
+
+DEF_TEST(TCopyOnFirstWrite_deferredInit, r) {
+    {
+        auto obj = sk_make_sp<SkRefCnt>();
+        SkTCopyOnFirstWrite<sk_sp<SkRefCnt>> cow;
+        REPORTER_ASSERT(r, cow.get() == nullptr);
+
+        // Shallow initialization
+        cow.init(&obj);
+        REPORTER_ASSERT(r, cow.get() == &obj);
+        REPORTER_ASSERT(r, obj->unique());
+
+        // Force a copy.
+        REPORTER_ASSERT(r, cow.writable() != &obj);
+        REPORTER_ASSERT(r, cow.get()->get() == obj.get());
+        REPORTER_ASSERT(r, !obj->unique());
+    }
+
+    {
+        auto obj = sk_make_sp<SkRefCnt>();
+        const auto* raw = obj.get();
+
+        SkTCopyOnFirstWrite<sk_sp<SkRefCnt>> cow;
+        REPORTER_ASSERT(r, cow.get() == nullptr);
+
+        // rval initialization
+        cow.init(std::move(obj));
+        REPORTER_ASSERT(r, cow.get() != &obj);
+        REPORTER_ASSERT(r, cow.get()->get() == raw);
+        REPORTER_ASSERT(r, !obj.get());
+        REPORTER_ASSERT(r, cow->get()->unique());
+    }
+}
