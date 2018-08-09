@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e765c28a_084852ec",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-09T11:44:09Z",
+      "side": 1,
+      "message": "Ack.\n\nWe could add sublasses to accomplish this (ScopedOpacityContext, ScopedIsolationContext, ScopedColorFilterContext, etc), but that\u0027s a lot of classes that only provide one ctor :)",
+      "parentUuid": "44ef1b39_6026a54d",
+      "range": {
+        "startLine": 719,
+        "startChar": 23,
+        "endLine": 719,
+        "endChar": 34
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ed5578a4_fcab271c",
         "filename": "modules/sksg/src/SkSGRenderNode.cpp",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2be87bf1_d3f64024",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-09T11:44:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ed5578a4_fcab271c",
+      "range": {
+        "startLine": 26,
+        "startChar": 11,
+        "endLine": 26,
+        "endChar": 19
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a3ca6bec_b7d16d08",
         "filename": "modules/sksg/src/SkSGRenderNode.cpp",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2018-08-09T01:41:15Z",
       "side": 1,
       "message": "not sure I follow: do you need the return statement on this line, given the one on line 50? If so, it is not clear to me (as a reader) why.",
+      "range": {
+        "startLine": 48,
+        "startChar": 20,
+        "endLine": 48,
+        "endChar": 28
+      },
+      "revId": "a6a7f529c60c154be63e4254038bde86207ecc41",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7177f019_29714a5c",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-09T11:44:09Z",
+      "side": 1,
+      "message": "writable() needs to be called while default_ctx is still in scope (because the ctor above only grabs a pointer).\n\nWould be nice to have a SkTCopyOnWrite method to accomplish this (initialize with forced copy) -- this would be my preferred approach, maybe a followup?  Added some extra comments.\n\nWe could also move default_ctx out, and then your suggestion would work.  Except then we\u0027re possibly initializing default_ctx unnecessarily.",
+      "parentUuid": "a3ca6bec_b7d16d08",
       "range": {
         "startLine": 48,
         "startChar": 20,
