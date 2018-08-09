@@ -10,7 +10,6 @@
     "AbandonGpuContext",
     "Coverage",
     "MSAN",
-    "Metal",
     "OpenCL",
     "SKQP",
     "TSAN",
