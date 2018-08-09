@@ -8,7 +8,6 @@
 #ifndef SkPixelRef_DEFINED
 #define SkPixelRef_DEFINED
 
-#include "../private/SkAtomics.h"
 #include "../private/SkMutex.h"
 #include "../private/SkTDArray.h"
 #include "SkBitmap.h"
@@ -18,6 +17,7 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
+#include <atomic>
 
 struct SkIRect;
 
@@ -110,7 +110,7 @@ private:
 
     // Bottom bit indicates the Gen ID is unique.
     bool genIDIsUnique() const { return SkToBool(fTaggedGenID.load() & 1); }
-    mutable SkAtomic<uint32_t> fTaggedGenID;
+    mutable std::atomic<uint32_t> fTaggedGenID;
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
     const uint32_t fStableID;
@@ -119,7 +119,7 @@ private:
     SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
 
     // Set true by caches when they cache content that's derived from the current pixels.
-    SkAtomic<bool> fAddedToCache;
+    std::atomic<bool> fAddedToCache;
 
     enum Mutability {
         kMutable,               // PixelRefs begin mutable.

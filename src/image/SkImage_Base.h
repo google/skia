@@ -8,9 +8,9 @@
 #ifndef SkImage_Base_DEFINED
 #define SkImage_Base_DEFINED
 
-#include "SkAtomics.h"
 #include "SkImage.h"
 #include "SkSurface.h"
+#include <atomic>
 
 #if SK_SUPPORT_GPU
     #include "GrTextureProxy.h"
@@ -101,7 +101,7 @@ protected:
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.
-    mutable SkAtomic<bool> fAddedToRasterCache;
+    mutable std::atomic<bool> fAddedToRasterCache;
 
     typedef SkImage INHERITED;
 };

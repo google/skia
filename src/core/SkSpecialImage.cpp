@@ -14,6 +14,7 @@
 #include "SkSpecialSurface.h"
 #include "SkSurfacePriv.h"
 #include "SkPixelRef.h"
+#include <atomic>
 
 #if SK_SUPPORT_GPU
 #include "GrContext.h"
@@ -490,11 +491,11 @@ public:
     }
 
 private:
-    GrContext*              fContext;
-    sk_sp<GrTextureProxy>   fTextureProxy;
-    const SkAlphaType       fAlphaType;
-    sk_sp<SkColorSpace>     fColorSpace;
-    mutable SkAtomic<bool>  fAddedRasterVersionToCache;
+    GrContext*                fContext;
+    sk_sp<GrTextureProxy>     fTextureProxy;
+    const SkAlphaType         fAlphaType;
+    sk_sp<SkColorSpace>       fColorSpace;
+    mutable std::atomic<bool> fAddedRasterVersionToCache;
 
     typedef SkSpecialImage_Base INHERITED;
 };

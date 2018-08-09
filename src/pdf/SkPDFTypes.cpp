@@ -589,9 +589,9 @@ int32_t SkPDFObjNumMap::getObjectNumber(SkPDFObject* obj) const {
 }
 
 #ifdef SK_PDF_IMAGE_STATS
-SkAtomic<int> gDrawImageCalls(0);
-SkAtomic<int> gJpegImageObjects(0);
-SkAtomic<int> gRegularImageObjects(0);
+std::atomic<int> gDrawImageCalls(0);
+std::atomic<int> gJpegImageObjects(0);
+std::atomic<int> gRegularImageObjects(0);
 
 void SkPDFImageDumpStats() {
     SkDebugf("\ntotal PDF drawImage/drawBitmap calls: %d\n"
