@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "732384ba_ef3f8393",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-09T12:31:11Z",
+      "side": 1,
+      "message": "No, that\u0027s what my local gofmt did.  I\u0027m updated to 1.10.3 and that\u0027s what it wants... idk",
+      "parentUuid": "ecef0634_4c2f5219",
+      "range": {
+        "startLine": 315,
+        "startChar": 8,
+        "endLine": 315,
+        "endChar": 12
+      },
+      "revId": "894b5b50764ce9f0886e9c0b20613371963509b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9aaf3a6_4f28ac64",
         "filename": "infra/bots/gen_tasks.go",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "894b5b50764ce9f0886e9c0b20613371963509b4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ac6cf74_57429324",
+        "filename": "infra/bots/gen_tasks.go",
+        "patchSetId": 12
+      },
+      "lineNbr": 841,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-09T12:31:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9aaf3a6_4f28ac64",
+      "range": {
+        "startLine": 838,
+        "startChar": 0,
+        "endLine": 841,
+        "endChar": 3
+      },
+      "revId": "894b5b50764ce9f0886e9c0b20613371963509b4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
