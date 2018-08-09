@@ -459,10 +459,14 @@ SkBitmap member functions read and modify the structure properties.
 ## <a name='Member_Function'>Member_Function</a>
 
 
-SkBitmap member functions read and modify the structure properties.
+SkBitmap::Allocator member functions read and modify the structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_Allocator_allocPixelRef'>allocPixelRef</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
+  </tr>
 </table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
@@ -507,10 +511,14 @@ true if <a href='undocumented#Pixel_Ref'>Pixel Ref</a> was allocated
 ## <a name='Member_Function'>Member_Function</a>
 
 
-SkBitmap member functions read and modify the structure properties.
+SkBitmap::HeapAllocator member functions read and modify the structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkBitmap_HeapAllocator_allocPixelRef'>allocPixelRef</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allocates pixel memory</td>
+  </tr>
 </table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
