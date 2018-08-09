@@ -356,7 +356,7 @@ DEF_TEST(TextBlob_extended, reporter) {
     (void)paint.textToGlyphs(text1, strlen(text1), glyphs.get());
     paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
 
-    auto run = textBlobBuilder.allocRunText(
+    auto run = SkTextBlobBuilderPriv::AllocRunText(&textBlobBuilder,
             paint, glyphCount, 0, 0, SkToInt(strlen(text2)), SkString(), nullptr);
     memcpy(run.glyphs, glyphs.get(), sizeof(uint16_t) * glyphCount);
     memcpy(run.utf8text, text2, strlen(text2));

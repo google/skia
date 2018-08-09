@@ -22,7 +22,7 @@
 #include "SkTFitsIn.h"
 #include "SkTLazy.h"
 #include "SkTemplates.h"
-#include "SkTextBlob.h"
+#include "SkTextBlobPriv.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
@@ -406,7 +406,8 @@ static constexpr bool is_LTR(UBiDiLevel level) {
 
 static void append(SkTextBlobBuilder* b, const ShapedRun& run, int start, int end, SkPoint* p) {
     unsigned len = end - start;
-    auto runBuffer = b->allocRunTextPos(run.fPaint, len, run.fUtf8End - run.fUtf8Start, SkString());
+    auto runBuffer = SkTextBlobBuilderPriv::AllocRunTextPos(b, run.fPaint, len,
+            run.fUtf8End - run.fUtf8Start, SkString());
     memcpy(runBuffer.utf8text, run.fUtf8Start, run.fUtf8End - run.fUtf8Start);
 
     for (unsigned i = 0; i < len; i++) {

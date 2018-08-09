@@ -36,6 +36,13 @@ public:
     static sk_sp<SkTextBlob> MakeFromText(
             const void* text, size_t byteLength, const SkPaint& paint);
 
+    static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint) {
+        if (!string) {
+            return nullptr;
+        }
+        return MakeFromText(string, strlen(string), paint);
+    }
+
     /**
      *  Similar to serialize above, but writes directly into |memory|. Returns bytes written or 0u
      *  if serialization failed due to insufficient size.
@@ -142,23 +149,12 @@ public:
      *  @param font    The font to be used for this run.
      *  @param count   Number of glyphs.
      *  @param x,y     Position within the blob.
-     *  @param textByteCount length of the original UTF-8 text that
-     *                 corresponds to this sequence of glyphs.  If 0,
-     *                 text will not be included in the textblob.
-     *  @param lang    Language code, currently unimplemented.
      *  @param bounds  Optional run bounding box. If known in advance (!= NULL), it will
      *                 be used when computing the blob bounds, to avoid re-measuring.
      *
      *  @return        A writable glyph buffer, valid until the next allocRun() or
      *                 build() call. The buffer is guaranteed to hold @count@ glyphs.
      */
-    const RunBuffer& allocRunText(const SkPaint& font,
-                                  int count,
-                                  SkScalar x,
-                                  SkScalar y,
-                                  int textByteCount,
-                                  SkString lang,
-                                  const SkRect* bounds = nullptr);
     const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
                               const SkRect* bounds = nullptr) {
         return this->allocRunText(font, count, x, y, 0, SkString(), bounds);
@@ -171,19 +167,12 @@ public:
      *  @param font    The font to be used for this run.
      *  @param count   Number of glyphs.
      *  @param y       Vertical offset within the blob.
-     *  @param textByteCount length of the original UTF-8 text that
-     *                 corresponds to this sequence of glyphs.  If 0,
-     *                 text will not be included in the textblob.
-     *  @param lang    Language code, currently unimplemented.
      *  @param bounds  Optional run bounding box. If known in advance (!= NULL), it will
      *                 be used when computing the blob bounds, to avoid re-measuring.
      *
      *  @return        Writable glyph and position buffers, valid until the next allocRun()
      *                 or build() call. The buffers are guaranteed to hold @count@ elements.
      */
-    const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
-                                      int textByteCount, SkString lang,
-                                      const SkRect* bounds = nullptr);
     const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
                                   const SkRect* bounds = nullptr) {
         return this->allocRunTextPosH(font, count, y, 0, SkString(), bounds);
@@ -195,10 +184,6 @@ public:
      *
      *  @param font   The font to be used for this run.
      *  @param count  Number of glyphs.
-     *  @param textByteCount length of the original UTF-8 text that
-     *                 corresponds to this sequence of glyphs.  If 0,
-     *                 text will not be included in the textblob.
-     *  @param lang    Language code, currently unimplemented.
      *  @param bounds Optional run bounding box. If known in advance (!= NULL), it will
      *                be used when computing the blob bounds, to avoid re-measuring.
      *
@@ -206,15 +191,25 @@ public:
      *                or build() call. The glyph buffer and position buffer are
      *                guaranteed to hold @count@ and 2 * @count@ elements, respectively.
      */
-    const RunBuffer& allocRunTextPos(const SkPaint& font, int count,
-                                     int textByteCount, SkString lang,
-                                     const SkRect* bounds = nullptr);
     const RunBuffer& allocRunPos(const SkPaint& font, int count,
                                  const SkRect* bounds = nullptr) {
         return this->allocRunTextPos(font, count, 0, SkString(), bounds);
     }
 
 private:
+    const RunBuffer& allocRunText(const SkPaint& font,
+                                  int count,
+                                  SkScalar x,
+                                  SkScalar y,
+                                  int textByteCount,
+                                  SkString lang,
+                                  const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunTextPosH(const SkPaint& font, int count, SkScalar y,
+                                      int textByteCount, SkString lang,
+                                      const SkRect* bounds = nullptr);
+    const RunBuffer& allocRunTextPos(const SkPaint& font, int count,
+                                     int textByteCount, SkString lang,
+                                     const SkRect* bounds = nullptr);
     void reserve(size_t size);
     void allocInternal(const SkPaint& font, SkTextBlob::GlyphPositioning positioning,
                        int count, int textBytes, SkPoint offset, const SkRect* bounds);
@@ -224,6 +219,9 @@ private:
 
     static SkRect ConservativeRunBounds(const SkTextBlob::RunRecord&);
     static SkRect TightRunBounds(const SkTextBlob::RunRecord&);
+
+    friend class SkTextBlobPriv;
+    friend class SkTextBlobBuilderPriv;
 
     SkAutoTMalloc<uint8_t> fStorage;
     size_t                 fStorageSize;
