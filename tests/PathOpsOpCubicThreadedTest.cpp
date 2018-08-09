@@ -8,9 +8,10 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
+#include <atomic>
 
 static int loopNo = 158;
-static int gCubicsTestNo = 0;
+static std::atomic<int> gCubicsTestNo{0};
 
 static void testOpCubicsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME

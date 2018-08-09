@@ -7,6 +7,7 @@
 #include "PathOpsDebug.h"
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
+#include <atomic>
 
 #define TEST(name) { name, #name }
 
@@ -133,7 +134,7 @@ path.close();
 testSimplify(reporter, path, filename);
 }
 
-int gTigerTests = 0;
+static std::atomic<int> gTigerTests{0};
 
 static void tiger8a_x(skiatest::Reporter* reporter, uint64_t testlines) {
     SkPath path;

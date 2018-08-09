@@ -8,6 +8,7 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
+#include <atomic>
 
 static int loopNo = 17;
 
@@ -27,7 +28,7 @@ static void add_point(SkString* str, SkScalar x, SkScalar y) {
     }
 }
 
-static int gLoopsTestNo = 0;
+static std::atomic<int> gLoopsTestNo{0};
 
 static void testOpLoopsMain(PathOpsThreadState* data) {
 #if DEBUG_SHOW_TEST_NAME
