@@ -7,10 +7,11 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkRandom.h"
+#include <atomic>
 
 #define TEST(name) { name, #name }
 
-static int gTestNo = 0;
+static std::atomic<int> gTestNo{0};
 
 static void chalkboard(skiatest::Reporter* reporter, uint64_t testlines) {
     SkPath path;

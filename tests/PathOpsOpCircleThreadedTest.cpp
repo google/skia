@@ -8,9 +8,10 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
+#include <atomic>
 
 static int loopNo = 4;
-static int gCirclesTestNo = 0;
+static std::atomic<int> gCirclesTestNo{0};
 
 static void testOpCirclesMain(PathOpsThreadState* data) {
         SkASSERT(data);

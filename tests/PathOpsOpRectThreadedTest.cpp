@@ -8,6 +8,7 @@
 #include "PathOpsExtendedTest.h"
 #include "PathOpsThreadedCommon.h"
 #include "SkString.h"
+#include <atomic>
 
 // four rects, of four sizes
 // for 3 smaller sizes, tall, wide
@@ -17,7 +18,7 @@
 // cw or ccw (1 bit)
 
 static int loopNo = 6;
-static int gRectsTestNo = 0;
+static std::atomic<int> gRectsTestNo{0};
 
 static void testPathOpsRectsMain(PathOpsThreadState* data)
 {
@@ -105,7 +106,7 @@ finish:
     testRunner.render();
 }
 
-static int gFastTestNo = 0;
+static std::atomic<int> gFastTestNo{0};
 
 static void testPathOpsFastMain(PathOpsThreadState* data)
 {
