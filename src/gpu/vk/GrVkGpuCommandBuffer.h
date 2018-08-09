@@ -76,6 +76,11 @@ public:
 
     void submit() override;
 
+    void set(GrRenderTarget*, GrSurfaceOrigin,
+             const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+             const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+    void reset() override;
+
 private:
     void init();
 

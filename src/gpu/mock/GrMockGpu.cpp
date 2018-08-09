@@ -47,20 +47,6 @@ sk_sp<GrGpu> GrMockGpu::Make(const GrMockOptions* mockOptions,
     return sk_sp<GrGpu>(new GrMockGpu(context, *mockOptions, contextOptions));
 }
 
-
-GrGpuRTCommandBuffer* GrMockGpu::createCommandBuffer(
-                                            GrRenderTarget* rt, GrSurfaceOrigin origin,
-                                            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) {
-    return new GrMockGpuRTCommandBuffer(this, rt, origin);
-}
-
-GrGpuTextureCommandBuffer* GrMockGpu::createCommandBuffer(GrTexture* texture,
-                                                          GrSurfaceOrigin origin) {
-    return new GrMockGpuTextureCommandBuffer(texture, origin);
-}
-
-
 void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
     for (int i = 0; i < cmdBuffer->numDraws(); ++i) {
         fStats.incNumDraws();
@@ -174,6 +160,23 @@ sk_sp<GrRenderTarget> GrMockGpu::onWrapBackendTextureAsRenderTarget(const GrBack
 GrBuffer* GrMockGpu::onCreateBuffer(size_t sizeInBytes, GrBufferType type,
                                     GrAccessPattern accessPattern, const void*) {
     return new GrMockBuffer(this, sizeInBytes, type, accessPattern);
+}
+
+
+
+std::unique_ptr<GrGpuRTCommandBuffer> GrMockGpu::createCommandBuffer(
+                                GrRenderTarget* rt, GrSurfaceOrigin origin,
+                                const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+                                const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrMockGpuRTCommandBuffer(this, rt, origin,
+                                                                              colorInfo,
+                                                                              stencilInfo));
+}
+
+std::unique_ptr<GrGpuTextureCommandBuffer> GrMockGpu::createCommandBuffer(GrTexture* texture,
+                                                                          GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrMockGpuTextureCommandBuffer(texture,
+                                                                                        origin));
 }
 
 GrStencilAttachment* GrMockGpu::createStencilAttachmentForRenderTarget(const GrRenderTarget* rt,

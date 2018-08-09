@@ -239,16 +239,33 @@ public:
                      const SkIPoint& dstPoint,
                      bool canDiscardOutsideDstRect = false);
 
-    // Creates a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
+    // Returns a GrGpuRTCommandBuffer which GrOpLists send draw commands to instead of directly
     // to the Gpu object.
-    virtual GrGpuRTCommandBuffer* createCommandBuffer(
-            GrRenderTarget*, GrSurfaceOrigin,
-            const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) = 0;
+    std::unique_ptr<GrGpuRTCommandBuffer> getCommandBuffer(
+            GrRenderTarget* rt, GrSurfaceOrigin origin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+        if (fCachedRTCommandBuffer) {
+            fCachedRTCommandBuffer.get()->set(rt, origin, colorInfo, stencilInfo);
+            return std::move(fCachedRTCommandBuffer);
+        }
 
-    // Creates a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
+        return this->createCommandBuffer(rt, origin, colorInfo, stencilInfo);
+    }
+
+    // Return the GrGpuRTCommandBuffer, retrieved in getCommandBuffer, for possible reuse.
+    void returnCommandBuffer(std::unique_ptr<GrGpuRTCommandBuffer> buffer) {
+        buffer->reset();
+        fCachedRTCommandBuffer = std::move(buffer);
+    }
+
+    // Returns a GrGpuTextureCommandBuffer which GrOpLists send texture commands to instead of
     // directly to the Gpu object.
-    virtual GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) = 0;
+    std::unique_ptr<GrGpuTextureCommandBuffer> getCommandBuffer(GrTexture* tex,
+                                                                GrSurfaceOrigin origin) {
+        // We currently don't cache the texture command buffers
+        return this->createCommandBuffer(tex, origin);
+    }
 
     // Called by GrDrawingManager when flushing.
     // Provides a hook for post-flush actions (e.g. Vulkan command buffer submits). This will also
@@ -440,6 +457,14 @@ private:
     virtual GrBuffer* onCreateBuffer(size_t size, GrBufferType intendedType, GrAccessPattern,
                                      const void* data) = 0;
 
+    virtual std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
+            GrRenderTarget* rt, GrSurfaceOrigin origin,
+            const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+            const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) = 0;
+
+    virtual std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                           GrSurfaceOrigin) = 0;
+
     // overridden by backend-specific derived class to perform the surface read
     virtual bool onReadPixels(GrSurface*, int left, int top, int width, int height, GrColorType,
                               void* buffer, size_t rowBytes) = 0;
@@ -479,6 +504,8 @@ private:
     uint32_t fResetBits;
     // The context owns us, not vice-versa, so this ptr is not ref'ed by Gpu.
     GrContext* fContext;
+
+    std::unique_ptr<GrGpuRTCommandBuffer> fCachedRTCommandBuffer;
 
     friend class GrPathRendering;
     typedef SkRefCnt INHERITED;

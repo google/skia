@@ -1994,6 +1994,22 @@ void GrGLGpu::clearStencilClip(const GrFixedClip& clip,
     fHWStencilSettings.invalidate();
 }
 
+std::unique_ptr<GrGpuRTCommandBuffer> GrGLGpu::createCommandBuffer(
+        GrRenderTarget* rt, GrSurfaceOrigin origin,
+        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
+        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
+    return std::unique_ptr<GrGpuRTCommandBuffer>(new GrGLGpuRTCommandBuffer(this, rt, origin,
+                                                                            colorInfo,
+                                                                            stencilInfo));
+}
+
+std::unique_ptr<GrGpuTextureCommandBuffer> GrGLGpu::createCommandBuffer(GrTexture* texture,
+                                                                        GrSurfaceOrigin origin) {
+    return std::unique_ptr<GrGpuTextureCommandBuffer>(new GrGLGpuTextureCommandBuffer(this,
+                                                                                      texture,
+                                                                                      origin));
+}
+
 bool GrGLGpu::readPixelsSupported(GrRenderTarget* target, GrPixelConfig readConfig) {
 #ifdef SK_BUILD_FOR_MAC
     // Chromium may ask us to read back from locked IOSurfaces. Calling the command buffer's
@@ -2154,18 +2170,6 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         this->unbindTextureFBOForPixelOps(GR_GL_FRAMEBUFFER, surface);
     }
     return true;
-}
-
-GrGpuRTCommandBuffer* GrGLGpu::createCommandBuffer(
-        GrRenderTarget* rt, GrSurfaceOrigin origin,
-        const GrGpuRTCommandBuffer::LoadAndStoreInfo& colorInfo,
-        const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo& stencilInfo) {
-    return new GrGLGpuRTCommandBuffer(this, rt, origin, colorInfo, stencilInfo);
-}
-
-GrGpuTextureCommandBuffer* GrGLGpu::createCommandBuffer(GrTexture* texture,
-                                                        GrSurfaceOrigin origin) {
-    return new GrGLGpuTextureCommandBuffer(this, texture, origin);
 }
 
 void GrGLGpu::flushRenderTarget(GrGLRenderTarget* target, GrSurfaceOrigin origin,

@@ -24,13 +24,6 @@ public:
 
     ~GrMockGpu() override {}
 
-    GrGpuRTCommandBuffer* createCommandBuffer(
-                                    GrRenderTarget*, GrSurfaceOrigin,
-                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
-                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
-
-    GrGpuTextureCommandBuffer* createCommandBuffer(GrTexture*, GrSurfaceOrigin) override;
-
     GrFence SK_WARN_UNUSED_RESULT insertFence() override { return 0; }
     bool waitFence(GrFence, uint64_t) override { return true; }
     void deleteFence(GrFence) const override {}
@@ -70,6 +63,14 @@ private:
 
     GrBuffer* onCreateBuffer(size_t sizeInBytes, GrBufferType, GrAccessPattern,
                              const void*) override;
+
+    std::unique_ptr<GrGpuRTCommandBuffer> createCommandBuffer(
+                                    GrRenderTarget*, GrSurfaceOrigin,
+                                    const GrGpuRTCommandBuffer::LoadAndStoreInfo&,
+                                    const GrGpuRTCommandBuffer::StencilLoadAndStoreInfo&) override;
+
+    std::unique_ptr<GrGpuTextureCommandBuffer> createCommandBuffer(GrTexture*,
+                                                                   GrSurfaceOrigin) override;
 
     bool onReadPixels(GrSurface* surface, int left, int top, int width, int height, GrColorType,
                       void* buffer, size_t rowBytes) override {
