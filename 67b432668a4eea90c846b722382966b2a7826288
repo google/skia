@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2b0884b_7fecda01",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-09T22:44:14Z",
+      "side": 1,
+      "message": "nit: typo on your username. :)",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 16
+      },
+      "revId": "67b432668a4eea90c846b722382966b2a7826288",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a71f9f71_6cc7f69c",
+        "filename": "tools/skqp/gm_knowledge.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-09T22:44:14Z",
+      "side": 1,
+      "message": "how did you come to these values?",
+      "range": {
+        "startLine": 54,
+        "startChar": 49,
+        "endLine": 54,
+        "endChar": 52
+      },
+      "revId": "67b432668a4eea90c846b722382966b2a7826288",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
