@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e3b285d0_ea8b55f7",
+        "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-09T14:01:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3c3cabee_ab6d0273",
+      "range": {
+        "startLine": 20,
+        "startChar": 73,
+        "endLine": 20,
+        "endChar": 79
+      },
+      "revId": "d1caaa949a99e87d916b9a6eb2eb00b742f32ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "63edefa9_ac86b7c5",
         "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
         "patchSetId": 13
@@ -45,6 +69,30 @@
       "revId": "d1caaa949a99e87d916b9a6eb2eb00b742f32ee8",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c3a9d079_f4a8cc4d",
+        "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
+        "patchSetId": 13
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-09T14:01:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "63edefa9_ac86b7c5",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "d1caaa949a99e87d916b9a6eb2eb00b742f32ee8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
