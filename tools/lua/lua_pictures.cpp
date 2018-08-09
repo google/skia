@@ -12,7 +12,6 @@
 #include "SkGraphics.h"
 #include "SkStream.h"
 #include "SkData.h"
-#include "picture_utils.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 

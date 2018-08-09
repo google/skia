@@ -24,7 +24,6 @@
 #include "SkTHash.h"
 #include "SkTypeface.h"
 #include "SkWriteBuffer.h"
-#include "picture_utils.h"
 #include "SkClipOpPriv.h"
 #include <SkLatticeIter.h>
 #include <SkShadowFlags.h>

@@ -43,7 +43,6 @@
 #include "Test.h"
 #include "Timer.h"
 #include "ios_utils.h"
-#include "picture_utils.h"
 #include "sk_tool_utils.h"
 
 #include <vector>
