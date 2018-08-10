@@ -10,6 +10,7 @@
 
 #include "GrMtlBuffer.h"
 #include "GrMtlPipelineStateDataManager.h"
+#include "GrTypesPriv.h"
 #include "glsl/GrGLSLProgramBuilder.h"
 
 #import <metal/metal.h>
@@ -49,6 +50,8 @@ public:
                  const GrTextureProxy* const primProcTextures[]);
 
     void bind(id<MTLRenderCommandEncoder>);
+
+    void setBlendConstants(id<MTLRenderCommandEncoder>, GrPixelConfig, const GrXferProcessor&);
 
 private:
     /**

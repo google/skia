@@ -164,3 +164,40 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) 
         fDataManager.set4fv(fBuiltinUniformHandles.fRTAdjustmentUni, 1, rtAdjustmentVec);
     }
 }
+
+static bool blend_coeff_refs_constant(GrBlendCoeff coeff) {
+    switch (coeff) {
+        case kConstC_GrBlendCoeff:
+        case kIConstC_GrBlendCoeff:
+        case kConstA_GrBlendCoeff:
+        case kIConstA_GrBlendCoeff:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void GrMtlPipelineState::setBlendConstants(id<MTLRenderCommandEncoder> renderCmdEncoder,
+                                           GrPixelConfig config,
+                                           const GrXferProcessor& xferProcessor) {
+    if (!renderCmdEncoder) {
+        return;
+    }
+
+    GrXferProcessor::BlendInfo blendInfo;
+    xferProcessor.getBlendInfo(&blendInfo);
+    GrBlendCoeff srcCoeff = blendInfo.fSrcBlend;
+    GrBlendCoeff dstCoeff = blendInfo.fDstBlend;
+    if (blend_coeff_refs_constant(srcCoeff) || blend_coeff_refs_constant(dstCoeff)) {
+        float floatColors[4];
+        // Swizzle the blend to match what the shader will output.
+        const GrSwizzle& swizzle = fGpu->caps()->shaderCaps()->configOutputSwizzle(config);
+        GrColor blendConst = swizzle.applyTo(blendInfo.fBlendConstant);
+        GrColorToRGBAFloat(blendConst, floatColors);
+
+        [renderCmdEncoder setBlendColorRed: floatColors[0]
+                                     green: floatColors[1]
+                                      blue: floatColors[2]
+                                     alpha: floatColors[3]];
+    }
+}
