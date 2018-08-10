@@ -1710,7 +1710,48 @@ std::unique_ptr<SPIRVCodeGenerator::LValue> SPIRVCodeGenerator::getLValue(const 
     }
 }
 
+SpvId SPIRVCodeGenerator::loadDimensions(OutputStream& out) {
+    if (fRTDimensionsStructId == (SpvId) -1) {
+        // dimensions variable hasn't been written yet
+        std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
+        SkASSERT(fRTDimensionsFieldIndex == (SpvId) -1);
+        std::vector<Type::Field> fields;
+        fields.emplace_back(Modifiers(), SKSL_RTDIMENSIONS_NAME, fContext.fFloat2_Type.get());
+        StringFragment name("sksl_synthetic_uniforms");
+        Type intfStruct(-1, name, fields);
+        Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
+                      Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
+                      StringFragment());
+        Variable* intfVar = new Variable(-1,
+                                         Modifiers(layout, Modifiers::kUniform_Flag),
+                                         name,
+                                         intfStruct,
+                                         Variable::kGlobal_Storage);
+        fSynthetics.takeOwnership(intfVar);
+        InterfaceBlock intf(-1, intfVar, name, String(""),
+                            std::vector<std::unique_ptr<Expression>>(), st);
+        fRTDimensionsStructId = this->writeInterfaceBlock(intf);
+        fRTDimensionsFieldIndex = 0;
+    }
+    SkASSERT(fRTDimensionsFieldIndex != (SpvId) -1);
+    IntLiteral fieldIndex(fContext, -1, fRTDimensionsFieldIndex);
+    SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
+    SpvId dimensionsPtr = this->nextId();
+    this->writeOpCode(SpvOpAccessChain, 5, out);
+    this->writeWord(this->getPointerType(*fContext.fFloat2_Type, SpvStorageClassUniform), out);
+    this->writeWord(dimensionsPtr, out);
+    this->writeWord(fRTDimensionsStructId, out);
+    this->writeWord(fieldIndexId, out);
+    SpvId result = this->nextId();
+    this->writeInstruction(SpvOpLoad, this->getType(*fContext.fFloat2_Type), result, dimensionsPtr,
+                           out);
+    return result;
+}
+
 SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, OutputStream& out) {
+    if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_DIMENSIONS_BUILTIN) {
+        return this->loadDimensions(out);
+    }
     SpvId result = this->nextId();
     auto entry = fVariableMap.find(&ref.fVariable);
     SkASSERT(entry != fVariableMap.end());
@@ -1719,50 +1760,20 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
     if (ref.fVariable.fModifiers.fLayout.fBuiltin == SK_FRAGCOORD_BUILTIN &&
         fProgram.fSettings.fFlipY) {
         // need to remap to a top-left coordinate system
-        if (fRTHeightStructId == (SpvId) -1) {
-            // height variable hasn't been written yet
-            std::shared_ptr<SymbolTable> st(new SymbolTable(&fErrors));
-            SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
-            std::vector<Type::Field> fields;
-            fields.emplace_back(Modifiers(), SKSL_RTHEIGHT_NAME, fContext.fFloat_Type.get());
-            StringFragment name("sksl_synthetic_uniforms");
-            Type intfStruct(-1, name, fields);
-            Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
-                          Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
-                          StringFragment());
-            Variable* intfVar = new Variable(-1,
-                                             Modifiers(layout, Modifiers::kUniform_Flag),
-                                             name,
-                                             intfStruct,
-                                             Variable::kGlobal_Storage);
-            fSynthetics.takeOwnership(intfVar);
-            InterfaceBlock intf(-1, intfVar, name, String(""),
-                                std::vector<std::unique_ptr<Expression>>(), st);
-            fRTHeightStructId = this->writeInterfaceBlock(intf);
-            fRTHeightFieldIndex = 0;
-        }
-        SkASSERT(fRTHeightFieldIndex != (SpvId) -1);
-        // write float4(gl_FragCoord.x, u_skRTHeight - gl_FragCoord.y, 0.0, 1.0)
+        // write float4(gl_FragCoord.x, u_skRTDimensions.y - gl_FragCoord.y, 0.0, 1.0)
         SpvId xId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), xId,
                                result, 0, out);
-        IntLiteral fieldIndex(fContext, -1, fRTHeightFieldIndex);
-        SpvId fieldIndexId = this->writeIntLiteral(fieldIndex);
-        SpvId heightPtr = this->nextId();
-        this->writeOpCode(SpvOpAccessChain, 5, out);
-        this->writeWord(this->getPointerType(*fContext.fFloat_Type, SpvStorageClassUniform), out);
-        this->writeWord(heightPtr, out);
-        this->writeWord(fRTHeightStructId, out);
-        this->writeWord(fieldIndexId, out);
-        SpvId heightRead = this->nextId();
-        this->writeInstruction(SpvOpLoad, this->getType(*fContext.fFloat_Type), heightRead,
-                               heightPtr, out);
+        SpvId dimensions = this->loadDimensions(out);
+        SpvId height = this->nextId();
+        this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), height,
+                               dimensions, 1, out);
         SpvId rawYId = this->nextId();
         this->writeInstruction(SpvOpCompositeExtract, this->getType(*fContext.fFloat_Type), rawYId,
                                result, 1, out);
         SpvId flippedYId = this->nextId();
         this->writeInstruction(SpvOpFSub, this->getType(*fContext.fFloat_Type), flippedYId,
-                               heightRead, rawYId, out);
+                               height, rawYId, out);
         FloatLiteral zero(fContext, -1, 0.0);
         SpvId zeroId = writeFloatLiteral(zero);
         FloatLiteral one(fContext, -1, 1.0);
@@ -2551,7 +2562,8 @@ void SPIRVCodeGenerator::writeLayout(const Layout& layout, SpvId target) {
         fCapabilities |= (((uint64_t) 1) << SpvCapabilityInputAttachment);
     }
     if (layout.fBuiltin >= 0 && layout.fBuiltin != SK_FRAGCOLOR_BUILTIN &&
-        layout.fBuiltin != SK_IN_BUILTIN && layout.fBuiltin != SK_OUT_BUILTIN) {
+        layout.fBuiltin != SK_IN_BUILTIN && layout.fBuiltin != SK_OUT_BUILTIN &&
+        layout.fBuiltin != SK_DIMENSIONS_BUILTIN) {
         this->writeInstruction(SpvOpDecorate, target, SpvDecorationBuiltIn, layout.fBuiltin,
                                fDecorationBuffer);
     }
@@ -2615,13 +2627,14 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
                                 fDefaultLayout;
     SpvId result = this->nextId();
     const Type* type = &intf.fVariable.fType;
-    if (fProgram.fInputs.fRTHeight) {
-        SkASSERT(fRTHeightStructId == (SpvId) -1);
-        SkASSERT(fRTHeightFieldIndex == (SpvId) -1);
+    if (fProgram.fInputs.fRTDimensions) {
+        SkASSERT(fRTDimensionsStructId == (SpvId) -1);
+        SkASSERT(fRTDimensionsFieldIndex == (SpvId) -1);
         std::vector<Type::Field> fields = type->fields();
-        fRTHeightStructId = result;
-        fRTHeightFieldIndex = fields.size();
-        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTHEIGHT_NAME), fContext.fFloat_Type.get());
+        fRTDimensionsStructId = result;
+        fRTDimensionsFieldIndex = fields.size();
+        fields.emplace_back(Modifiers(), StringFragment(SKSL_RTDIMENSIONS_NAME),
+                            fContext.fFloat2_Type.get());
         type = new Type(type->fOffset, type->name(), fields);
     }
     SpvId typeId;
@@ -2652,7 +2665,7 @@ SpvId SPIRVCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
     }
     this->writeLayout(layout, result);
     fVariableMap[&intf.fVariable] = result;
-    if (fProgram.fInputs.fRTHeight) {
+    if (fProgram.fInputs.fRTDimensions) {
         delete type;
     }
     return result;

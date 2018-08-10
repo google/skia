@@ -693,7 +693,7 @@ void GLSLCodeGenerator::writeFragCoord() {
     if (!fProgram.fSettings.fFlipY) {
         this->write("gl_FragCoord");
     } else if (const char* extension =
-               fProgram.fSettings.fCaps->fragCoordConventionsExtensionString()) {
+                                  fProgram.fSettings.fCaps->fragCoordConventionsExtensionString()) {
         if (!fSetupFragPositionGlobal) {
             if (fProgram.fSettings.fCaps->generation() < k150_GrGLSLGeneration) {
                 this->writeExtension(extension);
@@ -703,25 +703,18 @@ void GLSLCodeGenerator::writeFragCoord() {
         }
         this->write("gl_FragCoord");
     } else {
-        if (!fSetupFragPositionGlobal) {
+        if (!fSetupFragPositionLocal) {
             // The Adreno compiler seems to be very touchy about access to "gl_FragCoord".
             // Accessing glFragCoord.zw can cause a program to fail to link. Additionally,
             // depending on the surrounding code, accessing .xy with a uniform involved can
             // do the same thing. Copying gl_FragCoord.xy into a temp float2 beforehand
             // (and only accessing .xy) seems to "fix" things.
             const char* precision = usesPrecisionModifiers() ? "highp " : "";
-            fGlobals.writeText("uniform ");
-            fGlobals.writeText(precision);
-            fGlobals.writeText("float " SKSL_RTHEIGHT_NAME ";\n");
-            fSetupFragPositionGlobal = true;
-        }
-        if (!fSetupFragPositionLocal) {
-            const char* precision = usesPrecisionModifiers() ? "highp " : "";
             fFunctionHeader += precision;
             fFunctionHeader += "    vec2 _sktmpCoord = gl_FragCoord.xy;\n";
             fFunctionHeader += precision;
-            fFunctionHeader += "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, " SKSL_RTHEIGHT_NAME
-                               " - _sktmpCoord.y, 1.0, 1.0);\n";
+            fFunctionHeader += "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, " SKSL_RTDIMENSIONS_NAME
+                               ".y - _sktmpCoord.y, 1.0, 1.0);\n";
             fSetupFragPositionLocal = true;
         }
         this->write("sk_FragCoord");
@@ -739,6 +732,9 @@ void GLSLCodeGenerator::writeVariableReference(const VariableReference& ref) {
             break;
         case SK_FRAGCOORD_BUILTIN:
             this->writeFragCoord();
+            break;
+        case SK_DIMENSIONS_BUILTIN:
+            this->write("u_skRTDimensions");
             break;
         case SK_CLOCKWISE_BUILTIN:
             this->write(fProgram.fSettings.fFlipY ? "(!gl_FrontFacing)" : "gl_FrontFacing");
@@ -1368,6 +1364,15 @@ void GLSLCodeGenerator::writeProgramElement(const ProgramElement& e) {
     }
 }
 
+void GLSLCodeGenerator::writeInputVars() {
+    if (fProgram.fInputs.fRTDimensions) {
+        const char* precision = usesPrecisionModifiers() ? "highp " : "";
+        fGlobals.writeText("uniform ");
+        fGlobals.writeText(precision);
+        fGlobals.writeText("vec2 " SKSL_RTDIMENSIONS_NAME ";\n");
+    }
+}
+
 bool GLSLCodeGenerator::generateCode() {
     fProgramKind = fProgram.fKind;
     if (fProgramKind != Program::kPipelineStage_Kind) {
@@ -1386,6 +1391,7 @@ bool GLSLCodeGenerator::generateCode() {
     fOut = rawOut;
 
     write_stringstream(fExtensions, *rawOut);
+    this->writeInputVars();
     write_stringstream(fGlobals, *rawOut);
 
     if (!fProgram.fSettings.fCaps->canUseFragCoord()) {
