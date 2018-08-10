@@ -98,7 +98,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kByte2_GrSLType:
             return 2 * sizeof(int8_t);
         case kByte3_GrSLType:
-            return 3 * sizeof(int8_t);
+            return 4 * sizeof(int8_t);
         case kByte4_GrSLType:
             return 4 * sizeof(int8_t);
         case kUByte_GrSLType:
@@ -106,7 +106,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kUByte2_GrSLType:
             return 2 * sizeof(uint8_t);
         case kUByte3_GrSLType:
-            return 3 * sizeof(uint8_t);
+            return 4 * sizeof(uint8_t);
         case kUByte4_GrSLType:
             return 4 * sizeof(uint8_t);
         case kShort_GrSLType:
@@ -114,7 +114,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kShort2_GrSLType:
             return 2 * sizeof(int16_t);
         case kShort3_GrSLType:
-            return 3 * sizeof(int16_t);
+            return 4 * sizeof(int16_t);
         case kShort4_GrSLType:
             return 4 * sizeof(int16_t);
         case kUShort_GrSLType:
@@ -122,7 +122,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kUShort2_GrSLType:
             return 2 * sizeof(uint16_t);
         case kUShort3_GrSLType:
-            return 3 * sizeof(uint16_t);
+            return 4 * sizeof(uint16_t);
         case kUShort4_GrSLType:
             return 4 * sizeof(uint16_t);
         case kInt_GrSLType:
@@ -137,7 +137,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 2 * sizeof(float);
         case kHalf3_GrSLType: // fall through
         case kFloat3_GrSLType:
-            return 3 * sizeof(float);
+            return 4 * sizeof(float);
         case kHalf4_GrSLType: // fall through
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
@@ -146,7 +146,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kInt2_GrSLType:
             return 2 * sizeof(int32_t);
         case kInt3_GrSLType:
-            return 3 * sizeof(int32_t);
+            return 4 * sizeof(int32_t);
         case kInt4_GrSLType:
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
@@ -183,10 +183,6 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             GrSLType type,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
-    // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    if (arrayCount || type == kFloat2x2_GrSLType) {
-        alignmentMask = 0xF;
-    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;
