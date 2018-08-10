@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aa817074_c3dc6849",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-10T17:24:52Z",
+      "side": 1,
+      "message": "we have a policy of always have a bug attached to anything in here and adding a comment with the bug number. So you should make a bug that is very general saying these are a bunch of test that crash on metal cause of unimplemented features, and then add it here.",
+      "range": {
+        "startLine": 813,
+        "startChar": 0,
+        "endLine": 814,
+        "endChar": 20
+      },
+      "revId": "6d796d8f16d773f8c74a51805db364dc17c40810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
