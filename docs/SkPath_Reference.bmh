@@ -220,7 +220,7 @@ SkPath::updateBoundsCache to make Path thread safe.
 #Line # controls how Path Points are interpreted ##
 
 #Code
-    enum Verb {
+    enum Verb : int {
         kMove_Verb,
         kLine_Verb,
         kQuad_Verb,
@@ -332,7 +332,7 @@ verbs: kMove_Verb kLine_Verb kQuad_Verb kClose_Verb kMove_Verb kCubic_Verb kConi
 #Line # sets Contour clockwise or counterclockwise ##
 
 #Code
-    enum Direction {
+    enum Direction : int {
         kCW_Direction,
         kCCW_Direction,
     };

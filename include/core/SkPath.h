@@ -61,7 +61,7 @@ public:
         kCW_Direction travel clockwise; the same added with kCCW_Direction
         travel counterclockwise.
     */
-    enum Direction {
+    enum Direction : int {
         kCW_Direction,  //!< contour travels clockwise
         kCCW_Direction, //!< contour travels counterclockwise
     };
@@ -1316,7 +1316,7 @@ public:
         Verb instructs SkPath how to interpret one or more SkPoint and optional conic weight;
         manage contour, and terminate SkPath.
     */
-    enum Verb {
+    enum Verb : int {
         kMove_Verb,  //!< starts new contour at next SkPoint
         kLine_Verb,  //!< adds line from last point to next SkPoint
         kQuad_Verb,  //!< adds quad from last point
