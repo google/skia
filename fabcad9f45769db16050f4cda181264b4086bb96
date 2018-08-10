@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d707e0ea_c00242d1",
+        "filename": "src/effects/SkDashPathEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-10T20:04:55Z",
+      "side": 1,
+      "message": "I wonder if there\u0027s a way to guard out all the serialization related methods.  Maybe in the header? We\u0027d lose the assert, but prolly doesn\u0027t matter.\n\nDo you mind opening a bug for us to look into making the whole serialization machinery compile-time-optional?",
+      "revId": "fabcad9f45769db16050f4cda181264b4086bb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2bb12374_3d11ec1e",
+        "filename": "src/effects/SkDashPathEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-10T20:04:55Z",
+      "side": 1,
+      "message": "Would be nice to have a more targeted define - SK_DISABLE_SERIALIZATION or such - but since this is not comprehensive, let\u0027s leave it at this for now.",
+      "range": {
+        "startLine": 377,
+        "startChar": 7,
+        "endLine": 377,
+        "endChar": 19
+      },
+      "revId": "fabcad9f45769db16050f4cda181264b4086bb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
