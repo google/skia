@@ -231,34 +231,19 @@ config("default") {
     fyi_sanitizers = fyi_sanitize
     if (sanitize == "ASAN" || sanitize == "UBSAN") {
       # ASAN implicitly runs all UBSAN checks also.
-      sanitizers = "alignment,bool,bounds,float-cast-overflow,integer-divide-by-zero,nonnull-attribute,null,pointer-overflow,return,returns-nonnull-attribute,shift,signed-integer-overflow,unreachable,vla-bound"
-
-      if (fyi_sanitize == "" && !is_android) {
-        fyi_sanitizers = "float-divide-by-zero"
-      }
-
-      if (!is_mac && !is_win) {
-        sanitizers += ",function"  # Not supported on Mac or Win.
-      }
-      if (!is_win) {
-        sanitizers += ",vptr"  # Not supported on Win.
-      }
-      if (!is_debug && !is_win) {
-        # No-op with somewhat annoying warning at -O0.
-        # Seems to be broken on Win.
-        sanitizers += ",object-size"
-      }
+      sanitizers = "undefined"
       if (sanitize == "ASAN") {
         sanitizers += ",address"
       }
-      if (is_android) {
-        # Android only easily supports address for now
-        # UBSAN runs into linking errors
-        sanitizers = "address"
 
-        # recommended by
-        # https://github.com/google/sanitizers/wiki/AddressSanitizerOnAndroid
-        cflags += [ "-fno-omit-frame-pointer" ]
+      # A whitelist of checks we can't yet pass.
+      if (fyi_sanitize == "" && !is_android) {
+        fyi_sanitizers = "enum,float-divide-by-zero"
+      }
+
+      if (is_android) {
+        # TODO(mtklein): work out UBSAN link errors
+        sanitizers = "address"
       }
     } else if (sanitize == "TSAN") {
       sanitizers = "thread"
@@ -269,10 +254,13 @@ config("default") {
     _blacklist = rebase_path("../tools/xsan.blacklist")
 
     cflags += [
-      "-fsanitize=$sanitizers,$fyi_sanitizers",
+      "-fsanitize=$sanitizers",
       "-fno-sanitize-recover=$sanitizers",
+      "-fsanitize-recover=$fyi_sanitizers",
       "-fsanitize-blacklist=$_blacklist",
     ]
+    ldflags += [ "-fsanitize=$sanitizers" ]
+
     if (is_win) {
       cflags += [ "/FI$_blacklist" ]
     } else {
@@ -286,7 +274,7 @@ config("default") {
       cflags_cc += [ "-stdlib=libc++" ]
       ldflags += [ "-stdlib=libc++" ]
     }
-    ldflags += [ "-fsanitize=$sanitizers" ]
+
     if (sanitizers == "memory") {
       cflags += [ "-fsanitize-memory-track-origins" ]
     }
