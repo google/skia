@@ -1528,10 +1528,10 @@ describes an area: fLeft is less than fRight, and fTop is less than fBottom.
 Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
 Returns false if SkRect is empty.
 
-#Param x  test SkPoint x-coordinate ##
-#Param y  test SkPoint y-coordinate ##
+#Param x  test Point x-coordinate ##
+#Param y  test Point y-coordinate ##
 
-#Return true if (x, y) is inside SkRect ##
+#Return true if (x, y) is inside Rect ##
 
 #Example
     SkRect rect = { 30, 50, 40, 60 };

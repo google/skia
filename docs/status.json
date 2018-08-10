@@ -16,7 +16,9 @@
                 "SkPoint.h",
                 "SkRRect.h",
                 "SkRect.h",
-                "SkSurface.h"
+                "SkRegion.h",
+                "SkSurface.h",
+                "SkTextBlob.h"
             ]
         },
         "docs": [
@@ -34,11 +36,14 @@
             "SkPicture_Reference.bmh",
             "SkRRect_Reference.bmh",
             "SkRect_Reference.bmh",
+            "SkRegion_Reference.bmh",
             "SkBitmap_Reference.bmh",
             "SkIPoint_Reference.bmh",
             "SkMatrix_Reference.bmh",
             "SkPixmap_Reference.bmh",
             "SkSurface_Reference.bmh",
+            "SkTextBlobBuilder_Reference.bmh",
+            "SkTextBlob_Reference.bmh",
             "illustrations.bmh",
             "undocumented.bmh"
         ]
@@ -46,9 +51,16 @@
     "InProgress": {
         "include": {
             "core": [
+                "SkStream.h"
             ]
         },
         "docs": [
+            "SkDynamicMemoryWStream_Reference.bmh",
+            "SkFILEStream_Reference.bmh",
+            "SkFILEWStream_Reference.bmh",
+            "SkMemoryStream_Reference.bmh",
+            "SkStream_Reference.bmh",
+            "SkWStream_Reference.bmh",
             "overview.bmh",
             "usingBookmaker.bmh"
         ]

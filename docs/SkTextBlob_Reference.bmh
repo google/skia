@@ -1,0 +1,325 @@
+#Topic Text_Blob
+#Alias Text_Blob_Reference ##
+
+#PhraseDef paint_font_metrics
+Typeface, Paint_Text_Size, Paint_Text_Scale_X,
+Paint_Text_Skew_X, Paint_Text_Align, Paint_Hinting, Anti_Alias, Paint_Fake_Bold,
+Font_Embedded_Bitmaps, Full_Hinting_Spacing, LCD_Text, Linear_Text,
+and Subpixel_Text
+##
+
+Text_Blob holds one or more runs of text. Each run associates a string of Glyphs
+with a position and Paint. Each Paint contains attributes used
+to define the run text: #paint_font_metrics#.
+
+Text_Blob runs of text use Glyph_ID encoding; each run Paint must set
+Paint_Text_Encoding to SkPaint::kGlyphID_TextEncoding.
+
+Text_Blob is constructed with SkTextBlob::MakeFromText or Text_Blob_Builder.
+Once created, Text_Blob can not be modified.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Class SkTextBlob
+
+SkTextBlob combines multiple text runs into an immutable container. Each text
+run consists of Glyphs, Paint, and position. Only parts of Paint related to
+fonts and text rendering are used by run.
+
+# ------------------------------------------------------------------------------
+
+#Method const SkRect& bounds() const
+#In Property
+#Line # returns conservative bounding box ##
+
+Returns conservative bounding box. Uses Paint associated with each glyph to
+determine glyph bounds, and unions all bounds. Returned bounds may be
+larger than the bounds of all Glyphs in runs. 
+
+#Return conservative bounding box ##
+
+#Example
+#Height 70
+    SkTextBlobBuilder textBlobBuilder;
+    const char bunny[] = "/(^x^)\\";
+    const int len = sizeof(bunny) - 1;
+    uint16_t glyphs[len];
+    SkPaint paint;
+    paint.textToGlyphs(bunny, len, glyphs);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    int runs[] = { 3, 1, 3 };
+    SkPoint textPos = { 20, 50 };
+    int glyphIndex = 0;
+    for (auto runLen : runs) {
+        paint.setTextSize(1 == runLen ? 20 : 50);
+        const SkTextBlobBuilder::RunBuffer& run =
+                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);
+        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);
+        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);
+        glyphIndex += runLen;
+    }
+    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+    paint.reset();
+    canvas->drawTextBlob(blob.get(), 0, 0, paint);
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(blob->bounds(), paint);
+##
+
+#SeeAlso SkPath::getBounds
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method uint32_t uniqueID() const
+#In Property
+#Line # returns identifier for Text_Blob ##
+
+Returns a non-zero value unique among all text blobs.
+
+#Return identifier for Text_Blob ##
+
+#Example
+for (int index = 0; index < 2; ++index) {
+    SkTextBlobBuilder textBlobBuilder;
+    const char bunny[] = "/(^x^)\\";
+    const int len = sizeof(bunny) - 1;
+    uint16_t glyphs[len];
+    SkPaint paint;
+    paint.textToGlyphs(bunny, len, glyphs);
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.setTextScaleX(0.5);
+    int runs[] = { 3, 1, 3 };
+    SkPoint textPos = { 20, 50 };
+    int glyphIndex = 0;
+    for (auto runLen : runs) {
+        paint.setTextSize(1 == runLen ? 20 : 50);
+        const SkTextBlobBuilder::RunBuffer& run =
+                textBlobBuilder.allocRun(paint, runLen, textPos.fX, textPos.fY);
+        memcpy(run.glyphs, &glyphs[glyphIndex], sizeof(glyphs[0]) * runLen);
+        textPos.fX += paint.measureText(&glyphs[glyphIndex], sizeof(glyphs[0]) * runLen, nullptr);
+        glyphIndex += runLen;
+    }
+    sk_sp<const SkTextBlob> blob = textBlobBuilder.make();
+    paint.reset();
+    canvas->drawTextBlob(blob.get(), 0, 0, paint);
+    std::string id = "unique ID:" + std::to_string(blob->uniqueID());
+    canvas->drawString(id.c_str(), 30, blob->bounds().fBottom + 15, paint);
+    canvas->translate(blob->bounds().fRight + 10, 0);
+}
+##
+
+#SeeAlso SkRefCnt
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> MakeFromText(
+            const void* text, size_t byteLength, const SkPaint& paint)
+#In Constructor
+#Line # constructs Text_Blob with one run ##
+
+Creates Text_Blob with a single run. text meaning depends on Paint_Text_Encoding;
+by default, text is encoded as UTF-8.
+
+paint contains attributes used to define the run text: #paint_font_metrics#.
+
+#Param text character code points or Glyphs drawn ##
+#Param  byteLength   byte length of text array ##
+#Param  paint    text size, typeface, text scale, and so on, used to draw ##
+
+#Return Text_Blob constructed from one run ##
+
+#Example
+#Height 24
+    SkPaint blobPaint;
+    blobPaint.setColor(SK_ColorRED); // ignored
+    blobPaint.setTextSize(24);  // respected
+    blobPaint.setAntiAlias(true); // ignored
+    SkPaint canvasPaint = blobPaint;
+    canvasPaint.setColor(SK_ColorBLUE); // respected
+    canvasPaint.setTextSize(2); // ignored
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText("Hello World", 11, blobPaint);
+    canvas->drawTextBlob(blob, 20, 20, canvasPaint);
+##
+
+#SeeAlso MakeFromString TextBlobBuilder
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> MakeFromString(const char* string, const SkPaint& paint)
+#In Constructor
+#Line # constructs Text_Blob with one run ##
+
+Creates Text_Blob with a single run. string meaning depends on Paint_Text_Encoding;
+by default, string is encoded as UTF-8.
+
+paint contains Paint_Font_Metrics used to define the run text: #paint_font_metrics#.
+
+#Param string character code points or Glyphs drawn ##
+#Param  paint    text size, typeface, text scale, and so on, used to draw ##
+
+#Return Text_Blob constructed from one run ##
+
+#Example
+#Height 24
+    SkPaint blobPaint;
+    blobPaint.setColor(SK_ColorRED); // ignored
+    blobPaint.setTextSize(24);  // respected
+    blobPaint.setAntiAlias(true); // ignored
+    SkPaint canvasPaint = blobPaint;
+    canvasPaint.setColor(SK_ColorBLUE); // respected
+    canvasPaint.setTextSize(2); // ignored
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromString("Hello World", blobPaint);
+    canvas->drawTextBlob(blob, 20, 20, canvasPaint);
+##
+
+#SeeAlso MakeFromText TextBlobBuilder
+
+##
+
+# ------------------------------------------------------------------------------
+
+#Method size_t serialize(const SkSerialProcs& procs, void* memory, size_t memory_size) const
+#In Utility
+#Line # writes Text_Blob to memory ##
+
+Writes data to allow later reconstruction of Text_Blob. memory points to storage
+to receive the encoded data, and memory_size describes the size of storage. 
+Returns bytes used if provided storage is large enough to hold all data;
+otherwise, returns zero.
+
+procs.fTypefaceProc permits supplying a custom function to encode Typeface.
+If procs.fTypefaceProc is nullptr, default encoding is used. procs.fTypefaceCtx
+may be used to provide user context to procs.fTypefaceProc; procs.fTypefaceProc
+is called with a pointer to Typeface and user context.
+
+#Param procs  custom serial data encoders; may be nullptr ##
+#Param memory  storage for data ##
+#Param size  size of storage ##
+
+#Return bytes written, or zero if required storage is larger than memory_size ##
+
+#Example
+#Height 64
+###$
+$Function
+#include "SkSerialProcs.h"
+$$
+$$$#
+    SkPaint blobPaint;
+    blobPaint.setTextSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText("Hello World", 11, blobPaint);
+    char storage[2048];
+    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));
+    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());
+    canvas->drawTextBlob(copy, 20, 20, SkPaint());
+    std::string usage = "size=" + std::to_string(sizeof(storage)) + " used=" + std::to_string(used);
+    canvas->drawString(usage.c_str(), 20, 40, SkPaint());
+##
+
+#SeeAlso Deserialize SkSerialProcs
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkData> serialize(const SkSerialProcs& procs) const
+#In Utility
+#Line # writes Text_Blob to Data ##
+Returns storage containing Data describing Text_Blob, using optional custom
+encoders.
+
+procs.fTypefaceProc permits supplying a custom function to encode Typeface.
+If procs.fTypefaceProc is nullptr, default encoding is used. procs.fTypefaceCtx
+may be used to provide user context to procs.fTypefaceProc; procs.fTypefaceProc
+is called with a pointer to Typeface and user context.
+
+#Param procs  custom serial data encoders; may be nullptr ##
+
+#Return storage containing serialized Text_Blob ##
+
+#Example
+#Height 24
+###$
+$Function
+#include "SkSerialProcs.h"
+$$
+$$$#
+    SkPaint blobPaint;
+    blobPaint.setTextSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText("Hello World", 11, blobPaint);
+    sk_sp<SkData> data = blob->serialize(SkSerialProcs());
+    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());
+    canvas->drawTextBlob(copy, 20, 20, SkPaint());
+##
+
+#SeeAlso Deserialize SkData SkSerialProcs
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method static sk_sp<SkTextBlob> Deserialize(const void* data, size_t size, const SkDeserialProcs& procs)
+#In Constructor
+#Line # constructs Text_Blob from memory ##
+
+Recreates Text_Blob that was serialized into data. Returns constructed Text_Blob
+if successful; otherwise, returns nullptr. Fails if size is smaller than
+required data length, or if data does not permit constructing valid Text_Blob.
+
+procs.fTypefaceProc permits supplying a custom function to decode Typeface.
+If procs.fTypefaceProc is nullptr, default decoding is used. procs.fTypefaceCtx
+may be used to provide user context to procs.fTypefaceProc; procs.fTypefaceProc
+is called with a pointer to Typeface data, data byte length, and user context.
+
+#Param data  pointer for serial data ##
+#Param size  size of data ##
+#Param procs  custom serial data decoders; may be nullptr ##
+
+#Return Text_Blob constructed from data in memory ##
+
+#Example
+#Height 24
+#Description
+Text "Hacker" replaces "World!", but does not update its metrics.
+When drawn, "Hacker" uses the spacing computed for "World!".
+##
+###$
+$Function
+#include "SkSerialProcs.h"
+$$
+$$$#
+    SkPaint blobPaint;
+    blobPaint.setTextSize(24);
+    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText("Hello World!", 12, blobPaint);
+    sk_sp<SkData> data = blob->serialize(SkSerialProcs());
+    uint16_t glyphs[6];
+    blobPaint.textToGlyphs("Hacker", 6, glyphs);
+    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));
+    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());
+    canvas->drawTextBlob(copy, 20, 20, SkPaint());
+##
+
+#SeeAlso serialize SkDeserialProcs
+
+#Method ##
+
+#Class SkTextBlob ##
+
+#Topic Text_Blob ##

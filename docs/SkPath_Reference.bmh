@@ -395,9 +395,9 @@ void draw(SkCanvas* canvas) {
 # ------------------------------------------------------------------------------
 
 #Method SkPath()
-
+#In Constructor
 #Line # constructs with default values ##
-Constucts an empty path. By default, Path has no Verbs, no Points, and no Weights.
+Constucts an empty Path. By default, Path has no Verbs, no Points, and no Weights.
 Fill_Type is set to kWinding_FillType.
 
 #Return  empty Path ##
@@ -417,7 +417,7 @@ path is empty
 # ------------------------------------------------------------------------------
 
 #Method SkPath(const SkPath& path)
-
+#In Constructor
 #Line # makes a shallow copy ##
 Constructs a copy of an existing path.
 Copy constructor makes two paths identical by value. Internally, path and
@@ -515,7 +515,7 @@ path2 bounds = 10, 20, 30, 40
 #StdOut ##
 ##
 
-#SeeAlso swap() SkPath(const SkPath& path)
+#SeeAlso swap SkPath(const SkPath& path)
 
 ##
 
@@ -523,7 +523,7 @@ path2 bounds = 10, 20, 30, 40
 
 #Method bool operator==(const SkPath& a, const SkPath& b)
 
-#Line # compares paths for equality ##
+#Line # compares Paths for equality ##
 Compares a and b; returns true if Fill_Type, Verb_Array, Point_Array, and Weights
 are equivalent.
 
@@ -560,6 +560,8 @@ reset one == two
 ##
 ##
 
+#SeeAlso operator!=(const SkPath& a, const SkPath& b) operator=(const SkPath& path)
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -588,14 +590,14 @@ void draw(SkCanvas* canvas) {
     debugster("empty", one, two);
     one.addRect({10, 20, 30, 40});
     two.addRect({10, 20, 30, 40});
-    debugster("addRect", one, two);
+    debugster("add rect", one, two);
     one.setConvexity(SkPath::kConcave_Convexity);
     debugster("setConvexity", one, two);
     SkDebugf("convexity %c=\n", one.getConvexity() == two.getConvexity() ? '=' : '!');
 }
 #StdOut
 empty one == two
-addRect one == two
+add rect one == two
 setConvexity one == two
 convexity !=
 ##
@@ -1275,7 +1277,7 @@ a newly initialized path.
 #Line # returns if verb count is zero ##
 Returns if Path is empty.
 Empty Path may have FillType but has no SkPoint, Verb, or Conic_Weight.
-SkPath() constructs empty Path; reset() and (rewind) make Path empty.
+SkPath() constructs empty Path; reset() and rewind() make Path empty.
 
 #Return  true if the path contains no Verb array  ##
 
@@ -5414,6 +5416,7 @@ iter is done
 ##
 
 #Method Iter(const SkPath& path, bool forceClose)
+#Line # constructs Path iterator ##
 
 Sets Iter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
 If forceClose is true, Iter will add kLine_Verb and kClose_Verb after each
@@ -5473,7 +5476,7 @@ kDone_Verb
 ##
 
 #Method void setPath(const SkPath& path, bool forceClose)
-
+#Line # resets Iter to Path ##
 Sets Iter to return elements of Verb_Array, Point_Array, and Conic_Weight in path.
 If forceClose is true, Iter will add kLine_Verb and kClose_Verb after each
 open Contour. path is not altered.
@@ -5532,6 +5535,7 @@ kDone_Verb
 ##
 
 #Method Verb next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)
+#Line # returns next Verb ##
 
 Returns next Verb in Verb_Array, and advances Iter.
 When Verb_Array is exhausted, returns kDone_Verb.
@@ -5625,7 +5629,7 @@ kDone_Verb
 ##
 
 #Method SkScalar conicWeight() const
-
+#Line # returns Conic_Weight ##
     Returns Conic_Weight if next() returned kConic_Verb.
 
     If next() has not been called, or next() did not return kConic_Verb,
@@ -5879,7 +5883,7 @@ Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
         investigated to see if the change is correct or not.
         see change 21340 (abandoned for now)
 
-        #SeeAlso next()
+        #SeeAlso next
 
     ##
 

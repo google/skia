@@ -415,7 +415,7 @@ SkPath operators inline class member functions with arithmetic equivalents.
   </tr>
   <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_equal_operator'>operator==(const SkPath& a, const SkPath& b)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares paths for equality</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>compares <a href='#Path'>Paths</a> for equality</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_swap'>swap</a></td>
@@ -906,7 +906,7 @@ contour travels counterclockwise</td>
 <a href='#SkPath'>SkPath</a>()
 </pre>
 
-Constucts an empty path. By default, <a href='#Path'>Path</a> has no <a href='#Verb'>Verbs</a>, no <a href='SkPoint_Reference#Point'>Points</a>, and no <a href='#Conic_Weight'>Weights</a>.
+Constucts an empty <a href='#Path'>Path</a>. By default, <a href='#Path'>Path</a> has no <a href='#Verb'>Verbs</a>, no <a href='SkPoint_Reference#Point'>Points</a>, and no <a href='#Conic_Weight'>Weights</a>.
 <a href='#Fill_Type'>Fill Type</a> is set to <a href='#SkPath_kWinding_FillType'>kWinding FillType</a>.
 
 ### Return Value
@@ -1089,6 +1089,10 @@ reset one == two
 
 </fiddle-embed></div>
 
+### See Also
+
+<a href='#SkPath_notequal_operator'>operator!=(const SkPath& a, const SkPath& b)</a> <a href='#SkPath_copy_operator'>operator=(const SkPath& path)</a>
+
 ---
 
 <a name='SkPath_notequal_operator'></a>
@@ -1117,14 +1121,14 @@ true if <a href='#Path'>Path</a> pair are not equivalent
 
 ### Example
 
-<div><fiddle-embed name="0c6870ba1cea85ce6da5abd489c23d83"><div><a href='#Path'>Path</a> pair are equal though their convexity is not equal.
+<div><fiddle-embed name="bbbda1cc818d96c9c0d2a06c0c48902b"><div><a href='#Path'>Path</a> pair are equal though their convexity is not equal.
 </div>
 
 #### Example Output
 
 ~~~~
 empty one == two
-addRect one == two
+add rect one == two
 setConvexity one == two
 convexity !=
 ~~~~
@@ -1824,7 +1828,7 @@ bool <a href='#SkPath_isEmpty'>isEmpty</a>() const
 
 Returns if <a href='#Path'>Path</a> is empty.
 Empty <a href='#Path'>Path</a> may have <a href='#SkPath_FillType'>FillType</a> but has no <a href='SkPoint_Reference#SkPoint'>SkPoint</a>, <a href='#SkPath_Verb'>Verb</a>, or <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#SkPath_empty_constructor'>SkPath()</a> constructs empty <a href='#Path'>Path</a>; <a href='#SkPath_reset'>reset</a> and (rewind) make <a href='#Path'>Path</a> empty.
+<a href='#SkPath_empty_constructor'>SkPath()</a> constructs empty <a href='#Path'>Path</a>; <a href='#SkPath_reset'>reset</a> and <a href='#SkPath_rewind'>rewind</a> make <a href='#Path'>Path</a> empty.
 
 ### Return Value
 
@@ -5387,7 +5391,7 @@ true if <a href='SkPoint_Reference#Point'>Point</a> is in <a href='#Path'>Path</
 ## dump
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkPath_dump'>dump</a>(<a href='undocumented#SkWStream'>SkWStream</a>* stream, bool forceClose, bool dumpAsHex) const
+void <a href='#SkPath_dump'>dump</a>(<a href='SkWStream_Reference#SkWStream'>SkWStream</a>* stream, bool forceClose, bool dumpAsHex) const
 </pre>
 
 Writes text representation of <a href='#Path'>Path</a> to <a href='#SkPath_dump_stream'>stream</a>. If <a href='#SkPath_dump_stream'>stream</a> is nullptr, writes to
@@ -5398,7 +5402,7 @@ of floating point numbers used in <a href='#Point_Array'>Point Array</a> and <a 
 ### Parameters
 
 <table>  <tr>    <td><a name='SkPath_dump_stream'><code><strong>stream</strong></code></a></td>
-    <td>writable <a href='undocumented#WStream'>WStream</a> receiving <a href='#Path'>Path</a> text representation; may be nullptr</td>
+    <td>writable <a href='SkWStream_Reference#WStream'>WStream</a> receiving <a href='#Path'>Path</a> text representation; may be nullptr</td>
   </tr>
   <tr>    <td><a name='SkPath_dump_forceClose'><code><strong>forceClose</strong></code></a></td>
     <td>true if missing <a href='#SkPath_kClose_Verb'>kClose Verb</a> is output</td>
@@ -5723,26 +5727,54 @@ soon
 ## <a name='Constructor'>Constructor</a>
 
 
-SkPath can be constructed or initialized by these functions, including C++ class constructors.
+SkPath::Iter can be constructed or initialized by these functions, including C++ class constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Path'>Path</a> iterator</td>
+  </tr>
 </table>
 
 ## <a name='Member_Function'>Member_Function</a>
 
 
-SkPath member functions read and modify the structure properties.
+SkPath::Iter member functions read and modify the structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_Iter'>Iter()</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Path'>Path</a> iterator</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_conicWeight'>conicWeight</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Conic_Weight'>Conic Weight</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_isCloseLine'>isCloseLine</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='undocumented#Line'>Line</a> was generated by <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_isClosedContour'>isClosedContour</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if <a href='#Contour'>Contour</a> has <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_next'>next</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_Iter_setPath'>setPath</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>resets <a href='#SkPath_Iter_Iter'>Iter</a> to <a href='#Path'>Path</a></td>
+  </tr>
 </table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href='#SkPath_Iter_empty_constructor'>Iter</a> {
+class <a href='#SkPath_Iter_Iter'>Iter</a> {
 public:
-    <a href='#SkPath_Iter_empty_constructor'>Iter()</a>;
-    <a href='#SkPath_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
+    <a href='#SkPath_Iter_Iter'>Iter()</a>;
+    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
     void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
     <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
     <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a> const;
@@ -5765,19 +5797,19 @@ path of the glyph.
 
 <a href='#SkPath_RawIter'>RawIter</a>
 
-<a name='SkPath_Iter_empty_constructor'></a>
+<a name='SkPath_Iter_Iter'></a>
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Iter_empty_constructor'>Iter</a>()
+<a href='#SkPath_Iter_Iter'>Iter</a>()
 </pre>
 
-Initializes <a href='#SkPath_Iter_empty_constructor'>Iter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_Iter_next'>next</a> on <a href='#SkPath_Iter_empty_constructor'>Iter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
-Call <a href='#SkPath_Iter_setPath'>setPath</a> to initialize <a href='#SkPath_Iter_empty_constructor'>Iter</a> at a later time.
+Initializes <a href='#SkPath_Iter_Iter'>Iter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_Iter_next'>next</a> on <a href='#SkPath_Iter_Iter'>Iter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
+Call <a href='#SkPath_Iter_setPath'>setPath</a> to initialize <a href='#SkPath_Iter_Iter'>Iter</a> at a later time.
 
 ### Return Value
 
-<a href='#SkPath_Iter_empty_constructor'>Iter</a> of empty <a href='#Path'>Path</a>
+<a href='#SkPath_Iter_Iter'>Iter</a> of empty <a href='#Path'>Path</a>
 
 ### Example
 
@@ -5798,30 +5830,30 @@ iter is done
 
 ---
 
-<a name='SkPath_const_SkPath'></a>
+<a name='SkPath_Iter_const_SkPath'></a>
 ## Iter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_Iter_empty_constructor'>Iter</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose)
+<a href='#SkPath_Iter_Iter'>Iter</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose)
 </pre>
 
-Sets <a href='#SkPath_Iter_empty_constructor'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_const_SkPath_path'>path</a>.
-If <a href='#SkPath_const_SkPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_empty_constructor'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
-open <a href='#Contour'>Contour</a>. <a href='#SkPath_const_SkPath_path'>path</a> is not altered.
+Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_Iter_const_SkPath_path'>path</a>.
+If <a href='#SkPath_Iter_const_SkPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_Iter'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
+open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_const_SkPath_path'>path</a> is not altered.
 
 ### Parameters
 
-<table>  <tr>    <td><a name='SkPath_const_SkPath_path'><code><strong>path</strong></code></a></td>
+<table>  <tr>    <td><a name='SkPath_Iter_const_SkPath_path'><code><strong>path</strong></code></a></td>
     <td><a href='#Path'>Path</a> to iterate</td>
   </tr>
-  <tr>    <td><a name='SkPath_const_SkPath_forceClose'><code><strong>forceClose</strong></code></a></td>
+  <tr>    <td><a name='SkPath_Iter_const_SkPath_forceClose'><code><strong>forceClose</strong></code></a></td>
     <td>true if open <a href='#Contour'>Contours</a> generate <a href='#SkPath_kClose_Verb'>kClose Verb</a></td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#SkPath_Iter_empty_constructor'>Iter</a> of <a href='#SkPath_const_SkPath_path'>path</a>
+<a href='#SkPath_Iter_Iter'>Iter</a> of <a href='#SkPath_Iter_const_SkPath_path'>path</a>
 
 ### Example
 
@@ -5857,8 +5889,8 @@ kDone_Verb
 void <a href='#SkPath_Iter_setPath'>setPath</a>(const <a href='#SkPath'>SkPath</a>& path, bool forceClose)
 </pre>
 
-Sets <a href='#SkPath_Iter_empty_constructor'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_Iter_setPath_path'>path</a>.
-If <a href='#SkPath_Iter_setPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_empty_constructor'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
+Sets <a href='#SkPath_Iter_Iter'>Iter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_Iter_setPath_path'>path</a>.
+If <a href='#SkPath_Iter_setPath_forceClose'>forceClose</a> is true, <a href='#SkPath_Iter_Iter'>Iter</a> will add <a href='#SkPath_kLine_Verb'>kLine Verb</a> and <a href='#SkPath_kClose_Verb'>kClose Verb</a> after each
 open <a href='#Contour'>Contour</a>. <a href='#SkPath_Iter_setPath_path'>path</a> is not altered.
 
 ### Parameters
@@ -5894,7 +5926,7 @@ kDone_Verb
 
 ### See Also
 
-<a href='#SkPath_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>
+<a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>
 
 ---
 
@@ -5905,7 +5937,7 @@ kDone_Verb
 <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4], bool doConsumeDegenerates = true, bool exact = false)
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_Iter_empty_constructor'>Iter</a>.
+Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_Iter_Iter'>Iter</a>.
 When <a href='#Verb_Array'>Verb Array</a> is exhausted, returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
 
 Zero to four <a href='SkPoint_Reference#Point'>Points</a> are stored in <a href='#SkPath_Iter_next_pts'>pts</a>, depending on the returned <a href='#SkPath_Verb'>Verb</a>.
@@ -6065,8 +6097,8 @@ bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a>() const
 </pre>
 
 Returns true if subsequent calls to <a href='#SkPath_Iter_next'>next</a> return <a href='#SkPath_kClose_Verb'>kClose Verb</a> before returning
-<a href='#SkPath_kMove_Verb'>kMove Verb</a>. if true, <a href='#Contour'>Contour</a> <a href='#SkPath_Iter_empty_constructor'>Iter</a> is processing may end with <a href='#SkPath_kClose_Verb'>kClose Verb</a>, or
-<a href='#SkPath_Iter_empty_constructor'>Iter</a> may have been initialized with force close set to true.
+<a href='#SkPath_kMove_Verb'>kMove Verb</a>. if true, <a href='#Contour'>Contour</a> <a href='#SkPath_Iter_Iter'>Iter</a> is processing may end with <a href='#SkPath_kClose_Verb'>kClose Verb</a>, or
+<a href='#SkPath_Iter_Iter'>Iter</a> may have been initialized with force close set to true.
 
 ### Return Value
 
@@ -6089,7 +6121,7 @@ with close(),    forceClose is true : isClosedContour returns true
 
 ### See Also
 
-<a href='#SkPath_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>
+<a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>
 
 ---
 
@@ -6098,26 +6130,50 @@ with close(),    forceClose is true : isClosedContour returns true
 ## <a name='Constructor'>Constructor</a>
 
 
-SkPath can be constructed or initialized by these functions, including C++ class constructors.
+SkPath::RawIter can be constructed or initialized by these functions, including C++ class constructors.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs with <a href='#Path'>Path</a> to iterate over</td>
+  </tr>
 </table>
 
 ## <a name='Member_Function'>Member_Function</a>
 
 
-SkPath member functions read and modify the structure properties.
+SkPath::RawIter member functions read and modify the structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_RawIter'>RawIter()</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs empty <a href='#Path'>Path</a> iterator</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_conicWeight'>conicWeight</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Conic_Weight'>Conic Weight</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_next'>next</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a> and associated <a href='SkPoint_Reference#Point'>Points</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_peek'>peek</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns next <a href='#SkPath_Verb'>Verb</a></td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_RawIter_setPath'>setPath</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Path'>Path</a> to iterate over</td>
+  </tr>
 </table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkPath_RawIter_empty_constructor'>RawIter</a> {
+    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
     public:
-        <a href='#SkPath_RawIter_empty_constructor'>RawIter()</a>;
-        <a href='#SkPath_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
+        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
+        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
         void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
         <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
         <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a> const;
@@ -6128,41 +6184,41 @@ SkPath member functions read and modify the structure properties.
 Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
 <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
 
-<a name='SkPath_RawIter_empty_constructor'></a>
+<a name='SkPath_RawIter_RawIter'></a>
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_RawIter_empty_constructor'>RawIter</a>()
+<a href='#SkPath_RawIter_RawIter'>RawIter</a>()
 </pre>
 
-Initializes <a href='#SkPath_RawIter_empty_constructor'>RawIter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_RawIter_next'>next</a> on <a href='#SkPath_RawIter_empty_constructor'>RawIter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
+Initializes <a href='#SkPath_RawIter_RawIter'>RawIter</a> with an empty <a href='#Path'>Path</a>. <a href='#SkPath_RawIter_next'>next</a> on <a href='#SkPath_RawIter_RawIter'>RawIter</a> returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
 Call <a href='#SkPath_RawIter_setPath'>setPath</a> to initialize <a href='#SkPath_Iter'>SkPath::Iter</a> at a later time.
 
 ### Return Value
 
-<a href='#SkPath_RawIter_empty_constructor'>RawIter</a> of empty <a href='#Path'>Path</a>
+<a href='#SkPath_RawIter_RawIter'>RawIter</a> of empty <a href='#Path'>Path</a>
 
 ---
 
-<a name='SkPath_copy_const_SkPath'></a>
+<a name='SkPath_RawIter_copy_const_SkPath'></a>
 ## RawIter
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPath_RawIter_empty_constructor'>RawIter</a>(const <a href='#SkPath'>SkPath</a>& path)
+<a href='#SkPath_RawIter_RawIter'>RawIter</a>(const <a href='#SkPath'>SkPath</a>& path)
 </pre>
 
-Sets <a href='#SkPath_RawIter_empty_constructor'>RawIter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_copy_const_SkPath_path'>path</a>.
+Sets <a href='#SkPath_RawIter_RawIter'>RawIter</a> to return elements of <a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> in <a href='#SkPath_RawIter_copy_const_SkPath_path'>path</a>.
 
 ### Parameters
 
-<table>  <tr>    <td><a name='SkPath_copy_const_SkPath_path'><code><strong>path</strong></code></a></td>
+<table>  <tr>    <td><a name='SkPath_RawIter_copy_const_SkPath_path'><code><strong>path</strong></code></a></td>
     <td><a href='#Path'>Path</a> to iterate</td>
   </tr>
 </table>
 
 ### Return Value
 
-<a href='#SkPath_RawIter_empty_constructor'>RawIter</a> of <a href='#SkPath_copy_const_SkPath_path'>path</a>
+<a href='#SkPath_RawIter_RawIter'>RawIter</a> of <a href='#SkPath_RawIter_copy_const_SkPath_path'>path</a>
 
 ---
 
@@ -6191,7 +6247,7 @@ Sets <a href='#SkPath_Iter'>SkPath::Iter</a> to return elements of <a href='#Ver
 <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next</a>(<a href='SkPoint_Reference#SkPoint'>SkPoint</a> pts[4])
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_RawIter_empty_constructor'>RawIter</a>.
+Returns next <a href='#SkPath_Verb'>Verb</a> in <a href='#Verb_Array'>Verb Array</a>, and advances <a href='#SkPath_RawIter_RawIter'>RawIter</a>.
 When <a href='#Verb_Array'>Verb Array</a> is exhausted, returns <a href='#SkPath_kDone_Verb'>kDone Verb</a>.
 Zero to four <a href='SkPoint_Reference#Point'>Points</a> are stored in <a href='#SkPath_RawIter_next_pts'>pts</a>, depending on the returned <a href='#SkPath_Verb'>Verb</a>.
 
@@ -6238,7 +6294,7 @@ kDone_Verb
 <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a>() const
 </pre>
 
-Returns next <a href='#SkPath_Verb'>Verb</a>, but does not advance <a href='#SkPath_RawIter_empty_constructor'>RawIter</a>.
+Returns next <a href='#SkPath_Verb'>Verb</a>, but does not advance <a href='#SkPath_RawIter_RawIter'>RawIter</a>.
 
 ### Return Value
 

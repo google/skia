@@ -537,7 +537,7 @@ large height: inf
 #In Property
 #Line # returns corner radii for simple types ##
 
-Returns top-left corner x-radii. If type() returns kEmpty_Type, kRect_Type, 
+Returns top-left corner radii. If type() returns kEmpty_Type, kRect_Type, 
 kOval_Type, or kSimple_Type, returns a value representative of all corner radii.
 If type() returns kNinePatch_Type or kComplex_Type, at least one of the
 remaining three corners has a different value.

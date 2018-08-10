@@ -11,8 +11,9 @@
  PDF XPS
  RFC
  NaN NaNs
- 
- C C++ SIZE_MAX
+ U16CPU
+
+ C C++ SIZE_MAX C_FILE
  CSS HTML
 
  Sa Da Sc Dc max min # temporary until figure out what to do
@@ -361,6 +362,8 @@ FT_Load_Glyph
 #Topic ##
 
 #Topic Glyph
+#Subtopic ID
+##
 #Alias Glyphs ##
 ##
 
@@ -470,6 +473,7 @@ FT_Load_Glyph
     #Typedef ##
     #Topic Scalar
     #Alias Scalar ##
+    #Alias Scalars ##
     #Typedef float SkScalar
     #Typedef ##
     ##
@@ -631,11 +635,6 @@ FT_Load_Glyph
 #Class ##
 #Topic ##
 
-#Topic Region
-#Class SkRegion
-##
-#Topic ##
-
 #Topic Render_Target
 #Class GrRenderTarget
 ##
@@ -682,10 +681,10 @@ FT_Load_Glyph
 #Alias Sprites ##
 #Topic ##
 
-#Topic Stream
-#Class SkStream
+#Topic Stream_Asset
+#Class SkStreamAsset
 ##
-##
+#Topic ##
 
 #Topic String
 #Class SkString
@@ -721,11 +720,6 @@ FT_Load_Glyph
 #Topic Text
 #Topic ##
 
-#Topic Text_Blob
-#Class SkTextBlob
-#Class ##
-#Topic ##
-
 #Topic Texture
 #Class GrBackendTexture
     #Method bool isValid() const
@@ -744,7 +738,13 @@ FT_Load_Glyph
 ##
 
 #Topic Typeface
+#Subtopic ID
+#Typedef uint32_t SkFontID
+##
+##
 #Class SkTypeface
+    #Method SkFontID uniqueID() const
+    ##
 #Class ##
 #Topic ##
 
@@ -791,11 +791,6 @@ FT_Load_Glyph
 #Subtopic Colors
 ##
 #Subtopic Texs
-##
-#Topic ##
-
-#Topic WStream
-#Class SkWStream
 ##
 #Topic ##
 

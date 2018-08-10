@@ -790,7 +790,7 @@ large height: inf
 <a href='SkPoint_Reference#SkVector'>SkVector</a> <a href='#SkRRect_getSimpleRadii'>getSimpleRadii</a>() const
 </pre>
 
-Returns top-left corner x-radii. If <a href='#SkRRect_type'>type</a> returns <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>,
+Returns top-left corner radii. If <a href='#SkRRect_type'>type</a> returns <a href='#SkRRect_kEmpty_Type'>kEmpty Type</a>, <a href='#SkRRect_kRect_Type'>kRect Type</a>,
 <a href='#SkRRect_kOval_Type'>kOval Type</a>, or <a href='#SkRRect_kSimple_Type'>kSimple Type</a>, returns a value representative of all corner radii.
 If <a href='#SkRRect_type'>type</a> returns <a href='#SkRRect_kNinePatch_Type'>kNinePatch Type</a> or <a href='#SkRRect_kComplex_Type'>kComplex Type</a>, at least one of the
 remaining three corners has a different value.

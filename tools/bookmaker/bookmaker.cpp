@@ -51,6 +51,8 @@ rewrap text to fit in some number of columns
      would rather keep links for body above #Literal, and/or make it a block and not a one-liner
 add check to require #Const to contain #Code block if defining const or constexpr (enum consts have
      #Code blocks inside the #Enum def)
+subclasses (e.g. Iter in SkPath) need to check for #Line and generate overview
+     subclass methods should also disallow #In
 
 There are a number of formatting bugs with ad hoc patches where a substitution doesn't keep
 the space before or after, or the linefeeds before or after. The rules are not very good either.
