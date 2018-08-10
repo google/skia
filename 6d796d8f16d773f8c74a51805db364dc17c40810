@@ -22,6 +22,30 @@
       "revId": "6d796d8f16d773f8c74a51805db364dc17c40810",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f4e0357_d873d3df",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 8173
+      },
+      "writtenOn": "2018-08-10T17:31:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aa817074_c3dc6849",
+      "range": {
+        "startLine": 813,
+        "startChar": 0,
+        "endLine": 814,
+        "endChar": 20
+      },
+      "revId": "6d796d8f16d773f8c74a51805db364dc17c40810",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
