@@ -10,7 +10,7 @@
 
 #include "SkTypes.h"
 
-enum SkBlurStyle {
+enum SkBlurStyle : int {
     kNormal_SkBlurStyle,  //!< fuzzy inside and outside
     kSolid_SkBlurStyle,   //!< solid inside, fuzzy outside
     kOuter_SkBlurStyle,   //!< nothing inside, fuzzy outside
