@@ -8,7 +8,9 @@
 #ifndef SkDashImpl_DEFINED
 #define SkDashImpl_DEFINED
 
+#include "SkFlattenable.h"
 #include "SkPathEffect.h"
+#include "SkReadBuffer.h"
 
 class SkDashImpl : public SkPathEffect {
 public:
