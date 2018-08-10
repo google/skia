@@ -216,7 +216,8 @@ public:
 
     static const RunRecord* First(const SkTextBlob* blob) {
         // The first record (if present) is stored following the blob object.
-        return reinterpret_cast<const RunRecord*>(blob + 1);
+        // (aligned up to make the RunRecord aligned too)
+        return reinterpret_cast<const RunRecord*>(SkAlignPtr((uintptr_t)(blob + 1)));
     }
 
     static const RunRecord* Next(const RunRecord* run) {
@@ -558,7 +559,7 @@ void SkTextBlobBuilder::updateDeferredBounds() {
         return;
     }
 
-    SkASSERT(fLastRun >= sizeof(SkTextBlob));
+    SkASSERT(fLastRun >= SkAlignPtr(sizeof(SkTextBlob)));
     SkTextBlob::RunRecord* run = reinterpret_cast<SkTextBlob::RunRecord*>(fStorage.get() +
                                                                           fLastRun);
 
@@ -583,7 +584,8 @@ void SkTextBlobBuilder::reserve(size_t size) {
         SkASSERT(0 == fStorageUsed);
 
         // the first allocation also includes blob storage
-        fStorageUsed = sizeof(SkTextBlob);
+        // aligned up to a pointer alignment so SkTextBlob::RunRecords after it stay aligned.
+        fStorageUsed = SkAlignPtr(sizeof(SkTextBlob));
     }
 
     fStorageSize = safe.add(fStorageUsed, size);
@@ -600,7 +602,7 @@ bool SkTextBlobBuilder::mergeRun(const SkPaint &font, SkTextBlob::GlyphPositioni
         return false;
     }
 
-    SkASSERT(fLastRun >= sizeof(SkTextBlob));
+    SkASSERT(fLastRun >= SkAlignPtr(sizeof(SkTextBlob)));
     SkTextBlob::RunRecord* run = reinterpret_cast<SkTextBlob::RunRecord*>(fStorage.get() +
                                                                           fLastRun);
     SkASSERT(run->glyphCount() > 0);
@@ -674,7 +676,7 @@ void SkTextBlobBuilder::allocInternal(const SkPaint &font,
 
         this->reserve(runSize);
 
-        SkASSERT(fStorageUsed >= sizeof(SkTextBlob));
+        SkASSERT(fStorageUsed >= SkAlignPtr(sizeof(SkTextBlob)));
         SkASSERT(fStorageUsed + runSize <= fStorageSize);
 
         SkTextBlob::RunRecord* run = new (fStorage.get() + fStorageUsed)
@@ -753,7 +755,7 @@ sk_sp<SkTextBlob> SkTextBlobBuilder::make() {
 
     SkDEBUGCODE(
         SkSafeMath safe;
-        size_t validateSize = sizeof(SkTextBlob);
+        size_t validateSize = SkAlignPtr(sizeof(SkTextBlob));
         for (const auto* run = SkTextBlob::RunRecord::First(blob); run;
              run = SkTextBlob::RunRecord::Next(run)) {
             validateSize += SkTextBlob::RunRecord::StorageSize(
