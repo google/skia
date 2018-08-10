@@ -154,6 +154,13 @@ void testingOnly_getIORefCnts(GrTextureProxy* proxy, int* refCnt, int* readCnt, 
 DEF_GPUTEST_FOR_ALL_CONTEXTS(ProcessorRefTest, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    GrResourceProvider* resourceProvider = context->contextPriv().resourceProvider();
+
+    if (!resourceProvider->explicitlyAllocateGPUResources()) {
+        // This test relies on GPU resources being explicitly allocated for the various ref
+        // counts to match
+        return;
+    }
 
     GrSurfaceDesc desc;
     desc.fWidth = 10;

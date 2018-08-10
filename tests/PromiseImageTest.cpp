@@ -98,6 +98,12 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(PromiseImageTest, reporter, ctxInfo) {
     const int kHeight = 10;
 
     GrContext* ctx = ctxInfo.grContext();
+    GrResourceProvider* resourceProvider = ctx->contextPriv().resourceProvider();
+    if (!resourceProvider->explicitlyAllocateGPUResources()) {
+        // This test relies on GPU resources being explicitly allocated, which is always the case
+        // in DDL mode where promise images are used.
+        return;
+    }
     GrGpu* gpu = ctx->contextPriv().getGpu();
 
     for (bool releaseImageEarly : {true, false}) {
