@@ -11,7 +11,6 @@
 #include "SkSGNode.h"
 
 #include "SkColorFilter.h"
-#include "SkTLazy.h"
 
 class SkCanvas;
 class SkPaint;
@@ -63,7 +62,7 @@ protected:
             return *this;
         }
 
-        operator const RenderContext* () const { return fCtx.get(); }
+        operator const RenderContext* () const { return &fCtx; }
 
         // Add (cumulative) paint overrides to a render node sub-DAG.
         ScopedRenderContext&& modulateOpacity(float opacity);
@@ -82,11 +81,9 @@ protected:
         ScopedRenderContext(const ScopedRenderContext&)            = delete;
         ScopedRenderContext& operator=(const ScopedRenderContext&) = delete;
 
-        RenderContext* writableContext();
-
-        SkCanvas*                          fCanvas;
-        SkTCopyOnFirstWrite<RenderContext> fCtx;
-        int                                fRestoreCount;
+        SkCanvas*     fCanvas;
+        RenderContext fCtx;
+        int           fRestoreCount;
     };
 
 private:
