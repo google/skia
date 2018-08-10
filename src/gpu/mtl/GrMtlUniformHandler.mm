@@ -16,11 +16,6 @@
 // To determine whether a current offset is aligned, we can just 'and' the lowest bits with the
 // alignment mask. A value of 0 means aligned, any other value is how many bytes past alignment we
 // are. This works since all alignments are powers of 2. The mask is always (alignment - 1).
-// This alignment mask will give correct alignments for using the std430 block layout. If you want
-// the std140 alignment, you can use this, but then make sure if you have an array type it is
-// aligned to 16 bytes (i.e. has mask of 0xF).
-// These are designated in the Vulkan spec, section 14.5.4 "Offset and Stride Assignment".
-// https://www.khronos.org/registry/vulkan/specs/1.0-wsi_extensions/html/Mtlspec.html#interfaces-resources-layout
 uint32_t grsltype_to_alignment_mask(GrSLType type) {
     switch(type) {
         case kByte_GrSLType: // fall through
@@ -90,7 +85,7 @@ uint32_t grsltype_to_alignment_mask(GrSLType type) {
     return 0;
 }
 
-/** Returns the size in bytes taken up in vulkanbuffers for GrSLTypes. */
+/** Returns the size in bytes taken up in Metal buffers for GrSLTypes. */
 static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
     switch(type) {
         case kByte_GrSLType:
@@ -98,7 +93,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kByte2_GrSLType:
             return 2 * sizeof(int8_t);
         case kByte3_GrSLType:
-            return 3 * sizeof(int8_t);
+            return 4 * sizeof(int8_t);
         case kByte4_GrSLType:
             return 4 * sizeof(int8_t);
         case kUByte_GrSLType:
@@ -106,7 +101,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kUByte2_GrSLType:
             return 2 * sizeof(uint8_t);
         case kUByte3_GrSLType:
-            return 3 * sizeof(uint8_t);
+            return 4 * sizeof(uint8_t);
         case kUByte4_GrSLType:
             return 4 * sizeof(uint8_t);
         case kShort_GrSLType:
@@ -114,7 +109,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kShort2_GrSLType:
             return 2 * sizeof(int16_t);
         case kShort3_GrSLType:
-            return 3 * sizeof(int16_t);
+            return 4 * sizeof(int16_t);
         case kShort4_GrSLType:
             return 4 * sizeof(int16_t);
         case kUShort_GrSLType:
@@ -122,7 +117,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kUShort2_GrSLType:
             return 2 * sizeof(uint16_t);
         case kUShort3_GrSLType:
-            return 3 * sizeof(uint16_t);
+            return 4 * sizeof(uint16_t);
         case kUShort4_GrSLType:
             return 4 * sizeof(uint16_t);
         case kInt_GrSLType:
@@ -137,7 +132,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
             return 2 * sizeof(float);
         case kHalf3_GrSLType: // fall through
         case kFloat3_GrSLType:
-            return 3 * sizeof(float);
+            return 4 * sizeof(float);
         case kHalf4_GrSLType: // fall through
         case kFloat4_GrSLType:
             return 4 * sizeof(float);
@@ -146,7 +141,7 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
         case kInt2_GrSLType:
             return 2 * sizeof(int32_t);
         case kInt3_GrSLType:
-            return 3 * sizeof(int32_t);
+            return 4 * sizeof(int32_t);
         case kInt4_GrSLType:
             return 4 * sizeof(int32_t);
         case kHalf2x2_GrSLType: // fall through
@@ -172,9 +167,6 @@ static inline uint32_t grsltype_to_mtl_size(GrSLType type) {
     return 0;
 }
 
-// TODO: The SKSLC assumes Metal sizes and alignments are calculated by the std140 layout below.
-// This will need to be changed along with the MSL generator to match the Metal standard instead.
-//
 // Given the current offset into the ubo, calculate the offset for the uniform we're trying to add
 // taking into consideration all alignment requirements. The uniformOffset is set to the offset for
 // the new uniform, and currentOffset is updated to be the offset to the end of the new uniform.
@@ -183,10 +175,6 @@ void get_ubo_aligned_offset(uint32_t* uniformOffset,
                             GrSLType type,
                             int arrayCount) {
     uint32_t alignmentMask = grsltype_to_alignment_mask(type);
-    // We want to use the std140 layout here, so we must make arrays align to 16 bytes.
-    if (arrayCount || type == kFloat2x2_GrSLType) {
-        alignmentMask = 0xF;
-    }
     uint32_t offsetDiff = *currentOffset & alignmentMask;
     if (offsetDiff != 0) {
         offsetDiff = alignmentMask - offsetDiff + 1;

@@ -16,7 +16,8 @@ class MemoryLayout {
 public:
     enum Standard {
         k140_Standard,
-        k430_Standard
+        k430_Standard,
+        kMetal_Standard
     };
 
     MemoryLayout(Standard std)
@@ -35,6 +36,7 @@ public:
         switch (fStd) {
             case k140_Standard: return (raw + 15) & ~15;
             case k430_Standard: return raw;
+            case kMetal_Standard: return raw;
         }
         ABORT("unreachable");
     }
@@ -103,6 +105,9 @@ public:
                 // handle it...
                 return 4;
             case Type::kVector_Kind:
+                if (fStd == kMetal_Standard && type.columns() == 3) {
+                    return 4 * this->size(type.componentType());
+                }
                 return type.columns() * this->size(type.componentType());
             case Type::kMatrix_Kind: // fall through
             case Type::kArray_Kind:
