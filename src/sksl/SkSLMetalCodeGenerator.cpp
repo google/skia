@@ -771,7 +771,11 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int parentOffset,
                                      const InterfaceBlock* parentIntf) {
+#ifdef SK_MOLTENVK
     MemoryLayout memoryLayout(MemoryLayout::k140_Standard);
+#else
+    MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
+#endif
     int currentOffset = 0;
     for (const auto& field: fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
@@ -796,13 +800,21 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
                               to_string((int) alignment));
             }
         }
+#ifdef SK_MOLTENVK
         if (fieldType->kind() == Type::kVector_Kind &&
             fieldType->columns() == 3) {
+            SkASSERT(memoryLayout.size(*fieldType) == 3);
             // Pack all vec3 types so that their size in bytes will match what was expected in the
             // original SkSL code since MSL has vec3 sizes equal to 4 * component type, while SkSL
             // has vec3 equal to 3 * component type.
+
+            // FIXME - Packed vectors can't be accessed by swizzles, but can be indexed into. A
+            // combination of this being a problem which only occurs when using MoltenVK and the
+            // fact that we haven't swizzled a vec3 yet means that this problem hasn't been
+            // addressed.
             this->write(PACKED_PREFIX);
         }
+#endif
         currentOffset += memoryLayout.size(*fieldType);
         std::vector<int> sizes;
         while (fieldType->kind() == Type::kArray_Kind) {
