@@ -371,6 +371,8 @@ private:
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
     FreedGpuResourceInbox               fFreedGpuResourceInbox;
 
+    SkTDArray<GrGpuResource*>           fResourcesWaitingForFreeMsg;
+
     uint32_t                            fContextUniqueID;
 
     // This resource is allowed to be in the nonpurgeable array for the sake of validate() because

@@ -360,6 +360,10 @@ public:
 
     GrContext* context() { return fContext.get(); }
 
+    void reset() {
+        fContext.reset();
+    }
+
 private:
     sk_sp<GrContext> fContext;
 };
@@ -1595,6 +1599,44 @@ static void test_tags(skiatest::Reporter* reporter) {
 #endif
 }
 
+static void test_free_resource_messages(skiatest::Reporter* reporter) {
+    Mock mock(10, 30000);
+    GrContext* context = mock.context();
+    GrResourceCache* cache = mock.cache();
+    GrGpu* gpu = context->contextPriv().getGpu();
+
+    TestResource* wrapped1 = TestResource::CreateWrapped(gpu, 12);
+    cache->insertCrossContextGpuResource(wrapped1);
+
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    TestResource* wrapped2 = TestResource::CreateWrapped(gpu, 12);
+    cache->insertCrossContextGpuResource(wrapped2);
+
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    // Have only ref waiting on message.
+    wrapped1->unref();
+    wrapped2->unref();
+
+    REPORTER_ASSERT(reporter, 2 == TestResource::NumAlive());
+
+    // This should free nothing since no messages were sent.
+    cache->purgeAsNeeded();
+
+    // Send message to free the first resource
+    GrGpuResourceFreedMessage msg { wrapped1, context->uniqueID() };
+    SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
+    cache->purgeAsNeeded();
+
+    REPORTER_ASSERT(reporter, 1 == TestResource::NumAlive());
+
+    mock.reset();
+
+    REPORTER_ASSERT(reporter, 0 == TestResource::NumAlive());
+}
+
+
 DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     // The below tests create their own mock contexts.
     test_no_key(reporter);
@@ -1616,6 +1658,7 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_custom_data(reporter);
     test_abandoned(reporter);
     test_tags(reporter);
+    test_free_resource_messages(reporter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
