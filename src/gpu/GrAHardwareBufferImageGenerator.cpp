@@ -243,8 +243,6 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
     // in the correct thread/context. This adds the only ref to the texture that will persist from
     // this point. To trigger GrTexture deletion a message is sent by generator dtor or by
     // makeProxy when it is invoked with a different context.
-    //TODO: GrResourceCache should delete GrTexture, when GrContext is deleted. Currently
-    //TODO: SkMessageBus ignores messages for deleted contexts and GrTexture will leak.
     context->contextPriv().getResourceCache()->insertCrossContextGpuResource(fOriginalTexture);
     return proxyProvider->createWrapped(std::move(tex), kTopLeft_GrSurfaceOrigin);
 }

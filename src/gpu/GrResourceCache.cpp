@@ -200,6 +200,12 @@ void GrResourceCache::releaseAll() {
 
     this->processFreedGpuResources();
 
+    // We need to make sure to free any resources that were waiting on a free message but never
+    // received one.
+    for (int i = 0; i < fResourcesWaitingForFreeMsg.count(); ++i) {
+        fResourcesWaitingForFreeMsg[i]->unref();
+    }
+
     SkASSERT(fProxyProvider); // better have called setProxyProvider
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
     // they also have a raw pointer back to this class (which is presumably going away)!
@@ -600,6 +606,8 @@ void GrResourceCache::processInvalidUniqueKeys(
 
 void GrResourceCache::insertCrossContextGpuResource(GrGpuResource* resource) {
     resource->ref();
+    SkASSERT(!fResourcesWaitingForFreeMsg.contains(resource));
+    fResourcesWaitingForFreeMsg.push_back(resource);
 }
 
 void GrResourceCache::processFreedGpuResources() {
@@ -607,6 +615,9 @@ void GrResourceCache::processFreedGpuResources() {
     fFreedGpuResourceInbox.poll(&msgs);
     for (int i = 0; i < msgs.count(); ++i) {
         SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
+        int index = fResourcesWaitingForFreeMsg.find(msgs[i].fResource);
+        SkASSERT(index != -1);
+        fResourcesWaitingForFreeMsg.removeShuffle(index);
         msgs[i].fResource->unref();
     }
 }
