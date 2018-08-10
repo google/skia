@@ -242,13 +242,6 @@ static MTLBlendFactor blend_coeff_to_mtl_blend(GrBlendCoeff coeff) {
     GR_STATIC_ASSERT(16 == kS2A_GrBlendCoeff);
     GR_STATIC_ASSERT(17 == kIS2A_GrBlendCoeff);
 
-    if (coeff >= kConstC_GrBlendCoeff && coeff <= kIConstA_GrBlendCoeff) {
-        // TODO: the constant factor blends are disabled for now because there is no implementation
-        // for setting the constants.
-        SkASSERT(false);
-
-    }
-
     SkASSERT((unsigned)coeff < kGrBlendCoeffCnt);
     return gTable[coeff];
 }
