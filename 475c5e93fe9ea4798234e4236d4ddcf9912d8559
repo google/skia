@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6475968e_70a4c6fe",
+        "filename": "include/core/SkTextBlob.h",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-10T12:19:00Z",
+      "side": 1,
+      "message": "This appears to be running into this bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?format\u003dmultiple\u0026id\u003d69585",
+      "revId": "475c5e93fe9ea4798234e4236d4ddcf9912d8559",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
