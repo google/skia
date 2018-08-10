@@ -33,6 +33,24 @@
       "revId": "b3666cdb0f8d7fefc6fcda8171b818043a889ee1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ea16568_bf5b87e3",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-10T16:46:42Z",
+      "side": 1,
+      "message": "Yeah... since we need a writableContext helper anyway, maybe there\u0027s little value in using SkTCopyOnFirstWrite here.\n\nThen, if we\u0027re going to always pay the initialization price for a local context, there\u0027s no reason to keep COFW semantics -- we can just make a copy upfront:  https://skia-review.googlesource.com/c/skia/+/146761",
+      "parentUuid": "d0b5f6a9_726e6692",
+      "revId": "b3666cdb0f8d7fefc6fcda8171b818043a889ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
