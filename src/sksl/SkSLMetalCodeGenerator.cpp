@@ -771,7 +771,7 @@ void MetalCodeGenerator::writeInterfaceBlock(const InterfaceBlock& intf) {
 
 void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int parentOffset,
                                      const InterfaceBlock* parentIntf) {
-    MemoryLayout memoryLayout(MemoryLayout::k140_Standard);
+    MemoryLayout memoryLayout(MemoryLayout::kMetal_Standard);
     int currentOffset = 0;
     for (const auto& field: fields) {
         int fieldOffset = field.fModifiers.fLayout.fOffset;
@@ -801,7 +801,7 @@ void MetalCodeGenerator::writeFields(const std::vector<Type::Field>& fields, int
             // Pack all vec3 types so that their size in bytes will match what was expected in the
             // original SkSL code since MSL has vec3 sizes equal to 4 * component type, while SkSL
             // has vec3 equal to 3 * component type.
-            this->write(PACKED_PREFIX);
+            // this->write(PACKED_PREFIX);
         }
         currentOffset += memoryLayout.size(*fieldType);
         std::vector<int> sizes;
