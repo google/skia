@@ -1104,7 +1104,7 @@ void MetalCodeGenerator::writeOutputStruct() {
     if (fProgram.fKind == Program::kVertex_Kind) {
         this->write("    float4 sk_Position [[position]];\n");
     } else if (fProgram.fKind == Program::kFragment_Kind) {
-        this->write("    float4 sk_FragColor [[color(0), index(0)]];\n");
+        this->write("    float4 sk_FragColor [[color(0)]];\n");
     }
     for (const auto& e : fProgram) {
         if (ProgramElement::kVar_Kind == e.fKind) {
@@ -1126,9 +1126,12 @@ void MetalCodeGenerator::writeOutputStruct() {
                                     to_string(var.fVar->fModifiers.fLayout.fLocation) + ")]]");
                     } else if (fProgram.fKind == Program::kFragment_Kind) {
                         this->write(" [[color(" +
-                                    to_string(var.fVar->fModifiers.fLayout.fLocation) +
-                                    "), index(" +
-                                    to_string(var.fVar->fModifiers.fLayout.fIndex) + ")]]");
+                                    to_string(var.fVar->fModifiers.fLayout.fLocation) +")");
+                        int colorIndex = var.fVar->fModifiers.fLayout.fIndex;
+                        if (colorIndex) {
+                            this->write(", index(" + to_string(colorIndex) + ")");
+                        }
+                        this->write("]]");
                     }
                 }
                 this->write(";\n");
