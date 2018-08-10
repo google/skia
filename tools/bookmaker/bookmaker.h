@@ -42,6 +42,7 @@ enum class KeyWord {
     kNone,
     kSK_API,
     kSK_BEGIN_REQUIRE_DENSE,
+    kAlignAs,
     kBool,
     kChar,
     kClass,
@@ -1568,6 +1569,7 @@ public:
         fIncludeWord = nullptr;
     }
 
+    bool inAlignAs() const;
     void checkForMissingParams(const vector<string>& methodParams,
                                const vector<string>& foundParams);
     bool checkForWord();
@@ -1580,11 +1582,13 @@ public:
     void dumpConst(const Definition& , string className);
     void dumpDefine(const Definition& );
     void dumpEnum(const Definition& , string name);
-    bool dumpGlobals();
+    bool dumpGlobals(string* globalFileName, long int* globalTell);
     void dumpMethod(const Definition& , string className);
     void dumpMember(const Definition& );
     bool dumpTokens();
-    bool dumpTokens(string skClassName);
+    bool dumpTokens(string skClassName, string globalFileName, long int* globalTell);
+    void dumpTypedef(const Definition& , string className);
+
     bool findComments(const Definition& includeDef, Definition* markupDef);
     Definition* findIncludeObject(const Definition& includeDef, MarkType markType,
                                   string typeName);

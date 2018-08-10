@@ -16,6 +16,7 @@ const IncludeKey kKeyWords[] = {
     { "",           KeyWord::kNone,         KeyProperty::kNone           },
     { "SK_API",     KeyWord::kSK_API,       KeyProperty::kModifier       },
     { "SK_BEGIN_REQUIRE_DENSE", KeyWord::kSK_BEGIN_REQUIRE_DENSE, KeyProperty::kModifier },
+    { "alignas",    KeyWord::kAlignAs,      KeyProperty::kModifier       },
     { "bool",       KeyWord::kBool,         KeyProperty::kNumber         },
     { "char",       KeyWord::kChar,         KeyProperty::kNumber         },
     { "class",      KeyWord::kClass,        KeyProperty::kObject         },
@@ -578,6 +579,9 @@ void IncludeParser::dumpClassTokens(IClassDefinition& classDef) {
                 this->dumpMember(token);
                 continue;
             break;
+            case MarkType::kTypedef:
+                this->dumpTypedef(token, classDef.fName);
+            break;
             default:
                 SkASSERT(0);
         }
@@ -878,9 +882,10 @@ void IncludeParser::dumpEnum(const Definition& token, string name) {
     this->lf(2);
 }
 
-bool IncludeParser::dumpGlobals() {
-    if (fIDefineMap.empty() && fIFunctionMap.empty() && fIEnumMap.empty() && fITemplateMap.empty()
-            && fITypedefMap.empty() && fIUnionMap.empty()) {
+bool IncludeParser::dumpGlobals(string* globalFileName, long int* globalTell) {
+    bool hasGlobals = !fIDefineMap.empty() || !fIFunctionMap.empty() || !fIEnumMap.empty()
+            || !fITemplateMap.empty()|| !fITypedefMap.empty() || !fIUnionMap.empty();
+    if (!hasGlobals) {
         return true;
     }
     size_t lastBSlash = fFileName.rfind('\\');
@@ -896,6 +901,7 @@ bool IncludeParser::dumpGlobals() {
     lastSlash += 1;
     string globalsName = fFileName.substr(lastSlash, lastDotH - lastSlash);
     string fileName = globalsName + "_Reference.bmh";
+    *globalFileName = fileName;
     fOut = fopen(fileName.c_str(), "wb");
     if (!fOut) {
         SkDebugf("could not open output file %s\n", globalsName.c_str());
@@ -1007,9 +1013,10 @@ bool IncludeParser::dumpGlobals() {
         }
         this->dumpCommonTail(*def);
     }
+    *globalTell = ftell(fOut);
     this->writeEndTag("Topic", topicName);
     this->lfAlways(1);
-    fclose(fOut);
+//    fclose(fOut);     // defer closing in case class needs to be also written here
     SkDebugf("wrote %s\n", fileName.c_str());
     return true;
 }
@@ -1083,34 +1090,48 @@ void IncludeParser::dumpMember(const Definition& token) {
 }
 
 bool IncludeParser::dumpTokens() {
-    if (!this->dumpGlobals()) {
+    string globalFileName;
+    long int globalTell = 0;
+    if (!this->dumpGlobals(&globalFileName, &globalTell)) {
         return false;
     }
     for (const auto& member : fIClassMap) {
         if (string::npos != member.first.find("::")) {
             continue;
         }
-        if (!this->dumpTokens(member.first)) {
+        if (!this->dumpTokens(member.first, globalFileName, &globalTell)) {
             return false;
         }
+    }
+    if (globalTell) {
+        fclose(fOut);
     }
     return true;
 }
 
     // dump equivalent markup
-bool IncludeParser::dumpTokens(string skClassName) {
+bool IncludeParser::dumpTokens(string skClassName, string globalFileName, long int* globalTell) {
     string fileName = skClassName + "_Reference.bmh";
-    fOut = fopen(fileName.c_str(), "wb");
-    if (!fOut) {
-        SkDebugf("could not open output file %s\n", fileName.c_str());
-        return false;
+    if (globalFileName != fileName) {
+        fOut = fopen(fileName.c_str(), "wb");
+        if (!fOut) {
+            SkDebugf("could not open output file %s\n", fileName.c_str());
+            return false;
+        }
+    } else {
+        fseek(fOut, *globalTell, SEEK_SET);
+        this->lf(2);
+        this->writeBlockSeparator();
+        *globalTell = 0;
     }
     string prefixName = skClassName.substr(0, 2);
     string topicName = skClassName.length() > 2 && isupper(skClassName[2]) &&
         ("Sk" == prefixName || "Gr" == prefixName) ? skClassName.substr(2) : skClassName;
-    this->writeTagNoLF("Topic", topicName);
-    this->writeEndTag("Alias", topicName + "_Reference");
-    this->lf(2);
+    if (globalFileName != fileName) {
+        this->writeTagNoLF("Topic", topicName);
+        this->writeEndTag("Alias", topicName + "_Reference");
+        this->lf(2);
+    }
     auto& classMap = fIClassMap[skClassName];
     SkASSERT(KeyWord::kClass == classMap.fKeyWord || KeyWord::kStruct == classMap.fKeyWord);
     const char* containerType = KeyWord::kClass == classMap.fKeyWord ? "Class" : "Struct";
@@ -1258,6 +1279,15 @@ bool IncludeParser::dumpTokens(string skClassName) {
     return true;
 }
 
+void IncludeParser::dumpTypedef(const Definition& token, string className) {
+    this->writeTag("Typedef");
+    this->writeSpace();
+    this->writeString(token.fName);
+    this->writeTagTable("Line", "incomplete");
+    this->lf(2);
+    this->dumpComment(token);
+}
+
 bool IncludeParser::findComments(const Definition& includeDef, Definition* markupDef) {
     // add comment preceding class, if any
     const Definition* parent = includeDef.fParent;
@@ -1341,6 +1371,32 @@ Bracket IncludeParser::grandParentBracket() const {
     return parent ? parent->fBracket : Bracket::kNone;
 }
 
+bool IncludeParser::inAlignAs() const {
+    if (fParent->fTokens.size() < 2) {
+        return false;
+    }
+    auto reverseIter = fParent->fTokens.end();
+    bool checkForBracket = true;
+    while (fParent->fTokens.begin() != reverseIter) {
+        std::advance(reverseIter, -1);
+        if (checkForBracket) {
+            if (Definition::Type::kBracket != reverseIter->fType) {
+                return false;
+            }
+            if (Bracket::kParen != reverseIter->fBracket) {
+                return false;
+            }
+            checkForBracket = false;
+            continue;
+        }
+        if (Definition::Type::kKeyWord != reverseIter->fType) {
+            return false;
+        }
+        return KeyWord::kAlignAs == reverseIter->fKeyWord;
+    }
+    return false;
+}
+
 // caller just returns, so report error here
 bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     SkASSERT(includeDef->fTokens.size() > 0);
@@ -1348,6 +1404,14 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     auto iter = includeDef->fTokens.begin();
     if (!strncmp(iter->fStart, "SK_API", iter->fContentEnd - iter->fStart)) {
         // todo : documentation is ignoring this for now
+        iter = std::next(iter);
+    }
+    bool hasAlignAs = iter->fKeyWord == KeyWord::kAlignAs;
+    if (hasAlignAs) {
+        iter = std::next(iter);
+        if (Definition::Type::kBracket != iter->fType || Bracket::kParen != iter->fBracket) {
+            return includeDef->reportError<bool>("expected alignas argument");
+        }
         iter = std::next(iter);
     }
     string nameStr(iter->fStart, iter->fContentEnd - iter->fStart);
@@ -1378,7 +1442,18 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
 //    if (1 != includeDef->fChildren.size()) {
 //        return false;  // fix me: SkCanvasClipVisitor isn't correctly parsed
 //    }
-    includeDef = includeDef->fChildren.front();
+    auto includeDefIter = includeDef->fChildren.begin();
+    if (hasAlignAs) {
+        SkASSERT(includeDef->fChildren.end() != includeDefIter);
+        SkASSERT(Bracket::kParen == (*includeDefIter)->fBracket);
+        std::advance(includeDefIter, 1);
+    }
+    if (includeDef->fChildren.end() != includeDefIter
+            && Bracket::kAngle == (*includeDefIter)->fBracket) {
+        std::advance(includeDefIter, 1);
+    }
+    includeDef = *includeDefIter;
+    SkASSERT(Bracket::kBrace == includeDef->fBracket);
     iter = includeDef->fTokens.begin();
     // skip until public
     int publicIndex = 0;
@@ -1402,7 +1477,7 @@ bool IncludeParser::parseClass(Definition* includeDef, IsStruct isStruct) {
     const char* privateName = kKeyWords[(int) KeyWord::kPrivate].fName;
     size_t privateLen = strlen(privateName);
     auto childIter = includeDef->fChildren.begin();
-    while ((*childIter)->fPrivate) {
+    while (includeDef->fChildren.end() != childIter && (*childIter)->fPrivate) {
         std::advance(childIter, 1);
     }
     while (childIter != includeDef->fChildren.end()) {
@@ -2356,6 +2431,9 @@ bool IncludeParser::parseChar() {
                     && fInFunction) {
                 fInBrace = fParent;
             }
+            if (':' == test) {
+                SkDebugf("");
+            }
             } break;
         case '<':
             if (fInCharCommentString || fInBrace) {
@@ -2391,7 +2469,7 @@ bool IncludeParser::parseChar() {
             if (match == this->topBracket()) {
                 this->popBracket();
                 if (!fInFunction) {
-                    fInFunction = ')' == test;
+                    fInFunction = ')' == test && !this->inAlignAs();
                 } else {
                     fInFunction = '}' != test;
                 }

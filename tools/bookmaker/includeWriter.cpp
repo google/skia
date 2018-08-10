@@ -1781,6 +1781,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         memberStart = &child;
                     }
                     break;
+                case KeyWord::kAlignAs:
                 case KeyWord::kPublic:
                 case KeyWord::kPrivate:
                 case KeyWord::kProtected:
@@ -2691,6 +2692,7 @@ bool IncludeWriter::writeHeader(std::pair<const string, Definition>& include) {
 
     // find end of copyright header
     fChar = fStart;
+    this->skipWhiteSpace();
     if (!this->skipExact(
             "/*\n"
             " * Copyright ")) {
