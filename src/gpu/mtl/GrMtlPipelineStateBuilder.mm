@@ -359,11 +359,13 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
     if (error) {
         SkDebugf("Error creating pipeline: %s\n",
                  [[error localizedDescription] cStringUsingEncoding: NSASCIIStringEncoding]);
-        pipelineState = nil;
+        return nullptr;
     }
     return new GrMtlPipelineState(fGpu,
                                   pipelineState,
                                   pipelineDescriptor.colorAttachments[0].pixelFormat,
+                                  fUniformHandles,
+                                  fUniformHandler.fUniforms,
                                   GrMtlBuffer::Create(fGpu,
                                                       fUniformHandler.fCurrentGeometryUBOOffset,
                                                       kVertex_GrBufferType,
@@ -371,5 +373,10 @@ GrMtlPipelineState* GrMtlPipelineStateBuilder::finalize(const GrPrimitiveProcess
                                   GrMtlBuffer::Create(fGpu,
                                                       fUniformHandler.fCurrentFragmentUBOOffset,
                                                       kVertex_GrBufferType,
-                                                      kStatic_GrAccessPattern));
+                                                      kStatic_GrAccessPattern),
+                                  (uint32_t)fUniformHandler.numSamplers(),
+                                  std::move(fGeometryProcessor),
+                                  std::move(fXferProcessor),
+                                  std::move(fFragmentProcessors),
+                                  fFragmentProcessorCnt);
 }
