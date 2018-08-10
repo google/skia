@@ -246,6 +246,9 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
             this->write("%s");
             fFormatArgs.push_back(String("args.fOutputColor"));
             break;
+        case SK_DIMENSIONS_BUILTIN:
+            this->write("sk_Dimensions");
+            break;
         default:
             if (ref.fVariable.fType.kind() == Type::kSampler_Kind) {
                 this->write("%s");
@@ -444,6 +447,9 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
     if (var.fModifiers.fLayout.fWhen.size()) {
         this->write("        }\n");
     }
+}
+
+void CPPCodeGenerator::writeInputVars() {
 }
 
 void CPPCodeGenerator::writePrivateVars() {
