@@ -110,6 +110,15 @@ public:
     void waitSemaphore(sk_sp<GrSemaphore> semaphore) override {}
     sk_sp<GrSemaphore> prepareTextureForCrossContextUsage(GrTexture*) override { return nullptr; }
 
+    // When the Metal backend actually uses indirect command buffers, this function will actually do
+    // what it says. For now, every command is encoded directly into the primary command buffer, so
+    // this function is pretty useless, except for indicating that a render target has been drawn
+    // to.
+    void submitIndirectCommandBuffer(GrSurface* surface, GrSurfaceOrigin origin,
+                                     const SkIRect* bounds) {
+        this->didWriteToSurface(surface, origin, bounds);
+    }
+
 private:
     GrMtlGpu(GrContext* context, const GrContextOptions& options,
              id<MTLDevice> device, id<MTLCommandQueue> queue, MTLFeatureSet featureSet);
@@ -151,7 +160,9 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(bool insertedSemaphores) override {}
+    void onFinishFlush(bool insertedSemaphores) override {
+        this->submitCommandBuffer(kSkip_SyncQueue);
+    }
 
     // Function that uploads data onto textures with private storage mode (GPU access only).
     bool uploadToTexture(GrMtlTexture* tex, int left, int top, int width, int height,
