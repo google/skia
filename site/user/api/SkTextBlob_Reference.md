@@ -312,7 +312,7 @@ bytes written, or zero if required storage is larger than memory_size
 
 ### Example
 
-<div><fiddle-embed name="adf1f5687736356419c0114327ea6df9"></fiddle-embed></div>
+<div><fiddle-embed name="b1d67f0b0f342eb3e70db01bdefdc21b"></fiddle-embed></div>
 
 ### See Also
 
@@ -347,7 +347,7 @@ storage containing serialized <a href='#Text_Blob'>Text Blob</a>
 
 ### Example
 
-<div><fiddle-embed name="ae23af73f49735177dd5cc1040ed1255"></fiddle-embed></div>
+<div><fiddle-embed name="9447d4cf5d560b40b7535e403d854c20"></fiddle-embed></div>
 
 ### See Also
 
@@ -390,7 +390,7 @@ is called with a pointer to <a href='undocumented#Typeface'>Typeface</a> <a href
 
 ### Example
 
-<div><fiddle-embed name="b49322e0363bd2930f4c7b98a3ff250e"><div><a href='undocumented#Text'>Text</a> "" replaces "World!", but does not update its metrics.
+<div><fiddle-embed name="9feac5842eaac425a062754097eb7b7b"><div><a href='undocumented#Text'>Text</a> "" replaces "World!", but does not update its metrics.
 When drawn, "" uses the spacing computed for "World!".
 </div></fiddle-embed></div>
 
