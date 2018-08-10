@@ -1218,6 +1218,7 @@ void IncludeWriter::structSizeMembers(const Definition& child) {
                 case KeyWord::kSize_t:
                 case KeyWord::kFloat:
                 case KeyWord::kBool:
+                case KeyWord::kChar:
                 case KeyWord::kVoid:
                     if (!typeStart) {
                         typeStart = &token;
@@ -1781,6 +1782,7 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                         memberStart = &child;
                     }
                     break;
+                case KeyWord::kAlignAs:
                 case KeyWord::kPublic:
                 case KeyWord::kPrivate:
                 case KeyWord::kProtected:
@@ -2691,6 +2693,7 @@ bool IncludeWriter::writeHeader(std::pair<const string, Definition>& include) {
 
     // find end of copyright header
     fChar = fStart;
+    this->skipWhiteSpace();
     if (!this->skipExact(
             "/*\n"
             " * Copyright ")) {

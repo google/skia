@@ -339,7 +339,7 @@ bool Definition::boilerplateIfDef() {
 // for now, just handle paint -- maybe fiddle will loosen naming restrictions
 void Definition::setCanonicalFiddle() {
     fMethodType = Definition::MethodType::kNone;
-    size_t doubleColons = fName.find("::", 0);
+    size_t doubleColons = fName.rfind("::");
     SkASSERT(string::npos != doubleColons);
     string base = fName.substr(0, doubleColons);
     string result = base + "_";
@@ -535,6 +535,7 @@ bool Definition::checkMethod() const {
     const char* descEnd = nullptr;
     const Definition* defEnd = nullptr;
     const Definition* priorDef = nullptr;
+    bool incomplete = false;
     for (auto& child : fChildren) {
         if (MarkType::kAnchor == child->fMarkType) {
             continue;
@@ -551,6 +552,11 @@ bool Definition::checkMethod() const {
         }
         if (MarkType::kFormula == child->fMarkType) {
             continue;
+        }
+        if (MarkType::kLine == child->fMarkType) {
+            SkASSERT(child->fChildren.size() > 0);
+            TextParser childDesc(child->fChildren[0]);
+            incomplete |= childDesc.startsWith("incomplete");
         }
         if (MarkType::kList == child->fMarkType) {
             priorDef = child;
@@ -577,7 +583,7 @@ bool Definition::checkMethod() const {
         priorDef = nullptr;
     }
     if (!descEnd) {
-        return methodParser.reportError<bool>("missing description");
+        return incomplete ? true : methodParser.reportError<bool>("missing description");
     }
     TextParser description(fFileName, descStart, descEnd, fLineCount);
     // expect first word capitalized and pluralized. expect a trailing period
@@ -586,7 +592,9 @@ bool Definition::checkMethod() const {
         description.reportWarning("expected capital");
     } else if ('.' != descEnd[-1]) {
         if (!defEnd || defEnd->fTerminator != descEnd) {
-            description.reportWarning("expected period");
+            if (!incomplete) {
+                description.reportWarning("expected period");
+            }
         }
     } else {
         if (!description.startsWith("For use by Android")) {
@@ -595,7 +603,9 @@ bool Definition::checkMethod() const {
                 --description.fChar;
             }
             if ('s' != description.fChar[-1]) {
-                description.reportWarning("expected plural");
+                if (!incomplete) {
+                    description.reportWarning("expected plural");
+                }
             }
         }
     }

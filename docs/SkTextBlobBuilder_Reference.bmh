@@ -1,0 +1,287 @@
+#Topic Text_Blob_Builder
+#Alias Text_Blob_Builder_Reference ##
+
+#Class SkTextBlobBuilder
+
+Helper class for constructing SkTextBlob.
+
+#Subtopic Overview
+#Populate
+##
+
+#Subtopic Class
+#Populate
+##
+
+#Subtopic Constructor
+#Populate
+##
+
+#Subtopic Member_Function
+#Populate
+##
+
+# ------------------------------------------------------------------------------
+
+#Struct RunBuffer
+#Line # storage for Glyphs and Glyph positions ##
+
+#Code
+    struct RunBuffer {
+        SkGlyphID* glyphs;
+        SkScalar* pos;
+        char* utf8text;
+        uint32_t* clusters;
+    };
+##
+
+RunBuffer supplies storage for Glyphs and positions within a run.
+
+A run is a sequence of Glyphs sharing Paint_Font_Metrics and positioning.
+Each run may position its Glyphs in one of three ways:
+by specifying where the first Glyph is drawn, and allowing Paint_Font_Metrics to
+determine the advance to subsequent Glyphs; by specifying a baseline, and
+the position on that baseline for each Glyph in run; or by providing Point
+array, one per Glyph.
+
+#Subtopic Member
+#Populate
+##
+
+#Member SkGlyphID* glyphs
+#Line # storage for Glyphs in run ##
+    glyphs points to memory for one or more Glyphs. glyphs memory must be
+    written to by the caller.
+##
+
+#Member SkScalar* pos
+#Line # storage for positions in run ##
+    pos points to memory for Glyph positions. Depending on how RunBuffer
+    is allocated, pos may point to zero bytes per Glyph, one Scalar per Glyph,
+    or one Point per Glyph.
+##
+
+#Member char* utf8text
+#Line # reserved for future use ##
+    Reserved for future use. utf8text should not be read or written.
+##
+
+#Member uint32_t* clusters
+#Line # reserved for future use ##
+    Reserved for future use. clusters should not be read or written.
+##
+
+#SeeAlso allocRun allocRunPos allocRunPosH
+
+#Struct RunBuffer ##
+
+# ------------------------------------------------------------------------------
+
+#Method SkTextBlobBuilder()
+#In Constructor
+#Line # constructs with default values ##
+
+Constructs empty Text_Blob_Builder. By default, Text_Blob_Builder has no runs.
+
+#Return empty Text_Blob_Builder ##
+
+#Example
+    SkTextBlobBuilder builder;
+    sk_sp<SkTextBlob> blob = builder.make();
+    SkDebugf("blob " "%s" " nullptr", blob == nullptr ? "equals" : "does not equal");
+#StdOut
+blob equals nullptr
+##
+##
+
+#SeeAlso make SkTextBlob::MakeFromText
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method ~SkTextBlobBuilder()
+#In Constructor
+#Line # deletes storage ##
+Deletes data allocated internally by Text_Blob_Builder.
+
+#NoExample
+##
+
+#SeeAlso SkTextBlobBuilder()
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method sk_sp<SkTextBlob> make()
+#In Constructor
+#Line # constructs Text_Blob from bulider ##
+
+Returns Text_Blob built from runs of Glyphs added by builder. Returned
+Text_Blob is immutable; it may be copied, but its contents may not be altered.
+Returns nullptr if no runs of Glyphs were added by builder.
+
+Resets Text_Blob_Builder to its initial empty state, allowing it to be
+reused to build a new set of runs.
+
+#Return Text_Blob or nullptr ##
+
+#Example
+    SkTextBlobBuilder builder;
+    sk_sp<SkTextBlob> blob = builder.make();
+    SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
+    SkPaint paint;
+    paint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    paint.textToGlyphs("x", 1, builder.allocRun(paint, 1, 20, 20).glyphs);
+    blob = builder.make();
+    SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
+    blob = builder.make();
+    SkDebugf("blob " "%s" " nullptr\n", blob == nullptr ? "equals" : "does not equal");
+#StdOut
+blob equals nullptr
+blob does not equal nullptr
+blob equals nullptr
+##
+##
+
+#SeeAlso SkTextBlob::MakeFromText
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const RunBuffer& allocRun(const SkPaint& font, int count, SkScalar x, SkScalar y,
+                              const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph buffer at Point ##
+
+Returns run with storage for Glyphs. Caller must write count Glyphs to
+RunBuffer.glyphs before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned on a baseline at (x, y), using font Paint_Font_Metrics to
+determine their relative placement.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from (x, y) and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Paint used for this run ##
+#Param count  number of glyphs ##
+#Param x  horizontal offset within the blob ##
+#Param y  vertical offset within the blob ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer ##
+
+#Example
+#Height 60
+    SkTextBlobBuilder builder;
+    SkPaint paint, glyphPaint;
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRun(glyphPaint, 5, 20, 20);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    canvas->drawRect({20, 20, 30, 30}, paint);
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);    
+##
+
+#SeeAlso allocRunPosH allocRunPos
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const RunBuffer& allocRunPosH(const SkPaint& font, int count, SkScalar y,
+                                  const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph and x-axis position buffers ##
+
+Returns run with storage for Glyphs and positions along baseline. Caller must
+write count Glyphs to RunBuffer.glyphs, and count Scalars to RunBuffer.pos;
+before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned on a baseline at y, using x-axis positions written by
+caller to RunBuffer.pos.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from y, RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Paint used for this run ##
+#Param count  number of Glyphs ##
+#Param y  vertical offset within the blob ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer and x-axis position buffer ##
+
+#Example
+#Height 60
+    SkTextBlobBuilder builder;
+    SkPaint paint, glyphPaint;
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPosH(glyphPaint, 5, 20);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    SkScalar positions[] = {0, 10, 20, 40, 80};
+    memcpy(run.pos, positions, sizeof(positions));
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);    
+##
+
+#SeeAlso allocRunPos allocRun
+
+#Method ##
+
+# ------------------------------------------------------------------------------
+
+#Method const RunBuffer& allocRunPos(const SkPaint& font, int count,
+                                 const SkRect* bounds = nullptr)
+#In Allocator
+#Line # returns writable glyph and Point buffers ##
+
+Returns run with storage for Glyphs and Point positions. Caller must
+write count Glyphs to RunBuffer.glyphs, and count Points to RunBuffer.pos;
+before next call to FontBlobBuilder.
+
+RunBuffer.utf8text, and RunBuffer.clusters should be ignored.
+
+Glyphs share Paint_Font_Metrics in font, including: #paint_font_metrics#.
+
+Glyphs are positioned using Points written by caller to RunBuffer.pos, using
+two Scalar values for each Point.
+
+bounds defines an optional bounding box, used to suppress drawing when Text_Blob
+bounds does not intersect Surface bounds. If bounds is nullptr, Text_Blob bounds
+is computed from RunBuffer.pos, and RunBuffer.glyphs Paint_Font_Metrics.
+
+#Param font  Paint used for this run ##
+#Param count  number of Glyphs ##
+#Param bounds  optional run bounding box ##
+
+#Return writable glyph buffer and Point buffer ##
+
+#Example
+#Height 90
+    SkTextBlobBuilder builder;
+    SkPaint paint, glyphPaint;
+    glyphPaint.setTextEncoding(SkPaint::kGlyphID_TextEncoding);
+    const SkTextBlobBuilder::RunBuffer& run = builder.allocRunPos(glyphPaint, 5);
+    paint.textToGlyphs("hello", 5, run.glyphs);
+    SkPoint positions[] = {{0, 0}, {10, 10}, {20, 20}, {40, 40}, {80, 80}};
+    memcpy(run.pos, positions, sizeof(positions));
+    canvas->drawTextBlob(builder.make(), 20, 20, paint);    
+##
+
+#SeeAlso allocRunPosH allocRun
+
+#Method ##
+
+#Class SkTextBlobBuilder ##
+
+#Topic Text_Blob_Builder ##
