@@ -21,7 +21,7 @@ struct SkDeserialProcs;
 
     SkTextBlob combines multiple text runs into an immutable, ref-counted structure.
 */
-class SK_API alignas(void*) SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
+class SK_API SkTextBlob final : public SkNVRefCnt<SkTextBlob> {
 public:
     /**
      *  Returns a conservative blob bounding box.
