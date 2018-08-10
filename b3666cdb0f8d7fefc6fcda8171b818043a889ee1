@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "823a747f_350131c6",
+        "filename": "include/core/SkTLazy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-10T15:10:26Z",
+      "side": 1,
+      "message": "maybe we want to call this init_now()?  It kind of wants to stand out from the lazy init of the existing calls.",
+      "revId": "b3666cdb0f8d7fefc6fcda8171b818043a889ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0b5f6a9_726e6692",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-10T15:10:26Z",
+      "side": 1,
+      "message": "Do you think maybe this use case is better served by not using SkTCopyOnFirstWrite?\n\nE.g. just hold two fields on the type,\n\n    const RenderContext* fReadOnlyCtx;\n    RenderContext        fWritableCtx;\n\nIn the constructor just like you\u0027re doing now,\n\n   , fReadOnly(ctx)\n\nAnd then here in writableContext()\n\n  if (fReadOnlyCtx \u0026\u0026 fReadonlyCtx !\u003d \u0026fWritableCtx) {\n      fWritableCtx \u003d *fReadOnlyCtx;\n  }\n  fReadOnlyCtx \u003d \u0026fWritableCtx;\n  return \u0026fWritableCtx;\n\n?",
+      "revId": "b3666cdb0f8d7fefc6fcda8171b818043a889ee1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
