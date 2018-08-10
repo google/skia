@@ -620,6 +620,9 @@ optional("gpu") {
     if (skia_enable_vulkan_debug_layers) {
       public_defines += [ "SK_ENABLE_VK_LAYERS" ]
     }
+    if (defined(skia_moltenvk_path) && skia_moltenvk_path != "") {
+      defines = [ "SK_MOLTENVK" ]
+    }
   }
 
   if (skia_enable_spirv_validation) {
@@ -2021,8 +2024,8 @@ if (skia_enable_tools) {
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
-      "tools/viewer/TouchGesture.h",
       "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []

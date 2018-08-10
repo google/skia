@@ -201,10 +201,18 @@ bool GrCompileVkShaderModule(const GrVkGpu* gpu,
     }
     *outInputs = program->fInputs;
     SkSL::String code;
+
+#ifdef SK_MOLTENVK
+    if (!gpu->shaderCompiler()->toMetal(*program, &code)) {
+        SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
+        return false;
+    }
+#else
     if (!gpu->shaderCompiler()->toSPIRV(*program, &code)) {
         SkDebugf("%s\n", gpu->shaderCompiler()->errorText().c_str());
         return false;
     }
+#endif
 
     VkShaderModuleCreateInfo moduleCreateInfo;
     memset(&moduleCreateInfo, 0, sizeof(VkShaderModuleCreateInfo));
