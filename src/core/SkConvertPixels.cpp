@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXformPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkConvertPixels.h"
 #include "SkHalf.h"
@@ -86,81 +85,7 @@ void swizzle_and_multiply(const SkImageInfo& dstInfo, void* dstPixels, size_t ds
     }
 }
 
-#ifdef SK_LEGACY_CONVERT_PIXELS_IMPL
-// Fast Path 3: Color space xform.
-static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkImageInfo& srcInfo) {
-    // Unpremultiplication is unsupported by SkColorSpaceXform.  Note that if |src| is non-linearly
-    // premultiplied, we're always going to have to unpremultiply before doing anything.
-    if (kPremul_SkAlphaType == srcInfo.alphaType()) {
-        return false;
-    }
-
-    switch (dstInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-        case kRGBA_F16_SkColorType:
-            break;
-        default:
-            return false;
-    }
-
-    switch (srcInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-        case kBGRA_8888_SkColorType:
-            break;
-        default:
-            return false;
-    }
-
-    return true;
-}
-
-static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
-                                     const SkImageInfo& srcInfo, const void* srcPixels,
-                                     size_t srcRB) {
-    SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
-    SkColorSpaceXform::ColorFormat srcFormat = select_xform_format(srcInfo.colorType());
-    SkAlphaType xformAlpha;
-    switch (srcInfo.alphaType()) {
-        case kOpaque_SkAlphaType:
-            xformAlpha = kOpaque_SkAlphaType;
-            break;
-        case kPremul_SkAlphaType:
-            SkASSERT(kPremul_SkAlphaType == dstInfo.alphaType());
-
-            // This signal means: copy the src alpha to the dst, do not premultiply (in this
-            // case because the pixels are already premultiplied).
-            xformAlpha = kUnpremul_SkAlphaType;
-            break;
-        case kUnpremul_SkAlphaType:
-            SkASSERT(kPremul_SkAlphaType == dstInfo.alphaType() ||
-                     kUnpremul_SkAlphaType == dstInfo.alphaType());
-
-            xformAlpha = dstInfo.alphaType();
-            break;
-        default:
-            SkASSERT(false);
-            xformAlpha = kUnpremul_SkAlphaType;
-            break;
-    }
-
-    std::unique_ptr<SkColorSpaceXform> xform = SkMakeColorSpaceXform(srcInfo.colorSpace(),
-                                                                     dstInfo.colorSpace());
-    if (!xform) {
-        return false;
-    }
-
-    for (int y = 0; y < dstInfo.height(); y++) {
-        SkAssertResult(xform->apply(dstFormat, dstPixels, srcFormat, srcPixels, dstInfo.width(),
-                       xformAlpha));
-        dstPixels = SkTAddOffset<void>(dstPixels, dstRB);
-        srcPixels = SkTAddOffset<const void>(srcPixels, srcRB);
-    }
-    return true;
-}
-#endif
-
-// Fast Path 4: Alpha 8 dsts.
+// Fast Path 3: Alpha 8 dsts.
 static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& srcInfo,
                               const void* src, size_t srcRB) {
     if (srcInfo.isOpaque()) {
@@ -423,16 +348,7 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         return;
     }
 
-#ifdef SK_LEGACY_CONVERT_PIXELS_IMPL
-    // Fast Path 3: Color space xform.
-    if (isColorAware && optimized_color_xform(dstInfo, srcInfo)) {
-        if (apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB)) {
-            return;
-        }
-    }
-#endif
-
-    // Fast Path 4: Alpha 8 dsts.
+    // Fast Path 3: Alpha 8 dsts.
     if (kAlpha_8_SkColorType == dstInfo.colorType()) {
         convert_to_alpha8((uint8_t*) dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return;
