@@ -48,6 +48,7 @@ GrMtlSampler* GrMtlSampler::Create(const GrMtlGpu* gpu, const GrSamplerState& sa
     samplerDesc.maxAnisotropy = 1.0f;
     samplerDesc.normalizedCoordinates = true;
     samplerDesc.compareFunction = MTLCompareFunctionNever;
+    samplerDesc.borderColor = MTLSamplerBorderColorTransparentBlack;
 
     return new GrMtlSampler([gpu->device() newSamplerStateWithDescriptor: samplerDesc]);
 }
