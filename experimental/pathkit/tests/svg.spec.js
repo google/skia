@@ -2,12 +2,12 @@
 describe('PathKit\'s SVG Behavior', function() {
     // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
     var PathKit = null;
-    const LoadPathKit = new Promise(function(resolve, reject){
+    const LoadPathKit = new Promise(function(resolve, reject) {
         if (PathKit) {
             resolve();
         } else {
             PathKitInit({
-                locateFile: (file) => '/base/npm-wasm/bin/test/'+file,
+                locateFile: (file) => '/pathkit/'+file,
             }).then((_PathKit) => {
                 PathKit = _PathKit;
                 resolve();
@@ -15,7 +15,7 @@ describe('PathKit\'s SVG Behavior', function() {
         }
     });
 
-    it('can create a path from an SVG string', function(done){
+    it('can create a path from an SVG string', function(done) {
         LoadPathKit.then(() => {
             //.This is a parallelagram from
             // https://upload.wikimedia.org/wikipedia/commons/e/e7/Simple_parallelogram.svg
@@ -37,7 +37,7 @@ describe('PathKit\'s SVG Behavior', function() {
         });
     });
 
-    it('can create an SVG string from a path', function(done){
+    it('can create an SVG string from a path', function(done) {
         LoadPathKit.then(() => {
             let cmds = [[PathKit.MOVE_VERB, 205, 5],
                        [PathKit.LINE_VERB, 795, 5],
@@ -56,7 +56,7 @@ describe('PathKit\'s SVG Behavior', function() {
         });
     });
 
-    it('can create an SVG string from hex values', function(done){
+    it('can create an SVG string from hex values', function(done) {
         LoadPathKit.then(() => {
             let cmds = [[PathKit.MOVE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
                        [PathKit.LINE_VERB, 795, 5],
@@ -74,7 +74,7 @@ describe('PathKit\'s SVG Behavior', function() {
         });
     });
 
-    it('should have input and the output be the same', function(done){
+    it('should have input and the output be the same', function(done) {
         LoadPathKit.then(() => {
             let testCases = [
                 'M0 0L1075 0L1075 242L0 242L0 0Z'
@@ -88,6 +88,22 @@ describe('PathKit\'s SVG Behavior', function() {
 
                 path.delete();
             }
+            done();
+        });
+    });
+
+    it('approximates arcs (conics) with quads', function(done) {
+        LoadPathKit.then(() => {
+            let path = PathKit.NewPath();
+            path.moveTo(20, 120);
+            path.arc(20, 120, 18, 0, 1.75 * Math.PI);
+            path.lineTo(20, 120);
+            let svgStr = path.toSVGString();
+            // Q stands for quad.  No need to check the whole path, as that's more
+            // what the gold correctness tests are for (can account for changes we make
+            // to the approximation algorithms).
+            expect(svgStr).toContain('Q');
+            path.delete();
             done();
         });
     });

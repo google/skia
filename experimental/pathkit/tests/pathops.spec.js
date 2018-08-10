@@ -77,12 +77,12 @@ describe('PathKit\'s PathOps Behavior', function() {
     var PathKit = null;
     var PATHOP_MAP = {};
     var FILLTYPE_MAP = {};
-    const LoadPathKit = new Promise(function(resolve, reject){
+    const LoadPathKit = new Promise(function(resolve, reject) {
         if (PathKit) {
             resolve();
         } else {
             PathKitInit({
-                locateFile: (file) => '/base/npm-wasm/bin/test/'+file,
+                locateFile: (file) => '/pathkit/'+file,
             }).then((_PathKit) => {
                 PathKit = _PathKit;
                 PATHOP_MAP = {
@@ -152,6 +152,9 @@ describe('PathKit\'s PathOps Behavior', function() {
                             // Do a tolerant match.
                             let diff = diffPaths(expected, combined);
                             if (test.expectMatch === 'yes'){
+                                // Check fill type
+                                expect(combined.getFillType().value).toEqual(getFillType(test.fillTypeOut).value);
+                                // diff should be null if the paths are identical (modulo rounding)
                                 if (diff) {
                                     expect(`[${testName}] ${diff}`).toBe('');
                                     addSVG('[PathOps] ' + testName, expected, combined, diff);
@@ -202,6 +205,9 @@ describe('PathKit\'s PathOps Behavior', function() {
                             // Do a tolerant match.
                             let diff = diffPaths(expected, simplified);
                             if (test.expectMatch === 'yes'){
+                                // Check fill type
+                                expect(simplified.getFillType().value).toEqual(getFillType(test.fillTypeOut).value);
+                                // diff should be null if the paths are identical (modulo rounding)
                                 if (diff) {
                                     expect(`[${testName}] ${diff}`).toBe('');
                                     addSVG('[Simplify] ' + testName, expected, simplified, diff);

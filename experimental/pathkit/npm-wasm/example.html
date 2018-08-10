@@ -30,6 +30,14 @@
 <canvas class=big id=canvas3></canvas>
 <canvas class=big id=canvas4></canvas>
 
+<h2> Has various Path Effects </h2>
+<canvas class=big id=canvas5></canvas>
+<canvas class=big id=canvas6></canvas>
+<canvas class=big id=canvas7></canvas>
+<canvas class=big id=canvas8></canvas>
+<canvas class=big id=canvas9></canvas>
+<canvas class=big id=canvas10></canvas>
+
 <script type="text/javascript" src="/node_modules/experimental-pathkit-wasm/bin/pathkit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -39,6 +47,7 @@
   }).then((PathKit) => {
     OutputsExample(PathKit);
     Path2DExample(PathKit);
+    PathEffectsExample(PathKit);
   });
 
   function setCanvasSize(ctx, width, height) {
@@ -156,6 +165,75 @@
 
 
     objs[1].delete();
+  }
+
+  // see https://fiddle.skia.org/c/@discrete_path
+  function drawStar(path) {
+    let R = 115.2, C = 128.0;
+    path.moveTo(C + R + 22, C);
+    for (let i = 1; i < 8; i++) {
+        let a = 2.6927937 * i;
+        path.lineTo(C + R * Math.cos(a) + 22, C + R * Math.sin(a));
+    }
+    path.closePath();
+    return path;
+  }
+
+  function PathEffectsExample(PathKit) {
+    let transforms = [
+        // no-op
+        (path) => path,
+        // dash
+        (path) => path.dash(10, 3, 0),
+        // trim (takes optional 3rd param for returning the trimmed part
+        // or the complement)
+        (path) => path.trim(0.25, 0.8, false),
+        // simplify
+        (path) => path.simplify(),
+        // stroke
+        (path) => path.stroke(15, PathKit.StrokeJoin.BEVEL, PathKit.StrokeCap.BUTT),
+        // "offset effect", that is, making a border around the shape.
+        (path) => {
+            let temp = path.stroke(10, PathKit.StrokeJoin.ROUND, PathKit.StrokeCap.SQUARE);
+            let ret = temp.op(path, PathKit.PathOp.DIFFERENCE);
+            temp.delete();
+            return ret;
+        }
+    ];
+
+    let names = ["(plain)", "Dash", "Trim", "Simplify", "Stroke", "Offset"];
+
+    for (let i = 0; i < transforms.length; i++) {
+        let path = PathKit.NewPath();
+        drawStar(path);
+
+        let transformedPath = transforms[i](path);
+
+        let ctx = document.getElementById(`canvas${i+5}`).getContext('2d');
+        setCanvasSize(ctx, 300, 300);
+        ctx.strokeStyle = '#3c597a';
+        ctx.fillStyle = '#3c597a';
+        if (i === 4 || i === 5) {
+            ctx.fill(transformedPath.toPath2D(), transformedPath.getCanvasFillType());
+            if (i === 5) {
+                ctx.fillStyle = "#51d9bb";
+                ctx.fill(path.toPath2D());
+            }
+        } else {
+            ctx.stroke(transformedPath.toPath2D());
+        }
+
+        ctx.font = '42px monospace';
+
+        let x = 150-ctx.measureText(names[i]).width/2;
+        ctx.strokeText(names[i], x, 290);
+
+        if (i) {
+            transformedPath.delete();
+        }
+        path.delete();
+    }
+
   }
 
 </script>

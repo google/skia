@@ -5,14 +5,17 @@
  * found in the LICENSE file.
  */
 
+#include "SkDashPathEffect.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkMatrix.h"
+#include "SkPaint.h"
 #include "SkParsePath.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
 #include "SkRect.h"
 #include "SkString.h"
+#include "SkTrimPathEffect.h"
 
 #include <emscripten/emscripten.h>
 #include <emscripten/bind.h>
@@ -22,13 +25,16 @@ using namespace emscripten;
 static const int MOVE = 0;
 static const int LINE = 1;
 static const int QUAD = 2;
+static const int CONIC = 3;
 static const int CUBIC = 4;
 static const int CLOSE = 5;
 
 // Just for self-documenting purposes where the main thing being returned is an
-// SkPath, but in an error case, something of type val (e.g. null) could also be
+// SkPath, but in an error case, something of type null (which is val) could also be
 // returned;
-using SkPathOrVal = emscripten::val;
+using SkPathOrNull = emscripten::val;
+// Self-documenting for when we return a string
+using JSString = emscripten::val;
 
 // =================================================================================
 // Creating/Exporting Paths with cmd arrays
@@ -60,16 +66,9 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
             cmd.call<void>("push", QUAD, pts[1].x(), pts[1].y(), pts[2].x(), pts[2].y());
             break;
         case SkPath::kConic_Verb:
-            SkPoint quads[5];
-            // approximate with 2^1=2 quads.
-            SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
-            cmd.call<void>("push", MOVE, quads[0].x(), quads[0].y());
-            cmds.call<void>("push", cmd);
-            cmd = emscripten::val::array();
-            cmd.call<void>("push", QUAD, quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
-            cmds.call<void>("push", cmd);
-            cmd = emscripten::val::array();
-            cmd.call<void>("push", QUAD, quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
+            cmd.call<void>("push", CONIC,
+                           pts[1].x(), pts[1].y(),
+                           pts[2].x(), pts[2].y(), iter.conicWeight());
             break;
         case SkPath::kCubic_Verb:
             cmd.call<void>("push", CUBIC,
@@ -99,7 +98,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToCmds(const SkPath& path) {
 // in our function type signatures. (this gives an error message like "Cannot call foo due to unbound
 // types Pi, Pf").  But, we can just pretend they are numbers and cast them to be pointers and
 // the compiler is happy.
-SkPathOrVal EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
+SkPathOrNull EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numCmds) {
     const auto* cmds = reinterpret_cast<const float*>(cptr);
     SkPath path;
     float x1, y1, x2, y2, x3, y3;
@@ -158,7 +157,7 @@ SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
 // SVG things
 //========================================================================================
 
-emscripten::val EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
+JSString EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
     SkString s;
     SkParsePath::ToSVGString(path, &s);
     // Wrapping it in val automatically turns it into a JS string.
@@ -169,7 +168,7 @@ emscripten::val EMSCRIPTEN_KEEPALIVE ToSVGString(const SkPath& path) {
 }
 
 
-SkPathOrVal EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
+SkPathOrNull EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
     SkPath path;
     if (SkParsePath::FromSVGString(str.c_str(), &path)) {
         return emscripten::val(path);
@@ -181,7 +180,7 @@ SkPathOrVal EMSCRIPTEN_KEEPALIVE FromSVGString(std::string str) {
 // PATHOP things
 //========================================================================================
 
-SkPathOrVal EMSCRIPTEN_KEEPALIVE SimplifyPath(const SkPath& path) {
+SkPathOrNull EMSCRIPTEN_KEEPALIVE SimplifyPath(const SkPath& path) {
     SkPath simple;
     if (Simplify(path, &simple)) {
         return emscripten::val(simple);
@@ -189,7 +188,7 @@ SkPathOrVal EMSCRIPTEN_KEEPALIVE SimplifyPath(const SkPath& path) {
     return emscripten::val::null();
 }
 
-SkPathOrVal EMSCRIPTEN_KEEPALIVE ApplyPathOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+SkPathOrNull EMSCRIPTEN_KEEPALIVE ApplyPathOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
     SkPath path;
     if (Op(pathOne, pathTwo, op, &path)) {
         return emscripten::val(path);
@@ -197,7 +196,7 @@ SkPathOrVal EMSCRIPTEN_KEEPALIVE ApplyPathOp(const SkPath& pathOne, const SkPath
     return emscripten::val::null();
 }
 
-SkPathOrVal EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
+SkPathOrNull EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
     SkPath path;
     if (builder.resolve(&path)) {
         return emscripten::val(path);
@@ -228,7 +227,6 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D
                 SkPoint quads[5];
                 // approximate with 2^1=2 quads.
                 SkPath::ConvertConicToQuads(pts[0], pts[1], pts[2], iter.conicWeight(), quads, 1);
-                ctx.call<void>("moveTo", quads[0].x(), quads[0].y());
                 ctx.call<void>("quadraticCurveTo", quads[1].x(), quads[1].y(), quads[2].x(), quads[2].y());
                 ctx.call<void>("quadraticCurveTo", quads[3].x(), quads[3].y(), quads[4].x(), quads[4].y());
                 break;
@@ -326,6 +324,70 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath,
     orig.addPath(newPath, m);
 }
 
+JSString GetCanvasFillType(const SkPath& path) {
+    if (path.getFillType() == SkPath::FillType::kWinding_FillType) {
+        return emscripten::val("nonzero");
+    } else if (path.getFillType() == SkPath::FillType::kEvenOdd_FillType) {
+        return emscripten::val("evenodd");
+    } else {
+        SkDebugf("warning: can't translate inverted filltype to HTML Canvas\n");
+        return emscripten::val("nonzero"); //Use default
+    }
+}
+
+//========================================================================================
+// Path Effects
+//========================================================================================
+
+SkPathOrNull PathEffectDash(const SkPath& path, SkScalar on, SkScalar off, SkScalar phase) {
+    SkPath output;
+    SkScalar intervals[] = { on, off };
+    auto pe = SkDashPathEffect::Make(intervals, 2, phase);
+    if (!pe) {
+        SkDebugf("Invalid args to dash()\n");
+        return emscripten::val::null();
+    }
+    if (pe->filterPath(&output, path, nullptr, nullptr)) {
+        return emscripten::val(output);
+    }
+    SkDebugf("Could not make dashed path\n");
+    return emscripten::val::null();
+}
+
+SkPathOrNull PathEffectTrim(const SkPath& path, SkScalar startT, SkScalar stopT, bool isComplement) {
+    SkPath output;
+    auto mode = isComplement ? SkTrimPathEffect::Mode::kInverted : SkTrimPathEffect::Mode::kNormal;
+    auto pe = SkTrimPathEffect::Make(startT, stopT, mode);
+    if (!pe) {
+        SkDebugf("Invalid args to trim(): startT and stopT must be in [0,1]\n");
+        return emscripten::val::null();
+    }
+    if (pe->filterPath(&output, path, nullptr, nullptr)) {
+        return emscripten::val(output);
+    }
+    SkDebugf("Could not trim path\n");
+    return emscripten::val::null();
+}
+
+SkPathOrNull PathEffectTrim(const SkPath& path, SkScalar startT, SkScalar stopT) {
+    return PathEffectTrim(path, startT, stopT, false);
+}
+
+SkPathOrNull PathEffectStroke(const SkPath& path, SkScalar width, SkPaint::Join join, SkPaint::Cap cap) {
+    SkPath output;
+    SkPaint p;
+    p.setStyle(SkPaint::kStroke_Style);
+    p.setStrokeCap(cap);
+    p.setStrokeJoin(join);
+    p.setStrokeWidth(width);
+
+    if (p.getFillPath(path, &output)) {
+        return emscripten::val(output);
+    }
+    SkDebugf("Could not stroke path\n");
+    return emscripten::val::null();
+}
+
 //========================================================================================
 // Testing things
 //========================================================================================
@@ -384,6 +446,8 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("addPath",
             select_overload<void(SkPath&, const SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&Path2DAddPath))
         .function("close", &SkPath::close)
+        .function("conicTo",
+            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::conicTo))
         .function("cubicTo",
             select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
         .function("quadTo",
@@ -392,8 +456,15 @@ EMSCRIPTEN_BINDINGS(skia) {
         // Extra features
         .function("setFillType", &SkPath::setFillType)
         .function("getFillType", &SkPath::getFillType)
+        .function("getCanvasFillType", &GetCanvasFillType)
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
+
+        // PathEffects
+        .function("dash", &PathEffectDash)
+        .function("trim", select_overload<SkPathOrNull(const SkPath&, SkScalar, SkScalar)>(&PathEffectTrim))
+        .function("trim", select_overload<SkPathOrNull(const SkPath&, SkScalar, SkScalar, bool)>(&PathEffectTrim))
+        .function("stroke", &PathEffectStroke)
 
         // PathOps
         .function("simplify", &SimplifyPath)
@@ -407,6 +478,7 @@ EMSCRIPTEN_BINDINGS(skia) {
 
 #ifdef PATHKIT_TESTING
         .function("dump", select_overload<void() const>(&SkPath::dump))
+        .function("dumpHex", select_overload<void() const>(&SkPath::dumpHex))
 #endif
         ;
 
@@ -444,6 +516,7 @@ EMSCRIPTEN_BINDINGS(skia) {
     constant("MOVE_VERB",  MOVE);
     constant("LINE_VERB",  LINE);
     constant("QUAD_VERB",  QUAD);
+    constant("CONIC_VERB", CONIC);
     constant("CUBIC_VERB", CUBIC);
     constant("CLOSE_VERB", CLOSE);
 
@@ -458,11 +531,19 @@ EMSCRIPTEN_BINDINGS(skia) {
 
     function("MakeLTRBRect", &SkRect::MakeLTRB);
 
-    // coming soon - Stroke
+    // Stroke
+    enum_<SkPaint::Join>("StrokeJoin")
+        .value("MITER", SkPaint::Join::kMiter_Join)
+        .value("ROUND", SkPaint::Join::kRound_Join)
+        .value("BEVEL", SkPaint::Join::kBevel_Join);
+
+    enum_<SkPaint::Cap>("StrokeCap")
+        .value("BUTT",   SkPaint::Cap::kButt_Cap)
+        .value("ROUND",  SkPaint::Cap::kRound_Cap)
+        .value("SQUARE", SkPaint::Cap::kSquare_Cap);
+
 
     // coming soon - Matrix
-
-    // coming soon - Trim
 
     // Test Utils
     function("SkBits2FloatUnsigned", &SkBits2FloatUnsigned);

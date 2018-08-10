@@ -374,6 +374,11 @@ void SkDashImpl::flatten(SkWriteBuffer& buffer) const {
 }
 
 sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
+#ifdef WEB_ASSEMBLY
+    // Should not be reachable by WebAssembly Code.
+    SkASSERT(false);
+    return nullptr;
+#else
     const SkScalar phase = buffer.readScalar();
     uint32_t count = buffer.getArrayCount();
 
@@ -387,6 +392,7 @@ sk_sp<SkFlattenable> SkDashImpl::CreateProc(SkReadBuffer& buffer) {
         return SkDashPathEffect::Make(intervals.get(), SkToInt(count), phase);
     }
     return nullptr;
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
