@@ -114,6 +114,10 @@ public:
         return this->readObjectFromMemory(matrix);
     }
 
+    bool readRect(SkRect* rect) {
+        return this->readObjectFromMemory(rect);
+    }
+
     bool readRRect(SkRRect* rrect) {
         return this->readObjectFromMemory(rrect);
     }

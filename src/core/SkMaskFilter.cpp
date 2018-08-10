@@ -35,7 +35,7 @@ SkMaskFilterBase::NinePatch::~NinePatch() {
     }
 }
 
-bool SkMaskFilterBase::asABlur(BlurRec*) const {
+bool SkMaskFilterBase::asABlur1(BlurRec*) const {
     return false;
 }
 

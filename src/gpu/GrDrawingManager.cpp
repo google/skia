@@ -275,6 +275,14 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushState* flushState) {
     SkASSERT(startIndex <= stopIndex && stopIndex <= fOpLists.count());
 
+#if 0
+    SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
+                            startIndex, stopIndex, 0, fOpLists.count());
+    for (int i = startIndex; i < stopIndex; ++i) {
+        SkDebugf("%d: %d\n", i, fOpLists[i]->numOps());
+    }
+#endif
+
 #if GR_FLUSH_TIME_OP_SPEW
     SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
                             startIndex, stopIndex, 0, fOpLists.count());

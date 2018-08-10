@@ -64,49 +64,68 @@ static bool sw_draw_with_mask_filter(GrContext* context,
                                      const SkMaskFilter* filter,
                                      const SkIRect& clipBounds,
                                      GrPaint&& paint,
-                                     SkStrokeRec::InitStyle fillOrHairline) {
-    SkMask srcM, dstM;
-    if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
-                            SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
-        return false;
-    }
-    SkAutoMaskFreeImage autoSrc(srcM.fImage);
-
-    if (!as_MFB(filter)->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
-        return false;
-    }
-    // this will free-up dstM when we're done (allocated in filterMask())
-    SkAutoMaskFreeImage autoDst(dstM.fImage);
-
-    if (clip_bounds_quick_reject(clipBounds, dstM.fBounds)) {
-        return false;
-    }
-
-    // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
-    // the current clip (and identity matrix) and GrPaint settings
-    SkBitmap bm;
-    if (!bm.installPixels(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
-                          autoDst.release(), dstM.fRowBytes, mask_release_proc, nullptr)) {
-        return false;
-    }
-    bm.setImmutable();
-
-    sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
-    if (!image) {
-        return false;
-    }
-
+                                     SkStrokeRec::InitStyle fillOrHairline,
+                                     const GrUniqueKey& key) {
     auto proxyProvider = context->contextPriv().proxyProvider();
-    sk_sp<GrTextureProxy> maskProxy = proxyProvider->createTextureProxy(std::move(image),
-                                                                        kNone_GrSurfaceFlags,
-                                                                        1, SkBudgeted::kYes,
-                                                                        SkBackingFit::kApprox);
+
+    sk_sp<GrTextureProxy> maskProxy;
+
+    if (key.isValid()) {
+        maskProxy = proxyProvider->findProxyByUniqueKey(key, renderTargetContext->origin());
+    } else {
+        SkDebugf("--------------------------------found it\n");
+    }
+
     if (!maskProxy) {
-        return false;
+        SkMask srcM, dstM;
+        if (!SkDraw::DrawToMask(devPath, &clipBounds, filter, &viewMatrix, &srcM,
+                                SkMask::kComputeBoundsAndRenderImage_CreateMode, fillOrHairline)) {
+            return false;
+        }
+        SkAutoMaskFreeImage autoSrc(srcM.fImage);
+
+        if (!as_MFB(filter)->filterMask(&dstM, srcM, viewMatrix, nullptr)) {
+            return false;
+        }
+        // this will free-up dstM when we're done (allocated in filterMask())
+        SkAutoMaskFreeImage autoDst(dstM.fImage);
+
+        if (clip_bounds_quick_reject(clipBounds, dstM.fBounds)) {
+            return false;
+        }
+
+        // we now have a device-aligned 8bit mask in dstM, ready to be drawn using
+        // the current clip (and identity matrix) and GrPaint settings
+        SkBitmap bm;
+        if (!bm.installPixels(SkImageInfo::MakeA8(dstM.fBounds.width(), dstM.fBounds.height()),
+                              autoDst.release(), dstM.fRowBytes, mask_release_proc, nullptr)) {
+            return false;
+        }
+        bm.setImmutable();
+
+        sk_sp<SkImage> image = SkImage::MakeFromBitmap(bm);
+        if (!image) {
+            return false;
+        }
+
+        maskProxy = proxyProvider->createTextureProxy(std::move(image),
+                                                      kNone_GrSurfaceFlags,
+                                                      1, SkBudgeted::kYes,
+                                                      SkBackingFit::kApprox);
+        if (!maskProxy) {
+            return false;
+        }
+
+        if (key.isValid()) {
+            proxyProvider->assignUniqueKeyToProxy(key, maskProxy.get());
+        }
+
+        SkASSERT(SkRect::Make(dstM.fBounds) == maskProxy->getBoundsRect());
     }
 
     return draw_mask(renderTargetContext, clipData, viewMatrix,
-                     dstM.fBounds, std::move(paint), std::move(maskProxy));
+                     SkIRect::MakeWH(maskProxy->width(), maskProxy->height()),
+                     std::move(paint), std::move(maskProxy));
 }
 
 // Create a mask of 'devPath' and place the result in 'mask'.
@@ -156,7 +175,8 @@ static void draw_path_with_mask_filter(GrContext* context,
                                        const SkMaskFilterBase* maskFilter,
                                        const GrStyle& style,
                                        const SkPath* path,
-                                       bool pathIsMutable) {
+                                       bool pathIsMutable,
+                                       const GrUniqueKey& key) {
     SkASSERT(maskFilter);
 
     SkIRect clipBounds;
@@ -225,18 +245,28 @@ static void draw_path_with_mask_filter(GrContext* context,
             return;
         }
 
-        sk_sp<GrTextureProxy> maskProxy(create_mask_GPU(context,
-                                                        finalIRect,
-                                                        *path,
-                                                        fillOrHairline,
-                                                        aa,
-                                                        renderTargetContext->numColorSamples()));
+        GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+
+#if 1
+        sk_sp<GrTextureProxy> maskProxy;
+
+        if (key.isValid()) {
+            proxyProvider->findProxyByUniqueKey(key, renderTargetContext->origin());
+        } else {
+            maskProxy = create_mask_GPU(context,
+                                        finalIRect,
+                                        *path,
+                                        fillOrHairline,
+                                        aa,
+                                        renderTargetContext->numColorSamples());
+        }
         if (maskProxy) {
             sk_sp<GrTextureProxy> filtered = maskFilter->filterMaskGPU(context,
                                                                        std::move(maskProxy),
                                                                        viewMatrix,
                                                                        finalIRect);
             if (filtered) {
+                proxyProvider->assignUniqueKeyToProxy(key, filtered.get());
                 if (draw_mask(renderTargetContext, clip, viewMatrix,
                               finalIRect, std::move(paint), std::move(filtered))) {
                     // This path is completely drawn
@@ -244,13 +274,14 @@ static void draw_path_with_mask_filter(GrContext* context,
                 }
             }
         }
+#endif
     }
 
     sw_draw_with_mask_filter(context, renderTargetContext, clip, viewMatrix, *path, maskFilter,
-                             clipBounds, std::move(paint), fillOrHairline);
+                             clipBounds, std::move(paint), fillOrHairline, key);
 }
 
-void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawPathWithMaskFilter2(GrContext* context,
                                          GrRenderTargetContext* renderTargetContext,
                                          const GrClip& clip,
                                          const SkPath& path,
@@ -259,12 +290,13 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          const SkMatrix& viewMatrix,
                                          const SkMaskFilter* mf,
                                          const GrStyle& style,
-                                         bool pathIsMutable) {
+                                         bool pathIsMutable,
+                                         const GrUniqueKey& key) {
     draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(paint), aa, viewMatrix,
-                               as_MFB(mf), style, &path, pathIsMutable);
+                               as_MFB(mf), style, &path, pathIsMutable, key);
 }
 
-void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawPathWithMaskFilter1(GrContext* context,
                                          GrRenderTargetContext* renderTargetContext,
                                          const GrClip& clip,
                                          const SkPath& origPath,
@@ -272,7 +304,8 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          const SkMatrix& origViewMatrix,
                                          const SkMatrix* prePathMatrix,
                                          const SkIRect& clipBounds,
-                                         bool pathIsMutable) {
+                                         bool pathIsMutable,
+                                         const GrUniqueKey& key) {
     if (context->abandoned()) {
         return;
     }
@@ -314,7 +347,7 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
-                                   viewMatrix, mf, style, path, pathIsMutable);
+                                   viewMatrix, mf, style, path, pathIsMutable, key);
     } else {
         renderTargetContext->drawPath(clip, std::move(grPaint), aa, viewMatrix, *path, style);
     }
