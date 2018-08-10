@@ -54,7 +54,6 @@ namespace SkSL {
 class MetalCodeGenerator : public CodeGenerator {
 public:
     static constexpr const char* SAMPLER_SUFFIX = "Smplr";
-    static constexpr const char* PACKED_PREFIX = "packed_";
 
     enum Precedence {
         kParentheses_Precedence    =  1,
