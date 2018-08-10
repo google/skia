@@ -10,12 +10,12 @@ describe('PathKit\'s Path2D API', function() {
 
     // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
     var PathKit = null;
-    const LoadPathKit = new Promise(function(resolve, reject){
+    const LoadPathKit = new Promise(function(resolve, reject) {
         if (PathKit) {
             resolve();
         } else {
             PathKitInit({
-                locateFile: (file) => '/base/npm-wasm/bin/test/'+file,
+                locateFile: (file) => '/pathkit/'+file,
             }).then((_PathKit) => {
                 PathKit = _PathKit;
                 resolve();
@@ -23,7 +23,7 @@ describe('PathKit\'s Path2D API', function() {
         }
     });
 
-    it('can do everything in the Path2D API w/o crashing', function(done){
+    it('can do everything in the Path2D API w/o crashing', function(done) {
         LoadPathKit.then(() => {
             // This is taken from example.html
             let path = PathKit.NewPath();
@@ -75,6 +75,31 @@ describe('PathKit\'s Path2D API', function() {
             path.delete();
             secondPath.delete();
 
+            done();
+        });
+    });
+
+    it('approximates arcs (conics) with quads', function(done) {
+        LoadPathKit.then(() => {
+            let path = PathKit.NewPath();
+            path.moveTo(20, 120);
+            path.arc(20, 120, 18, 0, 1.75 * Math.PI);
+            path.lineTo(20, 120);
+
+            let canvas = document.createElement('canvas');
+            container.appendChild(canvas);
+            let canvasCtx = canvas.getContext('2d');
+
+            spyOn(canvasCtx, 'quadraticCurveTo');
+
+            canvasCtx.beginPath();
+            path.toCanvas(canvasCtx);
+            canvasCtx.stroke();
+            // No need to check the whole path, as that's more what the
+            // gold correctness tests are for (can account for changes we make
+            // to the approximation algorithms).
+            expect(canvasCtx.quadraticCurveTo).toHaveBeenCalled();
+            path.delete();
             done();
         });
     });
