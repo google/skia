@@ -35,7 +35,7 @@ bool RenderNode::RenderContext::modulatePaint(SkPaint* paint) const {
 
 RenderNode::ScopedRenderContext::ScopedRenderContext(SkCanvas* canvas, const RenderContext* ctx)
     : fCanvas(canvas)
-    , fCtx(ctx)
+    , fCtx(ctx ? *ctx : RenderContext())
     , fRestoreCount(canvas->getSaveCount()) {}
 
 RenderNode::ScopedRenderContext::~ScopedRenderContext() {
@@ -44,43 +44,27 @@ RenderNode::ScopedRenderContext::~ScopedRenderContext() {
     }
 }
 
-RenderNode::RenderContext* RenderNode::ScopedRenderContext::writableContext() {
-    // If no inherited context is present, allocate one in local storage.
-    if (!fCtx.get()) {
-        // N.B.: we have to force a copy while the default source is in scope.
-        // TODO: add SkTCopyOnWrite::init_copy() to simplify this
-        RenderContext default_ctx;
-        fCtx.init(default_ctx);
-        return fCtx.writable();
-    }
-    return fCtx.writable();
-}
-
 RenderNode::ScopedRenderContext&&
 RenderNode::ScopedRenderContext::modulateOpacity(float opacity) {
     SkASSERT(opacity >= 0 && opacity <= 1);
-    if (opacity < 1) {
-        this->writableContext()->fOpacity *= opacity;
-    }
+    fCtx.fOpacity *= opacity;
     return std::move(*this);
 }
 
 RenderNode::ScopedRenderContext&&
 RenderNode::ScopedRenderContext::modulateColorFilter(sk_sp<SkColorFilter> cf) {
-    if (cf) {
-        auto* ctx = this->writableContext();
-        ctx->fColorFilter = SkColorFilter::MakeComposeFilter(std::move(ctx->fColorFilter), cf);
-    }
+    fCtx.fColorFilter = SkColorFilter::MakeComposeFilter(std::move(fCtx.fColorFilter),
+                                                         std::move(cf));
     return std::move(*this);
 }
 
 RenderNode::ScopedRenderContext&&
 RenderNode::ScopedRenderContext::setIsolation(const SkRect& bounds, bool isolation) {
-    if (isolation && fCtx.get()) {
+    if (isolation) {
         SkPaint layer_paint;
-        if (fCtx->modulatePaint(&layer_paint)) {
+        if (fCtx.modulatePaint(&layer_paint)) {
             fCanvas->saveLayer(bounds, &layer_paint);
-            *fCtx.writable() = RenderContext();
+            fCtx = RenderContext();
         }
     }
     return std::move(*this);
