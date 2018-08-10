@@ -134,6 +134,8 @@ void GrMtlGpuRTCommandBuffer::onDraw(const GrPrimitiveProcessor& primProc,
     [fActiveRenderCmdEncoder setRenderPipelineState: pipelineState->mtlPipelineState()];
 
     pipelineState->bind(fActiveRenderCmdEncoder);
+    pipelineState->setBlendConstants(fActiveRenderCmdEncoder, fRenderTarget->config(),
+                                     pipeline.getXferProcessor());
 
     for (int i = 0; i < meshCount; ++i) {
         const GrMesh& mesh = meshes[i];
