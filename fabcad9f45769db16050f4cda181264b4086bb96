@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "abba7951_aa6f85c1",
+        "filename": "src/effects/SkDashPathEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-10T20:07:42Z",
+      "side": 1,
+      "message": "Done: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8244",
+      "parentUuid": "d707e0ea_c00242d1",
+      "revId": "fabcad9f45769db16050f4cda181264b4086bb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2bb12374_3d11ec1e",
         "filename": "src/effects/SkDashPathEffect.cpp",
         "patchSetId": 10
@@ -39,6 +57,30 @@
       "revId": "fabcad9f45769db16050f4cda181264b4086bb96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b3f4eb0a_4a8d158a",
+        "filename": "src/effects/SkDashPathEffect.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-10T20:07:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "2bb12374_3d11ec1e",
+      "range": {
+        "startLine": 377,
+        "startChar": 7,
+        "endLine": 377,
+        "endChar": 19
+      },
+      "revId": "fabcad9f45769db16050f4cda181264b4086bb96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
