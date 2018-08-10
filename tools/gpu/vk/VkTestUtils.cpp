@@ -14,6 +14,10 @@
 #include "vk/GrVkExtensions.h"
 #include "../ports/SkOSLibrary.h"
 
+#ifdef SK_ENABLE_VK_LAYERS
+//#undef SK_ENABLE_VK_LAYERS
+#endif
+
 namespace sk_gpu_test {
 
 bool LoadVkLibraryAndGetProcAddrFuncs(PFN_vkGetInstanceProcAddr* instProc,

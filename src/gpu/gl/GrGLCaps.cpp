@@ -571,8 +571,6 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
 
-    fDynamicStateArrayGeometryProcessorTextureSupport = true;
-
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4, 1)) {
             fProgramBinarySupport = true;
