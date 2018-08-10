@@ -811,17 +811,34 @@ def dm_flags(api, bot):
     # skia:7603
     match.append('~^GrMeshTest$')
 
+  if 'Metal' in bot:
+    # skia:8243
+    match.append('~^ClearOp$')
+    match.append('~^DDLSurfaceCharacterizationTest$')
+    match.append('~^DDLOperatorEqTest$')
+    match.append('~^DeferredProxyTest$')
+    match.append('~^GPUMemorySize$')
+    match.append('~^GrContext_colorTypeSupportedAsImage$')
+    match.append('~^GrContext_colorTypeSupportedAsSurface$')
+    match.append('~^GrContext_maxSurfaceSamplesForColorType$')
+    match.append('~^GrContextFactory_sharedContexts$')
+    match.append('~^GrPipelineDynamicStateTest$')
+    match.append('~^GrSurfaceRenderability$')
+    match.append('~^InitialTextureClear$')
+    match.append('~^PromiseImageTest$')
+    match.append('~^ResourceAllocatorTest$')
+    match.append('~^RGB565TextureTest$')
+    match.append('~^RGBA4444TextureTest$')
+    match.append('~^TransferPixelsTest$')
+    match.append('~^skbug6653$')
+    match.append('~^SurfaceCreationWithColorSpace_Gpu$')
+    match.append('~^SurfaceSemaphores$')
+    match.append('~^VertexAttributeCount$')
+    match.append('~^WrappedProxyTest$')
+
   if blacklisted:
     args.append('--blacklist')
     args.extend(blacklisted)
-
-  if 'Metal' in bot:
-    # If we modify the whitelist to include GMs, also update infra/bots/cfg.json
-    # to remove Metal from no_upload.
-    match = []
-    match.append('CopySurface')
-    match.append('GrTestingBackendTextureUploadTest')
-    match.append('GrUploadPixelsTests')
 
   if match:
     args.append('--match')
