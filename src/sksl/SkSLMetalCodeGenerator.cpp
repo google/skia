@@ -585,12 +585,16 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
                 this->write(")]]");
             }
         }
-        if (fInterfaceBlockNameMap.empty()) {
+        if (fProgram.fKind == Program::kFragment_Kind) {
+            if (fInterfaceBlockNameMap.empty()) {
             // FIXME - Possibly have a different way of passing in u_skRTHeight or flip y axis
             // in a different way altogether.
-            this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(0)]]");
-        }
-        if (fProgram.fKind == Program::kFragment_Kind) {
+#ifdef SK_MOLTENVK
+                this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(0)]]");
+#else
+                this->write(", constant sksl_synthetic_uniforms& _anonInterface0 [[buffer(1)]]");
+#endif
+            }
             this->write(", float4 _fragCoord [[position]]");
         } else if (fProgram.fKind == Program::kVertex_Kind) {
             this->write(", uint sk_VertexID [[vertex_id]], uint sk_InstanceID [[instance_id]]");
