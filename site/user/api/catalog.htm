@@ -9131,10 +9131,10 @@
     "name": "SkTextBlobBuilder::allocRunPosH"
 },
     "SkTextBlob_Deserialize": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World!\", 12, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World!\", 12, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    uint16_t glyphs[6];\n    blobPaint.textToGlyphs(\"Hacker\", 6, glyphs);\n    memcpy((char*)data->writable_data() + 0x54, glyphs, sizeof(glyphs));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
     "width": 256,
     "height": 24,
-    "hash": "b49322e0363bd2930f4c7b98a3ff250e",
+    "hash": "9feac5842eaac425a062754097eb7b7b",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::Deserialize"
 },
@@ -9163,18 +9163,18 @@
     "name": "SkTextBlob::bounds()"
 },
     "SkTextBlob_serialize": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World\", 11, blobPaint);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobPaint);\n    char storage[2048];\n    size_t used = blob->serialize(SkSerialProcs(), storage, sizeof(storage));\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(storage, used, SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n    std::string usage = \"size=\" + std::to_string(sizeof(storage)) + \" used=\" + std::to_string(used);\n    canvas->drawString(usage.c_str(), 20, 40, SkPaint());\n}",
     "width": 256,
     "height": 64,
-    "hash": "adf1f5687736356419c0114327ea6df9",
+    "hash": "b1d67f0b0f342eb3e70db01bdefdc21b",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::serialize()"
 },
     "SkTextBlob_serialize_2": {
-    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeAsDrawText(\"Hello World\", 11, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
+    "code": "#include \"SkSerialProcs.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint blobPaint;\n    blobPaint.setTextSize(24);\n    sk_sp<SkTextBlob> blob = SkTextBlob::MakeFromText(\"Hello World\", 11, blobPaint);\n    sk_sp<SkData> data = blob->serialize(SkSerialProcs());\n    sk_sp<SkTextBlob> copy = SkTextBlob::Deserialize(data->data(), data->size(), SkDeserialProcs());\n    canvas->drawTextBlob(copy, 20, 20, SkPaint());\n}",
     "width": 256,
     "height": 24,
-    "hash": "ae23af73f49735177dd5cc1040ed1255",
+    "hash": "9447d4cf5d560b40b7535e403d854c20",
     "file": "SkTextBlob_Reference",
     "name": "SkTextBlob::serialize_2"
 },
