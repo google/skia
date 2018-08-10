@@ -14,6 +14,10 @@ module.exports = function(config) {
       'tests/*.spec.js'
     ],
 
+    proxies: {
+      "/pathkit/": "/base/npm-wasm/bin/test/"
+    },
+
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
