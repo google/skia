@@ -446,6 +446,117 @@ sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyImpl(GrContext* ctx,
                                    SkBudgeted::kYes);
 }
 
+sk_sp<SkImage> SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+        GrContext* ctx,
+        SkYUVColorSpace colorSpace,
+        const GrBackendTexture yuvaTextures[],
+        SkYUVAIndex yuvaIndices[4],
+        SkISize size,
+        GrSurfaceOrigin origin,
+        GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace>
+                imageColorSpace) {
+    GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
+
+    // Right now this still only deals with YUV and NV12 formats. Assuming that YUV has different
+    // textures for U and V planes, while NV12 uses same texture for U and V planes.
+    bool nv12 = (yuvaIndices[1].fIndex == yuvaIndices[2].fIndex);
+    auto ct = nv12 ? kRGBA_8888_SkColorType : kAlpha_8_SkColorType;
+
+    // We need to make a copy of the input backend textures because we need to preserve the result
+    // of validate_backend_texture.
+    GrBackendTexture yuvaTexturesCopy[4];
+
+    for (int i = 0; i < 4; ++i) {
+        // Validate that the yuvaIndices refer to valid backend textures.
+        SkYUVAIndex& yuvaIndex = yuvaIndices[i];
+        if (i == 3 && yuvaIndex.fIndex == -1) {
+            // Meaning the A plane isn't passed in.
+            continue;
+        }
+        if (yuvaIndex.fIndex == -1 || yuvaIndex.fIndex > 3) {
+            // Y plane, U plane, and V plane must refer to image sources being passed in. There are
+            // at most 4 images sources being passed in, could not have a index more than 3.
+            return nullptr;
+        }
+        if (!yuvaTexturesCopy[yuvaIndex.fIndex].isValid()) {
+            yuvaTexturesCopy[yuvaIndex.fIndex] = yuvaTextures[yuvaIndex.fIndex];
+            // TODO: Instead of using assumption about whether it is NV12 format to guess colorType,
+            // actually use channel information here.
+            if (!validate_backend_texture(ctx, yuvaTexturesCopy[i], &yuvaTexturesCopy[i].fConfig,
+                                          ct, kPremul_SkAlphaType, nullptr)) {
+                return nullptr;
+            }
+        }
+
+        // TODO: Check that for each plane, the channel actually exist in the image source we are
+        // reading from.
+    }
+
+    sk_sp<GrTextureProxy> tempTextureProxies[4];
+    for (int i = 0; i < 4; ++i) {
+        // Fill in tempTextureProxies to avoid duplicate texture proxies.
+        int textureIndex = yuvaIndices[i].fIndex;
+
+        // Safely ignore since this means we are missing the A plane.
+        if (textureIndex == -1) {
+            SkASSERT(3 == i);
+            continue;
+        }
+
+        if (!tempTextureProxies[textureIndex]) {
+            SkASSERT(yuvaTexturesCopy[textureIndex].isValid());
+            tempTextureProxies[textureIndex] =
+                    proxyProvider->wrapBackendTexture(yuvaTexturesCopy[textureIndex], origin);
+        }
+    }
+    sk_sp<GrTextureProxy> yProxy = tempTextureProxies[yuvaIndices[0].fIndex];
+    sk_sp<GrTextureProxy> uProxy = tempTextureProxies[yuvaIndices[1].fIndex];
+    sk_sp<GrTextureProxy> vProxy = tempTextureProxies[yuvaIndices[2].fIndex];
+
+    if (!yProxy || !uProxy || !vProxy) {
+        return nullptr;
+    }
+
+    const int width = size.width();
+    const int height = size.height();
+
+    if (!validate_backend_texture(ctx, backendTexture, &backendTexture.fConfig, ct,
+                                  kPremul_SkAlphaType, nullptr)) {
+        return nullptr;
+    }
+    // Needs to be a render target in order to draw to it for the yuv->rgb conversion.
+    sk_sp<GrRenderTargetContext> renderTargetContext(
+            ctx->contextPriv().makeBackendTextureRenderTargetContext(backendTexture, origin, 1,
+                                                                     std::move(imageColorSpace)));
+
+    if (!renderTargetContext) {
+        return nullptr;
+    }
+
+    GrPaint paint;
+    paint.setPorterDuffXPFactory(SkBlendMode::kSrc);
+    // TODO: Modify the fragment processor to sample from different channel instead of taking nv12
+    // bool.
+    paint.addColorFragmentProcessor(
+            GrYUVtoRGBEffect::Make(yProxy, uProxy, vProxy, colorSpace, nv12));
+
+    const SkRect rect = SkRect::MakeIWH(width, height);
+
+    renderTargetContext->drawRect(GrNoClip(), std::move(paint), GrAA::kNo, SkMatrix::I(), rect);
+
+    if (!renderTargetContext->asSurfaceProxy()) {
+        return nullptr;
+    }
+    ctx->contextPriv().flushSurfaceWrites(renderTargetContext->asSurfaceProxy());
+
+    // MDB: this call is okay bc we know 'renderTargetContext' was exact
+    return sk_make_sp<SkImage_Gpu>(sk_ref_sp(ctx), kNeedNewImageUniqueID, kOpaque_SkAlphaType,
+                                   renderTargetContext->asTextureProxyRef(),
+                                   renderTargetContext->colorSpaceInfo().refColorSpace(),
+                                   SkBudgeted::kNo);
+}
+
 sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                 const GrBackendTexture yuvTextures[3],
                                                 GrSurfaceOrigin origin,
@@ -461,6 +572,21 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
                                                      size, origin, std::move(imageColorSpace));
 }
 
+sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
+        GrContext* ctx, SkYUVColorSpace colorSpace, const GrBackendTexture yuvTextures[3],
+        GrSurfaceOrigin origin, GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace> imageColorSpace) {
+    SkYUVAIndex yuvaIndices[4] = {
+            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{2, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+    SkISize size{yuvTextures[0].width(), yuvTextures[0].height()};
+    return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+            ctx, colorSpace, yuvTextures, yuvaIndices, size, origin, backendTexture,
+            std::move(imageColorSpace));
+}
+
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace colorSpace,
                                                  const GrBackendTexture nv12Textures[2],
                                                  GrSurfaceOrigin origin,
@@ -474,6 +600,25 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
     SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
     return SkImage_Gpu::MakeFromYUVATexturesCopyImpl(ctx, colorSpace, nv12Textures, yuvaIndices,
                                                      size, origin, std::move(imageColorSpace));
+}
+
+sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopyWithExternalBackend(
+        GrContext* ctx,
+        SkYUVColorSpace colorSpace,
+        const GrBackendTexture nv12Textures[2],
+        GrSurfaceOrigin origin,
+        GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace>
+                imageColorSpace) {
+    SkYUVAIndex yuvaIndices[4] = {
+            SkYUVAIndex{0, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel},
+            SkYUVAIndex{-1, SkImageSourceChannel::kLastEnum_SkImageSourceChannel}};
+    SkISize size{nv12Textures[0].width(), nv12Textures[0].height()};
+    return SkImage_Gpu::MakeFromYUVATexturesCopyWithExternalBackendImpl(
+            ctx, colorSpace, nv12Textures, yuvaIndices, size, origin, backendTexture,
+            std::move(imageColorSpace));
 }
 
 static sk_sp<SkImage> create_image_from_producer(GrContext* context, GrTextureProducer* producer,
