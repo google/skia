@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a0a2ecf_3de4a482",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-10T16:46:40Z",
+      "side": 1,
+      "message": "probably can std::move(cf) too?",
+      "range": {
+        "startLine": 57,
+        "startChar": 87,
+        "endLine": 57,
+        "endChar": 89
+      },
+      "revId": "a39654593ce5b24026d7a249ea93edeae96a9c12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eeb53011_54836868",
+        "filename": "modules/sksg/src/SkSGRenderNode.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-10T16:46:40Z",
+      "side": 1,
+      "message": "I think I\u0027d have expected\n\n   if (isolation) {\n       SkPaint paint;\n       if (fCtx.modulatePaint(\u0026paint)) {\n           fCanvas-\u003esaveLayer(bounds, paint);\n           fCtx \u003d RenderContext();\n       }\n   }\n   return std::move(*this);\n\nIsn\u0027t that all the same work as we\u0027re doing with SkTLazy\u003cSkPaint\u003e?",
+      "revId": "a39654593ce5b24026d7a249ea93edeae96a9c12",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
