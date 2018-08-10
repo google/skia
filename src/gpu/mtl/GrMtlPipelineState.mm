@@ -145,9 +145,11 @@ void GrMtlPipelineState::setRenderTargetState(const GrRenderTargetProxy* proxy) 
     GrRenderTarget* rt = proxy->peekRenderTarget();
 
     // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
-    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
-        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
-        fDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
+    if (fBuiltinUniformHandles.fRTDimensionsUni.isValid() &&
+        (fRenderTargetState.fRenderTargetSize.fWidth != rt->width() ||
+         fRenderTargetState.fRenderTargetSize.fHeight != rt->height())) {
+        fDataManager.set2f(fBuiltinUniformHandles.fRTDimensionsUni, SkIntToScalar(rt->width()),
+                           SkIntToScalar(rt->height()));
     }
 
     // set RT adjustment

@@ -57,6 +57,7 @@ Differences from GLSL
   Use swizzles instead.
 * Use texture() instead of textureProj(), e.g. texture(sampler2D, float3) is
   equivalent to GLSL's textureProj(sampler2D, float3)
+* Render target dimensions are available via sk_Dimensions
 * some built-in functions and one or two rarely-used language features are not
   yet supported (sorry!)
 
