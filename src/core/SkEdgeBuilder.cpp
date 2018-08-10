@@ -14,6 +14,7 @@
 #include "SkLineClipper.h"
 #include "SkPath.h"
 #include "SkPathPriv.h"
+#include "SkSafeMath.h"
 #include "SkTo.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -272,7 +273,11 @@ int SkEdgeBuilder::buildPoly(const SkPath& path, const SkIRect* iclip, int shift
         // clipping can turn 1 line into (up to) kMaxClippedLineSegments, since
         // we turn portions that are clipped out on the left/right into vertical
         // segments.
-        maxEdgeCount *= SkLineClipper::kMaxClippedLineSegments;
+        SkSafeMath safe;
+        maxEdgeCount = safe.mul(maxEdgeCount, SkLineClipper::kMaxClippedLineSegments);
+        if (!safe) {
+            return 0;
+        }
     }
 
     size_t edgeSize;
