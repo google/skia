@@ -26,6 +26,16 @@ GrMtlCaps::GrMtlCaps(const GrContextOptions& contextOptions, const id<MTLDevice>
 
     this->applyOptionsOverrides(contextOptions);
     fShaderCaps->applyOptionsOverrides(contextOptions);
+
+    // The following are disabled due to the unfinished Metal backend, not because Metal itself
+    // doesn't support it.
+    fBlacklistCoverageCounting = true;   // CCPR shaders have some incompatabilities with SkSLC
+    fFenceSyncSupport = false;           // Fences are not implemented yet
+    fMipMapSupport = false;              // GrMtlGpu::onRegenerateMipMapLevels() not implemented
+    fMultisampleDisableSupport = true;   // MSAA and resolving not implemented yet
+    fDiscardRenderTargetSupport = false; // GrMtlGpuCommandBuffer::discard() not implemented
+    fAvoidStencilBuffers = true;         // Stencils not implemented
+    fCrossContextTextureSupport = false; // GrMtlGpu::prepareTextureForCrossContextUsage() not impl
 }
 
 void GrMtlCaps::initFeatureSet(MTLFeatureSet featureSet) {
