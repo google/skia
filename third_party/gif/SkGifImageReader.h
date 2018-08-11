@@ -316,6 +316,10 @@ public:
             return 0;
         }
 
+        // TODO(nigeltao): do we need a similar adjust-by-1 for Wuffs? Will
+        // that need additional Wuffs API?? What aspect of the color table is
+        // keeded for the required frame calculation?
+        //
         // This avoids counting an empty frame when the file is truncated (or
         // simply not yet complete) after receiving SkGIFControlExtension (and
         // possibly SkGIFImageHeader) but before reading the color table. This

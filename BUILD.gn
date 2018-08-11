@@ -28,6 +28,7 @@ declare_args() {
   skia_use_lua = is_skia_dev_build && !is_ios
   skia_use_opencl = false
   skia_use_piex = !is_win
+  skia_use_wuffs_gif = true
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
@@ -153,10 +154,15 @@ config("skia_private") {
     "src/utils",
     "src/utils/win",
     "src/xml",
-    "third_party/gif",
+    "third_party/gif",  # TODO(nigeltao): delete.
   ]
   if (skia_llvm_path != "") {
     include_dirs += [ "$skia_llvm_path/include" ]
+  }
+
+  # TODO(nigeltao): is this the right place to put this?
+  if (skia_use_wuffs_gif) {
+    include_dirs += [ "third_party/externals/wuffs/release/c" ]
   }
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
@@ -766,6 +772,18 @@ optional("webp") {
   ]
 }
 
+optional("wuffs_gif") {
+  enabled = skia_use_wuffs_gif
+  public_defines = [ "SK_HAS_WUFFS_GIF_LIBRARY" ]
+
+  deps = [
+    "//third_party/wuffs",
+  ]
+  sources = [
+    "src/codec/SkWuffsGifCodec.cpp",
+  ]
+}
+
 optional("xml") {
   enabled = skia_use_expat
   public_defines = [ "SK_XML" ]
@@ -837,6 +855,7 @@ component("skia") {
     ":sse42",
     ":ssse3",
     ":webp",
+    ":wuffs_gif",
     ":xml",
   ]
 
@@ -863,7 +882,7 @@ component("skia") {
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
-    "src/codec/SkGifCodec.cpp",
+    "src/codec/SkGifCodec.cpp",  # TODO(nigeltao): delete.
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
     "src/codec/SkSampledCodec.cpp",
@@ -879,7 +898,7 @@ component("skia") {
     "src/sfnt/SkOTTable_name.cpp",
     "src/sfnt/SkOTUtils.cpp",
     "src/utils/mac/SkStream_mac.cpp",
-    "third_party/gif/SkGifImageReader.cpp",
+    "third_party/gif/SkGifImageReader.cpp",  # TODO(nigeltao): delete.
   ]
 
   libs = []
@@ -2021,8 +2040,8 @@ if (skia_enable_tools) {
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
-      "tools/viewer/TouchGesture.h",
       "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []

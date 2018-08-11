@@ -12,7 +12,6 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkData.h"
 #include "SkFrameHolder.h"
-#include "SkGifCodec.h"
 #include "SkHalf.h"
 #ifdef SK_HAS_HEIF_LIBRARY
 #include "SkHeifCodec.h"
@@ -26,6 +25,11 @@
 #include "SkStream.h"
 #include "SkWbmpCodec.h"
 #include "SkWebpCodec.h"
+#ifdef SK_HAS_WUFFS_GIF_LIBRARY
+#include "SkWuffsGifCodec.h"
+#else
+#include "SkGifCodec.h"
+#endif
 
 struct DecoderProc {
     bool (*IsFormat)(const void*, size_t);
@@ -39,7 +43,11 @@ static constexpr DecoderProc gDecoderProcs[] = {
 #ifdef SK_HAS_WEBP_LIBRARY
     { SkWebpCodec::IsWebp, SkWebpCodec::MakeFromStream },
 #endif
+#ifdef SK_HAS_WUFFS_GIF_LIBRARY
+    { SkWuffsGifCodec::IsGif, SkWuffsGifCodec::MakeFromStream },
+#else
     { SkGifCodec::IsGif, SkGifCodec::MakeFromStream },
+#endif
 #ifdef SK_HAS_PNG_LIBRARY
     { SkIcoCodec::IsIco, SkIcoCodec::MakeFromStream },
 #endif
@@ -194,6 +202,18 @@ bool SkCodec::rewindIfNeeded() {
         return true;
     }
 
+    // TODO(scroggo): does resetting fCurrScanline and fStartedIncrementalDecode really belong here
+    // or does it belong in the calling functions?? For example, does calling getYUV8Planes really
+    // need to reset these fields? Should the startIncrementalDecode function be the only one that
+    // resets fStartedIncrementalDecode?
+    //
+    // The SkWuffsGifCodec manages its own stream rewinding, passing a nullptr SkStream to the
+    // SkCodec constructor. It doesn't call rewindIfNeeded, but it's unclear whether it's therefore
+    // missing out on resetting this state when needed. If the state reset was moved into the call
+    // sites, the responsibility split between the SkCodec superclass and any particular subclass
+    // might be clearer: rewindIfNeeded would be solely about rewinding the stream, and so a
+    // subclass that managed its own rewinds would never have to explicitly call rewindIfNeeded.
+
     // startScanlineDecode will need to be called before decoding scanlines.
     fCurrScanline = -1;
     // startIncrementalDecode will need to be called before incrementalDecode.
@@ -339,6 +359,31 @@ SkCodec::Result SkCodec::getPixels(const SkImageInfo& info, void* pixels, size_t
         return kInvalidParameters;
     }
 
+    // TODO(scroggo): don't rewind so frequently. Calling getPixels N times
+    // means calling rewindIfNeeded N times, which will rewind the stream at
+    // least N-1 times, as all but the first rewindIfNeeded triggers a rewind.
+    //
+    // The Skia API is random access: "return the i'th frame". Some animated
+    // codec implementations' underlying libraries (e.g. Wuffs) are sequential
+    // access: "return the next frame", and don't assume that the stream is
+    // seek'able or that, given an offset, you can read_at(offset, length). For
+    // example, when decoding from a network connection or a Unix pipe (e.g.
+    // stdin), the stream might not support random access.
+    //
+    // Even if getPixels is called with options.fFrameIndex in sequential order
+    // (0, 1, 2, etc) the rewindIfNeeded call here means that the underlying
+    // libraries are told to reset their state for a re-wound stream and
+    // iterate forward from zero, and told to do so N or N-1 times, *even if*
+    // the stream was already perfectly placed to decode the next frame.
+    //
+    // This means that using SkCodec to play an animation in the natural,
+    // sequential order can have quadratic complexity even if the underlying
+    // third party libraries can play those N frames in O(N) or linear
+    // complexity. Obviously, we should fix this.
+    //
+    // As a workaround, SkWuffsGifCodec passes a nullptr SkStream to the
+    // superclass SkCodec constructor, and manages the stream (and its
+    // rewinding) itself.
     if (!this->rewindIfNeeded()) {
         return kCouldNotRewind;
     }
