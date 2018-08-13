@@ -35,6 +35,16 @@ static void testChopCubic(skiatest::Reporter* reporter) {
     if (false) { // avoid bit rot, suppress warning
         REPORTER_ASSERT(reporter, count);
     }
+    // Make sure src and dst can be the same pointer.
+    SkPoint pts[7];
+    for (int i = 0; i < 7; ++i) {
+        pts[i].set(i, i);
+    }
+    SkChopCubicAt(pts, pts, .5f);
+    for (int i = 0; i < 7; ++i) {
+        REPORTER_ASSERT(reporter, pts[i].fX == pts[i].fY);
+        REPORTER_ASSERT(reporter, pts[i].fX == i * .5f);
+    }
 }
 
 static void check_pairs(skiatest::Reporter* reporter, int index, SkScalar t, const char name[],
@@ -328,24 +338,24 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
 }
 
 DEF_TEST(Geometry, reporter) {
-    SkPoint pts[3], dst[5];
+    SkPoint pts[5];
 
     pts[0].set(0, 0);
     pts[1].set(100, 50);
     pts[2].set(0, 100);
 
-    int count = SkChopQuadAtMaxCurvature(pts, dst);
+    int count = SkChopQuadAtMaxCurvature(pts, pts);  // Ensure src and dst can be the same pointer.
     REPORTER_ASSERT(reporter, count == 1 || count == 2);
 
     pts[0].set(0, 0);
     pts[1].set(3, 0);
     pts[2].set(3, 3);
-    SkConvertQuadToCubic(pts, dst);
+    SkConvertQuadToCubic(pts, pts);
     const SkPoint cubic[] = {
         { 0, 0, }, { 2, 0, }, { 3, 1, }, { 3, 3 },
     };
     for (int i = 0; i < 4; ++i) {
-        REPORTER_ASSERT(reporter, nearly_equal(cubic[i], dst[i]));
+        REPORTER_ASSERT(reporter, nearly_equal(cubic[i], pts[i]));
     }
 
     testChopCubic(reporter);
