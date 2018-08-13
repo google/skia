@@ -10,33 +10,31 @@
 
 #include "SkPoint.h"
 
+/**
+ *  Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic
+ *  curve inside the unit square.
+ *
+ *  pt[0] is implicitly { 0, 0 }
+ *  pt[3] is implicitly { 1, 1 }
+ *  pts[1,2] are inside the unit square
+ */
 class SkCubicMap {
 public:
-    void setPts(SkPoint p1, SkPoint p2);
-    void setPts(float x1, float y1, float x2, float y2) {
-        this->setPts({x1, y1}, {x2, y2});
-    }
+    SkCubicMap() {} // must call setPts() before using
 
-    SkPoint computeFromT(float t) const;
+    SkCubicMap(SkPoint p1, SkPoint p2) {
+        this->setPts(p1, p2);
+    }
+    void setPts(SkPoint p1, SkPoint p2);
+
     float computeYFromX(float x) const;
 
-    // experimental
-    float hackYFromX(float x) const;
+    // is this needed?
+    SkPoint computeFromT(float t) const;
 
 private:
-    SkPoint fCoeff[4];
-    // x->t lookup
-    enum { kTableCount = 16 };
-    struct Rec {
-        float   fT0;
-        float   fDT;
-
-        float fY0;
-        float fDY;
-    };
-    Rec fXTable[kTableCount];
-
-    void buildXTable();
+    SkPoint fCoeff[3];
 };
+
 #endif
 
