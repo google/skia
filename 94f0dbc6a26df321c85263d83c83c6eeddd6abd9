@@ -16,6 +16,24 @@
       "revId": "94f0dbc6a26df321c85263d83c83c6eeddd6abd9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "02994738_5c1effe9",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-13T17:17:23Z",
+      "side": 1,
+      "message": "Done.  I switched the expression to directly (3) too, to make it clearer.",
+      "parentUuid": "dc6c1e48_6c71dec2",
+      "revId": "94f0dbc6a26df321c85263d83c83c6eeddd6abd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
