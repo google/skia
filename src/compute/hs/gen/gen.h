@@ -30,11 +30,13 @@ struct hsg_config
   struct {
 
     struct {
+      uint32_t  warps;
       uint32_t  lo;
       uint32_t  hi;
     } flip;
 
     struct {
+      uint32_t  warps;
       uint32_t  lo;
       uint32_t  hi;
     } half;
@@ -278,6 +280,7 @@ extern char const * const hsg_op_type_string[];
 
 struct hsg_target
 {
+  char const              * define;
   struct hsg_target_state * state;
 };
 
