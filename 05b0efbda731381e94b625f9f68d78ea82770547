@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a91f2ff7_10fac556",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-13T20:28:28Z",
+      "side": 1,
+      "message": "How much slower is it?  Animations may use hundreds of mappers, and these will be re-evaluated 1000s of times -- so we\u0027re looking at a significant multiplier...\n\nFor Skottie\u0027s use case I would prioritize\n\n1) re-use/eval cost\n2) initialization cost\n3) accuracy",
+      "range": {
+        "startLine": 11,
+        "startChar": 2,
+        "endLine": 11,
+        "endChar": 68
+      },
+      "revId": "05b0efbda731381e94b625f9f68d78ea82770547",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
