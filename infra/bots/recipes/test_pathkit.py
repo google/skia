@@ -20,8 +20,8 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1'
-INNER_KARMA_CONFIG = '/SRC/skia/experimental/pathkit/karma-docker.conf.js'
+DOCKER_IMAGE = 'gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v2'
+INNER_KARMA_SCRIPT = '/SRC/skia/experimental/pathkit/docker/test_pathkit.sh'
 
 
 
@@ -32,7 +32,8 @@ def RunSteps(api):
   api.checkout.bot_update(checkout_root=checkout_root)
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
-  api.file.ensure_directory('mkdirs out_dir', out_dir)
+  api.file.rmtree('clean out_dir', out_dir)
+  api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
   copy_dest = api.path.join(checkout_root, 'skia', 'experimental', 'pathkit',
                         'npm-wasm', 'bin', 'test')
@@ -76,12 +77,20 @@ os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
       args=[copy_dest, helper_js, wasm],
       infra_step=True)
 
-  # Remove any previous npm-wasm/bin/test and mkdir
-  # Copy built binaries to npm-wasm/bin/test
+
 
   cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
          '-v', '%s:/SRC' % checkout_root, '-v', '%s:/OUT' % out_dir,
-         DOCKER_IMAGE, 'karma', 'start', INNER_KARMA_CONFIG, '--single-run']
+         DOCKER_IMAGE,  INNER_KARMA_SCRIPT,
+         '--builder',              api.vars.builder_name,
+         '--gitHash',              api.properties['revision'],
+         '--buildbucket_build_id', api.properties.get('buildbucket_build_id',
+                                                      ''),
+         '--swarming_bot_id',      api.vars.swarming_bot_id,
+         '--swarming_task_id',     api.vars.swarming_task_id,
+         '--browser',              'Chrome',
+         '--config',               api.vars.configuration,
+         ]
 
   api.run(
     api.step,
