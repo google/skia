@@ -1156,7 +1156,9 @@ void Viewer::onPaint(SkCanvas* canvas) {
 }
 
 void Viewer::onResize(int width, int height) {
-    fSlides[fCurrentSlide]->resize(width, height);
+    if (fCurrentSlide >= 0) {
+        fSlides[fCurrentSlide]->resize(width, height);
+    }
 }
 
 SkPoint Viewer::mapEvent(float x, float y) {
