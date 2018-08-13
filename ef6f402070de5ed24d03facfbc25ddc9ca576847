@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d7c4704e_4266609a",
+        "filename": "src/core/SkRegion.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-13T18:10:53Z",
+      "side": 1,
+      "message": "If r.fLeft or r.fTop is the sentinel, then it is also the largest possible integer value, and will always be empty, so those tests aren\u0027t needed.\n\nAlso, could you add a test?",
+      "range": {
+        "startLine": 196,
+        "startChar": 22,
+        "endLine": 196,
+        "endChar": 47
+      },
+      "revId": "ef6f402070de5ed24d03facfbc25ddc9ca576847",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
