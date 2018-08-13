@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fabddc35_2262e370",
+        "filename": "src/gpu/gl/GrGLProgram.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-13T16:24:17Z",
+      "side": 0,
+      "message": "We\u0027d better assign this some known value, either at the start or ever invalidate() call.",
+      "revId": "2b522aab7b41651073597c992ce71f1280ff386f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
