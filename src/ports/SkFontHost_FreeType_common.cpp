@@ -410,6 +410,9 @@ void SkScalerContext_FreeType_Base::generateGlyphImage(
 #endif
                 canvas.translate(-glyph.fLeft, -glyph.fTop);
 
+                canvas.translate(SkFixedToScalar(glyph.getSubXFixed()),
+                                 SkFixedToScalar(glyph.getSubYFixed()));
+
                 SkPaint paint;
                 paint.setAntiAlias(true);
 
