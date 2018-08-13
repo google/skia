@@ -162,7 +162,7 @@ public:
      *  provided BlurRec parameter. If this effect cannot be represented as a BlurRec, return false
      *  and ignore the BlurRec parameter.
      */
-    virtual bool asABlur(BlurRec*) const;
+    virtual bool asABlur1(BlurRec*) const;
 
 protected:
     SkMaskFilterBase() {}

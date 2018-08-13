@@ -75,7 +75,7 @@ public:
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
-    bool asABlur(BlurRec*) const override;
+    bool asABlur1(BlurRec*) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
@@ -281,7 +281,7 @@ SkMask::Format SkBlurMaskFilterImpl::getFormat() const {
     return SkMask::kA8_Format;
 }
 
-bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
+bool SkBlurMaskFilterImpl::asABlur1(BlurRec* rec) const {
     if (this->ignoreXform()) {
         return false;
     }

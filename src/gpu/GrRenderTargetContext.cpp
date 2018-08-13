@@ -71,9 +71,11 @@ public:
     void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
                   const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
                   const SkIRect& clipBounds) override {
-        GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+        GrUniqueKey maskKey;
+
+        GrBlurUtils::drawPathWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                             clip, path, paint, viewMatrix, pathMatrix, clipBounds,
-                                            false);
+                                            false, maskKey);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,

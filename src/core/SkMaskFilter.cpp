@@ -35,7 +35,7 @@ SkMaskFilterBase::NinePatch::~NinePatch() {
     }
 }
 
-bool SkMaskFilterBase::asABlur(BlurRec*) const {
+bool SkMaskFilterBase::asABlur1(BlurRec*) const {
     return false;
 }
 
@@ -261,7 +261,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
     SkMask  srcM, dstM;
 
-    if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
+    if (!SkDraw::DrawToMask(devPath, clip.getBounds(), this, matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             style)) {
         return false;
