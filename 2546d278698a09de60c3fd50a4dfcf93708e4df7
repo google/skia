@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "d0e90e9a_c20e2d22",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-13T18:59:12Z",
+      "side": 1,
+      "message": "I find this comment confusing.  The required frame ... is marked as kNoRequiredFrame?",
+      "revId": "2546d278698a09de60c3fd50a4dfcf93708e4df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8be6ea27_0c90b7fb",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-13T18:59:12Z",
+      "side": 1,
+      "message": "I\u0027m not sure I\u0027m in position to offer better names, but a few that as an non-SkCodec expert seem to better convey the meaning you intend may be...\n\nSkCodec::SkFrameInfo::kNotRequired\nSkCodec::kFrameNotRequired\n\nI\u0027ll ultimately defer to you and Leon on the best name.",
+      "range": {
+        "startLine": 578,
+        "startChar": 25,
+        "endLine": 578,
+        "endChar": 41
+      },
+      "revId": "2546d278698a09de60c3fd50a4dfcf93708e4df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "669c4b43_a9992ee9",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 2
