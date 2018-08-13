@@ -87,7 +87,9 @@ public:
         void invalidate() {
             fRenderTargetSize.fWidth = -1;
             fRenderTargetSize.fHeight = -1;
-            fRenderTargetOrigin = (GrSurfaceOrigin) -1;
+            // We always check and update fRenderTargetSize and fRenderTargetOrigin
+            // together, so invalidating fRenderTargetSize is enough to invalidate both.
+            // This avoids the need to name another enum value (or use an illegal enum value).
         }
 
         /**
