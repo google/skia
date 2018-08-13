@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05320117_d0b3a7c5",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 652,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-13T14:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9bdfd14_fa3e54c6",
+      "range": {
+        "startLine": 652,
+        "startChar": 15,
+        "endLine": 652,
+        "endChar": 16
+      },
+      "revId": "3811b8dc322eca7ad40cdb949f5e1c4767cb3da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2d396eed_1252f7b8",
         "filename": "src/ports/SkFontHost_FreeType.cpp",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2018-06-18T21:20:57Z",
       "side": 1,
       "message": "ret -\u003e success",
+      "range": {
+        "startLine": 1799,
+        "startChar": 9,
+        "endLine": 1799,
+        "endChar": 12
+      },
+      "revId": "3811b8dc322eca7ad40cdb949f5e1c4767cb3da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7f812a20_dbc531bf",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1799,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-13T14:49:49Z",
+      "side": 1,
+      "message": "Could be either true or false.\nThe troublesome lack of automatically calling FT_Done_Face will be fixed later.",
+      "parentUuid": "2d396eed_1252f7b8",
       "range": {
         "startLine": 1799,
         "startChar": 9,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "611c6f48_0c42c668",
+        "filename": "src/ports/SkFontHost_FreeType_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-13T14:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfb1ef32_48c37aec",
+      "range": {
+        "startLine": 79,
+        "startChar": 20,
+        "endLine": 79,
+        "endChar": 27
+      },
+      "revId": "3811b8dc322eca7ad40cdb949f5e1c4767cb3da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5935d069_07e34061",
         "filename": "src/ports/SkFontHost_FreeType_common.h",
         "patchSetId": 7
@@ -91,6 +163,30 @@
       "revId": "3811b8dc322eca7ad40cdb949f5e1c4767cb3da4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d49d859a_5b568a51",
+        "filename": "src/ports/SkFontHost_FreeType_common.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-13T14:49:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5935d069_07e34061",
+      "range": {
+        "startLine": 92,
+        "startChar": 32,
+        "endLine": 92,
+        "endChar": 51
+      },
+      "revId": "3811b8dc322eca7ad40cdb949f5e1c4767cb3da4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
