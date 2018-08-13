@@ -186,6 +186,19 @@ ObjectValue::ObjectValue(const Member* src, size_t size, SkArenaAlloc& alloc) {
 
 // Boring public Value glue.
 
+static int inline_strcmp(const char a[], const char b[]) {
+    for (;;) {
+        char c = *a++;
+        if (c == 0) {
+            break;
+        }
+        if (c != *b++) {
+            return 1;
+        }
+    }
+    return *b != 0;
+}
+
 const Value& ObjectValue::operator[](const char* key) const {
     // Reverse search for duplicates resolution (policy: return last).
     const auto* begin  = this->begin();
@@ -193,7 +206,7 @@ const Value& ObjectValue::operator[](const char* key) const {
 
     while (member > begin) {
         --member;
-        if (0 == strcmp(key, member->fKey.as<StringValue>().begin())) {
+        if (0 == inline_strcmp(key, member->fKey.as<StringValue>().begin())) {
             return member->fValue;
         }
     }
