@@ -9,6 +9,93 @@
 #include "SkNx.h"
 #include "../../src/pathops/SkPathOpsCubic.h"
 
+static float eval_poly3(float a, float b, float c, float d, float t) {
+    return ((a * t + b) * t + c) * t + d;
+}
+
+static float eval_poly2(float a, float b, float c, float t) {
+    return (a * t + b) * t + c;
+}
+
+static float eval_poly1(float a, float b, float t) {
+    return a * t + b;
+}
+
+static float guess_nice_cubic_root(float A, float B, float C, float D) {
+    return -D;
+}
+
+#ifdef SK_DEBUG
+static bool valid(float r) {
+    return r >= 0 && r <= 1;
+}
+#endif
+
+/*
+ *  TODO: will this be faster if we algebraically compute the polynomials for the numer and denom
+ *        rather than compute them in parts?
+ *
+ *  TODO: investigate Householder's method, to see if we can get away with even fewer
+ *        iterations (divides)
+ */
+static float solve_nice_cubic_halley(float A, float B, float C, float D) {
+    const int MAX_ITERS = 3;    // 3 is accurate to 0.0000112 (anecdotally)
+                                // 2 is accurate to 0.0188965 (anecdotally)
+    const float A3 = 3 * A;
+    const float B2 = B + B;
+
+    float t = guess_nice_cubic_root(A, B, C, D);
+    for (int iters = 0; iters < MAX_ITERS; ++iters) {
+        float f = eval_poly3(A, B, C, D, t);    // f   = At^3 + Bt^2 + Ct + D
+        float fp = eval_poly2(A3, B2, C, t);    // f'  = 3At^2 + 2Bt + C
+        float fpp = eval_poly1(A3 + A3, B2, t); // f'' = 6At + 2B
+
+        float numer = 2 * fp * f;
+        float denom = 2 * fp * fp - f * fpp;
+        float delta = numer / denom;
+        float new_t = t - delta;
+        SkASSERT(valid(new_t));
+        t = new_t;
+    }
+    SkASSERT(valid(t));
+    return t;
+}
+
+#ifdef SK_DEBUG
+static float compute_slow(float A, float B, float C, float x) {
+    double roots[3];
+    SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, -x, roots);
+    SkASSERT(count == 1);
+    return (float)roots[0];
+}
+
+static float max_err;
+#endif
+
+static float compute_t_from_x(float A, float B, float C, float x) {
+#ifdef SK_DEBUG
+    float answer = compute_slow(A, B, C, x);
+#endif
+    float answer2 = solve_nice_cubic_halley(A, B, C, -x);
+#ifdef SK_DEBUG
+    float err = sk_float_abs(answer - answer2);
+    if (err > max_err) {
+        max_err = err;
+        SkDebugf("max error %g\n", max_err);
+    }
+#endif
+    return answer2;
+}
+
+float SkCubicMap::computeYFromX(float x) const {
+    SkASSERT(valid(x));
+    float t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
+    float a = fCoeff[0].fY;
+    float b = fCoeff[1].fY;
+    float c = fCoeff[2].fY;
+    return ((a * t + b) * t + c) * t;
+}
+
 void SkCubicMap::setPts(SkPoint p1, SkPoint p2) {
     Sk2s s1 = Sk2s::Load(&p1) * 3;
     Sk2s s2 = Sk2s::Load(&p2) * 3;
@@ -19,8 +106,6 @@ void SkCubicMap::setPts(SkPoint p1, SkPoint p2) {
     (Sk2s(1) + s1 - s2).store(&fCoeff[0]);
     (s2 - s1 - s1).store(&fCoeff[1]);
     s1.store(&fCoeff[2]);
-
-    this->buildXTable();
 }
 
 SkPoint SkCubicMap::computeFromT(float t) const {
@@ -31,53 +116,4 @@ SkPoint SkCubicMap::computeFromT(float t) const {
     SkPoint result;
     (((a * t + b) * t + c) * t).store(&result);
     return result;
-}
-
-float SkCubicMap::computeYFromX(float x) const {
-    x = SkTPin<float>(x, 0, 0.99999f) * kTableCount;
-    float ix = sk_float_floor(x);
-    int index = (int)ix;
-    SkASSERT((unsigned)index < SK_ARRAY_COUNT(fXTable));
-    return this->computeFromT(fXTable[index].fT0 + fXTable[index].fDT * (x - ix)).fY;
-}
-
-float SkCubicMap::hackYFromX(float x) const {
-    x = SkTPin<float>(x, 0, 0.99999f) * kTableCount;
-    float ix = sk_float_floor(x);
-    int index = (int)ix;
-    SkASSERT((unsigned)index < SK_ARRAY_COUNT(fXTable));
-    return fXTable[index].fY0 + fXTable[index].fDY * (x - ix);
-}
-
-static float compute_t_from_x(float A, float B, float C, float x) {
-    double roots[3];
-    SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, -x, roots);
-    SkASSERT(count == 1);
-    return (float)roots[0];
-}
-
-void SkCubicMap::buildXTable() {
-    float prevT = 0;
-
-    const float dx = 1.0f / kTableCount;
-    float x = dx;
-
-    fXTable[0].fT0 = 0;
-    fXTable[0].fY0 = 0;
-    for (int i = 1; i < kTableCount; ++i) {
-        float t = compute_t_from_x(fCoeff[0].fX, fCoeff[1].fX, fCoeff[2].fX, x);
-        SkASSERT(t > prevT);
-
-        fXTable[i - 1].fDT = t - prevT;
-        fXTable[i].fT0 = t;
-
-        SkPoint p = this->computeFromT(t);
-        fXTable[i - 1].fDY = p.fY - fXTable[i - 1].fY0;
-        fXTable[i].fY0 = p.fY;
-
-        prevT = t;
-        x += dx;
-    }
-    fXTable[kTableCount - 1].fDT = 1 - prevT;
-    fXTable[kTableCount - 1].fDY = 1 - fXTable[kTableCount - 1].fY0;
 }
