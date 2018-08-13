@@ -13,7 +13,6 @@
 #include "SkCodecAnimation.h"
 #include "SkCodecAnimationPriv.h"
 #include "SkCodecPriv.h"
-#include "SkColorSpaceXform.h"
 #include "SkMakeUnique.h"
 #include "SkRasterPipeline.h"
 #include "SkSampler.h"
@@ -89,15 +88,17 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
         }
     }
 
-    sk_sp<SkColorSpace> colorSpace = nullptr;
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
     {
         WebPChunkIterator chunkIterator;
         SkAutoTCallVProc<WebPChunkIterator, WebPDemuxReleaseChunkIterator> autoCI(&chunkIterator);
         if (WebPDemuxGetChunk(demux, "ICCP", 1, &chunkIterator)) {
-            colorSpace = SkColorSpace::MakeICC(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            // FIXME: I think this could be MakeWithoutCopy
+            auto chunk = SkData::MakeWithCopy(chunkIterator.chunk.bytes, chunkIterator.chunk.size);
+            profile = SkEncodedInfo::ICCProfile::Make(std::move(chunk));
         }
-        if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
-            colorSpace = SkColorSpace::MakeSRGB();
+        if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
+            profile = SkEncodedInfo::ICCProfile::MakeSRGB();
         }
     }
 
@@ -171,10 +172,9 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 
     *result = kSuccess;
-    SkEncodedInfo info = SkEncodedInfo::Make(color, alpha, 8);
-    return std::unique_ptr<SkCodec>(new SkWebpCodec(width, height, info, std::move(colorSpace),
-                                           std::move(stream), demux.release(), std::move(data),
-                                           origin));
+    SkEncodedInfo info = SkEncodedInfo::Make(width, height, color, alpha, 8, std::move(profile));
+    return std::unique_ptr<SkCodec>(new SkWebpCodec(std::move(info), std::move(stream),
+                                                    demux.release(), std::move(data), origin));
 }
 
 SkISize SkWebpCodec::onGetScaledDimensions(float desiredScale) const {
@@ -546,7 +546,6 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     // Choose the step when we will perform premultiplication.
     enum {
         kNone,
-        kBlendLine,
         kColorXform,
         kLibwebp,
     };
@@ -555,17 +554,13 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             // None necessary.
             return kNone;
         }
-        if (blendWithPrevFrame) {
-            // Premultiply in blend_line, in a linear space.
-            return kBlendLine;
-        }
         if (dstInfo.alphaType() != kPremul_SkAlphaType) {
             // No blending is necessary, so we only need to premultiply if the
             // client requested it.
             return kNone;
         }
         if (this->colorXform()) {
-            // Premultiply in the colorXform, in a linear space.
+            // Premultiply in the colorXform.
             return kColorXform;
         }
         return kLibwebp;
@@ -620,11 +615,20 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
             xformDst = dst;
         }
 
-        const auto xformAlphaType = (premulStep == kColorXform) ? kPremul_SkAlphaType   :
-                                    (          frame.has_alpha) ? kUnpremul_SkAlphaType :
-                                                                  kOpaque_SkAlphaType   ;
+        skcms_AlphaFormat srcAlpha, dstAlpha;
+        if (!frame.has_alpha) {
+            srcAlpha = dstAlpha = skcms_AlphaFormat_Opaque;
+        } else if (premulStep == kColorXform) {
+            srcAlpha = skcms_AlphaFormat_Unpremul;
+            dstAlpha = skcms_AlphaFormat_PremulAsEncoded;
+        } else {
+            SkASSERT(premulStep == kNone);
+            srcAlpha = skcms_AlphaFormat_Unpremul;
+            dstAlpha = skcms_AlphaFormat_Unpremul;
+        }
+
         for (int y = 0; y < rowsDecoded; y++) {
-            this->applyColorXform(xformDst, xformSrc, scaledWidth, xformAlphaType);
+            this->applyColorXform(xformDst, xformSrc, scaledWidth, srcAlpha, dstAlpha);
             if (blendWithPrevFrame) {
                 blend_line(dstCT, dst, dstCT, xformDst,
                         dstInfo.alphaType(), frame.has_alpha, scaledWidth);
@@ -648,14 +652,14 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     return result;
 }
 
-SkWebpCodec::SkWebpCodec(int width, int height, const SkEncodedInfo& info,
-                         sk_sp<SkColorSpace> colorSpace, std::unique_ptr<SkStream> stream,
+SkWebpCodec::SkWebpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          WebPDemuxer* demux, sk_sp<SkData> data, SkEncodedOrigin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kBGRA_8888_ColorFormat, std::move(stream),
-                std::move(colorSpace), origin)
+    : INHERITED(std::move(info), skcms_PixelFormat_BGRA_8888, std::move(stream),
+                origin)
     , fDemux(demux)
     , fData(std::move(data))
     , fFailed(false)
 {
-    fFrameHolder.setScreenSize(width, height);
+    const auto& eInfo = this->getEncodedInfo();
+    fFrameHolder.setScreenSize(eInfo.width(), eInfo.height());
 }
