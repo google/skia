@@ -189,14 +189,12 @@ bool SkRegion::setEmpty() {
 }
 
 bool SkRegion::setRect(const SkIRect& r) {
-    if (r.isEmpty()) {
+    if (r.isEmpty() ||
+        SkRegion_kRunTypeSentinel == r.right() ||
+        SkRegion_kRunTypeSentinel == r.bottom()) {
         return this->setEmpty();
     }
     this->freeRuns();
-    SkASSERT(r.left()   != SkRegion_kRunTypeSentinel);
-    SkASSERT(r.top()    != SkRegion_kRunTypeSentinel);
-    SkASSERT(r.right()  != SkRegion_kRunTypeSentinel);
-    SkASSERT(r.bottom() != SkRegion_kRunTypeSentinel);
     fBounds = r;
     fRunHead = SkRegion_gRectRunHeadPtr;
     return true;

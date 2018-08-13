@@ -467,3 +467,10 @@ DEF_TEST(rrect_region_crbug_850350, reporter) {
     rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});
 }
 
+DEF_TEST(region_bug_chromium_873051, reporter) {
+    SkRegion region;
+    REPORTER_ASSERT(reporter,  region.setRect({0, 0, 0x7FFFFFFE, 0x7FFFFFFE}));
+    REPORTER_ASSERT(reporter, !region.setRect({0, 0, 0x7FFFFFFE, 0x7FFFFFFF}));
+    REPORTER_ASSERT(reporter, !region.setRect({0, 0, 0x7FFFFFFF, 0x7FFFFFFE}));
+    REPORTER_ASSERT(reporter, !region.setRect({0, 0, 0x7FFFFFFF, 0x7FFFFFFF}));
+}
