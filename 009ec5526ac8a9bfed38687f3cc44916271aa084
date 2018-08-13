@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5245b1c7_4e9b42e3",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-13T17:44:54Z",
+      "side": 1,
+      "message": "Sorry, I think I supported this in an email before going on vacation, but now I\u0027m wondering what a \"single-frame animation\" is. Maybe that\u0027s clear enough from the first clause - an image format that supports animation?\n\nI\u0027m not really sure what behavior we want here. Really, the vector is only interesting if the image has more than one frame. So an empty vector could be a nice signal that it\u0027s not animated. But if it\u0027s a gif, and we\u0027re working with partial data, it\u0027s possible that this is the first frame of an animation and more frames will follow. A graphics control extension seems like a good hint that the image is animated, but without one, we still set arbitrary defaults.\n\nwebp states whether the image is animated up front. Currently SkWebpCodec returns a one element vector with a default FrameInfo for a non-animated image, but in this case we have enough knowledge to return the empty vector if we want. (A webp file could also be \"animated\" in the sense that it has the ANIM chunk, yet only have one frame. As with gif, we don\u0027t know that for sure until we\u0027ve seen either the end of the file or the start of the next frame.)\n\napng actually tells up front how many frames it has. (Unlike for gif, which has been a widely used format for a long time, where Chromium is very lenient with invalid data, Chromium has decided to be more strict with apng. If Chromium sees a mismatch in the number of frames it is considered an error.) So we *could* treat a one frame \"animated\" image (i.e. has the acTL chunk etc) as non-animated and return an empty vector.",
+      "range": {
+        "startLine": 640,
+        "startChar": 29,
+        "endLine": 640,
+        "endChar": 57
+      },
+      "revId": "009ec5526ac8a9bfed38687f3cc44916271aa084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
