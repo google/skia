@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c84c7ce7_8a2e5ff3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6395
+      },
+      "writtenOn": "2018-08-13T14:58:03Z",
+      "side": 1,
+      "message": "Please file bugs and fill in context through referencing them in commit messages.",
+      "revId": "0432fc5ad2b3b8bc899d80f754018852c1674cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
