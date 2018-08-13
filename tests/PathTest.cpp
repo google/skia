@@ -1051,7 +1051,8 @@ static void test_strokerec(skiatest::Reporter* reporter) {
 
 // Set this for paths that don't have a consistent direction such as a bowtie.
 // (cheapComputeDirection is not expected to catch these.)
-const SkPathPriv::FirstDirection kDontCheckDir = static_cast<SkPathPriv::FirstDirection>(-1);
+// Legal values are CW (0), CCW (1) and Unknown (2), leaving 3 as a convenient sentinel.
+const SkPathPriv::FirstDirection kDontCheckDir = static_cast<SkPathPriv::FirstDirection>(3);
 
 static void check_direction(skiatest::Reporter* reporter, const SkPath& path,
                             SkPathPriv::FirstDirection expected) {
