@@ -9,6 +9,115 @@
 #include "SkNx.h"
 #include "../../src/pathops/SkPathOpsCubic.h"
 
+static float eval_poly3(float a, float b, float c, float d, float t) {
+    return ((a * t + b) * t + c) * t + d;
+}
+
+static float eval_poly2(float a, float b, float c, float t) {
+    return (a * t + b) * t + c;
+}
+
+static float ave(float a, float b) { return (a + b) * 0.5f; }
+static float guess_nice_cubic_root(float A, float B, float C, float D) {
+    return -D;
+    float t = 0.5f;
+    float min = 0;
+    float max = 1;
+    // bisect to refine guess
+    for (int i = 0; i < 16; ++i) {
+        float newt;
+        if (eval_poly3(A, B, C, D, t) > 0) {
+            newt = ave(t, min);
+            min = t;
+        } else {
+            newt = ave(t, max);
+            max = t;
+        }
+        t = newt;
+    }
+    return t;
+}
+
+static float solve_nice_cubic_halley(float A, float B, float C, float D) {
+  //  const float MIN_DELTA = 0.0001;
+    const int MAX_ITERS = 2;
+    const float A3 = 3 * A;
+    const float B2 = B + B;
+
+    float t = guess_nice_cubic_root(A, B, C, D);
+    for (int iters = 0; iters < MAX_ITERS; ++iters) {
+        float f = eval_poly3(A, B, C, D, t);
+        float fp = eval_poly2(A3, B2, C, t);    // 3At^2 + 2Bt + C
+        float fpp = (A3 + A3) * t + B2;         // 6At + 2B
+
+        float numer = 2 * fp * f;
+        float denom = 2 * fp * fp - f * fpp;
+        float delta = numer / denom;
+  //      if (sk_float_abs(delta) <= MIN_DELTA) {
+   //         break;
+  //      }
+        float new_t = t - delta;
+        SkASSERT(new_t >= 0 && new_t <= 1);
+        t = new_t;
+    }
+    SkASSERT(t >= 0 && t <= 1);
+    return t;
+}
+
+static bool valid(float r) {
+    return r >= 0 && r <= 1;
+}
+
+static float solve_nice_cubic(float A, float a, float b, float c) {
+    float inv_a = 1.0f / A;
+    a *= inv_a;
+    b *= inv_a;
+    c *= inv_a;
+
+    const float one_over_3 = 1.0f / 3;
+    const float one_over_9 = 1.0f / 9;
+    const float one_over_54 = 1.0f / 54;
+
+    float a2 = a * a;
+    float Q = (a2 - b * 3) * one_over_9;
+    float R = (2 * a2 * a - 9 * a * b + 27 * c) * one_over_54;
+    float R2 = R * R;
+    float Q3 = Q * Q * Q;
+    float R2MinusQ3 = R2 - Q3;
+    float adiv3 = a * one_over_3;
+    float r;
+
+    if (R2MinusQ3 < 0) {   // we have 3 real roots
+        // the divide/root can, due to finite precisions, be slightly outside of -1...1
+        float theta = sk_float_acos(SkTPin(R / sk_float_sqrt(Q3), -1.f, 1.f));
+        float neg2RootQ = -2 * sk_float_sqrt(Q);
+
+        r = neg2RootQ * sk_float_cos(theta * one_over_3) - adiv3;
+        if (valid(r)) {
+            return r;
+        }
+
+        r = neg2RootQ * sk_float_cos((theta + 2 * SK_ScalarPI) * one_over_3) - adiv3;
+        if (valid(r)) {
+            return r;
+        }
+        r = neg2RootQ * sk_float_cos((theta - 2 * SK_ScalarPI) * one_over_3) - adiv3;
+        SkASSERT(valid(r));
+    } else {
+        float sqrtR2MinusQ3 = sk_float_sqrt(R2MinusQ3);
+        float A = sk_float_abs(R) + sqrtR2MinusQ3;
+        A = powf(A, one_over_3);
+        if (R > 0) {
+            A = -A;
+        }
+        if (A != 0) {
+            A += Q / A;
+        }
+        r = A - adiv3;
+    }
+    return r;
+}
+
 void SkCubicMap::setPts(SkPoint p1, SkPoint p2) {
     Sk2s s1 = Sk2s::Load(&p1) * 3;
     Sk2s s2 = Sk2s::Load(&p2) * 3;
@@ -49,11 +158,32 @@ float SkCubicMap::hackYFromX(float x) const {
     return fXTable[index].fY0 + fXTable[index].fDY * (x - ix);
 }
 
-static float compute_t_from_x(float A, float B, float C, float x) {
+static float compute_slow(float A, float B, float C, float x) {
     double roots[3];
     SkDEBUGCODE(int count =) SkDCubic::RootsValidT(A, B, C, -x, roots);
     SkASSERT(count == 1);
+//    float r = solve_nice_cubic(A, B, C, -x);
+//    SkDebugf("cary %g, cheap %g\n", (float)roots[0], r);
     return (float)roots[0];
+}
+
+static float compute_t_from_x(float A, float B, float C, float x) {
+    if (0) {
+        return compute_slow(A, B, C, x);
+    }
+#ifdef SK_DEBUG
+    float answer = compute_slow(A, B, C, x);
+#endif
+    float answer2;
+    if (0) {
+        return solve_nice_cubic(A, B, C, -x);
+    } else {
+        answer2 = solve_nice_cubic_halley(A, B, C, -x);
+    }
+#ifdef SK_DEBUG
+    SkASSERT(sk_float_abs(answer - answer2) <= 0.0001f);
+#endif
+    return answer2;
 }
 
 void SkCubicMap::buildXTable() {
