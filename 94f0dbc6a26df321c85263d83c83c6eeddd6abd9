@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dc6c1e48_6c71dec2",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 5647
+      },
+      "writtenOn": "2018-08-13T17:05:09Z",
+      "side": 1,
+      "message": "The code seems to suggest that SkPathPriv::kXX_FirstDirection is a bit mask of (1 \u003c\u003c k). Maybe add the commit description \"In this case, the union is 3, oring together CW (0), CCW (1)\nand Unknown (2).  Since it\u0027s not one of the meaningful values\nof the enum, it works as a nice sentinel.\" as a comment to ensure that nobody assumes that it\u0027s a bit mask?",
+      "revId": "94f0dbc6a26df321c85263d83c83c6eeddd6abd9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
