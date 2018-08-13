@@ -12,7 +12,6 @@
 #include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"
 #include "SkColor.h"
-#include "SkColorSpaceXform.h"
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
@@ -666,21 +665,9 @@ public:
 protected:
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
-    using XformFormat = SkColorSpaceXform::ColorFormat;
+    using XformFormat = skcms_PixelFormat;
 
-    SkCodec(int width,
-            int height,
-            const SkEncodedInfo&,
-            XformFormat srcFormat,
-            std::unique_ptr<SkStream>,
-            sk_sp<SkColorSpace>,
-            SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
-
-    /**
-     *  Allows the subclass to set the recommended SkImageInfo
-     */
-    SkCodec(const SkEncodedInfo&,
-            const SkImageInfo&,
+    SkCodec(SkEncodedInfo&&,
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
@@ -746,34 +733,6 @@ protected:
     }
 
     /**
-     * On an incomplete input, getPixels() and getScanlines() will fill any uninitialized
-     * scanlines.  This allows the subclass to indicate what value to fill with.
-     *
-     * @param dstInfo   Describes the destination.
-     * @return          The value with which to fill uninitialized pixels.
-     *
-     * Note that we can interpret the return value as a 64-bit Float16 color, a SkPMColor,
-     * a 16-bit 565 color, an 8-bit gray color, or an 8-bit index into a color table,
-     * depending on the color type.
-     */
-    uint64_t getFillValue(const SkImageInfo& dstInfo) const {
-        return this->onGetFillValue(dstInfo);
-    }
-
-    /**
-     * Some subclasses will override this function, but this is a useful default for the color
-     * types that we support.  Note that for color types that do not use the full 64-bits,
-     * we will simply take the low bits of the fill value.
-     *
-     * The defaults are:
-     * kRGBA_F16_SkColorType: Transparent or Black, depending on the src alpha type
-     * kN32_SkColorType: Transparent or Black, depending on the src alpha type
-     * kRGB_565_SkColorType: Black
-     * kGray_8_SkColorType: Black
-     */
-    virtual uint64_t onGetFillValue(const SkImageInfo& dstInfo) const;
-
-    /**
      * Get method for the input stream
      */
     SkStream* stream() {
@@ -803,15 +762,15 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White
     virtual bool usesColorXform() const { return true; }
-    void applyColorXform(void* dst, const void* src, int count, SkAlphaType) const;
+    void applyColorXform(void* dst, const void* src, int count,
+            skcms_AlphaFormat srcAlpha, skcms_AlphaFormat dstAlpha) const;
     void applyColorXform(void* dst, const void* src, int count) const;
 
-    SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
+    bool colorXform() const { return fXform; }
     bool xformOnDecode() const { return fXformOnDecode; }
 
     virtual int onGetFrameCount() {
@@ -837,7 +796,8 @@ private:
     SkImageInfo                        fDstInfo;
     Options                            fOptions;
     XformFormat                        fDstXformFormat; // Based on fDstInfo.
-    std::unique_ptr<SkColorSpaceXform> fColorXform;
+    //std::unique_ptr<SkColorSpaceXform> fColorXform;
+    bool                               fXform;  // Better name? Can this just merge with fXformOnDecode?
     bool                               fXformOnDecode;
 
     // Only meaningful during scanline decodes.
@@ -852,6 +812,9 @@ private:
      */
     virtual bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
                                      bool srcIsOpaque, const SkColorSpace* srcCS) const;
+
+    void initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
+
     /**
      *  Return whether these dimensions are supported as a scale.
      *

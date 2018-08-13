@@ -14,12 +14,12 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpRLECodec::SkBmpRLECodec(int width, int height, const SkEncodedInfo& info,
+SkBmpRLECodec::SkBmpRLECodec(SkEncodedInfo&& info,
                              std::unique_ptr<SkStream> stream,
                              uint16_t bitsPerPixel, uint32_t numColors,
                              uint32_t bytesPerColor, uint32_t offset,
                              SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(width, height, info, std::move(stream), bitsPerPixel, rowOrder)
+    : INHERITED(std::move(info), std::move(stream), bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(numColors)
     , fBytesPerColor(bytesPerColor)
@@ -284,7 +284,7 @@ int SkBmpRLECodec::decodeRows(const SkImageInfo& info, void* dst, size_t dstRowB
     // Set the background as transparent.  Then, if the RLE code skips pixels,
     // the skipped pixels will be transparent.
     if (dst) {
-        SkSampler::Fill(dstInfo, dst, dstRowBytes, SK_ColorTRANSPARENT, opts.fZeroInitialized);
+        SkSampler::Fill(dstInfo, dst, dstRowBytes, opts.fZeroInitialized);
     }
 
     // Adjust the height and the dst if the previous call to decodeRows() left us

@@ -9,8 +9,6 @@
 #define SkHeifCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
@@ -21,6 +19,9 @@
 #else
     #include "SkStubHeifDecoderAPI.h"
 #endif
+
+// FIXME: Does conversionSupported need this?
+class SkColorSpace;
 
 class SkHeifCodec : public SkCodec {
 public:
@@ -54,8 +55,7 @@ private:
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(int width, int height, const SkEncodedInfo&,
-            HeifDecoder*, sk_sp<SkColorSpace>, SkEncodedOrigin);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin);
 
     /*
      * Checks if the conversion between the input image and the requested output
