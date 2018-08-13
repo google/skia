@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a60d168_820ce954",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-13T19:11:57Z",
+      "side": 1,
+      "message": "How about something like:\n\n  // Sentinel value used when a frame index implies \"no frame\":\n  // - FrameInfo::fRequiredFrame set to this value means the frame\n  //   is independent.\n  // - Options::fPriorFrame set to this value means no (relevant) prior frame\n  //   is residing in dst\u0027s memory.",
+      "parentUuid": "d0e90e9a_c20e2d22",
+      "revId": "2546d278698a09de60c3fd50a4dfcf93708e4df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8be6ea27_0c90b7fb",
         "filename": "include/codec/SkCodec.h",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2018-08-13T18:59:12Z",
       "side": 1,
       "message": "I\u0027m not sure I\u0027m in position to offer better names, but a few that as an non-SkCodec expert seem to better convey the meaning you intend may be...\n\nSkCodec::SkFrameInfo::kNotRequired\nSkCodec::kFrameNotRequired\n\nI\u0027ll ultimately defer to you and Leon on the best name.",
+      "range": {
+        "startLine": 578,
+        "startChar": 25,
+        "endLine": 578,
+        "endChar": 41
+      },
+      "revId": "2546d278698a09de60c3fd50a4dfcf93708e4df7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a3c6422_4064fb15",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 578,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-13T19:11:57Z",
+      "side": 1,
+      "message": "I suggested kNoRequiredFrame over email, but after talking it over with Derek and thinking about it some more, I like kNoFrame (one of your original suggestions) better. This value can also be passed to the Options of a decode, where it means that the client has not decoded a prior frame into the dst memory. In that case, kNoFrame seems more clear, and it\u0027s simpler.",
+      "parentUuid": "8be6ea27_0c90b7fb",
       "range": {
         "startLine": 578,
         "startChar": 25,
