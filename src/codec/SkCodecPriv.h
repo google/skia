@@ -9,8 +9,6 @@
 #define SkCodecPriv_DEFINED
 
 #include "SkColorData.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkEncodedInfo.h"
 #include "SkEncodedOrigin.h"
@@ -243,10 +241,8 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
     }
 }
 
-static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
-    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
-}
-
+// FIXME: Need to change this to consider the skcms profile instead? Since the srcCS may arbitrarily
+// be SRGB...
 static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS) {
     // We never perform a color xform in legacy mode.
     if (!dstInfo.colorSpace()) {
@@ -261,10 +257,6 @@ static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSp
     bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
 
     return isF16 || srcDstNotEqual;
-}
-
-static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
-    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
 bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation);

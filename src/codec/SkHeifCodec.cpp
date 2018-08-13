@@ -133,29 +133,27 @@ std::unique_ptr<SkCodec> SkHeifCodec::MakeFromStream(
         return nullptr;
     }
 
-    SkEncodedInfo info = SkEncodedInfo::Make(
-            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8);
+    std::unique_ptr<SkEncodedInfo::ICCProfile> profile = nullptr;
+    if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
+        // FIXME: Would it be possible to use MakeWithoutCopy?
+        auto icc = SkData::MakeWithCopy(frameInfo.mIccData.get(), frameInfo.mIccSize);
+        profile = SkEncodedInfo::ICCProfile::Make(std::move(icc));
+    }
+    if (!profile || profile->profile()->data_color_space != skcms_Signature_RGB) {
+        profile = SkEncodedInfo::ICCProfile::MakeSRGB();
+    }
 
+    SkEncodedInfo info = SkEncodedInfo::Make(frameInfo.mWidth, frameInfo.mHeight,
+            SkEncodedInfo::kYUV_Color, SkEncodedInfo::kOpaque_Alpha, 8, std::move(profile));
     SkEncodedOrigin orientation = get_orientation(frameInfo);
 
-    sk_sp<SkColorSpace> colorSpace = nullptr;
-    if ((frameInfo.mIccSize > 0) && (frameInfo.mIccData != nullptr)) {
-        colorSpace = SkColorSpace::MakeICC(frameInfo.mIccData.get(),
-                                           frameInfo.mIccSize);
-    }
-    if (!colorSpace || colorSpace->type() != SkColorSpace::kRGB_Type) {
-        colorSpace = SkColorSpace::MakeSRGB();
-    }
-
     *result = kSuccess;
-    return std::unique_ptr<SkCodec>(new SkHeifCodec(frameInfo.mWidth, frameInfo.mHeight,
-            info, heifDecoder.release(), std::move(colorSpace), orientation));
+    return std::unique_ptr<SkCodec>(new SkHeifCodec(std::move(info), heifDecoder.release(),
+                                                    orientation));
 }
 
-SkHeifCodec::SkHeifCodec(int width, int height, const SkEncodedInfo& info,
-        HeifDecoder* heifDecoder, sk_sp<SkColorSpace> colorSpace, SkEncodedOrigin origin)
-    : INHERITED(width, height, info, SkColorSpaceXform::kRGBA_8888_ColorFormat,
-            nullptr, std::move(colorSpace), origin)
+SkHeifCodec::SkHeifCodec(SkEncodedInfo&& info, HeifDecoder* heifDecoder, SkEncodedOrigin origin)
+    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, nullptr, origin)
     , fHeifDecoder(heifDecoder)
     , fSwizzleSrcRow(nullptr)
     , fColorXformSrcRow(nullptr)
@@ -240,7 +238,8 @@ int SkHeifCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
         }
 
         if (this->colorXform()) {
-            this->applyColorXform(dst, swizzleDst, dstWidth, kOpaque_SkAlphaType);
+            this->applyColorXform(dst, swizzleDst, dstWidth,
+                    skcms_AlphaFormat_Opaque, skcms_AlphaFormat_Opaque);
             dst = SkTAddOffset<void>(dst, rowBytes);
         }
 
@@ -313,15 +312,13 @@ void SkHeifCodec::allocateStorage(const SkImageInfo& dstInfo) {
 
 void SkHeifCodec::initializeSwizzler(
         const SkImageInfo& dstInfo, const Options& options) {
-    SkEncodedInfo swizzlerInfo = this->getEncodedInfo();
-
     SkImageInfo swizzlerDstInfo = dstInfo;
     if (this->colorXform()) {
         // The color xform will be expecting RGBA 8888 input.
         swizzlerDstInfo = swizzlerDstInfo.makeColorType(kRGBA_8888_SkColorType);
     }
 
-    fSwizzler.reset(SkSwizzler::CreateSwizzler(swizzlerInfo, nullptr,
+    fSwizzler.reset(SkSwizzler::CreateSwizzler(this->getEncodedInfo(), nullptr,
             swizzlerDstInfo, options, nullptr, true));
     SkASSERT(fSwizzler);
 }

@@ -48,7 +48,7 @@ private:
      */
     bool readRow(uint8_t* row);
 
-    SkWbmpCodec(int width, int height, const SkEncodedInfo&, std::unique_ptr<SkStream>);
+    SkWbmpCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>);
 
     const size_t                fSrcRowBytes;
 
