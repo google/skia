@@ -18,8 +18,9 @@ static bool needs_uniform_var(const Variable& var) {
 }
 
 CPPCodeGenerator::CPPCodeGenerator(const Context* context, const Program* program,
-                                   ErrorReporter* errors, String name, OutputStream* out)
-: INHERITED(context, program, errors, out)
+                                   ErrorReporter* errors, String name, OutputStream* out,
+                                   const GrDriverBugWorkarounds* workarounds)
+: INHERITED(context, program, errors, out, workarounds)
 , fName(std::move(name))
 , fFullName(String::printf("Gr%s", fName.c_str()))
 , fSectionAndParameterHelper(*program, *errors) {

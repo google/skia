@@ -66,7 +66,8 @@ public:
         kOutput
     };
 
-    Compiler(Flags flags = kNone_Flags);
+    Compiler(Flags flags = kNone_Flags,
+             const GrDriverBugWorkarounds* workarounds = nullptr);
 
     ~Compiler() override;
 
@@ -161,6 +162,7 @@ private:
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     int fFlags;
+    const GrDriverBugWorkarounds* fWorkarounds;
 
     const String* fSource;
     std::shared_ptr<Context> fContext;

@@ -17,8 +17,9 @@ PipelineStageCodeGenerator::PipelineStageCodeGenerator(
                                                     const Program* program,
                                                     ErrorReporter* errors,
                                                     OutputStream* out,
-                                                    std::vector<Compiler::FormatArg>* outFormatArgs)
-: INHERITED(context, program, errors, out)
+                                                    std::vector<Compiler::FormatArg>* outFormatArgs,
+                                                    const GrDriverBugWorkarounds* workarounds)
+: INHERITED(context, program, errors, out, workarounds)
 , fName("Temp")
 , fFullName(String::printf("Gr%s", fName.c_str()))
 , fSectionAndParameterHelper(*program, *errors)
