@@ -16,6 +16,29 @@
       "revId": "0432fc5ad2b3b8bc899d80f754018852c1674cbf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b9e3ffd_9844f0a1",
+        "filename": "src/ports/SkFontHost_mac.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 8184
+      },
+      "writtenOn": "2018-08-13T15:02:04Z",
+      "side": 1,
+      "message": "The input baseFont has the correct variation axes. We convert baseFont to baseCGFont at line 959 to make sure the font is sizable (reference bug report: https://bugs.chromium.org/p/chromium/issues/detail?id\u003d524646). In the end we convert baseCGFont back to CTFont here. The problem is that the new CTFont does not handle the variation axes correctly.",
+      "range": {
+        "startLine": 970,
+        "startChar": 12,
+        "endLine": 970,
+        "endChar": 88
+      },
+      "revId": "0432fc5ad2b3b8bc899d80f754018852c1674cbf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
