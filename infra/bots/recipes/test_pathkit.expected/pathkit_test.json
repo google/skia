@@ -112,13 +112,14 @@
     "cmd": [
       "python",
       "-u",
-      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nhelper_js = sys.argv[2]\nwasm = sys.argv[3]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\ndest = os.path.join(copy_dest, 'pathkit.js')\nshutil.copyfile(helper_js, dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\ndest = os.path.join(copy_dest, 'pathkit.wasm')\nshutil.copyfile(wasm, dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n",
+      "import errno\nimport os\nimport shutil\nimport sys\n\ncopy_dest = sys.argv[1]\nhelper_js = sys.argv[2]\nwasm = sys.argv[3]\nout_dir = sys.argv[4]\n\n# Clean out old binaries (if any)\ntry:\n  shutil.rmtree(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.ENOENT:\n    raise\n\n# Make folder\ntry:\n  os.makedirs(copy_dest)\nexcept OSError as e:\n  if e.errno != errno.EEXIST:\n    raise\n\n# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests\n# expect them ($SKIA_ROOT/experimental/pathkit/npm-wasm/test/)\ndest = os.path.join(copy_dest, 'pathkit.js')\nshutil.copyfile(helper_js, dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\ndest = os.path.join(copy_dest, 'pathkit.wasm')\nshutil.copyfile(wasm, dest)\nos.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.\n\n# Prepare output folder\nos.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.\n",
       "[START_DIR]/cache/work/skia/experimental/pathkit/npm-wasm/bin/test",
       "[START_DIR]/build/pathkit.js",
-      "[START_DIR]/build/pathkit.wasm"
+      "[START_DIR]/build/pathkit.wasm",
+      "[START_DIR]/[SWARM_OUT_DIR]"
     ],
     "infra_step": true,
-    "name": "copy built wasm to location docker can see",
+    "name": "Set up for docker",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@python.inline@import errno@@@",
       "@@@STEP_LOG_LINE@python.inline@import os@@@",
@@ -128,6 +129,7 @@
       "@@@STEP_LOG_LINE@python.inline@copy_dest = sys.argv[1]@@@",
       "@@@STEP_LOG_LINE@python.inline@helper_js = sys.argv[2]@@@",
       "@@@STEP_LOG_LINE@python.inline@wasm = sys.argv[3]@@@",
+      "@@@STEP_LOG_LINE@python.inline@out_dir = sys.argv[4]@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
       "@@@STEP_LOG_LINE@python.inline@# Clean out old binaries (if any)@@@",
       "@@@STEP_LOG_LINE@python.inline@try:@@@",
@@ -143,6 +145,8 @@
       "@@@STEP_LOG_LINE@python.inline@  if e.errno != errno.EEXIST:@@@",
       "@@@STEP_LOG_LINE@python.inline@    raise@@@",
       "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests@@@",
+      "@@@STEP_LOG_LINE@python.inline@# expect them ($SKIA_ROOT/experimental/pathkit/npm-wasm/test/)@@@",
       "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'pathkit.js')@@@",
       "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(helper_js, dest)@@@",
       "@@@STEP_LOG_LINE@python.inline@os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",
@@ -150,6 +154,37 @@
       "@@@STEP_LOG_LINE@python.inline@dest = os.path.join(copy_dest, 'pathkit.wasm')@@@",
       "@@@STEP_LOG_LINE@python.inline@shutil.copyfile(wasm, dest)@@@",
       "@@@STEP_LOG_LINE@python.inline@os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.@@@",
+      "@@@STEP_LOG_LINE@python.inline@@@@",
+      "@@@STEP_LOG_LINE@python.inline@# Prepare output folder@@@",
+      "@@@STEP_LOG_LINE@python.inline@os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_BOT_ID', '')\n"
+    ],
+    "name": "get swarming bot id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_BOT_ID', '')@@@",
+      "@@@STEP_LOG_END@python.inline@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "import os\nprint os.environ.get('SWARMING_TASK_ID', '')\n"
+    ],
+    "name": "get swarming task id",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@python.inline@import os@@@",
+      "@@@STEP_LOG_LINE@python.inline@print os.environ.get('SWARMING_TASK_ID', '')@@@",
       "@@@STEP_LOG_END@python.inline@@@"
     ]
   },
@@ -163,11 +198,22 @@
       "[START_DIR]/cache/work:/SRC",
       "-v",
       "[START_DIR]/[SWARM_OUT_DIR]:/OUT",
-      "gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1",
-      "karma",
-      "start",
-      "/SRC/skia/experimental/pathkit/karma-docker.conf.js",
-      "--single-run"
+      "gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v2",
+      "/SRC/skia/experimental/pathkit/docker/test_pathkit.sh",
+      "--builder",
+      "Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit",
+      "--git_hash",
+      "abc123",
+      "--buildbucket_build_id",
+      "",
+      "--bot_id",
+      "",
+      "--task_id",
+      "",
+      "--browser",
+      "Chrome",
+      "--config",
+      "Debug"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
