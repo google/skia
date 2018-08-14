@@ -158,3 +158,8 @@ void SkRect::dump(bool asHex) const {
     }
     SkDebugf("%s\n", line.c_str());
 }
+
+size_t SkRect::writeToMemory(void* buffer) const {
+    memcpy(buffer, this, kSizeInMemory);
+    return kSizeInMemory;
+}

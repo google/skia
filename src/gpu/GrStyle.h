@@ -139,7 +139,7 @@ public:
     const SkStrokeRec& strokeRec() const { return fStrokeRec; }
 
     /** Hairline or fill styles without path effects make no alterations to a geometry. */
-    bool applies() const {
+    bool modifiesGeometry() const {
         return this->pathEffect() || (!fStrokeRec.isFillStyle() && !fStrokeRec.isHairlineStyle());
     }
 

@@ -49,7 +49,8 @@ public:
                     SkIPoint* margin) const override;
 
 #if SK_SUPPORT_GPU
-    bool canFilterMaskGPU(const SkRRect& devRRect,
+    bool canFilterMaskGPU(const GrShape& shape,
+                          const SkRect& devSpaceShapeBounds,
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
                           SkRect* maskRect) const override;
@@ -58,8 +59,7 @@ public:
                              GrPaint&&,
                              const GrClip&,
                              const SkMatrix& viewMatrix,
-                             const SkStrokeRec& strokeRec,
-                             const SkPath& path) const override;
+                             const GrShape& shape) const override;
     bool directFilterRRectMaskGPU(GrContext*,
                                   GrRenderTargetContext* renderTargetContext,
                                   GrPaint&&,
@@ -75,7 +75,7 @@ public:
 #endif
 
     void computeFastBounds(const SkRect&, SkRect*) const override;
-    bool asABlur(BlurRec*) const override;
+    bool asABlur1(BlurRec*) const override;
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkBlurMaskFilterImpl)
 
@@ -281,7 +281,7 @@ SkMask::Format SkBlurMaskFilterImpl::getFormat() const {
     return SkMask::kA8_Format;
 }
 
-bool SkBlurMaskFilterImpl::asABlur(BlurRec* rec) const {
+bool SkBlurMaskFilterImpl::asABlur1(BlurRec* rec) const {
     if (this->ignoreXform()) {
         return false;
     }
@@ -730,13 +730,14 @@ void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
 
 #if SK_SUPPORT_GPU
 
+#include "GrShape.h"
+
 bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
                                                GrRenderTargetContext* renderTargetContext,
                                                GrPaint&& paint,
                                                const GrClip& clip,
                                                const SkMatrix& viewMatrix,
-                                               const SkStrokeRec& strokeRec,
-                                               const SkPath& path) const {
+                                               const GrShape& shape) const {
     SkASSERT(renderTargetContext);
 
     if (fBlurStyle != kNormal_SkBlurStyle) {
@@ -744,7 +745,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     }
 
     // TODO: we could handle blurred stroked circles
-    if (!strokeRec.isFillStyle()) {
+    if (!shape.style().isSimpleFill()) {
         return false;
     }
 
@@ -753,19 +754,26 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     std::unique_ptr<GrFragmentProcessor> fp;
 
+    SkRRect rrect;
     SkRect rect;
-    if (path.isRect(&rect)) {
-        SkScalar pad = 3.0f * xformedSigma;
-        rect.outset(pad, pad);
+    bool inverted;
+    if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+        rect = rrect.rect();
+        if (rrect.isRect()) {
+            SkScalar pad = 3.0f * xformedSigma;
+            rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
-                                    rect, xformedSigma);
-    } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
-        fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
+            fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
+                                        rect, xformedSigma);
+        } else if (SkRRectPriv::IsCircle(rrect)) {
+            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
 
-        // expand the rect for the coverage geometry
-        int pad = SkScalarCeilToInt(6*xformedSigma)/2;
-        rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
+            // expand the rect for the coverage geometry
+            int pad = SkScalarCeilToInt(6*xformedSigma)/2;
+            rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
+        } else {
+            return false;
+        }
     } else {
         return false;
     }
@@ -894,7 +902,10 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
     return true;
 }
 
-bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
+#include "GrShape.h"
+
+bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
+                                            const SkRect& devSpaceShapeBounds,
                                             const SkIRect& clipBounds,
                                             const SkMatrix& ctm,
                                             SkRect* maskRect) const {
@@ -903,13 +914,12 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
         return false;
     }
 
-    // We always do circles and simple circular rrects on the GPU
-    if (!SkRRectPriv::IsCircle(devRRect) && !SkRRectPriv::IsSimpleCircular(devRRect)) {
+    if (shape.isRect() && ctm.rectStaysRect()) {
         static const SkScalar kMIN_GPU_BLUR_SIZE  = SkIntToScalar(64);
         static const SkScalar kMIN_GPU_BLUR_SIGMA = SkIntToScalar(32);
 
-        if (devRRect.width() <= kMIN_GPU_BLUR_SIZE &&
-            devRRect.height() <= kMIN_GPU_BLUR_SIZE &&
+        if (devSpaceShapeBounds.width() <= kMIN_GPU_BLUR_SIZE &&
+            devSpaceShapeBounds.height() <= kMIN_GPU_BLUR_SIZE &&
             xformedSigma <= kMIN_GPU_BLUR_SIGMA) {
             // We prefer to blur small rects with small radii on the CPU.
             return false;
@@ -924,7 +934,7 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
     float sigma3 = 3 * SkScalarToFloat(xformedSigma);
 
     SkRect clipRect = SkRect::Make(clipBounds);
-    SkRect srcRect(devRRect.rect());
+    SkRect srcRect = devSpaceShapeBounds;
 
     // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
     srcRect.outset(sigma3, sigma3);

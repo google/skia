@@ -291,6 +291,7 @@ void GrTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& props,
             SkScalar transX, transY;
             uint16_t paintFlags = run.fPaintFlags;
             runPaint.setFlags((runPaint.getFlags() & ~Run::kPaintFlagsMask) | paintFlags);
+//            runPaint.setMaskFilter(nullptr);
 
             for (int i = 0; i < run.fPathGlyphs.count(); i++) {
                 GrTextBlob::Run::PathGlyph& pathGlyph = run.fPathGlyphs[i];

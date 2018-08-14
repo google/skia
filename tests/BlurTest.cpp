@@ -463,7 +463,7 @@ DEF_TEST(BlurAsABlur, reporter) {
                 } else {
                     REPORTER_ASSERT(reporter, sigma > 0);
                     SkMaskFilterBase::BlurRec rec;
-                    bool success = as_MFB(mf)->asABlur(&rec);
+                    bool success = as_MFB(mf)->asABlur1(&rec);
                     if (respectCTM) {
                         REPORTER_ASSERT(reporter, success);
                         REPORTER_ASSERT(reporter, rec.fSigma == sigma);
@@ -489,7 +489,7 @@ DEF_TEST(BlurAsABlur, reporter) {
             auto mf(SkEmbossMaskFilter::Make(sigma, light));
             if (mf) {
                 SkMaskFilterBase::BlurRec rec;
-                bool success = as_MFB(mf)->asABlur(&rec);
+                bool success = as_MFB(mf)->asABlur1(&rec);
                 REPORTER_ASSERT(reporter, !success);
             }
         }

@@ -12,6 +12,7 @@
 #include "SkPath.h"
 #include "SkPathPriv.h"
 #include "SkRRect.h"
+#include "SkRRectPriv.h"
 #include "SkTemplates.h"
 #include "SkTLazy.h"
 #include <new>
@@ -52,8 +53,7 @@ public:
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRRect& rrect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
@@ -82,8 +82,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRect& rect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
@@ -154,6 +153,31 @@ public:
     GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
         return GrShape(*this, apply, scale);
     }
+
+    bool isRect() const {
+        if (Type::kRRect != fType) {
+            return false;
+        }
+
+        return fRRectData.fRRect.isRect();
+    }
+
+    bool isCircle() const {
+        if (Type::kRRect != fType) {
+            return false;
+        }
+
+        return SkRRectPriv::IsCircle(fRRectData.fRRect);
+    }
+
+    bool isSimpleCircular() const {
+        if (Type::kRRect != fType) {
+            return false;
+        }
+
+        return SkRRectPriv::IsSimpleCircular(fRRectData.fRRect);
+    }
+
 
     /** Returns the unstyled geometry as a rrect if possible. */
     bool asRRect(SkRRect* rrect, SkPath::Direction* dir, unsigned* start, bool* inverted) const {

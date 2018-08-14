@@ -25,7 +25,7 @@ public:
         *dst = src;
     }
 
-    bool asABlur(BlurRec*) const override { return false; }
+    bool asABlur1(BlurRec*) const override { return false; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkShaderMF)
 

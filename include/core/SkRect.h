@@ -1550,6 +1550,26 @@ public:
     */
     const SkScalar* asScalars() const { return &fLeft; }
 
+    static constexpr size_t kSizeInMemory = 4 * sizeof(SkScalar);
+
+    /** Writes SkRect to buffer. Writes kSizeInMemory bytes, and returns
+        kSizeInMemory, the number of bytes written.
+
+        @param buffer  storage for SkRect
+        @return        bytes written, kSizeInMemory
+    */
+    size_t writeToMemory(void* buffer) const;
+
+    /** Reads SkRect from buffer, reading kSizeInMemory bytes.
+        Returns kSizeInMemory, bytes read if length is at least kSizeInMemory.
+        Otherwise, returns zero.
+
+        @param buffer  memory to read from
+        @param length  size of buffer
+        @return        bytes read, or 0 if length is less than kSizeInMemory
+    */
+    size_t readFromMemory(const void* buffer, size_t length);
+
     /** Writes text representation of SkRect to standard output. Set asHex to true to
         generate exact binary representations of floating point numbers.
 
