@@ -12,8 +12,10 @@
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
-    // We can exploit that srcs are opaque, but it doesn't make sense to ask for opaque output.
-    SkASSERT(dstAT != kOpaque_SkAlphaType);
+    // It's mildly interesting to know the output is opaque, but mechanically that's just unpremul.
+    if (dstAT == kOpaque_SkAlphaType) {
+        dstAT =  kUnpremul_SkAlphaType;
+    }
 
     // Set all bools to false, all floats to 0.0f.
     memset(this, 0, sizeof(*this));
