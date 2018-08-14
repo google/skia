@@ -15,7 +15,7 @@ def compile_fn(api, checkout_root, _ignore):
   configuration = api.vars.builder_cfg.get('configuration', '')
 
   # We want to make sure the directories exist and were created by chrome-bot,
-  # because if that isn' the case, docker will make them and they will be
+  # because if that isn't the case, docker will make them and they will be
   # owned by root, which causes mysterious failures. To mitigate this risk
   # further, we don't use the same out_dir as everyone else (thus the _ignore)
   # param. Instead, we use a "wasm" subdirectory in the "docker" named_cache.
@@ -35,7 +35,7 @@ def compile_fn(api, checkout_root, _ignore):
          '-v', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
   if configuration == 'Debug':
-    cmd += ['debug']
+    cmd += ['dev']
   api.run(
     api.step,
     'Build PathKit with Docker',
