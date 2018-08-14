@@ -59,9 +59,7 @@ class SK_API GrRenderTargetContext : public GrSurfaceContext {
 public:
     ~GrRenderTargetContext() override;
 
-    virtual void drawGlyphRunList(const GrClip&,
-                                  const SkMatrix& viewMatrix, const SkGlyphRunList&,
-                                  const SkIRect& clipBounds);
+    virtual void drawGlyphRunList(const GrClip&, const SkMatrix& viewMatrix, const SkGlyphRunList&);
 
     /**
      * Provides a perfomance hint that the render target's contents are allowed

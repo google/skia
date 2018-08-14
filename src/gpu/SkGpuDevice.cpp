@@ -383,8 +383,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         path.setIsVolatile(true);
         path.addRect(rect);
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr,
-                                            this->devClipBounds(), true);
+                                            this->clip(), path, paint, this->ctm(), nullptr, true);
         return;
     }
 
@@ -444,8 +443,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         path.setIsVolatile(true);
         path.addRRect(rrect);
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr,
-                                            this->devClipBounds(), true);
+                                            this->clip(), path, paint, this->ctm(), nullptr, true);
         return;
     }
 
@@ -489,8 +487,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
     path.setFillType(SkPath::kEvenOdd_FillType);
 
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        path, paint, this->ctm(), nullptr, this->devClipBounds(),
-                                        true);
+                                        path, paint, this->ctm(), nullptr, true);
 }
 
 
@@ -640,7 +637,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
     }
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                         origSrcPath, paint, this->ctm(), prePathMatrix,
-                                        this->devClipBounds(), pathIsMutable);
+                                        pathIsMutable);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
@@ -1637,8 +1634,7 @@ void SkGpuDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawGlyphRunList", fContext.get());
     SkDEBUGCODE(this->validate();)
 
-    fRenderTargetContext->drawGlyphRunList(
-            this->clip(), this->ctm(), glyphRunList, this->devClipBounds());
+    fRenderTargetContext->drawGlyphRunList(this->clip(), this->ctm(), glyphRunList);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

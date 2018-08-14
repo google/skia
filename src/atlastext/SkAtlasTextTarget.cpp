@@ -99,7 +99,7 @@ public:
     void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
 
     void drawPath(const GrClip&, const SkPath&, const SkPaint&, const SkMatrix& viewMatrix,
-                  const SkMatrix* pathMatrix, const SkIRect& clipBounds) override {
+                  const SkMatrix* pathMatrix) override {
         SkDebugf("Path glyph??");
     }
 
@@ -159,14 +159,13 @@ void SkInternalAtlasTextTarget::drawText(const SkGlyphID glyphs[], const SkPoint
 
     SkSurfaceProps props(SkSurfaceProps::kUseDistanceFieldFonts_Flag, kUnknown_SkPixelGeometry);
     auto* grContext = this->context()->internal().grContext();
-    auto bounds = SkIRect::MakeWH(fWidth, fHeight);
     auto atlasTextContext = grContext->contextPriv().drawingManager()->getTextContext();
     SkGlyphRunBuilder builder;
     builder.drawGlyphPos(paint, SkSpan<const SkGlyphID>{glyphs, SkTo<size_t>(glyphCnt)}, positions);
     auto glyphRunList = builder.useGlyphRunList();
     if (!glyphRunList.empty()) {
         atlasTextContext->drawGlyphRunList(grContext, this, GrNoClip(), this->ctm(), props,
-                                           glyphRunList, bounds);
+                                           glyphRunList);
     }
 }
 

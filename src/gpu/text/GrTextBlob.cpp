@@ -276,8 +276,7 @@ static void calculate_translation(bool applyVM,
 void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                        const GrDistanceFieldAdjustTable* distanceAdjustTable,
                        const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
-                       const SkMatrix& viewMatrix, const SkIRect& clipBounds,
-                       SkScalar x, SkScalar y) {
+                       const SkMatrix& viewMatrix, SkScalar x, SkScalar y) {
 
     // GrTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
@@ -300,7 +299,7 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 SkMatrix pathMatrix;
                 pathMatrix.setScale(pathGlyph.fScale, pathGlyph.fScale);
                 pathMatrix.postTranslate(pathGlyph.fX + transX, pathGlyph.fY + transY);
-                target->drawPath(clip, pathGlyph.fPath, runPaint, ctm, &pathMatrix, clipBounds);
+                target->drawPath(clip, pathGlyph.fPath, runPaint, ctm, &pathMatrix);
             }
         }
 

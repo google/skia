@@ -271,7 +271,6 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          const SkPaint& paint,
                                          const SkMatrix& origViewMatrix,
                                          const SkMatrix* prePathMatrix,
-                                         const SkIRect& clipBounds,
                                          bool pathIsMutable) {
     if (context->abandoned()) {
         return;
