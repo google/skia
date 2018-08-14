@@ -818,7 +818,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
     fLCDIsVert = SkToBool(fRec.fFlags & SkScalerContext::kLCD_Vertical_Flag);
 
     // compute the flags we send to Load_Glyph
-    bool linearMetrics = SkToBool(fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+    bool linearMetrics = this->isSubpixel();
     {
         FT_Int32 loadFlags = FT_LOAD_DEFAULT;
 
@@ -875,7 +875,7 @@ SkScalerContext_FreeType::SkScalerContext_FreeType(sk_sp<SkTypeface> typeface,
         loadFlags |= FT_LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH;
 
         // Use vertical layout if requested.
-        if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+        if (this->isVertical()) {
             loadFlags |= FT_LOAD_VERTICAL_LAYOUT;
         }
 
@@ -1068,7 +1068,7 @@ void SkScalerContext_FreeType::getBBoxForCurrentGlyph(const SkGlyph* glyph,
 
     FT_Outline_Get_CBox(&fFace->glyph->outline, bbox);
 
-    if (fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag) {
+    if (this->isSubpixel()) {
         int dx = SkFixedToFDot6(glyph->getSubXFixed());
         int dy = SkFixedToFDot6(glyph->getSubYFixed());
         // negate dy since freetype-y-goes-up and skia-y-goes-down
@@ -1089,7 +1089,7 @@ void SkScalerContext_FreeType::getBBoxForCurrentGlyph(const SkGlyph* glyph,
     // Must come after snapToPixelBoundary so that the width and height are
     // consistent. Otherwise asserts will fire later on when generating the
     // glyph image.
-    if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+    if (this->isVertical()) {
         FT_Vector vector;
         vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
         vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
@@ -1129,7 +1129,7 @@ void SkScalerContext_FreeType::updateGlyphIfLCD(SkGlyph* glyph) {
 bool SkScalerContext_FreeType::shouldSubpixelBitmap(const SkGlyph& glyph, const SkMatrix& matrix) {
     // If subpixel rendering of a bitmap *can* be done.
     bool mechanism = fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP &&
-                     fRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag &&
+                     this->isSubpixel() &&
                      (glyph.getSubXFixed() || glyph.getSubYFixed());
 
     // If subpixel rendering of a bitmap *should* be done.
@@ -1230,7 +1230,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         break;
 
       case FT_GLYPH_FORMAT_BITMAP:
-        if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+        if (this->isVertical()) {
             FT_Vector vector;
             vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
             vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
@@ -1267,7 +1267,7 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
         return;
     }
 
-    if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+    if (this->isVertical()) {
         if (fDoLinearMetrics) {
             const SkScalar advanceScalar = SkFT_FixedToScalar(fFace->glyph->linearVertAdvance);
             glyph->fAdvanceX = SkScalarToFloat(fMatrix22Scalar.getSkewX() * advanceScalar);
@@ -1355,7 +1355,7 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
 
     // The path's origin from FreeType is always the horizontal layout origin.
     // Offset the path so that it is relative to the vertical origin if needed.
-    if (fRec.fFlags & SkScalerContext::kVertical_Flag) {
+    if (this->isVertical()) {
         FT_Vector vector;
         vector.x = fFace->glyph->metrics.vertBearingX - fFace->glyph->metrics.horiBearingX;
         vector.y = -fFace->glyph->metrics.vertBearingY - fFace->glyph->metrics.horiBearingY;
