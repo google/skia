@@ -107,8 +107,8 @@ static unsigned unit_to_byte(float unit) {
 
 static SkColor to_skcolor(SkColor4f color, SkColorSpace* cs) {
     if (cs) {
-        SkColorSpaceXformSteps steps =
-                SkColorSpaceXformSteps::UnpremulToUnpremul(cs, sk_srgb_singleton());
+        SkColorSpaceXformSteps steps{cs                 , kUnpremul_SkAlphaType,
+                                     sk_srgb_singleton(), kUnpremul_SkAlphaType};
         steps.apply(color.vec());
     }
     color = color.pin();
