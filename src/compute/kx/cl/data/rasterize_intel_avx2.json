@@ -1,0 +1,52 @@
+//
+// JSON5 syntax features:
+// - object keys can be unquoted if they're valid identifiers
+// - single quotes are valid
+// - trailing commas are valid
+//
+{
+    "target" : {
+     // "platform" : "Experimental", // OpenCL 2.1 -- supports SPIR-V
+        "platform" : "Intel",        // OpenCL 2.0
+        "device"   : "Core"          // AVX2 on HSW/BDW/SKL/KBL
+    },
+
+    "program" : {
+     // "source"  : { "spir-v" : "intel/avx2/kernel_rasterize.spv" }, // "spir-v", "binary" or "source"
+     // "source"  : { "binary" : "intel/avx2/kernel_rasterize.ir"  }, // "spir-v", "binary" or "source"
+        "source"  : { "source" : "intel/avx2/kernel_rasterize.cl"  }, // "spir-v", "binary" or "source"
+        "kernel"  : "skc_rasterize_cubic_kernel",
+        "options" : "-cl-std=CL2.0 -cl-kernel-arg-info -cl-single-precision-constant -cl-denorms-are-zero -cl-fast-relaxed-math", 
+        "inputs"  : [
+            { "cmds"            : { "buffer" : "common/butterfly/pipeline_rasterize_cmds.bin"               } }, // read-only -- don't save for future stage
+
+            { "coords"          : { "buffer" : "common/butterfly/pipeline_rasterize_butterfly_8.bin"        } }, // read-only -- don't save for future stage
+
+            { "transforms"      : { "buffer" : "common/butterfly/pipeline_rasterize_transform_identity.bin" } }, // read-only -- don't save for future stage
+
+            { "atomics_context" : { "buffer" : { "uint"  : [ 2, 0 ]                                         },   // alloc 2    uints, fill with 0
+                                    "output" : "intel/avx2/pipeline_context_atomics_context.bin"            } }, // save for next stage in pipeline
+
+            { "atomics_cohort"  : { "buffer" : { "uint"  : [ 1, 0 ]                                         },   // alloc 1    uint,  fill with 0
+                                    "output" : "intel/avx2/pipeline_raster_cohort_atomics_cohort.bin"       } }, // save for next stage in pipeline
+
+            { "block_pool_ids"  : { "buffer" : { "uint"  : [ 1048576, 0, 1 ]                                },   // alloc 1^20 uints, start with 0 incrementing by 1
+                                    "output" : "intel/avx2/pipeline_context_block_pool_ids.bin"             } }, // save for next stage in pipeline
+
+            { "block_pool"      : { "buffer" : { "uint"  : 67108864                                         },   // alloc 2^16 uints
+                                    "output" : "intel/avx2/pipeline_context_block_pool.bin"                 } }, // save for next stage in pipeline
+
+            { "ttsk_ryx"        : { "buffer" : { "ulong" : 1048576                                          },   // alloc 2^10 ulongs
+                                    "output" : "intel/avx2/pipeline_raster_cohort_ttsk_ryx.bin"             } }  // save for next stage in pipeline
+
+         // { "foo"             : { "buffer" : { "float" : { "csv" : "path/to/data.csv" } } } },
+         // { "bar"             : { "local"  : { "float" : 999 } }
+         // { "baz"             : { "image"  : ... }
+        ]
+    },
+
+    "execution" : {
+        "uniform"    : [ 1, [ 1 ] ], // global [ local ] -- up to 3 dimensions per array
+        "iterations" : 10            // how many times to execute the kernel? useful for GPU warm-up, etc.
+    }
+}

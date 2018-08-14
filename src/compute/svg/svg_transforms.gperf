@@ -1,0 +1,18 @@
+%language=ANSI-C
+%readonly-tables
+
+%enum
+
+%define hash-function-name   svg_transform_hash
+%define lookup-function-name svg_transform_lookup
+
+%struct-type
+struct svg_transform;
+
+%%
+matrix,    parse_transform_matrix
+translate, parse_transform_translate
+scale,     parse_transform_scale
+rotate,    parse_transform_rotate
+skewX,     parse_transform_skewX
+skewY,     parse_transform_skewY

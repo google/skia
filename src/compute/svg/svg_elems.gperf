@@ -1,0 +1,21 @@
+%language=ANSI-C
+%readonly-tables
+
+%enum
+
+%define hash-function-name   svg_elem_hash
+%define lookup-function-name svg_elem_lookup
+
+%struct-type
+struct svg_elem;
+
+%%
+svg,       parse_elem_svg
+g,         parse_elem_g
+circle,    parse_elem_circle
+ellipse,   parse_elem_ellipse
+line,      parse_elem_line
+path,      parse_elem_path
+polygon,   parse_elem_polygon
+polyline,  parse_elem_polyline
+rect,      parse_elem_rect

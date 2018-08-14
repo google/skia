@@ -1,0 +1,339 @@
+#!/usr/bin/env perl
+
+use common::sense;
+
+use Algorithm::Networksort;
+use Getopt::Long;
+
+use Algorithm::Networksort::Chooser;
+
+
+my @opt_spec = (
+  'opt=s',
+  'median',
+  'selection=s',
+  'all',
+  'validate',
+  'show',
+  'raw',
+  'algorithms=s',
+);
+
+my $opt = {
+  'opt' => 'comparators',
+};
+
+GetOptions($opt, @opt_spec) || die "GetOptions failed";
+
+
+my $network_size = shift || die "need network size";
+
+
+
+die "validate not implemented yet" if $opt->{validate};
+
+
+
+#### Generate candidate networks
+
+my @algos;
+
+if ($opt->{algorithms}) {
+  @algos = split ',', $opt->{algorithms};
+} else {
+  @algos = Algorithm::Networksort::nw_algorithms();
+}
+
+my @candidates;
+
+foreach my $algo (@algos) {
+  my @network = Algorithm::Networksort::Chooser::silence_carps(sub {
+    Algorithm::Networksort::nw_comparators($network_size, algorithm => $algo)
+  });
+
+  push @candidates, {
+    algo => $algo,
+    network => \@network,
+  };
+}
+
+
+
+
+#### Selection network processing
+
+if ($opt->{median}) {
+  die "--selection and --median are incompatible" if defined $opt->{selection};
+
+  $opt->{selection} = int($network_size / 2);
+}
+
+
+if (defined $opt->{selection}) {
+  my $selection = [ split(',', $opt->{selection}) ];
+
+  foreach my $ind (@$selection) {
+    die "badly formed selection index: $ind" unless $ind =~ /^\d+$/;
+    die "selection index $ind is too large for the network size" if $ind >= $network_size;
+  }
+
+  foreach my $candidate (@candidates) {
+    $candidate->{network} = Algorithm::Networksort::Chooser::build_selection_network($candidate->{network}, $selection);
+  }
+}
+
+
+
+
+#### Score the generated networks
+
+foreach my $candidate (@candidates) {
+  my @network = @{ $candidate->{network} };
+  my @grouped_network = Algorithm::Networksort::nw_group(\@network, $network_size, grouping=>'parallel');
+
+  $candidate->{comparators} = (0+@network);
+  $candidate->{stages} = (0+@grouped_network);
+}
+
+
+
+
+#### Remove 'best' network if it's the same as batcher
+
+my $batcher = [grep { $_->{algo} eq 'batcher' } @candidates]->[0];
+my $best = [grep { $_->{algo} eq 'best' } @candidates]->[0];
+
+if ($batcher->{comparators} == $best->{comparators} && $batcher->{stages} == $best->{stages}) {
+  @candidates = grep { $_->{algo} ne 'best' } @candidates;
+}
+
+
+
+#### Sort by optimisation criteria
+
+my @sorted_candidates;
+
+if ($opt->{opt} eq 'comparators') {
+  @sorted_candidates = sort {
+     ($a->{comparators} <=> $b->{comparators}) || ($a->{stages} <=> $b->{stages})
+  } @candidates;
+} elsif ($opt->{opt} eq 'stages') {
+  @sorted_candidates = sort {
+     ($a->{stages} <=> $b->{stages}) || ($a->{comparators} <=> $b->{comparators})
+  } @candidates;
+} else {
+  die "Unknown optimisation criteria: $opt->{opt}";
+}
+
+
+
+
+#### Output results
+
+
+if ($opt->{raw}) {
+  print "W($network_size) = {\n";
+  # print join(',', map { "X(" . ($_->[0]+1) . "," . ($_->[1]+1) . ")" } @{ $sorted_candidates[0]->{network} });
+  # print join(',', map { "X($_->[0],$_->[1])" } @{ $sorted_candidates[0]->{network} });
+  print join(',', map { sprintf(" X(%u,%u)",$_->[0]+1,$_->[1]+1) } @{ $sorted_candidates[0]->{network} });
+  print "\n};\n";
+  exit;
+}
+
+
+print "Network size: $network_size\n";
+
+if ($opt->{median}) {
+  print "Network type: Median network\n";
+} elsif ($opt->{selection}) {
+  print "Network type: Selection network: $opt->{selection}\n";
+} else {
+  print "Network type: Sorting network\n";
+}
+
+print "\n";
+
+print "Optimisation criteria: $opt->{opt}\n";
+
+print "\n";
+
+print "Optimal network:\n";
+
+output_network($sorted_candidates[0]);
+
+if ($opt->{all}) {
+  print "\nAdditional candidate networks:\n";
+  foreach my $network (@sorted_candidates[1..$#sorted_candidates]) {
+    output_network($network);
+  }
+}
+
+
+
+sub output_network {
+  my $network = shift;
+
+  print "  Algorithm \"$network->{algo}\":\n";
+  print "    Comparators: $network->{comparators}\n";
+  print "    Stages: $network->{stages}\n";
+
+  if ($opt->{show}) {
+    print "\n";
+    print Algorithm::Networksort::nw_graph($network->{network}, $network_size, graph => 'text');
+  }
+}
+
+
+
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+algorithm-networksort-chooser - Helper utility for Algorithm::Networksort
+
+=head1 SYNOPSIS
+
+The C<algorithm-networksort-chooser> script helps you find the best sorting network for your particular use-case.
+
+    $ algorithm-networksort-chooser 9  ## find best sorting network for array size 9
+    $ algorithm-networksort-chooser 9 --all  ## show all candiate networks
+    $ algorithm-networksort-chooser 9 --algorithms=batcher,bitonic  ## only consider batcher and bitonic algos
+
+    $ algorithm-networksort-chooser 9 --opt=comparators  ## optimise for comparators (default)
+    $ algorithm-networksort-chooser 9 --opt=stages  ## optimise for stages
+
+    $ algorithm-networksort-chooser 9 --median  ## best median network
+    $ algorithm-networksort-chooser 9 --selection=4  ## also best median network
+    $ algorithm-networksort-chooser 9 --selection=0,1,2  ## top-3 elements selection net
+
+    $ algorithm-networksort-chooser 9 --validate  ## run 0-1 validation test
+    $ algorithm-networksort-chooser 9 --show  ## show network as ASCII diagram
+    $ algorithm-networksort-chooser 9 --raw  ## show network as raw comparators
+
+
+
+=head1 DESCRIPTION
+
+This module uses L<Algorithm::Networksort> to experiment with sorting networks.
+
+L<Introduction To Sorting Networks|http://hoytech.github.com/sorting-networks/>
+
+By default this script examines the output of all implemented algorithms and the currently best known special-cases, and chooses the one that best meets your specified criteria.
+
+This module allows you trim the sorting networks into median or selection networks.
+
+You can then choose to choose the optimal net based on comparators (total number of operations) or on stages (number of operations considering parallelism).
+
+Normally the output is something like this:
+
+    $ algorithm-networksort-chooser --median 22
+    Network size: 22
+    Network type: Median network
+
+    Optimisation criteria: stages
+
+    Optimal network:
+      Algorithm "best":
+        Comparators: 86
+        Stages: 12
+
+For the description of the various algorithms and best-known special cases, see L<Algorithm::Networksort>'s documentation and source code.
+
+In order to use this output in another program, there is a C<--raw> switch. Its output is C<eval>able perl and is valid JSON:
+
+    $ algorithm-networksort-chooser --median 7 --raw
+    [[0,4],[1,5],[2,6],[0,2],[1,3],[4,6],[2,4],[3,5],[0,1],[2,3],[4,5],[1,4],[3,6],[3,4]]
+
+L<Algorithm::Networksort>'s ASCII output can be seen with C<--show>:
+
+    $ algorithm-networksort-chooser --median 7 --show
+    Network size: 7
+    Network type: Median network
+
+    Optimisation criteria: comparators
+
+    Optimal network:
+      Algorithm "batcher":
+        Comparators: 14
+        Stages: 6
+
+    o--^--------^-----^-----------------o
+       |        |     |                  
+    o--|--^-----|--^--v--------^--------o
+       |  |     |  |           |         
+    o--|--|--^--v--|--^-----^--|--------o
+       |  |  |     |  |     |  |         
+    o--|--|--|-----v--|--^--v--|--^--^--o
+       |  |  |        |  |     |  |  |   
+    o--v--|--|--^-----v--|--^--v--|--v--o
+          |  |  |        |  |     |      
+    o-----v--|--|--------v--v-----|-----o
+             |  |                 |      
+    o--------v--v-----------------v-----o
+
+
+The C<--all> switch shows all networks that were considered.
+
+Sometimes which algorithm or which best special-case network is surprising. For instance, selecting the top-3 elements in a size-9 array is best done by adapting Hibbard's algorithm, even though there is a special best (by comparators) network for size 9:
+
+    $ algorithm-networksort-chooser 9 --selection=0,1,2 --all
+    Network size: 9
+    Network type: Selection network: 0,1,2
+
+    Optimisation criteria: comparators
+
+    Optimal network:
+      Algorithm "hibbard":
+        Comparators: 18
+        Stages: 7
+
+    Additional candidate networks:
+      Algorithm "batcher":
+        Comparators: 20
+        Stages: 8
+      Algorithm "bosenelson":
+        Comparators: 22
+        Stages: 10
+      Algorithm "best":
+        Comparators: 23
+        Stages: 9
+      Algorithm "bitonic":
+        Comparators: 24
+        Stages: 8
+      Algorithm "bubble":
+        Comparators: 36
+        Stages: 15
+
+
+
+
+=head1 FUTURE IDEAS
+
+Also optimise by average swaps
+
+Algorithm::Networksort::Validate::XS
+
+
+
+=head1 SEE ALSO
+
+L<Introduction To Sorting Networks|http://hoytech.github.com/sorting-networks/>
+
+L<Algorithm-Networksort-Chooser github repo|https://github.com/hoytech/Algorithm-Networksort-Chooser>
+
+John Gamble's L<Algorithm-Networksort github repo|https://github.com/jgamble/Algorithm-Networksort>
+
+
+
+=head1 AUTHOR
+
+Doug Hoyte, C<< <doug@hcsw.org> >>
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2013 Doug Hoyte.
+
+This module is licensed under the same terms as perl itself.

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# Using "seq" ...
+for a in `seq 2 2 254`
+do
+  ./anc2 --raw "$a"
+done  
+
+echo; echo

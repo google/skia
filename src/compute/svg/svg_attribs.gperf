@@ -1,0 +1,37 @@
+%language=ANSI-C
+%readonly-tables
+
+%enum
+
+%define hash-function-name   svg_attrib_hash
+%define lookup-function-name svg_attrib_lookup
+
+%struct-type
+struct svg_attrib;
+
+%%
+id,              parse_attrib_id
+r,               parse_attrib_r
+cx,              parse_attrib_cx
+cy,              parse_attrib_cy
+rx,              parse_attrib_rx
+ry,              parse_attrib_ry
+x,               parse_attrib_x
+y,               parse_attrib_y
+width,           parse_attrib_width
+height,          parse_attrib_height
+x1,              parse_attrib_x1
+y1,              parse_attrib_y1
+x2,              parse_attrib_x2
+y2,              parse_attrib_y2
+d,               parse_attrib_d
+points,          parse_attrib_points
+transform,       parse_attrib_transform
+opacity,         parse_attrib_opacity
+fill,            parse_attrib_fill_color
+fill-opacity,    parse_attrib_fill_opacity
+fill-rule,       parse_attrib_fill_rule
+stroke,          parse_attrib_stroke_color
+stroke-opacity,  parse_attrib_stroke_opacity
+stroke-width,    parse_attrib_stroke_width
+style,           parse_attrib_style
