@@ -16,6 +16,24 @@
       "revId": "bf57c5723f63a46cf3e11ec4c30aef67f5b1ae3d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bf52bf3_7eb64b1f",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-14T17:01:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c110ae0_82cbb6e9",
+      "revId": "bf57c5723f63a46cf3e11ec4c30aef67f5b1ae3d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
