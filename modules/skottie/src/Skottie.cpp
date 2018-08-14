@@ -527,11 +527,12 @@ const ShapeInfo* FindShapeInfo(const skjson::ObjectValue& jshape) {
         { "tr", ShapeType::kTransform     , 0 }, // transform -> Inline handler
     };
 
-    SkString type;
-    if (!Parse<SkString>(jshape["ty"], &type) || type.isEmpty())
+    const skjson::StringValue* type = jshape["ty"];
+    if (!type) {
         return nullptr;
+    }
 
-    const auto* info = bsearch(type.c_str(),
+    const auto* info = bsearch(type->begin(),
                                gShapeInfo,
                                SK_ARRAY_COUNT(gShapeInfo),
                                sizeof(ShapeInfo),
@@ -860,11 +861,11 @@ sk_sp<sksg::RenderNode> AttachCompLayer(const skjson::ObjectValue& jlayer, Attac
 sk_sp<sksg::RenderNode> AttachSolidLayer(const skjson::ObjectValue& jlayer, AttachContext*) {
     const auto size = SkSize::Make(ParseDefault<float>(jlayer["sw"], 0.0f),
                                    ParseDefault<float>(jlayer["sh"], 0.0f));
-    const auto hex = ParseDefault<SkString>(jlayer["sc"], SkString());
+    const skjson::StringValue* hex_str = jlayer["sc"];
     uint32_t c;
     if (size.isEmpty() ||
-        !hex.startsWith("#") ||
-        !SkParse::FindHex(hex.c_str() + 1, &c)) {
+        *hex_str->begin() != '#' ||
+        !SkParse::FindHex(hex_str->begin() + 1, &c)) {
         LogFail(jlayer, "Could not parse solid layer");
         return nullptr;
     }
@@ -876,19 +877,22 @@ sk_sp<sksg::RenderNode> AttachSolidLayer(const skjson::ObjectValue& jlayer, Atta
 }
 
 sk_sp<sksg::RenderNode> AttachImageAsset(const skjson::ObjectValue& jimage, AttachContext* ctx) {
-    const auto name = ParseDefault<SkString>(jimage["p"], SkString()),
-               path = ParseDefault<SkString>(jimage["u"], SkString());
-    if (name.isEmpty())
+    const skjson::StringValue* name = jimage["p"];
+    const skjson::StringValue* path = jimage["u"];
+    if (!name) {
         return nullptr;
+    }
 
-    const auto res_id = SkStringPrintf("%s|%s", path.c_str(), name.c_str());
+    const auto name_cstr = name->begin(),
+               path_cstr = path ? path->begin() : "";
+    const auto res_id = SkStringPrintf("%s|%s", path_cstr, name_cstr);
     if (auto* attached_image = ctx->fAssetCache.find(res_id)) {
         return *attached_image;
     }
 
-    const auto data = ctx->fResources.load(path.c_str(), name.c_str());
+    const auto data = ctx->fResources.load(path_cstr, name_cstr);
     if (!data) {
-        LOG("!! Could not load image resource: %s/%s\n", path.c_str(), name.c_str());
+        LOG("!! Could not load image resource: %s/%s\n", path_cstr, name_cstr);
         return nullptr;
     }
 
@@ -1032,20 +1036,21 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
     for (const skjson::ObjectValue* m : *jmask) {
         if (!m) continue;
 
-        SkString mode;
-        if (!Parse<SkString>((*m)["mode"], &mode) || mode.size() != 1) {
+        const skjson::StringValue* jmode = (*m)["mode"];
+        if (!jmode || jmode->size() != 1) {
             LogFail((*m)["mode"], "Invalid mask mode");
             continue;
         }
 
-        if (mode[0] == 'n') {
+        const auto mode = *jmode->begin();
+        if (mode == 'n') {
             // "None" masks have no effect.
             continue;
         }
 
-        const auto* mask_info = GetMaskInfo(mode[0]);
+        const auto* mask_info = GetMaskInfo(mode);
         if (!mask_info) {
-            LOG("?? Unsupported mask mode: '%c'\n", mode[0]);
+            LOG("?? Unsupported mask mode: '%c'\n", mode);
             continue;
         }
 
