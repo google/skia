@@ -15,7 +15,9 @@ class GrContext;
 class GrPaint;
 class GrRenderTarget;
 class GrRenderTargetContext;
+class GrShape;
 class GrStyle;
+class GrUniqueKey;
 struct SkIRect;
 class SkMaskFilter;
 class SkMatrix;
@@ -31,21 +33,22 @@ namespace GrBlurUtils {
     /**
      * Draw a path handling the mask filter if present.
      */
-    void drawPathWithMaskFilter(GrContext* context,
-                                GrRenderTargetContext* renderTargetContext,
-                                const GrClip& clip,
+    void drawPathWithMaskFilter1(GrContext*,
+                                GrRenderTargetContext*,
+                                const GrClip&,
                                 const SkPath& origSrcPath,
-                                const SkPaint& paint,
+                                const SkPaint&,
                                 const SkMatrix& origViewMatrix,
                                 const SkMatrix* prePathMatrix,
                                 const SkIRect& clipBounds,
-                                bool pathIsMutable);
+                                bool pathIsMutable,
+                                const GrUniqueKey&);
 
     /**
      * Draw a path handling the mask filter. The mask filter is not optional. The path effect is
      * optional. The GrPaint will be modified after return.
      */
-    void drawPathWithMaskFilter(GrContext*,
+    void drawPathWithMaskFilter2(GrContext*,
                                 GrRenderTargetContext*,
                                 const GrClip&,
                                 const SkPath& path,
@@ -54,7 +57,15 @@ namespace GrBlurUtils {
                                 const SkMatrix& viewMatrix,
                                 const SkMaskFilter*,
                                 const GrStyle&,
-                                bool pathIsMutable);
+                                bool pathIsMutable,
+                                const GrUniqueKey&);
+
+    void drawShapeWithMaskFilter3(GrContext* context,
+                                 GrRenderTargetContext* renderTargetContext,
+                                 const GrClip& clip,
+                                 const SkPaint& paint,
+                                 const SkMatrix& viewMatrix,
+                                 const GrShape& shape);
 };
 
 #endif

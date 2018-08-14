@@ -888,7 +888,7 @@ static void test_scale(skiatest::Reporter* reporter, const Geo& geo) {
     TestCase strokeCase2(geo, stroke, reporter, kS2);
     // Scale affects the stroke
     if (geo.strokeIsConvertedToFill()) {
-        REPORTER_ASSERT(reporter, !strokeCase1.baseShape().style().applies());
+        REPORTER_ASSERT(reporter, !strokeCase1.baseShape().style().modifiesGeometry());
         strokeCase1.compare(reporter, strokeCase2, TestCase::kAllSame_ComparisonExpecation);
     } else {
         strokeCase1.compare(reporter, strokeCase2, TestCase::kSameUpToStroke_ComparisonExpecation);
@@ -916,7 +916,7 @@ static void test_scale(skiatest::Reporter* reporter, const Geo& geo) {
     // stroke-and-filled rect can become a rect), in which case the scale shouldn't matter and the
     // geometries should agree.
     if (geo.strokeAndFillIsConvertedToFill(strokeAndFillDash)) {
-        REPORTER_ASSERT(reporter, !strokeAndFillCase1.baseShape().style().applies());
+        REPORTER_ASSERT(reporter, !strokeAndFillCase1.baseShape().style().modifiesGeometry());
         strokeAndFillCase1.compare(reporter, strokeAndFillCase2,
                                    TestCase::kAllSame_ComparisonExpecation);
         strokeAndFillDashCase1.compare(reporter, strokeAndFillDashCase2,

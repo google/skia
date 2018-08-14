@@ -881,7 +881,7 @@ void GrTextContext::drawGlyphRunList(
     // TODO for animated mask filters, this will fill up our cache.  We need a safeguard here
     const SkMaskFilter* mf = listPaint.getMaskFilter();
     bool canCache = glyphRunList.canCache() && !(listPaint.getPathEffect() ||
-                                                 (mf && !as_MFB(mf)->asABlur(&blurRec)));
+                                                 (mf && !as_MFB(mf)->asABlur1(&blurRec)));
     SkScalerContextFlags scalerContextFlags = ComputeScalerContextFlags(target->colorSpaceInfo());
 
     auto glyphCache = context->contextPriv().getGlyphCache();

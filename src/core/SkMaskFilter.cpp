@@ -35,7 +35,7 @@ SkMaskFilterBase::NinePatch::~NinePatch() {
     }
 }
 
-bool SkMaskFilterBase::asABlur(BlurRec*) const {
+bool SkMaskFilterBase::asABlur1(BlurRec*) const {
     return false;
 }
 
@@ -261,7 +261,7 @@ bool SkMaskFilterBase::filterPath(const SkPath& devPath, const SkMatrix& matrix,
 
     SkMask  srcM, dstM;
 
-    if (!SkDraw::DrawToMask(devPath, &clip.getBounds(), this, &matrix, &srcM,
+    if (!SkDraw::DrawToMask(devPath, clip.getBounds(), this, matrix, &srcM,
                             SkMask::kComputeBoundsAndRenderImage_CreateMode,
                             style)) {
         return false;
@@ -323,7 +323,8 @@ SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
 }
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
 
-bool SkMaskFilterBase::canFilterMaskGPU(const SkRRect& devRRect,
+bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
+                                        const SkRect& devSpaceShapeBounds,
                                         const SkIRect& clipBounds,
                                         const SkMatrix& ctm,
                                         SkRect* maskRect) const {
@@ -346,8 +347,7 @@ bool SkMaskFilterBase::directFilterRRectMaskGPU(GrContext*,
                                                 const GrClip&,
                                                 const SkMatrix& viewMatrix,
                                                 const SkStrokeRec& strokeRec,
-                                                const SkRRect& rrect,
-                                                const SkRRect& devRRect) const {
+                                                const GrShape& shape) const {
     return false;
 }
 

@@ -910,7 +910,7 @@ static void apply_paint_maskfilter(const SkPaint& paint, Json::Value* target,
     SkMaskFilter* maskFilter = paint.getMaskFilter();
     if (maskFilter != nullptr) {
         SkMaskFilterBase::BlurRec blurRec;
-        if (as_MFB(maskFilter)->asABlur(&blurRec)) {
+        if (as_MFB(maskFilter)->asABlur1(&blurRec)) {
             Json::Value blur(Json::objectValue);
             blur[SKDEBUGCANVAS_ATTRIBUTE_SIGMA] = Json::Value(blurRec.fSigma);
             switch (blurRec.fStyle) {
