@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c372021b_211396d2",
+        "filename": "include/core/SkVertices.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-14T15:48:30Z",
+      "side": 1,
+      "message": "So, SkRSXform isn\u0027t sufficient?",
+      "revId": "3f6dbd61e1ddc9803e797e7f5ac59af901b6cd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8459f230_58dacef8",
+        "filename": "src/core/SkColorSpaceXformCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-14T15:48:30Z",
+      "side": 1,
+      "message": "add \\n ?",
+      "revId": "3f6dbd61e1ddc9803e797e7f5ac59af901b6cd16",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
