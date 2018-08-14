@@ -31,7 +31,7 @@ struct SkColorSpaceXformSteps {
     };
 
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                           SkColorSpace* dst);
+                           SkColorSpace* dst, SkAlphaType dstAT = kPremul_SkAlphaType);
 
     static SkColorSpaceXformSteps UnpremulToUnpremul(SkColorSpace* src, SkColorSpace* dst) {
         // The need to transform unpremul to unpremul comes up often enough that it's
