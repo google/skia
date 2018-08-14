@@ -1044,7 +1044,7 @@ void SkScalerContext_DW::generateColorGlyphImage(const SkGlyph& glyph) {
                 geometryToPath.get()),
                 "Could not create glyph outline.");
         }
-        draw.drawPath(path, paint, nullptr, true /* pathIsMutable */);
+        draw.drawPath3(path, paint, nullptr, true /* pathIsMutable */);
     }
 }
 

@@ -97,7 +97,8 @@ void SkBaseDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     if (isNonTranslate || complexPaint || antiAlias) {
         SkPath path;
         region.getBoundaryPath(&path);
-        return this->drawPath(path, paint, nullptr, false);
+        path.setIsVolatile(true);
+        return this->drawPath1(path, paint, false);
     }
 
     SkRegion::Iterator it(region);
@@ -113,7 +114,7 @@ void SkBaseDevice::drawArc(const SkRect& oval, SkScalar startAngle,
     bool isFillNoPathEffect = SkPaint::kFill_Style == paint.getStyle() && !paint.getPathEffect();
     SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
                                   isFillNoPathEffect);
-    this->drawPath(path, paint);
+    this->drawPath1(path, paint);
 }
 
 void SkBaseDevice::drawDRRect(const SkRRect& outer,
@@ -124,9 +125,7 @@ void SkBaseDevice::drawDRRect(const SkRRect& outer,
     path.setFillType(SkPath::kEvenOdd_FillType);
     path.setIsVolatile(true);
 
-    const SkMatrix* preMatrix = nullptr;
-    const bool pathIsMutable = true;
-    this->drawPath(path, paint, preMatrix, pathIsMutable);
+    this->drawPath1(path, paint, true);
 }
 
 void SkBaseDevice::drawPatch(const SkPoint cubics[12], const SkColor colors[4],
@@ -425,7 +424,7 @@ void SkBaseDevice::drawTextOnPath(const void* text, size_t byteLength,
                 m.postConcat(*matrix);
             }
             morphpath(&tmp, *iterPath, meas, m);
-            this->drawPath(tmp, iter.getPaint(), nullptr, true);
+            this->drawPath1(tmp, iter.getPaint(), true);
         }
     }
 }

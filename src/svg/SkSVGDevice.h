@@ -25,9 +25,8 @@ protected:
     void drawRect(const SkRect& r, const SkPaint& paint) override;
     void drawOval(const SkRect& oval, const SkPaint& paint) override;
     void drawRRect(const SkRRect& rr, const SkPaint& paint) override;
-    void drawPath(const SkPath& path,
+    void drawPath1(const SkPath& path,
                   const SkPaint& paint,
-                  const SkMatrix* prePathMatrix = nullptr,
                   bool pathIsMutable = false) override;
 
     void drawBitmap(const SkBitmap& bitmap, SkScalar x, SkScalar y, const SkPaint& paint) override;
