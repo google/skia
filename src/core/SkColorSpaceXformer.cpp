@@ -19,8 +19,8 @@
 
 SkColorSpaceXformer::SkColorSpaceXformer(sk_sp<SkColorSpace> dst)
     : fDst(std::move(dst))
-    , fFromSRGBSteps(SkColorSpaceXformSteps::UnpremulToUnpremul(sk_srgb_singleton(),
-                                                                fDst.get()))
+    , fFromSRGBSteps(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                     fDst.get()         , kUnpremul_SkAlphaType)
     , fReentryCount(0) {
 
     SkRasterPipeline p(&fAlloc);

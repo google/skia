@@ -11,7 +11,10 @@
 // TODO: explain
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                                               SkColorSpace* dst) {
+                                               SkColorSpace* dst, SkAlphaType dstAT) {
+    // We can exploit that srcs are opaque, but it doesn't make sense to ask for opaque output.
+    SkASSERT(dstAT != kOpaque_SkAlphaType);
+
     // Set all bools to false, all floats to 0.0f.
     memset(this, 0, sizeof(*this));
 
@@ -22,7 +25,7 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     this->flags.linearize       = !src->gammaIsLinear();
     this->flags.gamut_transform = src->toXYZD50Hash() != dst->toXYZD50Hash();
     this->flags.encode          = !dst->gammaIsLinear();
-    this->flags.premul          = srcAT != kOpaque_SkAlphaType;
+    this->flags.premul          = srcAT != kOpaque_SkAlphaType && dstAT == kPremul_SkAlphaType;
 
     if (this->flags.gamut_transform && src->toXYZD50() && dst->fromXYZD50()) {
         auto xform = SkMatrix44(*dst->fromXYZD50(), *src->toXYZD50());
