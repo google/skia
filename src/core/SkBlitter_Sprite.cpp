@@ -146,7 +146,9 @@ public:
                 // A8 images get their r,g,b from the paint color, so they're also sRGB.
                 srcCS = sk_srgb_singleton();
             }
-            fAlloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType,
+            auto srcAT = fSource.isOpaque() ? kOpaque_SkAlphaType
+                                            : kPremul_SkAlphaType;
+            fAlloc->make<SkColorSpaceXformSteps>(srcCS, srcAT,
                                                  dstCS, kPremul_SkAlphaType)
                 ->apply(&p);
         }
@@ -154,7 +156,6 @@ public:
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
 
-        // TODO: use this knowledge when creating SkColorSpaceXformSteps above.
         bool is_opaque = fSource.isOpaque() && fPaintColor.fA == 1.0f;
         fBlitter = SkCreateRasterPipelineBlitter(fDst, paint, p, is_opaque, fAlloc);
     }
