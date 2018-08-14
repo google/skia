@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "902fa994_b5811653",
+        "filename": "src/ports/SkFontHost_FreeType_common.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-14T18:50:49Z",
+      "side": 1,
+      "message": "For consistency, this should probably go in an if block like\n\nif (this-\u003eisSubpixel()) {\n    ...\n}",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 414,
+        "endChar": 72
+      },
+      "revId": "68dfe6210b5bd70768cb55d841c9825dfc785128",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
