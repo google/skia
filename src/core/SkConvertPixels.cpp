@@ -173,8 +173,7 @@ static void convert_to_alpha8(uint8_t* dst, size_t dstRB, const SkImageInfo& src
 
 // Default: Use the pipeline.
 static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size_t dstRB,
-                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB,
-                                  bool isColorAware) {
+                                  const SkImageInfo& srcInfo, const void* srcRow, size_t srcRB) {
 
     SkJumper_MemoryCtx src = { (void*)srcRow, (int)(srcRB / srcInfo.bytesPerPixel()) },
                        dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
@@ -218,53 +217,16 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
     }
 
-    SkAlphaType premulState = srcInfo.alphaType();
-    if (kPremul_SkAlphaType == premulState) {
-        pipeline.append(SkRasterPipeline::unpremul);
-        premulState = kUnpremul_SkAlphaType;
-    }
+    // Interpret any untagged source as sRGB.
+    auto srcCS = srcInfo.colorSpace() ? srcInfo.colorSpace() : sk_srgb_singleton();
 
-    SkColorSpaceTransferFn srcFn;
-    if (isColorAware && srcInfo.gammaCloseToSRGB()) {
-        pipeline.append(SkRasterPipeline::from_srgb);
-    } else if (isColorAware && !srcInfo.colorSpace()->gammaIsLinear()) {
-        SkAssertResult(srcInfo.colorSpace()->isNumericalTransferFn(&srcFn));
-        if (is_just_gamma(srcFn)) {
-            pipeline.append(SkRasterPipeline::gamma, &srcFn.fG);
-        } else {
-            pipeline.append(SkRasterPipeline::parametric, &srcFn);
-        }
-    }
+    // An untagged destination implies no color space transform is needed,
+    // but SkColorSpaceXformSteps may still do premul/unpremul conversion.
+    auto dstCS = dstInfo.colorSpace() ? dstInfo.colorSpace() : srcCS;
 
-    SkSTArenaAlloc<12*sizeof(float)> alloc;
-    if (isColorAware) {
-        append_gamut_transform(&pipeline, &alloc,
-                               srcInfo.colorSpace(), dstInfo.colorSpace(), premulState);
-    }
-
-    SkColorSpaceTransferFn dstFn;
-    if (isColorAware && dstInfo.gammaCloseToSRGB()) {
-        pipeline.append(SkRasterPipeline::to_srgb);
-    } else if (isColorAware && !dstInfo.colorSpace()->gammaIsLinear()) {
-        SkAssertResult(dstInfo.colorSpace()->isNumericalTransferFn(&dstFn));
-        dstFn = dstFn.invert();
-        if (is_just_gamma(dstFn)) {
-            pipeline.append(SkRasterPipeline::gamma, &dstFn.fG);
-        } else {
-            pipeline.append(SkRasterPipeline::parametric, &dstFn);
-        }
-    }
-
-    SkAlphaType dat = dstInfo.alphaType();
-    if (kUnpremul_SkAlphaType == premulState && kPremul_SkAlphaType == dat)
-    {
-        pipeline.append(SkRasterPipeline::premul);
-        premulState = kPremul_SkAlphaType;
-    }
-
-    // The final premul state must equal the dst alpha type.  Note that if we are "converting"
-    // opaque to another alpha type, there's no need to worry about multiplication.
-    SkASSERT(premulState == dat || kOpaque_SkAlphaType == srcInfo.alphaType());
+    SkColorSpaceXformSteps steps{srcCS, srcInfo.alphaType(),
+                                 dstCS, dstInfo.alphaType()};
+    steps.apply(&pipeline);
 
     // We'll dither if we're decreasing precision below 32-bit.
     float dither_rate = 0.0f;
@@ -338,12 +300,9 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
         return;
     }
 
-    const bool isColorAware = dstInfo.colorSpace();
-    SkASSERT(srcInfo.colorSpace() || !isColorAware);
-
     // Fast Path 2: Simple swizzles and premuls.
     if (swizzle_and_multiply_color_type(srcInfo.colorType()) &&
-        swizzle_and_multiply_color_type(dstInfo.colorType()) && !isColorAware) {
+        swizzle_and_multiply_color_type(dstInfo.colorType()) && !dstInfo.colorSpace()) {
         swizzle_and_multiply(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
         return;
     }
@@ -355,5 +314,5 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
     }
 
     // Default: Use the pipeline.
-    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, isColorAware);
+    convert_with_pipeline(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB);
 }

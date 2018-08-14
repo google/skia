@@ -83,36 +83,4 @@ static inline uint32_t Sk4f_toS32(const Sk4f& px) {
     return s32;
 }
 
-static inline void append_gamut_transform(SkRasterPipeline* p,
-                                          SkArenaAlloc* alloc,
-                                          SkColorSpace* src,
-                                          SkColorSpace* dst,
-                                          SkAlphaType srcAT) {
-    if (src == dst || !dst || !src) {
-        return;
-    }
-
-    const SkMatrix44 *fromSrc = src->  toXYZD50(),
-                       *toDst = dst->fromXYZD50();
-    if (!fromSrc || !toDst) {
-        SkDEBUGFAIL("We can't handle non-XYZ color spaces in append_gamut_transform().");
-        return;
-    }
-
-    // Slightly more sophisticated version of if (src == dst)
-    if (src->toXYZD50Hash() == dst->toXYZD50Hash()) {
-        return;
-    }
-
-    // Convert from 4x4 to (column-major) 3x4.
-    SkMatrix44 m44(*toDst, *fromSrc);
-    float* ptr = alloc->makeArrayDefault<float>(12);
-    *ptr++ = m44.get(0,0); *ptr++ = m44.get(1,0); *ptr++ = m44.get(2,0);
-    *ptr++ = m44.get(0,1); *ptr++ = m44.get(1,1); *ptr++ = m44.get(2,1);
-    *ptr++ = m44.get(0,2); *ptr++ = m44.get(1,2); *ptr++ = m44.get(2,2);
-    *ptr++ = m44.get(0,3); *ptr++ = m44.get(1,3); *ptr++ = m44.get(2,3);
-    p->append(SkRasterPipeline::matrix_3x4, ptr-12);
-}
-
-
 #endif
