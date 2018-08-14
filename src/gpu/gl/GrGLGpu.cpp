@@ -2988,6 +2988,12 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
     }
 }
 
+void GrGLGpu::onFBOChanged() {
+    if (this->caps()->workarounds().flush_on_framebuffer_change) {
+        GL_CALL(Flush());
+    }
+}
+
 void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     fStats.incRenderTargetBinds();
     GL_CALL(BindFramebuffer(target, fboid));
@@ -2996,7 +3002,8 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     }
 
     if (!this->caps()->workarounds().restore_scissor_on_fbo_change) {
-        return;
+      this->onFBOChanged();
+      return;
     }
 
     // The driver forgets the correct scissor when modifying the FBO binding.
@@ -3023,6 +3030,10 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
         GL_CALL(FramebufferRenderbuffer(GR_GL_FRAMEBUFFER, GR_GL_DEPTH_ATTACHMENT,
                                         GR_GL_RENDERBUFFER, 0));
     }
+
+    // Deleting the currently bound framebuffer rebinds to 0.
+    if (fboid == fBoundDrawFramebuffer)
+      this->onFBOChanged();
 
     GL_CALL(DeleteFramebuffers(1, &fboid));
 }

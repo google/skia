@@ -200,6 +200,7 @@ private:
     // compatible stencil format, or negative if there is no compatible stencil format.
     int getCompatibleStencilIndex(GrPixelConfig config);
 
+    void onFBOChanged();
 
     // Returns whether the texture is successfully created. On success, the
     // result is stored in |info|.
