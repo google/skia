@@ -10,13 +10,13 @@
 #if SK_SUPPORT_GPU
 
 #include "GrContextPriv.h"
+#include "GrMemoryPool.h"
 #include "GrPathUtils.h"
 #include "GrRenderTargetContext.h"
 #include "GrRenderTargetContextPriv.h"
 #include "GrResourceProvider.h"
 #include "Sample.h"
 #include "SkCanvas.h"
-#include "SkMakeUnique.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRectPriv.h"
@@ -191,6 +191,8 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
         // Render coverage count.
         GrContext* ctx = canvas->getGrContext();
+        GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
+
         SkASSERT(ctx);
         sk_sp<GrRenderTargetContext> ccbuff =
                 ctx->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
@@ -199,7 +201,7 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
                                                                    nullptr);
         SkASSERT(ccbuff);
         ccbuff->clear(nullptr, 0, GrRenderTargetContext::CanClearFullscreen::kYes);
-        ccbuff->priv().testingOnly_addDrawOp(skstd::make_unique<DrawCoverageCountOp>(this));
+        ccbuff->priv().testingOnly_addDrawOp(pool->allocate<DrawCoverageCountOp>(this));
 
         // Visualize coverage count in main canvas.
         GrPaint paint;
