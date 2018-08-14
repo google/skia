@@ -1,0 +1,146 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b14fd48_750f37c5",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Yeah, this seems like a tri-state?",
+      "range": {
+        "startLine": 791,
+        "startChar": 0,
+        "endLine": 794,
+        "endChar": 0
+      },
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d389a303_c25c5450",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Yeah, I think so. If we can\u0027t represent the source profile as a color space, then we will have turned it into sRGB, and we definitely need an xform.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05abf1f2_addc28a2",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "skcms doesn\u0027t really have a preference. It does always assume RGB order when loading and storing, but if you use the BGR PixelFormats, it just adds a channel swap step (after load/before store) in the pipeline it builds. So yeah, things are a tiny bit faster with RGB.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ed5300d_cc7faf22",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "No, this is always better. (See comment later about opaque handling in skcms).",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "47c895ec_5c630041",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Oddly, if you know that your source data is opaque, it\u0027s faster to tell skcms that both the source and dest are unpremul. We treat opaque as a guarantee - we actually ignore the src alpha channel and overwrite it with 1.0 after reading, and if the dstAlpha is opaque, we overwrite alpha with 1.0 before writing.\n\nYes, this is confusing.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e8b26e4_64d02c4f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4163e65a_e8f0e0d0",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Ditto",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b6eb6276_bb9f8107",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-14T16:41:29Z",
+      "side": 1,
+      "message": "Similar here: Unpremul would be better than Opaque, if the data definitely has 1.0 in alpha already.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
