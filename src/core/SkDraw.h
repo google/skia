@@ -94,8 +94,8 @@ public:
         that must be done afterwards (by calling filterMask). The maskfilter is provided
         solely to assist in computing the mask's bounds (if the mode requests that).
     */
-    static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
-                           const SkMaskFilter*, const SkMatrix* filterMatrix,
+    static bool DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
+                           const SkMaskFilter*, const SkMatrix& filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 

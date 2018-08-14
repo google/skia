@@ -41,7 +41,7 @@ static void draw_path(GrContext* ctx,
     SkIRect clipConservativeBounds = SkIRect::MakeWH(renderTargetContext->width(),
                                                      renderTargetContext->height());
     GrShape shape(path, style);
-    if (shape.style().applies()) {
+    if (shape.style().modifiesGeometry()) {
         shape = shape.applyStyle(GrStyle::Apply::kPathEffectAndStrokeRec, 1.0f);
     }
     SkMatrix matrix = SkMatrix::I();

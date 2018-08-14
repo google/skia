@@ -19,13 +19,15 @@
 class GrClip;
 class GrContext;
 struct GrFPArgs;
-class GrRenderTargetContext;
-class GrPaint;
 class GrFragmentProcessor;
+class GrPaint;
 class GrRenderTarget;
+class GrRenderTargetContext;
 class GrResourceProvider;
+class GrShape;
 class GrTexture;
 class GrTextureProxy;
+
 class SkBitmap;
 class SkBlitter;
 class SkCachedData;
@@ -98,7 +100,8 @@ public:
      *        filterMaskGPU(devShape, ...)
      * this would hide the RRect special case and the mask generation
      */
-    virtual bool canFilterMaskGPU(const SkRRect& devRRect,
+    virtual bool canFilterMaskGPU(const GrShape&,
+                                  const SkRect& devSpaceShapeBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
                                   SkRect* maskRect) const;
@@ -108,22 +111,21 @@ public:
      *  successful. If false is returned then paint is unmodified.
      */
     virtual bool directFilterMaskGPU(GrContext*,
-                                     GrRenderTargetContext* renderTargetContext,
+                                     GrRenderTargetContext*,
                                      GrPaint&& paint,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
-                                     const SkStrokeRec& strokeRec,
-                                     const SkPath& path) const;
+                                     const GrShape& shape) const;
     /**
      *  Try to directly render a rounded rect mask filter into the target.  Returns
      *  true if drawing was successful.  If false is returned then paint is unmodified.
      */
     virtual bool directFilterRRectMaskGPU(GrContext*,
-                                          GrRenderTargetContext* renderTargetContext,
-                                          GrPaint&& paint,
+                                          GrRenderTargetContext*,
+                                          GrPaint&&,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
-                                          const SkStrokeRec& strokeRec,
+                                          const SkStrokeRec&,
                                           const SkRRect& rrect,
                                           const SkRRect& devRRect) const;
 
@@ -162,7 +164,7 @@ public:
      *  provided BlurRec parameter. If this effect cannot be represented as a BlurRec, return false
      *  and ignore the BlurRec parameter.
      */
-    virtual bool asABlur(BlurRec*) const;
+    virtual bool asABlur1(BlurRec*) const;
 
 protected:
     SkMaskFilterBase() {}

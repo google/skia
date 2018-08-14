@@ -1679,8 +1679,8 @@ void SkDraw::validate() const {
 #include "SkRegion.h"
 #include "SkBlitter.h"
 
-static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
-                           const SkMaskFilter* filter, const SkMatrix* filterMatrix,
+static bool compute_bounds(const SkPath& devPath, const SkIRect& clipBounds,
+                           const SkMaskFilter* filter, const SkMatrix& filterMatrix,
                            SkIRect* bounds) {
     if (devPath.isEmpty()) {
         return false;
@@ -1691,20 +1691,18 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
 
     SkIPoint margin = SkIPoint::Make(0, 0);
     if (filter) {
-        SkASSERT(filterMatrix);
-
         SkMask srcM, dstM;
 
         srcM.fBounds = *bounds;
         srcM.fFormat = SkMask::kA8_Format;
-        if (!as_MFB(filter)->filterMask(&dstM, srcM, *filterMatrix, &margin)) {
+        if (!as_MFB(filter)->filterMask(&dstM, srcM, filterMatrix, &margin)) {
             return false;
         }
     }
 
     // (possibly) trim the bounds to reflect the clip
     // (plus whatever slop the filter needs)
-    if (clipBounds) {
+    {
         // Ugh. Guard against gigantic margins from wacky filters. Without this
         // check we can request arbitrary amounts of slop beyond our visible
         // clip, and bring down the renderer (at least on finite RAM machines
@@ -1712,7 +1710,7 @@ static bool compute_bounds(const SkPath& devPath, const SkIRect* clipBounds,
         // quality of large filters like blurs, and the corresponding memory
         // requests.
         static const int MAX_MARGIN = 128;
-        if (!bounds->intersect(clipBounds->makeOutset(SkMin32(margin.fX, MAX_MARGIN),
+        if (!bounds->intersect(clipBounds.makeOutset(SkMin32(margin.fX, MAX_MARGIN),
                                                       SkMin32(margin.fY, MAX_MARGIN)))) {
             return false;
         }
@@ -1752,8 +1750,8 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
     draw.drawPath(devPath, paint);
 }
 
-bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
-                        const SkMaskFilter* filter, const SkMatrix* filterMatrix,
+bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
+                        const SkMaskFilter* filter, const SkMatrix& filterMatrix,
                         SkMask* mask, SkMask::CreateMode mode,
                         SkStrokeRec::InitStyle style) {
     if (SkMask::kJustRenderImage_CreateMode != mode) {

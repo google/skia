@@ -231,7 +231,7 @@ public:
 
 private:
     SkPath getPath() const {
-        SkASSERT(!fShape.style().applies());
+        SkASSERT(!fShape.style().modifiesGeometry());
         SkPath path;
         fShape.asPath(&path);
         return path;

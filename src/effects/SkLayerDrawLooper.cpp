@@ -183,7 +183,7 @@ bool SkLayerDrawLooper::asABlurShadow(BlurShadowRec* bsRec) const {
         return false;
     }
     SkMaskFilterBase::BlurRec maskBlur;
-    if (!as_MFB(mf)->asABlur(&maskBlur)) {
+    if (!as_MFB(mf)->asABlur1(&maskBlur)) {
         return false;
     }
 

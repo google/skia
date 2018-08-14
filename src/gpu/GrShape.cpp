@@ -419,7 +419,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
     // to caller?
     // TODO: For certain shapes and stroke params we could ignore the scale. (e.g. miter or bevel
     // stroke of a rect).
-    if (!parent.style().applies() ||
+    if (!parent.style().modifiesGeometry() ||
         (GrStyle::Apply::kPathEffectOnly == apply && !parent.style().pathEffect())) {
         this->initType(Type::kEmpty);
         *this = parent;
@@ -468,7 +468,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
             tmpParent.get()->asPath(tmpPath.get());
             SkStrokeRec::InitStyle fillOrHairline;
             // The parent shape may have simplified away the strokeRec, check for that here.
-            if (tmpParent.get()->style().applies()) {
+            if (tmpParent.get()->style().modifiesGeometry()) {
                 SkAssertResult(tmpParent.get()->style().applyToPath(&this->path(), &fillOrHairline,
                                                                     *tmpPath.get(), scale));
             } else if (tmpParent.get()->style().isSimpleFill()) {
@@ -491,7 +491,7 @@ GrShape::GrShape(const GrShape& parent, GrStyle::Apply apply, SkScalar scale) {
             parent.asPath(tmpPath.get());
         }
         SkStrokeRec::InitStyle fillOrHairline;
-        SkASSERT(parent.fStyle.applies());
+        SkASSERT(parent.fStyle.modifiesGeometry());
         SkASSERT(!parent.fStyle.pathEffect());
         SkAssertResult(parent.fStyle.applyToPath(&this->path(), &fillOrHairline, *srcForParentStyle,
                                                  scale));
