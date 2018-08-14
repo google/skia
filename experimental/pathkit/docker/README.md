@@ -43,7 +43,7 @@ installed libraries.
     docker build -t karma-chrome-tests ./docker/karma-chrome-tests/
     # check the version of chrome with the following:
     docker run karma-chrome-tests /usr/bin/google-chrome-stable --version
-    CHROME_VERSION="68.0.3440.106_v1"  # use v1, v2, etc for any re-spins of the container.
+    CHROME_VERSION="68.0.3440.106_v2"  # use v1, v2, etc for any re-spins of the container.
     docker tag karma-chrome-tests gcr.io/skia-public/karma-chrome-tests:$CHROME_VERSION
     docker push gcr.io/skia-public/karma-chrome-tests:$CHROME_VERSION
 
@@ -57,5 +57,5 @@ For testing the image locally, the following can be helpful:
     # Run bash in it to poke around and make sure things are properly installed
     docker run -it --shm-size=2gb karma-chrome-tests /bin/bash
     # Run the tests with the local source repo
-    docker run --shm-size=2gb -v $SKIA_ROOT:/SRC karma-chrome-tests karma start /SRC/experimental/pathkit/karma-docker.conf.js --single-run
+    docker run --shm-size=2gb -v $SKIA_ROOT:/SRC -v /tmp/dockerout:/OUT karma-chrome-tests /SRC/experimental/pathkit/docker/test_pathkit.sh
 

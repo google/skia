@@ -1,13 +1,6 @@
 
 
 describe('PathKit\'s Path2D API', function() {
-    const container = document.createElement('div');
-    document.body.appendChild(container);
-
-    afterEach(function() {
-        container.innerHTML = '';
-    });
-
     // Note, don't try to print the PathKit object - it can cause Karma/Jasmine to lock up.
     var PathKit = null;
     const LoadPathKit = new Promise(function(resolve, reject) {
@@ -67,30 +60,35 @@ describe('PathKit\'s Path2D API', function() {
             path.addPath(secondPath, 1, 0, 0, 1, 0, 20.5);
 
             let canvas = document.createElement('canvas');
-            container.appendChild(canvas);
             let canvasCtx = canvas.getContext('2d');
+            // Set canvas size and make it a bit bigger to zoom in on the lines
+            standardizedCanvasSize(canvasCtx);
+            canvasCtx.scale(3.0, 3.0);
             canvasCtx.fillStyle = 'blue';
             canvasCtx.stroke(path.toPath2D());
 
             path.delete();
             secondPath.delete();
 
-            done();
+            reportCanvas(canvas, 'path2D_api_example').then(() => {
+                done();
+            }).catch(reportError(done));
         });
     });
 
     it('approximates arcs (conics) with quads', function(done) {
         LoadPathKit.then(() => {
             let path = PathKit.NewPath();
-            path.moveTo(20, 120);
-            path.arc(20, 120, 18, 0, 1.75 * Math.PI);
-            path.lineTo(20, 120);
+            path.moveTo(50, 120);
+            path.arc(50, 120, 45, 0, 1.75 * Math.PI);
+            path.lineTo(50, 120);
 
             let canvas = document.createElement('canvas');
-            container.appendChild(canvas);
             let canvasCtx = canvas.getContext('2d');
-
-            spyOn(canvasCtx, 'quadraticCurveTo');
+            standardizedCanvasSize(canvasCtx);
+            // The and.callThrough is important to make it actually
+            // draw the quadratics
+            spyOn(canvasCtx, 'quadraticCurveTo').and.callThrough();
 
             canvasCtx.beginPath();
             path.toCanvas(canvasCtx);
@@ -100,7 +98,9 @@ describe('PathKit\'s Path2D API', function() {
             // to the approximation algorithms).
             expect(canvasCtx.quadraticCurveTo).toHaveBeenCalled();
             path.delete();
-            done();
+            reportCanvas(canvas, 'conics_quads_approx').then(() => {
+                done();
+            }).catch(reportError(done));
         });
     });
 
