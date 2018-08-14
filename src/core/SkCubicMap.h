@@ -25,15 +25,21 @@ public:
     SkCubicMap(SkPoint p1, SkPoint p2) {
         this->setPts(p1, p2);
     }
+
     void setPts(SkPoint p1, SkPoint p2);
 
     float computeYFromX(float x) const;
 
-    // is this needed?
     SkPoint computeFromT(float t) const;
 
 private:
+    enum Type {
+        kLine_Type,     // x == y
+        kCubeRoot_Type, // At^3 == x
+        kSolver_Type,   // general monotonic cubic solver
+    };
     SkPoint fCoeff[3];
+    Type    fType;
 };
 
 #endif
