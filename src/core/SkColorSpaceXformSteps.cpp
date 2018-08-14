@@ -11,7 +11,7 @@
 // TODO: explain
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                                               SkColorSpace* dst) {
+                                               SkColorSpace* dst, SkAlphaType dstAT) {
     // Set all bools to false, all floats to 0.0f.
     memset(this, 0, sizeof(*this));
 
