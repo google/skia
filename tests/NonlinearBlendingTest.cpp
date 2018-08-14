@@ -37,7 +37,8 @@ DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
                         &via_skcms,  f32,   premul,  &dp3_profile,
                         1);
 
-        SkColorSpaceXformSteps steps(srgb.get(), kUnpremul_SkAlphaType, dp3.get());
+        SkColorSpaceXformSteps steps(srgb.get(), kUnpremul_SkAlphaType,
+                                      dp3.get(),   kPremul_SkAlphaType);
         float via_steps[4] = {
             SkColorGetR(color) * (1 / 255.0f),
             SkColorGetG(color) * (1 / 255.0f),
@@ -58,7 +59,8 @@ DEF_TEST(SkColorSpaceXformSteps_vs_skcms, r) {
                         1);
 
         float skcms_to_steps[4] = { via_skcms[0], via_skcms[1], via_skcms[2], via_skcms[3] };
-        SkColorSpaceXformSteps inv_steps(dp3.get(), kPremul_SkAlphaType, srgb.get());
+        SkColorSpaceXformSteps inv_steps(dp3.get(), kPremul_SkAlphaType,
+                                        srgb.get(), kPremul_SkAlphaType);
         inv_steps.apply(skcms_to_steps);
 
         REPORTER_ASSERT(r, fabsf(skcms_to_steps[0] - steps_to_skcms[0]) <= 0.005f);

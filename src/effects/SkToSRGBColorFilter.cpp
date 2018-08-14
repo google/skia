@@ -23,7 +23,7 @@ void SkToSRGBColorFilter::onAppendStages(SkRasterPipeline* p,
                                          SkArenaAlloc* alloc,
                                          bool shaderIsOpaque) const {
     alloc->make<SkColorSpaceXformSteps>(fSrcColorSpace.get(), kPremul_SkAlphaType,
-                                        sk_srgb_singleton())
+                                        sk_srgb_singleton() , kPremul_SkAlphaType)
         ->apply(p);
 }
 

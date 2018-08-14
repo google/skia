@@ -52,9 +52,8 @@ struct ColorSpaceXformBench : public Benchmark {
                                                         SkColorSpace::kDCIP3_D65_Gamut);
 
         fXform = SkColorSpaceXform::New(src.get(), dst.get());
-        fSteps = skstd::make_unique<SkColorSpaceXformSteps>(src.get(),
-                                                            kOpaque_SkAlphaType,
-                                                            dst.get());
+        fSteps = skstd::make_unique<SkColorSpaceXformSteps>(src.get(), kOpaque_SkAlphaType,
+                                                            dst.get(), kPremul_SkAlphaType);
 
         SkRasterPipeline p(&fAlloc);
         p.append(SkRasterPipeline::load_bgra, &fPipeSrc);

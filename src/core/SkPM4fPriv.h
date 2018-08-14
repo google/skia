@@ -48,7 +48,8 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor4f color4f,
 
     // TODO: In the very common case of srcCS being sRGB,
     // can we precompute an sRGB -> dstCS SkColorSpaceXformSteps for each device and use it here?
-    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType, dstCS)
+    SkColorSpaceXformSteps(srcCS, kUnpremul_SkAlphaType,
+                           dstCS, kPremul_SkAlphaType)
         .apply(color4f.vec());
 
     return {{color4f.fR, color4f.fG, color4f.fB, color4f.fA}};

@@ -405,7 +405,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
                 // A8 images get their r,g,b from the paint color, so they're also sRGB.
                 srcCS = sk_srgb_singleton();
             }
-            alloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType, rec.fDstCS)
+            alloc->make<SkColorSpaceXformSteps>(srcCS     , kPremul_SkAlphaType,
+                                                rec.fDstCS, kPremul_SkAlphaType)
                 ->apply(p);
         }
 

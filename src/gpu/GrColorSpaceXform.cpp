@@ -25,7 +25,8 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkColorSpace
     }
 
     // TODO: Plumb source alpha type
-    SkColorSpaceXformSteps steps(src, kPremul_SkAlphaType, dst);
+    SkColorSpaceXformSteps steps(src, kPremul_SkAlphaType,
+                                 dst, kPremul_SkAlphaType);
 
     return steps.flags.mask() == 0 ? nullptr  /* Noop transform */
                                    : sk_make_sp<GrColorSpaceXform>(steps);
@@ -43,7 +44,8 @@ sk_sp<GrColorSpaceXform> GrColorSpaceXform::MakeUnpremulToUnpremul(SkColorSpace*
         src = sk_srgb_singleton();
     }
 
-    SkColorSpaceXformSteps steps = SkColorSpaceXformSteps::UnpremulToUnpremul(src, dst);
+    SkColorSpaceXformSteps steps(src, kUnpremul_SkAlphaType,
+                                 dst, kUnpremul_SkAlphaType);
 
     return steps.flags.mask() == 0 ? nullptr  /* Noop transform */
                                    : sk_make_sp<GrColorSpaceXform>(steps);

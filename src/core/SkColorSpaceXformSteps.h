@@ -31,14 +31,7 @@ struct SkColorSpaceXformSteps {
     };
 
     SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
-                           SkColorSpace* dst);
-
-    static SkColorSpaceXformSteps UnpremulToUnpremul(SkColorSpace* src, SkColorSpace* dst) {
-        // The need to transform unpremul to unpremul comes up often enough that it's
-        // nice to centralize it here, especially because this use of kOpaque_SkAlphaType
-        // isn't the most intuitive.  We basically want to always skip unpremul and premul.
-        return SkColorSpaceXformSteps(src, kOpaque_SkAlphaType, dst);
-    }
+                           SkColorSpace* dst, SkAlphaType dstAT);
 
     void apply(float rgba[4]) const;
     void apply(SkRasterPipeline*) const;
