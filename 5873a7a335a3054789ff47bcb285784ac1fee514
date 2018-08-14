@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8a2333ef_d9c4a592",
+        "filename": "src/core/SkCubicMap.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-14T21:20:17Z",
+      "side": 1,
+      "message": "p2",
+      "range": {
+        "startLine": 166,
+        "startChar": 65,
+        "endLine": 166,
+        "endChar": 77
+      },
+      "revId": "5873a7a335a3054789ff47bcb285784ac1fee514",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
