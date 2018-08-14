@@ -324,7 +324,7 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath,
     orig.addPath(newPath, m);
 }
 
-JSString GetCanvasFillType(const SkPath& path) {
+JSString GetFillTypeString(const SkPath& path) {
     if (path.getFillType() == SkPath::FillType::kWinding_FillType) {
         return emscripten::val("nonzero");
     } else if (path.getFillType() == SkPath::FillType::kEvenOdd_FillType) {
@@ -456,7 +456,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         // Extra features
         .function("setFillType", &SkPath::setFillType)
         .function("getFillType", &SkPath::getFillType)
-        .function("getCanvasFillType", &GetCanvasFillType)
+        .function("getFillTypeString", &GetFillTypeString)
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
 
