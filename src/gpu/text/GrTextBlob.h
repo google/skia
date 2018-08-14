@@ -202,8 +202,7 @@ public:
     void flush(GrTextTarget*, const SkSurfaceProps& props,
                const GrDistanceFieldAdjustTable* distanceAdjustTable,
                const SkPaint& paint, GrColor filteredColor, const GrClip& clip,
-               const SkMatrix& viewMatrix, const SkIRect& clipBounds, SkScalar x,
-               SkScalar y);
+               const SkMatrix& viewMatrix, SkScalar x, SkScalar y);
 
     void computeSubRunBounds(SkRect* outBounds, int runIndex, int subRunIndex,
                              const SkMatrix& viewMatrix, SkScalar x, SkScalar y,

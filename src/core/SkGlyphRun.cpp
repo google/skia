@@ -864,8 +864,8 @@ GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& co
 
 void GrTextContext::drawGlyphRunList(
         GrContext* context, GrTextTarget* target, const GrClip& clip,
-        const SkMatrix& viewMatrix, const SkSurfaceProps& props, const SkGlyphRunList& glyphRunList,
-        const SkIRect& clipBounds) {
+        const SkMatrix& viewMatrix, const SkSurfaceProps& props,
+        const SkGlyphRunList& glyphRunList) {
     SkPoint origin = glyphRunList.origin();
 
     // Get the first paint to use as the key paint.
@@ -951,7 +951,7 @@ void GrTextContext::drawGlyphRunList(
     }
 
     cacheBlob->flush(target, props, fDistanceAdjustTable.get(), listPaint, filteredColor,
-                     clip, viewMatrix, clipBounds, origin.x(), origin.y());
+                     clip, viewMatrix, origin.x(), origin.y());
 }
 
 static SkRect rect_to_draw(

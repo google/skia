@@ -69,10 +69,9 @@ public:
     }
 
     void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, const SkMatrix* pathMatrix,
-                  const SkIRect& clipBounds) override {
+                  const SkMatrix& viewMatrix, const SkMatrix* pathMatrix) override {
         GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                            clip, path, paint, viewMatrix, pathMatrix, clipBounds,
+                                            clip, path, paint, viewMatrix, pathMatrix,
                                             false);
     }
 
@@ -235,7 +234,7 @@ GrOpList* GrRenderTargetContext::getOpList() {
 
 void GrRenderTargetContext::drawGlyphRunList(
         const GrClip& clip, const SkMatrix& viewMatrix,
-        const SkGlyphRunList& blob, const SkIRect& clipBounds) {
+        const SkGlyphRunList& blob) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
@@ -243,7 +242,7 @@ void GrRenderTargetContext::drawGlyphRunList(
 
     GrTextContext* atlasTextContext = this->drawingManager()->getTextContext();
     atlasTextContext->drawGlyphRunList(fContext, fTextTarget.get(), clip, viewMatrix,
-                                       fSurfaceProps, blob, clipBounds);
+                                       fSurfaceProps, blob);
 }
 
 void GrRenderTargetContext::discard() {

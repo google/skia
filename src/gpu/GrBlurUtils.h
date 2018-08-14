@@ -38,7 +38,6 @@ namespace GrBlurUtils {
                                 const SkPaint& paint,
                                 const SkMatrix& origViewMatrix,
                                 const SkMatrix* prePathMatrix,
-                                const SkIRect& clipBounds,
                                 bool pathIsMutable);
 
     /**
