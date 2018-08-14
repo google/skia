@@ -14,6 +14,13 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key
 RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
 RUN apt-get update && apt-get install -y google-chrome-stable
 
+WORKDIR /opt
+RUN wget https://dl.google.com/go/go1.10.3.linux-amd64.tar.gz \
+    && tar -xvf go1.10.3.linux-amd64.tar.gz \
+    && rm /opt/go1.10.3.linux-amd64.tar.gz
+ENV GOROOT=/opt/go
+
+
 RUN npm install --global jasmine-core@3.1.0 karma@2.0.5 \
         karma-chrome-launcher@2.2.0 karma-jasmine@1.1.2 requirejs@2.3.5
 
@@ -22,6 +29,10 @@ RUN groupadd -g 2000 skia \
     && useradd -u 2000 -g 2000 skia \
     && mkdir -p /home/skia \
     && chown -R skia:skia /home/skia
+
+ENV GOPATH=/home/skia/go
+ENV PATH=${GOPATH}/bin:${GOROOT}/bin:${PATH}
+
 
 # These directories can be used for mounting a source checkout and having a place to put outputs.
 RUN mkdir -m 0777 /SRC /OUT
