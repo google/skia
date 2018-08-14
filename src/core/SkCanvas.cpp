@@ -2134,7 +2134,7 @@ void SkCanvas::onDrawPath(const SkPath& path, const SkPaint& paint) {
     LOOPER_BEGIN(paint, &pathBounds)
 
     while (iter.next()) {
-        iter.fDevice->drawPath(path, looper.paint());
+        iter.fDevice->drawPath1(path, looper.paint());
     }
 
     LOOPER_END

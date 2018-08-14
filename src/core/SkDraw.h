@@ -55,9 +55,9 @@ public:
      *  affect the geometry/rasterization, then the pre matrix can just be
      *  pre-concated with the current matrix.
      */
-    void    drawPath(const SkPath& path, const SkPaint& paint,
+    void    drawPath3(const SkPath& path, const SkPaint& paint,
                      const SkMatrix* prePathMatrix = nullptr, bool pathIsMutable = false) const {
-        this->drawPath(path, paint, prePathMatrix, pathIsMutable, false);
+        this->drawPath2(path, paint, prePathMatrix, pathIsMutable, false);
     }
 
     /* If dstOrNull is null, computes a dst by mapping the bitmap's bounds through the matrix. */
@@ -86,7 +86,7 @@ public:
                           SkBlitter* customBlitter = nullptr) const {
         bool isHairline = paint.getStyle() == SkPaint::kStroke_Style &&
                           paint.getStrokeWidth() > 0;
-        this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
+        this->drawPath2(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
     /** Helper function that creates a mask from a path and an optional maskfilter.
@@ -130,7 +130,7 @@ private:
             const SkPaint& paint, SkArenaAlloc* alloc) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 
-    void    drawPath(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
+    void    drawPath2(const SkPath&, const SkPaint&, const SkMatrix* preMatrix,
                      bool pathIsMutable, bool drawCoverage,
                      SkBlitter* customBlitter = nullptr) const;
 

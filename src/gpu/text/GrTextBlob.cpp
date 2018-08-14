@@ -296,11 +296,10 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                 GrTextBlob::Run::PathGlyph& pathGlyph = run.fPathGlyphs[i];
                 calculate_translation(pathGlyph.fPreTransformed, viewMatrix, x, y,
                                       fInitialViewMatrix, fInitialX, fInitialY, &transX, &transY);
-                const SkMatrix& ctm = pathGlyph.fPreTransformed ? SkMatrix::I() : viewMatrix;
-                SkMatrix pathMatrix;
-                pathMatrix.setScale(pathGlyph.fScale, pathGlyph.fScale);
-                pathMatrix.postTranslate(pathGlyph.fX + transX, pathGlyph.fY + transY);
-                target->drawPath(clip, pathGlyph.fPath, runPaint, ctm, &pathMatrix, clipBounds);
+                SkMatrix pathMatrix = pathGlyph.fPreTransformed ? SkMatrix::I() : viewMatrix;
+                pathMatrix.preTranslate(pathGlyph.fX + transX, pathGlyph.fY + transY);
+                pathMatrix.preScale(pathGlyph.fScale, pathGlyph.fScale);
+                target->drawPath(clip, pathGlyph.fPath, runPaint, pathMatrix, clipBounds);
             }
         }
 

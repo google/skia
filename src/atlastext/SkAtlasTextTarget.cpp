@@ -99,7 +99,7 @@ public:
     void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) override;
 
     void drawPath(const GrClip&, const SkPath&, const SkPaint&, const SkMatrix& viewMatrix,
-                  const SkMatrix* pathMatrix, const SkIRect& clipBounds) override {
+                  const SkIRect& clipBounds) override {
         SkDebugf("Path glyph??");
     }
 

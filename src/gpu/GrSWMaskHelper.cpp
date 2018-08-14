@@ -70,7 +70,7 @@ void GrSWMaskHelper::drawShape(const GrShape& shape, const SkMatrix& matrix, SkR
     } else {
         paint.setBlendMode(op_to_mode(op));
         paint.setColor(SkColorSetARGB(alpha, alpha, alpha, alpha));
-        fDraw.drawPath(path, paint);
+        fDraw.drawPath3(path, paint);
     }
 };
 

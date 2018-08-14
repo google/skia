@@ -534,19 +534,23 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 SkScalar radius = SkScalarHalf(width);
 
                 if (newPaint.getStrokeCap() == SkPaint::kRound_Cap) {
-                    SkPath      path;
-                    SkMatrix    preMatrix;
+                    if (device) {
+                        for (size_t i = 0; i < count; i++) {
+                            SkRect r = SkRect::MakeLTRB(pts[i].fX - radius, pts[i].fY - radius,
+                                                        pts[i].fX + radius, pts[i].fY + radius);
+                            device->drawOval(r, newPaint);
+                        }
+                    } else {
+                        SkPath      path;
+                        SkMatrix   preMatrix;
 
-                    path.addCircle(0, 0, radius);
-                    for (size_t i = 0; i < count; i++) {
-                        preMatrix.setTranslate(pts[i].fX, pts[i].fY);
-                        // pass true for the last point, since we can modify
-                        // then path then
-                        path.setIsVolatile((count-1) == i);
-                        if (device) {
-                            device->drawPath(path, newPaint, &preMatrix, (count-1) == i);
-                        } else {
-                            this->drawPath(path, newPaint, &preMatrix, (count-1) == i);
+                        path.addCircle(0, 0, radius);
+                        for (size_t i = 0; i < count; i++) {
+                            preMatrix.setTranslate(pts[i].fX, pts[i].fY);
+                            // pass true for the last point, since we can modify
+                            // then path then
+                            path.setIsVolatile((count-1) == i);
+                            this->drawPath3(path, newPaint, &preMatrix, (count-1) == i);
                         }
                     }
                 } else {
@@ -589,17 +593,17 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
 
                         if (!pointData.fFirst.isEmpty()) {
                             if (device) {
-                                device->drawPath(pointData.fFirst, newP);
+                                device->drawPath1(pointData.fFirst, newP);
                             } else {
-                                this->drawPath(pointData.fFirst, newP);
+                                this->drawPath3(pointData.fFirst, newP);
                             }
                         }
 
                         if (!pointData.fLast.isEmpty()) {
                             if (device) {
-                                device->drawPath(pointData.fLast, newP);
+                                device->drawPath1(pointData.fLast, newP);
                             } else {
-                                this->drawPath(pointData.fLast, newP);
+                                this->drawPath3(pointData.fLast, newP);
                             }
                         }
 
@@ -661,9 +665,9 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
                     if (device) {
-                        device->drawPath(path, p, nullptr, true);
+                        device->drawPath1(path, p, true);
                     } else {
-                        this->drawPath(path, p, nullptr, true);
+                        this->drawPath3(path, p, nullptr, true);
                     }
                     path.rewind();
                 }
@@ -736,7 +740,7 @@ static void draw_rect_as_path(const SkDraw& orig, const SkRect& prePaintRect,
     SkPath  tmp;
     tmp.addRect(prePaintRect);
     tmp.setFillType(SkPath::kWinding_FillType);
-    draw.drawPath(tmp, paint, nullptr, true);
+    draw.drawPath3(tmp, paint, nullptr, true);
 }
 
 void SkDraw::drawRect(const SkRect& prePaintRect, const SkPaint& paint,
@@ -936,7 +940,7 @@ DRAW_PATH:
     // Now fall back to the default case of using a path.
     SkPath path;
     path.addRRect(rrect);
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath3(path, paint, nullptr, true);
 }
 
 SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
@@ -1018,7 +1022,7 @@ void SkDraw::drawDevPath(const SkPath& devPath, const SkPaint& paint, bool drawC
     proc(devPath, *fRC, blitter);
 }
 
-void SkDraw::drawPath(const SkPath& origSrcPath, const SkPaint& origPaint,
+void SkDraw::drawPath2(const SkPath& origSrcPath, const SkPaint& origPaint,
                       const SkMatrix* prePathMatrix, bool pathIsMutable,
                       bool drawCoverage, SkBlitter* customBlitter) const {
     SkDEBUGCODE(this->validate();)
@@ -1517,7 +1521,7 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
 
                 matrix[SkMatrix::kMTransX] = loc.fX;
                 matrix[SkMatrix::kMTransY] = loc.fY;
-                this->drawPath(*path, paint, &matrix, false);
+                this->drawPath3(*path, paint, &matrix, false);
             }
         }
         pos += scalarsPerPosition;
@@ -1638,7 +1642,7 @@ void SkDraw::drawGlyphRunList(
             if (path != nullptr) {
                 renderMatrix[SkMatrix::kMTransX] = position.fX;
                 renderMatrix[SkMatrix::kMTransY] = position.fY;
-                this->drawPath(*path, paint, &renderMatrix, false);
+                this->drawPath3(*path, paint, &renderMatrix, false);
             }
         };
         return perPath;
@@ -1749,7 +1753,7 @@ static void draw_into_mask(const SkMask& mask, const SkPath& devPath,
             break;
 
     }
-    draw.drawPath(devPath, paint);
+    draw.drawPath3(devPath, paint);
 }
 
 bool SkDraw::DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
