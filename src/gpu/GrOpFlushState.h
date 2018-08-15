@@ -76,9 +76,8 @@ public:
     void draw(sk_sp<const GrGeometryProcessor>,
               const GrPipeline*,
               const GrPipeline::FixedDynamicState*,
-              const GrPipeline::DynamicStateArrays*,
               const GrMesh[],
-              int meshCnt) final;
+              int meshCount) final;
     void* makeVertexSpace(size_t vertexSize, int vertexCount, const GrBuffer**,
                           int* startVertex) final;
     uint16_t* makeIndexSpace(int indexCount, const GrBuffer**, int* startIndex) final;
@@ -121,7 +120,11 @@ private:
     // that share a geometry processor into a Draw is that it allows the Gpu object to setup
     // the shared state once and then issue draws for each mesh.
     struct Draw {
-        ~Draw();
+        ~Draw() {
+            for (int i = 0; i < fGeometryProcessor->numTextureSamplers(); ++i) {
+                fFixedDynamicState->fPrimitiveProcessorTextures[i]->completedRead();
+            }
+        }
         sk_sp<const GrGeometryProcessor> fGeometryProcessor;
         const GrPipeline* fPipeline = nullptr;
         const GrPipeline::FixedDynamicState* fFixedDynamicState;

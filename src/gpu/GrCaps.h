@@ -234,15 +234,12 @@ public:
 
     bool fenceSyncSupport() const { return fFenceSyncSupport; }
     bool crossContextTextureSupport() const { return fCrossContextTextureSupport; }
+
     /**
      * Returns whether or not we will be able to do a copy given the passed in params
      */
     virtual bool canCopySurface(const GrSurfaceProxy* dst, const GrSurfaceProxy* src,
                                 const SkIRect& srcRect, const SkIPoint& dstPoint) const = 0;
-
-    bool dynamicStateArrayGeometryProcessorTextureSupport() const {
-        return fDynamicStateArrayGeometryProcessorTextureSupport;
-    }
 
     /**
      * This is can be called before allocating a texture to be a dst for copySurface. This is only
@@ -330,11 +327,8 @@ protected:
     // TODO: this may need to be an enum to support different fence types
     bool fFenceSyncSupport                           : 1;
 
-    // Requires fence sync support in GL.
+    // Vulkan doesn't support this (yet) and some drivers have issues, too
     bool fCrossContextTextureSupport                 : 1;
-
-    // Not (yet) implemented in VK backend.
-    bool fDynamicStateArrayGeometryProcessorTextureSupport : 1;
 
     BlendEquationSupport fBlendEquationSupport;
     uint32_t fAdvBlendEqBlacklist;
