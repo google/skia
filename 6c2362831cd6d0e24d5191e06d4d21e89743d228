@@ -22,6 +22,30 @@
       "revId": "6c2362831cd6d0e24d5191e06d4d21e89743d228",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a6d260ba_8a6b3156",
+        "filename": "infra/pathkit/gold/pathkit_aggregator.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-15T19:25:34Z",
+      "side": 1,
+      "message": "Locally, it seemed to return NRGBA.  I added the other 2 to hedge my bets.",
+      "parentUuid": "2ea7b1dc_1b5f63c8",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 20
+      },
+      "revId": "6c2362831cd6d0e24d5191e06d4d21e89743d228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
