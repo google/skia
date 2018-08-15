@@ -213,7 +213,13 @@
       "--browser",
       "Chrome",
       "--config",
-      "Debug"
+      "Debug",
+      "--issue",
+      "1234",
+      "--patchset",
+      "7",
+      "--patch_storage",
+      "gerrit"
     ],
     "env": {
       "CHROME_HEADLESS": "1",
