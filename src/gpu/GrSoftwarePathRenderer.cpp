@@ -65,15 +65,17 @@ static bool get_unclipped_shape_dev_bounds(const GrShape& shape, const SkMatrix&
 
 // Gets the shape bounds, the clip bounds, and the intersection (if any). Returns false if there
 // is no intersection.
-static bool get_shape_and_clip_bounds(int width, int height,
-                                      const GrClip& clip,
-                                      const GrShape& shape,
-                                      const SkMatrix& matrix,
-                                      SkIRect* unclippedDevShapeBounds,
-                                      SkIRect* clippedDevShapeBounds,
-                                      SkIRect* devClipBounds) {
+bool GrSoftwarePathRenderer::GetShapeAndClipBounds(GrRenderTargetContext* renderTargetContext,
+                                                   const GrClip& clip,
+                                                   const GrShape& shape,
+                                                   const SkMatrix& matrix,
+                                                   SkIRect* unclippedDevShapeBounds,
+                                                   SkIRect* clippedDevShapeBounds,
+                                                   SkIRect* devClipBounds) {
     // compute bounds as intersection of rt size, clip, and path
-    clip.getConservativeBounds(width, height, devClipBounds);
+    clip.getConservativeBounds(renderTargetContext->width(),
+                               renderTargetContext->height(),
+                               devClipBounds);
 
     if (!get_unclipped_shape_dev_bounds(shape, matrix, unclippedDevShapeBounds)) {
         *unclippedDevShapeBounds = SkIRect::EmptyIRect();
@@ -238,13 +240,12 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         return false;
     }
 
-    // We really need to know if the shape will be inverse filled or not
-    bool inverseFilled = false;
-    SkTLazy<GrShape> tmpShape;
     SkASSERT(!args.fShape->style().applies());
+    // We really need to know if the shape will be inverse filled or not
     // If the path is hairline, ignore inverse fill.
-    inverseFilled = args.fShape->inverseFilled() &&
-                    !IsStrokeHairlineOrEquivalent(args.fShape->style(), *args.fViewMatrix, nullptr);
+    bool inverseFilled = args.fShape->inverseFilled() &&
+                        !IsStrokeHairlineOrEquivalent(args.fShape->style(),
+                                                      *args.fViewMatrix, nullptr);
 
     SkIRect unclippedDevShapeBounds, clippedDevShapeBounds, devClipBounds;
     // To prevent overloading the cache with entries during animations we limit the cache of masks
@@ -252,12 +253,11 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
     bool useCache = fAllowCaching && !inverseFilled && args.fViewMatrix->preservesAxisAlignment() &&
                     args.fShape->hasUnstyledKey() && GrAAType::kCoverage == args.fAAType;
 
-    if (!get_shape_and_clip_bounds(args.fRenderTargetContext->width(),
-                                   args.fRenderTargetContext->height(),
-                                   *args.fClip, *args.fShape,
-                                   *args.fViewMatrix, &unclippedDevShapeBounds,
-                                   &clippedDevShapeBounds,
-                                   &devClipBounds)) {
+    if (!GetShapeAndClipBounds(args.fRenderTargetContext,
+                               *args.fClip, *args.fShape,
+                               *args.fViewMatrix, &unclippedDevShapeBounds,
+                               &clippedDevShapeBounds,
+                               &devClipBounds)) {
         if (inverseFilled) {
             DrawAroundInvPath(args.fRenderTargetContext, std::move(args.fPaint),
                               *args.fUserStencilSettings, *args.fClip, *args.fViewMatrix,
