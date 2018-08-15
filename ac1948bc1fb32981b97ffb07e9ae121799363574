@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "11a208b4_2c5e76b8",
+        "filename": "experimental/pathkit/docker/karma-chrome-tests/Dockerfile",
+        "patchSetId": 18
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T14:11:41Z",
+      "side": 1,
+      "message": "Instead of sticking this in experimental you could also put in into \u0027infra/pathkit\u0027 folder.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 1,
+        "endChar": 82
+      },
+      "revId": "ac1948bc1fb32981b97ffb07e9ae121799363574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5e1d8116_f3755121",
+        "filename": "experimental/pathkit/docker/test_pathkit.sh",
+        "patchSetId": 18
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T14:11:41Z",
+      "side": 1,
+      "message": "This is something we should simply not do, namely package the whole Go sdk in the docker image. Go is a compiled language. It also limits what we can include in pathkit_aggregator.go because we would have to package the dependencies as we.\n\nHow about:\n- remove the inclusion of Go in the Docker image (that also makes that cleaner) \n- Add another (very simple) Dockerfile that derives from the first and adds the test_pathkit.sh script and the pathkit_aggregator executable\n- Instead of \u0027go run ...\u0027 call the executable in the script\n- For local testing simply inject the script and executable into into the first Docker image",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 51
+      },
+      "revId": "ac1948bc1fb32981b97ffb07e9ae121799363574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7b2100a6_c5023a70",
+        "filename": "experimental/pathkit/gold/pathkit_aggregator.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T14:11:41Z",
+      "side": 1,
+      "message": "If you went if the approach of making pathkit_aggregator an executable (rather than a script) you could re-use these definitions from the buildbot repo.",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 88,
+        "endChar": 0
+      },
+      "revId": "ac1948bc1fb32981b97ffb07e9ae121799363574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de4e33d8_fdec4e91",
+        "filename": "experimental/pathkit/gold/pathkit_aggregator.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T14:11:41Z",
+      "side": 1,
+      "message": "sinc dumpJSON is the final call to this helper daemon, it should cause the daemon to terminate.\nIt\u0027s probably not a huge problem, but the daemon actually never ends, but we rely on Docker to clean it up.",
+      "range": {
+        "startLine": 176,
+        "startChar": 0,
+        "endLine": 176,
+        "endChar": 55
+      },
+      "revId": "ac1948bc1fb32981b97ffb07e9ae121799363574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03d35253_fad39cae",
+        "filename": "experimental/pathkit/gold/pathkit_aggregator.go",
+        "patchSetId": 18
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T14:11:41Z",
+      "side": 1,
+      "message": "pngBytes contains an image encoded as a PNG. That means you are not hashing the pixels but the encoding with metadata etc.\nIMO, it would also be a good idea (admittedly a bit overcautious) to make sure pngBytes is really a valid PNG file. \nHow about this: \n\n- decode the image in pngBytes which will give you an instance of image.Image that can be converted to a probably *image.NRGBA or *image.RGBA \n- then hash img.Pix \n\nThis is what dm does internally. That way you are guaranteed that the image is decodable by Gold and I think the hash is also going to be more stable for the same image.",
+      "range": {
+        "startLine": 242,
+        "startChar": 35,
+        "endLine": 242,
+        "endChar": 43
+      },
+      "revId": "ac1948bc1fb32981b97ffb07e9ae121799363574",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
