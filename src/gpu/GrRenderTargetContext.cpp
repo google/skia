@@ -69,10 +69,12 @@ public:
     }
 
     void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, const SkMatrix* pathMatrix) override {
-        GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                            clip, path, paint, viewMatrix, pathMatrix,
-                                            false);
+                  const SkMatrix& viewMatrix, bool pathIsMutable) override {
+        // TODO: we are losing the mutability of the path here
+        GrShape shape(path, paint);
+
+        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+                                             clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -1490,9 +1492,38 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-            GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContextPriv", "drawPath", fContext);
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPath", fContext);
+
+    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
+    if (GrAAType::kCoverage == aaType) {
+        // TODO: Make GrShape check for nested rects.
+        SkRect rects[2];
+        if (style.isSimpleFill() && fills_as_nested_rects(viewMatrix, path, rects)) {
+            // Concave AA paths are expensive - try to avoid them for special cases
+            std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
+                            fContext, std::move(paint), viewMatrix, rects);
+            if (op) {
+                this->addDrawOp(clip, std::move(op));
+                return;
+            }
+        }
+    }
 
     GrShape shape(path, style);
+
+    this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
+}
+
+void GrRenderTargetContext::drawShape(const GrClip& clip,
+                                      GrPaint&& paint,
+                                      GrAA aa,
+                                      const SkMatrix& viewMatrix,
+                                      const GrShape& shape) {
+    ASSERT_SINGLE_OWNER
+    RETURN_IF_ABANDONED
+    SkDEBUGCODE(this->validate();)
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawShape", fContext);
+
     if (shape.isEmpty()) {
         if (shape.inverseFilled()) {
             this->drawPaint(clip, std::move(paint), viewMatrix);
@@ -1520,25 +1551,6 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
         }
     }
 
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage == aaType) {
-        // TODO: Make GrShape check for nested rects.
-        SkRect rects[2];
-        if (shape.style().isSimpleFill() && fills_as_nested_rects(viewMatrix, path, rects)) {
-            // Concave AA paths are expensive - try to avoid them for special cases
-            SkRect rects[2];
-
-            if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
-                                fContext, std::move(paint), viewMatrix, rects);
-                if (op) {
-                    this->addDrawOp(clip, std::move(op));
-                }
-                // A null return indicates that there is nothing to draw in this case.
-                return;
-            }
-        }
-    }
     this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, shape);
 }
 

@@ -16,6 +16,7 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
+#include "GrShape.h"
 #include "GrStyle.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureAdjuster.h"
@@ -376,14 +377,71 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRect", fContext.get());
+
+    GrStyle style(paint);
+
     // A couple reasons we might need to call drawPath.
     if (paint.getMaskFilter() || paint.getPathEffect()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr, true);
+#if 0
+        GrUniqueKey maskKey;
+        if (paint.getMaskFilter() && !paint.getPathEffect() &&
+            as_MFB(paint.getMaskFilter())->asABlur(nullptr) &&
+            this->ctm().preservesAxisAlignment()) {
+
+            SkMaskFilterBase::BlurRec rec;
+            SkAssertResult(as_MFB(paint.getMaskFilter())->asABlur(&rec));
+
+            GR_STATIC_ASSERT(0 == SkRect::kSizeInMemory % sizeof(uint32_t));
+            static constexpr int kRectSizeInInts = SkRect::kSizeInMemory / sizeof(uint32_t);
+
+            static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+            GrUniqueKey::Builder builder(&maskKey, kDomain, 6 + kRectSizeInInts,
+                                         "Mask Filtered Rects");
+
+            const SkMatrix& ctm = this->ctm();
+
+            // We require the upper left 2x2 of the matrix to match exactly for a cache hit.
+            SkScalar sx = ctm.get(SkMatrix::kMScaleX);
+            SkScalar sy = ctm.get(SkMatrix::kMScaleY);
+            SkScalar kx = ctm.get(SkMatrix::kMSkewX);
+            SkScalar ky = ctm.get(SkMatrix::kMSkewY);
+            SkScalar tx = ctm.get(SkMatrix::kMTransX);
+            SkScalar ty = ctm.get(SkMatrix::kMTransY);
+            // Allow 8 bits each in x and y of subpixel positioning.
+            SkFixed fracX = SkScalarToFixed(SkScalarFraction(tx)) & 0x0000FF00;
+            SkFixed fracY = SkScalarToFixed(SkScalarFraction(ty)) & 0x0000FF00;
+            builder[0] = SkFloat2Bits(sx);
+            builder[1] = SkFloat2Bits(sy);
+            builder[2] = SkFloat2Bits(kx);
+            builder[3] = SkFloat2Bits(ky);
+            // Distinguish between hairline and filled paths. For hairlines, we also need to include
+            // the cap. (SW grows hairlines by 0.5 pixel with round and square caps). Note that
+            // stroke-and-fill of hairlines is turned into pure fill by SkStrokeRec, so this covers
+            // all cases we might see.
+//            uint32_t styleBits = args.fShape->style().isSimpleHairline() ?
+//                                 ((args.fShape->style().strokeRec().getCap() << 1) | 1) : 0;
+            uint32_t styleBits = rec.fStyle;
+            builder[4] = fracX | (fracY >> 8) | (styleBits << 16);
+
+            builder[5] = SkFloat2Bits(rec.fSigma);
+
+            rect.writeToMemory(&builder[6]);
+
+            SkDebugf("Gen key for %f %f %f %f\n", rect.fLeft, rect.fTop, rect.fRight, rect.fBottom);
+            SkDebugf("%d %f\n", rec.fStyle, rec.fSigma);
+        }
+
+        GrBlurUtils::drawPathWithMaskFilter1(fContext.get(), fRenderTargetContext.get(),
+                                            this->clip(), path, paint, this->ctm(), nullptr,
+                                            true, maskKey);
+#endif
+
+        GrShape shape(rect, style);
+
+        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+                                             this->clip(), paint, this->ctm(), shape);
         return;
     }
 
@@ -393,16 +451,18 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         return;
     }
 
-    GrStyle style(paint);
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
                                    this->ctm(), rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint2) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext.get());
+
+    SkPaint paint(paint2);
+
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
@@ -423,7 +483,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkRRect devRRect;
         if (rrect.transform(this->ctm(), &devRRect)) {
             if (SkRRectPriv::AllCornersCircular(devRRect)) {
-                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(), this->ctm(), nullptr)) {
+                if (mf->canFilterMaskGPU(GrShape(), devRRect.getBounds(), this->devClipBounds(), this->ctm(), nullptr)) {
                     if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
                                                      std::move(grPaint), this->clip(), this->ctm(),
                                                      style.strokeRec(), rrect, devRRect)) {
@@ -439,11 +499,11 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         // The only mask filter the native rrect drawing code could've handle was taken
         // care of above.
         // A path effect will presumably transform this rrect into something else.
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRRect(rrect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr, true);
+        GrShape shape(rrect, style);
+
+        // TODO: this is throwing away to work we did to create the GrPaint
+        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+                                             this->clip(), paint, this->ctm(), shape);
         return;
     }
 
@@ -454,8 +514,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 }
 
 
-void SkGpuDevice::drawDRRect(const SkRRect& outer,
-                             const SkRRect& inner, const SkPaint& paint) {
+void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDRRect", fContext.get());
     if (outer.isEmpty()) {
@@ -486,8 +545,13 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        path, paint, this->ctm(), nullptr, true);
+    GrStyle style(paint);
+
+    // TODO: losing possible mutability of the path here
+    GrShape shape(path, style);
+
+    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+                                         paint, this->ctm(), shape);
 }
 
 
@@ -635,9 +699,12 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
                                        this->ctm(), origSrcPath, GrStyle(paint));
         return;
     }
-    GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        origSrcPath, paint, this->ctm(), prePathMatrix,
-                                        pathIsMutable);
+
+    // TODO: losing possible mutability of 'origSrcPath' here
+    GrShape shape(origSrcPath, paint);
+
+    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+                                         paint, this->ctm(), shape);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
