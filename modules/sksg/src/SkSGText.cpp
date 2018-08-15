@@ -26,6 +26,23 @@ Text::Text(sk_sp<SkTypeface> tf, const SkString& text)
 
 Text::~Text() = default;
 
+SkPoint Text::alignedPosition(SkScalar advance) const {
+    auto aligned = fPosition;
+
+    switch (fAlign) {
+    case SkPaint::kLeft_Align:
+        break;
+    case SkPaint::kCenter_Align:
+        aligned.offset(-advance / 2, 0);
+        break;
+    case SkPaint::kRight_Align:
+        aligned.offset(-advance, 0);
+        break;
+    }
+
+    return aligned;
+}
+
 SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     // TODO: we could potentially track invals which don't require rebuilding the blob.
 
@@ -35,8 +52,11 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     font.setTextSize(fSize);
     font.setTextScaleX(fScaleX);
     font.setTextSkewX(fSkewX);
-    font.setTextAlign(fAlign);
     font.setHinting(fHinting);
+
+    // N.B.: fAlign is applied externally (in alignedPosition()), because
+    //  1) SkTextBlob has some trouble computing accurate bounds with alignment.
+    //  2) SkPaint::Align is slated for deprecation.
 
     // First, convert to glyphIDs.
     font.setTextEncoding(SkPaint::kUTF8_TextEncoding);
@@ -56,13 +76,19 @@ SkRect Text::onRevalidate(InvalidationController*, const SkMatrix&) {
     memcpy(buf.glyphs, glyphs.begin(), glyphs.count() * sizeof(SkGlyphID));
 
     fBlob = builder.make();
-    return fBlob
-        ? fBlob->bounds().makeOffset(fPosition.x(), fPosition.y())
-        : SkRect::MakeEmpty();
+    if (!fBlob) {
+        return SkRect::MakeEmpty();
+    }
+
+    const auto& bounds = fBlob->bounds();
+    const auto aligned_pos = this->alignedPosition(bounds.width());
+
+    return bounds.makeOffset(aligned_pos.x(), aligned_pos.y());
 }
 
 void Text::onDraw(SkCanvas* canvas, const SkPaint& paint) const {
-    canvas->drawTextBlob(fBlob, fPosition.x(), fPosition.y(), paint);
+    const auto aligned_pos = this->alignedPosition(this->bounds().width());
+    canvas->drawTextBlob(fBlob, aligned_pos.x(), aligned_pos.y(), paint);
 }
 
 SkPath Text::onAsPath() const {
