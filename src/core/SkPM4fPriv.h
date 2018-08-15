@@ -15,7 +15,6 @@
 #include "SkArenaAlloc.h"
 #include "SkPM4f.h"
 #include "SkRasterPipeline.h"
-#include "SkSRGB.h"
 #include "../jumper/SkJumper.h"
 
 // This file is mostly helper routines for doing color space management.
@@ -61,26 +60,6 @@ static inline SkPM4f premul_in_dst_colorspace(SkColor c, SkColorSpace* dstCS) {
 
     // SkColors are always sRGB.
     return premul_in_dst_colorspace(color4f, sk_srgb_singleton(), dstCS);
-}
-
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// Functions below this line are probably totally broken as far as color space management goes.
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-static inline Sk4f Sk4f_fromS32(uint32_t px) {
-    return { sk_linear_from_srgb[(px >>  0) & 0xff],
-             sk_linear_from_srgb[(px >>  8) & 0xff],
-             sk_linear_from_srgb[(px >> 16) & 0xff],
-                    (1/255.0f) * (px >> 24)          };
-}
-
-static inline uint32_t Sk4f_toS32(const Sk4f& px) {
-    Sk4i  rgb = sk_linear_to_srgb(px),
-         srgb = { rgb[0], rgb[1], rgb[2], (int)(255.0f * px[3] + 0.5f) };
-
-    uint32_t s32;
-    SkNx_cast<uint8_t>(srgb).store(&s32);
-    return s32;
 }
 
 #endif

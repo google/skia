@@ -130,35 +130,17 @@ static void luminosity(float  dr, float  dg, float  db,
 }
 
 static SkColor blend(SkColor dst, SkColor src,
-                     void (*mode)(float,float,float, float*,float*,float*),
-                     bool legacy) {
+                     void (*mode)(float,float,float, float*,float*,float*)) {
 
     SkASSERT(SkColorGetA(dst) == 0xff
           && SkColorGetA(src) == 0xff);   // Not fundamental, just simplifying for this GM.
 
-    auto to_float = [&](SkColor c) {
-        if (legacy) {
-            return SkColor4f{
-                SkColorGetR(c) * (1/255.0f),
-                SkColorGetG(c) * (1/255.0f),
-                SkColorGetB(c) * (1/255.0f),
-                1.0f,
-            };
-        }
-        return SkColor4f::FromColor(c);
-    };
-
-    SkColor4f d = to_float(dst),
-              s = to_float(src);
+    SkColor4f d = SkColor4f::FromColor(dst),
+              s = SkColor4f::FromColor(src);
 
     mode( d.fR,  d.fG,  d.fB,
          &s.fR, &s.fG, &s.fB);
 
-    if (legacy) {
-        return SkColorSetRGB(s.fR * 255.0f + 0.5f,
-                             s.fG * 255.0f + 0.5f,
-                             s.fB * 255.0f + 0.5f);
-    }
     return s.toSkColor();
 }
 
@@ -186,7 +168,6 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
         { SkBlendMode::kColor,      color      },
         { SkBlendMode::kLuminosity, luminosity },
     };
-    bool legacy = !canvas->imageInfo().colorSpace();
     for (auto test : tests) {
         canvas->drawRect({20,20,80,80}, bg);
 
@@ -195,7 +176,7 @@ DEF_SIMPLE_GM(hsl, canvas, 600, 100) {
 
         if (test.reference) {
             SkPaint ref;
-            ref.setColor(blend(bg.getColor(), fg.getColor(), test.reference, legacy));
+            ref.setColor(blend(bg.getColor(), fg.getColor(), test.reference));
             canvas->drawCircle(50,50, 20, ref);
         }
 
