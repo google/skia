@@ -14,8 +14,11 @@
 #include "SkRRect.h"
 #include "SkTypeface.h"
 
+#include <cmath>
+
 // Implementation in C++ of Animated Emoji
 // See https://t.d3fc.io/status/705212795936247808
+// See https://crbug.com/848616
 
 class GlyphTransformView : public Sample {
 public:
@@ -40,22 +43,27 @@ protected:
         paint.setTypeface(fEmojiFont.fTypeface);
         const char* text = fEmojiFont.fText;
 
-        canvas->scale(4, 4);
+        double baseline = this->height() / 2;
+        canvas->drawLine(0, baseline, this->width(), baseline, paint);
 
-        canvas->drawLine(0, 200, 600, 200, paint);
         SkMatrix ctm;
-        ctm.setRotate(SkRadiansToDegrees(fRotate));
-        ctm.postScale(fScale, fScale);
-        ctm.postTranslate(fTranslate.fX, fTranslate.fY);
+        ctm.setRotate(fRotate); // d3 rotate takes degrees
+        ctm.postScale(fScale * 4, fScale * 4);
+        ctm.postTranslate(fTranslate.fX  + this->width() * 0.8, fTranslate.fY + baseline);
         canvas->concat(ctm);
-        canvas->drawString(text, 0, 0, paint);
+
+        // d3 by default anchors text around the middle
+        SkRect bounds;
+        paint.measureText(text, strlen(text), &bounds);
+        canvas->drawString(text, -bounds.centerX(), -bounds.centerY(), paint);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
-        double t = timer.secs();
+        constexpr SkScalar maxt = 100000;
+        double t = timer.pingPong(20, 0, 0, maxt); // d3 t is in milliseconds
 
-        fTranslate.set(99 + sin(t / 3.0e3) - t / 1024, 200 + sin(t / 999) / t);
-        fScale = 4.5 - t*t / 99;
+        fTranslate.set(sin(t / 3000) - t * this->width() * 0.7 / maxt, sin(t / 999) / t);
+        fScale = 4.5 - std::sqrt(t) / 99;
         fRotate = sin(t / 734);
 
         return true;
