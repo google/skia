@@ -60,10 +60,10 @@ hsg_op_type_string[] =
 #define BC_KERNEL_PREAMBLE(i)             (struct hsg_op){ HSG_OP_TYPE_BC_KERNEL_PREAMBLE,          { i       } }
 
 #define FM_KERNEL_PROTO(s,r)              (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PROTO,             { s, r    } }
-#define FM_KERNEL_PREAMBLE(h)             (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PREAMBLE,          { h       } }
+#define FM_KERNEL_PREAMBLE(l,r)           (struct hsg_op){ HSG_OP_TYPE_FM_KERNEL_PREAMBLE,          { l, r    } }
 
 #define HM_KERNEL_PROTO(s)                (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PROTO,             { s       } }
-#define HM_KERNEL_PREAMBLE(h)             (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PREAMBLE,          { h       } }
+#define HM_KERNEL_PREAMBLE(l)             (struct hsg_op){ HSG_OP_TYPE_HM_KERNEL_PREAMBLE,          { l       } }
 
 #define BX_REG_GLOBAL_LOAD(n,v)           (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_LOAD,          { n, v    } }
 #define BX_REG_GLOBAL_STORE(n)            (struct hsg_op){ HSG_OP_TYPE_BX_REG_GLOBAL_STORE,         { n       } }
@@ -122,10 +122,12 @@ struct hsg_config hsg_config =
   {
     .merge  = {
       .flip = {
+        .warps      = 1,
         .lo         = 1,
         .hi         = 1
       },
       .half =  {
+        .warps      = 1,
         .lo         = 1,
         .hi         = 1
       },
@@ -1089,12 +1091,14 @@ static
 struct hsg_op *
 hsg_bs_sort_all(struct hsg_op * ops)
 {
-  for (uint32_t merge_idx=0; merge_idx<MERGE_LEVELS_MAX_LOG2; merge_idx++)
+  uint32_t merge_idx = MERGE_LEVELS_MAX_LOG2;
+
+  while (merge_idx-- > 0)
     {
       struct hsg_merge const * const m = hsg_merge + merge_idx;
 
       if (m->warps == 0)
-        break;
+        continue;
 
       ops = hsg_bs_sort(ops,m);
     }
@@ -1153,12 +1157,14 @@ static
 struct hsg_op *
 hsg_bc_clean_all(struct hsg_op * ops)
 {
-  for (uint32_t merge_idx=0; merge_idx<MERGE_LEVELS_MAX_LOG2; merge_idx++)
+  uint32_t merge_idx = MERGE_LEVELS_MAX_LOG2;
+
+  while (merge_idx-- > 0)
     {
       struct hsg_merge const * const m = hsg_merge + merge_idx;
 
       if (m->warps == 0)
-        break;
+        continue;
 
       // only generate pow2 clean kernels less than or equal to max
       // warps in block with the assumption that we would've generated
@@ -1231,7 +1237,7 @@ hsg_fm_merge(struct hsg_op * ops,
   ops = hsg_begin(ops);
 
   // preamble for loading/storing
-  ops = hsg_op(ops,FM_KERNEL_PREAMBLE(span_left));
+  ops = hsg_op(ops,FM_KERNEL_PREAMBLE(span_left,span_right));
 
   // load left span
   ops = hsg_fm_thread_load_left(ops,span_left);
@@ -1264,10 +1270,11 @@ static
 struct hsg_op *
 hsg_fm_merge_all(struct hsg_op * ops, uint32_t const scale_log2, uint32_t const warps)
 {
-  uint32_t const span_left = (warps << scale_log2) / 2;
+  uint32_t const span_left    = (warps << scale_log2) / 2;
+  uint32_t const span_left_ru = pow2_ru_u32(span_left);
 
-  for (uint32_t span_right=span_left; span_right >= 1; span_right=pow2_ru_u32(span_right)/2)
-    ops = hsg_fm_merge(ops,scale_log2,span_left,span_right);
+  for (uint32_t span_right=1; span_right<=span_left_ru; span_right*=2)
+    ops = hsg_fm_merge(ops,scale_log2,span_left,MIN_MACRO(span_left,span_right));
 
   return ops;
 }
@@ -1334,7 +1341,7 @@ static
 struct hsg_op *
 hsg_xm_merge_all(struct hsg_op * ops)
 {
-  uint32_t const warps = hsg_merge[0].warps;
+  uint32_t const warps      = hsg_merge[0].warps;
   uint32_t const warps_pow2 = pow2_rd_u32(warps);
 
   //
@@ -1407,12 +1414,13 @@ main(int argc, char * argv[])
   //
   // PROCESS OPTIONS
   //
-  int32_t      opt       = 0;
-  bool         verbose   = false;
-  bool         autotune  = false;
-  char const * arch      = "undefined";
+  int32_t           opt      = 0;
+  bool              verbose  = false;
+  bool              autotune = false;
+  char const *      arch     = "undefined";
+  struct hsg_target target   = { .define = NULL };
 
-  while ((opt = getopt(argc,argv,"hva:g:G:s:S:w:b:B:m:M:k:r:x:t:f:F:c:C:z")) != EOF)
+  while ((opt = getopt(argc,argv,"hva:g:G:s:S:w:b:B:m:M:k:r:x:t:f:F:c:C:p:P:D:z")) != EOF)
     {
       switch (opt)
         {
@@ -1480,7 +1488,7 @@ main(int argc, char * argv[])
           break;
 
         case 'm':
-          // blocks using smem barriers must at least this many warps
+          // blocks using smem barriers must have at least this many warps
           hsg_config.block.warps_min = atoi(optarg);
           break;
 
@@ -1525,6 +1533,18 @@ main(int argc, char * argv[])
 
         case 'C':
           hsg_config.merge.half.hi = atoi(optarg);
+          break;
+
+        case 'p':
+          hsg_config.merge.flip.warps = atoi(optarg);
+          break;
+
+        case 'P':
+          hsg_config.merge.half.warps = atoi(optarg);
+          break;
+
+        case 'D':
+          target.define = optarg;
           break;
 
         case 'z':
@@ -1618,11 +1638,6 @@ main(int argc, char * argv[])
   ops = hsg_op(ops,TARGET_BEGIN());
 
   //
-  // GENERATE TRANSPOSE KERNEL
-  //
-  ops = hsg_warp_transpose(ops);
-
-  //
   // GENERATE SORT KERNEL
   //
   ops = hsg_bs_sort_all(ops);
@@ -1638,6 +1653,11 @@ main(int argc, char * argv[])
   ops = hsg_xm_merge_all(ops);
 
   //
+  // GENERATE TRANSPOSE KERNEL
+  //
+  ops = hsg_warp_transpose(ops);
+
+  //
   // APPEND FOOTER AND CLOSE INITIAL FILES
   //
   ops = hsg_op(ops,TARGET_END());
@@ -1650,8 +1670,6 @@ main(int argc, char * argv[])
   //
   // APPLY TARGET TRANSLATOR TO ACCUMULATED OPS
   //
-  struct hsg_target target;
-
   hsg_op_translate(hsg_target_pfn,&target,&hsg_config,hsg_merge,ops_begin);
 
   //
