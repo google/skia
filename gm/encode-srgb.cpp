@@ -16,7 +16,6 @@
 #include "SkJpegEncoder.h"
 #include "SkPngEncoder.h"
 #include "SkPM4f.h"
-#include "SkSRGB.h"
 #include "SkWebpEncoder.h"
 
 namespace skiagm {

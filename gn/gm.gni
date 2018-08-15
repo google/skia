@@ -79,7 +79,6 @@ gm_sources = [
   "$_gm/colorfilterimagefilter.cpp",
   "$_gm/colorfilters.cpp",
   "$_gm/colormatrix.cpp",
-  "$_gm/colorspacexform.cpp",
   "$_gm/colorwheel.cpp",
   "$_gm/complexclip.cpp",
   "$_gm/complexclip_blur_tiled.cpp",
