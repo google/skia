@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0ef12c9_bccb94ac",
+        "filename": "samplecode/SampleFilterFuzz.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-15T18:21:03Z",
+      "side": 1,
+      "message": "It appears this sometimes causes a later crash (assert) because sometimes this is applied and we ends up in\n\n../../src/core/SkBlitter_ARGB32.cpp:205: fatal error: \"Mask format not handled.\"\n\nbecause it doesn\u0027t know what to do with a SDF mask.",
+      "range": {
+        "startLine": 481,
+        "startChar": 12,
+        "endLine": 481,
+        "endChar": 49
+      },
+      "revId": "d401da64f0eb94239442018395ab150bc9535746",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
