@@ -122,7 +122,7 @@ private:
         if (!vertexBuffer) {
             return;
         }
-        GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kDisabled,
+        GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrScissorTest::kDisabled,
                             SkBlendMode::kPlus);
         GrMesh mesh(GrPrimitiveType::kTriangleStrip);
         mesh.setNonIndexedNonInstanced(4);

@@ -202,6 +202,11 @@ enum GrClipType {
     kPath_ClipType
 };
 
+enum class GrScissorTest : bool {
+    kDisabled = false,
+    kEnabled = true
+};
+
 struct GrMipLevel {
     const void* fPixels;
     size_t fRowBytes;

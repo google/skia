@@ -164,11 +164,11 @@ void GrCCPathParser::endContourIfNeeded(bool insideContour) {
     }
 }
 
-void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clippedDevIBounds,
+void GrCCPathParser::saveParsedPath(GrScissorTest scissorTest, const SkIRect& clippedDevIBounds,
                                     const SkIVector& devToAtlasOffset) {
     SkASSERT(fParsingPath);
 
-    fPathsInfo.emplace_back(scissorMode, devToAtlasOffset);
+    fPathsInfo.emplace_back(scissorTest, devToAtlasOffset);
 
     // Tessellate fans from very large and/or simple paths, in order to reduce overdraw.
     int numVerbs = fGeometry.verbs().count() - fCurrPathVerbsIdx - 1;
@@ -250,10 +250,10 @@ void GrCCPathParser::saveParsedPath(ScissorMode scissorMode, const SkIRect& clip
         fPathsInfo.back().adoptFanTessellation(vertices, count);
     }
 
-    fTotalPrimitiveCounts[(int)scissorMode] += fCurrPathPrimitiveCounts;
+    fTotalPrimitiveCounts[(int)scissorTest] += fCurrPathPrimitiveCounts;
 
-    if (ScissorMode::kScissored == scissorMode) {
-        fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)ScissorMode::kScissored],
+    if (GrScissorTest::kEnabled == scissorTest) {
+        fScissorSubBatches.push_back() = {fTotalPrimitiveCounts[(int)GrScissorTest::kEnabled],
                                           clippedDevIBounds.makeOffset(devToAtlasOffset.fX,
                                                                        devToAtlasOffset.fY)};
     }
@@ -276,14 +276,14 @@ GrCCPathParser::CoverageCountBatchID GrCCPathParser::closeCurrentBatch() {
     fMaxMeshesPerDraw = SkTMax(fMaxMeshesPerDraw, maxMeshes);
 
     const auto& lastScissorSubBatch = fScissorSubBatches[lastBatch.fEndScissorSubBatchIdx - 1];
-    PrimitiveTallies batchTotalCounts = fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored] -
+    PrimitiveTallies batchTotalCounts = fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled] -
                                         lastBatch.fEndNonScissorIndices;
-    batchTotalCounts += fTotalPrimitiveCounts[(int)ScissorMode::kScissored] -
+    batchTotalCounts += fTotalPrimitiveCounts[(int)GrScissorTest::kEnabled] -
                         lastScissorSubBatch.fEndPrimitiveIndices;
 
     // This will invalidate lastBatch.
     fCoverageCountBatches.push_back() = {
-        fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored],
+        fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled],
         fScissorSubBatches.count(),
         batchTotalCounts
     };
@@ -350,7 +350,7 @@ static void emit_tessellated_fan(const GrTessellator::WindingVertex* vertices, i
 bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
     SkASSERT(!fParsingPath); // Call saveParsedPath() or discardParsedPath().
     SkASSERT(fCoverageCountBatches.back().fEndNonScissorIndices == // Call closeCurrentBatch().
-             fTotalPrimitiveCounts[(int)ScissorMode::kNonScissored]);
+             fTotalPrimitiveCounts[(int)GrScissorTest::kDisabled]);
     SkASSERT(fCoverageCountBatches.back().fEndScissorSubBatchIdx == fScissorSubBatches.count());
 
     // Here we build a single instance buffer to share with every internal batch.
@@ -417,7 +417,7 @@ bool GrCCPathParser::finalize(GrOnFlushResourceProvider* onFlushRP) {
         switch (verb) {
             case GrCCGeometry::Verb::kBeginPath:
                 SkASSERT(currFan.empty());
-                currIndices = &instanceIndices[(int)nextPathInfo->scissorMode()];
+                currIndices = &instanceIndices[(int)nextPathInfo->scissorTest()];
                 devToAtlasOffset = Sk2f(static_cast<float>(nextPathInfo->devToAtlasOffset().fX),
                                         static_cast<float>(nextPathInfo->devToAtlasOffset().fY));
                 currFanIsTessellated = nextPathInfo->hasFanTessellation();
@@ -530,7 +530,7 @@ void GrCCPathParser::drawCoverageCount(GrOpFlushState* flushState, CoverageCount
 
     const PrimitiveTallies& batchTotalCounts = fCoverageCountBatches[batchID].fTotalPrimitiveCounts;
 
-    GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrPipeline::ScissorState::kEnabled,
+    GrPipeline pipeline(flushState->drawOpArgs().fProxy, GrScissorTest::kEnabled,
                         SkBlendMode::kPlus);
 
     if (batchTotalCounts.fTriangles) {
@@ -581,7 +581,7 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
     if (int instanceCount = batch.fEndNonScissorIndices.*instanceType -
                             previousBatch.fEndNonScissorIndices.*instanceType) {
         SkASSERT(instanceCount > 0);
-        int baseInstance = fBaseInstances[(int)ScissorMode::kNonScissored].*instanceType +
+        int baseInstance = fBaseInstances[(int)GrScissorTest::kDisabled].*instanceType +
                            previousBatch.fEndNonScissorIndices.*instanceType;
         proc.appendMesh(fInstanceBuffer.get(), instanceCount, baseInstance, &fMeshesScratchBuffer);
         fScissorRectScratchBuffer.push_back().setXYWH(0, 0, drawBounds.width(),
@@ -591,7 +591,7 @@ void GrCCPathParser::drawPrimitives(GrOpFlushState* flushState, const GrPipeline
 
     SkASSERT(previousBatch.fEndScissorSubBatchIdx > 0);
     SkASSERT(batch.fEndScissorSubBatchIdx <= fScissorSubBatches.count());
-    int baseScissorInstance = fBaseInstances[(int)ScissorMode::kScissored].*instanceType;
+    int baseScissorInstance = fBaseInstances[(int)GrScissorTest::kEnabled].*instanceType;
     for (int i = previousBatch.fEndScissorSubBatchIdx; i < batch.fEndScissorSubBatchIdx; ++i) {
         const ScissorSubBatch& previousSubBatch = fScissorSubBatches[i - 1];
         const ScissorSubBatch& scissorSubBatch = fScissorSubBatches[i];
