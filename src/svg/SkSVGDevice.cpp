@@ -904,8 +904,7 @@ void SkSVGDevice::drawRRect(const SkRRect& rr, const SkPaint& paint) {
     elem.addPathAttributes(path);
 }
 
-void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint,
-                           const SkMatrix* prePathMatrix, bool pathIsMutable) {
+void SkSVGDevice::drawPath(const SkPath& path, const SkPaint& paint, bool pathIsMutable) {
     AutoElement elem("path", fWriter, fResourceBucket.get(), MxCp(this), paint);
     elem.addPathAttributes(path);
 

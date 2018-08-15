@@ -85,7 +85,6 @@ protected:
                    const SkPaint& paint) override;
     void drawPath(const SkPath& path,
                   const SkPaint& paint,
-                  const SkMatrix* prePathMatrix = NULL,
                   bool pathIsMutable = false) override;
     void drawBitmap(const SkBitmap& bitmap,
                     SkScalar x,

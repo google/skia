@@ -31,7 +31,7 @@ public:
     virtual void addDrawOp(const GrClip&, std::unique_ptr<GrAtlasTextOp> op) = 0;
 
     virtual void drawPath(const GrClip&, const SkPath&, const SkPaint&,
-                          const SkMatrix& viewMatrix, const SkMatrix* pathMatrix) = 0;
+                          const SkMatrix& viewMatrix, bool pathIsMutable) = 0;
 
     virtual void makeGrPaint(GrMaskFormat, const SkPaint&, const SkMatrix& viewMatrix,
                              GrPaint*) = 0;

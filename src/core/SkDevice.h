@@ -180,15 +180,9 @@ protected:
      *  non-const pointer and modify it in place (as an optimization). Canvas
      *  may do this to implement helpers such as drawOval, by placing a temp
      *  path on the stack to hold the representation of the oval.
-     *
-     *  If prePathMatrix is not null, it should logically be applied before any
-     *  stroking or other effects. If there are no effects on the paint that
-     *  affect the geometry/rasterization, then the pre matrix can just be
-     *  pre-concated with the current matrix.
      */
     virtual void drawPath(const SkPath& path,
                           const SkPaint& paint,
-                          const SkMatrix* prePathMatrix = nullptr,
                           bool pathIsMutable = false) = 0;
     virtual void drawBitmap(const SkBitmap& bitmap,
                             SkScalar x,
@@ -418,7 +412,7 @@ protected:
     void drawRect(const SkRect&, const SkPaint&) override {}
     void drawOval(const SkRect&, const SkPaint&) override {}
     void drawRRect(const SkRRect&, const SkPaint&) override {}
-    void drawPath(const SkPath&, const SkPaint&, const SkMatrix*, bool) override {}
+    void drawPath(const SkPath&, const SkPaint&, bool) override {}
     void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y, const SkPaint&) override {}
     void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
