@@ -645,6 +645,8 @@ bool <a href='#GrBackendTexture_isValid'>isValid</a>() const
 
 # <a name='SkVertices'>Class SkVertices</a>
 
+# <a name='SkVertices_Bone'>Class SkVertices::Bone</a>
+
 ## <a name='Colors'>Colors</a>
 
 ## <a name='Texs'>Texs</a>

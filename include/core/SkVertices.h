@@ -24,6 +24,18 @@ public:
     // to 0.
     struct BoneIndices {
         uint32_t indices[4];
+
+        uint32_t& operator[] (int i) {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 4);
+            return indices[i];
+        }
+
+        const uint32_t& operator[] (int i) const {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 4);
+            return indices[i];
+        }
     };
 
     // BoneWeights stores the interpolation weight for each of the (maximum of 4) bones a given
@@ -31,6 +43,55 @@ public:
     // slot should be 0.
     struct BoneWeights {
         float weights[4];
+
+        float& operator[] (int i) {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 4);
+            return weights[i];
+        }
+
+        const float& operator[] (int i) const {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 4);
+            return weights[i];
+        }
+    };
+
+    // Bone stores a 3x2 transformation matrix in column major order:
+    // | scaleX   skewX transX |
+    // |  skewY  scaleY transY |
+    // SkRSXform is insufficient because bones can have non uniform scale.
+    struct Bone {
+        float values[6];
+
+        float& operator[] (int i) {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 6);
+            return values[i];
+        }
+
+        const float& operator[] (int i) const {
+            SkASSERT(i >= 0);
+            SkASSERT(i < 6);
+            return values[i];
+        }
+
+        SkPoint mapPoint(const SkPoint& point) const {
+            float x = values[0] * point.x() + values[2] * point.y() + values[4];
+            float y = values[1] * point.x() + values[3] * point.y() + values[5];
+            return SkPoint::Make(x, y);
+        }
+
+        SkRect mapRect(const SkRect& rect) const {
+            SkRect dst = SkRect::MakeEmpty();
+            SkPoint quad[4];
+            rect.toQuad(quad);
+            for (int i = 0; i < 4; i ++) {
+                quad[i] = mapPoint(quad[i]);
+            }
+            dst.setBoundsNoCheck(quad, 4);
+            return dst;
+        }
     };
 
     enum VertexMode {
@@ -167,6 +228,8 @@ public:
     const uint16_t* indices() const { return fIndices; }
 
     bool isVolatile() const { return fIsVolatile; }
+
+    sk_sp<SkVertices> applyBones(const Bone bones[], int boneCount) const;
 
     // returns approximate byte size of the vertices object
     size_t approximateSize() const;

@@ -87,7 +87,7 @@ public:
     void drawPosText(const void* text, size_t len, const SkScalar pos[],
                      int scalarsPerPos, const SkPoint& offset, const SkPaint&) override;
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkMatrix bones[], int boneCount, SkBlendMode,
+    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawShadow(const SkPath&, const SkDrawShadowRec&) override;
     void drawAtlas(const SkImage* atlas, const SkRSXform[], const SkRect[],
@@ -244,7 +244,7 @@ private:
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],
-                           const SkMatrix bones[], int boneCount, SkBlendMode,
+                           const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                            const uint16_t indices[], int indexCount, const SkPaint&);
 
     static sk_sp<GrRenderTargetContext> MakeRenderTargetContext(GrContext*,

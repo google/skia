@@ -1484,7 +1484,7 @@ static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colo
 
 void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCount,
                                     const SkPoint vertices[],
-                                    const SkMatrix bones[], int boneCount,
+                                    const SkVertices::Bone bones[], int boneCount,
                                     SkBlendMode bmode,
                                     const uint16_t indices[], int indexCount,
                                     const SkPaint& paint) {
@@ -1548,8 +1548,8 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
                                        &primitiveType);
 }
 
-void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkMatrix bones[], int boneCount,
-                               SkBlendMode mode, const SkPaint& paint) {
+void SkGpuDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                               int boneCount, SkBlendMode mode, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawVertices", fContext.get());
 

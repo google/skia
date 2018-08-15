@@ -97,7 +97,7 @@ public:
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint&) override { SkASSERT(false); }
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;

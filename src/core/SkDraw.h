@@ -74,7 +74,7 @@ public:
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
                          const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
                          const uint16_t indices[], int ptCount,
-                         const SkPaint& paint, const SkMatrix* bones, int boneCount) const;
+                         const SkPaint& paint, const SkVertices::Bone bones[], int boneCount) const;
 
     /**
      *  Overwrite the target with the path's coverage (i.e. its mask).

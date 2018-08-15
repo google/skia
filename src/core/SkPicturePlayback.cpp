@@ -616,9 +616,9 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             const SkPaint* paint = fPictureData->getPaint(reader);
             const SkVertices* vertices = fPictureData->getVertices(reader);
             const int boneCount = reader->readInt();
-            const SkMatrix* bones = boneCount ?
-                                    (const SkMatrix*) reader->skip(boneCount, sizeof(SkMatrix)) :
-                                    nullptr;
+            const SkVertices::Bone* bones = boneCount ?
+                    (const SkVertices::Bone*) reader->skip(boneCount, sizeof(SkVertices::Bone)) :
+                    nullptr;
             SkBlendMode bmode = reader->read32LE(SkBlendMode::kLastMode);
             BREAK_ON_READ_ERROR(reader);
 

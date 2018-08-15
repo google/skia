@@ -1375,7 +1375,7 @@ void SkPDFDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
     }
 }
 
-void SkPDFDevice::drawVertices(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                                const SkPaint&) {
     if (this->hasEmptyClip()) {
         return;

@@ -320,7 +320,7 @@ void SkNWayCanvas::onDrawDrawable(SkDrawable* drawable, const SkMatrix* matrix) 
     }
 }
 
-void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+void SkNWayCanvas::onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                         int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     Iter iter(fList);
     while (iter.next()) {

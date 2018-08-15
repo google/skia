@@ -593,8 +593,8 @@ void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 #endif
 }
 
-void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
-                                  SkBlendMode bmode, const SkPaint& paint) {
+void SkBitmapDevice::drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[],
+                                  int boneCount, SkBlendMode bmode, const SkPaint& paint) {
     BDDraw(this).drawVertices(vertices->mode(), vertices->vertexCount(), vertices->positions(),
                               vertices->texCoords(), vertices->colors(), vertices->boneIndices(),
                               vertices->boneWeights(), bmode, vertices->indices(),

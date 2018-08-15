@@ -102,7 +102,7 @@ protected:
                         const SkPaint&, SkCanvas::SrcRectConstraint) override;
 
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
-    void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
+    void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
     void drawDevice(SkBaseDevice*, int x, int y, const SkPaint&) override;
 

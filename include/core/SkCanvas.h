@@ -25,6 +25,7 @@
 #include "SkPaint.h"
 #include "SkRasterHandleAllocator.h"
 #include "SkSurfaceProps.h"
+#include "SkVertices.h"
 
 class GrContext;
 class GrRenderTargetContext;
@@ -50,7 +51,6 @@ struct SkRSXform;
 class SkSurface;
 class SkSurface_Base;
 class SkTextBlob;
-class SkVertices;
 
 /** \class SkCanvas
     SkCanvas provides an interface for drawing, and how the drawing is clipped and transformed.
@@ -2149,7 +2149,7 @@ public:
         The first element of bones should be an object to world space transformation matrix that
         will be applied before performing mesh deformations. If no such transformation is needed,
         it should be the identity matrix.
-        boneCount must be at most 100, and thus the size of bones should be at most 100.
+        boneCount must be at most 80, and thus the size of bones should be at most 80.
 
         @param vertices   triangle mesh to draw
         @param bones      bone matrix data
@@ -2157,7 +2157,7 @@ public:
         @param mode       combines vertices colors with SkShader, if both are present
         @param paint      specifies the SkShader, used as SkVertices texture, may be nullptr
     */
-    void drawVertices(const SkVertices* vertices, const SkMatrix* bones, int boneCount,
+    void drawVertices(const SkVertices* vertices, const SkVertices::Bone bones[], int boneCount,
                       SkBlendMode mode, const SkPaint& paint);
 
     /** Draws SkVertices vertices, a triangle mesh, using clip and SkMatrix. Bone data is used to
@@ -2167,7 +2167,7 @@ public:
         The first element of bones should be an object to world space transformation matrix that
         will be applied before performing mesh deformations. If no such transformation is needed,
         it should be the identity matrix.
-        boneCount must be at most 100, and thus the size of bones should be at most 100.
+        boneCount must be at most 80, and thus the size of bones should be at most 80.
 
         @param vertices   triangle mesh to draw
         @param bones      bone matrix data
@@ -2175,8 +2175,8 @@ public:
         @param mode       combines vertices colors with SkShader, if both are present
         @param paint      specifies the SkShader, used as SkVertices texture, may be nullptr
     */
-    void drawVertices(const sk_sp<SkVertices>& vertices, const SkMatrix* bones, int boneCount,
-                      SkBlendMode mode, const SkPaint& paint);
+    void drawVertices(const sk_sp<SkVertices>& vertices, const SkVertices::Bone bones[],
+                      int boneCount, SkBlendMode mode, const SkPaint& paint);
 
     /** Draws a Coons patch: the interpolation of four cubics with shared corners,
         associating a color, and optionally a texture SkPoint, with each corner.
@@ -2496,7 +2496,7 @@ protected:
                                       const SkPaint& paint) {
         this->onDrawVerticesObject(vertices, nullptr, 0, mode, paint);
     }
-    virtual void onDrawVerticesObject(const SkVertices* vertices, const SkMatrix* bones,
+    virtual void onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[],
                                       int boneCount, SkBlendMode mode, const SkPaint& paint);
 
     virtual void onDrawImage(const SkImage* image, SkScalar dx, SkScalar dy, const SkPaint* paint);

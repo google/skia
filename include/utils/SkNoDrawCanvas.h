@@ -75,7 +75,7 @@ protected:
                             const SkPaint*) override {}
     void onDrawBitmapLattice(const SkBitmap&, const Lattice&, const SkRect&,
                              const SkPaint*) override {}
-    void onDrawVerticesObject(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+    void onDrawVerticesObject(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                               const SkPaint&) override {}
     void onDrawAtlas(const SkImage*, const SkRSXform[], const SkRect[], const SkColor[],
                      int, SkBlendMode, const SkRect*, const SkPaint*) override {}

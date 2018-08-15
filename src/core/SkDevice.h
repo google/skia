@@ -213,8 +213,8 @@ protected:
                                   const SkRect& dst, const SkPaint&);
 
 
-    virtual void drawVertices(const SkVertices*, const SkMatrix* bones, int boneCount, SkBlendMode,
-                              const SkPaint&) = 0;
+    virtual void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount,
+                              SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
     virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList);
@@ -420,7 +420,7 @@ protected:
     void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
                      const SkPaint&) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
-    void drawVertices(const SkVertices*, const SkMatrix*, int, SkBlendMode,
+    void drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                       const SkPaint&) override {}
 
 private:

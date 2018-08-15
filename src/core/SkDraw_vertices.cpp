@@ -167,7 +167,8 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                           const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
                           const SkVertices::BoneWeights boneWeights[], SkBlendMode bmode,
                           const uint16_t indices[], int indexCount,
-                          const SkPaint& paint, const SkMatrix* bones, int boneCount) const {
+                          const SkPaint& paint, const SkVertices::Bone bones[],
+                          int boneCount) const {
     SkASSERT(0 == vertexCount || vertices);
 
     // abort early if there is nothing to draw
@@ -207,11 +208,9 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
     }
 
     constexpr size_t kDefVertexCount = 16;
-    constexpr size_t kDefBoneCount = 8;
     constexpr size_t kOuterSize = sizeof(SkTriColorShader) +
                                  sizeof(SkComposeShader) +
-                                 (2 * sizeof(SkPoint) + sizeof(SkPM4f)) * kDefVertexCount +
-                                 sizeof(SkMatrix) * kDefBoneCount;
+                                 (2 * sizeof(SkPoint) + sizeof(SkPM4f)) * kDefVertexCount;
     SkSTArenaAlloc<kOuterSize> outerAlloc;
 
     // deform vertices using the skeleton if it is passed in
@@ -219,28 +218,21 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
         // allocate space for the deformed vertices
         SkPoint* deformed = outerAlloc.makeArray<SkPoint>(vertexCount);
 
-        // get the bone matrices
-        SkMatrix* transformedBones = outerAlloc.makeArray<SkMatrix>(boneCount);
-
-        // transform the bone matrices by the world transform
-        transformedBones[0] = bones[0];
-        for (int i = 1; i < boneCount; i ++) {
-            transformedBones[i] = SkMatrix::Concat(bones[i], bones[0]);
-        }
-
         // deform the vertices
         if (boneIndices && boneWeights) {
             for (int i = 0; i < vertexCount; i ++) {
                 const SkVertices::BoneIndices& indices = boneIndices[i];
                 const SkVertices::BoneWeights& weights = boneWeights[i];
 
+                // apply the world transform
+                SkPoint worldPoint = bones[0].mapPoint(vertices[i]);
+
                 // apply bone deformations
-                SkPoint result = SkPoint::Make(0.0f, 0.0f);
-                SkPoint transformed;
+                deformed[i] = SkPoint::Make(0.0f, 0.0f);
                 for (uint32_t j = 0; j < 4; j ++) {
                     // get the attachment data
-                    uint32_t index = indices.indices[j];
-                    float weight = weights.weights[j];
+                    uint32_t index = indices[j];
+                    float weight = weights[j];
 
                     // skip the bone if there is no weight
                     if (weight == 0.0f) {
@@ -248,19 +240,14 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int vertexCount,
                     }
                     SkASSERT(index != 0);
 
-                    // transformed = M * v
-                    transformedBones[index].mapPoints(&transformed, &vertices[i], 1);
-
-                    // result += transformed * w
-                    result += transformed * weight;
+                    // deformed += M * v * w
+                    deformed[i] += bones[index].mapPoint(worldPoint) * weight;
                 }
-
-                // set the deformed point
-                deformed[i] = result;
             }
         } else {
             // no bones, so only apply world transform
-            const SkMatrix& worldTransform = bones[0];
+            SkMatrix worldTransform = SkMatrix::I();
+            worldTransform.setAffine(bones[0].values);
             worldTransform.mapPoints(deformed, vertices, vertexCount);
         }
 

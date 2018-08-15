@@ -7,7 +7,7 @@
  API
  BMP GIF HEIF ICO JPEG PNG WBMP WebP
  CPU
- GPU GPU-backed OpenGL Vulkan I/O MSAA 
+ GPU GPU-backed OpenGL Vulkan I/O MSAA
  PDF XPS
  RFC
  NaN NaNs
@@ -81,8 +81,8 @@ FT_Load_Glyph
 #Substitute unhinted
 ##
 
-# this jargon requires a substitute to space the phrase. 
-#Topic Little_Endian 
+# this jargon requires a substitute to space the phrase.
+#Topic Little_Endian
 #Substitute little endian
 ##
 
@@ -90,11 +90,11 @@ FT_Load_Glyph
 #Substitute big endian
 ##
 
-#Topic YUV_Component_Y 
+#Topic YUV_Component_Y
 #Substitute YUV component y
 ##
 
-#Topic YUV_Component_U 
+#Topic YUV_Component_U
 #Substitute YUV component u
 ##
 
@@ -106,7 +106,7 @@ FT_Load_Glyph
 #Substitute UV mapping
 ##
 
-#Topic Multi_Sample_Anti_Aliasing 
+#Topic Multi_Sample_Anti_Aliasing
 #Substitute multi-sample anti-aliasing
 ##
 
@@ -114,43 +114,43 @@ FT_Load_Glyph
 #Substitute GPU share group
 ##
 
-#Topic Bezier_Curve 
+#Topic Bezier_Curve
 #Substitute Bezier cruve
 ##
 
-#Topic Coons_Patch 
+#Topic Coons_Patch
 #Substitute Coons patch
 ##
 
-#Topic Cartesian_Coordinate 
+#Topic Cartesian_Coordinate
 #Substitute Cartesian coordinate
 ##
 
-#Topic Euclidean_Distance 
+#Topic Euclidean_Distance
 #Substitute Euclidean distance
 ##
 
-#Topic Euclidean_Space 
+#Topic Euclidean_Space
 #Substitute Euclidean space
 ##
 
-#Topic HTML_Gray 
+#Topic HTML_Gray
 #Substitute HTML gray
 ##
 
-#Topic HTML_Silver 
+#Topic HTML_Silver
 #Substitute HTML silver
 ##
 
-#Topic HTML_Lime 
+#Topic HTML_Lime
 #Substitute HTML lime
 ##
 
-#Topic HTML_Green 
+#Topic HTML_Green
 #Substitute HTML green
 ##
 
-#Topic HTML_Aqua 
+#Topic HTML_Aqua
 #Substitute HTML aqua
 ##
 
@@ -158,7 +158,7 @@ FT_Load_Glyph
 #Substitute HTML fuchsia
 ##
 
-#Topic SVG_lightgray 
+#Topic SVG_lightgray
 #Substitute SVG light gray
 ##
 
@@ -787,6 +787,8 @@ FT_Load_Glyph
 
 #Topic Vertices
 #Class SkVertices
+#Class Bone
+##
 ##
 #Subtopic Colors
 ##
