@@ -1,0 +1,205 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "93f4364f_2c1bbb82",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "So, there is a concept of \"on\" when this is \"\u003d\u003d\" ?",
+      "range": {
+        "startLine": 535,
+        "startChar": 55,
+        "endLine": 535,
+        "endChar": 56
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "077c1b3e_0fb84941",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 702,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "some form of sk_malloc ?",
+      "range": {
+        "startLine": 702,
+        "startChar": 30,
+        "endLine": 702,
+        "endChar": 36
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f0c9e03c_365c13b4",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "sk_free ?",
+      "range": {
+        "startLine": 708,
+        "startChar": 8,
+        "endLine": 708,
+        "endChar": 12
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dbcee682_62997a90",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1002,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "IsRed ?",
+      "range": {
+        "startLine": 1002,
+        "startChar": 16,
+        "endLine": 1002,
+        "endChar": 22
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e654413_793a37e2",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "SingleRotation ?",
+      "range": {
+        "startLine": 1006,
+        "startChar": 23,
+        "endLine": 1006,
+        "endChar": 38
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c1b39f_1e957b3b",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "DoubleRotation ?",
+      "range": {
+        "startLine": 1018,
+        "startChar": 23,
+        "endLine": 1018,
+        "endChar": 38
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "692c494c_ec36404f",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1024,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "Destroy ?",
+      "range": {
+        "startLine": 1024,
+        "startChar": 16,
+        "endLine": 1024,
+        "endChar": 23
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c1200ce_355e2127",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "// returns XXX ?",
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7a1321c3_525669de",
+        "filename": "src/utils/SkPolyUtils.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 1034,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-15T18:04:54Z",
+      "side": 1,
+      "message": "VerifyTree ?",
+      "range": {
+        "startLine": 1034,
+        "startChar": 15,
+        "endLine": 1034,
+        "endChar": 26
+      },
+      "revId": "6ac359fe4b783a77d35106230e06bb8794328aa1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
