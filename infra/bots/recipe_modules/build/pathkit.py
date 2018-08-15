@@ -3,7 +3,7 @@
 # found in the LICENSE file.
 
 DOCKER_IMAGE = 'gcr.io/skia-public/emsdk-release:1.38.6_jre'
-INNER_BUILD_SCRIPT = '/SRC/skia/experimental/pathkit/docker/build_pathkit.sh'
+INNER_BUILD_SCRIPT = '/SRC/skia/infra/pathkit/docker/build_pathkit.sh'
 
 BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
   'pathkit.*'
@@ -15,7 +15,7 @@ def compile_fn(api, checkout_root, _ignore):
   configuration = api.vars.builder_cfg.get('configuration', '')
 
   # We want to make sure the directories exist and were created by chrome-bot,
-  # because if that isn' the case, docker will make them and they will be
+  # because if that isn't the case, docker will make them and they will be
   # owned by root, which causes mysterious failures. To mitigate this risk
   # further, we don't use the same out_dir as everyone else (thus the _ignore)
   # param. Instead, we use a "wasm" subdirectory in the "docker" named_cache.

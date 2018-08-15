@@ -13,8 +13,8 @@ from . import chromebook
 from . import chromecast
 from . import default
 from . import flutter
+from . import pathkit
 from . import util
-from . import wasm
 
 
 class BuildApi(recipe_api.RecipeApi):
@@ -33,8 +33,8 @@ class BuildApi(recipe_api.RecipeApi):
       self.compile_fn = flutter.compile_fn
       self.copy_fn = flutter.copy_extra_build_products
     elif 'EMCC' in b:
-      self.compile_fn = wasm.compile_fn
-      self.copy_fn = wasm.copy_extra_build_products
+      self.compile_fn = pathkit.compile_fn
+      self.copy_fn = pathkit.copy_extra_build_products
     else:
       self.compile_fn = default.compile_fn
       self.copy_fn = default.copy_extra_build_products

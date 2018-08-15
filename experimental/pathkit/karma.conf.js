@@ -10,6 +10,7 @@ module.exports = function(config) {
     files: [
       { pattern: 'npm-wasm/bin/test/pathkit.wasm', included:false, served:true},
       { pattern: 'tests/*.json', included:false, served:true},
+      'tests/testReporter.js',
       'npm-wasm/bin/test/pathkit.js',
       'tests/*.spec.js'
     ],

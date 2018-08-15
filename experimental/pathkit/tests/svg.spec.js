@@ -95,15 +95,19 @@ describe('PathKit\'s SVG Behavior', function() {
     it('approximates arcs (conics) with quads', function(done) {
         LoadPathKit.then(() => {
             let path = PathKit.NewPath();
-            path.moveTo(20, 120);
-            path.arc(20, 120, 18, 0, 1.75 * Math.PI);
-            path.lineTo(20, 120);
+            path.moveTo(50, 120);
+            path.arc(50, 120, 45, 0, 1.75 * Math.PI);
+            path.lineTo(50, 120);
             let svgStr = path.toSVGString();
             // Q stands for quad.  No need to check the whole path, as that's more
             // what the gold correctness tests are for (can account for changes we make
             // to the approximation algorithms).
             expect(svgStr).toContain('Q');
             path.delete();
+
+             reportSVGString(svgStr, 'conics_quads_approx').then(() => {
+                done();
+            }).catch(reportError(done));
             done();
         });
     });

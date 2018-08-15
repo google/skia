@@ -24,7 +24,7 @@
       "-v",
       "[START_DIR]/cache/docker/wasm:/OUT",
       "gcr.io/skia-public/emsdk-release:1.38.6_jre",
-      "/SRC/skia/experimental/pathkit/docker/build_pathkit.sh",
+      "/SRC/skia/infra/pathkit/docker/build_pathkit.sh",
       "debug"
     ],
     "env": {

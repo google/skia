@@ -52,12 +52,12 @@ test-continuous:
 # test-docker-continuous is better, although if you make changes to the C++/WASM code,
 # you will need to manually call make npm-test to re-build.
 test-docker: npm-test
-	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1 \
+	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v3 \
 karma start /SRC/experimental/pathkit/karma-docker.conf.js --single-run
 
 test-docker-continuous:
 	echo "Assuming make npm-test has also been run by a user (if needed)"
-	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v1 \
+	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v3 \
 karma start /SRC/experimental/pathkit/karma-docker.conf.js --no-single-run
 
 npm-test:
