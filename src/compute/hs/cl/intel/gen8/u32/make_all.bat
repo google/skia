@@ -1,16 +1,32 @@
 @ECHO OFF
 
-SET HS_GEN=..\..\..\..\..\spinel\bin\x64\Debug\hs_gen 
+SET HS_GEN=..\..\..\..\..\..\spinel\bin\x64\Debug\hs_gen
 
-REM --- 32-bit keys ---
+:: --- 32-bit keys ---
 
-REM CMD /C %HS_GEN% -v -a "opencl" -t 1 -w 8 -r 24 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "opencl" -t 1 -w 8 -r 32 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "opencl" -t 1 -w 8 -r 32 -s 8192  -S 65536 -b 8  -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+::
+:: There appears to be an Intel compiler bug when using more than
+:: 16 registers per lane so try a wider subgroup and narrower merging kernels
+::
+:: The current crop of Intel compilers are spilling way too much...
+::
 
-REM --- 64-bit keys
+%HS_GEN% -v -a "opencl" -D HS_INTEL_GEN8 -t 1 -w 16 -r 8 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
 
-CMD /C %HS_GEN% -v -a "opencl" -t 2 -w 8 -r 16 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "opencl" -t 2 -w 8 -r 16 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z 
+::
+:: This should be the proper mapping onto the Intel GEN8+ subslices but the compiler is spilling
+::
+:: %HS_GEN% -v -a "opencl" -D HS_INTEL_GEN8 -t 1 -w 8 -r 32 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+::
 
-CMD /C make_inl_cl.bat hs_cl.cl
+::
+:: remove trailing whitespace from generated files
+::
+
+sed -i 's/[[:space:]]*$//' hs_config.h
+
+::
+:: preprocess and build kernels
+::
+
+make_inl_cl.bat hs_kernels.cl
