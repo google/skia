@@ -36,15 +36,19 @@ def RunSteps(api):
   tmp_dir = api.path['start_dir'].join('tmp_upload')
   api.file.ensure_directory('makedirs tmp dir', tmp_dir)
   api.file.copy('copy dm.json', json_file, tmp_dir)
-  api.file.copy('copy verbose.log', log_file, tmp_dir)
   api.file.remove('rm old dm.json', json_file)
-  api.file.remove('rm old verbose.log', log_file)
+
+  files = api.file.listdir('check for optional verbose.log file',
+                           results_dir, test_data=['dm.json', 'verbose.log'])
+  if log_file in files:
+    api.file.copy('copy verbose.log', log_file, tmp_dir)
+    api.file.remove('rm old verbose.log', log_file)
 
   # Upload the images.
   image_dest_path = 'gs://%s/dm-images-v1' % api.properties['gs_bucket']
   for ext in ['.png', '.pdf']:
     files_to_upload = api.file.glob_paths(
-        'find images',
+        'find %s images' % ext,
         results_dir,
         '*%s' % ext,
         test_data=['someimage.png'])
