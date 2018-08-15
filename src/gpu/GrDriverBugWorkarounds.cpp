@@ -27,6 +27,8 @@ GrDriverBugWorkarounds::GrDriverBugWorkarounds(
                 break;
         }
     }
+    // TEMP for try job
+    unfold_short_circuit_as_ternary_operation = true;
 }
 
 void GrDriverBugWorkarounds::applyOverrides(
