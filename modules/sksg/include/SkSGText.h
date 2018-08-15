@@ -49,6 +49,8 @@ protected:
 private:
     explicit Text(sk_sp<SkTypeface>, const SkString&);
 
+    SkPoint alignedPosition(const SkRect&) const;
+
     const sk_sp<SkTypeface> fTypeface;
     SkString                fText;
     uint32_t                fFlags    = SkPaintDefaults_Flags;
