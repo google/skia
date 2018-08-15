@@ -267,41 +267,17 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
 void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
                                          GrRenderTargetContext* renderTargetContext,
                                          const GrClip& clip,
-                                         const SkPath& origPath,
+                                         const SkPath& path,
                                          const SkPaint& paint,
-                                         const SkMatrix& origViewMatrix,
-                                         const SkMatrix* prePathMatrix,
+                                         const SkMatrix& viewMatrix,
                                          bool pathIsMutable) {
     if (context->abandoned()) {
         return;
     }
 
-    SkASSERT(!pathIsMutable || origPath.isVolatile());
+    SkASSERT(!pathIsMutable || path.isVolatile());
 
     GrStyle style(paint);
-    // If we have a prematrix, apply it to the path, optimizing for the case
-    // where the original path can in fact be modified in place (even though
-    // its parameter type is const).
-
-    const SkPath* path = &origPath;
-    SkTLazy<SkPath> tmpPath;
-
-    SkMatrix viewMatrix = origViewMatrix;
-
-    if (prePathMatrix) {
-        // Styling, blurs, and shading are supposed to be applied *after* the prePathMatrix.
-        if (!paint.getMaskFilter() && !paint.getShader() && !style.applies()) {
-            viewMatrix.preConcat(*prePathMatrix);
-        } else {
-            SkPath* result = pathIsMutable ? const_cast<SkPath*>(path) : tmpPath.init();
-            pathIsMutable = true;
-            path->transform(*prePathMatrix, result);
-            path = result;
-            result->setIsVolatile(true);
-        }
-    }
-    // at this point we're done with prePathMatrix
-    SkDEBUGCODE(prePathMatrix = (const SkMatrix*)0x50FF8001;)
 
     GrPaint grPaint;
     if (!SkPaintToGrPaint(context, renderTargetContext->colorSpaceInfo(), paint, viewMatrix,
@@ -313,8 +289,8 @@ void GrBlurUtils::drawPathWithMaskFilter(GrContext* context,
     if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
         draw_path_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
-                                   viewMatrix, mf, style, path, pathIsMutable);
+                                   viewMatrix, mf, style, &path, pathIsMutable);
     } else {
-        renderTargetContext->drawPath(clip, std::move(grPaint), aa, viewMatrix, *path, style);
+        renderTargetContext->drawPath(clip, std::move(grPaint), aa, viewMatrix, path, style);
     }
 }

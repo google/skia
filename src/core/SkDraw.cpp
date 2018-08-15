@@ -534,18 +534,22 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                 SkScalar radius = SkScalarHalf(width);
 
                 if (newPaint.getStrokeCap() == SkPaint::kRound_Cap) {
-                    SkPath      path;
-                    SkMatrix    preMatrix;
+                    if (device) {
+                        for (size_t i = 0; i < count; ++i) {
+                            SkRect r = SkRect::MakeLTRB(pts[i].fX - radius, pts[i].fY - radius,
+                                                        pts[i].fX + radius, pts[i].fY + radius);
+                            device->drawOval(r, newPaint);
+                        }
+                    } else {
+                        SkPath     path;
+                        SkMatrix   preMatrix;
 
-                    path.addCircle(0, 0, radius);
-                    for (size_t i = 0; i < count; i++) {
-                        preMatrix.setTranslate(pts[i].fX, pts[i].fY);
-                        // pass true for the last point, since we can modify
-                        // then path then
-                        path.setIsVolatile((count-1) == i);
-                        if (device) {
-                            device->drawPath(path, newPaint, &preMatrix, (count-1) == i);
-                        } else {
+                        path.addCircle(0, 0, radius);
+                        for (size_t i = 0; i < count; i++) {
+                            preMatrix.setTranslate(pts[i].fX, pts[i].fY);
+                            // pass true for the last point, since we can modify
+                            // then path then
+                            path.setIsVolatile((count-1) == i);
                             this->drawPath(path, newPaint, &preMatrix, (count-1) == i);
                         }
                     }
@@ -661,7 +665,7 @@ void SkDraw::drawPoints(SkCanvas::PointMode mode, size_t count,
                     path.moveTo(pts[i]);
                     path.lineTo(pts[i+1]);
                     if (device) {
-                        device->drawPath(path, p, nullptr, true);
+                        device->drawPath(path, p, true);
                     } else {
                         this->drawPath(path, p, nullptr, true);
                     }

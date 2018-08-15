@@ -37,7 +37,6 @@ namespace GrBlurUtils {
                                 const SkPath& origSrcPath,
                                 const SkPaint& paint,
                                 const SkMatrix& origViewMatrix,
-                                const SkMatrix* prePathMatrix,
                                 bool pathIsMutable);
 
     /**

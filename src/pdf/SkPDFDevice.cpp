@@ -787,7 +787,7 @@ void SkPDFDevice::drawRect(const SkRect& rect,
     if (paint.getPathEffect() || paint.getMaskFilter()) {
         SkPath path;
         path.addRect(r);
-        this->drawPath(path, paint, nullptr, true);
+        this->drawPath(path, paint, true);
         return;
     }
 
@@ -809,7 +809,7 @@ void SkPDFDevice::drawRRect(const SkRRect& rrect,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addRRect(rrect);
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath(path, paint, true);
 }
 
 void SkPDFDevice::drawOval(const SkRect& oval,
@@ -822,28 +822,23 @@ void SkPDFDevice::drawOval(const SkRect& oval,
     replace_srcmode_on_opaque_paint(&paint);
     SkPath  path;
     path.addOval(oval);
-    this->drawPath(path, paint, nullptr, true);
+    this->drawPath(path, paint, true);
 }
 
 void SkPDFDevice::drawPath(const SkPath& origPath,
                            const SkPaint& srcPaint,
-                           const SkMatrix* prePathMatrix,
                            bool pathIsMutable) {
-    this->internalDrawPath(
-            this->cs(), this->ctm(), origPath, srcPaint, prePathMatrix, pathIsMutable);
+    this->internalDrawPath(this->cs(), this->ctm(), origPath, srcPaint, pathIsMutable);
 }
 
 void SkPDFDevice::internalDrawPathWithFilter(const SkClipStack& clipStack,
                                              const SkMatrix& ctm,
                                              const SkPath& origPath,
-                                             const SkPaint& origPaint,
-                                             const SkMatrix* prePathMatrix) {
+                                             const SkPaint& origPaint) {
     SkASSERT(origPaint.getMaskFilter());
     SkPath path(origPath);
     SkTCopyOnFirstWrite<SkPaint> paint(origPaint);
-    if (prePathMatrix) {
-        path.transform(*prePathMatrix, &path);
-    }
+
     SkStrokeRec::InitStyle initStyle = paint->getFillPath(path, &path)
                                      ? SkStrokeRec::kFill_InitStyle
                                      : SkStrokeRec::kHairline_InitStyle;
@@ -906,7 +901,6 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
                                    const SkMatrix& ctm,
                                    const SkPath& origPath,
                                    const SkPaint& srcPaint,
-                                   const SkMatrix* prePathMatrix,
                                    bool pathIsMutable) {
     if (clipStack.isEmpty(this->bounds())) {
         return;
@@ -918,22 +912,11 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
     SkPath* pathPtr = const_cast<SkPath*>(&origPath);
 
     if (paint.getMaskFilter()) {
-        this->internalDrawPathWithFilter(clipStack, ctm, origPath, paint, prePathMatrix);
+        this->internalDrawPathWithFilter(clipStack, ctm, origPath, paint);
         return;
     }
 
     SkMatrix matrix = ctm;
-    if (prePathMatrix) {
-        if (paint.getPathEffect() || paint.getStyle() != SkPaint::kFill_Style) {
-            if (!pathIsMutable) {
-                pathPtr = &modifiedPath;
-                pathIsMutable = true;
-            }
-            origPath.transform(*prePathMatrix, pathPtr);
-        } else {
-            matrix.preConcat(*prePathMatrix);
-        }
-    }
 
     if (paint.getPathEffect()) {
         if (clipStack.isEmpty(this->bounds())) {
@@ -953,7 +936,7 @@ void SkPDFDevice::internalDrawPath(const SkClipStack& clipStack,
         paint.setPathEffect(nullptr);
     }
 
-    if (this->handleInversePath(*pathPtr, paint, pathIsMutable, prePathMatrix)) {
+    if (this->handleInversePath(*pathPtr, paint, pathIsMutable)) {
         return;
     }
     if (matrix.getType() & SkMatrix::kPerspective_Mask) {
@@ -1118,7 +1101,7 @@ static void draw_glyph_run_as_path(SkPDFDevice* dev, const SkGlyphRun& glyphRun,
                                     glyphRun.positions().data(),
                                     &path);
     path.offset(offset.x(), offset.y());
-    dev->drawPath(path, glyphRun.paint(), nullptr, true);
+    dev->drawPath(path, glyphRun.paint(), true);
 }
 
 static bool has_outline_glyph(SkGlyphID gid, SkGlyphCache* cache) {
@@ -1513,8 +1496,8 @@ std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
  * in the first place.
  */
 bool SkPDFDevice::handleInversePath(const SkPath& origPath,
-                                    const SkPaint& paint, bool pathIsMutable,
-                                    const SkMatrix* prePathMatrix) {
+                                    const SkPaint& paint,
+                                    bool pathIsMutable) {
     if (!origPath.isInverseFillType()) {
         return false;
     }
@@ -1539,7 +1522,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
             // To be consistent with the raster output, hairline strokes
             // are rendered as non-inverted.
             modifiedPath.toggleInverseFillType();
-            this->drawPath(modifiedPath, paint, nullptr, true);
+            this->drawPath(modifiedPath, paint, true);
             return true;
         }
     }
@@ -1548,9 +1531,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
     // (clip bounds are given in device space).
     SkMatrix transformInverse;
     SkMatrix totalMatrix = this->ctm();
-    if (prePathMatrix) {
-        totalMatrix.preConcat(*prePathMatrix);
-    }
+
     if (!totalMatrix.invert(&transformInverse)) {
         return false;
     }
@@ -1566,7 +1547,7 @@ bool SkPDFDevice::handleInversePath(const SkPath& origPath,
         return false;
     }
 
-    this->drawPath(modifiedPath, noInversePaint, prePathMatrix, true);
+    this->drawPath(modifiedPath, noInversePaint, true);
     return true;
 }
 
@@ -1772,7 +1753,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
             SkPaint filledPaint;
             filledPaint.setColor(SK_ColorBLACK);
             filledPaint.setStyle(SkPaint::kFill_Style);
-            this->internalDrawPath(clipStack, SkMatrix::I(), *shape, filledPaint, nullptr, true);
+            this->internalDrawPath(clipStack, SkMatrix::I(), *shape, filledPaint, true);
             this->drawFormXObjectWithMask(this->addXObjectResource(dst.get()),
                                           this->makeFormXObjectFromDevice(),
                                           fExistingClipStack,
@@ -2099,7 +2080,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         paint.setShader(imageSubset.image()->makeShader(&transform));
         SkPath path;
         path.addRect(dst);  // handles non-integral clipping.
-        this->internalDrawPath(this->cs(), this->ctm(), path, paint, nullptr, true);
+        this->internalDrawPath(this->cs(), this->ctm(), path, paint, true);
         return;
     }
     transform.postConcat(ctm);
