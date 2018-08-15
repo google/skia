@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb41e24a_cb8afea2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6155
+      },
+      "writtenOn": "2018-08-15T07:03:28Z",
+      "side": 1,
+      "message": "Thanks for the fix, Bruce. Again, it would be helpful if this has a bug reference for adding context.",
+      "revId": "ba6f533c1307d01b12c711225a8473a118f6a30e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
