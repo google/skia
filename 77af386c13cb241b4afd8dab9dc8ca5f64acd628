@@ -22,6 +22,30 @@
       "revId": "77af386c13cb241b4afd8dab9dc8ca5f64acd628",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "29a48ead_9ad02de2",
+        "filename": "modules/sksg/src/SkSGText.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-15T22:43:01Z",
+      "side": 1,
+      "message": "Ack.  There\u0027s no good way to extract the advance out of the blob, and probably not worth computing externally.\n\nAlso, this will most likely get refactored to use SkShaper soonish.",
+      "parentUuid": "2fd8972b_1513e28e",
+      "range": {
+        "startLine": 29,
+        "startChar": 39,
+        "endLine": 29,
+        "endChar": 47
+      },
+      "revId": "77af386c13cb241b4afd8dab9dc8ca5f64acd628",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
