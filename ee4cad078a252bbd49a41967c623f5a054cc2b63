@@ -16,6 +16,24 @@
       "revId": "ee4cad078a252bbd49a41967c623f5a054cc2b63",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "437e0eea_2a4f576c",
+        "filename": "include/private/SkEncodedInfo.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "This is the info that the client will see. I\u0027d like to move this logic to the client, but I intend to leave this to a separate CL. But I will need to do that before you can remove some profiles from SkColorSpace, or this will start being null (IIUC), and SkAndroidCodec will think that wide gamut images are SRGB and transform them to the wrong space.",
+      "parentUuid": "77653dc6_55d48154",
+      "revId": "ee4cad078a252bbd49a41967c623f5a054cc2b63",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

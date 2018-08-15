@@ -16,6 +16,24 @@
       "revId": "670febd56f676370f45fb88b2561e806d0237f6f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fe74c2c9_6a978468",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 12
+      },
+      "lineNbr": 811,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "It looks like the image\u0027s stream\u0027s color space only applies to the preview image. If there\u0027s a preview image, we\u0027ll create an SkJpegCodec, rather than an SkRawCodec.",
+      "parentUuid": "ce544616_6da7825f",
+      "revId": "670febd56f676370f45fb88b2561e806d0237f6f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

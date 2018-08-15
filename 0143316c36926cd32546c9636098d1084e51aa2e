@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "551d8be6_5e0d46f2",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "conversionSupported only uses this to prevent us from trying to do a color transform on gray data but still end up with gray. But I could move that check into initializeColorXform and then I won\u0027t need this here...",
+      "range": {
+        "startLine": 158,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 44
+      },
+      "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c588810_5c364dbe",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "This should cover your previous comments around using Opaque when I should\u0027ve been using Unpremul. And now all the codecs go through this path.",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 13
+      },
+      "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

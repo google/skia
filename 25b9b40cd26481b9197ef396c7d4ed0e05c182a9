@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "97f26b6d_e9a06be0",
+        "filename": "src/codec/SkCodecPriv.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d389a303_c25c5450",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "05abf1f2_addc28a2",
         "filename": "src/codec/SkGifCodec.cpp",
         "patchSetId": 15
@@ -56,6 +74,24 @@
       "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06b3cd34_007fc773",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "05abf1f2_addc28a2",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +112,24 @@
     },
     {
       "key": {
+        "uuid": "aa86599b_407af075",
+        "filename": "src/codec/SkGifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Ack. Handled in the base class now.",
+      "parentUuid": "2ed5300d_cc7faf22",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "47c895ec_5c630041",
         "filename": "src/codec/SkHeifCodec.cpp",
         "patchSetId": 15
@@ -87,6 +141,24 @@
       "writtenOn": "2018-08-14T16:41:29Z",
       "side": 1,
       "message": "Oddly, if you know that your source data is opaque, it\u0027s faster to tell skcms that both the source and dest are unpremul. We treat opaque as a guarantee - we actually ignore the src alpha channel and overwrite it with 1.0 after reading, and if the dstAlpha is opaque, we overwrite alpha with 1.0 before writing.\n\nYes, this is confusing.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d02c6c28_78145636",
+        "filename": "src/codec/SkHeifCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Good to know, thanks!",
+      "parentUuid": "47c895ec_5c630041",
       "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -110,6 +182,24 @@
     },
     {
       "key": {
+        "uuid": "be99626f_b4e0495f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e8b26e4_64d02c4f",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4163e65a_e8f0e0d0",
         "filename": "src/codec/SkRawCodec.cpp",
         "patchSetId": 15
@@ -127,6 +217,24 @@
     },
     {
       "key": {
+        "uuid": "6ee00255_26b7ddf9",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4163e65a_e8f0e0d0",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b6eb6276_bb9f8107",
         "filename": "src/codec/SkWebpCodec.cpp",
         "patchSetId": 15
@@ -138,6 +246,24 @@
       "writtenOn": "2018-08-14T16:41:29Z",
       "side": 1,
       "message": "Similar here: Unpremul would be better than Opaque, if the data definitely has 1.0 in alpha already.",
+      "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f52edff0_0252e91e",
+        "filename": "src/codec/SkWebpCodec.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 620,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-15T20:44:37Z",
+      "side": 1,
+      "message": "Thanks. This is all now handled in the base class. Part of the original complexity here was because we wanted to blend in linear space when combining with the previous frame. No longer needed now :)",
+      "parentUuid": "b6eb6276_bb9f8107",
       "revId": "25b9b40cd26481b9197ef396c7d4ed0e05c182a9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
