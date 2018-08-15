@@ -69,8 +69,7 @@ public:
         auto atlasProxy = fStashedAtlasProxy.get();
         dynamicState.fPrimitiveProcessorTextures = &atlasProxy;
 
-        GrPipeline pipeline(flushState->proxy(), GrPipeline::ScissorState::kDisabled,
-                            SkBlendMode::kSrc);
+        GrPipeline pipeline(flushState->proxy(), GrScissorTest::kDisabled, SkBlendMode::kSrc);
         GrCCPathProcessor pathProc(atlasProxy);
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
@@ -216,14 +215,13 @@ const GrCCAtlas* GrCCPerFlushResources::renderDeviceSpacePathInAtlas(
 bool GrCCPerFlushResources::placeParsedPathInAtlas(const SkIRect& clipIBounds,
                                                    const SkIRect& pathIBounds,
                                                    SkIVector* devToAtlasOffset) {
-    using ScissorMode = GrCCPathParser::ScissorMode;
-    ScissorMode scissorMode;
+    GrScissorTest scissorTest;
     SkIRect clippedPathIBounds;
     if (clipIBounds.contains(pathIBounds)) {
         clippedPathIBounds = pathIBounds;
-        scissorMode = ScissorMode::kNonScissored;
+        scissorTest = GrScissorTest::kDisabled;
     } else if (clippedPathIBounds.intersect(clipIBounds, pathIBounds)) {
-        scissorMode = ScissorMode::kScissored;
+        scissorTest = GrScissorTest::kEnabled;
     } else {
         fPathParser.discardParsedPath();
         return false;
@@ -237,7 +235,7 @@ bool GrCCPerFlushResources::placeParsedPathInAtlas(const SkIRect& clipIBounds,
         CoverageCountBatchID batchID = fPathParser.closeCurrentBatch();
         retiredAtlas->setUserBatchID(batchID);
     }
-    fPathParser.saveParsedPath(scissorMode, clippedPathIBounds, *devToAtlasOffset);
+    fPathParser.saveParsedPath(scissorTest, clippedPathIBounds, *devToAtlasOffset);
     return true;
 }
 

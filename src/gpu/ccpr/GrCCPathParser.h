@@ -28,11 +28,6 @@ class SkPath;
  */
 class GrCCPathParser {
 public:
-    // Indicates whether a path should enforce a scissor clip when rendering its mask. (Specified
-    // as an int because these values get used directly as indices into arrays.)
-    enum class ScissorMode : int { kNonScissored = 0, kScissored = 1 };
-    static constexpr int kNumScissorModes = 2;
-
     struct PathStats {
         int fMaxPointsPerPath = 0;
         int fNumTotalSkPoints = 0;
@@ -67,7 +62,7 @@ public:
     // Commits the currently-parsed path from staging to the current batch, and specifies whether
     // the mask should be rendered with a scissor in effect. Accepts an optional post-device-space
     // translate for placement in an atlas.
-    void saveParsedPath(ScissorMode, const SkIRect& clippedDevIBounds,
+    void saveParsedPath(GrScissorTest, const SkIRect& clippedDevIBounds,
                         const SkIVector& devToAtlasOffset);
     void discardParsedPath();
 
@@ -83,15 +78,16 @@ public:
     void drawCoverageCount(GrOpFlushState*, CoverageCountBatchID, const SkIRect& drawBounds) const;
 
 private:
+    static constexpr int kNumScissorModes = 2;
     using PrimitiveTallies = GrCCGeometry::PrimitiveTallies;
 
     // Every kBeginPath verb has a corresponding PathInfo entry.
     class PathInfo {
     public:
-        PathInfo(ScissorMode scissorMode, const SkIVector& devToAtlasOffset)
-                : fScissorMode(scissorMode), fDevToAtlasOffset(devToAtlasOffset) {}
+        PathInfo(GrScissorTest scissorTest, const SkIVector& devToAtlasOffset)
+                : fScissorTest(scissorTest), fDevToAtlasOffset(devToAtlasOffset) {}
 
-        ScissorMode scissorMode() const { return fScissorMode; }
+        GrScissorTest scissorTest() const { return fScissorTest; }
         const SkIVector& devToAtlasOffset() const { return fDevToAtlasOffset; }
 
         // An empty tessellation fan is also valid; we use negative count to denote not tessellated.
@@ -112,7 +108,7 @@ private:
         }
 
     private:
-        ScissorMode fScissorMode;
+        GrScissorTest fScissorTest;
         SkIVector fDevToAtlasOffset;  // Translation from device space to location in atlas.
         int fFanTessellationCount = -1;
         std::unique_ptr<const GrTessellator::WindingVertex[]> fFanTessellation;
