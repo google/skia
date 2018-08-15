@@ -113,6 +113,7 @@ protected:
     SkISize onISize() override { return SkISize::Make(800, 600); }
 
     void onDraw(SkCanvas* canvas) override {
+#if 0
         SkPaint paint;
         paint.setAntiAlias(true);
         paint.setStyle(SkPaint::kStroke_Style);
@@ -124,9 +125,8 @@ protected:
         path.lineTo(170, 80);
         path.lineTo(240, 50);
 
-        size_t i;
         canvas->save();
-        for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
             gPE[i](&paint);
             canvas->drawPath(path, paint);
             canvas->translate(0, 75);
@@ -140,14 +140,15 @@ protected:
         path.addRect(r, SkPath::kCCW_Direction);
 
         canvas->translate(320, 20);
-        for (i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE2); i++) {
             gPE2[i](&paint);
             canvas->drawPath(path, paint);
             canvas->translate(0, 160);
         }
+#endif
 
-        SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
-        for (i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
+        const SkIRect rect = SkIRect::MakeXYWH(20, 20, 60, 60);
+        for (size_t i = 0; i < SK_ARRAY_COUNT(gPE); i++) {
             SkPaint p;
             p.setAntiAlias(true);
             p.setStyle(SkPaint::kFill_Style);

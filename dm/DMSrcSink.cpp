@@ -1171,7 +1171,7 @@ Error SKPSrc::draw(SkCanvas* canvas) const {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
     }
 
-    canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
+//    canvas->clipRect(SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize));
     canvas->drawPicture(pic);
     return "";
 }
@@ -1191,9 +1191,9 @@ static SkRect get_cull_rect_for_skp(const char* path) {
 
 SkISize SKPSrc::size() const {
     SkRect viewport = get_cull_rect_for_skp(fPath.c_str());
-    if (!viewport.intersect((SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize)))) {
-        return {0, 0};
-    }
+//    if (!viewport.intersect((SkRect::MakeWH(FLAGS_skpViewportSize, FLAGS_skpViewportSize)))) {
+//        return {0, 0};
+//    }
     return viewport.roundOut().size();
 }
 
