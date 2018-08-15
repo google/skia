@@ -60,7 +60,6 @@ public:
     // Bone stores a 3x2 transformation matrix in column major order:
     // | scaleX   skewX transX |
     // |  skewY  scaleY transY |
-    // SkRSXform is insufficient because bones can have non uniform scale.
     struct Bone {
         float values[6];
 

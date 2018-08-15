@@ -90,7 +90,6 @@ public:
                       const SkPaint& paint) override {
         fTarget->drawPoints(mode, count, pts, fXformer->apply(paint));
     }
-
     void onDrawVerticesObject(const SkVertices* vertices, const SkVertices::Bone bones[], int boneCount,
                               SkBlendMode mode, const SkPaint& paint) override {
         sk_sp<SkVertices> copy;
