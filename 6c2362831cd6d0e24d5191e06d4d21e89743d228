@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2ea7b1dc_1b5f63c8",
+        "filename": "infra/pathkit/gold/pathkit_aggregator.go",
+        "patchSetId": 20
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-15T19:11:47Z",
+      "side": 1,
+      "message": "Just out of interest, how did you focus on these subsets of image types ?",
+      "range": {
+        "startLine": 229,
+        "startChar": 0,
+        "endLine": 235,
+        "endChar": 20
+      },
+      "revId": "6c2362831cd6d0e24d5191e06d4d21e89743d228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
