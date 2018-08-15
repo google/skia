@@ -1530,7 +1530,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 
 ### See Also
 
-<a href='#SkRect_set'>set</a><sup><a href='#SkRect_set_2'>[2]</a></sup><sup><a href='#SkRect_set_3'>[3]</a></sup><sup><a href='#SkRect_set_4'>[4]</a></sup> <a href='#SkRect_setBoundsCheck'>setBoundsCheck</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a>
+<a href='#SkRect_set'>set</a><sup><a href='#SkRect_set_2'>[2]</a></sup><sup><a href='#SkRect_set_3'>[3]</a></sup><sup><a href='#SkRect_set_4'>[4]</a></sup> <a href='#SkRect_setBoundsCheck'>setBoundsCheck</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a><sup><a href='SkPath_Reference#SkPath_addPoly_2'>[2]</a></sup>
 
 ---
 
@@ -1580,7 +1580,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0 success: false
 
 ### See Also
 
-<a href='#SkRect_set'>set</a><sup><a href='#SkRect_set_2'>[2]</a></sup><sup><a href='#SkRect_set_3'>[3]</a></sup><sup><a href='#SkRect_set_4'>[4]</a></sup> <a href='#SkRect_setBounds'>setBounds</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a>
+<a href='#SkRect_set'>set</a><sup><a href='#SkRect_set_2'>[2]</a></sup><sup><a href='#SkRect_set_3'>[3]</a></sup><sup><a href='#SkRect_set_4'>[4]</a></sup> <a href='#SkRect_setBounds'>setBounds</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a><sup><a href='SkPath_Reference#SkPath_addPoly_2'>[2]</a></sup>
 
 ---
 
@@ -1849,7 +1849,7 @@ added: nan, 8 count: 4 rect: 0, 0, 0, 0
 
 ### See Also
 
-<a href='#SkRect_setBounds'>setBounds</a> <a href='#SkRect_setBoundsCheck'>setBoundsCheck</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a>
+<a href='#SkRect_setBounds'>setBounds</a> <a href='#SkRect_setBoundsCheck'>setBoundsCheck</a> <a href='SkPath_Reference#SkPath_addPoly'>SkPath::addPoly</a><sup><a href='SkPath_Reference#SkPath_addPoly_2'>[2]</a></sup>
 
 ---
 
