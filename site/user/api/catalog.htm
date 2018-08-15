@@ -7498,6 +7498,14 @@
     "file": "SkPath_Reference",
     "name": "SkPath::addPoly"
 },
+    "SkPath_addPoly_2": {
+    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setStrokeWidth(15);\n    paint.setStrokeCap(SkPaint::kRound_Cap);\n    for (bool close : { false, true } ) {\n        SkPath path;\n        path.addPoly({{20, 20}, {70, 20}, {40, 90}}, close);\n        for (auto style : {SkPaint::kStroke_Style, SkPaint::kFill_Style,\n                SkPaint::kStrokeAndFill_Style} ) {\n            paint.setStyle(style);\n            canvas->drawPath(path, paint);\n            canvas->translate(85, 0);\n        }\n        canvas->translate(-255, 128);\n    }\n}\n",
+    "width": 256,
+    "height": 256,
+    "hash": "1a6b69acad5ceafede3c5984ec6634cb",
+    "file": "SkPath_Reference",
+    "name": "SkPath::addPoly_2"
+},
     "SkPath_addRRect": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    SkVector radii[] = {{50, 50}, {0, 0}, {0, 0}, {50, 50}};\n    rrect.setRectRadii({10, 10, 110, 110}, radii);\n    SkPath path;\n    SkMatrix rotate90;\n    rotate90.setRotate(90, 128, 128);\n    for (int i = 0; i < 4; ++i) {\n        path.addRRect(rrect);\n        path.transform(rotate90);\n    }\n    canvas->drawPath(path, paint);\n}\n",
     "width": 256,
