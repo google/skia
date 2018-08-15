@@ -13,6 +13,7 @@
 #include "Resources.h"
 #include "SKPSlide.h"
 #include "SampleSlide.h"
+#include "SkinningSlide.h"
 #include "SkCanvas.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformCanvas.h"
@@ -614,6 +615,10 @@ void Viewer::initSlides() {
             fSlides.push_back(slide);
         }
     }
+
+    // skinning
+    sk_sp<Slide> skinningSlide(new SkinningSlide());
+    fSlides.push_back(skinningSlide);
 
     for (const auto& info : gExternalSlidesInfo) {
         for (const auto& flag : info.fFlags) {

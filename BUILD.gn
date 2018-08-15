@@ -2017,12 +2017,13 @@ if (skia_enable_tools) {
       "tools/viewer/ImageSlide.cpp",
       "tools/viewer/SKPSlide.cpp",
       "tools/viewer/SampleSlide.cpp",
+      "tools/viewer/SkinningSlide.cpp",
       "tools/viewer/SkottieSlide.cpp",
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
-      "tools/viewer/TouchGesture.h",
       "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []
