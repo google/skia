@@ -52,6 +52,7 @@ namespace SkRecords {
     M(Save)                                                         \
     M(SaveLayer)                                                    \
     M(SetMatrix)                                                    \
+    M(SetNodeId)                                                    \
     M(Translate)                                                    \
     M(Concat)                                                       \
     M(ClipPath)                                                     \
@@ -190,6 +191,8 @@ RECORD(SaveLayer, kHasPaint_Tag,
 
 RECORD(SetMatrix, 0,
         TypedMatrix matrix);
+RECORD(SetNodeId, 0,
+        int node_id);
 RECORD(Concat, 0,
         TypedMatrix matrix);
 

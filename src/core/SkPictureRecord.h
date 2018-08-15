@@ -159,6 +159,8 @@ protected:
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
 
+    void setNodeId(int node_id) override;
+
     void didConcat(const SkMatrix&) override;
     void didSetMatrix(const SkMatrix&) override;
 

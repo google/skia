@@ -2379,6 +2379,16 @@ public:
         this->drawAnnotation(rect, key, value.get());
     }
 
+    /** Associate a node ID with subsequent drawing commands. In a tagged PDF,
+        the same node ID can appear in a tag in order to associate a
+        document's semantic structure tree with its content.
+
+        A node ID of zero indicates no node ID.
+
+        @param nodeId  The node ID for subsequent drawing commands
+     */
+    virtual void setNodeId(int nodeId);
+
     /** Returns true if clip is empty; that is, nothing will draw.
 
         May do work when called; it should not be called
