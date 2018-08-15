@@ -383,7 +383,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         path.setIsVolatile(true);
         path.addRect(rect);
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr, true);
+                                            this->clip(), path, paint, this->ctm(), true);
         return;
     }
 
@@ -443,7 +443,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         path.setIsVolatile(true);
         path.addRRect(rrect);
         GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), nullptr, true);
+                                            this->clip(), path, paint, this->ctm(), true);
         return;
     }
 
@@ -487,7 +487,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
     path.setFillType(SkPath::kEvenOdd_FillType);
 
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        path, paint, this->ctm(), nullptr, true);
+                                        path, paint, this->ctm(), true);
 }
 
 
@@ -497,7 +497,8 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
     if (paint.getMaskFilter()) {
         SkPath path;
         region.getBoundaryPath(&path);
-        return this->drawPath(path, paint, nullptr, false);
+        path.setIsVolatile(true);
+        return this->drawPath(path, paint, true);
     }
 
     GrPaint grPaint;
@@ -605,10 +606,10 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
 }
 
 void SkGpuDevice::drawPath(const SkPath& origSrcPath,
-                           const SkPaint& paint, const SkMatrix* prePathMatrix,
+                           const SkPaint& paint,
                            bool pathIsMutable) {
     ASSERT_SINGLE_OWNER
-    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect() && !prePathMatrix) {
+    if (!origSrcPath.isInverseFillType() && !paint.getPathEffect()) {
         SkPoint points[2];
         if (SkPaint::kStroke_Style == paint.getStyle() && paint.getStrokeWidth() > 0 &&
             !paint.getMaskFilter() && SkPaint::kRound_Cap != paint.getStrokeCap() &&
@@ -625,7 +626,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
     }
 
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawPath", fContext.get());
-    if (!prePathMatrix && !paint.getMaskFilter()) {
+    if (!paint.getMaskFilter()) {
         GrPaint grPaint;
         if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
                               this->ctm(), &grPaint)) {
@@ -636,8 +637,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
         return;
     }
     GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        origSrcPath, paint, this->ctm(), prePathMatrix,
-                                        pathIsMutable);
+                                        origSrcPath, paint, this->ctm(), pathIsMutable);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;

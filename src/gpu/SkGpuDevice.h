@@ -80,7 +80,7 @@ public:
     void drawArc(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle,
                  bool useCenter, const SkPaint& paint) override;
     void drawPath(const SkPath& path, const SkPaint& paint,
-                  const SkMatrix* prePathMatrix, bool pathIsMutable) override;
+                  bool pathIsMutable) override;
     void drawBitmap(const SkBitmap&, SkScalar x, SkScalar y,
                     const SkPaint&) override;
     void drawBitmapRect(const SkBitmap&, const SkRect* srcOrNull, const SkRect& dst,
