@@ -89,13 +89,17 @@ public:
         this->drawPath(src, paint, nullptr, false, !isHairline, customBlitter);
     }
 
+    static bool ComputeMaskBounds(const SkRect& devPathBounds, const SkIRect& clipBounds,
+                                  const SkMaskFilter* filter, const SkMatrix& filterMatrix,
+                                  SkIRect* bounds);
+
     /** Helper function that creates a mask from a path and an optional maskfilter.
         Note however, that the resulting mask will not have been actually filtered,
         that must be done afterwards (by calling filterMask). The maskfilter is provided
         solely to assist in computing the mask's bounds (if the mode requests that).
     */
-    static bool DrawToMask(const SkPath& devPath, const SkIRect* clipBounds,
-                           const SkMaskFilter*, const SkMatrix* filterMatrix,
+    static bool DrawToMask(const SkPath& devPath, const SkIRect& clipBounds,
+                           const SkMaskFilter*, const SkMatrix& filterMatrix,
                            SkMask* mask, SkMask::CreateMode mode,
                            SkStrokeRec::InitStyle style);
 

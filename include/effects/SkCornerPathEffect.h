@@ -25,8 +25,7 @@ public:
         return radius > 0 ? sk_sp<SkPathEffect>(new SkCornerPathEffect(radius)) : nullptr;
     }
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
+    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
     Factory getFactory() const override { return CreateProc; }
 

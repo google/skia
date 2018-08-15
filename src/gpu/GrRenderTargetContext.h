@@ -199,7 +199,14 @@ public:
                   GrAA,
                   const SkMatrix& viewMatrix,
                   const SkPath&,
-                  const GrStyle& style);
+                  const GrStyle&);
+
+    void drawShape(const GrClip&,
+                   GrPaint&&,
+                   GrAA,
+                   const SkMatrix& viewMatrix,
+                   const GrShape&);
+
 
     /**
      * Draws vertices with a paint.
