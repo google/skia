@@ -153,6 +153,15 @@ SkPath EMSCRIPTEN_KEEPALIVE NewPath() {
     return SkPath();
 }
 
+SkPath EMSCRIPTEN_KEEPALIVE CopyPath(const SkPath& a) {
+    SkPath copy(a);
+    return copy;
+}
+
+bool EMSCRIPTEN_KEEPALIVE Equals(const SkPath& a, const SkPath& b) {
+    return a == b;
+}
+
 //========================================================================================
 // SVG things
 //========================================================================================
@@ -324,7 +333,7 @@ void Path2DAddPath(SkPath& orig, const SkPath& newPath,
     orig.addPath(newPath, m);
 }
 
-JSString GetCanvasFillType(const SkPath& path) {
+JSString GetFillTypeString(const SkPath& path) {
     if (path.getFillType() == SkPath::FillType::kWinding_FillType) {
         return emscripten::val("nonzero");
     } else if (path.getFillType() == SkPath::FillType::kEvenOdd_FillType) {
@@ -389,6 +398,40 @@ SkPathOrNull PathEffectStroke(const SkPath& path, SkScalar width, SkPaint::Join 
 }
 
 //========================================================================================
+// Matrix things
+//========================================================================================
+
+struct SimpleMatrix {
+    SkScalar scaleX, skewX,  transX;
+    SkScalar skewY,  scaleY, transY;
+    SkScalar pers0,  pers1,  pers2;
+};
+
+SkMatrix toSkMatrix(const SimpleMatrix& sm) {
+    return SkMatrix::MakeAll(sm.scaleX, sm.skewX , sm.transX,
+                             sm.skewY , sm.scaleY, sm.transY,
+                             sm.pers0 , sm.pers1 , sm.pers2);
+}
+
+SkPathOrNull PathTransform(const SkPath& orig, const SimpleMatrix& sm) {
+    SkPath output;
+    orig.transform(toSkMatrix(sm), &output);
+    return emscripten::val(output);
+}
+
+SkPathOrNull PathTransform(const SkPath& orig,
+                   SkScalar scaleX, SkScalar skewX,  SkScalar transX,
+                   SkScalar skewY,  SkScalar scaleY, SkScalar transY,
+                   SkScalar pers0, SkScalar pers1, SkScalar pers2) {
+    SkMatrix m = SkMatrix::MakeAll(scaleX, skewX , transX,
+                                   skewY , scaleY, transY,
+                                   pers0 , pers1 , pers2);
+    SkPath output;
+    orig.transform(m, &output);
+    return emscripten::val(output);
+}
+
+//========================================================================================
 // Testing things
 //========================================================================================
 
@@ -413,6 +456,7 @@ float SkBits2FloatUnsigned(uint32_t floatAsBits) {
 EMSCRIPTEN_BINDINGS(skia) {
     class_<SkPath>("SkPath")
         .constructor<>()
+        .constructor<const SkPath&>()
 
         // Path2D API
         .function("addPath",
@@ -424,20 +468,20 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("arc",
             select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, bool)>(&Path2DAddArc))
         .function("arcTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::arcTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::arcTo))
         .function("bezierCurveTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
         .function("closePath", &SkPath::close)
         .function("ellipse",
             select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&Path2DAddEllipse))
         .function("ellipse",
             select_overload<void(SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, bool)>(&Path2DAddEllipse))
         .function("lineTo",
-            select_overload<void(SkScalar, SkScalar)>(&SkPath::lineTo))
+            select_overload<SkPath&(SkScalar, SkScalar)>(&SkPath::lineTo))
         .function("moveTo",
-            select_overload<void(SkScalar, SkScalar)>(&SkPath::moveTo))
+            select_overload<SkPath&(SkScalar, SkScalar)>(&SkPath::moveTo))
         .function("quadraticCurveTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
         .function("rect", &Path2DAddRect)
 
         // Some shorthand helpers, to mirror SkPath.cpp's API
@@ -447,24 +491,30 @@ EMSCRIPTEN_BINDINGS(skia) {
             select_overload<void(SkPath&, const SkPath&, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&Path2DAddPath))
         .function("close", &SkPath::close)
         .function("conicTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::conicTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::conicTo))
         .function("cubicTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::cubicTo))
         .function("quadTo",
-            select_overload<void(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
+            select_overload<SkPath&(SkScalar, SkScalar, SkScalar, SkScalar)>(&SkPath::quadTo))
 
         // Extra features
         .function("setFillType", &SkPath::setFillType)
         .function("getFillType", &SkPath::getFillType)
-        .function("getCanvasFillType", &GetCanvasFillType)
+        .function("getFillTypeString", &GetFillTypeString)
         .function("getBounds", &SkPath::getBounds)
         .function("computeTightBounds", &SkPath::computeTightBounds)
+        .function("equals", &Equals)
+        .function("copy", &CopyPath)
 
         // PathEffects
         .function("dash", &PathEffectDash)
         .function("trim", select_overload<SkPathOrNull(const SkPath&, SkScalar, SkScalar)>(&PathEffectTrim))
         .function("trim", select_overload<SkPathOrNull(const SkPath&, SkScalar, SkScalar, bool)>(&PathEffectTrim))
         .function("stroke", &PathEffectStroke)
+
+        // Matrix
+        .function("transform", select_overload<SkPathOrNull(const SkPath& orig, const SimpleMatrix& sm)>(&PathTransform))
+        .function("transform", select_overload<SkPathOrNull(const SkPath& orig, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar, SkScalar)>(&PathTransform))
 
         // PathOps
         .function("simplify", &SimplifyPath)
@@ -495,6 +545,7 @@ EMSCRIPTEN_BINDINGS(skia) {
     function("FromSVGString", &FromSVGString);
     function("FromCmds", &FromCmds);
     function("NewPath", &NewPath);
+    function("NewPath", &CopyPath);
     // Path2D is opaque, so we can't read in from it.
 
     // PathOps
@@ -543,7 +594,24 @@ EMSCRIPTEN_BINDINGS(skia) {
         .value("SQUARE", SkPaint::Cap::kSquare_Cap);
 
 
-    // coming soon - Matrix
+    // Matrix
+    // Allows clients to supply a 1D array of 9 elements and the bindings
+    // will automatically turn it into a 3x3 2D matrix.
+    // e.g. path.transform([0,1,2,3,4,5,6,7,8])
+    // This is likely simpler for the client than exposing SkMatrix
+    // directly and requiring them to do a lot of .delete().
+    value_array<SimpleMatrix>("SkMatrix")
+        .element(&SimpleMatrix::scaleX)
+        .element(&SimpleMatrix::skewX)
+        .element(&SimpleMatrix::transX)
+
+        .element(&SimpleMatrix::skewY)
+        .element(&SimpleMatrix::scaleY)
+        .element(&SimpleMatrix::transY)
+
+        .element(&SimpleMatrix::pers0)
+        .element(&SimpleMatrix::pers1)
+        .element(&SimpleMatrix::pers2);
 
     // Test Utils
     function("SkBits2FloatUnsigned", &SkBits2FloatUnsigned);
