@@ -63,7 +63,8 @@ static float solve_nice_cubic_halley(float A, float B, float C, float D) {
     C = 2.99999;
     D = -0.5;
 #endif
-    const int MAX_ITERS = 8;
+
+    const int MAX_ITERS = 16;
     const float A3 = 3 * A;
     const float B2 = B + B;
 
@@ -98,6 +99,49 @@ static float solve_nice_cubic_halley(float A, float B, float C, float D) {
     return t;
 }
 
+static float solve_nice_cubic_householder(float A, float B, float C, float D) {
+    const int MAX_ITERS = 16;
+    const float A3 = 3 * A;
+    const float B2 = B + B;
+
+    float t = guess_nice_cubic_root(A, B, C, D);
+    int iters = 0;
+    for (; iters < MAX_ITERS; ++iters) {
+        float f    = eval_poly3(A, B, C, D, t);     // f    = At^3 + Bt^2 + Ct + D
+        float fp   = eval_poly2(A3, B2, C, t);      // f'   = 3At^2 + 2Bt + C
+        float fpp  = eval_poly1(A3 + A3, B2, t);    // f''  = 6At + 2B
+        float fppp = A3 + A3;                       // f''' = 6A
+
+        float f2 = f * f;
+        float fp2 = fp * fp;
+
+//        float numer = 6 * f * fp * fp - 3 * f * f * fpp;
+//        float denom = 6 * fp * fp * fp - 6 * f * fp * fpp + f * f * fppp;
+
+        float numer = 6 * f * fp2 - 3 * f2 * fpp;
+        if (numer == 0) {
+            break;
+        }
+        float denom = 6 * (fp2 * fp - f * fp * fpp) + f2 * fppp;
+        float delta = numer / denom;
+        //      SkDebugf("[%d] delta %g t %g\n", iters, delta, t);
+        if (delta_nearly_zero(delta)) {
+            break;
+        }
+        float new_t = t - delta;
+        SkASSERT(valid(new_t));
+        t = new_t;
+    }
+    SkASSERT(valid(t));
+#ifdef CUBICMAP_TRACK_MAX_ERROR
+    if (iters > max_iters) {
+        max_iters = iters;
+        SkDebugf("max_iters %d\n", max_iters);
+    }
+#endif
+    return t;
+}
+
 #ifdef CUBICMAP_TRACK_MAX_ERROR
 static float compute_slow(float A, float B, float C, float x) {
     double roots[3];
@@ -113,7 +157,9 @@ static float compute_t_from_x(float A, float B, float C, float x) {
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float answer = compute_slow(A, B, C, x);
 #endif
-    float answer2 = solve_nice_cubic_halley(A, B, C, -x);
+    float answer2 = true ?
+                    solve_nice_cubic_halley(A, B, C, -x) :
+                    solve_nice_cubic_householder(A, B, C, -x);
 #ifdef CUBICMAP_TRACK_MAX_ERROR
     float err = sk_float_abs(answer - answer2);
     if (err > max_err) {
