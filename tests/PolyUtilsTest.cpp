@@ -128,8 +128,8 @@ DEF_TEST(PolyUtils, reporter) {
     }
     REPORTER_ASSERT(reporter, SkGetPolygonWinding(poly.begin(), poly.count()) < 0);
     REPORTER_ASSERT(reporter, SkIsConvexPolygon(poly.begin(), poly.count()));
-    // These can't handle coincident vertices
-    REPORTER_ASSERT(reporter, !SkIsSimplePolygon(poly.begin(), poly.count()));
+    REPORTER_ASSERT(reporter, SkIsSimplePolygon(poly.begin(), poly.count()));
+    // This can't handle coincident vertices
     triangleIndices.rewind();
     REPORTER_ASSERT(reporter, !SkTriangulateSimplePolygon(poly.begin(), indexMap, poly.count(),
                                                           &triangleIndices));
