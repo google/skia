@@ -106,11 +106,11 @@ static void iter_paint(skiatest::Reporter* reporter, const SkPath& path, bool sh
 
 static void make_empty(SkPath*) {}
 static void make_M(SkPath* path) { path->moveTo(CX, CY); }
-static void make_MM(SkPath* path) { path->moveTo(CX, CY); path->moveTo(CX, CY); }
-static void make_MZM(SkPath* path) { path->moveTo(CX, CY); path->close(); path->moveTo(CX, CY); }
-static void make_L(SkPath* path) { path->moveTo(CX, CY); path->lineTo(CX, CY); }
-static void make_Q(SkPath* path) { path->moveTo(CX, CY); path->quadTo(CX, CY, CX, CY); }
-static void make_C(SkPath* path) { path->moveTo(CX, CY); path->cubicTo(CX, CY, CX, CY, CX, CY); }
+static void make_MM(SkPath* path) { path->moveTo(CX, CY).moveTo(CX, CY); }
+static void make_MZM(SkPath* path) { path->moveTo(CX, CY).close().moveTo(CX, CY); }
+static void make_L(SkPath* path) { path->moveTo(CX, CY).lineTo(CX, CY); }
+static void make_Q(SkPath* path) { path->moveTo(CX, CY).quadTo(CX, CY, CX, CY); }
+static void make_C(SkPath* path) { path->moveTo(CX, CY).cubicTo(CX, CY, CX, CY, CX, CY); }
 
 /*  Two invariants are tested: How does an empty/degenerate path draw?
  *  - if the path is drawn inverse, it should draw everywhere

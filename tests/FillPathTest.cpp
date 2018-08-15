@@ -37,11 +37,11 @@ DEF_TEST(FillPathInverse, reporter) {
     int width  = 200;
     int expected_lines = 5;
     clip.set(0, height - expected_lines, width, height);
-    path.moveTo(0.0f, 0.0f);
-    path.quadTo(SkIntToScalar(width/2), SkIntToScalar(height),
-              SkIntToScalar(width), 0.0f);
-    path.close();
-    path.setFillType(SkPath::kInverseWinding_FillType);
+    path.moveTo(0.0f, 0.0f)
+        .quadTo(SkIntToScalar(width/2), SkIntToScalar(height),
+              SkIntToScalar(width), 0.0f)
+        .close()
+        .setFillType(SkPath::kInverseWinding_FillType);
     SkScan::FillPath(path, clip, &blitter);
 
     REPORTER_ASSERT(reporter, blitter.m_blitCount == expected_lines);

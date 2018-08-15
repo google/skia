@@ -121,12 +121,9 @@ static void test_crbug_140803() {
     bm.allocN32Pixels(2700, 30*1024);
     SkCanvas canvas(bm);
 
-    SkPath path;
-    path.moveTo(2762, 20);
-    path.quadTo(11, 21702, 10, 21706);
     SkPaint paint;
     paint.setAntiAlias(true);
-    canvas.drawPath(path, paint);
+    canvas.drawPath(SkPath().moveTo(2762, 20).quadTo(11, 21702, 10, 21706), paint);
 }
 
 // Need to exercise drawing an inverse-path whose bounds intersect the clip,
