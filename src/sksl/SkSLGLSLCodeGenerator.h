@@ -74,10 +74,12 @@ public:
     };
 
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      OutputStream* out)
+                      OutputStream* out,
+                      const GrDriverBugWorkarounds* workarounds = nullptr)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context) {}
+    , fContext(*context)
+    , fWorkarounds(workarounds) {}
 
     bool generateCode() override;
 
@@ -196,6 +198,7 @@ protected:
 
     const char* fLineEnding;
     const Context& fContext;
+    const GrDriverBugWorkarounds* fWorkarounds;
     StringStream fExtensions;
     StringStream fGlobals;
     StringStream fExtraFunctions;

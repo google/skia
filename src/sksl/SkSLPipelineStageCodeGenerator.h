@@ -19,7 +19,8 @@ class PipelineStageCodeGenerator : public GLSLCodeGenerator {
 public:
     PipelineStageCodeGenerator(const Context* context, const Program* program,
                                ErrorReporter* errors, OutputStream* out,
-                               std::vector<Compiler::FormatArg>* outFormatArgs);
+                               std::vector<Compiler::FormatArg>* outFormatArgs,
+                               const GrDriverBugWorkarounds* workarounds = nullptr);
 
 private:
     void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);

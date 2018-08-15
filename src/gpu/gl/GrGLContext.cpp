@@ -83,7 +83,7 @@ GrGLContext::~GrGLContext() {
 
 SkSL::Compiler* GrGLContext::compiler() const {
     if (!fCompiler) {
-        fCompiler = new SkSL::Compiler();
+        fCompiler = new SkSL::Compiler(SkSL::Compiler::kNone_Flags, &fGLCaps->workarounds());
     }
     return fCompiler;
 }

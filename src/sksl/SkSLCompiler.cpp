@@ -62,8 +62,9 @@ static const char* SKSL_PIPELINE_STAGE_INCLUDE =
 
 namespace SkSL {
 
-Compiler::Compiler(Flags flags)
+Compiler::Compiler(Flags flags, const GrDriverBugWorkarounds* workarounds)
 : fFlags(flags)
+, fWorkarounds(workarounds)
 , fContext(new Context())
 , fErrorCount(0) {
     auto types = std::shared_ptr<SymbolTable>(new SymbolTable(this));
@@ -1356,7 +1357,7 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
+    GLSLCodeGenerator cg(fContext.get(), &program, this, &out, fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;
@@ -1397,7 +1398,8 @@ bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
+    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out,
+                        fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;
@@ -1419,7 +1421,8 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer,
+                                  outFormatArgs, fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {
