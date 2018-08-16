@@ -152,6 +152,9 @@ void SkPathWriter::quadTo(const SkPoint& pt1, const SkOpPtT* pt2) {
     fCurrent.quadTo(pt1, pt2->fPt);
 }
 
+// to do: if pt matchedList(first pt in contour) is true, write that instead to avoid degenerate
+// line when contour is closed
+// will need to make pt non-const, read pt[0] out of path, and if it matches, write pt->fPt
 void SkPathWriter::update(const SkOpPtT* pt) {
     if (!fDefer[1]) {
         this->moveTo();
@@ -183,6 +186,46 @@ public:
         return fDistances[one] < fDistances[two];
     }
 };
+
+// if path start is the same point as last of path, omit it
+static void extend_path(const SkPath& path, SkPath* prior) {
+    SkPoint priorLast;
+    if (!prior->getLastPt(&priorLast)) {
+        *prior = path;
+        return;
+    }
+    SkPath::RawIter iter(path);
+    SkPoint pts[4];
+    SkAssertResult(SkPath::kMove_Verb == iter.next(pts));
+    if (priorLast != pts[0]) {
+        prior->lineTo(pts[0]);
+    }
+    SkPath::Verb verb;
+    while (SkPath::kDone_Verb != (verb = iter.next(pts))) {
+        switch (verb) {
+            case SkPath::kMove_Verb:
+                prior->moveTo(pts[0]);
+                break;
+            case SkPath::kLine_Verb:
+                prior->lineTo(pts[1]);
+                break;
+            case SkPath::kQuad_Verb:
+                prior->quadTo(pts[1], pts[2]);
+                break;
+            case SkPath::kConic_Verb:
+                prior->conicTo(pts[1], pts[2], iter.conicWeight());
+                break;
+            case SkPath::kCubic_Verb:
+                prior->cubicTo(pts[1], pts[2], pts[3]);
+                break;
+            case SkPath::kClose_Verb:
+                prior->close();
+                break;
+            default:
+                SkASSERT(0);
+        }
+    }
+}
 
     /*
         check start and end of each contour
@@ -250,11 +293,11 @@ void SkPathWriter::assemble() {
         SkPath& partial = const_cast<SkPath&>(fPartials[pIndex >> 1]);
         const SkPath& part = partPartials[0];
         if (pIndex & 1) {
-            partial.addPath(part, SkPath::kExtend_AddPathMode);
+            extend_path(part, &partial);
         } else {
             SkPath reverse;
             reverse.reverseAddPath(part);
-            reverse.addPath(partial, SkPath::kExtend_AddPathMode);
+            extend_path(partial, &reverse);
             partial = reverse;
         }
     }
@@ -362,8 +405,11 @@ void SkPathWriter::assemble() {
                 }
             }
             if (forward) {
-                fPathPtr->addPath(contour,
-                        first ? SkPath::kAppend_AddPathMode : SkPath::kExtend_AddPathMode);
+                if (first) {
+                    fPathPtr->addPath(contour, SkPath::kAppend_AddPathMode);
+                } else {
+                    extend_path(contour, fPathPtr);
+                }
             } else {
                 SkASSERT(!first);
                 fPathPtr->reversePathTo(contour);
