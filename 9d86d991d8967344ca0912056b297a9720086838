@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a3592b76_9bc450e7",
+        "filename": "include/pathops/SkPathOps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T15:22:10Z",
+      "side": 1,
+      "message": "Above the documentation for Op states that \"The result may be one of the inputs.\" The doc here should specify what happens when \u0027result\u0027 is pointing at \u0027path\u0027. It may be fairly common when using this method to not care about the original path after creating the winding version.",
+      "range": {
+        "startLine": 76,
+        "startChar": 5,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "9d86d991d8967344ca0912056b297a9720086838",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
