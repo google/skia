@@ -111,7 +111,7 @@ protected:
             // init our new canvas with the old canvas's matrix
             canvas->setMatrix(inputCanvas->getTotalMatrix());
         }
-        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
+        canvas->drawColor(SK_ColorWHITE);
 
         SkRect bounds = fBlob->bounds();
 
@@ -125,7 +125,7 @@ protected:
 
         SkPaint paint;
         if (!fUseDFT) {
-            paint.setColor(sk_tool_utils::color_to_565(SK_ColorWHITE));
+            paint.setColor(SK_ColorWHITE);
         }
         paint.setAntiAlias(false);
 
@@ -133,7 +133,7 @@ protected:
 
         // setup blur paint
         SkPaint blurPaint(paint);
-        blurPaint.setColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
+        blurPaint.setColor(SK_ColorBLACK);
         blurPaint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, kSigma));
 
         for (int i = 0; i < 4; i++) {

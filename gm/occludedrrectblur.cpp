@@ -223,7 +223,7 @@ namespace skiagm {
 class OccludedRRectBlurGM : public GM {
 public:
     OccludedRRectBlurGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
@@ -249,7 +249,7 @@ protected:
             // TODO: remove this. Until we actually start skipping the middle draw we need this
             // to provide contrast
             SkPaint temp;
-            temp.setColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+            temp.setColor(0xFFCCCCCC);
             r.inset(32, 32);
             canvas->drawRect(offset_center_to(r, center.fX, center.fY), temp);
 #endif

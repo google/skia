@@ -6,11 +6,11 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
+#include "SkGeometry.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPoint.h"
-#include "SkGeometry.h"
+#include "SkRandom.h"
 #include <math.h>
 
 namespace skiagm {
@@ -139,7 +139,7 @@ private:
 class SliverPathsGM : public GM {
 public:
     SliverPathsGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(SK_ColorBLACK));
+        this->setBGColor(SK_ColorBLACK);
     }
 
 protected:

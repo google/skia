@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkPath.h"
 #include "SkRandom.h"
 #include "SkRRect.h"
@@ -17,7 +16,7 @@ namespace skiagm {
 class NestedGM : public GM {
 public:
     NestedGM(bool doAA, bool flipped) : fDoAA(doAA), fFlipped(flipped) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:

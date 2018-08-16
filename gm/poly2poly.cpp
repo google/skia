@@ -205,7 +205,7 @@ protected:
         matrix.setPolyToPoly(src, dst, count);
         canvas->concat(matrix);
 
-        paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        paint->setColor(SK_ColorGRAY);
         paint->setStyle(SkPaint::kStroke_Style);
         const SkScalar D = 64;
         canvas->drawRect(SkRect::MakeWH(D, D), *paint);

@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkRegion.h"
 
 // This GM exercises the use case found in crbug.com/423834.
@@ -37,8 +36,7 @@ static void Draw(SkCanvas* canvas, const SkRect& rect) {
         canvas->restore();
 }
 
-DEF_SIMPLE_GM_BG(clipdrawdraw, canvas, 512, 512,
-                 sk_tool_utils::color_to_565(0xFFCCCCCC)) {
+DEF_SIMPLE_GM_BG(clipdrawdraw, canvas, 512, 512, 0xFFCCCCCC) {
         // Vertical remnant
         const SkRect rect1 = SkRect::MakeLTRB(136.5f, 137.5f, 338.5f, 293.5f);
 

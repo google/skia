@@ -79,7 +79,7 @@ protected:
 
         SkBitmap opaqueDiffuseMap = sk_tool_utils::create_checkerboard_bitmap(
                 kTexSize, kTexSize, SK_ColorBLACK,
-                sk_tool_utils::color_to_565(0xFF808080),
+                0xFF808080,
                 8);
         fOpaqueDiffuse = SkShader::MakeBitmapShader(opaqueDiffuseMap, SkShader::kClamp_TileMode,
                                                     SkShader::kClamp_TileMode, &matrix);
