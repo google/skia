@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 
 namespace skiagm {
@@ -170,7 +169,7 @@ constexpr GradMaker gGradMakers4f[] ={
 class GradientsGM : public GM {
 public:
     GradientsGM(bool dither) : fDither(dither) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -226,7 +225,7 @@ DEF_GM( return new GradientsGM(false); )
 class Gradients4fGM : public GM {
 public:
     Gradients4fGM(bool dither) : fDither(dither) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -283,7 +282,7 @@ DEF_GM(return new Gradients4fGM(false); )
 class GradientsLocalPerspectiveGM : public GM {
 public:
     GradientsLocalPerspectiveGM(bool dither) : fDither(dither) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -471,7 +470,7 @@ protected:
     virtual SkISize onISize() { return SkISize::Make(640, 510); }
 
     void drawBG(SkCanvas* canvas) {
-        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        canvas->drawColor(0xFFDDDDDD);
     }
 
     virtual void onDraw(SkCanvas* canvas) {

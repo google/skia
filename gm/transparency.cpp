@@ -8,7 +8,6 @@
 #include "SkGradientShader.h"
 #include "SkSurface.h"
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 static void make_transparency(SkCanvas* canvas, SkScalar width, SkScalar height) {
     SkPoint pts[2];
@@ -59,8 +58,7 @@ static void checkerboard(SkCanvas* canvas, SkColor c1, SkColor c2, int size) {
  *  checkerboard pattern looks correct.
  */
 DEF_SIMPLE_GM(transparency_check, canvas, 1792, 1080) {
-    checkerboard(canvas, sk_tool_utils::color_to_565(0xFF999999),
-            sk_tool_utils::color_to_565(0xFF666666), 8);
+    checkerboard(canvas, 0xFF999999, 0xFF666666, 8);
     {
         SkAutoCanvasRestore autoCanvasRestore(canvas, true);
         auto surface(SkSurface::MakeRasterN32Premul(256, 9));

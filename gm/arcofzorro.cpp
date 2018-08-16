@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkRandom.h"
 
 namespace skiagm {
@@ -17,7 +16,7 @@ namespace skiagm {
 class ArcOfZorroGM : public GM {
 public:
     ArcOfZorroGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkGraphics.h"
@@ -47,7 +46,7 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->drawColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        canvas->drawColor(0xFFCCCCCC);
 
         const SkIRect src[] = {
             { 0, 0, 32, 32 },

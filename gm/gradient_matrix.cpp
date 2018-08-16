@@ -18,7 +18,6 @@
 #include "SkString.h"
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 constexpr SkColor gColors[] = {
     SK_ColorRED, SK_ColorYELLOW
@@ -109,8 +108,7 @@ static void draw_gradients(SkCanvas* canvas,
     canvas->restore();
 }
 
-DEF_SIMPLE_GM_BG(gradient_matrix, canvas, 800, 800,
-                 sk_tool_utils::color_to_565(0xFFDDDDDD)) {
+DEF_SIMPLE_GM_BG(gradient_matrix, canvas, 800, 800, 0xFFDDDDDD) {
         draw_gradients(canvas, &make_linear_gradient,
                       linearPts, SK_ARRAY_COUNT(linearPts));
 

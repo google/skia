@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurDrawLooper.h"
 #include "SkBlurMask.h"
 #include "SkColorFilter.h"
@@ -35,7 +34,7 @@ public:
 
 protected:
     void onOnceBeforeDraw() override {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
         fCirclePath.addCircle(SkIntToScalar(20), SkIntToScalar(20), SkIntToScalar(10) );
         fRect.set(SkIntToScalar(10), SkIntToScalar(10),
                   SkIntToScalar(30), SkIntToScalar(30));

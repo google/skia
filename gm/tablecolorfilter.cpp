@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkColorFilterImageFilter.h"
 #include "SkGradientShader.h"
@@ -111,7 +110,7 @@ protected:
     }
 
     virtual void onDraw(SkCanvas* canvas) {
-        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        canvas->drawColor(0xFFDDDDDD);
         canvas->translate(20, 20);
 
 
@@ -224,7 +223,7 @@ protected:
         SkBitmap bm;
         make_bm1(&bm);
 
-        canvas->drawColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        canvas->drawColor(0xFFDDDDDD);
 
         const int MODES = MODE_COUNT * COLOR_COUNT;
         sk_sp<SkColorFilter> filters[MODES];

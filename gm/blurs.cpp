@@ -13,7 +13,7 @@
 #include "SkMaskFilter.h"
 #include "SkPath.h"
 
-DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, sk_tool_utils::color_to_565(0xFFDDDDDD)) {
+DEF_SIMPLE_GM_BG(blurs, canvas, 700, 500, 0xFFDDDDDD) {
         SkBlurStyle NONE = SkBlurStyle(-999);
         const struct {
             SkBlurStyle fStyle;

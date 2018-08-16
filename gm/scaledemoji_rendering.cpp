@@ -39,7 +39,7 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
 
-        canvas->drawColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        canvas->drawColor(SK_ColorGRAY);
         SkScalar y = 0;
 
         for (const auto& typeface: typefaces) {
