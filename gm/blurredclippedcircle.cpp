@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkClipOpPriv.h"
 #include "SkColorFilter.h"
 #include "SkMaskFilter.h"
@@ -20,7 +19,7 @@ namespace skiagm {
 class BlurredClippedCircleGM : public GM {
 public:
     BlurredClippedCircleGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

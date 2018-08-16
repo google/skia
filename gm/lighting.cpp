@@ -48,9 +48,9 @@ protected:
     }
 
     void onDraw(SkCanvas* canvas) override {
-        canvas->clear(sk_tool_utils::color_to_565(0xFF101010));
+        canvas->clear(0xFF101010);
         SkPaint checkPaint;
-        checkPaint.setColor(sk_tool_utils::color_to_565(0xFF202020));
+        checkPaint.setColor(0xFF202020);
         for (int y = 0; y < HEIGHT; y += 16) {
           for (int x = 0; x < WIDTH; x += 16) {
             canvas->save();

@@ -25,7 +25,7 @@ static SkBitmap make_bmp(int w, int h) {
 
     SkScalar    radius = 3 * SkMaxScalar(wScalar, hScalar);
 
-    SkColor     colors[] = { sk_tool_utils::color_to_565(SK_ColorDKGRAY),
+    SkColor     colors[] = { SK_ColorDKGRAY,
                              sk_tool_utils::color_to_565(0xFF222255),
                              sk_tool_utils::color_to_565(0xFF331133),
                              sk_tool_utils::color_to_565(0xFF884422),
@@ -60,7 +60,7 @@ static SkBitmap make_bmp(int w, int h) {
     sk_tool_utils::set_portable_typeface(&paint);
     paint.setTextSize(wScalar / 2.2f);
     paint.setShader(nullptr);
-    paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+    paint.setColor(SK_ColorLTGRAY);
     constexpr char kTxt[] = "Skia";
     SkPoint texPos = { wScalar / 17, hScalar / 2 + paint.getTextSize() / 2.5f };
     canvas.drawText(kTxt, SK_ARRAY_COUNT(kTxt)-1, texPos.fX, texPos.fY, paint);
@@ -152,7 +152,7 @@ protected:
         txtPaint.setTextSize(23.f);
         txtPaint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&txtPaint);
-        txtPaint.setColor(sk_tool_utils::color_to_565(SK_ColorDKGRAY));
+        txtPaint.setColor(SK_ColorDKGRAY);
         SkScalar textW = txtPaint.measureText(kTxt, SK_ARRAY_COUNT(kTxt)-1);
 
         SkScalar startX = 0;

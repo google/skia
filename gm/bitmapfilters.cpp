@@ -74,7 +74,7 @@ public:
     SkBitmap    fBM4444, fBM16, fBM32;
 
     FilterGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:

@@ -83,9 +83,9 @@ protected:
         SkCanvas canvas(fCheckerboard);
         canvas.clear(SK_ColorTRANSPARENT);
         SkPaint darkPaint;
-        darkPaint.setColor(sk_tool_utils::color_to_565(0xFF404040));
+        darkPaint.setColor(0xFF404040);
         SkPaint lightPaint;
-        lightPaint.setColor(sk_tool_utils::color_to_565(0xFFA0A0A0));
+        lightPaint.setColor(0xFFA0A0A0);
         for (int y = 0; y < 80; y += 16) {
             for (int x = 0; x < 80; x += 16) {
                 canvas.save();
