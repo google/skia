@@ -20,7 +20,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v2'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/docker/test_pathkit.sh'
 
 
