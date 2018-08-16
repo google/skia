@@ -34,7 +34,9 @@ public:
      *  @return The new blur maskfilter
      */
     static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma, const SkRect& occluder,
-                                        bool respectCTM = true);
+                                        bool respectCTM = true) {
+        return MakeBlur(style, sigma, respectCTM);
+    }
     static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
                                         bool respectCTM = true);
 
