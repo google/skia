@@ -169,7 +169,8 @@ describe('PathKit\'s PathOps Behavior', function() {
                             }
                             expected.delete();
                         }
-                        combined.delete();
+                        // combined ==== path1
+                        // combined.delete();
                         path1.delete();
                         path2.delete();
                     }
@@ -222,7 +223,8 @@ describe('PathKit\'s PathOps Behavior', function() {
                             }
                             expected.delete();
                         }
-                        simplified.delete();
+                        // simplified === path
+                        // simplified.delete();
                         path.delete();
                     }
                     done();

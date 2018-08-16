@@ -43,7 +43,7 @@ fi
 
 # Use -O0 for larger builds (but generally quicker)
 # Use -Oz for (much slower, but smaller/faster) production builds
-export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/helper_externs.js "
+export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
 RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1 --llvm-lto 3"
 if [[ $@ == *test* ]]; then
   echo "Building a Testing/Profiling build"
@@ -85,6 +85,7 @@ em++ $RELEASE_CONF -std=c++14 \
 -Isrc/utils \
 --bind \
 --pre-js $BASE_DIR/helper.js \
+--pre-js $BASE_DIR/chaining.js \
 -DWEB_ASSEMBLY=1 \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \
