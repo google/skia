@@ -22,6 +22,30 @@
       "revId": "9d86d991d8967344ca0912056b297a9720086838",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9afb158a_02bab8d3",
+        "filename": "include/pathops/SkPathOps.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-08-16T15:55:37Z",
+      "side": 1,
+      "message": "Good point. Updated documentation, code, and test to allow the result to be the input.",
+      "parentUuid": "a3592b76_9bc450e7",
+      "range": {
+        "startLine": 76,
+        "startChar": 5,
+        "endLine": 76,
+        "endChar": 17
+      },
+      "revId": "9d86d991d8967344ca0912056b297a9720086838",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
