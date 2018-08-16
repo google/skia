@@ -77,8 +77,8 @@ sk_sp<SkFlattenable> Dot2DPathEffect::CreateProc(SkReadBuffer& buffer) {
 class InverseFillPE : public SkPathEffect {
 public:
     InverseFillPE() {}
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override {
+    virtual bool onFilterPath(SkPath* dst, const SkPath& src,
+                              SkStrokeRec*, const SkRect*) const override {
         *dst = src;
         dst->setFillType(SkPath::kInverseWinding_FillType);
         return true;

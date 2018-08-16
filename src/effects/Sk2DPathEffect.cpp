@@ -18,8 +18,8 @@ Sk2DPathEffect::Sk2DPathEffect(const SkMatrix& mat) : fMatrix(mat) {
     fMatrixIsInvertible = fMatrix.invert(&fInverse);
 }
 
-bool Sk2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                SkStrokeRec*, const SkRect*) const {
+bool Sk2DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                  SkStrokeRec*, const SkRect*) const {
     if (!fMatrixIsInvertible) {
         return false;
     }
@@ -76,8 +76,8 @@ void Sk2DPathEffect::flatten(SkWriteBuffer& buffer) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool SkLine2DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec* rec, const SkRect* cullRect) const {
+bool SkLine2DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                      SkStrokeRec* rec, const SkRect* cullRect) const {
     if (this->INHERITED::filterPath(dst, src, rec, cullRect)) {
         rec->setStrokeStyle(fWidth);
         return true;
