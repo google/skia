@@ -51,7 +51,7 @@ bench_sources = [
   "$_bench/GeometryBench.cpp",
   "$_bench/GMBench.cpp",
   "$_bench/GradientBench.cpp",
-  "$_bench/GrCCGeometryBench.cpp",
+  "$_bench/GrCCFillGeometryBench.cpp",
   "$_bench/GrMemoryPoolBench.cpp",
   "$_bench/GrMipMapBench.cpp",
   "$_bench/GrResourceCacheBench.cpp",
