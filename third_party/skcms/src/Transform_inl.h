@@ -869,6 +869,26 @@ static void exec_ops(const Op* ops, const void** args,
             case Op_table_16_b:{ b = table_16((const skcms_Curve*)*args++, b); } break;
             case Op_table_16_a:{ a = table_16((const skcms_Curve*)*args++, a); } break;
 
+            case Op_clut_1D_8:{
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
+                clut_1_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+            } break;
+
+            case Op_clut_1D_16:{
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
+                clut_1_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+            } break;
+
+            case Op_clut_2D_8:{
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
+                clut_2_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+            } break;
+
+            case Op_clut_2D_16:{
+                const skcms_A2B* a2b = (const skcms_A2B*) *args++;
+                clut_2_16(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
+            } break;
+
             case Op_clut_3D_8:{
                 const skcms_A2B* a2b = (const skcms_A2B*) *args++;
                 clut_3_8(a2b, cast<I32>(F0),cast<I32>(F1), &r,&g,&b,a);
