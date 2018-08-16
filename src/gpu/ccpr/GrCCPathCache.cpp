@@ -9,7 +9,6 @@
 
 #include "GrShape.h"
 #include "SkNx.h"
-#include "ccpr/GrCCPathParser.h"
 
 // The maximum number of cache entries we allow in our own cache.
 static constexpr int kMaxCacheCount = 1 << 16;
