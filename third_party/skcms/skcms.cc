@@ -1782,6 +1782,10 @@ typedef enum {
     Op_table_16_b,
     Op_table_16_a,
 
+    Op_clut_1D_8,
+    Op_clut_1D_16,
+    Op_clut_2D_8,
+    Op_clut_2D_16,
     Op_clut_3D_8,
     Op_clut_3D_16,
     Op_clut_4D_8,
@@ -2133,6 +2137,8 @@ bool skcms_Transform(const void*             src,
                     }
                 }
                 switch (srcProfile->A2B.input_channels) {
+                    case 1: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_1D_8 : Op_clut_1D_16; break;
+                    case 2: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_2D_8 : Op_clut_2D_16; break;
                     case 3: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_3D_8 : Op_clut_3D_16; break;
                     case 4: *ops++ = srcProfile->A2B.grid_8 ? Op_clut_4D_8 : Op_clut_4D_16; break;
                     default: return false;
