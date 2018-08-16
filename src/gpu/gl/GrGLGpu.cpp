@@ -2611,10 +2611,9 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
         fHWBlendState.fEnabled = kYes_TriState;
     }
 
-    if (!fHWBlendState.fEquationValid || fHWBlendState.fEquation != equation) {
+    if (fHWBlendState.fEquation != equation) {
         GL_CALL(BlendEquation(gXfermodeEquation2Blend[equation]));
         fHWBlendState.fEquation = equation;
-        fHWBlendState.fEquationValid = true;
     }
 
     if (GrBlendEquationIsAdvanced(equation)) {
@@ -2623,13 +2622,11 @@ void GrGLGpu::flushBlend(const GrXferProcessor::BlendInfo& blendInfo, const GrSw
         return;
     }
 
-    if (!fHWBlendState.fCoeffsValid || fHWBlendState.fSrcCoeff != srcCoeff
-                                    || fHWBlendState.fDstCoeff != dstCoeff) {
+    if (fHWBlendState.fSrcCoeff != srcCoeff || fHWBlendState.fDstCoeff != dstCoeff) {
         GL_CALL(BlendFunc(gXfermodeCoeff2Blend[srcCoeff],
                           gXfermodeCoeff2Blend[dstCoeff]));
         fHWBlendState.fSrcCoeff = srcCoeff;
         fHWBlendState.fDstCoeff = dstCoeff;
-        fHWBlendState.fCoeffsValid = true;
     }
 
     if ((BlendCoeffReferencesConstant(srcCoeff) || BlendCoeffReferencesConstant(dstCoeff))) {

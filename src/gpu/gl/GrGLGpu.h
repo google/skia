@@ -550,17 +550,13 @@ private:
         GrBlendCoeff    fSrcCoeff;
         GrBlendCoeff    fDstCoeff;
         GrColor         fConstColor;
-
-        bool            fEquationValid;
-        bool            fCoeffsValid;
         bool            fConstColorValid;
-        /* there's a spare byte here */
-
         TriState        fEnabled;
 
         void invalidate() {
-            fEquationValid   = false;
-            fCoeffsValid     = false;
+            fEquation = static_cast<GrBlendEquation>(-1);
+            fSrcCoeff = static_cast<GrBlendCoeff>(-1);
+            fDstCoeff = static_cast<GrBlendCoeff>(-1);
             fConstColorValid = false;
             fEnabled = kUnknown_TriState;
         }
