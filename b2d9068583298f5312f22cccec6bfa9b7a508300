@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c8cc5d71_984bf2c7",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-16T22:01:33Z",
+      "side": 1,
+      "message": "My understanding is Bodymovin exports a series of \"glyphs\" (arbitrary paths/shapes) corresponding to text string \"chars\": https://github.com/airbnb/lottie-web/wiki/Text\n\nSo one \"glyph\" could represent N codepoints, but we\u0027re still left with a many-to-one problem.\n\nSince this is not being used at the moment, removing pending clarification.",
+      "parentUuid": "f0d77a10_ef843aa1",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 50
+      },
+      "revId": "b2d9068583298f5312f22cccec6bfa9b7a508300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "6e41d39a_9f686a4c",
         "filename": "modules/skottie/src/SkottieTextLayer.cpp",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-16T21:28:26Z",
       "side": 1,
       "message": "Maybe I\u0027m just super confused by the term \u0027jglyph\u0027 which might be better termed \u0027jchars\u0027?",
+      "range": {
+        "startLine": 178,
+        "startChar": 47,
+        "endLine": 178,
+        "endChar": 53
+      },
+      "revId": "b2d9068583298f5312f22cccec6bfa9b7a508300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "89c1bbf0_8ea3fa62",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-16T22:01:33Z",
+      "side": 1,
+      "message": "Yeah, I started off thinking the property is called \"glyphs\".  Renamed.",
+      "parentUuid": "6e41d39a_9f686a4c",
       "range": {
         "startLine": 178,
         "startChar": 47,
