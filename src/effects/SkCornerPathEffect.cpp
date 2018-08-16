@@ -35,8 +35,8 @@ static bool ComputeStep(const SkPoint& a, const SkPoint& b, SkScalar radius,
     }
 }
 
-bool SkCornerPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                    SkStrokeRec*, const SkRect*) const {
+bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                      SkStrokeRec*, const SkRect*) const {
     if (fRadius <= 0) {
         return false;
     }

@@ -1152,17 +1152,21 @@ void test_path_effect_makes_rrect(skiatest::Reporter* reporter, const Geo& geo) 
             return kRRect;
         }
 
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new RRectPathEffect); }
+        Factory getFactory() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             dst->reset();
             dst->addRRect(RRect());
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = RRect().getBounds();
+
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            return RRect().getBounds();
         }
-        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new RRectPathEffect); }
-        Factory getFactory() const override { return nullptr; }
+
     private:
         RRectPathEffect() {}
     };
@@ -1229,8 +1233,12 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
      */
     class AddLineTosPathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
+        Factory getFactory() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             *dst = src;
             // To avoid triggering data-based keying of paths with few verbs we add many segments.
             for (int i = 0; i < 100; ++i) {
@@ -1238,13 +1246,12 @@ void test_unknown_path_effect(skiatest::Reporter* reporter, const Geo& geo) {
             }
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = src;
-            SkRectPriv::GrowToInclude(dst, {0, 0});
-            SkRectPriv::GrowToInclude(dst, {100, 100});
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            SkRect dst = src;
+            SkRectPriv::GrowToInclude(&dst, {0, 0});
+            SkRectPriv::GrowToInclude(&dst, {100, 100});
+            return dst;
         }
-        static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new AddLineTosPathEffect); }
-        Factory getFactory() const override { return nullptr; }
     private:
         AddLineTosPathEffect() {}
     };
@@ -1270,17 +1277,18 @@ void test_make_hairline_path_effect(skiatest::Reporter* reporter, const Geo& geo
      */
     class MakeHairlinePathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
-                        const SkRect* cullR) const override {
-            *dst = src;
-            strokeRec->setHairlineStyle();
-            return true;
-        }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override { *dst = src; }
         static sk_sp<SkPathEffect> Make() {
             return sk_sp<SkPathEffect>(new MakeHairlinePathEffect);
         }
         Factory getFactory() const override { return nullptr; }
+
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* strokeRec,
+                          const SkRect* cullR) const override {
+            *dst = src;
+            strokeRec->setHairlineStyle();
+            return true;
+        }
     private:
         MakeHairlinePathEffect() {}
     };
@@ -1351,21 +1359,22 @@ void test_path_effect_makes_empty_shape(skiatest::Reporter* reporter, const Geo&
      */
     class EmptyPathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
+        static sk_sp<SkPathEffect> Make(bool invert) {
+            return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
+        }
+        Factory getFactory() const override { return nullptr; }
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
             dst->reset();
             if (fInvert) {
                 dst->toggleInverseFillType();
             }
             return true;
         }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            dst->setEmpty();
+        SkRect onComputeFastBounds(const SkRect& src) const override {
+            return { 0, 0, 0, 0 };
         }
-        static sk_sp<SkPathEffect> Make(bool invert) {
-            return sk_sp<SkPathEffect>(new EmptyPathEffect(invert));
-        }
-        Factory getFactory() const override { return nullptr; }
     private:
         bool fInvert;
         EmptyPathEffect(bool invert) : fInvert(invert) {}
@@ -1437,15 +1446,13 @@ void test_path_effect_fails(skiatest::Reporter* reporter, const Geo& geo) {
      */
     class FailurePathEffect : SkPathEffect {
     public:
-        bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
-                        const SkRect* cullR) const override {
-            return false;
-        }
-        void computeFastBounds(SkRect* dst, const SkRect& src) const override {
-            *dst = src;
-        }
         static sk_sp<SkPathEffect> Make() { return sk_sp<SkPathEffect>(new FailurePathEffect); }
         Factory getFactory() const override { return nullptr; }
+    protected:
+        bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*,
+                          const SkRect* cullR) const override {
+            return false;
+        }
     private:
         FailurePathEffect() {}
     };

@@ -40,8 +40,8 @@ SkDashImpl::~SkDashImpl() {
     sk_free(fIntervals);
 }
 
-bool SkDashImpl::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                            const SkRect* cullRect) const {
+bool SkDashImpl::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                              const SkRect* cullRect) const {
     return SkDashPath::InternalFilter(dst, src, rec, cullRect, fIntervals, fCount,
                                       fInitialDashLength, fInitialDashIndex, fIntervalLength);
 }
@@ -164,8 +164,8 @@ static bool cull_line(SkPoint* pts, const SkStrokeRec& rec,
 // we need to:
 //      allow kRound_Cap capping (could allow rotations in the matrix with this)
 //      allow paths to be returned
-bool SkDashImpl::asPoints(PointData* results, const SkPath& src, const SkStrokeRec& rec,
-                          const SkMatrix& matrix, const SkRect* cullRect) const {
+bool SkDashImpl::onAsPoints(PointData* results, const SkPath& src, const SkStrokeRec& rec,
+                            const SkMatrix& matrix, const SkRect* cullRect) const {
     // width < 0 -> fill && width == 0 -> hairline so requiring width > 0 rules both out
     if (0 >= rec.getWidth()) {
         return false;
@@ -357,7 +357,7 @@ bool SkDashImpl::asPoints(PointData* results, const SkPath& src, const SkStrokeR
     return true;
 }
 
-SkPathEffect::DashType SkDashImpl::asADash(DashInfo* info) const {
+SkPathEffect::DashType SkDashImpl::onAsADash(DashInfo* info) const {
     if (info) {
         if (info->fCount >= fCount && info->fIntervals) {
             memcpy(info->fIntervals, fIntervals, fCount * sizeof(SkScalar));

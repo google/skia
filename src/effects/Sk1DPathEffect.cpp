@@ -16,8 +16,8 @@
 // Put in a governor to limit crash values from looping too long (and allocating too much ram).
 #define MAX_REASONABLE_ITERATIONS   100000
 
-bool Sk1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                SkStrokeRec*, const SkRect*) const {
+bool Sk1DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                  SkStrokeRec*, const SkRect*) const {
     SkPathMeasure   meas(src, false);
     do {
         int governor = MAX_REASONABLE_ITERATIONS;
@@ -69,10 +69,10 @@ SkPath1DPathEffect::SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkS
     fStyle = style;
 }
 
-bool SkPath1DPathEffect::filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec* rec, const SkRect* cullRect) const {
+bool SkPath1DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                      SkStrokeRec* rec, const SkRect* cullRect) const {
     rec->setFillStyle();
-    return this->INHERITED::filterPath(dst, src, rec, cullRect);
+    return this->INHERITED::onFilterPath(dst, src, rec, cullRect);
 }
 
 static bool morphpoints(SkPoint dst[], const SkPoint src[], int count,

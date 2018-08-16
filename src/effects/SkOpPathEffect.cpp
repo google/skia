@@ -18,8 +18,8 @@ sk_sp<SkPathEffect> SkMergePathEffect::Make(sk_sp<SkPathEffect> one, sk_sp<SkPat
 SkOpPE::SkOpPE(sk_sp<SkPathEffect> one, sk_sp<SkPathEffect> two, SkPathOp op)
     : fOne(std::move(one)), fTwo(std::move(two)), fOp(op) {}
 
-bool SkOpPE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
-                        const SkRect* cull) const {
+bool SkOpPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec* rec,
+                          const SkRect* cull) const {
     SkPath one, two;
     if (fOne) {
         if (!fOne->filterPath(&one, src, rec, cull)) {
@@ -71,7 +71,7 @@ SkMatrixPE::SkMatrixPE(const SkMatrix& matrix) : fMatrix(matrix) {
     SkASSERT(matrix.isFinite());
 }
 
-bool SkMatrixPE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
+bool SkMatrixPE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
     src.transform(fMatrix, dst);
     return true;
 }
@@ -99,7 +99,7 @@ sk_sp<SkPathEffect> SkStrokePathEffect::Make(SkScalar width, SkPaint::Join join,
 SkStrokePE::SkStrokePE(SkScalar width, SkPaint::Join join, SkPaint::Cap cap, SkScalar miter)
     : fWidth(width), fMiter(miter), fJoin(join), fCap(cap) {}
 
-bool SkStrokePE::filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
+bool SkStrokePE::onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const {
     SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
     rec.setStrokeStyle(fWidth);
     rec.setStrokeParams(fCap, fJoin, fMiter);

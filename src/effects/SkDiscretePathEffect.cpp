@@ -81,8 +81,8 @@ private:
     uint32_t fSeed;
 };
 
-bool SkDiscretePathEffect::filterPath(SkPath* dst, const SkPath& src,
-                                      SkStrokeRec* rec, const SkRect*) const {
+bool SkDiscretePathEffect::onFilterPath(SkPath* dst, const SkPath& src,
+                                        SkStrokeRec* rec, const SkRect*) const {
     bool doFill = rec->isFillStyle();
 
     SkPathMeasure   meas(src, doFill);

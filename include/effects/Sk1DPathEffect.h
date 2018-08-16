@@ -17,10 +17,9 @@ class SkPathMeasure;
 // This class is not exported to java.
 class SK_API Sk1DPathEffect : public SkPathEffect {
 public:
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
-
 protected:
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+
     /** Called at the start of each contour, returns the initial offset
         into that contour.
     */
@@ -59,14 +58,12 @@ public:
     */
     static sk_sp<SkPathEffect> Make(const SkPath& path, SkScalar advance, SkScalar phase, Style);
 
-    virtual bool filterPath(SkPath*, const SkPath&,
-                            SkStrokeRec*, const SkRect*) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 protected:
     SkPath1DPathEffect(const SkPath& path, SkScalar advance, SkScalar phase, Style);
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
 
     // overrides from Sk1DPathEffect
     SkScalar begin(SkScalar contourLength) const override;

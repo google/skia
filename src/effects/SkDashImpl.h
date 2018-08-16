@@ -14,13 +14,6 @@ class SkDashImpl : public SkPathEffect {
 public:
     SkDashImpl(const SkScalar intervals[], int count, SkScalar phase);
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
-    bool asPoints(PointData* results, const SkPath& src, const SkStrokeRec&, const SkMatrix&,
-                  const SkRect*) const override;
-
-    DashType asADash(DashInfo* info) const override;
-
     Factory getFactory() const override { return CreateProc; }
 
 #ifdef SK_BUILD_FOR_ANDROID_FRAMEWORK
@@ -30,6 +23,12 @@ public:
 protected:
     ~SkDashImpl() override;
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
+
+    bool onAsPoints(PointData* results, const SkPath& src, const SkStrokeRec&, const SkMatrix&,
+                    const SkRect*) const override;
+
+    DashType onAsADash(DashInfo* info) const override;
 
 private:
     static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);

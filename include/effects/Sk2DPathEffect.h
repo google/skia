@@ -14,9 +14,6 @@
 #include "SkMatrix.h"
 
 class SK_API Sk2DPathEffect : public SkPathEffect {
-public:
-    bool filterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
-
 protected:
     /** New virtual, to be overridden by subclasses.
         This is called once from filterPath, and provides the
@@ -39,6 +36,7 @@ protected:
     // protected so that subclasses can call this during unflattening
     explicit Sk2DPathEffect(const SkMatrix& mat);
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath*, const SkPath&, SkStrokeRec*, const SkRect*) const override;
 
 private:
     SkMatrix    fMatrix, fInverse;
@@ -61,8 +59,6 @@ public:
         return sk_sp<SkPathEffect>(new SkLine2DPathEffect(width, matrix));
     }
 
-    virtual bool filterPath(SkPath* dst, const SkPath& src,
-                            SkStrokeRec*, const SkRect*) const override;
 
     Factory getFactory() const override { return CreateProc; }
 
@@ -72,6 +68,7 @@ protected:
             SkASSERT(width >= 0);
         }
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
     void nextSpan(int u, int v, int ucount, SkPath*) const override;
 
