@@ -72,9 +72,11 @@ public:
         return sk_sp<SkPathEffect>(new TestDashPathEffect(intervals, count, phase));
     }
 
-    bool filterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*) const override;
-    DashType asADash(DashInfo* info) const override;
     Factory getFactory() const override { return nullptr; }
+
+protected:
+    bool onFilterPath(SkPath* dst, const SkPath&, SkStrokeRec* , const SkRect*) const override;
+    DashType onAsADash(DashInfo* info) const override;
 
 private:
     TestDashPathEffect(const SkScalar* intervals, int count, SkScalar phase);
