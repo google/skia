@@ -35,12 +35,11 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "copy",
-      "[START_DIR]/test/verbose.log",
-      "[START_DIR]/tmp_upload"
+      "remove",
+      "[START_DIR]/test/dm.json"
     ],
     "infra_step": true,
-    "name": "copy verbose.log"
+    "name": "rm old dm.json"
   },
   {
     "cmd": [
@@ -49,11 +48,31 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/test/dm.json"
+      "listdir",
+      "[START_DIR]/test"
     ],
     "infra_step": true,
-    "name": "rm old dm.json"
+    "name": "check for optional verbose.log file",
+    "stdout": "/path/to/tmp/",
+    "~followup_annotations": [
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/dm.json@@@",
+      "@@@STEP_LOG_LINE@listdir@[START_DIR]/test/verbose.log@@@",
+      "@@@STEP_LOG_END@listdir@@@"
+    ]
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
+      "copy",
+      "[START_DIR]/test/verbose.log",
+      "[START_DIR]/tmp_upload"
+    ],
+    "infra_step": true,
+    "name": "copy verbose.log"
   },
   {
     "cmd": [
@@ -80,7 +99,7 @@
       "*.png"
     ],
     "infra_step": true,
-    "name": "find images",
+    "name": "find .png images",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
@@ -109,7 +128,7 @@
       "*.pdf"
     ],
     "infra_step": true,
-    "name": "find images (2)",
+    "name": "find .pdf images",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",

@@ -27,9 +27,8 @@ import (
 	"go.skia.org/infra/golden/go/goldingestion"
 )
 
-// These files allow us to use upload_dm_results.py out of the box
+// This allows us to use upload_dm_results.py out of the box
 const JSON_FILENAME = "dm.json"
-const LOG_FILENAME = "verbose.log"
 
 var (
 	outDir = flag.String("out_dir", "/OUT/", "location to dump the Gold JSON and pngs")
@@ -188,20 +187,6 @@ func dumpJSON(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Println("JSON Written")
-
-	// Create verbose.log with a few characters in it.
-	p = path.Join(*outDir, LOG_FILENAME)
-	logFile, err := createOutputFile(p)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "Could not open log file on disk", 500)
-		return
-	}
-	if _, err := logFile.WriteString("done"); err != nil {
-		fmt.Println(err)
-		http.Error(w, "Could not write to logfile on disk", 500)
-		return
-	}
 }
 
 // writeBase64EncodedPNG writes a PNG to disk and returns the md5 of the
