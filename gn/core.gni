@@ -497,6 +497,7 @@ skia_core_sources = [
   "$_src/pathops/SkOpEdgeBuilder.cpp",
   "$_src/pathops/SkOpSegment.cpp",
   "$_src/pathops/SkOpSpan.cpp",
+  "$_src/pathops/SkPathOpsAsWinding.cpp",
   "$_src/pathops/SkPathOpsCommon.cpp",
   "$_src/pathops/SkPathOpsConic.cpp",
   "$_src/pathops/SkPathOpsCubic.cpp",

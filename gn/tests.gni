@@ -293,6 +293,7 @@ tests_sources = [
 pathops_tests_sources = [
   "$_tests/PathOpsAngleIdeas.cpp",
   "$_tests/PathOpsAngleTest.cpp",
+  "$_tests/PathOpsAsWindingTest.cpp",
   "$_tests/PathOpsBattles.cpp",
   "$_tests/PathOpsBoundsTest.cpp",
   "$_tests/PathOpsBuilderConicTest.cpp",
