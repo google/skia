@@ -923,13 +923,17 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
 
         auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
                srgb = SkColorSpace::MakeSRGB(),
-         srgbLinear = SkColorSpace::MakeSRGBLinear();
+         srgbLinear = SkColorSpace::MakeSRGBLinear(),
+                 p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
+                                            SkColorSpace::kDCIP3_D65_Gamut);
 
         SINK(    "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
         SINK(   "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
         SINK(  "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
         SINK( "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
         SINK("enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
+        SINK(     "p3",  RasterSink, kRGBA_8888_SkColorType, p3        );
+        SINK(    "ep3",  RasterSink,  kRGBA_F16_SkColorType, p3        );
 
         SINK(    "f32",  RasterSink,  kRGBA_F32_SkColorType, srgbLinear);
     }
