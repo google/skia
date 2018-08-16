@@ -45,6 +45,30 @@
       "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4ec46945_4f4f2865",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-16T17:16:18Z",
+      "side": 1,
+      "message": "Yes, although even in the else case here, I think you can safely use Unpremul. skcms will always fill in missing alpha channel data with 1.0. So I think the src format is effectively always Unpremul, and the dst format is either Unpremul or PremulAsEncoded?",
+      "parentUuid": "5c588810_5c364dbe",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 13
+      },
+      "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
