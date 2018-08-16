@@ -55,7 +55,7 @@ public:
     SkBitmap    fDst[NUM_CONFIGS];
 
     BitmapCopyGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:
@@ -82,7 +82,7 @@ protected:
             sk_tool_utils::copy_to(&fDst[i], gColorTypes[i], src);
         }
 
-        canvas->clear(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        canvas->clear(0xFFDDDDDD);
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
 

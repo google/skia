@@ -283,7 +283,7 @@ protected:
         SkPaint paint;
         paint.setAntiAlias(true);
 
-        paint.setColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        paint.setColor(0xFFCCCCCC);
         canvas->drawPath(path, paint);
 
         paint.setColor(SK_ColorRED);

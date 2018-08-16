@@ -43,7 +43,7 @@ DEF_SIMPLE_GM(colorwheelnative, canvas, 128, 28) {
     sk_tool_utils::set_portable_typeface(&paint, "sans-serif", SkFontStyle::Bold());
     paint.setTextSize(18.0f);
 
-    canvas->clear(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+    canvas->clear(SK_ColorLTGRAY);
     paint.setColor(SK_ColorRED);
     canvas->drawString("R", 8.0f, 20.0f, paint);
     paint.setColor(SK_ColorGREEN);

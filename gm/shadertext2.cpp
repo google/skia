@@ -40,8 +40,7 @@ struct LabeledMatrix {
     const char* fLabel;
 };
 
-DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900,
-                 sk_tool_utils::color_to_565(0xFFDDDDDD)) {
+DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900, 0xFFDDDDDD) {
         constexpr char kText[] = "SKIA";
         constexpr int kTextLen = SK_ARRAY_COUNT(kText) - 1;
         constexpr int kPointSize = 55;

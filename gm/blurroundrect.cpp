@@ -6,7 +6,6 @@
 */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkBlurMask.h"
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
@@ -59,9 +58,9 @@ public:
                     kNormal_SkBlurStyle,
                     SkBlurMask::ConvertRadiusToSigma(SK_ScalarHalf)));
             paint->setColorFilter(SkColorFilter::MakeModeFilter(
-                    sk_tool_utils::color_to_565(SK_ColorLTGRAY),
+                    SK_ColorLTGRAY,
                     SkBlendMode::kSrcIn));
-            paint->setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+            paint->setColor(SK_ColorGRAY);
         }
         {
             SkLayerDrawLooper::LayerInfo info;

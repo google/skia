@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColorPriv.h"
 #include "SkImageSource.h"
 #include "SkMagnifierImageFilter.h"
@@ -71,7 +70,7 @@ static sk_sp<SkImage> make_image(GrContext* context, int size, GrSurfaceOrigin o
 class SimpleMagnificationGM : public skiagm::GM {
 public:
     SimpleMagnificationGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

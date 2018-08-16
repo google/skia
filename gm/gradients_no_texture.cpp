@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 
 using namespace skiagm;
@@ -81,7 +80,7 @@ constexpr GradMaker gGradMakers[] = {
 class GradientsNoTextureGM : public GM {
 public:
     GradientsNoTextureGM(bool dither) : fDither(dither) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
 protected:

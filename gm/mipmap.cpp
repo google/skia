@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
 #include "SkRandom.h"
@@ -16,7 +15,7 @@ static sk_sp<SkImage> make_image() {
     const SkImageInfo info = SkImageInfo::MakeN32Premul(319, 52);
     auto surface(SkSurface::MakeRaster(info));
     SkCanvas* canvas = surface->getCanvas();
-    canvas->drawColor(sk_tool_utils::color_to_565(0xFFF8F8F8));
+    canvas->drawColor(0xFFF8F8F8);
 
     SkPaint paint;
     paint.setAntiAlias(true);

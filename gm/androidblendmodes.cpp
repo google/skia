@@ -70,8 +70,8 @@ protected:
         textPaint.setTextAlign(SkPaint::kCenter_Align);
 
         sk_tool_utils::draw_checkerboard(canvas,
-                                         sk_tool_utils::color_to_565(kWhite),
-                                         sk_tool_utils::color_to_565(kGrey),
+                                         kWhite,
+                                         kGrey,
                                          32);
 
         int xOffset = 0, yOffset = 0;

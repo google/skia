@@ -144,7 +144,7 @@ private:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(sk_tool_utils::color_to_565(SK_ColorLTGRAY));
+        paint.setColor(SK_ColorLTGRAY);
 
         canvas->save();
         canvas->concat(matrix);
@@ -211,7 +211,7 @@ DEF_SIMPLE_GM(tiled_picture_shader, canvas, 400, 400) {
     canvas->drawPaint(p);
 
     canvas->clipRect(SkRect::MakeXYWH(0, 0, 400, 350));
-    p.setColor(sk_tool_utils::color_to_565(0xFFB6B6B6));  // gray
+    p.setColor(0xFFB6B6B6);  // gray
     canvas->drawPaint(p);
 
     p.setShader(SkShader::MakePictureShader(std::move(picture), SkShader::kRepeat_TileMode,

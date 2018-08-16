@@ -130,7 +130,7 @@ protected:
                          SkIntToScalar(100), SkIntToScalar(100),
                          paint2);
 
-        paint2.setColor(sk_tool_utils::color_to_565(SK_ColorGRAY));
+        paint2.setColor(SK_ColorGRAY);
 
         canvas->drawPath(path, paint2);
     }

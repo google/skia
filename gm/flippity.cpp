@@ -139,7 +139,7 @@ static bool UVMatToGeomMatForImage(SkMatrix* geomMat, const SkMatrix& uvMat) {
 class FlippityGM : public skiagm::GM {
 public:
     FlippityGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

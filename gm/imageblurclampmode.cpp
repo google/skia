@@ -44,7 +44,7 @@ namespace skiagm {
 class ImageBlurClampModeGM : public GM {
 public:
     ImageBlurClampModeGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

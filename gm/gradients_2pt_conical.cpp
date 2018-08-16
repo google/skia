@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkGradientShader.h"
 
 namespace skiagm {
@@ -315,7 +314,7 @@ public:
         : fGradCaseType(gradCaseType)
         , fDither(dither)
         , fMode(mode) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
         fName.printf("gradients_2pt_conical_%s%s", gGradCases[gradCaseType].fName,
                      fDither ? "" : "_nodither");
         switch (mode) {

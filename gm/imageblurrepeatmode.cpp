@@ -62,7 +62,7 @@ namespace skiagm {
 class ImageBlurRepeatModeGM : public GM {
 public:
     ImageBlurRepeatModeGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

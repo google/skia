@@ -46,7 +46,7 @@ namespace skiagm {
 class LightingShaderGM : public GM {
 public:
     LightingShaderGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
@@ -80,7 +80,7 @@ protected:
 
         fDiffuse = sk_tool_utils::create_checkerboard_bitmap(
                                                         kTexSize, kTexSize,
-                                                        sk_tool_utils::color_to_565(0x0),
+                                                        0x00000000,
                                                         sk_tool_utils::color_to_565(0xFF804020),
                                                         8);
 

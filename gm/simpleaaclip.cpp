@@ -65,7 +65,7 @@ protected:
 
         fBasePath.addRoundRect(fBase, SkIntToScalar(5), SkIntToScalar(5));
         fRectPath.addRoundRect(fRect, SkIntToScalar(5), SkIntToScalar(5));
-        INHERITED::setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        INHERITED::setBGColor(0xFFDDDDDD);
     }
 
     void buildRgn(SkAAClip* clip, SkClipOp op) {

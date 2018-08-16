@@ -43,7 +43,7 @@ static sk_sp<SkImage> make_dst() {
     SkPoint pts[] = { {0, SkIntToScalar(HH)}, {SkIntToScalar(WW), 0} };
     SkColor colors[] = {
         SK_ColorBLUE, SK_ColorYELLOW, SK_ColorBLACK, SK_ColorGREEN,
-        sk_tool_utils::color_to_565(SK_ColorGRAY)
+        SK_ColorGRAY,
     };
     paint.setShader(SkGradientShader::MakeLinear(pts, colors, nullptr, SK_ARRAY_COUNT(colors),
                                                  SkShader::kClamp_TileMode));

@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "GrCaps.h"
 #include "GrContext.h"
 #include "GrRenderTargetContextPriv.h"
@@ -33,7 +32,7 @@ public:
 protected:
 
     void onOnceBeforeDraw() override {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
         this->setUpRRects();
     }
 
