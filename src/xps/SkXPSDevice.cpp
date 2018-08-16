@@ -1595,9 +1595,9 @@ void SkXPSDevice::drawPath(const SkPath& platonicPath,
         SkMask rasteredMask;
         if (SkDraw::DrawToMask(
                         *pixelPath,
-                        &clipIRect,
+                        clipIRect,
                         filter,  //just to compute how much to draw.
-                        &matrix,
+                        matrix,
                         &rasteredMask,
                         SkMask::kComputeBoundsAndRenderImage_CreateMode,
                         style)) {

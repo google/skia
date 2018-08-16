@@ -16,6 +16,7 @@
 #include "GrGpu.h"
 #include "GrImageTextureMaker.h"
 #include "GrRenderTargetContextPriv.h"
+#include "GrShape.h"
 #include "GrStyle.h"
 #include "GrSurfaceProxyPriv.h"
 #include "GrTextureAdjuster.h"
@@ -376,14 +377,17 @@ void SkGpuDevice::drawPoints(SkCanvas::PointMode mode,
 
 void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRect", fContext.get());
+
+    GrStyle style(paint);
+
     // A couple reasons we might need to call drawPath.
     if (paint.getMaskFilter() || paint.getPathEffect()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRect(rect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), true);
+        GrShape shape(rect, style);
+
+        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+                                             this->clip(), paint, this->ctm(), shape);
         return;
     }
 
@@ -393,16 +397,18 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
         return;
     }
 
-    GrStyle style(paint);
     fRenderTargetContext->drawRect(this->clip(), std::move(grPaint), GrAA(paint.isAntiAlias()),
                                    this->ctm(), rect, &style);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
+void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint2) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawRRect", fContext.get());
+
+    SkPaint paint(paint2);
+
     GrPaint grPaint;
     if (!SkPaintToGrPaint(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
                           this->ctm(), &grPaint)) {
@@ -423,14 +429,11 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkRRect devRRect;
         if (rrect.transform(this->ctm(), &devRRect)) {
             if (SkRRectPriv::AllCornersCircular(devRRect)) {
-                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(), this->ctm(), nullptr)) {
-                    if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
-                                                     std::move(grPaint), this->clip(), this->ctm(),
-                                                     style.strokeRec(), rrect, devRRect)) {
-                        return;
-                    }
+                if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
+                                                    std::move(grPaint), this->clip(), this->ctm(),
+                                                    style.strokeRec(), rrect, devRRect)) {
+                    return;
                 }
-
             }
         }
     }
@@ -439,11 +442,11 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         // The only mask filter the native rrect drawing code could've handle was taken
         // care of above.
         // A path effect will presumably transform this rrect into something else.
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addRRect(rrect);
-        GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
-                                            this->clip(), path, paint, this->ctm(), true);
+        GrShape shape(rrect, style);
+
+        // TODO: this is throwing away to work we did to create the GrPaint
+        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+                                             this->clip(), paint, this->ctm(), shape);
         return;
     }
 
@@ -454,8 +457,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
 }
 
 
-void SkGpuDevice::drawDRRect(const SkRRect& outer,
-                             const SkRRect& inner, const SkPaint& paint) {
+void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawDRRect", fContext.get());
     if (outer.isEmpty()) {
@@ -486,8 +488,14 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer,
     path.addRRect(inner);
     path.setFillType(SkPath::kEvenOdd_FillType);
 
-    GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        path, paint, this->ctm(), true);
+    GrStyle style(paint);
+
+    // TODO: We are losing the possible mutability of the path here but this should probably be
+    // fixed by upgrading GrShape to handle DRRects.
+    GrShape shape(path, style);
+
+    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+                                         paint, this->ctm(), shape);
 }
 
 
@@ -605,9 +613,7 @@ void SkGpuDevice::drawStrokedLine(const SkPoint points[2],
             this->clip(), std::move(grPaint), GrAA(newPaint.isAntiAlias()), m, rect, local);
 }
 
-void SkGpuDevice::drawPath(const SkPath& origSrcPath,
-                           const SkPaint& paint,
-                           bool pathIsMutable) {
+void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool pathIsMutable) {
     ASSERT_SINGLE_OWNER
     if (!origSrcPath.isInverseFillType() && !paint.getPathEffect()) {
         SkPoint points[2];
@@ -636,8 +642,12 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath,
                                        this->ctm(), origSrcPath, GrStyle(paint));
         return;
     }
-    GrBlurUtils::drawPathWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
-                                        origSrcPath, paint, this->ctm(), pathIsMutable);
+
+    // TODO: losing possible mutability of 'origSrcPath' here
+    GrShape shape(origSrcPath, paint);
+
+    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+                                         paint, this->ctm(), shape);
 }
 
 static const int kBmpSmallTileSize = 1 << 10;
