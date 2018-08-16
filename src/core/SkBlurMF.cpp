@@ -903,15 +903,14 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const SkRRect& devRRect,
         return false;
     }
 
-    // We always do circles and simple circular rrects on the GPU
-    if (!SkRRectPriv::IsCircle(devRRect) && !SkRRectPriv::IsSimpleCircular(devRRect)) {
+    // We prefer to blur small rects with small radii on the CPU.
+    if (devRRect.isRect()) {
         static const SkScalar kMIN_GPU_BLUR_SIZE  = SkIntToScalar(64);
         static const SkScalar kMIN_GPU_BLUR_SIGMA = SkIntToScalar(32);
 
         if (devRRect.width() <= kMIN_GPU_BLUR_SIZE &&
             devRRect.height() <= kMIN_GPU_BLUR_SIZE &&
             xformedSigma <= kMIN_GPU_BLUR_SIGMA) {
-            // We prefer to blur small rects with small radii on the CPU.
             return false;
         }
     }
