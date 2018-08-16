@@ -17,12 +17,11 @@ class SkTrimPE : public SkPathEffect {
 public:
     SkTrimPE(SkScalar startT, SkScalar stopT, SkTrimPathEffect::Mode);
 
-    bool filterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
-
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTrimPE)
 
 protected:
     void flatten(SkWriteBuffer&) const override;
+    bool onFilterPath(SkPath* dst, const SkPath& src, SkStrokeRec*, const SkRect*) const override;
 
 private:
     const SkScalar               fStartT,
