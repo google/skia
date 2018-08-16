@@ -33,10 +33,10 @@ hs_bench_vk:	$(OBJ_C) $(OBJ_CPP)
 		g++ -o $@ $^ $(VULKAN_SDK)/lib/libvulkan.so.1
 
 $(OBJ_C):	$(SRC_C)
-		gcc -D NDEBUG -D HS_DUMP_SOURCE -c $^ -I ../../.. -I .. -I $(VULKAN_INC)
+		gcc -D NDEBUG            -c $^ -I ../../.. -I .. -I $(VULKAN_INC)
 
 $(OBJ_CPP):	$(SRC_CPP)
-		g++ -D NDEBUG -std=c++11        -c $^
+		g++ -D NDEBUG -std=c++11 -c $^
 
 
 .PHONY: clean

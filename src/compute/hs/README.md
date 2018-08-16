@@ -6,7 +6,7 @@ for Vulkan, CUDA and OpenCL GPUs.
 
 HotSort's advantages include:
 
-* An ultra-fast algorithm for sorting 32‑bit and 64‑bit keys
+* Ultra-fast sorting of 32‑bit or 64‑bit keys
 * Reaches peak throughput on small arrays
 * In-place sorting for low-memory environments
 * Strong scaling with number of multiprocessors
