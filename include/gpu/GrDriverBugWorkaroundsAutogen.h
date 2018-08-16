@@ -14,6 +14,8 @@
          disable_discard_framebuffer)                   \
   GPU_OP(DISALLOW_LARGE_INSTANCED_DRAW,                 \
          disallow_large_instanced_draw)                 \
+  GPU_OP(EMULATE_ABS_INT_FUNCTION,                      \
+         emulate_abs_int_function)                      \
   GPU_OP(GL_CLEAR_BROKEN,                               \
          gl_clear_broken)                               \
   GPU_OP(MAX_FRAGMENT_UNIFORM_VECTORS_32,               \

@@ -27,6 +27,7 @@ GrDriverBugWorkarounds::GrDriverBugWorkarounds(
                 break;
         }
     }
+    emulate_abs_int_function = true;
 }
 
 void GrDriverBugWorkarounds::applyOverrides(
