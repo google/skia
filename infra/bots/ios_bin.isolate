@@ -14,5 +14,12 @@
         ],
       },
     }],
+    ['OS=="iOS-11.4.1"', {
+      'variables': {
+        'files': [
+          '../../platform_tools/ios/bin/',
+        ],
+      },
+    }],
   ],
 }
