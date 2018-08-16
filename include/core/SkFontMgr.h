@@ -57,8 +57,7 @@ public:
     /**
      *  Find the closest matching typeface to the specified familyName and style
      *  and return a ref to it. The caller must call unref() on the returned
-     *  object. Will never return NULL, as it will return the default font if
-     *  no matching font is found.
+     *  object. Will return nullptr if no 'good' match is found.
      *
      *  Passing |nullptr| as the parameter for |familyName| will return the
      *  default system font.
