@@ -22,8 +22,13 @@
 #include "kernel_cl_12.h"
 #include "device_cl_12.h"
 
-#include "hs/cl/hs_cl_launcher.h"
+//
+//
+//
+
+#include "hs/cl/hs_cl.h"
 #include "hs/cl/intel/gen8/u64/hs_target.h"
+#include "hs/cl/intel/gen8/u64/hs_config.h"
 
 //
 //
@@ -895,7 +900,7 @@ skc_device_create(struct skc_runtime * const runtime)
   SKC_DEVICE_BUILD_PROGRAM(rasters_reclaim);
 
   // create HotSort instance
-  runtime->hs = hs_cl_create(&hs_target,
+  runtime->hs = hs_cl_create(&hs_intel_gen8_u64,
                              runtime->cl.context,
                              runtime->cl.device_id);
 }

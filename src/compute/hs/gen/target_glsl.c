@@ -88,10 +88,10 @@ hsg_macros(FILE * file)
 {
   fprintf(file,
           "#include \"hs_glsl_macros.h\" \n"
-          "                              \n"
-          "//                            \n"
-          "//                            \n"
-          "//                            \n"
+          "    \n"
+          "//  \n"
+          "//  \n"
+          "//  \n"
           "\n");
 }
 
@@ -102,7 +102,7 @@ hsg_macros(FILE * file)
 struct hsg_target_state
 {
   FILE * header;
-  FILE * embeds;
+  FILE * modules;
   FILE * source;
 };
 
@@ -145,11 +145,11 @@ hsg_target_glsl(struct hsg_target       * const target,
         target->state = malloc(sizeof(*target->state));
 
         // allocate files
-        fopen_s(&target->state->header,"hs_glsl.h",   "wb");
-        fopen_s(&target->state->embeds,"hs_kernels.h","wb");
+        fopen_s(&target->state->header, "hs_config.h", "wb");
+        fopen_s(&target->state->modules,"hs_modules.h","wb");
 
         hsg_copyright(target->state->header);
-        hsg_copyright(target->state->embeds);
+        hsg_copyright(target->state->modules);
 
         // initialize header
         uint32_t const bc_max = msb_idx_u32(pow2_rd_u32(merge->warps));
@@ -165,31 +165,36 @@ hsg_target_glsl(struct hsg_target       * const target,
                 "#define HS_SLAB_HEIGHT          %u                              \n"
                 "#define HS_SLAB_KEYS            (HS_SLAB_WIDTH * HS_SLAB_HEIGHT)\n"
                 "#define HS_REG_LAST(c)          c##%u                           \n"
-                "#define HS_KEY_TYPE             %s                              \n"
                 "#define HS_KEY_WORDS            %u                              \n"
                 "#define HS_VAL_WORDS            0                               \n"
                 "#define HS_BS_SLABS             %u                              \n"
                 "#define HS_BS_SLABS_LOG2_RU     %u                              \n"
                 "#define HS_BC_SLABS_LOG2_MAX    %u                              \n"
+                "#define HS_FM_BLOCK_HEIGHT      %u                              \n"
                 "#define HS_FM_SCALE_MIN         %u                              \n"
                 "#define HS_FM_SCALE_MAX         %u                              \n"
+                "#define HS_HM_BLOCK_HEIGHT      %u                              \n"
                 "#define HS_HM_SCALE_MIN         %u                              \n"
                 "#define HS_HM_SCALE_MAX         %u                              \n"
                 "#define HS_EMPTY                                                \n"
                 "                                                                \n",
-                config->warp.lanes_log2,
+                config->warp.lanes_log2, // FIXME -- this matters for SIMD
                 config->warp.lanes_log2,
                 config->thread.regs,
                 config->thread.regs,
-                (config->type.words == 2) ? "uint64_t" : "uint32_t",
                 config->type.words,
                 merge->warps,
                 msb_idx_u32(pow2_ru_u32(merge->warps)),
                 bc_max,
+                config->merge.flip.warps,
                 config->merge.flip.lo,
                 config->merge.flip.hi,
+                config->merge.half.warps,
                 config->merge.half.lo,
                 config->merge.half.hi);
+
+        if (target->define != NULL)
+          fprintf(target->state->header,"#define %s\n\n",target->define);
 
         fprintf(target->state->header,
                 "#define HS_SLAB_ROWS()    \\\n");
@@ -224,15 +229,6 @@ hsg_target_glsl(struct hsg_target       * const target,
         fprintf(target->state->header,
                 "  HS_EMPTY\n"
                 "          \n");
-
-#if 0
-        fprintf(target->state->source,
-                "#include <hs_glsl_macros.h> \n"
-                "                            \n"
-                "//                          \n"
-                "//                          \n"
-                "//                          \n");
-#endif
       }
       break;
 
@@ -248,7 +244,7 @@ hsg_target_glsl(struct hsg_target       * const target,
 
       // close files
       fclose(target->state->header);
-      fclose(target->state->embeds);
+      fclose(target->state->modules);
 
       // free state
       free(target->state);
@@ -256,7 +252,7 @@ hsg_target_glsl(struct hsg_target       * const target,
 
     case HSG_OP_TYPE_TRANSPOSE_KERNEL_PROTO:
       {
-        fprintf(target->state->embeds,
+        fprintf(target->state->modules,
                 "#include \"hs_transpose.len.xxd\"\n,\n"
                 "#include \"hs_transpose.spv.xxd\"\n,\n");
 
@@ -267,16 +263,17 @@ hsg_target_glsl(struct hsg_target       * const target,
         hsg_macros(target->state->source);
 
         fprintf(target->state->source,
-                "HS_TRANSPOSE_KERNEL_PROTO(%u)\n",
-                config->warp.lanes);
+                "HS_TRANSPOSE_KERNEL_PROTO()\n");
       }
       break;
 
     case HSG_OP_TYPE_TRANSPOSE_KERNEL_PREAMBLE:
       {
         fprintf(target->state->source,
-                "HS_SLAB_GLOBAL_PREAMBLE(%u,%u);\n",
-                config->warp.lanes,config->thread.regs);
+                "HS_SUBGROUP_PREAMBLE();\n");
+
+        fprintf(target->state->source,
+                "HS_SLAB_GLOBAL_PREAMBLE();\n");
       }
       break;
 
@@ -294,13 +291,13 @@ hsg_target_glsl(struct hsg_target       * const target,
         uint32_t const bs  = pow2_ru_u32(m->warps);
         uint32_t const msb = msb_idx_u32(bs);
 
-        fprintf(target->state->embeds,
+        fprintf(target->state->modules,
                 "#include \"hs_bs_%u.len.xxd\"\n,\n"
                 "#include \"hs_bs_%u.spv.xxd\"\n,\n",
                 msb,
                 msb);
 
-        char filename[] = { "hs_bs_123.comp" };
+        char filename[] = { "hs_bs_XX.comp" };
         sprintf_s(filename,sizeof(filename),"hs_bs_%u.comp",msb);
         fopen_s(&target->state->source,filename,"w+");
 
@@ -317,15 +314,19 @@ hsg_target_glsl(struct hsg_target       * const target,
           }
 
         fprintf(target->state->source,
-                "HS_BS_KERNEL_PROTO(%u,%u,%u)\n",
-                config->warp.lanes,m->warps,msb);
+                "HS_BS_KERNEL_PROTO(%u,%u)\n",
+                m->warps,msb);
       }
       break;
 
     case HSG_OP_TYPE_BS_KERNEL_PREAMBLE:
-      fprintf(target->state->source,
-              "HS_SLAB_GLOBAL_PREAMBLE(%u,%u);\n",
-              config->warp.lanes,config->thread.regs);
+      {
+        fprintf(target->state->source,
+                "HS_SUBGROUP_PREAMBLE();\n");
+
+        fprintf(target->state->source,
+                "HS_SLAB_GLOBAL_PREAMBLE();\n");
+      }
       break;
 
     case HSG_OP_TYPE_BC_KERNEL_PROTO:
@@ -334,13 +335,13 @@ hsg_target_glsl(struct hsg_target       * const target,
 
         uint32_t const msb = msb_idx_u32(m->warps);
 
-        fprintf(target->state->embeds,
+        fprintf(target->state->modules,
                 "#include \"hs_bc_%u.len.xxd\"\n,\n"
                 "#include \"hs_bc_%u.spv.xxd\"\n,\n",
                 msb,
                 msb);
 
-        char filename[] = { "hs_bc_123.comp" };
+        char filename[] = { "hs_bc_XX.comp" };
         sprintf_s(filename,sizeof(filename),"hs_bc_%u.comp",msb);
         fopen_s(&target->state->source,filename,"w+");
 
@@ -357,26 +358,30 @@ hsg_target_glsl(struct hsg_target       * const target,
           }
 
         fprintf(target->state->source,
-                "HS_BC_KERNEL_PROTO(%u,%u,%u)\n",
-                config->warp.lanes,m->warps,msb);
+                "HS_BC_KERNEL_PROTO(%u,%u)\n",
+                m->warps,msb);
       }
       break;
 
     case HSG_OP_TYPE_BC_KERNEL_PREAMBLE:
-      fprintf(target->state->source,
-              "HS_SLAB_GLOBAL_PREAMBLE(%u,%u);\n",
-              config->warp.lanes,config->thread.regs);
+      {
+        fprintf(target->state->source,
+                "HS_SUBGROUP_PREAMBLE()\n");
+
+        fprintf(target->state->source,
+                "HS_SLAB_GLOBAL_PREAMBLE();\n");
+      }
       break;
 
     case HSG_OP_TYPE_FM_KERNEL_PROTO:
       {
-        fprintf(target->state->embeds,
+        fprintf(target->state->modules,
                 "#include \"hs_fm_%u_%u.len.xxd\"\n,\n"
                 "#include \"hs_fm_%u_%u.spv.xxd\"\n,\n",
                 ops->a,ops->b,
                 ops->a,ops->b);
 
-        char filename[] = { "hs_fm_123_123.comp" };
+        char filename[] = { "hs_fm_X_XX.comp" };
         sprintf_s(filename,sizeof(filename),"hs_fm_%u_%u.comp",ops->a,ops->b);
         fopen_s(&target->state->source,filename,"w+");
 
@@ -391,21 +396,26 @@ hsg_target_glsl(struct hsg_target       * const target,
       break;
 
     case HSG_OP_TYPE_FM_KERNEL_PREAMBLE:
-      fprintf(target->state->source,
-              "HS_FM_PREAMBLE(%u);\n",
-              ops->a);
+      {
+        fprintf(target->state->source,
+                "HS_SUBGROUP_PREAMBLE()\n");
+
+        fprintf(target->state->source,
+                "HS_FM_PREAMBLE(%u);\n",
+                ops->a);
+      }
       break;
 
     case HSG_OP_TYPE_HM_KERNEL_PROTO:
       {
-        fprintf(target->state->embeds,
-                "#include \"hs_hm_%u_%u.len.xxd\"\n,\n"
-                "#include \"hs_hm_%u_%u.spv.xxd\"\n,\n",
-                ops->a,ops->b,
-                ops->a,ops->b);
+        fprintf(target->state->modules,
+                "#include \"hs_hm_%u.len.xxd\"\n,\n"
+                "#include \"hs_hm_%u.spv.xxd\"\n,\n",
+                ops->a,
+                ops->a);
 
-        char filename[] = { "hs_hm_123_123.comp" };
-        sprintf_s(filename,sizeof(filename),"hs_hm_%u_%u.comp",ops->a,ops->b);
+        char filename[] = { "hs_hm_X.comp" };
+        sprintf_s(filename,sizeof(filename),"hs_hm_%u.comp",ops->a);
         fopen_s(&target->state->source,filename,"w+");
 
         hsg_copyright(target->state->source);
@@ -419,9 +429,14 @@ hsg_target_glsl(struct hsg_target       * const target,
       break;
 
     case HSG_OP_TYPE_HM_KERNEL_PREAMBLE:
-      fprintf(target->state->source,
-              "HS_HM_PREAMBLE(%u);\n",
-              ops->a);
+      {
+        fprintf(target->state->source,
+                "HS_SUBGROUP_PREAMBLE()\n");
+
+        fprintf(target->state->source,
+                "HS_HM_PREAMBLE(%u);\n",
+                ops->a);
+      }
       break;
 
     case HSG_OP_TYPE_BX_REG_GLOBAL_LOAD:
@@ -429,15 +444,15 @@ hsg_target_glsl(struct hsg_target       * const target,
         static char const * const vstr[] = { "vin", "vout" };
 
         fprintf(target->state->source,
-                "HS_KEY_TYPE r%-3u = HS_SLAB_GLOBAL_LOAD(%s,%u,%u);\n",
-                ops->n,vstr[ops->v],config->warp.lanes,ops->n-1);
+                "HS_KEY_TYPE r%-3u = HS_SLAB_GLOBAL_LOAD(%s,%u);\n",
+                ops->n,vstr[ops->v],ops->n-1);
       }
       break;
 
     case HSG_OP_TYPE_BX_REG_GLOBAL_STORE:
       fprintf(target->state->source,
-              "HS_SLAB_GLOBAL_STORE(%u,%u,r%u);\n",
-              config->warp.lanes,ops->n-1,ops->n);
+              "HS_SLAB_GLOBAL_STORE(%u,r%u);\n",
+              ops->n-1,ops->n);
       break;
 
     case HSG_OP_TYPE_HM_REG_GLOBAL_LOAD:
@@ -536,20 +551,20 @@ hsg_target_glsl(struct hsg_target       * const target,
 
     case HSG_OP_TYPE_BS_REG_SHARED_STORE_V:
       fprintf(target->state->source,
-              "HS_BX_LOCAL_V(%-3u * %-2u * %-3u) = r%u;\n",
-              merge[ops->a].warps,config->warp.lanes,ops->c,ops->b);
+              "HS_BX_LOCAL_V(%-3u * HS_SLAB_THREADS * %-3u) = r%u;\n",
+              merge[ops->a].warps,ops->c,ops->b);
       break;
 
     case HSG_OP_TYPE_BS_REG_SHARED_LOAD_V:
       fprintf(target->state->source,
-              "r%-3u = HS_BX_LOCAL_V(%-3u * %-2u * %-3u);\n",
-              ops->b,merge[ops->a].warps,config->warp.lanes,ops->c);
+              "r%-3u = HS_BX_LOCAL_V(%-3u * HS_SLAB_THREADS * %-3u);\n",
+              ops->b,merge[ops->a].warps,ops->c);
       break;
 
     case HSG_OP_TYPE_BC_REG_SHARED_LOAD_V:
       fprintf(target->state->source,
-              "HS_KEY_TYPE r%-3u = HS_BX_LOCAL_V(%-3u * %-2u * %-3u);\n",
-              ops->b,ops->a,config->warp.lanes,ops->c);
+              "HS_KEY_TYPE r%-3u = HS_BX_LOCAL_V(%-3u * HS_SLAB_THREADS * %-3u);\n",
+              ops->b,ops->a,ops->c);
       break;
 
     case HSG_OP_TYPE_BX_REG_SHARED_STORE_LEFT:
@@ -586,10 +601,10 @@ hsg_target_glsl(struct hsg_target       * const target,
 
     case HSG_OP_TYPE_BC_REG_GLOBAL_LOAD_LEFT:
       fprintf(target->state->source,
-              "HS_KEY_TYPE r%u_%-3u = HS_BC_GLOBAL_LOAD_L(%u,%u);\n",
+              "HS_KEY_TYPE r%u_%-3u = HS_BC_GLOBAL_LOAD_L(%u);\n",
               ops->c,
               ops->a,
-              config->warp.lanes,ops->b);
+              ops->b);
       break;
 
     case HSG_OP_TYPE_BLOCK_SYNC:
@@ -621,8 +636,8 @@ hsg_target_glsl(struct hsg_target       * const target,
         struct hsg_merge const * const m = merge + ops->a;
 
         fprintf(target->state->source,
-                "HS_BS_MERGE_H_PREAMBLE(%u,%u);\n",
-                config->warp.lanes,m->warps);
+                "HS_BS_MERGE_H_PREAMBLE(%u);\n",
+                m->warps);
       }
       break;
 
@@ -631,14 +646,14 @@ hsg_target_glsl(struct hsg_target       * const target,
         struct hsg_merge const * const m = merge + ops->a;
 
         fprintf(target->state->source,
-                "HS_BC_MERGE_H_PREAMBLE(%u,%u,%u);\n",
-                config->warp.lanes,config->thread.regs,m->warps);
+                "HS_BC_MERGE_H_PREAMBLE(%u);\n",
+                m->warps);
       }
       break;
 
     case HSG_OP_TYPE_BX_MERGE_H_PRED:
       fprintf(target->state->source,
-              "if (get_sub_group_id() < %u)\n",
+              "if (HS_SUBGROUP_ID() < %u)\n",
               ops->a);
       break;
 
@@ -649,13 +664,13 @@ hsg_target_glsl(struct hsg_target       * const target,
         if (m->warps <= 32)
           {
             fprintf(target->state->source,
-                    "if (((1u << get_sub_group_id()) & 0x%08X) != 0)\n",
+                    "if (((1u << HS_SUBGROUP_ID()) & 0x%08X) != 0)\n",
                     m->levels[ops->b].active.b32a2[0]);
           }
         else
           {
             fprintf(target->state->source,
-                    "if (((1UL << get_sub_group_id()) & 0x%08X%08XL) != 0L)\n",
+                    "if (((1UL << HS_SUBGROUP_ID()) & 0x%08X%08XL) != 0L)\n",
                     m->levels[ops->b].active.b32a2[1],
                     m->levels[ops->b].active.b32a2[0]);
           }

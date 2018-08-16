@@ -36,7 +36,7 @@
 //
 //
 
-#if defined(_MSC_VER)
+#if defined( _MSC_VER )
 #define ALLOCA_MACRO(n)         _alloca(n)
 #else
 #define ALLOCA_MACRO(n)         alloca(n)
@@ -53,13 +53,70 @@
 #define BITS_TO_MASK_AT_64(n,b) (BITS_TO_MASK_64(n)<<(b))
 
 //
-// Convert 4 byte pointer to network order dword to a host order.
+//
+//
+
+#define STRINGIFY2_MACRO(a)     #a
+#define STRINGIFY_MACRO(a)      STRINGIFY2_MACRO(a)
+
+//
+//
+//
+
+#define EVAL_MACRO(x)           x
+#define CONCAT_MACRO(a,b)       EVAL_MACRO(a)##EVAL_MACRO(b)
+
+//
+// Convert byte pointer to a network order 32-bit integer to host
+// order.
 //
 
 #define NPBTOHL_MACRO(pb4)      ((((pb4)[0])<<24) | (((pb4)[1])<<16) |  \
                                  (((pb4)[2])<< 8) |   (pb4)[3])
 
-#define NTOHL_MACRO(nl)         ntohl(nl)
+//
+//
+//
+
+#if   defined( _MSC_VER )
+
+#if REG_DWORD == REG_DWORD_LITTLE_ENDIAN
+#define NTOHL_MACRO(x)          _byteswap_ulong(x)
+#else
+#define NTOHL_MACRO(x)          x
+#endif
+
+#elif defined( __GNUC__ )
+
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define NTOHL_MACRO(x)          __builtin_bswap32(x)
+#else
+#define NTOHL_MACRO(x)          x
+#endif
+
+#else
+//
+// FIXME -- CLANG, etc.
+//
+#endif
+
+//
+//
+//
+
+#if   defined( _MSC_VER )
+
+#define STATIC_ASSERT_MACRO(...) static_assert(__VA_ARGS__)
+
+#elif defined( __GNUC__ )
+
+#define STATIC_ASSERT_MACRO(...) _Static_assert(__VA_ARGS__)
+
+#else
+//
+// FIXME -- CLANG, etc.
+//
+#endif
 
 //
 //

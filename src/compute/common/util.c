@@ -6,7 +6,15 @@
  *
  */
 
+#ifdef _MSC_VER
+
 #include <intrin.h>
+
+#else
+
+
+
+#endif
 
 //
 //
@@ -59,7 +67,7 @@ pow2_rd_u32(uint32_t n)
 uint32_t
 msb_idx_u32(uint32_t n)
 {
-#ifdef _MSC_VER
+#if defined( _MSC_VER )
 
   uint32_t index;
 
@@ -67,10 +75,9 @@ msb_idx_u32(uint32_t n)
 
   return index;
 
-#elif defined(__GNUC__)
+#elif defined( __GNUC__ )
 
-#error "BUSTED msb_index()"
-  return 31 - __builtin_clz(mask);
+  return __builtin_clz(n) ^ 31;
 
 #else
 

@@ -46,10 +46,10 @@ SET PRE_BIN_LEN_XXD=%~n1.bin.len.xxd
 :: *.pre.cl
 ::
 
-clang-format -style=Mozilla -i %1                                               || goto :error
-cl -I . -I "%INTELOCLSDKROOT%\include" -D %OPENCL_PRE% -EP %1 -P -Fi"%PRE_SRC%" || goto :error
-clang-format -style=Mozilla -i %PRE_SRC%                                        || goto :error
-dos2unix -q %PRE_SRC%                                                           || goto :error
+clang-format -style=Mozilla -i %1                                                   || goto :error
+cl -I ..\.. -I "%INTELOCLSDKROOT%\include" -D %OPENCL_PRE% -EP %1 -P -Fi"%PRE_SRC%" || goto :error
+clang-format -style=Mozilla -i %PRE_SRC%                                            || goto :error
+dos2unix -q %PRE_SRC%                                                               || goto :error
 
 echo %PRE_SRC%
 
@@ -95,7 +95,7 @@ echo %PRE_BIN_LEN_XXD%
 :: dump a binary
 ::
 
-cl /DHS_DUMP /Fe:hs_dump.exe /Tchs_target.h
+cl /DHS_DUMP /Fe:hs_dump.exe *.c
 hs_dump
 
 ::

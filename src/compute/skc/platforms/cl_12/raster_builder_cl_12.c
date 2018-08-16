@@ -18,7 +18,7 @@
 //
 //
 
-#include "hs/cl/hs_cl_launcher.h"
+#include "hs/cl/hs_cl.h"
 
 #include "common/cl/assert_cl.h"
 

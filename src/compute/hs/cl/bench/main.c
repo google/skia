@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <time.h>
+#include <inttypes.h>
 
 //
 // squelch OpenCL 1.2 deprecation warning
@@ -26,8 +26,21 @@
 #include "common/macros.h"
 #include "common/cl/assert_cl.h"
 #include "common/cl/find_cl.h"
+//
+//
+//
 
-#include "hs_cl_launcher.h"
+#include "hs_cl.h"
+
+//
+// FIXME -- LIMITED TO INTEL / GEN8+ FOR NOW
+//
+
+#include "intel/gen8/u32/hs_target.h"
+#include "intel/gen8/u64/hs_target.h"
+
+// #include "intel/gen9lp/u32/hs_target.h"
+// #include "intel/gen9lp/u64/hs_target.h"
 
 //
 // The quality of the RNG doesn't matter.  The same number of
@@ -82,8 +95,8 @@ char const * hs_cpu_sort_u64(uint64_t * a, uint32_t const count, double * const 
 
 static
 char const *
-hs_cpu_sort(uint32_t   const hs_words,
-            void     *       sorted_h,
+hs_cpu_sort(void     *       sorted_h,
+            uint32_t   const hs_words,
             uint32_t   const count,
             double   * const cpu_ns)
 {
@@ -91,16 +104,6 @@ hs_cpu_sort(uint32_t   const hs_words,
     return hs_cpu_sort_u32(sorted_h,count,cpu_ns);
   else
     return hs_cpu_sort_u64(sorted_h,count,cpu_ns);
-}
-
-static
-bool
-hs_verify_linear(uint32_t const hs_words,
-                 void   *       sorted_h,
-                 void   *       vout_h,
-                 uint32_t const count)
-{
-  return memcmp(sorted_h, vout_h, sizeof(uint32_t) * hs_words * count) == 0;
 }
 
 static
@@ -185,7 +188,7 @@ hs_debug_u32(uint32_t const   hs_width,
     fprintf(stderr,"%u\n",ss);
     for (uint32_t cc=0; cc<hs_height; cc++) {
       for (uint32_t rr=0; rr<hs_width; rr++)
-        fprintf(stderr,"%8X ",*vout_h++);
+        fprintf(stderr,"%8" PRIX32 " ",*vout_h++);
       fprintf(stderr,"\n");
     }
   }
@@ -205,7 +208,7 @@ hs_debug_u64(uint32_t const   hs_width,
     fprintf(stderr,"%u\n",ss);
     for (uint32_t cc=0; cc<hs_height; cc++) {
       for (uint32_t rr=0; rr<hs_width; rr++)
-        fprintf(stderr,"%16llX ",*vout_h++);
+        fprintf(stderr,"%16" PRIX64 " ",*vout_h++);
       fprintf(stderr,"\n");
     }
   }
@@ -240,8 +243,8 @@ hs_dummy_kernel_create(cl_context context, cl_device_id device_id)
 {
   cl_int err;
 
-  char   const * strings[]        = { HS_DUMMY_KERNEL_PROGRAM };
-  size_t const   strings_sizeof[] = { sizeof(HS_DUMMY_KERNEL_PROGRAM) + 1 };
+  char   const * strings[]        = { HS_DUMMY_KERNEL_PROGRAM         };
+  size_t const   strings_sizeof[] = { sizeof(HS_DUMMY_KERNEL_PROGRAM) };
 
   cl_program program = clCreateProgramWithSource(context,
                                                  1,
@@ -297,6 +300,7 @@ hs_bench(cl_context                   context,
          cl_command_queue             cq,
          cl_command_queue             cq_profile,
          char           const * const device_name,
+         char           const * const driver_version,
          uint32_t               const hs_words,
          uint32_t               const hs_width,
          uint32_t               const hs_height,
@@ -381,7 +385,7 @@ hs_bench(cl_context                   context,
 
       hs_cl_pad(hs,count,&count_padded_in,&count_padded_out);
 
-      cl_ulong elapsed_ns_min = ULONG_MAX;
+      cl_ulong elapsed_ns_min = UINT64_MAX;
       cl_ulong elapsed_ns_max = 0;
       cl_ulong elapsed_ns_sum = 0;
 
@@ -392,15 +396,15 @@ hs_bench(cl_context                   context,
         {
           if (ii == warmup)
             {
-              elapsed_ns_min = ULONG_MAX;
+              elapsed_ns_min = UINT64_MAX;
               elapsed_ns_max = 0;
               elapsed_ns_sum = 0;
             }
 
-          //
-          // initialize vin on every loop -- shouldn't need to do this
-          //
 #if 0
+          //
+          // optionally, initialize vin on every loop -- no need
+          //
           cl(EnqueueCopyBuffer(cq,random,vin,0,0,count * key_size,0,NULL,NULL));
           cl(Finish(cq));
 #endif
@@ -485,19 +489,18 @@ hs_bench(cl_context                   context,
 
       double cpu_ns;
 
-      char const * const algo = hs_cpu_sort(hs_words,sorted_h,count_padded_in,&cpu_ns);
+      char const * const algo = hs_cpu_sort(sorted_h,hs_words,count_padded_in,&cpu_ns);
 
       //
       // EXPLICITLY TRANSPOSE THE CPU SORTED SLABS IF NOT LINEARIZING
       //
-      if (!linearize) {
+      if (!linearize)
         hs_transpose_slabs(hs_words,hs_width,hs_height,vout_h,count_padded_in);
-      }
 
       //
       // VERIFY
       //
-      bool const verified = hs_verify_linear(hs_words,sorted_h,vout_h,count_padded_in);
+      bool const verified = memcmp(sorted_h,vout_h,size_padded_in) == 0;
 
 #ifndef NDEBUG
       if (!verified)
@@ -517,8 +520,9 @@ hs_bench(cl_context                   context,
       //
       // REPORT
       //
-      fprintf(stdout,"%s, %s, %s, %s, %8u, %8u, %8u, CPU, %s, %9.2f, %6.2f, GPU, %9u, %7.3f, %7.3f, %7.3f, %6.2f, %6.2f\n",
+      fprintf(stdout,"%s, %s, %s, %s, %s, %8u, %8u, %8u, CPU, %s, %9.2f, %6.2f, GPU, %9u, %7.3f, %7.3f, %7.3f, %6.2f, %6.2f\n",
               device_name,
+              driver_version,
               (hs_words == 1) ? "uint" : "ulong",
               linearize ? "linear" : "slab",
               verified ? "  OK  " : "*FAIL*",
@@ -550,13 +554,6 @@ hs_bench(cl_context                   context,
   cl(ReleaseMemObject(random));
   free(sorted_h);
 }
-
-//
-//
-//
-
-#define HS_TARGET_NAME hs_target
-#include "intel/gen8/u64/hs_target.h"
 
 //
 //
@@ -657,20 +654,34 @@ main(int argc, char const * argv[])
   hs_dummy_kernel_create(context,device_id);
 
   //
+  // select the target
+  //
+
+  uint32_t const key_val_words = (argc == 1) ? 2 : strtoul(argv[1],NULL,0);
+
+  struct hs_cl_target const * hs_target;
+
+  if (key_val_words == 1)
+    hs_target = &hs_intel_gen8_u32;
+  else
+    hs_target = &hs_intel_gen8_u64;
+
+  //
   // create kernels
   //
   fprintf(stdout,"Creating... ");
 
-  struct hs_cl * const hs = hs_cl_create(&hs_target,context,device_id);
+  struct hs_cl * const hs = hs_cl_create(hs_target,context,device_id);
 
   fprintf(stdout,"done.\n");
 
   //
   //
   //
+
 #ifdef NDEBUG
-#define HS_BENCH_LOOPS   50
-#define HS_BENCH_WARMUP  10
+#define HS_BENCH_LOOPS   100
+#define HS_BENCH_WARMUP  100
 #else
 #define HS_BENCH_LOOPS   1
 #define HS_BENCH_WARMUP  0
@@ -679,24 +690,65 @@ main(int argc, char const * argv[])
   //
   // sort sizes and loops
   //
-  uint32_t const kpb        = hs_target.config.slab.height << hs_target.config.slab.width_log2;
+  uint32_t const kpb        = hs_target->config.slab.height << hs_target->config.slab.width_log2;
 
-  uint32_t const count_lo   = (argc <= 1) ? kpb             : strtoul(argv[1],NULL,0);
-  uint32_t const count_hi   = (argc <= 2) ? count_lo        : strtoul(argv[2],NULL,0);
-  uint32_t const count_step = (argc <= 3) ? count_lo        : strtoul(argv[3],NULL,0);
-  uint32_t const loops      = (argc <= 4) ? HS_BENCH_LOOPS  : strtoul(argv[4],NULL,0);
-  uint32_t const warmup     = (argc <= 5) ? HS_BENCH_WARMUP : strtoul(argv[5],NULL,0);
-  bool     const linearize  = (argc <= 6) ? true            : strtoul(argv[6],NULL,0);
+  uint32_t const count_lo   = (argc <= 2) ? kpb             : strtoul(argv[2],NULL,0);
+  uint32_t const count_hi   = (argc <= 3) ? count_lo        : strtoul(argv[3],NULL,0);
+  uint32_t const count_step = (argc <= 4) ? count_lo        : strtoul(argv[4],NULL,0);
+  uint32_t const loops      = (argc <= 5) ? HS_BENCH_LOOPS  : strtoul(argv[5],NULL,0);
+  uint32_t const warmup     = (argc <= 6) ? HS_BENCH_WARMUP : strtoul(argv[6],NULL,0);
+  bool     const linearize  = (argc <= 7) ? true            : strtoul(argv[7],NULL,0);
 
+  //
+  // labels
+  //
+  fprintf(stdout,
+          "Device, "
+          "Driver, "
+          "Type, "
+          "Slab/Linear, "
+          "Verified?, "
+          "Keys, "
+          "Keys Padded In, "
+          "Keys Padded Out, "
+          "CPU Algorithm, "
+          "CPU Msecs, "
+          "CPU Mkeys/s, "
+          "Trials, "
+          "Avg. Msecs, "
+          "Min Msecs, "
+          "Max Msecs, "
+          "Avg. Mkeys/s, "
+          "Max. Mkeys/s\n");
+
+  //
+  // we want to track driver versions
+  //
+  size_t driver_version_size;
+
+  cl(GetDeviceInfo(device_id,
+                   CL_DRIVER_VERSION,
+                   0,
+                   NULL,
+                   &driver_version_size));
+
+  char * const driver_version = ALLOCA_MACRO(driver_version_size);
+
+  cl(GetDeviceInfo(device_id,
+                   CL_DRIVER_VERSION,
+                   driver_version_size,
+                   driver_version,
+                   NULL));
   //
   // benchmark
   //
   hs_bench(context,
            cq,cq_profile,
            device_name,
-           hs_target.config.words.key + hs_target.config.words.val,
-           1 << hs_target.config.slab.width_log2,
-           hs_target.config.slab.height,
+           driver_version,
+           hs_target->config.words.key + hs_target->config.words.val,
+           1 << hs_target->config.slab.width_log2,
+           hs_target->config.slab.height,
            hs,
            count_lo,
            count_hi,

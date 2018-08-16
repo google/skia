@@ -1,45 +1,84 @@
 @ECHO OFF
 
-del *.comp
-del *.pre.comp
-del *.spv
+::
+:: delete the previous images
+::
 
-REM
-REM
-REM
+del *.comp
+del *.spv
+del *.xxd
+
+::
+::
+::
 
 set HS_GEN=..\..\..\..\..\..\spinel\bin\x64\Debug\hs_gen
 
-REM --- 32-bit keys ---
+::
+:: There appears to be an Intel compiler bug when using more than
+:: 16 registers per lane so try a wider subgroup and narrower merging kernels
+::
+:: The current crop of Intel compilers are spilling way too much...
+::
 
-REM CMD /C %HS_GEN% -v -a "glsl" -t 1 -w 8 -r 24 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "glsl" -t 1 -w 8 -r 32 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "glsl" -t 1 -w 8 -r 32 -s 8192  -S 65536 -b 8  -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+%HS_GEN% -v -a "glsl" -D HS_INTEL_GEN8 -t 1 -w 16 -r 8 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
 
-REM --- 64-bit keys
+::
+:: This should be the proper mapping onto the Intel GEN8+ subslices but the compiler is spilling
+::
+:: %HS_GEN% -v -a "glsl" -D HS_INTEL_GEN8 -t 1 -w 8 -r 32 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+::
 
-CMD /C %HS_GEN% -v -a "glsl" -t 2 -w 8 -r 16 -s 21504 -S 65536 -b 16 -B 48 -m 1 -M 1 -f 1 -F 1 -c 1 -C 1 -z
-REM CMD /C %HS_GEN% -v -a "glsl" -t 2 -w 8 -r 16 -s 32768 -S 65536 -b 28 -B 56 -m 1 -M 1 -f 0 -F 0 -c 0 -C 0 -z
+::
+:: remove trailing whitespace from generated files
+::
 
-REM CMD /C make_inl_cl.bat hs_cl.cl
+sed -i 's/[[:space:]]*$//' hs_config.h
+sed -i 's/[[:space:]]*$//' hs_modules.h
+
+::
+::
+::
+
+where glslangValidator
+
+::
+:: FIXME -- convert this to a bash script
+::
+:: Note that we can use xargs instead of the cmd for/do
+::
 
 for %%f in (*.comp) do (
-    echo %%~nf
     dos2unix %%f
-    clang-format -style=Mozilla -i %%f                                                            || goto :error
-    cl -I . -EP %%f -P -Fi%%~nf.pre.comp                                                          || goto :error
-    clang-format -style=Mozilla -i %%~nf.pre.comp                                                 || goto :error
-    glslc --target-env=vulkan1.1 -std=450 -fshader-stage=compute -I . %%~nf.pre.comp -o %%~nf.spv || goto :error
-    spirv-opt -O %%~nf.spv -o %%~nf.spv                                                           || goto :error
-    xxd -i < %%~nf.spv > %%~nf.spv.xxd                                                            || goto :error
+    clang-format -style=Mozilla -i %%f                                   || goto :error
+    cl -I ../.. -EP %%f -P -Fi%%~nf.pre.comp                             || goto :error
+    clang-format -style=Mozilla -i %%~nf.pre.comp                        || goto :error
+    glslangValidator --target-env vulkan1.1 -o %%~nf.spv %%~nf.pre.comp  || goto :error
+    spirv-opt -O %%~nf.spv -o %%~nf.spv                                  || goto :error
+REM spirv-remap ...                                                      || goto :error
+    xxd -i < %%~nf.spv > %%~nf.spv.xxd                                   || goto :error
     for /f %%A in ('wc -c %%~nf.spv') do (
-      printf "%%.8x" %%A | xxd -r -p | xxd -i > %%~nf.len.xxd
+        echo %%~nf.spv %%A
+        printf "%%.8x" %%A | xxd -r -p | xxd -i > %%~nf.len.xxd          || goto :error
     )
 )
 
-del *.comp
+::
+:: dump a binary
+::
+
+cl /DHS_DUMP /Fe:hs_dump.exe *.c
+hs_dump
+
+::
+:: delete temporary files
+::
+
 del *.pre.comp
+del *.comp
 del *.spv
+REM del *.obj
+REM del *.exe
 
 exit /b 0
 
