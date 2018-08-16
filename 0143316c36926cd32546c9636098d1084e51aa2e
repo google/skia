@@ -69,6 +69,30 @@
       "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b044e33_25304140",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-16T17:51:02Z",
+      "side": 1,
+      "message": "Right, all the RGB-only skcms_PixelFormats (Gray8, 565, 888, 161616, hhh, fff) will load with alpha \u003d 1.0 already.\n\nskcms_AlphaFormat_Opaque is only needed if you want to read formats with dead bits like 888x or 101010x, where you\u0027d set the pixel format to 8888 or 1010102 respectively, and the alpha format to opaque.\n\nskcms\u0027 options are just sliced a little more combinatorially than SkColorTypes; I\u0027ve never tried it, but I suspect 444x or 161616x should just work out of the box in the same way.",
+      "parentUuid": "4ec46945_4f4f2865",
+      "range": {
+        "startLine": 672,
+        "startChar": 0,
+        "endLine": 683,
+        "endChar": 13
+      },
+      "revId": "0143316c36926cd32546c9636098d1084e51aa2e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
