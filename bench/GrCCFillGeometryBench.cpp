@@ -7,7 +7,7 @@
 
 #include "Benchmark.h"
 
-#include "ccpr/GrCCGeometry.h"
+#include "ccpr/GrCCFillGeometry.h"
 #include "SkGeometry.h"
 
 static int kNumBaseLoops = 50000;
@@ -61,7 +61,7 @@ public:
 private:
     SkPoint fPoints[5];
     SkString fName;
-    GrCCGeometry fGeometry{4*100*kNumBaseLoops, 2*100*kNumBaseLoops};
+    GrCCFillGeometry fGeometry{4*100*kNumBaseLoops, 2*100*kNumBaseLoops};
 
     typedef Benchmark INHERITED;
 };
