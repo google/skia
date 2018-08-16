@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b30ceac2_9a86e978",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 1726,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T15:09:55Z",
+      "side": 1,
+      "message": "Can remove this, a font doesn\u0027t need to be a variation font to have palettes and palette names.",
+      "range": {
+        "startLine": 1724,
+        "startChar": 0,
+        "endLine": 1726,
+        "endChar": 9
+      },
+      "revId": "f8e2cfc103c42a3dcfe2a94722bcbbf83ffd442a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ea7772f0_0aa5d06a",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 1751,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T15:09:55Z",
+      "side": 1,
+      "message": "If we don\u0027t have FT_COLOR_H this will be an undefined value. I think the current entire body of this function should be guarded like\n\n#ifdef FT_COLOR_H\n ... everything in this function right here ....\n#else\n    return nullptr;\n#endif",
+      "range": {
+        "startLine": 1751,
+        "startChar": 62,
+        "endLine": 1751,
+        "endChar": 77
+      },
+      "revId": "f8e2cfc103c42a3dcfe2a94722bcbbf83ffd442a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "93a2cf9e_0608fb01",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 1907,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T15:09:55Z",
+      "side": 1,
+      "message": "Don\u0027t need to be a variation font to have palettes, so we can remove this.",
+      "range": {
+        "startLine": 1904,
+        "startChar": 0,
+        "endLine": 1907,
+        "endChar": 5
+      },
+      "revId": "f8e2cfc103c42a3dcfe2a94722bcbbf83ffd442a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "300e2cf4_c33eaa3d",
+        "filename": "src/ports/SkTypeface_win_dw.cpp",
+        "patchSetId": 28
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T15:09:55Z",
+      "side": 1,
+      "message": "HRN should work here to avoid writing out the \u0027if\u0027.",
+      "range": {
+        "startLine": 194,
+        "startChar": 8,
+        "endLine": 194,
+        "endChar": 14
+      },
+      "revId": "f8e2cfc103c42a3dcfe2a94722bcbbf83ffd442a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
