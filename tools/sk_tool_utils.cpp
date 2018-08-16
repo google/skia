@@ -62,6 +62,12 @@ const char* colortype_name(SkColorType ct) {
 }
 
 SkColor color_to_565(SkColor color) {
+    // Not a good idea to use this function for greyscale colors...
+    // it will add an obvious purple or green tint.
+    SkASSERT(SkColorGetR(color) != SkColorGetG(color) ||
+             SkColorGetR(color) != SkColorGetB(color) ||
+             SkColorGetG(color) != SkColorGetB(color));
+
     SkPMColor pmColor = SkPreMultiplyColor(color);
     U16CPU color16 = SkPixel32ToPixel16(pmColor);
     return SkPixel16ToColor(color16);

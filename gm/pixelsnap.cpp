@@ -36,9 +36,7 @@ protected:
     void onDraw(SkCanvas* canvas) override {
         SkPaint bgPaint;
         bgPaint.setShader(
-                sk_tool_utils::create_checkerboard_shader(
-                sk_tool_utils::color_to_565(0xFFAAAAAA),
-                sk_tool_utils::color_to_565(0xFF777777), 1));
+                sk_tool_utils::create_checkerboard_shader(0xFFAAAAAA, 0xFF777777, 1));
         canvas->drawPaint(bgPaint);
 
         SkString offset;

@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkColor.h"
 #include "SkImageFilter.h"
 
@@ -23,9 +22,9 @@ static void make_checkerboard(SkBitmap* bitmap) {
         bitmap->allocN32Pixels(64, 64);
         SkCanvas canvas(*bitmap);
         SkPaint darkPaint;
-        darkPaint.setColor(sk_tool_utils::color_to_565(0xFF404040));
+        darkPaint.setColor(0xFF404040);
         SkPaint lightPaint;
-        lightPaint.setColor(sk_tool_utils::color_to_565(0xFFA0A0A0));
+        lightPaint.setColor(0xFFA0A0A0);
         for (int y = 0; y < 64; y += 32) {
             for (int x = 0; x < 64; x += 32) {
                 canvas.save();

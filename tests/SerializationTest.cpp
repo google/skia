@@ -575,7 +575,7 @@ DEF_TEST(Serialization, reporter) {
 
         SkBitmap diffuse = sk_tool_utils::create_checkerboard_bitmap(
                 kTexSize, kTexSize,
-                sk_tool_utils::color_to_565(0x0),
+                0x00000000,
                 sk_tool_utils::color_to_565(0xFF804020),
                 8);
 

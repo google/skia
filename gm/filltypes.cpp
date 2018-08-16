@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 #include "SkPath.h"
 
 namespace skiagm {
@@ -15,7 +14,7 @@ class FillTypeGM : public GM {
     SkPath fPath;
 public:
     FillTypeGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFDDDDDD));
+        this->setBGColor(0xFFDDDDDD);
     }
 
     void makePath() {

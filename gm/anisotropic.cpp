@@ -6,7 +6,6 @@
  */
 
 #include "gm.h"
-#include "sk_tool_utils.h"
 
 namespace skiagm {
 
@@ -14,7 +13,7 @@ namespace skiagm {
 class AnisotropicGM : public GM {
 public:
     AnisotropicGM() : fFilterQuality(kHigh_SkFilterQuality) {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:

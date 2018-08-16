@@ -19,8 +19,7 @@
  *
  * The correct image should look like a thin stroked round rect.
  */
-DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100,
-                 sk_tool_utils::color_to_565(0xFF303030)) {
+DEF_SIMPLE_GM_BG(skbug1719, canvas, 300, 100, 0xFF303030) {
         canvas->translate(SkIntToScalar(-800), SkIntToScalar(-650));
 
         // The data is lifted from an SKP that exhibited the bug.

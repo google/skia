@@ -54,7 +54,7 @@ static sk_sp<SkImage> make_atlas(SkCanvas* caller, int atlasSize) {
 class DrawAtlasColorsGM : public skiagm::GM {
 public:
     DrawAtlasColorsGM() {
-        this->setBGColor(sk_tool_utils::color_to_565(0xFFCCCCCC));
+        this->setBGColor(0xFFCCCCCC);
     }
 
 protected:
