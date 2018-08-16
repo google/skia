@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f0d77a10_ef843aa1",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 9
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T21:28:26Z",
+      "side": 1,
+      "message": "I\u0027m always frighted by seeing this anywhere, since there is no mapping of codepoints to glyphs (except to say that some run of \u0027n\u0027 of codepoints turned into some run of \u0027m\u0027 glyphs after shaping). It\u0027s hard to say what this actually means though, since the content of GlyphInfo is \u0027TODO\u0027.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 48,
+        "endChar": 50
+      },
+      "revId": "b2d9068583298f5312f22cccec6bfa9b7a508300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e41d39a_9f686a4c",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-16T21:28:26Z",
+      "side": 1,
+      "message": "Maybe I\u0027m just super confused by the term \u0027jglyph\u0027 which might be better termed \u0027jchars\u0027?",
+      "range": {
+        "startLine": 178,
+        "startChar": 47,
+        "endLine": 178,
+        "endChar": 53
+      },
+      "revId": "b2d9068583298f5312f22cccec6bfa9b7a508300",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
