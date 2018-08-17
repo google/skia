@@ -652,18 +652,25 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // Write glyphs images.
     serializer->emplace<size_t>(fPendingGlyphImages.size());
     for (const auto& glyphID : fPendingGlyphImages) {
-        auto glyph = serializer->emplace<SkGlyph>();
-        glyph->initWithGlyphID(glyphID);
-        fContext->getMetrics(glyph);
-        glyph->fPathData = nullptr;
-        glyph->fImage = nullptr;
+        SkGlyph stationaryGlyph;
+        {
+            auto glyph = serializer->emplace<SkGlyph>();
+            glyph->initWithGlyphID(glyphID);
+            fContext->getMetrics(glyph);
+            glyph->fPathData = nullptr;
+            glyph->fImage = nullptr;
+
+            // Since the allocate can move glyph, make one that stays in one place.
+            stationaryGlyph = *glyph;
+        }
 
         // Glyphs which are too large for the atlas still request images when computing the bounds
         // for the glyph, which is why its necessary to send both. See related code in
         // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
         bool tooLargeForAtlas = false;
 #if SK_SUPPORT_GPU
-        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph->fWidth, glyph->fHeight);
+        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(stationaryGlyph.fWidth,
+                                                                stationaryGlyph.fHeight);
 #endif
         if (tooLargeForAtlas) {
             // Add this to the path cache, since we will always fall back to using paths
@@ -672,11 +679,9 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
             writeGlyphPath(glyphID, serializer);
         }
 
-        auto imageSize = glyph->computeImageSize();
+        auto imageSize = stationaryGlyph.computeImageSize();
         if (imageSize == 0u) continue;
 
-        // Since the allocate can move glyph, make one that stays in one place.
-        SkGlyph stationaryGlyph = *glyph;
         stationaryGlyph.fImage = serializer->allocate(imageSize, stationaryGlyph.formatAlignment());
         fContext->getImage(stationaryGlyph);
         // TODO: Generating the image can change the mask format, do we need to update it in the
@@ -687,11 +692,13 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // Write glyphs paths.
     serializer->emplace<size_t>(fPendingGlyphPaths.size());
     for (const auto& glyphID : fPendingGlyphPaths) {
-        auto glyph = serializer->emplace<SkGlyph>();
-        glyph->initWithGlyphID(glyphID);
-        fContext->getMetrics(glyph);
-        glyph->fPathData = nullptr;
-        glyph->fImage = nullptr;
+        {
+            auto glyph = serializer->emplace<SkGlyph>();
+            glyph->initWithGlyphID(glyphID);
+            fContext->getMetrics(glyph);
+            glyph->fPathData = nullptr;
+            glyph->fImage = nullptr;
+        }
         writeGlyphPath(glyphID, serializer);
     }
     fPendingGlyphPaths.clear();
