@@ -249,6 +249,14 @@ bool EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, Sk
     return Op(pathOne, pathTwo, op, &pathOne);
 }
 
+SkPathOrNull EMSCRIPTEN_KEEPALIVE MakeFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+    SkPath out;
+    if (Op(pathOne, pathTwo, op, &out)) {
+        return emscripten::val(out);
+    }
+    return emscripten::val::null();
+}
+
 SkPathOrNull EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
     SkPath path;
     if (builder.resolve(&path)) {
@@ -543,7 +551,7 @@ EMSCRIPTEN_BINDINGS(skia) {
     // Path2D is opaque, so we can't read in from it.
 
     // PathOps
-    function("ApplyPathOp", &ApplyPathOp);
+    function("MakeFromOp", &MakeFromOp);
 
     enum_<SkPathOp>("PathOp")
         .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
@@ -574,7 +582,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .field("fRight",  &SkRect::fRight)
         .field("fBottom", &SkRect::fBottom);
 
-    function("MakeLTRBRect", &SkRect::MakeLTRB);
+    function("LTRBRect", &SkRect::MakeLTRB);
 
     // Stroke
     enum_<SkPaint::Join>("StrokeJoin")
