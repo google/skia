@@ -548,28 +548,12 @@ static bool check_for_duplicate_names(const char* testName) {
     return false;
 }
 
-static bool check_for_conics(const SkPath& path) {
-    SkPath::RawIter iter(path);
-    SkPath::Verb verb;
-    do {
-        SkPoint pts[4];
-        verb = iter.next(pts);
-        if (SkPath::kConic_Verb == verb) {
-            return true;
-        }
-     } while (SkPath::kDone_Verb != verb);
-     return false;
-}
-
 static bool inner_simplify(skiatest::Reporter* reporter, const SkPath& path, const char* filename,
         ExpectSuccess expectSuccess, SkipAssert skipAssert, ExpectMatch expectMatch) {
 #if 0 && DEBUG_SHOW_TEST_NAME
     showPathData(path);
 #endif
     if (PathOpsDebug::gJson) {
-        if (check_for_conics(path)) {
-            return true;
-        }
         if (check_for_duplicate_names(filename)) {
             return true;
         }
@@ -654,9 +638,6 @@ static bool innerPathOp(skiatest::Reporter* reporter, const SkPath& a, const SkP
     showName(a, b, shapeOp);
 #endif
     if (PathOpsDebug::gJson) {
-        if (check_for_conics(a) || check_for_conics(b)) {
-            return true;
-        }
         if (check_for_duplicate_names(testName)) {
             return true;
         }
