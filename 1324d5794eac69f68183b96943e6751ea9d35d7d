@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7f7112a6_572a8477",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-17T16:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "db28dcf4_8b786c42",
+      "range": {
+        "startLine": 110,
+        "startChar": 8,
+        "endLine": 110,
+        "endChar": 11
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b28875b_74c5afea",
         "filename": "modules/skottie/src/SkottieTextLayer.cpp",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9d86364_ab5c1ed8",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-17T16:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b28875b_74c5afea",
+      "range": {
+        "startLine": 117,
+        "startChar": 16,
+        "endLine": 117,
+        "endChar": 41
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "79cf86d2_79d8f8ad",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-17T16:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80119022_2cbd5674",
+      "range": {
+        "startLine": 187,
+        "startChar": 23,
+        "endLine": 187,
+        "endChar": 25
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18588219_cf8a1378",
         "filename": "modules/skottie/src/SkottieTextLayer.cpp",
         "patchSetId": 10
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "f16edff0_4aaf5955",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-17T16:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18588219_cf8a1378",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 191,
+        "endChar": 22
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "366de31b_0b420e08",
         "filename": "modules/skottie/src/SkottieTextLayer.cpp",
         "patchSetId": 10
@@ -114,6 +210,30 @@
       "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d0c983a_087b5f57",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-17T16:30:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "366de31b_0b420e08",
+      "range": {
+        "startLine": 206,
+        "startChar": 47,
+        "endLine": 206,
+        "endChar": 52
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
