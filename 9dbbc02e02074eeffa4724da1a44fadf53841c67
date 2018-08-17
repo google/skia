@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95637100_675ef8fe",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-17T20:31:17Z",
+      "side": 0,
+      "message": "These are currently running on Win2016 bots. Do you want to add Win2016 BonusConfigs jobs?",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 33
+      },
+      "revId": "9dbbc02e02074eeffa4724da1a44fadf53841c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad24422f_523bd271",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-17T20:31:17Z",
+      "side": 0,
+      "message": "We are confident that these are not platform- or OS-specific?",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 79
+      },
+      "revId": "9dbbc02e02074eeffa4724da1a44fadf53841c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
