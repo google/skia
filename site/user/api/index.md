@@ -24,7 +24,10 @@ Full references with examples are available for:
 *   [SkPoint](/user/api/SkPoint_Reference) - two floating point coordinates
 *   [SkRRect](/user/api/SkRRect_Reference) - floating point rounded rectangle
 *   [SkRect](/user/api/SkRect_Reference) - floating point rectangle
+*   [SkRegion](/user/api/SkRegion_Reference) - compressed clipping mask
 *   [SkSurface](/user/api/SkSurface_Reference) - drawing destination
+*   [SkTextBlob](/user/api/SkTextBlob_Reference) - runs of glyphs
+*   [SkTextBlobBuilder](/user/api/SkTextBlobBuilder_Reference) - constructor for runs of glyphs
 
 Check out [a graphical overview of examples](api/catalog.htm)
 
