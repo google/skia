@@ -125,6 +125,10 @@ def dm_flags(api, bot):
       configs.extend(['esrgb'])
       configs.extend(['narrow'])
       configs.extend(['enarrow'])
+      configs.extend(['p3'])
+      configs.extend(['ep3'])
+      configs.extend(['rec2020'])
+      configs.extend(['erec2020'])
 
     configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
 
