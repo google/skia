@@ -1592,7 +1592,11 @@ SkPath& SkPath::addPath(const SkPath& path, const SkMatrix& matrix, AddPathMode 
                 proc(matrix, &pts[0], &pts[0], 1);
                 if (firstVerb && mode == kExtend_AddPathMode && !isEmpty()) {
                     injectMoveToIfNeeded(); // In case last contour is closed
-                    this->lineTo(pts[0]);
+                    SkPoint lastPt;
+                    // don't add lineTo if it is degenerate
+                    if (fLastMoveToIndex < 0 || !this->getLastPt(&lastPt) || lastPt != pts[0]) {
+                        this->lineTo(pts[0]);
+                    }
                 } else {
                     this->moveTo(pts[0]);
                 }
