@@ -211,21 +211,6 @@ static sk_sp<GrSurfaceContext> make_surface_context(Encoding contextEncoding, Gr
     return surfaceContext;
 }
 
-static void text_write_fails(Encoding contextEncoding, Encoding writeEncoding, GrContext* context,
-                             skiatest::Reporter* reporter) {
-    auto surfaceContext = make_surface_context(contextEncoding, context, reporter);
-    if (!surfaceContext) {
-        return;
-    }
-    auto writeII = SkImageInfo::Make(kW, kH, kRGBA_8888_SkColorType, kPremul_SkAlphaType,
-                                     encoding_as_color_space(writeEncoding));
-    auto data = make_data();
-    if (surfaceContext->writePixels(writeII, data.get(), 0, 0, 0)) {
-        ERRORF(reporter, "Expected %s write to %s surface context to fail.",
-               encoding_as_str(writeEncoding), encoding_as_str(contextEncoding));
-    }
-}
-
 static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, Encoding readEncoding,
                             float error, CheckFn check, GrContext* context,
                             skiatest::Reporter* reporter) {
@@ -280,8 +265,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     test_write_read(Encoding::kSRGB, Encoding::kSRGB, Encoding::kLinear, error,
                     check_srgb_to_linear_conversion, context, reporter);
 
-    // Currently writing untagged data to kSRGB fails because SkImageInfoValidConversion fails.
-    text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
+    // Untagged source data should be interpreted as sRGB.
+    test_write_read(Encoding::kSRGB, Encoding::kUntagged, Encoding::kSRGB, smallError,
+                    check_no_conversion, context, reporter);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write linear data to a sRGB context. It gets converted to sRGB on write. The reads
@@ -322,8 +308,9 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     test_write_read(Encoding::kLinear, Encoding::kSRGB, Encoding::kLinear, error,
                     check_srgb_to_linear_conversion, context, reporter);
 
-    // Currently writing untagged data to kLinear fails because SkImageInfoValidConversion fails.
-    text_write_fails(Encoding::kSRGB, Encoding::kUntagged, context, reporter);
+    // Untagged source data should be interpreted as sRGB.
+    test_write_read(Encoding::kLinear, Encoding::kUntagged, Encoding::kSRGB, error,
+                    check_srgb_to_linear_to_srgb_conversion, context, reporter);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write linear data to a linear context. Does no conversion.

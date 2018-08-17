@@ -116,47 +116,9 @@ static inline bool SkImageInfoIsValid(const SkImageInfo& info) {
 
 /**
  *  Returns true if Skia has defined a pixel conversion from the |src| to the |dst|.
- *  Returns false otherwise.  Some discussion of false cases:
- *      We do not convert to kGray8 when the |src| is not kGray8 in the same color space.
- *      We may add this feature - it just requires some work to convert to luminance while
- *      handling color spaces correctly.  Currently no one is asking for this.
- *      We will not convert from kAlpha8 when the |dst| is not kAlpha8.  This would require
- *      inventing color information.
- *      We will not convert to kOpaque when the |src| is not kOpaque.  This could be
- *      implemented to set all the alpha values to 1, but there is still some ambiguity -
- *      should we use kPremul or kUnpremul color values with the opaque alphas?  Or should
- *      we just use whatever the |src| alpha is?  In the future, we could choose to clearly
- *      define this, but currently no one is asking for this feature.
- *      We will not convert to a particular color space if |src| is nullptr.  The color space
- *      conversion is not well-defined.
+ *  Returns false otherwise.
  */
 static inline bool SkImageInfoValidConversion(const SkImageInfo& dst, const SkImageInfo& src) {
-    if (!SkImageInfoIsValid(dst) || !SkImageInfoIsValid(src)) {
-        return false;
-    }
-
-    if (SkColorTypeIsGray(dst.colorType())) {
-        if (!SkColorTypeIsGray(src.colorType())) {
-            return false;
-        }
-
-        if (dst.colorSpace() && !SkColorSpace::Equals(dst.colorSpace(), src.colorSpace())) {
-            return false;
-        }
-    }
-
-    if (!SkColorTypeIsAlphaOnly(dst.colorType()) && SkColorTypeIsAlphaOnly(src.colorType())) {
-        return false;
-    }
-
-    if (kOpaque_SkAlphaType == dst.alphaType() && kOpaque_SkAlphaType != src.alphaType()) {
-        return false;
-    }
-
-    if (dst.colorSpace() && !src.colorSpace()) {
-        return false;
-    }
-
-    return true;
+    return SkImageInfoIsValid(dst) && SkImageInfoIsValid(src);
 }
 #endif  // SkImageInfoPriv_DEFINED
