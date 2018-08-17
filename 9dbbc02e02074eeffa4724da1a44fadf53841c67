@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e85c0b08_c6a9d623",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-17T20:35:35Z",
+      "side": 0,
+      "message": "I think it\u0027s probably okay to try and see without Windows.  I think we originally wrote this \u0027-GCE-\u0027 in bot logic before we had Windows GCE machines, and they slipped into running these tests accidentally.",
+      "parentUuid": "95637100_675ef8fe",
+      "range": {
+        "startLine": 119,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 33
+      },
+      "revId": "9dbbc02e02074eeffa4724da1a44fadf53841c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ad24422f_523bd271",
         "filename": "infra/bots/recipes/test.py",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-17T20:31:17Z",
       "side": 0,
       "message": "We are confident that these are not platform- or OS-specific?",
+      "range": {
+        "startLine": 129,
+        "startChar": 4,
+        "endLine": 129,
+        "endChar": 79
+      },
+      "revId": "9dbbc02e02074eeffa4724da1a44fadf53841c67",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "34d63442_22d44c7f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-17T20:35:35Z",
+      "side": 0,
+      "message": "Yeah, this is all pretty portable code.  It\u0027s also less important than it used to be a couple years ago, so less thorough coverage is probably ok.\n\nI\u0027m thinking though it might make sense to add BonusConfigs_ASAN, BonusConfigs_MSAN, BonusConfigs_TSAN?",
+      "parentUuid": "ad24422f_523bd271",
       "range": {
         "startLine": 129,
         "startChar": 4,
