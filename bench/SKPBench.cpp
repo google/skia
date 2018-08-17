@@ -23,7 +23,7 @@ DEFINE_int32(GPUbenchTileH, 512, "Tile height used for GPU SKP playback.");
 SKPBench::SKPBench(const char* name, const SkPicture* pic, const SkIRect& clip, SkScalar scale,
                    bool useMultiPictureDraw, bool doLooping)
     : fPic(SkRef(pic))
-    , fClip(clip)
+    , fClip(pic->cullRect().roundOut())
     , fScale(scale)
     , fName(name)
     , fUseMultiPictureDraw(useMultiPictureDraw)
