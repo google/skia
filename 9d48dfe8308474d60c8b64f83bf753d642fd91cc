@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6b1878fc_bd074096",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0a2270d_940ce822",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 14
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e274f55f_08d2735f",
         "filename": "experimental/pathkit/chaining.js",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c5e19e77_2f184b59",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e274f55f_08d2735f",
+      "range": {
+        "startLine": 9,
+        "startChar": 19,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "31cf13fa_a75d25f6",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a733f49c_5fec25ea",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 74
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ee03bc89_c0fa3e63",
         "filename": "experimental/pathkit/chaining.js",
         "patchSetId": 9
@@ -91,6 +163,30 @@
       "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b14ac92d_a6e9aeaf",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Yeah, it will get more documentation, but I don\u0027t think here is the place.  Reason being that this isn\u0027t the only place we expose the public API.  I think it will be on some place like https://skia.org/user/modules/pathkit",
+      "parentUuid": "ee03bc89_c0fa3e63",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 54
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "5d49404d_005a389c",
+        "filename": "experimental/pathkit/tests/path2d.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Added comment.",
+      "parentUuid": "fad0cab2_a0a8a8b4",
+      "range": {
+        "startLine": 103,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fac912d2_9cfdeef3",
         "filename": "experimental/pathkit/tests/pathops.spec.js",
         "patchSetId": 9
@@ -137,6 +257,30 @@
       "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd37d077_e2affbc3",
+        "filename": "experimental/pathkit/tests/pathops.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-17T17:20:16Z",
+      "side": 1,
+      "message": "Added a 5th equals sign.... jk.",
+      "parentUuid": "fac912d2_9cfdeef3",
+      "range": {
+        "startLine": 172,
+        "startChar": 36,
+        "endLine": 172,
+        "endChar": 40
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
