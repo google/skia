@@ -944,14 +944,13 @@ DRAW_PATH:
 }
 
 SkScalar SkDraw::ComputeResScaleForStroking(const SkMatrix& matrix) {
-    if (!matrix.hasPerspective()) {
-        SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
-        SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
-        if (SkScalarsAreFinite(sx, sy)) {
-            SkScalar scale = SkTMax(sx, sy);
-            if (scale > 0) {
-                return scale;
-            }
+    // Not sure how to handle perspective differently, so we just don't try (yet)
+    SkScalar sx = SkPoint::Length(matrix[SkMatrix::kMScaleX], matrix[SkMatrix::kMSkewY]);
+    SkScalar sy = SkPoint::Length(matrix[SkMatrix::kMSkewX],  matrix[SkMatrix::kMScaleY]);
+    if (SkScalarsAreFinite(sx, sy)) {
+        SkScalar scale = SkTMax(sx, sy);
+        if (scale > 0) {
+            return scale;
         }
     }
     return 1;
