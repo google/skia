@@ -209,6 +209,9 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         case kGray_8_SkColorType:
             pipeline.append(SkRasterPipeline::load_g8, &src);
             break;
+        case kAlpha_8_SkColorType:
+            pipeline.append(SkRasterPipeline::load_a8, &src);
+            break;
         case kARGB_4444_SkColorType:
             pipeline.append(SkRasterPipeline::load_4444, &src);
             break;
@@ -270,6 +273,13 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
         case kARGB_4444_SkColorType:
             pipeline.append(SkRasterPipeline::store_4444, &dst);
+            break;
+        case kAlpha_8_SkColorType:
+            pipeline.append(SkRasterPipeline::store_a8, &dst);
+            break;
+        case kGray_8_SkColorType:
+            pipeline.append(SkRasterPipeline::luminance_to_alpha);
+            pipeline.append(SkRasterPipeline::store_a8, &dst);
             break;
         default:
             SkASSERT(false);
