@@ -84,21 +84,21 @@ example:
 	python serve.py
 
 local-example:
-	rm -rf node_modules
+	rm -rf node_modules/experimental-pathkit-wasm
 	mkdir -p node_modules
 	ln -s -T ../npm-wasm node_modules/experimental-pathkit-wasm
 	echo "Go check out localhost:8000/npm-wasm/example.html"
 	python serve.py
 
 local-example-test:
-	rm -rf node_modules
+	rm -rf node_modules/experimental-pathkit-wasm
 	mkdir -p node_modules/experimental-pathkit-wasm
 	ln -s -T ../../npm-wasm/bin/test node_modules/experimental-pathkit-wasm/bin
 	echo "Go check out localhost:8000/npm-wasm/example.html"
 	python serve.py
 
 local-example-debug:
-	rm -rf node_modules
+	rm -rf node_modules/experimental-pathkit-wasm
 	mkdir -p node_modules/experimental-pathkit-wasm
 	ln -s -T ../../npm-wasm/bin/debug node_modules/experimental-pathkit-wasm/bin
 	echo "Go check out localhost:8000/npm-wasm/example.html"

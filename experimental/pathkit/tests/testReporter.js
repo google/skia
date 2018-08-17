@@ -26,7 +26,7 @@ function reportSVG(svg, testname) {
             let b64 = tempCanvas.toDataURL('image/png');
             _report(b64, 'svg', testname).then(() => {
                 resolve();
-            });
+            }).catch((e) => reject(e));
         };
         tempImg.setAttribute('src', 'data:image/svg+xml;,' + svgStr);
     });

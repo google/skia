@@ -108,7 +108,6 @@ describe('PathKit\'s SVG Behavior', function() {
              reportSVGString(svgStr, 'conics_quads_approx').then(() => {
                 done();
             }).catch(reportError(done));
-            done();
         });
     });
 

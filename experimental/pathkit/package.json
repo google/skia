@@ -5,7 +5,7 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "experimental-pathkit-wasm": "^0.1.2"
+    "experimental-pathkit-wasm": "^0.2.0"
   },
   "devDependencies": {
     "jasmine-core": "^3.1.0",
