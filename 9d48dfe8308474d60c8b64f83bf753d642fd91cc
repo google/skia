@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e0a2270d_940ce822",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "Nit: First line should be something like \nonRuntimeInitialized is called when .....",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 14
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e274f55f_08d2735f",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "Since you are expanding the prototype of another type maybe add a line where that other type comes from or where it\u0027s defined.",
+      "range": {
+        "startLine": 9,
+        "startChar": 19,
+        "endLine": 9,
+        "endChar": 28
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a733f49c_5fec25ea",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "Add documentation above function definition to explain the four different set of arguments that can be passed.",
+      "range": {
+        "startLine": 10,
+        "startChar": 6,
+        "endLine": 10,
+        "endChar": 74
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee03bc89_c0fa3e63",
+        "filename": "experimental/pathkit/chaining.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "Does this need documentation ?",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 54
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fad0cab2_a0a8a8b4",
+        "filename": "experimental/pathkit/tests/path2d.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "nit: are the 16Mib a feature of WASM or in other works \u0027who\u0027 assigns it 16Mib ?",
+      "range": {
+        "startLine": 103,
+        "startChar": 12,
+        "endLine": 104,
+        "endChar": 24
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fac912d2_9cfdeef3",
+        "filename": "experimental/pathkit/tests/pathops.spec.js",
+        "patchSetId": 9
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-17T16:14:13Z",
+      "side": 1,
+      "message": "super nit: should that be \"\u003d\u003d\u003d\"  ?",
+      "range": {
+        "startLine": 172,
+        "startChar": 36,
+        "endLine": 172,
+        "endChar": 40
+      },
+      "revId": "9d48dfe8308474d60c8b64f83bf753d642fd91cc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
