@@ -41,7 +41,7 @@
 
 class SkBlurMaskFilterImpl : public SkMaskFilterBase {
 public:
-    SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, const SkRect& occluder, bool respectCTM);
+    SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle, bool respectCTM);
 
     // overrides from SkMaskFilter
     SkMask::Format getFormat() const override;
@@ -103,7 +103,6 @@ private:
 
     SkScalar    fSigma;
     SkBlurStyle fBlurStyle;
-    SkRect      fOccluder;
     bool        fRespectCTM;
 
     SkBlurMaskFilterImpl(SkReadBuffer&);
@@ -267,11 +266,9 @@ bool SkComputeBlurredRRectParams(const SkRRect& srcRRect, const SkRRect& devRRec
 
 ///////////////////////////////////////////////////////////////////////////////
 
-SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style,
-                                           const SkRect& occluder, bool respectCTM)
+SkBlurMaskFilterImpl::SkBlurMaskFilterImpl(SkScalar sigma, SkBlurStyle style, bool respectCTM)
     : fSigma(sigma)
     , fBlurStyle(style)
-    , fOccluder(occluder)
     , fRespectCTM(respectCTM) {
     SkASSERT(fSigma > 0);
     SkASSERT((unsigned)style <= kLastEnum_SkBlurStyle);
@@ -714,17 +711,18 @@ sk_sp<SkFlattenable> SkBlurMaskFilterImpl::CreateProc(SkReadBuffer& buffer) {
     uint32_t flags = buffer.read32LE(0x3);  // historically we only recorded 2 bits
     bool respectCTM = !(flags & 1); // historically we stored ignoreCTM in low bit
 
-    SkRect occluder;
-    buffer.readRect(&occluder);
+    if (buffer.isVersionLT(SkReadBuffer::kRemoveOccluderFromBlurMaskFilter)) {
+        SkRect unused;
+        buffer.readRect(&unused);
+    }
 
-    return SkMaskFilter::MakeBlur((SkBlurStyle)style, sigma, occluder, respectCTM);
+    return SkMaskFilter::MakeBlur((SkBlurStyle)style, sigma, respectCTM);
 }
 
 void SkBlurMaskFilterImpl::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fSigma);
     buffer.writeUInt(fBlurStyle);
     buffer.writeUInt(!fRespectCTM); // historically we recorded ignoreCTM
-    buffer.writeRect(fOccluder);
 }
 
 
@@ -852,29 +850,12 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
         SkRect srcProxyRect = srcRRect.rect();
         srcProxyRect.outset(3.0f*fSigma, 3.0f*fSigma);
 
-        sk_sp<SkVertices> vertices = nullptr;
-        SkRect temp = fOccluder;
+        SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 4, 6, 0);
+        srcProxyRect.toQuad(builder.positions());
 
-        if (!temp.isEmpty() && (srcProxyRect.contains(temp) || temp.intersect(srcProxyRect))) {
-            SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 8, 24, 0);
-            srcProxyRect.toQuad(builder.positions());
-            temp.toQuad(builder.positions() + 4);
-
-            static const uint16_t ringI[24] = { 0, 1, 5, 5, 4, 0,
-                                                1, 2, 6, 6, 5, 1,
-                                                2, 3, 7, 7, 6, 2,
-                                                3, 0, 4, 4, 7, 3 };
-            memcpy(builder.indices(), ringI, sizeof(ringI));
-            vertices = builder.detach();
-        } else {
-            // full rect case
-            SkVertices::Builder builder(SkVertices::kTriangles_VertexMode, 4, 6, 0);
-            srcProxyRect.toQuad(builder.positions());
-
-            static const uint16_t fullI[6] = { 0, 1, 2, 0, 2, 3 };
-            memcpy(builder.indices(), fullI, sizeof(fullI));
-            vertices = builder.detach();
-        }
+        static const uint16_t fullIndices[6] = { 0, 1, 2, 0, 2, 3 };
+        memcpy(builder.indices(), fullIndices, sizeof(fullIndices));
+        sk_sp<SkVertices> vertices = builder.detach();
 
         paint.addCoverageFragmentProcessor(std::move(fp));
         renderTargetContext->drawVertices(clip, std::move(paint), viewMatrix, std::move(vertices),
@@ -998,14 +979,9 @@ void sk_register_blur_maskfilter_createproc() {
     SK_DEFINE_FLATTENABLE_REGISTRAR_ENTRY(SkBlurMaskFilterImpl)
 }
 
-sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma,
-                                           const SkRect& occluder, bool respectCTM) {
+sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma, bool respectCTM) {
     if (SkScalarIsFinite(sigma) && sigma > 0) {
-        return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, occluder, respectCTM));
+        return sk_sp<SkMaskFilter>(new SkBlurMaskFilterImpl(sigma, style, respectCTM));
     }
     return nullptr;
-}
-
-sk_sp<SkMaskFilter> SkMaskFilter::MakeBlur(SkBlurStyle style, SkScalar sigma, bool respectCTM) {
-    return MakeBlur(style, sigma, SkRect::MakeEmpty(), respectCTM);
 }

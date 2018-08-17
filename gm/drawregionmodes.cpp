@@ -50,8 +50,7 @@ protected:
 
         canvas->translate(-125.0f, 125.0f);
         paint.setImageFilter(nullptr);
-        SkRect occluder = SkRect::MakeEmpty();
-        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5.0f, occluder));
+        paint.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 5.0f));
         canvas->drawRegion(fRegion, paint);
 
         canvas->translate(-125.0f, -125.0f);
