@@ -921,19 +921,36 @@ static Sink* create_sink(const GrContextOptions& grCtxOptions, const SkCommandLi
         SkMatrix44 narrow_gamut(SkMatrix44::kUninitialized_Constructor);
         narrow_gamut.set3x3RowMajorf(gNarrow_toXYZD50);
 
+        // See https://en.wikipedia.org/wiki/Rec._2020
+        float alpha = 1.09929682680944f,
+              beta  = 0.018053968510807f,
+              gamma = 0.45f;
+        SkColorSpaceTransferFn rec2020_TF = SkColorSpaceTransferFn{
+            gamma,
+            powf(alpha, 1/gamma),
+            0.0f,
+            4.5f,
+            beta,
+            1 - alpha,
+            0.0f,
+        }.invert();
+
         auto narrow = SkColorSpace::MakeRGB(k2Dot2Curve_SkGammaNamed, narrow_gamut),
                srgb = SkColorSpace::MakeSRGB(),
          srgbLinear = SkColorSpace::MakeSRGBLinear(),
                  p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
-                                            SkColorSpace::kDCIP3_D65_Gamut);
+                                            SkColorSpace::kDCIP3_D65_Gamut),
+            rec2020 = SkColorSpace::MakeRGB(rec2020_TF, SkColorSpace::kRec2020_Gamut);
 
-        SINK(    "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
-        SINK(   "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
-        SINK(  "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
-        SINK( "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
-        SINK("enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
-        SINK(     "p3",  RasterSink, kRGBA_8888_SkColorType, p3        );
-        SINK(    "ep3",  RasterSink,  kRGBA_F16_SkColorType, p3        );
+        SINK(     "f16",  RasterSink,  kRGBA_F16_SkColorType, srgbLinear);
+        SINK(    "srgb",  RasterSink, kRGBA_8888_SkColorType, srgb      );
+        SINK(   "esrgb",  RasterSink,  kRGBA_F16_SkColorType, srgb      );
+        SINK(  "narrow",  RasterSink, kRGBA_8888_SkColorType, narrow    );
+        SINK( "enarrow",  RasterSink,  kRGBA_F16_SkColorType, narrow    );
+        SINK(      "p3",  RasterSink, kRGBA_8888_SkColorType, p3        );
+        SINK(     "ep3",  RasterSink,  kRGBA_F16_SkColorType, p3        );
+        SINK( "rec2020",  RasterSink, kRGBA_8888_SkColorType, rec2020   );
+        SINK("erec2020",  RasterSink,  kRGBA_F16_SkColorType, rec2020   );
 
         SINK(    "f32",  RasterSink,  kRGBA_F32_SkColorType, srgbLinear);
     }
