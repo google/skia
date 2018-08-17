@@ -199,7 +199,22 @@ public:
                   GrAA,
                   const SkMatrix& viewMatrix,
                   const SkPath&,
-                  const GrStyle& style);
+                  const GrStyle&);
+
+    /**
+     * Draws a shape.
+     *
+     * @param paint         describes how to color pixels.
+     * @param GrAA          Controls whether the path is antialiased.
+     * @param viewMatrix    transformation matrix
+     * @param shape         the shape to draw
+     */
+    void drawShape(const GrClip&,
+                   GrPaint&&,
+                   GrAA,
+                   const SkMatrix& viewMatrix,
+                   const GrShape&);
+
 
     /**
      * Draws vertices with a paint.
