@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "01a1501b_388b75e1",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-17T15:40:17Z",
+      "side": 1,
+      "message": "Does this make more sense in the upcoming change? Odd to be testing a known-to-be-null pointer right here.",
+      "revId": "533fd2902b8b5db2fdb8655477116d4551303da7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2a43e452_6c15a1f1",
         "filename": "src/gpu/GrRenderTargetContext.cpp",
         "patchSetId": 2
