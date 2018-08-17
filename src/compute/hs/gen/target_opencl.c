@@ -38,11 +38,13 @@ hsg_transpose_reg_prefix(uint32_t const cols_log2)
 
 static
 void
-hsg_transpose_blend(uint32_t                     const cols_log2,
-                    uint32_t                     const row_ll, // lower-left
-                    uint32_t                     const row_ur, // upper-right
-                    struct hsg_transpose_state * const state)
+hsg_transpose_blend(uint32_t const cols_log2,
+                    uint32_t const row_ll, // lower-left
+                    uint32_t const row_ur, // upper-right
+                    void *         blend)
 {
+  struct hsg_transpose_state * const state = blend;
+
   // we're starting register names at '1' for now
   fprintf(state->header,
           "  HS_TRANSPOSE_BLEND( %c, %c, %2u, %3u, %3u ) \\\n",
@@ -53,10 +55,12 @@ hsg_transpose_blend(uint32_t                     const cols_log2,
 
 static
 void
-hsg_transpose_remap(uint32_t                     const row_from,
-                    uint32_t                     const row_to,
-                    struct hsg_transpose_state * const state)
+hsg_transpose_remap(uint32_t const row_from,
+                    uint32_t const row_to,
+                    void *         remap)
 {
+  struct hsg_transpose_state * const state = remap;
+
   // we're starting register names at '1' for now
   fprintf(state->header,
           "  HS_TRANSPOSE_REMAP( %c, %3u, %3u )        \\\n",
@@ -126,8 +130,8 @@ hsg_target_opencl(struct hsg_target       * const target,
         target->state = malloc(sizeof(*target->state));
 
         // allocate files
-        fopen_s(&target->state->header,"hs_config.h",  "wb");
-        fopen_s(&target->state->source,"hs_kernels.cl","wb");
+        target->state->header = fopen("hs_config.h",  "wb");
+        target->state->source = fopen("hs_kernels.cl","wb");
 
         // initialize header
         uint32_t const bc_max = msb_idx_u32(pow2_rd_u32(merge->warps));

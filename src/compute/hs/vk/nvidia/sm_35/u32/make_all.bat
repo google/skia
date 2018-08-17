@@ -56,7 +56,7 @@ REM spirv-remap ...                                                      || goto
 :: dump a binary
 ::
 
-cl /DHS_DUMP /Fe:hs_dump.exe *.c
+cl -I ../../../../.. -I ../../.. /DHS_DUMP /Fe:hs_dump.exe *.c
 hs_dump
 
 ::

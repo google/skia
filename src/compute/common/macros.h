@@ -39,6 +39,7 @@
 #if defined( _MSC_VER )
 #define ALLOCA_MACRO(n)         _alloca(n)
 #else
+#include <alloca.h>
 #define ALLOCA_MACRO(n)         alloca(n)
 #endif
 
@@ -111,6 +112,24 @@
 #elif defined( __GNUC__ )
 
 #define STATIC_ASSERT_MACRO(...) _Static_assert(__VA_ARGS__)
+
+#else
+//
+// FIXME -- CLANG, etc.
+//
+#endif
+
+//
+//
+//
+
+#if   defined( _MSC_VER )
+
+#define POPCOUNT_MACRO(...) __popcnt(__VA_ARGS__)
+
+#elif defined( __GNUC__ )
+
+#define POPCOUNT_MACRO(...) __builtin_popcount(__VA_ARGS__)
 
 #else
 //

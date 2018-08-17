@@ -96,8 +96,8 @@ hsg_debug_blend(uint32_t const cols_log2,
 {
   fprintf(stdout,"BLEND( %u, %3u, %3u )\n",cols_log2,row_ll,row_ur);
 
-  uint32_t * const ll = ALLOCA(cols * sizeof(*b));
-  uint32_t * const ur = ALLOCA(cols * sizeof(*b));
+  uint32_t * const ll = ALLOCA_MACRO(cols * sizeof(*b));
+  uint32_t * const ur = ALLOCA_MACRO(cols * sizeof(*b));
 
   memcpy(ll,b+row_ll*cols,cols * sizeof(*b));
   memcpy(ur,b+row_ur*cols,cols * sizeof(*b));
@@ -144,8 +144,8 @@ main(int argc, char * argv[])
 
   cols = 1 << cols_log2;
 
-  uint32_t * const b = ALLOCA(cols * rows * sizeof(*b));
-  uint32_t * const r = ALLOCA(       rows * sizeof(*r));
+  uint32_t * const b = ALLOCA_MACRO(cols * rows * sizeof(*b));
+  uint32_t * const r = ALLOCA_MACRO(       rows * sizeof(*r));
 
   for (uint32_t rr=0; rr<rows; rr++) {
     r[rr] = rr;

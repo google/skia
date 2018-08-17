@@ -12,7 +12,7 @@
 //
 //
 
-#include "../../../hs_cl_target.h"
+#include "hs_cl_target.h"
 
 //
 //

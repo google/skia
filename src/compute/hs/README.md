@@ -18,27 +18,40 @@ The HotSort sorting kernels are typically significantly faster than
 other GPU sorting implementations when sorting arrays of smaller than
 500K-2M keys.
 
-Below is a plot of HotSort on CUDA and Vulkan sorting 32-bit keys:
+## Benchmarks
 
-![](images/hs_32_mkeys.svg)
-![](images/hs_32_msecs.svg)
+### Throughput
 
-Below is a plot of HotSort on CUDA and Vulkan sorting 64-bit keys:
+Here are results for HotSort on Vulkan and CUDA sorting 32-bit and
+64-bit keys on a 640 core Quadro M1200:
 
-![](images/hs_64_mkeys.svg)
-![](images/hs_64_msecs.svg)
+![](images/hs_nvidia_sm35_u32_mkeys.svg)
+![](images/hs_nvidia_sm35_u64_mkeys.svg)
+
+Here are results for HotSort on Vulkan and OpenCL on an Intel HD 630:
+
+![](images/hs_intel_gen8_mkeys.svg)
+
+### Execution time
+
+Note that these sorting rates translate to sub-millisecond to
+multi-millisecond execution times on small GPUs:
+
+![](images/hs_nvidia_sm35_u32_msecs.svg)
+![](images/hs_nvidia_sm35_u64_msecs.svg)
+![](images/hs_intel_gen8_msecs.svg)
 
 # Usage
 
 There are HotSort implementations for Vulkan, CUDA and OpenCL.
 
-Not all targeted architectures have been tested.
-
-Note that HotSort supports in-place sorting.
+Note that HotSort is a comparison sort and supports in-place sorting.
 
 There are also benchmarking examples for the
 [Vulkan](vk/bench/main.c), [CUDA](cuda/bench/main.c) and
 [OpenCL](cl/bench/main.c) implementations.
+
+*Not all targeted architectures have been tested.*
 
 ## Vulkan
 
@@ -49,11 +62,11 @@ Vendor | Architecture                              | 32‑bit             | 64�
 NVIDIA | sm_35,sm_37,sm_50,sm_52,sm_60,sm_61,sm_70 | :white_check_mark: | :white_check_mark: | :x:         | Performance matches CUDA
 NVIDIA | sm_30,sm_32,sm_53,sm_62                   | :x:                | :x:                | :x:         | Need to generate properly shaped kernels
 AMD    | GCN                                       | :x:                | :x:                | :x:         | TODO
-Intel  | GEN8+                                     | :white_check_mark: | :white_check_mark: | :x:         | Due to a fragile compiler, the assumed best kernels are not being generated at this time
+Intel  | GEN8+                                     | :white_check_mark: | :white_check_mark: | :x:         | Good but the assumed *best* kernels are not being generated at this time due to a compiler issue
 Intel  | APL/GLK using a 2x9 or 1x12 thread pool   | :x:                | :x:                | :x:         | Need to generate properly shaped kernels
 
 Add an arch-specific HotSort algorithm (aka "target") to your project
-by including a `.h` header and a `.c` source file:
+by including a `.c` source and `.h` header file:
 
 Key Size | Source                                                                 | Header
 ---------|------------------------------------------------------------------------|-------------------------------------------------------
@@ -63,6 +76,10 @@ Key Size | Source                                                               
 To sort `count` keys on Vulkan:
 
 ```C
+#include "hs/vk/intel/gen8/u32/hs_target.h"
+
+...
+
 // create the Vulkan HotSort target
 struct hs_vk * hs = hs_vk_create(<address of target>,...);
 
@@ -76,13 +93,13 @@ VkDescriptorSet hs_ds = hs_vk_ds_alloc(hs,descriptor_pool);
 ...
 
 // bind buffer(s) to a command buffer
-hs_vk_ds_bind(hs,hs_ds,cb,vin,vout); // or (...,vin,vin) for in-place sorting
+hs_vk_ds_bind(hs,hs_ds,cb,vin,vout); // or (...,vin,VK_NULL_HANDLE) for in-place sorting
 
 // see how much padding may be required
 hs_vk_pad(hs,count,&count_padded_in,&count_padded_out);
 
 // append compute shaders to command buffer
-hs_vk_sort(hs,cb,...);
+hs_vk_sort(hs,cb,...,vin,...,vout,...); // hs_vk_sort() and hs_vk_ds_bind() must have matching vin/vout args
 
 ...
 
@@ -107,8 +124,8 @@ Vendor | Architecture                                          | 32‑bit       
 NVIDIA | sm_35,sm_37,sm_50,sm_52,sm_60,sm_61,sm_70             | :white_check_mark: | :white_check_mark: | :x:       |
 NVIDIA | sm_30,sm_32,sm_53,sm_62                               | :x:                | :x:                | :x:       | Need to generate properly shaped kernels
 
-Add the HotSort algorithm to your project by including a `.h` header
-and a `.cu` CUDA source file.
+Add an arch-specific HotSort target to your project by including a
+`.cu` CUDA source and `.h` header file:
 
 Key Size | Source                                          | Header
 ---------|-------------------------------------------------|------------------------------------------
@@ -138,7 +155,7 @@ hs_cuda_sort_u32(vin,vout, // or (vin,NULL,...) for in-place sorting
 
 HotSort on CUDA requires two auxilary streams in order to maximize concurrency.
 
-The algorithm is guaranteed to complete on stream0.
+The algorithm is guaranteed to complete on `stream0`.
 
 
 ## OpenCL
@@ -150,8 +167,8 @@ Vendor | Architecture                            | 32‑bit             | 64‑b
 Intel  | GEN8+                                   | :white_check_mark: | :white_check_mark: | :x:       | Due to a fragile compiler, the assumed best kernels are not being generated at this time
 Intel  | APL/GLK using a 2x9 or 1x12 thread pool | :x:                | :x:                | :x:       | Need to generate properly shaped kernels
 
-An architecture-specific HotSort algorithm (aka "target") can be added
-to your project by including a `.h` header and a single `.c` source file:
+Add an arch-specific HotSort target to your project by including a
+`.c` source and `.h` header file:
 
 Key Size | Source                                                                 | Header
 ---------|------------------------------------------------------------------------|-------------------------------------------------------
@@ -251,7 +268,7 @@ As an example, the *Streaming Flip Merge* kernel is illustrated below:
 
 ![](images/hs_flip_merge.svg)
 
-# Enhancements
+# Future Enhancements
 
 ## Hybrid improved merging
 

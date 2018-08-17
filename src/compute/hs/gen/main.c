@@ -14,6 +14,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <getopt.h>
+#include <inttypes.h>
 
 //
 //
@@ -351,7 +352,7 @@ hsg_merge_levels_debug(struct hsg_merge * const merge)
         break;
 
       fprintf(stderr,
-              "%-4u : %016llX \n",
+              "%-4u : %016" PRIX64 " \n",
               count,
               merge->levels[level].active.b64);
 
@@ -360,18 +361,18 @@ hsg_merge_levels_debug(struct hsg_merge * const merge)
               "%-4u : %08X (%2u)\n",
               merge->levels[level].diffs[0],
               merge->levels[level].diff_masks[0],
-              __popcnt(merge->levels[level].diff_masks[0]),
+              POPCOUNT_MACRO(merge->levels[level].diff_masks[0]),
               merge->levels[level].diffs[1],
               merge->levels[level].diff_masks[1],
-              __popcnt(merge->levels[level].diff_masks[1]));
+              POPCOUNT_MACRO(merge->levels[level].diff_masks[1]));
 
       fprintf(stderr,
               "EVEN : %08X (%2u)\n"
               "ODD  : %08X (%2u)\n",
               merge->levels[level].evenodd_masks[0],
-              __popcnt(merge->levels[level].evenodd_masks[0]),
+              POPCOUNT_MACRO(merge->levels[level].evenodd_masks[0]),
               merge->levels[level].evenodd_masks[1],
-              __popcnt(merge->levels[level].evenodd_masks[1]));
+              POPCOUNT_MACRO(merge->levels[level].evenodd_masks[1]));
 
       for (uint32_t ii=0; ii<2; ii++)
         {

@@ -52,7 +52,8 @@ hsg_target_debug(struct hsg_target       * const target,
   if (ops->type == HSG_OP_TYPE_TARGET_BEGIN)
     {
       target->state = malloc(sizeof(*target->state));
-      fopen_s(&target->state->txt,"hs_debug.txt","wb");
+
+      target->state->txt = fopen("hs_debug.txt","wb");
     }
 
   hsg_target_indent(target,depth);
