@@ -507,17 +507,8 @@ static sk_sp<SkMaskFilter> make_fuzz_maskfilter(Fuzz* fuzz) {
             fuzz_enum_range(fuzz, &blurStyle, 0, kLastEnum_SkBlurStyle);
             SkScalar sigma;
             fuzz->next(&sigma);
-            SkRect occluder{0.0f, 0.0f, 0.0f, 0.0f};
-            bool useOccluder;
-            fuzz->next(&useOccluder);
-            if (useOccluder) {
-                fuzz->next(&occluder);
-            }
             bool respectCTM;
             fuzz->next(&respectCTM);
-            if (useOccluder) {
-                return SkMaskFilter::MakeBlur(blurStyle, sigma, occluder, respectCTM);
-            }
             return SkMaskFilter::MakeBlur(blurStyle, sigma, respectCTM);
         }
         default:
