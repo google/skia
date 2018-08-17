@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db28dcf4_8b786c42",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-17T15:40:45Z",
+      "side": 1,
+      "message": "nit: space",
+      "range": {
+        "startLine": 110,
+        "startChar": 8,
+        "endLine": 110,
+        "endChar": 11
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3b28875b_74c5afea",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-17T15:40:45Z",
+      "side": 1,
+      "message": "I actually like the way this looks, and I understand why and how this works (due to the way  [dcl.decl] is specified in the specification), but it\u0027s probably better to just write out the type and to one declaration per expression.\n\nAlso, it\u0027s only accidental that these fields happen to have the same type, it\u0027s not really a logical requirement.",
+      "range": {
+        "startLine": 117,
+        "startChar": 16,
+        "endLine": 117,
+        "endChar": 41
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80119022_2cbd5674",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-17T15:40:45Z",
+      "side": 1,
+      "message": "nit: this isn\u0027t a \u0027ch\u0027 anymore, so it seems confusing to name it that. It\u0027s more like a \u0027cp\u0027 (codepoint) or \u0027uni\u0027 (unichar)? I think it\u0027s worth making that clear, since otherwise it can quickly become confusing, especially with auto everywhere.",
+      "range": {
+        "startLine": 187,
+        "startChar": 23,
+        "endLine": 187,
+        "endChar": 25
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18588219_cf8a1378",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-17T15:40:45Z",
+      "side": 1,
+      "message": "This demands that the two types be exactly the same, which is only accidentally true. I would reserve this style of auto declaration for cases where we really do want to statically assert that two types really are the same.",
+      "range": {
+        "startLine": 191,
+        "startChar": 12,
+        "endLine": 191,
+        "endChar": 22
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "366de31b_0b420e08",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-17T15:40:45Z",
+      "side": 1,
+      "message": "codepoint",
+      "range": {
+        "startLine": 206,
+        "startChar": 47,
+        "endLine": 206,
+        "endChar": 52
+      },
+      "revId": "1324d5794eac69f68183b96943e6751ea9d35d7d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
