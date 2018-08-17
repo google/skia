@@ -315,8 +315,7 @@ BASE_SRCS_UNIX = struct(
 # Platform-dependent SRCS for google3-default Android.
 BASE_SRCS_ANDROID = struct(
     include = [
-        "src/gpu/gl/GrGLMakeNativeInterface_none.cpp",
-        # TODO(benjaminwagner): Figure out how to compile with EGL.
+        "src/gpu/gl/android/*.cpp",
         "src/ports/**/*.cpp",
         "src/ports/**/*.h",
     ],
@@ -652,6 +651,7 @@ def base_linkopts(os_conditions):
             # ANDROID
             [
                 "-lEGL",
+                "-lGLESv2",
             ],
             # IOS
             [
