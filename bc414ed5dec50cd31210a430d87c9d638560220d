@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7992648_f292ba90",
+        "filename": "gm/complexclip.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-08-17T13:34:41Z",
+      "side": 1,
+      "message": "SkISize onISize() override { return {970, 780}; }",
+      "revId": "bc414ed5dec50cd31210a430d87c9d638560220d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
