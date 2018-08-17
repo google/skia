@@ -168,7 +168,7 @@ static bool check_read_pixel(SkPMColor a, SkPMColor b, bool didPremulConversion)
 // overwritten in the area outside the readPixels.
 static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap, int x, int y,
                        bool checkSurfacePixels, bool checkBitmapPixels,
-                       SkAlphaType surfaceAlphaType) {
+                       SkImageInfo surfaceInfo) {
     SkAlphaType bmpAT = bitmap.alphaType();
     SkColorType bmpCT = bitmap.colorType();
     SkASSERT(!bitmap.isNull());
@@ -191,7 +191,7 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap, int
 
                 if (clippedSrcRect.contains(devx, devy)) {
                     if (checkSurfacePixels) {
-                        uint8_t surfaceAlpha = (surfaceAlphaType == kOpaque_SkAlphaType)
+                        uint8_t surfaceAlpha = (surfaceInfo.alphaType() == kOpaque_SkAlphaType)
                                                        ? 0xFF
                                                        : SkGetPackedA32(get_src_color(devx, devy));
                         if (surfaceAlpha != *alpha) {
@@ -223,7 +223,10 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& bitmap, int
             if (clippedSrcRect.contains(devx, devy)) {
                 if (checkSurfacePixels) {
                     SkPMColor surfacePMColor = get_src_color(devx, devy);
-                    if (kOpaque_SkAlphaType == surfaceAlphaType || kOpaque_SkAlphaType == bmpAT) {
+                    if (SkColorTypeIsAlphaOnly(surfaceInfo.colorType())) {
+                        surfacePMColor &= 0xFF000000;
+                    }
+                    if (kOpaque_SkAlphaType == surfaceInfo.alphaType() || kOpaque_SkAlphaType == bmpAT) {
                         surfacePMColor |= 0xFF000000;
                     }
                     bool didPremul;
@@ -391,10 +394,6 @@ ReadSuccessExpectation read_should_succeed(const SkIRect& srcRect, const SkImage
     if (SkColorTypeIsAlphaOnly(srcInfo.colorType())) {
         return ReadSuccessExpectation::kMaybe;
     }
-    if (!SkColorTypeIsAlwaysOpaque(srcInfo.colorType()) &&
-        SkColorTypeIsAlwaysOpaque(dstInfo.colorType())) {
-        return ReadSuccessExpectation::kNo;
-    }
     return ReadSuccessExpectation::kYes;
 }
 
@@ -434,7 +433,7 @@ static void test_readpixels(skiatest::Reporter* reporter, const sk_sp<SkSurface>
 
                 if (success || startsWithPixels) {
                     check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop, success,
-                               startsWithPixels, surfaceInfo.alphaType());
+                               startsWithPixels, surfaceInfo);
                 } else {
                     // if we had no pixels beforehand and the readPixels
                     // failed then our bitmap should still not have pixels
@@ -519,7 +518,7 @@ static void test_readpixels_texture(skiatest::Reporter* reporter,
                             bmp.info().colorType(), bmp.info().alphaType());
                     if (success) {
                         check_read(reporter, bmp, srcRect.fLeft, srcRect.fTop, success, true,
-                                   surfaceInfo.alphaType());
+                                   surfaceInfo);
                     }
                 }
             }
@@ -627,16 +626,25 @@ static void test_conversion(skiatest::Reporter* r, const SkImageInfo& dstInfo,
 
     if (success) {
         if (kGray_8_SkColorType == srcInfo.colorType() &&
-            kGray_8_SkColorType != dstInfo.colorType())
-        {
-            // This conversion is legal, but we won't get the "reference" pixels since we cannot
-            // represent colors in kGray8.
+            kGray_8_SkColorType != dstInfo.colorType()) {
+            // TODO: test (r,g,b) == (gray,gray,gray)?
+            return;
+        }
+
+        if (kGray_8_SkColorType == dstInfo.colorType() &&
+            kGray_8_SkColorType != srcInfo.colorType()) {
+            // TODO: test gray = luminance?
+            return;
+        }
+
+        if (kAlpha_8_SkColorType == srcInfo.colorType() &&
+            kAlpha_8_SkColorType != dstInfo.colorType()) {
+            // TODO: test output = black with this alpha?
             return;
         }
 
         REPORTER_ASSERT(r, 0 == memcmp(dstPixels, five_reference_pixels(dstInfo.colorType()),
                                        kNumPixels * SkColorTypeBytesPerPixel(dstInfo.colorType())));
-
     }
 }
 
