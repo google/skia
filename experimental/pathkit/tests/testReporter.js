@@ -54,6 +54,23 @@ function reportSVGString(svgstr, testname, fillRule='nofill') {
     return reportSVG(newSVG, testname);
 }
 
+// Reports a canvas and then an SVG of this path. Puts it on a standard size canvas.
+function reportPath(path, testname, done) {
+    let canvas = document.createElement('canvas');
+    let canvasCtx = canvas.getContext('2d');
+    // Set canvas size and make it a bit bigger to zoom in on the lines
+    standardizedCanvasSize(canvasCtx);
+    canvasCtx.stroke(path.toPath2D());
+
+    let svgStr = path.toSVGString();
+
+    return reportCanvas(canvas, testname).then(() => {
+                reportSVGString(svgStr, testname).then(() => {
+                    done();
+                }).catch(reportError(done));
+            }).catch(reportError(done));
+}
+
 function _report(data, outputType, testname) {
     return fetch(REPORT_URL, {
         method: 'POST',

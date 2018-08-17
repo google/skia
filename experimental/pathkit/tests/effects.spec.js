@@ -39,12 +39,13 @@ describe('PathKit\'s Path Behavior', function() {
                 expect(dashed === notACopy).toBe(true);
                 expect(dashed.equals(phased)).toBe(false);
                 expect(dashed.equals(orig)).toBe(false);
-                // TODO(store to Gold), dashed_no_phase, dashed_with_phase
 
-                orig.delete();
-                dashed.delete();
-                phased.delete();
-                done();
+                reportPath(dashed, 'dashed_no_phase', () => {
+                    reportPath(phased, 'dashed_with_phase', done);
+                    orig.delete();
+                    dashed.delete();
+                    phased.delete();
+                });
             });
         });
     });
@@ -62,12 +63,13 @@ describe('PathKit\'s Path Behavior', function() {
                 expect(trimmed.equals(orig)).toBe(false);
                 expect(complement.equals(orig)).toBe(false);
 
-                // TODO(store to Gold), trimmed, trimmed_complement
+                reportPath(trimmed, 'trimmed_non_complement', () => {
+                    reportPath(complement, 'trimmed_complement', done);
+                    orig.delete();
+                    trimmed.delete();
+                    complement.delete();
+                });
 
-                orig.delete();
-                trimmed.delete();
-                complement.delete();
-                done();
             });
         });
     });
@@ -89,12 +91,12 @@ describe('PathKit\'s Path Behavior', function() {
                 expect(scaled.equals(scaled2)).toBe(true);
                 expect(scaled.equals(orig)).toBe(false);
 
-                // TODO(store to Gold), transformed, transformed_more
-
-                orig.delete();
-                scaled.delete();
-                scaled2.delete();
-                done();
+                reportPath(scaled, 'transformed_scale', () => {
+                    reportPath(scaled2, 'transformed_scale2', done);
+                    orig.delete();
+                    scaled.delete();
+                    scaled2.delete();
+                });
             });
         });
     });
@@ -123,12 +125,12 @@ describe('PathKit\'s Path Behavior', function() {
                 expect(stroked.equals(rounded)).toBe(false);
                 expect(stroked.equals(orig)).toBe(false);
 
-                // TODO(store to Gold), stroked, rounded
-
-                orig.delete();
-                stroked.delete();
-                rounded.delete();
-                done();
+                reportPath(stroked, 'stroke_bevel_butt', () => {
+                    reportPath(rounded, 'stroke_round_square', done);
+                    orig.delete();
+                    stroked.delete();
+                    rounded.delete();
+                });
             });
         });
     });

@@ -65,11 +65,25 @@ describe('PathKit\'s Path2D API', function() {
             canvasCtx.fillStyle = 'blue';
             canvasCtx.stroke(path.toPath2D());
 
+            let svgPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            svgPath.setAttribute('stroke', 'black');
+            svgPath.setAttribute('fill', 'rgba(255,255,255,0.0)');
+            svgPath.setAttribute('transform', 'scale(3.0, 3.0)');
+            svgPath.setAttribute('d', path.toSVGString());
+
+            let newSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            newSVG.appendChild(svgPath);
+            newSVG.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            newSVG.setAttribute('width', 600);
+            newSVG.setAttribute('height', 600);
+
             path.delete();
             secondPath.delete();
 
             reportCanvas(canvas, 'path2D_api_example').then(() => {
-                done();
+                reportSVG(newSVG, 'path2D_api_example').then(() => {
+                    done();
+                }).catch(reportError(done));
             }).catch(reportError(done));
         });
     });
@@ -142,10 +156,9 @@ describe('PathKit\'s Path2D API', function() {
                                         0, 3, 0,
                                         0, 0, 1);
 
-            // TODO(kjlubick): Do svg and canvas gm helper function
+            reportPath(basePath, 'add_path_3x', done);
             basePath.delete();
             otherPath.delete();
-            done();
         });
     });
 
