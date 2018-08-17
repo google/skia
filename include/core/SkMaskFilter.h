@@ -33,8 +33,10 @@ public:
      *  @param respectCTM if true the blur's sigma is modified by the CTM.
      *  @return The new blur maskfilter
      */
-    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma, const SkRect& occluder,
-                                        bool respectCTM = true);
+    static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma, const SkRect&,
+                                        bool respectCTM = true) {
+        return MakeBlur(style, sigma, respectCTM);
+    }
     static sk_sp<SkMaskFilter> MakeBlur(SkBlurStyle style, SkScalar sigma,
                                         bool respectCTM = true);
 
