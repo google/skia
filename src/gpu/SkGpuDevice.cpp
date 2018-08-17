@@ -423,14 +423,11 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         SkRRect devRRect;
         if (rrect.transform(this->ctm(), &devRRect)) {
             if (SkRRectPriv::AllCornersCircular(devRRect)) {
-                if (mf->canFilterMaskGPU(devRRect, this->devClipBounds(), this->ctm(), nullptr)) {
-                    if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
-                                                     std::move(grPaint), this->clip(), this->ctm(),
-                                                     style.strokeRec(), rrect, devRRect)) {
-                        return;
-                    }
+                if (mf->directFilterRRectMaskGPU(this->context(), fRenderTargetContext.get(),
+                                                 std::move(grPaint), this->clip(), this->ctm(),
+                                                 style.strokeRec(), rrect, devRRect)) {
+                    return;
                 }
-
             }
         }
     }

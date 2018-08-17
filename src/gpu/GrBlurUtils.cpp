@@ -198,6 +198,18 @@ static void draw_path_with_mask_filter(GrContext* context,
         pathIsMutable = true;
     }
 
+    if (maskFilter->directFilterMaskGPU(context,
+                                        renderTargetContext,
+                                        std::move(paint),
+                                        clip,
+                                        viewMatrix,
+                                        SkStrokeRec(fillOrHairline),
+                                        *path)) {
+        // the mask filter was able to draw itself directly, so there's nothing
+        // left to do.
+        return;
+    }
+
     SkRect maskRect;
     if (maskFilter->canFilterMaskGPU(SkRRect::MakeRect(path->getBounds()),
                                      clipBounds,
@@ -210,18 +222,6 @@ static void draw_path_with_mask_filter(GrContext* context,
         maskRect.roundOut(&finalIRect);
         if (clip_bounds_quick_reject(clipBounds, finalIRect)) {
             // clipped out
-            return;
-        }
-
-        if (maskFilter->directFilterMaskGPU(context,
-                                            renderTargetContext,
-                                            std::move(paint),
-                                            clip,
-                                            viewMatrix,
-                                            SkStrokeRec(fillOrHairline),
-                                            *path)) {
-            // the mask filter was able to draw itself directly, so there's nothing
-            // left to do.
             return;
         }
 
