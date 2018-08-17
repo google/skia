@@ -24,6 +24,14 @@ public:
             , fAllowCaching(allowCaching) {
     }
 
+    static bool GetShapeAndClipBounds(GrRenderTargetContext*,
+                                      const GrClip& clip,
+                                      const GrShape& shape,
+                                      const SkMatrix& matrix,
+                                      SkIRect* unclippedDevShapeBounds,
+                                      SkIRect* clippedDevShapeBounds,
+                                      SkIRect* devClipBounds);
+
 private:
     static void DrawNonAARect(GrRenderTargetContext* renderTargetContext,
                               GrPaint&& paint,

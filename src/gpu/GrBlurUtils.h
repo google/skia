@@ -31,17 +31,17 @@ namespace GrBlurUtils {
     /**
      * Draw a path handling the mask filter if present.
      */
-    void drawPathWithMaskFilter(GrContext* context,
-                                GrRenderTargetContext* renderTargetContext,
-                                const GrClip& clip,
+    void drawPathWithMaskFilter(GrContext*,
+                                GrRenderTargetContext*,
+                                const GrClip&,
                                 const SkPath& origSrcPath,
-                                const SkPaint& paint,
-                                const SkMatrix& origViewMatrix,
+                                const SkPaint&,
+                                const SkMatrix& viewMatrix,
                                 bool pathIsMutable);
 
     /**
-     * Draw a path handling the mask filter. The mask filter is not optional. The path effect is
-     * optional. The GrPaint will be modified after return.
+     * Draw a path handling the mask filter. The mask filter is not optional.
+     * The GrPaint will be modified after return.
      */
     void drawPathWithMaskFilter(GrContext*,
                                 GrRenderTargetContext*,

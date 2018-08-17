@@ -19,13 +19,14 @@
 class GrClip;
 class GrContext;
 struct GrFPArgs;
-class GrRenderTargetContext;
-class GrPaint;
 class GrFragmentProcessor;
+class GrPaint;
 class GrRenderTarget;
+class GrRenderTargetContext;
 class GrResourceProvider;
 class GrTexture;
 class GrTextureProxy;
+
 class SkBitmap;
 class SkBlitter;
 class SkCachedData;
@@ -108,7 +109,7 @@ public:
      *  successful. If false is returned then paint is unmodified.
      */
     virtual bool directFilterMaskGPU(GrContext*,
-                                     GrRenderTargetContext* renderTargetContext,
+                                     GrRenderTargetContext*,
                                      GrPaint&& paint,
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
@@ -119,11 +120,11 @@ public:
      *  true if drawing was successful.  If false is returned then paint is unmodified.
      */
     virtual bool directFilterRRectMaskGPU(GrContext*,
-                                          GrRenderTargetContext* renderTargetContext,
-                                          GrPaint&& paint,
+                                          GrRenderTargetContext*,
+                                          GrPaint&&,
                                           const GrClip&,
                                           const SkMatrix& viewMatrix,
-                                          const SkStrokeRec& strokeRec,
+                                          const SkStrokeRec&,
                                           const SkRRect& rrect,
                                           const SkRRect& devRRect) const;
 

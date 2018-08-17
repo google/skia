@@ -69,7 +69,7 @@ bool GrPathRenderer::drawPath(const DrawPathArgs& args) {
 }
 
 bool GrPathRenderer::IsStrokeHairlineOrEquivalent(const GrStyle& style, const SkMatrix& matrix,
-                                         SkScalar* outCoverage) {
+                                                  SkScalar* outCoverage) {
     if (style.pathEffect()) {
         return false;
     }

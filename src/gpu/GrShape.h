@@ -52,8 +52,7 @@ public:
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRRect& rrect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
@@ -82,8 +81,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const GrStyle& style)
-        : fStyle(style) {
+    GrShape(const SkRect& rect, const GrStyle& style) : fStyle(style) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
@@ -97,8 +95,7 @@ public:
         this->attemptToSimplifyPath();
     }
 
-    GrShape(const SkRRect& rrect, const SkPaint& paint)
-        : fStyle(paint) {
+    GrShape(const SkRRect& rrect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = rrect;
         fRRectData.fInverted = false;
@@ -107,8 +104,7 @@ public:
         this->attemptToSimplifyRRect();
     }
 
-    GrShape(const SkRect& rect, const SkPaint& paint)
-        : fStyle(paint) {
+    GrShape(const SkRect& rect, const SkPaint& paint) : fStyle(paint) {
         this->initType(Type::kRRect);
         fRRectData.fRRect = SkRRect::MakeRect(rect);
         fRRectData.fInverted = false;
@@ -153,6 +149,14 @@ public:
      */
     GrShape applyStyle(GrStyle::Apply apply, SkScalar scale) const {
         return GrShape(*this, apply, scale);
+    }
+
+    bool isRect() const {
+        if (Type::kRRect != fType) {
+            return false;
+        }
+
+        return fRRectData.fRRect.isRect();
     }
 
     /** Returns the unstyled geometry as a rrect if possible. */
