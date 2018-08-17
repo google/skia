@@ -26,9 +26,7 @@ public:
     }
 
 protected:
-
-
-    SkString onShortName() {
+    SkString onShortName() override {
         SkString str;
         str.printf("complexclip_%s%s%s",
                    fDoAAClip ? "aa" : "bw",
@@ -37,24 +35,24 @@ protected:
         return str;
     }
 
-    SkISize onISize() { return SkISize::Make(970, 780); }
+    SkISize onISize() override { return SkISize::Make(970, 780); }
 
-    virtual void onDraw(SkCanvas* canvas) {
+    void onDraw(SkCanvas* canvas) override {
         SkPath path;
-        path.moveTo(SkIntToScalar(0),   SkIntToScalar(50));
-        path.quadTo(SkIntToScalar(0),   SkIntToScalar(0),   SkIntToScalar(50),  SkIntToScalar(0));
-        path.lineTo(SkIntToScalar(175), SkIntToScalar(0));
-        path.quadTo(SkIntToScalar(200), SkIntToScalar(0),   SkIntToScalar(200), SkIntToScalar(25));
-        path.lineTo(SkIntToScalar(200), SkIntToScalar(150));
-        path.quadTo(SkIntToScalar(200), SkIntToScalar(200), SkIntToScalar(150), SkIntToScalar(200));
-        path.lineTo(SkIntToScalar(0),   SkIntToScalar(200));
-        path.close();
-        path.moveTo(SkIntToScalar(50),  SkIntToScalar(50));
-        path.lineTo(SkIntToScalar(150), SkIntToScalar(50));
-        path.lineTo(SkIntToScalar(150), SkIntToScalar(125));
-        path.quadTo(SkIntToScalar(150), SkIntToScalar(150), SkIntToScalar(125), SkIntToScalar(150));
-        path.lineTo(SkIntToScalar(50),  SkIntToScalar(150));
-        path.close();
+        path.moveTo(0,   50)
+            .quadTo(0,   0,   50,  0)
+            .lineTo(175, 0)
+            .quadTo(200, 0,   200, 25)
+            .lineTo(200, 150)
+            .quadTo(200, 200, 150, 200)
+            .lineTo(0,   200)
+            .close()
+            .moveTo(50,  50)
+            .lineTo(150, 50)
+            .lineTo(150, 125)
+            .quadTo(150, 150, 125, 150)
+            .lineTo(50,  150)
+            .close();
         if (fInvertDraw) {
             path.setFillType(SkPath::kInverseEvenOdd_FillType);
         } else {
@@ -65,25 +63,15 @@ protected:
         pathPaint.setColor(gPathColor);
 
         SkPath clipA;
-        clipA.moveTo(SkIntToScalar(10),  SkIntToScalar(20));
-        clipA.lineTo(SkIntToScalar(165), SkIntToScalar(22));
-        clipA.lineTo(SkIntToScalar(70),  SkIntToScalar(105));
-        clipA.lineTo(SkIntToScalar(165), SkIntToScalar(177));
-        clipA.lineTo(SkIntToScalar(-5),  SkIntToScalar(180));
-        clipA.close();
+        clipA.addPoly({{10,  20}, {165, 22}, {70,  105}, {165, 177}, {-5,  180}}, false).close();
 
         SkPath clipB;
-        clipB.moveTo(SkIntToScalar(40),  SkIntToScalar(10));
-        clipB.lineTo(SkIntToScalar(190), SkIntToScalar(15));
-        clipB.lineTo(SkIntToScalar(195), SkIntToScalar(190));
-        clipB.lineTo(SkIntToScalar(40),  SkIntToScalar(185));
-        clipB.lineTo(SkIntToScalar(155), SkIntToScalar(100));
-        clipB.close();
+        clipB.addPoly({{40,  10}, {190, 15}, {195, 190}, {40,  185}, {155, 100}}, false).close();
 
         SkPaint paint;
         paint.setAntiAlias(true);
         sk_tool_utils::set_portable_typeface(&paint);
-        paint.setTextSize(SkIntToScalar(20));
+        paint.setTextSize(20);
 
         constexpr struct {
             SkClipOp fOp;
@@ -96,7 +84,7 @@ protected:
             {kReverseDifference_SkClipOp, "RDiff "}
         };
 
-        canvas->translate(SkIntToScalar(20), SkIntToScalar(20));
+        canvas->translate(20, 20);
         canvas->scale(3 * SK_Scalar1 / 4, 3 * SK_Scalar1 / 4);
 
         if (fDoSaveLayer) {
@@ -109,7 +97,7 @@ protected:
               4.0f/3.0f * (this->getISize().fWidth - 20),
               4.0f/3.0f * (this->getISize().fHeight - 20));
 
-            bounds.inset(SkIntToScalar(100), SkIntToScalar(100));
+            bounds.inset(100, 100);
             SkPaint boundPaint;
             boundPaint.setColor(SK_ColorRED);
             boundPaint.setStyle(SkPaint::kStroke_Style);
@@ -149,22 +137,22 @@ protected:
                 canvas->restore();
 
 
-                SkScalar txtX = SkIntToScalar(45);
+                SkScalar txtX = 45;
                 paint.setColor(gClipAColor);
                 const char* aTxt = doInvA ? "InvA " : "A ";
-                canvas->drawString(aTxt, txtX, SkIntToScalar(220), paint);
+                canvas->drawString(aTxt, txtX, 220, paint);
                 txtX += paint.measureText(aTxt, strlen(aTxt));
                 paint.setColor(SK_ColorBLACK);
-                canvas->drawString(gOps[op].fName, txtX, SkIntToScalar(220), paint);
+                canvas->drawString(gOps[op].fName, txtX, 220, paint);
                 txtX += paint.measureText(gOps[op].fName, strlen(gOps[op].fName));
                 paint.setColor(gClipBColor);
                 const char* bTxt = doInvB ? "InvB " : "B ";
-                canvas->drawString(bTxt, txtX, SkIntToScalar(220), paint);
+                canvas->drawString(bTxt, txtX, 220, paint);
 
-                canvas->translate(SkIntToScalar(250),0);
+                canvas->translate(250,0);
             }
             canvas->restore();
-            canvas->translate(0, SkIntToScalar(250));
+            canvas->translate(0, 250);
         }
 
         if (fDoSaveLayer) {
