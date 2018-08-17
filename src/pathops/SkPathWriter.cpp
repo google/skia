@@ -32,21 +32,21 @@ void SkPathWriter::close() {
 }
 
 void SkPathWriter::conicTo(const SkPoint& pt1, const SkOpPtT* pt2, SkScalar weight) {
-    this->update(pt2);
+    SkPoint pt2pt = this->update(pt2);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.conicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g);\n",
-            pt1.fX, pt1.fY, pt2->fPt.fX, pt2->fPt.fY, weight);
+            pt1.fX, pt1.fY, pt2pt.fX, pt2pt.fY, weight);
 #endif
-    fCurrent.conicTo(pt1, pt2->fPt, weight);
+    fCurrent.conicTo(pt1, pt2pt, weight);
 }
 
 void SkPathWriter::cubicTo(const SkPoint& pt1, const SkPoint& pt2, const SkOpPtT* pt3) {
-    this->update(pt3);
+    SkPoint pt3pt = this->update(pt3);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.cubicTo(%1.9g,%1.9g, %1.9g,%1.9g, %1.9g,%1.9g);\n",
-            pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3->fPt.fX, pt3->fPt.fY);
+            pt1.fX, pt1.fY, pt2.fX, pt2.fY, pt3pt.fX, pt3pt.fY);
 #endif
-    fCurrent.cubicTo(pt1, pt2, pt3->fPt);
+    fCurrent.cubicTo(pt1, pt2, pt3pt);
 }
 
 bool SkPathWriter::deferredLine(const SkOpPtT* pt) {
@@ -144,21 +144,28 @@ void SkPathWriter::moveTo() {
 }
 
 void SkPathWriter::quadTo(const SkPoint& pt1, const SkOpPtT* pt2) {
-    this->update(pt2);
+    SkPoint pt2pt = this->update(pt2);
 #if DEBUG_PATH_CONSTRUCTION
     SkDebugf("path.quadTo(%1.9g,%1.9g, %1.9g,%1.9g);\n",
-            pt1.fX, pt1.fY, pt2->fPt.fX, pt2->fPt.fY);
+            pt1.fX, pt1.fY, pt2pt.fX, pt2pt.fY);
 #endif
-    fCurrent.quadTo(pt1, pt2->fPt);
+    fCurrent.quadTo(pt1, pt2pt);
 }
 
-void SkPathWriter::update(const SkOpPtT* pt) {
+// if last point to be written matches the current path's first point, alter the
+// last to avoid writing a degenerate lineTo when the path is closed
+SkPoint SkPathWriter::update(const SkOpPtT* pt) {
     if (!fDefer[1]) {
         this->moveTo();
     } else if (!this->matchedLast(fDefer[0])) {
         this->lineTo();
     }
+    SkPoint result = pt->fPt;
+    if (fFirstPtT && result != fFirstPtT->fPt && fFirstPtT->contains(pt)) {
+        result = fFirstPtT->fPt;
+    }
     fDefer[0] = fDefer[1] = pt;  // set both to know that there is not a pending deferred line
+    return result;
 }
 
 bool SkPathWriter::someAssemblyRequired() {
