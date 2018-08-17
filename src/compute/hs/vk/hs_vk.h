@@ -61,8 +61,8 @@ hs_vk_ds_alloc(struct hs_vk const * const hs, VkDescriptorPool desc_pool);
 // Explicitly bind the descriptor set describing the 'vin' and 'vout'
 // buffers to the command buffer before calling 'hs_vk_sort()'.
 //
-// As with 'hs_vk_sort', a null 'vout' buffer results in an in-place
-// sort.
+// If 'vout' is VK_NULL_HANDLE then the sort will be performed in
+// place.
 //
 // FIXME -- do we want to expose a set index?
 //
@@ -102,7 +102,8 @@ hs_vk_pad(struct hs_vk const * const hs,
 // Append commands to the command buffer that when enqueued will sort
 // the keys in the 'vin' buffer and store them in the 'vout' buffer.
 //
-// If 'vout' is NULL then the sort will be performed in place.
+// If 'vout' is VK_NULL_HANDLE then the sort will be performed in
+// place.
 //
 // Pipeline barriers should be applied both before and after invoking
 // this function.

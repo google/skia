@@ -38,11 +38,13 @@ hsg_transpose_reg_prefix(uint32_t const cols_log2)
 
 static
 void
-hsg_transpose_blend(uint32_t                     const cols_log2,
-                    uint32_t                     const row_ll, // lower-left
-                    uint32_t                     const row_ur, // upper-right
-                    struct hsg_transpose_state * const state)
+hsg_transpose_blend(uint32_t const cols_log2,
+                    uint32_t const row_ll, // lower-left
+                    uint32_t const row_ur, // upper-right
+                    void *         blend)
 {
+  struct hsg_transpose_state * const state = blend;
+
   // we're starting register names at '1' for now
   fprintf(state->header,
           "  HS_TRANSPOSE_BLEND( %c, %c, %2u, %3u, %3u ) \\\n",
@@ -53,10 +55,12 @@ hsg_transpose_blend(uint32_t                     const cols_log2,
 
 static
 void
-hsg_transpose_remap(uint32_t                     const row_from,
-                    uint32_t                     const row_to,
-                    struct hsg_transpose_state * const state)
+hsg_transpose_remap(uint32_t const row_from,
+                    uint32_t const row_to,
+                    void *         remap)
 {
+  struct hsg_transpose_state * const state = remap;
+
   // we're starting register names at '1' for now
   fprintf(state->header,
           "  HS_TRANSPOSE_REMAP( %c, %3u, %3u )        \\\n",
@@ -145,8 +149,8 @@ hsg_target_glsl(struct hsg_target       * const target,
         target->state = malloc(sizeof(*target->state));
 
         // allocate files
-        fopen_s(&target->state->header, "hs_config.h", "wb");
-        fopen_s(&target->state->modules,"hs_modules.h","wb");
+        target->state->header  = fopen("hs_config.h", "wb");
+        target->state->modules = fopen("hs_modules.h","wb");
 
         hsg_copyright(target->state->header);
         hsg_copyright(target->state->modules);
@@ -256,7 +260,7 @@ hsg_target_glsl(struct hsg_target       * const target,
                 "#include \"hs_transpose.len.xxd\"\n,\n"
                 "#include \"hs_transpose.spv.xxd\"\n,\n");
 
-        fopen_s(&target->state->source,"hs_transpose.comp","w+");
+        target->state->source = fopen("hs_transpose.comp","w+");
 
         hsg_copyright(target->state->source);
 
@@ -298,8 +302,9 @@ hsg_target_glsl(struct hsg_target       * const target,
                 msb);
 
         char filename[] = { "hs_bs_XX.comp" };
-        sprintf_s(filename,sizeof(filename),"hs_bs_%u.comp",msb);
-        fopen_s(&target->state->source,filename,"w+");
+        sprintf(filename,"hs_bs_%u.comp",msb);
+
+        target->state->source = fopen(filename,"w+");
 
         hsg_copyright(target->state->source);
 
@@ -342,8 +347,9 @@ hsg_target_glsl(struct hsg_target       * const target,
                 msb);
 
         char filename[] = { "hs_bc_XX.comp" };
-        sprintf_s(filename,sizeof(filename),"hs_bc_%u.comp",msb);
-        fopen_s(&target->state->source,filename,"w+");
+        sprintf(filename,"hs_bc_%u.comp",msb);
+
+        target->state->source = fopen(filename,"w+");
 
         hsg_copyright(target->state->source);
 
@@ -382,8 +388,9 @@ hsg_target_glsl(struct hsg_target       * const target,
                 ops->a,ops->b);
 
         char filename[] = { "hs_fm_X_XX.comp" };
-        sprintf_s(filename,sizeof(filename),"hs_fm_%u_%u.comp",ops->a,ops->b);
-        fopen_s(&target->state->source,filename,"w+");
+        sprintf(filename,"hs_fm_%u_%u.comp",ops->a,ops->b);
+
+        target->state->source = fopen(filename,"w+");
 
         hsg_copyright(target->state->source);
 
@@ -415,8 +422,9 @@ hsg_target_glsl(struct hsg_target       * const target,
                 ops->a);
 
         char filename[] = { "hs_hm_X.comp" };
-        sprintf_s(filename,sizeof(filename),"hs_hm_%u.comp",ops->a);
-        fopen_s(&target->state->source,filename,"w+");
+        sprintf(filename,"hs_hm_%u.comp",ops->a);
+
+        target->state->source = fopen(filename,"w+");
 
         hsg_copyright(target->state->source);
 
