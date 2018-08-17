@@ -107,45 +107,16 @@ def dm_flags(api, bot):
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'CPU':
     args.append('--nogpu')
 
-    # These are the canonical configs that we would ideally run on all bots. We
-    # may opt out or substitute some below for specific bots
-    configs.extend(['8888', 'pdf'])
+    configs.append('8888')
 
-    # Runs out of memory on Android bots. Everyone else seems fine.
-    if 'Android' in bot:
-      configs.remove('pdf')
-
-    if '-GCE-' in bot and 'x86_64' in bot:
-      configs.extend(['g8'])
-      configs.extend(['565'])
-      configs.extend(['lite-8888'])              # Experimental display list.
-      configs.extend(['gbr-8888'])
-      configs.extend(['f16'])
-      configs.extend(['srgb'])
-      configs.extend(['esrgb'])
-      configs.extend(['narrow'])
-      configs.extend(['enarrow'])
-
-    configs.extend(mode + '-8888' for mode in ['serialize', 'tiles_rt', 'pic'])
-
-    # This bot only differs from vanilla CPU bots in 8888 config.
-    if 'SK_FORCE_RASTER_PIPELINE_BLITTER' in bot:
-      configs = ['8888']
-
-    if 'FSAA' in bot or 'FAAA' in bot or 'FDAA' in bot:
-      # Scan converters shouldn't really be sensitive to different color
-      # configurations.
-      configs = ['8888', 'tiles_rt-8888']
-
-    if 'NativeFonts' in bot:
-      configs = ['8888']
-
-    # Just do the basic config on Chromecast to avoid OOM.
-    if 'Chromecast' in bot:
-      configs = ['8888']
-
-    if 'Lottie' in bot:
-      configs = ['8888']
+    if 'BonusConfigs' in bot or 'SAN' in bot:
+      configs.extend([
+        'pdf',
+        'g8', '565',
+        'pic-8888', 'tiles_rt-8888', 'lite-8888', 'serialize-8888',
+        'gbr-8888',
+        'f16', 'srgb', 'esrgb', 'narrow', 'enarrow',
+        'p3', 'ep3', 'rec2020', 'erec2020'])
 
   elif api.vars.builder_cfg.get('cpu_or_gpu') == 'GPU':
     args.append('--nocpu')
@@ -1055,6 +1026,7 @@ TEST_BUILDERS = [
   'Test-Chromecast-Clang-Chorizo-CPU-Cortex_A7-arm-Release-All',
   'Test-Chromecast-Clang-Chorizo-GPU-Cortex_A7-arm-Release-All',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-ASAN',
+  'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-BonusConfigs',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-shard_00_10-Coverage',
   'Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All-MSAN',
   ('Test-Debian9-Clang-GCE-CPU-AVX2-x86_64-Debug-All'
