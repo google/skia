@@ -130,6 +130,13 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numC
                 x2 = cmds[i++], y2 = cmds[i++];
                 path.quadTo(x1, y1, x2, y2);
                 break;
+            case CONIC:
+                CHECK_NUM_ARGS(6);
+                x1 = cmds[i++], y1 = cmds[i++];
+                x2 = cmds[i++], y2 = cmds[i++];
+                x3 = cmds[i++]; // width
+                path.conicTo(x1, y1, x2, y2, x3);
+                break;
             case CUBIC:
                 CHECK_NUM_ARGS(6);
                 x1 = cmds[i++], y1 = cmds[i++];
