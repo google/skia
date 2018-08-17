@@ -44,7 +44,7 @@ SkMask::Format GrSDFMaskFilterImpl::getFormat() const {
 }
 
 bool GrSDFMaskFilterImpl::filterMask(SkMask* dst, const SkMask& src,
-                                 const SkMatrix& matrix, SkIPoint* margin) const {
+                                     const SkMatrix& matrix, SkIPoint* margin) const {
     if (src.fFormat != SkMask::kA8_Format && src.fFormat != SkMask::kBW_Format) {
         return false;
     }
