@@ -9,6 +9,7 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
+#include "SkFontMgr.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
 #include "SkOSPath.h"
@@ -42,6 +43,7 @@
 #include "SkottieAdapter.h"
 #include "SkottieAnimator.h"
 #include "SkottieJson.h"
+#include "SkottiePriv.h"
 #include "SkottieValue.h"
 
 #include <cmath>
@@ -51,31 +53,20 @@
 
 namespace skottie {
 
-#define LOG SkDebugf
+using internal::AttachContext;
+
+namespace internal {
+
+void LogJSON(const skjson::Value& json, const char msg[]) {
+    const auto dump = json.toString();
+    LOG("%s: %s\n", msg, dump.c_str());
+}
+
+} // namespace internal
 
 namespace {
 
-struct AssetInfo {
-    const skjson::ObjectValue* fAsset;
-    mutable bool               fIsAttaching; // Used for cycle detection
-};
-
-using AssetMap   = SkTHashMap<SkString, AssetInfo>;
-using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
-
-struct AttachContext {
-    AttachContext makeScoped(sksg::AnimatorList& animators) const {
-        return { fResources, fAssets, fDuration, fFrameRate, fAssetCache, animators };
-    }
-
-    const ResourceProvider& fResources;
-    const AssetMap&         fAssets;
-    const float             fDuration,
-                            fFrameRate;
-    AssetCache&             fAssetCache;
-    sksg::AnimatorList&     fAnimators;
-};
-
+// DEPRECATED: replace w/ LogJSON.
 bool LogFail(const skjson::Value& json, const char* msg) {
     const auto dump = json.toString();
     LOG("!! %s: %s\n", msg, dump.c_str());
@@ -926,11 +917,6 @@ sk_sp<sksg::RenderNode> AttachShapeLayer(const skjson::ObjectValue& layer, Attac
     return shapeNode;
 }
 
-sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue& layer, AttachContext*) {
-    LOG("?? Text layer stub\n");
-    return nullptr;
-}
-
 struct AttachLayerContext {
     AttachLayerContext(const skjson::ArrayValue& jlayers, AttachContext* ctx)
         : fLayerList(jlayers), fCtx(ctx) {}
@@ -1164,6 +1150,7 @@ sk_sp<sksg::RenderNode> AttachLayer(const skjson::ObjectValue* jlayer,
                                     AttachLayerContext* layerCtx) {
     if (!jlayer) return nullptr;
 
+    using internal::AttachTextLayer;
     using LayerAttacher = sk_sp<sksg::RenderNode> (*)(const skjson::ObjectValue&, AttachContext*);
     static constexpr LayerAttacher gLayerAttachers[] = {
         AttachCompLayer,  // 'ty': 0
@@ -1404,7 +1391,7 @@ Animation::Animation(const ResourceProvider& resources,
     , fInPoint(ParseDefault<float>(json["ip"], 0.0f))
     , fOutPoint(SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), fInPoint)) {
 
-    AssetMap assets;
+    internal::AssetMap assets;
     if (const skjson::ArrayValue* jassets = json["assets"]) {
         for (const skjson::ObjectValue* asset : *jassets) {
             if (asset) {
@@ -1413,9 +1400,19 @@ Animation::Animation(const ResourceProvider& resources,
         }
     }
 
-    AssetCache asset_cache;
+    // TODO: plumb external font mgr.
+    const auto fontmgr = SkFontMgr::RefDefault();
+    const auto fonts = internal::ParseFonts(json["fonts"], json["chars"], fontmgr.get());
+
+    internal::AssetCache asset_cache;
     sksg::AnimatorList animators;
-    AttachContext ctx = { resources, assets, this->duration(), fFrameRate, asset_cache, animators };
+    AttachContext ctx = { resources,
+                          assets,
+                          fonts,
+                          this->duration(),
+                          fFrameRate,
+                          asset_cache,
+                          animators };
     auto root = AttachComposition(json, &ctx);
 
     stats->fAnimatorCount = animators.size();
