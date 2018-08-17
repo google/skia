@@ -56,8 +56,6 @@ describe('PathKit\'s Path2D API', function() {
             m.e = 0; m.f = 20.5;
 
             path.addPath(secondPath, m);
-            // An alternate API that avoids having to make the SVG matrix
-            path.addPath(secondPath, 1, 0, 0, 1, 0, 20.5);
 
             let canvas = document.createElement('canvas');
             let canvasCtx = canvas.getContext('2d');
@@ -73,6 +71,81 @@ describe('PathKit\'s Path2D API', function() {
             reportCanvas(canvas, 'path2D_api_example').then(() => {
                 done();
             }).catch(reportError(done));
+        });
+    });
+
+    it('can chain by returning the same object', function(done) {
+        LoadPathKit.then(() => {
+            let path = PathKit.NewPath();
+
+            let p1 = path.moveTo(20, 5)
+                .lineTo(30, 20)
+                .quadTo(66, 188, 120, 136)
+                .close();
+
+            // these should be the same object
+            expect(path === p1).toBe(true);
+            p1.delete();
+            try {
+                // This should throw an exception because
+                // the underlying path was already deleted.
+                path.delete();
+                expect('should not have gotten here').toBe(false);
+            } catch (e) {
+                // all is well
+            }
+            done();
+        });
+    });
+
+    it('does not leak path objects when chaining', function(done) {
+        LoadPathKit.then(() => {
+            // By default, we have 16 MB of memory assigned to our PathKit
+            // library. This can be configured by -S TOTAL_MEMORY=NN
+            // and defaults to 16MB (we likely don't need to touch this).
+            // If there's a leak in here, we should OOM pretty quick.
+            // Testing showed around 50k is enough to see one if we leak a path,
+            // so run 250k times just to be safe.
+            for(let i = 0; i < 250000; i++) {
+                let path = PathKit.NewPath()
+                                  .moveTo(20, 5)
+                                  .lineTo(30, 20)
+                                  .quadTo(66, 188, 120, 136)
+                                  .close();
+                path.delete();
+            }
+            done();
+        });
+    });
+
+    function drawTriangle() {
+        let path = PathKit.NewPath();
+        path.moveTo(0, 0);
+        path.lineTo(10, 0);
+        path.lineTo(10, 10);
+        path.close();
+        return path;
+    }
+
+    it('has multiple overloads of addPath', function(done) {
+        LoadPathKit.then(() => {
+            let basePath = PathKit.NewPath();
+            let otherPath = drawTriangle();
+            // These add path call can be chained.
+            // add it unchanged
+            basePath.addPath(otherPath)
+            // providing the 6 params of an SVG matrix to make it appear 20.5 px down
+                    .addPath(otherPath, 1, 0, 0, 1, 0, 20.5)
+            // provide the full 9 matrix params to make it appear 30 px to the right
+            // and be 3 times as big.
+                    .addPath(otherPath, 3, 0, 30,
+                                        0, 3, 0,
+                                        0, 0, 1);
+
+            // TODO(kjlubick): Do svg and canvas gm helper function
+            basePath.delete();
+            otherPath.delete();
+            done();
         });
     });
 
