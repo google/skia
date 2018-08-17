@@ -10,6 +10,7 @@
 #include "GrCaps.h"
 #include "GrColorSpaceXform.h"
 #include "GrRenderTargetContext.h"
+#include "GrShape.h"
 #include "GrStyle.h"
 #include "GrTextureAdjuster.h"
 #include "GrTextureMaker.h"
@@ -336,10 +337,8 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         }
     }
 
-    SkPath rectPath;
-    rectPath.addRect(clippedDstRect);
-    rectPath.setIsVolatile(true);
-    GrBlurUtils::drawPathWithMaskFilter(this->context(), fRenderTargetContext.get(), this->clip(),
-                                        rectPath, std::move(grPaint), aa, viewMatrix, mf,
-                                        GrStyle::SimpleFill(), true);
+    GrShape shape(clippedDstRect, GrStyle::SimpleFill());
+
+    GrBlurUtils::drawShapeWithMaskFilter(this->context(), fRenderTargetContext.get(), this->clip(),
+                                         shape, std::move(grPaint), aa, viewMatrix, mf);
 }
