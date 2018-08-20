@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "024427b9_8e79e294",
+        "filename": "src/core/SkMaskFilterBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T15:26:02Z",
+      "side": 1,
+      "message": "Are we close to removing this one in favor of the above one?",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 73
+      },
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0395aa02_bd7e489d",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T15:26:02Z",
+      "side": 1,
+      "message": "extra space",
+      "range": {
+        "startLine": 176,
+        "startChar": 40,
+        "endLine": 176,
+        "endChar": 41
+      },
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "95789380_d0689911",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T15:26:02Z",
+      "side": 1,
+      "message": "Yeah, another thing we could consider is making internal calls that take (const SkPath\u0026, bool pathIsMutable) instead take a SkPath by value and use std::move() to move the mutable path in. In non-mutable callers we\u0027d pay for a ref/unref on the SkPathRef and copy of the SkPath fields but that doesn\u0027t seem to bad.",
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
