@@ -22,6 +22,30 @@
       "revId": "6676079d2b79885406cc6773dba1e5082585cd2c",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "094ddb5c_ecf0c04c",
+        "filename": "infra/bots/recipes/upload_dm_results.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-20T15:11:00Z",
+      "side": 0,
+      "message": "Agreed, the diff makes it more difficult to understand what happened.  I had to move the summary_dest_path logic before we could upload the summaries, but git diff seems to think I moved lots of stuff down.",
+      "parentUuid": "0552c1d1_418ac294",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 57
+      },
+      "revId": "6676079d2b79885406cc6773dba1e5082585cd2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
