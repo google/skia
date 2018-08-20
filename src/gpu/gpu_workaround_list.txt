@@ -1,6 +1,7 @@
 disable_blend_equation_advanced
 disable_discard_framebuffer
 disallow_large_instanced_draw
+flush_on_framebuffer_change
 gl_clear_broken
 max_fragment_uniform_vectors_32
 max_msaa_sample_count_4
