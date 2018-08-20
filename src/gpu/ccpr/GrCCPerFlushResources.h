@@ -10,7 +10,7 @@
 
 #include "GrNonAtomicRef.h"
 #include "ccpr/GrCCAtlas.h"
-#include "ccpr/GrCCPathParser.h"
+#include "ccpr/GrCCFiller.h"
 #include "ccpr/GrCCPathProcessor.h"
 
 class GrCCPathCacheEntry;
@@ -24,12 +24,12 @@ struct GrCCPerFlushResourceSpecs {
     int fNumCachedPaths = 0;
 
     int fNumCopiedPaths = 0;
-    GrCCPathParser::PathStats fCopyPathStats;
+    GrCCFiller::PathStats fCopyPathStats;
     GrCCAtlas::Specs fCopyAtlasSpecs;
 
     int fNumRenderedPaths = 0;
     int fNumClipPaths = 0;
-    GrCCPathParser::PathStats fRenderedPathStats;
+    GrCCFiller::PathStats fRenderedPathStats;
     GrCCAtlas::Specs fRenderedAtlasSpecs;
 
     bool isEmpty() const {
@@ -85,7 +85,7 @@ public:
                   SkTArray<sk_sp<GrRenderTargetContext>>* out);
 
     // Accessors used by draw calls, once the resources have been finalized.
-    const GrCCPathParser& pathParser() const { SkASSERT(!this->isMapped()); return fPathParser; }
+    const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }
     const GrBuffer* indexBuffer() const { SkASSERT(!this->isMapped()); return fIndexBuffer.get(); }
     const GrBuffer* vertexBuffer() const { SkASSERT(!this->isMapped()); return fVertexBuffer.get();}
     GrBuffer* instanceBuffer() const { SkASSERT(!this->isMapped()); return fInstanceBuffer.get(); }
@@ -107,10 +107,12 @@ public:
     }
 
 private:
-    bool placeParsedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
-                                SkIVector* devToAtlasOffset);
+    bool placeRenderedPathInAtlas(const SkIRect& clipIBounds, const SkIRect& pathIBounds,
+                                  GrScissorTest*, SkIRect* clippedPathIBounds,
+                                  SkIVector* devToAtlasOffset);
 
-    GrCCPathParser fPathParser;
+    const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
+    GrCCFiller fFiller;
     GrCCAtlasStack fCopyAtlasStack;
     GrCCAtlasStack fRenderedAtlasStack;
 

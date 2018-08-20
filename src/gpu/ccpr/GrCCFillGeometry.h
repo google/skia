@@ -5,8 +5,8 @@
  * found in the LICENSE file.
  */
 
-#ifndef GrGrCCGeometry_DEFINED
-#define GrGrCCGeometry_DEFINED
+#ifndef GrGrCCFillGeometry_DEFINED
+#define GrGrCCFillGeometry_DEFINED
 
 #include "SkGeometry.h"
 #include "SkNx.h"
@@ -15,14 +15,14 @@
 
 /**
  * This class chops device-space contours up into a series of segments that CCPR knows how to
- * render. (See GrCCGeometry::Verb.)
+ * fill. (See GrCCFillGeometry::Verb.)
  *
  * NOTE: This must be done in device space, since an affine transformation can change whether a
  * curve is monotonic.
  */
-class GrCCGeometry {
+class GrCCFillGeometry {
 public:
-    // These are the verbs that CCPR knows how to draw. If a path has any segments that don't map to
+    // These are the verbs that CCPR knows how to fill. If a path has any segments that don't map to
     // this list, then they are chopped into smaller ones that do. A list of these comprise a
     // compact representation of what can later be expanded into GPU instance data.
     enum class Verb : uint8_t {
@@ -49,7 +49,7 @@ public:
         bool operator==(const PrimitiveTallies&);
     };
 
-    GrCCGeometry(int numSkPoints = 0, int numSkVerbs = 0, int numConicWeights = 0)
+    GrCCFillGeometry(int numSkPoints = 0, int numSkVerbs = 0, int numConicWeights = 0)
             : fPoints(numSkPoints * 3) // Reserve for a 3x expansion in points and verbs.
             , fVerbs(numSkVerbs * 3)
             , fConicWeights(numConicWeights * 3/2) {}
@@ -62,17 +62,6 @@ public:
         SkASSERT(!fBuildingContour);
         fPoints.reset();
         fVerbs.reset();
-    }
-
-    // This is included in case the caller needs to discard previously added contours. It is up to
-    // the caller to track counts and ensure we don't pop back into the middle of a different
-    // contour.
-    void resize_back(int numPoints, int numVerbs) {
-        SkASSERT(!fBuildingContour);
-        fPoints.resize_back(numPoints);
-        fVerbs.resize_back(numVerbs);
-        SkASSERT(fVerbs.empty() || fVerbs.back() == Verb::kEndOpenContour ||
-                 fVerbs.back() == Verb::kEndClosedContour);
     }
 
     void beginPath();
@@ -129,7 +118,7 @@ private:
     SkSTArray<32, float, true> fConicWeights;
 };
 
-inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
+inline void GrCCFillGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b) {
     fTriangles += b.fTriangles;
     fWeightedTriangles += b.fWeightedTriangles;
     fQuadratics += b.fQuadratics;
@@ -137,8 +126,8 @@ inline void GrCCGeometry::PrimitiveTallies::operator+=(const PrimitiveTallies& b
     fConics += b.fConics;
 }
 
-GrCCGeometry::PrimitiveTallies
-inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
+GrCCFillGeometry::PrimitiveTallies
+inline GrCCFillGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) const {
     return {fTriangles - b.fTriangles,
             fWeightedTriangles - b.fWeightedTriangles,
             fQuadratics - b.fQuadratics,
@@ -146,7 +135,7 @@ inline GrCCGeometry::PrimitiveTallies::operator-(const PrimitiveTallies& b) cons
             fConics - b.fConics};
 }
 
-inline bool GrCCGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
+inline bool GrCCFillGeometry::PrimitiveTallies::operator==(const PrimitiveTallies& b) {
     return fTriangles == b.fTriangles && fWeightedTriangles == b.fWeightedTriangles &&
            fQuadratics == b.fQuadratics && fCubics == b.fCubics && fConics == b.fConics;
 }
