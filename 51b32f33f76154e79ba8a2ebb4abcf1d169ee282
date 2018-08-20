@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8873142f_9e399e5b",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T14:13:00Z",
+      "side": 1,
+      "message": "this-\u003ewriteShortCircuitWorkaroundExpression(b, parentPrecedence);",
+      "range": {
+        "startLine": 853,
+        "startChar": 8,
+        "endLine": 853,
+        "endChar": 67
+      },
+      "revId": "51b32f33f76154e79ba8a2ebb4abcf1d169ee282",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
