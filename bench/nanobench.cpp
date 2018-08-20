@@ -648,7 +648,6 @@ public:
         fColorTypes.push_back(kN32_SkColorType);
         if (!FLAGS_simpleCodec) {
             fColorTypes.push_back(kRGB_565_SkColorType);
-            fColorTypes.push_back(kAlpha_8_SkColorType);
             fColorTypes.push_back(kGray_8_SkColorType);
         }
     }
