@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "48ecb80d_c730f190",
+        "filename": "src/core/SkMaskFilterBase.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-20T17:22:45Z",
+      "side": 1,
+      "message": "Yep, they seem to mostly be duplicates and w/ GrShape being handed in there isn\u0027t really any benefit to having a separate call.",
+      "parentUuid": "024427b9_8e79e294",
+      "range": {
+        "startLine": 121,
+        "startChar": 0,
+        "endLine": 128,
+        "endChar": 73
+      },
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0395aa02_bd7e489d",
         "filename": "src/gpu/GrBlurUtils.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bdc8b05c_72a71611",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-20T17:22:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0395aa02_bd7e489d",
+      "range": {
+        "startLine": 176,
+        "startChar": 40,
+        "endLine": 176,
+        "endChar": 41
+      },
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "95789380_d0689911",
         "filename": "src/gpu/SkGpuDevice.cpp",
         "patchSetId": 5
@@ -59,6 +107,24 @@
       "writtenOn": "2018-08-20T15:26:02Z",
       "side": 1,
       "message": "Yeah, another thing we could consider is making internal calls that take (const SkPath\u0026, bool pathIsMutable) instead take a SkPath by value and use std::move() to move the mutable path in. In non-mutable callers we\u0027d pay for a ref/unref on the SkPathRef and copy of the SkPath fields but that doesn\u0027t seem to bad.",
+      "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a30ea4ce_d6cd46d9",
+        "filename": "src/gpu/SkGpuDevice.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-20T17:22:45Z",
+      "side": 1,
+      "message": "Yep, I had thought about that while writing this CL.",
+      "parentUuid": "95789380_d0689911",
       "revId": "cdb7f2ee128a2701d06f10452664cf6821a19325",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
