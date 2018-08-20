@@ -22,6 +22,30 @@
       "revId": "82d441447b6c8409802020ba805bc31bc22d4a1f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3605e54c_96eb02b8",
+        "filename": "infra/bots/recipes/upload_dm_results.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-20T16:36:29Z",
+      "side": 1,
+      "message": "Yes - cleans up the step names",
+      "parentUuid": "8edf035d_c2c41a47",
+      "range": {
+        "startLine": 45,
+        "startChar": 20,
+        "endLine": 45,
+        "endChar": 37
+      },
+      "revId": "82d441447b6c8409802020ba805bc31bc22d4a1f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
