@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a06eb2f7_055221df",
+        "filename": "infra/bots/recipes/upload_dm_results.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-20T15:19:16Z",
+      "side": 1,
+      "message": "NO: The images must be uploaded before the result !!!",
+      "range": {
+        "startLine": 54,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 0
+      },
+      "revId": "40ac433b4563d1b76c7a2a687a5cb5a25b0ed389",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
