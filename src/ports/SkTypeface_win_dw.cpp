@@ -176,14 +176,14 @@ private:
 };
 
 SkTypeface::LocalizedStrings* DWriteFontTypeface::onCreateFamilyNameIterator() const {
-    SkTypeface::LocalizedStrings* nameIter =
-        SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
-    if (nullptr == nameIter) {
+    sk_sp<SkTypeface::LocalizedStrings> nameIter =
+        SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*this);
+    if (!nameIter) {
         SkTScopedComPtr<IDWriteLocalizedStrings> familyNames;
         HRNM(fDWriteFontFamily->GetFamilyNames(&familyNames), "Could not obtain family names.");
-        nameIter = new LocalizedStrings_IDWriteLocalizedStrings(familyNames.release());
+        nameIter = sk_make_sp<LocalizedStrings_IDWriteLocalizedStrings>(familyNames.release());
     }
-    return nameIter;
+    return nameIter.release();
 }
 
 int DWriteFontTypeface::onGetVariationDesignPosition(
