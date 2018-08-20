@@ -2166,9 +2166,9 @@ int SkTypeface_Mac::onGetUPEM() const {
 }
 
 SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const {
-    SkTypeface::LocalizedStrings* nameIter =
-            SkOTUtils::LocalizedStrings_NameTable::CreateForFamilyNames(*this);
-    if (nullptr == nameIter) {
+    sk_sp<SkTypeface::LocalizedStrings> nameIter =
+            SkOTUtils::LocalizedStrings_NameTable::MakeForFamilyNames(*this);
+    if (!nameIter) {
         CFStringRef cfLanguageRaw;
         UniqueCFRef<CFStringRef> cfFamilyName(
                 CTFontCopyLocalizedName(fFontRef.get(), kCTFontFamilyNameKey, &cfLanguageRaw));
@@ -2185,9 +2185,9 @@ SkTypeface::LocalizedStrings* SkTypeface_Mac::onCreateFamilyNameIterator() const
             CFStringToSkString(cfFamilyName.get(), &skFamilyName);
         }
 
-        nameIter = new SkOTUtils::LocalizedStrings_SingleName(skFamilyName, skLanguage);
+        nameIter = sk_make_sp<SkOTUtils::LocalizedStrings_SingleName>(skFamilyName, skLanguage);
     }
-    return nameIter;
+    return nameIter.release();
 }
 
 int SkTypeface_Mac::onGetTableTags(SkFontTableTag tags[]) const {
@@ -2377,7 +2377,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
             src = reinterpret_cast<const UniChar*>(chars);
             int extra = 0;
             for (int i = 0; i < glyphCount; ++i) {
-                if (SkUTF16_IsHighSurrogate(src[i + extra])) {
+                if (SkUTF16_IsLeadingSurrogate(src[i + extra])) {
                     ++extra;
                 }
             }
@@ -2418,7 +2418,7 @@ int SkTypeface_Mac::onCharsToGlyphs(const void* chars, Encoding encoding,
         int extra = 0;
         for (int i = 0; i < glyphCount; ++i) {
             compactedGlyphs[i] = macGlyphs[i + extra];
-            if (SkUTF16_IsHighSurrogate(src[i + extra])) {
+            if (SkUTF16_IsLeadingSurrogate(src[i + extra])) {
                 ++extra;
             }
         }
