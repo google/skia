@@ -22,6 +22,30 @@
       "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0e177bd0_83cb3dbc",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3006,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-08-20T20:49:56Z",
+      "side": 1,
+      "message": "Ack, sorry.  I\u0027m going to blame my editor for that.\n\nWhen can I expect the Skia autoformatter? :3",
+      "parentUuid": "2b938a99_e5bbbfa6",
+      "range": {
+        "startLine": 3006,
+        "startChar": 4,
+        "endLine": 3006,
+        "endChar": 6
+      },
+      "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
