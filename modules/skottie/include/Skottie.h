@@ -83,7 +83,7 @@ public:
 
 private:
     Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
-              const skjson::ObjectValue&, Stats*);
+              SkScalar in, SkScalar out, const skjson::ObjectValue&, Stats*);
 
     SkString                     fVersion;
     SkSize                       fSize;

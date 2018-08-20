@@ -1328,14 +1328,18 @@ sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
     const auto t1 = SkTime::GetMSecs();
     stats->fJsonParseTimeMS = t1 - t0;
 
-    const auto version = ParseDefault<SkString>(json["v"], SkString());
-    const auto size    = SkSize::Make(ParseDefault<float>(json["w"], 0.0f),
-                                      ParseDefault<float>(json["h"], 0.0f));
-    const auto fps     = ParseDefault<float>(json["fr"], -1.0f);
+    const auto version  = ParseDefault<SkString>(json["v"], SkString());
+    const auto size     = SkSize::Make(ParseDefault<float>(json["w"], 0.0f),
+                                       ParseDefault<float>(json["h"], 0.0f));
+    const auto fps      = ParseDefault<float>(json["fr"], -1.0f),
+               inPoint  = ParseDefault<float>(json["ip"], 0.0f),
+               outPoint = SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint);
 
-    if (size.isEmpty() || version.isEmpty() || fps <= 0) {
-        LOG("!! invalid animation params (version: %s, size: [%f %f], frame rate: %f)",
-            version.c_str(), size.width(), size.height(), fps);
+    if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
+        !SkScalarIsFinite(inPoint) || !SkScalarIsFinite(outPoint)) {
+        LOG("!! invalid animation params (version: %s, size: [%f %f], frame rate: %f, "
+            "in-point: %f, out-point: %f)\n",
+            version.c_str(), size.width(), size.height(), fps, inPoint, outPoint);
         return nullptr;
     }
 
@@ -1345,7 +1349,8 @@ sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
 
     NullResourceProvider null_provider;
     const auto anim = sk_sp<Animation>(new Animation(provider ? *provider : null_provider,
-                                                     std::move(version), size, fps, json, stats));
+                                                     std::move(version), size, fps,
+                                                     inPoint, outPoint, json, stats));
     const auto t2 = SkTime::GetMSecs();
     stats->fSceneParseTimeMS = t2 - t1;
     stats->fTotalLoadTimeMS  = t2 - t0;
@@ -1383,13 +1388,14 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
 }
 
 Animation::Animation(const ResourceProvider& resources,
-                     SkString version, const SkSize& size, SkScalar fps,
+                     SkString version, const SkSize& size,
+                     SkScalar fps, SkScalar in, SkScalar out,
                      const skjson::ObjectValue& json, Stats* stats)
     : fVersion(std::move(version))
     , fSize(size)
     , fFrameRate(fps)
-    , fInPoint(ParseDefault<float>(json["ip"], 0.0f))
-    , fOutPoint(SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), fInPoint)) {
+    , fInPoint(in)
+    , fOutPoint(out) {
 
     internal::AssetMap assets;
     if (const skjson::ArrayValue* jassets = json["assets"]) {
