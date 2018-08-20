@@ -78,7 +78,7 @@
     printf conventions (e.g. const char* format, ...). If you want to redirect
     this to something other than printf, define yours here
  */
-//#define SkDebugf(...)  MyFunction(__VA_ARGS__)
+#define SkDebugf(...) 
 
 /*
  *  To specify a different default font cache limit, define this. If this is
