@@ -83,7 +83,12 @@ GrGLContext::~GrGLContext() {
 
 SkSL::Compiler* GrGLContext::compiler() const {
     if (!fCompiler) {
-        fCompiler = new SkSL::Compiler();
+        // Convert GrDriverBugWorkarounds to SkSL::GLSLWorkarounds.
+        const auto& capsWorkarounds = fGLCaps->workarounds();
+        SkSL::GLSLWorkarounds glslWorkarounds;
+        if (capsWorkarounds.add_and_true_to_loop_condition)
+            glslWorkarounds.fAddAndTrueToLoopConditions = true;
+        fCompiler = new SkSL::Compiler(SkSL::Compiler::kNone_Flags, &glslWorkarounds);
     }
     return fCompiler;
 }

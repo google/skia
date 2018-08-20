@@ -18,8 +18,9 @@
 
 static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Settings& settings,
                  const char* expected, SkSL::Program::Inputs* inputs,
-                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
-    SkSL::Compiler compiler;
+                 SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind,
+                 SkSL::GLSLWorkarounds* workarounds = nullptr) {
+    SkSL::Compiler compiler(SkSL::Compiler::kNone_Flags, workarounds);
     SkSL::String output;
     std::unique_ptr<SkSL::Program> program = compiler.convertProgram(kind, SkSL::String(src),
                                                                      settings);
@@ -40,11 +41,12 @@ static void test(skiatest::Reporter* r, const char* src, const SkSL::Program::Se
 }
 
 static void test(skiatest::Reporter* r, const char* src, const GrShaderCaps& caps,
-                 const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind) {
+                 const char* expected, SkSL::Program::Kind kind = SkSL::Program::kFragment_Kind,
+                 SkSL::GLSLWorkarounds* workarounds = nullptr) {
     SkSL::Program::Settings settings;
     settings.fCaps = &caps;
     SkSL::Program::Inputs inputs;
-    test(r, src, settings, expected, &inputs, kind);
+    test(r, src, settings, expected, &inputs, kind, workarounds);
 }
 
 DEF_TEST(SkSLHelloWorld, r) {
@@ -1964,4 +1966,28 @@ DEF_TEST(SkSLFrExp, r) {
          "    float foo = frexp(0.5, exp);\n"
          "    sk_FragColor = vec4(float(exp));\n"
          "}\n");
+}
+
+DEF_TEST(SkSLWorkaroundAddAndTrueToLoopConditions, r) {
+    SkSL::GLSLWorkarounds workarounds;
+    workarounds.fAddAndTrueToLoopConditions = true;
+    test(r,
+         "void main() {"
+         "    int c = 0;"
+         "    for (int i = 0; i < 4 || c < 10; ++i) {"
+         "        c += 1;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int c = 0;\n"
+         "    for (int i = 0;(i < 4 || c < 10) && true; ++i) {\n"
+         "        c += 1;\n"
+         "    }\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind,
+         &workarounds
+         );
 }

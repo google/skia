@@ -18,7 +18,8 @@ namespace SkSL {
 class CPPCodeGenerator : public GLSLCodeGenerator {
 public:
     CPPCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                     String name, OutputStream* out);
+                     String name, OutputStream* out,
+                     const GLSLWorkarounds& workarounds);
 
     bool generateCode() override;
 

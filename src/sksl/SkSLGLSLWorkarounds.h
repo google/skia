@@ -1,0 +1,19 @@
+/*
+ * Copyright 2018 Google Inc.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+#ifndef SKSL_GLSL_WORKAROUNDS
+#define SKSL_GLSL_WORKAROUNDS
+
+namespace SkSL {
+
+struct GLSLWorkarounds {
+    bool fAddAndTrueToLoopConditions = false;
+};
+
+} // namespace
+
+#endif

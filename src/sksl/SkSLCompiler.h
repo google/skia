@@ -16,6 +16,7 @@
 #include "SkSLCFGGenerator.h"
 #include "SkSLContext.h"
 #include "SkSLErrorReporter.h"
+#include "SkSLGLSLWorkarounds.h"
 #include "SkSLLexer.h"
 
 #define SK_FRAGCOLOR_BUILTIN           10001
@@ -66,7 +67,7 @@ public:
         kOutput
     };
 
-    Compiler(Flags flags = kNone_Flags);
+    Compiler(Flags flags = kNone_Flags, GLSLWorkarounds* workarounds = nullptr);
 
     ~Compiler() override;
 
@@ -161,6 +162,7 @@ private:
     std::shared_ptr<SymbolTable> fTypes;
     IRGenerator* fIRGenerator;
     int fFlags;
+    GLSLWorkarounds fWorkarounds;
 
     const String* fSource;
     std::shared_ptr<Context> fContext;

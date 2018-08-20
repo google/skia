@@ -62,7 +62,7 @@ static const char* SKSL_PIPELINE_STAGE_INCLUDE =
 
 namespace SkSL {
 
-Compiler::Compiler(Flags flags)
+Compiler::Compiler(Flags flags, GLSLWorkarounds* workarounds)
 : fFlags(flags)
 , fContext(new Context())
 , fErrorCount(0) {
@@ -244,6 +244,10 @@ Compiler::Compiler(Flags flags)
                                  strlen(SKSL_GEOM_INCLUDE), *fTypes, &fGeometryInclude);
     fIRGenerator->fSymbolTable->markAllFunctionsBuiltin();
     fGeometrySymbolTable = fIRGenerator->fSymbolTable;
+
+    if (workarounds) {
+        fWorkarounds = *workarounds;
+    }
 }
 
 Compiler::~Compiler() {
@@ -1356,7 +1360,7 @@ bool Compiler::toGLSL(Program& program, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    GLSLCodeGenerator cg(fContext.get(), &program, this, &out);
+    GLSLCodeGenerator cg(fContext.get(), &program, this, &out, fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;
@@ -1397,7 +1401,8 @@ bool Compiler::toCPP(Program& program, String name, OutputStream& out) {
         return false;
     }
     fSource = program.fSource.get();
-    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out);
+    CPPCodeGenerator cg(fContext.get(), &program, this, name, &out,
+                        fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     return result;
@@ -1419,7 +1424,8 @@ bool Compiler::toPipelineStage(const Program& program, String* out,
     SkASSERT(program.fIsOptimized);
     fSource = program.fSource.get();
     StringStream buffer;
-    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer, outFormatArgs);
+    PipelineStageCodeGenerator cg(fContext.get(), &program, this, &buffer,
+                                  outFormatArgs, fWorkarounds);
     bool result = cg.generateCode();
     fSource = nullptr;
     if (result) {

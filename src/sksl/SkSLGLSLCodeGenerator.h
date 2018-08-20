@@ -13,6 +13,7 @@
 #include <unordered_map>
 
 #include "SkSLCodeGenerator.h"
+#include "SkSLGLSLWorkarounds.h"
 #include "SkSLStringStream.h"
 #include "ir/SkSLBinaryExpression.h"
 #include "ir/SkSLBoolLiteral.h"
@@ -74,10 +75,12 @@ public:
     };
 
     GLSLCodeGenerator(const Context* context, const Program* program, ErrorReporter* errors,
-                      OutputStream* out)
+                      OutputStream* out,
+                      const GLSLWorkarounds& workarounds)
     : INHERITED(program, errors, out)
     , fLineEnding("\n")
-    , fContext(*context) {}
+    , fContext(*context)
+    , fWorkarounds(workarounds) {}
 
     bool generateCode() override;
 
@@ -196,6 +199,7 @@ protected:
 
     const char* fLineEnding;
     const Context& fContext;
+    GLSLWorkarounds fWorkarounds;
     StringStream fExtensions;
     StringStream fGlobals;
     StringStream fExtraFunctions;
