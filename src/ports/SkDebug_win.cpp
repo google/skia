@@ -16,6 +16,7 @@
 
 static const size_t kBufferSize = 2048;
 
+#ifndef SkDebugf
 void SkDebugf(const char format[], ...) {
     char    buffer[kBufferSize + 1];
     va_list args;
@@ -31,4 +32,5 @@ void SkDebugf(const char format[], ...) {
 
     OutputDebugStringA(buffer);
 }
+#endif
 #endif//defined(SK_BUILD_FOR_WIN)

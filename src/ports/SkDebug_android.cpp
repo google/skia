@@ -17,6 +17,7 @@
 // applications (e.g. skia_launcher).
 bool gSkDebugToStdOut = false;
 
+#ifndef SkDebugf
 void SkDebugf(const char format[], ...) {
     va_list args1, args2;
     va_start(args1, format);
@@ -31,5 +32,6 @@ void SkDebugf(const char format[], ...) {
 
     va_end(args1);
 }
+#endif
 
 #endif//defined(SK_BUILD_FOR_ANDROID)
