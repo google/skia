@@ -199,8 +199,7 @@ private:
 
     int parseValue(const skjson::Value& jv) override {
         T val;
-        if (!Parse<T>(jv, &val) || (!fVs.empty() &&
-                ValueTraits<T>::Cardinality(val) != ValueTraits<T>::Cardinality(fVs.back()))) {
+        if (!Parse<T>(jv, &val) || (!fVs.empty() && !ValueTraits<T>::CanLerp(val, fVs.back()))) {
             return -1;
         }
 
