@@ -1,45 +1,13 @@
 [
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "ensure-directory",
-      "--mode",
-      "0777",
-      "[START_DIR]/tmp_upload"
-    ],
-    "infra_step": true,
-    "name": "makedirs tmp dir"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
+      "gsutil",
+      "cp",
+      "-Z",
       "[START_DIR]/test/dm.json",
-      "[START_DIR]/tmp_upload"
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/dm.json"
     ],
-    "infra_step": true,
-    "name": "copy dm.json"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/test/dm.json"
-    ],
-    "infra_step": true,
-    "name": "rm old dm.json"
+    "name": "upload dm.json"
   },
   {
     "cmd": [
@@ -62,30 +30,13 @@
   },
   {
     "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "copy",
+      "gsutil",
+      "cp",
+      "-Z",
       "[START_DIR]/test/verbose.log",
-      "[START_DIR]/tmp_upload"
+      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001/verbose.log"
     ],
-    "infra_step": true,
-    "name": "copy verbose.log"
-  },
-  {
-    "cmd": [
-      "python",
-      "-u",
-      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
-      "--json-output",
-      "/path/to/tmp/json",
-      "remove",
-      "[START_DIR]/test/verbose.log"
-    ],
-    "infra_step": true,
-    "name": "rm old verbose.log"
+    "name": "upload verbose.log"
   },
   {
     "cmd": [
@@ -114,7 +65,7 @@
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
-    "name": "upload images",
+    "name": "upload .png images",
     "~followup_annotations": [
       "step returned non-zero exit code: 1",
       "@@@STEP_FAILURE@@@"
@@ -128,7 +79,7 @@
       "[START_DIR]/test/*.png",
       "gs://skia-infra-gm/dm-images-v1"
     ],
-    "name": "upload images (attempt 2)"
+    "name": "upload .png images (attempt 2)"
   },
   {
     "cmd": [
@@ -148,17 +99,6 @@
       "@@@STEP_LOG_LINE@glob@[START_DIR]/test/someimage.png@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
-  },
-  {
-    "cmd": [
-      "gsutil",
-      "cp",
-      "-z",
-      "json,log",
-      "[START_DIR]/tmp_upload/*",
-      "gs://skia-infra-gm/dm-json-v1/2012/05/14/12/abc123/Test-Debian9-GCC-GCE-CPU-AVX2-x86_64-Debug/1337000001"
-    ],
-    "name": "upload JSON and logs"
   },
   {
     "name": "$result",
