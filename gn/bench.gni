@@ -20,7 +20,6 @@ bench_sources = [
   "$_bench/BlendmodeBench.cpp",
   "$_bench/BlurBench.cpp",
   "$_bench/BlurImageFilterBench.cpp",
-  "$_bench/BlurOccludedRRectBench.cpp",
   "$_bench/BlurRectBench.cpp",
   "$_bench/BlurRectsBench.cpp",
   "$_bench/BlurRoundRectBench.cpp",
