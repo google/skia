@@ -133,10 +133,16 @@ public:
 
     //using PerGlyph = std::function<void(const SkGlyph&, SkPoint)>;
     template <typename PerGlyphT, typename PerPathT>
-    void drawGlyphRunAsGlyphWithPathFallback(
+    void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerGlyphT perGlyph, PerPathT perPath);
+
+    template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
+    void drawGlyphRunAsSDFWithFallback(
+            SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+            SkPoint origin, SkScalar textRatio,
+            PerSDFT perSDF, PerPathT perPath, PerFallbackT perFallback);
 
 private:
     static bool ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix);
