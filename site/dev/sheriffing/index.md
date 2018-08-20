@@ -13,7 +13,6 @@ Tree Sheriffs Documentation
 *   [Tips for sheriffs](#tips)
     +   [When to file bugs](#when_to_file_bugs)
     +   [How to close or re-open the tree](#how_close_tree)
-    +   [Compile bot failures automatically close the tree](#tree_closers)
     +   [How to revert a CL](#how_to_revert)
     +   [What to do if DEPS roll fails to land](#deps_roll_failures)
     +   [How to rebaseline](#how_to_rebaseline)
@@ -115,14 +114,6 @@ Look at all existing [BreakingTheBuildbots bugs](https://bug.skia.org/?q=label:B
 
 * Submit manually using the "git cl land" with the --bypass-hooks flag.
 * Add "No-Tree-Checks: true" to your CL description and use the CQ as usual.
-
-
-<a name="tree_closers"></a>
-### Compile bot failures automatically close the tree
-
-A failure of the build steps in all compile bots automatically closes the tree. Sheriffs will have to manually reopen the tree when they deem the problem fixed.
-
-Note: The tree is not closed automatically if the last run of the failed compile builder had the same failing step. The tree is also not closed if the tree was automatically closed less than 10 mins ago. If the tree is already closed then no action is taken.
 
 
 <a name="how_to_revert"></a>
