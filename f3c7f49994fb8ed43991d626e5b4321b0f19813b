@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "c9847dc9_670c666b",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-20T19:35:36Z",
+      "side": 1,
+      "message": "Comment should be \u0027By\u0027",
+      "range": {
+        "startLine": 622,
+        "startChar": 91,
+        "endLine": 622,
+        "endChar": 93
+      },
+      "revId": "f3c7f49994fb8ed43991d626e5b4321b0f19813b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f93d05ec_812a9a0c",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 20
@@ -13,6 +36,30 @@
       "writtenOn": "2018-08-20T17:50:36Z",
       "side": 1,
       "message": "This is a test image that we don\u0027t have the copyright for. The interesting bit is that it has a CMYK profile, so when we try to decode, it requires a color conversion. When asking for Alpha_8, a previous patch set asserted.\n\nDo you have any test images with CMYK profiles that we can check in? Or maybe it\u0027s enough that this is caught by nanobench?",
+      "range": {
+        "startLine": 1618,
+        "startChar": 24,
+        "endLine": 1618,
+        "endChar": 38
+      },
+      "revId": "f3c7f49994fb8ed43991d626e5b4321b0f19813b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9ee29ad_d3390aff",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1618,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-20T19:35:36Z",
+      "side": 1,
+      "message": "I can create a test image, if you\u0027d like. (CMYK version of mandrill?)",
+      "parentUuid": "f93d05ec_812a9a0c",
       "range": {
         "startLine": 1618,
         "startChar": 24,
