@@ -828,11 +828,11 @@ static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
     return glyph.fWidth >= 256 || glyph.fHeight >= 256;
 }
 
-template <typename PerGlyph1, typename PerPath1>
-void SkGlyphRunListDrawer::drawGlyphRunAsGlyphWithPathFallback(
+template <typename PerGlyphT, typename PerPathT>
+void SkGlyphRunListDrawer::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
-        PerGlyph1 perGlyph, PerPath1 perPath) {
+        PerGlyphT perGlyph, PerPathT perPath) {
     auto eachGlyph =
             [cache, perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
                     (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
@@ -850,6 +850,63 @@ void SkGlyphRunListDrawer::drawGlyphRunAsGlyphWithPathFallback(
             };
 
     this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
+}
+
+static SkRect rect_to_draw(
+        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, GrGlyph::MaskStyle maskStyle) {
+
+    SkScalar dx = SkIntToScalar(glyph.fLeft);
+    SkScalar dy = SkIntToScalar(glyph.fTop);
+    SkScalar width = SkIntToScalar(glyph.fWidth);
+    SkScalar height = SkIntToScalar(glyph.fHeight);
+
+    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
+    }
+
+    dx *= textScale;
+    dy *= textScale;
+    width *= textScale;
+    height *= textScale;
+
+    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
+}
+
+template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
+void SkGlyphRunListDrawer::drawGlyphRunAsSDFWithFallback(
+        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, SkScalar textRatio,
+        PerSDFT perSDF, PerPathT perPath, PerFallbackT perFallback) {
+
+    const SkPoint* positionCursor = glyphRun.positions().data();
+    for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+        const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
+        SkPoint glyphPos = origin + *positionCursor++;
+        if (glyph.fWidth > 0) {
+            if (glyph.fMaskFormat == SkMask::kSDF_Format) {
+
+                if (glyph_too_big_for_atlas(glyph)) {
+                    SkRect glyphRect =
+                            rect_to_draw(glyph, glyphPos, textRatio,
+                                         GrGlyph::kDistance_MaskStyle);
+                    if (!glyphRect.isEmpty()) {
+                        const SkPath* glyphPath = cache->findPath(glyph);
+                        if (glyphPath != nullptr) {
+                            perPath(glyphPath, glyph, glyphPos);
+                        }
+                    }
+                } else {
+                    perSDF(glyph, glyphPos);
+                }
+
+            } else {
+                perFallback(glyph, glyphPos);
+            }
+        }
+    }
 }
 
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
@@ -954,29 +1011,6 @@ void GrTextContext::drawGlyphRunList(
                      clip, viewMatrix, origin.x(), origin.y());
 }
 
-static SkRect rect_to_draw(
-        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, GrGlyph::MaskStyle maskStyle) {
-
-    SkScalar dx = SkIntToScalar(glyph.fLeft);
-    SkScalar dy = SkIntToScalar(glyph.fTop);
-    SkScalar width = SkIntToScalar(glyph.fWidth);
-    SkScalar height = SkIntToScalar(glyph.fHeight);
-
-    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
-        dx += SK_DistanceFieldInset;
-        dy += SK_DistanceFieldInset;
-        width -= 2 * SK_DistanceFieldInset;
-        height -= 2 * SK_DistanceFieldInset;
-    }
-
-    dx *= textScale;
-    dy *= textScale;
-    width *= textScale;
-    height *= textScale;
-
-    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
-}
-
 void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
                                 GrGlyphCache* grGlyphCache,
                                 sk_sp<GrTextStrike>* strike,
@@ -1049,43 +1083,39 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             sk_sp<GrTextStrike> currStrike;
 
             {
+
                 auto cache = cacheBlob->setupCache(
                         runIndex, props, flags, distanceFieldPaint, nullptr);
 
-                const SkPoint* positionCursor = glyphRun.positions().data();
-                for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
-                    const SkGlyph& glyph = cache->getGlyphIDMetrics(glyphID);
-                    SkPoint glyphPos = origin + *positionCursor++;
-                    if (glyph.fWidth > 0) {
-                        if (glyph.fMaskFormat == SkMask::kSDF_Format) {
+                auto perSDF =
+                        [cacheBlob, runIndex, glyphCache, &currStrike,
+                         filteredColor, cache{cache.get()}, textRatio]
+                        (const SkGlyph& glyph, SkPoint position) {
+                            SkScalar sx = position.fX,
+                                     sy = position.fY;
+                        AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
+                                    glyph, GrGlyph::kDistance_MaskStyle, sx, sy,
+                                    filteredColor,
+                                    cache, textRatio, true);
+                };
 
-                            SkScalar sx = glyphPos.fX,
-                                    sy = glyphPos.fY;
+                auto perPath =
+                        [cacheBlob, runIndex, textRatio]
+                        (const SkPath* path, const SkGlyph& glyph, SkPoint position) {
+                            SkScalar sx = position.fX,
+                                     sy = position.fY;
+                            cacheBlob->appendPathGlyph(
+                                    runIndex, *path, sx, sy, textRatio, false);
+                };
 
-                            if (glyph_too_big_for_atlas(glyph)) {
-                                SkRect glyphRect =
-                                        rect_to_draw(glyph, glyphPos, textRatio,
-                                                     GrGlyph::kDistance_MaskStyle);
-                                if (!glyphRect.isEmpty()) {
-                                    const SkPath* glyphPath = cache->findPath(glyph);
-                                    if (glyphPath != nullptr) {
-                                        cacheBlob->appendPathGlyph(
-                                                runIndex, *glyphPath, sx, sy, textRatio, false);
-                                    }
-                                }
-                            } else {
-                                AppendGlyph(cacheBlob, runIndex, glyphCache, &currStrike,
-                                            glyph, GrGlyph::kDistance_MaskStyle, sx, sy,
-                                            filteredColor,
-                                            cache.get(), textRatio, true);
-                            }
+                auto perFallback =
+                        [&fallbackTextHelper]
+                        (const SkGlyph& glyph, SkPoint position) {
+                    fallbackTextHelper.appendGlyph(glyph, glyph.getGlyphID(), position);
+                };
 
-                        } else {
-                            // can't append non-SDF glyph to SDF batch, send to fallback
-                            fallbackTextHelper.appendGlyph(glyph, glyphID, glyphPos);
-                        }
-                    }
-                }
+                glyphDrawer->drawGlyphRunAsSDFWithFallback(
+                        cache.get(), glyphRun, origin, textRatio, perSDF, perPath, perFallback);
             }
 
             fallbackTextHelper.drawGlyphs(
@@ -1156,7 +1186,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                 runIndex, *path, sx, sy, SK_Scalar1, true);
                     };
 
-            glyphDrawer->drawGlyphRunAsGlyphWithPathFallback(
+            glyphDrawer->drawGlyphRunAsBMPWithPathFallback(
                     cache.get(), glyphRun, origin, viewMatrix, perGlyph, perPath);
         }
         runIndex += 1;
