@@ -406,6 +406,14 @@ skia_gpu_sources = [
   "$_src/gpu/effects/GrYUVtoRGBEffect.cpp",
   "$_src/gpu/effects/GrYUVtoRGBEffect.h",
 
+  # gradients
+  "$_src/gpu/gradients/GrGradientEffect2.cpp",
+  "$_src/gpu/gradients/GrGradientEffect2.h",
+  "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.cpp",
+  "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.h",
+  "$_src/gpu/gradients/GrLinearGradientLayout.cpp",
+  "$_src/gpu/gradients/GrLinearGradientLayout.h",
+
   # text
   "$_src/gpu/text/GrAtlasManager.cpp",
   "$_src/gpu/text/GrAtlasManager.h",
