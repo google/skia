@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "db295f7e_d5dee767",
+        "filename": "infra/bots/recipes/upload_dm_results.expected/alternate_bucket.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-20T15:05:02Z",
+      "side": 1,
+      "message": "Nit: this is weird",
+      "range": {
+        "startLine": 39,
+        "startChar": 20,
+        "endLine": 39,
+        "endChar": 27
+      },
+      "revId": "d442af9ed52b2fbf89b326ae1c4e81c1090d7935",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

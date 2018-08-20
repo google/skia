@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0552c1d1_418ac294",
+        "filename": "infra/bots/recipes/upload_dm_results.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-20T15:05:02Z",
+      "side": 0,
+      "message": "Just curious: why did this move?  It makes the CL harder to review.",
+      "range": {
+        "startLine": 47,
+        "startChar": 0,
+        "endLine": 59,
+        "endChar": 57
+      },
+      "revId": "6676079d2b79885406cc6773dba1e5082585cd2c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
