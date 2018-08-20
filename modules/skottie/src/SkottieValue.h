@@ -17,11 +17,10 @@ namespace  skottie {
 
 template <typename T>
 struct ValueTraits {
-    static size_t Cardinality(const T&);
-
     template <typename U>
     static U As(const T&);
 
+    static bool CanLerp(const T&, const T&);
     static void Lerp(const T&, const T&, float, T*);
 };
 

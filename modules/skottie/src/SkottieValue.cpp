@@ -15,8 +15,8 @@
 namespace  skottie {
 
 template <>
-size_t ValueTraits<ScalarValue>::Cardinality(const ScalarValue&) {
-    return 1;
+bool ValueTraits<ScalarValue>::CanLerp(const ScalarValue&, const ScalarValue&) {
+    return true;
 }
 
 template <>
@@ -33,8 +33,8 @@ SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
 }
 
 template <>
-size_t ValueTraits<VectorValue>::Cardinality(const VectorValue& vec) {
-    return vec.size();
+bool ValueTraits<VectorValue>::CanLerp(const VectorValue& v1, const VectorValue& v2) {
+    return v1.size() == v2.size();
 }
 
 template <>
@@ -81,8 +81,9 @@ SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
 }
 
 template <>
-size_t ValueTraits<ShapeValue>::Cardinality(const ShapeValue& shape) {
-    return shape.fVertices.size();
+bool ValueTraits<ShapeValue>::CanLerp(const ShapeValue& v1, const ShapeValue& v2) {
+    return v1.fVertices.size() == v2.fVertices.size()
+        && v1.fClosed == v2.fClosed;
 }
 
 static SkPoint lerp_point(const SkPoint& v0, const SkPoint& v1, const Sk2f& t) {
