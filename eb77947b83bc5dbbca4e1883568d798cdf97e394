@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2306e686_09b31eeb",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3016,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T14:11:04Z",
+      "side": 1,
+      "message": "Should we just set restore_scissor_on_fbo_change and flush_on_framebuffer_change for affected QC GPUs (or set flush_on_framebuffer_change whenever restore_scissor_on_fbo_change is set)?\n\nThen this could simplify a bit to something like:\n\n{\n    fStats.incRenderTargetBinds();\n    GL_CALL(BindFramebuffer(target, fboid));\n    if (target \u003d\u003d GR_GL_FRAMEBUFFER || target \u003d\u003d GR_GL_DRAW_FRAMEBUFFER) {\n        fBoundDrawFramebuffer \u003d fboid;\n    }\n\n    if (this-\u003ecaps()-\u003eworkarounds().restore_scissor_on_fbo_change) {\n        // The driver forgets the correct scissor when modifying the FBO binding.\n        if (!fHWScissorSettings.fRect.isInvalid()) {\n            fHWScissorSettings.fRect.pushToGLScissor(this-\u003eglInterface());\n        }\n    }\n\n    this-\u003eonFBChanged()\n}",
+      "range": {
+        "startLine": 3014,
+        "startChar": 0,
+        "endLine": 3016,
+        "endChar": 21
+      },
+      "revId": "eb77947b83bc5dbbca4e1883568d798cdf97e394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9310d82f_90ed9e0e",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3035,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T14:11:04Z",
+      "side": 1,
+      "message": "style nit: we always use {}",
+      "revId": "eb77947b83bc5dbbca4e1883568d798cdf97e394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b978e9cb_f676f0c0",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3036,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T14:11:04Z",
+      "side": 1,
+      "message": "Above we\u0027re calling onFBOChanged after calling BindFramebuffer() but here before calling DeleteFramebuffers(). Should it be after?",
+      "range": {
+        "startLine": 3036,
+        "startChar": 6,
+        "endLine": 3036,
+        "endChar": 27
+      },
+      "revId": "eb77947b83bc5dbbca4e1883568d798cdf97e394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
