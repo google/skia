@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "9a08d111_111b4fcd",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3035,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-08-20T20:27:34Z",
+      "side": 1,
+      "message": "Ack, thanks.",
+      "parentUuid": "9310d82f_90ed9e0e",
+      "revId": "eb77947b83bc5dbbca4e1883568d798cdf97e394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b978e9cb_f676f0c0",
         "filename": "src/gpu/gl/GrGLGpu.cpp",
         "patchSetId": 1
@@ -53,6 +71,30 @@
       "writtenOn": "2018-08-20T14:11:04Z",
       "side": 1,
       "message": "Above we\u0027re calling onFBOChanged after calling BindFramebuffer() but here before calling DeleteFramebuffers(). Should it be after?",
+      "range": {
+        "startLine": 3036,
+        "startChar": 6,
+        "endLine": 3036,
+        "endChar": 27
+      },
+      "revId": "eb77947b83bc5dbbca4e1883568d798cdf97e394",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5c7d7f6a_91821192",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 3036,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-08-20T20:27:34Z",
+      "side": 1,
+      "message": "Yeah, you\u0027re correct.",
+      "parentUuid": "b978e9cb_f676f0c0",
       "range": {
         "startLine": 3036,
         "startChar": 6,
