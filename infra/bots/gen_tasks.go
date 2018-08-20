@@ -314,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -624,10 +624,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if d["os"] == DEFAULT_OS_MAC {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
-			if strings.Contains(parts["extra_config"], "iOS") {
-				// iOS builds held back due to issue 'ERROR: Install failed. Got error "APIInternalError".'
-				d["os"] = "Mac-10.13.3"
-			}
 		}
 	}
 
