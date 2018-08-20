@@ -46,6 +46,30 @@
       "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bca474c1_4d92d6ee",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3006,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-20T20:53:10Z",
+      "side": 1,
+      "message": "clang-format kinda works for skia. I usually squash my changes (\"git squash-branch\"), run \"git clang-format HEAD~1\", and review the diffs.",
+      "parentUuid": "0e177bd0_83cb3dbc",
+      "range": {
+        "startLine": 3006,
+        "startChar": 4,
+        "endLine": 3006,
+        "endChar": 6
+      },
+      "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
