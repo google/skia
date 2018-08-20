@@ -976,7 +976,9 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  shards = 100
+  for shard in range(shards):
+    api.run(api.flavor.step, 'dm%2d'%shard, cmd=args + ['--shard', str(shard), '--shards', str(shards)], abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
