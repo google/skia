@@ -21,7 +21,7 @@
 #include "SkPath.h"
 #include "SkRectPriv.h"
 #include "ccpr/GrCCCoverageProcessor.h"
-#include "ccpr/GrCCGeometry.h"
+#include "ccpr/GrCCFillGeometry.h"
 #include "gl/GrGLGpu.cpp"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "ops/GrDrawOp.h"
@@ -76,7 +76,8 @@ class CCPRGeometryView::DrawCoverageCountOp : public GrDrawOp {
 
 public:
     DrawCoverageCountOp(CCPRGeometryView* view) : INHERITED(ClassID()), fView(view) {
-        this->setBounds(SkRectPriv::MakeLargest(), GrOp::HasAABloat::kNo, GrOp::IsZeroArea::kNo);
+        this->setBounds(SkRect::MakeIWH(fView->width(), fView->height()), GrOp::HasAABloat::kNo,
+                        GrOp::IsZeroArea::kNo);
     }
 
     const char* name() const override {
@@ -191,9 +192,10 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
     if (GrRenderTargetContext* rtc = canvas->internal_private_accessTopLayerRenderTargetContext()) {
         // Render coverage count.
         GrContext* ctx = canvas->getGrContext();
+        SkASSERT(ctx);
+
         GrOpMemoryPool* pool = ctx->contextPriv().opMemoryPool();
 
-        SkASSERT(ctx);
         sk_sp<GrRenderTargetContext> ccbuff =
                 ctx->contextPriv().makeDeferredRenderTargetContext(SkBackingFit::kApprox,
                                                                    this->width(), this->height(),
@@ -249,26 +251,27 @@ void CCPRGeometryView::onDrawContent(SkCanvas* canvas) {
 }
 
 void CCPRGeometryView::updateGpuData() {
+    using Verb = GrCCFillGeometry::Verb;
     fTriPointInstances.reset();
     fQuadPointInstances.reset();
 
     if (PrimitiveType::kCubics == fPrimitiveType) {
         double t[2], s[2];
         fCubicType = GrPathUtils::getCubicKLM(fPoints, &fCubicKLM, t, s);
-        GrCCGeometry geometry;
+        GrCCFillGeometry geometry;
         geometry.beginContour(fPoints[0]);
         geometry.cubicTo(fPoints, kDebugBloat / 2, kDebugBloat / 2);
         geometry.endContour();
         int ptsIdx = 0;
-        for (GrCCGeometry::Verb verb : geometry.verbs()) {
+        for (Verb verb : geometry.verbs()) {
             switch (verb) {
-                case GrCCGeometry::Verb::kLineTo:
+                case Verb::kLineTo:
                     ++ptsIdx;
                     continue;
-                case GrCCGeometry::Verb::kMonotonicQuadraticTo:
+                case Verb::kMonotonicQuadraticTo:
                     ptsIdx += 2;
                     continue;
-                case GrCCGeometry::Verb::kMonotonicCubicTo:
+                case Verb::kMonotonicCubicTo:
                     fQuadPointInstances.push_back().set(&geometry.points()[ptsIdx], 0, 0);
                     ptsIdx += 3;
                     continue;
@@ -278,7 +281,7 @@ void CCPRGeometryView::updateGpuData() {
         }
     } else if (PrimitiveType::kTriangles != fPrimitiveType) {
         SkPoint P3[3] = {fPoints[0], fPoints[1], fPoints[3]};
-        GrCCGeometry geometry;
+        GrCCFillGeometry geometry;
         geometry.beginContour(P3[0]);
         if (PrimitiveType::kQuadratics == fPrimitiveType) {
             geometry.quadraticTo(P3);
@@ -288,23 +291,22 @@ void CCPRGeometryView::updateGpuData() {
         }
         geometry.endContour();
         int ptsIdx = 0, conicWeightIdx = 0;
-        for (GrCCGeometry::Verb verb : geometry.verbs()) {
-            if (GrCCGeometry::Verb::kBeginContour == verb ||
-                GrCCGeometry::Verb::kEndOpenContour == verb ||
-                GrCCGeometry::Verb::kEndClosedContour == verb) {
+        for (Verb verb : geometry.verbs()) {
+            if (Verb::kBeginContour == verb ||
+                Verb::kEndOpenContour == verb ||
+                Verb::kEndClosedContour == verb) {
                 continue;
             }
-            if (GrCCGeometry::Verb::kLineTo == verb) {
+            if (Verb::kLineTo == verb) {
                 ++ptsIdx;
                 continue;
             }
-            SkASSERT(GrCCGeometry::Verb::kMonotonicQuadraticTo == verb ||
-                     GrCCGeometry::Verb::kMonotonicConicTo == verb);
+            SkASSERT(Verb::kMonotonicQuadraticTo == verb || Verb::kMonotonicConicTo == verb);
             if (PrimitiveType::kQuadratics == fPrimitiveType &&
-                GrCCGeometry::Verb::kMonotonicQuadraticTo == verb) {
+                Verb::kMonotonicQuadraticTo == verb) {
                 fTriPointInstances.push_back().set(&geometry.points()[ptsIdx], Sk2f(0, 0));
             } else if (PrimitiveType::kConics == fPrimitiveType &&
-                       GrCCGeometry::Verb::kMonotonicConicTo == verb) {
+                       Verb::kMonotonicConicTo == verb) {
                 fQuadPointInstances.push_back().setW(&geometry.points()[ptsIdx], Sk2f(0, 0),
                                                      geometry.getConicWeight(conicWeightIdx++));
             }

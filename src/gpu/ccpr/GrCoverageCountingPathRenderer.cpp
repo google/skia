@@ -15,7 +15,6 @@
 #include "ccpr/GrCCClipProcessor.h"
 #include "ccpr/GrCCDrawPathsOp.h"
 #include "ccpr/GrCCPathCache.h"
-#include "ccpr/GrCCPathParser.h"
 
 using PathInstance = GrCCPathProcessor::Instance;
 
