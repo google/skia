@@ -5,7 +5,7 @@
  * found in the LICENSE file.
  */
 
-#include "GrCCGeometry.h"
+#include "GrCCFillGeometry.h"
 
 #include "GrTypes.h"
 #include "SkGeometry.h"
@@ -13,19 +13,14 @@
 #include <cmath>
 #include <cstdlib>
 
-// We convert between SkPoint and Sk2f freely throughout this file.
-GR_STATIC_ASSERT(SK_SCALAR_IS_FLOAT);
-GR_STATIC_ASSERT(2 * sizeof(float) == sizeof(SkPoint));
-GR_STATIC_ASSERT(0 == offsetof(SkPoint, fX));
-
 static constexpr float kFlatnessThreshold = 1/16.f; // 1/16 of a pixel.
 
-void GrCCGeometry::beginPath() {
+void GrCCFillGeometry::beginPath() {
     SkASSERT(!fBuildingContour);
     fVerbs.push_back(Verb::kBeginPath);
 }
 
-void GrCCGeometry::beginContour(const SkPoint& pt) {
+void GrCCFillGeometry::beginContour(const SkPoint& pt) {
     SkASSERT(!fBuildingContour);
     // Store the current verb count in the fTriangles field for now. When we close the contour we
     // will use this value to calculate the actual number of triangles in its fan.
@@ -38,7 +33,7 @@ void GrCCGeometry::beginContour(const SkPoint& pt) {
     SkDEBUGCODE(fBuildingContour = true);
 }
 
-void GrCCGeometry::lineTo(const SkPoint P[2]) {
+void GrCCFillGeometry::lineTo(const SkPoint P[2]) {
     SkASSERT(fBuildingContour);
     SkASSERT(P[0] == fPoints.back());
     Sk2f p0 = Sk2f::Load(P);
@@ -46,7 +41,7 @@ void GrCCGeometry::lineTo(const SkPoint P[2]) {
     this->appendLine(p0, p1);
 }
 
-inline void GrCCGeometry::appendLine(const Sk2f& p0, const Sk2f& p1) {
+inline void GrCCFillGeometry::appendLine(const Sk2f& p0, const Sk2f& p1) {
     SkASSERT(fPoints.back() == SkPoint::Make(p0[0], p0[1]));
     if ((p0 == p1).allTrue()) {
         return;
@@ -138,7 +133,7 @@ template<int N> static inline SkNx<N,float> lerp(const SkNx<N,float>& a, const S
     return SkNx_fma(t, b - a, a);
 }
 
-void GrCCGeometry::quadraticTo(const SkPoint P[3]) {
+void GrCCFillGeometry::quadraticTo(const SkPoint P[3]) {
     SkASSERT(fBuildingContour);
     SkASSERT(P[0] == fPoints.back());
     Sk2f p0 = Sk2f::Load(P);
@@ -155,7 +150,7 @@ void GrCCGeometry::quadraticTo(const SkPoint P[3]) {
     this->appendQuadratics(p0, p1, p2);
 }
 
-inline void GrCCGeometry::appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
+inline void GrCCFillGeometry::appendQuadratics(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
     Sk2f tan0 = p1 - p0;
     Sk2f tan1 = p2 - p1;
 
@@ -193,7 +188,8 @@ inline void GrCCGeometry::appendQuadratics(const Sk2f& p0, const Sk2f& p1, const
     this->appendMonotonicQuadratic(p012, p12, p2);
 }
 
-inline void GrCCGeometry::appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2) {
+inline void GrCCFillGeometry::appendMonotonicQuadratic(const Sk2f& p0, const Sk2f& p1,
+                                                       const Sk2f& p2) {
     // Don't send curves to the GPU if we know they are nearly flat (or just very small).
     if (are_collinear(p0, p1, p2)) {
         this->appendLine(p0, p2);
@@ -465,7 +461,7 @@ static inline void find_chops_around_loop_intersection(float padRadius, Sk2f t2,
     }
 }
 
-void GrCCGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
+void GrCCFillGeometry::cubicTo(const SkPoint P[4], float inflectPad, float loopIntersectPad) {
     SkASSERT(fBuildingContour);
     SkASSERT(P[0] == fPoints.back());
 
@@ -541,9 +537,9 @@ static inline void chop_cubic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, co
     *abcd = lerp(*abc, *bcd, TT);
 }
 
-void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
-                                const Sk2f& p2, const Sk2f& p3, const float chops[], int numChops,
-                                float localT0, float localT1) {
+void GrCCFillGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
+                                    const Sk2f& p2, const Sk2f& p3, const float chops[],
+                                    int numChops, float localT0, float localT1) {
     if (numChops) {
         SkASSERT(numChops > 0);
         int midChopIdx = numChops/2;
@@ -576,8 +572,8 @@ void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f
     this->appendCubics(mode, p0, p1, p2, p3);
 }
 
-void GrCCGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
-                                const Sk2f& p2, const Sk2f& p3, int maxSubdivisions) {
+void GrCCFillGeometry::appendCubics(AppendCubicMode mode, const Sk2f& p0, const Sk2f& p1,
+                                    const Sk2f& p2, const Sk2f& p3, int maxSubdivisions) {
     if (SkCubicType::kLoop != fCurrCubicType) {
         // Serpentines and cusps are always monotonic after chopping around inflection points.
         SkASSERT(!SkCubicIsDegenerate(fCurrCubicType));
@@ -672,11 +668,11 @@ static inline float find_midtangent(const Sk2f& tan0, const Sk2f& tan1,
     return std::abs(q*q - r) < std::abs(a*c - r) ? q/a : c/q;
 }
 
-inline void GrCCGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, const Sk2f& p0,
-                                                         const Sk2f& p1, const Sk2f& p2,
-                                                         const Sk2f& p3, const Sk2f& tan0,
-                                                         const Sk2f& tan1,
-                                                         int maxFutureSubdivisions) {
+inline void GrCCFillGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, const Sk2f& p0,
+                                                             const Sk2f& p1, const Sk2f& p2,
+                                                             const Sk2f& p3, const Sk2f& tan0,
+                                                             const Sk2f& tan1,
+                                                             int maxFutureSubdivisions) {
     float midT = find_midtangent(tan0, tan1, p3 + (p1 - p2)*3 - p0,
                                              (p0 - p1*2 + p2)*2,
                                              p1 - p0);
@@ -694,7 +690,7 @@ inline void GrCCGeometry::chopAndAppendCubicAtMidTangent(AppendCubicMode mode, c
     this->appendCubics(mode, pT, p11, p12, p3, maxFutureSubdivisions);
 }
 
-void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
+void GrCCFillGeometry::conicTo(const SkPoint P[3], float w) {
     SkASSERT(fBuildingContour);
     SkASSERT(P[0] == fPoints.back());
     Sk2f p0 = Sk2f::Load(P);
@@ -743,7 +739,8 @@ void GrCCGeometry::conicTo(const SkPoint P[3], float w) {
     this->appendMonotonicConic(p0, p1, p2, w);
 }
 
-void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2, float w) {
+void GrCCFillGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk2f& p2,
+                                            float w) {
     SkASSERT(w >= 0);
 
     Sk2f base = p2 - p0;
@@ -784,7 +781,7 @@ void GrCCGeometry::appendMonotonicConic(const Sk2f& p0, const Sk2f& p1, const Sk
     ++fCurrContourTallies.fConics;
 }
 
-GrCCGeometry::PrimitiveTallies GrCCGeometry::endContour() {
+GrCCFillGeometry::PrimitiveTallies GrCCFillGeometry::endContour() {
     SkASSERT(fBuildingContour);
     SkASSERT(fVerbs.count() >= fCurrContourTallies.fTriangles);
 
