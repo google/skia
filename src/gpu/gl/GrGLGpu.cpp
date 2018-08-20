@@ -2960,6 +2960,13 @@ void GrGLGpu::unbindTextureFBOForPixelOps(GrGLenum fboTarget, GrSurface* surface
     }
 }
 
+void GrGLGpu::onFBOChanged() {
+    if (this->caps()->workarounds().flush_on_framebuffer_change ||
+        this->caps()->workarounds().restore_scissor_on_fbo_change) {
+        GL_CALL(Flush());
+    }
+}
+
 void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
     fStats.incRenderTargetBinds();
     GL_CALL(BindFramebuffer(target, fboid));
@@ -2967,18 +2974,14 @@ void GrGLGpu::bindFramebuffer(GrGLenum target, GrGLuint fboid) {
         fBoundDrawFramebuffer = fboid;
     }
 
-    if (!this->caps()->workarounds().restore_scissor_on_fbo_change) {
-        return;
+    if (this->caps()->workarounds().restore_scissor_on_fbo_change) {
+        // The driver forgets the correct scissor when modifying the FBO binding.
+        if (!fHWScissorSettings.fRect.isInvalid()) {
+            fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
+        }
     }
 
-    // The driver forgets the correct scissor when modifying the FBO binding.
-    if (!fHWScissorSettings.fRect.isInvalid()) {
-        fHWScissorSettings.fRect.pushToGLScissor(this->glInterface());
-    }
-
-    // crbug.com/222018 - Also on QualComm, the flush here avoids flicker,
-    // it's unclear how this bug works.
-    GL_CALL(Flush());
+    this->onFBOChanged();
 }
 
 void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
@@ -2997,6 +3000,11 @@ void GrGLGpu::deleteFramebuffer(GrGLuint fboid) {
     }
 
     GL_CALL(DeleteFramebuffers(1, &fboid));
+
+    // Deleting the currently bound framebuffer rebinds to 0.
+    if (fboid == fBoundDrawFramebuffer) {
+        this->onFBOChanged();
+    }
 }
 
 bool GrGLGpu::onCopySurface(GrSurface* dst, GrSurfaceOrigin dstOrigin,
