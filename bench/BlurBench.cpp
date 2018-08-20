@@ -13,7 +13,7 @@
 #include "SkShader.h"
 #include "SkString.h"
 
-#define MINI   0.01f
+#define MINI    0.01f
 #define SMALL   SkIntToScalar(2)
 #define REAL    0.5f
 #define BIG     SkIntToScalar(10)
@@ -47,11 +47,11 @@ public:
     }
 
 protected:
-    virtual const char* onGetName() {
+    const char* onGetName() override {
         return fName.c_str();
     }
 
-    virtual void onDraw(int loops, SkCanvas* canvas) {
+    void onDraw(int loops, SkCanvas* canvas) override {
         SkPaint paint;
         this->setupPaint(&paint);
 
