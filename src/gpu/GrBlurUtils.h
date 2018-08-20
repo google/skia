@@ -15,6 +15,7 @@ class GrContext;
 class GrPaint;
 class GrRenderTarget;
 class GrRenderTargetContext;
+class GrShape;
 class GrStyle;
 struct SkIRect;
 class SkMaskFilter;
@@ -29,30 +30,27 @@ class SkPathEffect;
  */
 namespace GrBlurUtils {
     /**
-     * Draw a path handling the mask filter if present.
+     * Draw a shape handling the mask filter if present.
      */
-    void drawPathWithMaskFilter(GrContext*,
-                                GrRenderTargetContext*,
-                                const GrClip&,
-                                const SkPath& origSrcPath,
-                                const SkPaint&,
-                                const SkMatrix& viewMatrix,
-                                bool pathIsMutable);
+    void drawShapeWithMaskFilter(GrContext*,
+                                 GrRenderTargetContext*,
+                                 const GrClip&,
+                                 const SkPaint&,
+                                 const SkMatrix& viewMatrix,
+                                 const GrShape&);
 
     /**
-     * Draw a path handling the mask filter. The mask filter is not optional.
+     * Draw a shape handling the mask filter. The mask filter is not optional.
      * The GrPaint will be modified after return.
      */
-    void drawPathWithMaskFilter(GrContext*,
-                                GrRenderTargetContext*,
-                                const GrClip&,
-                                const SkPath& path,
-                                GrPaint&&,
-                                GrAA,
-                                const SkMatrix& viewMatrix,
-                                const SkMaskFilter*,
-                                const GrStyle&,
-                                bool pathIsMutable);
+    void drawShapeWithMaskFilter(GrContext*,
+                                 GrRenderTargetContext*,
+                                 const GrClip&,
+                                 const GrShape&,
+                                 GrPaint&&,
+                                 GrAA,
+                                 const SkMatrix& viewMatrix,
+                                 const SkMaskFilter*);
 };
 
 #endif

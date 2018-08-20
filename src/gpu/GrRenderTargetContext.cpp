@@ -70,8 +70,11 @@ public:
 
     void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
                   const SkMatrix& viewMatrix, bool pathIsMutable) override {
-        GrBlurUtils::drawPathWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
-                                            clip, path, paint, viewMatrix, pathIsMutable);
+        // TODO: we are losing the mutability of the path here
+        GrShape shape(path, paint);
+
+        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+                                             clip, paint, viewMatrix, shape);
     }
 
     void makeGrPaint(GrMaskFormat maskFormat, const SkPaint& skPaint, const SkMatrix& viewMatrix,
@@ -1497,23 +1500,19 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
         SkRect rects[2];
         if (style.isSimpleFill() && fills_as_nested_rects(viewMatrix, path, rects)) {
             // Concave AA paths are expensive - try to avoid them for special cases
-            SkRect rects[2];
-
-            if (fills_as_nested_rects(viewMatrix, path, rects)) {
-                std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
-                                fContext, std::move(paint), viewMatrix, rects);
-                if (op) {
-                    this->addDrawOp(clip, std::move(op));
-                }
-                // A null return indicates that there is nothing to draw in this case.
-                return;
+            std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
+                            fContext, std::move(paint), viewMatrix, rects);
+            if (op) {
+                this->addDrawOp(clip, std::move(op));
             }
+            // Returning here indicates that there is nothing to draw in this case.
+            return;
         }
     }
 
     GrShape shape(path, style);
 
-    return this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
+    this->drawShape(clip, std::move(paint), aa, viewMatrix, shape);
 }
 
 void GrRenderTargetContext::drawShape(const GrClip& clip,
