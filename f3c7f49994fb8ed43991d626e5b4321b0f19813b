@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "0141f700_30b5acf7",
+        "filename": "src/codec/SkRawCodec.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-20T19:40:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c9847dc9_670c666b",
+      "range": {
+        "startLine": 622,
+        "startChar": 91,
+        "endLine": 622,
+        "endChar": 93
+      },
+      "revId": "f3c7f49994fb8ed43991d626e5b4321b0f19813b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f93d05ec_812a9a0c",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 20
@@ -60,6 +84,30 @@
       "side": 1,
       "message": "I can create a test image, if you\u0027d like. (CMYK version of mandrill?)",
       "parentUuid": "f93d05ec_812a9a0c",
+      "range": {
+        "startLine": 1618,
+        "startChar": 24,
+        "endLine": 1618,
+        "endChar": 38
+      },
+      "revId": "f3c7f49994fb8ed43991d626e5b4321b0f19813b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f3d68ca_9b678330",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 20
+      },
+      "lineNbr": 1618,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-20T19:40:45Z",
+      "side": 1,
+      "message": "That works for me, thanks!",
+      "parentUuid": "d9ee29ad_d3390aff",
       "range": {
         "startLine": 1618,
         "startChar": 24,
