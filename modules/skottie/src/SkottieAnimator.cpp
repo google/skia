@@ -16,6 +16,7 @@
 #include <memory>
 
 namespace skottie {
+namespace internal {
 
 namespace {
 
@@ -354,31 +355,32 @@ bool BindSplitPositionProperty(const skjson::Value& jv,
 
 template <>
 bool BindProperty(const skjson::Value& jv,
-                  sksg::AnimatorList* animators,
+                  AnimatorScope* ascope,
                   std::function<void(const ScalarValue&)>&& apply,
                   const ScalarValue* noop) {
-    return BindPropertyImpl(jv, animators, std::move(apply), noop);
+    return BindPropertyImpl(jv, ascope, std::move(apply), noop);
 }
 
 template <>
 bool BindProperty(const skjson::Value& jv,
-                  sksg::AnimatorList* animators,
+                  AnimatorScope* ascope,
                   std::function<void(const VectorValue&)>&& apply,
                   const VectorValue* noop) {
     if (!jv.is<skjson::ObjectValue>())
         return false;
 
     return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
-        ? BindSplitPositionProperty(jv, animators, std::move(apply), noop)
-        : BindPropertyImpl(jv, animators, std::move(apply), noop);
+        ? BindSplitPositionProperty(jv, ascope, std::move(apply), noop)
+        : BindPropertyImpl(jv, ascope, std::move(apply), noop);
 }
 
 template <>
 bool BindProperty(const skjson::Value& jv,
-                  sksg::AnimatorList* animators,
+                  AnimatorScope* ascope,
                   std::function<void(const ShapeValue&)>&& apply,
                   const ShapeValue* noop) {
-    return BindPropertyImpl(jv, animators, std::move(apply), noop);
+    return BindPropertyImpl(jv, ascope, std::move(apply), noop);
 }
 
+} // namespace internal
 } // namespace skottie

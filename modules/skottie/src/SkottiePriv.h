@@ -8,6 +8,8 @@
 #ifndef SkottiePriv_DEFINED
 #define SkottiePriv_DEFINED
 
+#include "Skottie.h"
+
 #include "SkFontStyle.h"
 #include "SkSGScene.h"
 #include "SkString.h"
@@ -26,53 +28,82 @@ class Value;
 } // namespace skjson
 
 namespace sksg {
+class Matrix;
 class RenderNode;
 } // namespace sksg
 
 namespace skottie {
 
-class ResourceProvider;
-
 namespace internal {
-
-struct AssetInfo {
-    const skjson::ObjectValue* fAsset;
-    mutable bool               fIsAttaching; // Used for cycle detection
-};
-using AssetMap   = SkTHashMap<SkString, AssetInfo>;
-using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
-
-struct FontInfo {
-    SkString                  fFamily,
-                              fStyle;
-    SkScalar                  fAscent;
-    sk_sp<SkTypeface>         fTypeface;
-
-    bool matches(const char family[], const char style[]) const;
-};
-using FontMap = SkTHashMap<SkString, FontInfo>;
-
-struct AttachContext {
-    AttachContext makeScoped(sksg::AnimatorList& animators) const {
-        return { fResources, fAssets, fFonts, fDuration, fFrameRate, fAssetCache, animators };
-    }
-
-    const ResourceProvider& fResources;
-    const AssetMap&         fAssets;
-    const FontMap&          fFonts;
-    const float             fDuration,
-                            fFrameRate;
-    AssetCache&             fAssetCache;
-    sksg::AnimatorList&     fAnimators;
-};
 
 void LogJSON(const skjson::Value&, const char[]);
 
-FontMap ParseFonts(const skjson::ObjectValue* jfonts,
-                   const skjson::ArrayValue* jchars,
-                   const SkFontMgr*);
+using AnimatorScope = sksg::AnimatorList;
 
-sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue&, AttachContext*);
+class AnimationBuilder final : public SkNoncopyable {
+public:
+    AnimationBuilder(const ResourceProvider&, sk_sp<SkFontMgr>, Animation::Stats*,
+                    float duration, float framerate);
+
+    std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
+
+private:
+    struct AttachLayerContext;
+
+    void parseAssets(const skjson::ArrayValue*);
+    void parseFonts (const skjson::ObjectValue* jfonts,
+                     const skjson::ArrayValue* jchars);
+
+    sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*);
+    sk_sp<sksg::RenderNode> attachLayerEffects(const skjson::ArrayValue& jeffects, AnimatorScope*,
+                                               sk_sp<sksg::RenderNode>);
+
+    sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&, AnimatorScope*,
+        sk_sp<sksg::RenderNode>(AnimationBuilder::*)(const skjson::ObjectValue&,
+                                                     AnimatorScope* ctx));
+    sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, AnimatorScope*);
+
+    sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name, AnimatorScope* ascope);
+
+    sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*);
+
+    const ResourceProvider& fResourceProvider;
+    const sk_sp<SkFontMgr>  fFontMgr;
+    Animation::Stats*       fStats;
+    const float             fDuration,
+                            fFrameRate;
+
+    struct AssetInfo {
+        const skjson::ObjectValue* fAsset;
+        mutable bool               fIsAttaching; // Used for cycle detection
+    };
+
+    struct FontInfo {
+        SkString                  fFamily,
+                                  fStyle;
+        SkScalar                  fAscent;
+        sk_sp<SkTypeface>         fTypeface;
+
+        bool matches(const char family[], const char style[]) const;
+    };
+
+    // TODO: consolidate these two?
+    using AssetMap   = SkTHashMap<SkString, AssetInfo>;
+    using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
+    using FontMap    = SkTHashMap<SkString, FontInfo>;
+
+    AssetMap   fAssets;
+    AssetCache fAssetCache;
+    FontMap    fFonts;
+
+    using INHERITED = SkNoncopyable;
+};
 
 } // namespace internal
 } // namespace skottie

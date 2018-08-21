@@ -24,12 +24,6 @@ namespace internal {
 
 namespace {
 
-bool ParseGlyph(const skjson::ObjectValue* jglyph, FontInfo* finfo) {
-    // TODO: add glyphs support.
-
-    return true;
-}
-
 SkFontStyle FontStyle(const char* style) {
     static constexpr struct {
         const char*               fName;
@@ -82,15 +76,13 @@ SkFontStyle FontStyle(const char* style) {
 
 } // namespace
 
-bool FontInfo::matches(const char family[], const char style[]) const {
+bool AnimationBuilder::FontInfo::matches(const char family[], const char style[]) const {
     return 0 == strcmp(fFamily.c_str(), family)
         && 0 == strcmp(fStyle.c_str(), style);
 }
 
-FontMap ParseFonts(const skjson::ObjectValue* jfonts, const skjson::ArrayValue* jchars,
-                   const SkFontMgr* fontmgr) {
-    FontMap fonts;
-
+void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
+                                  const skjson::ArrayValue* jchars) {
     // Optional array of font entries, referenced (by name) from text layer document nodes. E.g.
     // "fonts": {
     //        "list": [
@@ -124,19 +116,19 @@ FontMap ParseFonts(const skjson::ObjectValue* jfonts, const skjson::ArrayValue* 
                     continue;
                 }
 
-                sk_sp<SkTypeface> tf(fontmgr->matchFamilyStyle(jfamily->begin(),
-                                                               FontStyle(jstyle->begin())));
+                sk_sp<SkTypeface> tf(fFontMgr->matchFamilyStyle(jfamily->begin(),
+                                                                FontStyle(jstyle->begin())));
                 if (!tf) {
                     LOG("!! Could not create typeface for %s|%s\n",
                         jfamily->begin(), jstyle->begin());
                     // Last resort.
-                    tf.reset(fontmgr->matchFamilyStyle("Arial", SkFontStyle::Normal()));
+                    tf.reset(fFontMgr->matchFamilyStyle("Arial", SkFontStyle::Normal()));
                     if (!tf) {
                         continue;
                     }
                 }
 
-                fonts.set(SkString(jname->begin(), jname->size()),
+                fFonts.set(SkString(jname->begin(), jname->size()),
                           {
                               SkString(jfamily->begin(), jfamily->size()),
                               SkString(jstyle->begin(), jstyle->size()),
@@ -196,7 +188,7 @@ FontMap ParseFonts(const skjson::ObjectValue* jfonts, const skjson::ArrayValue* 
             // If problematic, we can refactor as a two-level hashmap.
             if (!current_font || !current_font->matches(family, style)) {
                 current_font = nullptr;
-                fonts.foreach([&](const SkString& name, FontInfo* finfo) {
+                fFonts.foreach([&](const SkString& name, FontInfo* finfo) {
                     if (finfo->matches(family, style)) {
                         current_font = finfo;
                         // TODO: would be nice to break early here...
@@ -208,16 +200,13 @@ FontMap ParseFonts(const skjson::ObjectValue* jfonts, const skjson::ArrayValue* 
                 }
             }
 
-            if (!ParseGlyph(*jchar, current_font)) {
-                LogJSON(*jchar, "!! Invalid glyph");
-            }
+            // TODO: parse glyphs
         }
     }
-
-    return fonts;
 }
 
-sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue& layer, AttachContext* ctx) {
+sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& layer,
+                                                          AnimatorScope* ascope) {
     // General text node format:
     // "t": {
     //    "a": [], // animators (TODO)
@@ -278,7 +267,7 @@ sk_sp<sksg::RenderNode> AttachTextLayer(const skjson::ObjectValue& layer, Attach
         return nullptr;
     }
 
-    const auto* font = ctx->fFonts.find(SkString(font_name->begin(), font_name->size()));
+    const auto* font = fFonts.find(SkString(font_name->begin(), font_name->size()));
     if (!font) {
         LOG("!! Unknown font: \"%s\"\n", font_name->begin());
         return nullptr;
