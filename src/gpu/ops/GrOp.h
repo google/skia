@@ -184,7 +184,7 @@ public:
         public:
             explicit Iter(const GrOp* head) : fCurr(head) {}
             inline Iter& operator++() { return *this = Iter(fCurr->nextInChain()); }
-            const OpSubclass& operator*() const { return *static_cast<const OpSubclass*>(fCurr); }
+            const OpSubclass& operator*() const { return fCurr->cast<OpSubclass>(); }
             bool operator!=(const Iter& that) const { return fCurr != that.fCurr; }
 
         private:
@@ -201,6 +201,8 @@ public:
     void setNextInChain(GrOp*);
     /** Returns true if this is the head of a chain (including a length 1 chain). */
     bool isChainHead() const { return !fChainHead || (fChainHead == this); }
+    /** Gets the head op of the chain. */
+    const GrOp* chainHead() const { return fChainHead ? fChainHead : this; }
     /** Returns true if this is the tail of a chain (including a length 1 chain). */
     bool isChainTail() const { return !fNextInChain; }
     /** Returns true if this is part of chain with length > 1. */

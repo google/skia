@@ -146,6 +146,7 @@ tests_sources = [
   "$_tests/MipMapTest.cpp",
   "$_tests/NonlinearBlendingTest.cpp",
   "$_tests/OnceTest.cpp",
+  "$_tests/OpChainTest.cpp",
   "$_tests/OSPathTest.cpp",
   "$_tests/OverAlignedTest.cpp",
   "$_tests/PackBitsTest.cpp",
