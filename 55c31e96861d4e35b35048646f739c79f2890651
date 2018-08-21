@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "588fe5f6_1f641b85",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-21T13:02:30Z",
+      "side": 1,
+      "message": "I\u0027m happy to just rubber stamp this and assume it\u0027s part of some larger master plan, but I\u0027m kind of curious why this should be templated if there is only one instantiation?",
+      "range": {
+        "startLine": 878,
+        "startChar": 0,
+        "endLine": 879,
+        "endChar": 56
+      },
+      "revId": "55c31e96861d4e35b35048646f739c79f2890651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
