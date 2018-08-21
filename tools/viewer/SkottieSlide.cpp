@@ -59,7 +59,8 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
 }
 
 void SkottieSlide::load(SkScalar w, SkScalar h) {
-    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
+    skottie::Animation::Rec rec = { nullptr, nullptr, &fAnimationStats };
+    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), rec);
     fWinSize   = SkSize::Make(w, h);
     fTimeBase  = 0; // force a time reset
 

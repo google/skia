@@ -19,5 +19,5 @@ DEF_TEST(Skottie_OssFuzz8956, reporter) {
     SkMemoryStream stream(json, strlen(json));
 
     // Passes if parsing doesn't crash.
-    auto animation = skottie::Animation::Make(&stream);
+    auto animation = skottie::Animation::Make(&stream, skottie::Animation::Rec());
 }

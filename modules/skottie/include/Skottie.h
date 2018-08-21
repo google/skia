@@ -17,6 +17,7 @@
 
 class SkCanvas;
 class SkData;
+class SkFontMgr;
 struct SkRect;
 class SkStream;
 
@@ -37,19 +38,29 @@ public:
 
 class SK_API Animation : public SkRefCnt {
 public:
+    // Animation stats, filled by the factory.
     struct Stats {
-        float  fTotalLoadTimeMS,
-               fJsonParseTimeMS,
-               fSceneParseTimeMS;
-        size_t fJsonSize,
-               fAnimatorCount;
+        float  fTotalLoadTimeMS  = 0,
+               fJsonParseTimeMS  = 0,
+               fSceneParseTimeMS = 0;
+        size_t fJsonSize         = 0u,
+               fAnimatorCount    = 0u;
     };
 
-    static sk_sp<Animation> Make(const char* data, size_t length,
-                                 const ResourceProvider* = nullptr, Stats* = nullptr);
-    static sk_sp<Animation> Make(SkStream*, const ResourceProvider* = nullptr, Stats* = nullptr);
-    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr,
-                                         Stats* = nullptr);
+    // Factory args.
+    struct Rec {
+        // Optional loader for external resources (images, etc.)
+        const ResourceProvider* fProvider = nullptr;
+        // Optional font manager.
+        const SkFontMgr*        fFontMgr  = nullptr;
+
+        // Optional stats out-param.
+        Stats*                  fStats    = nullptr;
+    };
+
+    static sk_sp<Animation> Make(const char* data, size_t length, const Rec& rec);
+    static sk_sp<Animation> Make(SkStream*, const Rec&);
+    static sk_sp<Animation> MakeFromFile(const char path[], const Rec&);
 
     ~Animation() override;
 
@@ -82,8 +93,8 @@ public:
     void setShowInval(bool show);
 
 private:
-    Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
-              SkScalar in, SkScalar out, const skjson::ObjectValue&, Stats*);
+    Animation(SkString ver, const SkSize& size, SkScalar fps,
+              SkScalar in, SkScalar out, const skjson::ObjectValue&, const Rec&);
 
     SkString                     fVersion;
     SkSize                       fSize;

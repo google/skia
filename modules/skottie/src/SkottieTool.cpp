@@ -151,7 +151,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto anim = skottie::Animation::MakeFromFile(FLAGS_input[0]);
+    auto anim = skottie::Animation::MakeFromFile(FLAGS_input[0], skottie::Animation::Rec());
     if (!anim) {
         SkDebugf("Could not load animation: '%s'.\n", FLAGS_input[0]);
         return 1;

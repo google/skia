@@ -44,7 +44,7 @@ public:
 protected:
     void onOnceBeforeDraw() override {
         if (auto stream = GetResourceAsStream("skotty/skotty_sample_2.json")) {
-            fAnim = skottie::Animation::Make(stream.get());
+            fAnim = skottie::Animation::Make(stream.get(), skottie::Animation::Rec());
         }
 
         int index = 0;

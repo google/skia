@@ -11,7 +11,7 @@
 
 void FuzzSkottieJSON(sk_sp<SkData> bytes) {
     SkMemoryStream stream(bytes);
-    auto animation = skottie::Animation::Make(&stream);
+    auto animation = skottie::Animation::Make(&stream, skottie::Animation::Rec());
     if (!animation) {
         return;
     }

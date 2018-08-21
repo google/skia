@@ -1205,7 +1205,7 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 SkottieSrc::SkottieSrc(Path path) : fPath(std::move(path)) {}
 
 Error SkottieSrc::draw(SkCanvas* canvas) const {
-    auto animation = skottie::Animation::MakeFromFile(fPath.c_str());
+    auto animation = skottie::Animation::MakeFromFile(fPath.c_str(), skottie::Animation::Rec());
     if (!animation) {
         return SkStringPrintf("Unable to parse file: %s", fPath.c_str());
     }
