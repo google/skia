@@ -233,73 +233,35 @@ public:
 
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
-        SkPaint runPaint;
-        SkGlyphRunListIterator it(glyphRunList);
-        for (; !it.done(); it.next()) {
-            // applyFontToPaint() always overwrites the exact same attributes,
-            // so it is safe to not re-seed the paint for this reason.
-            it.applyFontToPaint(&runPaint);
-            this->processGlyphRun(glyphRunList.origin(), it, runPaint);
+        for (auto& glyphRun : glyphRunList) {
+            this->processGlyphRun(glyphRunList.origin(), glyphRun);
         }
     }
 
 private:
     void processGlyphRun(const SkPoint& position,
-                         const SkGlyphRunListIterator& it,
-                         const SkPaint& runPaint) {
+                         const SkGlyphRun& glyphRun) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
-        if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
-            TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
-            FAIL_AND_RETURN
-        }
 
-        // All other alignment modes need the glyph advances. Use the slow drawing mode.
-        if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
-            TRACE_EVENT0("skia", "kLeft_Align");
-            FAIL_AND_RETURN
-        }
-
-        if (it.positioning() == SkTextBlobRunIterator::kDefault_Positioning) {
-            // Default positioning needs advances. Can't do that.
-            TRACE_EVENT0("skia", "kDefault_Positioning");
-            FAIL_AND_RETURN
-        }
-
+        const SkPaint& runPaint = glyphRun.paint();
         const SkMatrix& runMatrix = this->ctm();
+
 #if SK_SUPPORT_GPU
-        if (this->processGlyphRunForDFT(it, runPaint, runMatrix)) {
+        if (this->processGlyphRunForDFT(glyphRun, runMatrix)) {
             return;
         }
 #endif
 
         // If the matrix has perspective, we fall back to using distance field text or paths.
         if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
-            this->processGlyphRunForPaths(it, runPaint, runMatrix);
+            this->processGlyphRunForPaths(glyphRun, runMatrix);
             return;
         }
 
-        using PosFn = SkPoint (*)(int index, const SkScalar* pos);
-        PosFn posFn;
         SkSTArenaAlloc<120> arena;
-        SkFindAndPlaceGlyph::MapperInterface* mapper = nullptr;
-        switch (it.positioning()) {
-            case SkTextBlobRunIterator::kHorizontal_Positioning:
-                posFn = [](int index, const SkScalar* pos) { return SkPoint{pos[index], 0}; };
-                mapper = SkFindAndPlaceGlyph::CreateMapper(
-                        runMatrix, SkPoint::Make(position.x(), position.y() + it.offset().y()), 1,
-                        &arena);
-                break;
-            case SkTextBlobRunIterator::kFull_Positioning:
-                posFn = [](int index, const SkScalar* pos) {
-                    return SkPoint{pos[2 * index], pos[2 * index + 1]};
-                };
-                mapper = SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
-                break;
-            default:
-                posFn = nullptr;
-                SK_ABORT("unhandled positioning mode");
-        }
+        SkFindAndPlaceGlyph::MapperInterface* mapper =
+                SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
 
         SkScalerContextEffects effects;
         auto* glyphCacheState = fStrikeServer->getOrCreateCache(
@@ -310,12 +272,12 @@ private:
         const bool asPath = false;
         bool isSubpixel = glyphCacheState->isSubpixel();
         SkAxisAlignment axisAlignment = glyphCacheState->axisAlignmentForHText();
-        auto pos = it.pos();
-        const uint16_t* glyphs = it.glyphs();
-        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+        auto glyphs = glyphRun.shuntGlyphsIDs();
+        auto positions = glyphRun.positions();
+        for (uint32_t index = 0; index < glyphRun.runSize(); index++) {
             SkIPoint subPixelPos{0, 0};
             if (isSubpixel) {
-                SkPoint glyphPos = mapper->map(posFn(index, pos));
+                SkPoint glyphPos = mapper->map(positions[index]);
                 subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
             }
 
@@ -327,10 +289,10 @@ private:
         }
     }
 
-    void processGlyphRunForPaths(const SkGlyphRunListIterator& it,
-                                 const SkPaint& runPaint,
+    void processGlyphRunForPaths(const SkGlyphRun& glyphRun,
                                  const SkMatrix& runMatrix) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
+        const SkPaint& runPaint = glyphRun.paint();
 
         // The code below borrowed from GrTextContext::DrawBmpPosTextAsPaths.
         SkPaint pathPaint(runPaint);
@@ -352,8 +314,8 @@ private:
                 SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
         const bool asPath = true;
-        const SkGlyphID* glyphs = it.glyphs();
-        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+        auto glyphs = glyphRun.shuntGlyphsIDs();
+        for (uint32_t index = 0; index < glyphRun.runSize(); index++) {
             auto glyphID = glyphs[index];
 #if SK_SUPPORT_GPU
             const auto& glyph =
@@ -374,10 +336,11 @@ private:
     }
 
 #if SK_SUPPORT_GPU
-    bool processGlyphRunForDFT(const SkGlyphRunListIterator& it,
-                               const SkPaint& runPaint,
+    bool processGlyphRunForDFT(const SkGlyphRun& glyphRun,
                                const SkMatrix& runMatrix) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForDFT");
+
+        const SkPaint& runPaint = glyphRun.paint();
 
         GrTextContext::Options options;
         options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
@@ -402,8 +365,8 @@ private:
                 runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
         const bool asPath = false;
         const SkPoint emptyPosition{0, 0};
-        const uint16_t* glyphs = it.glyphs();
-        for (uint32_t index = 0; index < it.glyphCount(); index++) {
+        auto glyphs = glyphRun.shuntGlyphsIDs();
+        for (uint32_t index = 0; index < glyphRun.runSize(); index++) {
             auto glyphID = glyphs[index];
             const auto& glyph =
                     glyphCacheState->findGlyph(runPaint.getTypeface(), effects, glyphID);

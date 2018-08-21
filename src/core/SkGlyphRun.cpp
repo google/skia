@@ -442,9 +442,6 @@ void SkGlyphRunList::temporaryShuntBlobNotifyAddedToCache(uint32_t cacheID) cons
     fOriginalTextBlob->notifyAddedToCache(cacheID);
 }
 
-// -- SkGlyphRunListIterator -----------------------------------------------------------------------
-constexpr SkPoint SkGlyphRunListIterator::fZero;
-
 // -- SkGlyphIDSet ---------------------------------------------------------------------------------
 // A faster set implementation that does not need any initialization, and reading the set items
 // is order the number of items, and not the size of the universe.
