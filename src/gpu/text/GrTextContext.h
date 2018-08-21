@@ -122,7 +122,7 @@ private:
                             const SkMatrix& viewMatrix,
                             const SkSurfaceProps&,
                             const SkGlyphRunList& glyphRunList,
-                            SkGlyphRunListDrawer* glyphDrawer);
+                            SkGlyphRunListPainter* glyphPainter);
 
     static void AppendGlyph(GrTextBlob*, int runIndex, GrGlyphCache*,
                             sk_sp<GrTextStrike>*, const SkGlyph&, GrGlyph::MaskStyle maskStyle,

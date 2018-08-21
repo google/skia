@@ -62,7 +62,7 @@ public:
             : GrTextTarget(renderTargetContext->width(), renderTargetContext->height(),
                      renderTargetContext->colorSpaceInfo())
             , fRenderTargetContext(renderTargetContext)
-            , fGlyphDrawer{*renderTargetContext}{}
+            , fGlyphPainter{*renderTargetContext}{}
 
     void addDrawOp(const GrClip& clip, std::unique_ptr<GrAtlasTextOp> op) override {
         fRenderTargetContext->addDrawOp(clip, std::move(op));
@@ -92,13 +92,13 @@ public:
         return fRenderTargetContext->fContext;
     }
 
-    SkGlyphRunListDrawer* glyphDrawer() override {
-        return &fGlyphDrawer;
+    SkGlyphRunListPainter* glyphPainter() override {
+        return &fGlyphPainter;
     }
 
 private:
     GrRenderTargetContext* fRenderTargetContext;
-    SkGlyphRunListDrawer fGlyphDrawer;
+    SkGlyphRunListPainter fGlyphPainter;
 
 };
 
