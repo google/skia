@@ -9,7 +9,6 @@
 DEPS = [
   'checkout',
   'infra',
-  'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -85,7 +84,12 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
 
 
   cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
-         '-v', '%s:/SRC' % checkout_root, '-v', '%s:/OUT' % out_dir,
+         '-v', '%s:/SRC' % checkout_root, '-v', '%s:/OUT' % out_dir]
+
+  if 'asmjs' in api.vars.builder_name:
+    cmd.extend(['-e', 'ASM_JS=1'])  # -e sets environment variables
+
+  cmd.extend([
          DOCKER_IMAGE,  INNER_KARMA_SCRIPT,
          '--builder',              api.vars.builder_name,
          '--git_hash',             api.properties['revision'],
@@ -95,7 +99,10 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
          '--task_id',              api.vars.swarming_task_id,
          '--browser',              'Chrome',
          '--config',               api.vars.configuration,
-         ]
+         ])
+
+  if 'asmjs' in api.vars.builder_name:
+    cmd.extend(['--compiled_language', 'asmjs']) # the default is wasm
 
   if api.vars.is_trybot:
     cmd.extend([
@@ -112,9 +119,19 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
 
 def GenTests(api):
   yield (
-      api.test('pathkit_test') +
+      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit') +
       api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
                                   '-wasm-Debug-All-PathKit'),
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+
+  yield (
+      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit') +
+      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+                                  '-asmjs-Debug-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
