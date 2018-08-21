@@ -12,9 +12,10 @@
 
 SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType srcAT,
                                                SkColorSpace* dst, SkAlphaType dstAT) {
-    // It's mildly interesting to know the output is opaque, but mechanically that's just unpremul.
+    // Opaque outputs are treated as the same alpha type as the source input.
+    // TODO: we'd really like to have a good way of explaining why we think this is useful.
     if (dstAT == kOpaque_SkAlphaType) {
-        dstAT =  kUnpremul_SkAlphaType;
+        dstAT =  srcAT;
     }
 
     // Set all bools to false, all floats to 0.0f.

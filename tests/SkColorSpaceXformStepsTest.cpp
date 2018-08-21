@@ -107,6 +107,26 @@ DEF_TEST(SkColorSpaceXformSteps, r) {
         { srgb , srgb22, premul, unpremul, true, true,false, true,false },
         { srgb1, adobe , premul, unpremul, true,false, true, true,false },
         { srgb , adobe , premul, unpremul, true, true, true, true,false },
+
+        // Opaque outputs are treated as the same alpha type as the source input.
+        // TODO: we'd really like to have a good way of explaining why we think this is useful.
+        { srgb , srgb  , premul, opaque, false,false,false,false,false },
+        { srgb , srgb1 , premul, opaque,  true, true,false,false, true },
+        { srgb1, adobe1, premul, opaque, false,false, true,false,false },
+        { srgb , adobe1, premul, opaque,  true, true, true,false, true },
+        { srgb1, srgb  , premul, opaque,  true,false,false, true, true },
+        { srgb , srgb22, premul, opaque,  true, true,false, true, true },
+        { srgb1, adobe , premul, opaque,  true,false, true, true, true },
+        { srgb , adobe , premul, opaque,  true, true, true, true, true },
+
+        { srgb , srgb  , unpremul, opaque, false,false,false,false,false },
+        { srgb , srgb1 , unpremul, opaque, false, true,false,false,false },
+        { srgb1, adobe1, unpremul, opaque, false,false, true,false,false },
+        { srgb , adobe1, unpremul, opaque, false, true, true,false,false },
+        { srgb1, srgb  , unpremul, opaque, false,false,false, true,false },
+        { srgb , srgb22, unpremul, opaque, false, true,false, true,false },
+        { srgb1, adobe , unpremul, opaque, false,false, true, true,false },
+        { srgb , adobe , unpremul, opaque, false, true, true, true,false },
     };
 
     uint32_t tested = 0x00000000;
