@@ -2023,3 +2023,27 @@ DEF_TEST(SkSLWorkaroundUnfoldShortCircuitAsTernary, r) {
          SkSL::Program::kFragment_Kind
          );
 }
+
+DEF_TEST(SkSLWorkaroundEmulateAbsIntFunction, r) {
+    test(r,
+         "uniform int i;"
+         "uniform float f;"
+         "void main() {"
+         "    float output = abs(f) + abs(i);"
+         "    sk_FragColor = float4(output);"
+         "}",
+         *SkSL::ShaderCapsFactory::EmulateAbsIntFunction(),
+         "#version 400\n"
+         "int _absemulation(int x) {\n"
+         "    return x * sign(x);\n"
+         "}\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform int i;\n"
+         "uniform float f;\n"
+         "void main() {\n"
+         "    float output = abs(f) + float(_absemulation(i));\n"
+         "    sk_FragColor = vec4(output);\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}
