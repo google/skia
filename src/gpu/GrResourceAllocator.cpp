@@ -322,6 +322,16 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
                 if (!fIntvlList.empty() &&
                     fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
                     *stopIndex = fCurOpListIndex+1;
+
+                    // This is interrupting the allocation of resources for this flush. We need to
+                    // proactively clear the active interval list of any intervals that aren't
+                    // guaranteed to survive the partial flush lest they become zombies (i.e.,
+                    // holding a deleted surface proxy).
+                    if (const Interval* tmp = fIntvlList.peekHead()) {
+                        this->expire(tmp->start());
+                    } else {
+                        this->expire(std::numeric_limits<unsigned int>::max());
+                    }
                     return true;
                 }
             }
@@ -365,6 +375,16 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
             if (!fIntvlList.empty() &&
                 fEndOfOpListOpIndices[fCurOpListIndex] < fIntvlList.peekHead()->start()) {
                 *stopIndex = fCurOpListIndex+1;
+
+                // This is interrupting the allocation of resources for this flush. We need to
+                // proactively clear the active interval list of any intervals that aren't
+                // guaranteed to survive the partial flush lest they become zombies (i.e.,
+                // holding a deleted surface proxy).
+                if (const Interval* tmp = fIntvlList.peekHead()) {
+                    this->expire(tmp->start());
+                } else {
+                    this->expire(std::numeric_limits<unsigned int>::max());
+                }
                 return true;
             }
         }
