@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "76e924a0_a33c2461",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-08-21T04:07:26Z",
+      "side": 0,
+      "message": "Add this back into existing code.",
+      "range": {
+        "startLine": 248,
+        "startChar": 27,
+        "endLine": 251,
+        "endChar": 55
+      },
+      "revId": "f83cacb77018dd027d7f6d39de4a67e4acd4d539",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
