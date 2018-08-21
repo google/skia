@@ -304,8 +304,22 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
 
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
-        SkASSERT(c.fArguments.size() == 1);
-        SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
+        // Sanity checks that are detected by function definition in sksl_fp.inc
+        SkASSERT(c.fArguments.size() == 1 || c.fArguments.size() == 2);
+        SkASSERT("fragmentProcessor" == c.fArguments[0]->fType.name());
+
+        // Actually fail during compilation if arguments with valid types are
+        // provided that are not variable references, since process() is a
+        // special function that impacts code emission.
+        if (c.fArguments[0]->fKind != Expression::kVariableReference_Kind) {
+            fErrors.error(c.fArguments[0]->fOffset, "process()'s fragmentProcessor argument must be a variable reference");
+        }
+        if (c.fArguments.size() > 1) {
+            // Second argument must also be a half4, although it doesn't have
+            // to be a variable reference. The input color gets passed around as
+            // an sksl expression in emitChild.
+            SkASSERT("half4" == c.fArguments[1]->fType.name());
+        }
         int index = 0;
         bool found = false;
         for (const auto& p : fProgram) {
@@ -325,10 +339,26 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             }
         }
         SkASSERT(found);
+
+        // Flush all previous statements so that this emitted child can
+        // depend upon any declared variables within that section
+        this->flushEmittedCode();
+
         String childName = "_child" + to_string(index);
-        fExtraEmitCodeCode += "        SkString " + childName + "(\"" + childName + "\");\n" +
-                              "        this->emitChild(" + to_string(index) + ", &" + childName +
-                              ", args);\n";
+        fExtraEmitCodeCode += "        SkString " + childName + "(\"" + childName + "\");\n";
+        if (c.fArguments.size() == 1) {
+            fExtraEmitCodeCode += "        this->emitChild(" + to_string(index) + ", &" + childName +
+                                  ", args);\n";
+
+        } else {
+            SkASSERT(c.fArguments.size() == 2);
+            // Use the emitChild() variant that accepts an input color name
+            // and pass in the second argument
+            String inputName = c.fArguments[1]->description();
+            fExtraEmitCodeCode += "        this->emitChild(" + to_string(index) +
+                                  ", \"" + inputName + "\", &" + childName + ", args);\n";
+        }
+
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
         return;
@@ -498,6 +528,48 @@ static bool is_accessible(const Variable& var) {
            Type::kOther_Kind != var.fType.kind();
 }
 
+void CPPCodeGenerator::flushEmittedCode(bool flushAll) {
+    if (fCPPBuffer == nullptr) {
+        // Not actually within writeEmitCode() so nothing to flush
+        return;
+    }
+
+    StringStream* skslBuffer = static_cast<StringStream*>(fOut);
+
+    String sksl = skslBuffer->str();
+    // Empty the accumulation buffer; if there are any partial statements in
+    // the extracted sksl string they will be re-added later
+    skslBuffer->reset();
+
+    if (!flushAll) {
+        // Find the last ';' and leave everything after that in the buffer
+        int lastStatementEnd = sksl.findLastOf(';');
+
+        // NOTE: this does the right thing when lastStatementEnd = -1
+        if (lastStatementEnd < (int) sksl.size() - 1) {
+            // There is partial sksl content that can't be flushed yet so put
+            // that back into the sksl buffer and remove it from the string
+            skslBuffer->writeText(sksl.c_str() + lastStatementEnd + 1);
+            sksl = String(sksl.c_str(), lastStatementEnd + 1);
+        }
+    }
+
+    // Switch back to the CPP buffer for the actual code appending statements
+    fOut = fCPPBuffer;
+    if (fExtraEmitCodeCode.size() > 0) {
+        this->writef("%s", fExtraEmitCodeCode.c_str());
+        fExtraEmitCodeCode.reset();
+    }
+    // writeCodeAppend automatically removes the format args that it consumed,
+    // so fFormatArgs will be in a valid state for any partial statements left
+    // in the sksl buffer.
+    this->writeCodeAppend(sksl);
+
+    // After appending, switch back to an sksl buffer that contains any
+    // remaining partial statements that couldn't be appended
+    fOut = skslBuffer;
+}
+
 void CPPCodeGenerator::writeCodeAppend(const String& code) {
     // codeAppendf can only handle appending 1024 bytes at a time, so we need to break the string
     // into chunks. Unfortunately we can't tell exactly how long the string is going to end up,
@@ -534,6 +606,12 @@ void CPPCodeGenerator::writeCodeAppend(const String& code) {
         argStart += argCount;
         start = index;
     }
+
+    // argStart is equal to the number of fFormatArgs that were consumed
+    // so they should be removed from the list
+    if (argStart > 0) {
+        fFormatArgs.erase(fFormatArgs.begin(), fFormatArgs.begin() + argStart);
+    }
 }
 
 bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
@@ -563,13 +641,19 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
         this->addUniform(*u);
     }
     this->writeSection(EMIT_CODE_SECTION);
-    OutputStream* old = fOut;
-    StringStream mainBuffer;
-    fOut = &mainBuffer;
+
+    // Save original buffer as the CPP buffer for flushEmittedCode()
+    fCPPBuffer = fOut;
+    StringStream skslBuffer;
+    fOut = &skslBuffer;
+
     bool result = INHERITED::generateCode();
-    fOut = old;
-    this->writef("%s", fExtraEmitCodeCode.c_str());
-    this->writeCodeAppend(mainBuffer.str());
+    // Final flush in case there is anything extra, forcing it to emit everything
+    this->flushEmittedCode(true);
+
+    // Then restore the original CPP buffer and close the function
+    fOut = fCPPBuffer;
+    fCPPBuffer = nullptr;
     this->write("    }\n");
     return result;
 }

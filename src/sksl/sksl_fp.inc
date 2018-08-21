@@ -23,5 +23,5 @@ layout(builtin=10006) sampler2D[] sk_TextureSamplers;
 layout(builtin=10011) float2 sk_Dimensions;
 
 half4 process(fragmentProcessor fp);
-
+half4 process(fragmentProcessor fp, half4 input);
 )
