@@ -23,7 +23,7 @@ int GrStyle::KeySize(const GrStyle &style, Apply apply, uint32_t flags) {
         return size;
     }
 
-    if (style.strokeRec().needToApply()) {
+    if (!style.strokeRec().isFillStyle()) {
         // One for res scale, one for style/cap/join, one for miter limit, and one for width.
         size += 4;
     }
@@ -60,7 +60,7 @@ void GrStyle::WriteKey(uint32_t *key, const GrStyle &style, Apply apply, SkScala
         SkASSERT(!style.pathEffect());
     }
 
-    if (Apply::kPathEffectAndStrokeRec == apply && style.strokeRec().needToApply()) {
+    if (Apply::kPathEffectAndStrokeRec == apply && !style.strokeRec().isFillStyle()) {
         memcpy(&key[i++], &scale, sizeof(SkScalar));
         enum {
             kStyleBits = 2,
