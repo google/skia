@@ -1182,8 +1182,15 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                             (const SkPath* path, const SkGlyph& glyph, SkPoint position) {
                         SkScalar sx = SkScalarFloorToScalar(position.fX),
                                  sy = SkScalarFloorToScalar(position.fY);
-                        cacheBlob->appendPathGlyph(
-                                runIndex, *path, sx, sy, SK_Scalar1, true);
+
+                        SkRect glyphRect =
+                                rect_to_draw(
+                                        glyph, {sx, sy}, SK_Scalar1, GrGlyph::kCoverage_MaskStyle);
+
+                        if (!glyphRect.isEmpty()) {
+                            cacheBlob->appendPathGlyph(
+                                    runIndex, *path, sx, sy, SK_Scalar1, true);
+                        }
                     };
 
             glyphDrawer->drawGlyphRunAsBMPWithPathFallback(
