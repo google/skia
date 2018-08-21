@@ -64,7 +64,7 @@
 
 // SRC
 #include "SkCommandLineFlags.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #if SK_SUPPORT_GPU
 #include "GrContextFactory.h"

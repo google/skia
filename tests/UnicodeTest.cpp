@@ -6,7 +6,7 @@
  */
 
 #include "SkPaint.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "Test.h"
 
 // Simple test to ensure that when we call textToGlyphs, we get the same

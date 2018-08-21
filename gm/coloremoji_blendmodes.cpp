@@ -22,7 +22,7 @@
 #include "SkString.h"
 #include "SkTypeface.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "gm.h"
 #include "sk_tool_utils.h"
 

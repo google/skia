@@ -22,7 +22,7 @@
 #include "SkScanPriv.h"
 #include "SkTSort.h"
 #include "SkTemplates.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

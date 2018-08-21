@@ -23,7 +23,7 @@
 #include "SkTextBlob.h"
 #include "SkTime.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 extern void skia_set_text_gamma(float blackGamma, float whiteGamma);
 

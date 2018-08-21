@@ -18,7 +18,7 @@
 #include "SkStream.h"
 #include "SkString.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 /**
  *  Interprets c as an unpremultiplied color, and returns the

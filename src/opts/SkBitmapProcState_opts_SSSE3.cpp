@@ -8,7 +8,7 @@
 #include "SkBitmapProcState_opts_SSSE3.h"
 #include "SkColorData.h"
 #include "SkPaint.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <tmmintrin.h>  // SSSE3
 

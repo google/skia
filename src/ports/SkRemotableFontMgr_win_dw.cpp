@@ -20,7 +20,7 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface_win_dw.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <dwrite.h>
 

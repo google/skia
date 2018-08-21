@@ -15,7 +15,7 @@
 #include "SkRectPriv.h"
 #include "SkScan.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <utility>
 

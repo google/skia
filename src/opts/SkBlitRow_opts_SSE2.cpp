@@ -12,7 +12,7 @@
 #include "SkColor_opts_SSE2.h"
 #include "SkDither.h"
 #include "SkMSAN.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 /* SSE2 version of S32_Blend_BlitRow32()
  * portable version is in core/SkBlitRow_D32.cpp

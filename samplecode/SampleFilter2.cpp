@@ -17,7 +17,7 @@
 #include "SkShader.h"
 #include "SkString.h"
 #include "SkTime.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 static const char* gNames[] = {
     "/skimages/background_01.png"

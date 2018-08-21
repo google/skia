@@ -22,7 +22,7 @@
 #include "SkTime.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 static SkRandom gRand;
 

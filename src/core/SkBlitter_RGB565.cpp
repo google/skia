@@ -8,7 +8,7 @@
 #include "SkCoreBlitters.h"
 #include "SkColorData.h"
 #include "SkShader.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "SkXfermodePriv.h"
 #include "SkBlitMask.h"
 #include "SkColorData.h"

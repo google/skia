@@ -5,6 +5,8 @@
  * found in the LICENSE file.
  */
 
+#include "sk_tool_utils.h"
+
 #include "Resources.h"
 #include "SkCommonFlags.h"
 #include "SkFontMgr.h"
@@ -13,8 +15,8 @@
 #include "SkOSFile.h"
 #include "SkPaint.h"
 #include "SkTestFontMgr.h"
-#include "SkUtils.h"
-#include "sk_tool_utils.h"
+#include "SkTypeface.h"
+#include "SkUTF.h"
 
 namespace sk_tool_utils {
 

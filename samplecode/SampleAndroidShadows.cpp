@@ -16,7 +16,7 @@
 #include "SkPathOps.h"
 #include "SkPoint3.h"
 #include "SkShadowUtils.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "sk_tool_utils.h"
 
 ////////////////////////////////////////////////////////////////////////////

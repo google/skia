@@ -12,7 +12,7 @@
 #include "SkColorData.h"
 #include "SkDither.h"
 #include "SkMathPriv.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include "SkColor_opts_neon.h"
 #include <arm_neon.h>

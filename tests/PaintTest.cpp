@@ -15,7 +15,7 @@
 #include "SkReadBuffer.h"
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "SkWriteBuffer.h"
 #include "Test.h"
 #undef ASSERT

@@ -9,7 +9,7 @@
 
 #include "SkTo.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 SkFont::SkFont(sk_sp<SkTypeface> face, SkScalar size, SkScalar scaleX, SkScalar skewX, MaskType mt,
                uint32_t flags)

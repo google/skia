@@ -21,7 +21,7 @@
 #include "SkTSort.h"
 #include "SkTemplates.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <utility>
 

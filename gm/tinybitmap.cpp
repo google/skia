@@ -9,7 +9,7 @@
 #include "SkColorPriv.h"
 #include "SkShader.h"
 #include "SkCanvas.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 namespace skiagm {
 
