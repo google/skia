@@ -20,6 +20,8 @@
 #include "GrTextureProxy.h"
 #include "GrUninstantiateProxyTracker.h"
 
+#include "SkSurface.h"
+
 struct ProxyParams {
     int             fSize;
     bool            fIsRT;
@@ -237,5 +239,38 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorTest, reporter, ctxInfo) {
         cleanup_backend(ctxInfo.grContext(), backEndTex);
     }
 
+    resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
+}
+
+static void draw(GrContext* context) {
+    SkImageInfo ii = SkImageInfo::Make(1024, 1024, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> s = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes,
+                                                     ii, 1, kTopLeft_GrSurfaceOrigin, nullptr);
+
+    SkCanvas* c = s->getCanvas();
+
+    c->clear(SK_ColorBLACK);
+}
+
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ResourceAllocatorStressTest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+    GrResourceProvider* resourceProvider = ctxInfo.grContext()->contextPriv().resourceProvider();
+
+    int maxNum;
+    size_t maxBytes;
+    context->getResourceCacheLimits(&maxNum, &maxBytes);
+
+    bool orig = resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(true);
+    context->setResourceCacheLimits(0, 0); // We'll always be overbudget
+
+    draw(context);
+    draw(context);
+    draw(context);
+    draw(context);
+    context->flush();
+
+    context->setResourceCacheLimits(maxNum, maxBytes);
     resourceProvider->testingOnly_setExplicitlyAllocateGPUResources(orig);
 }
