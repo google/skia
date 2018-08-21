@@ -44,7 +44,7 @@ fi
 # Use -O0 for larger builds (but generally quicker)
 # Use -Oz for (much slower, but smaller/faster) production builds
 export EMCC_CLOSURE_ARGS="--externs $BASE_DIR/externs.js "
-RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1 --llvm-lto 3"
+RELEASE_CONF="-Oz --closure 1 -s EVAL_CTORS=1 --llvm-lto 3 -s ELIMINATE_DUPLICATE_FUNCTIONS=1"
 if [[ $@ == *test* ]]; then
   echo "Building a Testing/Profiling build"
   RELEASE_CONF="-O2 --profiling -DPATHKIT_TESTING -DSK_RELEASE"
@@ -52,13 +52,13 @@ elif [[ $@ == *debug* ]]; then
   echo "Building a Debug build"
   # -g4 creates source maps that can apparently let you see the C++ code
   # in the browser's debugger.
-  RELEASE_CONF="-O0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -g4 -DPATHKIT_TESTING -DSK_DEBUG"
+  RELEASE_CONF="-O0 --js-opts 0 -s SAFE_HEAP=1 -s ASSERTIONS=1 -g4 -DPATHKIT_TESTING -DSK_DEBUG"
 fi
 
 WASM_CONF="-s WASM=1"
 if [[ $@ == *asm.js* ]]; then
   echo "Building with asm.js instead of WASM"
-  WASM_CONF="-s WASM=0 -s ALLOW_MEMORY_GROWTH=1 --separate-asm -s ELIMINATE_DUPLICATE_FUNCTIONS=1"
+  WASM_CONF="-s WASM=0 -s ALLOW_MEMORY_GROWTH=1"
 fi
 
 OUTPUT="-o $BUILD_DIR/pathkit.js"

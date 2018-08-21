@@ -7063,7 +7063,7 @@
   "fillType2": "kWinding_FillType",
   "op": "kUnion_SkPathOp",
   "expectSuccess": "yes",
-  "expectMatch": "yes",
+  "expectMatch": "flaky",
   "succeeded": true,
   "out": [[0, "0x40031739", "0x40018b9c"],
     [4, "0x401247d2", "0x4052d6b5", "0x401327df", "0x408993f0", "0x00000000", "0x40000000"],
