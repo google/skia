@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d51c67_1359d1ed",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-21T15:59:18Z",
+      "side": 1,
+      "message": "break here? Or add \"\u0026\u0026 chain\" to the loop condition?",
+      "revId": "78d69451dd4b1f27cc185f9420fb328561decbcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3604b194_d79f25a0",
+        "filename": "tests/OpChainTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-21T15:59:18Z",
+      "side": 1,
+      "message": "Use std::next_permutation ?",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 2
+      },
+      "revId": "78d69451dd4b1f27cc185f9420fb328561decbcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
