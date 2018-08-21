@@ -19,8 +19,7 @@ struct DisplayParams;
 namespace window_context_factory {
 
 struct MacWindowInfo {
-    SDL_Window*   fWindow;
-    SDL_GLContext fGLContext;
+    SDL_Window*  fWindow;
 };
 
 inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&) {
@@ -29,6 +28,15 @@ inline WindowContext* NewVulkanForMac(const MacWindowInfo&, const DisplayParams&
 }
 
 WindowContext* NewGLForMac(const MacWindowInfo&, const DisplayParams&);
+
+#ifdef SK_NXT
+#ifdef SK_NXT_OPENGL
+WindowContext* NewNXTGLForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
+#ifdef SK_NXT_METAL
+WindowContext* NewNXTMTLForMac(const MacWindowInfo&, const DisplayParams&);
+#endif
+#endif
 
 WindowContext* NewRasterForMac(const MacWindowInfo&, const DisplayParams&);
 
