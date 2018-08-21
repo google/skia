@@ -12,6 +12,7 @@ namespace SkSL {
 
 struct GLSLWorkarounds {
     bool fAddAndTrueToLoopConditions = false;
+    bool fUnfoldShortCircuitAsTernaryOperation = false;
 };
 
 } // namespace

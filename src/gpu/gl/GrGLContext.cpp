@@ -88,6 +88,8 @@ SkSL::Compiler* GrGLContext::compiler() const {
         SkSL::GLSLWorkarounds glslWorkarounds;
         if (capsWorkarounds.add_and_true_to_loop_condition)
             glslWorkarounds.fAddAndTrueToLoopConditions = true;
+        if (capsWorkarounds.unfold_short_circuit_as_ternary_operation)
+            glslWorkarounds.fUnfoldShortCircuitAsTernaryOperation = true;
         fCompiler = new SkSL::Compiler(SkSL::Compiler::kNone_Flags, &glslWorkarounds);
     }
     return fCompiler;
