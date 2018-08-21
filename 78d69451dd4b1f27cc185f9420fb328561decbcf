@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1c31900d_1fe0a29c",
+        "filename": "src/gpu/GrRenderTargetOpList.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-21T16:07:50Z",
+      "side": 1,
+      "message": "Oh yeah, duh.",
+      "parentUuid": "57d51c67_1359d1ed",
+      "revId": "78d69451dd4b1f27cc185f9420fb328561decbcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3604b194_d79f25a0",
         "filename": "tests/OpChainTest.cpp",
         "patchSetId": 2
@@ -39,6 +57,30 @@
       "revId": "78d69451dd4b1f27cc185f9420fb328561decbcf",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4183e94d_084a334a",
+        "filename": "tests/OpChainTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-21T16:07:50Z",
+      "side": 1,
+      "message": "I had no idea! Done.",
+      "parentUuid": "3604b194_d79f25a0",
+      "range": {
+        "startLine": 95,
+        "startChar": 0,
+        "endLine": 129,
+        "endChar": 2
+      },
+      "revId": "78d69451dd4b1f27cc185f9420fb328561decbcf",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
