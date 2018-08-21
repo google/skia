@@ -1984,3 +1984,24 @@ DEF_TEST(SkSLFrExp, r) {
          "    sk_FragColor = vec4(float(exp));\n"
          "}\n");
 }
+
+DEF_TEST(SkSLWorkaroundAddAndTrueToLoopCondition, r) {
+    test(r,
+         "void main() {"
+         "    int c = 0;"
+         "    for (int i = 0; i < 4 || c < 10; ++i) {"
+         "        c += 1;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::AddAndTrueToLoopCondition(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    int c = 0;\n"
+         "    for (int i = 0;(i < 4 || c < 10) && true; ++i) {\n"
+         "        c += 1;\n"
+         "    }\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}

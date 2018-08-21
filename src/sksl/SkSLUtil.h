@@ -177,6 +177,10 @@ public:
         return false;
     }
 
+    bool addAndTrueToLoopCondition() const {
+        return false;
+    }
+
     const char* fbFetchColorName() const {
         return nullptr;
     }
@@ -318,6 +322,13 @@ public:
         result->fVersionDeclString = "#version 310es";
         result->fUsesPrecisionModifiers = true;
         result->fIncompleteShortIntPrecision = true;
+        return result;
+    }
+
+    static sk_sp<GrShaderCaps> AddAndTrueToLoopCondition() {
+        sk_sp<GrShaderCaps> result = sk_make_sp<GrShaderCaps>(GrContextOptions());
+        result->fVersionDeclString = "#version 400";
+        result->fAddAndTrueToLoopCondition = true;
         return result;
     }
 };

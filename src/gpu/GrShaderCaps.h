@@ -124,6 +124,9 @@ public:
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
 
+    // If true, then conditions in for loops need "&& true" to workaround driver bugs.
+    bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -259,6 +262,7 @@ private:
     bool fMustGuardDivisionEvenAfterExplicitZeroCheck : 1;
     bool fCanUseFragCoord                             : 1;
     bool fIncompleteShortIntPrecision                 : 1;
+    bool fAddAndTrueToLoopCondition                   : 1;
 
     const char* fVersionDeclString;
 

@@ -1247,7 +1247,16 @@ void GLSLCodeGenerator::writeForStatement(const ForStatement& f) {
         this->write("; ");
     }
     if (f.fTest) {
-        this->writeExpression(*f.fTest, kTopLevel_Precedence);
+        if (fProgram.fSettings.fCaps->addAndTrueToLoopCondition()) {
+            std::unique_ptr<Expression> and_true(new BinaryExpression(
+                    -1, f.fTest->clone(), Token::LOGICALAND,
+                    std::unique_ptr<BoolLiteral>(new BoolLiteral(fContext, -1,
+                                                                 true)),
+                    *fContext.fBool_Type));
+            this->writeExpression(*and_true, kTopLevel_Precedence);
+        } else {
+            this->writeExpression(*f.fTest, kTopLevel_Precedence);
+        }
     }
     this->write("; ");
     if (f.fNext) {
