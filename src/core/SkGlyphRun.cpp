@@ -828,30 +828,6 @@ static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
     return glyph.fWidth >= 256 || glyph.fHeight >= 256;
 }
 
-template <typename PerGlyphT, typename PerPathT>
-void SkGlyphRunListDrawer::drawGlyphRunAsBMPWithPathFallback(
-        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& deviceMatrix,
-        PerGlyphT perGlyph, PerPathT perPath) {
-    auto eachGlyph =
-            [cache, perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
-                    (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
-                if (glyph_too_big_for_atlas(glyph)) {
-                    const SkPath* glyphPath = cache->findPath(glyph);
-                    if (glyphPath != nullptr) {
-                        perPath(glyphPath, glyph, mappedPt);
-                    }
-                } else {
-                    const void* glyphImage = cache->findImage(glyph);
-                    if (glyphImage != nullptr) {
-                        perGlyph(glyph, mappedPt);
-                    }
-                }
-            };
-
-    this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
-}
-
 static SkRect rect_to_draw(
         const SkGlyph& glyph, SkPoint origin, SkScalar textScale, GrGlyph::MaskStyle maskStyle) {
 
@@ -873,6 +849,38 @@ static SkRect rect_to_draw(
     height *= textScale;
 
     return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
+}
+
+template <typename PerGlyphT, typename PerPathT>
+void SkGlyphRunListDrawer::drawGlyphRunAsBMPWithPathFallback(
+        SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerGlyphT perGlyph, PerPathT perPath) {
+    auto eachGlyph =
+        [cache, perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
+        (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
+            if (glyph_too_big_for_atlas(glyph)) {
+                SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
+                         sy = SkScalarFloorToScalar(mappedPt.fY);
+
+                SkRect glyphRect =
+                        rect_to_draw(glyph, {sx, sy}, SK_Scalar1, GrGlyph::kCoverage_MaskStyle);
+
+                if (!glyphRect.isEmpty()) {
+                    const SkPath* glyphPath = cache->findPath(glyph);
+                    if (glyphPath != nullptr) {
+                        perPath(glyphPath, glyph, mappedPt);
+                    }
+                }
+            } else {
+                const void* glyphImage = cache->findImage(glyph);
+                if (glyphImage != nullptr) {
+                    perGlyph(glyph, mappedPt);
+                }
+            }
+        };
+
+    this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
 }
 
 template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
