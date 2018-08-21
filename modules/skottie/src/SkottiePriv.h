@@ -28,7 +28,9 @@ class Value;
 } // namespace skjson
 
 namespace sksg {
+class Color;
 class Matrix;
+class Path;
 class RenderNode;
 } // namespace sksg
 
@@ -104,6 +106,13 @@ private:
 
     using INHERITED = SkNoncopyable;
 };
+
+// Shared helpers
+sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue&, AnimatorScope*, const char prop_name[]);
+sk_sp<sksg::Path> AttachPath(const skjson::Value&, AnimatorScope*);
+sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue&, AnimatorScope*, sk_sp<sksg::Matrix>);
+sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue&, AnimatorScope*,
+                                      sk_sp<sksg::RenderNode>);
 
 } // namespace internal
 } // namespace skottie
