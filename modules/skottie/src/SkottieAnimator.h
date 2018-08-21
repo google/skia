@@ -8,30 +8,32 @@
 #ifndef SkottieAnimator_DEFINED
 #define SkottieAnimator_DEFINED
 
-#include "SkSGScene.h"
+#include "SkottiePriv.h"
 
 #include <functional>
 
 namespace skjson { class Value; }
 
 namespace skottie {
+namespace internal {
 
 // This is the workhorse for property binding: depending on whether the property is animated,
 // it will either apply immediately or instantiate and attach a keyframe animator.
 template <typename T>
 bool BindProperty(const skjson::Value&,
-                  sksg::AnimatorList*,
+                  AnimatorScope*,
                   std::function<void(const T&)>&&,
                   const T* default_igore = nullptr);
 
 template <typename T>
 bool BindProperty(const skjson::Value& jv,
-                  sksg::AnimatorList* animators,
+                  AnimatorScope* animators,
                   std::function<void(const T&)>&& apply,
                   const T& default_ignore) {
     return BindProperty(jv, animators, std::move(apply), &default_ignore);
 }
 
+} // namespace internal
 } // namespace skottie
 
 #endif // SkottieAnimator_DEFINED
