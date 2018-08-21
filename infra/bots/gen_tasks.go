@@ -570,6 +570,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"IntelBayTrail": "8086:0f31",
 					"IntelHD2000":   "8086:0102",
 					"IntelHD405":    "8086:22b1",
+					"IntelIris6100": "8086:162b",
 					"IntelIris640":  "8086:5926",
 					"QuadroP400":    "10de:1cb3-384.59",
 				}[parts["cpu_or_gpu_value"]]
