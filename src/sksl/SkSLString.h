@@ -82,6 +82,10 @@ public:
 
 #ifdef SKSL_USE_STD_STRING
     void appendf(const char* fmt, ...);
+    // For API compatibility with SkString's reset (vs. std:string's clear)
+    void reset();
+    // For API compatibility with SkString's findLastOf(vs. find_last_of -> size_t)
+    int findLastOf(const char c) const;
 #endif
     void vappendf(const char* fmt, va_list va);
 
