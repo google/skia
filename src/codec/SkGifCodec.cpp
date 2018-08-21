@@ -91,18 +91,9 @@ std::unique_ptr<SkCodec> SkGifCodec::MakeFromStream(std::unique_ptr<SkStream> st
     // Use kPalette since Gifs are encoded with a color table.
     // FIXME: Gifs can actually be encoded with 4-bits per pixel. Using 8 works, but we could skip
     //        expanding to 8 bits and take advantage of the SkSwizzler to work from 4.
-    const auto encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color, alpha, 8);
-
-    // The choice of unpremul versus premul is arbitrary, since all colors are either fully
-    // opaque or fully transparent (i.e. kBinary), but we stored the transparent colors as all
-    // zeroes, which is arguably premultiplied.
-    const auto alphaType = reader->firstFrameHasAlpha() ? kUnpremul_SkAlphaType
-                                                        : kOpaque_SkAlphaType;
-
-    const auto imageInfo = SkImageInfo::Make(reader->screenWidth(), reader->screenHeight(),
-                                             kN32_SkColorType, alphaType,
-                                             SkColorSpace::MakeSRGB());
-    return std::unique_ptr<SkCodec>(new SkGifCodec(encodedInfo, imageInfo, reader.release()));
+    auto encodedInfo = SkEncodedInfo::MakeSRGB(reader->screenWidth(), reader->screenHeight(),
+                                               SkEncodedInfo::kPalette_Color, alpha, 8);
+    return std::unique_ptr<SkCodec>(new SkGifCodec(std::move(encodedInfo), reader.release()));
 }
 
 bool SkGifCodec::onRewind() {
@@ -110,9 +101,8 @@ bool SkGifCodec::onRewind() {
     return true;
 }
 
-SkGifCodec::SkGifCodec(const SkEncodedInfo& encodedInfo, const SkImageInfo& imageInfo,
-                       SkGifImageReader* reader)
-    : INHERITED(encodedInfo, imageInfo, SkColorSpaceXform::kRGBA_8888_ColorFormat, nullptr)
+SkGifCodec::SkGifCodec(SkEncodedInfo&& encodedInfo, SkGifImageReader* reader)
+    : INHERITED(std::move(encodedInfo), skcms_PixelFormat_RGBA_8888, nullptr)
     , fReader(reader)
     , fTmpBuffer(nullptr)
     , fSwizzler(nullptr)
@@ -157,7 +147,6 @@ int SkGifCodec::onGetRepetitionCount() {
 }
 
 static constexpr SkColorType kXformSrcColorType = kRGBA_8888_SkColorType;
-static constexpr SkAlphaType kXformAlphaType    = kUnpremul_SkAlphaType;
 
 void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex) {
     SkColorType colorTableColorType = dstInfo.colorType();
@@ -173,8 +162,8 @@ void SkGifCodec::initializeColorTable(const SkImageInfo& dstInfo, int frameIndex
         fCurrColorTable.reset(new SkColorTable(&color, 1));
     } else if (this->colorXform() && !this->xformOnDecode()) {
         SkPMColor dstColors[256];
-        this->applyColorXform(dstColors, currColorTable->readColors(), currColorTable->count(),
-                              kXformAlphaType);
+        this->applyColorXform(dstColors, currColorTable->readColors(),
+                              currColorTable->count());
         fCurrColorTable.reset(new SkColorTable(dstColors, currColorTable->count()));
     } else {
         fCurrColorTable = std::move(currColorTable);
@@ -402,7 +391,7 @@ void SkGifCodec::applyXformRow(const SkImageInfo& dstInfo, void* dst, const uint
         fSwizzler->swizzle(fXformBuffer.get(), src);
 
         const int xformWidth = get_scaled_dimension(dstInfo.width(), fSwizzler->sampleX());
-        this->applyColorXform(dst, fXformBuffer.get(), xformWidth, kXformAlphaType);
+        this->applyColorXform(dst, fXformBuffer.get(), xformWidth);
     } else {
         fSwizzler->swizzle(dst, src);
     }

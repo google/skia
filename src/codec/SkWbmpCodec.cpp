@@ -97,11 +97,10 @@ bool SkWbmpCodec::readRow(uint8_t* row) {
     return this->stream()->read(row, fSrcRowBytes) == fSrcRowBytes;
 }
 
-SkWbmpCodec::SkWbmpCodec(int width, int height, const SkEncodedInfo& info,
-                         std::unique_ptr<SkStream> stream)
+SkWbmpCodec::SkWbmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream)
     // Wbmp does not need a colorXform, so choose an arbitrary srcFormat.
-    : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(),
-                std::move(stream), SkColorSpace::MakeSRGB())
+    : INHERITED(std::move(info), skcms_PixelFormat(),
+                std::move(stream))
     , fSrcRowBytes(get_src_row_bytes(this->getInfo().width()))
     , fSwizzler(nullptr)
 {}
@@ -111,7 +110,7 @@ SkEncodedImageFormat SkWbmpCodec::onGetEncodedFormat() const {
 }
 
 bool SkWbmpCodec::conversionSupported(const SkImageInfo& dst, SkColorType /*srcColor*/,
-                                      bool srcIsOpaque, const SkColorSpace* srcCS) const {
+                                      bool srcIsOpaque, bool /*needsXform*/) {
     return valid_color_type(dst) && valid_alpha(dst.alphaType(), srcIsOpaque);
 }
 
@@ -159,10 +158,9 @@ std::unique_ptr<SkCodec> SkWbmpCodec::MakeFromStream(std::unique_ptr<SkStream> s
         return nullptr;
     }
     *result = kSuccess;
-    SkEncodedInfo info = SkEncodedInfo::Make(SkEncodedInfo::kGray_Color,
-            SkEncodedInfo::kOpaque_Alpha, 1);
-    return std::unique_ptr<SkCodec>(new SkWbmpCodec(size.width(), size.height(), info,
-                                                    std::move(stream)));
+    auto info = SkEncodedInfo::Make(size.width(), size.height(), SkEncodedInfo::kGray_Color,
+                                    SkEncodedInfo::kOpaque_Alpha, 1);
+    return std::unique_ptr<SkCodec>(new SkWbmpCodec(std::move(info), std::move(stream)));
 }
 
 int SkWbmpCodec::onGetScanlines(void* dst, int count, size_t dstRowBytes) {
