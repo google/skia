@@ -1,3 +1,4 @@
+add_and_true_to_loop_condition
 disable_blend_equation_advanced
 disable_discard_framebuffer
 disallow_large_instanced_draw
