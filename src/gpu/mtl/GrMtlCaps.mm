@@ -317,11 +317,15 @@ void GrMtlCaps::initShaderCaps() {
         shaderCaps->fDualSourceBlendingSupport = true;
     }
 
+    // TODO: Re-enable this once skbug:8720 is fixed. Will also need to remove asserts in
+    // GrMtlPipelineStateBuilder which assert we aren't using this feature.
+#if 0
     if (this->isIOS()) {
         shaderCaps->fFBFetchSupport = true;
         shaderCaps->fFBFetchNeedsCustomOutput = true; // ??
         shaderCaps->fFBFetchColorName = ""; // Somehow add [[color(0)]] to arguments to frag shader
     }
+#endif
     shaderCaps->fDstReadInShaderSupport = shaderCaps->fFBFetchSupport;
 
     shaderCaps->fIntegerSupport = true;
