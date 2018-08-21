@@ -114,6 +114,8 @@ public:
      */
     static SkScalar GetInflationRadius(const SkPaint&, SkPaint::Style);
 
+    static SkScalar GetInflationRadius(SkPaint::Join, SkScalar, SkPaint::Cap, SkScalar strokeWidth);
+
     /**
      * Compare if two SkStrokeRecs have an equal effect on a path.
      * Equal SkStrokeRecs produce equal paths. Equality of produced
