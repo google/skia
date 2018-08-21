@@ -124,8 +124,12 @@ public:
     // required by the spec. SKSL will always emit full ints.
     bool incompleteShortIntPrecision() const { return fIncompleteShortIntPrecision; }
 
-    // If true, then conditions in for loops need "&& true" to workaround driver bugs.
+    // If true, then conditions in for loops need "&& true" to work around driver bugs.
     bool addAndTrueToLoopCondition() const { return fAddAndTrueToLoopCondition; }
+
+    // If true, then expressions such as "x && y" or "x || y" are rewritten as
+    // ternary to work around driver bugs.
+    bool unfoldShortCircuitAsTernary() const { return fUnfoldShortCircuitAsTernary; }
 
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
@@ -263,6 +267,7 @@ private:
     bool fCanUseFragCoord                             : 1;
     bool fIncompleteShortIntPrecision                 : 1;
     bool fAddAndTrueToLoopCondition                   : 1;
+    bool fUnfoldShortCircuitAsTernary                 : 1;
 
     const char* fVersionDeclString;
 

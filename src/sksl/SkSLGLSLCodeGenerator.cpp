@@ -848,6 +848,12 @@ GLSLCodeGenerator::Precedence GLSLCodeGenerator::GetBinaryPrecedence(Token::Kind
 
 void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
                                               Precedence parentPrecedence) {
+    if (fProgram.fSettings.fCaps->unfoldShortCircuitAsTernary() &&
+            (b.fOperator == Token::LOGICALAND || b.fOperator == Token::LOGICALOR)) {
+        this->writeShortCircuitWorkaroundExpression(b, parentPrecedence);
+        return;
+    }
+
     Precedence precedence = GetBinaryPrecedence(b.fOperator);
     if (precedence >= parentPrecedence) {
         this->write("(");
@@ -870,6 +876,35 @@ void GLSLCodeGenerator::writeBinaryExpression(const BinaryExpression& b,
         this->write(")");
     }
     if (precedence >= parentPrecedence) {
+        this->write(")");
+    }
+}
+
+void GLSLCodeGenerator::writeShortCircuitWorkaroundExpression(const BinaryExpression& b,
+                                                              Precedence parentPrecedence) {
+    if (kTernary_Precedence >= parentPrecedence) {
+        this->write("(");
+    }
+
+    // Transform:
+    // a && b  =>   a ? b : false
+    // a || b  =>   a ? true : b
+    this->writeExpression(*b.fLeft, kTernary_Precedence);
+    this->write(" ? ");
+    if (b.fOperator == Token::LOGICALAND) {
+        this->writeExpression(*b.fRight, kTernary_Precedence);
+    } else {
+        BoolLiteral boolTrue(fContext, -1, true);
+        this->writeBoolLiteral(boolTrue);
+    }
+    this->write(" : ");
+    if (b.fOperator == Token::LOGICALAND) {
+        BoolLiteral boolFalse(fContext, -1, false);
+        this->writeBoolLiteral(boolFalse);
+    } else {
+        this->writeExpression(*b.fRight, kTernary_Precedence);
+    }
+    if (kTernary_Precedence >= parentPrecedence) {
         this->write(")");
     }
 }

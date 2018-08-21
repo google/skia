@@ -1986,3 +1986,40 @@ DEF_TEST(SkSLWorkaroundAddAndTrueToLoopCondition, r) {
          SkSL::Program::kFragment_Kind
          );
 }
+
+DEF_TEST(SkSLWorkaroundUnfoldShortCircuitAsTernary, r) {
+    test(r,
+         "uniform bool x;"
+         "uniform bool y;"
+         "uniform int i;"
+         "uniform int j;"
+         "void main() {"
+         "    bool andXY = x && y;"
+         "    bool orXY = x || y;"
+         "    bool combo = (x && y) || (x || y);"
+         "    bool prec = (i + j == 3) && y;"
+         "    while (andXY && orXY && combo && prec) {"
+         "        sk_FragColor = float4(0);"
+         "        break;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::UnfoldShortCircuitAsTernary(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform bool x;\n"
+         "uniform bool y;\n"
+         "uniform int i;\n"
+         "uniform int j;\n"
+         "void main() {\n"
+         "    bool andXY = x ? y : false;\n"
+         "    bool orXY = x ? true : y;\n"
+         "    bool combo = (x ? y : false) ? true : (x ? true : y);\n"
+         "    bool prec = i + j == 3 ? y : false;\n"
+         "    while (((andXY ? orXY : false) ? combo : false) ? prec : false) {\n"
+         "        sk_FragColor = vec4(0.0);\n"
+         "        break;\n"
+         "    }\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}
