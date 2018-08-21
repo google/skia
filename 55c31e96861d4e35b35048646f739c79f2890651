@@ -22,6 +22,30 @@
       "revId": "55c31e96861d4e35b35048646f739c79f2890651",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a1b26122_11c0cd16",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-08-21T15:31:14Z",
+      "side": 1,
+      "message": "There will soon be two uses. One here for the GPU, and another in SkRemoteGlyphCache.",
+      "parentUuid": "588fe5f6_1f641b85",
+      "range": {
+        "startLine": 878,
+        "startChar": 0,
+        "endLine": 879,
+        "endChar": 56
+      },
+      "revId": "55c31e96861d4e35b35048646f739c79f2890651",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
