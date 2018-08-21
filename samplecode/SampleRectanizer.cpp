@@ -9,7 +9,7 @@
 #include "SkCanvas.h"
 #include "SkRandom.h"
 #include "SkPaint.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #if SK_SUPPORT_GPU
 #include "GrRectanizer_pow2.h"
 #include "GrRectanizer_skyline.h"

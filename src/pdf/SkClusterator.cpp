@@ -9,7 +9,7 @@
 
 #include "SkGlyphRun.h"
 #include "SkTo.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 static bool is_reversed(const uint32_t* clusters, uint32_t count) {
     // "ReversedChars" is how PDF deals with RTL text.

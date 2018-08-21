@@ -24,7 +24,7 @@
 #include "SkStream.h"
 #include "SkTemplates.h"
 #include "SkUnPreMultiply.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "SkWebpEncoder.h"
 
 // A WebP encoder only, on top of (subset of) libwebp

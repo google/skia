@@ -29,7 +29,7 @@
 #include "SkPicture.h"
 #include "SkRandom.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <math.h>
 #include "DecodeFile.h"

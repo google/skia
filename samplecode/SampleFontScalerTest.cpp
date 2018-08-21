@@ -18,7 +18,7 @@
 #include "SkRegion.h"
 #include "SkShader.h"
 #include "SkTypeface.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 static constexpr struct {
     const char* fName;

@@ -7,7 +7,7 @@
 
 #include "SkString.h"
 #include "SkStringUtils.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 void SkAppendScalar(SkString* str, SkScalar value, SkScalarAsStringType asType) {
     switch (asType) {

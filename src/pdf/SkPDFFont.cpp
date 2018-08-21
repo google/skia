@@ -23,7 +23,7 @@
 #include "SkStream.h"
 #include "SkTo.h"
 #include "SkTypes.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #ifdef SK_PDF_USE_SFNTLY
     #include "sample/chromium/font_subsetter.h"

@@ -12,7 +12,7 @@
 #include "SkColorPriv.h"
 #include "SkGradientShader.h"
 #include "SkMaskFilter.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 class BlurView : public Sample {
     SkBitmap    fBM;

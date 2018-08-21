@@ -7,7 +7,7 @@
 
 #include "Sample.h"
 #include "SkCanvas.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 #include "SkColorPriv.h"
 #include "SkColorFilter.h"
 #include "SkImage.h"

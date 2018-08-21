@@ -27,7 +27,7 @@
 #include "SkTSearch.h"
 #include "SkTime.h"
 #include "SkTypefaceCache.h"
-#include "SkUtils.h"
+#include "SkUTF.h"
 
 #include <stdlib.h>
 
