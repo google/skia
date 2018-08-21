@@ -133,6 +133,8 @@ public:
 
     bool emulateAbsIntFunction() const { return fEmulateAbsIntFunction; }
 
+    bool rewriteDoWhileLoops() const { return fRewriteDoWhileLoops; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -271,6 +273,7 @@ private:
     bool fAddAndTrueToLoopCondition                   : 1;
     bool fUnfoldShortCircuitAsTernary                 : 1;
     bool fEmulateAbsIntFunction                       : 1;
+    bool fRewriteDoWhileLoops                         : 1;
 
     const char* fVersionDeclString;
 
