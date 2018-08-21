@@ -169,7 +169,7 @@ private:
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
     std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
-    SkGlyphRunListDrawer fGlyphDraw;
+    SkGlyphRunListPainter fGlyphPainter;
 
 
     typedef SkBaseDevice INHERITED;

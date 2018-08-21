@@ -14,7 +14,7 @@
 class GrAtlasTextOp;
 class GrClip;
 class GrPaint;
-class SkGlyphRunListDrawer;
+class SkGlyphRunListPainter;
 class SkMatrix;
 struct SkIRect;
 
@@ -38,7 +38,7 @@ public:
 
     virtual GrContext* getContext() = 0;
 
-    virtual SkGlyphRunListDrawer* glyphDrawer() = 0;
+    virtual SkGlyphRunListPainter* glyphPainter() = 0;
 
 protected:
     GrTextTarget(int width, int height, const GrColorSpaceInfo& colorSpaceInfo)
