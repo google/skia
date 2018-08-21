@@ -70,6 +70,30 @@
       "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "44f5a6eb_65fb644d",
+        "filename": "src/gpu/gl/GrGLGpu.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 3006,
+      "author": {
+        "id": 6595
+      },
+      "writtenOn": "2018-08-21T00:57:39Z",
+      "side": 1,
+      "message": "Mostly, I mean the autoformatter that complains on presubmit.  I am spoiled by Chromium on that end, because I just don\u0027t think about style issues that much anymore.",
+      "parentUuid": "bca474c1_4d92d6ee",
+      "range": {
+        "startLine": 3006,
+        "startChar": 4,
+        "endLine": 3006,
+        "endChar": 6
+      },
+      "revId": "4d6c40b4c60256b88a832f2c5e9dbc11ca574565",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
