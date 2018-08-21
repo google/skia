@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "780c4334_94c9739f",
+        "filename": "src/core/SkGlyphRun.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1190,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-21T15:56:31Z",
+      "side": 1,
+      "message": "SkASSERT(path)?",
+      "revId": "13434bd29717ade62e71ce2fd164cca47abe6289",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
