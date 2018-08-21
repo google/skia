@@ -225,33 +225,6 @@ public:
     }
 };
 
-class SkGlyphRunListIterator {
-public:
-    explicit SkGlyphRunListIterator(const SkGlyphRunList& list) : fList{list} {}
-
-    bool done() const { return fIndex == fList.size(); }
-    void next() { fIndex += 1;}
-    uint32_t glyphCount() const { return fList[fIndex].runSize(); }
-    const uint16_t* glyphs() const { return fList[fIndex].shuntGlyphsIDs().data(); }
-    const SkScalar* pos() const { return (const SkScalar*)fList[fIndex].positions().data(); }
-    const SkPoint& offset() const { return fZero; }
-    void applyFontToPaint(SkPaint* paint) const { *paint = fList[fIndex].paint(); }
-    SkTextBlobRunIterator::GlyphPositioning positioning() const {
-        return SkTextBlobRunIterator::kFull_Positioning;
-    }
-    const uint32_t* clusters() const { return fList[fIndex].clusters().data(); }
-    uint32_t textSize() const { return fList[fIndex].text().size(); }
-    const char* text() const { return fList[fIndex].text().data(); }
-    const SkGlyphRun& glyphRun() const { return fList[fIndex]; }
-
-    bool isLCD() const { return fList[fIndex].paint().isLCDRenderText(); }
-
-private:
-    static constexpr SkPoint fZero{0, 0};
-    size_t fIndex{0};
-    const SkGlyphRunList& fList;
-};
-
 class SkGlyphIDSet {
 public:
     SkSpan<const SkGlyphID> uniquifyGlyphIDs(
