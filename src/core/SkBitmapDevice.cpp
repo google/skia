@@ -245,7 +245,7 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap)
     : INHERITED(bitmap.info(), SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType))
     , fBitmap(bitmap)
     , fRCStack(bitmap.width(), bitmap.height())
-    , fGlyphDraw(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+    , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 }
@@ -260,7 +260,7 @@ SkBitmapDevice::SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& sur
     , fBitmap(bitmap)
     , fRasterHandle(hndl)
     , fRCStack(bitmap.width(), bitmap.height())
-    , fGlyphDraw(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
+    , fGlyphPainter(this->surfaceProps(), bitmap.colorType(), scaler_context_flags(bitmap))
 {
     SkASSERT(valid_for_bitmap_device(bitmap.info(), nullptr));
 
@@ -589,7 +589,7 @@ void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
         this->drawTextBlob(blob, origin.x(), origin.y(), paint);
     }
 #else
-    LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphDraw), nullptr )
+    LOOP_TILER( drawGlyphRunList(glyphRunList, &fGlyphPainter), nullptr )
 #endif
 }
 

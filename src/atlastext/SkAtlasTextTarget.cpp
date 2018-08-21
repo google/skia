@@ -86,7 +86,7 @@ public:
                               void* handle)
             : GrTextTarget(width, height, kColorSpaceInfo)
             , SkAtlasTextTarget(std::move(context), width, height, handle)
-            , fGlyphDrawer(kProps, kColorSpaceInfo) {
+            , fGlyphPainter(kProps, kColorSpaceInfo) {
         fOpMemoryPool = fContext->internal().grContext()->contextPriv().refOpMemoryPool();
     }
 
@@ -112,8 +112,8 @@ public:
         return this->context()->internal().grContext();
     }
 
-    SkGlyphRunListDrawer* glyphDrawer() override {
-        return &fGlyphDrawer;
+    SkGlyphRunListPainter* glyphPainter() override {
+        return &fGlyphPainter;
     }
 
     /** SkAtlasTextTarget overrides */
@@ -130,7 +130,7 @@ private:
     using SkAtlasTextTarget::fHeight;
     SkTArray<std::unique_ptr<GrAtlasTextOp>, true> fOps;
     sk_sp<GrOpMemoryPool> fOpMemoryPool;
-    SkGlyphRunListDrawer fGlyphDrawer;
+    SkGlyphRunListPainter fGlyphPainter;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -106,15 +106,15 @@ private:
     SkPaint fRunPaint;
 };
 
-class SkGlyphRunListDrawer {
+class SkGlyphRunListPainter {
 public:
     // Constructor for SkBitmpapDevice.
-    SkGlyphRunListDrawer(
+    SkGlyphRunListPainter(
             const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags);
 
     #if SK_SUPPORT_GPU
-    SkGlyphRunListDrawer(const SkSurfaceProps&, const GrColorSpaceInfo&);
-    explicit SkGlyphRunListDrawer(const GrRenderTargetContext& renderTargetContext);
+    SkGlyphRunListPainter(const SkSurfaceProps&, const GrColorSpaceInfo&);
+    explicit SkGlyphRunListPainter(const GrRenderTargetContext& renderTargetContext);
     #endif
 
     using PerMask = std::function<void(const SkMask&, const SkGlyph&, SkPoint)>;

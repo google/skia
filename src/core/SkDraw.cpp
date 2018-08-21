@@ -1568,7 +1568,7 @@ void SkDraw::blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const {
     this->drawSprite(bm, mask.fBounds.x(), mask.fBounds.y(), paint);
 }
 
-SkGlyphRunListDrawer::PerMask SkDraw::drawOneMaskCreator(
+SkGlyphRunListPainter::PerMask SkDraw::drawOneMaskCreator(
         const SkPaint& paint, SkArenaAlloc* alloc) const {
     SkBlitter* blitter = SkBlitter::Choose(fDst, *fMatrix, paint, alloc, false);
     if (fCoverage != nullptr) {
@@ -1623,7 +1623,7 @@ SkGlyphRunListDrawer::PerMask SkDraw::drawOneMaskCreator(
 }
 
 void SkDraw::drawGlyphRunList(
-        const SkGlyphRunList& glyphRunList, SkGlyphRunListDrawer* glyphDraw) const {
+        const SkGlyphRunList& glyphRunList, SkGlyphRunListPainter* glyphPainter) const {
 
     SkDEBUGCODE(this->validate();)
 
@@ -1651,7 +1651,7 @@ void SkDraw::drawGlyphRunList(
         return this->drawOneMaskCreator(paint, alloc);
     };
 
-    glyphDraw->drawForBitmapDevice(glyphRunList, *fMatrix, perMaskBuilder, perPathBuilder);
+    glyphPainter->drawForBitmapDevice(glyphRunList, *fMatrix, perMaskBuilder, perPathBuilder);
 }
 
 #if defined _WIN32

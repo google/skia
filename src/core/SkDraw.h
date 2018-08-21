@@ -68,7 +68,7 @@ public:
                         const SkScalar pos[], int scalarsPerPosition,
                         const SkPoint& offset, const SkPaint&, const SkSurfaceProps*) const;
     void    drawGlyphRunList(const SkGlyphRunList& glyphRunList,
-                             SkGlyphRunListDrawer* glyphDraw) const;
+                             SkGlyphRunListPainter* glyphPainter) const;
     void    drawVertices(SkVertices::VertexMode mode, int vertexCount,
                          const SkPoint vertices[], const SkPoint textures[],
                          const SkColor colors[], const SkVertices::BoneIndices boneIndices[],
@@ -130,7 +130,7 @@ public:
     static SkScalar ComputeResScaleForStroking(const SkMatrix& );
 private:
     void blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const;
-    SkGlyphRunListDrawer::PerMask drawOneMaskCreator(
+    SkGlyphRunListPainter::PerMask drawOneMaskCreator(
             const SkPaint& paint, SkArenaAlloc* alloc) const;
     void    drawBitmapAsMask(const SkBitmap&, const SkPaint&) const;
 

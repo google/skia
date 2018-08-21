@@ -110,8 +110,8 @@ void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positio
     memcpy(positions, fPositions.data(), fPositions.size_bytes());
 }
 
-// -- SkGlyphRunListDrawer -------------------------------------------------------------------------
-SkGlyphRunListDrawer::SkGlyphRunListDrawer(
+// -- SkGlyphRunListPainter ------------------------------------------------------------------------
+SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, SkColorType colorType, SkScalerContextFlags flags)
         : fDeviceProps{props}
         , fBitmapFallbackProps{SkSurfaceProps{props.flags(), kUnknown_SkPixelGeometry}}
@@ -133,12 +133,12 @@ static SkScalerContextFlags compute_scaler_context_flags(
     }
 }
 
-SkGlyphRunListDrawer::SkGlyphRunListDrawer(
+SkGlyphRunListPainter::SkGlyphRunListPainter(
         const SkSurfaceProps& props, const GrColorSpaceInfo& csi)
-        : SkGlyphRunListDrawer(props, kUnknown_SkColorType, compute_scaler_context_flags(csi)) {}
+        : SkGlyphRunListPainter(props, kUnknown_SkColorType, compute_scaler_context_flags(csi)) {}
 
-SkGlyphRunListDrawer::SkGlyphRunListDrawer(const GrRenderTargetContext& rtc)
-        : SkGlyphRunListDrawer{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
+SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
+        : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
 
 // TODO: all this logic should move to the glyph cache.
 static const SkGlyph& lookup_glyph_by_subpixel(
@@ -160,7 +160,7 @@ static const SkGlyph& lookup_glyph_by_subpixel(
 // forEachMappedDrawableGlyph handles positioning for mask type glyph handling for both sub-pixel
 // and full pixel positioning.
 template <typename EachGlyph>
-void SkGlyphRunListDrawer::forEachMappedDrawableGlyph(
+void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
         const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
         SkGlyphCache* cache, EachGlyph eachGlyph) {
     bool isSubpixel = cache->isSubpixel();
@@ -211,7 +211,7 @@ void SkGlyphRunListDrawer::forEachMappedDrawableGlyph(
 
 #endif
 
-bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
+bool SkGlyphRunListPainter::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix& matrix) {
     // hairline glyphs are fast enough so we don't need to cache them
     if (SkPaint::kStroke_Style == paint.getStyle() && 0 == paint.getStrokeWidth()) {
         return true;
@@ -227,7 +227,7 @@ bool SkGlyphRunListDrawer::ShouldDrawAsPath(const SkPaint& paint, const SkMatrix
     return SkPaint::TooBigToUseCache(matrix, textM, 1024);
 }
 
-bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {
+bool SkGlyphRunListPainter::ensureBitmapBuffers(size_t runSize) {
     if (runSize > fMaxRunSize) {
         fPositions.reset(runSize);
         fMaxRunSize = runSize;
@@ -236,7 +236,7 @@ bool SkGlyphRunListDrawer::ensureBitmapBuffers(size_t runSize) {
     return true;
 }
 
-void SkGlyphRunListDrawer::drawUsingPaths(
+void SkGlyphRunListPainter::drawUsingPaths(
         const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const {
 
     auto eachGlyph =
@@ -292,7 +292,7 @@ static bool prepare_mask(
     return true;
 }
 
-void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
+void SkGlyphRunListPainter::drawGlyphRunAsSubpixelMask(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerMask perMask) {
@@ -330,7 +330,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsSubpixelMask(
     }
 }
 
-void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
+void SkGlyphRunListPainter::drawGlyphRunAsFullpixelMask(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerMask perMask) {
@@ -358,7 +358,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsFullpixelMask(
 }
 
 
-void SkGlyphRunListDrawer::drawForBitmapDevice(
+void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
         PerMaskCreator perMaskCreator, PerPathCreator perPathCreator) {
 
@@ -395,7 +395,7 @@ void SkGlyphRunListDrawer::drawForBitmapDevice(
     }
 }
 
-void SkGlyphRunListDrawer::drawUsingMasks(
+void SkGlyphRunListPainter::drawUsingMasks(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix, PerMask perMask) {
     if (cache->isSubpixel()) {
@@ -849,7 +849,7 @@ static SkRect rect_to_draw(
 }
 
 template <typename PerGlyphT, typename PerPathT>
-void SkGlyphRunListDrawer::drawGlyphRunAsBMPWithPathFallback(
+void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, const SkMatrix& deviceMatrix,
         PerGlyphT perGlyph, PerPathT perPath) {
@@ -881,7 +881,7 @@ void SkGlyphRunListDrawer::drawGlyphRunAsBMPWithPathFallback(
 }
 
 template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
-void SkGlyphRunListDrawer::drawGlyphRunAsSDFWithFallback(
+void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
         SkGlyphCache* cache, const SkGlyphRun& glyphRun,
         SkPoint origin, SkScalar textRatio,
         PerSDFT perSDF, PerPathT perPath, PerFallbackT perFallback) {
@@ -984,7 +984,7 @@ void GrTextContext::drawGlyphRunList(
             this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
                                          *context->contextPriv().caps()->shaderCaps(), listPaint,
                                          filteredColor, scalerContextFlags, viewMatrix, props,
-                                         glyphRunList, target->glyphDrawer());
+                                         glyphRunList, target->glyphPainter());
         } else {
             textBlobCache->makeMRU(cacheBlob.get());
 
@@ -996,7 +996,7 @@ void GrTextContext::drawGlyphRunList(
                 this->regenerateGlyphRunList(
                         sanityBlob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(),
                         listPaint, filteredColor, scalerContextFlags, viewMatrix, props, glyphRunList,
-                        target->glyphDrawer());
+                        target->glyphPainter());
                 GrTextBlob::AssertEqual(*sanityBlob, *cacheBlob);
             }
         }
@@ -1009,7 +1009,7 @@ void GrTextContext::drawGlyphRunList(
         this->regenerateGlyphRunList(cacheBlob.get(), glyphCache,
                                      *context->contextPriv().caps()->shaderCaps(), listPaint,
                                      filteredColor, scalerContextFlags, viewMatrix, props,
-                                     glyphRunList, target->glyphDrawer());
+                                     glyphRunList, target->glyphPainter());
     }
 
     cacheBlob->flush(target, props, fDistanceAdjustTable.get(), listPaint, filteredColor,
@@ -1055,7 +1055,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            const SkMatrix& viewMatrix,
                                            const SkSurfaceProps& props,
                                            const SkGlyphRunList& glyphRunList,
-                                           SkGlyphRunListDrawer* glyphDrawer) {
+                                           SkGlyphRunListPainter* glyphPainter) {
     SkPoint origin = glyphRunList.origin();
     cacheBlob->initReusableBlob(
             glyphRunList.paint().computeLuminanceColor(), viewMatrix, origin.x(), origin.y());
@@ -1119,7 +1119,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     fallbackTextHelper.appendGlyph(glyph, glyph.getGlyphID(), position);
                 };
 
-                glyphDrawer->drawGlyphRunAsSDFWithFallback(
+                glyphPainter->drawGlyphRunAsSDFWithFallback(
                         cache.get(), glyphRun, origin, textRatio, perSDF, perPath, perFallback);
             }
 
@@ -1158,7 +1158,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                         }
                     };
 
-            glyphDrawer->drawUsingPaths(glyphRun, origin, cache.get(), drawOnePath);
+            glyphPainter->drawUsingPaths(glyphRun, origin, cache.get(), drawOnePath);
 
             fallbackTextHelper.drawGlyphs(
                     cacheBlob, runIndex, glyphCache, props,
@@ -1191,7 +1191,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                 runIndex, *path, sx, sy, SK_Scalar1, true);
                     };
 
-            glyphDrawer->drawGlyphRunAsBMPWithPathFallback(
+            glyphPainter->drawGlyphRunAsBMPWithPathFallback(
                     cache.get(), glyphRun, origin, viewMatrix, perGlyph, perPath);
         }
         runIndex += 1;
@@ -1233,7 +1233,7 @@ std::unique_ptr<GrDrawOp> GrTextContext::createOp_TestingOnly(GrContext* context
         textContext->regenerateGlyphRunList(
                 blob.get(), glyphCache, *context->contextPriv().caps()->shaderCaps(), skPaint,
                 filteredColor, scalerContextFlags, viewMatrix, surfaceProps,
-                glyphRunList, rtc->textTarget()->glyphDrawer());
+                glyphRunList, rtc->textTarget()->glyphPainter());
     }
 
     return blob->test_makeOp(textLen, 0, 0, viewMatrix, x, y, skPaint, filteredColor, surfaceProps,
