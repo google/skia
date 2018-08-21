@@ -279,7 +279,9 @@ bool GrDrawingManager::executeOpLists(int startIndex, int stopIndex, GrOpFlushSt
     SkDebugf("Flushing opLists: %d to %d out of [%d, %d]\n",
                             startIndex, stopIndex, 0, fOpLists.count());
     for (int i = startIndex; i < stopIndex; ++i) {
-        fOpLists[i]->dump(true);
+        if (fOpLists[i]) {
+            fOpLists[i]->dump(true);
+        }
     }
 #endif
 
