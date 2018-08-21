@@ -90,6 +90,18 @@ describe('PathKit\'s Path Behavior', function() {
         });
     });
 
+    function ExpectRectsToBeEqual(actual, expected) {
+        if (PathKit.usingWasm) {
+            // exact match
+            expect(actual).toEqual(expected);
+        } else {
+            // floats get rounded a little bit
+            expect(actual.fLeft).toBeCloseTo(expected.fLeft, 4);
+            expect(actual.fTop).toBeCloseTo(expected.fTop, 4);
+            expect(actual.fRight).toBeCloseTo(expected.fRight, 4);
+            expect(actual.fBottom).toBeCloseTo(expected.fBottom, 4);
+        }
+    }
 
     function bits2float(str) {
         return PathKit.SkBits2FloatUnsigned(parseInt(str))
@@ -119,15 +131,31 @@ describe('PathKit\'s Path Behavior', function() {
                 path.moveTo(1, 1);
                 path.quadraticCurveTo(4, 3, 2, 2);
                 expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(1, 1, 4, 3));
-                expect(path.computeTightBounds()).toEqual(PathKit.MakeLTRBRect(1, 1,
-                            bits2float("0x40333334"),  // 2.8
-                            bits2float("0x40155556"))); // 2.3333333
+                ExpectRectsToBeEqual(path.computeTightBounds(),
+                                     PathKit.MakeLTRBRect(1, 1,
+                                        bits2float("0x40333334"),  // 2.8
+                                        bits2float("0x40155556"))); // 2.3333333
                 path.delete();
 
                 done();
             });
         });
     });
+
+    function ExpectCmdsToBeEqual(actual, expected) {
+        if (PathKit.usingWasm) {
+            // exact match
+            expect(actual).toEqual(expected);
+        } else {
+            // lossy match
+            actual.every((cmd, cmdIdx) => {
+                cmd.every((arg, argIdx) => {
+                    // The asm.js code is close to the wasm/c++ output, but not quite.
+                    expect(arg).toBeCloseTo(expected[cmdIdx][argIdx], 4)
+                });
+            });
+        }
+    }
 
     describe('Command arrays', function(){
         it('does NOT approximates conics when dumping as toCmds', function(done){
@@ -146,8 +174,7 @@ describe('PathKit\'s Path Behavior', function() {
                     [PathKit.CONIC_VERB, bits2float("0x41dba58e"), 102, bits2float("0x4202e962"), bits2float("0x42d68b4d"), bits2float("0x3f6c8361")],  // 27.4558, 102, 32.7279, 107.272, 0.92388
                     [PathKit.LINE_VERB, 20, 120],
                 ];
-                let actual = path.toCmds();
-                expect(actual).toEqual(expectedCmds);
+                ExpectCmdsToBeEqual(path.toCmds(), expectedCmds);
 
                 path.delete();
                 done();
