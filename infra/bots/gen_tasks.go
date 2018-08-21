@@ -614,6 +614,14 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 	} else {
 		d["gpu"] = "none"
 		if d["os"] == DEFAULT_OS_DEBIAN {
+			if strings.Contains(parts["extra_config"], "PathKit") {
+				// The build isn't really parallelized for pathkit, so
+				// the bulky machines don't buy us much. All we really need is
+				// docker, which was manually installed on the MEDIUM and LARGE
+				// Debian machines and should be on any newly-created Debian
+				// machines (after Aug 2018).
+				return linuxGceDimensions(MACHINE_TYPE_MEDIUM)
+			}
 			// Use many-core machines for Build tasks.
 			return linuxGceDimensions(MACHINE_TYPE_LARGE)
 		} else if d["os"] == DEFAULT_OS_WIN {
@@ -1358,7 +1366,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if strings.Contains(name, "ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))
 	}
-	if strings.Contains(name, "wasm") {
+	if strings.Contains(name, "PathKit") {
 		pkgs = []*specs.CipdPackage{}
 	}
 
