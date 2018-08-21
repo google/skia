@@ -20,7 +20,7 @@ PATHKIT_DIR=$BASE_DIR/../../../experimental/pathkit
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
 # Run the tests
-npx karma start $PATHKIT_DIR/karma-docker.conf.js --single-run
+npx karma start $PATHKIT_DIR/karma.conf.js --single-run
 # Tell the aggregator to dump the json
 # This curl command gets the HTTP code and stores it into $CODE
 CODE=`curl -s -o /dev/null -I -w "%{http_code}" -X POST localhost:8081/dump_json`
