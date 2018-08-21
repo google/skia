@@ -17,6 +17,7 @@ class GrRenderTarget;
 class GrRenderTargetContext;
 class GrShape;
 class GrStyle;
+class GrUniqueKey;
 struct SkIRect;
 class SkMaskFilter;
 class SkMatrix;
