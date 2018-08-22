@@ -34,11 +34,11 @@ function addSVG(testName, expectedPath, actualPath, message) {
     <div>${message}</div>
 
     <svg class='expected' viewBox='${getViewBox(expectedPath)}'>
-        <path stroke=black d="${expectedPath.toSVGString()}"></path>
+        <path stroke=black fill=white stroke-width=0.01 d="${expectedPath.toSVGString()}"></path>
     </svg>
 
     <svg class='actual' viewBox='${getViewBox(actualPath)}'>
-        <path stroke=black d="${actualPath.toSVGString()}"></path>
+        <path stroke=black fill=white stroke-width=0.01 d="${actualPath.toSVGString()}"></path>
     </svg>
 `;
     container.appendChild(thisTest);

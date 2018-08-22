@@ -1,0 +1,11 @@
+{
+  "name": "experimental-pathkit-asmjs",
+  "version": "0.2.0",
+  "description": "A asm.js version of Skia's PathOps toolkit",
+  "main": "bin/pathkit.js",
+  "homepage": "https://github.com/google/skia/tree/master/experimental/pathkit",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "Apache-2.0"
+}
