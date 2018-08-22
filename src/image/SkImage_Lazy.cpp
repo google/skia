@@ -70,9 +70,7 @@ public:
     SkImageInfo onImageInfo() const override {
         return fInfo;
     }
-    SkColorType onColorType() const override {
-        return kUnknown_SkColorType;
-    }
+    SkColorType onColorType() const override { return fInfo.colorType(); }
     SkAlphaType onAlphaType() const override {
         return fInfo.alphaType();
     }
