@@ -13,6 +13,7 @@ BUILD_PRODUCTS_ISOLATE_WHITELIST_WASM = [
 def compile_fn(api, checkout_root, _ignore):
   out_dir = api.vars.cache_dir.join('docker', 'wasm')
   configuration = api.vars.builder_cfg.get('configuration', '')
+  target_arch   = api.vars.builder_cfg.get('target_arch',   '')
 
   # We want to make sure the directories exist and were created by chrome-bot,
   # because if that isn't the case, docker will make them and they will be
@@ -35,7 +36,9 @@ def compile_fn(api, checkout_root, _ignore):
          '-v', '%s:/OUT' % out_dir,
          DOCKER_IMAGE, INNER_BUILD_SCRIPT]
   if configuration == 'Debug':
-    cmd += ['debug']
+    cmd.append('debug') # It defaults to Relesae
+  if target_arch == 'asmjs':
+    cmd.append('asm.js') # It defaults to WASM
   api.run(
     api.step,
     'Build PathKit with Docker',

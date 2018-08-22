@@ -9,7 +9,6 @@
 DEPS = [
   'checkout',
   'infra',
-  'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
@@ -20,7 +19,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v2'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-karma-chrome-tests:68.0.3440.106_v4'
 INNER_KARMA_SCRIPT = '/SRC/skia/infra/pathkit/docker/test_pathkit.sh'
 
 
@@ -34,11 +33,23 @@ def RunSteps(api):
   # Make sure this exists, otherwise Docker will make it with root permissions.
   api.file.ensure_directory('mkdirs out_dir', out_dir, mode=0777)
 
-  copy_dest = api.path.join(checkout_root, 'skia', 'experimental', 'pathkit',
+  # The karma script is configured to look in ./npm-(asmjs|wasm)/bin/test/ for
+  # the test files to load, so we must copy them there (see Set up for docker).
+  copy_dest = checkout_root.join('skia', 'experimental', 'pathkit',
                         'npm-wasm', 'bin', 'test')
+  if 'asmjs' in api.vars.builder_name:
+    copy_dest = checkout_root.join('skia', 'experimental', 'pathkit',
+                        'npm-asmjs', 'bin', 'test')
 
-  helper_js = api.vars.build_dir.join('pathkit.js')
-  wasm = api.vars.build_dir.join('pathkit.wasm')
+  base_dir = api.vars.build_dir
+  bundle_name = 'pathkit.wasm'
+  if 'asmjs' in api.vars.builder_name:
+    # release mode has a .js.mem file that needs to come with.
+    # debug mode has an optional .map file, but we can omit that for tests
+    if 'Debug' in api.vars.builder_name:
+      bundle_name = ''
+    else:
+      bundle_name = 'pathkit.js.mem'
 
   api.python.inline(
       name='Set up for docker',
@@ -48,8 +59,8 @@ import shutil
 import sys
 
 copy_dest = sys.argv[1]
-helper_js = sys.argv[2]
-wasm = sys.argv[3]
+base_dir = sys.argv[2]
+bundle_name = sys.argv[3]
 out_dir = sys.argv[4]
 
 # Clean out old binaries (if any)
@@ -69,23 +80,29 @@ except OSError as e:
 # Copy binaries (pathkit.js and pathkit.wasm) to where the karma tests
 # expect them ($SKIA_ROOT/experimental/pathkit/npm-wasm/test/)
 dest = os.path.join(copy_dest, 'pathkit.js')
-shutil.copyfile(helper_js, dest)
+shutil.copyfile(os.path.join(base_dir, 'pathkit.js'), dest)
 os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
 
-dest = os.path.join(copy_dest, 'pathkit.wasm')
-shutil.copyfile(wasm, dest)
-os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
+if bundle_name:
+  dest = os.path.join(copy_dest, bundle_name)
+  shutil.copyfile(os.path.join(base_dir, bundle_name), dest)
+  os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
 
 # Prepare output folder
 os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.
 ''',
-      args=[copy_dest, helper_js, wasm, out_dir],
+      args=[copy_dest, base_dir, bundle_name, out_dir],
       infra_step=True)
 
 
 
   cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
-         '-v', '%s:/SRC' % checkout_root, '-v', '%s:/OUT' % out_dir,
+         '-v', '%s:/SRC' % checkout_root, '-v', '%s:/OUT' % out_dir]
+
+  if 'asmjs' in api.vars.builder_name:
+    cmd.extend(['-e', 'ASM_JS=1'])  # -e sets environment variables
+
+  cmd.extend([
          DOCKER_IMAGE,  INNER_KARMA_SCRIPT,
          '--builder',              api.vars.builder_name,
          '--git_hash',             api.properties['revision'],
@@ -95,7 +112,10 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
          '--task_id',              api.vars.swarming_task_id,
          '--browser',              'Chrome',
          '--config',               api.vars.configuration,
-         ]
+         ])
+
+  if 'asmjs' in api.vars.builder_name:
+    cmd.extend(['--compiled_language', 'asmjs']) # the default is wasm
 
   if api.vars.is_trybot:
     cmd.extend([
@@ -112,9 +132,29 @@ os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't writ
 
 def GenTests(api):
   yield (
-      api.test('pathkit_test') +
+      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-wasm-Debug-All-PathKit') +
       api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
                                   '-wasm-Debug-All-PathKit'),
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+
+  yield (
+      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Debug-All-PathKit') +
+      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+                                  '-asmjs-Debug-All-PathKit'),
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
+
+  yield (
+      api.test('Test-Debian9-EMCC-GCE-CPU-AVX2-asmjs-Release-All-PathKit') +
+      api.properties(buildername=('Test-Debian9-EMCC-GCE-CPU-AVX2'
+                                  '-asmjs-Release-All-PathKit'),
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
