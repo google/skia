@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "895d0c1b_66e7d2d6",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-22T22:50:34Z",
+      "side": 1,
+      "message": "This should take ownership (take an sk_sp\u003cSkFontMgr\u003e). They\u0027re ref counted, so then you know you have one instead of hoping someone else keeps track of lifetimes. Then you also don\u0027t need the comment since the lifetime is documented.",
+      "range": {
+        "startLine": 69,
+        "startChar": 32,
+        "endLine": 69,
+        "endChar": 48
+      },
+      "revId": "bec85fbdd7c3e49b1c24b878995b0ee8489ec947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4328d7b0_65107953",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-22T22:50:34Z",
+      "side": 1,
+      "message": "Even if you\u0027re looking to avoid a ref here, why not\n\nSkFontMgr* resolvedFontMgr \u003d fFontMgr.get();\nsk_sp\u003cSkFontMgr\u003e defaultFontMgr;\nif (!resolvedFontMgr) {\n    defaultFontMgr \u003d SkFontMgr::RefDefault();\n    resolvedFontMgr \u003d defaultFontMgr.get();\n}\n\nand avoid this AutoReset thing?",
+      "range": {
+        "startLine": 216,
+        "startChar": 0,
+        "endLine": 221,
+        "endChar": 5
+      },
+      "revId": "bec85fbdd7c3e49b1c24b878995b0ee8489ec947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
