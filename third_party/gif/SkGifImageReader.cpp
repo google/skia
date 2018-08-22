@@ -157,7 +157,8 @@ void SkGIFLZWContext::outputRow(const unsigned char* rowBegin)
         return;
 
     // CALLBACK: Let the client know we have decoded a row.
-    const bool writeTransparentPixels = (SkCodec::kNone == m_frameContext->getRequiredFrame());
+    const bool writeTransparentPixels =
+            SkCodec::kNoFrame == m_frameContext->getRequiredFrame();
     m_client->haveDecodedRow(m_frameContext->frameId(), rowBegin,
             drowStart, drowEnd - drowStart + 1, writeTransparentPixels);
 

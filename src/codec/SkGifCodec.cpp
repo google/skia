@@ -343,7 +343,7 @@ SkCodec::Result SkGifCodec::decodeFrame(bool firstAttempt, const Options& opts, 
         // (or it is already filled for us), so we report rowsDecoded to be the full
         // height.
         bool filledBackground = false;
-        if (frameContext->getRequiredFrame() == kNone) {
+        if (frameContext->getRequiredFrame() == kNoFrame) {
             // We may need to clear to transparent for one of the following reasons:
             // - The frameRect does not cover the full bounds. haveDecodedRow will
             //   only draw inside the frameRect, so we need to clear the rest.

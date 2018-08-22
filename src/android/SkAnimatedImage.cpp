@@ -96,7 +96,7 @@ SkRect SkAnimatedImage::onGetBounds() {
 }
 
 SkAnimatedImage::Frame::Frame()
-    : fIndex(SkCodec::kNone)
+    : fIndex(SkCodec::kNoFrame)
 {}
 
 bool SkAnimatedImage::Frame::init(const SkImageInfo& info, OnInit onInit) {
@@ -140,7 +140,7 @@ void SkAnimatedImage::reset() {
     fFinished = false;
     fRepetitionsCompleted = 0;
     if (fDisplayFrame.fIndex != 0) {
-        fDisplayFrame.fIndex = SkCodec::kNone;
+        fDisplayFrame.fIndex = SkCodec::kNoFrame;
         this->decodeNextFrame();
     }
 }
@@ -193,7 +193,7 @@ int SkAnimatedImage::decodeNextFrame() {
         animationEnded = true;
         if (0 == frameToDecode) {
             // Static image. This is okay.
-            frameInfo.fRequiredFrame = SkCodec::kNone;
+            frameInfo.fRequiredFrame = SkCodec::kNoFrame;
             frameInfo.fAlphaType = fCodec->getInfo().alphaType();
             frameInfo.fDisposalMethod = SkCodecAnimation::DisposalMethod::kKeep;
             // These fields won't be read.
@@ -233,12 +233,12 @@ int SkAnimatedImage::decodeNextFrame() {
     // entire dependency chain.
     SkCodec::Options options;
     options.fFrameIndex = frameToDecode;
-    if (frameInfo.fRequiredFrame == SkCodec::kNone) {
+    if (frameInfo.fRequiredFrame == SkCodec::kNoFrame) {
         if (is_restore_previous(frameInfo.fDisposalMethod)) {
             // frameToDecode will be discarded immediately after drawing, so
             // do not overwrite a frame which could possibly be used in the
             // future.
-            if (fDecodingFrame.fIndex != SkCodec::kNone &&
+            if (fDecodingFrame.fIndex != SkCodec::kNoFrame &&
                     !is_restore_previous(fDecodingFrame.fDisposalMethod)) {
                 using std::swap;
                 swap(fDecodingFrame, fRestoreFrame);
@@ -246,7 +246,8 @@ int SkAnimatedImage::decodeNextFrame() {
         }
     } else {
         auto validPriorFrame = [&frameInfo, &frameToDecode](const Frame& frame) {
-            if (SkCodec::kNone == frame.fIndex || is_restore_previous(frame.fDisposalMethod)) {
+            if (SkCodec::kNoFrame == frame.fIndex ||
+                    is_restore_previous(frame.fDisposalMethod)) {
                 return false;
             }
 
