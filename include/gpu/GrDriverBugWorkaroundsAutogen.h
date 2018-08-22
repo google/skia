@@ -28,6 +28,8 @@
          max_texture_size_limit_4096)                   \
   GPU_OP(PACK_PARAMETERS_WORKAROUND_WITH_PACK_BUFFER,   \
          pack_parameters_workaround_with_pack_buffer)   \
+  GPU_OP(REMOVE_POW_WITH_CONSTANT_EXPONENT,             \
+         remove_pow_with_constant_exponent)             \
   GPU_OP(RESTORE_SCISSOR_ON_FBO_CHANGE,                 \
          restore_scissor_on_fbo_change)                 \
   GPU_OP(REWRITE_DO_WHILE_LOOPS,                        \
