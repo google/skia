@@ -12,11 +12,11 @@
 /*
  * Creates an instance of the decoder
  */
-SkBmpMaskCodec::SkBmpMaskCodec(SkEncodedInfo&& info,
+SkBmpMaskCodec::SkBmpMaskCodec(int width, int height, const SkEncodedInfo& info,
                                std::unique_ptr<SkStream> stream,
                                uint16_t bitsPerPixel, SkMasks* masks,
                                SkCodec::SkScanlineOrder rowOrder)
-    : INHERITED(std::move(info), std::move(stream), bitsPerPixel, rowOrder)
+    : INHERITED(width, height, info, std::move(stream), bitsPerPixel, rowOrder)
     , fMasks(masks)
     , fMaskSwizzler(nullptr)
 {}
