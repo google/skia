@@ -39,9 +39,9 @@ public:
      *                 the icp mask, if there is one)
      * @param inIco    indicates if the bmp is embedded in an ico file
      */
-    SkBmpStandardCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                       uint16_t bitsPerPixel, uint32_t numColors, uint32_t bytesPerColor,
-                       uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
+    SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
+                       std::unique_ptr<SkStream> stream, uint16_t bitsPerPixel, uint32_t numColors,
+                       uint32_t bytesPerColor, uint32_t offset, SkCodec::SkScanlineOrder rowOrder,
                        bool isOpaque, bool inIco);
 
 protected:
@@ -63,8 +63,12 @@ protected:
     }
 
 private:
+
+    /*
+     * Creates the color table
+     */
     bool createColorTable(SkColorType colorType, SkAlphaType alphaType);
-    SkEncodedInfo swizzlerInfo() const;
+
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts);
 
     int decodeRows(const SkImageInfo& dstInfo, void* dst, size_t dstRowBytes,

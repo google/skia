@@ -38,7 +38,7 @@ public:
 
 protected:
 
-    SkBmpCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream>,
+    SkBmpCodec(int width, int height, const SkEncodedInfo& info, std::unique_ptr<SkStream>,
             uint16_t bitsPerPixel, SkCodec::SkScanlineOrder rowOrder);
 
     SkEncodedImageFormat onGetEncodedFormat() const override { return SkEncodedImageFormat::kBMP; }
@@ -103,7 +103,7 @@ protected:
      * than RGBA.
      */
     static constexpr SkColorType kXformSrcColorType = kBGRA_8888_SkColorType;
-    static constexpr auto kXformSrcColorFormat = skcms_PixelFormat_BGRA_8888;
+    static constexpr auto kXformSrcColorFormat = SkColorSpaceXform::kBGRA_8888_ColorFormat;
 
 private:
 
