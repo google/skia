@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d008ccc4_a01f3284",
+        "filename": "infra/bots/recipe_modules/build/pathkit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-22T12:16:15Z",
+      "side": 1,
+      "message": "Nit: cmd.append(\u0027debug\u0027)",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 20
+      },
+      "revId": "3202267b43ec05a119ff207b7a70ed0a1dcd58e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "477e30d7_edef95e8",
+        "filename": "infra/bots/recipes/test_pathkit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5015
+      },
+      "writtenOn": "2018-08-22T12:16:15Z",
+      "side": 1,
+      "message": "Nit: Can just do checkout_root.join(\u0027skia\u0027, ...  here and below",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "3202267b43ec05a119ff207b7a70ed0a1dcd58e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
