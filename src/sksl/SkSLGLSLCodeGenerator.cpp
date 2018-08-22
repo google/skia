@@ -461,6 +461,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     once([] {
 #endif
         fFunctionClasses = new std::unordered_map<StringFragment, FunctionClass>();
+        (*fFunctionClasses)["abs"]         = FunctionClass::kAbs;
         (*fFunctionClasses)["atan"]        = FunctionClass::kAtan;
         (*fFunctionClasses)["determinant"] = FunctionClass::kDeterminant;
         (*fFunctionClasses)["dFdx"]        = FunctionClass::kDerivative;
@@ -482,6 +483,26 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     bool nameWritten = false;
     if (found != fFunctionClasses->end()) {
         switch (found->second) {
+            case FunctionClass::kAbs: {
+                if (!fProgram.fSettings.fCaps->emulateAbsIntFunction())
+                    break;
+                SkASSERT(c.fArguments.size() == 1);
+                if (c.fArguments[0]->fType != *fContext.fInt_Type)
+                  break;
+                // abs(int) on Intel OSX is incorrect, so emulate it:
+                String name = "_absemulation";
+                this->write(name);
+                nameWritten = true;
+                if (fWrittenIntrinsics.find(name) == fWrittenIntrinsics.end()) {
+                    fWrittenIntrinsics.insert(name);
+                    fExtraFunctions.writeText((
+                        "int " + name + "(int x) {\n"
+                        "    return x * sign(x);\n"
+                        "}\n"
+                    ).c_str());
+                }
+                break;
+            }
             case FunctionClass::kAtan:
                 if (fProgram.fSettings.fCaps->mustForceNegatedAtanParamToFloat() &&
                     c.fArguments.size() == 2 &&

@@ -223,6 +223,7 @@ protected:
     // We map function names to function class so we can quickly deal with function calls that need
     // extra processing
     enum class FunctionClass {
+        kAbs,
         kAtan,
         kDeterminant,
         kDerivative,

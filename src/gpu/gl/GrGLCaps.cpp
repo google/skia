@@ -2577,6 +2577,10 @@ void GrGLCaps::applyDriverCorrectnessWorkarounds(const GrGLContextInfo& ctxInfo,
         shaderCaps->fUnfoldShortCircuitAsTernary = true;
     }
 
+    if (fDriverBugWorkarounds.emulate_abs_int_function) {
+        shaderCaps->fEmulateAbsIntFunction = true;
+    }
+
     // Disabling advanced blend on various platforms with major known issues. We also block Chrome
     // for now until its own blacklists can be updated.
     if (kAdreno430_GrGLRenderer == ctxInfo.renderer() ||

@@ -2,6 +2,7 @@ add_and_true_to_loop_condition
 disable_blend_equation_advanced
 disable_discard_framebuffer
 disallow_large_instanced_draw
+emulate_abs_int_function
 flush_on_framebuffer_change
 gl_clear_broken
 max_fragment_uniform_vectors_32
