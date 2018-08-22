@@ -30,6 +30,8 @@
          pack_parameters_workaround_with_pack_buffer)   \
   GPU_OP(RESTORE_SCISSOR_ON_FBO_CHANGE,                 \
          restore_scissor_on_fbo_change)                 \
+  GPU_OP(REWRITE_DO_WHILE_LOOPS,                        \
+         rewrite_do_while_loops)                        \
   GPU_OP(UNBIND_ATTACHMENTS_ON_BOUND_RENDER_FBO_DELETE, \
          unbind_attachments_on_bound_render_fbo_delete) \
   GPU_OP(UNFOLD_SHORT_CIRCUIT_AS_TERNARY_OPERATION,     \
