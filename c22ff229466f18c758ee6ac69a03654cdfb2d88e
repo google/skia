@@ -46,6 +46,30 @@
       "revId": "c22ff229466f18c758ee6ac69a03654cdfb2d88e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "af4e0d5e_16b72c6b",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-22T20:34:41Z",
+      "side": 1,
+      "message": "As discussed in person, the style (if it applies) is applied above but that still means the style could be hairline or fill. For hairline we still need have the cap be part of the key.",
+      "parentUuid": "fc2718f0_80f5f701",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 62
+      },
+      "revId": "c22ff229466f18c758ee6ac69a03654cdfb2d88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
