@@ -9,11 +9,11 @@
 #include "gl/GrGLAssembleInterface.h"
 #include "GrGLUtil.h"
 
-#define GET_PROC(F) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
-#define GET_PROC_SUFFIX(F, S) functions->f ## F = (GrGL ## F ## Proc) get(ctx, "gl" #F #S)
-#define GET_PROC_LOCAL(F) GrGL ## F ## Proc F = (GrGL ## F ## Proc) get(ctx, "gl" #F)
+#define GET_PROC(F) functions->f##F = (GrGL##F##Proc)get(ctx, "gl" #F)
+#define GET_PROC_SUFFIX(F, S) functions->f##F = (GrGL##F##Proc)get(ctx, "gl" #F #S)
+#define GET_PROC_LOCAL(F) GrGL##F##Proc F = (GrGL##F##Proc)get(ctx, "gl" #F)
 
-#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL ## F = (GrEGL ## F ## Proc) get(ctx, "egl" #F #S)
+#define GET_EGL_PROC_SUFFIX(F, S) functions->fEGL##F = (GrEGL##F##Proc)get(ctx, "egl" #F #S)
 
 sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get) {
     GET_PROC_LOCAL(GetString);
@@ -38,11 +38,11 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledInterface(void *ctx, GrGLGetProc get
 
 static void get_egl_query_and_display(GrEGLQueryStringProc* queryString, GrEGLDisplay* display,
                                       void* ctx, GrGLGetProc get) {
-    *queryString = (GrEGLQueryStringProc) get(ctx, "eglQueryString");
+    *queryString = (GrEGLQueryStringProc)get(ctx, "eglQueryString");
     *display = GR_EGL_NO_DISPLAY;
     if (*queryString) {
         GrEGLGetCurrentDisplayProc getCurrentDisplay =
-            (GrEGLGetCurrentDisplayProc) get(ctx, "eglGetCurrentDisplay");
+                (GrEGLGetCurrentDisplayProc)get(ctx, "eglGetCurrentDisplay");
         if (getCurrentDisplay) {
             *display = getCurrentDisplay();
         } else {
@@ -666,12 +666,18 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
 
     if (extensions.has("GL_EXT_multisampled_render_to_texture")) {
         GET_PROC_SUFFIX(FramebufferTexture2DMultisample, EXT);
-        functions->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleEXT");
+        functions->fRenderbufferStorageMultisampleES2EXT =
+                (GrGLRenderbufferStorageMultisampleProc)get(ctx,
+                                                            "glRenderbufferStorageMultisampleEXT");
     } else if (extensions.has("GL_IMG_multisampled_render_to_texture")) {
         GET_PROC_SUFFIX(FramebufferTexture2DMultisample, IMG);
-        functions->fRenderbufferStorageMultisampleES2EXT = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleIMG");
+        functions->fRenderbufferStorageMultisampleES2EXT =
+                (GrGLRenderbufferStorageMultisampleProc)get(ctx,
+                                                            "glRenderbufferStorageMultisampleIMG");
     } else if (extensions.has("GL_APPLE_framebuffer_multisample")) {
-        functions->fRenderbufferStorageMultisampleES2APPLE = (GrGLRenderbufferStorageMultisampleProc) get(ctx, "glRenderbufferStorageMultisampleAPPLE");
+        functions->fRenderbufferStorageMultisampleES2APPLE =
+                (GrGLRenderbufferStorageMultisampleProc)get(
+                        ctx, "glRenderbufferStorageMultisampleAPPLE");
         GET_PROC_SUFFIX(ResolveMultisampleFramebuffer, APPLE);
     }
 
@@ -684,7 +690,7 @@ sk_sp<const GrGLInterface> GrGLMakeAssembledGLESInterface(void *ctx, GrGLGetProc
     // There are several APIs for buffer mapping:
     // ES2 + GL_OES_mapbuffer: MapBufferOES and UnmapBufferOES
     // ES2 + GL_EXT_map_buffer_range: Adds MapBufferRangeEXT and FlushMappedBufferRangeEXT
-    // ES3: MapBufferRange, FlushMappedBufferRange, and UnmapBuffer are core (so no suffix).
+    // ES3: MapBufferRange, FlushMappedBufferRange, and UnmapBuffer are core (so no suf fix).
     //
     // MapBuffer is not part of ES3, but implementations may still report the OES versions of
     // MapBuffer and UnmapBuffer, per the older GL_OES_mapbuffer extension. Some implementations
