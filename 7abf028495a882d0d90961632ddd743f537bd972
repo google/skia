@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "902e75de_2c42cd6c",
+        "filename": "experimental/pathkit/npm-asmjs/example.html",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-22T17:16:20Z",
+      "side": 1,
+      "message": "Nit: If these are actual tests that show up in Gold they should me named in a way that suggests tests that we care about rather than example. IMO tests are something much stronger in that the reader is guaranteed that this worked recently.",
+      "revId": "7abf028495a882d0d90961632ddd743f537bd972",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
