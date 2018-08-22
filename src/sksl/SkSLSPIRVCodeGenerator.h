@@ -143,8 +143,6 @@ private:
 
     void writeVarDeclarations(const VarDeclarations& decl, OutputStream& out);
 
-    SpvId loadDimensions(OutputStream& out);
-
     SpvId writeVariableReference(const VariableReference& ref, OutputStream& out);
 
     std::unique_ptr<LValue> getLValue(const Expression& value, OutputStream& out);
@@ -343,8 +341,8 @@ private:
     SpvId fCurrentBlock;
     std::stack<SpvId> fBreakTarget;
     std::stack<SpvId> fContinueTarget;
-    SpvId fRTDimensionsStructId = (SpvId) -1;
-    SpvId fRTDimensionsFieldIndex = (SpvId) -1;
+    SpvId fRTHeightStructId = (SpvId) -1;
+    SpvId fRTHeightFieldIndex = (SpvId) -1;
     // holds variables synthesized during output, for lifetime purposes
     SymbolTable fSynthetics;
     int fSkInCount = 1;

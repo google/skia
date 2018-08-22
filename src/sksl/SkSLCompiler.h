@@ -28,7 +28,6 @@
 #define SK_LASTFRAGCOLOR_BUILTIN       10008
 #define SK_MAIN_X_BUILTIN              10009
 #define SK_MAIN_Y_BUILTIN              10010
-#define SK_DIMENSIONS_BUILTIN          10011
 #define SK_FRAGCOORD_BUILTIN              15
 #define SK_CLOCKWISE_BUILTIN              17
 #define SK_VERTEXID_BUILTIN               42
