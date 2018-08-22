@@ -16,7 +16,9 @@
 
 #include "../private/SkTHash.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkDrawLooper.h"
+#include "SkGlyphRun.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
 #include "SkRefCnt.h"
@@ -31,7 +33,6 @@ struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
 class SkStrikeCache;
-class SkTextBlobRunIterator;
 class SkTypefaceProxy;
 struct WireTypeface;
 
@@ -78,7 +79,32 @@ protected:
                         const SkPaint& paint) override;
 
 private:
-    class TrackLayerDevice;
+    class TrackLayerDevice : public SkNoPixelsDevice {
+    public:
+        TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
+                         const SkTextBlobCacheDiffCanvas::Settings& settings);
+
+        SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
+
+    protected:
+        void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+
+    private:
+        void processGlyphRun(const SkPoint& origin,
+                             const SkGlyphRun& glyphRun);
+
+        void processGlyphRunForPaths(const SkGlyphRun& glyphRun,
+                                     const SkMatrix& runMatrix);
+
+#if SK_SUPPORT_GPU
+        bool processGlyphRunForDFT(const SkGlyphRun& glyphRun,
+                                   const SkMatrix& runMatrix);
+#endif
+
+        SkStrikeServer* const fStrikeServer;
+        const SkTextBlobCacheDiffCanvas::Settings fSettings;
+        SkGlyphRunListPainter fPainter;
+    };
 };
 
 using SkDiscardableHandleId = uint32_t;
@@ -121,16 +147,15 @@ public:
     void writeStrikeData(std::vector<uint8_t>* memory);
 
     // Methods used internally in skia ------------------------------------------
-    class SkGlyphCacheState {
+    class SkGlyphCacheState : public SkGlyphCacheInterface {
     public:
         SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
                           std::unique_ptr<SkDescriptor> keyDescriptor,
                           SkDiscardableHandleId discardableHandleId,
-                          bool isSubpixel,
-                          SkAxisAlignment axisAlignmentForHText);
-        ~SkGlyphCacheState();
+                          std::unique_ptr<SkScalerContext>&& scalerContext);
+        ~SkGlyphCacheState() override;
 
-        void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
+        void addGlyph(SkPackedGlyphID, bool pathOnly);
         void writePendingGlyphs(Serializer* serializer);
         SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
         const SkDescriptor& getDeviceDescriptor() {
@@ -142,7 +167,11 @@ public:
         const SkDescriptor& getKeyDescriptor() {
             return *fKeyDescriptor;
         }
-        const SkGlyph& findGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID);
+        const SkGlyph& findGlyph(SkPackedGlyphID);
+
+        SkVector rounding() const override;
+
+        const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
     private:
         bool hasPendingGlyphs() const {
@@ -165,11 +194,11 @@ public:
         std::unique_ptr<SkDescriptor> fDeviceDescriptor;
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
         const SkDiscardableHandleId fDiscardableHandleId;
+        // The context built using fDeviceDescriptor
+        std::unique_ptr<SkScalerContext> fContext;
         const bool fIsSubpixel;
         const SkAxisAlignment fAxisAlignmentForHText;
 
-        // The context built using fDeviceDescriptor
-        std::unique_ptr<SkScalerContext> fContext;
         // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
         // we cache them here.
         SkTHashMap<SkPackedGlyphID, SkGlyph> fGlyphMap;
