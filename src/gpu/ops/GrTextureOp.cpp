@@ -611,7 +611,7 @@ private:
     }
 
     template <typename Pos, Domain D, GrAA AA>
-    void tess(void* v, const GrGeometryProcessor* gp) {
+    void tess(void* v, const GrGeometryProcessor* gp) const {
         using Vertex = TextureGeometryProcessor::Vertex<Pos, D, AA>;
         SkASSERT(gp->debugOnly_vertexStride() == sizeof(Vertex));
         auto vertices = static_cast<Vertex*>(v);
@@ -628,16 +628,25 @@ private:
     }
 
     void onPrepareDraws(Target* target) override {
-        if (!fProxy->instantiate(target->resourceProvider())) {
-            return;
+        bool hasPerspective = false;
+        Domain domain = Domain::kNo;
+        int numOps = 0;
+        for (const auto& op : ChainRange<TextureOp>(this)) {
+            ++numOps;
+            hasPerspective |= op.fPerspective;
+            if (op.fDomain) {
+                domain = Domain::kYes;
+            }
+            if (!op.fProxy->instantiate(target->resourceProvider())) {
+                return;
+            }
         }
 
-        Domain domain = fDomain ? Domain::kYes : Domain::kNo;
         bool coverageAA = GrAAType::kCoverage == this->aaType();
         sk_sp<GrGeometryProcessor> gp = TextureGeometryProcessor::Make(
                 fProxy->textureType(), fProxy->config(), fFilter,
                 std::move(fTextureColorSpaceXform), std::move(fPaintColorSpaceXform), coverageAA,
-                fPerspective, domain, *target->caps().shaderCaps());
+                hasPerspective, domain, *target->caps().shaderCaps());
         GrPipeline::InitArgs args;
         args.fProxy = target->proxy();
         args.fCaps = &target->caps();
@@ -648,8 +657,17 @@ private:
         }
 
         auto clip = target->detachAppliedClip();
-        auto* fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
-        fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy;
+        // We'll use a dynamic state array for the GP textures when there are multiple ops.
+        // Otherwise, we use fixed dynamic state to specify the single op's proxy.
+        GrPipeline::DynamicStateArrays* dynamicStateArrays = nullptr;
+        GrPipeline::FixedDynamicState* fixedDynamicState;
+        if (numOps > 1) {
+            dynamicStateArrays = target->allocDynamicStateArrays(numOps, 1, false);
+            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 0);
+        } else {
+            fixedDynamicState = target->allocFixedDynamicState(clip.scissorState().rect(), 1);
+            fixedDynamicState->fPrimitiveProcessorTextures[0] = fProxy;
+        }
         const auto* pipeline =
                 target->allocPipeline(args, GrProcessorSet::MakeEmptySet(), std::move(clip));
         using TessFn = decltype(&TextureOp::tess<SkPoint, Domain::kNo, GrAA::kNo>);
@@ -673,42 +691,50 @@ private:
         };
 #undef TESS_FN_AND_VERTEX_SIZE
         int tessFnIdx = 0;
-        tessFnIdx |= coverageAA   ? 0x1 : 0x0;
-        tessFnIdx |= fDomain      ? 0x2 : 0x0;
-        tessFnIdx |= fPerspective ? 0x4 : 0x0;
+        tessFnIdx |= coverageAA               ? 0x1 : 0x0;
+        tessFnIdx |= (domain == Domain::kYes) ? 0x2 : 0x0;
+        tessFnIdx |= hasPerspective           ? 0x4 : 0x0;
 
         SkASSERT(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize == gp->debugOnly_vertexStride());
 
-        int vstart;
-        const GrBuffer* vbuffer;
-        void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
-                                              4 * fDraws.count(), &vbuffer, &vstart);
-        if (!vdata) {
-            SkDebugf("Could not allocate vertices\n");
-            return;
-        }
-
-        (this->*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get());
-
-        GrPrimitiveType primitiveType =
-                fDraws.count() > 1 ? GrPrimitiveType::kTriangles : GrPrimitiveType::kTriangleStrip;
-        GrMesh* mesh = target->allocMesh(primitiveType);
-        if (fDraws.count() > 1) {
-            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
-            if (!ibuffer) {
-                SkDebugf("Could not allocate quad indices\n");
+        GrMesh* meshes = target->allocMeshes(numOps);
+        int i = 0;
+        for (const auto& op : ChainRange<TextureOp>(this)) {
+            int vstart;
+            const GrBuffer* vbuffer;
+            void* vdata = target->makeVertexSpace(kTessFnsAndVertexSizes[tessFnIdx].fVertexSize,
+                                                  4 * op.fDraws.count(), &vbuffer, &vstart);
+            if (!vdata) {
+                SkDebugf("Could not allocate vertices\n");
                 return;
             }
-            mesh->setIndexedPatterned(ibuffer.get(), 6, 4, fDraws.count(),
-                                      GrResourceProvider::QuadCountOfQuadBuffer());
-        } else {
-            mesh->setNonIndexedNonInstanced(4);
+
+            (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get());
+
+            if (op.fDraws.count() > 1) {
+                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangles);
+                sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+                if (!ibuffer) {
+                    SkDebugf("Could not allocate quad indices\n");
+                    return;
+                }
+                meshes[i].setIndexedPatterned(ibuffer.get(), 6, 4, op.fDraws.count(),
+                                              GrResourceProvider::QuadCountOfQuadBuffer());
+            } else {
+                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
+                meshes[i].setNonIndexedNonInstanced(4);
+            }
+            meshes[i].setVertexData(vbuffer, vstart);
+            if (dynamicStateArrays) {
+                dynamicStateArrays->fPrimitiveProcessorTextures[i] = op.fProxy;
+            }
+            ++i;
         }
-        mesh->setVertexData(vbuffer, vstart);
-        target->draw(std::move(gp), pipeline, fixedDynamicState, mesh);
+        target->draw(std::move(gp), pipeline, fixedDynamicState, dynamicStateArrays, meshes,
+                     numOps);
     }
 
-    CombineResult onCombineIfPossible(GrOp* t, const GrCaps&) override {
+    CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override {
         const auto* that = t->cast<TextureOp>();
         if (!GrColorSpaceXform::Equals(fTextureColorSpaceXform.get(),
                                        that->fTextureColorSpaceXform.get())) {
@@ -721,7 +747,17 @@ private:
         if (this->aaType() != that->aaType()) {
             return CombineResult::kCannotCombine;
         }
-        if (fProxy->uniqueID() != that->fProxy->uniqueID() || fFilter != that->fFilter) {
+        if (fFilter != that->fFilter) {
+            return CombineResult::kCannotCombine;
+        }
+        if (fProxy->uniqueID() != that->fProxy->uniqueID() || that->isChained()) {
+            // We can't merge across different proxies (and we're disallowed from merging when
+            // 'that' is chained. Check if we can be chained with 'that'.
+            if (fProxy->config() == that->fProxy->config() &&
+                fProxy->textureType() == that->fProxy->textureType() &&
+                caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
+                return CombineResult::kMayChain;
+            }
             return CombineResult::kCannotCombine;
         }
         fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());

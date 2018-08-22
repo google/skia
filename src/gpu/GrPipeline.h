@@ -73,7 +73,8 @@ public:
         explicit FixedDynamicState(const SkIRect& scissorRect) : fScissorRect(scissorRect) {}
         FixedDynamicState() = default;
         SkIRect fScissorRect = SkIRect::EmptyIRect();
-        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers.
+        // Must have GrPrimitiveProcessor::numTextureSamplers() entries. Can be null if no samplers
+        // or textures are passed using DynamicStateArrays.
         GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
@@ -83,6 +84,10 @@ public:
      */
     struct DynamicStateArrays {
         const SkIRect* fScissorRects = nullptr;
+        // Must have GrPrimitiveProcessor::numTextureSamplers() * num_meshes entries.
+        // Can be null if no samplers or to use the same textures for all meshes via'
+        // FixedDynamicState.
+        GrTextureProxy** fPrimitiveProcessorTextures = nullptr;
     };
 
     /**
