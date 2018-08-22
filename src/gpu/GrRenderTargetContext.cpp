@@ -1436,53 +1436,6 @@ void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     this->getRTOpList()->addOp(std::move(op), *this->caps());
 }
 
-
-// Can 'path' be drawn as a pair of filled nested rectangles?
-static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {
-
-    if (path.isInverseFillType()) {
-        return false;
-    }
-
-    // TODO: this restriction could be lifted if we were willing to apply
-    // the matrix to all the points individually rather than just to the rect
-    if (!viewMatrix.rectStaysRect()) {
-        return false;
-    }
-
-    SkPath::Direction dirs[2];
-    if (!path.isNestedFillRects(rects, dirs)) {
-        return false;
-    }
-
-    if (SkPath::kWinding_FillType == path.getFillType() && dirs[0] == dirs[1]) {
-        // The two rects need to be wound opposite to each other
-        return false;
-    }
-
-    // Right now, nested rects where the margin is not the same width
-    // all around do not render correctly
-    const SkScalar* outer = rects[0].asScalars();
-    const SkScalar* inner = rects[1].asScalars();
-
-    bool allEq = true;
-
-    SkScalar margin = SkScalarAbs(outer[0] - inner[0]);
-    bool allGoE1 = margin >= SK_Scalar1;
-
-    for (int i = 1; i < 4; ++i) {
-        SkScalar temp = SkScalarAbs(outer[i] - inner[i]);
-        if (temp < SK_Scalar1) {
-            allGoE1 = false;
-        }
-        if (!SkScalarNearlyEqual(margin, temp)) {
-            allEq = false;
-        }
-    }
-
-    return allEq || allGoE1;
-}
-
 void GrRenderTargetContext::drawPath(const GrClip& clip,
                                      GrPaint&& paint,
                                      GrAA aa,
@@ -1493,22 +1446,6 @@ void GrRenderTargetContext::drawPath(const GrClip& clip,
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawPath", fContext);
-
-    GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
-    if (GrAAType::kCoverage == aaType) {
-        // TODO: Make GrShape check for nested rects.
-        SkRect rects[2];
-        if (style.isSimpleFill() && fills_as_nested_rects(viewMatrix, path, rects)) {
-            // Concave AA paths are expensive - try to avoid them for special cases
-            std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
-                            fContext, std::move(paint), viewMatrix, rects);
-            if (op) {
-                this->addDrawOp(clip, std::move(op));
-            }
-            // Returning here indicates that there is nothing to draw in this case.
-            return;
-        }
-    }
 
     GrShape shape(path, style);
 
@@ -1535,6 +1472,7 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     if (!shape.style().hasPathEffect()) {
+        GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
         SkRRect rrect;
         // We can ignore the starting point and direction since there is no path effect.
         bool inverted;
@@ -1549,6 +1487,21 @@ void GrRenderTargetContext::drawShape(const GrClip& clip,
             }
             this->drawRRect(clip, std::move(paint), aa, viewMatrix, rrect, shape.style());
             return;
+        } else if (GrAAType::kCoverage == aaType && shape.style().isSimpleFill() &&
+                   viewMatrix.rectStaysRect()) {
+            // TODO: the rectStaysRect restriction could be lifted if we were willing to apply
+            // the matrix to all the points individually rather than just to the rect
+            SkRect rects[2];
+            if (shape.asNestedRects(rects)) {
+                // Concave AA paths are expensive - try to avoid them for special cases
+                std::unique_ptr<GrDrawOp> op = GrRectOpFactory::MakeAAFillNestedRects(
+                                fContext, std::move(paint), viewMatrix, rects);
+                if (op) {
+                    this->addDrawOp(clip, std::move(op));
+                }
+                // Returning here indicates that there is nothing to draw in this case.
+                return;
+            }
         }
     }
 
