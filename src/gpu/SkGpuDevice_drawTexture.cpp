@@ -111,7 +111,9 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         SkAssertResult(srcRect.intersect(SkRect::MakeIWH(proxy->width(), proxy->height())));
         srcToDst.mapRect(&dstRect, srcRect);
     }
-    auto textureXform = GrColorSpaceXform::Make(colorSpace, rtc->colorSpaceInfo().colorSpace());
+    auto textureXform =
+        GrColorSpaceXform::Make(colorSpace                        , kPremul_SkAlphaType,
+                                rtc->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
     GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
         case kNone_SkFilterQuality:

@@ -22,9 +22,8 @@ class GrColorSpaceXform : public SkRefCnt {
 public:
     GrColorSpaceXform(const SkColorSpaceXformSteps& steps) : fSteps(steps) {}
 
-    static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkColorSpace* dst);
-
-    static sk_sp<GrColorSpaceXform> MakeUnpremulToUnpremul(SkColorSpace* src, SkColorSpace* dst);
+    static sk_sp<GrColorSpaceXform> Make(SkColorSpace* src, SkAlphaType srcAT,
+                                         SkColorSpace* dst, SkAlphaType dstAT);
 
     const SkColorSpaceXformSteps& steps() const { return fSteps; }
 

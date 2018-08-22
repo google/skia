@@ -326,8 +326,10 @@ sk_sp<GrColorSpaceXform> TestColorXform(SkRandom* random) {
         sk_sp<SkColorSpace> spin = SkColorSpace::MakeSRGB()->makeColorSpin();
         // No gamut change
         gXforms[0] = nullptr;
-        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), spin.get());
-        gXforms[2] = GrColorSpaceXform::Make(spin.get(), srgb.get());
+        gXforms[1] = GrColorSpaceXform::Make(srgb.get(), kPremul_SkAlphaType,
+                                             spin.get(), kPremul_SkAlphaType);
+        gXforms[2] = GrColorSpaceXform::Make(spin.get(), kPremul_SkAlphaType,
+                                             srgb.get(), kPremul_SkAlphaType);
     }
     return gXforms[random->nextULessThan(static_cast<uint32_t>(SK_ARRAY_COUNT(gXforms)))];
 }

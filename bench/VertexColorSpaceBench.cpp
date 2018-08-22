@@ -231,8 +231,8 @@ public:
         SkASSERT(context);
         auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                         SkColorSpace::kDCIP3_D65_Gamut);
-        auto xform = GrColorSpaceXform::MakeUnpremulToUnpremul(sk_srgb_singleton(),
-                                                               p3.get());
+        auto xform = GrColorSpaceXform::Make(sk_srgb_singleton(), kUnpremul_SkAlphaType,
+                                             p3.get(),            kUnpremul_SkAlphaType);
 
         SkRandom r;
         const int kDrawsPerLoop = 32;

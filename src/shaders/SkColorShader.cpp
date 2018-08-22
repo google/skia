@@ -212,8 +212,10 @@ SkShader::GradientType SkColor4Shader::asAGradient(GradientInfo* info) const {
 
 std::unique_ptr<GrFragmentProcessor> SkColor4Shader::asFragmentProcessor(
         const GrFPArgs& args) const {
-    auto xform = GrColorSpaceXform::MakeUnpremulToUnpremul(fColorSpace.get(),
-                                                           args.fDstColorSpaceInfo->colorSpace());
+    auto xform = GrColorSpaceXform::Make(
+            fColorSpace.get(),                     kUnpremul_SkAlphaType,
+            args.fDstColorSpaceInfo->colorSpace(), kUnpremul_SkAlphaType);
+
     GrColor4f color = GrColor4f::FromSkColor4f(fColor4);
     if (xform) {
         color = xform->apply(color);
