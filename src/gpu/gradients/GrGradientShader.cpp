@@ -11,6 +11,8 @@
 #include "GrTiledGradientEffect.h"
 
 #include "GrLinearGradientLayout.h"
+#include "GrRadialGradientLayout.h"
+
 #include "GrSingleIntervalGradientColorizer.h"
 
 #include "SkMatrix.h"
@@ -124,13 +126,21 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(
         return nullptr;
     }
 
-    std::unique_ptr<GrFragmentProcessor> layout = GrLinearGradientLayout::Make(
-        invLocalMatrix, start, end);
-    if (layout == nullptr) {
+    return MakeGradient(shader,args, GrLinearGradientLayout::Make(
+            invLocalMatrix, start, end));
+}
+
+
+std::unique_ptr<GrFragmentProcessor> MakeRadial(
+    const SkGradientShaderBase& shader, const GrFPArgs& args,
+    const SkPoint& center, SkScalar radius) {
+    SkMatrix invLocalMatrix;
+    if (!shader.totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&invLocalMatrix)) {
         return nullptr;
     }
 
-    return MakeGradient(shader,args, std::move(layout));
+    return MakeGradient(shader,args, GrRadialGradientLayout::Make(
+        invLocalMatrix, center, radius));
 }
 
 }
