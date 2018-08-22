@@ -188,43 +188,6 @@ static inline bool is_almost_linear(const SkColorSpaceTransferFn& coeffs) {
     return linearExp || linearFn;
 }
 
-static inline bool is_just_gamma(const SkColorSpaceTransferFn& coeffs) {
-    return transfer_fn_almost_equal(coeffs.fA, 1.0f)
-        && transfer_fn_almost_equal(coeffs.fB, 0.0f)
-        && transfer_fn_almost_equal(coeffs.fC, 0.0f)
-        && transfer_fn_almost_equal(coeffs.fD, 0.0f)
-        && transfer_fn_almost_equal(coeffs.fE, 0.0f)
-        && transfer_fn_almost_equal(coeffs.fF, 0.0f);
-}
-
-
-static inline void value_to_parametric(SkColorSpaceTransferFn* coeffs, float exponent) {
-    coeffs->fA = 1.0f;
-    coeffs->fB = 0.0f;
-    coeffs->fC = 0.0f;
-    coeffs->fD = 0.0f;
-    coeffs->fE = 0.0f;
-    coeffs->fF = 0.0f;
-    coeffs->fG = exponent;
-}
-
-static inline bool named_to_parametric(SkColorSpaceTransferFn* coeffs,
-                                       SkGammaNamed gammaNamed) {
-    switch (gammaNamed) {
-        case kSRGB_SkGammaNamed:
-            *coeffs = gSRGB_TransferFn;
-            return true;
-        case k2Dot2Curve_SkGammaNamed:
-            *coeffs = g2Dot2_TransferFn;
-            return true;
-        case kLinear_SkGammaNamed:
-            *coeffs = gLinear_TransferFn;
-            return true;
-        default:
-            return false;
-    }
-}
-
 // Return raw pointers to commonly used SkColorSpaces.
 // No need to ref/unref these, but if you do, do it in pairs.
 SkColorSpace* sk_srgb_singleton();

@@ -80,9 +80,6 @@ to make color spaces.
 	
 	// Choose a common gamut and a common transfer function
 	sk_sp<SkColorSpace> MakeRGB(RenderTargetGamma, Gamut);
-	
-	// Create a color space from an ICC profile
-	sk_sp<SkColorSpace> MakeICC();
 
 Starting with **sources** (the things that you draw), there are a number of ways to make sure
 that they are tagged with a color space.

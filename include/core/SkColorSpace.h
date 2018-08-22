@@ -127,11 +127,6 @@ public:
     static sk_sp<SkColorSpace> MakeRGB(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50);
 
     /**
-     *  Create an SkColorSpace from an ICC profile.
-     */
-    static sk_sp<SkColorSpace> MakeICC(const void*, size_t);
-
-    /**
      *  Create an SkColorSpace from a parsed (skcms) ICC profile.
      */
     static sk_sp<SkColorSpace> Make(const skcms_ICCProfile&);
@@ -140,16 +135,6 @@ public:
      *  Convert this color space to an skcms ICC profile struct.
      */
     void toProfile(skcms_ICCProfile*) const;
-
-    /**
-     *  Types of colorspaces.
-     */
-    enum Type {
-        kRGB_Type,
-        kCMYK_Type,
-        kGray_Type,
-    };
-    Type type() const;
 
     SkGammaNamed gammaNamed() const;
 
@@ -265,9 +250,6 @@ private:
     virtual bool onGammaCloseToSRGB() const = 0;
     virtual bool onGammaIsLinear() const = 0;
     virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
-    virtual bool onIsCMYK() const { return false; }
-
-    virtual const SkData* onProfileData() const { return nullptr; }
 
     using INHERITED = SkRefCnt;
 };
