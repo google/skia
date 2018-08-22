@@ -118,7 +118,7 @@ protected:
 
     void writeModifiers(const Modifiers& modifiers, bool globalContext);
 
-    virtual void writeInputVars();
+    void writeGlobalVars(const VarDeclaration& vs);
 
     virtual void writeVarInitializer(const Variable& var, const Expression& value);
 

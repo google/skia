@@ -17,6 +17,5 @@ layout(builtin=9999) out half4 gl_SecondaryFragColorEXT;
 
 layout(location=0,index=0,builtin=10001) out half4 sk_FragColor;
 layout(builtin=10008) half4 sk_LastFragColor;
-layout(builtin=10011) float2 sk_Dimensions;
 
 )

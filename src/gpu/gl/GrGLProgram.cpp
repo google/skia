@@ -127,13 +127,10 @@ void GrGLProgram::setFragmentData(const GrPipeline& pipeline, int* nextTexSample
 void GrGLProgram::setRenderTargetState(const GrPrimitiveProcessor& primProc,
                                        const GrRenderTargetProxy* proxy) {
     GrRenderTarget* rt = proxy->peekRenderTarget();
-    // Load the RT dimension uniform if it is needed
-    if (fBuiltinUniformHandles.fRTDimensionsUni.isValid() &&
-        (fRenderTargetState.fRenderTargetSize.fWidth != rt->width() ||
-         fRenderTargetState.fRenderTargetSize.fHeight != rt->height())) {
-        fProgramDataManager.set2f(fBuiltinUniformHandles.fRTDimensionsUni,
-                                  SkIntToScalar(rt->width()),
-                                  SkIntToScalar(rt->height()));
+    // Load the RT height uniform if it is needed to y-flip gl_FragCoord.
+    if (fBuiltinUniformHandles.fRTHeightUni.isValid() &&
+        fRenderTargetState.fRenderTargetSize.fHeight != rt->height()) {
+        fProgramDataManager.set1f(fBuiltinUniformHandles.fRTHeightUni, SkIntToScalar(rt->height()));
     }
 
     // set RT adjustment

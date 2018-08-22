@@ -1070,7 +1070,7 @@ DEF_TEST(SkSLFragCoord, r) {
          "    gl_FragColor.xy = gl_FragCoord.xy;\n"
          "}\n",
          &inputs);
-    REPORTER_ASSERT(r, !inputs.fRTDimensions);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
 
     caps = SkSL::ShaderCapsFactory::FragCoordsNew();
     settings.fCaps = caps.get();
@@ -1084,7 +1084,7 @@ DEF_TEST(SkSLFragCoord, r) {
          "    sk_FragColor.xy = gl_FragCoord.xy;\n"
          "}\n",
          &inputs);
-    REPORTER_ASSERT(r, !inputs.fRTDimensions);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
 
     caps = SkSL::ShaderCapsFactory::Default();
     settings.fCaps = caps.get();
@@ -1092,16 +1092,15 @@ DEF_TEST(SkSLFragCoord, r) {
          "void main() { sk_FragColor.xy = sk_FragCoord.xy; }",
          settings,
          "#version 400\n"
-         "uniform vec2 u_skRTDimensions;\n"
+         "uniform float u_skRTHeight;\n"
          "out vec4 sk_FragColor;\n"
          "void main() {\n"
          "    vec2 _sktmpCoord = gl_FragCoord.xy;\n"
-         "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTDimensions.y - _sktmpCoord.y, 1.0,"
-                                     " 1.0);\n"
+         "    vec4 sk_FragCoord = vec4(_sktmpCoord.x, u_skRTHeight - _sktmpCoord.y, 1.0, 1.0);\n"
          "    sk_FragColor.xy = sk_FragCoord.xy;\n"
          "}\n",
          &inputs);
-    REPORTER_ASSERT(r, inputs.fRTDimensions);
+    REPORTER_ASSERT(r, inputs.fRTHeight);
 
     settings.fFlipY = false;
     test(r,
@@ -1113,7 +1112,7 @@ DEF_TEST(SkSLFragCoord, r) {
          "    sk_FragColor.xy = gl_FragCoord.xy;\n"
          "}\n",
          &inputs);
-    REPORTER_ASSERT(r, !inputs.fRTDimensions);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
 
     test(r,
          "in float4 pos; void main() { sk_Position = pos; }",
@@ -1153,24 +1152,6 @@ DEF_TEST(SkSLFragCoord, r) {
          "    sk_FragCoord_Resolved.xy = floor(sk_FragCoord_Resolved.xy) + vec2(.5);\n"
          "    sk_FragColor.xy = sk_FragCoord_Resolved.xy;\n"
          "}\n");
-}
-
-DEF_TEST(SkSLDimensions, r) {
-    SkSL::Program::Settings settings;
-    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
-    settings.fCaps = caps.get();
-    SkSL::Program::Inputs inputs;
-    test(r,
-         "void main() { sk_FragColor.r = sk_FragCoord.x / sk_Dimensions.x; }",
-         settings,
-         "#version 400\n"
-         "uniform vec2 u_skRTDimensions;\n"
-         "out vec4 sk_FragColor;\n"
-         "void main() {\n"
-         "    sk_FragColor.x = gl_FragCoord.x / u_skRTDimensions.x;\n"
-         "}\n",
-         &inputs);
-    REPORTER_ASSERT(r, inputs.fRTDimensions);
 }
 
 DEF_TEST(SkSLClockwise, r) {

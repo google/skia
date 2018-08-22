@@ -48,7 +48,6 @@ private:
     GrGLProgramBuilder(GrGLGpu*, const GrPipeline&, const GrPrimitiveProcessor&,
                        GrProgramDesc*);
 
-    void addInputVars(const SkSL::Program::Inputs& inputs);
     bool compileAndAttachShaders(const char* glsl,
                                  int length,
                                  GrGLuint programId,
