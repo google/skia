@@ -130,6 +130,50 @@ static void assert_savelayer_draw_restore(skiatest::Reporter* r,
     }
 }
 
+#include "SkNoDrawCanvas.h"
+class NotifySaveLayerCanvas : public SkNoDrawCanvas {
+public:
+    bool fSaveLayer = false;
+
+    NotifySaveLayerCanvas(int w, int h) : SkNoDrawCanvas(w, h) {}
+
+protected:
+    SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) {
+        fSaveLayer = true;
+        return SkNoDrawCanvas::getSaveLayerStrategy(rec);
+    }
+};
+
+static void assert_no_savelayer(sk_sp<SkPicture> pic, skiatest::Reporter* r) {
+    NotifySaveLayerCanvas canvas(100, 100);
+    canvas.drawPicture(pic);
+    REPORTER_ASSERT(r, !canvas.fSaveLayer);
+}
+
+static void test_more_savelayers(skiatest::Reporter* r) {
+    void (*array[])(SkCanvas*) = {
+        [](SkCanvas* canvas) {
+            canvas->drawRect({1, 1, 5, 5}, SkPaint());
+        },
+        [](SkCanvas* canvas) {
+            SkPaint p;
+            p.setAlpha(0x80);
+            canvas->drawRect({1, 1, 5, 5}, p);
+        },
+    };
+
+    SkPictureRecorder recorder;
+    SkPaint paint;
+    paint.setAlpha(0x80);
+    for (auto& proc : array) {
+        SkCanvas* c = recorder.beginRecording(100, 100);
+        c->saveLayer(nullptr, &paint);
+        proc(c);
+        c->restore();
+        assert_no_savelayer(recorder.finishRecordingAsPicture(), r);
+    }
+}
+
 DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
     SkRecord record;
     SkRecorder recorder(&record, W, H);
@@ -204,6 +248,8 @@ DEF_TEST(RecordOpts_NoopSaveLayerDrawRestore, r) {
         recorder.restore();
         assert_savelayer_draw_restore(r, &record, 21, false);
     }
+
+    test_more_savelayers(r);
 }
 #endif
 
