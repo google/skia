@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27ad25bf_e0709b23",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-08-22T21:41:18Z",
+      "side": 0,
+      "message": "This was added recently and I wasn\u0027t sure if there was a reason this wasn\u0027t mirroring the info on the generator.",
+      "range": {
+        "startLine": 74,
+        "startChar": 15,
+        "endLine": 74,
+        "endChar": 35
+      },
+      "revId": "ca0cdef0634904d7be54cd990fddb69fc41881ad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
