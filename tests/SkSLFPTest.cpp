@@ -381,3 +381,27 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "this->registerChildProcessor(src.childProcessor(1).clone());"
          });
 }
+
+DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
+    test(r,
+         "in fragmentProcessor child1;"
+         "in fragmentProcessor child2;"
+         "void main() {"
+         "    half4 childOut1 = process(child1, 0.2 * sk_InColor);"
+         "    half4 childOut2 = process(child2, childOut1);"
+         "    sk_OutColor = childOut2;"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child1));",
+            "this->registerChildProcessor(std::move(child2));"
+         },
+         {
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, String::printf(\"0.2 * %s\", args.fInputColor), &_child0, args);",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(1, \"childOut1\", &_child1, args);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());",
+            "this->registerChildProcessor(src.childProcessor(1).clone());"
+         });
+}
