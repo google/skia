@@ -623,37 +623,6 @@ def dm_flags(api, bot):
       match.extend(['~WritePixelsNonTextureMSAA_Gpu'])
       match.extend(['~WritePixelsMSAA_Gpu'])
 
-  if 'Vulkan' in bot and 'NexusPlayer' in bot:
-    # skia:6132
-    match.append('~^tilemodes$')
-    match.append('~tilemodes_npot$')
-    match.append('~scaled_tilemodes$')
-    match.append('~emboss')
-    match.append('~^bitmapfilters$')
-    match.append('~^shadertext$')
-    match.append('~^FullScreenClearWithLayers$') #skia:7191
-    match.append('~^GrDefaultPathRendererTest$') #skia:7244
-    match.append('~^GrMSAAPathRendererTest$') #skia:7244
-    # skia:7018
-    match.extend(['~^ClearOp$',
-                  '~^ComposedImageFilterBounds_Gpu$',
-                  '~^ImageEncode_Gpu$',
-                  '~^ImageFilterFailAffectsTransparentBlack_Gpu$',
-                  '~^ImageFilterZeroBlurSigma_Gpu$',
-                  '~^ImageNewShader_GPU$',
-                  '~^ImageReadPixels_Gpu$',
-                  '~^ImageScalePixels_Gpu$',
-                  '~^ReadWriteAlpha$',
-                  '~^SpecialImage_DeferredGpu$',
-                  '~^SpecialImage_Gpu$',
-                  '~^SurfaceSemaphores$'])
-    # skia:7837
-    match.append('~BlurMaskBiggerThanDest')
-    # skia:8166
-    match.extend(['~SkRemoteGlyphCache_DrawTextXY',
-                  '~SkRemoteGlyphCache_DrawTextAsPath',
-                  '~SkRemoteGlyphCache_StrikeSerialization'])
-
   if 'Vulkan' in bot and 'GalaxyS7_G930FD' in bot:
     # skia:8064
     match.append('~^WritePixelsNonTexture_Gpu$')
@@ -1018,7 +987,7 @@ TEST_BUILDERS = [
   'Test-Android-Clang-NVIDIA_Shield-GPU-TegraX1-arm64-Debug-All-Android_CCPR',
   'Test-Android-Clang-Nexus5-GPU-Adreno330-arm-Release-All-Android',
   'Test-Android-Clang-Nexus7-CPU-Tegra3-arm-Release-All-Android',
-  'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android_Vulkan',
+  'Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android_Vulkan',
   'Test-Android-Clang-Pixel-GPU-Adreno530-arm-Debug-All-Android_ASAN',
   ('Test-ChromeOS-Clang-AcerChromebookR13Convertible-GPU-PowerVRGX6250-'
