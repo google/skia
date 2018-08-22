@@ -324,10 +324,10 @@ SkMaskFilterBase::onAsFragmentProcessor(const GrFPArgs&) const {
 bool SkMaskFilterBase::onHasFragmentProcessor() const { return false; }
 
 bool SkMaskFilterBase::canFilterMaskGPU(const GrShape& shape,
-                                        const SkRect& devSpaceShapeBounds,
+                                        const SkIRect& devSpaceShapeBounds,
                                         const SkIRect& clipBounds,
                                         const SkMatrix& ctm,
-                                        SkRect* maskRect) const {
+                                        SkIRect* maskRect) const {
     return false;
 }
 
