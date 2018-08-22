@@ -131,6 +131,8 @@ public:
     // ternary to work around driver bugs.
     bool unfoldShortCircuitAsTernary() const { return fUnfoldShortCircuitAsTernary; }
 
+    bool emulateAbsIntFunction() const { return fEmulateAbsIntFunction; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -268,6 +270,7 @@ private:
     bool fIncompleteShortIntPrecision                 : 1;
     bool fAddAndTrueToLoopCondition                   : 1;
     bool fUnfoldShortCircuitAsTernary                 : 1;
+    bool fEmulateAbsIntFunction                       : 1;
 
     const char* fVersionDeclString;
 
