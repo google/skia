@@ -17,6 +17,7 @@
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkPoint.h"
+#include "SkSpan.h"
 #include "SkSurfaceProps.h"
 #include "SkTemplates.h"
 #include "SkTextBlobPriv.h"
@@ -28,31 +29,6 @@ class GrRenderTargetContext;
 class SkBaseDevice;
 class SkGlyphRunList;
 class SkRasterClip;
-
-template <typename T>
-class SkSpan {
-public:
-    SkSpan() : fPtr{nullptr}, fSize{0} {}
-    SkSpan(T* ptr, size_t size) : fPtr{ptr}, fSize{size} { }
-    template <typename U>
-    explicit SkSpan(std::vector<U>& v) : fPtr{v.data()}, fSize{v.size()} {}
-    SkSpan(const SkSpan<T>& o) = default;
-    SkSpan& operator=( const SkSpan& other ) = default;
-    T& operator [] (size_t i) const { return fPtr[i]; }
-    T* begin() const { return fPtr; }
-    T* end() const { return fPtr + fSize; }
-    const T* cbegin() const { return fPtr; }
-    const T* cend() const { return fPtr + fSize; }
-    T* data() const { return fPtr; }
-    size_t size() const { return fSize; }
-    bool empty() const { return fSize == 0; }
-    size_t size_bytes() const { return fSize * sizeof(T); }
-    SkSpan<const T> toConst() const { return SkSpan<const T>{fPtr, fSize}; }
-
-private:
-    T* fPtr;
-    size_t fSize;
-};
 
 class SkGlyphRun {
 public:
