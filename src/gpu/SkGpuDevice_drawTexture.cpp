@@ -99,7 +99,7 @@ static bool can_use_draw_texture(const SkPaint& paint) {
 
 static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect* src,
                          const SkRect* dst, GrAA aa, SkCanvas::SrcRectConstraint constraint,
-                         sk_sp<GrTextureProxy> proxy,
+                         sk_sp<GrTextureProxy> proxy, SkAlphaType alphaType,
                          SkColorSpace* colorSpace, const GrClip& clip, GrRenderTargetContext* rtc) {
     SkASSERT(!(SkToBool(src) && !SkToBool(dst)));
     SkRect srcRect = src ? *src : SkRect::MakeWH(proxy->width(), proxy->height());
@@ -112,7 +112,7 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         srcToDst.mapRect(&dstRect, srcRect);
     }
     auto textureXform =
-        GrColorSpaceXform::Make(colorSpace                        , kPremul_SkAlphaType,
+        GrColorSpaceXform::Make(colorSpace                        , alphaType,
                                 rtc->colorSpaceInfo().colorSpace(), kPremul_SkAlphaType);
     GrSamplerState::Filter filter;
     switch (paint.getFilterQuality()) {
@@ -150,7 +150,7 @@ void SkGpuDevice::drawPinnedTextureProxy(sk_sp<GrTextureProxy> proxy, uint32_t p
     GrAA aa = GrAA(paint.isAntiAlias());
     if (can_use_draw_texture(paint)) {
         draw_texture(paint, viewMatrix, srcRect, dstRect, aa, constraint, std::move(proxy),
-                     colorSpace, this->clip(), fRenderTargetContext.get());
+                     alphaType, colorSpace, this->clip(), fRenderTargetContext.get());
         return;
     }
     GrTextureAdjuster adjuster(this->context(), std::move(proxy), alphaType, pinnedUniqueID,
@@ -174,7 +174,7 @@ void SkGpuDevice::drawTextureMaker(GrTextureMaker* maker, int imageW, int imageH
             return;
         }
         draw_texture(paint, viewMatrix, srcRect, dstRect, aa, constraint, std::move(proxy),
-                     cs.get(), this->clip(), fRenderTargetContext.get());
+                     maker->alphaType(), cs.get(), this->clip(), fRenderTargetContext.get());
         return;
     }
     this->drawTextureProducer(maker, srcRect, dstRect, constraint, viewMatrix, paint);
