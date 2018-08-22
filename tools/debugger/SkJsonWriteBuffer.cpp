@@ -108,6 +108,10 @@ void SkJsonWriteBuffer::writePoint(const SkPoint& point) {
     this->append("point", SkDrawCommand::MakeJsonPoint(point));
 }
 
+void SkJsonWriteBuffer::writePoint3(const SkPoint3& point) {
+    this->append("point3", SkDrawCommand::MakeJsonPoint3(point));
+}
+
 void SkJsonWriteBuffer::writePointArray(const SkPoint* point, uint32_t count) {
     Json::Value jsonArray(Json::arrayValue);
     for (uint32_t i = 0; i < count; ++i) {
