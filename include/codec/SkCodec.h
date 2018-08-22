@@ -13,7 +13,6 @@
 #include "../private/SkEncodedInfo.h"
 #include "SkCodecAnimation.h"
 #include "SkColor.h"
-#include "SkColorSpaceXform.h"
 #include "SkEncodedImageFormat.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
@@ -671,21 +670,9 @@ public:
 protected:
     const SkEncodedInfo& getEncodedInfo() const { return fEncodedInfo; }
 
-    using XformFormat = SkColorSpaceXform::ColorFormat;
+    using XformFormat = skcms_PixelFormat;
 
-    SkCodec(int width,
-            int height,
-            const SkEncodedInfo&,
-            XformFormat srcFormat,
-            std::unique_ptr<SkStream>,
-            sk_sp<SkColorSpace>,
-            SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
-
-    /**
-     *  Allows the subclass to set the recommended SkImageInfo
-     */
-    SkCodec(const SkEncodedInfo&,
-            const SkImageInfo&,
+    SkCodec(SkEncodedInfo&&,
             XformFormat srcFormat,
             std::unique_ptr<SkStream>,
             SkEncodedOrigin = kTopLeft_SkEncodedOrigin);
@@ -780,16 +767,14 @@ protected:
 
     virtual int onOutputScanline(int inputScanline) const;
 
-    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha);
     // Some classes never need a colorXform e.g.
     // - ICO uses its embedded codec's colorXform
     // - WBMP is just Black/White
     virtual bool usesColorXform() const { return true; }
-    void applyColorXform(void* dst, const void* src, int count, SkAlphaType) const;
     void applyColorXform(void* dst, const void* src, int count) const;
 
-    SkColorSpaceXform* colorXform() const { return fColorXform.get(); }
-    bool xformOnDecode() const { return fXformOnDecode; }
+    bool colorXform() const { return fXformTime != kNo_XformTime; }
+    bool xformOnDecode() const { return fXformTime == kDecodeRow_XformTime; }
 
     virtual int onGetFrameCount() {
         return 1;
@@ -813,9 +798,16 @@ private:
 
     SkImageInfo                        fDstInfo;
     Options                            fOptions;
+
+    enum XformTime {
+        kNo_XformTime,
+        kPalette_XformTime,
+        kDecodeRow_XformTime,
+    };
+    XformTime                          fXformTime;
     XformFormat                        fDstXformFormat; // Based on fDstInfo.
-    std::unique_ptr<SkColorSpaceXform> fColorXform;
-    bool                               fXformOnDecode;
+    skcms_ICCProfile                   fDstProfile;
+    skcms_AlphaFormat                  fDstXformAlphaFormat;
 
     // Only meaningful during scanline decodes.
     int                                fCurrScanline;
@@ -823,12 +815,15 @@ private:
     bool                               fStartedIncrementalDecode;
 
     /**
-     *  Return whether {srcColor, srcIsOpaque, srcCS} can convert to dst.
+     *  Return whether we can convert to dst.
      *
      *  Will be called for the appropriate frame, prior to initializing the colorXform.
      */
     virtual bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
-                                     bool srcIsOpaque, const SkColorSpace* srcCS) const;
+                                     bool srcIsOpaque, bool needsColorXform);
+
+    bool initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Alpha, bool srcIsOpaque);
+
     /**
      *  Return whether these dimensions are supported as a scale.
      *
