@@ -155,7 +155,7 @@ public:
     //using PerGlyph = std::function<void(const SkGlyph&, SkPoint)>;
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
-            SkGlyphCache* cache, const SkGlyphRun& glyphRun,
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerGlyphT perGlyph, PerPathT perPath);
 
