@@ -197,6 +197,32 @@ public:
         return true;
     }
 
+    void dump() const {
+        switch (fType) {
+            case Type::kEmpty:
+                SkDebugf("empty\n");
+                break;
+            case Type::kInvertedEmpty:
+                SkDebugf("inverted empty\n");
+                break;
+            case Type::kRRect:
+                SkDebugf("rrect %.2f %.2f %.2f %.2f\n",
+                         fRRectData.fRRect.getBounds().fLeft,
+                         fRRectData.fRRect.getBounds().fTop,
+                         fRRectData.fRRect.getBounds().fRight,
+                         fRRectData.fRRect.getBounds().fBottom);
+                break;
+            case Type::kArc:
+                SkDebugf("arc\n");
+            case Type::kLine:
+                SkDebugf("line\n");
+                break;
+            case Type::kPath:
+                SkDebugf("path\n");
+                break;
+        }
+    }
+
     /** Returns the unstyled geometry as a path. */
     void asPath(SkPath* out) const {
         switch (fType) {
