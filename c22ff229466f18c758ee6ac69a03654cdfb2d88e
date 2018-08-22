@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fc2718f0_80f5f701",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 27
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-22T20:24:45Z",
+      "side": 1,
+      "message": "If the shape is stroked don\u0027t we need all the stroke parameters here?",
+      "range": {
+        "startLine": 356,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 62
+      },
+      "revId": "c22ff229466f18c758ee6ac69a03654cdfb2d88e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
