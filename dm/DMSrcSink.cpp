@@ -501,18 +501,18 @@ Error CodecSrc::draw(SkCanvas* canvas) const {
 
             // Used to cache a frame that future frames will depend on.
             SkAutoMalloc priorFramePixels;
-            int cachedFrame = SkCodec::kNone;
+            int cachedFrame = SkCodec::kNoFrame;
             for (int i = 0; static_cast<size_t>(i) < frameInfos.size(); i++) {
                 options.fFrameIndex = i;
                 // Check for a prior frame
                 const int reqFrame = frameInfos[i].fRequiredFrame;
-                if (reqFrame != SkCodec::kNone && reqFrame == cachedFrame
+                if (reqFrame != SkCodec::kNoFrame && reqFrame == cachedFrame
                         && priorFramePixels.get()) {
                     // Copy into pixels
                     memcpy(pixels.get(), priorFramePixels.get(), safeSize);
                     options.fPriorFrame = reqFrame;
                 } else {
-                    options.fPriorFrame = SkCodec::kNone;
+                    options.fPriorFrame = SkCodec::kNoFrame;
                 }
                 SkCodec::Result result = codec->getPixels(decodeInfo, pixels.get(),
                                                           rowBytes, &options);

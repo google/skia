@@ -213,14 +213,14 @@ DEF_TEST(AnimatedImage, r) {
             SkCodec::Options options;
             options.fFrameIndex = (int) i;
             options.fPriorFrame = frameInfos[i].fRequiredFrame;
-            if (options.fPriorFrame == SkCodec::kNone) {
+            if (options.fPriorFrame == SkCodec::kNoFrame) {
                 bm.allocPixels(info);
                 bm.eraseColor(0);
             } else {
                 const SkBitmap& priorFrame = frames[options.fPriorFrame];
                 if (!sk_tool_utils::copy_to(&bm, priorFrame.colorType(), priorFrame)) {
                     ERRORF(r, "Failed to copy %s frame %i", file, options.fPriorFrame);
-                    options.fPriorFrame = SkCodec::kNone;
+                    options.fPriorFrame = SkCodec::kNoFrame;
                 }
                 REPORTER_ASSERT(r, bm.setAlphaType(frameInfos[i].fAlphaType));
             }

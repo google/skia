@@ -54,7 +54,7 @@ private:
             SkCodec::Options opts;
             opts.fFrameIndex = frameIndex;
             const int requiredFrame = fFrameInfos[frameIndex].fRequiredFrame;
-            if (requiredFrame != SkCodec::kNone) {
+            if (requiredFrame != SkCodec::kNoFrame) {
                 SkASSERT(requiredFrame >= 0
                          && static_cast<size_t>(requiredFrame) < fFrames.size());
                 SkBitmap& requiredBitmap = fFrames[requiredFrame];

@@ -435,7 +435,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     SkAssertResult(WebPDemuxGetFrame(fDemux, index + 1, &frame));
 
     const bool independent = index == 0 ? true :
-            (fFrameHolder.frame(index)->getRequiredFrame() == kNone);
+            (fFrameHolder.frame(index)->getRequiredFrame() == kNoFrame);
     // Get the frameRect.  libwebp will have already signaled an error if this is not fully
     // contained by the canvas.
     auto frameRect = SkIRect::MakeXYWH(frame.x_offset, frame.y_offset, frame.width, frame.height);
@@ -545,7 +545,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
 
     // Choose the step when we will perform premultiplication.
     enum {
-        kNone,
+        kNoPremul,
         kBlendLine,
         kColorXform,
         kLibwebp,
@@ -553,7 +553,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
     auto choose_premul_step = [&]() {
         if (!frame.has_alpha) {
             // None necessary.
-            return kNone;
+            return kNoPremul;
         }
         if (blendWithPrevFrame) {
             // Premultiply in blend_line, in a linear space.
@@ -562,7 +562,7 @@ SkCodec::Result SkWebpCodec::onGetPixels(const SkImageInfo& dstInfo, void* dst, 
         if (dstInfo.alphaType() != kPremul_SkAlphaType) {
             // No blending is necessary, so we only need to premultiply if the
             // client requested it.
-            return kNone;
+            return kNoPremul;
         }
         if (this->colorXform()) {
             // Premultiply in the colorXform, in a linear space.

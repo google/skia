@@ -252,7 +252,7 @@ public:
             : fZeroInitialized(kNo_ZeroInitialized)
             , fSubset(nullptr)
             , fFrameIndex(0)
-            , fPriorFrame(kNone)
+            , fPriorFrame(kNoFrame)
         {}
 
         ZeroInitialized            fZeroInitialized;
@@ -283,7 +283,7 @@ public:
         int                        fFrameIndex;
 
         /**
-         *  If not kNone, the dst already contains the prior frame at this index.
+         *  If not kNoFrame, the dst already contains the prior frame at this index.
          *
          *  Only meaningful for multi-frame images.
          *
@@ -293,7 +293,7 @@ public:
          *  indicate that that frame is already in the dst. Options.fZeroInitialized
          *  is ignored in this case.
          *
-         *  If set to kNone, the codec will decode any necessary required frame(s) first.
+         *  If set to kNoFrame, the codec will decode any necessary required frame(s) first.
          */
         int                        fPriorFrame;
     };
@@ -571,9 +571,17 @@ public:
         return this->onGetFrameCount();
     }
 
-    // The required frame for an independent frame is marked as
-    // kNone.
-    static constexpr int kNone = -1;
+    // Sentinel value used when a frame index implies "no frame":
+    // - FrameInfo::fRequiredFrame set to this value means the frame
+    //   is independent.
+    // - Options::fPriorFrame set to this value means no (relevant) prior frame
+    //   is residing in dst's memory.
+    static constexpr int kNoFrame = -1;
+
+    // This transitional definition was added in August 2018, and will eventually be removed.
+#ifdef SK_LEGACY_SKCODEC_NONE_ENUM
+    static constexpr int kNone = kNoFrame;
+#endif
 
     /**
      *  Information about individual frames in a multi-framed image.
@@ -581,7 +589,7 @@ public:
     struct FrameInfo {
         /**
          *  The frame that this frame needs to be blended with, or
-         *  kNone if this frame is independent.
+         *  kNoFrame if this frame is independent.
          *
          *  Note that this is the *earliest* frame that can be used
          *  for blending. Any frame from [fRequiredFrame, i) can be
