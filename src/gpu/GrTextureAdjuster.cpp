@@ -162,5 +162,5 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
              (domain.fLeft <= domain.fRight && domain.fTop <= domain.fBottom));
     auto fp = CreateFragmentProcessorForDomainAndFilter(std::move(proxy), textureMatrix,
                                                         domainMode, domain, filterOrNullForBicubic);
-    return GrColorSpaceXformEffect::Make(std::move(fp), fColorSpace, dstColorSpace);
+    return GrColorSpaceXformEffect::Make(std::move(fp), fColorSpace, fAlphaType, dstColorSpace);
 }
