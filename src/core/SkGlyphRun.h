@@ -30,6 +30,51 @@ class SkBaseDevice;
 class SkGlyphRunList;
 class SkRasterClip;
 
+class SkGlyphCacheInterface {
+public:
+    virtual ~SkGlyphCacheInterface() = default;
+    virtual SkVector rounding() const = 0;
+    virtual const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) = 0;
+};
+
+class SkGlyphCacheCommon {
+public:
+    static SkVector PixelRounding(bool isSubpixel, SkAxisAlignment axisAlignment) {
+        if (!isSubpixel) {
+            return {SK_ScalarHalf, SK_ScalarHalf};
+        } else {
+            static constexpr SkScalar kSubpixelRounding = SkFixedToScalar(SkGlyph::kSubpixelRound);
+            switch (axisAlignment) {
+                case kX_SkAxisAlignment:
+                    return {kSubpixelRounding, SK_ScalarHalf};
+                case kY_SkAxisAlignment:
+                    return {SK_ScalarHalf, kSubpixelRounding};
+                case kNone_SkAxisAlignment:
+                    return {kSubpixelRounding, kSubpixelRounding};
+            }
+        }
+
+        // Some compilers need this.
+        return {0, 0};
+    }
+
+    // This assumes that position has the appropriate rounding term applied.
+    static SkIPoint SubpixelLookup(SkAxisAlignment axisAlignment, SkPoint position) {
+        // TODO: SkScalarFraction uses truncf to calculate the fraction. This should be floorf.
+        SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.x())),
+                lookupY = SkScalarToFixed(SkScalarFraction(position.y()));
+
+        // Snap to a given axis if alignment is requested.
+        if (axisAlignment == kX_SkAxisAlignment) {
+            lookupY = 0;
+        } else if (axisAlignment == kY_SkAxisAlignment) {
+            lookupX = 0;
+        }
+
+        return {lookupX, lookupY};
+    }
+};
+
 class SkGlyphRun {
 public:
     SkGlyphRun() = default;
@@ -128,7 +173,7 @@ private:
     template <typename EachGlyph>
     void forEachMappedDrawableGlyph(
             const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
-            SkGlyphCache* cache, EachGlyph eachGlyph);
+            SkGlyphCacheInterface* cache, EachGlyph eachGlyph);
 
     void drawGlyphRunAsSubpixelMask(
             SkGlyphCache* cache, const SkGlyphRun& glyphRun,
