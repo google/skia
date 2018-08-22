@@ -398,7 +398,6 @@ bool GrVkCopyManager::copySurfaceAsDraw(GrVkGpu* gpu,
     pipeline->unref(gpu);
     uniformDS->unref(gpu);
     samplerDS->unref(gpu);
-    sampler->unref(gpu);
     renderPass->unref(gpu);
 
     return true;
