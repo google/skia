@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "269d0c0f_f47fc3fd",
+        "filename": "infra/bots/recipe_modules/build/pathkit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-22T13:35:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d008ccc4_a01f3284",
+      "range": {
+        "startLine": 39,
+        "startChar": 4,
+        "endLine": 39,
+        "endChar": 20
+      },
+      "revId": "3202267b43ec05a119ff207b7a70ed0a1dcd58e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "477e30d7_edef95e8",
         "filename": "infra/bots/recipes/test_pathkit.py",
         "patchSetId": 9
@@ -45,6 +69,30 @@
       "revId": "3202267b43ec05a119ff207b7a70ed0a1dcd58e0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d877dcfc_b88fc53a",
+        "filename": "infra/bots/recipes/test_pathkit.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-22T13:35:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "477e30d7_edef95e8",
+      "range": {
+        "startLine": 38,
+        "startChar": 13,
+        "endLine": 38,
+        "endChar": 41
+      },
+      "revId": "3202267b43ec05a119ff207b7a70ed0a1dcd58e0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
