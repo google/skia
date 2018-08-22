@@ -10,8 +10,6 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXform.h"
-#include "SkColorSpaceXformPriv.h"
 #include "SkHalf.h"
 #include "SkImage.h"
 #include "SkImageInfoPriv.h"
