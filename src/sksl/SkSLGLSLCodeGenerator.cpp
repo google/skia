@@ -470,6 +470,7 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         (*fFunctionClasses)["inverse"]     = FunctionClass::kInverse;
         (*fFunctionClasses)["inverseSqrt"] = FunctionClass::kInverseSqrt;
         (*fFunctionClasses)["min"]         = FunctionClass::kMin;
+        (*fFunctionClasses)["pow"]         = FunctionClass::kPow;
         (*fFunctionClasses)["saturate"]    = FunctionClass::kSaturate;
         (*fFunctionClasses)["texture"]     = FunctionClass::kTexture;
         (*fFunctionClasses)["transpose"]   = FunctionClass::kTranspose;
@@ -573,6 +574,21 @@ void GLSLCodeGenerator::writeFunctionCall(const FunctionCall& c) {
                     }
                 }
                 break;
+            case FunctionClass::kPow:
+                if (!fProgram.fSettings.fCaps->removePowWithConstantExponent()) {
+                    break;
+                }
+                // pow(x, y) on some NVIDIA drivers causes crashes if y is a
+                // constant.  It's hard to tell what constitutes "constant" here
+                // so just replace in all cases.
+
+                // Change pow(x, y) into exp2(y * log2(x))
+                this->write("exp2(");
+                this->writeExpression(*c.fArguments[1], kMultiplicative_Precedence);
+                this->write(" * log2(");
+                this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+                this->write("))");
+                return;
             case FunctionClass::kSaturate:
                 SkASSERT(c.fArguments.size() == 1);
                 this->write("clamp(");

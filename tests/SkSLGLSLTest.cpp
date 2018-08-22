@@ -2094,3 +2094,24 @@ DEF_TEST(SkSLWorkaroundRewriteDoWhileLoops, r) {
          SkSL::Program::kFragment_Kind
          );
 }
+
+DEF_TEST(SkSLWorkaroundRemovePowWithConstantExponent, r) {
+    test(r,
+         "uniform float x;"
+         "uniform float y;"
+         "void main() {"
+         "    float z = pow(x + 1.0, y + 2.0);"
+         "    sk_FragColor = float4(z);"
+         "}",
+         *SkSL::ShaderCapsFactory::RemovePowWithConstantExponent(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "uniform float x;\n"
+         "uniform float y;\n"
+         "void main() {\n"
+         "    float z = exp2((y + 2.0) * log2(x + 1.0));\n"
+         "    sk_FragColor = vec4(z);\n"
+         "}\n",
+         SkSL::Program::kFragment_Kind
+         );
+}

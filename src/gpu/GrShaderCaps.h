@@ -135,6 +135,8 @@ public:
 
     bool rewriteDoWhileLoops() const { return fRewriteDoWhileLoops; }
 
+    bool removePowWithConstantExponent() const { return fRemovePowWithConstantExponent; }
+
     bool requiresLocalOutputColorForFBFetch() const { return fRequiresLocalOutputColorForFBFetch; }
 
     bool mustObfuscateUniformColor() const { return fMustObfuscateUniformColor; }
@@ -274,6 +276,7 @@ private:
     bool fUnfoldShortCircuitAsTernary                 : 1;
     bool fEmulateAbsIntFunction                       : 1;
     bool fRewriteDoWhileLoops                         : 1;
+    bool fRemovePowWithConstantExponent               : 1;
 
     const char* fVersionDeclString;
 
