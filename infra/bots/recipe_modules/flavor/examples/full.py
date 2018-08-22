@@ -119,7 +119,8 @@ def GenTests(api):
                      is_testing_exceptions='True')
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
+  builder = ('Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All'
+             '-Android')
   yield (
       api.test('failed_infra_step') +
       api.properties(buildername=builder,
@@ -132,7 +133,6 @@ def GenTests(api):
       api.step_data('dump log', retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('failed_read_version') +
       api.properties(buildername=builder,
@@ -144,7 +144,6 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   yield (
       api.test('retry_adb_command') +
       api.properties(buildername=builder,
@@ -156,7 +155,6 @@ def GenTests(api):
                     retcode=1)
   )
 
-  builder = 'Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android'
   fail_step_name = 'mkdir /sdcard/revenge_of_the_skiabot/resources'
   yield (
       api.test('retry_adb_command_retries_exhausted') +
@@ -172,7 +170,7 @@ def GenTests(api):
       api.step_data(fail_step_name + ' (attempt 3)', retcode=1)
   )
 
-  builder = 'Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All'
+  builder = 'Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All'
   fail_step_name = 'install_dm'
   yield (
       api.test('retry_ios_install') +

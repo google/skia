@@ -794,14 +794,14 @@
         "Perf-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Debug-All-Android"
       ]
     },
-    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android": {
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
       "tasks": [
-        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android"
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android"
       ]
     },
-    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "tasks": [
-        "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android"
+        "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android"
       ]
     },
     "Perf-Android-Clang-Pixel-GPU-Adreno530-arm64-Debug-All-Android": {
@@ -1628,34 +1628,34 @@
         "Perf-Win8-Clang-Golo-CPU-AVX-x86_64-Debug-All"
       ]
     },
-    "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
       "tasks": [
-        "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All"
+        "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All"
       ]
     },
-    "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "tasks": [
-        "Upload-Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+        "Upload-Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"
       ]
     },
-    "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
       "tasks": [
-        "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All"
+        "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All"
       ]
     },
-    "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "tasks": [
-        "Upload-Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All"
+        "Upload-Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"
       ]
     },
-    "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
       "tasks": [
-        "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All"
+        "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All"
       ]
     },
-    "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "tasks": [
-        "Upload-Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All"
+        "Upload-Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
       ]
     },
     "Test-Android-Clang-AndroidOne-GPU-Mali400MP2-arm-Debug-All-Android": {
@@ -1873,14 +1873,14 @@
         "Upload-Test-Android-Clang-NexusPlayer-CPU-Moorefield-x86-Release-All-Android"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
       "tasks": [
-        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android"
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "tasks": [
-        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android"
+        "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android"
       ]
     },
     "Test-Android-Clang-Pixel-CPU-Snapdragon821-arm-Release-All-Android_ASAN": {
@@ -2983,39 +2983,39 @@
         "Upload-Test-Win8-Clang-Golo-CPU-AVX-x86_64-Release-All"
       ]
     },
-    "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All": {
+    "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All"
+        "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All"
       ]
     },
-    "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+        "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"
       ]
     },
-    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All": {
+    "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All"
+        "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All"
       ]
     },
-    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All"
+        "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All"
+        "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal"
+        "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "tasks": [
-        "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All"
+        "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
       ]
     }
   },
@@ -21813,7 +21813,7 @@
         "perf"
       ]
     },
-    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android": {
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -21875,7 +21875,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -21913,7 +21913,7 @@
         "perf"
       ]
     },
-    "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -21975,7 +21975,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40405,7 +40405,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40467,7 +40467,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40504,7 +40504,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40566,7 +40566,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40603,7 +40603,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40665,7 +40665,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40702,7 +40702,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40764,7 +40764,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40801,7 +40801,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All": {
+    "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40863,7 +40863,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -40900,7 +40900,7 @@
         "perf"
       ]
     },
-    "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -40962,7 +40962,7 @@
         "-recipe",
         "perf",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"perf\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -45299,7 +45299,7 @@
         "test"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -45361,7 +45361,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -45399,7 +45399,7 @@
         "test"
       ]
     },
-    "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -45461,7 +45461,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71463,7 +71463,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All": {
+    "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71525,7 +71525,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71562,7 +71562,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71624,7 +71624,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71661,7 +71661,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All": {
+    "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71723,7 +71723,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71760,7 +71760,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71822,7 +71822,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71859,7 +71859,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -71921,7 +71921,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -71958,7 +71958,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -72020,7 +72020,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -72057,7 +72057,7 @@
         "test"
       ]
     },
-    "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -72119,7 +72119,7 @@
         "-recipe",
         "test",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All\",\"gold_hashes_url\":\"https://storage.googleapis.com/skia-infra-gm/hash_files/gold-prod-hashes.txt\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"test\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
@@ -74611,7 +74611,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Upload-Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -74678,13 +74678,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android"
+        "Perf-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -82612,7 +82612,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Upload-Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -82679,13 +82679,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+        "Perf-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -82711,7 +82711,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Upload-Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -82778,13 +82778,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All"
+        "Perf-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -82810,7 +82810,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-nano-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Upload-Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -82877,13 +82877,13 @@
         "-recipe",
         "upload_nano_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All\",\"gs_bucket\":\"skia-perf\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Perf-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All"
+        "Perf-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -87166,7 +87166,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android": {
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -87233,13 +87233,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Debug-All-Android"
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Debug-All-Android"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -87265,7 +87265,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android": {
+    "Upload-Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android": {
       "caches": [
         {
           "name": "vpython",
@@ -87332,13 +87332,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-Android-Clang-NexusPlayer-GPU-PowerVR-x86-Release-All-Android"
+        "Test-Android-Clang-NexusPlayer-GPU-PowerVRG6430-x86-Release-All-Android"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106299,7 +106299,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All": {
+    "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106366,13 +106366,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Debug-All"
+        "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106398,7 +106398,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All": {
+    "Upload-Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106465,13 +106465,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPadPro-GPU-GT7800-arm64-Release-All"
+        "Test-iOS-Clang-iPadPro-GPU-PowerVRGT7800-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106497,7 +106497,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All": {
+    "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106564,13 +106564,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Debug-All"
+        "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106596,7 +106596,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All": {
+    "Upload-Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106663,13 +106663,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPhone6-GPU-GX6450-arm64-Release-All"
+        "Test-iOS-Clang-iPhone6-GPU-PowerVRGX6450-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106695,7 +106695,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All": {
+    "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106762,13 +106762,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All"
+        "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106794,7 +106794,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal": {
+    "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal": {
       "caches": [
         {
           "name": "vpython",
@@ -106861,13 +106861,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Debug-All-Metal"
+        "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Debug-All-Metal"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
@@ -106893,7 +106893,7 @@
       "isolate": "swarm_recipe.isolate",
       "service_account": "skia-external-gm-uploader@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Upload-Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All": {
+    "Upload-Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All": {
       "caches": [
         {
           "name": "vpython",
@@ -106960,13 +106960,13 @@
         "-recipe",
         "upload_dm_results",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All\",\"gs_bucket\":\"skia-infra-gm\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
       "dependencies": [
         "Housekeeper-PerCommit-BundleRecipes",
-        "Test-iOS-Clang-iPhone7-GPU-GT7600-arm64-Release-All"
+        "Test-iOS-Clang-iPhone7-GPU-PowerVRGT7600-arm64-Release-All"
       ],
       "dimensions": [
         "cpu:x86-64-Haswell_GCE",
