@@ -577,6 +577,7 @@ def base_copts(os_conditions):
             ],
             # ANDROID
             [
+                "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
                 # 'GrResourceCache' declared with greater visibility than the
                 # type of its field 'GrResourceCache::fPurgeableQueue'... bogus.
                 "-Wno-error=attributes",
