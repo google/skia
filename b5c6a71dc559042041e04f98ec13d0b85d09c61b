@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "22d545a5_e17335ad",
+        "filename": "src/sksl/SkSLGLSLCodeGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-22T16:07:12Z",
+      "side": 1,
+      "message": "Nit: if you change kTopLevel_Precedence to kPrefix_Precedence, you don\u0027t need to hardcode the extra set of parentheses here, i.e.:\n\n    this-\u003ewrite(\"if (!\");\n    this-\u003ewriteExpression(*d.fTest, kPrefix_Precedence);\n    this-\u003ewriteLine(\") {\");",
+      "range": {
+        "startLine": 1372,
+        "startChar": 4,
+        "endLine": 1374,
+        "endChar": 28
+      },
+      "revId": "b5c6a71dc559042041e04f98ec13d0b85d09c61b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
