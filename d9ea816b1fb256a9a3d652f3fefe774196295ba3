@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "761b0027_cec6cba4",
+        "filename": "tests/DeferredDisplayListTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-22T14:27:38Z",
+      "side": 0,
+      "message": "So, does \u0027fColorSpace\u0027 go away too?",
+      "range": {
+        "startLine": 361,
+        "startChar": 62,
+        "endLine": 361,
+        "endChar": 73
+      },
+      "revId": "d9ea816b1fb256a9a3d652f3fefe774196295ba3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
