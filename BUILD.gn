@@ -863,6 +863,7 @@ component("skia") {
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
+    "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",
@@ -2021,8 +2022,8 @@ if (skia_enable_tools) {
       "tools/viewer/SlideDir.cpp",
       "tools/viewer/StatsLayer.cpp",
       "tools/viewer/SvgSlide.cpp",
-      "tools/viewer/TouchGesture.h",
       "tools/viewer/TouchGesture.cpp",
+      "tools/viewer/TouchGesture.h",
       "tools/viewer/Viewer.cpp",
     ]
     libs = []
