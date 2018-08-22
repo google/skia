@@ -22,6 +22,30 @@
       "revId": "009ec5526ac8a9bfed38687f3cc44916271aa084",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "178e57ee_094c85a8",
+        "filename": "include/codec/SkCodec.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-22T00:36:28Z",
+      "side": 1,
+      "message": "OK, I\u0027ve dropped being more specific about animated image formats with only one frame, and (hopefully) clarified \"single-frame images\" to be \"still (non-animated) image codecs\".",
+      "parentUuid": "5245b1c7_4e9b42e3",
+      "range": {
+        "startLine": 640,
+        "startChar": 29,
+        "endLine": 640,
+        "endChar": 57
+      },
+      "revId": "009ec5526ac8a9bfed38687f3cc44916271aa084",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
