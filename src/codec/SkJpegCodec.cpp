@@ -555,16 +555,17 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
 /*
  * This is a bit tricky.  We only need the swizzler to do format conversion if the jpeg is
  * encoded as CMYK.
- * And even then we still may not need it.  If the jpeg has a CMYK color space and a color
+ * And even then we still may not need it.  If the jpeg has a CMYK color profile and a color
  * xform, the color xform will handle the CMYK->RGB conversion.
  */
 static inline bool needs_swizzler_to_convert_from_cmyk(J_COLOR_SPACE jpegColorType,
-        const SkImageInfo& srcInfo, bool hasColorSpaceXform) {
+                                                       const skcms_ICCProfile* srcProfile,
+                                                       bool hasColorSpaceXform) {
     if (JCS_CMYK != jpegColorType) {
         return false;
     }
 
-    bool hasCMYKColorSpace = SkColorSpace::kCMYK_Type ==  srcInfo.colorSpace()->type();
+    bool hasCMYKColorSpace = srcProfile && srcProfile->data_color_space == skcms_Signature_CMYK;
     return !hasCMYKColorSpace || !hasColorSpaceXform;
 }
 
@@ -597,8 +598,8 @@ SkCodec::Result SkJpegCodec::onGetPixels(const SkImageInfo& dstInfo,
     // If it's not, we want to know because it means our strategy is not optimal.
     SkASSERT(1 == dinfo->rec_outbuf_height);
 
-    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space, this->getInfo(),
-            this->colorXform())) {
+    if (needs_swizzler_to_convert_from_cmyk(dinfo->out_color_space,
+                                            this->getEncodedInfo().profile(), this->colorXform())) {
         this->initializeSwizzler(dstInfo, options, true);
     }
 
@@ -677,7 +678,8 @@ SkSampler* SkJpegCodec::getSampler(bool createIfNecessary) {
     }
 
     bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
-            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+            fDecoderMgr->dinfo()->out_color_space, this->getEncodedInfo().profile(),
+            this->colorXform());
     this->initializeSwizzler(this->dstInfo(), this->options(), needsCMYKToRGB);
     this->allocateStorage(this->dstInfo());
     return fSwizzler.get();
@@ -698,7 +700,8 @@ SkCodec::Result SkJpegCodec::onStartScanlineDecode(const SkImageInfo& dstInfo,
     }
 
     bool needsCMYKToRGB = needs_swizzler_to_convert_from_cmyk(
-            fDecoderMgr->dinfo()->out_color_space, this->getInfo(), this->colorXform());
+            fDecoderMgr->dinfo()->out_color_space, this->getEncodedInfo().profile(),
+            this->colorXform());
     if (options.fSubset) {
         uint32_t startX = options.fSubset->x();
         uint32_t width = options.fSubset->width();
