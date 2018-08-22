@@ -17,6 +17,7 @@
 
 class SkCanvas;
 class SkData;
+class SkFontMgr;
 struct SkRect;
 class SkStream;
 
@@ -37,19 +38,57 @@ public:
 
 class SK_API Animation : public SkRefCnt {
 public:
-    struct Stats {
-        float  fTotalLoadTimeMS,
-               fJsonParseTimeMS,
-               fSceneParseTimeMS;
-        size_t fJsonSize,
-               fAnimatorCount;
+
+    class Builder final {
+    public:
+        struct Stats {
+            float  fTotalLoadTimeMS  = 0, // Total animation instantiation time.
+                   fJsonParseTimeMS  = 0, // Time spent building a JSON DOM.
+                   fSceneParseTimeMS = 0; // Time spent constructing the animation scene graph.
+            size_t fJsonSize         = 0, // Input JSON size.
+                   fAnimatorCount    = 0; // Number of dynamically animated properties.
+        };
+
+        /**
+         * Returns various animation build stats.
+         *
+         * @return Stats (see above).
+         */
+        const Stats& getStats() const { return fStats; }
+
+        /**
+         * Specify a loader for external resources (images, etc.).  Ownership stays with the caller
+         * (the ResrouceProvider must be valid for this builder's lifespan).
+         */
+        Builder& setResourceProvider(const ResourceProvider*);
+
+        /**
+         * Specify a font manager for loading animation fonts.  Ownership stays with the caller
+         * (the SkFontMgr must be valid for this builder's lifespan).
+         */
+        Builder& setFontManager(const SkFontMgr*);
+
+        /**
+         * Animation factories.
+         */
+        sk_sp<Animation> make(SkStream*);
+        sk_sp<Animation> make(const char* data, size_t length);
+        sk_sp<Animation> makeFromFile(const char path[]);
+
+    private:
+        const ResourceProvider* fResourceProvider = nullptr;
+        const SkFontMgr*        fFontMgr          = nullptr;
+        Stats                   fStats;
     };
 
-    static sk_sp<Animation> Make(const char* data, size_t length,
-                                 const ResourceProvider* = nullptr, Stats* = nullptr);
-    static sk_sp<Animation> Make(SkStream*, const ResourceProvider* = nullptr, Stats* = nullptr);
-    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr,
-                                         Stats* = nullptr);
+    /**
+     * Animation factories.
+     *
+     * Use the Builder helper above for more options/control.
+     */
+    static sk_sp<Animation> Make(const char* data, size_t length);
+    static sk_sp<Animation> Make(SkStream*);
+    static sk_sp<Animation> MakeFromFile(const char path[]);
 
     ~Animation() override;
 
@@ -72,9 +111,7 @@ public:
     /**
      * Returns the animation duration in seconds.
      */
-    SkScalar duration() const {
-        return (fOutPoint - fInPoint) / fFrameRate;
-    }
+    SkScalar duration() const { return fDuration; }
 
     const SkString& version() const { return fVersion;   }
     const SkSize&      size() const { return fSize;      }
@@ -82,16 +119,15 @@ public:
     void setShowInval(bool show);
 
 private:
-    Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
-              SkScalar in, SkScalar out, const skjson::ObjectValue&, Stats*);
-
-    SkString                     fVersion;
-    SkSize                       fSize;
-    SkScalar                     fFrameRate,
-                                 fInPoint,
-                                 fOutPoint;
+    Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
+              SkScalar inPoint, SkScalar outPoint, SkScalar duration);
 
     std::unique_ptr<sksg::Scene> fScene;
+    const SkString               fVersion;
+    const SkSize                 fSize;
+    const SkScalar               fInPoint,
+                                 fOutPoint,
+                                 fDuration;
 
     typedef SkRefCnt INHERITED;
 };
