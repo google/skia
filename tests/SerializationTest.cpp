@@ -140,6 +140,15 @@ template<> struct SerializationUtils<SkPoint> {
     }
 };
 
+template<> struct SerializationUtils<SkPoint3> {
+    static void Write(SkWriteBuffer& writer, const SkPoint3* data) {
+        writer.writePoint3(*data);
+    }
+    static void Read(SkReadBuffer& reader, SkPoint3* data) {
+        reader.readPoint3(data);
+    }
+};
+
 template<> struct SerializationUtils<SkScalar> {
     static void Write(SkWriteBuffer& writer, SkScalar* data, uint32_t arraySize) {
         writer.writeScalarArray(data, arraySize);
@@ -441,6 +450,12 @@ DEF_TEST(Serialization, reporter) {
     {
         SkMatrix matrix = SkMatrix::I();
         TestObjectSerialization(&matrix, reporter);
+    }
+
+    // Test point3 serialization
+    {
+        SkPoint3 point;
+        TestObjectSerializationNoAlign<SkPoint3, false>(&point, reporter);
     }
 
     // Test path serialization
