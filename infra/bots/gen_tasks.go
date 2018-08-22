@@ -314,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -504,8 +504,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		} else if parts["cpu_or_gpu"] == "CPU" {
 			modelMapping, ok := map[string]map[string]string{
 				"AVX": {
-					"MacMini7.1": "x86-64-E5-2697_v2",
-					"Golo":       "x86-64-E5-2670",
+					"Golo": "x86-64-E5-2670",
 				},
 				"AVX2": {
 					"GCE":            "x86-64-Haswell_GCE",
