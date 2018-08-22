@@ -1334,11 +1334,56 @@ void GLSLCodeGenerator::writeWhileStatement(const WhileStatement& w) {
 }
 
 void GLSLCodeGenerator::writeDoStatement(const DoStatement& d) {
-    this->write("do ");
+    if (!fProgram.fSettings.fCaps->rewriteDoWhileLoops()) {
+        this->write("do ");
+        this->writeStatement(*d.fStatement);
+        this->write(" while (");
+        this->writeExpression(*d.fTest, kTopLevel_Precedence);
+        this->write(");");
+        return;
+    }
+
+    // Otherwise, do the do while loop workaround, to rewrite loops of the form:
+    //     do {
+    //         CODE;
+    //     } while (CONDITION)
+    //
+    // to loops of the form
+    //     bool temp = false;
+    //     while (true) {
+    //         if (temp) {
+    //             if (!CONDITION) {
+    //                 break;
+    //             }
+    //         }
+    //         temp = true;
+    //         CODE;
+    //     }
+    String tmpVar = "_tmpLoopSeenOnce" + to_string(fVarCount++);
+    this->write("bool ");
+    this->write(tmpVar);
+    this->writeLine(" = false;");
+    this->writeLine("while (true) {");
+    fIndentation++;
+    this->write("if (");
+    this->write(tmpVar);
+    this->writeLine(") {");
+    fIndentation++;
+    this->write("if (!");
+    this->writeExpression(*d.fTest, kPrefix_Precedence);
+    this->writeLine(") {");
+    fIndentation++;
+    this->writeLine("break;");
+    fIndentation--;
+    this->writeLine("}");
+    fIndentation--;
+    this->writeLine("}");
+    this->write(tmpVar);
+    this->writeLine(" = true;");
     this->writeStatement(*d.fStatement);
-    this->write(" while (");
-    this->writeExpression(*d.fTest, kTopLevel_Precedence);
-    this->write(");");
+    this->writeLine();
+    fIndentation--;
+    this->write("}");
 }
 
 void GLSLCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
