@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b7ef3d9_0bc8cdc2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-22T13:09:51Z",
+      "side": 1,
+      "message": "nit: SkGlyph looks lightweight-enough to not matter, but I think we could avoid this copy if we moved all related computations inside |glyph|\u0027s scope.",
+      "revId": "bfb749059cea324cd1372b1bbfb7a6fa830dc228",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
