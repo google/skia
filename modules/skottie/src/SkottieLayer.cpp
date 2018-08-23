@@ -267,6 +267,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachSolidLayer(const skjson::ObjectV
     const skjson::StringValue* hex_str = jlayer["sc"];
     uint32_t c;
     if (size.isEmpty() ||
+        !hex_str ||
         *hex_str->begin() != '#' ||
         !SkParse::FindHex(hex_str->begin() + 1, &c)) {
         LogJSON(jlayer, "!! Could not parse solid layer");
