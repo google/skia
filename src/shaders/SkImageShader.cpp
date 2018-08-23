@@ -397,18 +397,16 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
                                          : SkRasterPipeline::clamp_a);
         }
 
-        if (rec.fDstCS) {
-            // If color managed, convert from premul source all the way to premul dst color space.
-            auto srcCS = info.colorSpace();
-            if (!srcCS || info.colorType() == kAlpha_8_SkColorType) {
-                // We treat untagged images as sRGB.
-                // A8 images get their r,g,b from the paint color, so they're also sRGB.
-                srcCS = sk_srgb_singleton();
-            }
-            alloc->make<SkColorSpaceXformSteps>(srcCS     , kPremul_SkAlphaType,
-                                                rec.fDstCS, kPremul_SkAlphaType)
-                ->apply(p);
+        auto dstCS = rec.fDstCS,
+             srcCS = info.colorSpace();
+        if (info.colorType() == kAlpha_8_SkColorType) {
+            // A8 images get their r,g,b from the paint color, so they're sRGB.
+            srcCS = sk_srgb_singleton();
         }
+
+        alloc->make<SkColorSpaceXformSteps>(srcCS, kPremul_SkAlphaType,
+                                            dstCS, kPremul_SkAlphaType)
+            ->apply(p);
 
         return true;
     };
