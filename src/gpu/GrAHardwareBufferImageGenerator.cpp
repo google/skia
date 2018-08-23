@@ -54,33 +54,39 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
 }
 
 GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageInfo& info,
-        AHardwareBuffer* graphicBuffer, SkAlphaType alphaType)
+        AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType)
     : INHERITED(info)
-    , fGraphicBuffer(graphicBuffer) {
-    AHardwareBuffer_acquire(fGraphicBuffer);
+    , fHardwareBuffer(hardwareBuffer) {
+    AHardwareBuffer_acquire(fHardwareBuffer);
+}
+
+void GrAHardwareBufferImageGenerator::releaseTextureRef() {
+    // We must release our ref on the proxy before we send the free message to the actual texture so
+    // that we make sure the last ref (if it is owned by this class) is released on the owning
+    // context.
+    fCachedProxy.reset();
+    if (fOwnedTexture) {
+        SkASSERT(fOwningContextID != SK_InvalidGenID);
+        // Notify the original cache that it can free the last ref, so it happens on the correct
+        // thread.
+        GrGpuResourceFreedMessage msg { fOwnedTexture, fOwningContextID };
+        SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
+        fOwnedTexture = nullptr;
+        fOwningContextID = SK_InvalidGenID;
+    }
 }
 
 GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
-    AHardwareBuffer_release(fGraphicBuffer);
-    this->clear();
-}
-
-void GrAHardwareBufferImageGenerator::clear() {
-    if (fOriginalTexture) {
-        // Notify the original cache that it can free the last ref, so it happens on the correct
-        // thread.
-        GrGpuResourceFreedMessage msg { fOriginalTexture, fOwningContextID };
-        SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
-        fOriginalTexture = nullptr;
-    }
+    this->releaseTextureRef();
+    AHardwareBuffer_release(fHardwareBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
-    auto proxy = this->makeProxy(context);
-    if (!proxy) {
+    this->makeProxy(context);
+    if (!fCachedProxy) {
         return nullptr;
     }
 
@@ -88,9 +94,9 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
     if (0 == origin.fX && 0 == origin.fY &&
             info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
         makingASubset = false;
-        if (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped()) {
+        if (!willNeedMipMaps || GrMipMapped::kYes == fCachedProxy->mipMapped()) {
             // If the caller wants the full texture and we have the correct mip support, we're done
-            return proxy;
+            return fCachedProxy;
         }
     }
     // Otherwise, make a copy for the requested subset or for mip maps.
@@ -98,7 +104,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
 
     GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
 
-    sk_sp<GrTextureProxy> texProxy = GrSurfaceProxy::Copy(context, proxy.get(), mipMapped,
+    sk_sp<GrTextureProxy> texProxy = GrSurfaceProxy::Copy(context, fCachedProxy.get(), mipMapped,
                                                           subset, SkBudgeted::kYes);
     if (!makingASubset && texProxy) {
         // We are in this case if we wanted the full texture, but we will be mip mapping the
@@ -112,14 +118,11 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
         // should match.
         SkASSERT(context->uniqueID() == fOwningContextID);
 
-        // Clear out the old cached texture.
-        this->clear();
+        // Since we no longer will be caching the and reusing the texture that actually wraps the
+        // hardware buffer, we can release our refs on it.
+        this->releaseTextureRef();
 
-        // We need to get the actual GrTexture so force instantiation of the GrTextureProxy
-        texProxy->instantiate(context->contextPriv().resourceProvider());
-        GrTexture* texture = texProxy->peekTexture();
-        SkASSERT(texture);
-        fOriginalTexture = texture;
+        fCachedProxy = texProxy;
     }
     return texProxy;
 }
@@ -130,6 +133,7 @@ public:
         : fImage(image)
         , fDisplay(display) { }
     ~BufferCleanupHelper() {
+        // eglDestroyImageKHR will remove a ref from the AHardwareBuffer
         eglDestroyImageKHR(fDisplay, fImage);
     }
 private:
@@ -138,20 +142,22 @@ private:
 };
 
 
-void GrAHardwareBufferImageGenerator::DeleteImageTexture(void* context) {
+void GrAHardwareBufferImageGenerator::DeleteEGLImage(void* context) {
     BufferCleanupHelper* cleanupHelper = static_cast<BufferCleanupHelper*>(context);
     delete cleanupHelper;
 }
 
-static GrBackendTexture make_gl_backend_texture(GrContext* context, AHardwareBuffer* hardwareBuffer,
-                                                int width, int height,
-                                                sk_sp<GrReleaseProcHelper> releaseHelper) {
+static GrBackendTexture make_gl_backend_texture(
+        GrContext* context, AHardwareBuffer* hardwareBuffer, int width, int height,
+        GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
     EGLClientBuffer  clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
                          EGL_NONE };
     EGLDisplay display = eglGetCurrentDisplay();
+    // eglCreateImageKHR will add a ref to the AHardwareBuffer
     EGLImageKHR image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
                                           clientBuffer, attribs);
     if (EGL_NO_IMAGE_KHR == image) {
@@ -186,23 +192,20 @@ static GrBackendTexture make_gl_backend_texture(GrContext* context, AHardwareBuf
     textureInfo.fTarget = GL_TEXTURE_EXTERNAL_OES;
     textureInfo.fID = texID;
 
-    releaseHelper.reset(
-            new GrReleaseProcHelper(GrAHardwareBufferImageGenerator::DeleteImageTexture,
-                                    new BufferCleanupHelper(image, display)));
+    *deleteProc = GrAHardwareBufferImageGenerator::DeleteEGLImage;
+    *deleteCtx = new BufferCleanupHelper(image, display);
 
     return GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
 }
 
 static GrBackendTexture make_backend_texture(GrContext* context, AHardwareBuffer* hardwareBuffer,
-                                             int width, int height,
-                                             sk_sp<GrReleaseProcHelper> releaseHelper) {
-    SkASSERT(!releaseHelper);
+        int width, int height, GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
         return GrBackendTexture();
     }
-    return make_gl_backend_texture(context, hardwareBuffer, width, height,
-                                   std::move(releaseHelper));
+    return make_gl_backend_texture(context, hardwareBuffer, width, height, deleteProc, deleteCtx);
 }
 
 static void free_backend_texture(GrBackendTexture* backendTexture) {
@@ -221,19 +224,23 @@ static void free_backend_texture(GrBackendTexture* backendTexture) {
     }
 }
 
-sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
+void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
-        return nullptr;
+        return;
     }
 
-    auto proxyProvider = context->contextPriv().proxyProvider();
-
-    // return a cached GrTexture if invoked with the same context
-    if (fOriginalTexture && fOwningContextID == context->uniqueID()) {
-        return proxyProvider->createWrapped(sk_ref_sp(fOriginalTexture),
-                                            kTopLeft_GrSurfaceOrigin);
+    if (SK_InvalidGenID != fOwningContextID) {
+        SkASSERT(fCachedProxy);
+        if (context->uniqueID() != fOwningContextID) {
+            this->releaseTextureRef();
+        } else {
+            return;
+        }
     }
+    SkASSERT(!fCachedProxy);
+
+    fOwningContextID = context->uniqueID();
 
     GrPixelConfig pixelConfig;
     switch (this->getInfo().colorType()) {
@@ -247,41 +254,84 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
             pixelConfig = kRGB_565_GrPixelConfig;
             break;
         default:
-            return nullptr;
+            return;
     }
 
-    sk_sp<GrReleaseProcHelper> releaseHelper;
-    GrBackendTexture backendTex = make_backend_texture(context, fGraphicBuffer,
-                                                       this->getInfo().width(),
-                                                       this->getInfo().height(),
-                                                       releaseHelper);
+    int width = this->getInfo().width();
+    int height = this->getInfo().height();
 
-    if (!backendTex.isValid()) {
-        return nullptr;
-    }
-    backendTex.fConfig = pixelConfig;
-    sk_sp<GrTexture> tex = context->contextPriv().resourceProvider()->wrapBackendTexture(
-                                                        backendTex, kAdopt_GrWrapOwnership);
-    if (!tex) {
-        free_backend_texture(&backendTex);
-        return nullptr;
+    GrSurfaceDesc desc;
+    desc.fWidth = width;
+    desc.fHeight = height;
+    desc.fConfig = pixelConfig;
+
+    GrTextureType textureType = GrTextureType::k2D;
+    if (context->contextPriv().getBackend() == kOpenGL_GrBackend) {
+        textureType = GrTextureType::kExternal;
     }
 
-    tex->setRelease(std::move(releaseHelper));
+    auto proxyProvider = context->contextPriv().proxyProvider();
 
-    // We fail this assert, if the context has changed. This will be fully handled after
-    // skbug.com/6812 is ready.
-    SkASSERT(!fOriginalTexture);
+    AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
+    AHardwareBuffer_acquire(hardwareBuffer);
 
-    this->clear();
-    fOriginalTexture = tex.get();
-    fOwningContextID = context->uniqueID();
-    // Attach our texture to this context's resource cache. This ensures that deletion will happen
-    // in the correct thread/context. This adds the only ref to the texture that will persist from
-    // this point. To trigger GrTexture deletion a message is sent by generator dtor or by
-    // makeProxy when it is invoked with a different context.
-    context->contextPriv().getResourceCache()->insertCrossContextGpuResource(fOriginalTexture);
-    return proxyProvider->createWrapped(std::move(tex), kTopLeft_GrSurfaceOrigin);
+    uint32_t owningContextID = fOwningContextID;
+    GrTexture** ownedTexturePtr = &fOwnedTexture;
+
+    fCachedProxy = proxyProvider->createLazyProxy(
+            [context, hardwareBuffer, width, height, pixelConfig, owningContextID, ownedTexturePtr]
+            (GrResourceProvider* resourceProvider) {
+                if (!resourceProvider) {
+                    AHardwareBuffer_release(hardwareBuffer);
+                    return sk_sp<GrTexture>();
+                }
+
+                SkASSERT(owningContextID == context->uniqueID());
+                SkASSERT(!*ownedTexturePtr);
+
+                DeleteImageProc deleteImageProc = nullptr;
+                DeleteImageCtx deleteImageCtx = nullptr;
+
+                GrBackendTexture backendTex = make_backend_texture(context, hardwareBuffer,
+                                                                   width, height,
+                                                                   &deleteImageProc,
+                                                                   &deleteImageCtx);
+                if (!backendTex.isValid()) {
+                    return sk_sp<GrTexture>();
+                }
+                SkASSERT(deleteImageProc && deleteImageCtx);
+
+                backendTex.fConfig = pixelConfig;
+                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
+                        backendTex, kAdopt_GrWrapOwnership);
+                if (!tex) {
+                    free_backend_texture(&backendTex);
+                    deleteImageProc(deleteImageCtx);
+                    return sk_sp<GrTexture>();
+                }
+
+                sk_sp<GrReleaseProcHelper> releaseProcHelper(
+                        new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
+                tex->setRelease(releaseProcHelper);
+
+                *ownedTexturePtr = tex.get();
+
+                // Attach our texture to this context's resource cache. This ensures that deletion
+                // will happen in the correct thread/context. This adds the only ref to the texture
+                // that will persist from this point. To trigger GrTexture deletion a message is
+                // sent by generator dtor or by makeProxy when it is invoked with a different
+                // context.
+                context->contextPriv().getResourceCache()->insertCrossContextGpuResource(tex.get());
+                return tex;
+            },
+            desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, textureType, SkBackingFit::kExact,
+            SkBudgeted::kNo);
+
+
+    if (!fCachedProxy) {
+        AHardwareBuffer_release(hardwareBuffer);
+        return;
+    }
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
