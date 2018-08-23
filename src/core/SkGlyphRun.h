@@ -12,7 +12,6 @@
 #include <memory>
 #include <vector>
 
-#include "SkArenaAlloc.h"
 #include "SkDescriptor.h"
 #include "SkMask.h"
 #include "SkPath.h"
@@ -26,6 +25,7 @@
 class GrColorSpaceInfo;
 class GrRenderTargetContext;
 #endif
+class SkArenaAlloc;
 class SkBaseDevice;
 class SkGlyphRunList;
 class SkRasterClip;
@@ -142,7 +142,7 @@ public:
     using PerMaskCreator = std::function<PerMask(const SkPaint&, SkArenaAlloc* alloc)>;
     using PerPath = std::function<void(const SkPath*, const SkGlyph&, SkPoint)>;
     using PerPathCreator = std::function<PerPath(
-            const SkPaint&, SkScalar matrixScale,SkArenaAlloc* alloc)>;
+            const SkPaint&, SkScalar matrixScale, SkArenaAlloc* alloc)>;
     void drawForBitmapDevice(
             const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,
             PerMaskCreator perMaskCreator, PerPathCreator perPathCreator);
