@@ -16,6 +16,24 @@
       "revId": "e82ef487832f29b644cf37db18704162a1bae153",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "884c97bd_81eb4ce2",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-23T13:42:31Z",
+      "side": 1,
+      "message": "I just did an ASAN build and it complained about it when compiling processors. If Chrome objects this can just be reverted.",
+      "parentUuid": "32dcc358_72f8388c",
+      "revId": "e82ef487832f29b644cf37db18704162a1bae153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
