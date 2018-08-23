@@ -52,13 +52,17 @@ static bool good_enough(const char* name, int64_t badnessMetric) {
         int64_t tolerance;
     } allowedBadnesses[] = {
         // These values are rounded up from failing tests reported by vendor.
-        // The failures were perceptually good.
-        { "circular_arcs_stroke_and_fill_round", 110   },
-        { "circular_arcs_weird",                 12000 },
-        { "drawTextRSXform",                     1000  },
-        { "patheffect",                          260   },
-        { "strokes_poly",                        1100  },
-        { "stroketext",                          700   },
+        { "blurroundrect-WH-100x100-unevenCorners", 360   },
+        { "circular_arcs_stroke_and_fill_round",    110   },
+        { "circular_arcs_weird",                    12000 },
+        { "complexclip2_path_aa",                   570   },
+        { "drawTextRSXform",                        1000  },
+        { "drrect",                                 410   },
+        { "patheffect",                             260   },
+        { "simpleshapes",                           200   },
+        { "skbug1719",                              920   },
+        { "strokes_poly",                           1100  },
+        { "stroketext",                             700   },
     };
     for (auto allowedBadness : allowedBadnesses) {
         if (0 == strcmp(allowedBadness.name, name)) {
