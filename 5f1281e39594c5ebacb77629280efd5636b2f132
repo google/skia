@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f791acdd_f230edf8",
+        "filename": "src/gpu/vk/GrVkGpuCommandBuffer.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-23T20:39:14Z",
+      "side": 1,
+      "message": "this shouldn\u0027t be needed right? We just have to bind the pipeline once at the beginning?",
+      "range": {
+        "startLine": 731,
+        "startChar": 11,
+        "endLine": 731,
+        "endChar": 69
+      },
+      "revId": "5f1281e39594c5ebacb77629280efd5636b2f132",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a0705649_81531ac9",
+        "filename": "src/gpu/vk/GrVkUniformHandler.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-23T20:39:14Z",
+      "side": 1,
+      "message": "Can we just add a little to this to say that the Sampler is after the Uniform so that when using dynamic textures we only have to rebind the sample desc set.",
+      "range": {
+        "startLine": 21,
+        "startChar": 11,
+        "endLine": 22,
+        "endChar": 44
+      },
+      "revId": "5f1281e39594c5ebacb77629280efd5636b2f132",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
