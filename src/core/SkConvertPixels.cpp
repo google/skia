@@ -220,15 +220,8 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
             break;
     }
 
-    // Interpret any untagged source as sRGB.
-    auto srcCS = srcInfo.colorSpace() ? srcInfo.colorSpace() : sk_srgb_singleton();
-
-    // An untagged destination implies no color space transform is needed,
-    // but SkColorSpaceXformSteps may still do premul/unpremul conversion.
-    auto dstCS = dstInfo.colorSpace() ? dstInfo.colorSpace() : srcCS;
-
-    SkColorSpaceXformSteps steps{srcCS, srcInfo.alphaType(),
-                                 dstCS, dstInfo.alphaType()};
+    SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
+                                 dstInfo.colorSpace(), dstInfo.alphaType()};
     steps.apply(&pipeline);
 
     // We'll dither if we're decreasing precision below 32-bit.
