@@ -99,10 +99,10 @@ public:
      * this would hide the RRect special case and the mask generation
      */
     virtual bool canFilterMaskGPU(const GrShape&,
-                                  const SkIRect& devSpaceShapeBounds,
+                                  const SkRect& devSpaceShapeBounds,
                                   const SkIRect& clipBounds,
                                   const SkMatrix& ctm,
-                                  SkIRect* maskRect) const;
+                                  SkRect* maskRect) const;
 
     /**
      *  Try to directly render the mask filter into the target. Returns true if drawing was
