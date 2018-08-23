@@ -385,7 +385,7 @@ void SkGpuDevice::drawRect(const SkRect& rect, const SkPaint& paint) {
     if (paint.getMaskFilter() || paint.getPathEffect()) {
         GrShape shape(rect, style);
 
-        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+        GrBlurUtils::drawShapeWithMaskFilter1(fContext.get(), fRenderTargetContext.get(),
                                              this->clip(), paint, this->ctm(), shape);
         return;
     }
@@ -442,7 +442,7 @@ void SkGpuDevice::drawRRect(const SkRRect& rrect, const SkPaint& paint) {
         GrShape shape(rrect, style);
 
         // TODO: this is throwing away to work we did to create the GrPaint
-        GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(),
+        GrBlurUtils::drawShapeWithMaskFilter1(fContext.get(), fRenderTargetContext.get(),
                                              this->clip(), paint, this->ctm(), shape);
         return;
     }
@@ -489,7 +489,7 @@ void SkGpuDevice::drawDRRect(const SkRRect& outer, const SkRRect& inner, const S
     // fixed by upgrading GrShape to handle DRRects.
     GrShape shape(path, paint);
 
-    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+    GrBlurUtils::drawShapeWithMaskFilter1(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                          paint, this->ctm(), shape);
 }
 
@@ -641,7 +641,7 @@ void SkGpuDevice::drawPath(const SkPath& origSrcPath, const SkPaint& paint, bool
     // TODO: losing possible mutability of 'origSrcPath' here
     GrShape shape(origSrcPath, paint);
 
-    GrBlurUtils::drawShapeWithMaskFilter(fContext.get(), fRenderTargetContext.get(), this->clip(),
+    GrBlurUtils::drawShapeWithMaskFilter1(fContext.get(), fRenderTargetContext.get(), this->clip(),
                                          paint, this->ctm(), shape);
 }
 

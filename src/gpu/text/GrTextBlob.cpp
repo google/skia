@@ -9,6 +9,7 @@
 #include "GrBlurUtils.h"
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrShape.h"
 #include "GrStyle.h"
 #include "GrTextTarget.h"
 #include "SkColorFilter.h"
@@ -320,7 +321,10 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
                     pathIsMutable = true;
                 }
 
-                target->drawPath(clip, *path, runPaint, *ctm, pathIsMutable);
+                // TODO: we are losing the mutability of the path here
+                GrShape shape(*path, paint);
+
+                target->drawShape(clip, runPaint, *ctm, shape);
             }
         }
 
