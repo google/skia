@@ -139,6 +139,7 @@ public:
         kGrSweepGradientLayout_ClassID,
         kGrTextureDomainEffect_ClassID,
         kGrTiledGradientEffect_ClassID,
+        kGrTwoPointConicalGradientLayout_ClassID,
         kGrUnpremulInputFragmentProcessor_ClassID,
         kGrYUVtoRGBEffect_ClassID,
         kHighContrastFilterEffect_ClassID,
