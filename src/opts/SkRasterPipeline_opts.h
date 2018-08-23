@@ -2538,6 +2538,9 @@ STAGE_PP(set_rgb, const float rgb[3]) {
     b = from_float(rgb[2]);
 }
 
+STAGE_PP(clamp_0, Ctx::None) { /*definitely a noop*/ }
+STAGE_PP(clamp_1, Ctx::None) { /*_should_ be a noop*/ }
+
 STAGE_PP(clamp_a, Ctx::None) {
     r = min(r, a);
     g = min(g, a);
@@ -3207,7 +3210,6 @@ using NotImplemented = void(*)(void);
 
 static NotImplemented
         callback, load_rgba, store_rgba,
-        clamp_0, clamp_1,
         unbounded_uniform_color,
         unpremul, dither,
         from_srgb, from_srgb_dst, to_srgb,

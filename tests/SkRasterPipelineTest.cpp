@@ -185,3 +185,19 @@ DEF_TEST(SkRasterPipeline_lowp, r) {
         }
     }
 }
+
+DEF_TEST(SkRasterPipeline_lowp_clamp01, r) {
+    // This may seem like a funny pipeline to create,
+    // but it certainly shouldn't crash when you run it.
+
+    uint32_t rgba = 0xff00ff00;
+
+    SkJumper_MemoryCtx ptr = { &rgba, 0 };
+
+    SkRasterPipeline_<256> p;
+    p.append(SkRasterPipeline::load_bgra,  &ptr);
+    p.append(SkRasterPipeline::clamp_0);
+    p.append(SkRasterPipeline::clamp_1);
+    p.append(SkRasterPipeline::store_8888, &ptr);
+    p.run(0,0,1,1);
+}
