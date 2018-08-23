@@ -286,7 +286,6 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                                            GrTextureDomain::kDecal_Mode,
                                            GrSamplerState::Filter::kNearest);
         bgFP = GrColorSpaceXformEffect::Make(std::move(bgFP), background->getColorSpace(),
-                                             background->alphaType(),
                                              outputProperties.colorSpace());
     } else {
         bgFP = GrConstColorProcessor::Make(GrColor4f::TransparentBlack(),
@@ -302,7 +301,6 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::filterImageGPU(
                 GrTextureDomain::kDecal_Mode, GrSamplerState::Filter::kNearest);
         foregroundFP = GrColorSpaceXformEffect::Make(std::move(foregroundFP),
                                                      foreground->getColorSpace(),
-                                                     foreground->alphaType(),
                                                      outputProperties.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
