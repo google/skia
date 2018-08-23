@@ -129,9 +129,10 @@ sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AnimatorScope*
     return color_node;
 }
 
-AnimationBuilder::AnimationBuilder(const ResourceProvider& rp, sk_sp<SkFontMgr> fontmgr,
-                                  Animation::Builder::Stats* stats, float duration, float framerate)
-    : fResourceProvider(rp)
+AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> fontmgr,
+                                   Animation::Builder::Stats* stats,
+                                   float duration, float framerate)
+    : fResourceProvider(std::move(rp))
     , fFontMgr(std::move(fontmgr))
     , fStats(stats)
     , fDuration(duration)
@@ -163,8 +164,8 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
 
 } // namespace internal
 
-Animation::Builder& Animation::Builder::setResourceProvider(const ResourceProvider* rp) {
-    fResourceProvider = rp;
+Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvider> rp) {
+    fResourceProvider = std::move(rp);
     return *this;
 }
 
@@ -194,10 +195,10 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     class NullResourceProvider final : public ResourceProvider {
         sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
     };
-
-    const NullResourceProvider nullProvider;
-    auto resolvedProvider = fResourceProvider ? fResourceProvider : &nullProvider;
-    auto resolvedFontMgr  = fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
+    auto resolvedProvider = fResourceProvider
+            ? fResourceProvider : sk_make_sp<NullResourceProvider>();
+    auto resolvedFontMgr  = fFontMgr
+            ? fFontMgr : SkFontMgr::RefDefault();
 
     memset(&fStats, 0, sizeof(struct Stats));
 
@@ -233,8 +234,8 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
 
     SkASSERT(resolvedProvider);
     SkASSERT(resolvedFontMgr);
-    internal::AnimationBuilder builder(*resolvedProvider, std::move(resolvedFontMgr), &fStats,
-                                       duration, fps);
+    internal::AnimationBuilder builder(std::move(resolvedProvider), std::move(resolvedFontMgr),
+                                       &fStats, duration, fps);
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();
@@ -268,17 +269,16 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
     if (!data)
         return nullptr;
 
-    const auto* origProvider = fResourceProvider;
-    std::unique_ptr<ResourceProvider> localProvider;
-    if (!fResourceProvider) {
-        localProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
-        fResourceProvider = localProvider.get();
+    const auto useLocalProvider = !fResourceProvider;
+    if (useLocalProvider) {
+        fResourceProvider = sk_make_sp<DirectoryResourceProvider>(SkOSPath::Dirname(path));
     }
 
     auto animation = this->make(static_cast<const char*>(data->data()), data->size());
 
-    // Don't leak localProvider references.
-    fResourceProvider = origProvider;
+    if (useLocalProvider) {
+        fResourceProvider.reset();
+    }
 
     return animation;
 }
