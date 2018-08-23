@@ -123,3 +123,20 @@ DEF_TEST(DashPathEffectTest_asPoints_limit, r) {
     p.setPathEffect(SkDashPathEffect::Make(intervals, SK_ARRAY_COUNT(intervals), 0));
     canvas->drawLine(1, 1, 1, 5.0e10f, p);
 }
+
+// This used to cause SkDashImpl to walk off the end of the intervals array, due to underflow
+// trying to substract a smal value from a large one in floats.
+DEF_TEST(DashCrazy_crbug_875494, r) {
+    SkScalar vals[] = { 98, 94, 2888458849.f, 227, 0, 197 };
+    const int N = SK_ARRAY_COUNT(vals);
+
+    SkRect cull = SkRect::MakeXYWH(43,236,57,149);
+    SkPath path;
+    path.addRect(cull);
+
+    SkPath path2;
+    SkPaint paint;
+    paint.setStyle(SkPaint::kStroke_Style);
+    paint.setPathEffect(SkDashPathEffect::Make(vals, N, 222));
+    paint.getFillPath(path, &path2, &cull);
+}
