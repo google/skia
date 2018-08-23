@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3687c516_39fb9a0c",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-23T20:48:14Z",
+      "side": 1,
+      "message": "The \u003d\u003d test here is somewhat redundant, since it will hit the 3rd case in contains_conditional_break, which hardcodes true into each recursive call anyways. This makes it seem like the inConditional argument should default to false so that the first call doesn\u0027t need to provide it (but see next comment).",
+      "revId": "c4c113d803205ccd0cb76d32ec4bed745f93d17f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31f73b00_ec09c7c0",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-23T20:48:14Z",
+      "side": 1,
+      "message": "This line doesn\u0027t seem to actually be testing for conditional break statement, but because true is passed in from the beginning, it\u0027s really just finding any break statement.\n\nI think it would be clearer if we had a `static bool contains_break(Statement)` which calls `contains_conditional_break(stmt, true)` with comments to explain the voodoo. And then we can have a `contains_conditional_break(stmt)` used for conventional entry into the recursive search that starts out with inConditional\u003dfalse.\n\nIt\u0027s a few more function definitions but I think it makes block_for_case more readable.",
+      "revId": "c4c113d803205ccd0cb76d32ec4bed745f93d17f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
