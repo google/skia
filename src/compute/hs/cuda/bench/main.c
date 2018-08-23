@@ -1,5 +1,3 @@
-// -*- compile-command: "nvcc -arch sm_50 -D NDEBUG -I ../../.. -o hs_bench_cuda main.c sort.cpp ../../../common/cuda/assert_cuda.c ../../../common/util.c ../sm_35/u32/hs_cuda_u32.cu ../sm_35/u64/hs_cuda_u64.cu"; -*-
-
 /*
  * Copyright 2016 Google Inc.
  *
@@ -265,7 +263,8 @@ hs_bench(hs_cuda_pad_pfn               hs_pad,
          uint32_t              const   count_step,
          uint32_t              const   loops,
          uint32_t              const   warmup,
-         bool                  const   linearize)
+         bool                  const   linearize,
+         bool                  const   verify)
 {
   //
   // return if nothing to do
@@ -396,42 +395,47 @@ hs_bench(hs_cuda_pad_pfn               hs_pad,
         }
 
       //
-      // copy back the results
-      //
-      size_t const size_padded_in = count_padded_in * key_size;
-
-      cuda(Memcpy(sorted_h,vin_d, size_padded_in,cudaMemcpyDeviceToHost));
-      cuda(Memcpy(vout_h,  vout_d,size_padded_in,cudaMemcpyDeviceToHost));
-
-      //
-      // sort the input with another algorithm
-      //
-      double cpu_ns;
-
-      char const * const algo = hs_cpu_sort(sorted_h,hs_words,count_padded_in,&cpu_ns);
-
-      // transpose the cpu sorted slabs before comparison
-      if (!linearize) {
-        hs_transpose_slabs(hs_words,hs_width,hs_height,vout_h,count_padded_in);
-      }
-
-      //
       // verify
       //
-      bool const verified = hs_verify_linear(hs_words,sorted_h,vout_h,count_padded_in);
+      char const * cpu_algo = NULL;
+      double       cpu_ns   = 1.0;
+      bool         verified = false;
+
+      if (verify)
+        {
+	  //
+	  // copy back the results
+	  //
+	  size_t const size_padded_in = count_padded_in * key_size;
+
+	  cuda(Memcpy(sorted_h,vin_d, size_padded_in,cudaMemcpyDeviceToHost));
+	  cuda(Memcpy(vout_h,  vout_d,size_padded_in,cudaMemcpyDeviceToHost));
+
+	  //
+	  // sort the input with another algorithm
+	  //
+	  cpu_algo = hs_cpu_sort(sorted_h,hs_words,count_padded_in,&cpu_ns);
+
+	  // transpose the cpu sorted slabs before comparison
+	  if (!linearize) {
+	    hs_transpose_slabs(hs_words,hs_width,hs_height,vout_h,count_padded_in);
+	  }
+
+	  verified = hs_verify_linear(hs_words,sorted_h,vout_h,count_padded_in);
 
 #ifndef NDEBUG
-      if (!verified)
-        {
-          if (hs_words == 1) {
-            hs_debug_u32(hs_width,hs_height,vout_h,  count);
-            hs_debug_u32(hs_width,hs_height,sorted_h,count);
-          } else { // ulong
-            hs_debug_u64(hs_width,hs_height,vout_h,  count);
-            hs_debug_u64(hs_width,hs_height,sorted_h,count);
-          }
-        }
+	  if (!verified)
+	    {
+	      if (hs_words == 1) {
+		hs_debug_u32(hs_width,hs_height,vout_h,  count);
+		hs_debug_u32(hs_width,hs_height,sorted_h,count);
+	      } else { // ulong
+		hs_debug_u64(hs_width,hs_height,vout_h,  count);
+		hs_debug_u64(hs_width,hs_height,sorted_h,count);
+	      }
+	    }
 #endif
+	}
 
       //
       // REPORT
@@ -441,14 +445,14 @@ hs_bench(hs_cuda_pad_pfn               hs_pad,
               driver_version,
               (hs_words == 1) ? "uint32_t" : "uint64_t",
               linearize       ? "linear"   : "slab",
-              verified        ? "  OK  "   : "*FAIL*",
+              verify ? (verified ? "  OK  " : "*FAIL*") : "UNVERIFIED",
               count,
               count_padded_in,
               count_padded_out,
               // CPU
-              algo,
-              cpu_ns / 1000000.0,                                   // milliseconds
-              1000.0 * count / cpu_ns,                              // mkeys / sec
+              verify ? cpu_algo : "UNVERIFIED",
+              verify ? (cpu_ns / 1000000.0)      : 0.0,             // milliseconds
+              verify ? (1000.0 * count / cpu_ns) : 0.0,             // mkeys / sec
               // GPU
               loops,
               elapsed_ms_sum / loops,                               // avg msecs
@@ -458,7 +462,7 @@ hs_bench(hs_cuda_pad_pfn               hs_pad,
               (double) count          / (1000.0 * elapsed_ms_min)); // mkeys / sec - max
 
       // quit early if not verified
-      if (!verified)
+      if (verify && !verified)
         break;
     }
 
@@ -564,6 +568,7 @@ main(int argc, char const * argv[])
   uint32_t const loops      = (argc <= 6) ? HS_BENCH_LOOPS  : strtoul(argv[6],NULL,0);
   uint32_t const warmup     = (argc <= 7) ? HS_BENCH_WARMUP : strtoul(argv[7],NULL,0);
   bool     const linearize  = (argc <= 8) ? true            : strtoul(argv[8],NULL,0);
+  bool     const verify     = (argc <= 9) ? true            : strtoul(argv[9],NULL,0);
 
   //
   // benchmark
@@ -583,7 +588,8 @@ main(int argc, char const * argv[])
            count_step,
            loops,
            warmup,
-           linearize);
+           linearize,
+	   verify);
 
   //
   // cleanup
