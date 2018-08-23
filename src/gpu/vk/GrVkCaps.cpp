@@ -32,8 +32,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fSupportsMaintenance3 = false;
 
     /**************************************************************************
-    * GrDrawTargetCaps fields
-    **************************************************************************/
+     * GrCaps fields
+     **************************************************************************/
     fMipMapSupport = true;   // always available in Vulkan
     fSRGBSupport = true;   // always available in Vulkan
     fNPOTTextureTileSupport = true;  // always available in Vulkan
@@ -52,6 +52,8 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
 
     fMaxRenderTargetSize = 4096; // minimum required by spec
     fMaxTextureSize = 4096; // minimum required by spec
+
+    fDynamicStateArrayGeometryProcessorTextureSupport = true;
 
     fShaderCaps.reset(new GrShaderCaps(contextOptions));
 
@@ -309,6 +311,11 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     // AMD advertises support for MAX_UINT vertex input attributes, but in reality only supports 32.
     if (kAMD_VkVendor == properties.vendorID) {
         fMaxVertexAttributes = SkTMin(fMaxVertexAttributes, 32);
+    }
+
+    // The image-surface GM does not draw correctly on all tested NVIDIA systems.
+    if (kNvidia_VkVendor == properties.vendorID) {
+        fDynamicStateArrayGeometryProcessorTextureSupport = false;
     }
 
     ////////////////////////////////////////////////////////////////////////////
