@@ -77,10 +77,10 @@ private:
     Parser* fParser;
 };
 
-std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens;
+std::unique_ptr<std::unordered_map<String, Parser::LayoutToken>> Parser::layoutTokens;
 
 void Parser::InitLayoutMap() {
-    layoutTokens = new std::unordered_map<String, LayoutToken>;
+    layoutTokens.reset(new std::unordered_map<String, LayoutToken>);
     #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name;
     TOKEN(LOCATION,                     "location");
     TOKEN(OFFSET,                       "offset");
