@@ -8,6 +8,7 @@
 #include "SkottiePriv.h"
 
 #include "SkData.h"
+#include "SkFontMgr.h"
 #include "SkImage.h"
 #include "SkJSON.h"
 #include "SkMakeUnique.h"
@@ -211,13 +212,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
         return nullptr;
     }
 
-    auto animation = Animation::Make(static_cast<const char*>(data->data()), data->size(),
-                                     &fResourceProvider);
+    auto animation = Animation::Builder()
+            .setResourceProvider(&fResourceProvider)
+            .setFontManager(fFontMgr)
+            .make(static_cast<const char*>(data->data()), data->size());
     if (!animation) {
         LOG("!! Could not parse nested animation: %s\n", name);
         return nullptr;
     }
-
 
     ascope->push_back(
         skstd::make_unique<SkottieAnimatorAdapter>(animation, animation->duration() / fDuration));
