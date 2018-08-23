@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "32dcc358_72f8388c",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T13:40:48Z",
+      "side": 1,
+      "message": "Keep an eye on the Chrome roll?  I think it might object to this unique_ptr\u0027s destructor.\n\n(The constructor is constexpr though, and should be fine.)\n\nWas there some tool yelling at you that this is a memory leak?  It doesn\u0027t appear to be... there\u0027ll be a pointer pointing at this memory all the way up until the process ends.  Or, do we sometimes call InitLayoutMap() more than once?",
+      "revId": "e82ef487832f29b644cf37db18704162a1bae153",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
