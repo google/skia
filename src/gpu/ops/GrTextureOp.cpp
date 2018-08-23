@@ -711,19 +711,14 @@ private:
 
             (op.*(kTessFnsAndVertexSizes[tessFnIdx].fTessFn))(vdata, gp.get());
 
-            if (op.fDraws.count() > 1) {
-                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangles);
-                sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
-                if (!ibuffer) {
-                    SkDebugf("Could not allocate quad indices\n");
-                    return;
-                }
-                meshes[i].setIndexedPatterned(ibuffer.get(), 6, 4, op.fDraws.count(),
-                                              GrResourceProvider::QuadCountOfQuadBuffer());
-            } else {
-                meshes[i].setPrimitiveType(GrPrimitiveType::kTriangleStrip);
-                meshes[i].setNonIndexedNonInstanced(4);
+            meshes[i].setPrimitiveType(GrPrimitiveType::kTriangles);
+            sk_sp<const GrBuffer> ibuffer = target->resourceProvider()->refQuadIndexBuffer();
+            if (!ibuffer) {
+                SkDebugf("Could not allocate quad indices\n");
+                return;
             }
+            meshes[i].setIndexedPatterned(ibuffer.get(), 6, 4, op.fDraws.count(),
+                                          GrResourceProvider::QuadCountOfQuadBuffer());
             meshes[i].setVertexData(vbuffer, vstart);
             if (dynamicStateArrays) {
                 dynamicStateArrays->fPrimitiveProcessorTextures[i] = op.fProxy;
