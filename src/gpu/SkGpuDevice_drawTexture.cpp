@@ -321,24 +321,6 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
         return;
     }
 
-    // First see if we can do the draw + mask filter direct to the dst.
-    if (viewMatrix.isScaleTranslate()) {
-        SkRect devClippedDstRect;
-        viewMatrix.mapRectScaleTranslate(&devClippedDstRect, clippedDstRect);
-
-        SkStrokeRec rec(SkStrokeRec::kFill_InitStyle);
-        if (as_MFB(mf)->directFilterRRectMaskGPU(fContext.get(),
-                                                 fRenderTargetContext.get(),
-                                                 std::move(grPaint),
-                                                 this->clip(),
-                                                 viewMatrix,
-                                                 rec,
-                                                 SkRRect::MakeRect(clippedDstRect),
-                                                 SkRRect::MakeRect(devClippedDstRect))) {
-            return;
-        }
-    }
-
     GrShape shape(clippedDstRect, GrStyle::SimpleFill());
 
     GrBlurUtils::drawShapeWithMaskFilter(this->context(), fRenderTargetContext.get(), this->clip(),
