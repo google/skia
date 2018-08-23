@@ -9,6 +9,7 @@
 #include "SkGraphics.h"
 #include "SkMutex.h"
 #include "SkRemoteGlyphCache.h"
+#include "SkRemoteGlyphCacheImpl.h"
 #include "SkStrikeCache.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
