@@ -78,7 +78,7 @@ void Sk2DPathEffect::flatten(SkWriteBuffer& buffer) const {
 
 bool SkLine2DPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
                                       SkStrokeRec* rec, const SkRect* cullRect) const {
-    if (this->INHERITED::filterPath(dst, src, rec, cullRect)) {
+    if (this->INHERITED::onFilterPath(dst, src, rec, cullRect)) {
         rec->setStrokeStyle(fWidth);
         return true;
     }
