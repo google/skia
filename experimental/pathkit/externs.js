@@ -24,6 +24,7 @@ var PathKit = {
 	SkBits2FloatUnsigned: function(num) {},
 	_malloc: function(size) {},
 	onRuntimeInitialized: function() {},
+	_FromCmds: function(ptr, size) {},
 
 	HEAPF32: {},
 
