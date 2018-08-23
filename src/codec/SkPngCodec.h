@@ -8,7 +8,6 @@
 #define SkPngCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkColorSpaceXform.h"
 #include "SkColorTable.h"
 #include "SkPngChunkReader.h"
 #include "SkEncodedImageFormat.h"
@@ -45,8 +44,8 @@ protected:
         void* fPtr;
     };
 
-    SkPngCodec(const SkEncodedInfo&, const SkImageInfo&, std::unique_ptr<SkStream>,
-               SkPngChunkReader*, void* png_ptr, void* info_ptr, int bitDepth);
+    SkPngCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>, SkPngChunkReader*,
+               void* png_ptr, void* info_ptr, int bitDepth);
 
     Result onGetPixels(const SkImageInfo&, void*, size_t, const Options&, int*)
             override;
