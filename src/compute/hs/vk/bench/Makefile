@@ -22,7 +22,13 @@ OBJ_CPP		= 	$(addsuffix .o,$(basename $(notdir $(SRC_CPP))))
 #
 #
 
-VULKAN_SDK	=	~/vulkan/1.1.82.0/x86_64
+GCC_OPT		=	-O2 -D NDEBUG
+GPP_OPT		=	-O2 -D NDEBUG -std=c++11
+
+#
+#
+#
+
 VULKAN_INC	=	$(VULKAN_SDK)/include
 
 #
@@ -33,10 +39,10 @@ hs_bench_vk:	$(OBJ_C) $(OBJ_CPP)
 		g++ -o $@ $^ $(VULKAN_SDK)/lib/libvulkan.so.1
 
 $(OBJ_C):	$(SRC_C)
-		gcc -D NDEBUG            -c $^ -I ../../.. -I .. -I $(VULKAN_INC)
+		gcc $(GCC_OPT) -c $^ -I ../../.. -I .. -I $(VULKAN_INC)
 
 $(OBJ_CPP):	$(SRC_CPP)
-		g++ -D NDEBUG -std=c++11 -c $^
+		g++ $(GPP_OPT) -c $^
 
 
 .PHONY: clean

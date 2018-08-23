@@ -2,7 +2,7 @@
 # HotSort
 
 HotSort is a high-performance GPU-accelerated integer sorting library
-for Vulkan, CUDA and OpenCL GPUs.
+for Vulkan, CUDA and OpenCL compute APIs.
 
 HotSort's advantages include:
 
@@ -14,16 +14,15 @@ HotSort's advantages include:
 * A concurrency-friendly dense kernel grid
 * Support for GPU post-processing of sorted results
 
-The HotSort sorting kernels are typically significantly faster than
-other GPU sorting implementations when sorting arrays of smaller than
-500K-2M keys.
+HotSort is typically significantly faster than other GPU-accelerated
+implementations when sorting arrays of smaller than 500K-2M keys.
 
 ## Benchmarks
 
 ### Throughput
 
 Here are results for HotSort on Vulkan and CUDA sorting 32-bit and
-64-bit keys on a 640 core Quadro M1200:
+64-bit keys on a 640-core Quadro M1200:
 
 ![](images/hs_nvidia_sm35_u32_mkeys.svg)
 ![](images/hs_nvidia_sm35_u64_mkeys.svg)

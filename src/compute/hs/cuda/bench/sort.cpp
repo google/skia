@@ -51,6 +51,7 @@
 
 #undef  HS_USE_PARALLEL_SORT
 #undef  HS_USE_STD_SORT
+#undef  HS_USE_QSORT
 #define HS_USE_QSORT
 
 #include <stdlib.h>
