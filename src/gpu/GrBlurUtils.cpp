@@ -423,7 +423,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
                              maskFilter, *boundsForClip, std::move(paint), maskKey);
 }
 
-void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawShapeWithMaskFilter2(GrContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const GrShape& shape,
@@ -435,7 +435,7 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
                                 viewMatrix, as_MFB(mf), shape);
 }
 
-void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
+void GrBlurUtils::drawShapeWithMaskFilter1(GrContext* context,
                                           GrRenderTargetContext* renderTargetContext,
                                           const GrClip& clip,
                                           const SkPaint& paint,

@@ -68,12 +68,9 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, bool pathIsMutable) override {
-        // TODO: we are losing the mutability of the path here
-        GrShape shape(path, paint);
-
-        GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
+    void drawShape(const GrClip& clip, const SkPaint& paint,
+                  const SkMatrix& viewMatrix, const GrShape& shape) override {
+        GrBlurUtils::drawShapeWithMaskFilter1(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
 
@@ -1285,6 +1282,8 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     if (complexStyle || GrAA::kYes == aa) {
         SkPath path;
         region.getBoundaryPath(&path);
+        path.setIsVolatile(true);
+
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
@@ -1434,6 +1433,52 @@ bool GrRenderTargetContext::waitOnSemaphores(int numSemaphores,
 void GrRenderTargetContext::insertEventMarker(const SkString& str) {
     std::unique_ptr<GrOp> op(GrDebugMarkerOp::Make(fContext, fRenderTargetProxy.get(), str));
     this->getRTOpList()->addOp(std::move(op), *this->caps());
+}
+
+// Can 'path' be drawn as a pair of filled nested rectangles?
+static bool fills_as_nested_rects(const SkMatrix& viewMatrix, const SkPath& path, SkRect rects[2]) {
+
+    if (path.isInverseFillType()) {
+        return false;
+    }
+
+    // TODO: this restriction could be lifted if we were willing to apply
+    // the matrix to all the points individually rather than just to the rect
+    if (!viewMatrix.rectStaysRect()) {
+        return false;
+    }
+
+    SkPath::Direction dirs[2];
+    if (!path.isNestedFillRects(rects, dirs)) {
+        return false;
+    }
+
+    if (SkPath::kWinding_FillType == path.getFillType() && dirs[0] == dirs[1]) {
+        // The two rects need to be wound opposite to each other
+        return false;
+    }
+
+    // Right now, nested rects where the margin is not the same width
+    // all around do not render correctly
+    const SkScalar* outer = rects[0].asScalars();
+    const SkScalar* inner = rects[1].asScalars();
+
+    bool allEq = true;
+
+    SkScalar margin = SkScalarAbs(outer[0] - inner[0]);
+    bool allGoE1 = margin >= SK_Scalar1;
+
+    for (int i = 1; i < 4; ++i) {
+        SkScalar temp = SkScalarAbs(outer[i] - inner[i]);
+        if (temp < SK_Scalar1) {
+            allGoE1 = false;
+        }
+        if (!SkScalarNearlyEqual(margin, temp)) {
+            allEq = false;
+        }
+    }
+
+    return allEq || allGoE1;
 }
 
 void GrRenderTargetContext::drawPath(const GrClip& clip,

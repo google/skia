@@ -835,11 +835,11 @@ bool GrReducedClip::drawStencilClipMask(GrContext* context,
         SkRegion::Op op = (SkRegion::Op)element->getOp();
 
         GrPathRenderer* pr = nullptr;
-        SkPath clipPath;
         if (Element::DeviceSpaceType::kRect == element->getDeviceSpaceType()) {
             stencilSupport = GrPathRenderer::kNoRestriction_StencilSupport;
             fillInverted = false;
         } else {
+            SkPath clipPath;
             element->asDeviceSpacePath(&clipPath);
             fillInverted = clipPath.isInverseFillType();
             if (fillInverted) {
