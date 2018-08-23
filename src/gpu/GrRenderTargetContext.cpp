@@ -68,11 +68,8 @@ public:
         fRenderTargetContext->addDrawOp(clip, std::move(op));
     }
 
-    void drawPath(const GrClip& clip, const SkPath& path, const SkPaint& paint,
-                  const SkMatrix& viewMatrix, bool pathIsMutable) override {
-        // TODO: we are losing the mutability of the path here
-        GrShape shape(path, paint);
-
+    void drawShape(const GrClip& clip, const SkPaint& paint,
+                  const SkMatrix& viewMatrix, const GrShape& shape) override {
         GrBlurUtils::drawShapeWithMaskFilter(fRenderTargetContext->fContext, fRenderTargetContext,
                                              clip, paint, viewMatrix, shape);
     }
@@ -1285,6 +1282,8 @@ void GrRenderTargetContext::drawRegion(const GrClip& clip,
     if (complexStyle || GrAA::kYes == aa) {
         SkPath path;
         region.getBoundaryPath(&path);
+        path.setIsVolatile(true);
+
         return this->drawPath(clip, std::move(paint), aa, viewMatrix, path, style);
     }
 
