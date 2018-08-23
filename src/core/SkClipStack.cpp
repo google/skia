@@ -217,17 +217,14 @@ void SkClipStack::Element::asDeviceSpacePath(SkPath* path) const {
     switch (fDeviceSpaceType) {
         case DeviceSpaceType::kEmpty:
             path->reset();
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kRect:
             path->reset();
             path->addRect(this->getDeviceSpaceRect());
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kRRect:
             path->reset();
             path->addRRect(fDeviceSpaceRRect);
-            path->setIsVolatile(true);
             break;
         case DeviceSpaceType::kPath:
             *path = *fDeviceSpacePath.get();
