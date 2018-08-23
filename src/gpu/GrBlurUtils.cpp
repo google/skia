@@ -367,7 +367,8 @@ static void draw_shape_with_mask_filter(GrContext* context,
         SkMaskFilterBase::BlurRec rec;
         SkAssertResult(as_MFB(maskFilter)->asABlur(&rec));
 
-        builder[5] = rec.fStyle;  // TODO: we could put this with the other style bits
+        // TODO: we could put this with the other style bits
+        builder[5] = (GrAA::kYes == aa) | (rec.fStyle << 1);
         builder[6] = rec.fSigma;
         shape->writeUnstyledKey(&builder[7]);
     }
