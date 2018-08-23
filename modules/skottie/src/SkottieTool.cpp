@@ -7,6 +7,7 @@
 
 #include "SkCanvas.h"
 #include "SkCommandLineFlags.h"
+#include "SkFontMgr.h"
 #include "SkGraphics.h"
 #include "SkMakeUnique.h"
 #include "SkOSFile.h"
@@ -123,6 +124,14 @@ private:
 
 } // namespace
 
+sk_sp<SkFontMgr> GetFontManager();
+
+#ifndef SKOTTIE_TOOL_HAS_EXTERNAL_FONTMGR
+sk_sp<SkFontMgr> GetFontManager() {
+    return SkFontMgr::RefDefault();
+}
+#endif
+
 int main(int argc, char** argv) {
     SkCommandLineFlags::Parse(argc, argv);
     SkAutoGraphics ag;
@@ -151,7 +160,9 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    auto anim = skottie::Animation::MakeFromFile(FLAGS_input[0]);
+    auto anim = skottie::Animation::Builder()
+        .setFontManager(GetFontManager())
+        .makeFromFile(FLAGS_input[0]);
     if (!anim) {
         SkDebugf("Could not load animation: '%s'.\n", FLAGS_input[0]);
         return 1;
