@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c999f231_970dd43d",
+        "filename": "src/gpu/GrBlurUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-23T14:46:58Z",
+      "side": 1,
+      "message": "This is the substantive change",
+      "range": {
+        "startLine": 83,
+        "startChar": 38,
+        "endLine": 83,
+        "endChar": 66
+      },
+      "revId": "98bcc8cc8dae88aab652185a4233e29a19ea06e7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
