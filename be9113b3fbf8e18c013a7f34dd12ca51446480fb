@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "50463328_7bd6cad5",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T14:49:08Z",
+      "side": 1,
+      "message": "An option to do this without having to check SKSL_STANDALONE could be, here in Parser::Parser(),\n\n    static bool layout_map_initialized \u003d []{\n        InitLayoutMap();\n        return true;\n    }();\n\nThat\u0027s basically the same thing as\n\n    static SkOnce once;\n    once(InitLayoutMap);\n\nSkOnce predates our ability to do that first form, and I\u0027ve been thinking about replacing most uses of SkOnce with that pattern.  We\u0027d still need SkOnce for non-function-scoped once-ness, like once-per-object situations.  And SkOnce is one byte, where the other form probably is two.",
+      "revId": "be9113b3fbf8e18c013a7f34dd12ca51446480fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
