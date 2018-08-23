@@ -115,13 +115,13 @@
       return null;
     };
 
-    PathKit.SkPath.prototype.quadraticCurveTo = function(x1, y1, x2, y2) {
-      this._quadTo(x1, y1, x2, y2);
+    PathKit.SkPath.prototype.quadraticCurveTo = function(cpx, cpy, x, y) {
+      this._quadTo(cpx, cpy, x, y);
       return this;
     };
 
-    PathKit.SkPath.prototype.quadTo = function(x1, y1, x2, y2) {
-      this._quadTo(x1, y1, x2, y2);
+    PathKit.SkPath.prototype.quadTo = function(cpx, cpy, x, y) {
+      this._quadTo(cpx, cpy, x, y);
       return this;
     };
 
