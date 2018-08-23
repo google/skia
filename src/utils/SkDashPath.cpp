@@ -361,6 +361,8 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
                                 int32_t count, SkScalar initialDashLength, int32_t initialDashIndex,
                                 SkScalar intervalLength,
                                 StrokeRecApplication strokeRecApplication) {
+    // we must always have an even number of intervals
+    SkASSERT(is_even(count));
 
     // we do nothing if the src wants to be filled
     SkStrokeRec::Style style = rec->getStyle();
@@ -384,6 +386,14 @@ bool SkDashPath::InternalFilter(SkPath* dst, const SkPath& src, SkStrokeRec* rec
             while (endPhase > intervals[index]) {
                 endPhase -= intervals[index++];
                 SkASSERT(index <= count);
+                if (index == count) {
+                    // We have run out of intervals. endPhase "should" never get to this point,
+                    // but it could if the subtracts underflowed. Hence we will pin it as if it
+                    // perfectly ran through the intervals.
+                    // See crbug.com/875494 (and skbug.com/8274)
+                    endPhase = 0;
+                    break;
+                }
             }
             // if dash ends inside "on", or ends at beginning of "off"
             if (is_even(index) == (endPhase > 0)) {
