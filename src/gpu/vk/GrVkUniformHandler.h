@@ -17,6 +17,10 @@ public:
     static const int kUniformsPerBlock = 8;
 
     enum {
+        /**
+         * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
+         * in the order of this enumeration.
+         */
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
     };
