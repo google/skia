@@ -18,10 +18,6 @@ SkRasterPipeline::StartPipelineFn SkRasterPipeline::build_pipeline(void** ip) co
     // Stages are stored backwards in fStages, so we reverse here, back to front.
     *--ip = (void*)SkOpts::just_return_lowp;
     for (const StageList* st = fStages; st; st = st->prev) {
-        if (st->stage == SkRasterPipeline::clamp_0 ||
-            st->stage == SkRasterPipeline::clamp_1) {
-            continue;  // No-ops in lowp.
-        }
         SkOpts::StageFn fn;
         if (!st->rawFunction && (fn = SkOpts::stages_lowp[st->stage])) {
             if (st->ctx) {
