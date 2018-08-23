@@ -239,7 +239,7 @@ protected:
     }
 
 private:
-    void processGlyphRun(const SkPoint& position,
+    void processGlyphRun(const SkPoint& origin,
                          const SkGlyphRun& glyphRun) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRun");
 
@@ -247,21 +247,27 @@ private:
         const SkPaint& runPaint = glyphRun.paint();
         const SkMatrix& runMatrix = this->ctm();
 
-#if SK_SUPPORT_GPU
-        if (this->processGlyphRunForDFT(glyphRun, runMatrix)) {
-            return;
-        }
-#endif
-
         // If the matrix has perspective, we fall back to using distance field text or paths.
+        #if SK_SUPPORT_GPU
+        if (this->maybeProcessGlyphRunForDFT(glyphRun, runMatrix)) {
+            return;
+        } else
+        #endif
         if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
             this->processGlyphRunForPaths(glyphRun, runMatrix);
-            return;
+        } else {
+            processGlyphRunForMask(glyphRun, runMatrix, origin);
         }
+    }
+
+    void processGlyphRunForMask(
+            const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForMask");
+        const SkPaint& runPaint = glyphRun.paint();
 
         SkSTArenaAlloc<120> arena;
         SkFindAndPlaceGlyph::MapperInterface* mapper =
-                SkFindAndPlaceGlyph::CreateMapper(runMatrix, position, 2, &arena);
+                SkFindAndPlaceGlyph::CreateMapper(runMatrix, origin, 2, &arena);
 
         SkScalerContextEffects effects;
         auto* glyphCacheState = fStrikeServer->getOrCreateCache(
@@ -287,8 +293,7 @@ private:
         }
     }
 
-    void processGlyphRunForPaths(const SkGlyphRun& glyphRun,
-                                 const SkMatrix& runMatrix) {
+    void processGlyphRunForPaths(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix) {
         TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
         const SkPaint& runPaint = glyphRun.paint();
 
@@ -334,9 +339,8 @@ private:
     }
 
 #if SK_SUPPORT_GPU
-    bool processGlyphRunForDFT(const SkGlyphRun& glyphRun,
-                               const SkMatrix& runMatrix) {
-        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForDFT");
+    bool maybeProcessGlyphRunForDFT(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix) {
+        TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::maybeProcessGlyphRunForDFT");
 
         const SkPaint& runPaint = glyphRun.paint();
 
