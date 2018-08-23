@@ -130,7 +130,7 @@ sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AnimatorScope*
 }
 
 AnimationBuilder::AnimationBuilder(const ResourceProvider& rp, sk_sp<SkFontMgr> fontmgr,
-                                  Animation::Stats* stats, float duration, float framerate)
+                                  Animation::Builder::Stats* stats, float duration, float framerate)
     : fResourceProvider(rp)
     , fFontMgr(std::move(fontmgr))
     , fStats(stats)
@@ -163,7 +163,17 @@ void AnimationBuilder::parseAssets(const skjson::ArrayValue* jassets) {
 
 } // namespace internal
 
-sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provider, Stats* stats) {
+Animation::Builder& Animation::Builder::setResourceProvider(const ResourceProvider* rp) {
+    fResourceProvider = rp;
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setFontManager(sk_sp<SkFontMgr> fmgr) {
+    fFontMgr = std::move(fmgr);
+    return *this;
+}
+
+sk_sp<Animation> Animation::Builder::make(SkStream* stream) {
     if (!stream->hasLength()) {
         // TODO: handle explicit buffering?
         LOG("!! cannot parse streaming content\n");
@@ -176,17 +186,22 @@ sk_sp<Animation> Animation::Make(SkStream* stream, const ResourceProvider* provi
         return nullptr;
     }
 
-    return Make(static_cast<const char*>(data->data()), data->size(), provider, stats);
+    return this->make(static_cast<const char*>(data->data()), data->size());
 }
 
-sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
-                                 const ResourceProvider* provider, Stats* stats) {
-    Stats stats_storage;
-    if (!stats)
-        stats = &stats_storage;
-    memset(stats, 0, sizeof(struct Stats));
+sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
+    // Sanitize factory args.
+    class NullResourceProvider final : public ResourceProvider {
+        sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
+    };
 
-    stats->fJsonSize = data_len;
+    const NullResourceProvider nullProvider;
+    auto resolvedProvider = fResourceProvider ? fResourceProvider : &nullProvider;
+    auto resolvedFontMgr  = fFontMgr ? fFontMgr : SkFontMgr::RefDefault();
+
+    memset(&fStats, 0, sizeof(struct Stats));
+
+    fStats.fJsonSize = data_len;
     const auto t0 = SkTime::GetMSecs();
 
     const skjson::DOM dom(data, data_len);
@@ -198,40 +213,43 @@ sk_sp<Animation> Animation::Make(const char* data, size_t data_len,
     const auto& json = dom.root().as<skjson::ObjectValue>();
 
     const auto t1 = SkTime::GetMSecs();
-    stats->fJsonParseTimeMS = t1 - t0;
+    fStats.fJsonParseTimeMS = t1 - t0;
 
     const auto version  = ParseDefault<SkString>(json["v"], SkString());
     const auto size     = SkSize::Make(ParseDefault<float>(json["w"], 0.0f),
                                        ParseDefault<float>(json["h"], 0.0f));
     const auto fps      = ParseDefault<float>(json["fr"], -1.0f),
                inPoint  = ParseDefault<float>(json["ip"], 0.0f),
-               outPoint = SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint);
+               outPoint = SkTMax(ParseDefault<float>(json["op"], SK_ScalarMax), inPoint),
+               duration = (outPoint - inPoint) / fps;
 
     if (size.isEmpty() || version.isEmpty() || fps <= 0 ||
-        !SkScalarIsFinite(inPoint) || !SkScalarIsFinite(outPoint)) {
+        !SkScalarIsFinite(inPoint) || !SkScalarIsFinite(outPoint) || !SkScalarIsFinite(duration)) {
         LOG("!! invalid animation params (version: %s, size: [%f %f], frame rate: %f, "
             "in-point: %f, out-point: %f)\n",
             version.c_str(), size.width(), size.height(), fps, inPoint, outPoint);
         return nullptr;
     }
 
-    class NullResourceProvider final : public ResourceProvider {
-        sk_sp<SkData> load(const char[], const char[]) const override { return nullptr; }
-    };
+    SkASSERT(resolvedProvider);
+    SkASSERT(resolvedFontMgr);
+    internal::AnimationBuilder builder(*resolvedProvider, std::move(resolvedFontMgr), &fStats,
+                                       duration, fps);
+    auto scene = builder.parse(json);
 
-    NullResourceProvider null_provider;
-    const auto anim = sk_sp<Animation>(new Animation(provider ? *provider : null_provider,
-                                                     std::move(version), size, fps,
-                                                     inPoint, outPoint, json, stats));
     const auto t2 = SkTime::GetMSecs();
-    stats->fSceneParseTimeMS = t2 - t1;
-    stats->fTotalLoadTimeMS  = t2 - t0;
+    fStats.fSceneParseTimeMS = t2 - t1;
+    fStats.fTotalLoadTimeMS  = t2 - t0;
 
-    return anim;
+    if (!scene) {
+        LOG("!! could not parse animation.\n");
+    }
+
+    return sk_sp<Animation>(
+        new Animation(std::move(scene), std::move(version), size, inPoint, outPoint, duration));
 }
 
-sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvider* res,
-                                         Stats* stats) {
+sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
     class DirectoryResourceProvider final : public ResourceProvider {
     public:
         explicit DirectoryResourceProvider(SkString dir) : fDir(std::move(dir)) {}
@@ -246,33 +264,33 @@ sk_sp<Animation> Animation::MakeFromFile(const char path[], const ResourceProvid
         const SkString fDir;
     };
 
-    const auto data =  SkData::MakeFromFileName(path);
+    const auto data = SkData::MakeFromFileName(path);
     if (!data)
         return nullptr;
 
-    std::unique_ptr<ResourceProvider> defaultProvider;
-    if (!res) {
-        defaultProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
+    const auto* origProvider = fResourceProvider;
+    std::unique_ptr<ResourceProvider> localProvider;
+    if (!fResourceProvider) {
+        localProvider = skstd::make_unique<DirectoryResourceProvider>(SkOSPath::Dirname(path));
+        fResourceProvider = localProvider.get();
     }
 
-    return Make(static_cast<const char*>(data->data()), data->size(),
-                res ? res : defaultProvider.get(), stats);
+    auto animation = this->make(static_cast<const char*>(data->data()), data->size());
+
+    // Don't leak localProvider references.
+    fResourceProvider = origProvider;
+
+    return animation;
 }
 
-Animation::Animation(const ResourceProvider& resources,
-                     SkString version, const SkSize& size,
-                     SkScalar fps, SkScalar in, SkScalar out,
-                     const skjson::ObjectValue& json, Stats* stats)
-    : fVersion(std::move(version))
+Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
+                     SkScalar inPoint, SkScalar outPoint, SkScalar duration)
+    : fScene(std::move(scene))
+    , fVersion(std::move(version))
     , fSize(size)
-    , fFrameRate(fps)
-    , fInPoint(in)
-    , fOutPoint(out) {
-
-    internal::AnimationBuilder builder(resources, SkFontMgr::RefDefault(), stats,
-                                       this->duration(), fps);
-
-    fScene = builder.parse(json);
+    , fInPoint(inPoint)
+    , fOutPoint(outPoint)
+    , fDuration(duration) {
 
     // In case the client calls render before the first tick.
     this->seek(0);
@@ -304,6 +322,18 @@ void Animation::seek(SkScalar t) {
         return;
 
     fScene->animate(fInPoint + SkTPin(t, 0.0f, 1.0f) * (fOutPoint - fInPoint));
+}
+
+sk_sp<Animation> Animation::Make(const char* data, size_t length) {
+    return Builder().make(data, length);
+}
+
+sk_sp<Animation> Animation::Make(SkStream* stream) {
+    return Builder().make(stream);
+}
+
+sk_sp<Animation> Animation::MakeFromFile(const char path[]) {
+    return Builder().makeFromFile(path);
 }
 
 } // namespace skottie
