@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "64d32748_d31ce157",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-23T21:05:52Z",
+      "side": 1,
+      "message": "Something that looks like a variable reference in the code might not be by the time we get here, e.g. try it with:\n\nhalf4 input \u003d half4(1);\nprocess(child, input);\n\nThis will actually fail b/c it first gets optimized to:\n\nprocess(child, half4(1));\n\nNot sure the best way to resolve it, but wanted to call it out because that will be a seriously misleading error message.",
+      "range": {
+        "startLine": 308,
+        "startChar": 8,
+        "endLine": 311,
+        "endChar": 76
+      },
+      "revId": "7e449b035a487ceeccd4fc1d5a97525c008ab96f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "80cc1fb9_bc4fe9ab",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-23T21:05:52Z",
+      "side": 1,
+      "message": "Nit: needs a line break (same for the other two error messages in this function)",
+      "range": {
+        "startLine": 312,
+        "startChar": 52,
+        "endLine": 312,
+        "endChar": 123
+      },
+      "revId": "7e449b035a487ceeccd4fc1d5a97525c008ab96f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
