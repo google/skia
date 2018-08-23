@@ -57,6 +57,10 @@ public:
         return k400_GrGLSLGeneration;
     }
 
+    bool atan2ImplementedAsAtanYOverX() const {
+        return false;
+    }
+
     bool canUseMinAndAbsTogether() const {
         return true;
     }
