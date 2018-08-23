@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c8a5c902_0f6c9835",
+        "filename": "src/utils/SkDashPath.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T16:21:48Z",
+      "side": 1,
+      "message": "spelling?",
+      "range": {
+        "startLine": 392,
+        "startChar": 22,
+        "endLine": 392,
+        "endChar": 31
+      },
+      "revId": "89936d335e855fc1a4bd5f1e4dfe6c1fde3a5fa7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
