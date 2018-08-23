@@ -243,7 +243,6 @@ void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
                                                          dynamicOffsetCount,
                                                          dynamicOffsets));
     this->addRecordingResource(layout);
-    pipelineState->addUniformResources(*this);
 }
 
 void GrVkCommandBuffer::bindDescriptorSets(const GrVkGpu* gpu,
