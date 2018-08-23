@@ -26,7 +26,7 @@ namespace sksg { class Scene;  }
 
 namespace skottie {
 
-class SK_API ResourceProvider {
+class SK_API ResourceProvider : public SkRefCnt {
 public:
     ResourceProvider() = default;
     virtual ~ResourceProvider() = default;
@@ -57,10 +57,9 @@ public:
         const Stats& getStats() const { return fStats; }
 
         /**
-         * Specify a loader for external resources (images, etc.).  Ownership stays with the caller
-         * (the ResrouceProvider must be valid for this builder's lifespan).
+         * Specify a loader for external resources (images, etc.).
          */
-        Builder& setResourceProvider(const ResourceProvider*);
+        Builder& setResourceProvider(sk_sp<ResourceProvider>);
 
         /**
          * Specify a font manager for loading animation fonts.
@@ -75,7 +74,7 @@ public:
         sk_sp<Animation> makeFromFile(const char path[]);
 
     private:
-        const ResourceProvider* fResourceProvider = nullptr;
+        sk_sp<ResourceProvider> fResourceProvider;
         sk_sp<SkFontMgr>        fFontMgr;
         Stats                   fStats;
     };

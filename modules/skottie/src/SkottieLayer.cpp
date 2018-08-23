@@ -206,14 +206,14 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
         const float            fTimeScale;
     };
 
-    const auto data = fResourceProvider.load("", name);
+    const auto data = fResourceProvider->load("", name);
     if (!data) {
         LOG("!! Could not load: %s\n", name);
         return nullptr;
     }
 
     auto animation = Animation::Builder()
-            .setResourceProvider(&fResourceProvider)
+            .setResourceProvider(fResourceProvider)
             .setFontManager(fFontMgr)
             .make(static_cast<const char*>(data->data()), data->size());
     if (!animation) {
@@ -294,7 +294,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         return *attached_image;
     }
 
-    const auto data = fResourceProvider.load(path_cstr, name_cstr);
+    const auto data = fResourceProvider->load(path_cstr, name_cstr);
     if (!data) {
         LOG("!! Could not load image resource: %s/%s\n", path_cstr, name_cstr);
         return nullptr;
