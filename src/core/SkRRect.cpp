@@ -394,7 +394,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // If transform supported 90 degree rotations (which it could), we could
     // use SkMatrix::rectStaysRect() to check for a valid transformation.
-    if (!matrix_only_scale_and_translate(matrix)) {
+    if (!matrix.isScaleTranslate()) {
         return false;
     }
 
