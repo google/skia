@@ -371,12 +371,6 @@ void SkRRect::computeType() {
     SkASSERT(this->isValid());
 }
 
-static bool matrix_only_scale_and_translate(const SkMatrix& matrix) {
-    const SkMatrix::TypeMask m = (SkMatrix::TypeMask) (SkMatrix::kAffine_Mask
-                                    | SkMatrix::kPerspective_Mask);
-    return (matrix.getType() & m) == 0;
-}
-
 bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
     if (nullptr == dst) {
         return false;
@@ -394,7 +388,7 @@ bool SkRRect::transform(const SkMatrix& matrix, SkRRect* dst) const {
 
     // If transform supported 90 degree rotations (which it could), we could
     // use SkMatrix::rectStaysRect() to check for a valid transformation.
-    if (!matrix_only_scale_and_translate(matrix)) {
+    if (!matrix.isScaleTranslate()) {
         return false;
     }
 

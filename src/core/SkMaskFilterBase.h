@@ -114,18 +114,6 @@ public:
                                      const GrClip&,
                                      const SkMatrix& viewMatrix,
                                      const GrShape& shape) const;
-    /**
-     *  Try to directly render a rounded rect mask filter into the target.  Returns
-     *  true if drawing was successful.  If false is returned then paint is unmodified.
-     */
-    virtual bool directFilterRRectMaskGPU(GrContext*,
-                                          GrRenderTargetContext*,
-                                          GrPaint&&,
-                                          const GrClip&,
-                                          const SkMatrix& viewMatrix,
-                                          const SkStrokeRec&,
-                                          const SkRRect& rrect,
-                                          const SkRRect& devRRect) const;
 
     /**
      * This function is used to implement filters that require an explicit src mask. It should only
