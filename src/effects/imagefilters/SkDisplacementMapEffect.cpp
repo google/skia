@@ -306,8 +306,7 @@ sk_sp<SkSpecialImage> SkDisplacementMapEffect::onFilterImage(SkSpecialImage* sou
                                               offsetMatrix,
                                               std::move(colorProxy),
                                               SkISize::Make(color->width(), color->height()));
-        fp = GrColorSpaceXformEffect::Make(std::move(fp), color->getColorSpace(),
-                                           color->alphaType(), colorSpace);
+        fp = GrColorSpaceXformEffect::Make(std::move(fp), color->getColorSpace(), colorSpace);
 
         GrPaint paint;
         paint.addColorFragmentProcessor(std::move(fp));

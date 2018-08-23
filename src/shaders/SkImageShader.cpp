@@ -242,7 +242,6 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
         inner = GrSimpleTextureEffect::Make(std::move(proxy), lmInverse, samplerState);
     }
     inner = GrColorSpaceXformEffect::Make(std::move(inner), texColorSpace.get(),
-                                          fImage->alphaType(),
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;

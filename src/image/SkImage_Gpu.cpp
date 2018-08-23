@@ -944,7 +944,7 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
         srcSpace = SkColorSpace::MakeSRGB();
     }
 
-    auto xform = GrColorSpaceXformEffect::Make(srcSpace.get(), this->alphaType(), target.get());
+    auto xform = GrColorSpaceXformEffect::Make(srcSpace.get(), target.get());
     if (!xform) {
         return sk_ref_sp(const_cast<SkImage_Gpu*>(this));
     }

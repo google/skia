@@ -115,7 +115,7 @@ sk_sp<SkSpecialImage> SkMagnifierImageFilter::onFilterImage(SkSpecialImage* sour
                                           bounds.width() * invInset,
                                           bounds.height() * invInset);
         fp = GrColorSpaceXformEffect::Make(std::move(fp), input->getColorSpace(),
-                                           input->alphaType(), ctx.outputProperties().colorSpace());
+                                           ctx.outputProperties().colorSpace());
         if (!fp) {
             return nullptr;
         }

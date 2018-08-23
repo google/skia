@@ -1027,7 +1027,7 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
         fp = GrSimpleTextureEffect::Make(std::move(proxy), texMatrix, samplerState);
     }
 
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(), bitmap.alphaType(),
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), bitmap.colorSpace(),
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     GrPaint grPaint;
     if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
@@ -1100,7 +1100,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special, int left, int top, const 
     tmpUnfiltered.setImageFilter(nullptr);
 
     auto fp = GrSimpleTextureEffect::Make(std::move(proxy), SkMatrix::I());
-    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(), result->alphaType(),
+    fp = GrColorSpaceXformEffect::Make(std::move(fp), result->getColorSpace(),
                                        fRenderTargetContext->colorSpaceInfo().colorSpace());
     if (GrPixelConfigIsAlphaOnly(config)) {
         fp = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
@@ -1423,7 +1423,7 @@ void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
     if (!proxy) {
         return;
     }
-    auto csxf = GrColorSpaceXform::Make(proxyColorSpace.get(), producer->alphaType(),
+    auto csxf = GrColorSpaceXform::Make(proxyColorSpace.get(), kPremul_SkAlphaType,
                                         dstColorSpace,         kPremul_SkAlphaType);
 
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
