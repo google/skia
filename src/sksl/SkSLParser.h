@@ -272,7 +272,7 @@ private:
 
     bool identifier(StringFragment* dest);
 
-    static std::unique_ptr<std::unordered_map<String, LayoutToken>> layoutTokens;
+    static std::unordered_map<String, LayoutToken>* layoutTokens;
 
     const char* fText;
     Lexer fLexer;
