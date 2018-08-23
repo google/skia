@@ -252,7 +252,9 @@ void GrVkGpu::disconnect(DisconnectType type) {
         if (DisconnectType::kCleanup == type) {
             this->destroyResources();
         } else {
-            fCurrentCmdBuffer->unrefAndAbandon();
+            if (fCurrentCmdBuffer) {
+                fCurrentCmdBuffer->unrefAndAbandon();
+            }
             for (int i = 0; i < fSemaphoresToWaitOn.count(); ++i) {
                 fSemaphoresToWaitOn[i]->unrefAndAbandon();
             }
@@ -263,6 +265,8 @@ void GrVkGpu::disconnect(DisconnectType type) {
 
             // must call this just before we destroy the command pool and VkDevice
             fResourceProvider.abandonResources();
+
+            fMemoryAllocator.reset();
         }
         fSemaphoresToWaitOn.reset();
         fSemaphoresToSignal.reset();

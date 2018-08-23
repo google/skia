@@ -380,14 +380,12 @@ void GrVkResourceProvider::destroyResources(bool deviceLost) {
 void GrVkResourceProvider::abandonResources() {
     // release our active command buffers
     for (int i = 0; i < fActiveCommandBuffers.count(); ++i) {
-        SkASSERT(fActiveCommandBuffers[i]->finished(fGpu));
         SkASSERT(fActiveCommandBuffers[i]->unique());
         fActiveCommandBuffers[i]->unrefAndAbandon();
     }
     fActiveCommandBuffers.reset();
     // release our available command buffers
     for (int i = 0; i < fAvailableCommandBuffers.count(); ++i) {
-        SkASSERT(fAvailableCommandBuffers[i]->finished(fGpu));
         SkASSERT(fAvailableCommandBuffers[i]->unique());
         fAvailableCommandBuffers[i]->unrefAndAbandon();
     }

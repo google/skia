@@ -82,10 +82,12 @@ void GrVkPipelineState::freeGPUResources(const GrVkGpu* gpu) {
 
     if (fGeometryUniformBuffer) {
         fGeometryUniformBuffer->release(gpu);
+        fGeometryUniformBuffer.reset();
     }
 
     if (fFragmentUniformBuffer) {
         fFragmentUniformBuffer->release(gpu);
+        fFragmentUniformBuffer.reset();
     }
 
     if (fUniformDescriptorSet) {
@@ -110,8 +112,15 @@ void GrVkPipelineState::abandonGPUResources() {
         fPipelineLayout = nullptr;
     }
 
-    fGeometryUniformBuffer->abandon();
-    fFragmentUniformBuffer->abandon();
+    if (fGeometryUniformBuffer) {
+        fGeometryUniformBuffer->abandon();
+        fGeometryUniformBuffer.reset();
+    }
+
+    if (fFragmentUniformBuffer) {
+        fFragmentUniformBuffer->abandon();
+        fFragmentUniformBuffer.reset();
+    }
 
     if (fUniformDescriptorSet) {
         fUniformDescriptorSet->unrefAndAbandon();
