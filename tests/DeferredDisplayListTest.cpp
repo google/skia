@@ -289,8 +289,10 @@ public:
             break;
         case 3:
             // The color type and config need to be changed together.
+            // The original SRGB color space no longer makes sense for F16
             fColorType = kRGBA_F16_SkColorType;
             fConfig = kRGBA_half_GrPixelConfig;
+            fColorSpace = SkColorSpace::MakeSRGBLinear();
             break;
         case 4:
             // This just needs to be a colorSpace different from that returned by MakeSRGB().

@@ -33,9 +33,10 @@ protected:
     const char* onGetName() override { return fName.c_str(); }
 
     void onDelayedSetup() override {
-        SkColorType ct = fHalfFoat ? kRGBA_F16_SkColorType : kN32_SkColorType;
-        SkImageInfo info = SkImageInfo::Make(fW, fH, ct, kPremul_SkAlphaType,
-                                             SkColorSpace::MakeSRGB());
+        SkImageInfo info = fHalfFoat ? SkImageInfo::Make(fW, fH, kRGBA_F16_SkColorType,
+                                                         kPremul_SkAlphaType,
+                                                         SkColorSpace::MakeSRGBLinear())
+                                     : SkImageInfo::MakeS32(fW, fH, kPremul_SkAlphaType);
         fBitmap.allocPixels(info);
         fBitmap.eraseColor(SK_ColorWHITE);  // so we don't read uninitialized memory
     }
