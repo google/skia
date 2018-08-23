@@ -106,11 +106,9 @@ static unsigned unit_to_byte(float unit) {
 }
 
 static SkColor to_skcolor(SkColor4f color, SkColorSpace* cs) {
-    if (cs) {
-        SkColorSpaceXformSteps steps{cs                 , kUnpremul_SkAlphaType,
-                                     sk_srgb_singleton(), kUnpremul_SkAlphaType};
-        steps.apply(color.vec());
-    }
+    SkColorSpaceXformSteps steps{cs                 , kUnpremul_SkAlphaType,
+                                 sk_srgb_singleton(), kUnpremul_SkAlphaType};
+    steps.apply(color.vec());
     color = color.pin();
     return SkColorSetARGB(unit_to_byte(color.fA), unit_to_byte(color.fR),
                           unit_to_byte(color.fG), unit_to_byte(color.fB));

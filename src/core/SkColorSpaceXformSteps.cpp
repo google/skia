@@ -6,6 +6,7 @@
  */
 
 #include "SkColorSpaceXformSteps.h"
+#include "SkColorSpacePriv.h"
 #include "SkRasterPipeline.h"
 
 // TODO: explain
@@ -22,7 +23,9 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     memset(this, 0, sizeof(*this));
 
     // We have some options about what to do with null src or dst here.
-    SkASSERT(src && dst);
+    // This pair seems to be the most consistent with legacy expectations.
+    if (!src) { src = sk_srgb_singleton(); }
+    if (!dst) { dst = src; }
 
     this->flags.unpremul        = srcAT == kPremul_SkAlphaType;
     this->flags.linearize       = !src->gammaIsLinear();

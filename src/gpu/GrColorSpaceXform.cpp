@@ -15,16 +15,6 @@
 
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,
                                                  SkColorSpace* dst, SkAlphaType dstAT) {
-    // No transformation is performed in legacy mode, until SkColorSpaceXformCanvas is gone
-    if (!dst) {
-        return nullptr;
-    }
-
-    // Treat null sources as sRGB.
-    if (!src) {
-        src = sk_srgb_singleton();
-    }
-
     SkColorSpaceXformSteps steps(src, srcAT, dst, dstAT);
     return steps.flags.mask() == 0 ? nullptr  /* Noop transform */
                                    : sk_make_sp<GrColorSpaceXform>(steps);
