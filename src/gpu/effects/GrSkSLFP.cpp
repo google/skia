@@ -59,8 +59,23 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(int32_t);
         }
+        else if (&v->fType == fCompiler.context().fBool_Type.get()) {
+            bool v = *(((bool*) inputs) + offset);
+            inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
+            offset += sizeof(bool);
+        }
+        else if (&v->fType == fCompiler.context().fFloat4_Type.get()) {
+            SkASSERT(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag);
+            offset = SkAlign4(offset) + sizeof(float) * 4;
+        }
+        else if (&v->fType == fCompiler.context().fFragmentProcessor_Type.get()) {
+            // do nothing
+        }
+        else {
+            printf("can't handle input var: %s\n", SkSL::String(v->fType.fName).c_str());
+            SkASSERT(false);
+        }
     }
-    SkASSERT(offset == inputSize);
 
     std::unique_ptr<SkSL::Program> specialized = fCompiler.specialize(*fBaseProgram, inputMap);
     SkAssertResult(fCompiler.optimize(*specialized));
@@ -71,11 +86,55 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs)
-            : fGLSL(glsl)
+    GrGLSLSkSLFP(const SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
+                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs)
+            : fContext(*context)
+            , fInputVars(*inputVars)
+            , fGLSL(glsl)
             , fFormatArgs(formatArgs) {}
 
+    GrSLType uniformType(const SkSL::Type& type) {
+        if (type == *fContext.fFloat_Type) {
+            return kFloat_GrSLType;
+        } else if (type == *fContext.fHalf_Type) {
+            return kHalf_GrSLType;
+        } else if (type == *fContext.fFloat2_Type) {
+            return kFloat2_GrSLType;
+        } else if (type == *fContext.fHalf2_Type) {
+            return kHalf2_GrSLType;
+        } else if (type == *fContext.fFloat4_Type) {
+            return kFloat4_GrSLType;
+        } else if (type == *fContext.fHalf4_Type) {
+            return kHalf4_GrSLType;
+        } else if (type == *fContext.fFloat4x4_Type) {
+            return kFloat4x4_GrSLType;
+        } else if (type == *fContext.fHalf4x4_Type) {
+            return kHalf4x4_GrSLType;
+        } else if (type == *fContext.fBool_Type) {
+            return kBool_GrSLType;
+        } else if (type == *fContext.fInt_Type) {
+            return kInt_GrSLType;
+        }
+        printf("%s\n", SkSL::String(type.fName).c_str());
+        SK_ABORT("unsupported uniform type");
+        return kFloat_GrSLType;
+    }
+
     void emitCode(EmitArgs& args) override {
+        for (const auto& v : fInputVars) {
+            if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
+                                                                *fContext.fFragmentProcessor_Type) {
+                fUniformHandles.push_back(args.fUniformHandler->addUniform(kFragment_GrShaderFlag,
+                                                                           this->uniformType(v->fType),
+                                                                           kDefault_GrSLPrecision,
+                                                                           SkSL::String(v->fName).c_str()));
+            }
+        }
+        std::vector<SkString> childNames;
+        for (int i = 0; i < this->numChildProcessors(); ++i) {
+            childNames.push_back(SkStringPrintf("_child%d", i));
+            this->emitChild(i, &childNames[i], args);
+        }
         GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
         int substringStartIndex = 0;
         int formatArgIndex = 0;
@@ -87,17 +146,26 @@ public:
                 ++i;
                 c = fGLSL[i];
                 switch (c) {
-                    case 's':
-                        switch (fFormatArgs[formatArgIndex++]) {
-                            case SkSL::Compiler::FormatArg::kInput:
+                    case 's': {
+                        SkSL::Compiler::FormatArg& arg = fFormatArgs[formatArgIndex++];
+                        switch (arg.fKind) {
+                            case SkSL::Compiler::FormatArg::Kind::kInput:
                                 fragBuilder->codeAppend(args.fInputColor ? args.fInputColor
                                                                          : "half4(1)");
                                 break;
-                            case SkSL::Compiler::FormatArg::kOutput:
+                            case SkSL::Compiler::FormatArg::Kind::kOutput:
                                 fragBuilder->codeAppend(args.fOutputColor);
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kUniform:
+                                fragBuilder->codeAppend(args.fUniformHandler->getUniformCStr(
+                                                                      fUniformHandles[arg.fIndex]));
+                                break;
+                            case SkSL::Compiler::FormatArg::Kind::kChildProcessor:
+                                fragBuilder->codeAppend(childNames[arg.fIndex].c_str());
                                 break;
                         }
                         break;
+                    }
                     default:
                         fragBuilder->codeAppendf("%c", c);
                 }
@@ -108,9 +176,41 @@ public:
                                 fGLSL.length() - substringStartIndex);
     }
 
+    void onSetData(const GrGLSLProgramDataManager& pdman,
+                   const GrFragmentProcessor& _proc) override {
+        size_t uniformIndex = 0;
+        size_t offset = 0;
+        const GrSkSLFP& outer = _proc.cast<GrSkSLFP>();
+        char* inputs = (char*) outer.fInputs.get();
+        const SkSL::Context& context = outer.fFactory->fCompiler.context();
+        for (const auto& v : outer.fFactory->fInputVars) {
+            if (&v->fType == context.fFloat4_Type.get()) {
+                offset = SkAlign4(offset);
+                float f1 = *(float*) (inputs + offset);
+                offset += sizeof(float);
+                float f2 = *(float*) (inputs + offset);
+                offset += sizeof(float);
+                float f3 = *(float*) (inputs + offset);
+                offset += sizeof(float);
+                float f4 = *(float*) (inputs + offset);
+                offset += sizeof(float);
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                    pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
+                }
+            }
+            if (&v->fType == context.fBool_Type.get()) {
+                SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
+                ++offset;
+            }
+        }
+    }
+
+    const SkSL::Context& fContext;
+    const std::vector<const SkSL::Variable*>& fInputVars;
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
+    std::vector<UniformHandle> fUniformHandles;
 };
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::Make(GrContext* context, int index, const char* name,
@@ -122,6 +222,16 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::Make(GrContext* context, int inde
                                                         index, name, sksl, inputs, inputSize));
 }
 
+std::unique_ptr<GrFragmentProcessor> GrSkSLFP::Make(
+                                       GrContext* context, int index, const char* name,
+                                       const char* sksl, const void* inputs, size_t inputSize,
+                                       std::vector<std::unique_ptr<GrFragmentProcessor>> children) {
+    return std::unique_ptr<GrFragmentProcessor>(new GrSkSLFP(
+                                                        context->contextPriv().getFPFactoryCache(),
+                                                        context->contextPriv().caps()->shaderCaps(),
+                                                        index, name, sksl, inputs, inputSize,
+                                                        std::move(children)));
+}
 
 GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
                    int index, const char* name, const char* sksl, const void* inputs,
@@ -135,6 +245,15 @@ GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps*
         , fInputs(new int8_t[inputSize])
         , fInputSize(inputSize) {
     memcpy(fInputs.get(), inputs, inputSize);
+}
+
+GrSkSLFP::GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps,
+                   int index, const char* name, const char* sksl, const void* inputs,
+                   size_t inputSize, std::vector<std::unique_ptr<GrFragmentProcessor>> children)
+        :GrSkSLFP(std::move(factoryCache), shaderCaps, index, name, sksl, inputs, inputSize) {
+    for (auto& child : children) {
+        this->registerChildProcessor(std::move(child));
+    }
 }
 
 GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
@@ -169,11 +288,11 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     const SkSL::Program* specialized = fFactory->getSpecialization(fKey, fInputs.get(), fInputSize);
     SkSL::String glsl;
     std::vector<SkSL::Compiler::FormatArg> formatArgs;
-     if (!fFactory->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs)) {
+    if (!fFactory->fCompiler.toPipelineStage(*specialized, &glsl, &formatArgs)) {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
-        abort();
+        SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(glsl, formatArgs);
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -181,8 +300,9 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     this->createFactory();
     size_t offset = 0;
     char* inputs = (char*) fInputs.get();
+    const SkSL::Context& context = fFactory->fCompiler.context();
     for (const auto& v : fFactory->fInputVars) {
-        if (&v->fType == fFactory->fCompiler.context().fInt_Type.get()) {
+        if (&v->fType == context.fInt_Type.get()) {
             offset = SkAlign4(offset);
             if (v->fModifiers.fLayout.fKey) {
                 fKey += inputs[offset + 0];
@@ -193,12 +313,40 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
             }
             offset += sizeof(int32_t);
         }
+        else if (&v->fType == context.fFloat4_Type.get()) {
+            if (v->fModifiers.fLayout.fKey) {
+                for (size_t i = 0; i < sizeof(float) * 4; ++i) {
+                    fKey += inputs[offset + i];
+                }
+                b->add32(*(int32_t*) (inputs + offset));
+                offset += sizeof(float);
+                b->add32(*(int32_t*) (inputs + offset));
+                offset += sizeof(float);
+                b->add32(*(int32_t*) (inputs + offset));
+                offset += sizeof(float);
+                b->add32(*(int32_t*) (inputs + offset));
+                offset += sizeof(float);
+            }
+            else {
+                offset += sizeof(float) * 4;
+            }
+        }
+        else if (&v->fType == context.fBool_Type.get()) {
+            if (v->fModifiers.fLayout.fKey) {
+                fKey += inputs[offset];
+                b->add32(inputs[offset]);
+            }
+            ++offset;
+        }
+        else if (&v->fType == context.fFragmentProcessor_Type.get()) {
+            continue;
+        }
         else {
             // unsupported input var type
+            printf("%s\n", SkSL::String(v->fType.fName).c_str());
             SkASSERT(false);
         }
     }
-    SkASSERT(offset == fInputSize);
 }
 
 bool GrSkSLFP::onIsEqual(const GrFragmentProcessor& other) const {

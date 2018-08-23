@@ -68,6 +68,15 @@ public:
                    const void* inputs,
                    size_t inputSize);
 
+    static std::unique_ptr<GrFragmentProcessor> Make(
+                   GrContext* context,
+                   int index,
+                   const char* name,
+                   const char* sksl,
+                   const void* inputs,
+                   size_t inputSize,
+                   std::vector<std::unique_ptr<GrFragmentProcessor>> children);
+
     const char* name() const override;
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -75,6 +84,10 @@ public:
 private:
     GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps, int fIndex,
              const char* name, const char* sksl, const void* inputs, size_t inputSize);
+
+    GrSkSLFP(sk_sp<GrSkSLFPFactoryCache> factoryCache, const GrShaderCaps* shaderCaps, int fIndex,
+             const char* name, const char* sksl, const void* inputs, size_t inputSize,
+             std::vector<std::unique_ptr<GrFragmentProcessor>> children);
 
     GrSkSLFP(const GrSkSLFP& other);
 
@@ -102,11 +115,15 @@ private:
 
     size_t fInputSize;
 
+    std::vector<std::unique_ptr<GrFragmentProcessor>> fChildren;
+
     mutable SkSL::String fKey;
 
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
+
+    friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
 };
