@@ -13,7 +13,6 @@
 #include "SkColorFilter.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
-#include "SkColorSpaceXformSteps.h"
 #include "SkOpts.h"
 #include "SkPM4f.h"
 #include "SkPM4fPriv.h"
