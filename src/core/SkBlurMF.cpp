@@ -751,6 +751,9 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     }
 
     SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
+    if (xformedSigma <= 0) {
+        return false;
+    }
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
     std::unique_ptr<GrFragmentProcessor> fp;
