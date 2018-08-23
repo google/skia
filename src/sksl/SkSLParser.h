@@ -106,7 +106,7 @@ public:
     Position position(Token token);
 
 private:
-    static void InitLayoutMap();
+    static std::unordered_map<String, LayoutToken>* InitLayoutMap();
 
     /**
      * Return the next token, including whitespace tokens, from the parse stream.

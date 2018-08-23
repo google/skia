@@ -77,11 +77,16 @@ private:
     Parser* fParser;
 };
 
-std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens;
 
-void Parser::InitLayoutMap() {
-    layoutTokens = new std::unordered_map<String, LayoutToken>;
-    #define TOKEN(name, text) (*layoutTokens)[text] = LayoutToken::name;
+#ifdef SKSL_STANDALONE
+std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens = InitLayoutMap();
+#else
+std::unordered_map<String, Parser::LayoutToken>* Parser::layoutTokens;
+#endif
+
+std::unordered_map<String, Parser::LayoutToken>* Parser::InitLayoutMap() {
+    auto result = new std::unordered_map<String, LayoutToken>;
+    #define TOKEN(name, text) (*result)[text] = LayoutToken::name;
     TOKEN(LOCATION,                     "location");
     TOKEN(OFFSET,                       "offset");
     TOKEN(BINDING,                      "binding");
@@ -121,6 +126,7 @@ void Parser::InitLayoutMap() {
     TOKEN(KEY,                          "key");
     TOKEN(CTYPE,                        "ctype");
     #undef TOKEN
+    return result;
 }
 
 Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors)
@@ -129,11 +135,9 @@ Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporte
 , fTypes(types)
 , fErrors(errors) {
     fLexer.start(text, length);
-#ifdef SKSL_STANDALONE
-    InitLayoutMap();
-#else
+#ifndef SKSL_STANDALONE
     static SkOnce once;
-    once([] { InitLayoutMap(); });
+    once([] { layoutTokens = InitLayoutMap(); });
 #endif
 }
 
