@@ -340,17 +340,6 @@ bool SkMaskFilterBase::directFilterMaskGPU(GrContext*,
     return false;
 }
 
-bool SkMaskFilterBase::directFilterRRectMaskGPU(GrContext*,
-                                                GrRenderTargetContext*,
-                                                GrPaint&&,
-                                                const GrClip&,
-                                                const SkMatrix& viewMatrix,
-                                                const SkStrokeRec&,
-                                                const SkRRect& rrect,
-                                                const SkRRect& devRRect) const {
-    return false;
-}
-
 sk_sp<GrTextureProxy> SkMaskFilterBase::filterMaskGPU(GrContext*,
                                                       sk_sp<GrTextureProxy> srcProxy,
                                                       const SkMatrix& ctm,
