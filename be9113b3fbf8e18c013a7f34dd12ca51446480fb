@@ -16,6 +16,24 @@
       "revId": "be9113b3fbf8e18c013a7f34dd12ca51446480fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3a0fc61a_8bdca367",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-23T15:04:51Z",
+      "side": 1,
+      "message": "I thought Chrome compiled with --no-threadsafe-statics but searching through cs.chromium.org it appears it does not. Done.",
+      "parentUuid": "50463328_7bd6cad5",
+      "revId": "be9113b3fbf8e18c013a7f34dd12ca51446480fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
