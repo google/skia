@@ -678,6 +678,14 @@ DEF_TEST(ReadPixels_ValidConversion, reporter) {
                 for (SkColorType srcCT : kColorTypes) {
                     for (SkAlphaType srcAT: kAlphaTypes) {
                         for (sk_sp<SkColorSpace> srcCS : kColorSpaces) {
+                            if (kRGBA_F16_SkColorType == dstCT && dstCS) {
+                                dstCS = dstCS->makeLinearGamma();
+                            }
+
+                            if (kRGBA_F16_SkColorType == srcCT && srcCS) {
+                                srcCS = srcCS->makeLinearGamma();
+                            }
+
                             test_conversion(reporter,
                                             SkImageInfo::Make(kNumPixels, 1, dstCT, dstAT, dstCS),
                                             SkImageInfo::Make(kNumPixels, 1, srcCT, srcAT, srcCS));
