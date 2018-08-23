@@ -104,6 +104,7 @@ private:
 
         SkStrikeServer* const fStrikeServer;
         const SkTextBlobCacheDiffCanvas::Settings fSettings;
+        SkGlyphRunListPainter fPainter;
     };
 };
 
@@ -147,13 +148,13 @@ public:
     void writeStrikeData(std::vector<uint8_t>* memory);
 
     // Methods used internally in skia ------------------------------------------
-    class SkGlyphCacheState {
+    class SkGlyphCacheState : public SkGlyphCacheInterface {
     public:
         SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
                           std::unique_ptr<SkDescriptor> keyDescriptor,
                           SkDiscardableHandleId discardableHandleId,
                           std::unique_ptr<SkScalerContext> scalerContext);
-        ~SkGlyphCacheState();
+        ~SkGlyphCacheState() override;
 
         void addGlyph(SkPackedGlyphID, bool pathOnly);
         void writePendingGlyphs(Serializer* serializer);
@@ -168,6 +169,10 @@ public:
             return *fKeyDescriptor;
         }
         const SkGlyph& findGlyph(SkPackedGlyphID);
+
+        SkVector rounding() const override;
+
+        const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
     private:
         bool hasPendingGlyphs() const {
