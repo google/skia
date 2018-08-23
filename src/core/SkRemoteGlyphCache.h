@@ -16,6 +16,7 @@
 
 #include "../private/SkTHash.h"
 #include "SkData.h"
+#include "SkDevice.h"
 #include "SkDrawLooper.h"
 #include "SkMakeUnique.h"
 #include "SkNoDrawCanvas.h"
@@ -27,6 +28,8 @@ class Serializer;
 enum SkAxisAlignment : uint32_t;
 class SkDescriptor;
 class SkGlyphCache;
+class SkGlyphRun;
+class SkGlyphRunList;
 struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
@@ -77,7 +80,31 @@ protected:
                         const SkPaint& paint) override;
 
 private:
-    class TrackLayerDevice;
+    class TrackLayerDevice : public SkNoPixelsDevice {
+    public:
+        TrackLayerDevice(const SkIRect& bounds, const SkSurfaceProps& props, SkStrikeServer* server,
+                         const SkTextBlobCacheDiffCanvas::Settings& settings);
+
+        SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
+
+    protected:
+        void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
+
+    private:
+        void processGlyphRun(const SkPoint& origin, const SkGlyphRun& glyphRun);
+
+        void processGlyphRunForMask(
+                const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin);
+
+        void processGlyphRunForPaths(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix);
+
+#if SK_SUPPORT_GPU
+        bool maybeProcessGlyphRunForDFT(const SkGlyphRun& glyphRun, const SkMatrix& runMatrix);
+#endif
+
+        SkStrikeServer* const fStrikeServer;
+        const SkTextBlobCacheDiffCanvas::Settings fSettings;
+    };
 };
 
 using SkDiscardableHandleId = uint32_t;

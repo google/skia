@@ -32,6 +32,7 @@
 #include "SkPaintPriv.h"
 #include "SkPathEffect.h"
 #include "SkRasterClip.h"
+#include "SkRemoteGlyphCache.h"
 #include "SkStrikeCache.h"
 #include "SkTextBlob.h"
 #include "SkTextBlobPriv.h"
@@ -877,6 +878,43 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
         }
     }
 }
+
+// -- SkRemoteGlyphCache ---------------------------------------------------------------------------
+
+void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+    TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForMask");
+    const SkPaint& runPaint = glyphRun.paint();
+
+    SkSTArenaAlloc<120> arena;
+    SkFindAndPlaceGlyph::MapperInterface* mapper =
+            SkFindAndPlaceGlyph::CreateMapper(runMatrix, origin, 2, &arena);
+
+    SkScalerContextEffects effects;
+    auto* glyphCacheState = fStrikeServer->getOrCreateCache(
+            runPaint, &this->surfaceProps(), &runMatrix,
+            SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
+    SkASSERT(glyphCacheState);
+
+    const bool asPath = false;
+    bool isSubpixel = glyphCacheState->isSubpixel();
+    SkAxisAlignment axisAlignment = glyphCacheState->axisAlignmentForHText();
+    auto glyphs = glyphRun.shuntGlyphsIDs();
+    auto positions = glyphRun.positions();
+    for (uint32_t index = 0; index < glyphRun.runSize(); index++) {
+        SkIPoint subPixelPos{0, 0};
+        if (isSubpixel) {
+            SkPoint glyphPos = mapper->map(positions[index]);
+            subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
+        }
+
+        glyphCacheState->addGlyph(
+                SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                asPath);
+    }
+}
+
+// -- GrTextContext --------------------------------------------------------------------------------
 
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
     GrColor4f filteredColor = SkColorToUnpremulGrColor4f(paint.getColor(), colorSpaceInfo);
