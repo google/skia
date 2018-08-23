@@ -129,12 +129,8 @@ Parser::Parser(const char* text, size_t length, SymbolTable& types, ErrorReporte
 , fTypes(types)
 , fErrors(errors) {
     fLexer.start(text, length);
-#ifdef SKSL_STANDALONE
-    InitLayoutMap();
-#else
-    static SkOnce once;
-    once([] { InitLayoutMap(); });
-#endif
+    static const bool layoutMapInitialized = []{ return (void)InitLayoutMap(), true; }();
+    (void) layoutMapInitialized;
 }
 
 /* (directive | section | declaration)* END_OF_FILE */
