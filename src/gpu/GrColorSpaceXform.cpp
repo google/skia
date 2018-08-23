@@ -16,13 +16,9 @@
 sk_sp<GrColorSpaceXform> GrColorSpaceXform::Make(SkColorSpace* src, SkAlphaType srcAT,
                                                  SkColorSpace* dst, SkAlphaType dstAT) {
     // No transformation is performed in legacy mode, until SkColorSpaceXformCanvas is gone
+    // TODO: is this still the right choice?  should we not just let it fall into our dst=src mode?
     if (!dst) {
         return nullptr;
-    }
-
-    // Treat null sources as sRGB.
-    if (!src) {
-        src = sk_srgb_singleton();
     }
 
     SkColorSpaceXformSteps steps(src, srcAT, dst, dstAT);

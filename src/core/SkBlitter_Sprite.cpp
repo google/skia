@@ -134,24 +134,20 @@ public:
                                             p.append(SkRasterPipeline::force_opaque     ); break;
             default: SkASSERT(false);
         }
+        auto dstCS = fDst.colorSpace(),
+             srcCS = fSource.colorSpace();
+
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             // The color for A8 images comes from the (sRGB) paint color.
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);
             p.append(SkRasterPipeline::premul);
+            srcCS = sk_srgb_singleton();
         }
-        if (auto dstCS = fDst.colorSpace()) {
-            auto srcCS = fSource.colorSpace();
-            if (!srcCS || fSource.colorType() == kAlpha_8_SkColorType) {
-                // We treat untagged images as sRGB.
-                // A8 images get their r,g,b from the paint color, so they're also sRGB.
-                srcCS = sk_srgb_singleton();
-            }
-            auto srcAT = fSource.isOpaque() ? kOpaque_SkAlphaType
-                                            : kPremul_SkAlphaType;
-            fAlloc->make<SkColorSpaceXformSteps>(srcCS, srcAT,
-                                                 dstCS, kPremul_SkAlphaType)
-                ->apply(&p);
-        }
+        auto srcAT = fSource.isOpaque() ? kOpaque_SkAlphaType
+                                        : kPremul_SkAlphaType;
+        fAlloc->make<SkColorSpaceXformSteps>(srcCS, srcAT,
+                                             dstCS, kPremul_SkAlphaType)
+            ->apply(&p);
         if (fPaintColor.fA != 1.0f) {
             p.append(SkRasterPipeline::scale_1_float, &fPaintColor.fA);
         }
