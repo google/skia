@@ -34,6 +34,24 @@
       "revId": "be9113b3fbf8e18c013a7f34dd12ca51446480fb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "413a3591_fdb08d0f",
+        "filename": "src/sksl/SkSLParser.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T15:09:28Z",
+      "side": 1,
+      "message": "Right, they did for a while, but eventually came to their senses.  :)",
+      "parentUuid": "3a0fc61a_8bdca367",
+      "revId": "be9113b3fbf8e18c013a7f34dd12ca51446480fb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
