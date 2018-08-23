@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "399b9ca3_a341a17b",
+        "filename": "src/core/SkGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T12:15:05Z",
+      "side": 1,
+      "message": "Why do we cache these here now?  Can we not just keep asking the scaler context?",
+      "revId": "e5eb7a301eda2cf127cbe90475edf5c1a38b6a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f95d6c5_f5a0f415",
+        "filename": "src/core/SkGlyphRun.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-23T12:15:05Z",
+      "side": 1,
+      "message": "If you drop the else above, do you need this?\n\nif (!isSubPixel) {\n   return ...;\n}\nswitch (...) {\n   return\n   return\n   return \n}",
+      "range": {
+        "startLine": 57,
+        "startChar": 7,
+        "endLine": 58,
+        "endChar": 22
+      },
+      "revId": "e5eb7a301eda2cf127cbe90475edf5c1a38b6a19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
