@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba4f02f2_b8df8c8c",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-08-23T21:25:16Z",
+      "side": 1,
+      "message": "This change looks like a good cleanup overall, but my initial reasoning for adding this was that this also adds a ref on the typeface which could potentially be backed by encoded data and we would end up extending the lifetime of that data here.\n\nCurrently the only way an entry is removed is if we try lock it and it has been purged on the service. If there is no re-use, those entries stick around forever. So in general, it might be a good idea to cap the number of entries we keep here, and if that\u0027s breached then pro-actively checking whether any entry was purged on the service so its tracking here can be removed?\n\nI also considered the fact that there is no tracking for how much memory an entry is really holding, since we don\u0027t know the allocation size for the backing typeface, if we were to only do this based on entry count but I think that\u0027s still somewhat consistent with the current behaviour where SkGlyphCache also keeps around the SkScalerContext.",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 167,
+        "endChar": 56
+      },
+      "revId": "c70881816c0e9ef822d1191875af98ae1d077df0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
