@@ -911,20 +911,21 @@ void Compiler::simplifyExpression(DefinitionMap& definitions,
 
 // returns true if this statement could potentially execute a break at the current level (we ignore
 // nested loops and switches, since any breaks inside of them will merely break the loop / switch)
-static bool contains_break(Statement& s) {
+static bool contains_conditional_break(Statement& s, bool inConditional) {
     switch (s.fKind) {
         case Statement::kBlock_Kind:
             for (const auto& sub : ((Block&) s).fStatements) {
-                if (contains_break(*sub)) {
+                if (contains_conditional_break(*sub, inConditional)) {
                     return true;
                 }
             }
             return false;
         case Statement::kBreak_Kind:
-            return true;
+            return inConditional;
         case Statement::kIf_Kind: {
             const IfStatement& i = (IfStatement&) s;
-            return contains_break(*i.fIfTrue) || (i.fIfFalse && contains_break(*i.fIfFalse));
+            return contains_conditional_break(*i.fIfTrue, true) ||
+                   (i.fIfFalse && contains_conditional_break(*i.fIfFalse, true));
         }
         default:
             return false;
@@ -945,12 +946,12 @@ static std::unique_ptr<Statement> block_for_case(SwitchStatement* s, SwitchCase*
         }
         if (capturing) {
             for (auto& stmt : current->fStatements) {
-                if (stmt->fKind == Statement::kBreak_Kind) {
+                if (contains_conditional_break(*stmt, stmt->fKind == Statement::kIf_Kind)) {
+                    return nullptr;
+                }
+                if (contains_conditional_break(*stmt, true)) {
                     capturing = false;
                     break;
-                }
-                if (contains_break(*stmt)) {
-                    return nullptr;
                 }
                 statementPtrs.push_back(&stmt);
             }
