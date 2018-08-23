@@ -44,7 +44,7 @@ using AnimatorScope = sksg::AnimatorList;
 
 class AnimationBuilder final : public SkNoncopyable {
 public:
-    AnimationBuilder(const ResourceProvider&, sk_sp<SkFontMgr>, Animation::Stats*,
+    AnimationBuilder(const ResourceProvider&, sk_sp<SkFontMgr>, Animation::Builder::Stats*,
                     float duration, float framerate);
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
@@ -75,11 +75,11 @@ private:
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*);
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*);
 
-    const ResourceProvider& fResourceProvider;
-    const sk_sp<SkFontMgr>  fFontMgr;
-    Animation::Stats*       fStats;
-    const float             fDuration,
-                            fFrameRate;
+    const ResourceProvider&    fResourceProvider;
+    sk_sp<SkFontMgr>           fFontMgr;
+    Animation::Builder::Stats* fStats;
+    const float                fDuration,
+                               fFrameRate;
 
     struct AssetInfo {
         const skjson::ObjectValue* fAsset;

@@ -123,8 +123,7 @@ Java_org_skia_skottie_SkottieRunner_00024SkottieAnimation_nCreateProxy(JNIEnv *e
     skottieAnimation->mRunner = skottieRunner;
     skottieAnimation->mStream = std::move(stream);
 
-    skottieAnimation->mAnimation = skottie::Animation::Make(skottieAnimation->mStream.get(),
-                                                            nullptr, nullptr);
+    skottieAnimation->mAnimation = skottie::Animation::Make(skottieAnimation->mStream.get());
     skottieAnimation->mTimeBase  = 0.0f; // force a time reset
     skottieAnimation->mDuration = 1000 * skottieAnimation->mAnimation->duration();
 

@@ -15,7 +15,7 @@
 
 #include <cmath>
 
-static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Stats& stats) {
+static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Builder::Stats& stats) {
     static constexpr SkRect kR = { 10, 10, 280, 120 };
     static constexpr SkScalar kTextSize = 20;
 
@@ -59,9 +59,11 @@ SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
 }
 
 void SkottieSlide::load(SkScalar w, SkScalar h) {
-    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
-    fWinSize   = SkSize::Make(w, h);
-    fTimeBase  = 0; // force a time reset
+    skottie::Animation::Builder builder;
+    fAnimation      = builder.makeFromFile(fPath.c_str());
+    fAnimationStats = builder.getStats();
+    fWinSize        = SkSize::Make(w, h);
+    fTimeBase       = 0; // force a time reset
 
     if (fAnimation) {
         fAnimation->setShowInval(fShowAnimationInval);
