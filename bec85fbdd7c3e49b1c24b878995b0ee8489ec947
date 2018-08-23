@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "5aeb0977_a314e564",
+        "filename": "modules/skottie/include/Skottie.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-23T00:26:10Z",
+      "side": 1,
+      "message": "I was on the fence \u0027cause it smells funny to have different ownership semantics for the two setters.  But yeah, sk_sp is cleaner/safer so we should stick to that (and at some point update ResourceProvider to also be ref-counted).\n\nDone.",
+      "parentUuid": "895d0c1b_66e7d2d6",
+      "range": {
+        "startLine": 69,
+        "startChar": 32,
+        "endLine": 69,
+        "endChar": 48
+      },
+      "revId": "bec85fbdd7c3e49b1c24b878995b0ee8489ec947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4328d7b0_65107953",
         "filename": "modules/skottie/src/Skottie.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-22T22:50:34Z",
       "side": 1,
       "message": "Even if you\u0027re looking to avoid a ref here, why not\n\nSkFontMgr* resolvedFontMgr \u003d fFontMgr.get();\nsk_sp\u003cSkFontMgr\u003e defaultFontMgr;\nif (!resolvedFontMgr) {\n    defaultFontMgr \u003d SkFontMgr::RefDefault();\n    resolvedFontMgr \u003d defaultFontMgr.get();\n}\n\nand avoid this AutoReset thing?",
+      "range": {
+        "startLine": 216,
+        "startChar": 0,
+        "endLine": 221,
+        "endChar": 5
+      },
+      "revId": "bec85fbdd7c3e49b1c24b878995b0ee8489ec947",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8d943925_e0d2d391",
+        "filename": "modules/skottie/src/Skottie.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-23T00:26:10Z",
+      "side": 1,
+      "message": "Done (plumbed as sk_sp all the way).",
+      "parentUuid": "4328d7b0_65107953",
       "range": {
         "startLine": 216,
         "startChar": 0,
