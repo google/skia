@@ -620,7 +620,7 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(serverTf);
         auto* cacheState = server.getOrCreateCache(paint, nullptr, nullptr, flags, &effects);
-        cacheState->addGlyph(serverTf.get(), effects, lostGlyphID, false);
+        cacheState->addGlyph(lostGlyphID, false);
 
         std::vector<uint8_t> serverStrikeData;
         server.writeStrikeData(&serverStrikeData);

@@ -31,7 +31,6 @@ struct SkPackedGlyphID;
 enum SkScalerContextFlags : uint32_t;
 class SkScalerContextRecDescriptor;
 class SkStrikeCache;
-class SkTextBlobRunIterator;
 class SkTypefaceProxy;
 struct WireTypeface;
 
@@ -126,11 +125,10 @@ public:
         SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
                           std::unique_ptr<SkDescriptor> keyDescriptor,
                           SkDiscardableHandleId discardableHandleId,
-                          bool isSubpixel,
-                          SkAxisAlignment axisAlignmentForHText);
+                          std::unique_ptr<SkScalerContext> scalerContext);
         ~SkGlyphCacheState();
 
-        void addGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID, bool pathOnly);
+        void addGlyph(SkPackedGlyphID, bool pathOnly);
         void writePendingGlyphs(Serializer* serializer);
         SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
         const SkDescriptor& getDeviceDescriptor() {
@@ -142,7 +140,7 @@ public:
         const SkDescriptor& getKeyDescriptor() {
             return *fKeyDescriptor;
         }
-        const SkGlyph& findGlyph(SkTypeface*, const SkScalerContextEffects&, SkPackedGlyphID);
+        const SkGlyph& findGlyph(SkPackedGlyphID);
 
     private:
         bool hasPendingGlyphs() const {
@@ -165,11 +163,11 @@ public:
         std::unique_ptr<SkDescriptor> fDeviceDescriptor;
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
         const SkDiscardableHandleId fDiscardableHandleId;
+        // The context built using fDeviceDescriptor
+        const std::unique_ptr<SkScalerContext> fContext;
         const bool fIsSubpixel;
         const SkAxisAlignment fAxisAlignmentForHText;
 
-        // The context built using fDeviceDescriptor
-        std::unique_ptr<SkScalerContext> fContext;
         // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
         // we cache them here.
         SkTHashMap<SkPackedGlyphID, SkGlyph> fGlyphMap;
