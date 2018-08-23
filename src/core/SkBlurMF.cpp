@@ -51,10 +51,10 @@ public:
 
 #if SK_SUPPORT_GPU
     bool canFilterMaskGPU(const GrShape& shape,
-                          const SkIRect& devSpaceShapeBounds,
+                          const SkRect& devSpaceShapeBounds,
                           const SkIRect& clipBounds,
                           const SkMatrix& ctm,
-                          SkIRect* maskRect) const override;
+                          SkRect* maskRect) const override;
     bool directFilterMaskGPU(GrContext*,
                              GrRenderTargetContext* renderTargetContext,
                              GrPaint&&,
@@ -891,27 +891,13 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
 }
 
 bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
-                                            const SkIRect& devSpaceShapeBounds,
+                                            const SkRect& devSpaceShapeBounds,
                                             const SkIRect& clipBounds,
                                             const SkMatrix& ctm,
-                                            SkIRect* maskRect) const {
+                                            SkRect* maskRect) const {
     SkScalar xformedSigma = this->computeXformedSigma(ctm);
     if (xformedSigma <= 0) {
-        maskRect->setEmpty();
         return false;
-    }
-
-    if (maskRect) {
-        float sigma3 = 3 * SkScalarToFloat(xformedSigma);
-
-        // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
-        SkIRect clipRect = clipBounds.makeOutset(sigma3, sigma3);
-        SkIRect srcRect = devSpaceShapeBounds.makeOutset(sigma3, sigma3);
-
-        if (!srcRect.intersect(clipRect)) {
-            srcRect.setEmpty();
-        }
-        *maskRect = srcRect;
     }
 
     // We prefer to blur paths with small blur radii on the CPU.
@@ -926,6 +912,23 @@ bool SkBlurMaskFilterImpl::canFilterMaskGPU(const GrShape& shape,
         }
     }
 
+    if (nullptr == maskRect) {
+        // don't need to compute maskRect
+        return true;
+    }
+
+    float sigma3 = 3 * SkScalarToFloat(xformedSigma);
+
+    SkRect clipRect = SkRect::Make(clipBounds);
+    SkRect srcRect = devSpaceShapeBounds;
+
+    // Outset srcRect and clipRect by 3 * sigma, to compute affected blur area.
+    srcRect.outset(sigma3, sigma3);
+    clipRect.outset(sigma3, sigma3);
+    if (!srcRect.intersect(clipRect)) {
+        srcRect.setEmpty();
+    }
+    *maskRect = srcRect;
     return true;
 }
 
