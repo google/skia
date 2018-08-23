@@ -112,13 +112,13 @@ describe('PathKit\'s Path Behavior', function() {
             LoadPathKit.then(() => {
                 // Based on test_bounds_crbug_513799
                 let path = PathKit.NewPath();
-                expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(0, 0, 0, 0));
+                expect(path.getBounds()).toEqual(PathKit.LTRBRect(0, 0, 0, 0));
                 path.moveTo(-5, -8);
-                expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(-5, -8, -5, -8));
+                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, -5, -8));
                 path.rect(1, 2, 2, 2);
-                expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(-5, -8, 3, 4));
+                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, 3, 4));
                 path.moveTo(1, 2);
-                expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(-5, -8, 3, 4));
+                expect(path.getBounds()).toEqual(PathKit.LTRBRect(-5, -8, 3, 4));
                 path.delete();
                 done();
             });
@@ -130,9 +130,9 @@ describe('PathKit\'s Path Behavior', function() {
                 let path = PathKit.NewPath();
                 path.moveTo(1, 1);
                 path.quadraticCurveTo(4, 3, 2, 2);
-                expect(path.getBounds()).toEqual(PathKit.MakeLTRBRect(1, 1, 4, 3));
+                expect(path.getBounds()).toEqual(PathKit.LTRBRect(1, 1, 4, 3));
                 ExpectRectsToBeEqual(path.computeTightBounds(),
-                                     PathKit.MakeLTRBRect(1, 1,
+                                     PathKit.LTRBRect(1, 1,
                                         bits2float("0x40333334"),  // 2.8
                                         bits2float("0x40155556"))); // 2.3333333
                 path.delete();
