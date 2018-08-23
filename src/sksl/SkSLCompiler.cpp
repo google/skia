@@ -1300,7 +1300,7 @@ std::unique_ptr<Program> Compiler::specialize(
         settings.fArgs.insert(*iter);
     }
     std::unique_ptr<Program> result(new Program(program.fKind,
-                                                nullptr,
+                                                std::unique_ptr<String>(new String(*program.fSource)), // FIXME TEMPORARY should be nullptr
                                                 settings,
                                                 program.fContext,
                                                 program.fInheritedElements,

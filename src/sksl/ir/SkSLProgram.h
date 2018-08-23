@@ -214,7 +214,9 @@ struct Program {
     , fSymbols(symbols)
     , fInputs(inputs)
     , fInheritedElements(inheritedElements)
-    , fElements(std::move(elements)) {}
+    , fElements(std::move(elements)) {
+        SkASSERT(fSource);
+    }
 
     iterator begin() {
         if (fInheritedElements) {
