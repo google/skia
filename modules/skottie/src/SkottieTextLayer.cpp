@@ -292,8 +292,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
     //     [Text]
     //
     auto text_node = sksg::Text::Make(font->fTypeface, SkString(text->begin(), text->size()));
+    text_node->setFlags(text_node->getFlags() |
+                        SkPaint::kAntiAlias_Flag |
+                        SkPaint::kSubpixelText_Flag);
     text_node->setSize(**text_size);
     text_node->setAlign(align);
+    text_node->setHinting(SkPaint::kNo_Hinting);
 
     const auto parse_color = [](const skjson::ArrayValue* jcolor) -> sk_sp<sksg::Color> {
         VectorValue color_vec;
@@ -302,7 +306,6 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
         }
 
         auto paint = sksg::Color::Make(ValueTraits<VectorValue>::As<SkColor>(color_vec));
-        paint->setAntiAlias(true);
 
         return paint;
     };
