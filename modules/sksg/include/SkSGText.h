@@ -29,13 +29,14 @@ public:
     static sk_sp<Text> Make(sk_sp<SkTypeface> tf, const SkString& text);
     ~Text() override;
 
-    SG_ATTRIBUTE(Text    , SkString      , fText    )
-    SG_ATTRIBUTE(Flags   , uint32_t      , fFlags   )
-    SG_ATTRIBUTE(Position, SkPoint       , fPosition)
-    SG_ATTRIBUTE(Size    , SkScalar      , fSize    )
-    SG_ATTRIBUTE(ScaleX  , SkScalar      , fScaleX  )
-    SG_ATTRIBUTE(SkewX   , SkScalar      , fSkewX   )
-    SG_ATTRIBUTE(Align   , SkPaint::Align, fAlign   )
+    SG_ATTRIBUTE(Text    , SkString        , fText    )
+    SG_ATTRIBUTE(Flags   , uint32_t        , fFlags   )
+    SG_ATTRIBUTE(Position, SkPoint         , fPosition)
+    SG_ATTRIBUTE(Size    , SkScalar        , fSize    )
+    SG_ATTRIBUTE(ScaleX  , SkScalar        , fScaleX  )
+    SG_ATTRIBUTE(SkewX   , SkScalar        , fSkewX   )
+    SG_ATTRIBUTE(Align   , SkPaint::Align  , fAlign   )
+    SG_ATTRIBUTE(Hinting , SkPaint::Hinting, fHinting )
 
     // TODO: add shaping functionality.
 
