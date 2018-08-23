@@ -15,6 +15,7 @@
 #include "SkEncodedImageFormat.h"
 #include "SkImageGenerator.h"
 #include "SkImageInfo.h"
+#include "SkMatrix44.h"
 #include "SkPixmapPriv.h"
 #include "SkRefCnt.h"
 #include "SkSize.h"
@@ -129,6 +130,46 @@ DEF_TEST(AndroidCodec_computeSampleSize, r) {
             }
         }
     }
+}
+
+DEF_TEST(AndroidCodec_P3, r) {
+    if (GetResourcePath().isEmpty()) {
+        return;
+    }
+
+    const char* path = "images/purple-displayprofile.png";
+    auto data = GetResourceAsData(path);
+    if (!data) {
+        ERRORF(r, "Missing file %s", path);
+        return;
+    }
+
+    auto codec = SkAndroidCodec::MakeFromCodec(SkCodec::MakeFromData(std::move(data)));
+    if (!codec) {
+        ERRORF(r, "Failed to create codec from %s", path);
+        return;
+    }
+
+    auto info = codec->getInfo();
+    auto cs = codec->computeOutputColorSpace(info.colorType(), nullptr);
+    if (!cs) {
+        ERRORF(r, "%s should have a color space", path);
+        return;
+    }
+
+    REPORTER_ASSERT(r, !cs->isSRGB());
+    REPORTER_ASSERT(r, cs->gammaCloseToSRGB());
+
+    const SkMatrix44* matrix = cs->toXYZD50();
+    SkMatrix44 expected(SkMatrix44::kUninitialized_Constructor);
+    static constexpr float kExpected[] = {
+        0.426254272,  0.369018555,  0.168914795,
+        0.226013184,  0.685974121,  0.0880126953,
+        0.0116729736, 0.0950927734, 0.71812439,
+    };
+
+    expected.set3x3RowMajorf(kExpected);
+    REPORTER_ASSERT(r, *matrix == expected);
 }
 
 DEF_TEST(AndroidCodec_orientation, r) {
