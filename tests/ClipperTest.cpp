@@ -156,3 +156,14 @@ DEF_TEST(Clipper, reporter) {
     test_edgeclipper();
     test_hairclipping(reporter);
 }
+
+#include "SkLineClipper.h"
+
+DEF_TEST(LineClipper_skbug_7981, r) {
+    SkPoint src[] = {{ -5.77698802E+17f, -1.81758057E+23f}, {38127, 2}};
+    SkPoint dst[2];
+    SkRect clip = { -32767, -32767, 32767, 32767 };
+
+    SkLineClipper::IntersectLine(src, clip, dst);
+}
+
