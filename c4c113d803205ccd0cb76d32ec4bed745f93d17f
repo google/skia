@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b15a52d4_6b5c66dc",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-24T17:09:42Z",
+      "side": 1,
+      "message": "It wasn\u0027t that it was unnecessary, it\u0027s that I\u0027m an idiot and was checking the wrong variable.",
+      "parentUuid": "3687c516_39fb9a0c",
+      "revId": "c4c113d803205ccd0cb76d32ec4bed745f93d17f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "31f73b00_ec09c7c0",
         "filename": "src/sksl/SkSLCompiler.cpp",
         "patchSetId": 1
@@ -33,6 +51,24 @@
       "revId": "c4c113d803205ccd0cb76d32ec4bed745f93d17f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "eade7727_13858253",
+        "filename": "src/sksl/SkSLCompiler.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-24T17:09:42Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "31f73b00_ec09c7c0",
+      "revId": "c4c113d803205ccd0cb76d32ec4bed745f93d17f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
