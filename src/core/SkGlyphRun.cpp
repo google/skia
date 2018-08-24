@@ -779,58 +779,9 @@ size_t SkGlyphRunBuilder::simplifyDrawPosText(
 
 #if SK_SUPPORT_GPU
 
-static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
-}
 
-static SkRect rect_to_draw(
-        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, GrGlyph::MaskStyle maskStyle) {
 
-    SkScalar dx = SkIntToScalar(glyph.fLeft);
-    SkScalar dy = SkIntToScalar(glyph.fTop);
-    SkScalar width = SkIntToScalar(glyph.fWidth);
-    SkScalar height = SkIntToScalar(glyph.fHeight);
 
-    if (maskStyle == GrGlyph::kDistance_MaskStyle) {
-        dx += SK_DistanceFieldInset;
-        dy += SK_DistanceFieldInset;
-        width -= 2 * SK_DistanceFieldInset;
-        height -= 2 * SK_DistanceFieldInset;
-    }
-
-    dx *= textScale;
-    dy *= textScale;
-    width *= textScale;
-    height *= textScale;
-
-    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
-}
-
-template <typename PerGlyphT, typename PerPathT>
-void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
-        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
-        SkPoint origin, const SkMatrix& deviceMatrix,
-        PerGlyphT perGlyph, PerPathT perPath) {
-    auto eachGlyph =
-        [perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
-        (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
-            if (glyph_too_big_for_atlas(glyph)) {
-                SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
-                         sy = SkScalarFloorToScalar(mappedPt.fY);
-
-                SkRect glyphRect =
-                        rect_to_draw(glyph, {sx, sy}, SK_Scalar1, GrGlyph::kCoverage_MaskStyle);
-
-                if (!glyphRect.isEmpty()) {
-                    perPath(glyph, mappedPt);
-                }
-            } else {
-                perGlyph(glyph, mappedPt);
-            }
-        };
-
-    this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
-}
 
 template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
 void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
