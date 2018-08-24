@@ -821,6 +821,7 @@ def key_params(api):
     if k not in blacklist:
       flat.append(k)
       flat.append(api.vars.builder_cfg[k])
+
   return flat
 
 
@@ -928,7 +929,12 @@ def test_steps(api):
       args.extend(['--lotties', api.flavor.device_dirs.lotties_dir])
 
   args.append('--key')
-  args.extend(key_params(api))
+  keys = key_params(api)
+
+  if 'Lottie' in api.vars.builder_cfg.get('extra_config', ''):
+    keys.extend(['renderer', 'skottie'])
+
+  args.extend(keys)
 
   if use_hash_file:
     args.extend(['--uninterestingHashesFile', hashes_file])
