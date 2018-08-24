@@ -34,6 +34,16 @@ const opts = [
     type: Number,
   },
   {
+    name: 'lottie_player',
+    description: 'The path to lottie.min.js, defaults to a local npm install location.',
+    type: String,
+  },
+  {
+    name: 'in_docker',
+    description: 'Is this being run in docker, defaults to false',
+    type: Boolean,
+  },
+  {
     name: 'help',
     alias: 'h',
     type: Boolean,
@@ -63,6 +73,9 @@ if (!options.output) {
 if (!options.port) {
   options.port = 8081;
 }
+if (!options.lottie_player) {
+  options.lottie_player = 'node_modules/lottie-web/build/player/lottie.min.js';
+}
 
 if (options.help) {
   console.log(commandLineUsage(usage));
@@ -86,7 +99,7 @@ if (!RENDERERS.includes(options.renderer)) {
 }
 
 // Start up a web server to serve the three files we need.
-let lottieJS = fs.readFileSync('node_modules/lottie-web/build/player/lottie.min.js', 'utf8');
+let lottieJS = fs.readFileSync(options.lottie_player, 'utf8');
 let driverHTML = fs.readFileSync('driver.html', 'utf8');
 let lottieJSON = fs.readFileSync(options.input, 'utf8');
 
@@ -105,7 +118,15 @@ async function wait(ms) {
 // Drive chrome to load the web page from the server we have running.
 async function driveBrowser() {
   console.log('- Launching chrome in headless mode.');
-  const browser = await puppeteer.launch();
+  if (options.in_docker) {
+    var browser = await puppeteer.launch({
+      'executablePath': '/usr/bin/google-chrome-stable',
+      'args': ['--no-sandbox'],
+    });
+  } else {
+    var browser = await puppeteer.launch();
+  }
+
   const page = await browser.newPage();
   console.log('- Loading our Lottie exercising page.');
   await page.goto('http://localhost:' + options.port + '/' + '#' + options.renderer, {waitUntil: 'networkidle2'});
