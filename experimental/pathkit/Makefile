@@ -13,7 +13,7 @@ npm: npm-test npm-debug
 
 publish:
 	cd npm-wasm; npm publish
-	cd ../npm-asmjs; npm publish
+	cd npm-asmjs; npm publish
 
 update-major:
 	cd npm-wasm; npm version major
@@ -22,12 +22,12 @@ update-major:
 
 update-minor:
 	cd npm-wasm; npm version minor
-	cd ../npm-asmjs; npm version minor
+	cd npm-asmjs; npm version minor
 	echo "Don't forget to publish."
 
 update-patch:
 	cd npm-wasm; npm version patch
-	cd ../npm-asmjs; npm version patch
+	cd npm-asmjs; npm version patch
 	echo "Don't forget to publish."
 
 # Build the library and run the tests. If developing locally, test-continuous is better
