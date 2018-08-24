@@ -37,6 +37,7 @@
 <canvas class=big id=canvas8></canvas>
 <canvas class=big id=canvas9></canvas>
 <canvas class=big id=canvas10></canvas>
+<canvas class=big id=canvas11></canvas>
 <canvas class=big id=canvasTransform></canvas>
 
 <h2> Supports fill-rules of nonzero and evenodd </h2>
@@ -193,58 +194,74 @@
       // no-op
       (path) => path,
       // dash
-      (path) => path.dash(10, 3, 0),
+      (path, counter) => path.dash(10, 3, counter/5),
       // trim (takes optional 3rd param for returning the trimmed part
       // or the complement)
-      (path) => path.trim(0.25, 0.8, false),
+      (path, counter) => path.trim((counter/100) % 1, 0.8, false),
       // simplify
       (path) => path.simplify(),
       // stroke
-      (path) => path.stroke({
-        width: 15,
+      (path, counter) => path.stroke({
+        width: 10 * (Math.sin(counter/30) + 1),
         join: PathKit.StrokeJoin.BEVEL,
         cap: PathKit.StrokeCap.BUTT,
         miter_limit: 1,
       }),
       // "offset effect", that is, making a border around the shape.
-      (path) => {
+      (path, counter) => {
         let orig = path.copy();
         path.stroke({
-          width: 10,
+          width: 10 + (counter / 4) % 50,
           join: PathKit.StrokeJoin.ROUND,
           cap: PathKit.StrokeCap.SQUARE,
         })
           .op(orig, PathKit.PathOp.DIFFERENCE);
         orig.delete();
+      },
+      (path, counter) => {
+        let simplified = path.simplify().copy();
+        path.stroke({
+          width: 2 + (counter / 2) % 100,
+          join: PathKit.StrokeJoin.BEVEL,
+          cap: PathKit.StrokeCap.BUTT,
+        })
+          .op(simplified, PathKit.PathOp.REVERSE_DIFFERENCE);
+        simplified.delete();
       }
     ];
 
-    let names = ["(plain)", "Dash", "Trim", "Simplify", "Stroke", "Offset"];
+    let names = ["(plain)", "Dash", "Trim", "Simplify", "Stroke", "Grow", "Shrink"];
 
-    for (let i = 0; i < effects.length; i++) {
-      let path = PathKit.NewPath();
-      drawStar(path);
+    let counter = 0;
+    function frame() {
+      counter++;
+      for (let i = 0; i < effects.length; i++) {
+        let path = PathKit.NewPath();
+        drawStar(path);
 
-      // The transforms apply directly to the path.
-      effects[i](path);
+        // The transforms apply directly to the path.
+        effects[i](path, counter);
 
-      let ctx = document.getElementById(`canvas${i+5}`).getContext('2d');
-      setCanvasSize(ctx, 300, 300);
-      ctx.strokeStyle = '#3c597a';
-      ctx.fillStyle = '#3c597a';
-      if (i === 4 || i === 5) {
-        ctx.fill(path.toPath2D(), path.getFillTypeString());
-      } else {
-        ctx.stroke(path.toPath2D());
+        let ctx = document.getElementById(`canvas${i+5}`).getContext('2d');
+        setCanvasSize(ctx, 300, 300);
+        ctx.strokeStyle = '#3c597a';
+        ctx.fillStyle = '#3c597a';
+        if (i >=4 ) {
+          ctx.fill(path.toPath2D(), path.getFillTypeString());
+        } else {
+          ctx.stroke(path.toPath2D());
+        }
+
+        ctx.font = '42px monospace';
+
+        let x = 150-ctx.measureText(names[i]).width/2;
+        ctx.strokeText(names[i], x, 290);
+
+        path.delete();
       }
-
-      ctx.font = '42px monospace';
-
-      let x = 150-ctx.measureText(names[i]).width/2;
-      ctx.strokeText(names[i], x, 290);
-
-      path.delete();
+      window.requestAnimationFrame(frame);
     }
+    window.requestAnimationFrame(frame);
   }
 
   function MatrixTransformExample(PathKit) {

@@ -134,7 +134,7 @@ SkPathOrNull EMSCRIPTEN_KEEPALIVE FromCmds(uintptr_t /* float* */ cptr, int numC
                 CHECK_NUM_ARGS(5);
                 x1 = cmds[i++], y1 = cmds[i++];
                 x2 = cmds[i++], y2 = cmds[i++];
-                x3 = cmds[i++]; // width
+                x3 = cmds[i++]; // weight
                 path.conicTo(x1, y1, x2, y2, x3);
                 break;
             case CUBIC:
@@ -247,6 +247,14 @@ bool EMSCRIPTEN_KEEPALIVE ApplySimplify(SkPath& path) {
 
 bool EMSCRIPTEN_KEEPALIVE ApplyPathOp(SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
     return Op(pathOne, pathTwo, op, &pathOne);
+}
+
+SkPathOrNull EMSCRIPTEN_KEEPALIVE MakeFromOp(const SkPath& pathOne, const SkPath& pathTwo, SkPathOp op) {
+    SkPath out;
+    if (Op(pathOne, pathTwo, op, &out)) {
+        return emscripten::val(out);
+    }
+    return emscripten::val::null();
 }
 
 SkPathOrNull EMSCRIPTEN_KEEPALIVE ResolveBuilder(SkOpBuilder& builder) {
@@ -481,9 +489,9 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("_arcTo", &ApplyArcTo)
         //"bezierCurveTo" alias handled in JS bindings
         .function("_close", &ApplyClose)
+        //"closePath" alias handled in JS bindings
         .function("_conicTo", &ApplyConicTo)
         .function("_cubicTo", &ApplyCubicTo)
-        //"closePath" alias handled in JS bindings
 
         .function("_ellipse", &ApplyEllipse)
         .function("_lineTo", &ApplyLineTo)
@@ -530,6 +538,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .constructor<>()
 
         .function("add", &SkOpBuilder::add)
+        .function("make", &ResolveBuilder)
         .function("resolve", &ResolveBuilder);
 
     // Without these function() bindings, the function would be exposed but oblivious to
@@ -537,13 +546,14 @@ EMSCRIPTEN_BINDINGS(skia) {
 
     // Import
     function("FromSVGString", &FromSVGString);
-    function("FromCmds", &FromCmds);
     function("NewPath", &NewPath);
     function("NewPath", &CopyPath);
+    // FromCmds is defined in helper.js to make use of TypedArrays transparent.
+    function("_FromCmds", &FromCmds);
     // Path2D is opaque, so we can't read in from it.
 
     // PathOps
-    function("ApplyPathOp", &ApplyPathOp);
+    function("MakeFromOp", &MakeFromOp);
 
     enum_<SkPathOp>("PathOp")
         .value("DIFFERENCE",         SkPathOp::kDifference_SkPathOp)
@@ -574,7 +584,7 @@ EMSCRIPTEN_BINDINGS(skia) {
         .field("fRight",  &SkRect::fRight)
         .field("fBottom", &SkRect::fBottom);
 
-    function("MakeLTRBRect", &SkRect::MakeLTRB);
+    function("LTRBRect", &SkRect::MakeLTRB);
 
     // Stroke
     enum_<SkPaint::Join>("StrokeJoin")
