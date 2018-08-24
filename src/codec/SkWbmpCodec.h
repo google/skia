@@ -29,7 +29,7 @@ protected:
                        const Options&, int*) override;
     bool onRewind() override;
     bool conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
-                             bool srcIsOpaque, const SkColorSpace* srcCS) const override;
+                             bool srcIsOpaque, bool needsXform) override;
     // No need to Xform; all pixels are either black or white.
     bool usesColorXform() const override { return false; }
 private:
@@ -48,7 +48,7 @@ private:
      */
     bool readRow(uint8_t* row);
 
-    SkWbmpCodec(int width, int height, const SkEncodedInfo&, std::unique_ptr<SkStream>);
+    SkWbmpCodec(SkEncodedInfo&&, std::unique_ptr<SkStream>);
 
     const size_t                fSrcRowBytes;
 
