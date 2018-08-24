@@ -863,6 +863,7 @@ component("skia") {
     "src/codec/SkCodec.cpp",
     "src/codec/SkCodecImageGenerator.cpp",
     "src/codec/SkColorTable.cpp",
+    "src/codec/SkEncodedInfo.cpp",
     "src/codec/SkGifCodec.cpp",
     "src/codec/SkMaskSwizzler.cpp",
     "src/codec/SkMasks.cpp",

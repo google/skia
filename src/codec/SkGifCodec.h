@@ -126,7 +126,7 @@ private:
      * Called only by NewFromStream
      * Takes ownership of the SkGifImageReader
      */
-    SkGifCodec(const SkEncodedInfo&, const SkImageInfo&, SkGifImageReader*);
+    SkGifCodec(SkEncodedInfo&&, SkGifImageReader*);
 
     std::unique_ptr<SkGifImageReader>   fReader;
     std::unique_ptr<uint8_t[]>          fTmpBuffer;
