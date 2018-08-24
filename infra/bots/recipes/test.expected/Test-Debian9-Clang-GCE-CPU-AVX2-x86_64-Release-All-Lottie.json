@@ -195,6 +195,8 @@
       "GCE",
       "os",
       "Debian9",
+      "renderer",
+      "skottie",
       "--uninterestingHashesFile",
       "[START_DIR]/tmp/uninteresting_hashes.txt",
       "--writePath",
