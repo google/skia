@@ -48,7 +48,6 @@ namespace GrBlurUtils {
                                  const GrClip&,
                                  const GrShape&,
                                  GrPaint&&,
-                                 GrAA,
                                  const SkMatrix& viewMatrix,
                                  const SkMaskFilter*);
 };

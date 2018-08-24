@@ -172,13 +172,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
                                              const SkIRect& maskRect,
                                              const SkMatrix& origViewMatrix,
                                              const GrShape& shape,
-                                             GrAA aa,
                                              int sampleCnt) {
-    if (GrAA::kNo == aa) {
-        // Don't need MSAA if mask isn't AA
-        sampleCnt = 1;
-    }
-
     sk_sp<GrRenderTargetContext> rtContext(
         context->contextPriv().makeDeferredRenderTargetContextWithFallback(
             SkBackingFit::kApprox, maskRect.width(), maskRect.height(), kAlpha_8_GrPixelConfig,
@@ -200,7 +194,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
     // the origin using maskPaint.
     SkMatrix viewMatrix = origViewMatrix;
     viewMatrix.postTranslate(-SkIntToScalar(maskRect.fLeft), -SkIntToScalar(maskRect.fTop));
-    rtContext->drawShape(clip, std::move(maskPaint), aa, viewMatrix, shape);
+    rtContext->drawShape(clip, std::move(maskPaint), GrAA::kYes, viewMatrix, shape);
     return rtContext->asTextureProxyRef();
 }
 
@@ -254,7 +248,6 @@ static void draw_shape_with_mask_filter(GrContext* context,
                                         GrRenderTargetContext* renderTargetContext,
                                         const GrClip& clip,
                                         GrPaint&& paint,
-                                        GrAA aa,
                                         const SkMatrix& viewMatrix,
                                         const SkMaskFilterBase* maskFilter,
                                         const GrShape& origShape) {
@@ -399,7 +392,6 @@ static void draw_shape_with_mask_filter(GrContext* context,
                                                         maskRect,
                                                         viewMatrix,
                                                         *shape,
-                                                        aa,
                                                         renderTargetContext->numColorSamples()));
             if (maskProxy) {
                 filteredMask = maskFilter->filterMaskGPU(context,
@@ -430,10 +422,9 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
                                           const GrClip& clip,
                                           const GrShape& shape,
                                           GrPaint&& paint,
-                                          GrAA aa,
                                           const SkMatrix& viewMatrix,
                                           const SkMaskFilter* mf) {
-    draw_shape_with_mask_filter(context, renderTargetContext, clip, std::move(paint), aa,
+    draw_shape_with_mask_filter(context, renderTargetContext, clip, std::move(paint),
                                 viewMatrix, as_MFB(mf), shape);
 }
 
@@ -453,13 +444,13 @@ void GrBlurUtils::drawShapeWithMaskFilter(GrContext* context,
         return;
     }
 
-    GrAA aa = GrAA(paint.isAntiAlias());
     SkMaskFilterBase* mf = as_MFB(paint.getMaskFilter());
     if (mf && !mf->hasFragmentProcessor()) {
         // The MaskFilter wasn't already handled in SkPaintToGrPaint
-        draw_shape_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint), aa,
+        draw_shape_with_mask_filter(context, renderTargetContext, clip, std::move(grPaint),
                                     viewMatrix, mf, shape);
     } else {
+        GrAA aa = GrAA(paint.isAntiAlias());
         renderTargetContext->drawShape(clip, std::move(grPaint), aa, viewMatrix, shape);
     }
 }
