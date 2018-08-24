@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "4f47034f_010fd80f",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-24T15:46:54Z",
+      "side": 1,
+      "message": "I realize this is existing behavior, and we probably don\u0027t want to change it in this CL, but I find it odd that non-XYZ color spaces were assumed to not be wide-gamut. The common case for A2B is CMYK, which are almost always outside of sRGB. Not a big deal, just an observation...",
+      "revId": "c31041e7c1154b42937c669c964a79bf28d6cae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "534947de_f4d64837",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 7
