@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "534947de_f4d64837",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-24T15:45:39Z",
+      "side": 1,
+      "message": "I was going to write an is_numerical_transfer_fn method, which Brian described here: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8052#c4, but it overlaps with SkColorSpace::Make, and we need to return an SkColorSpace anyway. ::Make makes one other check (toXYZD50 has to be invertible), but I\u0027m guessing that restriction is fine?",
+      "range": {
+        "startLine": 180,
+        "startChar": 16,
+        "endLine": 180,
+        "endChar": 71
+      },
+      "revId": "c31041e7c1154b42937c669c964a79bf28d6cae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
