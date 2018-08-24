@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd9fbdeb_e604b4f0",
+        "filename": "experimental/pathkit/helper.js",
+        "patchSetId": 20
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "fix for prev version: allows",
+      "range": {
+        "startLine": 10,
+        "startChar": 26,
+        "endLine": 10,
+        "endChar": 34
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e06d2a96_d663a299",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "eliminate periods for non-sentence titles or descriptions, and maybe the capital letters at the start",
+      "range": {
+        "startLine": 38,
+        "startChar": 0,
+        "endLine": 45,
+        "endChar": 126
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6827da25_aed5f34e",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "comma before which",
+      "range": {
+        "startLine": 201,
+        "startChar": 0,
+        "endLine": 201,
+        "endChar": 5
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ed50012d_4f53614d",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "includes?",
+      "range": {
+        "startLine": 229,
+        "startChar": 67,
+        "endLine": 229,
+        "endChar": 73
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "81ffb5e2_eca7a20c",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 665,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "\"allows YOU to\"? or \"enables chaining\"?",
+      "range": {
+        "startLine": 665,
+        "startChar": 0,
+        "endLine": 665,
+        "endChar": 21
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "777a012d_3cf6183b",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 685,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "spell out numbers under 10",
+      "range": {
+        "startLine": 685,
+        "startChar": 21,
+        "endLine": 685,
+        "endChar": 22
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4a86d28d_73a8cd35",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "This is? or These are?",
+      "range": {
+        "startLine": 719,
+        "startChar": 0,
+        "endLine": 719,
+        "endChar": 8
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ec6e22fc_1c536789",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 751,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "dup",
+      "range": {
+        "startLine": 751,
+        "startChar": 0,
+        "endLine": 751,
+        "endChar": 7
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ced639fa_a183e95e",
+        "filename": "site/user/modules/pathkit.md",
+        "patchSetId": 20
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 5095
+      },
+      "writtenOn": "2018-08-24T14:11:11Z",
+      "side": 1,
+      "message": "colon",
+      "range": {
+        "startLine": 754,
+        "startChar": 35,
+        "endLine": 754,
+        "endChar": 36
+      },
+      "revId": "2fc89db0c33c5c644706a7230a3d1e17afdce000",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
