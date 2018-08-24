@@ -8,11 +8,11 @@
 #include "GrGLTestInterface.h"
 
 namespace {
-    template<typename R, typename... A>
-    GrGLFunction<R(*)(A...)> bind_to_member(GrGLTestInterface* interface,
-                                            R (GrGLTestInterface::*member)(A...)) {
-        return [interface, member] (A... a) -> R { return (interface->*member)(a...); };
-    }
+template <typename R, typename... A>
+GrGLFunction<R GR_GL_FUNCTION_TYPE(A...)> bind_to_member(GrGLTestInterface* interface,
+                                                         R (GrGLTestInterface::*member)(A...)) {
+    return [interface, member](A... a) -> R { return (interface->*member)(a...); };
+}
 }  // anonymous namespace
 
 GrGLTestInterface::GrGLTestInterface() {
