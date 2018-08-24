@@ -90,8 +90,7 @@ public:
                     case 's':
                         switch (fFormatArgs[formatArgIndex++]) {
                             case SkSL::Compiler::FormatArg::kInput:
-                                fragBuilder->codeAppend(args.fInputColor ? args.fInputColor
-                                                                         : "half4(1)");
+                                fragBuilder->codeAppend(args.fInputColor);
                                 break;
                             case SkSL::Compiler::FormatArg::kOutput:
                                 fragBuilder->codeAppend(args.fOutputColor);

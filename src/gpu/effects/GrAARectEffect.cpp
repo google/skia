@@ -54,7 +54,7 @@ public:
                 (int)_outer.edgeType(),
                 (int)_outer.edgeType(),
                 args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)");
+                args.fInputColor);
     }
 
 private:

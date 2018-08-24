@@ -75,8 +75,7 @@ public:
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)",
-                args.fUniformHandler->getUniformCStr(fRectVar),
+                args.fOutputColor, args.fInputColor, args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
                 args.fUniformHandler->getUniformCStr(fRectVar),
@@ -98,7 +97,7 @@ public:
                 args.fUniformHandler->getUniformCStr(fProfileSizeVar),
                 fragBuilder->getProgramBuilder()->samplerVariable(args.fTexSamplers[0]).c_str(),
                 fragBuilder->getProgramBuilder()->samplerSwizzle(args.fTexSamplers[0]).c_str(),
-                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)");
+                args.fOutputColor, args.fInputColor);
     }
 
 private:
