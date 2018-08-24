@@ -9,7 +9,7 @@
   // Takes a 2D array of commands and puts them into the WASM heap
   // as a 1D array.  This allowing them to referenced from the C++ code.
   // Returns a 2 element array, with the first item being essentially a
-  // pointer to the array and the second item being the lengh of
+  // pointer to the array and the second item being the length of
   // the new 1D array.
   //
   // Example usage:
@@ -56,6 +56,14 @@
     var ptr = PathKit._malloc(ta.length * ta.BYTES_PER_ELEMENT);
     PathKit.HEAPF32.set(ta, ptr / ta.BYTES_PER_ELEMENT);
     return [ptr, len];
+  }
+
+  // Experimentation has shown that using TypedArrays to pass arrays from
+  // JS to C++ is faster than passing the JS Arrays across.
+  // See above for example of cmds.
+  PathKit['FromCmds'] = function(cmds) {
+    var ptrLen = PathKit.loadCmdsTypedArray(cmds);
+    return PathKit._FromCmds(ptrLen[0], ptrLen[1]);
   }
 }(Module)); // When this file is loaded in, the high level object is "Module";
 
