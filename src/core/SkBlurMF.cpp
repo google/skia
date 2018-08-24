@@ -766,34 +766,34 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
     std::unique_ptr<GrFragmentProcessor> fp;
 
     if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
+        SkRect dstCoverageRect = devRRect.getBounds();
         if (devRRect.isRect()) {
             SkScalar pad = 3.0f * xformedSigma;
-            const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
+            dstCoverageRect.outset(pad, pad);
 
             fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
                                         dstCoverageRect, xformedSigma);
         } else {
             fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, devRRect.rect(), xformedSigma);
+
+            // expand the rect for the coverage geometry
+            int pad = SkScalarCeilToInt(6*xformedSigma)/2;
+            dstCoverageRect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
         }
 
         if (!fp) {
             return false;
         }
+
         paint.addCoverageFragmentProcessor(std::move(fp));
 
-        SkRect srcProxyRect = srcRRect.rect();
-        SkScalar outsetX = 3.0f*fSigma;
-        SkScalar outsetY = 3.0f*fSigma;
-        if (this->ignoreXform()) {
-            // When we're ignoring the CTM the padding added to the source rect also needs to ignore
-            // the CTM. The matrix passed in here is guaranteed to be just scale and translate so we
-            // can just grab the X and Y scales off the matrix and pre-undo the scale.
-            outsetX /= viewMatrix.getScaleX();
-            outsetY /= viewMatrix.getScaleY();
+        SkMatrix inverse;
+        if (!viewMatrix.invert(&inverse)) {
+            return false;
         }
-        srcProxyRect.outset(outsetX, outsetY);
 
-        renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
+        renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo,
+                                                     SkMatrix::I(), dstCoverageRect, inverse);
         return true;
     }
 
