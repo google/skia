@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "accba6a2_90daf11b",
+        "filename": "src/gpu/text/GrTextContext.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-08-24T20:56:59Z",
+      "side": 0,
+      "message": "This was just bad left over code. It has global scope. ooops.",
+      "range": {
+        "startLine": 87,
+        "startChar": 4,
+        "endLine": 87,
+        "endChar": 31
+      },
+      "revId": "d2fec23523bcdd796840725a64d4c40b5fcec215",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
