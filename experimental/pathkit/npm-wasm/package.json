@@ -1,6 +1,6 @@
 {
   "name": "experimental-pathkit-wasm",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A WASM version of Skia's PathOps toolkit",
   "main": "bin/pathkit.js",
   "homepage": "https://github.com/google/skia/tree/master/experimental/pathkit",

@@ -24,6 +24,9 @@ var PathKit = {
 	SkBits2FloatUnsigned: function(num) {},
 	_malloc: function(size) {},
 	onRuntimeInitialized: function() {},
+	_FromCmds: function(ptr, size) {},
+	loadCmdsTypedArray: function(arr) {},
+	FromCmds: function(arr) {},
 
 	HEAPF32: {},
 
@@ -40,7 +43,7 @@ var PathKit = {
 		_lineTo: function(x1, y1) {},
 		_moveTo: function(x1, y1) {},
 		_op: function(otherPath, op) {},
-		_quadTo: function(x1, y1, x2, y2) {},
+		_quadTo: function(cpx, cpy, x, y) {},
 		_rect: function(x, y, w, h) {},
 		_simplify: function() {},
 		_stroke: function(opts) {},

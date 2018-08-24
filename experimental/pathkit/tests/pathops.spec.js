@@ -117,11 +117,6 @@ describe('PathKit\'s PathOps Behavior', function() {
         return e;
     }
 
-    function fromCmds(cmds) {
-        let [ptr, len] = PathKit.loadCmdsTypedArray(cmds);
-        return PathKit.FromCmds(ptr, len);
-    }
-
     it('combines two paths with .op() and matches what we see from C++', function(done) {
         LoadPathKit.then(() => {
             // Test JSON created with:
@@ -135,11 +130,11 @@ describe('PathKit\'s PathOps Behavior', function() {
                     for (testName of testNames) {
                         let test = json[testName];
 
-                        let path1 = fromCmds(test.p1);
+                        let path1 = PathKit.FromCmds(test.p1);
                         expect(path1).not.toBeNull(`path1 error when loading cmds '${test.p1}'`);
                         path1.setFillType(getFillType(test.fillType1));
 
-                        let path2 = fromCmds(test.p2);
+                        let path2 = PathKit.FromCmds(test.p2);
                         expect(path2).not.toBeNull(`path2 error when loading cmds '${test.p2}'`);
                         path2.setFillType(getFillType(test.fillType2));
 
@@ -149,7 +144,7 @@ describe('PathKit\'s PathOps Behavior', function() {
                             expect(combined).toBeNull(`Test ${testName} should have not created output, but did`);
                         } else {
                             expect(combined).not.toBeNull();
-                            let expected = fromCmds(test.out);
+                            let expected = PathKit.FromCmds(test.out);
                             // Do a tolerant match.
                             let diff = diffPaths(expected, combined);
                             if (test.expectMatch === 'yes'){
@@ -192,7 +187,7 @@ describe('PathKit\'s PathOps Behavior', function() {
                     for (testName of testNames) {
                         let test = json[testName];
 
-                        let path = fromCmds(test.path);
+                        let path = PathKit.FromCmds(test.path);
                         expect(path).not.toBeNull(`path1 error when loading cmds '${test.path}'`);
                         path.setFillType(getFillType(test.fillType));
 
@@ -202,7 +197,7 @@ describe('PathKit\'s PathOps Behavior', function() {
                             expect(simplified).toBeNull(`Test ${testName} should have not created output, but did`);
                         } else {
                             expect(simplified).not.toBeNull();
-                            let expected = fromCmds(test.out);
+                            let expected = PathKit.FromCmds(test.out);
                             // Do a tolerant match.
                             let diff = diffPaths(expected, simplified);
                             if (test.expectMatch === 'yes'){
