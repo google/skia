@@ -20,9 +20,9 @@ class GrGLSLProgramBuilder;
 // Handles for program uniforms (other than per-effect uniforms)
 struct GrGLSLBuiltinUniformHandles {
     GrGLSLProgramDataManager::UniformHandle fRTAdjustmentUni;
-    // We use the render target height to provide a y-down frag coord when specifying
+    // Render target dimensions, used to implement sk_Dimensions and to calculate sk_FragCoord when
     // origin_upper_left is not supported.
-    GrGLSLProgramDataManager::UniformHandle fRTHeightUni;
+    GrGLSLProgramDataManager::UniformHandle fRTDimensionsUni;
 };
 
 class GrGLSLUniformHandler {

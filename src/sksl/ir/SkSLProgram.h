@@ -18,8 +18,8 @@
 #include "SkSLProgramElement.h"
 #include "SkSLSymbolTable.h"
 
-// name of the render target height uniform
-#define SKSL_RTHEIGHT_NAME "u_skRTHeight"
+// name of the render target dimensions uniform
+#define SKSL_RTDIMENSIONS_NAME "u_skRTDimensions"
 
 namespace SkSL {
 
@@ -88,20 +88,20 @@ struct Program {
     };
 
     struct Inputs {
-        // if true, this program requires the render target height uniform to be defined
-        bool fRTHeight;
+        // if true, this program requires the render target dimensions uniform to be defined
+        bool fRTDimensions;
 
         // if true, this program must be recompiled if the flipY setting changes. If false, the
         // program will compile to the same code regardless of the flipY setting.
         bool fFlipY;
 
         void reset() {
-            fRTHeight = false;
+            fRTDimensions = false;
             fFlipY = false;
         }
 
         bool isEmpty() {
-            return !fRTHeight && !fFlipY;
+            return !fRTDimensions && !fFlipY;
         }
     };
 
