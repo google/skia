@@ -9,8 +9,6 @@
 #define SkHeifCodec_DEFINED
 
 #include "SkCodec.h"
-#include "SkColorSpace.h"
-#include "SkColorSpaceXform.h"
 #include "SkEncodedOrigin.h"
 #include "SkImageInfo.h"
 #include "SkSwizzler.h"
@@ -43,27 +41,14 @@ protected:
         return SkEncodedImageFormat::kHEIF;
     }
 
-    bool conversionSupported(const SkImageInfo&, SkColorType, bool,
-                             const SkColorSpace*) const override {
-        // This class checks for conversion after creating colorXform.
-        return true;
-    }
+    bool conversionSupported(const SkImageInfo&, SkColorType, bool, bool) override;
 
 private:
     /*
      * Creates an instance of the decoder
      * Called only by NewFromStream
      */
-    SkHeifCodec(int width, int height, const SkEncodedInfo&,
-            HeifDecoder*, sk_sp<SkColorSpace>, SkEncodedOrigin);
-
-    /*
-     * Checks if the conversion between the input image and the requested output
-     * image has been implemented.
-     *
-     * Sets the output color format.
-     */
-    bool setOutputColorFormat(const SkImageInfo& dst);
+    SkHeifCodec(SkEncodedInfo&&, HeifDecoder*, SkEncodedOrigin);
 
     void initializeSwizzler(const SkImageInfo& dstInfo, const Options& options);
     void allocateStorage(const SkImageInfo& dstInfo);
