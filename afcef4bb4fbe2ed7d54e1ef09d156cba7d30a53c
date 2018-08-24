@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b9af124e_00752e07",
+        "filename": "gm/bug615686.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-24T08:45:35Z",
+      "side": 0,
+      "message": "Added this curve to trickycubicstrokes.",
+      "revId": "afcef4bb4fbe2ed7d54e1ef09d156cba7d30a53c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
