@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5a1e07ce_c8cae307",
+        "filename": "gm/trickycubicstrokes.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-24T17:54:43Z",
+      "side": 1,
+      "message": "It actually uses fStrokePaint.",
+      "parentUuid": "ebf28795_c22d9f4c",
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd9598c4_efc3f26f",
         "filename": "include/core/SkStrokeRec.h",
         "patchSetId": 11
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "b710cb1c_862c9d25",
+        "filename": "include/core/SkStrokeRec.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-24T17:54:43Z",
+      "side": 1,
+      "message": "Oops, not sure how that happened.",
+      "parentUuid": "dd9598c4_efc3f26f",
+      "range": {
+        "startLine": 117,
+        "startChar": 54,
+        "endLine": 117,
+        "endChar": 62
+      },
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5f647308_c5a34f30",
         "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
         "patchSetId": 11
@@ -62,6 +104,30 @@
       "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e388adce_cb0f1abd",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-24T17:54:43Z",
+      "side": 1,
+      "message": "This *is* the header :-)\n\nThis is a raw array of uint32_t, not a GrResourceKey.",
+      "parentUuid": "5f647308_c5a34f30",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 39
+      },
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
