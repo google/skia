@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "6bbf1be3_5e061635",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-24T18:20:42Z",
+      "side": 1,
+      "message": "Good catch, with the new patch set that handles complete half4 expressions, and the input mangling provided by the parent CL, I think this issue is resolved.",
+      "parentUuid": "64d32748_d31ce157",
+      "range": {
+        "startLine": 308,
+        "startChar": 8,
+        "endLine": 311,
+        "endChar": 76
+      },
+      "revId": "7e449b035a487ceeccd4fc1d5a97525c008ab96f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "80cc1fb9_bc4fe9ab",
         "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "7e449b035a487ceeccd4fc1d5a97525c008ab96f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "05e399cd_5634ebc8",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-24T18:20:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80cc1fb9_bc4fe9ab",
+      "range": {
+        "startLine": 312,
+        "startChar": 52,
+        "endLine": 312,
+        "endChar": 123
+      },
+      "revId": "7e449b035a487ceeccd4fc1d5a97525c008ab96f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
