@@ -691,6 +691,7 @@ enum GrVertexAttribType {
     kHalf2_GrVertexAttribType,
     kHalf3_GrVertexAttribType,
     kHalf4_GrVertexAttribType,
+    kRealHalf4_GrVertexAttribType,
 
     kInt2_GrVertexAttribType,   // vector of 2 32-bit ints
     kInt3_GrVertexAttribType,   // vector of 3 32-bit ints
@@ -747,6 +748,8 @@ static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
             return kHalf2_GrSLType;
         case kHalf3_GrVertexAttribType:
             return kHalf3_GrSLType;
+        case kRealHalf4_GrVertexAttribType:
+            return kHalf4_GrSLType;
         case kHalf4_GrVertexAttribType:
         case kUByte4_norm_GrVertexAttribType:
             return kHalf4_GrSLType;

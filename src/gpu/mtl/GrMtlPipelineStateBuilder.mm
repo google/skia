@@ -96,6 +96,7 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
             return MTLVertexFormatFloat3;
         case kFloat4_GrVertexAttribType:
         case kHalf4_GrVertexAttribType:
+        case kRealHalf4_GrVertexAttribType:
             return MTLVertexFormatFloat4;
         case kInt2_GrVertexAttribType:
             return MTLVertexFormatInt2;
