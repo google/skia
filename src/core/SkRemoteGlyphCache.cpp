@@ -429,6 +429,33 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
     fLockedDescs.clear();
 }
 
+SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
+        std::unique_ptr<SkDescriptor> keyDescriptor, uint32_t discardableHandleId)
+        : fKeyDescriptor(std::move(keyDescriptor))
+        , fDiscardableHandleId(discardableHandleId) {
+    SkASSERT(fKeyDescriptor);
+}
+
+SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
+
+void SkStrikeServer::SkGlyphCacheState::ensureScalerContext(
+        const SkPaint& paint,
+        const SkSurfaceProps* props,
+        const SkMatrix* matrix,
+        SkScalerContextFlags flags,
+        SkScalerContextEffects* effects) {
+    if (fContext == nullptr || fDeviceDescriptor == nullptr) {
+        SkScalerContextRec deviceRec;
+        SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
+        auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
+        auto* tf = paint.getTypeface();
+        fContext = tf->createScalerContext(*effects, deviceDesc.get(), false);
+        fIsSubpixel = fContext->isSubpixel();
+        fAxisAlignmentForHText = fContext->computeAxisAlignmentForHText();
+        fDeviceDescriptor = std::move(deviceDesc);
+    }
+}
+
 SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkPaint& paint,
         const SkSurfaceProps* props,
@@ -444,22 +471,26 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     if (fLockedDescs.find(keyDesc.get()) != fLockedDescs.end()) {
         auto it = fRemoteGlyphStateMap.find(keyDesc.get());
         SkASSERT(it != fRemoteGlyphStateMap.end());
-        return it->second.get();
+        SkGlyphCacheState* cache = it->second.get();
+        cache->ensureScalerContext(paint, props, matrix, flags, effects);
+        return cache;
     }
 
     // Try to lock.
     auto it = fRemoteGlyphStateMap.find(keyDesc.get());
     if (it != fRemoteGlyphStateMap.end()) {
+        SkGlyphCacheState* cache = it->second.get();
 #ifdef SK_DEBUG
         SkScalerContextRec deviceRec;
         SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
         auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
-        SkASSERT(it->second->getDeviceDescriptor() == *deviceDesc);
+        SkASSERT(cache->getDeviceDescriptor() == *deviceDesc);
 #endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
             fLockedDescs.insert(it->first);
-            return it->second.get();
+            cache->ensureScalerContext(paint, props, matrix, flags, effects);
+            return cache;
         }
 
         // If the lock failed, the entry was deleted on the client. Remove our
@@ -475,38 +506,17 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
                                       tf->isFixedPitch());
     }
 
-    SkScalerContextRec deviceRec;
-    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
-    auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
-
+    // Create a new cache state and insert it into the map.
     auto* keyDescPtr = keyDesc.get();
     auto newHandle = fDiscardableHandleManager->createHandle();
-    auto scalerContext = tf->createScalerContext(*effects, deviceDesc.get(), false);
-    auto cacheState = skstd::make_unique<SkGlyphCacheState>(
-            std::move(deviceDesc), std::move(keyDesc), newHandle, std::move(scalerContext));
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(std::move(keyDesc), newHandle);
     auto* cacheStatePtr = cacheState.get();
 
     fLockedDescs.insert(keyDescPtr);
     fRemoteGlyphStateMap[keyDescPtr] = std::move(cacheState);
+    cacheStatePtr->ensureScalerContext(paint, props, matrix, flags, effects);
     return cacheStatePtr;
 }
-
-SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
-                                                     std::unique_ptr<SkDescriptor>
-                                                             keyDescriptor,
-                                                     uint32_t discardableHandleId,
-                                                     std::unique_ptr<SkScalerContext> context)
-        : fDeviceDescriptor(std::move(deviceDescriptor))
-        , fKeyDescriptor(std::move(keyDescriptor))
-        , fDiscardableHandleId(discardableHandleId)
-        , fContext(std::move(context))
-        , fIsSubpixel(fContext->isSubpixel())
-        , fAxisAlignmentForHText(fContext->computeAxisAlignmentForHText()) {
-    SkASSERT(fDeviceDescriptor);
-    SkASSERT(fKeyDescriptor);
-}
-
-SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
 
 void SkStrikeServer::SkGlyphCacheState::addGlyph(SkPackedGlyphID glyph, bool asPath) {
     auto* cache = asPath ? &fCachedGlyphPaths : &fCachedGlyphImages;
@@ -525,6 +535,8 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // TODO(khushalsagar): Write a strike only if it has any pending glyphs.
     serializer->emplace<bool>(this->hasPendingGlyphs());
     if (!this->hasPendingGlyphs()) {
+        // See comment below for reset.
+        fContext.reset();
         return;
     }
 
@@ -591,6 +603,10 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         writeGlyphPath(glyphID, serializer);
     }
     fPendingGlyphPaths.clear();
+
+    // Note that we reset the context after serializing pending glyphs since we
+    // don't want to extend the lifetime of the typeface.
+    fContext.reset();
 }
 
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
