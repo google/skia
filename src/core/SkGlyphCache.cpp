@@ -27,9 +27,7 @@ SkGlyphCache::SkGlyphCache(
     const SkPaint::FontMetrics& fontMetrics)
     : fDesc{desc}
     , fScalerContext{std::move(scaler)}
-    , fFontMetrics{fontMetrics}
-    , fIsSubpixel{fScalerContext->isSubpixel()}
-    , fAxisAlignment{fScalerContext->computeAxisAlignmentForHText()}
+    , fFontMetrics(fontMetrics)
 {
     SkASSERT(fScalerContext != nullptr);
     fMemoryUsed = sizeof(*this);
@@ -282,20 +280,6 @@ const SkGlyph* SkGlyphCache::getCachedGlyphAnySubPix(SkGlyphID glyphID,
 
 void SkGlyphCache::initializeGlyphFromFallback(SkGlyph* glyph, const SkGlyph& fallback) {
     fMemoryUsed += glyph->copyImageData(fallback, &fAlloc);
-}
-
-SkVector SkGlyphCache::rounding() const {
-    return SkGlyphCacheCommon::PixelRounding(fIsSubpixel, fAxisAlignment);
-}
-
-const SkGlyph& SkGlyphCache::getGlyphMetrics(SkGlyphID glyphID, SkPoint position) {
-    if (!fIsSubpixel) {
-        return this->getGlyphIDMetrics(glyphID);
-    } else {
-        SkIPoint lookupPosition = SkGlyphCacheCommon::SubpixelLookup(fAxisAlignment, position);
-
-        return this->getGlyphIDMetrics(glyphID, lookupPosition.x(), lookupPosition.y());
-    }
 }
 
 #include "../pathops/SkPathOpsCubic.h"

@@ -140,16 +140,42 @@ SkGlyphRunListPainter::SkGlyphRunListPainter(
 SkGlyphRunListPainter::SkGlyphRunListPainter(const GrRenderTargetContext& rtc)
         : SkGlyphRunListPainter{rtc.surfaceProps(), rtc.colorSpaceInfo()} {}
 
+// TODO: all this logic should move to the glyph cache.
+static const SkGlyph& lookup_glyph_by_subpixel(
+        SkAxisAlignment axisAlignment, SkPoint position, SkGlyphID glyphID, SkGlyphCache* cache) {
+    SkFixed lookupX = SkScalarToFixed(SkScalarFraction(position.x())),
+            lookupY = SkScalarToFixed(SkScalarFraction(position.y()));
+
+    // Snap to a given axis if alignment is requested.
+    if (axisAlignment == kX_SkAxisAlignment) {
+        lookupY = 0;
+    } else if (axisAlignment == kY_SkAxisAlignment) {
+        lookupX = 0;
+    }
+
+    return cache->getGlyphIDMetrics(glyphID, lookupX, lookupY);
+}
+
+
 // forEachMappedDrawableGlyph handles positioning for mask type glyph handling for both sub-pixel
 // and full pixel positioning.
 template <typename EachGlyph>
 void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
         const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
-        SkGlyphCacheInterface* cache, EachGlyph eachGlyph) {
+        SkGlyphCache* cache, EachGlyph eachGlyph) {
+    bool isSubpixel = cache->isSubpixel();
+
+    SkAxisAlignment axisAlignment = kNone_SkAxisAlignment;
     SkMatrix mapping = deviceMatrix;
     mapping.preTranslate(origin.x(), origin.y());
-    SkVector rounding = cache->rounding();
-    mapping.postTranslate(rounding.x(), rounding.y());
+    // TODO: all this logic should move to the glyph cache.
+    if (isSubpixel) {
+        axisAlignment = cache->getScalerContext()->computeAxisAlignmentForHText();
+        SkPoint rounding = SkFindAndPlaceGlyph::SubpixelPositionRounding(axisAlignment);
+        mapping.postTranslate(rounding.x(), rounding.y());
+    } else {
+        mapping.postTranslate(SK_ScalarHalf, SK_ScalarHalf);
+    }
 
     auto runSize = glyphRun.runSize();
     if (this->ensureBitmapBuffers(runSize)) {
@@ -160,7 +186,10 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
             auto mappedPt = *mappedPtCursor++;
             auto pt = origin + *ptCursor++;
             if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
-                const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+                // TODO: all this logic should move to the glyph cache.
+                const SkGlyph& glyph =
+                    isSubpixel ? lookup_glyph_by_subpixel(axisAlignment, mappedPt, glyphID, cache)
+                               : cache->getGlyphIDMetrics(glyphID);
                 if (!glyph.isEmpty()) {
                     // Prevent glyphs from being drawn outside of or straddling the edge
                     // of device space. Comparisons written a little weirdly so that NaN
@@ -327,6 +356,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsFullpixelMask(
         }
     }
 }
+
 
 void SkGlyphRunListPainter::drawForBitmapDevice(
         const SkGlyphRunList& glyphRunList, const SkMatrix& deviceMatrix,

@@ -30,12 +30,12 @@
     The Find*Exclusive() method returns SkExclusiveStrikePtr, which releases exclusive ownership
     when they go out of scope.
 */
-class SkGlyphCache : public SkGlyphCacheInterface {
+class SkGlyphCache {
 public:
     SkGlyphCache(const SkDescriptor& desc,
                  std::unique_ptr<SkScalerContext> scaler,
                  const SkPaint::FontMetrics&);
-    ~SkGlyphCache() override;
+    ~SkGlyphCache();
 
     const SkDescriptor& getDescriptor() const;
 
@@ -132,12 +132,8 @@ public:
     }
 
     bool isSubpixel() const {
-        return fIsSubpixel;
+        return fScalerContext->isSubpixel();
     }
-
-    SkVector rounding() const override;
-
-    const SkGlyph& getGlyphMetrics(SkGlyphID glyphID, SkPoint position) override;
 
     /** Return the approx RAM usage for this cache. */
     size_t getMemoryUsed() const { return fMemoryUsed; }
@@ -237,9 +233,6 @@ private:
 
     // used to track (approx) how much ram is tied-up in this cache
     size_t                  fMemoryUsed;
-
-    const bool              fIsSubpixel;
-    const SkAxisAlignment   fAxisAlignment;
 };
 
 #endif  // SkGlyphCache_DEFINED
