@@ -65,6 +65,29 @@
     },
     {
       "key": {
+        "uuid": "0b46d6bf_e8e6abb5",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-24T21:54:41Z",
+      "side": 1,
+      "message": "make this const ref",
+      "range": {
+        "startLine": 362,
+        "startChar": 12,
+        "endLine": 362,
+        "endChar": 43
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9b2e0268_a1d49ef7",
         "filename": "include/core/SkImage.h",
         "patchSetId": 2
@@ -105,6 +128,29 @@
     },
     {
       "key": {
+        "uuid": "6a039cd3_dd43173b",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-24T21:54:41Z",
+      "side": 1,
+      "message": "make const ref",
+      "range": {
+        "startLine": 406,
+        "startChar": 12,
+        "endLine": 406,
+        "endChar": 44
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d17d2ce1_43d6f002",
         "filename": "src/image/SkImage.cpp",
         "patchSetId": 2
@@ -139,6 +185,29 @@
       "writtenOn": "2018-08-24T19:48:03Z",
       "side": 1,
       "message": "This looks like a near copy of the method above. Could you please think about how to share code with it instead? Some questions below.",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "73338219_157ffec3",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-24T21:54:41Z",
+      "side": 1,
+      "message": "To match what we do everywhere else I think this should be const ref and then make a copy of it (for reasons described in the comment below) to call validate_backend_texture with. Even though this essentially does a copy, eventually when the gpu backend gets cleaned up to where we don\u0027t need the copy, then we will want this to be a const ref, so we should have that be the API from the start. Plus we\u0027re doing extra copies passing this through from SkImage calls to the SkImage_Gpu calls",
+      "range": {
+        "startLine": 456,
+        "startChar": 8,
+        "endLine": 456,
+        "endChar": 39
+      },
       "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -197,6 +266,24 @@
       "side": 1,
       "message": "Right, just copes the struct. We might not need this anymore. +Greg.",
       "parentUuid": "4889dea5_473cedd8",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2acbb3be_8a56fd9f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-24T21:54:41Z",
+      "side": 1,
+      "message": "It is still needed for now as we still looks at the GrPixelConfig on the GrBackendTexture on many levels of the call stack (from GrProxyProvider all the way down into the GrGpu). The copy is so we can manually set the config on it here so its not const.",
+      "parentUuid": "7078d557_aa9c6793",
       "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
