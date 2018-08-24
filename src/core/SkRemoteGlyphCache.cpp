@@ -268,6 +268,27 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRun(
     }
 }
 
+void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
+        const SkGlyphRun& glyphRun, const SkMatrix& runMatrix, SkPoint origin) {
+    TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForMask");
+    const SkPaint& runPaint = glyphRun.paint();
+
+    SkScalerContextEffects effects;
+    auto* glyphCacheState = fStrikeServer->getOrCreateCache(
+            runPaint, &this->surfaceProps(), &runMatrix,
+            SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
+    SkASSERT(glyphCacheState);
+
+    auto perGlyph = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
+        glyphCacheState->addGlyph(glyph.getPackedID(), false);
+    };
+
+    auto perPath = [](const SkGlyph& glyph, SkPoint position) {};
+
+    fPainter.drawGlyphRunAsBMPWithPathFallback(
+            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
+}
+
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
         const SkGlyphRun& glyphRun, const SkMatrix& runMatrix) {
     TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
