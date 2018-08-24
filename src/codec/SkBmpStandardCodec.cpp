@@ -14,12 +14,12 @@
  * Creates an instance of the decoder
  * Called only by NewFromStream
  */
-SkBmpStandardCodec::SkBmpStandardCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
-                                       uint16_t bitsPerPixel, uint32_t numColors,
-                                       uint32_t bytesPerColor, uint32_t offset,
+SkBmpStandardCodec::SkBmpStandardCodec(int width, int height, const SkEncodedInfo& info,
+                                       std::unique_ptr<SkStream> stream, uint16_t bitsPerPixel,
+                                       uint32_t numColors, uint32_t bytesPerColor, uint32_t offset,
                                        SkCodec::SkScanlineOrder rowOrder,
                                        bool isOpaque, bool inIco)
-    : INHERITED(std::move(info), std::move(stream), bitsPerPixel, rowOrder)
+    : INHERITED(width, height, info, std::move(stream), bitsPerPixel, rowOrder)
     , fColorTable(nullptr)
     , fNumColors(numColors)
     , fBytesPerColor(bytesPerColor)
@@ -146,33 +146,20 @@ SkCodec::Result SkBmpStandardCodec::onGetPixels(const SkImageInfo& dstInfo,
     return true;
 }
 
-static SkEncodedInfo make_info(SkEncodedInfo::Color color,
-                               SkEncodedInfo::Alpha alpha, int bitsPerPixel) {
-    // This is just used for the swizzler, which does not need the width or height.
-    return SkEncodedInfo::Make(0, 0, color, alpha, bitsPerPixel);
-}
-
-SkEncodedInfo SkBmpStandardCodec::swizzlerInfo() const {
-    const auto& info = this->getEncodedInfo();
-    if (fInIco) {
-        if (this->bitsPerPixel() <= 8) {
-            return make_info(SkEncodedInfo::kPalette_Color,
-                             info.alpha(), this->bitsPerPixel());
-        }
-        if (this->bitsPerPixel() == 24) {
-            return make_info(SkEncodedInfo::kBGR_Color,
-                             SkEncodedInfo::kOpaque_Alpha, 8);
-        }
-    }
-
-    return make_info(info.color(), info.alpha(), info.bitsPerComponent());
-}
-
 void SkBmpStandardCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& opts) {
     // In the case of bmp-in-icos, we will report BGRA to the client,
     // since we may be required to apply an alpha mask after the decode.
     // However, the swizzler needs to know the actual format of the bmp.
-    SkEncodedInfo encodedInfo = this->swizzlerInfo();
+    SkEncodedInfo encodedInfo = this->getEncodedInfo();
+    if (fInIco) {
+        if (this->bitsPerPixel() <= 8) {
+            encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kPalette_Color,
+                    encodedInfo.alpha(), this->bitsPerPixel());
+        } else if (this->bitsPerPixel() == 24) {
+            encodedInfo = SkEncodedInfo::Make(SkEncodedInfo::kBGR_Color,
+                    SkEncodedInfo::kOpaque_Alpha, 8);
+        }
+    }
 
     // Get a pointer to the color table if it exists
     const SkPMColor* colorPtr = get_color_ptr(fColorTable.get());

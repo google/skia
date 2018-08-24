@@ -134,11 +134,7 @@ sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
         trc[1].table_entries ||
         trc[2].table_entries ||
         memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(trc[0].parametric)) ||
-        memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric)))
-    {
-        if (skcms_TRCs_AreApproximateInverse(&profile, skcms_sRGB_Inverse_TransferFunction())) {
-            return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, toXYZD50);
-        }
+        memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric))) {
         return nullptr;
     }
 

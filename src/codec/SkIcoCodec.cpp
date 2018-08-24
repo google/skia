@@ -179,19 +179,29 @@ std::unique_ptr<SkCodec> SkIcoCodec::MakeFromStream(std::unique_ptr<SkStream> st
             maxIndex = i;
         }
     }
-
-    auto maxInfo = codecs->operator[](maxIndex)->getEncodedInfo().copy();
+    int width = codecs->operator[](maxIndex)->getInfo().width();
+    int height = codecs->operator[](maxIndex)->getInfo().height();
+    SkEncodedInfo info = codecs->operator[](maxIndex)->getEncodedInfo();
+    SkColorSpace* colorSpace = codecs->operator[](maxIndex)->getInfo().colorSpace();
 
     *result = kSuccess;
     // The original stream is no longer needed, because the embedded codecs own their
     // own streams.
-    return std::unique_ptr<SkCodec>(new SkIcoCodec(std::move(maxInfo), codecs.release()));
+    return std::unique_ptr<SkCodec>(new SkIcoCodec(width, height, info, codecs.release(),
+                                                   sk_ref_sp(colorSpace)));
 }
 
-SkIcoCodec::SkIcoCodec(SkEncodedInfo&& info, SkTArray<std::unique_ptr<SkCodec>, true>* codecs)
-    // The source skcms_PixelFormat will not be used. The embedded
+/*
+ * Creates an instance of the decoder
+ * Called only by NewFromStream
+ */
+SkIcoCodec::SkIcoCodec(int width, int height, const SkEncodedInfo& info,
+                       SkTArray<std::unique_ptr<SkCodec>, true>* codecs,
+                       sk_sp<SkColorSpace> colorSpace)
+    // The source SkColorSpaceXform::ColorFormat will not be used. The embedded
     // codec's will be used instead.
-    : INHERITED(std::move(info), skcms_PixelFormat(), nullptr)
+    : INHERITED(width, height, info, SkColorSpaceXform::ColorFormat(), nullptr,
+                std::move(colorSpace))
     , fEmbeddedCodecs(codecs)
     , fCurrCodec(nullptr)
 {}

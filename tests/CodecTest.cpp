@@ -1608,25 +1608,6 @@ DEF_TEST(Codec_78329453, r) {
     }
 }
 
-DEF_TEST(Codec_A8, r) {
-    if (GetResourcePath().isEmpty()) {
-        return;
-    }
-
-    const char* file = "images/mandrill_cmyk.jpg";
-    auto data = GetResourceAsData(file);
-    if (!data) {
-        ERRORF(r, "missing %s", file);
-        return;
-    }
-
-    auto codec = SkCodec::MakeFromData(std::move(data));
-    auto info = codec->getInfo().makeColorType(kAlpha_8_SkColorType);
-    SkBitmap bm;
-    bm.allocPixels(info);
-    REPORTER_ASSERT(r, codec->getPixels(bm.pixmap()) == SkCodec::kInvalidConversion);
-}
-
 DEF_TEST(Codec_crbug807324, r) {
     if (GetResourcePath().isEmpty()) {
         return;
