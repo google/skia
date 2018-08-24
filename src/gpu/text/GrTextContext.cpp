@@ -84,10 +84,6 @@ SkScalerContextFlags GrTextContext::ComputeScalerContextFlags(
     }
 }
 
-bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
-}
-
 void GrTextContext::SanitizeOptions(Options* options) {
     if (options->fMaxDistanceFieldFontSize < 0.f) {
         options->fMaxDistanceFieldFontSize = kDefaultMaxDistanceFieldFontSize;

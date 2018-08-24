@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "SkDescriptor.h"
+#include "SkDistanceFieldGen.h"
 #include "SkMask.h"
 #include "SkPath.h"
 #include "SkPoint.h"
@@ -21,14 +22,16 @@
 #include "SkTemplates.h"
 #include "SkTextBlobPriv.h"
 #include "SkTypes.h"
-#if SK_SUPPORT_GPU
-class GrColorSpaceInfo;
-class GrRenderTargetContext;
-#endif
+
 class SkArenaAlloc;
 class SkBaseDevice;
 class SkGlyphRunList;
 class SkRasterClip;
+
+#if SK_SUPPORT_GPU
+class GrColorSpaceInfo;
+class GrRenderTargetContext;
+#endif
 
 class SkGlyphCacheInterface {
 public:
@@ -338,6 +341,87 @@ inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
     for (auto glyphID : fGlyphIDs) {
         perGlyph(glyphID, *ptCursor++);
     }
+}
+
+inline static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
+    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
+}
+
+inline static SkRect rect_to_draw(
+        const SkGlyph& glyph, SkPoint origin, SkScalar textScale, bool isDFT) {
+
+    SkScalar dx = SkIntToScalar(glyph.fLeft);
+    SkScalar dy = SkIntToScalar(glyph.fTop);
+    SkScalar width = SkIntToScalar(glyph.fWidth);
+    SkScalar height = SkIntToScalar(glyph.fHeight);
+
+    if (isDFT) {
+        dx += SK_DistanceFieldInset;
+        dy += SK_DistanceFieldInset;
+        width -= 2 * SK_DistanceFieldInset;
+        height -= 2 * SK_DistanceFieldInset;
+    }
+
+    dx *= textScale;
+    dy *= textScale;
+    width *= textScale;
+    height *= textScale;
+
+    return SkRect::MakeXYWH(origin.x() + dx, origin.y() + dy, width, height);
+}
+
+// forEachMappedDrawableGlyph handles positioning for mask type glyph handling for both sub-pixel
+// and full pixel positioning.
+template <typename EachGlyph>
+void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
+        const SkGlyphRun& glyphRun, SkPoint origin, const SkMatrix& deviceMatrix,
+        SkGlyphCacheInterface* cache, EachGlyph eachGlyph) {
+    SkMatrix mapping = deviceMatrix;
+    mapping.preTranslate(origin.x(), origin.y());
+    SkVector rounding = cache->rounding();
+    mapping.postTranslate(rounding.x(), rounding.y());
+
+    auto runSize = glyphRun.runSize();
+    if (this->ensureBitmapBuffers(runSize)) {
+        mapping.mapPoints(fPositions, glyphRun.positions().data(), runSize);
+        const SkPoint* mappedPtCursor = fPositions;
+        const SkPoint* ptCursor = glyphRun.positions().data();
+        for (auto glyphID : glyphRun.shuntGlyphsIDs()) {
+            auto mappedPt = *mappedPtCursor++;
+            auto pt = origin + *ptCursor++;
+            if (SkScalarsAreFinite(mappedPt.x(), mappedPt.y())) {
+                const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, mappedPt);
+                eachGlyph(glyph, pt, mappedPt);
+            }
+        }
+    }
+}
+
+template <typename PerGlyphT, typename PerPathT>
+void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, const SkMatrix& deviceMatrix,
+        PerGlyphT perGlyph, PerPathT perPath) {
+
+    auto eachGlyph =
+            [perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
+                    (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
+                if (glyph_too_big_for_atlas(glyph)) {
+                    SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
+                            sy = SkScalarFloorToScalar(mappedPt.fY);
+
+                    SkRect glyphRect =
+                            rect_to_draw(glyph, {sx, sy}, SK_Scalar1, false);
+
+                    if (!glyphRect.isEmpty()) {
+                        perPath(glyph, mappedPt);
+                    }
+                } else {
+                    perGlyph(glyph, mappedPt);
+                }
+            };
+
+    this->forEachMappedDrawableGlyph(glyphRun, origin, deviceMatrix, cache, eachGlyph);
 }
 
 #endif  // SkGlyphRunInfo_DEFINED
