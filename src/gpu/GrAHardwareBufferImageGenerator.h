@@ -31,6 +31,8 @@ public:
 
     ~GrAHardwareBufferImageGenerator() override;
 
+    static void DeleteImageTexture(void* ctx);
+
 protected:
 
     bool onIsValid(GrContext*) const override;
@@ -43,8 +45,6 @@ private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType);
     sk_sp<GrTextureProxy> makeProxy(GrContext* context);
     void clear();
-
-    static void deleteImageTexture(void* ctx);
 
     AHardwareBuffer* fGraphicBuffer;
     GrTexture* fOriginalTexture = nullptr;
