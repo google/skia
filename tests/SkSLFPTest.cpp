@@ -381,3 +381,72 @@ DEF_TEST(SkSLFPChildProcessors, r) {
             "this->registerChildProcessor(src.childProcessor(1).clone());"
          });
 }
+
+DEF_TEST(SkSLFPChildProcessorsWithInput, r) {
+    test(r,
+         "in fragmentProcessor child1;"
+         "in fragmentProcessor child2;"
+         "void main() {"
+         "    half4 childIn = sk_InColor;"
+         "    half4 childOut1 = process(child1, childIn);"
+         "    half4 childOut2 = process(child2, childOut1);"
+         "    sk_OutColor = childOut2;"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child1));",
+            "this->registerChildProcessor(std::move(child2));"
+         },
+         {
+            "SkString _input0(\"childIn\");",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, _input0.c_str(), &_child0, args);",
+            "SkString _input1(\"childOut1\");",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(1, _input1.c_str(), &_child1, args);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());",
+            "this->registerChildProcessor(src.childProcessor(1).clone());"
+         });
+}
+
+DEF_TEST(SkSLFPChildProcessorWithInputExpression, r) {
+    test(r,
+         "in fragmentProcessor child;"
+         "void main() {"
+         "    sk_OutColor = process(child, sk_InColor * half4(0.5));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child));",
+         },
+         {
+            "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, _input0.c_str(), &_child0, args);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());",
+         });
+}
+
+DEF_TEST(SkSLFPNestedChildProcessors, r) {
+    test(r,
+         "in fragmentProcessor child1;"
+         "in fragmentProcessor child2;"
+         "void main() {"
+         "    sk_OutColor = process(child2, sk_InColor * process(child1, sk_InColor * half4(0.5)));"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child1));",
+            "this->registerChildProcessor(std::move(child2));"
+         },
+         {
+            "SkString _input0 = SkStringPrintf(\"%s * half4(0.5)\", args.fInputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, _input0.c_str(), &_child0, args);",
+            "SkString _input1 = SkStringPrintf(\"%s * %s\", args.fInputColor, _child0.c_str());",
+            "SkString _child1(\"_child1\");",
+            "this->emitChild(1, _input1.c_str(), &_child1, args);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());",
+            "this->registerChildProcessor(src.childProcessor(1).clone());"
+         });
+}
