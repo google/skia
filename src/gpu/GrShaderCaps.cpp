@@ -46,6 +46,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fFPManipulationSupport = false;
     fFloatIs32Bits = true;
     fHalfIs32Bits = false;
+    fUnsignedSupport = true;
 
     fVersionDeclString = nullptr;
     fShaderDerivativeExtensionString = nullptr;
@@ -63,6 +64,7 @@ GrShaderCaps::GrShaderCaps(const GrContextOptions& options) {
     fMaxGeometrySamplers = 0;
     fMaxFragmentSamplers = 0;
     fMaxCombinedSamplers = 0;
+    fMaxVertexUniformComponents = 0;
     fAdvBlendEqInteraction = kNotSupported_AdvBlendEqInteraction;
 }
 
@@ -112,11 +114,13 @@ void GrShaderCaps::dumpJSON(SkJSONWriter* writer) const {
     writer->appendBool("Floating point manipulation support", fFPManipulationSupport);
     writer->appendBool("float == fp32", fFloatIs32Bits);
     writer->appendBool("half == fp32", fHalfIs32Bits);
+    writer->appendBool("Supports unsigned integers", fUnsignedSupport);
 
     writer->appendS32("Max VS Samplers", fMaxVertexSamplers);
     writer->appendS32("Max GS Samplers", fMaxGeometrySamplers);
     writer->appendS32("Max FS Samplers", fMaxFragmentSamplers);
     writer->appendS32("Max Combined Samplers", fMaxFragmentSamplers);
+    writer->appendS32("Max VS Uniform Components", fMaxVertexUniformComponents);
     writer->appendString("Advanced blend equation interaction",
                          kAdvBlendEqInteractionStr[fAdvBlendEqInteraction]);
 
