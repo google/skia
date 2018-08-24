@@ -9,6 +9,8 @@
 #define SkCodecPriv_DEFINED
 
 #include "SkColorData.h"
+#include "SkColorSpaceXform.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkColorTable.h"
 #include "SkEncodedInfo.h"
 #include "SkEncodedOrigin.h"
@@ -239,6 +241,30 @@ static inline PackColorProc choose_pack_color_proc(bool isPremul, SkColorType co
             return &SkPackARGB_as_BGRA;
         }
     }
+}
+
+static inline bool needs_premul(SkAlphaType dstAT, SkEncodedInfo::Alpha encodedAlpha) {
+    return kPremul_SkAlphaType == dstAT && SkEncodedInfo::kUnpremul_Alpha == encodedAlpha;
+}
+
+static inline bool needs_color_xform(const SkImageInfo& dstInfo, const SkColorSpace* srcCS) {
+    // We never perform a color xform in legacy mode.
+    if (!dstInfo.colorSpace()) {
+        return false;
+    }
+
+    // None of the codecs we have output F16 natively, so if we're trying to decode to F16,
+    // we'll have to use SkColorSpaceXform to get there.
+    bool isF16 = kRGBA_F16_SkColorType == dstInfo.colorType();
+
+    // Need a color xform when dst space does not match the src.
+    bool srcDstNotEqual = !SkColorSpace::Equals(srcCS, dstInfo.colorSpace());
+
+    return isF16 || srcDstNotEqual;
+}
+
+static inline SkAlphaType select_xform_alpha(SkAlphaType dstAlphaType, SkAlphaType srcAlphaType) {
+    return (kOpaque_SkAlphaType == srcAlphaType) ? kOpaque_SkAlphaType : dstAlphaType;
 }
 
 bool is_orientation_marker(const uint8_t* data, size_t data_length, SkEncodedOrigin* orientation);
