@@ -1154,6 +1154,38 @@ DEF_TEST(SkSLFragCoord, r) {
          "}\n");
 }
 
+DEF_TEST(SkSLWidthAndHeight, r) {
+    SkSL::Program::Settings settings;
+    sk_sp<GrShaderCaps> caps = SkSL::ShaderCapsFactory::Default();
+    settings.fCaps = caps.get();
+    SkSL::Program::Inputs inputs;
+    test(r,
+         "void main() { sk_FragColor.r = sk_FragCoord.x / sk_Width; }",
+         settings,
+         "#version 400\n"
+         "uniform float u_skRTWidth;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.x = gl_FragCoord.x / u_skRTWidth;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, inputs.fRTWidth);
+    REPORTER_ASSERT(r, !inputs.fRTHeight);
+
+    test(r,
+         "void main() { sk_FragColor.r = sk_FragCoord.y / sk_Height; }",
+         settings,
+         "#version 400\n"
+         "uniform float u_skRTHeight;\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    sk_FragColor.x = gl_FragCoord.y / u_skRTHeight;\n"
+         "}\n",
+         &inputs);
+    REPORTER_ASSERT(r, !inputs.fRTWidth);
+    REPORTER_ASSERT(r, inputs.fRTHeight);
+}
+
 DEF_TEST(SkSLClockwise, r) {
     test(r,
          "void main() { sk_FragColor = half4(sk_Clockwise ? +1 : -1); }",

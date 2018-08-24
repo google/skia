@@ -159,6 +159,15 @@ void GrGLProgramBuilder::computeCountsAndStrides(GrGLuint programID,
     SkASSERT(fInstanceStride == primProc.debugOnly_instanceStride());
 }
 
+void GrGLProgramBuilder::addInputVars(const SkSL::Program::Inputs& inputs) {
+    if (inputs.fRTWidth) {
+        this->addRTWidthUniform(SKSL_RTWIDTH_NAME);
+    }
+    if (inputs.fRTHeight) {
+        this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
+    }
+}
+
 GrGLProgram* GrGLProgramBuilder::finalize() {
     TRACE_EVENT0("skia", TRACE_FUNC);
 
@@ -204,9 +213,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
         if (GR_GL_GET_ERROR(this->gpu()->glInterface()) == GR_GL_NO_ERROR) {
             cached = this->checkLinkStatus(programID);
             if (cached) {
-                if (inputs.fRTHeight) {
-                    this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-                }
+                this->addInputVars(inputs);
                 this->computeCountsAndStrides(programID, primProc, false);
             }
         } else {
@@ -231,9 +238,7 @@ GrGLProgram* GrGLProgramBuilder::finalize() {
             return nullptr;
         }
         inputs = fs->fInputs;
-        if (inputs.fRTHeight) {
-            this->addRTHeightUniform(SKSL_RTHEIGHT_NAME);
-        }
+        this->addInputVars(inputs);
         if (!this->compileAndAttachShaders(glsl.c_str(), glsl.size(), programID,
                                            GR_GL_FRAGMENT_SHADER, &shadersToDelete, settings,
                                            inputs)) {
