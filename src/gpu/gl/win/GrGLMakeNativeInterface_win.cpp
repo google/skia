@@ -72,7 +72,7 @@ sk_sp<const GrGLInterface> GrGLMakeNativeInterface() {
         return nullptr;
     }
 
-    GrGLGetStringProc getString = (GrGLGetStringProc)getter.getProc("glGetString");
+    GrGLGetStringFn* getString = (GrGLGetStringFn*)getter.getProc("glGetString");
     if (nullptr == getString) {
         return nullptr;
     }
