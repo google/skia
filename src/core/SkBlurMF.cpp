@@ -61,6 +61,14 @@ public:
                              const GrClip&,
                              const SkMatrix& viewMatrix,
                              const GrShape& shape) const override;
+    bool directFilterRRectMaskGPU(GrContext*,
+                                  GrRenderTargetContext* renderTargetContext,
+                                  GrPaint&&,
+                                  const GrClip&,
+                                  const SkMatrix& viewMatrix,
+                                  const SkStrokeRec& strokeRec,
+                                  const SkRRect& rrect,
+                                  const SkRRect& devRRect) const override;
     sk_sp<GrTextureProxy> filterMaskGPU(GrContext*,
                                         sk_sp<GrTextureProxy> srcProxy,
                                         const SkMatrix& ctm,
@@ -733,7 +741,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return false;
     }
 
-    if (!viewMatrix.isScaleTranslate()) {
+    if (!viewMatrix.rectStaysRect()) {
         return false;
     }
 
@@ -747,25 +755,75 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return false;
     }
 
-    SkRRect srcRRect;
+    GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
+    std::unique_ptr<GrFragmentProcessor> fp;
+
+    SkRRect rrect;
+    SkRect rect;
     bool inverted;
-    if (!shape.asRRect(&srcRRect, nullptr, nullptr, &inverted) || inverted) {
+    if (shape.asRRect(&rrect, nullptr, nullptr, &inverted) && !inverted) {
+        rect = rrect.rect();
+        SkAssertResult(viewMatrix.mapRect(&rect));
+        if (rrect.isRect()) {
+            SkScalar pad = 3.0f * xformedSigma;
+            rect.outset(pad, pad);
+
+            fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
+                                        rect, xformedSigma);
+        } else if (SkRRectPriv::IsCircle(rrect)) {
+            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
+
+            // expand the rect for the coverage geometry
+            int pad = SkScalarCeilToInt(6*xformedSigma)/2;
+            rect.outset(SkIntToScalar(pad), SkIntToScalar(pad));
+        } else {
+            return false;
+        }
+    } else {
         return false;
     }
 
-    SkRRect devRRect;
-    if (!srcRRect.transform(viewMatrix, &devRRect)) {
+    if (!fp) {
         return false;
     }
 
-    if (!SkRRectPriv::AllCornersCircular(devRRect)) {
+    SkMatrix inverse;
+    if (!viewMatrix.invert(&inverse)) {
+        return false;
+    }
+
+    paint.addCoverageFragmentProcessor(std::move(fp));
+    renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                                 rect, inverse);
+    return true;
+}
+
+bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
+                                                    GrRenderTargetContext* renderTargetContext,
+                                                    GrPaint&& paint,
+                                                    const GrClip& clip,
+                                                    const SkMatrix& viewMatrix,
+                                                    const SkStrokeRec& strokeRec,
+                                                    const SkRRect& srcRRect,
+                                                    const SkRRect& devRRect) const {
+    SkASSERT(renderTargetContext);
+
+    if (fBlurStyle != kNormal_SkBlurStyle) {
+        return false;
+    }
+
+    if (!strokeRec.isFillStyle()) {
         return false;
     }
 
     GrProxyProvider* proxyProvider = context->contextPriv().proxyProvider();
-    std::unique_ptr<GrFragmentProcessor> fp;
+    SkScalar xformedSigma = this->computeXformedSigma(viewMatrix);
+    if (xformedSigma <= 0) {
+        return false;
+    }
 
     if (devRRect.isRect() || SkRRectPriv::IsCircle(devRRect)) {
+        std::unique_ptr<GrFragmentProcessor> fp;
         if (devRRect.isRect()) {
             SkScalar pad = 3.0f * xformedSigma;
             const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
@@ -773,7 +831,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
             fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
                                         dstCoverageRect, xformedSigma);
         } else {
-            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, devRRect.rect(), xformedSigma);
+            fp = GrCircleBlurFragmentProcessor::Make(proxyProvider,
+                                                     devRRect.rect(), xformedSigma);
         }
 
         if (!fp) {
@@ -797,7 +856,7 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         return true;
     }
 
-    fp = GrRRectBlurEffect::Make(context, fSigma, xformedSigma, srcRRect, devRRect);
+    auto fp = GrRRectBlurEffect::Make(context, fSigma, xformedSigma, srcRRect, devRRect);
     if (!fp) {
         return false;
     }
