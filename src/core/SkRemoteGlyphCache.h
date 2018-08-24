@@ -122,10 +122,9 @@ public:
     // Methods used internally in skia ------------------------------------------
     class SkGlyphCacheState {
     public:
-        SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
-                          std::unique_ptr<SkDescriptor> keyDescriptor,
-                          SkDiscardableHandleId discardableHandleId,
-                          std::unique_ptr<SkScalerContext> scalerContext);
+        // N.B. SkGlyphCacheState is not valid until ensureScalerContext is called.
+        SkGlyphCacheState(std::unique_ptr<SkDescriptor> keyDescriptor,
+                          SkDiscardableHandleId discardableHandleId);
         ~SkGlyphCacheState();
 
         void addGlyph(SkPackedGlyphID, bool pathOnly);
@@ -141,6 +140,11 @@ public:
             return *fKeyDescriptor;
         }
         const SkGlyph& findGlyph(SkPackedGlyphID);
+        void ensureScalerContext(const SkPaint& paint,
+                                 const SkSurfaceProps* props,
+                                 const SkMatrix* matrix,
+                                 SkScalerContextFlags flags,
+                                 SkScalerContextEffects* effects);
 
     private:
         bool hasPendingGlyphs() const {
@@ -164,9 +168,9 @@ public:
         std::unique_ptr<SkDescriptor> fKeyDescriptor;
         const SkDiscardableHandleId fDiscardableHandleId;
         // The context built using fDeviceDescriptor
-        const std::unique_ptr<SkScalerContext> fContext;
-        const bool fIsSubpixel;
-        const SkAxisAlignment fAxisAlignmentForHText;
+        std::unique_ptr<SkScalerContext> fContext;
+        bool fIsSubpixel = true;
+        SkAxisAlignment fAxisAlignmentForHText;
 
         // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
         // we cache them here.
