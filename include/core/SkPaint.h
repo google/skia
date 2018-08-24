@@ -494,7 +494,7 @@ public:
 
         @return  unpremultiplied ARGB
     */
-    SkColor getColor() const { return fColor; }
+    SkColor getColor() const { return fColor4f.toSkColor(); }
 
     /** Sets alpha and RGB used when stroking and filling. The color is a 32-bit value,
         unpremultiplied, packing 8-bit components for alpha, red, blue, and green.
@@ -507,7 +507,7 @@ public:
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
-    uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
+    uint8_t getAlpha() const { return sk_float_round2int(fColor4f.fA * 255); }
 
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug
@@ -1470,7 +1470,7 @@ private:
     SkScalar        fTextSize;
     SkScalar        fTextScaleX;
     SkScalar        fTextSkewX;
-    SkColor         fColor;
+    SkColor4f       fColor4f;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
     uint32_t        fBlendMode; // just need 5-6 bits
