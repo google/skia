@@ -68,6 +68,8 @@ private:
 
     void writeVarInitializer(const Variable& var, const Expression& value) override;
 
+    void writeInputVars() override;
+
     void writePrivateVars();
 
     void writePrivateVarValues();
