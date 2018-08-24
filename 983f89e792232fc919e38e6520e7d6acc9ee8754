@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "acb8c974_69797678",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 347,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "store -\u003e stores\n\nAdd period after \"backendTexture\".",
+      "range": {
+        "startLine": 347,
+        "startChar": 27,
+        "endLine": 347,
+        "endChar": 32
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c39b6f51_04957cc0",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "Please line this up with the line above.",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "793d8dc3_ef8c70fd",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "store -\u003e stores the",
+      "range": {
+        "startLine": 355,
+        "startChar": 48,
+        "endLine": 355,
+        "endChar": 53
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9b2e0268_a1d49ef7",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "tore -\u003e stores",
+      "range": {
+        "startLine": 389,
+        "startChar": 64,
+        "endLine": 389,
+        "endChar": 68
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "154fadc5_b58b1d35",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "store -\u003e stores the",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5d4ee82a_22162c6c",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "This looks like a near copy of the method above. Could you please think about how to share code with it instead? Some questions below.",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4889dea5_473cedd8",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5700
+      },
+      "writtenOn": "2018-08-24T19:48:03Z",
+      "side": 1,
+      "message": "This doesn\u0027t actually copy the textures themselves, right? I assume it only copies the wrapper? Otherwise we\u0027ll be losing a lot of performance doing full-size blits of the YUV textures.",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
