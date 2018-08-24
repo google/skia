@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6db15473_b256441a",
+        "filename": "src/core/SkBlurMF.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 791,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-24T19:20:22Z",
+      "side": 1,
+      "message": "This is how directFilterMaskGPU had been drawing these cases.",
+      "range": {
+        "startLine": 782,
+        "startChar": 0,
+        "endLine": 791,
+        "endChar": 2
+      },
+      "revId": "9fd6960dd215ed1e39ec95dc190879f51520e729",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
