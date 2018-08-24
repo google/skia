@@ -45,8 +45,7 @@ describe('PathKit\'s SVG Behavior', function() {
                        [PathKit.LINE_VERB, 5, 295],
                        [PathKit.LINE_VERB, 205, 5],
                        [PathKit.CLOSE_VERB]];
-            let [ptr, len] = PathKit.loadCmdsTypedArray(cmds);
-            let path = PathKit.FromCmds(ptr, len);
+            let path = PathKit.FromCmds(cmds);
 
             let svgStr = path.toSVGString();
             // We output it in terse form, which is different than Wikipedia's version
@@ -64,8 +63,7 @@ describe('PathKit\'s SVG Behavior', function() {
                        [PathKit.LINE_VERB, 5, 295],
                        [PathKit.LINE_VERB, "0x15e80300", "0x400004dc"], // 9.37088e-26f, 2.0003f
                        [PathKit.CLOSE_VERB]];
-            let [ptr, len] = PathKit.loadCmdsTypedArray(cmds);
-            let path = PathKit.FromCmds(ptr, len);
+            let path = PathKit.FromCmds(cmds);
 
             let svgStr = path.toSVGString();
             expect(svgStr).toEqual('M9.37088e-26 2.0003L795 5L595 295L5 295L9.37088e-26 2.0003Z');
