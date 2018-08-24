@@ -6,3 +6,4 @@
  */
 
 #include "../externals/libpng/scripts/pnglibconf.h.prebuilt"
+#undef PNG_READ_OPT_PLTE_SUPPORTED
