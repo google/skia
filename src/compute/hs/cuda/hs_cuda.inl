@@ -472,13 +472,13 @@ hs_state_acquire(struct hs_state * const state,
       *indices    |=  1;
       return 0;
     }
-  else if (*indices & 2)
+  else if (state->pool & 2)
     {
       state->pool &= ~2;
       *indices    |=  2;
       return 1;
     }
-  else // if (*indices & 4)
+  else // (state->pool & 4)
     {
       state->pool &= ~4;
       *indices    |=  4;
