@@ -324,5 +324,5 @@ void SkGpuDevice::drawTextureProducerImpl(GrTextureProducer* producer,
     GrShape shape(clippedDstRect, GrStyle::SimpleFill());
 
     GrBlurUtils::drawShapeWithMaskFilter(this->context(), fRenderTargetContext.get(), this->clip(),
-                                         shape, std::move(grPaint), aa, viewMatrix, mf);
+                                         shape, std::move(grPaint), viewMatrix, mf);
 }
