@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "e585fd45_0b41efc6",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-24T16:11:00Z",
+      "side": 1,
+      "message": "My guess is that this is because the primary focus has been on photos, which wouldn\u0027t typically be in CMYK. Filed skbug.com/8283",
+      "parentUuid": "4f47034f_010fd80f",
+      "revId": "c31041e7c1154b42937c669c964a79bf28d6cae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "534947de_f4d64837",
         "filename": "src/codec/SkAndroidCodec.cpp",
         "patchSetId": 7
