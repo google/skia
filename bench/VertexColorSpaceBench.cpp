@@ -15,6 +15,7 @@
 #include "GrRenderTargetContextPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkGr.h"
+#include "SkHalf.h"
 #include "SkString.h"
 #include "glsl/GrGLSLColorSpaceXformHelper.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
@@ -28,6 +29,7 @@ namespace {
 enum Mode {
     kBaseline_Mode,  // Do the wrong thing, but quickly.
     kFloat_Mode,     // Transform colors on CPU, use float4 attributes.
+    kHalf_Mode,      // Transform colors on CPU, use half4 attributes.
     kShader_Mode,    // Use ubyte4 attributes, transform colors on GPU (vertex shader).
 };
 
@@ -37,11 +39,13 @@ public:
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = { "inPosition", kFloat2_GrVertexAttribType };
         if (kFloat_Mode == fMode) {
-            fInColor = {"inColor", kFloat4_GrVertexAttribType};
+            fInColor = { "inColor", kFloat4_GrVertexAttribType };
+        } else if (kHalf_Mode == fMode) {
+            fInColor = { "inColor", kRealHalf4_GrVertexAttribType };
         } else {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+            fInColor = { "inColor", kUByte4_norm_GrVertexAttribType };
         }
         this->setVertexAttributeCnt(2);
     }
@@ -126,9 +130,9 @@ public:
         this->setBounds(SkRect::MakeWH(100.f, 100.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
 
-    Op(GrColor4f color4f)
+    Op(GrColor4f color4f, bool useHalf)
             : INHERITED(ClassID())
-            , fMode(kFloat_Mode)
+            , fMode(useHalf ? kHalf_Mode : kFloat_Mode)
             , fColor4f(color4f) {
         this->setBounds(SkRect::MakeWH(100.f, 100.f), HasAABloat::kNo, IsZeroArea::kNo);
     }
@@ -155,8 +159,18 @@ private:
     void onPrepareDraws(Target* target) override {
         sk_sp<GrGeometryProcessor> gp(new GP(fMode, fColorSpaceXform));
 
-        size_t vertexStride = sizeof(SkPoint) +
-                              ((kFloat_Mode == fMode) ? sizeof(GrColor4f) : sizeof(uint32_t));
+        size_t vertexStride = sizeof(SkPoint);
+        switch (fMode) {
+            case kFloat_Mode:
+                vertexStride += sizeof(GrColor4f);
+                break;
+            case kHalf_Mode:
+                vertexStride += sizeof(uint64_t);
+                break;
+            default:
+                vertexStride += sizeof(uint32_t);
+                break;
+        }
         SkASSERT(vertexStride == gp->debugOnly_vertexStride());
 
         const int kVertexCount = 1024;
@@ -181,6 +195,25 @@ private:
                 v[i + 0].fColor = fColor4f;
                 v[i + 1].fPos.set(dx * i, 100.0f);
                 v[i + 1].fColor = fColor4f;
+            }
+        } else if (kHalf_Mode == fMode) {
+            struct V {
+                SkPoint fPos;
+                uint64_t fColor;
+            };
+            SkASSERT(sizeof(V) == vertexStride);
+            uint64_t color;
+            Sk4h halfColor = SkFloatToHalf_finite_ftz(Sk4f::Load(&fColor));
+            color = (uint64_t)halfColor[0] << 48 |
+                    (uint64_t)halfColor[1] << 32 |
+                    (uint64_t)halfColor[2] << 16 |
+                    (uint64_t)halfColor[3] << 0;
+            V* v = (V*)verts;
+            for (int i = 0; i < kVertexCount; i += 2) {
+                v[i + 0].fPos.set(dx * i, 0.0f);
+                v[i + 0].fColor = color;
+                v[i + 1].fPos.set(dx * i, 100.0f);
+                v[i + 1].fColor = color;
             }
         } else {
             struct V {
@@ -254,10 +287,11 @@ public:
                     case kShader_Mode:
                         op = pool->allocate<Op>(SkColorToUnpremulGrColor(c), xform);
                         break;
+                    case kHalf_Mode:
                     case kFloat_Mode: {
                         GrColor4f c4f = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
                         c4f = xform->apply(c4f);
-                        op = pool->allocate<Op>(c4f);
+                        op = pool->allocate<Op>(c4f, kHalf_Mode == fMode);
                     }
                 }
                 rtc->priv().testingOnly_addDrawOp(std::move(op));
@@ -276,4 +310,5 @@ private:
 
 DEF_BENCH(return new VertexColorSpaceBench(kBaseline_Mode, "baseline"));
 DEF_BENCH(return new VertexColorSpaceBench(kFloat_Mode,    "float"));
+DEF_BENCH(return new VertexColorSpaceBench(kHalf_Mode,     "half"));
 DEF_BENCH(return new VertexColorSpaceBench(kShader_Mode,   "shader"));

@@ -35,6 +35,8 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
             return {false, 3, GR_GL_FLOAT};
         case kHalf4_GrVertexAttribType:
             return {false, 4, GR_GL_FLOAT};
+        case kRealHalf4_GrVertexAttribType:
+            return {false, 4, GR_GL_HALF_FLOAT};
         case kInt2_GrVertexAttribType:
             return {false, 2, GR_GL_INT};
         case kInt3_GrVertexAttribType:
@@ -94,6 +96,8 @@ static bool GrVertexAttribTypeIsIntType(const GrShaderCaps* shaderCaps,
         case kHalf3_GrVertexAttribType:
             return false;
         case kHalf4_GrVertexAttribType:
+            return false;
+        case kRealHalf4_GrVertexAttribType:
             return false;
         case kInt2_GrVertexAttribType:
             return true;

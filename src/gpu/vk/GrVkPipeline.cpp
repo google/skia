@@ -28,6 +28,8 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
         case kFloat4_GrVertexAttribType:
         case kHalf4_GrVertexAttribType:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
+        case kRealHalf4_GrVertexAttribType:
+            return VK_FORMAT_R16G16B16A16_SFLOAT;
         case kInt2_GrVertexAttribType:
             return VK_FORMAT_R32G32_SINT;
         case kInt3_GrVertexAttribType:
