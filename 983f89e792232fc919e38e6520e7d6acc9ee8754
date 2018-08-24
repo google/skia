@@ -105,6 +105,29 @@
     },
     {
       "key": {
+        "uuid": "d17d2ce1_43d6f002",
+        "filename": "src/image/SkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-24T21:19:44Z",
+      "side": 1,
+      "message": "I\u0027m guessing this was formatted by clang-format. There is a bug in the experimental auto detect bin packing setting that sometimes causes a line wrap after a templated parameter type. \"colorSpace\" should be on the previous line.",
+      "range": {
+        "startLine": 404,
+        "startChar": 59,
+        "endLine": 405,
+        "endChar": 77
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5d4ee82a_22162c6c",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 2
@@ -122,6 +145,29 @@
     },
     {
       "key": {
+        "uuid": "cf29d112_e0bfae3a",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 458,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-24T21:19:44Z",
+      "side": 1,
+      "message": "no line wrap",
+      "range": {
+        "startLine": 458,
+        "startChar": 16,
+        "endLine": 458,
+        "endChar": 31
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4889dea5_473cedd8",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 2
@@ -133,6 +179,70 @@
       "writtenOn": "2018-08-24T19:48:03Z",
       "side": 1,
       "message": "This doesn\u0027t actually copy the textures themselves, right? I assume it only copies the wrapper? Otherwise we\u0027ll be losing a lot of performance doing full-size blits of the YUV textures.",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7078d557_aa9c6793",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-24T21:19:44Z",
+      "side": 1,
+      "message": "Right, just copes the struct. We might not need this anymore. +Greg.",
+      "parentUuid": "4889dea5_473cedd8",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1d1f5bb0_22c0babd",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 612,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-24T21:19:44Z",
+      "side": 1,
+      "message": "no line wrap",
+      "range": {
+        "startLine": 612,
+        "startChar": 16,
+        "endLine": 612,
+        "endChar": 31
+      },
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3859d999_a15e4e45",
+        "filename": "src/image/SkImage_Gpu.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-24T21:19:44Z",
+      "side": 1,
+      "message": "no line wrap",
+      "range": {
+        "startLine": 146,
+        "startChar": 20,
+        "endLine": 146,
+        "endChar": 35
+      },
       "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
