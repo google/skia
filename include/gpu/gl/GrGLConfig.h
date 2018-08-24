@@ -21,7 +21,7 @@
 #endif
 
 #if !defined(GR_GL_FUNCTION_TYPE)
-    #if defined(SK_BUILD_FOR_WIN)
+    #if defined(SK_BUILD_FOR_WIN) && !defined(_WIN64)
         #define GR_GL_FUNCTION_TYPE __stdcall
     #else
         #define GR_GL_FUNCTION_TYPE
