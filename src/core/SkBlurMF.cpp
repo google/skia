@@ -779,21 +779,16 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         if (!fp) {
             return false;
         }
+
         paint.addCoverageFragmentProcessor(std::move(fp));
 
-        SkRect srcProxyRect = srcRRect.rect();
-        SkScalar outsetX = 3.0f*fSigma;
-        SkScalar outsetY = 3.0f*fSigma;
-        if (this->ignoreXform()) {
-            // When we're ignoring the CTM the padding added to the source rect also needs to ignore
-            // the CTM. The matrix passed in here is guaranteed to be just scale and translate so we
-            // can just grab the X and Y scales off the matrix and pre-undo the scale.
-            outsetX /= viewMatrix.getScaleX();
-            outsetY /= viewMatrix.getScaleY();
+        SkMatrix inverse;
+        if (!viewMatrix.invert(&inverse)) {
+            return false;
         }
-        srcProxyRect.outset(outsetX, outsetY);
 
-        renderTargetContext->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, srcProxyRect);
+        renderTargetContext->fillRectWithLocalMatrix(clip, std::move(paint), GrAA::kNo, SkMatrix::I(),
+                                                     devRRect.getBounds(), inverse);
         return true;
     }
 
