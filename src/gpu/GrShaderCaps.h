@@ -204,6 +204,8 @@ public:
 
     int maxCombinedSamplers() const { return fMaxCombinedSamplers; }
 
+    int maxVertexUniformComponents() const { return fMaxVertexUniformComponents; }
+
     /**
      * Given a texture's config, this determines what swizzle must be appended to accesses to the
      * texture in generated shader code. Swizzling may be implemented in texture parameters or a
@@ -279,6 +281,7 @@ private:
     int fMaxGeometrySamplers;
     int fMaxFragmentSamplers;
     int fMaxCombinedSamplers;
+    int fMaxVertexUniformComponents;
 
     size_t fDisableImageMultitexturingDstRectAreaThreshold;
 
