@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ebf28795_c22d9f4c",
+        "filename": "gm/trickycubicstrokes.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-24T16:48:12Z",
+      "side": 1,
+      "message": "static ?",
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd9598c4_efc3f26f",
+        "filename": "include/core/SkStrokeRec.h",
+        "patchSetId": 11
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-24T16:48:12Z",
+      "side": 1,
+      "message": "what\u0027s this ?\nAdd parameter name (miterLimit) ?",
+      "range": {
+        "startLine": 117,
+        "startChar": 54,
+        "endLine": 117,
+        "endChar": 62
+      },
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5f647308_c5a34f30",
+        "filename": "src/gpu/ccpr/GrCCPathCache.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-24T16:48:12Z",
+      "side": 1,
+      "message": "do you actually need this in the key? Isn\u0027t the size (in uint32_ts) already written in the key header?",
+      "range": {
+        "startLine": 63,
+        "startChar": 8,
+        "endLine": 63,
+        "endChar": 39
+      },
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
