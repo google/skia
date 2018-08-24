@@ -39,6 +39,30 @@
       "revId": "c31041e7c1154b42937c669c964a79bf28d6cae9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a102dbe1_e2180451",
+        "filename": "src/codec/SkAndroidCodec.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-24T15:51:29Z",
+      "side": 1,
+      "message": "I think so. I had a brief moment of thinking that gray images/profiles would have non-invertible matrices, but we construct those as pure scale matrices, so they\u0027ll get by the check.",
+      "parentUuid": "534947de_f4d64837",
+      "range": {
+        "startLine": 180,
+        "startChar": 16,
+        "endLine": 180,
+        "endChar": 71
+      },
+      "revId": "c31041e7c1154b42937c669c964a79bf28d6cae9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
