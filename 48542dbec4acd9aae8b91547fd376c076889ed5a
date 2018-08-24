@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b4798ecb_fb0f687c",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-24T22:51:08Z",
+      "side": 1,
+      "message": "Is the returned color in sRGB?",
+      "range": {
+        "startLine": 502,
+        "startChar": 0,
+        "endLine": 502,
+        "endChar": 37
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0fc9e5d6_281b8c16",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-24T22:51:08Z",
+      "side": 1,
+      "message": "const SkColor4f\u0026  ?\n\nDo we allow for colorspace to be null?\n\nDo we store color in sRGB?",
+      "range": {
+        "startLine": 520,
+        "startChar": 37,
+        "endLine": 520,
+        "endChar": 49
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c6f94d8d_0e02effa",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-08-24T22:51:08Z",
+      "side": 1,
+      "message": "is this { 1, 0, 0, 0 } ?",
+      "range": {
+        "startLine": 57,
+        "startChar": 18,
+        "endLine": 57,
+        "endChar": 27
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
