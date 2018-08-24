@@ -29,6 +29,7 @@ public:
         fShaderCaps->fFlatInterpolationSupport = options.fFlatInterpolationSupport;
         fShaderCaps->fMaxVertexSamplers = options.fMaxVertexSamplers;
         fShaderCaps->fMaxFragmentSamplers = options.fMaxFragmentSamplers;
+        fShaderCaps->fMaxVertexUniformComponents = options.fMaxVertexUniformComponents;
         fShaderCaps->fShaderDerivativeSupport = options.fShaderDerivativeSupport;
 
         this->applyOptionsOverrides(contextOptions);

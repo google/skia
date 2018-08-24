@@ -12,7 +12,8 @@
 #include "GrGeometryProcessor.h"
 #include "GrShaderCaps.h"
 
-constexpr int kMaxBones = 80; // Supports up to 80 bones per mesh.
+// Due to GPU memory limitations, we have to put a limit on the number of bones we upload at once.
+static constexpr int kMaxBones = 80;
 
 /*
  * A factory for creating default Geometry Processors which simply multiply position by the uniform
@@ -122,12 +123,16 @@ namespace GrDefaultGeoProcFactory {
     };
 
     struct Bones {
-        Bones(const float bones[], int boneCount)
+        Bones(const float bones[], int boneCount, const float transforms[], int transformCount)
             : fBones(bones)
-            , fBoneCount(boneCount) {}
+            , fBoneCount(boneCount)
+            , fTransforms(transforms)
+            , fTransformCount(transformCount) {}
 
         const float* fBones;
         int fBoneCount;
+        const float* fTransforms;
+        int fTransformCount;
     };
 
     sk_sp<GrGeometryProcessor> Make(const GrShaderCaps*,
