@@ -694,6 +694,12 @@ static bool ShouldUseAAA(const SkPath& path, SkScalar avgLength, SkScalar comple
     // AA might be slower than supersampling.
     return path.countPoints() < SkTMax(bounds.width(), bounds.height()) / 2 - 10;
 #else
+    if (path.countPoints() >= path.getBounds().height()) {
+        // SAA is faster than AAA in this case even if there are no intersections because AAA will
+        // have too many scan lines. See skbug.com/8272
+        return false;
+    }
+
     // We will use AAA if the number of verbs < kSampleSize and therefore complexity < 0
     return complexity < kComplexityThreshold;
 #endif
