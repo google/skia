@@ -381,6 +381,28 @@ DEF_TEST(Codec_GifPreMap, r) {
 
     // Truncate to 23 bytes, just before the color map. This should fail to decode.
     codec = SkCodec::MakeFromData(SkData::MakeWithoutCopy(gNoGlobalColorMap, 23));
+
+#ifdef SK_HAS_WUFFS_GIF_LIBRARY
+    // We are transitioning from an old GIF implementation to a new (Wuffs) GIF
+    // implementation.
+    //
+    // This test (without SK_HAS_WUFFS_GIF_LIBRARY) is overly specific to the
+    // old implementation. In the new implementation, the MakeFromStream
+    // factory method returns a nullptr SkCodec*, instead of returning a
+    // non-null but otherwise unusable SkCodec*.
+    //
+    // Either way, the end-to-end result is the same - the source input is
+    // rejected as an invalid GIF image - but the two implementations differ in
+    // how that's represented.
+    //
+    // Once the transition is complete, we can remove the #ifdef and delete the
+    // rest of the test function.
+    if (codec) {
+        ERRORF(r, "Invalid data gave non-nullptr codec");
+    }
+    return;
+#endif
+
     REPORTER_ASSERT(r, codec);
     if (codec) {
         SkBitmap bm;

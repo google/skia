@@ -32,6 +32,7 @@ deps = {
   "third_party/externals/spirv-tools"     : "https://skia.googlesource.com/external/github.com/KhronosGroup/SPIRV-Tools.git@e9e4393b1c5aad7553c05782acefbe32b42644bd",
   "third_party/externals/swiftshader"     : "https://swiftshader.googlesource.com/SwiftShader@94d4660dd3f1a78d7cc9b4b327fcab0095e8c600",
   #"third_party/externals/v8"              : "https://chromium.googlesource.com/v8/v8.git@5f1ae66d5634e43563b2d25ea652dfb94c31a3b4",
+  "third_party/externals/wuffs"           : "https://github.com/google/wuffs.git@1e4faddbebb18998363a0a5be006f0e0b27d0570",
   "third_party/externals/zlib"            : "https://chromium.googlesource.com/chromium/src/third_party/zlib@e7afdfe128e01ca480a28f757b571957befdd962",
   "third_party/externals/Nima-Cpp"      : "https://github.com/2d-inc/Nima-Cpp.git@4bd02269d7d1d2e650950411325eafa15defb084",
   "third_party/externals/Nima-Math-Cpp" : "https://github.com/2d-inc/Nima-Math-Cpp.git@e0c12772093fa8860f55358274515b86885f0108",
