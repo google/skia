@@ -29,6 +29,9 @@ public:
     size_t size() const { return SkTo<size_t>(fChildren.count()); }
     bool  empty() const { return fChildren.empty(); }
 
+    using NodeList = SkTArray<sk_sp<RenderNode>, true>;
+    const NodeList& children() const { return fChildren; }
+
 protected:
     Group();
     ~Group() override;
@@ -37,7 +40,7 @@ protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    SkTArray<sk_sp<RenderNode>, true> fChildren;
+    NodeList fChildren;
 
     typedef RenderNode INHERITED;
 };
