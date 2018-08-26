@@ -206,7 +206,7 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& layer,
-                                                          AnimatorScope* ascope) {
+                                                          AnimatorScope* ascope) const {
     // General text node format:
     // "t": {
     //    "a": [], // animators (TODO)

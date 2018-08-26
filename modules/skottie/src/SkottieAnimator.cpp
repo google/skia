@@ -5,11 +5,11 @@
  * found in the LICENSE file.
  */
 
-#include "SkottieAnimator.h"
-
 #include "SkCubicMap.h"
 #include "SkottieJson.h"
+#include "SkottiePriv.h"
 #include "SkottieValue.h"
+#include "SkSGScene.h"
 #include "SkString.h"
 #include "SkTArray.h"
 
@@ -68,9 +68,9 @@ protected:
             : SkTPin(fCubicMaps[rec.cmidx].computeYFromX(lt), 0.0f, 1.0f);
     }
 
-    virtual int parseValue(const skjson::Value&) = 0;
+    virtual int parseValue(const skjson::Value&, const AnimationBuilder* abuilder) = 0;
 
-    void parseKeyFrames(const skjson::ArrayValue& jframes) {
+    void parseKeyFrames(const skjson::ArrayValue& jframes, const AnimationBuilder* abuilder) {
         for (const skjson::ObjectValue* jframe : jframes) {
             if (!jframe) continue;
 
@@ -88,7 +88,7 @@ protected:
                 fRecs.back().t1 = t0;
             }
 
-            const auto vidx0 = this->parseValue((*jframe)["s"]);
+            const auto vidx0 = this->parseValue((*jframe)["s"], abuilder);
             if (vidx0 < 0)
                 continue;
 
@@ -97,7 +97,7 @@ protected:
 
             if (!ParseDefault<bool>((*jframe)["h"], false)) {
                 // Regular frame, requires an end value.
-                vidx1 = this->parseValue((*jframe)["e"]);
+                vidx1 = this->parseValue((*jframe)["e"], abuilder);
                 if (vidx1 < 0)
                     continue;
 
@@ -176,10 +176,12 @@ template <typename T>
 class KeyframeAnimator final : public KeyframeAnimatorBase {
 public:
     static std::unique_ptr<KeyframeAnimator> Make(const skjson::ArrayValue* jv,
+                                                  const AnimationBuilder* abuilder,
                                                   std::function<void(const T&)>&& apply) {
         if (!jv) return nullptr;
 
-        std::unique_ptr<KeyframeAnimator> animator(new KeyframeAnimator(*jv, std::move(apply)));
+        std::unique_ptr<KeyframeAnimator> animator(
+            new KeyframeAnimator(*jv, abuilder, std::move(apply)));
         if (!animator->count())
             return nullptr;
 
@@ -193,14 +195,16 @@ protected:
 
 private:
     KeyframeAnimator(const skjson::ArrayValue& jframes,
+                     const AnimationBuilder* abuilder,
                      std::function<void(const T&)>&& apply)
         : fApplyFunc(std::move(apply)) {
-        this->parseKeyFrames(jframes);
+        this->parseKeyFrames(jframes, abuilder);
     }
 
-    int parseValue(const skjson::Value& jv) override {
+    int parseValue(const skjson::Value& jv, const AnimationBuilder* abuilder) override {
         T val;
-        if (!Parse<T>(jv, &val) || (!fVs.empty() && !ValueTraits<T>::CanLerp(val, fVs.back()))) {
+        if (!ValueTraits<T>::FromJSON(jv, abuilder, &val) ||
+            (!fVs.empty() && !ValueTraits<T>::CanLerp(val, fVs.back()))) {
             return -1;
         }
 
@@ -241,7 +245,8 @@ private:
 
 template <typename T>
 static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
-                                    sksg::AnimatorList* animators,
+                                    const AnimationBuilder* abuilder,
+                                    AnimatorScope* ascope,
                                     std::function<void(const T&)>&& apply,
                                     const T* noop = nullptr) {
     if (!jprop) return false;
@@ -257,7 +262,7 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
     // For those, we attempt to parse both ways.
     if (!ParseDefault<bool>(jpropA, false)) {
         T val;
-        if (Parse<T>(jpropK, &val)) {
+        if (ValueTraits<T>::FromJSON(jpropK, abuilder, &val)) {
             // Static property.
             if (noop && val == *noop)
                 return false;
@@ -272,13 +277,13 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
     }
 
     // Keyframe property.
-    auto animator = KeyframeAnimator<T>::Make(jpropK, std::move(apply));
+    auto animator = KeyframeAnimator<T>::Make(jpropK, abuilder, std::move(apply));
 
     if (!animator) {
         return LogFail(*jprop, "Could not parse keyframed property");
     }
 
-    animators->push_back(std::move(animator));
+    ascope->push_back(std::move(animator));
 
     return true;
 }
@@ -286,6 +291,7 @@ static inline bool BindPropertyImpl(const skjson::ObjectValue* jprop,
 class SplitPointAnimator final : public sksg::Animator {
 public:
     static std::unique_ptr<SplitPointAnimator> Make(const skjson::ObjectValue* jprop,
+                                                    const AnimationBuilder* abuilder,
                                                     std::function<void(const VectorValue&)>&& apply,
                                                     const VectorValue*) {
         if (!jprop) return nullptr;
@@ -297,9 +303,9 @@ public:
         // the object itself, so the scope is bound to the life time of the object.
         auto* split_animator_ptr = split_animator.get();
 
-        if (!BindPropertyImpl<ScalarValue>((*jprop)["x"], &split_animator->fAnimators,
+        if (!BindPropertyImpl<ScalarValue>((*jprop)["x"], abuilder, &split_animator->fAnimators,
                 [split_animator_ptr](const ScalarValue& x) { split_animator_ptr->setX(x); }) ||
-            !BindPropertyImpl<ScalarValue>((*jprop)["y"], &split_animator->fAnimators,
+            !BindPropertyImpl<ScalarValue>((*jprop)["y"], abuilder, &split_animator->fAnimators,
                 [split_animator_ptr](const ScalarValue& y) { split_animator_ptr->setY(y); })) {
             LogFail(*jprop, "Could not parse split property");
             return nullptr;
@@ -340,11 +346,12 @@ private:
 };
 
 bool BindSplitPositionProperty(const skjson::Value& jv,
-                               sksg::AnimatorList* animators,
+                               const AnimationBuilder* abuilder,
+                               AnimatorScope* ascope,
                                std::function<void(const VectorValue&)>&& apply,
                                const VectorValue* noop) {
-    if (auto split_animator = SplitPointAnimator::Make(jv, std::move(apply), noop)) {
-        animators->push_back(std::unique_ptr<sksg::Animator>(split_animator.release()));
+    if (auto split_animator = SplitPointAnimator::Make(jv, abuilder, std::move(apply), noop)) {
+        ascope->push_back(std::unique_ptr<sksg::Animator>(split_animator.release()));
         return true;
     }
 
@@ -354,32 +361,32 @@ bool BindSplitPositionProperty(const skjson::Value& jv,
 } // namespace
 
 template <>
-bool BindProperty(const skjson::Value& jv,
+bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const ScalarValue&)>&& apply,
-                  const ScalarValue* noop) {
-    return BindPropertyImpl(jv, ascope, std::move(apply), noop);
+                  const ScalarValue* noop) const {
+    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
 }
 
 template <>
-bool BindProperty(const skjson::Value& jv,
+bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const VectorValue&)>&& apply,
-                  const VectorValue* noop) {
+                  const VectorValue* noop) const {
     if (!jv.is<skjson::ObjectValue>())
         return false;
 
     return ParseDefault<bool>(jv.as<skjson::ObjectValue>()["s"], false)
-        ? BindSplitPositionProperty(jv, ascope, std::move(apply), noop)
-        : BindPropertyImpl(jv, ascope, std::move(apply), noop);
+        ? BindSplitPositionProperty(jv, this, ascope, std::move(apply), noop)
+        : BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
 }
 
 template <>
-bool BindProperty(const skjson::Value& jv,
+bool AnimationBuilder::bindProperty(const skjson::Value& jv,
                   AnimatorScope* ascope,
                   std::function<void(const ShapeValue&)>&& apply,
-                  const ShapeValue* noop) {
-    return BindPropertyImpl(jv, ascope, std::move(apply), noop);
+                  const ShapeValue* noop) const {
+    return BindPropertyImpl(jv, this, ascope, std::move(apply), noop);
 }
 
 } // namespace internal

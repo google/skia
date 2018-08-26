@@ -8,11 +8,19 @@
 #include "SkottieValue.h"
 
 #include "SkColor.h"
+#include "SkottieJson.h"
+#include "SkottiePriv.h"
 #include "SkNx.h"
 #include "SkPoint.h"
 #include "SkSize.h"
 
 namespace  skottie {
+
+template <>
+bool ValueTraits<ScalarValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
+                                        ScalarValue* v) {
+    return Parse(jv, v);
+}
 
 template <>
 bool ValueTraits<ScalarValue>::CanLerp(const ScalarValue&, const ScalarValue&) {
@@ -30,6 +38,12 @@ template <>
 template <>
 SkScalar ValueTraits<ScalarValue>::As<SkScalar>(const ScalarValue& v) {
     return v;
+}
+
+template <>
+bool ValueTraits<VectorValue>::FromJSON(const skjson::Value& jv, const internal::AnimationBuilder*,
+                                        VectorValue* v) {
+    return Parse(jv, v);
 }
 
 template <>
@@ -78,6 +92,67 @@ template <>
 SkSize ValueTraits<VectorValue>::As<SkSize>(const VectorValue& vec) {
     const auto pt = ValueTraits::As<SkPoint>(vec);
     return SkSize::Make(pt.x(), pt.y());
+}
+
+namespace {
+
+bool ParsePointVec(const skjson::Value& jv, std::vector<SkPoint>* pts) {
+    if (!jv.is<skjson::ArrayValue>())
+        return false;
+    const auto& av = jv.as<skjson::ArrayValue>();
+
+    pts->clear();
+    pts->reserve(av.size());
+
+    std::vector<float> vec;
+    for (size_t i = 0; i < av.size(); ++i) {
+        if (!Parse(av[i], &vec) || vec.size() != 2)
+            return false;
+        pts->push_back(SkPoint::Make(vec[0], vec[1]));
+    }
+
+    return true;
+}
+
+} // namespace
+
+template <>
+bool ValueTraits<ShapeValue>::FromJSON(const skjson::Value& jv,
+                                       const internal::AnimationBuilder* abuilder,
+                                       ShapeValue* v) {
+    SkASSERT(v->fVertices.empty());
+
+    // Some versions wrap values as single-element arrays.
+    if (const skjson::ArrayValue* av = jv) {
+        if (av->size() == 1) {
+            return FromJSON((*av)[0], abuilder, v);
+        }
+    }
+
+    if (!jv.is<skjson::ObjectValue>())
+        return false;
+    const auto& ov = jv.as<skjson::ObjectValue>();
+
+    std::vector<SkPoint> inPts,  // Cubic Bezier "in" control points, relative to vertices.
+                         outPts, // Cubic Bezier "out" control points, relative to vertices.
+                         verts;  // Cubic Bezier vertices.
+
+    if (!ParsePointVec(ov["i"], &inPts) ||
+        !ParsePointVec(ov["o"], &outPts) ||
+        !ParsePointVec(ov["v"], &verts) ||
+        inPts.size() != outPts.size() ||
+        inPts.size() != verts.size()) {
+
+        return false;
+    }
+
+    v->fVertices.reserve(inPts.size());
+    for (size_t i = 0; i < inPts.size(); ++i) {
+        v->fVertices.push_back(BezierVertex({inPts[i], outPts[i], verts[i]}));
+    }
+    v->fClosed = ParseDefault<bool>(ov["c"], false);
+
+    return true;
 }
 
 template <>
