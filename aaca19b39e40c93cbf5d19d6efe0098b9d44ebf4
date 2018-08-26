@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3527f4a4_9cf7bab7",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "This will be true if you want to play with Wuffs. I can make this default to false, if you want to land the code separately from enabling the code.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b74cb39d_eb8aeeb0",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "I can delete these BUILD.gn TODO-delete\u0027s if you want.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c36efd13_2b00e2d8",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "Happy to delete this TODO(scroggo) if you think it\u0027s resolved or obsolete.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b00d2dfe_86daa9a5",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "Happy to delete this TODO(scroggo) if you think it\u0027s resolved or obsolete.\n\nI changed SkWuffsGifCodec to manage its own stream (and pass a nullptr to the SkCodec constructor), so this doesn\u0027t bite me as much. Not sure if it\u0027s still generally something worth doing.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "11b0d0fe_c78aac60",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "Do I have to care about N32 being RGBA vs BGRA for Android??\n\nAgain, using a swizzler will fix this, but I\u0027m having troubles getting that to work.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ab0175d_046cbb16",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "Can you confirm that this is (setting *rowsDecoded if not nullptr) is supposed to be outside rather than inside the \"if (result \u003d\u003d SkCodec::kSuccess)\"? The tests certainly work with it and fail without it.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}

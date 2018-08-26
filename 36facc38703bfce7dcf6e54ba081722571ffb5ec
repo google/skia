@@ -375,6 +375,30 @@
     },
     {
       "key": {
+        "uuid": "64fb7c6d_c9bb44f5",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "Yeah, but the timing doesn\u0027t work:\n\n----\n\nUser calls SkCodec::startIncrementalDecode, which sets fStartedIncrementalDecode \u003d true\n\nUser calls SkCodec::incrementalDecode a first time, which needs fStartedIncrementalDecode \u003d\u003d true\n\nSkCodec::incrementalDecode calls SkWuffsGifCodec::onIncrementalDecode\n\nNow, if I call the superclass\u0027 SkCodec::rewindIfNeeded here, instead of just rewinding the stream myself, it\u0027ll set fStartedIncrementalDecode \u003d false\n\nUser calls SkCodec::incrementalDecode a second time, which needs fStartedIncrementalDecode \u003d\u003d true. Boom!\n\n----\n\nNot sure exactly what to do here, but I added a rambling TODO to SkCodec::rewindIfNeeded to not forget about it. :-)",
+      "parentUuid": "ad79b494_032c62a5",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "235799b3_51094f00",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -513,6 +537,30 @@
     },
     {
       "key": {
+        "uuid": "fbc22c4e_6e026173",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "I tried sprinkling some std::move\u0027s around, but was unable to drop the std::unique_ptr here. I\u0027ll try again in a (smaller) follow-up CL, or feel free to have a crack at this yourself. Maybe I\u0027m not just very good at modern C++. :-)",
+      "parentUuid": "162583be_2b91c9eb",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 69
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "54a9297f_406ce8ac",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 3
@@ -593,6 +641,30 @@
       "writtenOn": "2018-07-31T20:23:30Z",
       "side": 1,
       "message": "The test was added as a part of https://skia-review.googlesource.com/c/skia/+/106964.\n\nIt looks like the image has a valid header but is missing some LZW blocks. So I\u0027m surprised that the wuffs gif codec doesn\u0027t create a codec. (Unless the header is broken in some way that I missed?)",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b95eba57_278345f9",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "It has a valid header (Logical Screen Descriptor, in GIF spec terminology), but is followed by an invalid Graphic Control Extension, and in any case, there is no frame (Image Descriptor) after that invalid Graphic Control Extension.\n\nWhen Wuffs decodes overall image config, it also decodes the first frame config, in order to handle https://github.com/google/wuffs/blob/master/test/data/artificial/gif-frame-out-of-bounds.gif.make-artificial.txt\n\nThus, SkWuffsGifCodec.cpp\u0027s MakeFromStream returns a nullptr SkCodec*, even if the header is valid, because it\u0027s missing the first frame, and even before that, there\u0027s an invalid GCE.\n\nI added an annotated hex dump as a comment.",
+      "parentUuid": "1f2281af_7f47b6e0",
       "range": {
         "startLine": 1565,
         "startChar": 0,

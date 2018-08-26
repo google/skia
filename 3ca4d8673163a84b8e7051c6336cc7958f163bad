@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a12d907f_b3fbbf10",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-26T00:23:33Z",
+      "side": 1,
+      "message": "I tried using a swizzler in patch set 7 (the smallest diff is probably to patch set 8), but got into strife (nullptr crashes) without really knowing what I\u0027m doing.\n\nAre you OK with punting this to a follow up CL?",
+      "revId": "3ca4d8673163a84b8e7051c6336cc7958f163bad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
