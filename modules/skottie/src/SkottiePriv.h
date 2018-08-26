@@ -49,6 +49,30 @@ public:
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
+    // This is the workhorse for property binding: depending on whether the property is animated,
+    // it will either apply immediately or instantiate and attach a keyframe animator.
+    template <typename T>
+    bool bindProperty(const skjson::Value&,
+                      AnimatorScope*,
+                      std::function<void(const T&)>&&,
+                      const T* default_igore = nullptr) const;
+
+    template <typename T>
+    bool bindProperty(const skjson::Value& jv,
+                      AnimatorScope* ascope,
+                      std::function<void(const T&)>&& apply,
+                      const T& default_ignore) const {
+        return this->bindProperty(jv, ascope, std::move(apply), &default_ignore);
+    }
+
+    sk_sp<sksg::Color> attachColor(const skjson::ObjectValue&, AnimatorScope*,
+                                   const char prop_name[]) const;
+    sk_sp<sksg::Matrix> attachMatrix(const skjson::ObjectValue&, AnimatorScope*,
+                                     sk_sp<sksg::Matrix>) const;
+    sk_sp<sksg::RenderNode> attachOpacity(const skjson::ObjectValue&, AnimatorScope*,
+                                      sk_sp<sksg::RenderNode>) const;
+    sk_sp<sksg::Path> attachPath(const skjson::Value&, AnimatorScope*) const;
+
 private:
     struct AttachLayerContext;
 
@@ -56,24 +80,24 @@ private:
     void parseFonts (const skjson::ObjectValue* jfonts,
                      const skjson::ArrayValue* jchars);
 
-    sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*);
+    sk_sp<sksg::RenderNode> attachComposition(const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachLayer(const skjson::ObjectValue*, AttachLayerContext*) const;
     sk_sp<sksg::RenderNode> attachLayerEffects(const skjson::ArrayValue& jeffects, AnimatorScope*,
-                                               sk_sp<sksg::RenderNode>);
+                                               sk_sp<sksg::RenderNode>) const;
 
     sk_sp<sksg::RenderNode> attachAssetRef(const skjson::ObjectValue&, AnimatorScope*,
         sk_sp<sksg::RenderNode>(AnimationBuilder::*)(const skjson::ObjectValue&,
-                                                     AnimatorScope* ctx));
-    sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, AnimatorScope*);
+                                                     AnimatorScope* ctx) const) const;
+    sk_sp<sksg::RenderNode> attachImageAsset(const skjson::ObjectValue&, AnimatorScope*) const;
 
-    sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name, AnimatorScope* ascope);
+    sk_sp<sksg::RenderNode> attachNestedAnimation(const char* name, AnimatorScope* ascope) const;
 
-    sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*);
-    sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*);
+    sk_sp<sksg::RenderNode> attachImageLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachNullLayer   (const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachPrecompLayer(const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachShapeLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
+    sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*) const;
 
     sk_sp<ResourceProvider>    fResourceProvider;
     sk_sp<SkFontMgr>           fFontMgr;
@@ -100,19 +124,12 @@ private:
     using AssetCache = SkTHashMap<SkString, sk_sp<sksg::RenderNode>>;
     using FontMap    = SkTHashMap<SkString, FontInfo>;
 
-    AssetMap   fAssets;
-    AssetCache fAssetCache;
-    FontMap    fFonts;
+    AssetMap           fAssets;
+    FontMap            fFonts;
+    mutable AssetCache fAssetCache;
 
     using INHERITED = SkNoncopyable;
 };
-
-// Shared helpers
-sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue&, AnimatorScope*, const char prop_name[]);
-sk_sp<sksg::Path> AttachPath(const skjson::Value&, AnimatorScope*);
-sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue&, AnimatorScope*, sk_sp<sksg::Matrix>);
-sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue&, AnimatorScope*,
-                                      sk_sp<sksg::RenderNode>);
 
 } // namespace internal
 } // namespace skottie
