@@ -10,9 +10,13 @@
 #include "SkMatrix.h"
 #include "SkPath.h"
 #include "SkRRect.h"
+#include "SkSGColor.h"
+#include "SkSGDraw.h"
 #include "SkSGGradient.h"
+#include "SkSGGroup.h"
 #include "SkSGPath.h"
 #include "SkSGRect.h"
+#include "SkSGText.h"
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
 #include "SkTo.h"
@@ -167,6 +171,66 @@ void TrimEffectAdapter::apply() {
     fTrimEffect->setStart(startT);
     fTrimEffect->setStop(stopT);
     fTrimEffect->setMode(mode);
+}
+
+TextAdapter::TextAdapter(sk_sp<sksg::Group> root)
+    : fRoot(std::move(root))
+    , fTextNode(sksg::Text::Make(nullptr, SkString()))
+    , fFillColor(sksg::Color::Make(SK_ColorTRANSPARENT))
+    , fStrokeColor(sksg::Color::Make(SK_ColorTRANSPARENT))
+    , fFillNode(sksg::Draw::Make(fTextNode, fFillColor))
+    , fStrokeNode(sksg::Draw::Make(fTextNode, fStrokeColor))
+    , fHadFill(false)
+    , fHadStroke(false) {
+    // Build a SG fragment with the following general format:
+    //
+    // [Group]
+    //   [Draw]
+    //     [FillPaint]
+    //     [Text]*
+    //   [Draw]
+    //     [StrokePaint]
+    //     [Text]*
+    //
+    // * where the text node is shared
+
+    fTextNode->setFlags(fTextNode->getFlags() |
+                        SkPaint::kAntiAlias_Flag |
+                        SkPaint::kSubpixelText_Flag);
+    fTextNode->setHinting(SkPaint::kNo_Hinting);
+
+    fStrokeColor->setStyle(SkPaint::kStroke_Style);
+}
+
+void TextAdapter::apply() {
+    fTextNode->setTypeface(fText.fTypeface);
+    fTextNode->setText(fText.fText);
+    fTextNode->setSize(fText.fTextSize);
+    fTextNode->setAlign(fText.fAlign);
+
+    fFillColor->setColor(fText.fFillColor);
+    fStrokeColor->setColor(fText.fStrokeColor);
+    fStrokeColor->setStrokeWidth(fText.fStrokeWidth);
+
+    static constexpr auto sync_topology = [] (const sk_sp<sksg::Group>& container,
+                                              sk_sp<sksg::Draw> child,
+                                              bool is_present, bool was_present) {
+        if (is_present == was_present) {
+            return;
+        }
+
+        if (is_present) {
+            container->addChild(std::move(child));
+        } else {
+            container->removeChild(child);
+        }
+    };
+
+    sync_topology(fRoot, fFillNode, fText.fHasFill, fHadFill);
+    sync_topology(fRoot, fStrokeNode, fText.fHasStroke, fHadStroke);
+
+    fHadFill = fText.fHasFill;
+    fHadStroke= fText.fHasStroke;
 }
 
 } // namespace skottie
