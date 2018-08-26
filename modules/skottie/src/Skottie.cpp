@@ -25,7 +25,6 @@
 #include "SkTime.h"
 #include "SkTo.h"
 #include "SkottieAdapter.h"
-#include "SkottieAnimator.h"
 #include "SkottieJson.h"
 #include "SkottiePriv.h"
 #include "SkottieValue.h"
@@ -43,23 +42,24 @@ void LogJSON(const skjson::Value& json, const char msg[]) {
     LOG("%s: %s\n", msg, dump.c_str());
 }
 
-sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AnimatorScope* ascope,
-                                 sk_sp<sksg::Matrix> parentMatrix) {
+sk_sp<sksg::Matrix> AnimationBuilder::attachMatrix(const skjson::ObjectValue& t,
+                                                   AnimatorScope* ascope,
+                                                   sk_sp<sksg::Matrix> parentMatrix) const {
     static const VectorValue g_default_vec_0   = {  0,   0},
                              g_default_vec_100 = {100, 100};
 
     auto matrix = sksg::Matrix::Make(SkMatrix::I(), parentMatrix);
     auto adapter = sk_make_sp<TransformAdapter>(matrix);
 
-    auto bound = BindProperty<VectorValue>(t["a"], ascope,
+    auto bound = this->bindProperty<VectorValue>(t["a"], ascope,
             [adapter](const VectorValue& a) {
                 adapter->setAnchorPoint(ValueTraits<VectorValue>::As<SkPoint>(a));
             }, g_default_vec_0);
-    bound |= BindProperty<VectorValue>(t["p"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["p"], ascope,
             [adapter](const VectorValue& p) {
                 adapter->setPosition(ValueTraits<VectorValue>::As<SkPoint>(p));
             }, g_default_vec_0);
-    bound |= BindProperty<VectorValue>(t["s"], ascope,
+    bound |= this->bindProperty<VectorValue>(t["s"], ascope,
             [adapter](const VectorValue& s) {
                 adapter->setScale(ValueTraits<VectorValue>::As<SkVector>(s));
             }, g_default_vec_100);
@@ -70,15 +70,15 @@ sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AnimatorScope* as
         // we can still make use of rz.
         jrotation = &t["rz"];
     }
-    bound |= BindProperty<ScalarValue>(*jrotation, ascope,
+    bound |= this->bindProperty<ScalarValue>(*jrotation, ascope,
             [adapter](const ScalarValue& r) {
                 adapter->setRotation(r);
             }, 0.0f);
-    bound |= BindProperty<ScalarValue>(t["sk"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["sk"], ascope,
             [adapter](const ScalarValue& sk) {
                 adapter->setSkew(sk);
             }, 0.0f);
-    bound |= BindProperty<ScalarValue>(t["sa"], ascope,
+    bound |= this->bindProperty<ScalarValue>(t["sa"], ascope,
             [adapter](const ScalarValue& sa) {
                 adapter->setSkewAxis(sa);
             }, 0.0f);
@@ -86,14 +86,15 @@ sk_sp<sksg::Matrix> AttachMatrix(const skjson::ObjectValue& t, AnimatorScope* as
     return bound ? matrix : parentMatrix;
 }
 
-sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, AnimatorScope* ascope,
-                                      sk_sp<sksg::RenderNode> childNode) {
+sk_sp<sksg::RenderNode> AnimationBuilder::attachOpacity(const skjson::ObjectValue& jtransform,
+                                                        AnimatorScope* ascope,
+                                                        sk_sp<sksg::RenderNode> childNode) const {
     if (!childNode)
         return nullptr;
 
     auto opacityNode = sksg::OpacityEffect::Make(childNode);
 
-    if (!BindProperty<ScalarValue>(jtransform["o"], ascope,
+    if (!this->bindProperty<ScalarValue>(jtransform["o"], ascope,
         [opacityNode](const ScalarValue& o) {
             // BM opacity is [0..100]
             opacityNode->setOpacity(o * 0.01f);
@@ -105,9 +106,10 @@ sk_sp<sksg::RenderNode> AttachOpacity(const skjson::ObjectValue& jtransform, Ani
     return std::move(opacityNode);
 }
 
-sk_sp<sksg::Path> AttachPath(const skjson::Value& jpath, AnimatorScope* ascope) {
+sk_sp<sksg::Path> AnimationBuilder::attachPath(const skjson::Value& jpath,
+                                               AnimatorScope* ascope) const {
     auto path_node = sksg::Path::Make();
-    return BindProperty<ShapeValue>(jpath, ascope,
+    return this->bindProperty<ShapeValue>(jpath, ascope,
         [path_node](const ShapeValue& p) {
             // FillType is tracked in the SG node, not in keyframes -- make sure we preserve it.
             auto path = ValueTraits<ShapeValue>::As<SkPath>(p);
@@ -118,10 +120,11 @@ sk_sp<sksg::Path> AttachPath(const skjson::Value& jpath, AnimatorScope* ascope) 
         : nullptr;
 }
 
-sk_sp<sksg::Color> AttachColor(const skjson::ObjectValue& jcolor, AnimatorScope* ascope,
-                               const char prop_name[]) {
+sk_sp<sksg::Color> AnimationBuilder::attachColor(const skjson::ObjectValue& jcolor,
+                                                 AnimatorScope* ascope,
+                                                 const char prop_name[]) const {
     auto color_node = sksg::Color::Make(SK_ColorBLACK);
-    BindProperty<VectorValue>(jcolor[prop_name], ascope,
+    this->bindProperty<VectorValue>(jcolor[prop_name], ascope,
         [color_node](const VectorValue& c) {
             color_node->setColor(ValueTraits<VectorValue>::As<SkColor>(c));
         });

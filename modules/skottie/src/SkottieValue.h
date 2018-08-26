@@ -13,10 +13,17 @@
 
 #include <vector>
 
-namespace  skottie {
+namespace skjson { class Value; }
+
+namespace skottie {
+namespace internal {
+class AnimationBuilder;
+} // namespace internal
 
 template <typename T>
 struct ValueTraits {
+    static bool FromJSON(const skjson::Value&, const internal::AnimationBuilder*, T*);
+
     template <typename U>
     static U As(const T&);
 
