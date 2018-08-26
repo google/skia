@@ -88,35 +88,35 @@ protected:
                 fRecs.back().t1 = t0;
             }
 
-            const auto vidx0 = this->parseValue((*jframe)["s"], abuilder);
-            if (vidx0 < 0)
+            // Required start value.
+            const auto v0_idx = this->parseValue((*jframe)["s"], abuilder);
+            if (v0_idx < 0)
                 continue;
 
-            // Defaults for constant frames.
-            int vidx1 = vidx0, cmidx = -1;
-
-            if (!ParseDefault<bool>((*jframe)["h"], false)) {
-                // Regular frame, requires an end value.
-                vidx1 = this->parseValue((*jframe)["e"], abuilder);
-                if (vidx1 < 0)
-                    continue;
-
-                // default is linear lerp
-                static constexpr SkPoint kDefaultC0 = { 0, 0 },
-                                         kDefaultC1 = { 1, 1 };
-                const auto c0 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC0),
-                           c1 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC1);
-
-                if (c0 != kDefaultC0 || c1 != kDefaultC1) {
-                    // TODO: is it worth de-duping these?
-                    cmidx = fCubicMaps.count();
-                    fCubicMaps.emplace_back();
-                    // TODO: why do we have to plug these inverted?
-                    fCubicMaps.back().setPts(c1, c0);
-                }
+            // Optional end value.
+            const auto v1_idx = this->parseValue((*jframe)["e"], abuilder);
+            if (v1_idx < 0) {
+                // Constant keyframe.
+                fRecs.push_back({t0, t0, v0_idx, v0_idx, -1 });
+                continue;
             }
 
-            fRecs.push_back({t0, t0, vidx0, vidx1, cmidx });
+            // default is linear lerp
+            static constexpr SkPoint kDefaultC0 = { 0, 0 },
+                                     kDefaultC1 = { 1, 1 };
+            const auto c0 = ParseDefault<SkPoint>((*jframe)["i"], kDefaultC0),
+                       c1 = ParseDefault<SkPoint>((*jframe)["o"], kDefaultC1);
+
+            int cm_idx = -1;
+            if (c0 != kDefaultC0 || c1 != kDefaultC1) {
+                // TODO: is it worth de-duping these?
+                cm_idx = fCubicMaps.count();
+                fCubicMaps.emplace_back();
+                // TODO: why do we have to plug these inverted?
+                fCubicMaps.back().setPts(c1, c0);
+            }
+
+            fRecs.push_back({t0, t0, v0_idx, v1_idx, cm_idx });
         }
 
         // If we couldn't determine a valid t1 for the last frame, discard it.
