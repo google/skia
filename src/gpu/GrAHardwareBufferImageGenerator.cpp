@@ -29,19 +29,6 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
-class BufferCleanupHelper {
-public:
-    BufferCleanupHelper(EGLImageKHR image, EGLDisplay display)
-        : fImage(image)
-        , fDisplay(display) { }
-    ~BufferCleanupHelper() {
-        eglDestroyImageKHR(fDisplay, fImage);
-    }
-private:
-    EGLImageKHR fImage;
-    EGLDisplay fDisplay;
-};
-
 std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     AHardwareBuffer_Desc bufferDesc;
@@ -88,11 +75,6 @@ void GrAHardwareBufferImageGenerator::clear() {
     }
 }
 
-void GrAHardwareBufferImageGenerator::deleteImageTexture(void* context) {
-    BufferCleanupHelper* cleanupHelper = static_cast<BufferCleanupHelper*>(context);
-    delete cleanupHelper;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
@@ -104,7 +86,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
 
     bool makingASubset = true;
     if (0 == origin.fX && 0 == origin.fY &&
-            info.width() == getInfo().width() && info.height() == getInfo().height()) {
+            info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
         makingASubset = false;
         if (!willNeedMipMaps || GrMipMapped::kYes == proxy->mipMapped()) {
             // If the caller wants the full texture and we have the correct mip support, we're done
@@ -142,6 +124,104 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
     return texProxy;
 }
 
+class BufferCleanupHelper {
+public:
+    BufferCleanupHelper(EGLImageKHR image, EGLDisplay display)
+        : fImage(image)
+        , fDisplay(display) { }
+    ~BufferCleanupHelper() {
+        eglDestroyImageKHR(fDisplay, fImage);
+    }
+private:
+    EGLImageKHR fImage;
+    EGLDisplay fDisplay;
+};
+
+
+void GrAHardwareBufferImageGenerator::DeleteEGLImage(void* context) {
+    BufferCleanupHelper* cleanupHelper = static_cast<BufferCleanupHelper*>(context);
+    delete cleanupHelper;
+}
+
+static GrBackendTexture make_gl_backend_texture(
+        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        int width, int height,
+        GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
+    while (GL_NO_ERROR != glGetError()) {} //clear GL errors
+
+    EGLClientBuffer  clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
+    EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
+                         EGL_NONE };
+    EGLDisplay display = eglGetCurrentDisplay();
+    EGLImageKHR image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
+                                          clientBuffer, attribs);
+    if (EGL_NO_IMAGE_KHR == image) {
+        SkDebugf("Could not create EGL image, err = (%#x)", (int) eglGetError() );
+        return GrBackendTexture();
+    }
+
+    GrGLuint texID;
+    glGenTextures(1, &texID);
+    if (!texID) {
+        eglDestroyImageKHR(display, image);
+        return GrBackendTexture();
+    }
+    glBindTexture(GL_TEXTURE_EXTERNAL_OES, texID);
+    GLenum status = GL_NO_ERROR;
+    if ((status = glGetError()) != GL_NO_ERROR) {
+        SkDebugf("glBindTexture failed (%#x)", (int) status);
+        glDeleteTextures(1, &texID);
+        eglDestroyImageKHR(display, image);
+        return GrBackendTexture();
+    }
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
+    if ((status = glGetError()) != GL_NO_ERROR) {
+        SkDebugf("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
+        glDeleteTextures(1, &texID);
+        eglDestroyImageKHR(display, image);
+        return GrBackendTexture();
+    }
+    context->resetContext(kTextureBinding_GrGLBackendState);
+
+    GrGLTextureInfo textureInfo;
+    textureInfo.fTarget = GL_TEXTURE_EXTERNAL_OES;
+    textureInfo.fID = texID;
+
+    *deleteProc = GrAHardwareBufferImageGenerator::DeleteEGLImage;
+    *deleteCtx = new BufferCleanupHelper(image, display);
+
+    return GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
+}
+
+static GrBackendTexture make_backend_texture(
+        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        int width, int height,
+        GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
+    if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
+        // Check if GrContext is not abandoned and the backend is GL.
+        return GrBackendTexture();
+    }
+    return make_gl_backend_texture(context, hardwareBuffer, width, height, deleteProc, deleteCtx);
+}
+
+static void free_backend_texture(GrBackendTexture* backendTexture) {
+    SkASSERT(backendTexture && backendTexture->isValid());
+
+    switch (backendTexture->backend()) {
+        case kOpenGL_GrBackend: {
+            GrGLTextureInfo texInfo;
+            SkAssertResult(backendTexture->getGLTextureInfo(&texInfo));
+            glDeleteTextures(1, &texInfo.fID);
+            return;
+        }
+        case kVulkan_GrBackend: // fall through
+        default:
+            return;
+    }
+}
+
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
@@ -156,81 +236,46 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
                                             kTopLeft_GrSurfaceOrigin);
     }
 
-    while (GL_NO_ERROR != glGetError()) {} //clear GL errors
-
-    EGLClientBuffer  clientBuffer = eglGetNativeClientBufferANDROID(fGraphicBuffer);
-    EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
-                         EGL_NONE };
-    EGLDisplay display = eglGetCurrentDisplay();
-    EGLImageKHR image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
-                                          clientBuffer, attribs);
-    if (EGL_NO_IMAGE_KHR == image) {
-        SkDebugf("Could not create EGL image, err = (%#x)", (int) eglGetError() );
-        return nullptr;
-    }
-    GrGLuint texID;
-    glGenTextures(1, &texID);
-    if (!texID) {
-        eglDestroyImageKHR(display, image);
-        return nullptr;
-    }
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, texID);
-    GLenum status = GL_NO_ERROR;
-    if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glBindTexture failed (%#x)", (int) status);
-        glDeleteTextures(1, &texID);
-        eglDestroyImageKHR(display, image);
-        return nullptr;
-    }
-    glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
-    if ((status = glGetError()) != GL_NO_ERROR) {
-        SkDebugf("glEGLImageTargetTexture2DOES failed (%#x)", (int) status);
-        glDeleteTextures(1, &texID);
-        eglDestroyImageKHR(display, image);
-        return nullptr;
-    }
-    context->resetContext(kTextureBinding_GrGLBackendState);
-
-    GrGLTextureInfo textureInfo;
-    textureInfo.fTarget = GL_TEXTURE_EXTERNAL_OES;
-    textureInfo.fID = texID;
-
     GrPixelConfig pixelConfig;
-    switch (getInfo().colorType()) {
-    case kRGBA_8888_SkColorType:
-        pixelConfig = kRGBA_8888_GrPixelConfig;
-        break;
-    case kRGBA_F16_SkColorType:
-        pixelConfig = kRGBA_half_GrPixelConfig;
-        break;
-    case kRGB_565_SkColorType:
-        pixelConfig = kRGB_565_GrPixelConfig;
-        break;
-    default:
-        glDeleteTextures(1, &texID);
-        eglDestroyImageKHR(display, image);
-        return nullptr;
+    switch (this->getInfo().colorType()) {
+        case kRGBA_8888_SkColorType:
+            pixelConfig = kRGBA_8888_GrPixelConfig;
+            break;
+        case kRGBA_F16_SkColorType:
+            pixelConfig = kRGBA_half_GrPixelConfig;
+            break;
+        case kRGB_565_SkColorType:
+            pixelConfig = kRGB_565_GrPixelConfig;
+            break;
+        default:
+            return nullptr;
     }
 
-    GrBackendTexture backendTex(getInfo().width(), getInfo().height(), GrMipMapped::kNo,
-                                textureInfo);
-    if (backendTex.width() <= 0 || backendTex.height() <= 0) {
-        glDeleteTextures(1, &texID);
-        eglDestroyImageKHR(display, image);
+    DeleteImageProc deleteImageProc = nullptr;
+    DeleteImageCtx deleteImageCtx = nullptr;
+
+    GrBackendTexture backendTex = make_backend_texture(context, fGraphicBuffer,
+                                                       this->getInfo().width(),
+                                                       this->getInfo().height(),
+                                                       &deleteImageProc,
+                                                       &deleteImageCtx);
+
+    if (!backendTex.isValid()) {
         return nullptr;
     }
+    SkASSERT(deleteImageProc && deleteImageCtx);
     backendTex.fConfig = pixelConfig;
     sk_sp<GrTexture> tex = context->contextPriv().resourceProvider()->wrapBackendTexture(
                                                         backendTex, kAdopt_GrWrapOwnership);
     if (!tex) {
-        glDeleteTextures(1, &texID);
-        eglDestroyImageKHR(display, image);
+        free_backend_texture(&backendTex);
+        deleteImageProc(deleteImageCtx);
         return nullptr;
     }
-    sk_sp<GrReleaseProcHelper> releaseHelper(
-            new GrReleaseProcHelper(deleteImageTexture, new BufferCleanupHelper(image, display)));
 
-    tex->setRelease(std::move(releaseHelper));
+    sk_sp<GrReleaseProcHelper> releaseProcHelper(
+                        new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
+    tex->setRelease(std::move(releaseProcHelper));
 
     // We fail this assert, if the context has changed. This will be fully handled after
     // skbug.com/6812 is ready.
