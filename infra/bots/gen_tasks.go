@@ -314,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -542,9 +542,9 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					"GTX1070":       "10de:1ba1-24.21.13.9882",
 					"GTX660":        "10de:11c0-24.21.13.9882",
 					"GTX960":        "10de:1401-24.21.13.9882",
-					"IntelHD4400":   "8086:0a16-20.19.15.4835",
-					"IntelIris540":  "8086:1926-23.20.16.4982",
-					"IntelIris6100": "8086:162b-20.19.15.4835",
+					"IntelHD4400":   "8086:0a16-20.19.15.4963",
+					"IntelIris540":  "8086:1926-24.20.100.6229",
+					"IntelIris6100": "8086:162b-20.19.15.4963",
 					"RadeonHD7770":  "1002:683d-23.20.15033.5003",
 					"RadeonR9M470X": "1002:6646-23.20.15033.5003",
 					"QuadroP400":    "10de:1cb3-23.21.13.9103",
