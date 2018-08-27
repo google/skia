@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1389825_fa370e85",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T20:48:38Z",
+      "side": 1,
+      "message": "we name static functions as has_egl_protected_content_impl. This function seems to be more about does it have the extension. The name of the function seems to suggest its checking if there is protected content.",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d561862a_2d9b11fa",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T20:48:38Z",
+      "side": 1,
+      "message": "ditto on static name.",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 34
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3aa2bc58_f88c77fc",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T20:48:38Z",
+      "side": 1,
+      "message": "Not a big fan of this being up in the factory. I\u0027ve refactored all the code so all the EGL specific stuff is separate from any generic and future vulkan code.\n\nAlternatively, which may be better since I imagine Vulkan will have protected stuff, you can make it a generic \"supportsProtectedContent(GrContext*)\" which internal checks which GrBackend we are using from the GrContext and then calls the appropriate helper for that backend. In Vulkan we will also need to get the GrVkCaps off the GrContext which is why I suggest passing that in the call. Also it is probably best to check this in the onGenerate call where we actually have access to the GrContext.",
+      "range": {
+        "startLine": 76,
+        "startChar": 34,
+        "endLine": 76,
+        "endChar": 59
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
