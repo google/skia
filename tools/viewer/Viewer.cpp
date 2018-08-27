@@ -985,43 +985,40 @@ public:
     OveridePaintFilterCanvas(SkCanvas* canvas, SkPaint* paint, Viewer::SkPaintFields* fields)
         : SkPaintFilterCanvas(canvas), fPaint(paint), fPaintOverrides(fields)
     { }
-    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
-        if (*paint == nullptr) {
-            return true;
-        }
+    bool onFilter(Paint& paint, Type) const override {
         if (fPaintOverrides->fTextSize) {
-            paint->writable()->setTextSize(fPaint->getTextSize());
+            paint.writable().setTextSize(fPaint->getTextSize());
         }
         if (fPaintOverrides->fHinting) {
-            paint->writable()->setHinting(fPaint->getHinting());
+            paint.writable().setHinting(fPaint->getHinting());
         }
 
         if (fPaintOverrides->fFlags & SkPaint::kAntiAlias_Flag) {
-            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
+            paint.writable().setAntiAlias(fPaint->isAntiAlias());
         }
         if (fPaintOverrides->fFlags & SkPaint::kDither_Flag) {
-            paint->writable()->setDither(fPaint->isDither());
+            paint.writable().setDither(fPaint->isDither());
         }
         if (fPaintOverrides->fFlags & SkPaint::kFakeBoldText_Flag) {
-            paint->writable()->setFakeBoldText(fPaint->isFakeBoldText());
+            paint.writable().setFakeBoldText(fPaint->isFakeBoldText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kLinearText_Flag) {
-            paint->writable()->setLinearText(fPaint->isLinearText());
+            paint.writable().setLinearText(fPaint->isLinearText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kSubpixelText_Flag) {
-            paint->writable()->setSubpixelText(fPaint->isSubpixelText());
+            paint.writable().setSubpixelText(fPaint->isSubpixelText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kLCDRenderText_Flag) {
-            paint->writable()->setLCDRenderText(fPaint->isLCDRenderText());
+            paint.writable().setLCDRenderText(fPaint->isLCDRenderText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kEmbeddedBitmapText_Flag) {
-            paint->writable()->setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
+            paint.writable().setEmbeddedBitmapText(fPaint->isEmbeddedBitmapText());
         }
         if (fPaintOverrides->fFlags & SkPaint::kAutoHinting_Flag) {
-            paint->writable()->setAutohinted(fPaint->isAutohinted());
+            paint.writable().setAutohinted(fPaint->isAutohinted());
         }
         if (fPaintOverrides->fFlags & SkPaint::kVerticalText_Flag) {
-            paint->writable()->setVerticalText(fPaint->isVerticalText());
+            paint.writable().setVerticalText(fPaint->isVerticalText());
         }
 
         return true;
