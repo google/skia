@@ -191,6 +191,24 @@
     },
     {
       "key": {
+        "uuid": "92781b7b_4b4092f1",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-08-27T03:29:10Z",
+      "side": 1,
+      "message": "Yes, the differences between two Impl functions are creation of GrRenderTargetContext and whether return budgeted skImage.\nShall we add a sk_sp\u003cGrRenderTargetContext\u003e in MakeFromYUVATexturesCopyImpl function\u0027s parameter lists and set it default to nullptr ?  So we can reuse the remain codes.",
+      "parentUuid": "5d4ee82a_22162c6c",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "73338219_157ffec3",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 2
