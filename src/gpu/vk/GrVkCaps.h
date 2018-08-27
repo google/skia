@@ -115,6 +115,16 @@ public:
     bool supportsMaintenance2() const { return fSupportsMaintenance2; }
     bool supportsMaintenance3() const { return fSupportsMaintenance3; }
 
+    // Returns true if the device supports passing in a flag to say we are using dedicated GPU when
+    // allocating memory. For some devices this allows them to return more optimized memory knowning
+    // they will never need to suballocate amonst multiple objects.
+    bool supportsDedicatedAllocation() const { return fSupportsDedicatedAllocation; }
+
+    // Returns true if the device supports importing of external memory into Vulkan memory.
+    bool supportsExternalMemory() const { return fSupportsExternalMemory; }
+    // Returns true if the device supports importing Android hardware buffers into Vulkan memory.
+    bool supportsAndroidHWBExternalMemory() const { return fSupportsAndroidHWBExternalMemory; }
+
     /**
      * Helpers used by canCopySurface. In all cases if the SampleCnt parameter is zero that means
      * the surface is not a render target, otherwise it is the number of samples in the render
@@ -201,17 +211,21 @@ private:
 
     StencilFormat fPreferedStencilFormat;
 
-    bool fMustDoCopiesFromOrigin;
-    bool fMustSubmitCommandsBeforeCopyOp;
-    bool fMustSleepOnTearDown;
-    bool fNewCBOnPipelineChange;
-    bool fShouldAlwaysUseDedicatedImageMemory;
+    bool fMustDoCopiesFromOrigin = false;
+    bool fMustSubmitCommandsBeforeCopyOp = false;
+    bool fMustSleepOnTearDown = false;
+    bool fNewCBOnPipelineChange = false;
+    bool fShouldAlwaysUseDedicatedImageMemory = false;
 
-    bool fSupportsPhysicalDeviceProperties2;
-    bool fSupportsMemoryRequirements2;
-    bool fSupportsMaintenance1;
-    bool fSupportsMaintenance2;
-    bool fSupportsMaintenance3;
+    bool fSupportsPhysicalDeviceProperties2 = false;
+    bool fSupportsMemoryRequirements2 = false;
+    bool fSupportsMaintenance1 = false;
+    bool fSupportsMaintenance2 = false;
+    bool fSupportsMaintenance3 = false;
+
+    bool fSupportsDedicatedAllocation = false;
+    bool fSupportsExternalMemory = false;
+    bool fSupportsAndroidHWBExternalMemory = false;
 
     typedef GrCaps INHERITED;
 };
