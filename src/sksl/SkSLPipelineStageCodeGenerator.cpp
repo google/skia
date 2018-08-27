@@ -76,6 +76,39 @@ void PipelineStageCodeGenerator::writeBinaryExpression(const BinaryExpression& b
     }
 }
 
+void PipelineStageCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
+        SkASSERT(c.fArguments.size() == 1);
+        SkASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
+        int index = 0;
+        bool found = false;
+        for (const auto& p : fProgram) {
+            if (ProgramElement::kVar_Kind == p.fKind) {
+                const VarDeclarations& decls = (const VarDeclarations&) p;
+                for (const auto& raw : decls.fVars) {
+                    VarDeclaration& decl = (VarDeclaration&) *raw;
+                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
+                        found = true;
+                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                        ++index;
+                    }
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        SkASSERT(found);
+        fExtraEmitCodeCode += "        this->emitChild(" + to_string(index) + ", fChildren[" +
+                              to_string(index) + "], args);\n";
+        this->write("%s");
+        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kChildProcessor,
+                                                   index));
+        return;
+    }
+    INHERITED::writeFunctionCall(c);
+}
+
 void PipelineStageCodeGenerator::writeIntLiteral(const IntLiteral& i) {
     this->write(to_string((int32_t) i.fValue));
 }
@@ -84,11 +117,11 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg::kInput);
+            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
             break;
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs->push_back(Compiler::FormatArg::kOutput);
+            fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
             break;
         case SK_MAIN_X_BUILTIN:
             this->write("sk_FragCoord.x");
@@ -97,7 +130,36 @@ void PipelineStageCodeGenerator::writeVariableReference(const VariableReference&
             this->write("sk_FragCoord.y");
             break;
         default:
-            this->write(ref.fVariable.fName);
+            if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
+                this->write("%s");
+                int index = 0;
+                bool found = false;
+                for (const auto& e : fProgram) {
+                    if (found) {
+                        break;
+                    }
+                    if (e.fKind == ProgramElement::Kind::kVar_Kind) {
+                        const VarDeclarations& decls = (const VarDeclarations&) e;
+                        for (const auto& decl : decls.fVars) {
+                            const Variable& var = *((VarDeclaration&) *decl).fVar;
+                            if (&var == &ref.fVariable) {
+                                found = true;
+                                break;
+                            }
+                            if (var.fModifiers.fFlags & (Modifiers::kIn_Flag |
+                                                         Modifiers::kUniform_Flag)) {
+                                ++index;
+                            }
+                        }
+                    }
+                }
+                SkASSERT(found);
+                fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kUniform,
+                                                           index));
+            }
+            else {
+                this->write(ref.fVariable.fName);
+            }
     }
 }
 
@@ -122,8 +184,8 @@ void PipelineStageCodeGenerator::writeFunction(const FunctionDefinition& f) {
         StringStream buffer;
         fOut = &buffer;
         this->write("%s = %s;\n");
-        fFormatArgs->push_back(Compiler::FormatArg::kOutput);
-        fFormatArgs->push_back(Compiler::FormatArg::kInput);
+        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kOutput));
+        fFormatArgs->push_back(Compiler::FormatArg(Compiler::FormatArg::Kind::kInput));
         for (const auto& s : ((Block&) *f.fBody).fStatements) {
             this->writeStatement(*s);
             this->writeLine();

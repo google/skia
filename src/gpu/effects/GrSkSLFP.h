@@ -60,7 +60,7 @@ public:
      * 'NewIndex()'. Each given SkSL string should have a single, statically defined index
      * associated with it.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(
+    static std::unique_ptr<GrSkSLFP> Make(
                    GrContext* context,
                    int index,
                    const char* name,
@@ -69,6 +69,8 @@ public:
                    size_t inputSize);
 
     const char* name() const override;
+
+    void addChild(std::unique_ptr<GrFragmentProcessor> child);
 
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
@@ -107,6 +109,8 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
+
+    friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
 };
