@@ -71,7 +71,7 @@ static void setup_src_bitmaps(SkBitmap* srcOpaque, SkBitmap* srcPremul,
                               SkColorType ct) {
     sk_sp<SkColorSpace> colorSpace = nullptr;
     if (kRGBA_F16_SkColorType == ct) {
-        colorSpace = SkColorSpace::MakeSRGBLinear();
+        colorSpace = SkColorSpace::MakeSRGB();
     }
 
     srcOpaque->allocPixels(SkImageInfo::Make(W, H, ct, kOpaque_SkAlphaType, colorSpace));
