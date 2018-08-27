@@ -11,6 +11,7 @@
 #include "SkSurface.h"
 
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrTest.h"
 #include "Test.h"
 
@@ -29,10 +30,7 @@ static sk_sp<SkSurface> make_surface(GrContext* context) {
                                        kBottomLeft_GrSurfaceOrigin, nullptr);
 }
 
-// Tests that readPixels returns up-to-date results. Demonstrates a bug on Galaxy S6
-// (Mali T760), in MSAA mode.
-DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
-    GrContext* ctx = ctxInfo.grContext();
+static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter) {
     SkRect rect = SkRect::MakeWH(50, 50);
 
     SkPaint paint;
@@ -93,4 +91,19 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
 
         REPORTER_ASSERT(reporter, match);
     }
+}
+
+// Tests that readPixels returns up-to-date results. This has failed on several GPUs,
+// from multiple vendors, in MSAA mode.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
+    GrContext* ctx = ctxInfo.grContext();
+    test_bug_6653(ctx, reporter);
+}
+
+// Same as above, but without explicit resource allocation.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653_noExplicitResourceAllocation, reporter, ctxInfo) {
+    GrContext* ctx = ctxInfo.grContext();
+    ctx->flush();
+    ctx->contextPriv().resourceProvider()->testingOnly_setExplicitlyAllocateGPUResources(false);
+    test_bug_6653(ctx, reporter);
 }
