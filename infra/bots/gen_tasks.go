@@ -34,11 +34,12 @@ const (
 	ISOLATE_GCLOUD_LINUX_NAME   = "Housekeeper-PerCommit-IsolateGCloudLinux"
 	ISOLATE_GO_DEPS_NAME        = "Housekeeper-PerCommit-IsolateGoDeps"
 	ISOLATE_GO_LINUX_NAME       = "Housekeeper-PerCommit-IsolateGoLinux"
+	ISOLATE_LOTTIE_FILES_NAME   = "Housekeeper-PerCommit-IsolateLottieFiles"
+	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
+	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_SKIMAGE_NAME        = "Housekeeper-PerCommit-IsolateSkImage"
 	ISOLATE_SKP_NAME            = "Housekeeper-PerCommit-IsolateSKP"
 	ISOLATE_SVG_NAME            = "Housekeeper-PerCommit-IsolateSVG"
-	ISOLATE_NDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidNDKLinux"
-	ISOLATE_SDK_LINUX_NAME      = "Housekeeper-PerCommit-IsolateAndroidSDKLinux"
 	ISOLATE_WIN_TOOLCHAIN_NAME  = "Housekeeper-PerCommit-IsolateWinToolchain"
 	ISOLATE_WIN_VULKAN_SDK_NAME = "Housekeeper-PerCommit-IsolateWinVulkanSDK"
 
@@ -705,6 +706,10 @@ var ISOLATE_ASSET_MAPPING = map[string]isolateAssetCfg{
 		cipdPkg: "svg",
 		path:    "svg",
 	},
+	ISOLATE_LOTTIE_FILES_NAME: {
+		cipdPkg: "lottie-samples",
+		path:    "lottie-samples",
+	},
 	ISOLATE_NDK_LINUX_NAME: {
 		cipdPkg: "android_ndk_linux",
 		path:    "android_ndk_linux",
@@ -1044,6 +1049,8 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		recipe = "compute_test"
 	} else if strings.Contains(name, "PathKit") {
 		recipe = "test_pathkit"
+	} else if strings.Contains(name, "LottieWeb") {
+		recipe = "test_lottie_web"
 	}
 	extraProps := map[string]string{
 		"gold_hashes_url": CONFIG.GoldHashesURL,
@@ -1053,15 +1060,19 @@ func test(b *specs.TasksCfgBuilder, name string, parts map[string]string, compil
 		extraProps["internal_hardware_label"] = strconv.Itoa(*iid)
 	}
 	isolate := "test_skia_bundled.isolate"
-	if strings.Contains(name, "PathKit") {
+	if strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") {
 		isolate = "swarm_recipe.isolate"
 	}
 	task := kitchenTask(name, recipe, isolate, "", swarmDimensions(parts), extraProps, OUTPUT_TEST)
 	task.CipdPackages = append(task.CipdPackages, pkgs...)
 	if strings.Contains(name, "Lottie") {
-		task.CipdPackages = append(task.CipdPackages, b.MustGetCipdPackageFromAsset("lottie-samples"))
+		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_LOTTIE_FILES_NAME))
 	}
-	task.Dependencies = append(task.Dependencies, compileTaskName)
+	if !strings.Contains(name, "LottieWeb") {
+		// Test.+LottieWeb doesn't require anything in Skia to be compiled.
+		task.Dependencies = append(task.Dependencies, compileTaskName)
+	}
+
 	if strings.Contains(name, "Android_ASAN") {
 		task.Dependencies = append(task.Dependencies, isolateCIPDAsset(b, ISOLATE_NDK_LINUX_NAME))
 	}
@@ -1302,7 +1313,8 @@ func process(b *specs.TasksCfgBuilder, name string) {
 		!strings.Contains(name, "Android_Framework") &&
 		!strings.Contains(name, "RecreateSKPs") &&
 		!strings.Contains(name, "-CT_") &&
-		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") {
+		!strings.Contains(name, "Housekeeper-PerCommit-Isolate") &&
+		!strings.Contains(name, "LottieWeb") {
 		compile(b, compileTaskName, compileTaskParts)
 		if parts["role"] == "Calmbench" {
 			compile(b, compileParentName, compileParentParts)
@@ -1365,7 +1377,8 @@ func process(b *specs.TasksCfgBuilder, name string) {
 	if strings.Contains(name, "ProcDump") {
 		pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("procdump_win"))
 	}
-	if strings.Contains(name, "PathKit") {
+	if strings.Contains(name, "PathKit") || strings.Contains(name, "LottieWeb") {
+		// Docker-based tests that don't need the standard CIPD assets
 		pkgs = []*specs.CipdPackage{}
 	}
 
