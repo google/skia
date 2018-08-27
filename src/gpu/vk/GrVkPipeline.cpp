@@ -28,6 +28,8 @@ static inline VkFormat attrib_type_to_vkformat(GrVertexAttribType type) {
         case kFloat4_GrVertexAttribType:
         case kHalf4_GrVertexAttribType:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
+        case kRealHalf4_GrVertexAttribType:
+            return VK_FORMAT_R16G16B16A16_SFLOAT;
         case kInt2_GrVertexAttribType:
             return VK_FORMAT_R32G32_SINT;
         case kInt3_GrVertexAttribType:
@@ -84,6 +86,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         instanceBinding = nextBinding;
     }
 
+    //SkDebugf("*****Start of vertex attribute\n");
     // setup attribute descriptions
     int vaCount = primProc.numVertexAttributes();
     int attribIndex = 0;
@@ -97,7 +100,9 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         vkAttrib.offset = vertexAttributeOffset;
         SkASSERT(vkAttrib.offset == primProc.debugOnly_vertexAttributeOffset(attribIndex));
         vertexAttributeOffset += attrib.sizeAlign4();
+  //      SkDebugf("vertexAttributeOffset: %d, attrib align4Size: %d\n", vertexAttributeOffset, attrib.sizeAlign4());
     }
+//    SkDebugf("!!!!!!End of vertex attribute\n");
     SkASSERT(vertexAttributeOffset == primProc.debugOnly_vertexStride());
 
     int iaCount = primProc.numInstanceAttributes();

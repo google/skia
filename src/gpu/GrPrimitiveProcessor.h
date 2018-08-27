@@ -250,6 +250,8 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return 3 * sizeof(float);
         case kHalf4_GrVertexAttribType:
             return 4 * sizeof(float);
+        case kRealHalf4_GrVertexAttribType:
+            return 4 * sizeof(int16_t);
         case kInt2_GrVertexAttribType:
             return 2 * sizeof(int32_t);
         case kInt3_GrVertexAttribType:
