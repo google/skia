@@ -1162,18 +1162,15 @@ public:
 
         return true;
     }
-    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
-        if (*paint == nullptr) {
-            return true;
-        }
+    bool onFilter(SkPaint& paint) const override {
         if (fPaintOverrides->fAntiAlias) {
-            paint->writable()->setAntiAlias(fPaint->isAntiAlias());
+            paint.setAntiAlias(fPaint->isAntiAlias());
         }
         if (fPaintOverrides->fDither) {
-            paint->writable()->setDither(fPaint->isDither());
+            paint.setDither(fPaint->isDither());
         }
         if (fPaintOverrides->fFilterQuality) {
-            paint->writable()->setFilterQuality(fPaint->getFilterQuality());
+            paint.setFilterQuality(fPaint->getFilterQuality());
         }
         return true;
     }

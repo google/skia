@@ -27,23 +27,7 @@ public:
     SkPaintFilterCanvas(SkCanvas* canvas);
 
     enum Type {
-        kPaint_Type,
-        kPoint_Type,
-        kArc_Type,
-        kBitmap_Type,
-        kRect_Type,
-        kRRect_Type,
-        kDRRect_Type,
-        kOval_Type,
-        kPath_Type,
         kPicture_Type,
-        kDrawable_Type,
-        kText_Type,
-        kTextBlob_Type,
-        kVertices_Type,
-        kPatch_Type,
-
-        kTypeCount
     };
 
     // Forwarded to the wrapped canvas.
@@ -54,9 +38,11 @@ public:
     }
 
 protected:
+    /** DEPRECATED */
+    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const;
     /**
      *  Called with the paint that will be used to draw the specified type.
-     *  The implementation may modify the paint as they wish (using SkTCopyOnFirstWrite::writable).
+     *  The implementation may modify the paint as they wish.
      *
      *  The result bool is used to determine whether the draw op is to be
      *  executed (true) or skipped (false).
@@ -65,7 +51,7 @@ protected:
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const = 0;
+    virtual bool onFilter(SkPaint& paint) const;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;

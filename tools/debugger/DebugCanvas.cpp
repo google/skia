@@ -31,13 +31,11 @@ public:
             : INHERITED(canvas), fOverdrawViz(overdrawViz) {}
 
 protected:
-    bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type) const override {
-        if (*paint) {
-            if (fOverdrawViz) {
-                paint->writable()->setColor(SK_ColorRED);
-                paint->writable()->setAlpha(0x08);
-                paint->writable()->setBlendMode(SkBlendMode::kSrcOver);
-            }
+    bool onFilter(SkPaint& paint) const override {
+        if (fOverdrawViz) {
+            paint.setColor(SK_ColorRED);
+            paint.setAlpha(0x08);
+            paint.setBlendMode(SkBlendMode::kSrcOver);
         }
         return true;
     }

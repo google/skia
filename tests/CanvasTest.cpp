@@ -682,7 +682,7 @@ public:
     MockFilterCanvas(SkCanvas* canvas) : INHERITED(canvas) { }
 
 protected:
-    bool onFilter(SkTCopyOnFirstWrite<SkPaint>*, Type) const override { return true; }
+    bool onFilter(SkPaint&) const override { return true; }
 
 private:
     typedef SkPaintFilterCanvas INHERITED;
