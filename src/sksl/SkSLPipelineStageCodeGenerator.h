@@ -36,6 +36,8 @@ private:
 
     void writeBinaryExpression(const BinaryExpression& b, Precedence parentPrecedence) override;
 
+    void writeFunctionCall(const FunctionCall& c) override;
+
     void writeIntLiteral(const IntLiteral& i) override;
 
     void writeVariableReference(const VariableReference& ref) override;

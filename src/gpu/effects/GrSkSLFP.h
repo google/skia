@@ -70,6 +70,8 @@ public:
 
     const char* name() const override;
 
+    void addChild(std::unique_ptr<GrFragmentProcessor> child);
+
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
@@ -107,6 +109,8 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
 
     typedef GrFragmentProcessor INHERITED;
+
+    friend class GrGLSLSkSLFP;
 
     friend class GrSkSLFPFactory;
 };
