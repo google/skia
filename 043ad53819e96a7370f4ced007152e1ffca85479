@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "e47d7eda_3506aba7",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-27T16:50:33Z",
+      "side": 1,
+      "message": "I meant \"SkSLFP::Make() just ...\"",
+      "parentUuid": "8814ba30_06b2eb2f",
+      "revId": "043ad53819e96a7370f4ced007152e1ffca85479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cc51a95_628da78e",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 4
