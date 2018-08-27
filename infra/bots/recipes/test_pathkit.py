@@ -88,7 +88,8 @@ if bundle_name:
   shutil.copyfile(os.path.join(base_dir, bundle_name), dest)
   os.chmod(dest, 0o644) # important, otherwise non-privileged docker can't read.
 
-# Prepare output folder
+# Prepare output folder, api.file.ensure_directory doesn't touch
+# the permissions of the out directory if it already exists.
 os.chmod(out_dir, 0o777) # important, otherwise non-privileged docker can't write.
 ''',
       args=[copy_dest, base_dir, bundle_name, out_dir],
