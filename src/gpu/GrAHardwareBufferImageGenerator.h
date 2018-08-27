@@ -47,7 +47,8 @@ protected:
                                             bool willNeedMipMaps) override;
 
 private:
-    GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType);
+    GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
+                                    bool isProtectedContent);
     void makeProxy(GrContext* context);
 
     void releaseTextureRef();
@@ -63,6 +64,7 @@ private:
     uint32_t             fOwningContextID = SK_InvalidGenID;
 
     sk_sp<GrTextureProxy> fCachedProxy;
+    const bool fIsProtectedContent;
 
     typedef SkImageGenerator INHERITED;
 };
