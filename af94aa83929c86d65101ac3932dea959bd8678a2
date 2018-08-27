@@ -22,6 +22,29 @@
       "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8e1449b9_d480b6f8",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-27T14:30:24Z",
+      "side": 1,
+      "message": "Seems like it should be the child. If we use the child\u0027s string, we should be guaranteed to get unique identifiers no matter how many children there are. But if you use the caller, then _childInput%s won\u0027t be unique because %s will evaluate to the same thing for each child, so you\u0027d have to add something further to ensure uniqueness. Am I understanding this correctly?",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 77
+      },
+      "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
