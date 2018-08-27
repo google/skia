@@ -36,8 +36,6 @@ protected:
                        const SkPaint& paint) override = 0;
     void onDrawPosTextH(const void* text, size_t byteLength, const SkScalar xpos[],
                         SkScalar constY, const SkPaint& paint) override = 0;
-    void onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                          const SkMatrix* matrix, const SkPaint& paint) override = 0;
     void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                            const SkRect* cullRect, const SkPaint& paint) override = 0;
     void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

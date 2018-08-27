@@ -280,16 +280,6 @@ void SkRecorder::onDrawPosTextH(const void* text, size_t byteLength,
            this->copy(xpos, points));
 }
 
-void SkRecorder::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                  const SkMatrix* matrix, const SkPaint& paint) {
-    this->append<SkRecords::DrawTextOnPath>(
-           paint,
-           this->copy((const char*)text, byteLength),
-           byteLength,
-           path,
-           matrix ? *matrix : SkMatrix::I());
-}
-
 void SkRecorder::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                    const SkRect* cull, const SkPaint& paint) {
     this->append<SkRecords::DrawTextRSXform>(

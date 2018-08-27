@@ -123,11 +123,6 @@ public:
                         const SkPaint& paint) override {
         fTarget->drawPosTextH(ptr, len, xs, y, fXformer->apply(paint));
     }
-    void onDrawTextOnPath(const void* ptr, size_t len,
-                          const SkPath& path, const SkMatrix* matrix,
-                          const SkPaint& paint) override {
-        fTarget->drawTextOnPath(ptr, len, path, matrix, fXformer->apply(paint));
-    }
     void onDrawTextRSXform(const void* ptr, size_t len,
                            const SkRSXform* xforms, const SkRect* cull,
                            const SkPaint& paint) override {

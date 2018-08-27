@@ -592,20 +592,6 @@ void SkPictureRecord::onDrawPosTextH(const void* text, size_t byteLength, const 
     this->validate(initialOffset, size);
 }
 
-void SkPictureRecord::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                       const SkMatrix* matrix, const SkPaint& paint) {
-    // op + paint index + length + 'length' worth of data + path index + matrix
-    const SkMatrix& m = matrix ? *matrix : SkMatrix::I();
-    size_t size = 3 * kUInt32Size + SkAlign4(byteLength) + kUInt32Size +
-        SkMatrixPriv::WriteToMemory(m, nullptr);
-    size_t initialOffset = this->addDraw(DRAW_TEXT_ON_PATH, &size);
-    this->addPaint(paint);
-    this->addText(text, byteLength);
-    this->addPath(path);
-    this->addMatrix(m);
-    this->validate(initialOffset, size);
-}
-
 void SkPictureRecord::onDrawTextRSXform(const void* text, size_t byteLength,
                                         const SkRSXform xform[], const SkRect* cull,
                                         const SkPaint& paint) {

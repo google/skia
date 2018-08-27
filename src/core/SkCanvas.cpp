@@ -2473,13 +2473,6 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     LOOPER_END
 }
 
-#include "SkTextOnPath.h"
-
-void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                const SkMatrix* matrix, const SkPaint& paint) {
-    SkDrawTextOnPath(text, byteLength, paint, path, matrix, this);
-}
-
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
                                  const SkRect* cullRect, const SkPaint& paint) {
     if (cullRect && this->quickReject(*cullRect)) {
@@ -2554,12 +2547,16 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
         this->onDrawPosTextH(text, byteLength, xpos, constY, paint);
     }
 }
+
+#include "SkTextOnPath.h"
+
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
     if (byteLength) {
         sk_msan_assert_initialized(text, SkTAddOffset<const void>(text, byteLength));
-        this->onDrawTextOnPath(text, byteLength, path, matrix, paint);
+
+        SkDrawTextOnPath(text, byteLength, paint, path, matrix, this);
     }
 }
 void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
