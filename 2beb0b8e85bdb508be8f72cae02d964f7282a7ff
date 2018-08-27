@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "865492b4_66e992d8",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-27T19:12:10Z",
+      "side": 1,
+      "message": "// Is there any interesting documentation we should have here ?",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "70a27f7e_a4b01587",
+        "filename": "src/gpu/vk/GrVkInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-27T19:12:10Z",
+      "side": 1,
+      "message": "RETURN_FALSE_INTERFACE ?",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6058c875_1a0fc50d",
+        "filename": "src/gpu/vk/GrVkInterface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-27T19:12:10Z",
+      "side": 1,
+      "message": "We don\u0027t have a function for dedicated allocation?",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
