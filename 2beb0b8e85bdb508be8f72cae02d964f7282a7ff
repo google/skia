@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "64835852_f4469c9a",
+        "filename": "src/gpu/vk/GrVkCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T19:57:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "865492b4_66e992d8",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "70a27f7e_a4b01587",
         "filename": "src/gpu/vk/GrVkInterface.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "d5885688_c5307cc4",
+        "filename": "src/gpu/vk/GrVkInterface.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T19:57:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "70a27f7e_a4b01587",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6058c875_1a0fc50d",
         "filename": "src/gpu/vk/GrVkInterface.h",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2018-08-27T19:12:10Z",
       "side": 1,
       "message": "We don\u0027t have a function for dedicated allocation?",
+      "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "04831dbe_0e338b96",
+        "filename": "src/gpu/vk/GrVkInterface.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T19:57:13Z",
+      "side": 1,
+      "message": "Na. What the extension does is adds a new flag to the memory allocation call that says its for a dedicated allocation. Some gpus can be better optimized if they know you will not be sub allocating memory like they have to support for regular vulkan memory allocations.",
+      "parentUuid": "6058c875_1a0fc50d",
       "revId": "2beb0b8e85bdb508be8f72cae02d964f7282a7ff",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
