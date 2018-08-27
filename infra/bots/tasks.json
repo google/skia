@@ -31378,7 +31378,7 @@
         "Build-Win-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -31494,7 +31494,7 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -31610,7 +31610,7 @@
         "Build-Win-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -31726,7 +31726,7 @@
         "Build-Win-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -31842,7 +31842,7 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -31958,7 +31958,7 @@
         "Build-Win-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -36556,7 +36556,7 @@
         "Build-Win-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -36672,7 +36672,7 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -36788,7 +36788,7 @@
         "Build-Win-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -36904,7 +36904,7 @@
         "Build-Win-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -37020,7 +37020,7 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -37136,7 +37136,7 @@
         "Build-Win-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60361,7 +60361,7 @@
         "Build-Win-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60477,7 +60477,7 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60593,7 +60593,7 @@
         "Build-Win-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60709,7 +60709,7 @@
         "Build-Win-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60825,7 +60825,7 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -60941,7 +60941,7 @@
         "Build-Win-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:6646-23.20.15033.5003",
+        "gpu:1002:6646-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -65939,7 +65939,7 @@
         "Build-Win-Clang-x86_64-Debug"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -66055,7 +66055,7 @@
         "Build-Win-Clang-x86_64-Debug-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -66171,7 +66171,7 @@
         "Build-Win-Clang-x86_64-Debug-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -66287,7 +66287,7 @@
         "Build-Win-Clang-x86_64-Release"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -66403,7 +66403,7 @@
         "Build-Win-Clang-x86_64-Release-ANGLE"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
@@ -66519,7 +66519,7 @@
         "Build-Win-Clang-x86_64-Release-Vulkan"
       ],
       "dimensions": [
-        "gpu:1002:683d-23.20.15033.5003",
+        "gpu:1002:683d-24.20.13001.1010",
         "os:Windows-10-17134.191",
         "pool:Skia"
       ],
