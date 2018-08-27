@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "67ed1b2d_5f35c0f5",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-08-27T21:52:20Z",
+      "side": 1,
+      "message": "I think this should be:\n\nauto perPath \u003d [](const SkGlyph\u0026 glyph, SkPoint position) {\n   glyphCacheState-\u003eaddGlyph(glyph.getPackedID(), true);\n};\n\nto send a path instead of a mask. And we can delete the GrDrawOpAtlas::GlyphTooLargeForAtlas code now. It was originally added here because that\u0027s what the GPU code was using and it sends both the path and mask because the GPU code used to query both the mask and path for these cases for some workaround. That doesn\u0027t seem to the case anymore, its all handled in drawGlyphRunAsBMPWithPathFallback by either using the mask or falling back to path.",
+      "range": {
+        "startLine": 287,
+        "startChar": 68,
+        "endLine": 287,
+        "endChar": 76
+      },
+      "revId": "08082336430fb34a98fa1c4500683f80ad64654c",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
