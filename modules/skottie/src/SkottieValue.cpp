@@ -234,4 +234,69 @@ SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& shape) {
     return path;
 }
 
+template <>
+bool ValueTraits<TextValue>::FromJSON(const skjson::Value& jv,
+                                       const internal::AnimationBuilder* abuilder,
+                                       TextValue* v) {
+    const skjson::ObjectValue* jtxt = jv;
+    if (!jtxt) {
+        return false;
+    }
+
+    const skjson::StringValue* font_name = (*jtxt)["f"];
+    const skjson::StringValue* text      = (*jtxt)["t"];
+    const skjson::NumberValue* text_size = (*jtxt)["s"];
+    if (!font_name || !text || !text_size ||
+        !(v->fTypeface = abuilder->findFont(SkString(font_name->begin(), font_name->size())))) {
+        return false;
+    }
+    v->fText.set(text->begin(), text->size());
+    v->fTextSize = **text_size;
+
+    static constexpr SkPaint::Align gAlignMap[] = {
+        SkPaint::kLeft_Align,  // 'j': 0
+        SkPaint::kRight_Align, // 'j': 1
+        SkPaint::kCenter_Align // 'j': 2
+    };
+    v->fAlign = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jtxt)["j"], 0),
+                                         SK_ARRAY_COUNT(gAlignMap))];
+
+    const auto& parse_color = [] (const skjson::ArrayValue* jcolor,
+                                  const internal::AnimationBuilder* abuilder,
+                                  SkColor* c) {
+        if (!jcolor) {
+            return false;
+        }
+
+        VectorValue color_vec;
+        if (!ValueTraits<VectorValue>::FromJSON(*jcolor, abuilder, &color_vec)) {
+            return false;
+        }
+
+        *c = ValueTraits<VectorValue>::As<SkColor>(color_vec);
+        return true;
+    };
+
+    v->fHasFill   = parse_color((*jtxt)["fc"], abuilder, &v->fFillColor);
+    v->fHasStroke = parse_color((*jtxt)["sc"], abuilder, &v->fStrokeColor);
+
+    if (v->fHasStroke) {
+        v->fStrokeWidth = ParseDefault((*jtxt)["s"], 0.0f);
+    }
+
+    return true;
+}
+
+template <>
+bool ValueTraits<TextValue>::CanLerp(const TextValue&, const TextValue&) {
+    // Text values are never interpolated, but we pretend that they could be.
+    return true;
+}
+
+template <>
+void ValueTraits<TextValue>::Lerp(const TextValue& v0, const TextValue&, float, TextValue* result) {
+    // Text value keyframes are treated as selectors, not as interpolated values.
+    *result = v0;
+}
+
 } // namespace skottie
