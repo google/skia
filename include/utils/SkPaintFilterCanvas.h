@@ -11,6 +11,7 @@
 #include "SkCanvasVirtualEnforcer.h"
 #include "SkNWayCanvas.h"
 #include "SkTLazy.h"
+#include <type_traits>
 
 class SkAndroidFrameworkUtils;
 
@@ -54,9 +55,46 @@ public:
     }
 
 protected:
+    class Paint {
+    public:
+        explicit Paint(const SkPaint* p) : fOrig(p), fObj(nullptr) {}
+        Paint(const Paint&) = delete;
+        Paint& operator=(const Paint&) = delete;
+        Paint(Paint&&) = delete;
+        Paint& operator=(Paint&&) = delete;
+        explicit operator bool() const { return fOrig || fObj; }
+        const SkPaint* operator->() const { return fObj ?  fObj :  fOrig; }
+        const SkPaint* get       () const { return fObj ?  fObj :  fOrig; }
+        const SkPaint& operator* () const { return fObj ? *fObj : *fOrig; }
+        template <typename... Args> SkPaint& emplace(Args&&... args) {
+            if (fObj) {
+                fObj->~SkPaint();
+            }
+            fObj = new (&fStorage) SkPaint(std::forward<Args>(args)...);
+            return *fObj;
+        }
+        SkPaint& writable() {
+            if (fObj) {
+                return *fObj;
+            } else if (fOrig) {
+                return this->emplace(*fOrig);
+            }
+            return this->emplace();
+        }
+    private:
+        static void * operator new(std::size_t);
+        static void * operator new [] (std::size_t);
+
+        typename std::aligned_storage<sizeof(SkPaint), alignof(SkPaint)>::type fStorage;
+        const SkPaint* fOrig;
+        SkPaint* fObj;
+    };
+
+    /** DEPRECATED */
+    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const;
     /**
      *  Called with the paint that will be used to draw the specified type.
-     *  The implementation may modify the paint as they wish (using SkTCopyOnFirstWrite::writable).
+     *  The implementation may modify the paint as they wish (using Paint::writable).
      *
      *  The result bool is used to determine whether the draw op is to be
      *  executed (true) or skipped (false).
@@ -65,7 +103,7 @@ protected:
      *        To also filter encapsulated paints (e.g. SkPicture, SkTextBlob), clients may need to
      *        override the relevant methods (i.e. drawPicture, drawTextBlob).
      */
-    virtual bool onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const = 0;
+    virtual bool onFilter(Paint& paint, Type type) const;
 
     void onDrawPaint(const SkPaint&) override;
     void onDrawPoints(PointMode, size_t count, const SkPoint pts[], const SkPaint&) override;
