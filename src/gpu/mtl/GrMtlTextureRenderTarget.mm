@@ -39,7 +39,6 @@ GrMtlTextureRenderTarget::Make(GrMtlGpu* gpu,
                                bool isWrapped) {
     SkASSERT(nil != renderTexture);
     if (desc.fSampleCnt > 1) {
-        SkASSERT(false); // Currently don't support MSAA
         return nullptr;
     }
     SkASSERT((MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget) & renderTexture.usage);
