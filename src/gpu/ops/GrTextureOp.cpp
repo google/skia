@@ -746,6 +746,8 @@ private:
             return CombineResult::kCannotCombine;
         }
         if (fProxy->uniqueID() != that->fProxy->uniqueID() || that->isChained()) {
+#if 0  // Disabled for crbug.com/877598 crbug.com/877610 and bad image-surface GM on S7 MaliT880
+       // bot.
             // We can't merge across different proxies (and we're disallowed from merging when
             // 'that' is chained. Check if we can be chained with 'that'.
             if (fProxy->config() == that->fProxy->config() &&
@@ -753,6 +755,7 @@ private:
                 caps.dynamicStateArrayGeometryProcessorTextureSupport()) {
                 return CombineResult::kMayChain;
             }
+#endif
             return CombineResult::kCannotCombine;
         }
         fDraws.push_back_n(that->fDraws.count(), that->fDraws.begin());
