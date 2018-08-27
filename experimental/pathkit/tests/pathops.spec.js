@@ -125,7 +125,7 @@ describe('PathKit\'s PathOps Behavior', function() {
                 r.json().then((json)=>{
                     expect(json).toBeTruthy();
                     let testNames = Object.keys(json);
-                    expect(testNames.length).toBe(362);  // Remove if test data changes a lot.
+                    expect(testNames.length).toBe(363);  // Remove if test data changes a lot.
                     testNames.sort();
                     for (testName of testNames) {
                         let test = json[testName];
