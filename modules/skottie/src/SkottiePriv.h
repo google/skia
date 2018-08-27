@@ -49,6 +49,8 @@ public:
 
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
+    sk_sp<SkTypeface> findFont(const SkString& name) const;
+
     // This is the workhorse for property binding: depending on whether the property is animated,
     // it will either apply immediately or instantiate and attach a keyframe animator.
     template <typename T>

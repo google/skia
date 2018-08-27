@@ -9,6 +9,7 @@
 
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
+#include "SkottieAdapter.h"
 #include "SkottieJson.h"
 #include "SkottieValue.h"
 #include "SkSGColor.h"
@@ -205,6 +206,15 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
     }
 }
 
+sk_sp<SkTypeface> AnimationBuilder::findFont(const SkString& font_name) const {
+    if (const auto* font = fFonts.find(font_name)) {
+        return font->fTypeface;
+    }
+
+    LOG("!! Unknown font: \"%s\"\n", font_name.c_str());
+    return nullptr;
+}
+
 sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectValue& layer,
                                                           AnimatorScope* ascope) const {
     // General text node format:
@@ -245,93 +255,19 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachTextLayer(const skjson::ObjectVa
         LOG("?? Unsupported animated text properties.\n");
     }
 
-    // TODO: The "d" node is keyframed, not static. Add a new animated value type and parse as such.
     const skjson::ObjectValue* jd  = (*jt)["d"];
-    const skjson::ArrayValue*  jk  = jd
-            ? (*jd)["k"].operator const skjson::ArrayValue*() : nullptr;
-    const skjson::ObjectValue* jv0 = jk && jk->size() == 1
-            ? (*jk)[0].operator const skjson::ObjectValue*() : nullptr;
-    const skjson::ObjectValue* jprops = jv0
-            ? (*jv0)["s"].operator const skjson::ObjectValue*() : nullptr;
-
-    if (!jprops) {
-        LogJSON(*jt, "!! Unexpected text property");
+    if (!jd) {
         return nullptr;
     }
 
-    const skjson::StringValue* font_name = (*jprops)["f"];
-    const skjson::StringValue* text      = (*jprops)["t"];
-    const skjson::NumberValue* text_size = (*jprops)["s"];
-    if (!font_name || !text || !text_size) {
-        LogJSON(*jprops, "!! Invalid text properties");
-        return nullptr;
-    }
+    auto text_root = sksg::Group::Make();
+    auto adapter   = sk_make_sp<TextAdapter>(text_root);
 
-    const auto* font = fFonts.find(SkString(font_name->begin(), font_name->size()));
-    if (!font) {
-        LOG("!! Unknown font: \"%s\"\n", font_name->begin());
-        return nullptr;
-    }
+    this->bindProperty<TextValue>(*jd, ascope, [adapter] (const TextValue& txt) {
+        adapter->setText(txt);
+    });
 
-    static constexpr SkPaint::Align gAlignMap[] = {
-        SkPaint::kLeft_Align,  // 'j': 0
-        SkPaint::kRight_Align, // 'j': 1
-        SkPaint::kCenter_Align // 'j': 2
-    };
-    const auto align = gAlignMap[SkTMin<size_t>(ParseDefault<size_t>((*jprops)["j"], 0),
-                                                SK_ARRAY_COUNT(gAlignMap))];
-
-    // Emit a SG fragment with the following general format:
-    //
-    // [Group]
-    //   [Draw]
-    //     [FillPaint]
-    //     [Text]
-    //   [Draw]
-    //     [StrokePaint]
-    //     [Text]
-    //
-    auto text_node = sksg::Text::Make(font->fTypeface, SkString(text->begin(), text->size()));
-    text_node->setFlags(text_node->getFlags() |
-                        SkPaint::kAntiAlias_Flag |
-                        SkPaint::kSubpixelText_Flag);
-    text_node->setSize(**text_size);
-    text_node->setAlign(align);
-    text_node->setHinting(SkPaint::kNo_Hinting);
-
-    const auto parse_color = [](const skjson::ArrayValue* jcolor) -> sk_sp<sksg::Color> {
-        VectorValue color_vec;
-        if (!jcolor || !Parse(*jcolor, &color_vec)) {
-            return nullptr;
-        }
-
-        auto paint = sksg::Color::Make(ValueTraits<VectorValue>::As<SkColor>(color_vec));
-
-        return paint;
-    };
-
-    auto fill_paint = parse_color((*jprops)["fc"]),
-       stroke_paint = parse_color((*jprops)["sc"]);
-    auto  fill_node = sksg::Draw::Make(text_node, fill_paint),
-        stroke_node = sksg::Draw::Make(text_node, stroke_paint);
-
-    if (!stroke_node) {
-        return std::move(fill_node);
-    }
-
-    stroke_paint->setStyle(SkPaint::kStroke_Style);
-    stroke_paint->setStrokeWidth(ParseDefault((*jprops)["sw"], 0.0f));
-
-    if (!fill_node) {
-        return std::move(stroke_node);
-    }
-
-    // Fill & stroke
-    auto group_node = sksg::Group::Make();
-    group_node->addChild(std::move(fill_node));
-    group_node->addChild(std::move(stroke_node));
-
-    return std::move(group_node);
+    return std::move(text_root);
 }
 
 } // namespace internal
