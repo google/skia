@@ -2431,9 +2431,11 @@ protected:
     virtual void onDrawPosTextH(const void* text, size_t byteLength,
                                 const SkScalar xpos[], SkScalar constY,
                                 const SkPaint& paint);
-    virtual void onDrawTextOnPath(const void* text, size_t byteLength,
-                                  const SkPath& path, const SkMatrix* matrix,
-                                  const SkPaint& paint);
+#ifdef SK_SUPPORT_LEGACY_ONDRAWTEXTONPATH
+    // DEPRECATED -- do not override
+    virtual void onDrawTextOnPath(const void*, size_t, const SkPath&, const SkMatrix*,
+                                  const SkPaint&) {}
+#endif
     virtual void onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                    const SkRect* cullRect, const SkPaint& paint);
     virtual void onDrawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,

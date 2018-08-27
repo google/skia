@@ -81,11 +81,6 @@ public:
                         const SkScalar xpos[],
                         SkScalar constY,
                         const SkPaint& paint) override;
-    void onDrawTextOnPath(const void* text,
-                          size_t byteLength,
-                          const SkPath& path,
-                          const SkMatrix* matrix,
-                          const SkPaint& paint) override;
     void onDrawTextRSXform(const void* text,
                            size_t byteLength,
                            const SkRSXform[],

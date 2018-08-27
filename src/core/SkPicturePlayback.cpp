@@ -583,7 +583,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
                 canvas->drawText(text.text(), text.length(), ptr[0], ptr[1], *paint);
             }
         } break;
-        case DRAW_TEXT_ON_PATH: {
+        case DRAW_TEXT_ON_PATH_RETIRED_08_2018: {
             const SkPaint* paint = fPictureData->getPaint(reader);
             TextContainer text(reader, paint);
             const SkPath& path = fPictureData->getPath(reader);

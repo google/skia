@@ -422,12 +422,6 @@ void SkDebugCanvas::onDrawText(const void* text, size_t byteLength, SkScalar x, 
     this->addDrawCommand(new SkDrawTextCommand(text, byteLength, x, y, paint));
 }
 
-void SkDebugCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                     const SkMatrix* matrix, const SkPaint& paint) {
-    this->addDrawCommand(
-        new SkDrawTextOnPathCommand(text, byteLength, path, matrix, paint));
-}
-
 void SkDebugCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                       const SkRect* cull, const SkPaint& paint) {
     this->addDrawCommand(new SkDrawTextRSXformCommand(text, byteLength, xform, cull, paint));

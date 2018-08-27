@@ -281,14 +281,6 @@ void SkNWayCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkS
     }
 }
 
-void SkNWayCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                    const SkMatrix* matrix, const SkPaint& paint) {
-    Iter iter(fList);
-    while (iter.next()) {
-        iter->drawTextOnPath(text, byteLength, path, matrix, paint);
-    }
-}
-
 void SkNWayCanvas::onDrawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                      const SkRect* cull, const SkPaint& paint) {
     Iter iter(fList);

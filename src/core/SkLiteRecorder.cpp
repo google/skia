@@ -106,11 +106,6 @@ void SkLiteRecorder::onDrawPosTextH(const void* text, size_t bytes,
                                     const SkPaint& paint) {
     fDL->drawPosTextH(text, bytes, xs, y, paint);
 }
-void SkLiteRecorder::onDrawTextOnPath(const void* text, size_t bytes,
-                                      const SkPath& path, const SkMatrix* matrix,
-                                      const SkPaint& paint) {
-    fDL->drawTextOnPath(text, bytes, path, matrix, paint);
-}
 void SkLiteRecorder::onDrawTextRSXform(const void* text, size_t bytes,
                                        const SkRSXform xform[], const SkRect* cull,
                                        const SkPaint& paint) {
