@@ -2111,6 +2111,7 @@ bool GrGLGpu::onReadPixels(GrSurface* surface, int left, int top, int width, int
         fHWBoundRenderTargetUniqueID.makeInvalid();
     }
 
+    SkASSERT(glvp == fHWViewport);
     // the read rect is viewport-relative
     GrGLIRect readRect;
     readRect.setRelativeTo(glvp, left, top, width, height, kTopLeft_GrSurfaceOrigin);
