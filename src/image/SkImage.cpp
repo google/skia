@@ -377,6 +377,13 @@ sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopy(GrContext* ctx, SkYUVColorSpace 
     return nullptr;
 }
 
+sk_sp<SkImage> SkImage::MakeFromYUVTexturesCopyWithExternalBackend(
+        GrContext* context, SkYUVColorSpace yuvColorSpace, const GrBackendTexture yuvTextures[3],
+        GrSurfaceOrigin surfaceOrigin, const GrBackendTexture backendTexture,
+        sk_sp<SkColorSpace> colorSpace) {
+    return nullptr;
+}
+
 sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace space,
                                                 const GrBackendTexture[2],
                                                 GrSurfaceOrigin origin,
@@ -386,6 +393,15 @@ sk_sp<SkImage> SkImage::MakeFromNV12TexturesCopy(GrContext* ctx, SkYUVColorSpace
 
 sk_sp<SkImage> SkImage::makeTextureImage(GrContext*, SkColorSpace* dstColorSpace,
                                          GrMipMapped mipMapped) const {
+    return nullptr;
+}
+
+sk_sp<SkImage> MakeFromNV12TexturesCopyWithExternalBackend(GrContext* context,
+                                                           SkYUVColorSpace yuvColorSpace,
+                                                           const GrBackendTexture nv12Textures[2],
+                                                           GrSurfaceOrigin surfaceOrigin,
+                                                           const GrBackendTexture backendTexture,
+                                                           sk_sp<SkColorSpace> colorSpace) {
     return nullptr;
 }
 
