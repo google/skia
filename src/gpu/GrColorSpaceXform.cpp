@@ -146,8 +146,9 @@ GrFragmentProcessor::OptimizationFlags GrColorSpaceXformEffect::OptFlags(
 }
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(SkColorSpace* src,
+                                                                   SkAlphaType srcAT,
                                                                    SkColorSpace* dst) {
-    auto xform = GrColorSpaceXform::Make(src, kPremul_SkAlphaType,
+    auto xform = GrColorSpaceXform::Make(src, srcAT,
                                          dst, kPremul_SkAlphaType);
     if (!xform) {
         return nullptr;
@@ -159,12 +160,12 @@ std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(SkColorSpace*
 
 std::unique_ptr<GrFragmentProcessor> GrColorSpaceXformEffect::Make(
         std::unique_ptr<GrFragmentProcessor> child,
-        SkColorSpace* src, SkColorSpace* dst) {
+        SkColorSpace* src, SkAlphaType srcAT, SkColorSpace* dst) {
     if (!child) {
         return nullptr;
     }
 
-    auto xform = GrColorSpaceXform::Make(src, kPremul_SkAlphaType,
+    auto xform = GrColorSpaceXform::Make(src, srcAT,
                                          dst, kPremul_SkAlphaType);
     if (!xform) {
         return child;
