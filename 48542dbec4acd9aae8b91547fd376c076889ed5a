@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "434bb5ac_52298ba8",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-27T18:46:10Z",
+      "side": 1,
+      "message": "Updated type (we\u0027re inconsistent about this elsewhere in the code).\nAdded comment that nullptr colorSpace means sRGB.\n\nDoes the storage matter to the caller? I updated getColor4f to indicate that it\u0027s in sRGB. Do we want to be explicit about the fact that you can\u0027t recover the color space used here, even though that\u0027s currently an implementation detail?",
+      "parentUuid": "0fc9e5d6_281b8c16",
+      "range": {
+        "startLine": 520,
+        "startChar": 37,
+        "endLine": 520,
+        "endChar": 49
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c6f94d8d_0e02effa",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 4
@@ -59,6 +83,30 @@
       "writtenOn": "2018-08-24T22:51:08Z",
       "side": 1,
       "message": "is this { 1, 0, 0, 0 } ?",
+      "range": {
+        "startLine": 57,
+        "startChar": 18,
+        "endLine": 57,
+        "endChar": 27
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "53cbd483_b9b0a8a3",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-27T18:46:10Z",
+      "side": 1,
+      "message": "Wrong order, right values. Do you have a preference among:\n\n1) Using FromColor, to leverage the semantic hints from our existing SK_Color named constants\n2) Using { 0, 0, 0, 1 }\n3) Adding SkColor4f named constants",
+      "parentUuid": "c6f94d8d_0e02effa",
       "range": {
         "startLine": 57,
         "startChar": 18,
