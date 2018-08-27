@@ -120,22 +120,22 @@ bool SkOpAngle::after(SkOpAngle* test) {
          */
         lrOrder = lrGap > 20 ? 0 : lrGap > 11 ? -1 : 1;
     } else {
-        lrOrder = (int) lh->orderable(rh);
-        if (!ltrOverlap) {
+        lrOrder = lh->orderable(rh);
+        if (!ltrOverlap && lrOrder >= 0) {
             return COMPARE_RESULT(5, !lrOrder);
         }
     }
     int ltOrder;
-    SkASSERT((lh->fSectorMask & fSectorMask) || (rh->fSectorMask & fSectorMask));
+    SkASSERT((lh->fSectorMask & fSectorMask) || (rh->fSectorMask & fSectorMask) || -1 == lrOrder);
     if (lh->fSectorMask & fSectorMask) {
-        ltOrder = (int) lh->orderable(this);
+        ltOrder = lh->orderable(this);
     } else {
         int ltGap = (fSectorStart - lh->fSectorStart + 32) & 0x1f;
         ltOrder = ltGap > 20 ? 0 : ltGap > 11 ? -1 : 1;
     }
     int trOrder;
     if (rh->fSectorMask & fSectorMask) {
-        trOrder = (int) this->orderable(rh);
+        trOrder = this->orderable(rh);
     } else {
         int trGap = (rh->fSectorStart - fSectorStart + 32) & 0x1f;
         trOrder = trGap > 20 ? 0 : trGap > 11 ? -1 : 1;
@@ -145,7 +145,7 @@ bool SkOpAngle::after(SkOpAngle* test) {
     if (lrOrder >= 0 && ltOrder >= 0 && trOrder >= 0) {
         return COMPARE_RESULT(7, lrOrder ? (ltOrder & trOrder) : (ltOrder | trOrder));
     }
-    SkASSERT(lrOrder >= 0 || ltOrder >= 0 || trOrder >= 0);
+//    SkASSERT(lrOrder >= 0 || ltOrder >= 0 || trOrder >= 0);
 // There's not enough information to sort. Get the pairs of angles in opposite planes.
 // If an order is < 0, the pair is already in an opposite plane. Check the remaining pairs.
     // FIXME : once all variants are understood, rewrite this more simply
@@ -862,7 +862,7 @@ bool SkOpAngle::oppositePlanes(const SkOpAngle* rh) const {
     return startSpan >= 8;
 }
 
-bool SkOpAngle::orderable(SkOpAngle* rh) {
+int SkOpAngle::orderable(SkOpAngle* rh) {
     int result;
     if (!fPart.isCurve()) {
         if (!rh->fPart.isCurve()) {
@@ -874,12 +874,12 @@ bool SkOpAngle::orderable(SkOpAngle* rh) {
             double rx_y = rightX * leftY;
             if (x_ry == rx_y) {
                 if (leftX * rightX < 0 || leftY * rightY < 0) {
-                    return true;  // exactly 180 degrees apart
+                    return 1;  // exactly 180 degrees apart
                 }
                 goto unorderable;
             }
             SkASSERT(x_ry != rx_y); // indicates an undetected coincidence -- worth finding earlier
-            return x_ry < rx_y;
+            return x_ry < rx_y ? 1 : 0;
         }
         if ((result = this->allOnOneSide(rh)) >= 0) {
             return result;
@@ -889,7 +889,7 @@ bool SkOpAngle::orderable(SkOpAngle* rh) {
         }
     } else if (!rh->fPart.isCurve()) {
         if ((result = rh->allOnOneSide(this)) >= 0) {
-            return !result;
+            return result ? 0 : 1;
         }
         if (rh->fUnorderable || approximately_zero(fSide)) {
             goto unorderable;
@@ -897,11 +897,11 @@ bool SkOpAngle::orderable(SkOpAngle* rh) {
     } else if ((result = this->convexHullOverlaps(rh)) >= 0) {
         return result;
     }
-    return this->endsIntersect(rh);
+    return this->endsIntersect(rh) ? 1 : 0;
 unorderable:
     fUnorderable = true;
     rh->fUnorderable = true;
-    return true;
+    return -1;
 }
 
 // OPTIMIZE: if this shows up in a profile, add a previous pointer
