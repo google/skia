@@ -100,8 +100,9 @@ private:
             kMSAA_Flag        = 0x4,
             kResolve_Flag     = 0x8,
         };
+        // TODO: Put kMSAA_Flag back when MSAA is implemented
         static const uint16_t kAllFlags = kTextureable_Flag | kRenderable_Flag |
-                                          kMSAA_Flag | kResolve_Flag;
+                                          /*kMSAA_Flag |*/ kResolve_Flag;
 
         uint16_t fFlags;
     };
