@@ -148,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "679d8529_c0b90c70",
+        "filename": "src/gpu/ccpr/GrCCStroker.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-27T19:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44942103_f34ff55f",
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c24e5ab6_a3e18377",
         "filename": "src/gpu/ccpr/GrCCStroker.cpp",
         "patchSetId": 11
@@ -171,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "0b42f0ab_4c405c65",
+        "filename": "src/gpu/ccpr/GrCCStroker.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-27T19:32:34Z",
+      "side": 1,
+      "message": "Right, it\u0027s also possible that we\u0027re better off redoing the computation than burning a register.",
+      "parentUuid": "c24e5ab6_a3e18377",
+      "range": {
+        "startLine": 132,
+        "startChar": 44,
+        "endLine": 132,
+        "endChar": 65
+      },
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f4cf774_775d854d",
         "filename": "src/gpu/ccpr/GrCCStroker.cpp",
         "patchSetId": 11
@@ -185,6 +227,24 @@
       "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "683729b8_c79babcc",
+        "filename": "src/gpu/ccpr/GrCCStroker.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-27T19:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f4cf774_775d854d",
+      "revId": "1591d003f674d1d45870e923c36a1c62f5d4db8d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
