@@ -920,9 +920,15 @@ int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPai
 }
 
 int SkCanvas::saveLayer(const SaveLayerRec& rec) {
-    SaveLayerStrategy strategy = this->getSaveLayerStrategy(rec);
-    fSaveCount += 1;
-    this->internalSaveLayer(rec, strategy);
+    if (rec.fPaint && rec.fPaint->nothingToDraw()) {
+        // no need for the layer (or any of the draws until the matching restore()
+        this->save();
+        this->clipRect({0,0,0,0});
+    } else {
+        SaveLayerStrategy strategy = this->getSaveLayerStrategy(rec);
+        fSaveCount += 1;
+        this->internalSaveLayer(rec, strategy);
+    }
     return this->getSaveCount() - 1;
 }
 
@@ -2001,7 +2007,7 @@ void SkCanvas::onDrawRect(const SkRect& r, const SkPaint& paint) {
         }
 
         LOOPER_END
-    } else {
+    } else if (!paint.nothingToDraw()) {
         this->predrawNotify(&r, &paint, false);
         SkDrawIter iter(this);
         while (iter.next()) {
