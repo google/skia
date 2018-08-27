@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "8814ba30_06b2eb2f",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-27T16:49:46Z",
+      "side": 1,
+      "message": "Couldn\u0027t SkSLFP just return sk_sp\u003cGrSkSLFP\u003e?",
+      "parentUuid": "eb83c07d_9af1b891",
+      "revId": "043ad53819e96a7370f4ced007152e1ffca85479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cc51a95_628da78e",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 4
