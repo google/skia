@@ -100,7 +100,7 @@ struct SkPathOpsDebug::GlitchLog {
     }
 
     SpanGlitch* recordCommon(GlitchType type) {
-        SpanGlitch* glitch = fGlitches.push_back();
+        SpanGlitch* glitch = fGlitches.push();
         glitch->fBase = nullptr;
         glitch->fSuspect = nullptr;
         glitch->fSegment = nullptr;

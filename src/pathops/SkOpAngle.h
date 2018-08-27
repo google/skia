@@ -112,7 +112,7 @@ private:
     double midT() const;
     bool midToSide(const SkOpAngle* rh, bool* inside) const;
     bool oppositePlanes(const SkOpAngle* rh) const;
-    bool orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh
+    int orderable(SkOpAngle* rh);  // false == this < rh ; true == this > rh; -1 == unorderable
     void setSector();
     void setSpans();
     bool tangentsDiverge(const SkOpAngle* rh, double s0xt0);
