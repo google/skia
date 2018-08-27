@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a2b3280_6191af3a",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T20:52:06Z",
+      "side": 1,
+      "message": "are we allowed to always say EGL_PROTECTED_CONTENT_EXT and just have the switch for EGL_TURE or EGL_FALSE?",
+      "range": {
+        "startLine": 183,
+        "startChar": 25,
+        "endLine": 183,
+        "endChar": 67
+      },
+      "revId": "e2fb1a8130208a6d0757f67686ca35ff3cc78ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "60c2d846_a10a558a",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-27T20:52:06Z",
+      "side": 1,
+      "message": "don\u0027t just say bool in the head like this, give it the name of the variable as well. There is no way for someone just reading the header to know what the bool is.",
+      "range": {
+        "startLine": 49,
+        "startChar": 36,
+        "endLine": 49,
+        "endChar": 40
+      },
+      "revId": "e2fb1a8130208a6d0757f67686ca35ff3cc78ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
