@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4ae36e94_de23bd46",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-27T21:15:12Z",
+      "side": 1,
+      "message": "Renamed as per Skia code style. the \"Impl\" means this function is implementing the EGL extension check, while the next is just caching the output.",
+      "parentUuid": "d1389825_fa370e85",
+      "range": {
+        "startLine": 35,
+        "startChar": 12,
+        "endLine": 35,
+        "endChar": 37
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d561862a_2d9b11fa",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "bfa75a82_10b34db8",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-27T21:15:12Z",
+      "side": 1,
+      "message": "renamed",
+      "parentUuid": "d561862a_2d9b11fa",
+      "range": {
+        "startLine": 48,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 34
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3aa2bc58_f88c77fc",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6a9c59a_1bd4d681",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-27T21:15:12Z",
+      "side": 1,
+      "message": "I moved \"hasEglProtectedContent\" call in make_gl_backend_texture. At this point we know it is the GL backend. It has the advantage of avoiding an extra if GL/Vulkan check.\nWhen Vulkan protected content is implemented, we may factor a common function, but for now it feels unnecessary.",
+      "parentUuid": "3aa2bc58_f88c77fc",
+      "range": {
+        "startLine": 76,
+        "startChar": 34,
+        "endLine": 76,
+        "endChar": 59
+      },
+      "revId": "b9a1b4ff463d8b1587fd82b3141d6f543a4bb9b3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

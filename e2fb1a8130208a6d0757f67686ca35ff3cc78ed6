@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "d96926ce_89b5b0be",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-27T21:15:12Z",
+      "side": 1,
+      "message": "Reading https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_protected_content.txt I don\u0027t see a reason for EGL_FALSE to not work.\nThis does not seem important and my feeling is to do it as Android to avoid any regression.",
+      "parentUuid": "2a2b3280_6191af3a",
+      "range": {
+        "startLine": 183,
+        "startChar": 25,
+        "endLine": 183,
+        "endChar": 67
+      },
+      "revId": "e2fb1a8130208a6d0757f67686ca35ff3cc78ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "60c2d846_a10a558a",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.h",
         "patchSetId": 2
@@ -45,6 +69,30 @@
       "revId": "e2fb1a8130208a6d0757f67686ca35ff3cc78ed6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "03f31cad_9faeace7",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-27T21:15:12Z",
+      "side": 1,
+      "message": "changed it to \"bool isProtectedContent\".",
+      "parentUuid": "60c2d846_a10a558a",
+      "range": {
+        "startLine": 49,
+        "startChar": 36,
+        "endLine": 49,
+        "endChar": 40
+      },
+      "revId": "e2fb1a8130208a6d0757f67686ca35ff3cc78ed6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
