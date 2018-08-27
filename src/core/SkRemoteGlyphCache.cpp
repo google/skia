@@ -283,10 +283,8 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
         glyphCacheState->addGlyph(glyph.getPackedID(), false);
     };
 
-    auto perPath = [](const SkGlyph& glyph, SkPoint position) {};
-
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
+            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perGlyph);
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
