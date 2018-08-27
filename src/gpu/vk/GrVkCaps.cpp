@@ -19,17 +19,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
                    VkPhysicalDevice physDev, const VkPhysicalDeviceFeatures2& features,
                    uint32_t instanceVersion, const GrVkExtensions& extensions)
     : INHERITED(contextOptions) {
-    fMustDoCopiesFromOrigin = false;
-    fMustSubmitCommandsBeforeCopyOp = false;
-    fMustSleepOnTearDown  = false;
-    fNewCBOnPipelineChange = false;
-    fShouldAlwaysUseDedicatedImageMemory = false;
-
-    fSupportsPhysicalDeviceProperties2 = false;
-    fSupportsMemoryRequirements2 = false;
-    fSupportsMaintenance1 = false;
-    fSupportsMaintenance2 = false;
-    fSupportsMaintenance3 = false;
 
     /**************************************************************************
      * GrCaps fields
@@ -240,6 +229,29 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
         extensions.hasExtension(VK_KHR_MAINTENANCE3_EXTENSION_NAME, 1)) {
         fSupportsMaintenance3 = true;
     }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        (extensions.hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 3) &&
+         this->supportsMemoryRequirements2())) {
+        fSupportsDedicatedAllocation = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        (extensions.hasExtension(VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME, 1) &&
+         this->supportsPhysicalDeviceProperties2() &&
+         extensions.hasExtension(VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME, 1) &&
+         this->supportsDedicatedAllocation())) {
+        fSupportsExternalMemory = true;
+    }
+
+#ifdef SK_BUILD_FOR_ANDROID
+    if (extensions.hasExtension(
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 3) &&
+        extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&
+        this->supportsExternalMemory()) {
+        fSupportsAndroidHWBExternalMemory = true;
+    }
+#endif
 
     this->initGrCaps(vkInterface, physDev, properties, memoryProperties, features, extensions);
     this->initShaderCaps(properties, features);

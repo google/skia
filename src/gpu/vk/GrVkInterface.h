@@ -211,6 +211,17 @@ public:
 
         // Functions for VK_KHR_maintenance3 or vulkan 1.1
         VkPtr<PFN_vkGetDescriptorSetLayoutSupport> fGetDescriptorSetLayoutSupport;
+
+        // Functions for VK_KHR_external_memory_capabilities
+        VkPtr<PFN_vkGetPhysicalDeviceExternalBufferProperties> fGetPhysicalDeviceExternalBufferProperties;
+
+#ifdef SK_BUILD_FOR_ANDROID
+        // Functions for VK_ANDROID_external_memory_android_hardware_buffer
+        VkPtr<PFN_vkGetAndroidHardwareBufferPropertiesANDROID> fGetAndroidHardwareBufferProperties;
+        VkPtr<PFN_vkGetMemoryAndroidHardwareBufferANDROID> fGetMemoryAndroidHardwareBuffer;
+#endif
+
+
     } fFunctions;
 };
 
