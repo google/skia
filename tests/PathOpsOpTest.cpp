@@ -2213,6 +2213,7 @@ static void cubicOp87u(skiatest::Reporter* reporter, const char* filename) {
     pathB.moveTo(0,2);
     pathB.cubicTo(4,6, 1,0, 2,0);
     pathB.close();
+    markTestFlakyForPathKit();
     testPathOp(reporter, path, pathB, kUnion_SkPathOp, filename);
 }
 

@@ -143,6 +143,7 @@ int main(int argc, char** argv) {
         PathOpsDebug::gOut = fopen(FLAGS_json[0], "wb");
         fprintf(PathOpsDebug::gOut, "{\n");
         FLAGS_threads = 0;
+        PathOpsDebug::gMarkJsonFlaky = false;
     }
     SetupCrashHandler();
 

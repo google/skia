@@ -443,6 +443,13 @@ static void appendTest(const char* pathStr, const char* pathPrefix, const char* 
 #endif
 }
 
+void markTestFlakyForPathKit() {
+    if (PathOpsDebug::gJson) {
+        SkASSERT(!PathOpsDebug::gMarkJsonFlaky);
+        PathOpsDebug::gMarkJsonFlaky = true;
+    }
+}
+
 SK_DECLARE_STATIC_MUTEX(simplifyDebugOut);
 
 bool testSimplify(SkPath& path, bool useXor, SkPath& out, PathOpsThreadState& state,
@@ -481,6 +488,10 @@ static void json_status(ExpectSuccess expectSuccess, ExpectMatch expectMatch, bo
     fprintf(PathOpsDebug::gOut, "  \"expectSuccess\": \"%s\",\n",
             ExpectSuccess::kNo == expectSuccess ? "no" :
             ExpectSuccess::kYes == expectSuccess ? "yes" : "flaky");
+    if (PathOpsDebug::gMarkJsonFlaky) {
+        expectMatch = ExpectMatch::kFlaky;
+        PathOpsDebug::gMarkJsonFlaky = false;
+    }
     fprintf(PathOpsDebug::gOut, "  \"expectMatch\": \"%s\",\n",
             ExpectMatch::kNo == expectMatch ? "no" :
             ExpectMatch::kYes == expectMatch ? "yes" : "flaky");

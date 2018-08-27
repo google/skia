@@ -13,6 +13,7 @@
 class PathOpsDebug {
 public:
     static bool gJson;
+    static bool gMarkJsonFlaky;
     static bool gOutFirst;
     static bool gCheckForDuplicateNames;
     static bool gOutputSVG;
