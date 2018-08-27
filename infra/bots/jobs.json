@@ -1,4 +1,5 @@
 [
+  "Test-Debian9-none-GCE-CPU-AVX2-x86_64-Release-All-LottieWeb",
   "Build-Debian9-Clang-arm-Debug-Android",
   "Build-Debian9-Clang-arm-Debug-Android_Vulkan",
   "Build-Debian9-Clang-arm-Debug-Chromebook_GLES",
