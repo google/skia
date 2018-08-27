@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bc621874_a78c5fdd",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-27T14:10:18Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 314,
+        "startChar": 12,
+        "endLine": 314,
+        "endChar": 125
+      },
+      "revId": "5b457214627da1ab18edad15195ffe673f1911af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "278d817b_a73a0cf3",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-27T14:10:18Z",
+      "side": 1,
+      "message": "nit: line length",
+      "range": {
+        "startLine": 356,
+        "startChar": 12,
+        "endLine": 356,
+        "endChar": 103
+      },
+      "revId": "5b457214627da1ab18edad15195ffe673f1911af",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
