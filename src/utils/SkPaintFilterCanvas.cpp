@@ -233,14 +233,6 @@ void SkPaintFilterCanvas::onDrawPosTextH(const void* text, size_t byteLength, co
     }
 }
 
-void SkPaintFilterCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                                           const SkMatrix* matrix, const SkPaint& paint) {
-    AutoPaintFilter apf(this, kText_Type, paint);
-    if (apf.shouldDraw()) {
-        this->SkNWayCanvas::onDrawTextOnPath(text, byteLength, path, matrix, *apf.paint());
-    }
-}
-
 void SkPaintFilterCanvas::onDrawTextRSXform(const void* text, size_t byteLength,
                                             const SkRSXform xform[], const SkRect* cull,
                                             const SkPaint& paint) {

@@ -39,9 +39,6 @@ protected:
     void drawPosText(const void* text, size_t len,
                      const SkScalar pos[], int scalarsPerPos,
                      const SkPoint& offset, const SkPaint& paint) override;
-    void drawTextOnPath(const void* text, size_t len,
-                        const SkPath& path, const SkMatrix* matrix,
-                        const SkPaint& paint) override;
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint& paint) override;
 

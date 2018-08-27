@@ -1003,43 +1003,6 @@ void SkSVGDevice::drawPosText(const void* text, size_t len,
     elem.addText(builder.text());
 }
 
-void SkSVGDevice::drawTextOnPath(const void* text, size_t len, const SkPath& path,
-                                 const SkMatrix* matrix, const SkPaint& paint) {
-    SkString pathID = fResourceBucket->addPath();
-
-    {
-        AutoElement defs("defs", fWriter);
-        AutoElement pathElement("path", fWriter);
-        pathElement.addAttribute("id", pathID);
-        pathElement.addPathAttributes(path);
-
-    }
-
-    {
-        AutoElement textElement("text", fWriter);
-        textElement.addTextAttributes(paint);
-
-        if (matrix && !matrix->isIdentity()) {
-            textElement.addAttribute("transform", svg_transform(*matrix));
-        }
-
-        {
-            AutoElement textPathElement("textPath", fWriter);
-            textPathElement.addAttribute("xlink:href", SkStringPrintf("#%s", pathID.c_str()));
-
-            if (paint.getTextAlign() != SkPaint::kLeft_Align) {
-                SkASSERT(paint.getTextAlign() == SkPaint::kCenter_Align ||
-                         paint.getTextAlign() == SkPaint::kRight_Align);
-                textPathElement.addAttribute("startOffset",
-                    paint.getTextAlign() == SkPaint::kCenter_Align ? "50%" : "100%");
-            }
-
-            SVGTextBuilder builder(text, len, paint, SkPoint::Make(0, 0), 0);
-            textPathElement.addText(builder.text());
-        }
-    }
-}
-
 void SkSVGDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                                const SkPaint&) {
     // todo
