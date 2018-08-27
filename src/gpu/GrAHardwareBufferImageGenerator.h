@@ -9,6 +9,8 @@
 
 #include "SkImageGenerator.h"
 
+#include "GrTypesPriv.h"
+
 extern "C" {
     typedef struct AHardwareBuffer AHardwareBuffer;
 }
@@ -46,12 +48,21 @@ protected:
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType);
-    sk_sp<GrTextureProxy> makeProxy(GrContext* context);
-    void clear();
+    void makeProxy(GrContext* context);
 
-    AHardwareBuffer* fGraphicBuffer;
-    GrTexture* fOriginalTexture = nullptr;
-    uint32_t fOwningContextID;
+    void releaseTextureRef();
+
+    static void ReleaseRefHelper_TextureReleaseProc(void* ctx);
+
+    AHardwareBuffer* fHardwareBuffer;
+
+    // There is never a ref associated with this pointer. We rely on our atomic bookkeeping
+    // with the context ID to know when this pointer is valid and safe to use. This lets us
+    // avoid releasing a ref from another thread, or get into races during context shutdown.
+    GrTexture*           fOwnedTexture = nullptr;
+    uint32_t             fOwningContextID = SK_InvalidGenID;
+
+    sk_sp<GrTextureProxy> fCachedProxy;
 
     typedef SkImageGenerator INHERITED;
 };
