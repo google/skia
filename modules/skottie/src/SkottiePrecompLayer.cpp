@@ -21,8 +21,9 @@ namespace internal {
 sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::ObjectValue& jlayer,
                                                              AnimatorScope* ascope) const {
     const skjson::ObjectValue* time_remap = jlayer["tm"];
-    const auto start_time = ParseDefault<float>(jlayer["st"], 0.0f),
-             stretch_time = ParseDefault<float>(jlayer["sr"], 1.0f);
+    // Empirically, a time mapper supersedes start/stretch.
+    const auto start_time = time_remap ? 0.0f : ParseDefault<float>(jlayer["st"], 0.0f),
+             stretch_time = time_remap ? 1.0f : ParseDefault<float>(jlayer["sr"], 1.0f);
     const auto requires_time_mapping = !SkScalarNearlyEqual(start_time  , 0) ||
                                        !SkScalarNearlyEqual(stretch_time, 1) ||
                                        time_remap;
