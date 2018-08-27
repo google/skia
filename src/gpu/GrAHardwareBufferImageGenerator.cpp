@@ -29,6 +29,29 @@
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 
+#define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
+#define EGL_PROTECTED_CONTENT_EXT 0x32C0
+
+static bool has_egl_protected_content_impl() {
+    EGLDisplay dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+    const char* exts = eglQueryString(dpy, EGL_EXTENSIONS);
+    size_t cropExtLen = strlen(PROT_CONTENT_EXT_STR);
+    size_t extsLen = strlen(exts);
+    bool equal = !strcmp(PROT_CONTENT_EXT_STR, exts);
+    bool atStart = !strncmp(PROT_CONTENT_EXT_STR " ", exts, cropExtLen+1);
+    bool atEnd = (cropExtLen+1) < extsLen
+                  && !strcmp(" " PROT_CONTENT_EXT_STR, exts + extsLen - (cropExtLen+1));
+    bool inMiddle = strstr(exts, " " PROT_CONTENT_EXT_STR " ");
+    return equal || atStart || atEnd || inMiddle;
+}
+
+static bool has_egl_protected_content() {
+    // Only compute whether the extension is present once the first time this
+    // function is called.
+    static bool hasIt = has_egl_protected_content_impl();
+    return hasIt;
+}
+
 std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
         AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
     AHardwareBuffer_Desc bufferDesc;
@@ -49,14 +72,16 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     }
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
+    bool createProtectedImage = bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT;
     return std::unique_ptr<SkImageGenerator>(new GrAHardwareBufferImageGenerator(info, graphicBuffer,
-            alphaType));
+            alphaType, createProtectedImage));
 }
 
 GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageInfo& info,
-        AHardwareBuffer* graphicBuffer, SkAlphaType alphaType)
+        AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, bool isProtectedContent)
     : INHERITED(info)
-    , fGraphicBuffer(graphicBuffer) {
+    , fGraphicBuffer(graphicBuffer)
+    , fIsProtectedContent(isProtectedContent) {
     AHardwareBuffer_acquire(fGraphicBuffer);
 }
 
@@ -147,11 +172,15 @@ static GrBackendTexture make_gl_backend_texture(
         GrContext* context, AHardwareBuffer* hardwareBuffer,
         int width, int height,
         GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
-        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
+        bool isProtectedContent) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
-    EGLClientBuffer  clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
+    bool createProtectedImage = isProtectedContent && has_egl_protected_content();
+    EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
     EGLint attribs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE,
+                         createProtectedImage ? EGL_PROTECTED_CONTENT_EXT : EGL_NONE,
+                         createProtectedImage ? EGL_TRUE : EGL_NONE,
                          EGL_NONE };
     EGLDisplay display = eglGetCurrentDisplay();
     EGLImageKHR image = eglCreateImageKHR(display, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
@@ -198,12 +227,14 @@ static GrBackendTexture make_backend_texture(
         GrContext* context, AHardwareBuffer* hardwareBuffer,
         int width, int height,
         GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
-        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx) {
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
+        bool isProtectedContent) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
         return GrBackendTexture();
     }
-    return make_gl_backend_texture(context, hardwareBuffer, width, height, deleteProc, deleteCtx);
+    return make_gl_backend_texture(context, hardwareBuffer, width, height, deleteProc, deleteCtx,
+                                   isProtectedContent);
 }
 
 static void free_backend_texture(GrBackendTexture* backendTexture) {
@@ -258,7 +289,8 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
                                                        this->getInfo().width(),
                                                        this->getInfo().height(),
                                                        &deleteImageProc,
-                                                       &deleteImageCtx);
+                                                       &deleteImageCtx,
+                                                       fIsProtectedContent);
 
     if (!backendTex.isValid()) {
         return nullptr;
