@@ -51,14 +51,16 @@ public:
     /**
      *  Returns a fragment processor that converts the input's color space from src to dst.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(SkColorSpace* src, SkColorSpace* dst);
+    static std::unique_ptr<GrFragmentProcessor> Make(SkColorSpace* src, SkAlphaType srcAT,
+                                                     SkColorSpace* dst);
 
     /**
      *  Returns a fragment processor that calls the passed in fragment processor, and then converts
      *  the color space of the output from src to dst.
      */
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> child,
-                                                     SkColorSpace* src, SkColorSpace* dst);
+                                                     SkColorSpace* src, SkAlphaType srcAT,
+                                                     SkColorSpace* dst);
 
     const char* name() const override { return "ColorSpaceXform"; }
     std::unique_ptr<GrFragmentProcessor> clone() const override;
