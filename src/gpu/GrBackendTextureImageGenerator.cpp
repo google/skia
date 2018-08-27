@@ -139,8 +139,8 @@ sk_sp<GrTextureProxy> GrBackendTextureImageGenerator::onGenerateTexture(
         textureType = GrGLTexture::TextureTypeFromTarget(glInfo.fTarget);
     }
     sk_sp<GrTextureProxy> proxy = proxyProvider->createLazyProxy(
-            [refHelper, releaseProcHelper, semaphore,
-             backendTexture](GrResourceProvider* resourceProvider) {
+            [refHelper, releaseProcHelper, semaphore, backendTexture]
+            (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
