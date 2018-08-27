@@ -40,7 +40,8 @@ protected:
                                             bool willNeedMipMaps) override;
 
 private:
-    GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType);
+    GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
+                                    bool);
     sk_sp<GrTextureProxy> makeProxy(GrContext* context);
     void clear();
 
@@ -49,6 +50,7 @@ private:
     AHardwareBuffer* fGraphicBuffer;
     GrTexture* fOriginalTexture = nullptr;
     uint32_t fOwningContextID;
+    const bool fIsProtectedContent;
 
     typedef SkImageGenerator INHERITED;
 };
