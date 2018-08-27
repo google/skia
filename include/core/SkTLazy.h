@@ -94,6 +94,12 @@ public:
      *  Returns true if a valid object has been initialized in the SkTLazy,
      *  false otherwise.
      */
+    explicit operator bool() { return SkToBool(fPtr); }
+
+    /**
+     *  Returns true if a valid object has been initialized in the SkTLazy,
+     *  false otherwise.
+     */
     bool isValid() const { return SkToBool(fPtr); }
 
     /**
@@ -170,17 +176,23 @@ public:
         fObj = &initial;
     }
 
-    /**
-     * Returns a writable T*. The first time this is called the initial object is cloned.
-     */
+    /** Returns a writable T& constructed from args. */
+    template <typename... Args> T& emplace(Args&&... args) {
+        fObj = fLazy.init(std::forward<Args>(args)...);
+        return *const_cast<T*>(fObj);
+    }
+
+    /** Returns a writable T*, cloning the initial object if necessary. */
     T* writable() {
         SkASSERT(fObj);
         if (!fLazy.isValid()) {
-            fLazy.set(*fObj);
+            fLazy.init(*fObj);
             fObj = fLazy.get();
         }
         return const_cast<T*>(fObj);
     }
+
+    explicit operator bool() { return SkToBool(fObj); }
 
     const T* get() const { return fObj; }
 

@@ -16,20 +16,34 @@ class SkPaintFilterCanvas::AutoPaintFilter {
 public:
     AutoPaintFilter(const SkPaintFilterCanvas* canvas, Type type, const SkPaint* paint)
         : fPaint(paint) {
-        fShouldDraw = canvas->onFilter(&fPaint, type);
+        fShouldDraw = canvas->onFilter(fPaint, type);
     }
 
     AutoPaintFilter(const SkPaintFilterCanvas* canvas, Type type, const SkPaint& paint)
         : AutoPaintFilter(canvas, type, &paint) { }
 
-    const SkPaint* paint() const { return fPaint; }
+    const SkPaint* paint() const { return fPaint.get(); }
 
     bool shouldDraw() const { return fShouldDraw; }
 
 private:
-    SkTCopyOnFirstWrite<SkPaint> fPaint;
-    bool                         fShouldDraw;
+    Paint fPaint;
+    bool fShouldDraw;
 };
+
+bool SkPaintFilterCanvas::onFilter(SkTCopyOnFirstWrite<SkPaint>* paint, Type type) const {
+    SK_ABORT("Not reached");
+    return false;
+}
+
+bool SkPaintFilterCanvas::onFilter(Paint& paint, Type type) const {
+    SkTCopyOnFirstWrite<SkPaint> p(paint.get());
+    bool shouldDraw = this->onFilter(&p, type);
+    if (p.get() != paint.get()) {
+        paint.emplace(*p);
+    }
+    return shouldDraw;
+}
 
 SkPaintFilterCanvas::SkPaintFilterCanvas(SkCanvas *canvas)
     : SkCanvasVirtualEnforcer<SkNWayCanvas>(canvas->imageInfo().width(),
