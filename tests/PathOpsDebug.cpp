@@ -15,6 +15,7 @@
 #include "SkString.h"
 
 bool PathOpsDebug::gJson;
+bool PathOpsDebug::gMarkJsonFlaky;
 bool PathOpsDebug::gOutFirst;
 bool PathOpsDebug::gCheckForDuplicateNames;
 bool PathOpsDebug::gOutputSVG;
