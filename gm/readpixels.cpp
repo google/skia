@@ -40,14 +40,6 @@ static void clamp_if_necessary(const SkImageInfo& info, void* pixels) {
     }
 }
 
-sk_sp<SkColorSpace> fix_for_colortype(SkColorSpace* colorSpace, SkColorType colorType) {
-    if (kRGBA_F16_SkColorType == colorType) {
-        return colorSpace->makeLinearGamma();
-    }
-
-    return sk_ref_sp(colorSpace);
-}
-
 static const int kWidth = 64;
 static const int kHeight = 64;
 
@@ -58,8 +50,7 @@ static sk_sp<SkImage> make_raster_image(SkColorType colorType) {
     SkBitmap bitmap;
     SkImageInfo info = codec->getInfo().makeWH(kWidth, kHeight)
                                        .makeColorType(colorType)
-                                       .makeAlphaType(kPremul_SkAlphaType)
-            .makeColorSpace(fix_for_colortype(codec->getInfo().colorSpace(), colorType));
+                                       .makeAlphaType(kPremul_SkAlphaType);
     bitmap.allocPixels(info);
     codec->getPixels(info, bitmap.getPixels(), bitmap.rowBytes());
     bitmap.setImmutable();
@@ -132,7 +123,6 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
                        SkImage::CachingHint hint) {
     size_t rowBytes = image->width() * SkColorTypeBytesPerPixel(dstColorType);
     sk_sp<SkData> data = SkData::MakeUninitialized(rowBytes * image->height());
-    dstColorSpace = fix_for_colortype(dstColorSpace.get(), dstColorType);
     SkImageInfo dstInfo = SkImageInfo::Make(image->width(), image->height(), dstColorType,
                                             dstAlphaType, dstColorSpace);
     if (!image->readPixels(dstInfo, data->writable_data(), rowBytes, 0, 0, hint)) {
@@ -154,7 +144,7 @@ static void draw_image(SkCanvas* canvas, SkImage* image, SkColorType dstColorTyp
     clamp_if_necessary(dstInfo, data->writable_data());
 
     // Now that we have called readPixels(), dump the raw pixels into an srgb image.
-    sk_sp<SkColorSpace> srgb = fix_for_colortype(sk_srgb_singleton(), dstColorType);
+    sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
     sk_sp<SkImage> raw = SkImage::MakeRasterData(dstInfo.makeColorSpace(srgb), data, rowBytes);
     canvas->drawImage(raw.get(), 0.0f, 0.0f, nullptr);
 }

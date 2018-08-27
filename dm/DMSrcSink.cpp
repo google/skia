@@ -145,14 +145,6 @@ static inline void alpha8_to_gray8(SkBitmap* bitmap) {
 }
 
 Error BRDSrc::draw(SkCanvas* canvas) const {
-    if (canvas->imageInfo().colorSpace() &&
-            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
-        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
-        // run these tests on legacy canvases.
-        // We allow an exception for F16, since Android uses F16.
-        return Error::Nonfatal("Skip testing to color correct canvas.");
-    }
-
     SkColorType colorType = canvas->imageInfo().colorType();
     if (kRGB_565_SkColorType == colorType &&
             CodecSrc::kGetFromCanvas_DstColorType != fDstColorType) {
@@ -401,11 +393,6 @@ static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType
                 return false;
             }
 
-            if (kRGBA_F16_SkColorType == canvasColorType) {
-                sk_sp<SkColorSpace> linearSpace = decodeInfo->colorSpace()->makeLinearGamma();
-                *decodeInfo = decodeInfo->makeColorSpace(std::move(linearSpace));
-            }
-
             *decodeInfo = decodeInfo->makeColorType(canvasColorType);
             break;
     }
@@ -431,11 +418,7 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
 // "pretend" that the color space is standard sRGB to avoid triggering color conversion
 // at draw time.
 static void set_bitmap_color_space(SkImageInfo* info) {
-    if (kRGBA_F16_SkColorType == info->colorType()) {
-        *info = info->makeColorSpace(SkColorSpace::MakeSRGBLinear());
-    } else {
-        *info = info->makeColorSpace(SkColorSpace::MakeSRGB());
-    }
+    *info = info->makeColorSpace(SkColorSpace::MakeSRGB());
 }
 
 Error CodecSrc::draw(SkCanvas* canvas) const {
@@ -824,14 +807,6 @@ bool AndroidCodecSrc::veto(SinkFlags flags) const {
 }
 
 Error AndroidCodecSrc::draw(SkCanvas* canvas) const {
-    if (canvas->imageInfo().colorSpace() &&
-            kRGBA_F16_SkColorType != canvas->imageInfo().colorType()) {
-        // SkAndroidCodec uses legacy premultiplication and blending.  Therefore, we only
-        // run these tests on legacy canvases.
-        // We allow an exception for F16, since Android uses F16.
-        return Error::Nonfatal("Skip testing to color correct canvas.");
-    }
-
     sk_sp<SkData> encoded(SkData::MakeFromFileName(fPath.c_str()));
     if (!encoded) {
         return SkStringPrintf("Couldn't read %s.", fPath.c_str());
@@ -1089,9 +1064,6 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
     if (kUnpremul_SkAlphaType == decodeInfo.alphaType()) {
         decodeInfo = decodeInfo.makeAlphaType(kPremul_SkAlphaType);
-    }
-    if (kRGBA_F16_SkColorType == fColorType) {
-        decodeInfo = decodeInfo.makeColorSpace(decodeInfo.colorSpace()->makeLinearGamma());
     }
 
     SkImageInfo bitmapInfo = decodeInfo;
