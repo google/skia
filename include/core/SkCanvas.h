@@ -1948,6 +1948,8 @@ public:
 
     /** Draws text on SkPath path, using clip, SkMatrix, and SkPaint paint.
 
+        DEPRECATED
+
         Origin of text is at distance hOffset along the path, offset by a perpendicular
         vector of length vOffset. If the path section corresponding the glyph advance is
         curved, the glyph is drawn curved to match; control points in the glyph are
@@ -1974,6 +1976,8 @@ public:
                           SkScalar vOffset, const SkPaint& paint);
 
     /** Draws text on SkPath path, using clip, SkMatrix, and SkPaint paint.
+
+        DEPRECATED
 
         Origin of text is at beginning of path offset by matrix, if not nullptr.
         matrix transforms text before text is mapped to path. If the path section

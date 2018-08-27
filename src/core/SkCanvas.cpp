@@ -2473,15 +2473,11 @@ void SkCanvas::onDrawPosTextH(const void* text, size_t byteLength, const SkScala
     LOOPER_END
 }
 
+#include "SkTextOnPath.h"
+
 void SkCanvas::onDrawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                                 const SkMatrix* matrix, const SkPaint& paint) {
-    LOOPER_BEGIN(paint, nullptr)
-
-    while (iter.next()) {
-        iter.fDevice->drawTextOnPath(text, byteLength, path, matrix, looper.paint());
-    }
-
-    LOOPER_END
+    SkDrawTextOnPath(text, byteLength, paint, path, matrix, this);
 }
 
 void SkCanvas::onDrawTextRSXform(const void* text, size_t len, const SkRSXform xform[],
