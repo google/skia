@@ -32,6 +32,12 @@
       const TARGET_SIZE = 1000; // Image size in pixels both x and y direction.
       const PATH = '/lottie.json';
 
+      let renderer = 'svg';
+      let hash = window.location.hash;
+      if (hash) {
+        renderer = hash.slice(1);
+      }
+
       // This global is used by puppeteer to determine if all tiles have finished drawing.
       window._tileCount = 0;
 
@@ -40,7 +46,7 @@
       // the filmstrip should look like.
       let anim = lottie.loadAnimation({
         container: document.querySelector('.anim'),
-        renderer: 'svg',
+        renderer: renderer,
         loop: false,
         autoplay: true,
         path: PATH,
@@ -52,6 +58,7 @@
       anim.addEventListener('data_ready', (e) => {
         // Once the first tile is loaded, calculate what
         // the filmstrip should look like.
+        let animationData = anim.animationData;
         let width = anim.animationData.w;
         let height = anim.animationData.h;
         let scale = TARGET_SIZE / (TILE_COUNT * Math.max(width, height));
@@ -63,12 +70,6 @@
         let frameStep = (outPoint - inPoint) / (TILE_COUNT * TILE_COUNT - 1);
 
         let main = document.querySelector('main');
-
-        let renderer = 'svg';
-        let hash = window.location.hash;
-        if (hash) {
-          renderer = hash.slice(1);
-        }
 
         // Clear out the first div now that our measurements are done.
         main.firstElementChild.remove();
@@ -83,23 +84,27 @@
 
           let frameStop = i * frameStep;
 
+          // create a new animation for each tile. It is tempting to try having
+          // one animation and "clone" each frame, but that doesn't work
+          // because of how bodymovin cleans up the URLObjects that are the path
+          // data for the svgs.
+          // We can re-use the animationData to avoid having to hit the
+          // (local) network a bunch of times.
           let anim = lottie.loadAnimation({
             container: div,
             renderer: renderer,
             loop: false,
             autoplay: false,
-            path: PATH,
+            animationData: animationData,
             rendererSettings: {
               preserveAspectRatio:'xMidYMid meet'
             },
           });
 
-          anim.addEventListener('data_ready', (e) => {
-            console.log(frameStop*1000);
-            // Once data is loaded, jump to the right frame.
-            anim.goToAndStop(frameStop * anim.frameRate, true);
-            window._tileCount += 1;
-          });
+          // don't need to wait for data_ready because it's instantly ready.
+          console.log(frameStop*1000);
+          anim.goToAndStop(frameStop * anim.frameRate, true);
+          window._tileCount += 1;
         }
       });
     })();
