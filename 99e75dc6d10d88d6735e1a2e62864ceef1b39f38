@@ -169,6 +169,24 @@
       "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "563e8cfc_01dac665",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-28T14:39:14Z",
+      "side": 1,
+      "message": "Ah, now I see what you\u0027re talking about. Yeah, the comment has to be wrong. Updating it to be correct.",
+      "parentUuid": "9ffbc0da_07170f89",
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
