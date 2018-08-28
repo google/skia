@@ -4336,8 +4336,7 @@ Deprecated.
 
 <a href='#SkPaint_Align'>Align</a> adjusts the text relative to the text position.
 <a href='#SkPaint_Align'>Align</a> affects <a href='undocumented#Glyph'>Glyphs</a> drawn with: <a href='SkCanvas_Reference#SkCanvas_drawText'>SkCanvas::drawText</a>, <a href='SkCanvas_Reference#SkCanvas_drawPosText'>SkCanvas::drawPosText</a>,
-<a href='SkCanvas_Reference#SkCanvas_drawPosTextH'>SkCanvas::drawPosTextH</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextOnPath'>SkCanvas::drawTextOnPath</a>,
-<a href='SkCanvas_Reference#SkCanvas_drawTextOnPathHV'>SkCanvas::drawTextOnPathHV</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextRSXform'>SkCanvas::drawTextRSXform</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextBlob'>SkCanvas::drawTextBlob</a>,
+<a href='SkCanvas_Reference#SkCanvas_drawPosTextH'>SkCanvas::drawPosTextH</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextRSXform'>SkCanvas::drawTextRSXform</a>, <a href='SkCanvas_Reference#SkCanvas_drawTextBlob'>SkCanvas::drawTextBlob</a>,
 and <a href='SkCanvas_Reference#SkCanvas_drawString'>SkCanvas::drawString</a>;
 as well as calls that place text <a href='undocumented#Glyph'>Glyphs</a> like <a href='#SkPaint_getTextWidths'>getTextWidths</a> and <a href='#SkPaint_getTextPath'>getTextPath</a>.
 

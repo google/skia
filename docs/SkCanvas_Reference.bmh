@@ -5107,7 +5107,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawString drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
+#SeeAlso drawString drawPosText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5143,7 +5143,7 @@ filled 12 point black Glyphs.
    canvas->drawString("a small hello", 20, 20, paint);
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
+#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5177,7 +5177,7 @@ filled 12 point black Glyphs.
    canvas->drawString(string, 20, 20, paint);
 ##
 
-#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
+#SeeAlso drawText drawPosText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5222,7 +5222,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawText drawPosTextH drawTextBlob drawTextOnPath drawTextRSXform
+#SeeAlso drawText drawPosTextH drawTextBlob drawTextRSXform
 
 ##
 
@@ -5267,7 +5267,7 @@ baseline.
     }
 ##
 
-#SeeAlso drawText drawPosText drawTextBlob drawTextOnPath drawTextRSXform
+#SeeAlso drawText drawPosText drawTextBlob drawTextRSXform
 
 ##
 
@@ -5275,111 +5275,12 @@ baseline.
 
 #Method void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
                           SkScalar vOffset, const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws text following Path with offsets ##
-
-Draws text on Path path, using Clip, Matrix, and Paint paint.
-
-Origin of text is at distance hOffset along the path, offset by a perpendicular
-vector of length vOffset. If the path section corresponding the glyph advance is
-curved, the glyph is drawn curved to match; control points in the glyph are
-mapped to projected points parallel to the path. If the text advance is larger
-than the path length, the excess text is clipped.
-
-text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
-default text positions the first glyph left side bearing and baseline relative
-to origin. Text size is affected by Matrix and Paint_Text_Size.
-
-All elements of paint: Path_Effect, Mask_Filter, Shader,
-Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
-filled 12 point black Glyphs.
-
-#Param  text         character code points or Glyphs drawn ##
-#Param  byteLength   byte length of text array ##
-#Param  path         Path providing text baseline ##
-#Param  hOffset      distance along path to offset origin ##
-#Param  vOffset      offset of text above (if negative) or below (if positive) the path ##
-#Param  paint        text size, blend, color, and so on, used to draw ##
-
-#Example
-    void draw(SkCanvas* canvas) {
-        const char aero[] = "correo a" "\xC3" "\xA9" "reo";
-        const size_t len = sizeof(aero) - 1;
-        SkPath path;
-        path.addOval({43-26, 43-26, 43+26, 43+26}, SkPath::kCW_Direction, 3);
-        SkPaint paint;
-        paint.setTextSize(24);
-        for (auto offset : { 0, 10, 20 } ) {
-            canvas->drawTextOnPathHV(aero, len, path, 0, -offset, paint);
-            canvas->translate(70 + offset, 70 + offset);
-        }
-    }
+#Deprecated 
 ##
-
-#SeeAlso drawTextOnPath drawText drawPosTextH drawTextBlob drawTextRSXform
-
-##
-
-# ------------------------------------------------------------------------------
 
 #Method void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                         const SkMatrix* matrix, const SkPaint& paint)
-#In Draw_Text
-#In Draw
-#Line # draws text following Path contour ##
-
-Draws text on Path path, using Clip, Matrix, and Paint paint.
-
-Origin of text is at beginning of path offset by matrix, if not nullptr.
-matrix transforms text before text is mapped to path. If the path section
-corresponding the glyph advance is curved, the glyph is drawn curved to match;
-control points in the glyph are mapped to projected points parallel to the path.
-If the text advance is larger than the path length, the excess text is clipped.
-
-matrix does not effect paint Shader.
-
-text meaning depends on Paint_Text_Encoding; by default, text is encoded as
-UTF-8. Origin meaning depends on Paint_Text_Align and Paint_Vertical_Text; by
-default text positions the first glyph left side bearing and baseline relative
-to origin. Text size is affected by matrix parameter, Canvas Matrix,
-and Paint_Text_Size.
-
-All elements of paint: Path_Effect, Mask_Filter, Shader,
-Color_Filter, Image_Filter, and Draw_Looper; apply to text. By default, draws
-filled 12 point black Glyphs.
-
-#Param  text         character code points or Glyphs drawn ##
-#Param  byteLength   byte length of text array ##
-#Param  path         Path providing text baseline ##
-#Param  matrix       transform of Glyphs before mapping to path; may be nullptr
-                     to use identity Matrix
-##
-#Param  paint        text size, blend, color, and so on, used to draw ##
-
-#Example
-    void draw(SkCanvas* canvas) {
-        const char roller[] = "rollercoaster";
-        const size_t len = sizeof(roller) - 1;
-        SkPath path;
-        path.cubicTo(40, -80, 120, 80, 160, -40);
-        SkPaint paint;
-        paint.setTextSize(32);
-        paint.setStyle(SkPaint::kStroke_Style);
-        SkMatrix matrix;
-        matrix.setIdentity();
-        for (int i = 0; i < 3; ++i) {
-            canvas->translate(25, 60);
-            canvas->drawPath(path, paint);
-            canvas->drawTextOnPath(roller, len, path, &matrix, paint);
-            matrix.preTranslate(0, 10);
-        }
-    }
-##
-
-#SeeAlso drawTextOnPathHV drawText drawPosTextH drawTextBlob drawTextRSXform
-
+#Deprecated
 ##
 
 # ------------------------------------------------------------------------------
@@ -5431,7 +5332,7 @@ void draw(SkCanvas* canvas) {
 }
 ##
 
-#SeeAlso drawTextOnPath drawTextOnPathHV drawText drawPosText drawTextBlob
+#SeeAlso drawText drawPosText drawTextBlob
 
 ##
 

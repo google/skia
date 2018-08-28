@@ -3477,8 +3477,7 @@ Increments drawLooper Reference_Count by one.
 
 Align adjusts the text relative to the text position.
 Align affects Glyphs drawn with: SkCanvas::drawText, SkCanvas::drawPosText,
-SkCanvas::drawPosTextH, SkCanvas::drawTextOnPath,
-SkCanvas::drawTextOnPathHV, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
+SkCanvas::drawPosTextH, SkCanvas::drawTextRSXform, SkCanvas::drawTextBlob,
 and SkCanvas::drawString;
 as well as calls that place text Glyphs like getTextWidths and getTextPath.
 
