@@ -367,6 +367,9 @@ bool CreateVkBackendContext(GrVkGetProc getProc,
         }
     }
     SkASSERT(instanceVersion >= VK_MAKE_VERSION(1, 0, 0));
+    SkDebugf("instance version: %d\n", instanceVersion);
+    SkDebugf("vk 1.0 version: %d\n", VK_MAKE_VERSION(1, 0, 0));
+    SkDebugf("vk 1.1 version: %d\n", VK_MAKE_VERSION(1, 1, 0));
 
     VkPhysicalDevice physDev;
     VkDevice device;
