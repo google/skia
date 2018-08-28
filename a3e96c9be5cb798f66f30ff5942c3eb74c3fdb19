@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "253e8627_084d4198",
+        "filename": "tools/lottiecap/lottiecap.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-08-28T14:45:28Z",
+      "side": 1,
+      "message": "const",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 3
+      },
+      "revId": "a3e96c9be5cb798f66f30ff5942c3eb74c3fdb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "305b595c_72c45ef9",
+        "filename": "tools/lottiecap/lottiecap.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-08-28T14:45:28Z",
+      "side": 1,
+      "message": "Add \n  let browser \u003d null;\nabove the if then drop the \u0027var\u0027 from each \u0027var browser\u0027.",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 7
+      },
+      "revId": "a3e96c9be5cb798f66f30ff5942c3eb74c3fdb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
