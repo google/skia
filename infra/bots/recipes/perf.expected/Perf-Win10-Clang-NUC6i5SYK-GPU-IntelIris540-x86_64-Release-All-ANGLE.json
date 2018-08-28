@@ -176,7 +176,6 @@
       "--config",
       "angle_d3d11_es2",
       "--match",
-      "~tile_image_filter_tiled_64",
       "~inc0.gif",
       "~inc1.gif",
       "~incInterlaced.gif",
