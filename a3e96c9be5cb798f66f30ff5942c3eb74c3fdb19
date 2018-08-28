@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "84eea8a8_563c02db",
+        "filename": "tools/lottiecap/lottiecap.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-28T14:52:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "253e8627_084d4198",
+      "range": {
+        "startLine": 130,
+        "startChar": 0,
+        "endLine": 130,
+        "endChar": 3
+      },
+      "revId": "a3e96c9be5cb798f66f30ff5942c3eb74c3fdb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "305b595c_72c45ef9",
         "filename": "tools/lottiecap/lottiecap.js",
         "patchSetId": 12
@@ -45,6 +69,30 @@
       "revId": "a3e96c9be5cb798f66f30ff5942c3eb74c3fdb19",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8bfe0946_3d33bb98",
+        "filename": "tools/lottiecap/lottiecap.js",
+        "patchSetId": 12
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-28T14:52:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "305b595c_72c45ef9",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 136,
+        "endChar": 7
+      },
+      "revId": "a3e96c9be5cb798f66f30ff5942c3eb74c3fdb19",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
