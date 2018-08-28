@@ -16,6 +16,24 @@
       "revId": "e82f92f1a8c2a03c1ab8d960a16d7abc4d516ad0",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b217984b_d4167c18",
+        "filename": "include/core/SkRegion.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-08-28T14:51:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8e4355b7_58564f86",
+      "revId": "e82f92f1a8c2a03c1ab8d960a16d7abc4d516ad0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
