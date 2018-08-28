@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66d27720_a4292d56",
+        "filename": "infra/lottiecap/gold/lottie-web-aggregator.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-28T14:10:17Z",
+      "side": 1,
+      "message": "nit: please make clearer what this is for",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 29
+      },
+      "revId": "50782568e9f8f753bce108b94d3df86905547495",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5fc0eec0_913e18d5",
+        "filename": "infra/lottiecap/gold/lottie-web-aggregator.go",
+        "patchSetId": 11
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5620
+      },
+      "writtenOn": "2018-08-28T14:10:17Z",
+      "side": 1,
+      "message": "supernit: space\n\" + *port, ...",
+      "range": {
+        "startLine": 87,
+        "startChar": 34,
+        "endLine": 87,
+        "endChar": 40
+      },
+      "revId": "50782568e9f8f753bce108b94d3df86905547495",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
