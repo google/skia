@@ -14,6 +14,19 @@ static void debug_out(int len, const char* data) {
     SkDebugf("%.*s", len, data);
 }
 
+void ParserCommon::CopyToFile(string oldFile, string newFile) {
+    int bufferSize;
+    char* buffer = ParserCommon::ReadToBuffer(newFile, &bufferSize);
+    FILE* oldOut = fopen(oldFile.c_str(), "wb");
+    if (!oldOut) {
+        SkDebugf("could not open file %s\n", oldFile.c_str());
+        return;
+    }
+    fwrite(buffer, 1, bufferSize, oldOut);
+    fclose(oldOut);
+    remove(newFile.c_str());
+}
+
 bool ParserCommon::parseFile(const char* fileOrPath, const char* suffix, OneFile oneFile) {
     if (!sk_isdir(fileOrPath)) {
         if (!this->parseFromFile(fileOrPath)) {
@@ -275,13 +288,13 @@ char* ParserCommon::FindDateTime(char* buffer, int size) {
     return &buffer[index];
 }
 
-bool ParserCommon::writtenFileDiffers(string filename, string readname) {
+bool ParserCommon::WrittenFileDiffers(string filename, string readname) {
     int writtenSize, readSize;
-    char* written = ReadToBuffer(filename, &writtenSize);
+    char* written = ParserCommon::ReadToBuffer(filename, &writtenSize);
     if (!written) {
         return true;
     }
-    char* read = ReadToBuffer(readname, &readSize);
+    char* read = ParserCommon::ReadToBuffer(readname, &readSize);
     if (!read) {
         delete[] written;
         return true;

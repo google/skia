@@ -621,7 +621,7 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         this->writePending();
         fclose(fOut);
         fflush(fOut);
-        if (this->writtenFileDiffers(filename, fullName)) {
+        if (ParserCommon::WrittenFileDiffers(filename, fullName)) {
             fOut = fopen(fullName.c_str(), "wb");
             int writtenSize;
             const char* written = ReadToBuffer(filename, &writtenSize);
