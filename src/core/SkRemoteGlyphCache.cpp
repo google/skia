@@ -187,7 +187,9 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackGlyphRunHelper& hel
                                 const SkMatrix& matrix,
                                 const SkPaint& origPaint,
                                 SkStrikeServer* server) {
-    if (helper.fallbackText().empty()) return;
+    if (helper.fallbackText().empty()) {
+        return;
+    }
 
     TRACE_EVENT0("skia", "add_fallback_text_to_cache");
     SkPaint fallbackPaint{origPaint};
@@ -436,7 +438,9 @@ sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
 }
 
 void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
-    if (fLockedDescs.empty() && fTypefacesToSend.empty()) return;
+    if (fLockedDescs.empty() && fTypefacesToSend.empty()) {
+        return;
+    }
 
     Serializer serializer(memory);
     serializer.emplace<size_t>(fTypefacesToSend.size());
@@ -529,7 +533,9 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkPackedGlyphID glyph, bool asP
     auto* pending = asPath ? &fPendingGlyphPaths : &fPendingGlyphImages;
 
     // Already cached.
-    if (cache->contains(glyph)) return;
+    if (cache->contains(glyph)) {
+        return;
+    }
 
     // Serialize and cache. Also create the scalar context to use when serializing
     // this glyph.
@@ -541,6 +547,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
     // TODO(khushalsagar): Write a strike only if it has any pending glyphs.
     serializer->emplace<bool>(this->hasPendingGlyphs());
     if (!this->hasPendingGlyphs()) {
+        fContext.reset();
         return;
     }
 
@@ -607,6 +614,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         writeGlyphPath(glyphID, serializer);
     }
     fPendingGlyphPaths.clear();
+    fContext.reset();
 }
 
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
