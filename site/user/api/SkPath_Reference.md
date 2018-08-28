@@ -3684,9 +3684,7 @@ so additional values choose a single solution. This construction is similar to <
 <a href='#SkPath_conicTo'>conicTo</a> can represent any <a href='#Arc'>Arc</a> with a sweep less than 180 degrees at any rotation. All <a href='#SkPath_arcTo'>arcTo</a>
 constructions are converted to <a href='#Conic'>Conic</a> data when added to <a href='#Path'>Path</a>.
 
-### Example
-
-<div><fiddle-embed name="891ac93abd0cdb27c4156685d3b1bb4c"><div>
+![Arc](https://fiddle.skia.org/i/fe909570a3c42269b447b061158177b9_raster.png "")
 
 <table>  <tr>
     <td><sup>1</sup> <a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>
@@ -3702,17 +3700,26 @@ Direction sweep, SkScalar x, SkScalar y)</a></td>
   </tr>
 </table>
 
-</div></fiddle-embed></div>
-
 ### Example
 
-<div><fiddle-embed name="5acc77eba0cb4d00bbf3a8f4db0c0aee"><div>1 describes an arc from an oval, a starting angle, and a sweep angle.
-2 is similar to 1, but does not require building a path to draw.
-3 is similar to 1, but always begins new <a href='#Contour'>Contour</a>.
-4 describes an arc from a pair of tangent lines and a radius.
-5 describes an arc from <a href='undocumented#Oval'>Oval</a> center, arc start <a href='SkPoint_Reference#Point'>Point</a> and arc end <a href='SkPoint_Reference#Point'>Point</a>.
-6 describes an arc from a pair of tangent lines and a <a href='#Conic_Weight'>Conic Weight</a>.
-</div></fiddle-embed></div>
+<div><fiddle-embed name="5acc77eba0cb4d00bbf3a8f4db0c0aee"></fiddle-embed></div>
+
+In the example above:
+
+<table>  <tr>
+    <td>1 describes an arc from an oval, a starting angle, and a sweep angle.</td>
+  </tr>  <tr>
+    <td>2 is similar to 1, but does not require building a path to draw.</td>
+  </tr>  <tr>
+    <td>3 is similar to 1, but always begins new <a href='#Contour'>Contour</a>.</td>
+  </tr>  <tr>
+    <td>4 describes an arc from a pair of tangent lines and a radius.</td>
+  </tr>  <tr>
+    <td>5 describes an arc from <a href='undocumented#Oval'>Oval</a> center, arc start <a href='SkPoint_Reference#Point'>Point</a> and arc end <a href='SkPoint_Reference#Point'>Point</a>.</td>
+  </tr>  <tr>
+    <td>6 describes an arc from a pair of tangent lines and a <a href='#Conic_Weight'>Conic Weight</a>.</td>
+  </tr>
+</table>
 
 <a name='SkPath_arcTo'></a>
 ## arcTo
@@ -4910,7 +4917,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="f18740ffcb10a499007488948c2cd60d"></fiddle-embed></div>
+<div><fiddle-embed name="0e6ca92d854035da29e89ad81d85ff85"></fiddle-embed></div>
 
 ### See Also
 
