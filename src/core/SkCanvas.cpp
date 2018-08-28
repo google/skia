@@ -974,6 +974,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const 
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
