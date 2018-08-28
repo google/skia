@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "9e04e072_84ae309e",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-28T14:18:57Z",
+      "side": 1,
+      "message": "Yes, wrote this before the other CL landed.",
+      "parentUuid": "b9f53f02_faa013d2",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 5
+      },
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "236294ff_a33061c4",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 5
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "55924cb6_6f19b9c8",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-28T14:18:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "236294ff_a33061c4",
+      "range": {
+        "startLine": 1244,
+        "startChar": 33,
+        "endLine": 1244,
+        "endChar": 40
+      },
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7a83ebd_b5c510a9",
         "filename": "src/core/SkPaint.cpp",
         "patchSetId": 5
@@ -82,6 +130,24 @@
       "writtenOn": "2018-08-28T13:47:02Z",
       "side": 1,
       "message": "It occurs to me that this comment and the assertion are off by one uint32_t.  Are there perhaps really now 11 32-bit values?",
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ac7a11f_a2cad2be",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-08-28T14:18:57Z",
+      "side": 1,
+      "message": "No, I don\u0027t think so. There was previously a single 32-bit value for color, and there are now four, so we\u0027ve added three.",
+      "parentUuid": "a7a83ebd_b5c510a9",
       "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
