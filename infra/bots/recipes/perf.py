@@ -160,29 +160,31 @@ def nanobench_flags(api, bot):
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
   if 'IntelIris540' in bot and 'ANGLE' in bot:
-    match.append('~tile_image_filter_tiled_64')  # skia:6082
+    pass
+    #match.append('~tile_image_filter_tiled_64')  # skia:6082
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
+    pass
     # skia:6398
-    match.append('~GM_varied_text_clipped_lcd')
-    match.append('~GM_varied_text_ignorable_clip_lcd')
-    match.append('~blendmode_mask_DstATop')
-    match.append('~blendmode_mask_SrcIn')
-    match.append('~blendmode_mask_SrcOut')
-    match.append('~blendmode_mask_Src')
-    match.append('~fontscaler_lcd')
-    match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
-    match.append('~rotated_rects_aa_changing_transparent_src')
-    match.append('~rotated_rects_aa_same_transparent_src')
-    match.append('~shadermask_LCD_FF')
-    match.append('~srcmode_rects_1')
-    match.append('~text_16_LCD_88')
-    match.append('~text_16_LCD_BK')
-    match.append('~text_16_LCD_FF')
-    match.append('~text_16_LCD_WT')
-    # skia:6863
-    match.append('~desk_skbug6850overlay2')
-    match.append('~desk_googlespreadsheet')
-    match.append('~desk_carsvg')
+    #match.append('~GM_varied_text_clipped_lcd')
+    #match.append('~GM_varied_text_ignorable_clip_lcd')
+    #match.append('~blendmode_mask_DstATop')
+    #match.append('~blendmode_mask_SrcIn')
+    #match.append('~blendmode_mask_SrcOut')
+    #match.append('~blendmode_mask_Src')
+    #match.append('~fontscaler_lcd')
+    #match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
+    #match.append('~rotated_rects_aa_changing_transparent_src')
+    #-match.append('~rotated_rects_aa_same_transparent_src')
+    #match.append('~shadermask_LCD_FF')
+    #-match.append('~srcmode_rects_1')
+    #match.append('~text_16_LCD_88')
+    #match.append('~text_16_LCD_BK')
+    #match.append('~text_16_LCD_FF')
+    #match.append('~text_16_LCD_WT')
+    ## skia:6863
+    #match.append('~desk_skbug6850overlay2')
+    #match.append('~desk_googlespreadsheet')
+    #match.append('~desk_carsvg')
   if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
       'Win' in bot):
     # skia:7677
@@ -216,25 +218,25 @@ def nanobench_flags(api, bot):
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
-  match.append('~inc0.gif')
-  match.append('~inc1.gif')
-  match.append('~incInterlaced.gif')
-  match.append('~inc0.jpg')
-  match.append('~incGray.jpg')
-  match.append('~inc0.wbmp')
-  match.append('~inc1.wbmp')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
-  match.append('~inc0.ico')
-  match.append('~inc1.ico')
-  match.append('~inc0.png')
-  match.append('~inc1.png')
-  match.append('~inc2.png')
-  match.append('~inc12.png')
-  match.append('~inc13.png')
-  match.append('~inc14.png')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
+  #match.append('~inc0.gif')
+  #match.append('~inc1.gif')
+  #match.append('~incInterlaced.gif')
+  #match.append('~inc0.jpg')
+  #match.append('~incGray.jpg')
+  #match.append('~inc0.wbmp')
+  #match.append('~inc1.wbmp')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
+  #match.append('~inc0.ico')
+  #match.append('~inc1.ico')
+  #match.append('~inc0.png')
+  #match.append('~inc1.png')
+  #match.append('~inc2.png')
+  #match.append('~inc12.png')
+  #match.append('~inc13.png')
+  #match.append('~inc14.png')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
 
   if match:
     args.append('--match')
@@ -326,8 +328,22 @@ def perf_steps(api):
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
 
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  if 'Vulkan' in api.vars.builder_name and 'IntelIris540' in api.vars.builder_name and 'Win' in api.vars.builder_name:
+    for test in ['GM_varied_text_clipped_lcd',
+    'blendmode_mask_SrcIn',
+    'blendmode_mask_Src',
+    'rotated_rects_aa_alternating_transparent_and_opaque_src',
+    'shadermask_LCD_FF',
+    'text_16_LCD_88',
+    'text_16_LCD_BK',
+    'text_16_LCD_FF',
+    'text_16_LCD_WT',
+    'desk_googlespreadsheet']:
+      api.run(api.flavor.step, target, cmd=args + ['--match', test],
+              abort_on_failure=False)
+  else:
+    api.run(api.flavor.step, target, cmd=args,
+            abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):
