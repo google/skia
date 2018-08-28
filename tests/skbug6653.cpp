@@ -30,7 +30,7 @@ static sk_sp<SkSurface> make_surface(GrContext* context) {
                                        kBottomLeft_GrSurfaceOrigin, nullptr);
 }
 
-static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter) {
+static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter, const char* label) {
     SkRect rect = SkRect::MakeWH(50, 50);
 
     SkPaint paint;
@@ -89,7 +89,7 @@ static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter) {
             }
         }
 
-        REPORTER_ASSERT(reporter, match);
+        REPORTER_ASSERT(reporter, match, label);
     }
 }
 
@@ -97,7 +97,7 @@ static void test_bug_6653(GrContext* ctx, skiatest::Reporter* reporter) {
 // from multiple vendors, in MSAA mode.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653, reporter, ctxInfo) {
     GrContext* ctx = ctxInfo.grContext();
-    test_bug_6653(ctx, reporter);
+    test_bug_6653(ctx, reporter, "Default");
 }
 
 // Same as above, but without explicit resource allocation.
@@ -105,5 +105,5 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(skbug6653_noExplicitResourceAllocation, repor
     GrContext* ctx = ctxInfo.grContext();
     ctx->flush();
     ctx->contextPriv().resourceProvider()->testingOnly_setExplicitlyAllocateGPUResources(false);
-    test_bug_6653(ctx, reporter);
+    test_bug_6653(ctx, reporter, "No ERA");
 }
