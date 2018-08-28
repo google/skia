@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8e4355b7_58564f86",
+        "filename": "include/core/SkRegion.h",
+        "patchSetId": 4
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-08-28T13:37:47Z",
+      "side": 1,
+      "message": "style bikeshed:  I think someone (reed@?) said they liked this\n    SkIRect fRect \u003d {0, 0, 0, 0};\nbetter.\nPersonally, I don\u0027t care either way, but let\u0027s be consistent.",
+      "revId": "e82f92f1a8c2a03c1ab8d960a16d7abc4d516ad0",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
