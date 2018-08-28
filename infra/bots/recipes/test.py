@@ -650,7 +650,6 @@ def dm_flags(api, bot):
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
     match.append('~^WritePixels_Gpu$')
     match.append('~^WritePixelsMSAA_Gpu$')
-    match.append('~^skbug6653$')
 
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
