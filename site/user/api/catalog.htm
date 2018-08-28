@@ -4002,6 +4002,14 @@
     "file": "illustrations",
     "name": "Image_Info_Color_Type_RGB_888"
 },
+    "Illustrations_Path_Arc": {
+    "code": "#include \"SkTextOnPath.h\"\nstruct data {\n   const char* name;\n   char super;\n   int yn[10];\n};\nconst data dataSet[] = {\n{ \"arcTo sweep\",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},\n{ \"drawArc\",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},\n{ \"addArc\",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},\n{ \"arcTo tangents\", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"arcTo radii\",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"conicTo\",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}\n};\n#define __degree_symbol__ \"\\xC2\" \"\\xB0\"\nconst char* headers[] = {\n    \"Oval part\",\n    \"force moveTo\",\n    \"can draw 180\" __degree_symbol__,\n    \"can draw 360\" __degree_symbol__,\n    \"can draw greater than 360\" __degree_symbol__,\n    \"ignored if radius is zero\",\n    \"ignored if sweep is zero\",\n    \"requires Path\",\n    \"describes rotation\",\n    \"describes perspective\",\n};\nconst char* yna[] = {\n     \"n/a\",\n     \"no\",\n     \"yes\"\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint lp;\n    lp.setAntiAlias(true);\n    SkPaint tp(lp);\n    SkPaint sp(tp);\n    SkPaint bp(tp);\n    bp.setFakeBoldText(true);\n    sp.setTextSize(10);\n    lp.setColor(SK_ColorGRAY);\n    canvas->translate(0, 32);\n    const int tl = 115;\n    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {\n       canvas->drawLine(tl + col * 35, 100, tl + col * 35, 250, lp);\n       if (0 == col) {\n          continue;\n       }\n       canvas->drawLine(tl + col * 35, 100, tl + 100 + col * 35, 0, lp);\n       SkPath path;\n       path.moveTo(tl - 3 + col * 35, 103);\n       path.lineTo(tl + 124 + col * 35, -24);\n       SkMatrix matrix;\n       matrix.setTranslate(0, -9);\n       SkDrawTextOnPath(headers[col -1], strlen(headers[col -1]), bp, path, &matrix, canvas);\n    }\n    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {\n        if (0 == row) {\n            canvas->drawLine(tl, 100, tl + 350, 100, lp);\n        } else {\n            canvas->drawLine(5, 100 + row * 25, tl + 350, 100 + row * 25, lp);\n        }\n        if (row == SK_ARRAY_COUNT(dataSet)) {\n            break;\n        }\n        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);\n        if (dataSet[row].super) {\n            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));\n            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * 25, sp);\n        }\n        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {\n            int val = dataSet[row].yn[col];\n            canvas->drawString(yna[SkTMin(2, val + 1)], tl + 5 + col * 35, 117 + row * 25, tp);\n            if (val > 1) {\n                char supe = '0' + val - 1;\n                canvas->drawText(&supe, 1, tl + 25 + col * 35, 112 + row * 25, sp);\n            }\n        }\n    }\n}\n",
+    "width": 600,
+    "height": 300,
+    "hash": "fe909570a3c42269b447b061158177b9",
+    "file": "illustrations",
+    "name": "Path_Arc"
+},
     "Image_Info_Alpha_Type_Opaque": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPMColor color = SkPreMultiplyARGB(255, 50, 100, 150);\n    SkString s;\n    s.printf(\"%u %u %u %u\", SkColorGetA(color), SkColorGetR(color),\n                            SkColorGetG(color), SkColorGetB(color));\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    canvas->drawString(s, 10, 62, paint);\n    canvas->scale(50, 50);\n    SkBitmap bitmap;\n    SkImageInfo imageInfo = SkImageInfo::Make(1, 1, kN32_SkColorType, kOpaque_SkAlphaType);\n    if (bitmap.installPixels(imageInfo, (void*) &color, imageInfo.minRowBytes())) {\n        canvas->drawBitmap(bitmap, 0, 0);\n    }\n}",
     "width": 256,
@@ -4347,20 +4355,12 @@
     "name": "Path"
 },
     "Path_Arc": {
-    "code": "struct data {\n   const char* name;\n   char super;\n   int yn[10];\n};\nconst data dataSet[] = {\n{ \"arcTo sweep\",    '1', {1,  3, 1, 0, 0, 0, 0, 1, 0, 0 }},\n{ \"drawArc\",         0,  {1, -1, 1, 1, 1, 1, 1, 0, 0, 0 }},\n{ \"addArc\",          0,  {1,  1, 1, 4, 0, 1, 1, 1, 0, 0 }},\n{ \"arcTo tangents\", '4', {0,  0, 0, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"arcTo radii\",    '5', {1,  0, 1, 0, 0, 0, 0, 1, 1, 0 }},\n{ \"conicTo\",         0,  {1,  1, 0, 0, 0, 0, 0, 1, 1, 1 }}\n};\n#define __degree_symbol__ \"\\xC2\" \"\\xB0\"\nconst char* headers[] = {\n    \"Oval part\",\n    \"force moveTo\",\n    \"can draw 180\" __degree_symbol__,\n    \"can draw 360\" __degree_symbol__,\n    \"can draw greater than 360\" __degree_symbol__,\n    \"ignored if radius is zero\",\n    \"ignored if sweep is zero\",\n    \"requires Path\",\n    \"describes rotation\",\n    \"describes perspective\",\n};\nconst char* yna[] = {\n     \"n/a\",\n     \"no\",\n     \"yes\"\n};\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint lp;\n    lp.setAntiAlias(true);\n    SkPaint tp(lp);\n    SkPaint sp(tp);\n    SkPaint bp(tp);\n    bp.setFakeBoldText(true);\n    sp.setTextSize(10);\n    lp.setColor(SK_ColorGRAY);\n    canvas->translate(0, 32);\n    const int tl = 115;\n    for (unsigned col = 0; col <= SK_ARRAY_COUNT(headers); ++col) {\n       canvas->drawLine(tl + col * 35, 100, tl + col * 35, 250, lp);\n       if (0 == col) {\n          continue;\n       }\n       canvas->drawLine(tl + col * 35, 100, tl + 100 + col * 35, 0, lp);\n       SkPath path;\n       path.moveTo(tl - 3 + col * 35, 103);\n       path.lineTo(tl + 124 + col * 35, -24);\n       canvas->drawTextOnPathHV(headers[col -1], strlen(headers[col -1]), path, 0, -9, bp);\n    }\n    for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {\n        if (0 == row) {\n            canvas->drawLine(tl, 100, tl + 350, 100, lp);\n        } else {\n            canvas->drawLine(5, 100 + row * 25, tl + 350, 100 + row * 25, lp);\n        }\n        if (row == SK_ARRAY_COUNT(dataSet)) {\n            break;\n        }\n        canvas->drawString(dataSet[row].name, 5, 117 + row * 25, bp);\n        if (dataSet[row].super) {\n            SkScalar width = bp.measureText(dataSet[row].name, strlen(dataSet[row].name));\n            canvas->drawText(&dataSet[row].super, 1, 8 + width, 112 + row * 25, sp);\n        }\n        for (unsigned col = 0; col < SK_ARRAY_COUNT(headers); ++col) {\n            int val = dataSet[row].yn[col];\n            canvas->drawString(yna[SkTMin(2, val + 1)], tl + 5 + col * 35, 117 + row * 25, tp);\n            if (val > 1) {\n                char supe = '0' + val - 1;\n                canvas->drawText(&supe, 1, tl + 25 + col * 35, 112 + row * 25, sp);\n            }\n        }\n    }\n}\n",
-    "width": 600,
-    "height": 300,
-    "hash": "891ac93abd0cdb27c4156685d3b1bb4c",
-    "file": "SkPath_Reference",
-    "name": "Arc"
-},
-    "Path_Arc_a": {
     "code": "void draw(SkCanvas* canvas) {\n    SkRect oval = {8, 8, 56, 56};\n    SkPaint ovalPaint;\n    ovalPaint.setAntiAlias(true);\n    SkPaint textPaint(ovalPaint);\n    ovalPaint.setStyle(SkPaint::kStroke_Style);\n    SkPaint arcPaint(ovalPaint);\n    arcPaint.setStrokeWidth(5);\n    arcPaint.setColor(SK_ColorBLUE);\n    canvas->translate(-64, 0);\n    for (char arcStyle = '1'; arcStyle <= '6'; ++arcStyle) {\n        '4' == arcStyle ? canvas->translate(-96, 55) : canvas->translate(64, 0);\n        canvas->drawText(&arcStyle, 1, 30, 36, textPaint);\n        canvas->drawOval(oval, ovalPaint);\n        SkPath path;\n        path.moveTo({56, 32});\n        switch (arcStyle) {\n            case '1':\n                path.arcTo(oval, 0, 90, false);\n                break;\n            case '2':\n                canvas->drawArc(oval, 0, 90, false, arcPaint);\n                continue;\n            case '3':\n                path.addArc(oval, 0, 90);\n                break;\n            case '4':\n                path.arcTo({56, 56}, {32, 56}, 24);\n                break;\n            case '5':\n                path.arcTo({24, 24}, 0, SkPath::kSmall_ArcSize, SkPath::kCW_Direction, {32, 56});\n                break;\n            case '6':\n                path.conicTo({56, 56}, {32, 56}, SK_ScalarRoot2Over2);\n                break;\n         }\n         canvas->drawPath(path, arcPaint);\n     }\n}\n",
     "width": 256,
     "height": 128,
     "hash": "5acc77eba0cb4d00bbf3a8f4db0c0aee",
     "file": "SkPath_Reference",
-    "name": "Arc_2"
+    "name": "Arc"
 },
     "Path_Contour": {
     "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    canvas->drawString(\"1st contour\", 150, 100, paint);\n    canvas->drawString(\"2nd contour\", 130, 160, paint);\n    canvas->drawString(\"3rd contour\", 40, 30, paint);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkPath path;\n    path.moveTo(124, 108);\n    path.lineTo(172, 24);\n    path.moveTo(36, 148);\n    path.quadTo(66, 188, 120, 136);\n    path.close();\n    path.conicTo(70, 20, 110, 40, 0.6f);\n    canvas->drawPath(path, paint);\n}",
@@ -5313,22 +5313,6 @@
     "hash": "af4c69fbbd165c8b0eb0c9bd49ccbd8d",
     "file": "SkCanvas_Reference",
     "name": "SkCanvas::drawTextBlob_2"
-},
-    "SkCanvas_drawTextOnPath": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char roller[] = \"rollercoaster\";\n    const size_t len = sizeof(roller) - 1;\n    SkPath path;\n    path.cubicTo(40, -80, 120, 80, 160, -40);\n    SkPaint paint;\n    paint.setTextSize(32);\n    paint.setStyle(SkPaint::kStroke_Style);\n    SkMatrix matrix;\n    matrix.setIdentity();\n    for (int i = 0; i < 3; ++i) {\n        canvas->translate(25, 60);\n        canvas->drawPath(path, paint);\n        canvas->drawTextOnPath(roller, len, path, &matrix, paint);\n        matrix.preTranslate(0, 10);\n    }\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "236e680b27960ca22641586dba0599c9",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawTextOnPath"
-},
-    "SkCanvas_drawTextOnPathHV": {
-    "code": "void draw(SkCanvas* canvas) {\n    const char aero[] = \"correo a\" \"\\xC3\" \"\\xA9\" \"reo\";\n    const size_t len = sizeof(aero) - 1;\n    SkPath path;\n    path.addOval({43-26, 43-26, 43+26, 43+26}, SkPath::kCW_Direction, 3);\n    SkPaint paint;\n    paint.setTextSize(24);\n    for (auto offset : { 0, 10, 20 } ) {\n        canvas->drawTextOnPathHV(aero, len, path, 0, -offset, paint);\n        canvas->translate(70 + offset, 70 + offset);\n    }\n}\n",
-    "width": 256,
-    "height": 256,
-    "hash": "b2f22d1d5041e55d6913aab52f73a7d3",
-    "file": "SkCanvas_Reference",
-    "name": "SkCanvas::drawTextOnPathHV"
 },
     "SkCanvas_drawTextRSXform": {
     "code": "void draw(SkCanvas* canvas) {\n    const int iterations = 26;\n    SkRSXform transforms[iterations];\n    char alphabet[iterations];\n    SkScalar angle = 0;\n    SkScalar scale = 1;\n    for (size_t i = 0; i < SK_ARRAY_COUNT(transforms); ++i) {\n        const SkScalar s = SkScalarSin(angle) * scale;\n        const SkScalar c = SkScalarCos(angle) * scale;\n        transforms[i] = SkRSXform::Make(-c, -s, -s * 16, c * 16);\n        angle += .45;\n        scale += .2;\n        alphabet[i] = 'A' + i;\n    }\n    SkPaint paint;\n    paint.setTextAlign(SkPaint::kCenter_Align);\n    canvas->translate(110, 138);\n    canvas->drawTextRSXform(alphabet, sizeof(alphabet), transforms, nullptr, paint);\n}\n",
@@ -7515,10 +7499,10 @@
     "name": "SkPath::addRRect"
 },
     "SkPath_addRRect_2": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        canvas->drawTextOnPathHV(&\"01234567\"[start], 1, textPath, 0, -5, paint);\n    }\n}\n",
+    "code": "#include \"SkTextOnPath.h\"\n\nvoid draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setAntiAlias(true);\n    SkRRect rrect;\n    rrect.setRectXY({40, 40, 215, 215}, 50, 50);\n    SkPath path;\n    path.addRRect(rrect);\n    canvas->drawPath(path, paint);\n    for (int start = 0; start < 8; ++start) {\n        SkPath textPath;\n        textPath.addRRect(rrect, SkPath::kCW_Direction, start);\n        SkMatrix matrix;\n        matrix.setTranslate(0, -5);\n        SkDrawTextOnPath(&\"01234567\"[start], 1, paint, textPath, &matrix, canvas);\n    }\n}\n",
     "width": 256,
     "height": 256,
-    "hash": "f18740ffcb10a499007488948c2cd60d",
+    "hash": "0e6ca92d854035da29e89ad81d85ff85",
     "file": "SkPath_Reference",
     "name": "SkPath::addRRect_2"
 },
