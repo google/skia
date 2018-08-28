@@ -103,7 +103,8 @@ bool SKPBench::isSuitableFor(Backend backend) {
 }
 
 SkIPoint SKPBench::onGetSize() {
-    return SkIPoint::Make(fClip.width(), fClip.height());
+    return SkIPoint::Make(fPic->cullRect().width(), fPic->cullRect().height());
+//    return SkIPoint::Make(fClip.width(), fClip.height());
 }
 
 void SKPBench::onDraw(int loops, SkCanvas* canvas) {
