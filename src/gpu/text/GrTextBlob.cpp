@@ -308,15 +308,23 @@ void GrTextBlob::flush(GrTextTarget* target, const SkSurfaceProps& props,
 
                 GrStyle style(runPaint);
 
+                SkMaskFilter* mf = runPaint.getMaskFilter();
+
                 // Styling, blurs, and shading are supposed to be applied *after* the pathMatrix.
-                if (!runPaint.getMaskFilter() && !runPaint.getShader() && !style.applies()) {
-                    pathMatrix.postConcat(*ctm);
-                    ctm = &pathMatrix;
-                } else {
+                // However, if the mask filter is a blur and the pathMatrix contains no scale, then
+                // we can still fold the path matrix into the CTM
+                bool needToApply = runPaint.getShader() || style.applies() ||
+                                   (mf && (!as_MFB(mf)->asABlur(nullptr) ||
+                                           !SkScalarNearlyEqual(pathGlyph.fScale, 1.0f)));
+
+                if (needToApply) {
                     SkPath* result = tmpPath.init();
                     path->transform(pathMatrix, result);
                     result->setIsVolatile(true);
                     path = result;
+                } else {
+                    pathMatrix.postConcat(*ctm);
+                    ctm = &pathMatrix;
                 }
 
                 // TODO: we are losing the mutability of the path here
