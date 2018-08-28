@@ -389,6 +389,24 @@
     },
     {
       "key": {
+        "uuid": "4241bec1_d8b8e172",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-28T12:46:34Z",
+      "side": 1,
+      "message": "Could we have a function that gets passed a GrRenderTargetContext and draws the yuv images into it? Given that we typically expect success it\u0027s not particularly important that potential failures occur before the GrRenderTargetContext is created. Each caller could create a SkImage with the appropriate SkBudgeted setting if the shared method returns true and otherwise return nullptr.",
+      "parentUuid": "92781b7b_4b4092f1",
+      "revId": "983f89e792232fc919e38e6520e7d6acc9ee8754",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "73338219_157ffec3",
         "filename": "src/image/SkImage_Gpu.cpp",
         "patchSetId": 2
