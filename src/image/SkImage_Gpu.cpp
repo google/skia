@@ -970,9 +970,11 @@ sk_sp<SkImage> SkImage_Gpu::onMakeColorSpace(sk_sp<SkColorSpace> target, SkColor
         return nullptr;
     }
 
+    SkAlphaType newAlphaType = (kUnpremul_SkAlphaType == fAlphaType) ? kPremul_SkAlphaType
+                                                                     : fAlphaType;
     // MDB: this call is okay bc we know 'renderTargetContext' was exact
     return sk_make_sp<SkImage_Gpu>(fContext, kNeedNewImageUniqueID,
-                                   fAlphaType, renderTargetContext->asTextureProxyRef(),
+                                   newAlphaType, renderTargetContext->asTextureProxyRef(),
                                    std::move(target), fBudgeted);
 
 }
