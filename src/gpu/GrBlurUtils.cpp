@@ -298,8 +298,12 @@ static void draw_shape_with_mask_filter(GrContext* context,
 
     // To prevent overloading the cache with entries during animations we limit the cache of masks
     // to cases where the matrix preserves axis alignment.
+#ifdef SK_DISABLE_MASKFILTERED_MASK_CACHING
+    bool useCache = false;
+#else
     bool useCache = !inverseFilled && viewMatrix.preservesAxisAlignment() &&
                     shape->hasUnstyledKey() && as_MFB(maskFilter)->asABlur(nullptr);
+#endif
 
     const SkIRect* boundsForClip = &devClipBounds;
     if (useCache) {
