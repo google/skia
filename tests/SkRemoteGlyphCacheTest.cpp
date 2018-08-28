@@ -86,12 +86,26 @@ sk_sp<SkTextBlob> buildTextBlob(sk_sp<SkTypeface> tf, int glyphCount) {
     return builder.make();
 }
 
-#define COMPARE_BLOBS(expected, actual, reporter)                                        \
-    for (int i = 0; i < expected.width(); ++i) {                                         \
-        for (int j = 0; j < expected.height(); ++j) {                                    \
-            REPORTER_ASSERT(reporter, expected.getColor(i, j) == actual.getColor(i, j)); \
-        }                                                                                \
+static void compare_blobs(const SkBitmap& expected, const SkBitmap& actual,
+                          skiatest::Reporter* reporter, int tolerance = 0) {
+    SkASSERT(expected.width() == actual.width());
+    SkASSERT(expected.height() == actual.height());
+    for (int i = 0; i < expected.width(); ++i) {
+        for (int j = 0; j < expected.height(); ++j) {
+            SkColor expectedColor = expected.getColor(i, j);
+            SkColor actualColor = actual.getColor(i, j);
+            if (0 == tolerance) {
+                REPORTER_ASSERT(reporter, expectedColor == actualColor);
+            } else {
+                for (int k = 0; k < 4; ++k) {
+                    int expectedChannel = (expectedColor >> (k*8)) & 0xff;
+                    int actualChannel = (actualColor >> (k*8)) & 0xff;
+                    REPORTER_ASSERT(reporter, abs(expectedChannel - actualChannel) <= tolerance);
+                }
+            }
+        }
     }
+}
 
 SkTextBlobCacheDiffCanvas::Settings MakeSettings(GrContext* context) {
     SkTextBlobCacheDiffCanvas::Settings settings;
@@ -160,7 +174,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_StrikeSerialization, repor
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext());
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
-    COMPARE_BLOBS(expected, actual, reporter);
+    compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
@@ -328,7 +342,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsPath, reporter, 
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext());
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext());
-    COMPARE_BLOBS(expected, actual, reporter);
+    compare_blobs(expected, actual, reporter, 1);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::ValidateGlyphCacheDataSize();
 
@@ -367,7 +381,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextXY, reporter, ctxI
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext(), nullptr, 0.5);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), nullptr, 0.5);
-    COMPARE_BLOBS(expected, actual, reporter);
+    compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::ValidateGlyphCacheDataSize();
 
@@ -414,7 +428,7 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SkRemoteGlyphCache_DrawTextAsDFT, reporter, c
 
     SkBitmap expected = RasterBlob(serverBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
     SkBitmap actual = RasterBlob(clientBlob, 10, 10, paint, ctxInfo.grContext(), &matrix);
-    COMPARE_BLOBS(expected, actual, reporter);
+    compare_blobs(expected, actual, reporter);
     REPORTER_ASSERT(reporter, !discardableManager->hasCacheMiss());
     SkStrikeCache::ValidateGlyphCacheDataSize();
 
