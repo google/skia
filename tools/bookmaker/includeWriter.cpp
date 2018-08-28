@@ -2113,7 +2113,7 @@ bool IncludeWriter::populate(BmhParser& bmhParser) {
         }
         string dir = fFileName.substr(0, SkTMax(slash, back) + 1);
         string readname = dir + fileName;
-        if (this->writtenFileDiffers(fileName, readname)) {
+        if (ParserCommon::WrittenFileDiffers(fileName, readname)) {
             SkDebugf("wrote updated %s\n", fileName.c_str());
         } else {
             remove(fileName.c_str());

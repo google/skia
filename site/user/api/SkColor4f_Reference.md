@@ -242,8 +242,8 @@ components as read-only array
 #### Example Output
 
 ~~~~
-red=0.0578054 green=0.246201 blue=0.603827 alpha=0.533333
-[0]=0.0578054 [1]=0.246201 [2]=0.603827 [3]=0.533333
+red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
+[0]=0.266667 [1]=0.533333 [2]=0.8 [3]=0.533333
 ~~~~
 
 </fiddle-embed></div>
@@ -273,8 +273,8 @@ components as writable array
 #### Example Output
 
 ~~~~
-red=0.0578054 green=0.246201 blue=0.603827 alpha=0.533333
-[0]=0.0578054 [1]=0.246201 [2]=0.603827 [3]=1
+red=0.266667 green=0.533333 blue=0.8 alpha=0.533333
+[0]=0.266667 [1]=0.533333 [2]=0.8 [3]=1
 ~~~~
 
 </fiddle-embed></div>
@@ -351,7 +351,7 @@ Converts to closest <a href='#Color4f'>Color4f</a>.
 #### Example Output
 
 ~~~~
-red=0.0742136 green=0.130136 blue=0.318547 alpha=0.168627
+red=0.301961 green=0.396078 blue=0.6 alpha=0.168627
 red=77 green=101 blue=153 alpha=43
 ~~~~
 
@@ -383,8 +383,8 @@ closest <a href='SkColor_Reference#Color'>Color</a>
 #### Example Output
 
 ~~~~
-red=75 green=101 blue=153 alpha=43
-red=0.0703601 green=0.130136 blue=0.318547 alpha=0.168627
+red=18 green=33 blue=82 alpha=43
+red=0.0705882 green=0.129412 blue=0.321569 alpha=0.168627
 ~~~~
 
 </fiddle-embed></div>
