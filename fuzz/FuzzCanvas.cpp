@@ -59,6 +59,7 @@
 #include "SkReadBuffer.h"
 #include "SkTableColorFilter.h"
 #include "SkTextBlob.h"
+#include "SkTextOnPath.h"
 #include "SkTileImageFilter.h"
 #include "SkXfermodeImageFilter.h"
 
@@ -1596,8 +1597,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 FuzzPath(fuzz, &path, 20);
                 SkScalar hOffset, vOffset;
                 fuzz->next(&hOffset, &vOffset);
-                canvas->drawTextOnPathHV(text.begin(), SkToSizeT(text.count()), path, hOffset,
-                                         vOffset, paint);
+                SkDrawTextOnPathHV(text.begin(), SkToSizeT(text.count()), paint, path, hOffset,
+                                   vOffset, canvas);
                 break;
             }
             case 49: {
@@ -1612,8 +1613,8 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
                 SkTDArray<uint8_t> text = make_fuzz_text(fuzz, paint);
                 SkPath path;
                 FuzzPath(fuzz, &path, 20);
-                canvas->drawTextOnPath(text.begin(), SkToSizeT(text.count()), path,
-                                       useMatrix ? &matrix : nullptr, paint);
+                SkDrawTextOnPath(text.begin(), SkToSizeT(text.count()), paint, path,
+                                 useMatrix ? &matrix :nullptr, canvas);
                 break;
             }
             case 50: {

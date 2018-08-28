@@ -2548,8 +2548,8 @@ void SkCanvas::drawPosTextH(const void* text, size_t byteLength, const SkScalar 
     }
 }
 
+#ifdef SK_SUPPORT_LEGACY_DRAWTEXTONPATH
 #include "SkTextOnPath.h"
-
 void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
                               const SkMatrix* matrix, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2559,6 +2559,16 @@ void SkCanvas::drawTextOnPath(const void* text, size_t byteLength, const SkPath&
         SkDrawTextOnPath(text, byteLength, paint, path, matrix, this);
     }
 }
+void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
+                                const SkPath& path, SkScalar hOffset,
+                                SkScalar vOffset, const SkPaint& paint) {
+    SkMatrix    matrix;
+
+    matrix.setTranslate(hOffset, vOffset);
+    this->drawTextOnPath(text, byteLength, path, &matrix, paint);
+}
+#endif
+
 void SkCanvas::drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                                const SkRect* cullRect, const SkPaint& paint) {
     TRACE_EVENT0("skia", TRACE_FUNC);
@@ -2731,15 +2741,6 @@ void SkCanvas::drawArc(const SkRect& oval, SkScalar startAngle,
         return;
     }
     this->onDrawArc(oval, startAngle, sweepAngle, useCenter, paint);
-}
-
-void SkCanvas::drawTextOnPathHV(const void* text, size_t byteLength,
-                                const SkPath& path, SkScalar hOffset,
-                                SkScalar vOffset, const SkPaint& paint) {
-    SkMatrix    matrix;
-
-    matrix.setTranslate(hOffset, vOffset);
-    this->drawTextOnPath(text, byteLength, path, &matrix, paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

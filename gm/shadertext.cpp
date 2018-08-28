@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkTextOnPath.h"
 
 namespace skiagm {
 
@@ -175,7 +176,7 @@ protected:
             ++i;
             canvas->translate(SkIntToScalar((i / testsPerCol) * colWidth),
                               SkIntToScalar((i % testsPerCol) * rowHeight));
-            canvas->drawTextOnPath(text, textLen, path, nullptr, paint);
+            SkDrawTextOnPath(text, textLen, paint, path, nullptr, canvas);
             canvas->restore();
         }
         canvas->restore();
