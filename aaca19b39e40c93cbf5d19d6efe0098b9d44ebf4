@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5026e610_761b6794",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Yes, let\u0027s default to false. We\u0027ve been discussing turning off the codecs by default anyway, but our clients won\u0027t have the code for wuffs itself. Flutter will need to update its DEPS file, and Android will need to add a repository mirror for wuffs.",
+      "parentUuid": "3527f4a4_9cf7bab7",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b74cb39d_eb8aeeb0",
         "filename": "BUILD.gn",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2018-08-26T00:23:33Z",
       "side": 1,
       "message": "I can delete these BUILD.gn TODO-delete\u0027s if you want.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dd33f91c_6af01e3c",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "I don\u0027t have a strong preference.",
+      "parentUuid": "b74cb39d_eb8aeeb0",
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "dd07bbca_b3f2806c",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Please remove.",
+      "parentUuid": "c36efd13_2b00e2d8",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b00d2dfe_86daa9a5",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2018-08-26T00:23:33Z",
       "side": 1,
       "message": "Happy to delete this TODO(scroggo) if you think it\u0027s resolved or obsolete.\n\nI changed SkWuffsGifCodec to manage its own stream (and pass a nullptr to the SkCodec constructor), so this doesn\u0027t bite me as much. Not sure if it\u0027s still generally something worth doing.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1e66c32_ec7757d5",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Please remove.",
+      "parentUuid": "b00d2dfe_86daa9a5",
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "9ded890e_4d5cfd6c",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "\u003e Do I have to care about N32 being RGBA vs BGRA for Android??\n\nYes, but really, we support both configs, regardless of the platform.\n\n\u003e \n\u003e Again, using a swizzler will fix this, but I\u0027m having troubles getting that to work.\n\nWhat problems are you having? I\u0027m happy to help!\n\nThe swizzler is also helpful for handling sampled decodes.\n\nI see in your other comment that you plan to leave that for a follow-on CL. Since this is not enabled by default, I think it\u0027s fine to just wait until you have the swizzler and let that take care of it.",
+      "parentUuid": "11b0d0fe_c78aac60",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ab0175d_046cbb16",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 10
@@ -98,6 +188,139 @@
       "writtenOn": "2018-08-26T00:23:33Z",
       "side": 1,
       "message": "Can you confirm that this is (setting *rowsDecoded if not nullptr) is supposed to be outside rather than inside the \"if (result \u003d\u003d SkCodec::kSuccess)\"? The tests certainly work with it and fail without it.",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aaeafbd6_cd973fa6",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "That is correct.",
+      "parentUuid": "7ab0175d_046cbb16",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fc60d03_e4c9de77",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Indeed. skbug.com/6046 has some more information.",
+      "range": {
+        "startLine": 1433,
+        "startChar": 61,
+        "endLine": 1434,
+        "endChar": 48
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0ec5d897_8027c219",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "I don\u0027t know about this case in particular, but my understanding of the old gif code is that it was lenient because encoders produced invalid images that could be supported. It\u0027s also possible that encoders have gotten better and the bad images they used to produce no longer exist.",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "45aabc90_080d06da",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "That\u0027s correct.",
+      "range": {
+        "startLine": 1522,
+        "startChar": 64,
+        "endLine": 1525,
+        "endChar": 45
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1496af7b_7ba27cab",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Just to make sure I understand - wuffs returned kErrorInInput for incrementalDecode (not startIncrementalDecode) on the first iteration of this loop, but we just never check for that? Maybe this test should just check the Result on each call to startIncrementalDecode and incrementalDecode, and return when it\u0027s not kSuccess, rather than expecting a specific behavior.",
+      "range": {
+        "startLine": 1527,
+        "startChar": 0,
+        "endLine": 1533,
+        "endChar": 18
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "552c9c5b_f81e740c",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Or, if you prefer, we can just make the test less strict.\n\nOr delete it; our fuzzer infrastructure will keep testing on inputs that found problems like this one.",
+      "range": {
+        "startLine": 1536,
+        "startChar": 0,
+        "endLine": 1537,
+        "endChar": 41
+      },
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true

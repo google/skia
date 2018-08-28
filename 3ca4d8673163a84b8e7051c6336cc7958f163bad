@@ -16,6 +16,24 @@
       "revId": "3ca4d8673163a84b8e7051c6336cc7958f163bad",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "50cf90e3_6d604d24",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Yes, that\u0027s fine with me.",
+      "parentUuid": "a12d907f_b3fbbf10",
+      "revId": "3ca4d8673163a84b8e7051c6336cc7958f163bad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

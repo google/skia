@@ -399,6 +399,30 @@
     },
     {
       "key": {
+        "uuid": "573540bd_276513b2",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "I don\u0027t see any problem with *not* calling rewindIfNeeded here, especially since calling it doesn\u0027t work!",
+      "parentUuid": "64fb7c6d_c9bb44f5",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "235799b3_51094f00",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -491,6 +515,30 @@
     },
     {
       "key": {
+        "uuid": "488bfb68_614ae7d7",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "402d4ec5_3290951c",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 3
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c31a7119_460279d9",
         "filename": "src/codec/SkWuffsGifCodec.h",
         "patchSetId": 3
@@ -511,6 +559,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3d7e7180_e60e5f1e",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c31a7119_460279d9",
+      "range": {
+        "startLine": 31,
+        "startChar": 19,
+        "endLine": 31,
+        "endChar": 76
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -549,6 +621,30 @@
       "side": 1,
       "message": "I tried sprinkling some std::move\u0027s around, but was unable to drop the std::unique_ptr here. I\u0027ll try again in a (smaller) follow-up CL, or feel free to have a crack at this yourself. Maybe I\u0027m not just very good at modern C++. :-)",
       "parentUuid": "162583be_2b91c9eb",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 69
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fca3b08_385d3fe3",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "I don\u0027t think you\u0027re missing any std::moves. But you do need to have a move constructor. SkWebpCodec does this (and stores its frames directly in its vector), and you\u0027d need a similar one here:\n\n    SkWuffsGifFrame(SkWuffsGifFrame\u0026\u0026 other)\n        : INHERITED(other.frameId())\n        , fReportedAlpha(other.fReportedAlpha)\n    {}\n\nYou could actually simplify both of these by adding a move constructor to SkFrame:\n\n    SkFrame(SkFrame\u0026\u0026) \u003d default;\n\nThen you can default yours, too:\n\n    SkWuffsGifFrame(SkWuffsGifFrame\u0026\u0026) \u003d default;",
+      "parentUuid": "fbc22c4e_6e026173",
       "range": {
         "startLine": 107,
         "startChar": 4,
@@ -665,6 +761,30 @@
       "side": 1,
       "message": "It has a valid header (Logical Screen Descriptor, in GIF spec terminology), but is followed by an invalid Graphic Control Extension, and in any case, there is no frame (Image Descriptor) after that invalid Graphic Control Extension.\n\nWhen Wuffs decodes overall image config, it also decodes the first frame config, in order to handle https://github.com/google/wuffs/blob/master/test/data/artificial/gif-frame-out-of-bounds.gif.make-artificial.txt\n\nThus, SkWuffsGifCodec.cpp\u0027s MakeFromStream returns a nullptr SkCodec*, even if the header is valid, because it\u0027s missing the first frame, and even before that, there\u0027s an invalid GCE.\n\nI added an annotated hex dump as a comment.",
       "parentUuid": "1f2281af_7f47b6e0",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1ab5f30b_9369b3f9",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-28T19:08:41Z",
+      "side": 1,
+      "message": "Although this particular file is invalid, and I don\u0027t think it\u0027s necessary to enforce this particular behavior for this particular file, there could be a similar file which is valid except it\u0027s missing some/all LZW blocks. How would wuffs handle that? We need to make sure we initialize all rows, unless we never created an SkCodec.",
+      "parentUuid": "b95eba57_278345f9",
       "range": {
         "startLine": 1565,
         "startChar": 0,
