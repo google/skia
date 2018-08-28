@@ -32,10 +32,16 @@ public:
     virtual void set1iv(UniformHandle, int arrayCount, const int v[]) const = 0;
     virtual void set1f(UniformHandle, float v0) const = 0;
     virtual void set1fv(UniformHandle, int arrayCount, const float v[]) const = 0;
+    virtual void set2i(UniformHandle, int32_t, int32_t) const = 0;
+    virtual void set2iv(UniformHandle, int arrayCount, const int v[]) const = 0;
     virtual void set2f(UniformHandle, float, float) const = 0;
     virtual void set2fv(UniformHandle, int arrayCount, const float v[]) const = 0;
+    virtual void set3i(UniformHandle, int32_t, int32_t, int32_t) const = 0;
+    virtual void set3iv(UniformHandle, int arrayCount, const int v[]) const = 0;
     virtual void set3f(UniformHandle, float, float, float) const = 0;
     virtual void set3fv(UniformHandle, int arrayCount, const float v[]) const = 0;
+    virtual void set4i(UniformHandle, int32_t, int32_t, int32_t, int32_t) const = 0;
+    virtual void set4iv(UniformHandle, int arrayCount, const int v[]) const = 0;
     virtual void set4f(UniformHandle, float, float, float, float) const = 0;
     virtual void set4fv(UniformHandle, int arrayCount, const float v[]) const = 0;
     // matrices are column-major, the first three upload a single matrix, the latter three upload
