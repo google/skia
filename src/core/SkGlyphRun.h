@@ -344,7 +344,7 @@ inline void SkGlyphRun::forEachGlyphAndPosition(PerGlyphPos perGlyph) const {
 }
 
 inline static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return glyph.fWidth >= 256 || glyph.fHeight >= 256;
+    return glyph.fWidth > 256 || glyph.fHeight > 256;
 }
 
 inline static SkRect rect_to_draw(
