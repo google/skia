@@ -379,27 +379,6 @@ static void drawPosTextH_handler(SkPipeReader& reader, uint32_t packedVerb, SkCa
     canvas->drawPosTextH(text, len, xpos, constY, paint);
 }
 
-static void drawTextOnPath_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
-    SkASSERT(SkPipeVerb::kDrawTextOnPath == unpack_verb(packedVerb));
-    uint32_t byteLength = packedVerb & kTextLength_DrawTextOnPathMask;
-    SkMatrix::TypeMask tm = (SkMatrix::TypeMask)
-            ((packedVerb & kMatrixType_DrawTextOnPathMask) >> kMatrixType_DrawTextOnPathShift);
-
-    if (0 == byteLength) {
-        byteLength = reader.read32();
-    }
-    const void* text = reader.skip(SkAlign4(byteLength));
-    SkPath path;
-    reader.readPath(&path);
-    const SkMatrix* matrix = nullptr;
-    SkMatrix matrixStorage;
-    if (tm != SkMatrix::kIdentity_Mask) {
-        matrixStorage = read_sparse_matrix(reader, tm);
-        matrix = &matrixStorage;
-    }
-    canvas->drawTextOnPath(text, byteLength, path, matrix, read_paint(reader));
-}
-
 static void drawTextBlob_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     sk_sp<SkTextBlob> tb = SkTextBlobPriv::MakeFromBuffer(reader);
     SkScalar x = reader.readScalar();
@@ -741,7 +720,6 @@ const HandlerRec gPipeHandlers[] = {
     HANDLER(drawPosText),
     HANDLER(drawPosTextH),
     HANDLER(drawRegion),
-    HANDLER(drawTextOnPath),
     HANDLER(drawTextBlob),
     HANDLER(drawTextRSXform),
     HANDLER(drawPatch),

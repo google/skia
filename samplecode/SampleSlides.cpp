@@ -12,6 +12,7 @@
 #include "SkWriteBuffer.h"
 #include "SkGradientShader.h"
 #include "SkPaint.h"
+#include "SkTextOnPath.h"
 #include "SkVertices.h"
 
 #include "sk_tool_utils.h"
@@ -261,14 +262,11 @@ static void textonpath_slide(SkCanvas* canvas) {
 
     SkScalar x = 50;
     paint.setColor(0xFF008800);
-    canvas->drawTextOnPathHV(text, len, path,
-                             x, paint.getTextSize()*2/3, paint);
+    SkDrawTextOnPathHV(text, len, paint, path, x, paint.getTextSize()*2/3, canvas);
     paint.setColor(SK_ColorRED);
-    canvas->drawTextOnPathHV(text, len, path,
-                             x + 60, 0, paint);
+    SkDrawTextOnPathHV(text, len, paint, path, x + 60, 0, canvas);
     paint.setColor(SK_ColorBLUE);
-    canvas->drawTextOnPathHV(text, len, path,
-                             x + 120, -paint.getTextSize()*2/3, paint);
+    SkDrawTextOnPathHV(text, len, paint, path, x + 120, -paint.getTextSize()*2/3, canvas);
 
     path.offset(0, 200);
     paint.setTextAlign(SkPaint::kRight_Align);
@@ -284,21 +282,21 @@ static void textonpath_slide(SkCanvas* canvas) {
     paint.setStyle(SkPaint::kFill_Style);
 
     paint.setTextSize(50);
-    canvas->drawTextOnPath(text, len, path, nullptr, paint);
+    SkDrawTextOnPath(text, len, paint, path, nullptr, canvas);
 
     paint.setColor(SK_ColorRED);
     matrix.setScale(-SK_Scalar1, SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    SkDrawTextOnPath(text, len, paint, path, &matrix, canvas);
 
     paint.setColor(SK_ColorBLUE);
     matrix.setScale(SK_Scalar1, -SK_Scalar1);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    SkDrawTextOnPath(text, len, paint, path, &matrix, canvas);
 
     paint.setColor(0xFF008800);
     matrix.setScale(-SK_Scalar1, -SK_Scalar1);
     matrix.postTranslate(pathLen, 0);
-    canvas->drawTextOnPath(text, len, path, &matrix, paint);
+    SkDrawTextOnPath(text, len, paint, path, &matrix, canvas);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

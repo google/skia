@@ -17,6 +17,7 @@
 #include "SkRSXform.h"
 #include "SkSafeMath.h"
 #include "SkTextBlob.h"
+#include "SkTextOnPath.h"
 #include "SkTDArray.h"
 #include "SkTypes.h"
 
@@ -592,7 +593,7 @@ void SkPicturePlayback::handleOp(SkReadBuffer* reader,
             BREAK_ON_READ_ERROR(reader);
 
             if (paint && text.text()) {
-                canvas->drawTextOnPath(text.text(), text.length(), path, &matrix, *paint);
+                SkDrawTextOnPath(text.text(), text.length(), *paint, path, &matrix, canvas);
             }
         } break;
         case DRAW_TEXT_RSXFORM: {

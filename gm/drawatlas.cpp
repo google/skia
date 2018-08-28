@@ -10,6 +10,7 @@
 #include "SkAutoMalloc.h"
 #include "SkCanvas.h"
 #include "SkRSXform.h"
+#include "SkTextOnPath.h"
 #include "SkSurface.h"
 #include "sk_tool_utils.h"
 
@@ -140,7 +141,7 @@ static void draw_text_on_path(SkCanvas* canvas, const void* text, size_t length,
 
         canvas->drawTextRSXform(text, length, &xform[0], &bounds, paint);
     } else {
-        canvas->drawTextOnPathHV(text, length, path, 0, baseline_offset, paint);
+        SkDrawTextOnPathHV(text, length, paint, path, 0, baseline_offset, canvas);
     }
 
     if (true) {

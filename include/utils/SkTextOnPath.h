@@ -21,5 +21,8 @@ void SkVisitTextOnPath(const void* text, size_t byteLength, const SkPaint& paint
 void SkDrawTextOnPath(const void* text, size_t byteLength, const SkPaint& paint,
                       const SkPath& follow, const SkMatrix* matrix, SkCanvas* canvas);
 
+void SkDrawTextOnPathHV(const void* text, size_t byteLength, const SkPaint& paint,
+                        const SkPath& follow, SkScalar hOffset, SkScalar vOffset, SkCanvas* canvas);
+
 #endif
 

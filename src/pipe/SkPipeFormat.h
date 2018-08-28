@@ -30,7 +30,6 @@ enum class SkPipeVerb : uint8_t {
     kDrawPosText,       // extra == byteLength:24 else next 32
     kDrawPosTextH,      // extra == byteLength:24 else next 32
     kDrawRegion,        // extra == size:24 of region, or 0 means next 32
-    kDrawTextOnPath,
     kDrawTextBlob,
     kDrawTextRSXform,   // extra == (byteLength:23 << 1) else next 32 | has_cull_rect:1
     kDrawPatch,
@@ -178,12 +177,6 @@ enum {
     kHasTex_DrawVerticesMask            = 1 << 21,
     kHasColors_DrawVerticesMask         = 1 << 22,
     kHasIndices_DrawVerticesMask        = 1 << 23,
-};
-
-enum {
-    kTextLength_DrawTextOnPathMask      = (1 << 16) - 1,
-    kMatrixType_DrawTextOnPathShift     = 16,
-    kMatrixType_DrawTextOnPathMask      = 0xF << kMatrixType_DrawTextOnPathShift,
 };
 
 enum {

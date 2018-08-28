@@ -122,7 +122,6 @@ DRAW(DrawRect, drawRect(r.rect, r.paint));
 DRAW(DrawRegion, drawRegion(r.region, r.paint));
 DRAW(DrawText, drawText(r.text, r.byteLength, r.x, r.y, r.paint));
 DRAW(DrawTextBlob, drawTextBlob(r.blob.get(), r.x, r.y, r.paint));
-DRAW(DrawTextOnPath, drawTextOnPath(r.text, r.byteLength, r.path, &r.matrix, r.paint));
 DRAW(DrawTextRSXform, drawTextRSXform(r.text, r.byteLength, r.xforms, r.cull, r.paint));
 DRAW(DrawAtlas, drawAtlas(r.atlas.get(),
                           r.xforms, r.texs, r.colors, r.count, r.mode, r.cull, r.paint));
@@ -453,21 +452,6 @@ private:
         }
         SkRect dst = { left, op.y, right, op.y };
         AdjustTextForFontMetrics(&dst, op.paint);
-        return this->adjustAndMap(dst, &op.paint);
-    }
-    Bounds bounds(const DrawTextOnPath& op) const {
-        SkRect dst = op.path.getBounds();
-
-        // Pad all sides by the maximum padding in any direction we'd normally apply.
-        SkRect pad = { 0, 0, 0, 0};
-        AdjustTextForFontMetrics(&pad, op.paint);
-
-        // That maximum padding happens to always be the right pad today.
-        SkASSERT(pad.fLeft == -pad.fRight);
-        SkASSERT(pad.fTop  == -pad.fBottom);
-        SkASSERT(pad.fRight > pad.fBottom);
-        dst.outset(pad.fRight, pad.fRight);
-
         return this->adjustAndMap(dst, &op.paint);
     }
 

@@ -28,6 +28,7 @@
 #include "SkPathMeasure.h"
 #include "SkPicture.h"
 #include "SkRandom.h"
+#include "SkTextOnPath.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
 
@@ -261,9 +262,9 @@ protected:
         paint.setColor(SK_ColorMAGENTA);
         paint.setTextEncoding(SkPaint::kUTF16_TextEncoding);
         matrix.setTranslate(SkIntToScalar(10), SkIntToScalar(10));
-        canvas->drawTextOnPath((void*) utf16, sizeof(utf16), path, &matrix, paint);
+        SkDrawTextOnPath((void*)utf16, sizeof(utf16), paint, path, &matrix, canvas);
         canvas->translate(0, SkIntToScalar(20));
-        canvas->drawTextOnPath((void*) utf16simple, sizeof(utf16simple), path, &matrix, paint);
+        SkDrawTextOnPath((void*) utf16simple, sizeof(utf16simple), paint, path, &matrix, canvas);
         canvas->restore();
 
         canvas->translate(0, SkIntToScalar(60));
