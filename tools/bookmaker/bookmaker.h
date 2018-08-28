@@ -1150,7 +1150,9 @@ public:
         fParent = def;
     }
 
-    char* FindDateTime(char* buffer, int size);
+    static void CopyToFile(string oldFile, string newFile);
+
+    static char* FindDateTime(char* buffer, int size);
 
     void indentIn(IndentKind kind) {
         fIndent += 4;
@@ -1220,7 +1222,7 @@ public:
         fParent = fParent->fParent;
     }
 
-    char* ReadToBuffer(string filename, int* size);
+    static char* ReadToBuffer(string filename, int* size);
 
     virtual void reset() = 0;
 
@@ -1298,7 +1300,7 @@ public:
         this->writeString(str.c_str());
     }
 
-    bool writtenFileDiffers(string filename, string readname);
+    static bool WrittenFileDiffers(string filename, string readname);
 
     unordered_map<string, sk_sp<SkData>> fRawData;
     unordered_map<string, vector<char>> fLFOnly;
@@ -2164,9 +2166,9 @@ public:
     Catalog(BmhParser* bmh) : FiddleBase(bmh) {}
 
     bool appendFile(string path);
-    bool closeCatalog();
-    bool openCatalog(const char* inDir, const char* outDir);
-    bool openStatus(const char* inDir, const char* outDir);
+    bool closeCatalog(const char* outDir);
+    bool openCatalog(const char* inDir);
+    bool openStatus(const char* inDir);
 
     bool parseFromFile(const char* path) override ;
 private:
