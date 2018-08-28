@@ -520,7 +520,7 @@ public:
     private:
         const SkRegion* fRgn;
         const SkRegion::RunType*  fRuns;
-        SkIRect         fRect;
+        SkIRect         fRect = {0, 0, 0, 0};
         bool            fDone;
     };
 
@@ -560,7 +560,7 @@ public:
     private:
         Iterator    fIter;
         SkIRect     fClip;
-        SkIRect     fRect;
+        SkIRect     fRect = {0, 0, 0, 0};
         bool        fDone;
     };
 
