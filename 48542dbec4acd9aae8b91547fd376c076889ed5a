@@ -116,6 +116,30 @@
       "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98464ce6_1a59781b",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T13:47:02Z",
+      "side": 1,
+      "message": "For now I\u0027d personally go with this if it\u0027s constexpr, or if not,\n\n   fColor4f \u003d {0,0,0,1}; // opaque black\n\nand then see if we need to get fancier later as we start to work with this more?",
+      "parentUuid": "53cbd483_b9b0a8a3",
+      "range": {
+        "startLine": 57,
+        "startChar": 18,
+        "endLine": 57,
+        "endChar": 27
+      },
+      "revId": "48542dbec4acd9aae8b91547fd376c076889ed5a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }

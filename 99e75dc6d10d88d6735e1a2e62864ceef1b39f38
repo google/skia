@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "257f2475_400b5227",
+        "filename": "include/core/SkPaint.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T13:47:02Z",
+      "side": 1,
+      "message": "... are extended sRGB values ( ibid... not necessarily in the range [0,1]).\n\n?",
+      "range": {
+        "startLine": 501,
+        "startChar": 8,
+        "endLine": 501,
+        "endChar": 24
+      },
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b9f53f02_faa013d2",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T13:47:02Z",
+      "side": 1,
+      "message": "Can drop now right?",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 268,
+        "endChar": 5
+      },
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "236294ff_a33061c4",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T13:47:02Z",
+      "side": 1,
+      "message": "Might be clearer here internally to pass sk_srgb_colorspace()?",
+      "range": {
+        "startLine": 1244,
+        "startChar": 33,
+        "endLine": 1244,
+        "endChar": 40
+      },
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7a83ebd_b5c510a9",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T13:47:02Z",
+      "side": 1,
+      "message": "It occurs to me that this comment and the assertion are off by one uint32_t.  Are there perhaps really now 11 32-bit values?",
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
