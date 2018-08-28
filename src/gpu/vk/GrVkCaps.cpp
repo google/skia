@@ -292,7 +292,8 @@ void GrVkCaps::applyDriverCorrectnessWorkarounds(const VkPhysicalDevicePropertie
     }
 
 #if defined(SK_BUILD_FOR_WIN)
-    if (kNvidia_VkVendor == properties.vendorID) {
+    if (kNvidia_VkVendor == properties.vendorID || kIntel_VkVendor == properties.vendorID) {
+        SkDebugf("I am intel turning on sleep\n");
         fMustSleepOnTearDown = true;
     }
 #elif defined(SK_BUILD_FOR_ANDROID)
