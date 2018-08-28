@@ -151,6 +151,24 @@
       "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9ffbc0da_07170f89",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 1516,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T14:23:30Z",
+      "side": 1,
+      "message": "(I think the existing comment must be wrong... the whole part after \"so\" is explaining why the numbers shouldn\u0027t match the counts, and yet they do match.)",
+      "parentUuid": "3ac7a11f_a2cad2be",
+      "revId": "99e75dc6d10d88d6735e1a2e62864ceef1b39f38",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
