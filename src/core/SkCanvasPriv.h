@@ -26,7 +26,7 @@ private:
 class SkCanvasPriv {
 public:
     enum {
-        kDontClipToLayer_SaveLayerFlag = SkCanvas::kDontClipToLayer_PrivateSaveLayerFlag,
+        kDontClipToLayer_SaveLayerFlag = 1U << 31,
     };
 
     // The lattice has pointers directly into the readbuffer
