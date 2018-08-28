@@ -75,10 +75,6 @@ class SkTextBlob;
     This approach may be deprecated in the future.
 */
 class SK_API SkCanvas {
-    enum PrivateSaveLayerFlags {
-        kDontClipToLayer_PrivateSaveLayerFlag   = 1U << 31,
-    };
-
 public:
 
     /** Allocates raster SkCanvas that will draw directly into pixels.

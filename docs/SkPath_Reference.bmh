@@ -3043,6 +3043,7 @@ constructions are converted to Conic data when added to Path.
 #Description ##
 #Function
 ###$
+#include "SkTextOnPath.h"
 struct data {
    const char* name;
    char super;
@@ -3100,7 +3101,9 @@ void draw(SkCanvas* canvas) {
        SkPath path;
        path.moveTo(tl - 3 + col * 35, 103);
        path.lineTo(tl + 124 + col * 35, -24);
-       canvas->drawTextOnPathHV(headers[col -1], strlen(headers[col -1]), path, 0, -9, bp);
+       SkMatrix matrix;
+       matrix.setTranslate(0, -9);
+       SkDrawTextOnPath(headers[col -1], strlen(headers[col -1]), bp, path, &matrix, canvas);
     }
     for (unsigned row = 0; row <= SK_ARRAY_COUNT(dataSet); ++row) {
         if (0 == row) {
@@ -4500,6 +4503,11 @@ After appending, Path may be empty, or may contain: Rect, Oval, or Round_Rect.
 #Return reference to Path ##
 
 #Example
+###$
+$Function
+#include "SkTextOnPath.h"
+$$
+
 void draw(SkCanvas* canvas) {
     SkPaint paint;
     paint.setAntiAlias(true);
@@ -4511,9 +4519,12 @@ void draw(SkCanvas* canvas) {
     for (int start = 0; start < 8; ++start) {
         SkPath textPath;
         textPath.addRRect(rrect, SkPath::kCW_Direction, start);
-        canvas->drawTextOnPathHV(&"01234567"[start], 1, textPath, 0, -5, paint);
+        SkMatrix matrix;
+        matrix.setTranslate(0, -5);
+        SkDrawTextOnPath(&"01234567"[start], 1, paint, textPath, &matrix, canvas);
     }
 }
+$$$#
 ##
 
 #SeeAlso addRoundRect SkCanvas::drawRRect

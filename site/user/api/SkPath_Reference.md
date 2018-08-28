@@ -3686,7 +3686,7 @@ constructions are converted to <a href='#Conic'>Conic</a> data when added to <a 
 
 ### Example
 
-<div><fiddle-embed name="891ac93abd0cdb27c4156685d3b1bb4c"><div>
+<div><fiddle-embed name="fe909570a3c42269b447b061158177b9"><div>
 
 <table>  <tr>
     <td><sup>1</sup> <a href='#SkPath_arcTo'>arcTo(const SkRect& oval, SkScalar startAngle, SkScalar sweepAngle, bool forceMoveTo)</a></td>
@@ -4910,7 +4910,7 @@ reference to <a href='#Path'>Path</a>
 
 ### Example
 
-<div><fiddle-embed name="f18740ffcb10a499007488948c2cd60d"></fiddle-embed></div>
+<div><fiddle-embed name="0e6ca92d854035da29e89ad81d85ff85"></fiddle-embed></div>
 
 ### See Also
 
