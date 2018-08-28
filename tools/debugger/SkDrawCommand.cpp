@@ -241,7 +241,6 @@ const char* SkDrawCommand::GetCommandString(OpType type) {
         case kDrawShadow_OpType: return "DrawShadow";
         case kDrawText_OpType: return "DrawText";
         case kDrawTextBlob_OpType: return "DrawTextBlob";
-        case kDrawTextOnPath_OpType: return "DrawTextOnPath";
         case kDrawTextRSXform_OpType: return "DrawTextRSXform";
         case kDrawVertices_OpType: return "DrawVertices";
         case kDrawAtlas_OpType: return "DrawAtlas";
@@ -2135,33 +2134,6 @@ Json::Value SkDrawTextCommand::toJSON(UrlDataManager& urlDataManager) const {
     result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
     Json::Value coords(Json::arrayValue);
     result[SKDEBUGCANVAS_ATTRIBUTE_COORDS] = MakeJsonPoint(fX, fY);
-    result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
-    return result;
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-SkDrawTextOnPathCommand::SkDrawTextOnPathCommand(const void* text, size_t byteLength,
-                                                 const SkPath& path, const SkMatrix* matrix,
-                                                 const SkPaint& paint)
-    : INHERITED(kDrawTextOnPath_OpType)
-    , fText(SkData::MakeWithCopy(text, byteLength))
-    , fPath(path)
-    , fMatrix(matrix)
-    , fPaint(paint) {}
-
-void SkDrawTextOnPathCommand::execute(SkCanvas* canvas) const {
-    canvas->drawTextOnPath(fText->data(), fText->size(), fPath, fMatrix.getMaybeNull(), fPaint);
-}
-
-Json::Value SkDrawTextOnPathCommand::toJSON(UrlDataManager& urlDataManager) const {
-    Json::Value result = INHERITED::toJSON(urlDataManager);
-    result[SKDEBUGCANVAS_ATTRIBUTE_TEXT] = make_json_text(fText);
-    Json::Value coords(Json::arrayValue);
-    result[SKDEBUGCANVAS_ATTRIBUTE_PATH] = MakeJsonPath(fPath);
-    if (fMatrix.isValid()) {
-        result[SKDEBUGCANVAS_ATTRIBUTE_MATRIX] = MakeJsonMatrix(*fMatrix.get());
-    }
     result[SKDEBUGCANVAS_ATTRIBUTE_PAINT] = MakeJsonPaint(fPaint, urlDataManager);
     return result;
 }

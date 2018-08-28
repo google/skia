@@ -54,7 +54,7 @@ namespace {
     M(DrawRRect) M(DrawDRRect) M(DrawAnnotation) M(DrawDrawable) M(DrawPicture) \
     M(DrawImage) M(DrawImageNine) M(DrawImageRect) M(DrawImageLattice)          \
     M(DrawText) M(DrawPosText) M(DrawPosTextH)                                  \
-    M(DrawTextOnPath) M(DrawTextRSXform) M(DrawTextBlob)                        \
+    M(DrawTextRSXform) M(DrawTextBlob)                                          \
     M(DrawPatch) M(DrawPoints) M(DrawVertices) M(DrawAtlas) M(DrawShadowRec)
 
 #define M(T) T,
@@ -364,21 +364,6 @@ namespace {
             c->drawPosTextH(text, bytes, xs, y, paint);
         }
     };
-    struct DrawTextOnPath final : Op {
-        static const auto kType = Type::DrawTextOnPath;
-        DrawTextOnPath(size_t bytes, const SkPath& path,
-                       const SkMatrix* matrix, const SkPaint& paint)
-            : bytes(bytes), path(path), paint(paint) {
-            if (matrix) { this->matrix = *matrix; }
-        }
-        size_t   bytes;
-        SkPath   path;
-        SkMatrix matrix = SkMatrix::I();
-        SkPaint  paint;
-        void draw(SkCanvas* c, const SkMatrix&) const {
-            c->drawTextOnPath(pod<void>(this), bytes, path, &matrix, paint);
-        }
-    };
     struct DrawTextRSXform final : Op {
         static const auto kType = Type::DrawTextRSXform;
         DrawTextRSXform(size_t bytes, int xforms, const SkRect* cull, const SkPaint& paint)
@@ -635,11 +620,6 @@ void SkLiteDL::drawPosTextH(const void* text, size_t bytes,
     int n = paint.countText(text, bytes);
     void* pod = this->push<DrawPosTextH>(n*sizeof(SkScalar)+bytes, bytes, y, paint, n);
     copy_v(pod, xs,n, (const char*)text,bytes);
-}
-void SkLiteDL::drawTextOnPath(const void* text, size_t bytes,
-                              const SkPath& path, const SkMatrix* matrix, const SkPaint& paint) {
-    void* pod = this->push<DrawTextOnPath>(bytes, bytes, path, matrix, paint);
-    copy_v(pod, (const char*)text,bytes);
 }
 void SkLiteDL::drawTextRSXform(const void* text, size_t bytes,
                                const SkRSXform xforms[], const SkRect* cull, const SkPaint& paint) {

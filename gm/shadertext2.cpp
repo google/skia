@@ -9,6 +9,7 @@
 #include "SkCanvas.h"
 #include "SkGradientShader.h"
 #include "SkPath.h"
+#include "SkTextOnPath.h"
 
 static void makebm(SkBitmap* bm, int w, int h) {
     bm->allocN32Pixels(w, h);
@@ -158,8 +159,8 @@ DEF_SIMPLE_GM_BG(shadertext2, canvas, 1800, 900, 0xFFDDDDDD) {
 
                     canvas->save();
                         canvas->concat(matrices[m].fMatrix);
-                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, paint);
-                        canvas->drawTextOnPath(kText, kTextLen, path, nullptr, outlinePaint);
+                        SkDrawTextOnPath(kText, kTextLen, paint, path, nullptr, canvas);
+                        SkDrawTextOnPath(kText, kTextLen, outlinePaint, path, nullptr, canvas);
                     canvas->restore();
                     SkPaint stroke;
                     stroke.setStyle(SkPaint::kStroke_Style);
