@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39c1936f_08f826ff",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 931,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-28T17:58:52Z",
+      "side": 1,
+      "message": "Might make more sense to move the trace marker to internalSaveLayer()?  That\u0027s where the real work will happen, if any.",
+      "range": {
+        "startLine": 931,
+        "startChar": 14,
+        "endLine": 931,
+        "endChar": 31
+      },
+      "revId": "a09001a2b22c9964da302aa4b4f90dbb78850b86",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
