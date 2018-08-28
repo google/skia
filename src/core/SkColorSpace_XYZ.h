@@ -10,7 +10,6 @@
 
 #include "SkColorSpace.h"
 #include "SkData.h"
-#include "SkGammas.h"
 #include "SkOnce.h"
 
 class SkColorSpace_XYZ : public SkColorSpace {
@@ -24,29 +23,19 @@ public:
     bool onGammaIsLinear() const override;
     bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override;
 
-    const SkData* onProfileData() const override { return fProfileData.get(); }
-
     sk_sp<SkColorSpace> makeLinearGamma() const override;
     sk_sp<SkColorSpace> makeSRGBGamma() const override;
     sk_sp<SkColorSpace> makeColorSpin() const override;
 
     SkGammaNamed onGammaNamed() const override { return fGammaNamed; }
 
-    const SkGammas* gammas() const { return fGammas.get(); }
-
-    void toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage, int numTables) const;
-
-    SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZ);
-
-    SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
-                     const SkMatrix44& toXYZ, sk_sp<SkData> profileData);
+    SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkColorSpaceTransferFn* transferFn,
+                     const SkMatrix44& toXYZ);
 
 private:
-    sk_sp<SkData>          fProfileData;
-
-    const SkGammaNamed     fGammaNamed;
-    sk_sp<SkGammas>        fGammas;
-    const SkMatrix44       fToXYZD50;
+    SkGammaNamed           fGammaNamed;
+    SkColorSpaceTransferFn fTransferFn;
+    SkMatrix44             fToXYZD50;
     uint32_t               fToXYZD50Hash;
 
     mutable SkMatrix44     fFromXYZD50;

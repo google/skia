@@ -10,30 +10,16 @@
 #include "SkColorSpaceXformPriv.h"
 #include "SkOpts.h"
 
-SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
-    : fProfileData(nullptr)
-    , fGammaNamed(gammaNamed)
-    , fGammas(nullptr)
-    , fToXYZD50(toXYZD50)
-    , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
-    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor)
-{}
-
-SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, sk_sp<SkGammas> gammas,
-                                   const SkMatrix44& toXYZD50, sk_sp<SkData> profileData)
-    : fProfileData(std::move(profileData))
-    , fGammaNamed(gammaNamed)
-    , fGammas(std::move(gammas))
-    , fToXYZD50(toXYZD50)
-    , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
-    , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
-    SkASSERT(!fGammas || 3 == fGammas->channels());
-    if (fGammas) {
-        for (int i = 0; i < fGammas->channels(); ++i) {
-            if (SkGammas::Type::kTable_Type == fGammas->type(i)) {
-                SkASSERT(fGammas->data(i).fTable.fSize >= 2);
-            }
-        }
+SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed,
+                                   const SkColorSpaceTransferFn* transferFn,
+                                   const SkMatrix44& toXYZD50)
+        : fGammaNamed(gammaNamed)
+        , fToXYZD50(toXYZD50)
+        , fToXYZD50Hash(SkOpts::hash_fn(toXYZD50.values(), 16 * sizeof(SkMScalar), 0))
+        , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
+    SkASSERT(fGammaNamed != kNonStandard_SkGammaNamed || transferFn);
+    if (transferFn) {
+        fTransferFn = *transferFn;
     }
 }
 
@@ -59,26 +45,25 @@ bool SkColorSpace_XYZ::onGammaIsLinear() const {
 }
 
 bool SkColorSpace_XYZ::onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const {
-    if (named_to_parametric(coeffs, fGammaNamed)) {
-        return true;
+    switch (fGammaNamed) {
+        case kSRGB_SkGammaNamed:
+            *coeffs = gSRGB_TransferFn;
+            break;
+        case k2Dot2Curve_SkGammaNamed:
+            *coeffs = g2Dot2_TransferFn;
+            break;
+        case kLinear_SkGammaNamed:
+            *coeffs = gLinear_TransferFn;
+            break;
+        case kNonStandard_SkGammaNamed:
+            *coeffs = fTransferFn;
+            break;
+        default:
+            SkDEBUGFAIL("Unknown named gamma");
+            return false;
     }
 
-    SkASSERT(fGammas);
-    if (!fGammas->allChannelsSame()) {
-        return false;
-    }
-
-    if (fGammas->isValue(0)) {
-        value_to_parametric(coeffs, fGammas->data(0).fValue);
-        return true;
-    }
-
-    if (fGammas->isParametric(0)) {
-        *coeffs = fGammas->params(0);
-        return true;
-    }
-
-    return false;
+    return true;
 }
 
 sk_sp<SkColorSpace> SkColorSpace_XYZ::makeLinearGamma() const {
@@ -100,5 +85,5 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
     spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
     spin.postConcat(fToXYZD50);
     (void)spin.getType();  // Pre-cache spin matrix type to avoid races in future getType() calls.
-    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
+    return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, &fTransferFn, spin));
 }
