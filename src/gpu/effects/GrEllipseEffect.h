@@ -17,9 +17,9 @@
 #include "GrCoordTransform.h"
 class GrEllipseEffect : public GrFragmentProcessor {
 public:
-    GrClipEdgeType edgeType() const { return fEdgeType; }
-    SkPoint center() const { return fCenter; }
-    SkPoint radii() const { return fRadii; }
+    const GrClipEdgeType& edgeType() const { return fEdgeType; }
+    const SkPoint& center() const { return fCenter; }
+    const SkPoint& radii() const { return fRadii; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      SkPoint radii, const GrShaderCaps& caps) {

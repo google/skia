@@ -38,7 +38,8 @@ struct Layout {
         kBlendSupportHSLHue_Flag         = 1 << 15,
         kBlendSupportHSLSaturation_Flag  = 1 << 16,
         kBlendSupportHSLColor_Flag       = 1 << 17,
-        kBlendSupportHSLLuminosity_Flag  = 1 << 18
+        kBlendSupportHSLLuminosity_Flag  = 1 << 18,
+        kTracked_Flag                    = 1 << 19
     };
 
     enum Primitive {
@@ -262,6 +263,10 @@ struct Layout {
         }
         if (fFlags & kPushConstant_Flag) {
             result += separator + "push_constant";
+            separator = ", ";
+        }
+        if (fFlags & kTracked_Flag) {
+            result += separator + "tracked";
             separator = ", ";
         }
         switch (fPrimitive) {

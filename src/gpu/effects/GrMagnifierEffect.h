@@ -15,12 +15,12 @@
 #include "GrCoordTransform.h"
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
-    SkIRect bounds() const { return fBounds; }
-    SkRect srcRect() const { return fSrcRect; }
-    float xInvZoom() const { return fXInvZoom; }
-    float yInvZoom() const { return fYInvZoom; }
-    float xInvInset() const { return fXInvInset; }
-    float yInvInset() const { return fYInvInset; }
+    const SkIRect& bounds() const { return fBounds; }
+    const SkRect& srcRect() const { return fSrcRect; }
+    const float& xInvZoom() const { return fXInvZoom; }
+    const float& yInvZoom() const { return fYInvZoom; }
+    const float& xInvInset() const { return fXInvInset; }
+    const float& yInvInset() const { return fYInvInset; }
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> src, SkIRect bounds,
                                                      SkRect srcRect, float xInvZoom, float yInvZoom,
                                                      float xInvInset, float yInvInset) {
