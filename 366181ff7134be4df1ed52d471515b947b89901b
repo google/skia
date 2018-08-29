@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "62977cd1_64b9ad49",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-29T19:39:15Z",
+      "side": 1,
+      "message": "Yes, size of the step in T. I think \"segmentLength\" is a better name.\n\nChanged to SkScalarInvert.",
+      "parentUuid": "39ab7ad9_6e356aa9",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 41
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6af737cf_82ee6250",
         "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
         "patchSetId": 15
@@ -45,6 +69,30 @@
       "revId": "366181ff7134be4df1ed52d471515b947b89901b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "665b0561_cf7c2843",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-08-29T19:39:15Z",
+      "side": 1,
+      "message": "THANKS for the links.\n\nI\u0027m not happy with this bit of code, but the way it works is that it looks at the vector normal to the curve at \"leftT\", and the normal at \"rightT\", then sees if the angle between is beyond a certain threshold.\n\nThe CAGD link looks promising for optimizing this in the future.",
+      "parentUuid": "6af737cf_82ee6250",
+      "range": {
+        "startLine": 319,
+        "startChar": 4,
+        "endLine": 320,
+        "endChar": 96
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
