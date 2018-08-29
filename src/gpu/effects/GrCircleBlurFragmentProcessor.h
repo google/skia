@@ -15,9 +15,9 @@
 #include "GrCoordTransform.h"
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
-    SkRect circleRect() const { return fCircleRect; }
-    float textureRadius() const { return fTextureRadius; }
-    float solidRadius() const { return fSolidRadius; }
+    const SkRect& circleRect() const { return fCircleRect; }
+    const float& textureRadius() const { return fTextureRadius; }
+    const float& solidRadius() const { return fSolidRadius; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider*, const SkRect& circle,
                                                      float sigma);
