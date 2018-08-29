@@ -9,7 +9,6 @@
 #include "SkCodec.h"
 #include "SkColorSpace.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkData.h"
 #include "SkImageInfo.h"
 #include "SkMatrix44.h"
@@ -142,8 +141,7 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
 
     // Create the linear sRGB color space via the sRGB color space's makeLinearGamma()
     auto srgb = SkColorSpace::MakeSRGB();
-    auto srgbXYZ = static_cast<SkColorSpace_XYZ*>(srgb.get());
-    sk_sp<SkColorSpace> viaSrgbColorSpace = srgbXYZ->makeLinearGamma();
+    sk_sp<SkColorSpace> viaSrgbColorSpace = srgb->makeLinearGamma();
     REPORTER_ASSERT(r, namedColorSpace == viaSrgbColorSpace);
 
     // Create a linear sRGB color space by value
