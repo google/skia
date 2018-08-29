@@ -51,6 +51,7 @@ public:
 
     GrVkMemoryAllocator* memoryAllocator() const { return fMemoryAllocator.get(); }
 
+    VkPhysicalDevice physicalDevice() const { return fPhysicalDevice; }
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
     VkCommandPool cmdPool() const { return fCmdPool; }
@@ -232,6 +233,7 @@ private:
     sk_sp<GrVkCaps>                        fVkCaps;
 
     VkInstance                             fInstance;
+    VkPhysicalDevice                       fPhysicalDevice;
     VkDevice                               fDevice;
     VkQueue                                fQueue;    // Must be Graphics queue
 
