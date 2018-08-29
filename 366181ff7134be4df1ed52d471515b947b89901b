@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c25c31a0_3853a26c",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-29T13:18:40Z",
+      "side": 1,
+      "message": "This really confuses me. kAlmost 18??? Degress. And then it equals 32? What does that mean",
+      "range": {
+        "startLine": 450,
+        "startChar": 27,
+        "endLine": 450,
+        "endChar": 49
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cc45f780_38145263",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.h",
+        "patchSetId": 15
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-29T13:18:40Z",
+      "side": 1,
+      "message": "Do you have any sort of check to make sure these things don\u0027t overflow?",
+      "range": {
+        "startLine": 29,
+        "startChar": 22,
+        "endLine": 29,
+        "endChar": 36
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
