@@ -125,7 +125,8 @@ describe('PathKit\'s PathOps Behavior', function() {
                 r.json().then((json)=>{
                     expect(json).toBeTruthy();
                     let testNames = Object.keys(json);
-                    expect(testNames.length).toBe(363);  // Remove if test data changes a lot.
+                    // Assert we loaded a non-zero amount of tests, i.e. the JSON is valid.
+                    expect(testNames.length > 0).toBeTruthy();
                     testNames.sort();
                     for (testName of testNames) {
                         let test = json[testName];
@@ -182,7 +183,8 @@ describe('PathKit\'s PathOps Behavior', function() {
                 r.json().then((json)=>{
                     expect(json).toBeTruthy();
                     let testNames = Object.keys(json);
-                    expect(testNames.length).toBe(461);  // Remove if test data changes a lot.
+                    // Assert we loaded a non-zero amount of tests, i.e. the JSON is valid.
+                    expect(testNames.length > 0).toBeTruthy();
                     testNames.sort();
                     for (testName of testNames) {
                         let test = json[testName];
