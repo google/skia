@@ -59,9 +59,7 @@
         // Once the first tile is loaded, calculate what
         // the filmstrip should look like.
         let animationData = anim.animationData;
-
-        let inPoint = (anim.animationData.ip || 0);
-        let outPoint = (anim.animationData.op || (anim.animationData.totalFrames));
+        let totalFrames = anim.totalFrames;
         // t_rate mimics DMSrcSink.cpp::SkottieSrc::draw
         let t_rate = 1.0 / (TILE_COUNT * TILE_COUNT - 1);
 
@@ -96,12 +94,12 @@
           });
 
           let t = Math.max(Math.min(t_rate * i, 1.0), 0.0);
-          let seekToFrame = inPoint + t * (outPoint - inPoint);
-          if (seekToFrame >= outPoint) {
+          let seekToFrame = totalFrames * t;
+          if (seekToFrame >= totalFrames) {
             // bodymovin player sometimes draws blank when requesting
             // to draw the very last frame.  Subtracting a small value
             // seems to fix this and make it draw the last frame.
-            seekToFrame -= .1;
+            seekToFrame -= .001;
           }
 
           // don't need to wait for data_ready because it's instantly ready.
