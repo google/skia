@@ -80,7 +80,8 @@ static bool sw_draw_with_mask_filter(GrContext* context,
 
     if (key.isValid()) {
         // TODO: this cache look up is duplicated in draw_shape_with_mask_filter for gpu
-        filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key, kTopLeft_GrSurfaceOrigin);
+        filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(key,
+                                                                   kBottomLeft_GrSurfaceOrigin);
     }
 
     SkIRect drawRect;
@@ -387,7 +388,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
         if (maskKey.isValid()) {
             // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
             filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(
-                                                maskKey, renderTargetContext->origin());
+                                                maskKey, kBottomLeft_GrSurfaceOrigin);
         }
 
         if (!filteredMask) {
@@ -402,6 +403,8 @@ static void draw_shape_with_mask_filter(GrContext* context,
                                                          std::move(maskProxy),
                                                          viewMatrix,
                                                          maskRect);
+                SkASSERT(kBottomLeft_GrSurfaceOrigin == filteredMask->origin());
+
                 if (filteredMask && maskKey.isValid()) {
                     proxyProvider->assignUniqueKeyToProxy(maskKey, filteredMask.get());
                 }
