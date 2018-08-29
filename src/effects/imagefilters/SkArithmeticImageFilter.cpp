@@ -22,14 +22,28 @@
 #include "GrRenderTargetContext.h"
 #include "GrTextureProxy.h"
 #include "SkGr.h"
-#include "effects/GrArithmeticFP.h"
 #include "effects/GrConstColorProcessor.h"
+#include "effects/GrSkSLFP.h"
 #include "effects/GrTextureDomain.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
 #endif
+
+const char* SKSL_ARITHMETIC_SRC = R"(
+in uniform float4 k;
+layout(key) const in bool enforcePMColor;
+in fragmentProcessor child;
+
+void main(int x, int y, inout half4 color) {
+    half4 dst = process(child);
+    color = saturate(k.x * color * dst + k.y * color + k.z * dst + k.w);
+    if (enforcePMColor) {
+        color.rgb = min(color.rgb, color.a);
+    }
+}
+)";
 
 class ArithmeticImageFilterImpl : public SkImageFilter {
 public:
@@ -268,21 +282,6 @@ SkIRect ArithmeticImageFilterImpl::onFilterBounds(const SkIRect& src,
 
 #if SK_SUPPORT_GPU
 
-#if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> GrArithmeticFP::TestCreate(GrProcessorTestData* d) {
-    float k1 = d->fRandom->nextF();
-    float k2 = d->fRandom->nextF();
-    float k3 = d->fRandom->nextF();
-    float k4 = d->fRandom->nextF();
-    bool enforcePMColor = d->fRandom->nextBool();
-
-    std::unique_ptr<GrFragmentProcessor> dst(GrProcessorUnitTest::MakeChildFP(d));
-    return GrArithmeticFP::Make(k1, k2, k3, k4, enforcePMColor, std::move(dst));
-}
-#endif
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrArithmeticFP);
-
 sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
         SkSpecialImage* source,
         sk_sp<SkSpecialImage> background,
@@ -336,11 +335,19 @@ sk_sp<SkSpecialImage> ArithmeticImageFilterImpl::filterImageGPU(
                                                      outputProperties.colorSpace());
         paint.addColorFragmentProcessor(std::move(foregroundFP));
 
-        std::unique_ptr<GrFragmentProcessor> xferFP =
-                GrArithmeticFP::Make(fK[0], fK[1], fK[2], fK[3], fEnforcePMColor, std::move(bgFP));
-
-        // A null 'xferFP' here means kSrc_Mode was used in which case we can just proceed
+        static int arithmeticIndex = GrSkSLFP::NewIndex();
+        ArithmeticFPInputs inputs;
+        static_assert(sizeof(inputs.k) == sizeof(fK), "struct size mismatch");
+        memcpy(inputs.k, fK, sizeof(inputs.k));
+        inputs.enforcePMColor = fEnforcePMColor;
+        std::unique_ptr<GrFragmentProcessor> xferFP = GrSkSLFP::Make(context,
+                                                                     arithmeticIndex,
+                                                                     "Arithmetic",
+                                                                     SKSL_ARITHMETIC_SRC,
+                                                                     &inputs,
+                                                                     sizeof(inputs));
         if (xferFP) {
+            ((GrSkSLFP&) *xferFP).addChild(std::move(bgFP));
             paint.addColorFragmentProcessor(std::move(xferFP));
         }
     } else {
