@@ -5,6 +5,10 @@
 // license that can be found in the LICENSE file.
 //
 
+// target-specific config
+#include "hs_config.h"
+
+// arch/target-specific macros
 #include "hs_cl_macros.h"
 
 //

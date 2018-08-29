@@ -9,34 +9,6 @@
 #define HS_GLSL_MACROS_ONCE
 
 //
-//
-//
-
-#include "hs_config.h"
-
-//
-//
-//
-
-#define HS_HASH                   #
-#define HS_EVAL(a)                a
-#define HS_GLSL_EXT()             HS_EVAL(HS_HASH)##extension
-#define HS_GLSL_EXT_REQUIRE(name) HS_GLSL_EXT() name : require
-#define HS_GLSL_VERSION(ver)      HS_EVAL(HS_HASH)##version ver
-
-//
-//
-//
-
-HS_GLSL_VERSION(450)
-HS_GLSL_EXT_REQUIRE(GL_KHR_shader_subgroup_basic)
-HS_GLSL_EXT_REQUIRE(GL_KHR_shader_subgroup_shuffle)
-
-#if HS_KEY_WORDS == 2
-HS_GLSL_EXT_REQUIRE(GL_ARB_gpu_shader_int64)
-#endif
-
-//
 // Define the type based on key and val sizes
 //
 
@@ -78,10 +50,10 @@ HS_GLSL_EXT_REQUIRE(GL_ARB_gpu_shader_int64)
   HS_GLSL_BINDING(1) readonly  buffer Vin  { HS_KEY_TYPE vin[];  };     \
   void main()
 
-#define HS_BC_KERNEL_PROTO(slab_count,slab_count_log2)        \
-  HS_GLSL_SUBGROUP_SIZE()                                     \
-  HS_GLSL_WORKGROUP_SIZE(HS_SLAB_THREADS*slab_count,1,1);     \
-  HS_GLSL_BINDING(0) buffer Vout { HS_KEY_TYPE vout[]; };     \
+#define HS_BC_KERNEL_PROTO(slab_count,slab_count_log2)          \
+  HS_GLSL_SUBGROUP_SIZE()                                       \
+  HS_GLSL_WORKGROUP_SIZE(HS_SLAB_THREADS*slab_count,1,1);       \
+  HS_GLSL_BINDING(0) buffer Vout { HS_KEY_TYPE vout[]; };       \
   void main()
 
 #define HS_FM_KERNEL_PROTO(s,r)                                 \

@@ -19,7 +19,7 @@
 
 #include "svg/svg_doc.h"
 #include "svg2skc/svg2skc.h"
-#include "svg2skc/transform_stack.h"
+#include "ts/transform_stack.h"
 
 //
 //

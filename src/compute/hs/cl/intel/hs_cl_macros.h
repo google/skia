@@ -9,12 +9,6 @@
 #define HS_CL_MACROS_ONCE
 
 //
-//
-//
-
-#include "hs_config.h"
-
-//
 // Define the type based on key and val sizes
 //
 

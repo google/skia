@@ -2113,11 +2113,11 @@ skc_kernel_render(__global   union  skc_layer_node   const * SKC_RESTRICT const 
                 break;
 
               case SKC_STYLING_OPCODE_COVER_WIP_MOVE_TO_MASK:
-                // skc_tile_cover_msk_copy_wip(&cover_msk,&cover_wip);
+                skc_tile_cover_msk_copy_wip(&cover_msk,&cover_wip);
                 break;
 
               case SKC_STYLING_OPCODE_COVER_ACC_MOVE_TO_MASK:
-                // skc_tile_cover_msk_copy_acc(&cover_msk,&cover_acc);
+                skc_tile_cover_msk_copy_acc(&cover_msk,&cover_acc);
                 break;
 
               case SKC_STYLING_OPCODE_BACKGROUND_OVER:

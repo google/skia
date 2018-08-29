@@ -48,7 +48,7 @@ where glslangValidator
 for %%f in (*.comp) do (
     dos2unix %%f
     clang-format -style=Mozilla -i %%f                                   || goto :error
-    cl -I ../.. -EP %%f -P -Fi%%~nf.pre.comp                             || goto :error
+    cl -I ../.. -I ../../.. -EP %%f -P -Fi%%~nf.pre.comp                 || goto :error
     clang-format -style=Mozilla -i %%~nf.pre.comp                        || goto :error
     glslangValidator --target-env vulkan1.1 -o %%~nf.spv %%~nf.pre.comp  || goto :error
     spirv-opt -O %%~nf.spv -o %%~nf.spv                                  || goto :error
@@ -64,7 +64,7 @@ REM spirv-remap ...                                                      || goto
 :: dump a binary
 ::
 
-cl -I ../../../../.. -I ../../.. /DHS_DUMP /Fe:hs_dump.exe *.c
+cl -I ../../.. -I ../../../../.. /DHS_DUMP /Fe:hs_dump.exe *.c
 hs_dump
 
 ::

@@ -15,7 +15,8 @@
 #include "tile.h"
 #include "kernel_cl_12.h"
 #include "raster_builder_cl_12.h" // need meta_in structure
-#include "hs/cl/intel/gen8/u64/hs_cl_macros.h"
+#include "hs/cl/intel/gen8/u64/hs_config.h"
+#include "hs/cl/intel/hs_cl_macros.h"
 
 //
 //

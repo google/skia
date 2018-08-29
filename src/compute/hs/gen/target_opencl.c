@@ -86,6 +86,22 @@ hsg_copyright(FILE * file)
           "\n");
 }
 
+static
+void
+hsg_macros(FILE * file)
+{
+  fprintf(file,
+          "// target-specific config     \n"
+          "#include \"hs_config.h\"      \n"
+          "                              \n"
+          "// arch/target-specific macros\n"
+          "#include \"hs_cl_macros.h\"   \n"
+          "                              \n"
+          "//                            \n"
+          "//                            \n"
+          "//                            \n");
+}
+
 //
 //
 //
@@ -216,12 +232,7 @@ hsg_target_opencl(struct hsg_target       * const target,
 
         hsg_copyright(target->state->source);
 
-        fprintf(target->state->source,
-                "#include \"hs_cl_macros.h\" \n"
-                "                            \n"
-                "//                          \n"
-                "//                          \n"
-                "//                          \n");
+        hsg_macros(target->state->source);
       }
       break;
 
