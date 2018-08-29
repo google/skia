@@ -765,7 +765,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
         if (glyph.fWidth > 0) {
             if (glyph.fMaskFormat == SkMask::kSDF_Format) {
 
-                if (glyph_too_big_for_atlas(glyph)) {
+                if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
                     SkRect glyphRect =
                             rect_to_draw(glyph, glyphPos, textRatio, true);
                     if (!glyphRect.isEmpty()) {
