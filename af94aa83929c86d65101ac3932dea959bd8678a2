@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bba8edf5_aaf7d7df",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T19:01:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a21793b_76e10af2",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 19
+      },
+      "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8e1449b9_d480b6f8",
         "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
         "patchSetId": 1
@@ -93,6 +117,30 @@
       "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d17da0a9_16cb37f5",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T19:01:16Z",
+      "side": 1,
+      "message": "Updated to use the child\u0027s mangle string and document it.",
+      "parentUuid": "6d0aca33_e15bbd8e",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 77
+      },
+      "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
