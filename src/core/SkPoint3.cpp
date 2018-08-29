@@ -60,18 +60,7 @@ bool SkPoint3::normalize() {
         double xx = fX;
         double yy = fY;
         double zz = fZ;
-#ifdef SK_CPU_FLUSH_TO_ZERO
-        // The iOS ARM processor discards small denormalized numbers to go faster.
-        // Casting this to a float would cause the scale to go to zero. Keeping it
-        // as a double for the multiply keeps the scale non-zero.
-        double dscale = 1.0f / sqrt(xx * xx + yy * yy + zz * zz);
-        fX = x * dscale;
-        fY = y * dscale;
-        fZ = z * dscale;
-        return true;
-#else
         scale = (float)(1.0f / sqrt(xx * xx + yy * yy + zz * zz));
-#endif
     }
     fX *= scale;
     fY *= scale;
