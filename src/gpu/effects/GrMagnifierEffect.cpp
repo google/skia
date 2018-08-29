@@ -77,10 +77,10 @@ private:
                    const GrFragmentProcessor& _proc) override {
         const GrMagnifierEffect& _outer = _proc.cast<GrMagnifierEffect>();
         {
-            pdman.set1f(fXInvZoomVar, _outer.xInvZoom());
-            pdman.set1f(fYInvZoomVar, _outer.yInvZoom());
-            pdman.set1f(fXInvInsetVar, _outer.xInvInset());
-            pdman.set1f(fYInvInsetVar, _outer.yInvInset());
+            pdman.set1f(fXInvZoomVar, (_outer.xInvZoom()));
+            pdman.set1f(fYInvZoomVar, (_outer.yInvZoom()));
+            pdman.set1f(fXInvInsetVar, (_outer.xInvInset()));
+            pdman.set1f(fYInvInsetVar, (_outer.yInvInset()));
         }
         GrSurfaceProxy& srcProxy = *_outer.textureSampler(0).proxy();
         GrTexture& src = *srcProxy.peekTexture();

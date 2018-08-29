@@ -15,8 +15,8 @@
 #include "GrCoordTransform.h"
 class GrAARectEffect : public GrFragmentProcessor {
 public:
-    GrClipEdgeType edgeType() const { return fEdgeType; }
-    SkRect rect() const { return fRect; }
+    const GrClipEdgeType& edgeType() const { return fEdgeType; }
+    const SkRect& rect() const { return fRect; }
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkRect rect) {
         return std::unique_ptr<GrFragmentProcessor>(new GrAARectEffect(edgeType, rect));
     }

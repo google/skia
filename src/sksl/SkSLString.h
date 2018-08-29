@@ -92,6 +92,9 @@ public:
     bool startsWith(const char* s) const;
     bool endsWith(const char* s) const;
 
+    int find(const char* substring, int fromPos = 0) const;
+    int find(const String& substring, int fromPos = 0) const;
+
     String operator+(const char* s) const;
     String operator+(const String& s) const;
     String operator+(StringFragment s) const;
