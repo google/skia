@@ -67,13 +67,27 @@ const char* kDebugLayerNames[] = {
     //"VK_LAYER_LUNARG_screenshot",
 };
 
-static bool should_include_debug_layer(const VkLayerProperties& layerProps) {
-    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
-        if (!strcmp(layerProps.layerName, kDebugLayerNames[i])) {
-            return true;
+static uint32_t remove_patch_version(uint32_t specVersion) {
+    return (specVersion >> 12) << 12;
+}
+
+// Returns the index into layers array for the layer we want. Returns -1 if not supported.
+static int should_include_debug_layer(const char* layerName,
+                                       uint32_t layerCount, VkLayerProperties* layers,
+                                       uint32_t version) {
+    for (uint32_t i = 0; i < layerCount; ++i) {
+        if (!strcmp(layerName, layers[i].layerName)) {
+            // Since the layers intercept the vulkan calls and forward them on, we need to make sure
+            // layer was written against a version that isn't older than the version of Vulkan we're
+            // using so that it has all the api entry points.
+            if (version <= remove_patch_version(layers[i].specVersion)) {
+                return i;
+            }
+            return -1;
         }
+
     }
-    return false;
+    return -1;
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
@@ -89,7 +103,14 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
         SkDebugf("Vulkan error [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
         return VK_TRUE; // skip further layers
     } else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) {
-        SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        // There is currently a bug in the spec which doesn't have
+        // VK_STRUCTURE_TYPE_BLEND_OPERATION_ADVANCED_FEATURES_EXT as an allowable pNext struct in
+        // VkDeviceCreateInfo. So we ignore that warning since it is wrong.
+        if (!strstr(pMessage,
+                    "pCreateInfo->pNext chain includes a structure with unexpected VkStructureType "
+                    "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BLEND_OPERATION_ADVANCED_FEATURES_EXT")) {
+            SkDebugf("Vulkan warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
+        }
     } else if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) {
         SkDebugf("Vulkan perf warning [%s]: code: %d: %s\n", pLayerPrefix, messageCode, pMessage);
     } else {
@@ -100,12 +121,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
 #endif
 
 #define GET_PROC_LOCAL(F, inst, device) PFN_vk ## F F = (PFN_vk ## F) getProc("vk" #F, inst, device)
-
-#ifdef SK_ENABLE_VK_LAYERS
-static uint32_t remove_patch_version(uint32_t specVersion) {
-    return (specVersion >> 12) << 12;
-}
-#endif
 
 static bool init_instance_extensions_and_layers(GrVkGetProc getProc,
                                                 uint32_t specVersion,
@@ -139,10 +154,11 @@ static bool init_instance_extensions_and_layers(GrVkGetProc getProc,
     }
 
     uint32_t nonPatchVersion = remove_patch_version(specVersion);
-    for (uint32_t i = 0; i < layerCount; ++i) {
-        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion) &&
-            should_include_debug_layer(layers[i])) {
-            instanceLayers->push_back() = layers[i];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+        int idx = should_include_debug_layer(kDebugLayerNames[i], layerCount, layers,
+                                             nonPatchVersion);
+        if (idx != -1) {
+            instanceLayers->push_back() = layers[idx];
         }
     }
     delete[] layers;
@@ -223,10 +239,11 @@ static bool init_device_extensions_and_layers(GrVkGetProc getProc, uint32_t spec
     }
 
     uint32_t nonPatchVersion = remove_patch_version(specVersion);
-    for (uint32_t i = 0; i < layerCount; ++i) {
-        if (nonPatchVersion <= remove_patch_version(layers[i].specVersion) &&
-            should_include_debug_layer(layers[i])) {
-            deviceLayers->push_back() = layers[i];
+    for (size_t i = 0; i < SK_ARRAY_COUNT(kDebugLayerNames); ++i) {
+        int idx = should_include_debug_layer(kDebugLayerNames[i], layerCount, layers,
+                                             nonPatchVersion);
+        if (idx != -1) {
+            deviceLayers->push_back() = layers[idx];
         }
     }
     delete[] layers;
