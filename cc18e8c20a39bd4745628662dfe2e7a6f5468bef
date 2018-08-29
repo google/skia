@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c60cfc06_e0f77c73",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-08-29T12:42:25Z",
+      "side": 1,
+      "message": "Do we need this local copy?",
+      "range": {
+        "startLine": 553,
+        "startChar": 22,
+        "endLine": 553,
+        "endChar": 31
+      },
+      "revId": "cc18e8c20a39bd4745628662dfe2e7a6f5468bef",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
