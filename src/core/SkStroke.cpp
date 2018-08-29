@@ -36,7 +36,7 @@ static_assert(SK_ARRAY_COUNT(kRecursiveLimits) == kQuad_RecursiveLimit + 1,
     int gMaxRecursion[SK_ARRAY_COUNT(kRecursiveLimits)] = { 0 };
 #endif
 #ifndef DEBUG_QUAD_STROKER
-    #define DEBUG_QUAD_STROKER 0
+    #define DEBUG_QUAD_STROKER 01
 #endif
 
 #if DEBUG_QUAD_STROKER
@@ -170,7 +170,7 @@ private:
     SkStrokerPriv::CapProc  fCapper;
     SkStrokerPriv::JoinProc fJoiner;
 
-    SkPath  fInner, fOuter; // outer is our working answer, inner is temp
+    SkPath  fInner, fOuter, fCusper; // outer is our working answer, inner is temp
 
     enum StrokeType {
         kOuter_StrokeType = 1,      // use sign-opposite values later to flip perpendicular axis
@@ -213,11 +213,11 @@ private:
                       SkPoint* tangent) const;
     void conicQuadEnds(const SkConic& , SkQuadConstruct* ) const;
     bool conicStroke(const SkConic& , SkQuadConstruct* );
-    bool cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* ) const;
+    bool cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* );
     void cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
-                      SkPoint* tangent) const;
+                      SkPoint* tangent);
     void cubicQuadEnds(const SkPoint cubic[4], SkQuadConstruct* );
-    void cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* , SkPoint* mid) const;
+    void cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* , SkPoint* mid);
     bool cubicStroke(const SkPoint cubic[4], SkQuadConstruct* );
     void init(StrokeType strokeType, SkQuadConstruct* , SkScalar tStart, SkScalar tEnd);
     ResultType intersectRay(SkQuadConstruct* , IntersectRayType  STROKER_DEBUG_PARAMS(int) ) const;
@@ -327,6 +327,8 @@ void SkPathStroker::finishContour(bool close, bool currIsLine) {
                     fPrevIsLine ? &fInner : nullptr);
             fOuter.close();
         }
+        fOuter.addPath(fCusper);
+        fCusper.rewind();
     }
     // since we may re-use fInner, we rewind instead of reset, to save on
     // reallocating its internal storage.
@@ -815,7 +817,7 @@ void SkPathStroker::conicQuadEnds(const SkConic& conic, SkQuadConstruct* quadPts
 
 // Given a cubic and t, return the point on curve, its perpendicular, and the perpendicular tangent.
 void SkPathStroker::cubicPerpRay(const SkPoint cubic[4], SkScalar t, SkPoint* tPt, SkPoint* onPt,
-        SkPoint* tangent) const {
+        SkPoint* tangent) {
     SkVector dxy;
     SkPoint chopped[7];
     SkEvalCubicAt(cubic, t, tPt, &dxy, nullptr);
@@ -859,7 +861,7 @@ void SkPathStroker::cubicQuadEnds(const SkPoint cubic[4], SkQuadConstruct* quadP
 }
 
 void SkPathStroker::cubicQuadMid(const SkPoint cubic[4], const SkQuadConstruct* quadPts,
-        SkPoint* mid) const {
+        SkPoint* mid) {
     SkPoint cubicMidPt;
     this->cubicPerpRay(cubic, quadPts->fMidT, &cubicMidPt, mid, nullptr);
 }
@@ -1110,7 +1112,7 @@ void SkPathStroker::addDegenerateLine(const SkQuadConstruct* quadPts) {
     path->lineTo(quad[2].fX, quad[2].fY);
 }
 
-bool SkPathStroker::cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* quadPts) const {
+bool SkPathStroker::cubicMidOnLine(const SkPoint cubic[4], const SkQuadConstruct* quadPts) {
     SkPoint strokeMid;
     this->cubicQuadMid(cubic, quadPts, &strokeMid);
     SkScalar dist = pt_to_line(strokeMid, quadPts->fQuad[0], quadPts->fQuad[2]);
@@ -1159,6 +1161,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     SkQuadConstruct half;
     if (!half.initWithStart(quadPts)) {
         addDegenerateLine(quadPts);
+        --fRecursionDepth;
         return true;
     }
     if (!this->cubicStroke(cubic, &half)) {
@@ -1166,6 +1169,7 @@ bool SkPathStroker::cubicStroke(const SkPoint cubic[4], SkQuadConstruct* quadPts
     }
     if (!half.initWithEnd(quadPts)) {
         addDegenerateLine(quadPts);
+        --fRecursionDepth;
         return true;
     }
     if (!this->cubicStroke(cubic, &half)) {
@@ -1287,6 +1291,12 @@ void SkPathStroker::cubicTo(const SkPoint& pt1, const SkPoint& pt2,
         this->init(kInner_StrokeType, &quadPts, lastT, nextT);
         (void) this->cubicStroke(cubic, &quadPts);
         lastT = nextT;
+    }
+    SkScalar cusp = SkFindCubicCusp(cubic);
+    if (cusp > 0) {
+        SkPoint cuspLoc;
+        SkEvalCubicAt(cubic, cusp, &cuspLoc, nullptr, nullptr);
+        fCusper.addCircle(cuspLoc.fX, cuspLoc.fY, fRadius);
     }
     // emit the join even if one stroke succeeded but the last one failed
     // this avoids reversing an inner stroke with a partial path followed by another moveto
