@@ -1527,37 +1527,6 @@ void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkS
     }
 }
 
-void SkDraw::drawPosText(const char text[], size_t byteLength, const SkScalar pos[],
-                         int scalarsPerPosition, const SkPoint& offset, const SkPaint& paint,
-                         const SkSurfaceProps* props) const {
-    SkASSERT(byteLength == 0 || text != nullptr);
-    SkASSERT(1 == scalarsPerPosition || 2 == scalarsPerPosition);
-
-    SkDEBUGCODE(this->validate();)
-
-    // nothing to draw
-    if (text == nullptr || byteLength == 0 || fRC->isEmpty()) {
-        return;
-    }
-
-    if (ShouldDrawTextAsPaths(paint, *fMatrix)) {
-        this->drawPosText_asPaths(text, byteLength, pos, scalarsPerPosition, offset, paint, props);
-        return;
-    }
-
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            paint, props, this->scalerContextFlags(), fMatrix);
-
-    // The Blitter Choose needs to be live while using the blitter below.
-    SkAutoBlitterChoose    blitterChooser(*this, nullptr, paint);
-    SkAAClipBlitterWrapper wrapper(*fRC, blitterChooser.get());
-    DrawOneGlyph           drawOneGlyph(*this, paint, cache.get(), wrapper.getBlitter());
-
-    SkFindAndPlaceGlyph::ProcessPosText(
-        paint.getTextEncoding(), text, byteLength,
-        offset, *fMatrix, pos, scalarsPerPosition, cache.get(), drawOneGlyph);
-}
-
 void SkDraw::blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const {
     SkASSERT(SkMask::kARGB32_Format == mask.fFormat);
     SkBitmap bm;
