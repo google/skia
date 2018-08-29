@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "39ab7ad9_6e356aa9",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5745
+      },
+      "writtenOn": "2018-08-29T19:21:05Z",
+      "side": 1,
+      "message": "Is this segment width or really just the size of the \"parametric\" (t) step?\nAlso do we have a Sk fast reciprocal func?  This reciprocal doesn\u0027t really need to be accurate.",
+      "range": {
+        "startLine": 300,
+        "startChar": 0,
+        "endLine": 300,
+        "endChar": 41
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6af737cf_82ee6250",
+        "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+        "patchSetId": 15
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5745
+      },
+      "writtenOn": "2018-08-29T19:21:05Z",
+      "side": 1,
+      "message": "I don\u0027t have a grip on the next section of code but perhaps CAGD can give you a hint on how identify strong curvature: 2.9.3 Curvature at an Endpoint of a Rational Bezier Curve",
+      "range": {
+        "startLine": 319,
+        "startChar": 4,
+        "endLine": 320,
+        "endChar": 96
+      },
+      "revId": "366181ff7134be4df1ed52d471515b947b89901b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "c25c31a0_3853a26c",
         "filename": "src/gpu/ccpr/GrCCStrokeGeometry.cpp",
         "patchSetId": 15
