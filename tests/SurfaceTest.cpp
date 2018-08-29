@@ -168,6 +168,20 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrContext_colorTypeSupportedAsSurface, report
         if (backendTex.isValid()) {
             gpu->deleteTestingOnlyBackendTexture(backendTex);
         }
+
+        GrBackendRenderTarget backendRenderTarget = gpu->createTestingOnlyBackendRenderTarget(
+                16, 16, SkColorTypeToGrColorType(colorType));
+        can = ctxInfo.grContext()->colorTypeSupportedAsSurface(colorType);
+        surf = SkSurface::MakeFromBackendRenderTarget(ctxInfo.grContext(), backendRenderTarget,
+                                                      kTopLeft_GrSurfaceOrigin, colorType, nullptr,
+                                                      nullptr);
+        REPORTER_ASSERT(reporter, can == SkToBool(surf), "ct: %d, can: %d, surf: %d", colorType,
+                        can, SkToBool(surf));
+        surf.reset();
+        ctxInfo.grContext()->flush();
+        if (backendRenderTarget.isValid()) {
+            gpu->deleteTestingOnlyBackendRenderTarget(backendRenderTarget);
+        }
     }
 }
 
