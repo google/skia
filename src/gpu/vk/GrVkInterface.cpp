@@ -198,6 +198,15 @@ GrVkInterface::GrVkInterface(GrVkGetProc getProc,
         ACQUIRE_PROC_SUFFIX(GetImageSparseMemoryRequirements2, KHR, VK_NULL_HANDLE, device);
     }
 
+    // Functions for VK_KHR_bind_memory2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
+        ACQUIRE_PROC(BindBufferMemory2, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC(BindImageMemory2, VK_NULL_HANDLE, device);
+    } else if (extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
+        ACQUIRE_PROC_SUFFIX(BindBufferMemory2, KHR, VK_NULL_HANDLE, device);
+        ACQUIRE_PROC_SUFFIX(BindImageMemory2, KHR, VK_NULL_HANDLE, device);
+    }
+
     // Functions for VK_KHR_maintenance1 or vulkan 1.1
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0)) {
         ACQUIRE_PROC(TrimCommandPool, VK_NULL_HANDLE, device);
@@ -402,6 +411,15 @@ bool GrVkInterface::validate(uint32_t instanceVersion, uint32_t physicalDeviceVe
         if (nullptr == fFunctions.fGetImageMemoryRequirements2 ||
             nullptr == fFunctions.fGetBufferMemoryRequirements2 ||
             nullptr == fFunctions.fGetImageSparseMemoryRequirements2) {
+            RETURN_FALSE_INTERFACE
+        }
+    }
+
+    // Functions for VK_KHR_bind_memory2
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions->hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
+        if (nullptr == fFunctions.fBindBufferMemory2 ||
+            nullptr == fFunctions.fBindImageMemory2) {
             RETURN_FALSE_INTERFACE
         }
     }
