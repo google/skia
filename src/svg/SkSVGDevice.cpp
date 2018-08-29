@@ -122,131 +122,6 @@ struct Resources {
     SkString fColorFilter;
 };
 
-static SkTypeface::Encoding to_encoding(SkPaint::TextEncoding e) {
-    static_assert((int)SkTypeface::kUTF8_Encoding  == (int)SkPaint::kUTF8_TextEncoding,  "");
-    static_assert((int)SkTypeface::kUTF16_Encoding == (int)SkPaint::kUTF16_TextEncoding, "");
-    static_assert((int)SkTypeface::kUTF32_Encoding == (int)SkPaint::kUTF32_TextEncoding, "");
-    return (SkTypeface::Encoding)e;
-}
-
-class SVGTextBuilder : SkNoncopyable {
-public:
-    SVGTextBuilder(const void* text, size_t byteLen, const SkPaint& paint, const SkPoint& offset,
-                   unsigned scalarsPerPos, const SkScalar pos[] = nullptr)
-        : fOffset(offset)
-        , fScalarsPerPos(scalarsPerPos)
-        , fPos(pos)
-        , fLastCharWasWhitespace(true) // start off in whitespace mode to strip all leading space
-    {
-        SkASSERT(scalarsPerPos <= 2);
-        SkASSERT(scalarsPerPos == 0 || SkToBool(pos));
-
-        SkPaint::TextEncoding encoding = paint.getTextEncoding();
-        switch(encoding) {
-            case SkPaint::kGlyphID_TextEncoding: {
-                int count = paint.countText(text, byteLen);
-                SkASSERT(count * sizeof(uint16_t) == byteLen);
-                SkAutoSTArray<64, SkUnichar> unichars(count);
-                paint.glyphsToUnichars((const uint16_t*)text, count, unichars.get());
-                for (int i = 0; i < count; ++i) {
-                    this->appendUnichar(unichars[i]);
-                }
-                break;
-            }
-            case SkPaint::kUTF8_TextEncoding:
-            case SkPaint::kUTF16_TextEncoding:
-            case SkPaint::kUTF32_TextEncoding: {
-                const void* stop = (const char*)text + byteLen;
-                while (text < stop) {
-                    this->appendUnichar(SkUTFN_Next(to_encoding(encoding), &text, stop));
-                }
-                break;
-            }
-            default:
-                SK_ABORT("unknown text encoding");
-        }
-
-        if (scalarsPerPos < 2) {
-            SkASSERT(fPosY.isEmpty());
-            fPosY.appendScalar(offset.y()); // DrawText or DrawPosTextH (fixed Y).
-        }
-
-        if (scalarsPerPos < 1) {
-            SkASSERT(fPosX.isEmpty());
-            fPosX.appendScalar(offset.x()); // DrawText (X also fixed).
-        }
-    }
-
-    const SkString& text() const { return fText; }
-    const SkString& posX() const { return fPosX; }
-    const SkString& posY() const { return fPosY; }
-
-private:
-    void appendUnichar(SkUnichar c) {
-        bool discardPos = false;
-        bool isWhitespace = false;
-
-        switch(c) {
-        case ' ':
-        case '\t':
-            // consolidate whitespace to match SVG's xml:space=default munging
-            // (http://www.w3.org/TR/SVG/text.html#WhiteSpace)
-            if (fLastCharWasWhitespace) {
-                discardPos = true;
-            } else {
-                fText.appendUnichar(c);
-            }
-            isWhitespace = true;
-            break;
-        case '\0':
-            // SkPaint::glyphsToUnichars() returns \0 for inconvertible glyphs, but these
-            // are not legal XML characters (http://www.w3.org/TR/REC-xml/#charsets)
-            discardPos = true;
-            isWhitespace = fLastCharWasWhitespace; // preserve whitespace consolidation
-            break;
-        case '&':
-            fText.append("&amp;");
-            break;
-        case '"':
-            fText.append("&quot;");
-            break;
-        case '\'':
-            fText.append("&apos;");
-            break;
-        case '<':
-            fText.append("&lt;");
-            break;
-        case '>':
-            fText.append("&gt;");
-            break;
-        default:
-            fText.appendUnichar(c);
-            break;
-        }
-
-        this->advancePos(discardPos);
-        fLastCharWasWhitespace = isWhitespace;
-    }
-
-    void advancePos(bool discard) {
-        if (!discard && fScalarsPerPos > 0) {
-            fPosX.appendf("%.8g, ", fOffset.x() + fPos[0]);
-            if (fScalarsPerPos > 1) {
-                SkASSERT(fScalarsPerPos == 2);
-                fPosY.appendf("%.8g, ", fOffset.y() + fPos[1]);
-            }
-        }
-        fPos += fScalarsPerPos;
-    }
-
-    const SkPoint&  fOffset;
-    const unsigned  fScalarsPerPos;
-    const SkScalar* fPos;
-
-    SkString fText, fPosX, fPosY;
-    bool     fLastCharWasWhitespace;
-};
-
 // Determine if the paint requires us to reset the viewport.
 // Currently, we do this whenever the paint shader calls
 // for a repeating image.
@@ -989,18 +864,102 @@ void SkSVGDevice::drawBitmapRect(const SkBitmap& bm, const SkRect* srcOrNull,
     drawBitmapCommon(MxCp(&adjustedMatrix, cs), bm, paint);
 }
 
-void SkSVGDevice::drawPosText(const void* text, size_t len,
-                              const SkScalar pos[], int scalarsPerPos, const SkPoint& offset,
-                              const SkPaint& paint) {
-    SkASSERT(scalarsPerPos == 1 || scalarsPerPos == 2);
+class SVGTextBuilder : SkNoncopyable {
+public:
+    SVGTextBuilder(SkPoint origin, const SkGlyphRun& glyphRun)
+            : fOrigin(origin)
+            , fLastCharWasWhitespace(true) { // start off in whitespace mode to strip all leadingspace
+        const SkPaint& paint = glyphRun.paint();
+        auto runSize = glyphRun.runSize();
+        SkAutoSTArray<64, SkUnichar> unichars(runSize);
+        paint.glyphsToUnichars(glyphRun.shuntGlyphsIDs().data(), runSize, unichars.get());
+        auto positions = glyphRun.positions();
+        for (size_t i = 0; i < runSize; ++i) {
+            this->appendUnichar(unichars[i], positions[i]);
+        }
+    }
 
-    AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
-    elem.addTextAttributes(paint);
+    const SkString& text() const { return fText; }
+    const SkString& posX() const { return fPosX; }
+    const SkString& posY() const { return fPosY; }
 
-    SVGTextBuilder builder(text, len, paint, offset, scalarsPerPos, pos);
-    elem.addAttribute("x", builder.posX());
-    elem.addAttribute("y", builder.posY());
-    elem.addText(builder.text());
+private:
+    void appendUnichar(SkUnichar c, SkPoint position) {
+        bool discardPos = false;
+        bool isWhitespace = false;
+
+        switch(c) {
+            case ' ':
+            case '\t':
+                // consolidate whitespace to match SVG's xml:space=default munging
+                // (http://www.w3.org/TR/SVG/text.html#WhiteSpace)
+                if (fLastCharWasWhitespace) {
+                    discardPos = true;
+                } else {
+                    fText.appendUnichar(c);
+                }
+                isWhitespace = true;
+                break;
+            case '\0':
+                // SkPaint::glyphsToUnichars() returns \0 for inconvertible glyphs, but these
+                // are not legal XML characters (http://www.w3.org/TR/REC-xml/#charsets)
+                discardPos = true;
+                isWhitespace = fLastCharWasWhitespace; // preserve whitespace consolidation
+                break;
+            case '&':
+                fText.append("&amp;");
+                break;
+            case '"':
+                fText.append("&quot;");
+                break;
+            case '\'':
+                fText.append("&apos;");
+                break;
+            case '<':
+                fText.append("&lt;");
+                break;
+            case '>':
+                fText.append("&gt;");
+                break;
+            default:
+                fText.appendUnichar(c);
+                break;
+        }
+
+        this->advancePos(discardPos, position);
+        fLastCharWasWhitespace = isWhitespace;
+    }
+
+    void advancePos(bool discard, SkPoint position) {
+        if (!discard) {
+            SkPoint finalPosition = fOrigin + position;
+            fPosX.appendf("%.8g, ", finalPosition.x());
+            fPosY.appendf("%.8g, ", finalPosition.y());
+        }
+    }
+
+    const SkPoint&  fOrigin;
+
+    SkString fText, fPosX, fPosY;
+    bool     fLastCharWasWhitespace;
+};
+
+void SkSVGDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList)  {
+
+    auto processGlyphRun = [this](SkPoint origin, const SkGlyphRun& glyphRun) {
+        const SkPaint& paint = glyphRun.paint();
+        AutoElement elem("text", fWriter, fResourceBucket.get(), MxCp(this), paint);
+        elem.addTextAttributes(paint);
+
+        SVGTextBuilder builder(origin, glyphRun);
+        elem.addAttribute("x", builder.posX());
+        elem.addAttribute("y", builder.posY());
+        elem.addText(builder.text());
+    };
+
+    for (auto& glyphRun : glyphRunList) {
+        processGlyphRun(glyphRunList.origin(), glyphRun);
+    }
 }
 
 void SkSVGDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
