@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97af2a9b_d7230dfb",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-29T09:31:36Z",
+      "side": 1,
+      "message": "Is the better solution just to drop the SkNoncopyable here?",
+      "revId": "eacc34854d87f78ba18127f94265105d13cb2520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c0648aae_cbc3f6d7",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-29T09:31:36Z",
+      "side": 1,
+      "message": "I must confess that I don\u0027t really understand how explicit/implicit copy/move constructors interact with inheritance.\n\nSkWebpCodec::Frame inherits from SkFrame inherits from SkNoncopyable.\n\nSkWebpCodec::Frame doesn\u0027t have an explicit move constructor but SkFrame does, as does SkNoncopyable. Yet somehow the tests build and pass. Is this just because the WebP tests don\u0027t have enough coverage, and it\u0027s moving the SkFrame fields but not the additional SkWebpCodec::Frame fields (the fReportedAlpha field)??\n\nI would have thought that either everything needed a public move constructor, or nothing did, or only the base class (SkNoncopyable) did. I\u0027m confused.",
+      "revId": "eacc34854d87f78ba18127f94265105d13cb2520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
