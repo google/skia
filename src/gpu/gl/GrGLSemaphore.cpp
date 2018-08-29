@@ -9,12 +9,14 @@
 
 #include "GrGLGpu.h"
 
-GrGLSemaphore::GrGLSemaphore(const GrGLGpu* gpu, bool isOwned)
-    : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {
+GrGLSemaphore::GrGLSemaphore(GrGLGpu* gpu, bool isOwned)
+        : INHERITED(gpu), fSync(0), fIsOwned(isOwned) {}
+
+void GrGLSemaphore::onRelease() {
+    if (fSync && fIsOwned) {
+        static_cast<const GrGLGpu*>(this->getGpu())->deleteSync(fSync);
+    }
+    fSync = 0;
 }
 
-GrGLSemaphore::~GrGLSemaphore() {
-    if (fIsOwned && fGpu) {
-        static_cast<const GrGLGpu*>(fGpu)->deleteSync(fSync);
-    }
-}
+void GrGLSemaphore::onAbandon() { fSync = 0; }

@@ -9,21 +9,31 @@
 #define GrSemaphore_DEFINED
 
 #include "GrBackendSemaphore.h"
-#include "SkRefCnt.h"
+#include "GrGpuResource.h"
 
-class GrGpu;
-
-class GrSemaphore : public SkRefCnt {
+/**
+ * Represents a semaphore-like GPU synchronization object. This is a slightly odd fit for
+ * GrGpuResource because we don't care about budgeting, recycling, or read/write references for
+ * these. However, making it a GrGpuResource makes it simpler to handle releasing/abandoning these
+ * along with other resources. If more cases like this arise we could consider moving some of the
+ * unused functionality off of GrGpuResource.
+ */
+class GrSemaphore : public GrGpuResource {
 public:
     // The derived class can return its GrBackendSemaphore. This is used when flushing with signal
     // semaphores so we can set the client's GrBackendSemaphore object after we've created the
     // internal semaphore.
     virtual GrBackendSemaphore backendSemaphore() const = 0;
 
-protected:
-    explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
+    const char* getResourceType() const override { return "semaphore"; }
 
-    const GrGpu* fGpu;
+protected:
+    explicit GrSemaphore(GrGpu* gpu) : INHERITED(gpu) {}
+
+private:
+    size_t onGpuMemorySize() const override { return 0; }
+
+    typedef GrGpuResource INHERITED;
 };
 
 #endif
