@@ -189,6 +189,10 @@ def dm_flags(api, bot):
     if 'GTX1070' in bot:
       configs.append('gbr-gl')
 
+    # Test backend textures/render targets on a few bots
+    if 'GTX1070' in bot:
+      configs.extend(['glbetex', 'glbert'])
+
     # CommandBuffer bot *only* runs the command_buffer config.
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
