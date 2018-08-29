@@ -91,11 +91,18 @@ void
 hsg_macros(FILE * file)
 {
   fprintf(file,
-          "#include \"hs_glsl_macros.h\" \n"
-          "    \n"
-          "//  \n"
-          "//  \n"
-          "//  \n"
+          "// target-specific config      \n"
+          "#include \"hs_config.h\"       \n"
+          "                               \n"
+          "// GLSL preamble               \n"
+          "#include \"hs_glsl_preamble.h\"\n"
+          "                               \n"
+          "// arch/target-specific macros \n"
+          "#include \"hs_glsl_macros.h\"  \n"
+          "                               \n"
+          "//                             \n"
+          "//                             \n"
+          "//                             \n"
           "\n");
 }
 

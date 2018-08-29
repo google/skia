@@ -12,7 +12,6 @@
 //
 //
 
-#include "hs_config.h"
 #include "../hs_glsl_macros.h"
 
 //
