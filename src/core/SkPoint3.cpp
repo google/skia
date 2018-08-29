@@ -50,31 +50,23 @@ bool SkPoint3::normalize() {
         return false;
     }
 
-    float scale;
-    if (SkScalarIsFinite(magSq)) {
-        scale = 1.0f / sk_float_sqrt(magSq);
-    } else {
-        // our magSq step overflowed to infinity, so use doubles instead.
-        // much slower, but needed when x, y or z is very large, otherwise we
-        // divide by inf. and return (0,0,0) vector.
-        double xx = fX;
-        double yy = fY;
-        double zz = fZ;
-#ifdef SK_CPU_FLUSH_TO_ZERO
-        // The iOS ARM processor discards small denormalized numbers to go faster.
-        // Casting this to a float would cause the scale to go to zero. Keeping it
-        // as a double for the multiply keeps the scale non-zero.
-        double dscale = 1.0f / sqrt(xx * xx + yy * yy + zz * zz);
-        fX = x * dscale;
-        fY = y * dscale;
-        fZ = z * dscale;
-        return true;
-#else
-        scale = (float)(1.0f / sqrt(xx * xx + yy * yy + zz * zz));
-#endif
+    double xx = fX;
+    double yy = fY;
+    double zz = fZ;
+    // The iOS ARM processor discards small denormalized numbers to go faster.
+    // Casting this to a float would cause the scale to go to zero. Keeping it
+    // as a double for the multiply keeps the scale non-zero.
+    double dscale = 1.0f / sqrt(xx * xx + yy * yy + zz * zz);
+    fX = xx * dscale;
+    fY = yy * dscale;
+    fZ = zz * dscale;
+
+    // check if we're not finite, or we're zero-length
+    if (!sk_float_isfinite(fX) || !sk_float_isfinite(fY) ||  !sk_float_isfinite(fZ) ||
+        (fX == 0 && fY == 0 && fZ == 0)) {
+        this->set(0, 0, 0);
+        return false;
     }
-    fX *= scale;
-    fY *= scale;
-    fZ *= scale;
+
     return true;
 }
