@@ -5273,18 +5273,6 @@ baseline.
 
 # ------------------------------------------------------------------------------
 
-#Method void drawTextOnPathHV(const void* text, size_t byteLength, const SkPath& path, SkScalar hOffset,
-                          SkScalar vOffset, const SkPaint& paint)
-#Deprecated 
-##
-
-#Method void drawTextOnPath(const void* text, size_t byteLength, const SkPath& path,
-                        const SkMatrix* matrix, const SkPaint& paint)
-#Deprecated
-##
-
-# ------------------------------------------------------------------------------
-
 #Method void drawTextRSXform(const void* text, size_t byteLength, const SkRSXform xform[],
                          const SkRect* cullRect, const SkPaint& paint)
 #In Draw_Text
