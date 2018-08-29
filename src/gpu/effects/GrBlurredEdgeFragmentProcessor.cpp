@@ -31,8 +31,7 @@ public:
                 "0.017999999999999999);\n        break;\n    case 1:\n        factor = "
                 "half(smoothstep(1.0, 0.0, float(factor)));\n        break;\n}\n%s = "
                 "half4(factor);\n",
-                args.fInputColor ? args.fInputColor : "half4(1)", (int)_outer.mode(),
-                args.fOutputColor);
+                args.fInputColor, (int)_outer.mode(), args.fOutputColor);
     }
 
 private:

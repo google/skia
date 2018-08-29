@@ -55,7 +55,7 @@ public:
                 "2:\n        alpha = half(approx_dist > 0.0 ? 1.0 : 0.0);\n        break;\n    "
                 "case 3:\n        alpha = half(clamp(0.5 + approx_dist, 0.0, 1.0));\n        "
                 "break;\n    default:\n        discard;\n}\n%s = %s * alpha;\n",
-                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)");
+                args.fOutputColor, args.fInputColor);
     }
 
 private:

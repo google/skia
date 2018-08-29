@@ -41,9 +41,7 @@ public:
                 "* float4(%s)) + %s.z * float4(dst)) + %s.w), 0.0, 1.0));\nif (%s) {\n    %s.xyz = "
                 "half3(min(float3(%s.xyz), float(%s.w)));\n}\n",
                 _child0.c_str(), args.fOutputColor, args.fUniformHandler->getUniformCStr(fKVar),
-                args.fInputColor ? args.fInputColor : "half4(1)",
-                args.fUniformHandler->getUniformCStr(fKVar),
-                args.fInputColor ? args.fInputColor : "half4(1)",
+                args.fInputColor, args.fUniformHandler->getUniformCStr(fKVar), args.fInputColor,
                 args.fUniformHandler->getUniformCStr(fKVar),
                 args.fUniformHandler->getUniformCStr(fKVar),
                 (_outer.enforcePMColor() ? "true" : "false"), args.fOutputColor, args.fOutputColor,
