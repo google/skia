@@ -554,6 +554,30 @@
     },
     {
       "key": {
+        "uuid": "fbdb9f05_aa98ecb7",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T20:31:23Z",
+      "side": 1,
+      "message": "Gerrit lost the resolved flag.",
+      "parentUuid": "fcd2cf0a_676c0743",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "835b4b37_4cd97c8d",
         "filename": "src/sksl/SkSLHCodeGenerator.cpp",
         "patchSetId": 3
@@ -565,6 +589,24 @@
       "writtenOn": "2018-08-29T16:47:33Z",
       "side": 1,
       "message": "It makes sense to switch complex types to const\u0026, but this will be slower for simple types like float. I doubt these getters are called often enough for this to matter, but thought I\u0027d mention it.",
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6eaa3438_b0ecec47",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T20:31:23Z",
+      "side": 1,
+      "message": "One solution would be to see if the ctype was a known primitive type, in which case it can use the regular value. Or use a heuristic like the case of the first character to guess at if it\u0027s a primitive. Or wait to see if there is a perf regression before attempting one of those. It might be nice to fix before hand, though, since const float\u0026 is an unusual return value to see in the source code.",
+      "parentUuid": "835b4b37_4cd97c8d",
       "revId": "092791a884c750689f370243c19e224af1a17268",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -594,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "8f8420cb_dc20875b",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T20:31:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "98756d49_4da84929",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 0
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9d41833c_505d6de8",
         "filename": "src/sksl/SkSLString.cpp",
         "patchSetId": 3
@@ -614,6 +680,30 @@
       "revId": "092791a884c750689f370243c19e224af1a17268",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bf9c7742_dba9febc",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-29T20:31:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9d41833c_505d6de8",
+      "range": {
+        "startLine": 94,
+        "startChar": 28,
+        "endLine": 94,
+        "endChar": 37
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
