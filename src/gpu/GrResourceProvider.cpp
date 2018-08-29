@@ -444,11 +444,3 @@ sk_sp<GrSemaphore> GrResourceProvider::wrapBackendSemaphore(const GrBackendSemap
                                                                       wrapType,
                                                                       ownership);
 }
-
-void GrResourceProvider::takeOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
-    semaphore->resetGpu(fGpu);
-}
-
-void GrResourceProvider::releaseOwnershipOfSemaphore(sk_sp<GrSemaphore> semaphore) {
-    semaphore->resetGpu(nullptr);
-}

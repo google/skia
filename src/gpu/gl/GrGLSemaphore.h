@@ -34,12 +34,15 @@ public:
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
 
+    GrBackendSemaphore backendSemaphore() const override {
+        GrBackendSemaphore backendSemaphore;
+        backendSemaphore.initGL(fSync);
+        return backendSemaphore;
+    }
+
 private:
     GrGLSemaphore(const GrGLGpu* gpu, bool isOwned);
 
-    void setBackendSemaphore(GrBackendSemaphore* backendSemaphore) const override {
-        backendSemaphore->initGL(fSync);
-    }
 
     GrGLsync fSync;
     bool     fIsOwned;
