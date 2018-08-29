@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "64d4f5e4_f8b36eb2",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T20:46:19Z",
+      "side": 1,
+      "message": "Certainly, but all of the other fragment processors return std::unique_ptr\u003cGrFragmentProcessor\u003e, so I thought that was a pattern I was supposed to follow. Changed.",
+      "parentUuid": "e47d7eda_3506aba7",
+      "revId": "043ad53819e96a7370f4ced007152e1ffca85479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cc51a95_628da78e",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 4
