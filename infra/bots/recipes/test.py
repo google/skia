@@ -657,6 +657,7 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
     blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
     blacklist(['vk', 'gm', '_', 'dftext'])
+    blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
     blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
@@ -715,18 +716,7 @@ def dm_flags(api, bot):
     # skia:7835
     match.append('~BlurMaskBiggerThanDest')
 
-  if 'IntelIris540' in bot and 'ANGLE' in bot:
-    for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
-      # skia:6103
-      blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
-      # skia:6141
-      blacklist([config, 'gm', '_', 'discard'])
-
-  if 'IntelIris6100' in bot and 'ANGLE' in bot:
+  if 'IntelIris6100' in bot and 'ANGLE' in bot and 'Release' in bot:
     # skia:7376
     match.append('~^ProcessorOptimizationValidationTest$')
 
@@ -1030,7 +1020,7 @@ TEST_BUILDERS = [
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
-  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-NUC5i7RYH-GPU-IntelIris6100-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Debug-All-Vulkan',
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
