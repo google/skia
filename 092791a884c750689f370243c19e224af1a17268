@@ -1,0 +1,337 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69e861f2_4acd696d",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "Seems like we should make it an error to declare a tracked non-uniform_in variable, and then you only need to check tracked here.",
+      "range": {
+        "startLine": 473,
+        "startChar": 26,
+        "endLine": 474,
+        "endChar": 90
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa620065_ad732425",
+        "filename": "src/sksl/SkSLCPPCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: line too long",
+      "range": {
+        "startLine": 865,
+        "startChar": 0,
+        "endLine": 865,
+        "endChar": 101
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c599d99a_48a2e422",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "static eval_template?",
+      "range": {
+        "startLine": 21,
+        "startChar": 7,
+        "endLine": 21,
+        "endChar": 19
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de581a30_8b5af725",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "This file also looks (mostly) formatted to 80 chars instead of 100",
+      "range": {
+        "startLine": 30,
+        "startChar": 16,
+        "endLine": 31,
+        "endChar": 70
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "549d0051_59b53563",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "static determine_inline_from_template?",
+      "range": {
+        "startLine": 74,
+        "startChar": 5,
+        "endLine": 74,
+        "endChar": 32
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1f864b44_7833a013",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: I\u0027d prefer to see \u0027strlen(\"${var}\")\u0027 instead of \u00276\u0027 just to make this more clear; the compiler will turn it into a constant so there\u0027s no performance impact.",
+      "range": {
+        "startLine": 85,
+        "startChar": 66,
+        "endLine": 85,
+        "endChar": 67
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "541a2729_0ff3c561",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "static?",
+      "range": {
+        "startLine": 139,
+        "startChar": 19,
+        "endLine": 139,
+        "endChar": 27
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "62b58869_43a9ee03",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "static?",
+      "range": {
+        "startLine": 146,
+        "startChar": 19,
+        "endLine": 146,
+        "endChar": 27
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a7f80cf9_78916eb3",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "Presumably should be int types and set4i?",
+      "range": {
+        "startLine": 165,
+        "startChar": 26,
+        "endLine": 166,
+        "endChar": 34
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d3a99ee5_7ccae5f3",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "Why \u0027~0\u0027 instead of the equivalent \u0027-1\u0027? Should we be using a more obviously out-of-bounds value here (and below)?",
+      "range": {
+        "startLine": 181,
+        "startChar": 23,
+        "endLine": 181,
+        "endChar": 30
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e7ec054e_e90ff99e",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: extra blank line?",
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "536ceb78_a61a4076",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: looks like this entire file is formatted to 80 chars instead of 100",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 0
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "835b4b37_4cd97c8d",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "It makes sense to switch complex types to const\u0026, but this will be slower for simple types like float. I doubt these getters are called often enough for this to matter, but thought I\u0027d mention it.",
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "98756d49_4da84929",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: 80 char width in these comments as well",
+      "range": {
+        "startLine": 89,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 0
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9d41833c_505d6de8",
+        "filename": "src/sksl/SkSLString.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T16:47:33Z",
+      "side": 1,
+      "message": "nit: typo",
+      "range": {
+        "startLine": 94,
+        "startChar": 28,
+        "endLine": 94,
+        "endChar": 37
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
