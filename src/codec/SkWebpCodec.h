@@ -61,10 +61,9 @@ private:
             : INHERITED(i)
             , fReportedAlpha(alpha)
         {}
-        Frame(Frame&& other)
-            : INHERITED(other.frameId())
-            , fReportedAlpha(other.fReportedAlpha)
-        {}
+
+        // TODO: why isn't this necessary? The tests build and pass without it.
+        // Frame(Frame&&) = default;
 
     protected:
         SkEncodedInfo::Alpha onReportedAlpha() const override {

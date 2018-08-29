@@ -34,6 +34,11 @@ public:
 
     virtual ~SkFrame() {}
 
+    /* TODO: some comment about using SkNoncopyable, yet providing a move
+     * constructor (but not a copy constructor).
+     */
+    SkFrame(SkFrame&&) = default;
+
     /**
      *  0-based index of the frame in the image sequence.
      */
