@@ -920,6 +920,7 @@ int SkCanvas::saveLayerPreserveLCDTextRequests(const SkRect* bounds, const SkPai
 }
 
 int SkCanvas::saveLayer(const SaveLayerRec& rec) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     if (rec.fPaint && rec.fPaint->nothingToDraw()) {
         // no need for the layer (or any of the draws until the matching restore()
         this->save();
@@ -974,6 +975,7 @@ static SkImageInfo make_layer_info(const SkImageInfo& prev, int w, int h, const 
 }
 
 void SkCanvas::internalSaveLayer(const SaveLayerRec& rec, SaveLayerStrategy strategy) {
+    TRACE_EVENT0("skia", TRACE_FUNC);
     const SkRect* bounds = rec.fBounds;
     const SkPaint* paint = rec.fPaint;
     SaveLayerFlags saveLayerFlags = rec.fSaveLayerFlags;
