@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "26167bdd_feb29c95",
+        "filename": "tests/SkRemoteGlyphCacheTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-08-29T18:11:41Z",
+      "side": 1,
+      "message": "nit: unnecessary extra line?",
+      "revId": "c09be97f48b00b2a0815c2f7f005abeacb171da9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
