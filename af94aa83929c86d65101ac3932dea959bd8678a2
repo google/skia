@@ -69,6 +69,30 @@
       "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d0aca33_e15bbd8e",
+        "filename": "src/gpu/glsl/GrGLSLFragmentProcessor.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-29T15:45:24Z",
+      "side": 1,
+      "message": "Personally, I vote for #1 - I don\u0027t see the fact that it\u0027s declared outside of the child\u0027s block as being significant. It\u0027s associated with the child, and the child\u0027s mangle string will ensure uniqueness (the sole point of these mangle strings) whereas the parent\u0027s will not, so the child string is the right choice IMO.",
+      "parentUuid": "568c0ae4_7bdc8a17",
+      "range": {
+        "startLine": 47,
+        "startChar": 11,
+        "endLine": 47,
+        "endChar": 77
+      },
+      "revId": "af94aa83929c86d65101ac3932dea959bd8678a2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
