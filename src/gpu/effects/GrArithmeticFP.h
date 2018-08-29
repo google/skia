@@ -15,11 +15,11 @@
 #include "GrCoordTransform.h"
 class GrArithmeticFP : public GrFragmentProcessor {
 public:
-    float k1() const { return fK1; }
-    float k2() const { return fK2; }
-    float k3() const { return fK3; }
-    float k4() const { return fK4; }
-    bool enforcePMColor() const { return fEnforcePMColor; }
+    const float& k1() const { return fK1; }
+    const float& k2() const { return fK2; }
+    const float& k3() const { return fK3; }
+    const float& k4() const { return fK4; }
+    const bool& enforcePMColor() const { return fEnforcePMColor; }
     static std::unique_ptr<GrFragmentProcessor> Make(float k1, float k2, float k3, float k4,
                                                      bool enforcePMColor,
                                                      std::unique_ptr<GrFragmentProcessor> child) {

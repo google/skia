@@ -79,6 +79,34 @@ bool String::endsWith(const char* s) const {
     return !strncmp(c_str() + size() - len, s, len);
 }
 
+int String::find(const String& substring, int fromPos) const {
+    return find(substring.c_str(), fromPos);
+}
+
+int String::find(const char* substring, int fromPos) const {
+    SkASSERT(fromPos >= 0);
+#ifdef SKSL_USE_STD_STRING
+    // use std::string find() and check it against npos for not found, and find() natively supports
+    // searching from a position
+    size_t found = INHERITED::find(substring, (size_t) fromPos);
+    return found == std::string::npos ? -1 : found;
+#else
+    // use SkStrFind on the underlying c string, and pointer arithmetic to support the searching
+    // position
+    if (substring == nullptr) {
+        // Treat null as empty, and an empty string shows up immediately
+        return 0;
+    }
+
+    size_t sublen = strlen(substring);
+    if (fromPos >= size() - sublen) {
+        // Can't find it if there aren't enough characters left
+        return -1;
+    }
+    return SkStrFind(c_str() + fromPos, substring);
+#endif
+}
+
 String String::operator+(const char* s) const {
     String result(*this);
     result.append(s);

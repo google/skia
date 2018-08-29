@@ -16,8 +16,8 @@
 class GrAlphaThresholdFragmentProcessor : public GrFragmentProcessor {
 public:
     inline OptimizationFlags optFlags(float outerThreshold);
-    float innerThreshold() const { return fInnerThreshold; }
-    float outerThreshold() const { return fOuterThreshold; }
+    const float& innerThreshold() const { return fInnerThreshold; }
+    const float& outerThreshold() const { return fOuterThreshold; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> mask,
                                                      float innerThreshold,
