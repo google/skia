@@ -6058,30 +6058,6 @@ baseline.
 
 ---
 
-<a name='SkCanvas_drawTextOnPathHV'></a>
-## drawTextOnPathHV
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawTextOnPathHV'>drawTextOnPathHV</a>(const void* text, size_t byteLength, const <a href='SkPath_Reference#SkPath'>SkPath</a>& path, <a href='undocumented#SkScalar'>SkScalar</a> hOffset,
-                      <a href='undocumented#SkScalar'>SkScalar</a> vOffset, const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
-</pre>
-
-Deprecated.
-
----
-
-<a name='SkCanvas_drawTextOnPath'></a>
-## drawTextOnPath
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-void <a href='#SkCanvas_drawTextOnPath'>drawTextOnPath</a>(const void* text, size_t byteLength, const <a href='SkPath_Reference#SkPath'>SkPath</a>& path, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* matrix,
-                    const <a href='SkPaint_Reference#SkPaint'>SkPaint</a>& paint)
-</pre>
-
-Deprecated.
-
----
-
 <a name='SkCanvas_drawTextRSXform'></a>
 ## drawTextRSXform
 
