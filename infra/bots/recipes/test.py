@@ -657,6 +657,7 @@ def dm_flags(api, bot):
     blacklist(['vk', 'gm', '_', 'aaxfermodes'])
     blacklist(['vk', 'gm', '_', 'dont_clip_to_layer'])
     blacklist(['vk', 'gm', '_', 'dftext'])
+    blacklist(['vk', 'gm', '_', 'dftext_blob_persp'])
     blacklist(['vk', 'gm', '_', 'drawregionmodes'])
     blacklist(['vk', 'gm', '_', 'filterfastbounds'])
     blacklist(['vk', 'gm', '_', 'fontmgr_iter'])
@@ -711,24 +712,26 @@ def dm_flags(api, bot):
     # skia:7096
     match.append('~PinnedImageTest')
 
-  if 'ANGLE' in bot:
-    # skia:7835
-    match.append('~BlurMaskBiggerThanDest')
+  #if 'ANGLE' in bot:
+  #  # skia:7835
+  #  match.append('~BlurMaskBiggerThanDest')
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
+      pass
       # skia:6103
-      blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
-      blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
-      # skia:6141
-      blacklist([config, 'gm', '_', 'discard'])
+      #blacklist([config, 'gm', '_', 'multipicturedraw_invpathclip_simple'])
+      #blacklist([config, 'gm', '_', 'multipicturedraw_noclip_simple'])
+      #blacklist([config, 'gm', '_', 'multipicturedraw_pathclip_simple'])
+      #blacklist([config, 'gm', '_', 'multipicturedraw_rectclip_simple'])
+      #blacklist([config, 'gm', '_', 'multipicturedraw_rrectclip_simple'])
+      ## skia:6141
+      #blacklist([config, 'gm', '_', 'discard'])
 
   if 'IntelIris6100' in bot and 'ANGLE' in bot:
+    pass
     # skia:7376
-    match.append('~^ProcessorOptimizationValidationTest$')
+    #match.append('~^ProcessorOptimizationValidationTest$')
 
   if ('IntelIris6100' in bot or 'IntelHD4400' in bot) and 'ANGLE' in bot:
     # skia:6857
@@ -947,8 +950,26 @@ def test_steps(api):
     args.append('--preAbandonGpuContext')
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
+  bot = api.vars.builder_name
+  if 'IntelIris540' in bot and 'ANGLE' in bot:
+    for test in [
+        'multipicturedraw_invpathclip_simple',
+        'multipicturedraw_noclip_simple',
+        'multipicturedraw_pathclip_simple',
+        'multipicturedraw_rectclip_simple',
+        'multipicturedraw_rrectclip_simple',
+        'discard']:
+      for repeat in range(5):
+        api.run(api.flavor.step, 'dm %s %d' % (test, repeat), cmd=args + ['--match', test], abort_on_failure=False)
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  elif 'IntelIris6100' in bot and 'ANGLE' in bot:
+    for test in [
+        '^ProcessorOptimizationValidationTest$']:
+      for repeat in range(5):
+        api.run(api.flavor.step, 'dm %s %d' % (test, repeat), cmd=args + ['--match', test], abort_on_failure=False)
+
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
