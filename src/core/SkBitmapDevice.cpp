@@ -570,13 +570,6 @@ void SkBitmapDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPa
     BDDraw(this).drawSprite(bitmap, x, y, paint);
 }
 
-void SkBitmapDevice::drawPosText(const void* text, size_t len, const SkScalar xpos[],
-                                 int scalarsPerPos, const SkPoint& offset, const SkPaint& paint) {
-    SkBitmapDeviceFilteredSurfaceProps props(fBitmap, paint, fSurfaceProps);
-    LOOP_TILER( drawPosText((const char*)text, len, xpos, scalarsPerPos, offset, paint, &props()),
-                nullptr)
-}
-
 void SkBitmapDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
 #if defined(SK_SUPPORT_LEGACY_TEXT_BLOB)
     auto blob = glyphRunList.blob();
