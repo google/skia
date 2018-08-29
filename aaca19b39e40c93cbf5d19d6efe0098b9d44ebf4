@@ -177,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "0a40a9c9_97b9ad8a",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-29T07:04:52Z",
+      "side": 1,
+      "message": "\u003e What problems are you having? I\u0027m happy to help!\n\nTo be blunt, I think it\u0027d be easier if you did this instead of me (and therefore in a follow-up CL).\n\nHopefully this explicit C loop is straightforward for you to understand, and as you\u0027re familiar with SkSwizzler, straightforward for you to convert into SkSwizzler code.\n\nBut, as I\u0027m unfamiliar with SkSwizzer, I\u0027m kind of lost. Should I be making one swizzle call per frame or per row? Does the answer depend on interlacing? When I call CreateSwizzler, should the swizzleRect be the image rect or the frame rect (i.e. who does the offsetting)? If it\u0027s the frame rect, should I destroy and construct a new SkSwizzler on every frame (onStartIncrementalDecode) or more often than that (every onIncrementalDecode)? Why does the swizzleRect\u0027s X bounds matter but Y bounds not matter? Relatedly, how should I use swizzleOffsetBytes? If I need the equivalent of SkGifCodec\u0027s xformOnDecode, how do I know if I\u0027m doing it right, as the tests seem to pass when I ignore it? Similarly wrt kRGBA_F16_SkColorType.\n\nSure, I can look at what SkGifCodec is doing, and try to do the same thing with SkWuffsGifCodec. But the tests fail, sometimes with a null pointer derefence, and I\u0027m lost wondering which of the various knobs I should twiddle to get it to work. I make a guess, I change something, the tests still fail or crash, and I have little idea whether I should undo the knob change I just made before trying a different knob.",
+      "parentUuid": "9ded890e_4d5cfd6c",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ab0175d_046cbb16",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 10
