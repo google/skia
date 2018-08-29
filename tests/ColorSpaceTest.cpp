@@ -424,3 +424,10 @@ DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::Make(*skcms_sRGB_profile());
     REPORTER_ASSERT(r, srgb->isSRGB());
 }
+
+DEF_TEST(ColorSpace_skcms_sRGB_exact, r) {
+    skcms_ICCProfile profile;
+    sk_srgb_singleton()->toProfile(&profile);
+
+    REPORTER_ASSERT(r, 0 == memcmp(&profile, skcms_sRGB_profile(), sizeof(skcms_ICCProfile)));
+}

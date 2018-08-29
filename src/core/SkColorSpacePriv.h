@@ -57,8 +57,13 @@ static constexpr float gNarrow_toXYZD50[] {
     0.032925f,  0.153615f,  0.638669f,
 };
 
+// Like gSRGB_toXYZD50, keeping this bitwise exactly the same as skcms makes things fastest.
 static constexpr SkColorSpaceTransferFn gSRGB_TransferFn =
+#ifdef SK_LEGACY_SRGB_TRANSFER_FUNCTION
         { 2.4f, 1.0f / 1.055f, 0.055f / 1.055f, 1.0f / 12.92f, 0.04045f, 0.0f, 0.0f };
+#else
+        { 2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0.0f, 0.0f };
+#endif
 
 static constexpr SkColorSpaceTransferFn g2Dot2_TransferFn =
         { 2.2f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
