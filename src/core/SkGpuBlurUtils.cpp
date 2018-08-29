@@ -120,9 +120,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian_2d(GrContext* context,
     sk_sp<GrRenderTargetContext> renderTargetContext;
     renderTargetContext = context->contextPriv().makeDeferredRenderTargetContext(
                                                          dstFit, dstII.width(), dstII.height(),
-                                                         config, dstII.refColorSpace(),
-                                                         1, GrMipMapped::kNo,
-                                                         proxy->origin());
+                                                         config, dstII.refColorSpace());
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -164,9 +162,7 @@ static sk_sp<GrRenderTargetContext> convolve_gaussian(GrContext* context,
                                                                 fit, srcRect.width(),
                                                                 srcRect.height(),
                                                                 config,
-                                                                dstII.refColorSpace(),
-                                                                1, GrMipMapped::kNo,
-                                                                proxy->origin());
+                                                                dstII.refColorSpace());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -283,9 +279,7 @@ static sk_sp<GrTextureProxy> decimate(GrContext* context,
                                                     SkBackingFit::kApprox,
                                                     dstRect.fRight,
                                                     dstRect.fBottom,
-                                                    config, dstII.refColorSpace(),
-                                                    1, GrMipMapped::kNo,
-                                                    src->origin());
+                                                    config, dstII.refColorSpace());
         if (!dstRenderTargetContext) {
             return nullptr;
         }
@@ -383,9 +377,7 @@ static sk_sp<GrRenderTargetContext> reexpand(GrContext* context,
 
     sk_sp<GrRenderTargetContext> dstRenderTargetContext =
         context->contextPriv().makeDeferredRenderTargetContext(fit, dstII.width(), dstII.height(),
-                                                               config, dstII.refColorSpace(),
-                                                               1, GrMipMapped::kNo,
-                                                               srcProxy->origin());
+                                                               config, dstII.refColorSpace());
     if (!dstRenderTargetContext) {
         return nullptr;
     }
@@ -540,7 +532,6 @@ sk_sp<GrRenderTargetContext> GaussianBlur(GrContext* context,
                                           mode, finalDestII, fit);
     }
 
-    SkASSERT(dstRenderTargetContext->origin() == srcProxy->origin());
     return dstRenderTargetContext;
 }
 
