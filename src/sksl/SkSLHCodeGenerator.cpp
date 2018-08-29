@@ -31,14 +31,24 @@ String HCodeGenerator::ParameterType(const Context& context, const Type& type,
         return layout.fCType;
     } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
         return "float";
+    } else if (type == *context.fInt_Type ||
+               type == *context.fShort_Type ||
+               type == *context.fByte_Type) {
+        return "int32_t";
     } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
         return "SkPoint";
+    } else if (type == *context.fInt2_Type ||
+               type == *context.fShort2_Type ||
+               type == *context.fByte2_Type) {
+        return "SkIPoint";
     } else if (type == *context.fInt4_Type ||
                type == *context.fShort4_Type ||
                type == *context.fByte4_Type) {
         return "SkIRect";
     } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
         return "SkRect";
+    } else if (type == *context.fFloat3x3_Type || type == *context.fHalf3x3_Type) {
+        return "SkMatrix";
     } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
         return "SkMatrix44";
     } else if (type.kind() == Type::kSampler_Kind) {
@@ -311,7 +321,7 @@ bool HCodeGenerator::generateCode() {
         }
         String nameString(param->fName);
         const char* name = nameString.c_str();
-        this->writef("    %s %s() const { return %s; }\n",
+        this->writef("    const %s& %s() const { return %s; }\n",
                      FieldType(fContext, param->fType, param->fModifiers.fLayout).c_str(), name,
                      FieldName(name).c_str());
     }

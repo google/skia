@@ -95,9 +95,9 @@ public:
 
         return mask;
     }
-    float sigma() const { return fSigma; }
-    SkRect rect() const { return fRect; }
-    float cornerRadius() const { return fCornerRadius; }
+    const float& sigma() const { return fSigma; }
+    const SkRect& rect() const { return fRect; }
+    const float& cornerRadius() const { return fCornerRadius; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrContext* context, float sigma,
                                                      float xformedSigma, const SkRRect& srcRRect,

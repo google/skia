@@ -15,9 +15,9 @@
 #include "GrCoordTransform.h"
 class GrCircleEffect : public GrFragmentProcessor {
 public:
-    GrClipEdgeType edgeType() const { return fEdgeType; }
-    SkPoint center() const { return fCenter; }
-    float radius() const { return fRadius; }
+    const GrClipEdgeType& edgeType() const { return fEdgeType; }
+    const SkPoint& center() const { return fCenter; }
+    const float& radius() const { return fRadius; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType edgeType, SkPoint center,
                                                      float radius) {

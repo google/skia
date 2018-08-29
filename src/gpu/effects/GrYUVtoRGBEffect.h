@@ -20,11 +20,11 @@ public:
                                                      sk_sp<GrTextureProxy> vProxy,
                                                      SkYUVColorSpace colorSpace, bool nv12);
     SkString dumpInfo() const override;
-    SkMatrix44 ySamplerTransform() const { return fYSamplerTransform; }
-    SkMatrix44 uSamplerTransform() const { return fUSamplerTransform; }
-    SkMatrix44 vSamplerTransform() const { return fVSamplerTransform; }
-    SkMatrix44 colorSpaceMatrix() const { return fColorSpaceMatrix; }
-    bool nv12() const { return fNv12; }
+    const SkMatrix44& ySamplerTransform() const { return fYSamplerTransform; }
+    const SkMatrix44& uSamplerTransform() const { return fUSamplerTransform; }
+    const SkMatrix44& vSamplerTransform() const { return fVSamplerTransform; }
+    const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }
+    const bool& nv12() const { return fNv12; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             sk_sp<GrTextureProxy> ySampler, SkMatrix44 ySamplerTransform,
             sk_sp<GrTextureProxy> uSampler, SkMatrix44 uSamplerTransform,

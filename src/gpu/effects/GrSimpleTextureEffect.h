@@ -15,7 +15,7 @@
 #include "GrCoordTransform.h"
 class GrSimpleTextureEffect : public GrFragmentProcessor {
 public:
-    SkMatrix44 matrix() const { return fMatrix; }
+    const SkMatrix44& matrix() const { return fMatrix; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
                                                      const SkMatrix& matrix) {
