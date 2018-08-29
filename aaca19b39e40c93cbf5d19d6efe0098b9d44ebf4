@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "140e3e6a_1d516fec",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-29T08:21:46Z",
+      "side": 1,
+      "message": "\u003e Should I be making one swizzle call per frame or per row?\n\nHeh, of course, shortly after I wrote that, I checked the docs and of course https://skia.googlesource.com/skia/+/master/src/codec/SkSwizzler.h#45 says \"[swizzle] will be called height times, once for each row of source.\"\n\nStill, the general point is that, whether you or I end up writing it, I think it\u0027d be easier to discuss \"I tried this, it didn\u0027t work\" as a separate CL, instead of e.g. asking me to upload and then you to look at the diff between patch sets 7 and 8, in amongst all of the other things that are happening in this CL.\n\nSeparately, there\u0027s an odd-looking floating \"Contains partial scanline information\" comment at https://skia.googlesource.com/skia/+/master/src/codec/SkSwizzler.h#27 and the indentation above it looks odd too.",
+      "parentUuid": "0a40a9c9_97b9ad8a",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7ab0175d_046cbb16",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 10
