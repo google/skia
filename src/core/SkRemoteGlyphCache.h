@@ -105,9 +105,10 @@ public:
         // allowed.
         virtual bool lockHandle(SkDiscardableHandleId) = 0;
 
-        // TODO(khushalsagar): Add an API which checks whether a handle is still
-        // valid without locking, so we can avoid tracking stale handles once they
-        // have been purged on the remote side.
+        // Returns true if a handle has been deleted on the remote client. It is
+        // invalid to use a handle id again with this manager once this returns true.
+        // TODO(khushalsagar): Make pure virtual once chrome implementation lands.
+        virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
     };
 
     SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
@@ -128,10 +129,20 @@ public:
                                         SkScalerContextFlags flags,
                                         SkScalerContextEffects* effects);
 
+    void setMaxEntriesInDescriptorMapForTesting(size_t count) {
+        fMaxEntriesInDescriptorMap = count;
+    }
+    size_t remoteGlyphStateMapSizeForTesting() const { return fRemoteGlyphStateMap.size(); }
+
 private:
+    static constexpr size_t kMaxEntriesInDescriptorMap = 2000u;
+
+    void checkForDeletedEntries();
+
     SkDescriptorMap<std::unique_ptr<SkGlyphCacheState>> fRemoteGlyphStateMap;
     DiscardableHandleManager* const fDiscardableHandleManager;
     SkTHashSet<SkFontID> fCachedTypefaces;
+    size_t fMaxEntriesInDescriptorMap = kMaxEntriesInDescriptorMap;
 
     // State cached until the next serialization.
     SkDescriptorSet fLockedDescs;

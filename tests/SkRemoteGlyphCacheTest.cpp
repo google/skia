@@ -41,6 +41,7 @@ public:
     // Client implementation.
     bool deleteHandle(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
     void notifyCacheMiss(SkStrikeClient::CacheMissType type) override { fCacheMissCount[type]++; }
+    bool isHandleDeleted(SkDiscardableHandleId id) override { return id <= fLastDeletedHandleId; }
 
     void unlockAll() { fLockedHandles.reset(); }
     void unlockAndDeleteAll() {
@@ -337,6 +338,50 @@ DEF_TEST(SkRemoteGlyphCache_ClientMemoryAccounting, reporter) {
     REPORTER_ASSERT(reporter,
                     client.readStrikeData(serverStrikeData.data(), serverStrikeData.size()));
     SkStrikeCache::ValidateGlyphCacheDataSize();
+
+    // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
+    discardableManager->unlockAndDeleteAll();
+}
+
+DEF_TEST(SkRemoteGlyphCache_PurgesServerEntries, reporter) {
+    sk_sp<DiscardableManager> discardableManager = sk_make_sp<DiscardableManager>();
+    SkStrikeServer server(discardableManager.get());
+    server.setMaxEntriesInDescriptorMapForTesting(1u);
+    SkStrikeClient client(discardableManager, false);
+
+    {
+        auto serverTf = SkTypeface::MakeFromName("monospace", SkFontStyle());
+        int glyphCount = 10;
+        auto serverBlob = buildTextBlob(serverTf, glyphCount);
+
+        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+        SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server);
+        SkPaint paint;
+        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 0u);
+        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+    }
+
+    // Serialize to release the lock from the strike server and delete all current
+    // handles.
+    std::vector<uint8_t> fontData;
+    server.writeStrikeData(&fontData);
+    discardableManager->unlockAndDeleteAll();
+
+    // Use a different typeface. Creating a new strike should evict the previous
+    // one.
+    {
+        auto serverTf = SkTypeface::MakeFromName("Georgia", SkFontStyle());
+        int glyphCount = 10;
+        auto serverBlob = buildTextBlob(serverTf, glyphCount);
+
+        const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+        SkTextBlobCacheDiffCanvas cache_diff_canvas(10, 10, SkMatrix::I(), props, &server);
+        SkPaint paint;
+        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+        cache_diff_canvas.drawTextBlob(serverBlob.get(), 0, 0, paint);
+        REPORTER_ASSERT(reporter, server.remoteGlyphStateMapSizeForTesting() == 1u);
+    }
 
     // Must unlock everything on termination, otherwise valgrind complains about memory leaks.
     discardableManager->unlockAndDeleteAll();
