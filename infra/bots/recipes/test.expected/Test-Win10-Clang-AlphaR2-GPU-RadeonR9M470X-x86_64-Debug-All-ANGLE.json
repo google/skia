@@ -412,7 +412,6 @@
       ".SRW",
       "--match",
       "~PinnedImageTest",
-      "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
       "--verbose"
     ],
