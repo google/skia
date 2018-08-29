@@ -159,8 +159,6 @@ def nanobench_flags(api, bot):
     match.append('~keymobi')
     match.append('~path_hairline')
     match.append('~GLInstancedArraysBench') # skia:4714
-  if 'IntelIris540' in bot and 'ANGLE' in bot:
-    match.append('~tile_image_filter_tiled_64')  # skia:6082
   if 'Vulkan' in bot and 'IntelIris540' in bot and 'Win' in bot:
     # skia:6398
     match.append('~GM_varied_text_clipped_lcd')
@@ -170,18 +168,18 @@ def nanobench_flags(api, bot):
     match.append('~blendmode_mask_SrcOut')
     match.append('~blendmode_mask_Src')
     match.append('~fontscaler_lcd')
-    match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
     match.append('~rotated_rects_aa_changing_transparent_src')
     match.append('~rotated_rects_aa_same_transparent_src')
-    match.append('~shadermask_LCD_FF')
     match.append('~srcmode_rects_1')
-    match.append('~text_16_LCD_88')
-    match.append('~text_16_LCD_BK')
-    match.append('~text_16_LCD_FF')
-    match.append('~text_16_LCD_WT')
+    if 'Release' in bot:
+      match.append('~rotated_rects_aa_alternating_transparent_and_opaque_src')
+      match.append('~shadermask_LCD_FF')
+      match.append('~text_16_LCD_88')
+      match.append('~text_16_LCD_BK')
+      match.append('~text_16_LCD_FF')
+      match.append('~text_16_LCD_WT')
     # skia:6863
     match.append('~desk_skbug6850overlay2')
-    match.append('~desk_googlespreadsheet')
     match.append('~desk_carsvg')
   if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
       'Win' in bot):
