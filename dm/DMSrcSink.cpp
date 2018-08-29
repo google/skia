@@ -1186,25 +1186,26 @@ Error SkottieSrc::draw(SkCanvas* canvas) const {
 
     const auto t_rate = 1.0f / (kTileCount * kTileCount - 1);
 
-    // Shuffled order to exercise non-linear frame progression.
-    static constexpr int frames[] = { 4, 0, 3, 1, 2 };
-    static_assert(SK_ARRAY_COUNT(frames) == kTileCount, "");
+    // Draw the frames in a shuffled order to exercise non-linear
+    // frame progression. The film strip will still be in order left-to-right,
+    // top-down, just not drawn in that order.
+    static constexpr int frameOrder[] = { 4, 0, 3, 1, 2 };
+    static_assert(SK_ARRAY_COUNT(frameOrder) == kTileCount, "");
 
     for (int i = 0; i < kTileCount; ++i) {
-        const SkScalar y = frames[i] * kTileSize;
+        const SkScalar y = frameOrder[i] * kTileSize;
 
         for (int j = 0; j < kTileCount; ++j) {
-            const SkScalar x = frames[j] * kTileSize;
+            const SkScalar x = frameOrder[j] * kTileSize;
             SkRect dest = SkRect::MakeXYWH(x, y, kTileSize, kTileSize);
 
-            const auto t = t_rate * (frames[i] * kTileCount + frames[j]);
+            const auto t = t_rate * (frameOrder[i] * kTileCount + frameOrder[j]);
             {
                 SkAutoCanvasRestore acr(canvas, true);
                 canvas->clipRect(dest, true);
                 canvas->concat(SkMatrix::MakeRectToRect(SkRect::MakeSize(animation->size()),
                                                         dest,
                                                         SkMatrix::kCenter_ScaleToFit));
-
                 animation->seek(t);
                 animation->render(canvas);
             }
