@@ -1351,6 +1351,7 @@ if (skia_enable_tools) {
       "tools/debugger/SkDrawCommand.cpp",
       "tools/debugger/SkJsonWriteBuffer.cpp",
       "tools/fonts/SkRandomScalerContext.cpp",
+      "tools/fonts/SkTestEmptyTypeface.h",
       "tools/fonts/SkTestFontMgr.cpp",
       "tools/fonts/SkTestFontMgr.h",
       "tools/fonts/SkTestSVGTypeface.cpp",
