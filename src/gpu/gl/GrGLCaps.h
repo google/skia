@@ -149,7 +149,8 @@ public:
     bool getReadPixelsFormat(GrPixelConfig surfaceConfig, GrPixelConfig externalConfig,
                              GrGLenum* externalFormat, GrGLenum* externalType) const;
 
-    bool getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
+    void getRenderbufferFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
+    void getSizedInternalFormat(GrPixelConfig config, GrGLenum* internalFormat) const;
 
     /** The format to use read/write a texture as an image in a shader */
     GrGLenum getImageFormat(GrPixelConfig config) const {
