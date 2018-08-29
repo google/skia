@@ -515,7 +515,21 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     fLockedDescs.insert(keyDescPtr);
     fRemoteGlyphStateMap[keyDescPtr] = std::move(cacheState);
     cacheStatePtr->ensureScalerContext(paint, props, matrix, flags, effects);
+
+    checkForDeletedEntries();
     return cacheStatePtr;
+}
+
+void SkStrikeServer::checkForDeletedEntries() {
+    auto it = fRemoteGlyphStateMap.begin();
+    while (fRemoteGlyphStateMap.size() > fMaxEntriesInDescriptorMap &&
+           it != fRemoteGlyphStateMap.end()) {
+        if (fDiscardableHandleManager->isHandleDeleted(it->second->discardableHandleId())) {
+            it = fRemoteGlyphStateMap.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 // -- SkGlyphCacheState ----------------------------------------------------------------------------
