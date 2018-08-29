@@ -177,6 +177,7 @@ public:
             };
             extensions = new GrVkExtensions();
             features = new VkPhysicalDeviceFeatures2;
+            memset(features, 0, sizeof(VkPhysicalDeviceFeatures2));
             if (!sk_gpu_test::CreateVkBackendContext(getProc, &backendContext, extensions,
                                                      features, &debugCallback)) {
                 sk_gpu_test::FreeVulkanFeaturesStructs(features);
