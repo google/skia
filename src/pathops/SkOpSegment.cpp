@@ -896,7 +896,11 @@ bool SkOpSegment::markAndChaseWinding(SkOpSpanBase* start, SkOpSpanBase* end, in
     bool success = markWinding(spanStart, winding);
     SkOpSpanBase* last = nullptr;
     SkOpSegment* other = this;
+    int safetyNet = 100000;
     while ((other = other->nextChase(&start, &step, &spanStart, &last))) {
+        if (!--safetyNet) {
+            return false;
+        }
         if (spanStart->windSum() != SK_MinS32) {
 //            SkASSERT(spanStart->windSum() == winding);   // FIXME: is this assert too aggressive?
             SkASSERT(!last);
