@@ -22,7 +22,6 @@
 #include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
 #include "SkPaintPriv.h"
-#include "SkTextMapStateProc.h"
 #include "SkTo.h"
 #include "ops/GrMeshDrawOp.h"
 
