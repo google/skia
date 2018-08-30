@@ -157,10 +157,10 @@ public:
     QuadStrokerView() {
         this->setBGColor(SK_ColorLTGRAY);
 
-        fPts[0].set(50, 200);  // cubic
-        fPts[1].set(50, 100);
-        fPts[2].set(150, 50);
-        fPts[3].set(300, 50);
+        fPts[0].set(420, 300);  // cubic
+        fPts[1].set(20, 100);
+        fPts[2].set(420, 100);
+        fPts[3].set(20, 300);
 
         fPts[4].set(350, 200);  // conic
         fPts[5].set(350, 100);
@@ -188,17 +188,17 @@ public:
         fRadius = 150;
 
         fCubicButton.fLabel = 'C';
-        fCubicButton.fEnabled = false;
+        fCubicButton.fEnabled = true;
         fConicButton.fLabel = 'K';
         fConicButton.fEnabled = false;
         fQuadButton.fLabel = 'Q';
         fQuadButton.fEnabled = false;
         fArcButton.fLabel = 'A';
-        fArcButton.fEnabled = true;
+        fArcButton.fEnabled = false;
         fRRectButton.fLabel = 'R';
         fRRectButton.fEnabled = false;
         fCircleButton.fLabel = 'O';
-        fCircleButton.fEnabled = true;
+        fCircleButton.fEnabled = false;
         fCircleButton.fFill = true;
         fTextButton.fLabel = 'T';
         fTextButton.fEnabled = false;
@@ -467,6 +467,10 @@ protected:
         paint.setColor(WIREFRAME_COLOR);
         canvas->drawPath(scaledFill, paint);
         draw_points(canvas, scaledFill, WIREFRAME_COLOR, false);
+        paint.setStyle(SkPaint::kFill_Style);
+        SkPath filled(scaledFill);
+        filled.offset(500, 0);
+        canvas->drawPath(filled, paint);
     }
 
     void draw_fill(SkCanvas* canvas, const SkRect& rect, SkScalar width) {
