@@ -74,9 +74,6 @@ public:
             fragBuilder->codeAppendf("%s = %s * %s;", args.fOutputColor, xformedColor.c_str(),
                                      args.fInputColor);
         } else {
-            if (nullptr == args.fInputColor) {
-                args.fInputColor = "half4(1)";
-            }
             SkString xformedColor;
             fragBuilder->appendColorGamutXform(&xformedColor, args.fInputColor, &fColorSpaceHelper);
             fragBuilder->codeAppendf("%s = %s;", args.fOutputColor, xformedColor.c_str());

@@ -243,10 +243,6 @@ void GLHighContrastFilterEffect::emitCode(EmitArgs& args) {
     fContrastUni = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf_GrSLType,
                                                     "contrast", &contrast);
 
-    if (nullptr == args.fInputColor) {
-        args.fInputColor = "half4(1)";
-    }
-
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     fragBuilder->codeAppendf("half4 color = %s;", args.fInputColor);

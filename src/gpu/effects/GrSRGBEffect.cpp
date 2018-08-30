@@ -43,10 +43,6 @@ public:
                 break;
         }
 
-        if (nullptr == args.fInputColor) {
-            args.fInputColor = "half4(1)";
-        }
-
         // Mali Bifrost uses fp16 for mediump. Making the intermediate color variable highp causes
         // calculations to be performed with sufficient precision.
         fragBuilder->codeAppendf("float4 color = %s;", args.fInputColor);

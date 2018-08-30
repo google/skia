@@ -25,9 +25,8 @@ public:
         (void)_outer;
         fragBuilder->codeAppendf(
                 "%s = %s;\nhalf invAlpha = %s.w <= 0.0 ? 0.0 : 1.0 / %s.w;\n%s.xyz *= invAlpha;\n",
-                args.fOutputColor, args.fInputColor ? args.fInputColor : "half4(1)",
-                args.fInputColor ? args.fInputColor : "half4(1)",
-                args.fInputColor ? args.fInputColor : "half4(1)", args.fOutputColor);
+                args.fOutputColor, args.fInputColor, args.fInputColor, args.fInputColor,
+                args.fOutputColor);
     }
 
 private:

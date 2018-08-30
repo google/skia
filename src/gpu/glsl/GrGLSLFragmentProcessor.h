@@ -83,8 +83,9 @@ public:
         @param outputColor       A predefined half4 in the FS in which the stage should place its
                                  output color (or coverage).
         @param inputColor        A half4 that holds the input color to the stage in the FS. This may
-                                 be nullptr in which case the implied input is solid white (all
-                                 ones). TODO: Better system for communicating optimization info
+                                 be nullptr in which case the fInputColor is set to "half4(1.0)"
+                                 (solid white) so this is guaranteed non-null.
+                                 TODO: Better system for communicating optimization info
                                  (e.g. input color is solid white, trans black, known to be opaque,
                                  etc.) that allows the processor to communicate back similar known
                                  info about its output.
@@ -108,7 +109,7 @@ public:
                 , fShaderCaps(caps)
                 , fFp(fp)
                 , fOutputColor(outputColor)
-                , fInputColor(inputColor)
+                , fInputColor(inputColor ? inputColor : "half4(1.0)")
                 , fTransformedCoords(transformedCoordVars)
                 , fTexSamplers(textureSamplers) {}
         GrGLSLFPFragmentBuilder* fFragBuilder;
@@ -131,8 +132,9 @@ public:
         return fChildProcessors[index];
     }
 
+    // Emit the child with the default input color (solid white)
     inline void emitChild(int childIndex, SkString* outputColor, EmitArgs& parentArgs) {
-        this->emitChild(childIndex, "half4(1.0)", outputColor, parentArgs);
+        this->emitChild(childIndex, nullptr, outputColor, parentArgs);
     }
 
     /** Will emit the code of a child proc in its own scope. Pass in the parent's EmitArgs and
@@ -146,8 +148,11 @@ public:
     void emitChild(int childIndex, const char* inputColor, SkString* outputColor,
                    EmitArgs& parentArgs);
 
+    // Use the parent's output color to hold child's output, and use the
+    // default input color of solid white
     inline void emitChild(int childIndex, EmitArgs& args) {
-        this->emitChild(childIndex, "half4(1.0)", args);
+        // null pointer cast required to disambiguate the function call
+        this->emitChild(childIndex, (const char*) nullptr, args);
     }
 
     /** Variation that uses the parent's output color variable to hold the child's output.*/
