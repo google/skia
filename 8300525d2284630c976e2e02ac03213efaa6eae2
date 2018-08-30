@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "078bb9f6_e2f34c73",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1345,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-08-30T20:44:37Z",
+      "side": 1,
+      "message": "Add comment. Basically what is in the CL description.",
+      "range": {
+        "startLine": 1345,
+        "startChar": 27,
+        "endLine": 1345,
+        "endChar": 32
+      },
+      "revId": "8300525d2284630c976e2e02ac03213efaa6eae2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
