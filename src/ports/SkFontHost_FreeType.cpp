@@ -1342,7 +1342,7 @@ bool SkScalerContext_FreeType::generatePath(SkGlyphID glyphID, SkPath* path) {
     flags &= ~FT_LOAD_RENDER;   // don't scan convert (we just want the outline)
 
     FT_Error err = FT_Load_Glyph(fFace, glyphID, flags);
-    if (err != 0) {
+    if (err != 0 || fFace->glyph->format == FT_GLYPH_FORMAT_BITMAP) {
         path->reset();
         return false;
     }
