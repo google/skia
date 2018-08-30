@@ -294,18 +294,8 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
     SkOpGlobalState globalState(contourList, &allocator
             SkDEBUGPARAMS(skipAssert) SkDEBUGPARAMS(testName));
     SkOpCoincidence coincidence(&globalState);
-    SkScalar scaleFactor = SkTMax(ScaleFactor(one), ScaleFactor(two));
-    SkPath scaledOne, scaledTwo;
-    const SkPath* minuend, * subtrahend;
-    if (scaleFactor > SK_Scalar1) {
-        ScalePath(one, 1.f / scaleFactor, &scaledOne);
-        minuend = &scaledOne;
-        ScalePath(two, 1.f / scaleFactor, &scaledTwo);
-        subtrahend = &scaledTwo;
-    } else {
-        minuend = &one;
-        subtrahend = &two;
-    }
+    const SkPath* minuend = &one;
+    const SkPath* subtrahend = &two;
     if (op == kReverseDifference_SkPathOp) {
         using std::swap;
         swap(minuend, subtrahend);
@@ -375,9 +365,6 @@ bool OpDebug(const SkPath& one, const SkPath& two, SkPathOp op, SkPath* result
         debugWorstState.debugDoYourWorst(&globalState);
     }
 #endif
-    if (scaleFactor > 1) {
-        ScalePath(*result, scaleFactor, result);
-    }
     return true;
 }
 
