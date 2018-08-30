@@ -48,7 +48,6 @@ class GrSwizzle;
 class GrTextBlobCache;
 class GrTextContext;
 class GrTextureProxy;
-class GrTextureStripAtlasManager;
 class GrVertexBuffer;
 struct GrVkBackendContext;
 
@@ -309,7 +308,6 @@ private:
     GrResourceCache*                        fResourceCache;
     GrResourceProvider*                     fResourceProvider;
     GrProxyProvider*                        fProxyProvider;
-    std::unique_ptr<GrTextureStripAtlasManager> fTextureStripAtlasManager;
 
     // All the GrOp-derived classes use this pool.
     sk_sp<GrOpMemoryPool>                   fOpMemoryPool;
