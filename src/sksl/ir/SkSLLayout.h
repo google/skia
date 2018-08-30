@@ -75,6 +75,14 @@ struct Layout {
         kIdentity_Key,
     };
 
+    enum class CType {
+        kDefault,
+        kSkRect,
+        kSkIRect,
+        kGrColor4f,
+        kSkPMColor,
+    };
+
     static const char* FormatToStr(Format format) {
         switch (format) {
             case Format::kUnspecified:  return "";
@@ -121,7 +129,7 @@ struct Layout {
 
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, String when, Key key, StringFragment ctype)
+           int invocations, String when, Key key, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -151,7 +159,8 @@ struct Layout {
     , fPrimitive(kUnspecified_Primitive)
     , fMaxVertices(-1)
     , fInvocations(-1)
-    , fKey(kNo_Key) {}
+    , fKey(kNo_Key)
+    , fCType(CType::kDefault) {}
 
     String description() const {
         String result;
@@ -354,7 +363,7 @@ struct Layout {
     int fInvocations;
     String fWhen;
     Key fKey;
-    StringFragment fCType;
+    CType fCType;
 };
 
 } // namespace

@@ -27,9 +27,19 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
-    if (layout.fCType != "") {
-        return layout.fCType;
-    } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
+    switch (layout.fCType) {
+        case Layout::CType::kSkRect:
+            return "SkRect";
+        case Layout::CType::kSkIRect:
+            return "SkIRect";
+        case Layout::CType::kSkPMColor:
+            return "SkPMColor";
+        case Layout::CType::kGrColor4f:
+            return "GrColor4f";
+        case Layout::CType::kDefault:
+            break;
+    }
+    if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
         return "float";
     } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
         return "SkPoint";
