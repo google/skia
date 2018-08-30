@@ -162,7 +162,7 @@ private:
 
     void purgeOpsWithUninstantiatedProxies() override;
 
-    void gatherProxyIntervals(GrResourceAllocator*) const override;
+    void gatherProxyIntervals1(GrResourceAllocator*) const override;
 
     // Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
     // into an existing Op or otherwise deleted.

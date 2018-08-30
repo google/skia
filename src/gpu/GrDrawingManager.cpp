@@ -33,36 +33,83 @@
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 #include "text/GrTextContext.h"
 
+GrOpListDAG::GrOpListDAG(bool explicitlyAllocating, GrContextOptions::Enable sortOpLists) {
+    if (GrContextOptions::Enable::kNo == sortOpLists) {
+        fSortOpLists = false;
+    } else if (GrContextOptions::Enable::kYes == sortOpLists) {
+        fSortOpLists = true;
+    } else {
+        // By default we always enable sorting when we're explicitly allocating GPU resources
+        fSortOpLists = explicitlyAllocating;
+    }
+}
+
+GrOpListDAG::~GrOpListDAG() {}
+
+void GrOpListDAG::gimme(SkSTArray<8, uint32_t, true>* idArray) const {
+    idArray->reset(fOpLists.count());
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        (*idArray)[i] = fOpLists[i]->uniqueID();
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 GrDrawingManager::GrDrawingManager(GrContext* context,
                                    const GrPathRendererChain::Options& optionsForPathRendererChain,
                                    const GrTextContext::Options& optionsForTextContext,
                                    GrSingleOwner* singleOwner,
                                    bool explicitlyAllocating,
-                                   GrContextOptions::Enable sortRenderTargets)
+                                   GrContextOptions::Enable sortOpLists)
         : fContext(context)
         , fOptionsForPathRendererChain(optionsForPathRendererChain)
         , fOptionsForTextContext(optionsForTextContext)
         , fSingleOwner(singleOwner)
         , fAbandoned(false)
+        , fDAG(explicitlyAllocating, sortOpLists)
         , fTextContext(nullptr)
         , fPathRendererChain(nullptr)
         , fSoftwarePathRenderer(nullptr)
         , fFlushing(false) {
+}
 
-    if (GrContextOptions::Enable::kNo == sortRenderTargets) {
-        fSortRenderTargets = false;
-    } else if (GrContextOptions::Enable::kYes == sortRenderTargets) {
-        fSortRenderTargets = true;
-    } else {
-        // By default we always enable sorting when we're explicitly allocating GPU resources
-        fSortRenderTargets = explicitlyAllocating;
+void GrOpListDAG::prepForFlush() {
+    if (fSortOpLists) {
+        SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
+        SkASSERT(result);
+    }
+
+#ifdef SK_DEBUG
+    // This block checks for any unnecessary splits in the opLists. If two sequential opLists
+    // share the same backing GrSurfaceProxy it means the opList was artificially split.
+    if (fOpLists.count()) {
+        GrRenderTargetOpList* prevOpList = fOpLists[0]->asRenderTargetOpList();
+        for (int i = 1; i < fOpLists.count(); ++i) {
+            GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
+
+            if (prevOpList && curOpList) {
+                SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
+            }
+
+            prevOpList = curOpList;
+        }
+    }
+#endif
+}
+
+void GrOpListDAG::closeAll(const GrCaps* caps) {
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
+        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
+        // but need to be flushed anyway. Closing such GrOpLists here will mean new
+        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
+        fOpLists[i]->makeClosed(*caps);
     }
 }
 
-void GrDrawingManager::cleanup() {
+void GrOpListDAG::cleanup(const GrCaps* caps) {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
+        fOpLists[i]->makeClosed(*caps);
 
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
@@ -75,6 +122,10 @@ void GrDrawingManager::cleanup() {
     }
 
     fOpLists.reset();
+}
+
+void GrDrawingManager::cleanup() {
+    fDAG.cleanup(fContext->contextPriv().caps());
 
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
@@ -127,35 +178,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
     fFlushing = true;
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
-        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
-        // but need to be flushed anyway. Closing such GrOpLists here will mean new
-        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
-    }
+    fDAG.closeAll(fContext->contextPriv().caps());
 
-    if (fSortRenderTargets) {
-        SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
-        SkASSERT(result);
-    }
-
-#ifdef SK_DEBUG
-    // This block checks for any unnecessary splits in the opLists. If two sequential opLists
-    // share the same backing GrSurfaceProxy it means the opList was artificially split.
-    if (fOpLists.count()) {
-        GrRenderTargetOpList* prevOpList = fOpLists[0]->asRenderTargetOpList();
-        for (int i = 1; i < fOpLists.count(); ++i) {
-            GrRenderTargetOpList* curOpList = fOpLists[i]->asRenderTargetOpList();
-
-            if (prevOpList && curOpList) {
-                SkASSERT(prevOpList->fTarget.get() != curOpList->fTarget.get());
-            }
-
-            prevOpList = curOpList;
-        }
-    }
-#endif
+    fDAG.prepForFlush();
 
     GrOpFlushState flushState(gpu, fContext->contextPriv().resourceProvider(),
                               &fTokenTracker);
@@ -166,10 +191,8 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     // Prepare any onFlush op lists (e.g. atlases).
     if (!fOnFlushCBObjects.empty()) {
-        fFlushingOpListIDs.reset(fOpLists.count());
-        for (int i = 0; i < fOpLists.count(); ++i) {
-            fFlushingOpListIDs[i] = fOpLists[i]->uniqueID();
-        }
+        fDAG.gimme(&fFlushingOpListIDs);
+
         SkSTArray<4, sk_sp<GrRenderTargetContext>> renderTargetContexts;
         for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
             onFlushCBObject->preFlush(&onFlushProvider,

@@ -66,7 +66,7 @@ private:
 
     void purgeOpsWithUninstantiatedProxies() override;
 
-    void gatherProxyIntervals(GrResourceAllocator*) const override;
+    void gatherProxyIntervals1(GrResourceAllocator*) const override;
 
     void recordOp(std::unique_ptr<GrOp>);
 

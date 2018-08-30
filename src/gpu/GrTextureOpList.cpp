@@ -177,7 +177,7 @@ void GrTextureOpList::purgeOpsWithUninstantiatedProxies() {
     }
 }
 
-void GrTextureOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+void GrTextureOpList::gatherProxyIntervals1(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
     // Add the interval for all the writes to this opList's target
