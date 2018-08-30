@@ -30,6 +30,8 @@
 #include "SkTScopedComPtr.h"
 #include "SkTypeface.h"
 
+class SkGlyphRunList;
+
 //#define SK_XPS_USE_DETERMINISTIC_IDS
 
 /** \class SkXPSDevice
@@ -96,9 +98,9 @@ protected:
                         const SkRect* srcOrNull, const SkRect& dst,
                         const SkPaint& paint,
                         SkCanvas::SrcRectConstraint) override;
-    void drawPosText(const void* text, size_t len,
-                     const SkScalar pos[], int scalarsPerPos,
-                     const SkPoint& offset, const SkPaint& paint) override;
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {
+        SK_ABORT("Needs an implementation");
+    }
     void drawVertices(const SkVertices*, const SkVertices::Bone bones[], int boneCount, SkBlendMode,
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,

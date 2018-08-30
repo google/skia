@@ -1809,6 +1809,8 @@ void SkXPSDevice::drawSprite(const SkBitmap& bitmap, int x, int y, const SkPaint
     SkDEBUGF("XPS drawSprite not yet implemented.");
 }
 
+#if 0
+
 HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
                                        TypefaceUse** typefaceUse) {
     SkAutoResolveDefaultTypeface typeface(paint.getTypeface());
@@ -2091,7 +2093,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
                   this->ctm(),
                   paint));
 }
-
+#endif
 void SkXPSDevice::drawDevice( SkBaseDevice* dev,
                              int x, int y,
                              const SkPaint&) {

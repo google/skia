@@ -217,7 +217,7 @@ protected:
                               SkBlendMode, const SkPaint&) = 0;
     virtual void drawShadow(const SkPath&, const SkDrawShadowRec&);
 
-    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList);
+    virtual void drawGlyphRunList(const SkGlyphRunList& glyphRunList) = 0;
     // default implementation calls drawVertices
     virtual void drawPatch(const SkPoint cubics[12], const SkColor colors[4],
                            const SkPoint texCoords[4], SkBlendMode, const SkPaint& paint);
@@ -325,16 +325,12 @@ private:
     friend struct DeviceCM; //for setMatrixClip
     friend class SkDraw;
     friend class SkDrawIter;
-    friend class SkDeviceFilteredPaint;
     friend class SkSurface_Raster;
     friend class DeviceTestingAccess;
 
     // Temporarily friend the SkGlyphRunBuilder until drawPosText is gone.
     friend class SkGlyphRun;
     friend class SkGlyphRunList;
-    virtual void drawPosText(const void* text, size_t len,
-                             const SkScalar pos[], int scalarsPerPos,
-                             const SkPoint& offset, const SkPaint& paint) = 0;
 
     // used to change the backend's pixels (and possibly config/rowbytes)
     // but cannot change the width/height, so there should be no change to
@@ -414,9 +410,8 @@ protected:
     void drawSprite(const SkBitmap&, int, int, const SkPaint&) override {}
     void drawBitmapRect(const SkBitmap&, const SkRect*, const SkRect&, const SkPaint&,
                         SkCanvas::SrcRectConstraint) override {}
-    void drawPosText(const void*, size_t, const SkScalar[], int, const SkPoint&,
-                     const SkPaint&) override {}
     void drawDevice(SkBaseDevice*, int, int, const SkPaint&) override {}
+    void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override {}
     void drawVertices(const SkVertices*, const SkVertices::Bone[], int, SkBlendMode,
                       const SkPaint&) override {}
 
