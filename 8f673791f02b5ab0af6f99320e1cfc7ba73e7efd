@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b390c8b_cb1f501c",
+        "filename": "src/gpu/vk/GrVkImage.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-08-30T20:37:37Z",
+      "side": 1,
+      "message": "transfer",
+      "range": {
+        "startLine": 111,
+        "startChar": 80,
+        "endLine": 111,
+        "endChar": 88
+      },
+      "revId": "8f673791f02b5ab0af6f99320e1cfc7ba73e7efd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
