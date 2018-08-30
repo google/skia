@@ -156,6 +156,8 @@ static bool sw_draw_with_mask_filter(GrContext* context,
             return false;
         }
 
+        SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
+
         drawRect = dstM.fBounds;
 
         if (key.isValid()) {
@@ -176,7 +178,7 @@ static sk_sp<GrTextureProxy> create_mask_GPU(GrContext* context,
     sk_sp<GrRenderTargetContext> rtContext(
         context->contextPriv().makeDeferredRenderTargetContextWithFallback(
             SkBackingFit::kApprox, maskRect.width(), maskRect.height(), kAlpha_8_GrPixelConfig,
-            nullptr, sampleCnt));
+            nullptr, sampleCnt, GrMipMapped::kNo, kTopLeft_GrSurfaceOrigin));
     if (!rtContext) {
         return nullptr;
     }
@@ -387,7 +389,7 @@ static void draw_shape_with_mask_filter(GrContext* context,
         if (maskKey.isValid()) {
             // TODO: this cache look up is duplicated in sw_draw_with_mask_filter for raster
             filteredMask = proxyProvider->findOrCreateProxyByUniqueKey(
-                                                maskKey, renderTargetContext->origin());
+                                                maskKey, kTopLeft_GrSurfaceOrigin);
         }
 
         if (!filteredMask) {
@@ -402,6 +404,8 @@ static void draw_shape_with_mask_filter(GrContext* context,
                                                          std::move(maskProxy),
                                                          viewMatrix,
                                                          maskRect);
+                SkASSERT(kTopLeft_GrSurfaceOrigin == filteredMask->origin());
+
                 if (filteredMask && maskKey.isValid()) {
                     proxyProvider->assignUniqueKeyToProxy(maskKey, filteredMask.get());
                 }
