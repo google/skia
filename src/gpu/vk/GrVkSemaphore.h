@@ -20,16 +20,14 @@ class GrVkGpu;
 
 class GrVkSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrVkSemaphore> Make(const GrVkGpu* gpu, bool isOwned);
+    static sk_sp<GrVkSemaphore> Make(GrVkGpu* gpu, bool isOwned);
 
     using WrapType = GrResourceProvider::SemaphoreWrapType;
 
-    static sk_sp<GrVkSemaphore> MakeWrapped(const GrVkGpu* gpu,
+    static sk_sp<GrVkSemaphore> MakeWrapped(GrVkGpu* gpu,
                                             VkSemaphore semaphore,
                                             WrapType wrapType,
                                             GrWrapOwnership);
-
-    ~GrVkSemaphore() override;
 
     GrBackendSemaphore backendSemaphore() const override;
 
@@ -89,8 +87,11 @@ public:
     Resource* getResource() { return fResource; }
 
 private:
-    GrVkSemaphore(const GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
+    GrVkSemaphore(GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
                   bool isOwned);
+
+    void onRelease() override;
+    void onAbandon() override;
 
     Resource* fResource;
 
