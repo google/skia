@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "3a366d09_10d65ebc",
+        "filename": "src/effects/imagefilters/SkArithmeticImageFilter.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T13:05:47Z",
+      "side": 1,
+      "message": "Yeah, I think the unwritten \"rule\" is to return the base class when you don\u0027t expect the caller take the result and shove it somewhere that receives base class instances and not do anything requiring knowledge of the factory that was called. But it\u0027s fine to return the derived class when that\u0027s not the case.",
+      "parentUuid": "64d4f5e4_f8b36eb2",
+      "revId": "043ad53819e96a7370f4ced007152e1ffca85479",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cc51a95_628da78e",
         "filename": "src/gpu/effects/GrSkSLFP.cpp",
         "patchSetId": 4

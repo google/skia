@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9685e8fd_833df428",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T13:05:47Z",
+      "side": 1,
+      "message": "Clone test actually caught something! :)",
+      "range": {
+        "startLine": 337,
+        "startChar": 0,
+        "endLine": 341,
+        "endChar": 66
+      },
+      "revId": "bb6495dfc70e90d578c028f7f39adf7ac16b0aad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f4eb7f0c_ba3d5d74",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T13:05:47Z",
+      "side": 1,
+      "message": "FWIW there is SkSafeRef()",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 356,
+        "endChar": 5
+      },
+      "revId": "bb6495dfc70e90d578c028f7f39adf7ac16b0aad",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
