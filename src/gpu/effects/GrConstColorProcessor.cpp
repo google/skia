@@ -26,39 +26,33 @@ public:
         (void)color;
         auto mode = _outer.mode();
         (void)mode;
-        fColorUniformVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
-                                                            kDefault_GrSLPrecision, "colorUniform");
+        fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
+                                                     kDefault_GrSLPrecision, "color");
         fragBuilder->codeAppendf(
-                "half4 prevColor;\n@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n "
-                "   case 1:\n        %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w "
-                "* %s;\n        break;\n}\n",
+                "@switch (%d) {\n    case 0:\n        %s = %s;\n        break;\n    case 1:\n      "
+                "  %s = %s * %s;\n        break;\n    case 2:\n        %s = %s.w * %s;\n        "
+                "break;\n}\n",
                 (int)_outer.mode(), args.fOutputColor,
-                args.fUniformHandler->getUniformCStr(fColorUniformVar), args.fOutputColor,
-                args.fInputColor, args.fUniformHandler->getUniformCStr(fColorUniformVar),
+                args.fUniformHandler->getUniformCStr(fColorVar), args.fOutputColor,
+                args.fInputColor, args.fUniformHandler->getUniformCStr(fColorVar),
                 args.fOutputColor, args.fInputColor,
-                args.fUniformHandler->getUniformCStr(fColorUniformVar));
+                args.fUniformHandler->getUniformCStr(fColorVar));
     }
 
 private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrConstColorProcessor& _outer = _proc.cast<GrConstColorProcessor>();
-        auto color = _outer.color();
-        (void)color;
-        UniformHandle& colorUniform = fColorUniformVar;
-        (void)colorUniform;
-        auto mode = _outer.mode();
-        (void)mode;
-
-        // We use the "illegal" color value as an uninit sentinel. With GrColor4f, the "illegal"
-        // color is *really* illegal (not just unpremultiplied), so this check is simple.
-        if (prevColor != color) {
-            pdman.set4fv(colorUniform, 1, color.fRGBA);
-            prevColor = color;
+        {
+            const GrColor4f& colorValue = _outer.color();
+            if (fColorPrev != colorValue) {
+                fColorPrev = colorValue;
+                pdman.set4fv(fColorVar, 1, colorValue.fRGBA);
+            }
         }
     }
-    GrColor4f prevColor = GrColor4f::kIllegalConstructor;
-    UniformHandle fColorUniformVar;
+    GrColor4f fColorPrev = GrColor4f::kIllegalConstructor;
+    UniformHandle fColorVar;
 };
 GrGLSLFragmentProcessor* GrConstColorProcessor::onCreateGLSLInstance() const {
     return new GrGLSLConstColorProcessor();

@@ -151,7 +151,7 @@ DEF_TEST(SkSLFPInput, r) {
          "}",
          *SkSL::ShaderCapsFactory::Default(),
          {
-             "SkPoint point() const { return fPoint; }",
+             "const SkPoint& point() const { return fPoint; }",
              "static std::unique_ptr<GrFragmentProcessor> Make(SkPoint point) {",
              "return std::unique_ptr<GrFragmentProcessor>(new GrTest(point));",
              "GrTest(SkPoint point)",
@@ -181,6 +181,9 @@ DEF_TEST(SkSLFPUniform, r) {
          });
 }
 
+// SkSLFPInUniform tests the simplest plumbing case, default type, no tracking
+// with a setUniform template that supports inlining the value call with no
+// local variable.
 DEF_TEST(SkSLFPInUniform, r) {
     test(r,
          "in uniform half4 color;"
@@ -194,8 +197,100 @@ DEF_TEST(SkSLFPInUniform, r) {
          {
             "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
                                                          "kDefault_GrSLPrecision, \"color\");",
-            "const SkRect colorValue = _outer.color();",
-            "pdman.set4fv(fColorVar, 1, (float*) &colorValue);"
+            "pdman.set4fv(fColorVar, 1, reinterpret_cast<const float*>(&(_outer.color())));"
+         });
+}
+
+// As above, but tests in uniform's ability to override the default ctype.
+DEF_TEST(SkSLFPInUniformCType, r) {
+    test(r,
+         "layout(ctype=GrColor4f) in uniform half4 color;"
+         "void main() {"
+         "sk_OutColor = color;"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+             "static std::unique_ptr<GrFragmentProcessor> Make(GrColor4f color) {",
+         },
+         {
+            "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
+                                                         "kDefault_GrSLPrecision, \"color\");",
+            "pdman.set4fv(fColorVar, 1, (_outer.color()).fRGBA);"
+         });
+}
+
+// Add state tracking to the default typed SkRect <-> half4 uniform. But since
+// it now has to track state, the value inlining previously done for the
+// setUniform call is removed in favor of a local variable.
+DEF_TEST(SkSLFPTrackedInUniform, r) {
+    test(r,
+         "layout(tracked) in uniform half4 color;"
+         "void main() {"
+         "sk_OutColor = color;"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+             "static std::unique_ptr<GrFragmentProcessor> Make(SkRect color) {",
+         },
+         {
+            "SkRect fColorPrev = SkRect::MakeEmpty();",
+            "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
+                                                         "kDefault_GrSLPrecision, \"color\");",
+            "const SkRect& colorValue = _outer.color();",
+            "if (fColorPrev.isEmpty() || fColorPrev != colorValue) {",
+            "fColorPrev = colorValue;",
+            "pdman.set4fv(fColorVar, 1, reinterpret_cast<const float*>(&colorValue));"
+         });
+}
+
+// Test the case where the template does not support variable inlining in
+// setUniform (i.e. it references the value multiple times).
+DEF_TEST(SkSLFPNonInlinedInUniform, r) {
+    test(r,
+         "in uniform half2 point;"
+         "void main() {"
+         "sk_OutColor = half4(point, point);"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+             "static std::unique_ptr<GrFragmentProcessor> Make(SkPoint point) {",
+         },
+         {
+            "fPointVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf2_GrSLType, "
+                                                         "kDefault_GrSLPrecision, \"point\");",
+            "const SkPoint& pointValue = _outer.point();",
+            "pdman.set2f(fPointVar, pointValue.fX, pointValue.fY);"
+         });
+}
+
+// Test handling conditional uniforms (that use when= in layout), combined with
+// state tracking and custom ctypes to really put the code generation through its paces.
+DEF_TEST(SkSLFPConditionalInUniform, r) {
+    test(r,
+         "in bool test;"
+         "layout(ctype=GrColor4f, tracked, when=test) in uniform half4 color;"
+         "void main() {"
+         "  if (test) {"
+         "    sk_OutColor = color;"
+         "  } else {"
+         "    sk_OutColor = half4(1);"
+         "  }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+             "static std::unique_ptr<GrFragmentProcessor> Make(bool test, GrColor4f color) {",
+         },
+         {
+            "GrColor4f fColorPrev = GrColor4f::kIllegalConstructor",
+            "auto test = _outer.test();",
+            "if (test) {",
+            "fColorVar = args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType, "
+                                                         "kDefault_GrSLPrecision, \"color\");",
+            "if (fColorVar.isValid()) {",
+            "const GrColor4f& colorValue = _outer.color();",
+            "if (fColorPrev != colorValue) {",
+            "fColorPrev = colorValue;",
+            "pdman.set4fv(fColorVar, 1, colorValue.fRGBA);"
          });
 }
 
