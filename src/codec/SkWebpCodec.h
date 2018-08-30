@@ -61,10 +61,6 @@ private:
             : INHERITED(i)
             , fReportedAlpha(alpha)
         {}
-        Frame(Frame&& other)
-            : INHERITED(other.frameId())
-            , fReportedAlpha(other.fReportedAlpha)
-        {}
 
     protected:
         SkEncodedInfo::Alpha onReportedAlpha() const override {

@@ -35,6 +35,17 @@ public:
     virtual ~SkFrame() {}
 
     /**
+     * An explicit move constructor, as
+     * https://en.cppreference.com/w/cpp/language/move_constructor says that
+     * there is no implicit move constructor if there are user-declared
+     * destructors, and we have one, immediately above.
+     *
+     * Without a move constructor, it is harder to use an SkFrame, or an
+     * SkFrame subclass, inside a std::vector.
+     */
+    SkFrame(SkFrame&&) = default;
+
+    /**
      *  0-based index of the frame in the image sequence.
      */
     int frameId() const { return fId; }
