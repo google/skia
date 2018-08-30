@@ -104,11 +104,6 @@ public:
     template <typename PerGlyphPos>
     void forEachGlyphAndPosition(PerGlyphPos perGlyph) const;
 
-    // The temporaryShunt calls are to allow inter-operating with existing code while glyph runs
-    // are developed.
-    void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin);
-    using TemporaryShuntCallback = std::function<void(size_t, const char*, const SkScalar*)>;
-    void temporaryShuntToCallback(TemporaryShuntCallback callback);
     void filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions);
 
     size_t runSize() const { return fGlyphIDs.size(); }
@@ -248,11 +243,6 @@ public:
     auto size()  const -> decltype(fGlyphRuns.size())          { return fGlyphRuns.size();   }
     auto empty() const -> decltype(fGlyphRuns.empty())         { return fGlyphRuns.empty();  }
     auto operator [] (size_t i) const -> decltype(fGlyphRuns[i]) { return fGlyphRuns[i];     }
-    void temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) const {
-        for (auto& run : fGlyphRuns) {
-            run.temporaryShuntToDrawPosText(device, origin);
-        }
-    }
 };
 
 class SkGlyphIDSet {
