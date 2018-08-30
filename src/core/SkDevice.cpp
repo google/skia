@@ -202,10 +202,6 @@ void SkBaseDevice::drawImageLattice(const SkImage* image,
     }
 }
 
-void SkBaseDevice::drawGlyphRunList(const SkGlyphRunList& glyphRunList) {
-    glyphRunList.temporaryShuntToDrawPosText(this, SkPoint::Make(0, 0));
-}
-
 void SkBaseDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
                                      const SkPaint& paint) {
