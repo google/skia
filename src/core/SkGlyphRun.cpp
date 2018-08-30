@@ -89,23 +89,6 @@ void SkGlyphRun::eachGlyphToGlyphRun(SkGlyphRun::PerGlyph perGlyph) {
     }
 }
 
-void SkGlyphRun::temporaryShuntToDrawPosText(SkBaseDevice* device, SkPoint origin) {
-
-    auto pos = (const SkScalar*) this->positions().data();
-
-    if (!fGlyphIDs.empty()) {
-        device->drawPosText(
-                fGlyphIDs.data(), fGlyphIDs.size() * sizeof(SkGlyphID),
-                pos, 2, origin, fRunPaint);
-    }
-}
-
-void SkGlyphRun::temporaryShuntToCallback(TemporaryShuntCallback callback) {
-    auto bytes = (const char *)fGlyphIDs.data();
-    auto pos = (const SkScalar*) this->positions().data();
-    callback(fGlyphIDs.size(), bytes, pos);
-}
-
 void SkGlyphRun::filloutGlyphsAndPositions(SkGlyphID* glyphIDs, SkPoint* positions) {
     memcpy(glyphIDs, fGlyphIDs.data(), fGlyphIDs.size_bytes());
     memcpy(positions, fPositions.data(), fPositions.size_bytes());
