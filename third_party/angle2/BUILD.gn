@@ -91,7 +91,7 @@ shared_library("libGLESv2") {
               libangle_common_sources + libangle_image_util_sources +
               libglesv2_sources + libangle_gl_sources,
           ".",
-          "$angle_root/src")
+          angle_root)
   if (is_win) {
     sources += [ "$angle_root/src/libGLESv2/libGLESv2_autogen.def" ]
   }
@@ -104,7 +104,7 @@ shared_library("libGLESv2") {
     sources +=
         rebase_path(libangle_gl_glx_sources + libangle_common_linux_sources,
                     ".",
-                    "$angle_root/src") +
+                    angle_root) +
         [ "$angle_root/src/third_party/libXNVCtrl/NVCtrl.c" ]
   } else if (is_win) {
     defines += [
@@ -115,7 +115,7 @@ shared_library("libGLESv2") {
                 libangle_d3d9_sources + libangle_d3d11_sources +
                 libangle_d3d11_win32_sources + libangle_common_win_sources,
             ".",
-            "$angle_root/src")
+            angle_root)
     libs += [
       "d3d9.lib",
       "dxguid.lib",
@@ -135,7 +135,7 @@ shared_library("libEGL") {
   deps = [
     ":libGLESv2",
   ]
-  sources = rebase_path(libegl_sources, ".", "$angle_root/src")
+  sources = rebase_path(libegl_sources, ".", angle_root)
   if (is_win) {
     sources += [ "$angle_root/src/libEGL/libEGL.def" ]
   }
