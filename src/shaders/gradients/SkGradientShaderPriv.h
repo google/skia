@@ -231,10 +231,6 @@ public:
 
     class GLSLProcessor;
 
-    ~GrGradientEffect() override;
-
-    bool useAtlas() const { return SkToBool(-1 != fRow); }
-
     // Controls the implementation strategy for this effect.
     // NB: all entries need to be reflected in the key.
     enum class InterpolationStrategy : uint8_t {
@@ -313,9 +309,6 @@ private:
 
     GrCoordTransform fCoordTransform;
     TextureSampler fTextureSampler;
-    SkScalar fYCoord;
-    sk_sp<GrTextureStripAtlas> fAtlas;
-    int fRow;
     bool fIsOpaque;
 
     InterpolationStrategy fStrategy;
@@ -333,10 +326,6 @@ private:
 // Base class for GL gradient effects
 class GrGradientEffect::GLSLProcessor : public GrGLSLFragmentProcessor {
 public:
-    GLSLProcessor() {
-        fCachedYCoord = SK_ScalarMax;
-    }
-
     static uint32_t GenBaseGradientKey(const GrProcessor&);
 
 protected:
@@ -368,10 +357,8 @@ private:
                              const char* outputColor,
                              const char* inputColor);
 
-    SkScalar fCachedYCoord;
     GrGLSLProgramDataManager::UniformHandle fIntervalsUni;
     GrGLSLProgramDataManager::UniformHandle fThresholdUni;
-    GrGLSLProgramDataManager::UniformHandle fFSYUni;
 
     typedef GrGLSLFragmentProcessor INHERITED;
 };
