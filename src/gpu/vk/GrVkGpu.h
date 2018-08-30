@@ -53,6 +53,7 @@ public:
 
     VkDevice device() const { return fDevice; }
     VkQueue  queue() const { return fQueue; }
+    uint32_t  queueIndex() const { return fQueueIndex; }
     VkCommandPool cmdPool() const { return fCmdPool; }
     VkPhysicalDeviceProperties physicalDeviceProperties() const {
         return fPhysDevProps;
@@ -234,6 +235,7 @@ private:
     VkInstance                             fInstance;
     VkDevice                               fDevice;
     VkQueue                                fQueue;    // Must be Graphics queue
+    uint32_t                               fQueueIndex;
 
     // Created by GrVkGpu
     GrVkResourceProvider                   fResourceProvider;

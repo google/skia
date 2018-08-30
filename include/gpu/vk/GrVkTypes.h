@@ -63,6 +63,7 @@ struct GrVkImageInfo {
     VkImageLayout  fImageLayout;
     VkFormat       fFormat;
     uint32_t       fLevelCount;
+    uint32_t       fCurrentQueueFamily;
 
     GrVkImageInfo()
             : fImage(VK_NULL_HANDLE)
@@ -70,16 +71,19 @@ struct GrVkImageInfo {
             , fImageTiling(VK_IMAGE_TILING_OPTIMAL)
             , fImageLayout(VK_IMAGE_LAYOUT_UNDEFINED)
             , fFormat(VK_FORMAT_UNDEFINED)
-            , fLevelCount(0) {}
+            , fLevelCount(0)
+            , fCurrentQueueFamily(VK_QUEUE_FAMILY_IGNORED) {}
 
     GrVkImageInfo(VkImage image, GrVkAlloc alloc, VkImageTiling imageTiling, VkImageLayout layout,
-                  VkFormat format, uint32_t levelCount)
+                  VkFormat format, uint32_t levelCount,
+                  uint32_t currentQueueFamily = VK_QUEUE_FAMILY_IGNORED)
             : fImage(image)
             , fAlloc(alloc)
             , fImageTiling(imageTiling)
             , fImageLayout(layout)
             , fFormat(format)
-            , fLevelCount(levelCount) {}
+            , fLevelCount(levelCount)
+            , fCurrentQueueFamily(currentQueueFamily) {}
 
     GrVkImageInfo(const GrVkImageInfo& info, VkImageLayout layout)
             : fImage(info.fImage)
@@ -87,7 +91,8 @@ struct GrVkImageInfo {
             , fImageTiling(info.fImageTiling)
             , fImageLayout(layout)
             , fFormat(info.fFormat)
-            , fLevelCount(info.fLevelCount) {}
+            , fLevelCount(info.fLevelCount)
+            , fCurrentQueueFamily(info.fCurrentQueueFamily) {}
 
     // This gives a way for a client to update the layout of the Image if they change the layout
     // while we're still holding onto the wrapped texture. They will first need to get a handle
