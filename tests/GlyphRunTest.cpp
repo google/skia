@@ -7,6 +7,9 @@
 
 #include "SkGlyphRun.h"
 
+#include <algorithm>
+#include <memory>
+
 #include "SkTextBlob.h"
 
 #include "Test.h"

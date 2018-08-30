@@ -12,7 +12,7 @@
 #include "SkCanvas.h"
 #include "SkColor.h"
 #include "SkDevice.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 #include "SkImageInfo.h"
 #include "SkPixelRef.h"
 #include "SkRasterClip.h"
