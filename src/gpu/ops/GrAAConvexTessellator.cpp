@@ -59,10 +59,13 @@ static bool duplicate_pt(const SkPoint& p0, const SkPoint& p1) {
     return distSq < kCloseSqd;
 }
 
-static SkScalar abs_dist_from_line(const SkPoint& p0, const SkVector& v, const SkPoint& test) {
-    SkPoint testV = test - p0;
-    SkScalar dist = testV.fX * v.fY - testV.fY * v.fX;
-    return SkScalarAbs(dist);
+static bool points_are_colinear_and_b_is_middle(const SkPoint& a, const SkPoint &b, const SkPoint& c) {
+    // 'area' is twice the area of the triangle with corners a, b, and c.
+    SkScalar area = a.fX * (b.fY - c.fY) + b.fX * (c.fY - a.fY) + c.fX * (a.fY - b.fY);
+    if (SkScalarAbs(area) >= 2 * kCloseSqd) {
+        return false;
+    }
+    return (a - b).dot(b - c) > 0;
 }
 
 int GrAAConvexTessellator::addPt(const SkPoint& pt,
@@ -397,30 +400,29 @@ bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& pat
     }
 
     SkASSERT(fPts.count() == fNorms.count()+1);
-    if (this->numPts() >= 3) {
-        if (abs_dist_from_line(fPts.top(), fNorms.top(), fPts[0]) < kClose) {
-            // The last point is on the line from the second to last to the first point.
+    bool noRemovalsToDo = false;
+    while (!noRemovalsToDo && this->numPts() >= 3) {
+        if (points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.top(), fPts[0])) {
             this->popLastPt();
             fNorms.pop();
+        } else if (points_are_colinear_and_b_is_middle(fPts.top(), fPts[0], fPts[1])) {
+            this->popFirstPtShuffle();
+            fNorms.removeShuffle(0);
+            fNorms[0] = fPts[1] - fPts[0];
+            SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms[0]);
+            SkASSERT(len > 0.0f);
+            SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[0].length()));
+        } else {
+            noRemovalsToDo = true;
         }
+    }
 
+    if (this->numPts() >= 3) {
         *fNorms.push() = fPts[0] - fPts.top();
         SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms.top());
         SkASSERT(len > 0.0f);
         SkASSERT(fPts.count() == fNorms.count());
-    }
 
-    if (this->numPts() >= 3 && abs_dist_from_line(fPts[0], fNorms.top(), fPts[1]) < kClose) {
-        // The first point is on the line from the last to the second.
-        this->popFirstPtShuffle();
-        fNorms.removeShuffle(0);
-        fNorms[0] = fPts[1] - fPts[0];
-        SkDEBUGCODE(SkScalar len =) SkPoint::Normalize(&fNorms[0]);
-        SkASSERT(len > 0.0f);
-        SkASSERT(SkScalarNearlyEqual(1.0f, fNorms[0].length()));
-    }
-
-    if (this->numPts() >= 3) {
         // Check the cross product of the final trio
         SkScalar cross = SkPoint::CrossProduct(fNorms[0], fNorms.top());
         if (cross > 0.0f) {
@@ -905,7 +907,8 @@ void GrAAConvexTessellator::lineTo(const SkPoint& p, CurveState curve) {
     }
 
     SkASSERT(fPts.count() <= 1 || fPts.count() == fNorms.count()+1);
-    if (this->numPts() >= 2 && abs_dist_from_line(fPts.top(), fNorms.top(), p) < kClose) {
+    if (this->numPts() >= 2 &&
+        points_are_colinear_and_b_is_middle(fPts[fPts.count() - 2], fPts.top(), p)) {
         // The old last point is on the line from the second to last to the new point
         this->popLastPt();
         fNorms.pop();
