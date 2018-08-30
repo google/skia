@@ -59,10 +59,27 @@ GrDrawingManager::GrDrawingManager(GrContext* context,
     }
 }
 
-void GrDrawingManager::cleanup() {
+void GrOpListDAG::prepForFlush() {
+    if (fSortOpLists) {
+        SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
+        SkASSERT(result);
+    }
+}
+
+void GrOpListDAG::closeAll(const GrCaps* caps) {
+    for (int i = 0; i < fOpLists.count(); ++i) {
+        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
+        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
+        // but need to be flushed anyway. Closing such GrOpLists here will mean new
+        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
+        fOpLists[i]->makeClosed(*caps);
+    }
+}
+
+void GrOpListDAG::cleanup(const GrCaps* caps) {
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
+        fOpLists[i]->makeClosed(*caps);
 
         // We shouldn't need to do this, but it turns out some clients still hold onto opLists
         // after a cleanup.
@@ -75,6 +92,10 @@ void GrDrawingManager::cleanup() {
     }
 
     fOpLists.reset();
+}
+
+void GrDrawingManager::cleanup() {
+    fDAG.cleanup(fContext->contextPriv().caps());
 
     fPathRendererChain = nullptr;
     fSoftwarePathRenderer = nullptr;
@@ -127,18 +148,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
     }
     fFlushing = true;
 
-    for (int i = 0; i < fOpLists.count(); ++i) {
-        // Semi-usually the GrOpLists are already closed at this point, but sometimes Ganesh
-        // needs to flush mid-draw. In that case, the SkGpuDevice's GrOpLists won't be closed
-        // but need to be flushed anyway. Closing such GrOpLists here will mean new
-        // GrOpLists will be created to replace them if the SkGpuDevice(s) write to them again.
-        fOpLists[i]->makeClosed(*fContext->contextPriv().caps());
-    }
+    fDAG.closeAll(fContext->contextPriv().caps());
 
-    if (fSortRenderTargets) {
-        SkDEBUGCODE(bool result =) SkTTopoSort<GrOpList, GrOpList::TopoSortTraits>(&fOpLists);
-        SkASSERT(result);
-    }
+    fDAG.prepForFlush();
 
 #ifdef SK_DEBUG
     // This block checks for any unnecessary splits in the opLists. If two sequential opLists

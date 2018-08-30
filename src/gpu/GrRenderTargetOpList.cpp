@@ -268,7 +268,7 @@ void GrRenderTargetOpList::purgeOpsWithUninstantiatedProxies() {
     }
 }
 
-void GrRenderTargetOpList::gatherProxyIntervals(GrResourceAllocator* alloc) const {
+void GrRenderTargetOpList::gatherProxyIntervals1(GrResourceAllocator* alloc) const {
     unsigned int cur = alloc->numOps();
 
     for (int i = 0; i < fDeferredProxies.count(); ++i) {
