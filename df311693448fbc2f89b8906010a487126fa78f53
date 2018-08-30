@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79af2918_ecf8d99a",
+        "filename": "src/shaders/gradients/SkGradientShader.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1296,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T18:44:26Z",
+      "side": 1,
+      "message": "Can just delete this function. Tiny style nit: no space between { and }.",
+      "range": {
+        "startLine": 1296,
+        "startChar": 0,
+        "endLine": 1296,
+        "endChar": 41
+      },
+      "revId": "df311693448fbc2f89b8906010a487126fa78f53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "69805a2c_75a00b30",
+        "filename": "src/shaders/gradients/SkGradientShaderPriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T18:44:26Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 331,
+        "startChar": 3,
+        "endLine": 331,
+        "endChar": 23
+      },
+      "revId": "df311693448fbc2f89b8906010a487126fa78f53",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
