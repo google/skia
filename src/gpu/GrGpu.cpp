@@ -348,7 +348,7 @@ GrSemaphoresSubmitted GrGpu::finishFlush(int numSemaphores,
             this->insertSemaphore(semaphore, false);
 
             if (!backendSemaphores[i].isInitialized()) {
-                semaphore->setBackendSemaphore(&backendSemaphores[i]);
+                backendSemaphores[i] = semaphore->backendSemaphore();
             }
         }
     }
