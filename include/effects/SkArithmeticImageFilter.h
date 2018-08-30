@@ -10,6 +10,13 @@
 
 #include "SkImageFilter.h"
 
+extern const char* SKSL_ARITHMETIC_SRC;
+
+struct ArithmeticFPInputs {
+    float k[4];
+    bool enforcePMColor;
+};
+
 class SK_API SkArithmeticImageFilter {
 public:
     static sk_sp<SkImageFilter> Make(float k1, float k2, float k3, float k4, bool enforcePMColor,

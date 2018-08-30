@@ -1987,7 +1987,6 @@ std::unique_ptr<Expression> IRGenerator::getCap(int offset, String name) {
 std::unique_ptr<Expression> IRGenerator::getArg(int offset, String name) const {
     auto found = fSettings->fArgs.find(name);
     if (found == fSettings->fArgs.end()) {
-        fErrors.error(offset, "unknown argument '" + name + "'");
         return nullptr;
     }
     String fullName = "sk_Args." + name;

@@ -63,9 +63,24 @@ public:
         kPermitInvalidStaticTests_Flag = 1,
     };
 
-    enum class FormatArg {
-        kInput,
-        kOutput
+    struct FormatArg {
+        enum class Kind {
+            kInput,
+            kOutput,
+            kUniform,
+            kChildProcessor
+        };
+
+        FormatArg(Kind kind)
+                : fKind(kind) {}
+
+        FormatArg(Kind kind, int index)
+                : fKind(kind)
+                , fIndex(index) {}
+
+        Kind fKind;
+
+        int fIndex;
     };
 
     Compiler(Flags flags = kNone_Flags);
