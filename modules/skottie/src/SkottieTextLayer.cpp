@@ -122,8 +122,8 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                 if (!tf) {
                     LOG("!! Could not create typeface for %s|%s\n",
                         jfamily->begin(), jstyle->begin());
-                    // Last resort.
-                    tf.reset(fFontMgr->matchFamilyStyle("Arial", SkFontStyle::Normal()));
+                    // Last resort. Default manager.
+                    tf = fFontMgr->legacyMakeTypeface(nullptr, FontStyle(jstyle->begin()));
                     if (!tf) {
                         continue;
                     }
