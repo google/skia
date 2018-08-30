@@ -127,6 +127,8 @@ public:
     void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) override;
 #endif
 
+    SkImageInfo buildCacheInfo() const override;
+
 private:
     class ScopedGenerator;
 
@@ -227,6 +229,16 @@ SkImage_Lazy::SkImage_Lazy(Validator* validator)
         , fOrigin(validator->fOrigin) {
     SkASSERT(fSharedGenerator);
     fUniqueID = validator->fUniqueID;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+
+SkImageInfo SkImage_Lazy::buildCacheInfo() const {
+    if (kGray_8_SkColorType == fInfo.colorType()) {
+        return fInfo.makeColorSpace(nullptr);
+    } else {
+        return fInfo;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -372,7 +384,8 @@ sk_sp<SkData> SkImage_Lazy::onRefEncoded() const {
 
 bool SkImage_Lazy::getROPixels(SkBitmap* bitmap, SkColorSpace* dstColorSpace,
                                CachingHint chint) const {
-    return this->lockAsBitmap(bitmap, chint, fInfo);
+    const SkImageInfo cacheInfo = this->buildCacheInfo();
+    return this->lockAsBitmap(bitmap, chint, cacheInfo);
 }
 
 bool SkImage_Lazy::onIsValid(GrContext* context) const {
@@ -484,11 +497,16 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
 sk_sp<SkColorSpace> SkImage_Lazy::getColorSpace(GrContext* ctx, SkColorSpace* dstColorSpace) {
     // TODO: Is this ever needed? Is the output of this function going to be:
     // return dstColorSpace ? fInfo.refColorSpace() : dstColorSpace;
-
-    // In legacy mode, we do no modification to the image's color space or encoding.
-    // Subsequent legacy drawing is likely to ignore the color space, but some clients
-    // may want to know what space the image data is in, so return it.
-    return fInfo.refColorSpace();
+    // Yes, except for gray?
+    if (!dstColorSpace) {
+        // In legacy mode, we do no modification to the image's color space or encoding.
+        // Subsequent legacy drawing is likely to ignore the color space, but some clients
+        // may want to know what space the image data is in, so return it.
+        return fInfo.refColorSpace();
+    } else {
+        SkImageInfo cacheInfo = this->buildCacheInfo();
+        return cacheInfo.refColorSpace();
+    }
 }
 
 /*
@@ -540,7 +558,7 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     // What format are we going to ask the generator to create?
     // TODO: Based on the dstColorSpace?
-    const SkImageInfo cacheInfo = fInfo;
+    const SkImageInfo cacheInfo = this->buildCacheInfo();
 
     // 2. Ask the generator to natively create one
     if (!proxy) {
