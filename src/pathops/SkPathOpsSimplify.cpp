@@ -167,19 +167,10 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
         SkPathOpsDebug::DumpSimplify(path, testName);
     }
 #endif
-    SkScalar scaleFactor = ScaleFactor(path);
-    SkPath scaledPath;
-    const SkPath* workingPath;
-    if (scaleFactor > SK_Scalar1) {
-        ScalePath(path, 1.f / scaleFactor, &scaledPath);
-        workingPath = &scaledPath;
-    } else {
-        workingPath = &path;
-    }
 #if DEBUG_SORT
     SkPathOpsDebug::gSortCount = SkPathOpsDebug::gSortCountDefault;
 #endif
-    SkOpEdgeBuilder builder(*workingPath, contourList, &globalState);
+    SkOpEdgeBuilder builder(path, contourList, &globalState);
     if (!builder.finish()) {
         return false;
     }
@@ -220,9 +211,6 @@ bool SimplifyDebug(const SkPath& path, SkPath* result
         return false;
     }
     wrapper.assemble();  // if some edges could not be resolved, assemble remaining
-    if (scaleFactor > 1) {
-        ScalePath(*result, scaleFactor, result);
-    }
     return true;
 }
 

@@ -279,7 +279,7 @@ private:
 
     bool binarySearchCoin(SkTSect<OppCurve, TCurve>* , double tStart, double tStep, double* t,
                           double* oppT, SkTSpan<OppCurve, TCurve>** oppFirst);
-    SkTSpan<TCurve, OppCurve>* boundsMax() const;
+    SkTSpan<TCurve, OppCurve>* boundsMax();
     bool coincidentCheck(SkTSect<OppCurve, TCurve>* sect2);
     void coincidentForce(SkTSect<OppCurve, TCurve>* sect2, double start1s, double start1e);
     bool coincidentHasT(double t);
@@ -344,6 +344,7 @@ private:
     int fActiveCount;
     bool fRemovedStartT;
     bool fRemovedEndT;
+    bool fHung;
     SkDEBUGCODE(SkOpGlobalState* fDebugGlobalState);
     SkDEBUGCODE(SkTSect<OppCurve, TCurve>* fOppSect);
     PATH_OPS_DEBUG_T_SECT_CODE(int fID);
@@ -875,6 +876,7 @@ SkTSect<TCurve, OppCurve>::SkTSect(const TCurve& c
     , fCoincident(nullptr)
     , fDeleted(nullptr)
     , fActiveCount(0)
+    , fHung(false)
     SkDEBUGPARAMS(fDebugGlobalState(debugGlobalState))
     PATH_OPS_DEBUG_T_SECT_PARAMS(fID(id))
     PATH_OPS_DEBUG_T_SECT_PARAMS(fDebugCount(0))
@@ -985,11 +987,16 @@ bool SkTSect<TCurve, OppCurve>::binarySearchCoin(SkTSect<OppCurve, TCurve>* sect
 //            so that each quad sect has a pointer to the largest, and can update it as spans
 //            are split
 template<typename TCurve, typename OppCurve>
-SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::boundsMax() const {
+SkTSpan<TCurve, OppCurve>* SkTSect<TCurve, OppCurve>::boundsMax() {
     SkTSpan<TCurve, OppCurve>* test = fHead;
     SkTSpan<TCurve, OppCurve>* largest = fHead;
     bool lCollapsed = largest->fCollapsed;
+    int safetyNet = 10000;
     while ((test = test->fNext)) {
+        if (!--safetyNet) {
+            fHung = true;
+            return nullptr;
+        }
         bool tCollapsed = test->fCollapsed;
         if ((lCollapsed && !tCollapsed) || (lCollapsed == tCollapsed &&
                 largest->fBoundsMax < test->fBoundsMax)) {
@@ -2197,12 +2204,18 @@ void SkTSect<TCurve, OppCurve>::BinarySearch(SkTSect<TCurve, OppCurve>* sect1,
         // find the largest bounds
         SkTSpan<TCurve, OppCurve>* largest1 = sect1->boundsMax();
         if (!largest1) {
+            if (sect1->fHung) {
+                return;
+            }
             break;
         }
         SkTSpan<OppCurve, TCurve>* largest2 = sect2->boundsMax();
         // split it
         if (!largest2 || (largest1 && (largest1->fBoundsMax > largest2->fBoundsMax
                 || (!largest1->fCollapsed && largest2->fCollapsed)))) {
+            if (sect2->fHung) {
+                return;
+            }
             if (largest1->fCollapsed) {
                 break;
             }

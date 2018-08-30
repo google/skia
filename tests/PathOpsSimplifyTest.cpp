@@ -9298,11 +9298,71 @@ path.close();
 testSimplify(reporter, path, filename);
 }
 
+static void bug8290(skiatest::Reporter* reporter, const char* filename) {
+    SkPath path;
+    path.setFillType(SkPath::kEvenOdd_FillType);
+    path.moveTo(-1e+09, -1e+09);
+    path.lineTo(1e+09, -1e+09);
+    path.lineTo(1e+09, 1e+09);
+    path.lineTo(-1e+09, 1e+09);
+    path.lineTo(-1e+09, -1e+09);
+    path.close();
+    path.moveTo(0, 45);
+    path.lineTo(270, 45);
+    path.lineTo(270, 45.381f);
+    path.lineTo(0, 45.381f);
+    path.lineTo(0, 45);
+    path.close();
+    path.moveTo(0, 90.381f);
+    path.lineTo(270, 90.381f);
+    path.lineTo(270, 90.7619f);
+    path.lineTo(0, 90.7619f);
+    path.lineTo(0, 90.381f);
+    path.close();
+    path.moveTo(0, 135.762f);
+    path.lineTo(270, 135.762f);
+    path.lineTo(270, 136.143f);
+    path.lineTo(0, 136.143f);
+    path.lineTo(0, 135.762f);
+    path.close();
+    path.moveTo(0, 181.143f);
+    path.lineTo(270, 181.143f);
+    path.lineTo(270, 181.524f);
+    path.lineTo(0, 181.524f);
+    path.lineTo(0, 181.143f);
+    path.close();
+    path.moveTo(0, 226.524f);
+    path.lineTo(270, 226.524f);
+    path.lineTo(270, 226.905f);
+    path.lineTo(0, 226.905f);
+    path.lineTo(0, 226.524f);
+    path.close();
+    path.moveTo(0, 271.905f);
+    path.lineTo(270, 271.905f);
+    path.lineTo(270, 272.286f);
+    path.lineTo(0, 272.286f);
+    path.lineTo(0, 271.905f);
+    path.close();
+    path.moveTo(0, 317.286f);
+    path.lineTo(270, 317.286f);
+    path.lineTo(270, 317.667f);
+    path.lineTo(0, 317.667f);
+    path.lineTo(0, 317.286f);
+    path.close();
+    SkMatrix matrix = SkMatrix::MakeAll(
+            2.625,	0,	186,
+            0,	2.625,	620,
+            0,	0,	1);
+    path.transform(matrix);
+    testSimplify(reporter, path, filename);
+}
+
 static void (*skipTest)(skiatest::Reporter* , const char* filename) = nullptr;
 static void (*firstTest)(skiatest::Reporter* , const char* filename) = nullptr;
 static void (*stopTest)(skiatest::Reporter* , const char* filename) = nullptr;
 
 static TestDesc tests[] = {
+    TEST(bug8290),
     TEST(bug8249),
     TEST(grshapearc),
     TEST(coincubics),
