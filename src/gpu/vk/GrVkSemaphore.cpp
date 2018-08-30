@@ -63,7 +63,8 @@ void GrVkSemaphore::Resource::freeGPUData(const GrVkGpu* gpu) const {
     }
 }
 
-void GrVkSemaphore::setBackendSemaphore(GrBackendSemaphore* backendSemaphore) const {
-    backendSemaphore->initVulkan(fResource->semaphore());
+GrBackendSemaphore GrVkSemaphore::backendSemaphore() const {
+    GrBackendSemaphore backendSemaphore;
+    backendSemaphore.initVulkan(fResource->semaphore());
+    return backendSemaphore;
 }
-

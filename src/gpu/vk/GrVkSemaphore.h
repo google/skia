@@ -31,6 +31,8 @@ public:
 
     ~GrVkSemaphore() override;
 
+    GrBackendSemaphore backendSemaphore() const override;
+
     class Resource : public GrVkResource {
     public:
         Resource(VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait, bool isOwned)
@@ -89,8 +91,6 @@ public:
 private:
     GrVkSemaphore(const GrVkGpu* gpu, VkSemaphore semaphore, bool prohibitSignal, bool prohibitWait,
                   bool isOwned);
-
-    void setBackendSemaphore(GrBackendSemaphore*) const override;
 
     Resource* fResource;
 

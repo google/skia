@@ -8,30 +8,20 @@
 #ifndef GrSemaphore_DEFINED
 #define GrSemaphore_DEFINED
 
+#include "GrBackendSemaphore.h"
 #include "SkRefCnt.h"
 
-class GrBackendSemaphore;
 class GrGpu;
 
 class GrSemaphore : public SkRefCnt {
-private:
-    // This function should only be used in the case of exporting and importing a GrSemaphore object
-    // from one GrContext to another. When exporting, the GrSemaphore should be set to a null GrGpu,
-    // and when importing it should be set to the GrGpu of the current context. Once exported, a
-    // GrSemaphore should not be used with its old context.
-    void resetGpu(const GrGpu* gpu) { fGpu = gpu; }
-
-    // The derived class will init the GrBackendSemaphore. This is used when flushing with signal
-    // semaphores so we can set the clients GrBackendSemaphore object after we've created the
+public:
+    // The derived class can return its GrBackendSemaphore. This is used when flushing with signal
+    // semaphores so we can set the client's GrBackendSemaphore object after we've created the
     // internal semaphore.
-    virtual void setBackendSemaphore(GrBackendSemaphore*) const = 0;
+    virtual GrBackendSemaphore backendSemaphore() const = 0;
 
 protected:
     explicit GrSemaphore(const GrGpu* gpu) : fGpu(gpu) {}
-
-    friend class GrGpu; // setBackendSemaphore
-    friend class GrRenderTargetContext; // setBackendSemaphore
-    friend class GrResourceProvider; // resetGpu
 
     const GrGpu* fGpu;
 };
