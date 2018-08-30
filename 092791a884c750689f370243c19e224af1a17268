@@ -472,6 +472,30 @@
     },
     {
       "key": {
+        "uuid": "0c3e45af_8a65fc09",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-08-30T20:08:18Z",
+      "side": 1,
+      "message": "I\u0027d probably go with the max, yes - just to be a bit more obviously wrong than -1.",
+      "parentUuid": "fbb766ef_d91e882f",
+      "range": {
+        "startLine": 181,
+        "startChar": 23,
+        "endLine": 181,
+        "endChar": 30
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e7ec054e_e90ff99e",
         "filename": "src/sksl/SkSLCPPUniformCTypes.h",
         "patchSetId": 3
