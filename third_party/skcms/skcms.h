@@ -208,10 +208,8 @@ typedef enum skcms_PixelFormat {
 // any source alpha and treat it as 1.0, and will make sure that any destination alpha
 // channel is filled with the equivalent of 1.0.
 
-// When premultiplying and/or using a non-linear transfer function, it's important
-// that we know the order the operations are applied.  If you're used to working
-// with non-color-managed drawing systems, PremulAsEncoded is probably the "premul"
-// you're looking for; if you want linear blending, PremulLinear is the choice for you.
+// We used to offer multiple types of premultiplication, but now just one, PremulAsEncoded.
+// This is the premul you're probably used to working with.
 
 typedef enum skcms_AlphaFormat {
     skcms_AlphaFormat_Opaque,          // alpha is always opaque
@@ -220,8 +218,6 @@ typedef enum skcms_AlphaFormat {
                                        //   tf-1(r),   tf-1(g),   tf-1(b),   a
     skcms_AlphaFormat_PremulAsEncoded, // premultiplied while encoded
                                        //   tf-1(r)*a, tf-1(g)*a, tf-1(b)*a, a
-    skcms_AlphaFormat_PremulLinear,    // premultiplied while linear
-                                       //   tf-1(r*a), tf-1(g*a), tf-1(b*a), a
 } skcms_AlphaFormat;
 
 // Convert npixels pixels from src format and color profile to dst format and color profile

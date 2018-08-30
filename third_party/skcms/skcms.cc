@@ -2125,11 +2125,7 @@ bool skcms_Transform(const void*             src,
         *ops++ = Op_unpremul;
     }
 
-    // TODO: We can skip this work if both srcAlpha and dstAlpha are PremulLinear, and the profiles
-    // are the same. Also, if dstAlpha is PremulLinear, and SrcAlpha is Opaque.
-    if (dstProfile != srcProfile ||
-        srcAlpha == skcms_AlphaFormat_PremulLinear ||
-        dstAlpha == skcms_AlphaFormat_PremulLinear) {
+    if (dstProfile != srcProfile) {
 
         if (!prep_for_destination(dstProfile,
                                   &from_xyz, &inv_dst_tf_r, &inv_dst_tf_b, &inv_dst_tf_g)) {
@@ -2201,13 +2197,6 @@ bool skcms_Transform(const void*             src,
             return false;
         }
 
-        // At this point our source colors are linear, either RGB (XYZ-type profiles)
-        // or XYZ (A2B-type profiles). Unpremul is a linear operation (multiply by a
-        // constant 1/a), so either way we can do it now if needed.
-        if (srcAlpha == skcms_AlphaFormat_PremulLinear) {
-            *ops++ = Op_unpremul;
-        }
-
         // A2B sources should already be in XYZD50 at this point.
         // Others still need to be transformed using their toXYZD50 matrix.
         // N.B. There are profiles that contain both A2B tags and toXYZD50 matrices.
@@ -2228,10 +2217,6 @@ bool skcms_Transform(const void*             src,
             from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
             *ops++  = Op_matrix_3x3;
             *args++ = &from_xyz;
-        }
-
-        if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
-            *ops++ = Op_premul;
         }
 
         // Encode back to dst RGB using its parametric transfer functions.
