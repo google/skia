@@ -16,11 +16,11 @@ class GrGLGpu;
 
 class GrGLSemaphore : public GrSemaphore {
 public:
-    static sk_sp<GrGLSemaphore> Make(const GrGLGpu* gpu, bool isOwned) {
+    static sk_sp<GrGLSemaphore> Make(GrGLGpu* gpu, bool isOwned) {
         return sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu, isOwned));
     }
 
-    static sk_sp<GrGLSemaphore> MakeWrapped(const GrGLGpu* gpu,
+    static sk_sp<GrGLSemaphore> MakeWrapped(GrGLGpu* gpu,
                                             GrGLsync sync,
                                             GrWrapOwnership ownership) {
         auto sema = sk_sp<GrGLSemaphore>(new GrGLSemaphore(gpu,
@@ -28,8 +28,6 @@ public:
         sema->setSync(sync);
         return sema;
     }
-
-    ~GrGLSemaphore() override;
 
     GrGLsync sync() const { return fSync; }
     void setSync(const GrGLsync& sync) { fSync = sync; }
@@ -41,8 +39,10 @@ public:
     }
 
 private:
-    GrGLSemaphore(const GrGLGpu* gpu, bool isOwned);
+    GrGLSemaphore(GrGLGpu* gpu, bool isOwned);
 
+    void onRelease() override;
+    void onAbandon() override;
 
     GrGLsync fSync;
     bool     fIsOwned;
