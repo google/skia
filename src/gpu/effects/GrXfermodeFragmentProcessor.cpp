@@ -450,20 +450,13 @@ public:
         SkString childColor("child");
         this->emitChild(0, &childColor, args);
 
-        const char* inputColor = args.fInputColor;
-        // We don't try to optimize for this case at all
-        if (!inputColor) {
-            fragBuilder->codeAppendf("const half4 ones = half4(1);");
-            inputColor = "ones";
-        }
-
         // emit blend code
         fragBuilder->codeAppendf("// Compose Xfer Mode: %s\n", SkBlendMode_Name(mode));
         const char* childStr = childColor.c_str();
         if (ComposeOneFragmentProcessor::kDst_Child == child) {
-            GrGLSLBlend::AppendMode(fragBuilder, inputColor, childStr, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, args.fInputColor, childStr, args.fOutputColor, mode);
         } else {
-            GrGLSLBlend::AppendMode(fragBuilder, childStr, inputColor, args.fOutputColor, mode);
+            GrGLSLBlend::AppendMode(fragBuilder, childStr, args.fInputColor, args.fOutputColor, mode);
         }
     }
 

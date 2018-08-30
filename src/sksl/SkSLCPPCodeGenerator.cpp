@@ -240,7 +240,9 @@ void CPPCodeGenerator::writeVariableReference(const VariableReference& ref) {
     switch (ref.fVariable.fModifiers.fLayout.fBuiltin) {
         case SK_INCOLOR_BUILTIN:
             this->write("%s");
-            fFormatArgs.push_back(String("args.fInputColor ? args.fInputColor : \"half4(1)\""));
+            // EmitArgs.fInputColor is automatically set to half4(1) if
+            // no input was specified
+            fFormatArgs.push_back(String("args.fInputColor"));
             break;
         case SK_OUTCOLOR_BUILTIN:
             this->write("%s");
