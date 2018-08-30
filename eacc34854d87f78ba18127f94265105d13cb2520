@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "a6395847_5c845150",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-30T02:44:15Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "6030b5a2_025b309f",
+      "revId": "eacc34854d87f78ba18127f94265105d13cb2520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0648aae_cbc3f6d7",
         "filename": "src/codec/SkFrameHolder.h",
         "patchSetId": 1
@@ -69,6 +87,24 @@
       "revId": "eacc34854d87f78ba18127f94265105d13cb2520",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "84c1f847_c7b5b806",
+        "filename": "src/codec/SkFrameHolder.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-08-30T02:44:15Z",
+      "side": 1,
+      "message": "Oh, I see. Adding a destructor to SkWebpCodec::Frame does indeed fail to compile.",
+      "parentUuid": "4d4de62c_ebb82a72",
+      "revId": "eacc34854d87f78ba18127f94265105d13cb2520",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
