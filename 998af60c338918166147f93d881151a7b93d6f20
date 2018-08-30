@@ -93,6 +93,30 @@
       "revId": "998af60c338918166147f93d881151a7b93d6f20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1470aaef_943873dd",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-30T20:09:20Z",
+      "side": 1,
+      "message": "I say do it now. It follows the theme of this change and we aren\u0027t in any time crunch to land this immediately since the android cl was reverted",
+      "parentUuid": "d37bf388_cc8ccd55",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 42
+      },
+      "revId": "998af60c338918166147f93d881151a7b93d6f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
