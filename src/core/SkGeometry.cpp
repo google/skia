@@ -873,6 +873,31 @@ int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
     return count + 1;
 }
 
+// FIXME: constant found through experimentation -- maybe there's a better way....
+static SkScalar calc_cubic_precision(const SkPoint src[4]) {
+    return ((src[1] - src[0]).length()
+                + (src[2] - src[1]).length()
+                + (src[3] - src[2]).length()) * 1e-5f;
+}
+
+SkScalar SkFindCubicCusp(const SkPoint src[4]) {
+    SkScalar maxCurvature[3];
+    int roots = SkFindCubicMaxCurvature(src, maxCurvature);
+    for (int index = 0; index < roots; ++index) {
+        SkScalar testT = maxCurvature[index];
+        if (0 >= testT || testT >= 1) {
+            continue;
+        }
+        SkVector dPt = eval_cubic_derivative(src, testT);
+        SkScalar dPtLen = dPt.length();
+        SkScalar precision = calc_cubic_precision(src);
+        if (dPtLen < precision) {
+            return testT;
+        }
+    }
+    return -1;
+}
+
 #include "../pathops/SkPathOpsCubic.h"
 
 typedef int (SkDCubic::*InterceptProc)(double intercept, double roots[3]) const;
