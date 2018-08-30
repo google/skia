@@ -17,12 +17,6 @@ public:
     static const int kUniformsPerBlock = 8;
 
     enum {
-        /**
-         * Binding a descriptor set invalidates all higher index descriptor sets. We must bind
-         * in the order of this enumeration. Samplers are after Uniforms because GrOps can specify
-         * GP textures as dynamic state, meaning they get rebound for each GrMesh in a draw while
-         * uniforms are bound once before all the draws.
-         */
         kUniformBufferDescSet = 0,
         kSamplerDescSet = 1,
     };
