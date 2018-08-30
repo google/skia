@@ -74,7 +74,10 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
         colorType = kRGB_565_SkColorType;
         break;
     default:
-        return nullptr;
+        // Handle the rest as RGBA including AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM and undocumented
+        // format 0x7fa30c06 used by VideoView.
+        colorType = kRGBA_8888_SkColorType;
+        break;
     }
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
