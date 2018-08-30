@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1cbaf7e1_d547894d",
+        "filename": "modules/skottie/src/SkottieTextLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-30T17:13:56Z",
+      "side": 1,
+      "message": "Not using the default manager here, so I think we can remove this?",
+      "range": {
+        "startLine": 125,
+        "startChar": 35,
+        "endLine": 125,
+        "endChar": 52
+      },
+      "revId": "87f699a71f45262cfc291bd376200f66219f0296",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
