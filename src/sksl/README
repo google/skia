@@ -136,6 +136,11 @@ Within an '.fp' fragment processor file:
   the program's key. Matrix variables additionally support 'key=identity',
   which causes the key to consider only whether or not the matrix is an
   identity matrix.
+* child processors can be declared with 'in fragmentProcessor <name>;', and can
+  be invoked by calling 'process(<name>)' or 'process(<name>, <inputColor>)'.
+  The first variant emits the child with a solid white input color. The second
+  variant emits the child with the result of the 2nd argument's expression,
+  which must evaluate to a half4. The process function returns a half4.
 
 
 Creating a new .fp file
