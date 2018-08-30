@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e4df5d35_a2dc0a1e",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5020
+      },
+      "writtenOn": "2018-08-30T18:47:14Z",
+      "side": 1,
+      "message": "I think this will probably work for the case where we just texture from it, but if we ever attempt to readback the pixels I suspect this will fail.",
+      "revId": "f82a2f94a836a3e4db47cda907d157cd6dd65d8e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
