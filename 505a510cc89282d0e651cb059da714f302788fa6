@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "457866f5_d743035f",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T12:28:55Z",
+      "side": 1,
+      "message": "isBudgeted",
+      "range": {
+        "startLine": 345,
+        "startChar": 85,
+        "endLine": 345,
+        "endChar": 96
+      },
+      "revId": "505a510cc89282d0e651cb059da714f302788fa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5a52316_9783e432",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T12:28:55Z",
+      "side": 1,
+      "message": "This function doesn\u0027t take ownership of the GrRTC. We can just pass a bare pointer and skip the ref churn.",
+      "range": {
+        "startLine": 346,
+        "startChar": 8,
+        "endLine": 346,
+        "endChar": 56
+      },
+      "revId": "505a510cc89282d0e651cb059da714f302788fa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91af5a11_4aa8def4",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-30T12:28:55Z",
+      "side": 1,
+      "message": "Do we need this? It looks like both callers already check for null.",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 5
+      },
+      "revId": "505a510cc89282d0e651cb059da714f302788fa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
