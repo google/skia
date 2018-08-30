@@ -417,7 +417,6 @@
       "_",
       "lighting",
       "--match",
-      "~BlurMaskBiggerThanDest",
       "~^ProcessorOptimizationValidationTest$",
       "--nonativeFonts",
       "--verbose"

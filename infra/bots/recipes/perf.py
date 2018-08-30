@@ -183,10 +183,10 @@ def nanobench_flags(api, bot):
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_googlespreadsheet')
     match.append('~desk_carsvg')
-  if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
-      'Win' in bot):
-    # skia:7677
-    match.append('~path_text_clipped_uncached')
+  #if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
+  #    'Win' in bot):
+  #  # skia:7677
+  #  match.append('~path_text_clipped_uncached')
   if 'MoltenVK' in bot:
     # skbug.com/7962
     match.append('~^path_text_clipped_uncached$')
@@ -216,25 +216,25 @@ def nanobench_flags(api, bot):
 
   # We do not need or want to benchmark the decodes of incomplete images.
   # In fact, in nanobench we assert that the full image decode succeeds.
-  match.append('~inc0.gif')
-  match.append('~inc1.gif')
-  match.append('~incInterlaced.gif')
-  match.append('~inc0.jpg')
-  match.append('~incGray.jpg')
-  match.append('~inc0.wbmp')
-  match.append('~inc1.wbmp')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
-  match.append('~inc0.ico')
-  match.append('~inc1.ico')
-  match.append('~inc0.png')
-  match.append('~inc1.png')
-  match.append('~inc2.png')
-  match.append('~inc12.png')
-  match.append('~inc13.png')
-  match.append('~inc14.png')
-  match.append('~inc0.webp')
-  match.append('~inc1.webp')
+  #match.append('~inc0.gif')
+  #match.append('~inc1.gif')
+  #match.append('~incInterlaced.gif')
+  #match.append('~inc0.jpg')
+  #match.append('~incGray.jpg')
+  #match.append('~inc0.wbmp')
+  #match.append('~inc1.wbmp')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
+  #match.append('~inc0.ico')
+  #match.append('~inc1.ico')
+  #match.append('~inc0.png')
+  #match.append('~inc1.png')
+  #match.append('~inc2.png')
+  #match.append('~inc12.png')
+  #match.append('~inc13.png')
+  #match.append('~inc14.png')
+  #match.append('~inc0.webp')
+  #match.append('~inc1.webp')
 
   if match:
     args.append('--match')
@@ -325,9 +325,15 @@ def perf_steps(api):
   # See skia:2789.
   if 'AbandonGpuContext' in api.vars.extra_tokens:
     args.extend(['--abandonGpuContext'])
-
-  api.run(api.flavor.step, target, cmd=args,
-          abort_on_failure=False)
+  bot = api.vars.builder_name
+  if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
+      'Win' in bot):
+    for i in range(100):
+      api.run(api.flavor.step, target, cmd=args + ['--match', 'path_text_clipped_uncached'],
+              abort_on_failure=True)
+  else:
+    api.run(api.flavor.step, target, cmd=args,
+              abort_on_failure=False)
 
   # Copy results to swarming out dir.
   if upload_perf_results(b):

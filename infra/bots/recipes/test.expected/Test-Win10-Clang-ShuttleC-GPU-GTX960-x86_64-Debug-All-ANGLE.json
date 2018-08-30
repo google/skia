@@ -413,8 +413,6 @@
       "image",
       "_",
       ".SRW",
-      "--match",
-      "~BlurMaskBiggerThanDest",
       "--nonativeFonts",
       "--verbose"
     ],

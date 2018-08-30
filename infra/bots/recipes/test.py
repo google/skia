@@ -707,13 +707,13 @@ def dm_flags(api, bot):
     match.append('~^RGBA4444TextureTest$')
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
 
-  if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
-    # skia:7096
-    match.append('~PinnedImageTest')
+  #if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
+  #  # skia:7096
+  #  match.append('~PinnedImageTest')
 
-  if 'ANGLE' in bot:
-    # skia:7835
-    match.append('~BlurMaskBiggerThanDest')
+  #if 'ANGLE' in bot:
+  #  # skia:7835
+  #  match.append('~BlurMaskBiggerThanDest')
 
   if 'IntelIris540' in bot and 'ANGLE' in bot:
     for config in ['angle_d3d9_es2', 'angle_d3d11_es2', 'angle_gl_es2']:
@@ -948,7 +948,12 @@ def test_steps(api):
   if 'ReleaseAndAbandonGpuContext' in api.vars.extra_tokens:
     args.append('--releaseAndAbandonGpuContext')
 
-  api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
+  bot = api.vars.builder_name
+  if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
+    for i in range(100):
+      api.run(api.flavor.step, 'dm', cmd=args + ['--match', 'PinnedImageTest'], abort_on_failure=True)
+  else:
+    api.run(api.flavor.step, 'dm', cmd=args, abort_on_failure=False)
 
   if upload_dm_results(b):
     # Copy images and JSON to host machine if needed.
