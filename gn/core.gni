@@ -313,7 +313,6 @@ skia_core_sources = [
   "$_src/core/SkTDynamicHash.h",
   "$_src/core/SkTextBlob.cpp",
   "$_src/core/SkTextFormatParams.h",
-  "$_src/core/SkTextMapStateProc.h",
   "$_src/core/SkTextToPathIter.h",
   "$_src/core/SkTime.cpp",
 

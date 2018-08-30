@@ -34,7 +34,6 @@
 #include "SkStrokeRec.h"
 #include "SkTLazy.h"
 #include "SkTemplates.h"
-#include "SkTextMapStateProc.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 
@@ -1483,49 +1482,6 @@ SkScalerContextFlags SkDraw::scalerContextFlags() const {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-void SkDraw::drawPosText_asPaths(const char text[], size_t byteLength, const SkScalar pos[],
-                                 int scalarsPerPosition, const SkPoint& offset,
-                                 const SkPaint& origPaint, const SkSurfaceProps* props) const {
-    // setup our std paint, in hopes of getting hits in the cache
-    SkPaint paint(origPaint);
-    SkScalar matrixScale = paint.setupForAsPaths();
-
-    SkMatrix matrix;
-    matrix.setScale(matrixScale, matrixScale);
-
-    // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-    paint.setStyle(SkPaint::kFill_Style);
-    paint.setPathEffect(nullptr);
-
-    SkPaint::GlyphCacheProc glyphCacheProc = SkPaint::GetGlyphCacheProc(paint.getTextEncoding(),
-                                                                        true);
-    auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
-            paint, props, this->scalerContextFlags(), nullptr);
-
-    const char*        stop = text + byteLength;
-    SkTextMapStateProc tmsProc(SkMatrix::I(), offset, scalarsPerPosition);
-
-    // Now restore the original settings, so we "draw" with whatever style/stroking.
-    paint.setStyle(origPaint.getStyle());
-    paint.setPathEffect(origPaint.refPathEffect());
-
-    while (text < stop) {
-        const SkGlyph& glyph = glyphCacheProc(cache.get(), &text, stop);
-        if (glyph.fWidth) {
-            const SkPath* path = cache->findPath(glyph);
-            if (path) {
-                SkPoint loc;
-                tmsProc(pos, &loc);
-
-                matrix[SkMatrix::kMTransX] = loc.fX;
-                matrix[SkMatrix::kMTransY] = loc.fY;
-                this->drawPath(*path, paint, &matrix, false);
-            }
-        }
-        pos += scalarsPerPosition;
-    }
-}
 
 void SkDraw::blitARGB32Mask(const SkMask& mask, const SkPaint& paint) const {
     SkASSERT(SkMask::kARGB32_Format == mask.fFormat);
