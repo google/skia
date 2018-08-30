@@ -27,7 +27,7 @@
 #include "GrStyle.h"
 #include "GrTracing.h"
 #include "SkDrawShadowInfo.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 #include "SkGr.h"
 #include "SkLatticeIter.h"
 #include "SkMatrixPriv.h"
@@ -53,8 +53,6 @@
 #include "ops/GrTextureOp.h"
 #include "text/GrTextContext.h"
 #include "text/GrTextTarget.h"
-
-
 
 class GrRenderTargetContext::TextTarget : public GrTextTarget {
 public:

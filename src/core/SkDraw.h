@@ -11,7 +11,7 @@
 #define SkDraw_DEFINED
 
 #include "SkCanvas.h"
-#include "SkGlyphRun.h"
+#include "SkGlyphRunPainter.h"
 #include "SkMask.h"
 #include "SkPaint.h"
 #include "SkPixmap.h"
@@ -23,13 +23,10 @@ class SkBitmap;
 class SkClipStack;
 class SkBaseDevice;
 class SkBlitter;
-class SkGlyphRun;
-class SkGlyphRunList;
 class SkMatrix;
 class SkPath;
 class SkRegion;
 class SkRasterClip;
-struct SkDrawProcs;
 struct SkRect;
 class SkRRect;
 
