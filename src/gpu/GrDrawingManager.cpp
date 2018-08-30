@@ -25,7 +25,6 @@
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "GrTextureProxyPriv.h"
-#include "GrTextureStripAtlas.h"
 #include "GrTracing.h"
 #include "SkDeferredDisplayList.h"
 #include "SkSurface_Gpu.h"
@@ -397,9 +396,6 @@ void GrDrawingManager::addOnFlushCallbackObject(GrOnFlushCallbackObject* onFlush
 }
 
 void GrDrawingManager::moveOpListsToDDL(SkDeferredDisplayList* ddl) {
-    fContext->contextPriv().textureStripAtlasManager()->finish(
-                                                          fContext->contextPriv().proxyProvider());
-
     for (int i = 0; i < fOpLists.count(); ++i) {
         // no opList should receive a new command after this
         fOpLists[i]->makeClosed(*fContext->contextPriv().caps());

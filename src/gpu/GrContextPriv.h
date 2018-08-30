@@ -189,10 +189,6 @@ public:
 
     GrResourceCache* getResourceCache() { return fContext->fResourceCache; }
 
-    GrTextureStripAtlasManager* textureStripAtlasManager() {
-        return fContext->fTextureStripAtlasManager.get();
-    }
-
     GrGpu* getGpu() { return fContext->fGpu.get(); }
     const GrGpu* getGpu() const { return fContext->fGpu.get(); }
 
