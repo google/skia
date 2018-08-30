@@ -13,28 +13,6 @@
 #include "SkPathWriter.h"
 #include "SkTSort.h"
 
-SkScalar ScaleFactor(const SkPath& path) {
-    static const SkScalar twoTo10 = 1024.f;
-    SkScalar largest = 0;
-    const SkScalar* oneBounds = &path.getBounds().fLeft;
-    for (int index = 0; index < 4; ++index) {
-        largest = SkTMax(largest, SkScalarAbs(oneBounds[index]));
-    }
-    SkScalar scale = twoTo10;
-    SkScalar next;
-    while ((next = scale * twoTo10) < largest) {
-        scale = next;
-    }
-    return scale == twoTo10 ? SK_Scalar1 : scale;
-}
-
-void ScalePath(const SkPath& path, SkScalar scale, SkPath* scaled) {
-    SkMatrix matrix;
-    matrix.setScale(scale, scale);
-    *scaled = path;
-    scaled->transform(matrix);
-}
-
 const SkOpAngle* AngleWinding(SkOpSpanBase* start, SkOpSpanBase* end, int* windingPtr,
         bool* sortablePtr) {
     // find first angle, initialize winding to computed fWindSum
