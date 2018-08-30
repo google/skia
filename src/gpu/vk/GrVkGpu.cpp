@@ -120,6 +120,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fInstance(backendContext.fInstance)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
+        , fQueueIndex(backendContext.fGraphicsQueueIndex)
         , fResourceProvider(this)
         , fDisconnected(false) {
     SkASSERT(!backendContext.fOwnsInstanceAndDevice);

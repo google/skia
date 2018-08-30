@@ -27,6 +27,7 @@ public:
     GrVkImage(const GrVkImageInfo& info, sk_sp<GrVkImageLayout> layout,
               GrBackendObjectOwnership ownership)
             : fInfo(info)
+            , fInitialQueueFamily(info.fCurrentQueueFamily)
             , fLayout(std::move(layout))
             , fIsBorrowed(GrBackendObjectOwnership::kBorrowed == ownership) {
         SkASSERT(fLayout->getImageLayout() == fInfo.fImageLayout);
@@ -58,7 +59,8 @@ public:
                         VkImageLayout newLayout,
                         VkAccessFlags dstAccessMask,
                         VkPipelineStageFlags dstStageMask,
-                        bool byRegion);
+                        bool byRegion,
+                        bool releaseFamilyQueue = false);
 
     // This simply updates our tracking of the image layout and does not actually do any gpu work.
     // This is only used for mip map generation where we are manually changing the layouts as we
@@ -111,6 +113,7 @@ protected:
     void setNewResource(VkImage image, const GrVkAlloc& alloc, VkImageTiling tiling);
 
     GrVkImageInfo          fInfo;
+    uint32_t               fInitialQueueFamily;
     sk_sp<GrVkImageLayout> fLayout;
     bool                   fIsBorrowed;
 
