@@ -13,9 +13,7 @@ enum class InputMode {
     kLast = kModulateA
 };
 
-layout(ctype=GrColor4f) in half4 color;
-uniform half4 colorUniform;
-layout(ctype=GrColor4f) half4 prevColor;
+layout(ctype=GrColor4f, tracked) in uniform half4 color;
 layout(key) in InputMode mode;
 
 @optimizationFlags {
@@ -25,23 +23,14 @@ layout(key) in InputMode mode;
 void main() {
     @switch (mode) {
         case InputMode::kIgnore:
-            sk_OutColor = colorUniform;
+            sk_OutColor = color;
             break;
         case InputMode::kModulateRGBA:
-            sk_OutColor = sk_InColor * colorUniform;
+            sk_OutColor = sk_InColor * color;
             break;
         case InputMode::kModulateA:
-            sk_OutColor = sk_InColor.a * colorUniform;
+            sk_OutColor = sk_InColor.a * color;
             break;
-    }
-}
-
-@setData(pdman) {
-    // We use the "illegal" color value as an uninit sentinel. With GrColor4f, the "illegal"
-    // color is *really* illegal (not just unpremultiplied), so this check is simple.
-    if (prevColor != color) {
-        pdman.set4fv(colorUniform, 1, color.fRGBA);
-        prevColor = color;
     }
 }
 

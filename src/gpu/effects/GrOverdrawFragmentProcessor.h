@@ -15,12 +15,12 @@
 #include "GrCoordTransform.h"
 class GrOverdrawFragmentProcessor : public GrFragmentProcessor {
 public:
-    SkPMColor color0() const { return fColor0; }
-    SkPMColor color1() const { return fColor1; }
-    SkPMColor color2() const { return fColor2; }
-    SkPMColor color3() const { return fColor3; }
-    SkPMColor color4() const { return fColor4; }
-    SkPMColor color5() const { return fColor5; }
+    const SkPMColor& color0() const { return fColor0; }
+    const SkPMColor& color1() const { return fColor1; }
+    const SkPMColor& color2() const { return fColor2; }
+    const SkPMColor& color3() const { return fColor3; }
+    const SkPMColor& color4() const { return fColor4; }
+    const SkPMColor& color5() const { return fColor5; }
     static std::unique_ptr<GrFragmentProcessor> Make(SkPMColor color0, SkPMColor color1,
                                                      SkPMColor color2, SkPMColor color3,
                                                      SkPMColor color4, SkPMColor color5) {
