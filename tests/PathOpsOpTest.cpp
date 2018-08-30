@@ -5170,6 +5170,9 @@ static void fuzz38(skiatest::Reporter* reporter, const char* filename) {
     testPathOpCheck(reporter, path, pathB, kUnion_SkPathOp, filename, true);
 }
 
+// we currently don't produce meaningful intersections when a path has extremely large segments
+// intersecting relatively small ones. This bug was reported as a fuzzer bug and wasn't expected
+// to produce meaningful results
 static void crbug_526025(skiatest::Reporter* reporter, const char* filename) {
     SkPath path;
     path.setFillType((SkPath::FillType) 1);
@@ -5195,7 +5198,7 @@ path.lineTo(SkBits2Float(0x42fe0000), SkBits2Float(0x43a08000));  // 127, 321
 path.close();
 
     SkPath path2(path);
-    testPathOp(reporter, path1, path2, (SkPathOp) 2, filename);
+    testPathOpFuzz(reporter, path1, path2, (SkPathOp) 2, filename);
 }
 
 static void fuzzX_392(skiatest::Reporter* reporter, const char* filename) {
@@ -9083,6 +9086,7 @@ static void (*stopTest)(skiatest::Reporter* , const char* filename) = 0;
 #define TEST(name) { name, #name }
 
 static struct TestDesc tests[] = {
+    TEST(crbug_526025),
     TEST(bug8228),
     TEST(op_4),
     TEST(op_1),
@@ -9110,7 +9114,6 @@ static struct TestDesc tests[] = {
     TEST(cubics_d),
     TEST(dean2),
     TEST(fuzzX_392),
-    TEST(crbug_526025),
     TEST(fuzz38),
     TEST(cubics44d),
     TEST(cubics45u),
