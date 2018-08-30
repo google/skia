@@ -73,8 +73,20 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
         colorType = kRGB_565_SkColorType;
         break;
+    case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+    case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
+        colorType = kRGB_888x_SkColorType;
+        break;
+    case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
+        colorType = kRGBA_1010102_SkColorType;
+        break;
     default:
-        return nullptr;
+        // Given that we only use this texture as a source, colorType will not impact how Skia uses
+        // the texture.  The only potential affect this is anticipated to have is that for some
+        // format types if we are not bound as an OES texture we may get invalid results for SKP
+        // capture if we read back the texture.
+        colorType = kRGBA_8888_SkColorType;
+        break;
     }
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
@@ -305,6 +317,12 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
             break;
         case kRGB_565_SkColorType:
             pixelConfig = kRGB_565_GrPixelConfig;
+            break;
+        case kRGBA_1010102_SkColorType:
+            pixelConfig = kRGBA_1010102_GrPixelConfig;
+            break;
+        case kRGB_888x_SkColorType:
+            pixelConfig = kRGB_888_GrPixelConfig;
             break;
         default:
             return;
