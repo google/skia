@@ -251,22 +251,14 @@ private:
 
     void setTextureSwizzle(int unitIdx, GrGLenum target, const GrGLenum swizzle[]);
 
-    /**
-     * primitiveProcessorTextures must contain GrPrimitiveProcessor::numTextureSamplers() *
-     * numPrimitiveProcessorTextureSets entries.
-     */
-    void resolveAndGenerateMipMapsForProcessorTextures(
+    void generateMipmapsForProcessorTextures(
             const GrPrimitiveProcessor&, const GrPipeline&,
-            const GrTextureProxy* const primitiveProcessorTextures[],
-            int numPrimitiveProcessorTextureSets);
+            const GrTextureProxy* const primitiveProcessorTextures[]);
 
     // Flushes state from GrPipeline to GL. Returns false if the state couldn't be set.
     // willDrawPoints must be true if point primitives will be rendered after setting the GL state.
-    // If DynamicStateArrays is not null then dynamicStateArraysLength is the number of dynamic
-    // state entries in each array.
     bool flushGLState(const GrPrimitiveProcessor&, const GrPipeline&,
-                      const GrPipeline::FixedDynamicState*, const GrPipeline::DynamicStateArrays*,
-                      int dynamicStateArraysLength, bool willDrawPoints);
+                      const GrPipeline::FixedDynamicState*, bool willDrawPoints);
 
     void flushProgram(sk_sp<GrGLProgram>);
 

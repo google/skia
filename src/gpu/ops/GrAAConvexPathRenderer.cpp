@@ -938,7 +938,7 @@ private:
                 firstIndex += draw.fIndexCnt;
                 firstVertex += draw.fVertexCnt;
             }
-            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, nullptr, meshes,
+            target->draw(quadProcessor, pipe.fPipeline, pipe.fFixedDynamicState, meshes,
                          draws.count());
         }
     }
