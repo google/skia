@@ -57,5 +57,6 @@ void main() {
     }
 
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
-    sk_OutColor = half4((angle * 0.1591549430918 + 0.5 + uBiasAndScale.x) * uBiasAndScale.y);
+    half t = (angle * 0.1591549430918 + 0.5 + uBiasAndScale.x) * uBiasAndScale.y;
+    sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
 }

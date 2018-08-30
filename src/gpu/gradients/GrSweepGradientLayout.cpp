@@ -34,13 +34,14 @@ public:
         fragBuilder->codeAppendf(
                 "half prevBias;\nhalf prevScale;\nhalf angle;\nif "
                 "(sk_Caps.atan2ImplementedAsAtanYOverX) {\n    angle = half(2.0 * atan(-%s.y, "
-                "length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, -%s.x));\n}\n%s = "
-                "half4(((float(float(angle) * 0.15915494309180001) + 0.5) + %s.x) * %s.y);\n",
+                "length(%s) - %s.x));\n} else {\n    angle = half(atan(-%s.y, -%s.x));\n}\nhalf t "
+                "= ((float(float(angle) * 0.15915494309180001) + 0.5) + %s.x) * %s.y;\n%s = "
+                "half4(t, 1.0, 0.0, 0.0);\n",
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
                 sk_TransformedCoords2D_0.c_str(), sk_TransformedCoords2D_0.c_str(),
-                sk_TransformedCoords2D_0.c_str(), args.fOutputColor,
+                sk_TransformedCoords2D_0.c_str(),
                 args.fUniformHandler->getUniformCStr(fUBiasAndScaleVar),
-                args.fUniformHandler->getUniformCStr(fUBiasAndScaleVar));
+                args.fUniformHandler->getUniformCStr(fUBiasAndScaleVar), args.fOutputColor);
     }
 
 private:
