@@ -22,6 +22,29 @@
       "revId": "998af60c338918166147f93d881151a7b93d6f20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "098161d1_277c029b",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-08-30T19:56:38Z",
+      "side": 1,
+      "message": "Instead of doing a switch here on color type to get the pixel config, I think what we need is a helper that can take the HardwareBuffer format and return a GrBackendFormat. Then we can call GrCaps::getConfigFromBackendFormat(GrBackendFormat, ColorType) to get the appropriate config given the GrBackendFormat/ColorType combo",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 42
+      },
+      "revId": "998af60c338918166147f93d881151a7b93d6f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
