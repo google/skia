@@ -1989,7 +1989,7 @@ static bool text_must_be_pathed(const SkPaint& paint, const SkMatrix& matrix) {
         || paint.getMaskFilter()
     ;
 }
-
+#if 0
 typedef SkTDArray<XPS_GLYPH_INDEX> GlyphRun;
 
 class ProcessOneGlyph {
@@ -2091,7 +2091,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
                   this->ctm(),
                   paint));
 }
-
+#endif
 void SkXPSDevice::drawDevice( SkBaseDevice* dev,
                              int x, int y,
                              const SkPaint&) {
