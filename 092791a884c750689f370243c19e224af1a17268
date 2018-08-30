@@ -496,6 +496,30 @@
     },
     {
       "key": {
+        "uuid": "839d8c45_26ecb38e",
+        "filename": "src/sksl/SkSLCPPUniformCTypes.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-30T20:50:21Z",
+      "side": 1,
+      "message": "Went with SK_NaN32, which I found while looking for a constant for the max value :P (but it is actually just the max negative, so basically the same thing).",
+      "parentUuid": "0c3e45af_8a65fc09",
+      "range": {
+        "startLine": 181,
+        "startChar": 23,
+        "endLine": 181,
+        "endChar": 30
+      },
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e7ec054e_e90ff99e",
         "filename": "src/sksl/SkSLCPPUniformCTypes.h",
         "patchSetId": 3
@@ -634,6 +658,24 @@
       "revId": "092791a884c750689f370243c19e224af1a17268",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5688f1e6_b783a788",
+        "filename": "src/sksl/SkSLHCodeGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-08-30T20:50:21Z",
+      "side": 1,
+      "message": "I added an AccessType function to HCodeGenerator so that it can differentiate between the c type that is used for the field\u0027s definition and for the type that is returned from its public functions.\n\nThis is implemented as a simple heuristic where int32_t and float are returned as is, and everything else gets wrapped as a const reference.",
+      "parentUuid": "6eaa3438_b0ecec47",
+      "revId": "092791a884c750689f370243c19e224af1a17268",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
