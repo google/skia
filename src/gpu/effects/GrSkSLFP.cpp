@@ -149,8 +149,9 @@ public:
                         SkSL::Compiler::FormatArg& arg = fFormatArgs[formatArgIndex++];
                         switch (arg.fKind) {
                             case SkSL::Compiler::FormatArg::Kind::kInput:
-                                fragBuilder->codeAppend(args.fInputColor ? args.fInputColor
-                                                                         : "half4(1)");
+                                fragBuilder->codeAppend(args.fInputColor);
+                            case SkSL::Compiler::FormatArg::kInput:
+                                fragBuilder->codeAppend(args.fInputColor);
                                 break;
                             case SkSL::Compiler::FormatArg::Kind::kOutput:
                                 fragBuilder->codeAppend(args.fOutputColor);

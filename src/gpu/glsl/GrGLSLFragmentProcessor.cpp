@@ -35,10 +35,20 @@ void GrGLSLFragmentProcessor::emitChild(int childIndex, const char* inputColor,
 
 void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inputColor,
                                                 const char* outputColor, EmitArgs& args) {
-    SkASSERT(inputColor);
     GrGLSLFPFragmentBuilder* fragBuilder = args.fFragBuilder;
 
     fragBuilder->onBeforeChildProcEmitCode();  // call first so mangleString is updated
+
+    // Prepare a mangled input color variable if the default is not used,
+    // inputName remains the empty string if no variable is needed.
+    SkString inputName;
+    if (inputColor&& strcmp("half4(1.0)", inputColor) != 0 && strcmp("half4(1)", inputColor) != 0) {
+        // The input name is based off of the current mangle string, and
+        // since this is called after onBeforeChildProcEmitCode(), it will be
+        // unique to the child processor (exactly what we want for its input).
+        inputName.appendf("_childInput%s", fragBuilder->getMangleString().c_str());
+        fragBuilder->codeAppendf("half4 %s = %s;", inputName.c_str(), inputColor);
+    }
 
     const GrFragmentProcessor& childProc = args.fFp.childProcessor(childIndex);
 
@@ -48,12 +58,14 @@ void GrGLSLFragmentProcessor::internalEmitChild(int childIndex, const char* inpu
                              fragBuilder->getMangleString().c_str(), childProc.name());
     TransformedCoordVars coordVars = args.fTransformedCoords.childInputs(childIndex);
     TextureSamplers textureSamplers = args.fTexSamplers.childInputs(childIndex);
+
+    // EmitArgs properly updates inputColor to half4(1) if it was null
     EmitArgs childArgs(fragBuilder,
                        args.fUniformHandler,
                        args.fShaderCaps,
                        childProc,
                        outputColor,
-                       inputColor,
+                       inputName.size() > 0 ? inputName.c_str() : nullptr,
                        coordVars,
                        textureSamplers);
     this->childProcessor(childIndex)->emitCode(childArgs);

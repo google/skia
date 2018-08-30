@@ -206,10 +206,6 @@ private:
             fVectorHandle = uniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                        "ColorMatrixVector");
 
-            if (nullptr == args.fInputColor) {
-                // could optimize this case, but we aren't for now.
-                args.fInputColor = "half4(1)";
-            }
             GrGLSLFragmentBuilder* fragBuilder = args.fFragBuilder;
             // The max() is to guard against 0 / 0 during unpremul when the incoming color is
             // transparent black.

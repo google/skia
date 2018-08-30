@@ -23,10 +23,8 @@ public:
         const GrPremulInputFragmentProcessor& _outer =
                 args.fFp.cast<GrPremulInputFragmentProcessor>();
         (void)_outer;
-        fragBuilder->codeAppendf("%s = %s;\n%s.xyz *= %s.w;\n", args.fOutputColor,
-                                 args.fInputColor ? args.fInputColor : "half4(1)",
-                                 args.fOutputColor,
-                                 args.fInputColor ? args.fInputColor : "half4(1)");
+        fragBuilder->codeAppendf("%s = %s;\n%s.xyz *= %s.w;\n", args.fOutputColor, args.fInputColor,
+                                 args.fOutputColor, args.fInputColor);
     }
 
 private:

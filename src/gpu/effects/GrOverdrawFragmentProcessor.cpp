@@ -41,22 +41,21 @@ public:
                 "else if (float(alpha) < 3.5) {\n    %s = half4(%f, %f, %f, %f);\n} else if "
                 "(float(alpha) < 4.5) {\n    %s = half4(%f, %f, %f, %f);\n} else {\n    %s = "
                 "half4(%f, %f, %f, %f);\n}\n",
-                args.fInputColor ? args.fInputColor : "half4(1)", args.fOutputColor,
-                SkGetPackedR32(_outer.color0()) / 255.0, SkGetPackedG32(_outer.color0()) / 255.0,
-                SkGetPackedB32(_outer.color0()) / 255.0, SkGetPackedA32(_outer.color0()) / 255.0,
-                args.fOutputColor, SkGetPackedR32(_outer.color1()) / 255.0,
-                SkGetPackedG32(_outer.color1()) / 255.0, SkGetPackedB32(_outer.color1()) / 255.0,
-                SkGetPackedA32(_outer.color1()) / 255.0, args.fOutputColor,
-                SkGetPackedR32(_outer.color2()) / 255.0, SkGetPackedG32(_outer.color2()) / 255.0,
-                SkGetPackedB32(_outer.color2()) / 255.0, SkGetPackedA32(_outer.color2()) / 255.0,
-                args.fOutputColor, SkGetPackedR32(_outer.color3()) / 255.0,
-                SkGetPackedG32(_outer.color3()) / 255.0, SkGetPackedB32(_outer.color3()) / 255.0,
-                SkGetPackedA32(_outer.color3()) / 255.0, args.fOutputColor,
-                SkGetPackedR32(_outer.color4()) / 255.0, SkGetPackedG32(_outer.color4()) / 255.0,
-                SkGetPackedB32(_outer.color4()) / 255.0, SkGetPackedA32(_outer.color4()) / 255.0,
-                args.fOutputColor, SkGetPackedR32(_outer.color5()) / 255.0,
-                SkGetPackedG32(_outer.color5()) / 255.0, SkGetPackedB32(_outer.color5()) / 255.0,
-                SkGetPackedA32(_outer.color5()) / 255.0);
+                args.fInputColor, args.fOutputColor, SkGetPackedR32(_outer.color0()) / 255.0,
+                SkGetPackedG32(_outer.color0()) / 255.0, SkGetPackedB32(_outer.color0()) / 255.0,
+                SkGetPackedA32(_outer.color0()) / 255.0, args.fOutputColor,
+                SkGetPackedR32(_outer.color1()) / 255.0, SkGetPackedG32(_outer.color1()) / 255.0,
+                SkGetPackedB32(_outer.color1()) / 255.0, SkGetPackedA32(_outer.color1()) / 255.0,
+                args.fOutputColor, SkGetPackedR32(_outer.color2()) / 255.0,
+                SkGetPackedG32(_outer.color2()) / 255.0, SkGetPackedB32(_outer.color2()) / 255.0,
+                SkGetPackedA32(_outer.color2()) / 255.0, args.fOutputColor,
+                SkGetPackedR32(_outer.color3()) / 255.0, SkGetPackedG32(_outer.color3()) / 255.0,
+                SkGetPackedB32(_outer.color3()) / 255.0, SkGetPackedA32(_outer.color3()) / 255.0,
+                args.fOutputColor, SkGetPackedR32(_outer.color4()) / 255.0,
+                SkGetPackedG32(_outer.color4()) / 255.0, SkGetPackedB32(_outer.color4()) / 255.0,
+                SkGetPackedA32(_outer.color4()) / 255.0, args.fOutputColor,
+                SkGetPackedR32(_outer.color5()) / 255.0, SkGetPackedG32(_outer.color5()) / 255.0,
+                SkGetPackedB32(_outer.color5()) / 255.0, SkGetPackedA32(_outer.color5()) / 255.0);
     }
 
 private:
