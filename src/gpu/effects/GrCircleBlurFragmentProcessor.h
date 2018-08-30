@@ -15,7 +15,7 @@
 #include "GrCoordTransform.h"
 class GrCircleBlurFragmentProcessor : public GrFragmentProcessor {
 public:
-    SkRect circleRect() const { return fCircleRect; }
+    const SkRect& circleRect() const { return fCircleRect; }
     float textureRadius() const { return fTextureRadius; }
     float solidRadius() const { return fSolidRadius; }
 
