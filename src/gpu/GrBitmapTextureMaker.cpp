@@ -60,7 +60,9 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
             }
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
                 SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
-                if (fOriginalKey.isValid()) {
+                if (fOriginalKey.isValid() && !proxyProvider->recordingDDL()) {
+                    // If we're recording a DDL we cannot add genID change listeners because
+                    // that process isn't thread safe
                     GrInstallBitmapUniqueKeyInvalidator(
                             fOriginalKey, proxyProvider->contextUniqueID(), fBitmap.pixelRef());
                 }
@@ -86,8 +88,14 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
                 // time it too will be deleted or recycled.
                 proxyProvider->removeUniqueKeyFromProxy(fOriginalKey, proxy.get());
                 proxyProvider->assignUniqueKeyToProxy(fOriginalKey, mippedProxy.get());
-                GrInstallBitmapUniqueKeyInvalidator(fOriginalKey, proxyProvider->contextUniqueID(),
-                                                    fBitmap.pixelRef());
+
+                if (!proxyProvider->recordingDDL()) {
+                    // If we're recording a DDL we cannot add genID change listeners because
+                    // that process isn't thread safe
+                    GrInstallBitmapUniqueKeyInvalidator(fOriginalKey,
+                                                        proxyProvider->contextUniqueID(),
+                                                        fBitmap.pixelRef());
+                }
             }
             return mippedProxy;
         }
