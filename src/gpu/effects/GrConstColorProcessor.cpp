@@ -34,9 +34,8 @@ public:
                 "* %s;\n        break;\n}\n",
                 (int)_outer.mode(), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fColorUniformVar), args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)",
-                args.fUniformHandler->getUniformCStr(fColorUniformVar), args.fOutputColor,
-                args.fInputColor ? args.fInputColor : "half4(1)",
+                args.fInputColor, args.fUniformHandler->getUniformCStr(fColorUniformVar),
+                args.fOutputColor, args.fInputColor,
                 args.fUniformHandler->getUniformCStr(fColorUniformVar));
     }
 

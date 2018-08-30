@@ -25,7 +25,7 @@ public:
         fragBuilder->codeAppendf(
                 "\nhalf luma = dot(half3(0.21260000000000001, 0.71519999999999995, 0.0722), "
                 "%s.xyz);\n%s = half4(0.0, 0.0, 0.0, luma);\n",
-                args.fInputColor ? args.fInputColor : "half4(1)", args.fOutputColor);
+                args.fInputColor, args.fOutputColor);
     }
 
 private:
