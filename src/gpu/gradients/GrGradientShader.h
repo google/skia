@@ -19,6 +19,10 @@ namespace GrGradientShader {
     std::unique_ptr<GrFragmentProcessor> MakeRadial(
         const SkGradientShaderBase& shader, const GrFPArgs& args,
         const SkPoint& center, SkScalar radius);
+
+    std::unique_ptr<GrFragmentProcessor> MakeSweep(
+        const SkGradientShaderBase& shader, const GrFPArgs& args,
+        const SkPoint& center, SkScalar bias, SkScalar scale);
 }
 
 #endif // GrGradientShader_DEFINE

@@ -136,6 +136,7 @@ public:
         kGrSpecularLightingEffect_ClassID,
         kGrSRGBEffect_ClassID,
         kGrSweepGradient_ClassID,
+        kGrSweepGradientLayout_ClassID,
         kGrTextureDomainEffect_ClassID,
         kGrTiledGradientEffect_ClassID,
         kGrUnpremulInputFragmentProcessor_ClassID,
