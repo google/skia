@@ -300,10 +300,17 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
     return nullptr;
 }
 
+static skcms_PixelFormat jpeg_select_xform_format(const SkEncodedInfo& info) {
+    if (SkEncodedInfo::kGray_Color == info.color()) {
+        return skcms_PixelFormat_G_8;
+    } else {
+        return skcms_PixelFormat_RGBA_8888;
+    }
+}
+
 SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin)
-    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream),
-                origin)
+    : INHERITED(std::move(info), jpeg_select_xform_format(info), std::move(stream), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
@@ -426,7 +433,6 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType sr
             }
             break;
         case kGray_8_SkColorType:
-            SkASSERT(!needsColorXform);
             if (JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
@@ -445,6 +451,12 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType sr
     // we must do it ourselves.
     if (JCS_CMYK == encodedColorType || JCS_YCCK == encodedColorType) {
         fDecoderMgr->dinfo()->out_color_space = JCS_CMYK;
+    }
+
+    // If the encoded data ia grayscale, and we're going to do a color xform, that will handle
+    // the expansion to any other color type, so tell libjpeg to always output gray.
+    if (JCS_GRAYSCALE == encodedColorType && needsColorXform) {
+        fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
     }
 
     return true;
@@ -505,7 +517,8 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     // We can never swizzle "in place" because the swizzler may perform sampling and/or
     // subsetting.
     // When fColorXformSrcRow is non-null, it means that we need to color xform and that
-    // we cannot color xform "in place" (many times we can, but not when the dst is F16).
+    // we cannot color xform "in place" (many times we can, but not when the src and dst
+    // are different sizes).
     // In this case, we will color xform from fColorXformSrcRow into the dst.
     JSAMPLE* decodeDst = (JSAMPLE*) dst;
     uint32_t* swizzleDst = (uint32_t*) dst;
@@ -624,9 +637,12 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 
     size_t xformBytes = 0;
-    if (this->colorXform() && (kRGBA_F16_SkColorType == dstInfo.colorType() ||
-                               kRGB_565_SkColorType == dstInfo.colorType())) {
-        xformBytes = dstWidth * sizeof(uint32_t);
+
+    if (this->colorXform()) {
+        size_t src_bpp = SkEncodedInfo::kGray_Color == this->getEncodedInfo().color() ? 1 : 4;
+        if (src_bpp != dstInfo.bytesPerPixel()) {
+            xformBytes = dstWidth * src_bpp;
+        }
     }
 
     size_t totalBytes = swizzleBytes + xformBytes;
