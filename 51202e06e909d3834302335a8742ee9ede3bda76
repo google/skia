@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "aa738672_09625f4f",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T17:09:39Z",
+      "side": 1,
+      "message": "I guess first we\u0027d have to have know whether we can get here in that case. I\u0027m not sure how we handle point paths now.",
+      "parentUuid": "0ded84c9_ee4107df",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19a00f6e_eb021234",
         "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
         "patchSetId": 7
