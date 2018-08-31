@@ -73,20 +73,34 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
         colorType = kRGB_565_SkColorType;
         break;
+    case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+    case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
+        colorType = kRGB_888x_SkColorType;
+        break;
+    case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
+        colorType = kRGBA_1010102_SkColorType;
+        break;
     default:
-        return nullptr;
+        // Given that we only use this texture as a source, colorType will not impact how Skia uses
+        // the texture.  The only potential affect this is anticipated to have is that for some
+        // format types if we are not bound as an OES texture we may get invalid results for SKP
+        // capture if we read back the texture.
+        colorType = kRGBA_8888_SkColorType;
+        break;
     }
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
     bool createProtectedImage = 0 != (bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
     return std::unique_ptr<SkImageGenerator>(new GrAHardwareBufferImageGenerator(info, graphicBuffer,
-            alphaType, createProtectedImage));
+            alphaType, createProtectedImage, bufferDesc.format));
 }
 
 GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageInfo& info,
-        AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType, bool isProtectedContent)
+        AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType, bool isProtectedContent,
+        uint32_t bufferFormat)
     : INHERITED(info)
     , fHardwareBuffer(hardwareBuffer)
+    , fBufferFormat(bufferFormat)
     , fIsProtectedContent(isProtectedContent) {
     AHardwareBuffer_acquire(fHardwareBuffer);
 }
@@ -183,7 +197,8 @@ static GrBackendTexture make_gl_backend_texture(
         int width, int height, GrPixelConfig config,
         GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
         GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
-        bool isProtectedContent) {
+        bool isProtectedContent,
+        const GrBackendFormat& backendFormat) {
     while (GL_NO_ERROR != glGetError()) {} //clear GL errors
 
     EGLClientBuffer clientBuffer = eglGetNativeClientBufferANDROID(hardwareBuffer);
@@ -224,21 +239,10 @@ static GrBackendTexture make_gl_backend_texture(
     context->resetContext(kTextureBinding_GrGLBackendState);
 
     GrGLTextureInfo textureInfo;
-    textureInfo.fTarget = GL_TEXTURE_EXTERNAL_OES;
     textureInfo.fID = texID;
-    switch (config) {
-        case kRGBA_8888_GrPixelConfig:
-            textureInfo.fFormat = GR_GL_RGBA8;
-            break;
-        case kRGBA_half_GrPixelConfig:
-            textureInfo.fFormat = GR_GL_RGBA16F;
-            break;
-        case kRGB_565_GrPixelConfig:
-            textureInfo.fFormat = GR_GL_RGB565;
-            break;
-        default:
-            SkASSERT(false);
-    }
+    SkASSERT(backendFormat.isValid());
+    textureInfo.fTarget = *backendFormat.getGLTarget();
+    textureInfo.fFormat = *backendFormat.getGLFormat();
 
     *deleteProc = GrAHardwareBufferImageGenerator::DeleteEGLImage;
     *deleteCtx = new BufferCleanupHelper(image, display);
@@ -251,14 +255,15 @@ static GrBackendTexture make_backend_texture(
         int width, int height, GrPixelConfig config,
         GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
         GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
-        bool isProtectedContent) {
+        bool isProtectedContent,
+        const GrBackendFormat& backendFormat) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
         return GrBackendTexture();
     }
     bool createProtectedImage = isProtectedContent && can_import_protected_content(context);
     return make_gl_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
-                                   deleteCtx, createProtectedImage);
+                                   deleteCtx, createProtectedImage, backendFormat);
 }
 
 static void free_backend_texture(GrBackendTexture* backendTexture) {
@@ -275,6 +280,28 @@ static void free_backend_texture(GrBackendTexture* backendTexture) {
         default:
             return;
     }
+}
+
+GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
+    if (backend == kOpenGL_GrBackend) {
+        switch (bufferFormat) {
+            //TODO: find out if we can detect, which graphic buffers support GR_GL_TEXTURE_2D
+            case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+                return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
+            case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
+                return GrBackendFormat::MakeGL(GR_GL_RGBA16F, GR_GL_TEXTURE_EXTERNAL);
+            case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
+                return GrBackendFormat::MakeGL(GR_GL_RGB565, GR_GL_TEXTURE_EXTERNAL);
+            case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
+                return GrBackendFormat::MakeGL(GR_GL_RGB10_A2, GR_GL_TEXTURE_EXTERNAL);
+            case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+            case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
+                return GrBackendFormat::MakeGL(GR_GL_RGB8, GR_GL_TEXTURE_EXTERNAL);
+            default:
+                return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
+        }
+    }
+    return GrBackendFormat();
 }
 
 void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
@@ -296,18 +323,11 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     fOwningContextID = context->uniqueID();
 
     GrPixelConfig pixelConfig;
-    switch (this->getInfo().colorType()) {
-        case kRGBA_8888_SkColorType:
-            pixelConfig = kRGBA_8888_GrPixelConfig;
-            break;
-        case kRGBA_F16_SkColorType:
-            pixelConfig = kRGBA_half_GrPixelConfig;
-            break;
-        case kRGB_565_SkColorType:
-            pixelConfig = kRGB_565_GrPixelConfig;
-            break;
-        default:
-            return;
+    GrBackendFormat backendFormat = get_backend_format(context->contextPriv().getBackend(),
+                                                       fBufferFormat);
+    if (!context->contextPriv().caps()->getConfigFromBackendFormat(
+            backendFormat, this->getInfo().colorType(), &pixelConfig)) {
+        return;
     }
 
     int width = this->getInfo().width();
@@ -333,7 +353,7 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
 
     fCachedProxy = proxyProvider->createLazyProxy(
             [context, hardwareBuffer, width, height, pixelConfig, ownedTexturePtr,
-             isProtectedContent]
+             isProtectedContent, backendFormat]
             (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     AHardwareBuffer_release(hardwareBuffer);
@@ -349,7 +369,8 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
                                                                    width, height, pixelConfig,
                                                                    &deleteImageProc,
                                                                    &deleteImageCtx,
-                                                                   isProtectedContent);
+                                                                   isProtectedContent,
+                                                                   backendFormat);
                 if (!backendTex.isValid()) {
                     return sk_sp<GrTexture>();
                 }
