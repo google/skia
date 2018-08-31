@@ -254,6 +254,8 @@
       "--nocpu",
       "--config",
       "gbr-gl",
+      "glbetex",
+      "glbert",
       "--src",
       "tests",
       "gm",

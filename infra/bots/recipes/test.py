@@ -232,9 +232,10 @@ def dm_flags(api, bot):
         blacklist('gltestpersistentcache gm _ dftext')
         blacklist('gltestpersistentcache gm _ glyph_pos_h_b')
 
-    # Test SkColorSpaceXformCanvas on a few bots
+    # Test SkColorSpaceXformCanvas and rendering to wrapped dsts on a few bots
     if 'BonusConfigs' in api.vars.extra_tokens:
-      configs = ['gbr-gl']
+      configs = ['gbr-gl', 'glbetex', 'glbert']
+
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
