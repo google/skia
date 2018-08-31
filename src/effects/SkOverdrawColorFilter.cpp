@@ -12,6 +12,36 @@
 #include "SkReadBuffer.h"
 #include "../jumper/SkJumper.h"
 
+#if SK_SUPPORT_GPU
+#include "effects/GrSkSLFP.h"
+
+GR_FP_SRC_STRING SKSL_OVERDRAW_SRC = R"(
+layout(ctype=SkPMColor) in uniform half4 color0;
+layout(ctype=SkPMColor) in uniform half4 color1;
+layout(ctype=SkPMColor) in uniform half4 color2;
+layout(ctype=SkPMColor) in uniform half4 color3;
+layout(ctype=SkPMColor) in uniform half4 color4;
+layout(ctype=SkPMColor) in uniform half4 color5;
+
+void main(int x, int y, inout half4 color) {
+    half alpha = 255.0 * color.a;
+    if (alpha < 0.5) {
+        color = color0;
+    } else if (alpha < 1.5) {
+        color = color1;
+    } else if (alpha < 2.5) {
+        color = color2;
+    } else if (alpha < 3.5) {
+        color = color3;
+    } else if (alpha < 4.5) {
+        color = color4;
+    } else {
+        color = color5;
+    }
+}
+)";
+#endif
+
 void SkOverdrawColorFilter::onAppendStages(SkRasterPipeline* p,
                                            SkColorSpace* dstCS,
                                            SkArenaAlloc* alloc,
@@ -58,12 +88,11 @@ SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_START(SkOverdrawColorFilter)
 SK_DEFINE_FLATTENABLE_REGISTRAR_GROUP_END
 #if SK_SUPPORT_GPU
 
-#include "effects/GrOverdrawFragmentProcessor.h"
-
 std::unique_ptr<GrFragmentProcessor> SkOverdrawColorFilter::asFragmentProcessor(
-        GrContext*, const GrColorSpaceInfo&) const {
-    return GrOverdrawFragmentProcessor::Make(fColors[0], fColors[1], fColors[2], fColors[3],
-                                             fColors[4], fColors[5]);
+        GrContext* context, const GrColorSpaceInfo&) const {
+    static int overdrawIndex = GrSkSLFP::NewIndex();
+    return GrSkSLFP::Make(context, overdrawIndex, "Overdraw", SKSL_OVERDRAW_SRC, fColors,
+                          sizeof(fColors));
 }
 
 #endif

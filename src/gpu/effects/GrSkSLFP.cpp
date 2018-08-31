@@ -9,11 +9,9 @@
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramBuilder.h"
-#include "GrConstColorProcessor.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrTexture.h"
-#include "SkArithmeticImageFilter.h"
 #include "SkSLUtil.h"
 
 GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCaps, const char* sksl)
@@ -64,8 +62,8 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
             bool v = *(((bool*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
             offset += sizeof(bool);
-        } else if (&v->fType == fCompiler.context().fFloat4_Type.get()) {
-            SkASSERT(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag);
+        } else if (&v->fType == fCompiler.context().fFloat4_Type.get() ||
+                   &v->fType == fCompiler.context().fHalf4_Type.get()) {
             offset = SkAlign4(offset) + sizeof(float) * 4;
         } else if (&v->fType == fCompiler.context().fFragmentProcessor_Type.get()) {
             // do nothing
@@ -182,23 +180,45 @@ public:
         char* inputs = (char*) outer.fInputs.get();
         const SkSL::Context& context = outer.fFactory->fCompiler.context();
         for (const auto& v : outer.fFactory->fInputVars) {
-            if (&v->fType == context.fFloat4_Type.get()) {
-                offset = SkAlign4(offset);
-                float f1 = *(float*) (inputs + offset);
-                offset += sizeof(float);
-                float f2 = *(float*) (inputs + offset);
-                offset += sizeof(float);
-                float f3 = *(float*) (inputs + offset);
-                offset += sizeof(float);
-                float f4 = *(float*) (inputs + offset);
-                offset += sizeof(float);
+            if (&v->fType == context.fFloat4_Type.get() ||
+                &v->fType == context.fHalf4_Type.get()) {
+                float f1, f2, f3, f4;
+                switch (v->fModifiers.fLayout.fCType) {
+                    case SkSL::Layout::CType::kSkPMColor:
+                        f1 = ((uint8_t*) inputs)[offset++] / 255.0;
+                        f2 = ((uint8_t*) inputs)[offset++] / 255.0;
+                        f3 = ((uint8_t*) inputs)[offset++] / 255.0;
+                        f4 = ((uint8_t*) inputs)[offset++] / 255.0;
+                        break;
+                    case SkSL::Layout::CType::kSkRect: // fall through
+                    case SkSL::Layout::CType::kDefault:
+                        offset = SkAlign4(offset);
+                        f1 = *(float*) (inputs + offset);
+                        offset += sizeof(float);
+                        f2 = *(float*) (inputs + offset);
+                        offset += sizeof(float);
+                        f3 = *(float*) (inputs + offset);
+                        offset += sizeof(float);
+                        f4 = *(float*) (inputs + offset);
+                        offset += sizeof(float);
+                        break;
+                    default:
+                        SK_ABORT("unsupported uniform ctype");
+                }
                 if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
                     pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
                 }
-            }
-            if (&v->fType == context.fBool_Type.get()) {
+            } else if (&v->fType == context.fInt_Type.get()) {
+                int32_t i = *(int*) (inputs + offset);
+                offset += sizeof(int32_t);
+                if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                    pdman.set1i(fUniformHandles[uniformIndex++], i);
+                }
+            } else if (&v->fType == context.fBool_Type.get()) {
                 SkASSERT(!(v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag));
                 ++offset;
+            } else {
+                SkASSERT(&v->fType == context.fFragmentProcessor_Type.get());
             }
         }
     }
@@ -293,7 +313,8 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                 b->add32(*(int32_t*) (inputs + offset));
             }
             offset += sizeof(int32_t);
-        } else if (&v->fType == context.fFloat4_Type.get()) {
+        } else if (&v->fType == context.fFloat4_Type.get() ||
+                   &v->fType == context.fHalf4_Type.get()) {
             if (v->fModifiers.fLayout.fKey) {
                 for (size_t i = 0; i < sizeof(float) * 4; ++i) {
                     fKey += inputs[offset + i];
@@ -375,12 +396,17 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #if GR_TEST_UTILS
 
-#include "SkGr.h"
+#include "GrConstColorProcessor.h"
+#include "SkArithmeticImageFilter.h"
+
+extern const char* SKSL_ARITHMETIC_SRC;
+extern const char* SKSL_DITHER_SRC;
+extern const char* SKSL_OVERDRAW_SRC;
 
 using Value = SkSL::Program::Settings::Value;
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
-    int type = d->fRandom->nextULessThan(2);
+    int type = d->fRandom->nextULessThan(3);
     switch (type) {
         case 0: {
             static int ditherIndex = NewIndex();
@@ -404,6 +430,17 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
             result->addChild(GrConstColorProcessor::Make(
                                                         GrColor4f::OpaqueWhite(),
                                                         GrConstColorProcessor::InputMode::kIgnore));
+            return std::unique_ptr<GrFragmentProcessor>(result.release());
+        }
+        case 2: {
+            static int overdrawIndex = NewIndex();
+            SkPMColor inputs[6];
+            for (int i = 0; i < 6; ++i) {
+                inputs[i] = d->fRandom->nextU();
+            }
+            std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(d->context(), overdrawIndex,
+                                                              "Overdraw", SKSL_OVERDRAW_SRC,
+                                                              &inputs, sizeof(inputs));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
         }
     }

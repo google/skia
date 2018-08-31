@@ -132,7 +132,7 @@ static String default_value(const Type& type) {
 }
 
 static String default_value(const Variable& var) {
-    if (var.fModifiers.fLayout.fCType == "GrColor4f") {
+    if (var.fModifiers.fLayout.fCType == SkSL::Layout::CType::kGrColor4f) {
         return "GrColor4f::kIllegalConstructor";
     }
     return default_value(var.fType);
@@ -168,21 +168,28 @@ void CPPCodeGenerator::writeRuntimeValue(const Type& type, const Layout& layout,
         fFormatArgs.push_back(cppCode + ".fY");
     } else if (type == *fContext.fFloat4_Type || type == *fContext.fHalf4_Type) {
         this->write(type.name() + "(%f, %f, %f, %f)");
-        if (layout.fCType == "SkPMColor") {
-            fFormatArgs.push_back("SkGetPackedR32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
-            fFormatArgs.push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
-        } else if (layout.fCType == "GrColor4f") {
-            fFormatArgs.push_back(cppCode + ".fRGBA[0]");
-            fFormatArgs.push_back(cppCode + ".fRGBA[1]");
-            fFormatArgs.push_back(cppCode + ".fRGBA[2]");
-            fFormatArgs.push_back(cppCode + ".fRGBA[3]");
-        } else {
-            fFormatArgs.push_back(cppCode + ".left()");
-            fFormatArgs.push_back(cppCode + ".top()");
-            fFormatArgs.push_back(cppCode + ".right()");
-            fFormatArgs.push_back(cppCode + ".bottom()");
+        switch (layout.fCType) {
+            case Layout::CType::kSkPMColor:
+                fFormatArgs.push_back("SkGetPackedR32(" + cppCode + ") / 255.0");
+                fFormatArgs.push_back("SkGetPackedG32(" + cppCode + ") / 255.0");
+                fFormatArgs.push_back("SkGetPackedB32(" + cppCode + ") / 255.0");
+                fFormatArgs.push_back("SkGetPackedA32(" + cppCode + ") / 255.0");
+                break;
+            case Layout::CType::kGrColor4f:
+                fFormatArgs.push_back(cppCode + ".fRGBA[0]");
+                fFormatArgs.push_back(cppCode + ".fRGBA[1]");
+                fFormatArgs.push_back(cppCode + ".fRGBA[2]");
+                fFormatArgs.push_back(cppCode + ".fRGBA[3]");
+                break;
+            case Layout::CType::kSkRect: // fall through
+            case Layout::CType::kDefault:
+                fFormatArgs.push_back(cppCode + ".left()");
+                fFormatArgs.push_back(cppCode + ".top()");
+                fFormatArgs.push_back(cppCode + ".right()");
+                fFormatArgs.push_back(cppCode + ".bottom()");
+                break;
+            default:
+                SkASSERT(false);
         }
     } else if (type.kind() == Type::kEnum_Kind) {
         this->write("%d");
@@ -533,11 +540,11 @@ void CPPCodeGenerator::writePrivateVars() {
                     // The member statement is different if the mapper reports a default value
                     if (mapper->defaultValue().size() > 0) {
                         this->writef("%s %sPrev = %s;\n",
-                                     mapper->ctype().c_str(), name.c_str(),
+                                     Layout::CTypeToStr(mapper->ctype()), name.c_str(),
                                      mapper->defaultValue().c_str());
                     } else {
                         this->writef("%s %sPrev;\n",
-                                     mapper->ctype().c_str(), name.c_str());
+                                     Layout::CTypeToStr(mapper->ctype()), name.c_str());
                     }
                 }
             }

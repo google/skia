@@ -41,7 +41,8 @@
 #include "effects/GrXfermodeFragmentProcessor.h"
 #include "effects/GrSkSLFP.h"
 
-const char* SKSL_DITHER_SRC = R"(
+#if SK_SUPPORT_GPU
+GR_FP_SRC_STRING SKSL_DITHER_SRC = R"(
 // This controls the range of values added to color channels
 layout(key) in int rangeType;
 
@@ -80,6 +81,7 @@ void main(int x, int y, inout half4 color) {
     color = half4(clamp(color.rgb + value * range, 0.0, color.a), color.a);
 }
 )";
+#endif
 
 GrSurfaceDesc GrImageInfoToSurfaceDesc(const SkImageInfo& info) {
     GrSurfaceDesc desc;

@@ -1729,7 +1729,7 @@ SpvId SPIRVCodeGenerator::writeVariableReference(const VariableReference& ref, O
             Type intfStruct(-1, name, fields);
             Layout layout(0, -1, -1, 1, -1, -1, -1, -1, Layout::Format::kUnspecified,
                           Layout::kUnspecified_Primitive, -1, -1, "", Layout::kNo_Key,
-                          StringFragment());
+                          Layout::CType::kDefault);
             Variable* intfVar = new Variable(-1,
                                              Modifiers(layout, Modifiers::kUniform_Flag),
                                              name,
