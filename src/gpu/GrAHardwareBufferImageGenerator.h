@@ -48,7 +48,7 @@ protected:
 
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
-                                    bool isProtectedContent);
+                                    bool isProtectedContent, uint32_t bufferFormat);
     void makeProxy(GrContext* context);
 
     void releaseTextureRef();
@@ -62,6 +62,7 @@ private:
     // avoid releasing a ref from another thread, or get into races during context shutdown.
     GrTexture*           fOwnedTexture = nullptr;
     uint32_t             fOwningContextID = SK_InvalidGenID;
+    uint32_t             fBufferFormat;
 
     sk_sp<GrTextureProxy> fCachedProxy;
     const bool fIsProtectedContent;
