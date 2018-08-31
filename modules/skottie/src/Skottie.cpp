@@ -200,8 +200,6 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     };
     auto resolvedProvider = fResourceProvider
             ? fResourceProvider : sk_make_sp<NullResourceProvider>();
-    auto resolvedFontMgr  = fFontMgr
-            ? fFontMgr : SkFontMgr::RefDefault();
 
     memset(&fStats, 0, sizeof(struct Stats));
 
@@ -236,8 +234,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     }
 
     SkASSERT(resolvedProvider);
-    SkASSERT(resolvedFontMgr);
-    internal::AnimationBuilder builder(std::move(resolvedProvider), std::move(resolvedFontMgr),
+    internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        &fStats, duration, fps);
     auto scene = builder.parse(json);
 

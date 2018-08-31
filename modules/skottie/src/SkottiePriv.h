@@ -101,6 +101,8 @@ private:
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*) const;
 
+    const sk_sp<SkFontMgr>& lazyFontMgr();
+
     sk_sp<ResourceProvider>    fResourceProvider;
     sk_sp<SkFontMgr>           fFontMgr;
     Animation::Builder::Stats* fStats;
