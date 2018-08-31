@@ -304,8 +304,8 @@ protected:
         canvas->setMatrix(persp);
         SkScalar radians = SkDegreesToRadians(fAnimAngle);
         zPlaneParams = SkPoint3::Make(0,
-                                      SkScalarSin(-radians),
-                                      SkTMax(1.0f, 16 + fZDelta) - SkScalarSin(-radians)*pivot.fY);
+                                      SkScalarSin(radians),
+                                      SkTMax(1.0f, 16 + fZDelta) - SkScalarSin(radians)*pivot.fY);
         this->drawShadowedPath(canvas, fWideRectPath, zPlaneParams, paint, .1f,
                                lightPos, kLightWidth, .5f);
 
