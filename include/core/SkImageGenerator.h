@@ -78,8 +78,6 @@ public:
      *         to scale. If the generator cannot perform this scale,
      *         it will return false.
      *
-     *         kIndex_8_SkColorType is not supported.
-     *
      *  @return true on success.
      */
     struct Options {};
