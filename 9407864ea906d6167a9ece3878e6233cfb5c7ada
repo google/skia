@@ -22,6 +22,30 @@
       "revId": "9407864ea906d6167a9ece3878e6233cfb5c7ada",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9aff2269_00ddbe8c",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T12:58:36Z",
+      "side": 1,
+      "message": "Never mind, I see SkGlyphRunList::origin() and the lambda also deal in SkPoint values (they should probably switch to const\u0026).",
+      "parentUuid": "039ca90e_4ef65265",
+      "range": {
+        "startLine": 869,
+        "startChar": 19,
+        "endLine": 869,
+        "endChar": 26
+      },
+      "revId": "9407864ea906d6167a9ece3878e6233cfb5c7ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
