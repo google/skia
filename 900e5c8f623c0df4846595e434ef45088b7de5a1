@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79ee5388_7fac8aee",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-08-31T16:45:19Z",
+      "side": 0,
+      "message": "Will these bugs be closed?",
+      "range": {
+        "startLine": 720,
+        "startChar": 8,
+        "endLine": 720,
+        "endChar": 17
+      },
+      "revId": "900e5c8f623c0df4846595e434ef45088b7de5a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
