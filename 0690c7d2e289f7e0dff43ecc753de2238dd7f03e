@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "804123f4_8b5fba79",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-31T19:16:17Z",
+      "side": 1,
+      "message": "SkFindQuadMaxCurvature, maybe? It\u0027s a bit odd, since it returns 0 if numer \u003c\u003d 0, but also returns 0 if t is computed there, which I suppose could happen if numer was teeny and dividing it by denom took it to zero.",
+      "parentUuid": "99dd1229_c293a6ff",
+      "range": {
+        "startLine": 899,
+        "startChar": 9,
+        "endLine": 899,
+        "endChar": 24
+      },
+      "revId": "0690c7d2e289f7e0dff43ecc753de2238dd7f03e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2bd0363_2b0925de",
         "filename": "src/core/SkGeometry.h",
         "patchSetId": 10
