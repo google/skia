@@ -51,7 +51,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromStream(new SkMemoryStream(sk_ref_sp(data))));
+    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
     if (!newTypeface) {
         // Not all SkFontMgr can MakeFromStream().
         return;
