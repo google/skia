@@ -314,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -553,16 +553,6 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					glog.Fatalf("Entry %q not found in Win GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
-
-				// Specify cpu dimension for NUCs and ShuttleCs. We temporarily have two
-				// types of machines with a GTX960.
-				cpu, ok := map[string]string{
-					"NUC6i7KYK": "x86-64-i7-6770HQ",
-					"ShuttleC":  "x86-64-i7-6700K",
-				}[parts["model"]]
-				if ok {
-					d["cpu"] = cpu
-				}
 			} else if strings.Contains(parts["os"], "Ubuntu") || strings.Contains(parts["os"], "Debian") {
 				gpu, ok := map[string]string{
 					// Intel drivers come from CIPD, so no need to specify the version here.
@@ -632,6 +622,13 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 			// Mac CPU bots.
 			d["cpu"] = "x86-64-E5-2697_v2"
 		}
+	}
+
+	if parts["cpu_or_gpu_value"] == "QuadroP400" {
+		// Specify "rack" dimension for consistent test results.
+		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
+		// for more context.
+		d["rack"] = "1"
 	}
 
 	rv := make([]string, 0, len(d))
