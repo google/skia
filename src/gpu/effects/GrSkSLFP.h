@@ -17,6 +17,12 @@
 #include "SkRefCnt.h"
 #include "../private/GrSkSLFPFactoryCache.h"
 
+#if GR_TEST_UTILS
+#define GR_FP_SRC_STRING const char*
+#else
+#define GR_FP_SRC_STRING static const char*
+#endif
+
 class GrContext;
 class GrSkSLFPFactory;
 

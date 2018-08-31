@@ -76,6 +76,22 @@ struct Layout {
         kIdentity_Key,
     };
 
+    enum class CType {
+        kDefault,
+        kFloat,
+        kInt32,
+        kSkRect,
+        kSkIRect,
+        kGrColor4f,
+        kSkPMColor,
+        kSkPoint,
+        kSkIPoint,
+        kSkMatrix,
+        kSkMatrix44,
+        kGrTextureProxy,
+        kGrFragmentProcessor,
+    };
+
     static const char* FormatToStr(Format format) {
         switch (format) {
             case Format::kUnspecified:  return "";
@@ -120,9 +136,43 @@ struct Layout {
         return false;
     }
 
+    static const char* CTypeToStr(CType ctype) {
+        switch (ctype) {
+            case CType::kDefault:
+                return nullptr;
+            case CType::kFloat:
+                return "float";
+            case CType::kInt32:
+                return "int32_t";
+            case CType::kSkRect:
+                return "SkRect";
+            case CType::kSkIRect:
+                return "SkIRect";
+            case CType::kGrColor4f:
+                return "GrColor4f";
+            case CType::kSkPMColor:
+                return "SkPMColor";
+            case CType::kSkPoint:
+                return "SkPoint";
+            case CType::kSkIPoint:
+                return "SkIPoint";
+            case CType::kSkMatrix:
+                return "SkMatrix";
+            case CType::kSkMatrix44:
+                return "SkMatrix44";
+            case CType::kGrTextureProxy:
+                return "sk_sp<GrTextureProxy>";
+            case CType::kGrFragmentProcessor:
+                return "std::unique_ptr<GrFragmentProcessor>";
+            default:
+                SkASSERT(false);
+                return nullptr;
+        }
+    }
+
     Layout(int flags, int location, int offset, int binding, int index, int set, int builtin,
            int inputAttachmentIndex, Format format, Primitive primitive, int maxVertices,
-           int invocations, String when, Key key, StringFragment ctype)
+           int invocations, String when, Key key, CType ctype)
     : fFlags(flags)
     , fLocation(location)
     , fOffset(offset)
@@ -152,7 +202,8 @@ struct Layout {
     , fPrimitive(kUnspecified_Primitive)
     , fMaxVertices(-1)
     , fInvocations(-1)
-    , fKey(kNo_Key) {}
+    , fKey(kNo_Key)
+    , fCType(CType::kDefault) {}
 
     String description() const {
         String result;
@@ -359,7 +410,7 @@ struct Layout {
     int fInvocations;
     String fWhen;
     Key fKey;
-    StringFragment fCType;
+    CType fCType;
 };
 
 } // namespace

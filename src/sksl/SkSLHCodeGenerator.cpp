@@ -29,36 +29,46 @@ HCodeGenerator::HCodeGenerator(const Context* context, const Program* program,
 
 String HCodeGenerator::ParameterType(const Context& context, const Type& type,
                                      const Layout& layout) {
-    if (layout.fCType != "") {
+    Layout::CType ctype = ParameterCType(context, type, layout);
+    if (ctype != Layout::CType::kDefault) {
+        return Layout::CTypeToStr(ctype);
+    }
+    return type.name();
+}
+
+Layout::CType HCodeGenerator::ParameterCType(const Context& context, const Type& type,
+                                     const Layout& layout) {
+    if (layout.fCType != Layout::CType::kDefault) {
         return layout.fCType;
-    } else if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
-        return "float";
+    }
+    if (type == *context.fFloat_Type || type == *context.fHalf_Type) {
+        return Layout::CType::kFloat;
     } else if (type == *context.fInt_Type ||
                type == *context.fShort_Type ||
                type == *context.fByte_Type) {
-        return "int32_t";
+        return Layout::CType::kInt32;
     } else if (type == *context.fFloat2_Type || type == *context.fHalf2_Type) {
-        return "SkPoint";
+        return Layout::CType::kSkPoint;
     } else if (type == *context.fInt2_Type ||
                type == *context.fShort2_Type ||
                type == *context.fByte2_Type) {
-        return "SkIPoint";
+        return Layout::CType::kSkIPoint;
     } else if (type == *context.fInt4_Type ||
                type == *context.fShort4_Type ||
                type == *context.fByte4_Type) {
-        return "SkIRect";
+        return Layout::CType::kSkIRect;
     } else if (type == *context.fFloat4_Type || type == *context.fHalf4_Type) {
-        return "SkRect";
+        return Layout::CType::kSkRect;
     } else if (type == *context.fFloat3x3_Type || type == *context.fHalf3x3_Type) {
-        return "SkMatrix";
+        return Layout::CType::kSkMatrix;
     } else if (type == *context.fFloat4x4_Type || type == *context.fHalf4x4_Type) {
-        return "SkMatrix44";
+        return Layout::CType::kSkMatrix44;
     } else if (type.kind() == Type::kSampler_Kind) {
-        return "sk_sp<GrTextureProxy>";
+        return Layout::CType::kGrTextureProxy;
     } else if (type == *context.fFragmentProcessor_Type) {
-        return "std::unique_ptr<GrFragmentProcessor>";
+        return Layout::CType::kGrFragmentProcessor;
     }
-    return type.name();
+    return Layout::CType::kDefault;
 }
 
 String HCodeGenerator::FieldType(const Context& context, const Type& type,
