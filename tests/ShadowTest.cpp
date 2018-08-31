@@ -154,6 +154,12 @@ void check_bounds(skiatest::Reporter* reporter, const SkPath& path) {
     ctm[SkMatrix::kMPersp0] = 0.0001f;
     ctm[SkMatrix::kMPersp1] = 12.f;
     check_xformed_bounds(reporter, path, ctm);
+    ctm[SkMatrix::kMPersp0] = 0.0001f;
+    ctm[SkMatrix::kMPersp1] = -12.f;
+    check_xformed_bounds(reporter, path, ctm);
+    ctm[SkMatrix::kMPersp0] = 12.f;
+    ctm[SkMatrix::kMPersp1] = 0.0001f;
+    check_xformed_bounds(reporter, path, ctm);
 }
 
 DEF_TEST(ShadowBounds, reporter) {
