@@ -24,7 +24,7 @@ public:
     const SkMatrix44& uSamplerTransform() const { return fUSamplerTransform; }
     const SkMatrix44& vSamplerTransform() const { return fVSamplerTransform; }
     const SkMatrix44& colorSpaceMatrix() const { return fColorSpaceMatrix; }
-    const bool& nv12() const { return fNv12; }
+    bool nv12() const { return fNv12; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             sk_sp<GrTextureProxy> ySampler, SkMatrix44 ySamplerTransform,
             sk_sp<GrTextureProxy> uSampler, SkMatrix44 uSamplerTransform,

@@ -163,25 +163,25 @@ static const std::vector<UniformCTypeMapper>& get_mappers() {
 
     REGISTER("SkPoint", { "half2", "float2", "double2" } ,
         "${pdman}.set2f(${uniform}, ${var}.fX, ${var}.fY)",                        // to gpu
-        "SkPoint::Make(NaN, NaN)"),                                                // default value
+        "SkPoint::Make(SK_FloatNaN, SK_FloatNaN)"),                                // default value
 
     REGISTER("SkIPoint", { "int2", "short2", "byte2" },
         "${pdman}.set2i(${uniform}, ${var}.fX, ${var}.fY)",                        // to gpu
-        "SkIPoint::Make(~0, ~0)"),                                                 // default value
+        "SkIPoint::Make(SK_NaN32, SK_NaN32)"),                                     // default value
 
     REGISTER("SkMatrix", { "half3x3", "float3x3", "double3x3" },
         "${pdman}.setSkMatrix(${uniform}, ${var})",                                // to gpu
-        "SkMatrix::MakeScale(NaN)",                                                // default value
+        "SkMatrix::MakeScale(SK_FloatNaN)",                                        // default value
         "!${oldVar}.cheapEqualTo(${newVar})"),                                     // dirty check
 
     REGISTER("SkMatrix44",  { "half4x4", "float4x4", "double4x4" },
         "${pdman}.setSkMatrix44(${uniform}, ${var})",                              // to gpu
-        "SkMatrix::MakeScale(NaN)",                                                // default value
+        "SkMatrix::MakeScale(SK_FloatNaN)",                                        // default value
         "!${oldVar}.cheapEqualTo(${newVar})"),                                     // dirty check
 
     REGISTER("float",  { "half", "float", "double" },
         "${pdman}.set1f(${uniform}, ${var})",                                      // to gpu
-        "NaN"),                                                                    // default value
+        "SK_FloatNaN"),                                                            // default value
 
     REGISTER("int32_t", { "int", "short", "byte" },
         "${pdman}.set1i(${uniform}, ${var})",                                      // to gpu

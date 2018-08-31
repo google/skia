@@ -76,7 +76,7 @@ String HCodeGenerator::FieldType(const Context& context, const Type& type,
 
 String HCodeGenerator::AccessType(const Context& context, const Type& type,
                                   const Layout& layout) {
-    static const std::set<String> primitiveTypes = { "int32_t", "float", "SkPMColor" };
+    static const std::set<String> primitiveTypes = { "int32_t", "float", "bool", "SkPMColor" };
 
     String fieldType = FieldType(context, type, layout);
     bool isPrimitive = primitiveTypes.find(fieldType) != primitiveTypes.end();
