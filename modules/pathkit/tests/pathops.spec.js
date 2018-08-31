@@ -120,7 +120,7 @@ describe('PathKit\'s PathOps Behavior', function() {
     it('combines two paths with .op() and matches what we see from C++', function(done) {
         LoadPathKit.then(() => {
             // Test JSON created with:
-            // ./out/Clang/pathops_unittest -J ./experimental/pathkit/tests/PathOpsOp.json -m PathOpsOp$
+            // ./out/Clang/pathops_unittest -J ./modules/pathkit/tests/PathOpsOp.json -m PathOpsOp$
             fetch('/base/tests/PathOpsOp.json').then((r) => {
                 r.json().then((json)=>{
                     expect(json).toBeTruthy();
@@ -178,7 +178,7 @@ describe('PathKit\'s PathOps Behavior', function() {
     it('simplifies a path with .simplify() and matches what we see from C++', function(done) {
         LoadPathKit.then(() => {
             // Test JSON created with:
-            // ./out/Clang/pathops_unittest -J ./experimental/pathkit/tests/PathOpsSimplify.json -m PathOpsSimplify$
+            // ./out/Clang/pathops_unittest -J ./modules/pathkit/tests/PathOpsSimplify.json -m PathOpsSimplify$
             fetch('/base/tests/PathOpsSimplify.json').then((r) => {
                 r.json().then((json)=>{
                     expect(json).toBeTruthy();

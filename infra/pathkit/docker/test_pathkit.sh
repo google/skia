@@ -15,7 +15,7 @@ set -ex
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/pathkit/docker)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
-PATHKIT_DIR=$BASE_DIR/../../../experimental/pathkit
+PATHKIT_DIR=$BASE_DIR/../../../modules/pathkit
 
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
