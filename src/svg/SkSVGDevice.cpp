@@ -938,7 +938,7 @@ private:
         }
     }
 
-    const SkPoint&  fOrigin;
+    const SkPoint   fOrigin;
 
     SkString fText, fPosX, fPosY;
     bool     fLastCharWasWhitespace;
