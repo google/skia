@@ -738,10 +738,26 @@ void SkTypeface_FreeType::onFilterRec(SkScalerContextRec* rec) const {
 #endif
 }
 
+int SkTypeface_FreeType::GetUnitsPerEm(FT_Face face) {
+    if (!face) {
+        return 0;
+    }
+
+    SkScalar upem = SkIntToScalar(face->units_per_EM);
+    // At least some versions of FreeType set face->units_per_EM to 0 for bitmap only fonts.
+    if (upem == 0) {
+        TT_Header* ttHeader = (TT_Header*)FT_Get_Sfnt_Table(face, ft_sfnt_head);
+        if (ttHeader) {
+            upem = SkIntToScalar(ttHeader->Units_Per_EM);
+        }
+    }
+    return upem;
+}
+
 int SkTypeface_FreeType::onGetUPEM() const {
     AutoFTAccess fta(this);
     FT_Face face = fta.face();
-    return face ? face->units_per_EM : 0;
+    return GetUnitsPerEm(face);
 }
 
 bool SkTypeface_FreeType::onGetKerningPairAdjustments(const uint16_t glyphs[],
@@ -1380,14 +1396,7 @@ void SkScalerContext_FreeType::generateFontMetrics(SkPaint::FontMetrics* metrics
     FT_Face face = fFace;
     metrics->fFlags = 0;
 
-    // fetch units/EM from "head" table if needed (ie for bitmap fonts)
-    SkScalar upem = SkIntToScalar(face->units_per_EM);
-    if (!upem) {
-        TT_Header* ttHeader = (TT_Header*)FT_Get_Sfnt_Table(face, ft_sfnt_head);
-        if (ttHeader) {
-            upem = SkIntToScalar(ttHeader->Units_Per_EM);
-        }
-    }
+    SkScalar upem = SkIntToScalar(SkTypeface_FreeType::GetUnitsPerEm(face));
 
     // use the os/2 table as a source of reasonable defaults.
     SkScalar x_height = 0.0f;

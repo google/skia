@@ -85,6 +85,8 @@ public:
         mutable SkMutex fLibraryMutex;
     };
 
+    /** Fetch units/EM from "head" table if needed (ie for bitmap fonts) */
+    static int GetUnitsPerEm(FT_Face face);
 protected:
     SkTypeface_FreeType(const SkFontStyle& style, bool isFixedPitch)
         : INHERITED(style, isFixedPitch)
