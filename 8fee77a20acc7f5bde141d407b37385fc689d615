@@ -93,6 +93,30 @@
       "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "313e38f1_ca09b5dc",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-31T15:06:09Z",
+      "side": 1,
+      "message": "Ah, that makes a lot of sense.",
+      "parentUuid": "711c340a_abff84f9",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 214,
+        "endChar": 61
+      },
+      "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
