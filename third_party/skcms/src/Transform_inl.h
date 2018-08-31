@@ -31,14 +31,26 @@
                        F1 = 1.0f;
 #endif
 
+// Instead of checking __AVX__ below, we'll check USING_AVX.
+// This lets skcms.cc set USING_AVX to force us in even if the compiler's not set that way.
+// Same deal for __F16C__ and __AVX2__ ~~~> USING_AVX_F16C, USING_AVX2.
+
+#if !defined(USING_AVX)      && N == 8 && defined(__AVX__)
+    #define  USING_AVX
+#endif
+#if !defined(USING_AVX_F16C) && defined(USING_AVX) && defined(__F16C__)
+    #define  USING AVX_F16C
+#endif
+#if !defined(USING_AVX2)     && defined(USING_AVX) && defined(__AVX2__)
+    #define  USING_AVX2
+#endif
+
+// Similar to the AVX+ features, we define USING_NEON and USING_NEON_F16C.
+// This is more for organizational clarity... skcms.cc doesn't force these.
 #if N == 4 && defined(__ARM_NEON)
     #define USING_NEON
     #if __ARM_FP & 2
         #define USING_NEON_F16C
-    #endif
-#elif N == 8 && defined(__AVX__)
-    #if defined(__F16C__)
-        #define USING_AVX_F16C
     #endif
 #endif
 
@@ -191,7 +203,7 @@ SI ATTR F floor_(F x) {
     return vrndmq_f32(x);
 #elif defined(__AVX512F__)
     return _mm512_floor_ps(x);
-#elif defined(__AVX__)
+#elif defined(USING_AVX)
     return __builtin_ia32_roundps256(x, 0x01/*_MM_FROUND_FLOOR*/);
 #elif defined(__SSE4_1__)
     return _mm_floor_ps(x);
@@ -353,7 +365,7 @@ SI ATTR U16 gather_16(const uint8_t* p, I32 ix) {
     return v;
 }
 
-#if !defined(__AVX2__)
+#if !defined(USING_AVX2)
     // Helpers for gather_24/48(), loading the ix'th 24/48-bit value from p, and 1/2 extra bytes.
     SI ATTR uint32_t load_24_32(const uint8_t* p, int ix) {
         return load<uint32_t>(p + 3*ix);
@@ -373,7 +385,7 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
     U32 v = load_24_32(p,ix);
 #elif N == 4
     U32 v = { load_24_32(p,ix[0]), load_24_32(p,ix[1]), load_24_32(p,ix[2]), load_24_32(p,ix[3]) };
-#elif N == 8 && !defined(__AVX2__)
+#elif N == 8 && !defined(USING_AVX2)
     U32 v = { load_24_32(p,ix[0]), load_24_32(p,ix[1]), load_24_32(p,ix[2]), load_24_32(p,ix[3]),
               load_24_32(p,ix[4]), load_24_32(p,ix[5]), load_24_32(p,ix[6]), load_24_32(p,ix[7]) };
 #elif N == 8
@@ -409,7 +421,7 @@ SI ATTR U32 gather_24(const uint8_t* p, I32 ix) {
         *v = U64{
             load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
         };
-    #elif N == 8 && !defined(__AVX2__)
+    #elif N == 8 && !defined(USING_AVX2)
         *v = U64{
             load_48_64(p,ix[0]), load_48_64(p,ix[1]), load_48_64(p,ix[2]), load_48_64(p,ix[3]),
             load_48_64(p,ix[4]), load_48_64(p,ix[5]), load_48_64(p,ix[6]), load_48_64(p,ix[7]),
@@ -1126,15 +1138,19 @@ static void run_program(const Op* program, const void** arguments,
 }
 
 // Clean up any #defines we may have set so that we can be #included again.
+#if defined(USING_AVX)
+    #undef  USING_AVX
+#endif
+#if defined(USING_AVX_F16C)
+    #undef  USING_AVX_F16C
+#endif
+#if defined(USING_AVX2)
+    #undef  USING_AVX2
+#endif
 
 #if defined(USING_NEON)
     #undef  USING_NEON
 #endif
-
 #if defined(USING_NEON_F16C)
     #undef  USING_NEON_F16C
-#endif
-
-#if defined(USING_AVX_F16C)
-    #undef  USING_AVX_F16C
 #endif

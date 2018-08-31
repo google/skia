@@ -1893,39 +1893,15 @@ namespace baseline {
         using  U8 = Vec<N,uint8_t>;
 
         #define ATTR __attribute__((target("avx2,f16c")))
-
-        // We check these guards to see if we have support for these features.
-        // They're likely _not_ defined here in our baseline build config.
-        #ifndef __AVX__
-            #define __AVX__ 1
-            #define UNDEF_AVX
-        #endif
-        #ifndef __F16C__
-            #define __F16C__ 1
-            #define UNDEF_F16C
-        #endif
-        #ifndef __AVX2__
-            #define __AVX2__ 1
-            #define UNDEF_AVX2
-        #endif
+        #define USING_AVX
+        #define USING_AVX_F16C
+        #define USING_AVX2
 
         #include "src/Transform_inl.h"
 
         #undef N
         #undef ATTR
-
-        #ifdef UNDEF_AVX
-            #undef __AVX__
-            #undef UNDEF_AVX
-        #endif
-        #ifdef UNDEF_F16C
-            #undef __F16C__
-            #undef UNDEF_F16C
-        #endif
-        #ifdef UNDEF_AVX2
-            #undef __AVX2__
-            #undef UNDEF_AVX2
-        #endif
+        // src/Transform_inl.h will undefine USING_* for us.
     }
 
     #define TEST_FOR_HSW
