@@ -69,13 +69,19 @@ std::unique_ptr<GrFragmentProcessor> MakeGradient(
         return nullptr;
     }
 
-    // Convert all colors into destination space and into GrColor4fs
+    // Convert all colors into destination space and into GrColor4fs, and handle
+    // premul issues depending on the interpolation mode
+    bool inputPremul = shader.getGradFlags() & SkGradientShader::kInterpolateColorsInPremul_Flag;
     SkTArray<GrColor4f, true> colors;
     colors.reserve(shader.fColorCount);
     SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
         shader.fColorSpace.get(), args.fDstColorSpaceInfo->colorSpace());
     for (int i = 0; i < shader.fColorCount; i++) {
-        colors.push_back(GrColor4f::FromSkColor4f(xformedColors.fColors[i]));
+        GrColor4f c = GrColor4f::FromSkColor4f(xformedColors.fColors[i]);
+        if (inputPremul) {
+            c = c.premul();
+        }
+        colors.push_back(c);
     }
 
     // All gradients are colorized the same way, regardless of layout
@@ -116,7 +122,15 @@ std::unique_ptr<GrFragmentProcessor> MakeGradient(
         // Unexpected tile mode
         return nullptr;
     }
-    // FIXME: support premultipled and postmultipled alpha interpolation
+
+    if (!inputPremul) {
+        // When interpolating unpremul colors, the output of the gradient
+        // effect fp's will also be unpremul, so wrap it to ensure its premul.
+        // - this is unnecessary when interpolating premul colors since the
+        //   output color is premul by nature
+        master = GrFragmentProcessor::PremulOutput(std::move(master));
+    }
+
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(master));
 }
 
