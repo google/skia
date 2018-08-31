@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1bbc32f_4563c66f",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-31T15:13:03Z",
+      "side": 1,
+      "message": "// Delay resolving the fontmgr until it is actually needed.\nstruct LazyResolveFontMgr {\n    LazyResolveFontMgr(sk_sp\u003cSkFontMgr\u003e fontMgr) : fFontMgr(std::move(fontMgr)) {}\n    const sk_sp\u003cSkFontMgr\u003e\u0026 get() {\n        if (!fFontMgr) {\n            fFontMgr \u003d SkFontMgr::RefDefault();\n            SkASSERT(fFontMgr);\n        }\n\n        return fFontMgr;\n    }\nprivate:\n    sk_sp\u003cSkFontMgr\u003e fFontMgr;\n};",
+      "range": {
+        "startLine": 104,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 42
+      },
+      "revId": "f4b3cef2094c342e35cf17098207260da83776d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4fb97d67_a5707cd1",
+        "filename": "modules/skottie/src/SkottiePriv.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-31T15:13:03Z",
+      "side": 1,
+      "message": "LazyResolveFontMgr fResolvedFontMgr;",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 107,
+        "endChar": 40
+      },
+      "revId": "f4b3cef2094c342e35cf17098207260da83776d2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
