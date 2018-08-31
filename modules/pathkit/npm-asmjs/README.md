@@ -1,10 +1,10 @@
 An asm.js version of Skia's PathOps toolkit.
 
-To use the library, run `npm install experimental-pathkit-asmjs` and then simply include it:
+To use the library, run `npm install pathkit-asmjs` and then simply include it:
 
-    <script src="/node_modules/experimental-pathkit-asmjs/bin/pathkit.js"></script>
+    <script src="/node_modules/pathkit-asmjs/bin/pathkit.js"></script>
     PathKitInit({
-        locateFile: (file) => '/node_modules/experimental-pathkit-asmjs/bin/'+file,
+        locateFile: (file) => '/node_modules/pathkit-asmjs/bin/'+file,
     }).then((PathKit) => {
         // Code goes here using PathKit
     });
@@ -28,7 +28,7 @@ used with just a few configuration changes.
 
 In the JS code, use require():
 
-    const PathKitInit = require('experimental-pathkit-asmjs/bin/pathkit.js')
+    const PathKitInit = require('pathkit-asmjs/bin/pathkit.js')
     PathKitInit().then((PathKit) => {
         // Code goes here using PathKit
     })
@@ -40,13 +40,13 @@ For example, add the following plugin:
 
     config.plugins.push(
         new CopyWebpackPlugin([
-            { from: 'node_modules/experimental-pathkit-asmjs/bin/pathkit.js.mem' }
+            { from: 'node_modules/pathkit-asmjs/bin/pathkit.js.mem' }
         ])
     );
 
 If webpack gives an error similar to:
 
-    ERROR in ./node_modules/experimental-pathkit-asmjs/bin/pathkit.js
+    ERROR in ./node_modules/pathkit-asmjs/bin/pathkit.js
     Module not found: Error: Can't resolve 'fs' in '...'
 
 Then, add the following configuration change to the node section of the config:
