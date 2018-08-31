@@ -9,6 +9,7 @@
 #define GrCCPathParser_DEFINED
 
 #include "GrMesh.h"
+#include "SkPath.h"
 #include "SkPathPriv.h"
 #include "SkRect.h"
 #include "SkRefCnt.h"
@@ -27,7 +28,16 @@ class SkPath;
  */
 class GrCCFiller {
 public:
-    GrCCFiller(int numPaths, int numSkPoints, int numSkVerbs, int numConicWeights);
+    struct PathStats {
+        int fMaxPointsPerPath = 0;
+        int fNumTotalSkPoints = 0;
+        int fNumTotalSkVerbs = 0;
+        int fNumTotalConicWeights = 0;
+
+        void statPath(const SkPath&);
+    };
+
+    GrCCFiller(int numPaths, const PathStats&);
 
     // Parses a device-space SkPath into the current batch, using the SkPath's original verbs and
     // 'deviceSpacePts'. Accepts an optional post-device-space translate for placement in an atlas.
@@ -111,5 +121,12 @@ private:
     mutable SkSTArray<32, GrMesh> fMeshesScratchBuffer;
     mutable SkSTArray<32, SkIRect> fScissorRectScratchBuffer;
 };
+
+inline void GrCCFiller::PathStats::statPath(const SkPath& path) {
+    fMaxPointsPerPath = SkTMax(fMaxPointsPerPath, path.countPoints());
+    fNumTotalSkPoints += path.countPoints();
+    fNumTotalSkVerbs += path.countVerbs();
+    fNumTotalConicWeights += SkPathPriv::ConicWeightCnt(path);
+}
 
 #endif

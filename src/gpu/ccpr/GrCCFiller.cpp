@@ -20,8 +20,9 @@
 using TriPointInstance = GrCCCoverageProcessor::TriPointInstance;
 using QuadPointInstance = GrCCCoverageProcessor::QuadPointInstance;
 
-GrCCFiller::GrCCFiller(int numPaths, int numSkPoints, int numSkVerbs, int numConicWeights)
-        : fGeometry(numSkPoints, numSkVerbs, numConicWeights)
+GrCCFiller::GrCCFiller(int numPaths, const PathStats& pathStats)
+        : fGeometry(pathStats.fNumTotalSkPoints, pathStats.fNumTotalSkVerbs,
+                    pathStats.fNumTotalConicWeights)
         , fPathInfos(numPaths)
         , fScissorSubBatches(numPaths)
         , fTotalPrimitiveCounts{PrimitiveTallies(), PrimitiveTallies()} {
