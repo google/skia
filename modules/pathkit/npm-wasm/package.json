@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "A WASM version of Skia's PathOps toolkit",
   "main": "bin/pathkit.js",
-  "homepage": "https://github.com/google/skia/tree/master/experimental/pathkit",
+  "homepage": "https://github.com/google/skia/tree/master/modules/pathkit",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
