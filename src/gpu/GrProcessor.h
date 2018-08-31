@@ -72,6 +72,7 @@ public:
         kComposeOneFragmentProcessor_ClassID,
         kComposeTwoFragmentProcessor_ClassID,
         kCoverageSetOpXP_ClassID,
+        kCubicStrokeProcessor_ClassID,
         kCustomXP_ClassID,
         kDashingCircleEffect_ClassID,
         kDashingLineEffect_ClassID,
@@ -154,6 +155,7 @@ public:
         kFlatNormalsFP_ClassID,
         kMappedNormalsFP_ClassID,
         kLightingFP_ClassID,
+        kLinearStrokeProcessor_ClassID,
     };
 
     virtual ~GrProcessor() = default;

@@ -55,13 +55,14 @@ private:
 
 class CCPRPathDrawer {
 public:
-    CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter)
+    CCPRPathDrawer(GrContext* ctx, skiatest::Reporter* reporter, bool doStroke)
             : fCtx(ctx)
             , fCCPR(fCtx->contextPriv().drawingManager()->getCoverageCountingPathRenderer())
             , fRTC(fCtx->contextPriv().makeDeferredRenderTargetContext(
                                                          SkBackingFit::kExact, kCanvasSize,
                                                          kCanvasSize, kRGBA_8888_GrPixelConfig,
-                                                         nullptr)) {
+                                                         nullptr))
+            , fDoStroke(doStroke) {
         if (!fCCPR) {
             ERRORF(reporter, "ccpr not enabled in GrContext for ccpr tests");
         }
@@ -86,7 +87,17 @@ public:
         GrNoClip noClip;
         SkIRect clipBounds = SkIRect::MakeWH(kCanvasSize, kCanvasSize);
 
-        GrShape shape(path);
+        GrShape shape;
+        if (!fDoStroke) {
+            shape = GrShape(path);
+        } else {
+            // Use hairlines for now, since they are the only stroke type that doesn't require a
+            // rigid-body transform. The CCPR stroke code makes no distinction between hairlines
+            // and regular strokes other than how it decides the device-space stroke width.
+            SkStrokeRec stroke(SkStrokeRec::kHairline_InitStyle);
+            stroke.setStrokeParams(SkPaint::kRound_Cap, SkPaint::kMiter_Join, 4);
+            shape = GrShape(path, GrStyle(stroke, nullptr));
+        }
 
         fCCPR->testingOnly_drawPathDirectly({
                 fCtx, std::move(paint), &GrUserStencilSettings::kUnused, fRTC.get(), &noClip,
@@ -112,11 +123,12 @@ private:
     GrContext* fCtx;
     GrCoverageCountingPathRenderer* fCCPR;
     sk_sp<GrRenderTargetContext> fRTC;
+    const bool fDoStroke;
 };
 
 class CCPRTest {
 public:
-    void run(skiatest::Reporter* reporter) {
+    void run(skiatest::Reporter* reporter, bool doStroke) {
         GrMockOptions mockOptions;
         mockOptions.fInstanceAttribSupport = true;
         mockOptions.fMapBufferFlags = GrCaps::kCanMap_MapFlag;
@@ -146,7 +158,7 @@ public:
             return;
         }
 
-        CCPRPathDrawer ccpr(fMockContext.get(), reporter);
+        CCPRPathDrawer ccpr(fMockContext.get(), reporter, doStroke);
         if (!ccpr.valid()) {
             return;
         }
@@ -166,10 +178,11 @@ protected:
     SkPath fPath;
 };
 
-#define DEF_CCPR_TEST(name)                      \
+#define DEF_CCPR_TEST(name) \
     DEF_GPUTEST(name, reporter, /* options */) { \
-        name test;                               \
-        test.run(reporter);                      \
+        name test; \
+        test.run(reporter, false); \
+        test.run(reporter, true); \
     }
 
 class GrCCPRTest_cleanup : public CCPRTest {
@@ -382,11 +395,11 @@ DEF_CCPR_TEST(GrCCPRTest_cache)
 
 class CCPRRenderingTest {
 public:
-    void run(skiatest::Reporter* reporter, GrContext* ctx) const {
+    void run(skiatest::Reporter* reporter, GrContext* ctx, bool doStroke) const {
         if (!ctx->contextPriv().drawingManager()->getCoverageCountingPathRenderer()) {
             return; // CCPR is not enabled on this GPU.
         }
-        CCPRPathDrawer ccpr(ctx, reporter);
+        CCPRPathDrawer ccpr(ctx, reporter, doStroke);
         if (!ccpr.valid()) {
             return;
         }
@@ -402,7 +415,8 @@ protected:
 #define DEF_CCPR_RENDERING_TEST(name) \
     DEF_GPUTEST_FOR_RENDERING_CONTEXTS(name, reporter, ctxInfo) { \
         name test; \
-        test.run(reporter, ctxInfo.grContext()); \
+        test.run(reporter, ctxInfo.grContext(), false); \
+        test.run(reporter, ctxInfo.grContext(), true); \
     }
 
 class GrCCPRTest_busyPath : public CCPRRenderingTest {

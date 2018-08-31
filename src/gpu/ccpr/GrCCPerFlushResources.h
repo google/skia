@@ -11,29 +11,47 @@
 #include "GrNonAtomicRef.h"
 #include "ccpr/GrCCAtlas.h"
 #include "ccpr/GrCCFiller.h"
+#include "ccpr/GrCCStroker.h"
 #include "ccpr/GrCCPathProcessor.h"
 
 class GrCCPathCacheEntry;
 class GrOnFlushResourceProvider;
+class GrShape;
+
+/**
+ * This struct counts values that help us preallocate buffers for rendered path geometry.
+ */
+struct GrCCRenderedPathStats {
+    int fMaxPointsPerPath = 0;
+    int fNumTotalSkPoints = 0;
+    int fNumTotalSkVerbs = 0;
+    int fNumTotalConicWeights = 0;
+
+    void statPath(const SkPath&);
+};
 
 /**
  * This struct encapsulates the minimum and desired requirements for the GPU resources required by
  * CCPR in a given flush.
  */
 struct GrCCPerFlushResourceSpecs {
+    static constexpr int kFillIdx = 0;
+    static constexpr int kStrokeIdx = 1;
+
     int fNumCachedPaths = 0;
 
-    int fNumCopiedPaths = 0;
-    GrCCFiller::PathStats fCopyPathStats;
+    int fNumCopiedPaths[2] = {0, 0};
+    GrCCRenderedPathStats fCopyPathStats[2];
     GrCCAtlas::Specs fCopyAtlasSpecs;
 
-    int fNumRenderedPaths = 0;
+    int fNumRenderedPaths[2] = {0, 0};
     int fNumClipPaths = 0;
-    GrCCFiller::PathStats fRenderedPathStats;
+    GrCCRenderedPathStats fRenderedPathStats[2];
     GrCCAtlas::Specs fRenderedAtlasSpecs;
 
     bool isEmpty() const {
-        return 0 == fNumCachedPaths + fNumCopiedPaths + fNumRenderedPaths + fNumClipPaths;
+        return 0 == fNumCachedPaths + fNumCopiedPaths[kFillIdx] + fNumCopiedPaths[kStrokeIdx] +
+                    fNumRenderedPaths[kFillIdx] + fNumRenderedPaths[kStrokeIdx] + fNumClipPaths;
     }
     void convertCopiesToRenders();
 };
@@ -55,12 +73,16 @@ public:
     GrCCAtlas* copyPathToCachedAtlas(const GrCCPathCacheEntry&, GrCCPathProcessor::DoEvenOddFill,
                                      SkIVector* newAtlasOffset);
 
-    // These two methods render a path into a temporary coverage count atlas. See GrCCPathParser for
-    // a description of the arguments. The returned atlases are "const" to prevent the caller from
-    // assigning a unique key.
-    const GrCCAtlas* renderPathInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const SkPath&,
-                                       SkRect* devBounds, SkRect* devBounds45, SkIRect* devIBounds,
-                                       SkIVector* devToAtlasOffset);
+    // These two methods render a path into a temporary coverage count atlas. See
+    // GrCCPathProcessor::Instance for a description of the outputs. The returned atlases are
+    // "const" to prevent the caller from assigning a unique key.
+    //
+    // strokeDevWidth must be 0 for fills, 1 for hairlines, or the stroke width in device-space
+    // pixels for non-hairline strokes (implicitly requiring a rigid-body transform).
+    const GrCCAtlas* renderShapeInAtlas(const SkIRect& clipIBounds, const SkMatrix&, const GrShape&,
+                                        float strokeDevWidth, SkRect* devBounds,
+                                        SkRect* devBounds45, SkIRect* devIBounds,
+                                        SkIVector* devToAtlasOffset);
     const GrCCAtlas* renderDeviceSpacePathInAtlas(const SkIRect& clipIBounds, const SkPath& devPath,
                                                   const SkIRect& devPathIBounds,
                                                   SkIVector* devToAtlasOffset);
@@ -86,6 +108,7 @@ public:
 
     // Accessors used by draw calls, once the resources have been finalized.
     const GrCCFiller& filler() const { SkASSERT(!this->isMapped()); return fFiller; }
+    const GrCCStroker& stroker() const { SkASSERT(!this->isMapped()); return fStroker; }
     const GrBuffer* indexBuffer() const { SkASSERT(!this->isMapped()); return fIndexBuffer.get(); }
     const GrBuffer* vertexBuffer() const { SkASSERT(!this->isMapped()); return fVertexBuffer.get();}
     GrBuffer* instanceBuffer() const { SkASSERT(!this->isMapped()); return fInstanceBuffer.get(); }
@@ -113,6 +136,7 @@ private:
 
     const SkAutoSTArray<32, SkPoint> fLocalDevPtsBuffer;
     GrCCFiller fFiller;
+    GrCCStroker fStroker;
     GrCCAtlasStack fCopyAtlasStack;
     GrCCAtlasStack fRenderedAtlasStack;
 
@@ -126,5 +150,12 @@ private:
     int fNextPathInstanceIdx;
     SkDEBUGCODE(int fEndPathInstance);
 };
+
+inline void GrCCRenderedPathStats::statPath(const SkPath& path) {
+    fMaxPointsPerPath = SkTMax(fMaxPointsPerPath, path.countPoints());
+    fNumTotalSkPoints += path.countPoints();
+    fNumTotalSkVerbs += path.countVerbs();
+    fNumTotalConicWeights += SkPathPriv::ConicWeightCnt(path);
+}
 
 #endif

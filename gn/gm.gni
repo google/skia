@@ -332,6 +332,7 @@ gm_sources = [
   "$_gm/tinybitmap.cpp",
   "$_gm/tonalshadows.cpp",
   "$_gm/transparency.cpp",
+  "$_gm/trickycubicstrokes.cpp",
   "$_gm/typeface.cpp",
   "$_gm/variedtext.cpp",
   "$_gm/vertices.cpp",
