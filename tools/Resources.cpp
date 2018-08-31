@@ -56,9 +56,5 @@ sk_sp<SkData> GetResourceAsData(const char* resource) {
 }
 
 sk_sp<SkTypeface> MakeResourceAsTypeface(const char* resource) {
-    std::unique_ptr<SkStreamAsset> stream(GetResourceAsStream(resource));
-    if (!stream) {
-        return nullptr;
-    }
-    return SkTypeface::MakeFromStream(stream.release());
+    return SkTypeface::MakeFromStream(GetResourceAsStream(resource));
 }
