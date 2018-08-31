@@ -253,7 +253,7 @@ void GrPathUtils::QuadUVMatrix::set(const SkPoint qPts[3]) {
             // when looking from the point 0 down the line we want positive
             // distances to be to the left. This matches the non-degenerate
             // case.
-            SkPointPriv::SetOrthog(&lineVec, lineVec, SkPointPriv::kLeft_Side);
+            lineVec = SkPointPriv::MakeOrthog(lineVec, SkPointPriv::kLeft_Side);
             // first row
             fM[0] = 0;
             fM[1] = 0;
@@ -498,9 +498,9 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
         if (constrainWithinTangents &&
             !is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
             // choose a new cAvg that is the intersection of the two tangent lines.
-            SkPointPriv::SetOrthog(&ab, ab);
+            ab = SkPointPriv::MakeOrthog(ab);
             SkScalar z0 = -ab.dot(p[0]);
-            SkPointPriv::SetOrthog(&dc, dc);
+            dc = SkPointPriv::MakeOrthog(dc);
             SkScalar z1 = -dc.dot(p[3]);
             cAvg.fX = ab.fY * z1 - z0 * dc.fY;
             cAvg.fY = z0 * dc.fX - ab.fX * z1;

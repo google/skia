@@ -554,15 +554,13 @@ static void bloat_quad(const SkPoint qpts[3], const SkMatrix* toDevice,
     SkASSERT(ab.length() > 0 && cb.length() > 0);
 
     ab.normalize();
-    SkVector abN;
-    SkPointPriv::SetOrthog(&abN, ab, SkPointPriv::kLeft_Side);
+    SkVector abN = SkPointPriv::MakeOrthog(ab, SkPointPriv::kLeft_Side);
     if (abN.dot(ac) > 0) {
         abN.negate();
     }
 
     cb.normalize();
-    SkVector cbN;
-    SkPointPriv::SetOrthog(&cbN, cb, SkPointPriv::kLeft_Side);
+    SkVector cbN = SkPointPriv::MakeOrthog(cb, SkPointPriv::kLeft_Side);
     if (cbN.dot(ac) < 0) {
         cbN.negate();
     }

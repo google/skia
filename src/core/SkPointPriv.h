@@ -97,17 +97,9 @@ public:
 
     static bool SetLengthFast(SkPoint* pt, float length);
 
-    static void SetOrthog(SkPoint* pt, const SkPoint& vec, Side side = kLeft_Side) {
-        // vec could be this
-        SkScalar tmp = vec.fX;
-        if (kRight_Side == side) {
-            pt->fX = -vec.fY;
-            pt->fY = tmp;
-        } else {
-            SkASSERT(kLeft_Side == side);
-            pt->fX = vec.fY;
-            pt->fY = -tmp;
-        }
+    static SkPoint MakeOrthog(const SkPoint& vec, Side side = kLeft_Side) {
+        SkASSERT(side == kRight_Side || side == kLeft_Side);
+        return (side == kRight_Side) ? SkPoint{-vec.fY, vec.fX} : SkPoint{vec.fY, -vec.fX};
     }
 
     // counter-clockwise fan
