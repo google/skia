@@ -1494,8 +1494,10 @@ bool SkPaint::nothingToDraw() const {
 }
 
 uint32_t SkPaint::getHash() const {
-    // SkPaint has no padding bytes, which lets us hash the struct directly.
-    static_assert(sizeof(SkPaint) == 7*sizeof(void*) + 8*sizeof(uint32_t),
-            "Please update, and make sure SkPaint still has no padding bytes.");
-    return SkOpts::hash(reinterpret_cast<const uint32_t*>(this), sizeof(SkPaint));
+    // We're going to hash 7 pointers and 7 32-bit values, finishing up with fBitfields,
+    // so fBitfields should be 7 pointers and 6 32-bit values from the start.
+    static_assert(offsetof(SkPaint, fBitfields) == 7 * sizeof(void*) + 7 * sizeof(uint32_t),
+                  "SkPaint_notPackedTightly");
+    return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
+                        offsetof(SkPaint, fBitfields) + sizeof(fBitfields));
 }
