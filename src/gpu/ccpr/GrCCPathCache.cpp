@@ -45,27 +45,47 @@ namespace {
 // Produces a key that accounts both for a shape's path geometry, as well as any stroke/style.
 class WriteStyledKey {
 public:
-    WriteStyledKey(const GrShape& shape)
-        : fShapeUnstyledKeyCount(shape.unstyledKeySize())
-        , fStyleKeyCount(
-                GrStyle::KeySize(shape.style(), GrStyle::Apply::kPathEffectAndStrokeRec)) {}
+    static constexpr int kStyledKeySizeInBytesIdx = 0;
+    static constexpr int kStrokeWidthIdx = 1;
+    static constexpr int kStrokeMiterIdx = 2;
+    static constexpr int kStrokeCapJoinIdx = 3;
+    static constexpr int kShapeUnstyledKeyIdx = 4;
+
+    static constexpr int kStrokeKeyCount = 3;  // [width, miterLimit, cap|join].
+
+    WriteStyledKey(const GrShape& shape) : fShapeUnstyledKeyCount(shape.unstyledKeySize()) {}
 
     // Returns the total number of uint32_t's to allocate for the key.
-    int allocCountU32() const { return 2 + fShapeUnstyledKeyCount + fStyleKeyCount; }
+    int allocCountU32() const { return kShapeUnstyledKeyIdx + fShapeUnstyledKeyCount; }
 
     // Writes the key to out[].
     void write(const GrShape& shape, uint32_t* out) {
-        // How many bytes remain in the key, beginning on out[1]?
-        out[0] = (1 + fShapeUnstyledKeyCount + fStyleKeyCount)  * sizeof(uint32_t);
-        out[1] = fStyleKeyCount;
-        shape.writeUnstyledKey(&out[2]);
-        GrStyle::WriteKey(&out[2 + fShapeUnstyledKeyCount], shape.style(),
-                          GrStyle::Apply::kPathEffectAndStrokeRec, 1);
+        out[kStyledKeySizeInBytesIdx] =
+                (kStrokeKeyCount + fShapeUnstyledKeyCount) * sizeof(uint32_t);
+
+        // Stroke key.
+        // We don't use GrStyle::WriteKey() because it does not account for hairlines.
+        // http://skbug.com/8273
+        SkASSERT(!shape.style().hasPathEffect());
+        const SkStrokeRec& stroke = shape.style().strokeRec();
+        if (stroke.isFillStyle()) {
+            // Use a value for width that won't collide with a valid fp32 value >= 0.
+            out[kStrokeWidthIdx] = ~0;
+            out[kStrokeMiterIdx] = out[kStrokeCapJoinIdx] = 0;
+        } else {
+            float width = stroke.getWidth(), miterLimit = stroke.getMiter();
+            memcpy(&out[kStrokeWidthIdx], &width, sizeof(float));
+            memcpy(&out[kStrokeMiterIdx], &miterLimit, sizeof(float));
+            out[kStrokeCapJoinIdx] = (stroke.getCap() << 16) | stroke.getJoin();
+            GR_STATIC_ASSERT(sizeof(out[kStrokeWidthIdx]) == sizeof(float));
+        }
+
+        // Shape unstyled key.
+        shape.writeUnstyledKey(&out[kShapeUnstyledKeyIdx]);
     }
 
 private:
     int fShapeUnstyledKeyCount;
-    int fStyleKeyCount;
 };
 
 }

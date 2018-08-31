@@ -324,6 +324,10 @@ skia_gpu_sources = [
   "$_src/gpu/ccpr/GrCCPerFlushResources.h",
   "$_src/gpu/ccpr/GrCCQuadraticShader.cpp",
   "$_src/gpu/ccpr/GrCCQuadraticShader.h",
+  "$_src/gpu/ccpr/GrCCStrokeGeometry.cpp",
+  "$_src/gpu/ccpr/GrCCStrokeGeometry.h",
+  "$_src/gpu/ccpr/GrCCStroker.cpp",
+  "$_src/gpu/ccpr/GrCCStroker.h",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
   "$_src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
 

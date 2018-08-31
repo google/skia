@@ -28,25 +28,82 @@ static int64_t area(const SkIRect& r) {
     return sk_64_mul(r.height(), r.width());
 }
 
-std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext* context,
-                                                       const SkIRect& clipIBounds,
-                                                       const SkMatrix& m,
-                                                       const GrShape& shape,
-                                                       const SkRect& devBounds,
-                                                       GrPaint&& paint) {
-    SkIRect shapeDevIBounds;
-    devBounds.roundOut(&shapeDevIBounds);  // GrCCPathParser might find slightly tighter bounds.
+std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
+        GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
+        GrPaint&& paint) {
+    static constexpr int kPathCropThreshold = GrCoverageCountingPathRenderer::kPathCropThreshold;
+
+    SkRect conservativeDevBounds;
+    m.mapRect(&conservativeDevBounds, shape.bounds());
+
+    const SkStrokeRec& stroke = shape.style().strokeRec();
+    float strokeDevWidth = 0;
+    float conservativeInflationRadius = 0;
+    if (!stroke.isFillStyle()) {
+        if (stroke.isHairlineStyle()) {
+            strokeDevWidth = 1;
+        } else {
+            SkASSERT(m.isSimilarity());  // Otherwise matrixScaleFactor = m.getMaxScale().
+            float matrixScaleFactor = SkVector::Length(m.getScaleX(), m.getSkewY());
+            strokeDevWidth = stroke.getWidth() * matrixScaleFactor;
+        }
+        // Inflate for a minimum stroke width of 1. In some cases when the stroke is less than 1px
+        // wide, we may inflate it to 1px and instead reduce the opacity.
+        conservativeInflationRadius = SkStrokeRec::GetInflationRadius(
+                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), SkTMax(strokeDevWidth, 1.f));
+        conservativeDevBounds.outset(conservativeInflationRadius, conservativeInflationRadius);
+    }
+
+    std::unique_ptr<GrCCDrawPathsOp> op;
+    float conservativeSize = SkTMax(conservativeDevBounds.height(), conservativeDevBounds.width());
+    if (conservativeSize > kPathCropThreshold) {
+        // The path is too large. Crop it or analytic AA can run out of fp32 precision.
+        SkPath croppedDevPath;
+        shape.asPath(&croppedDevPath);
+        croppedDevPath.transform(m, &croppedDevPath);
+
+        SkIRect cropBox = clipIBounds;
+        GrShape croppedDevShape;
+        if (stroke.isFillStyle()) {
+            GrCoverageCountingPathRenderer::CropPath(croppedDevPath, cropBox, &croppedDevPath);
+            croppedDevShape = GrShape(croppedDevPath);
+            conservativeDevBounds = croppedDevShape.bounds();
+        } else {
+            int r = SkScalarCeilToInt(conservativeInflationRadius);
+            cropBox.outset(r, r);
+            GrCoverageCountingPathRenderer::CropPath(croppedDevPath, cropBox, &croppedDevPath);
+            SkStrokeRec devStroke = stroke;
+            devStroke.setStrokeStyle(strokeDevWidth);
+            croppedDevShape = GrShape(croppedDevPath, GrStyle(devStroke, nullptr));
+            conservativeDevBounds = croppedDevPath.getBounds();
+            conservativeDevBounds.outset(conservativeInflationRadius, conservativeInflationRadius);
+        }
+
+        // FIXME: This breaks local coords: http://skbug.com/8003
+        return InternalMake(context, clipIBounds, SkMatrix::I(), croppedDevShape, strokeDevWidth,
+                            conservativeDevBounds, std::move(paint));
+    }
+
+    return InternalMake(context, clipIBounds, m, shape, strokeDevWidth, conservativeDevBounds,
+                        std::move(paint));
+}
+
+std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
+        GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
+        float strokeDevWidth, const SkRect& conservativeDevBounds, GrPaint&& paint) {
+    SkIRect shapeConservativeIBounds;
+    conservativeDevBounds.roundOut(&shapeConservativeIBounds);
 
     SkIRect maskDevIBounds;
     Visibility maskVisibility;
-    if (clipIBounds.contains(shapeDevIBounds)) {
-        maskDevIBounds = shapeDevIBounds;
+    if (clipIBounds.contains(shapeConservativeIBounds)) {
+        maskDevIBounds = shapeConservativeIBounds;
         maskVisibility = Visibility::kComplete;
     } else {
-        if (!maskDevIBounds.intersect(clipIBounds, shapeDevIBounds)) {
+        if (!maskDevIBounds.intersect(clipIBounds, shapeConservativeIBounds)) {
             return nullptr;
         }
-        int64_t unclippedArea = area(shapeDevIBounds);
+        int64_t unclippedArea = area(shapeConservativeIBounds);
         int64_t clippedArea = area(maskDevIBounds);
         maskVisibility = (clippedArea >= unclippedArea/2 || unclippedArea < 100*100)
                 ? Visibility::kMostlyComplete  // i.e., visible enough to justify rendering the
@@ -56,22 +113,24 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(GrContext* context,
 
     GrOpMemoryPool* pool = context->contextPriv().opMemoryPool();
 
-    return pool->allocate<GrCCDrawPathsOp>(m, shape, shapeDevIBounds, maskDevIBounds,
-                                           maskVisibility, devBounds, std::move(paint));
+    return pool->allocate<GrCCDrawPathsOp>(m, shape, strokeDevWidth, shapeConservativeIBounds,
+                                           maskDevIBounds, maskVisibility, conservativeDevBounds,
+                                           std::move(paint));
 }
 
-GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape,
-                                 const SkIRect& shapeDevIBounds, const SkIRect& maskDevIBounds,
-                                 Visibility maskVisibility, const SkRect& devBounds,
-                                 GrPaint&& paint)
+GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float strokeDevWidth,
+                                 const SkIRect& shapeConservativeIBounds,
+                                 const SkIRect& maskDevIBounds, Visibility maskVisibility,
+                                 const SkRect& conservativeDevBounds, GrPaint&& paint)
         : GrDrawOp(ClassID())
         , fViewMatrixIfUsingLocalCoords(has_coord_transforms(paint) ? m : SkMatrix::I())
-        , fDraws(m, shape, shapeDevIBounds, maskDevIBounds, maskVisibility, paint.getColor())
+        , fDraws(m, shape, strokeDevWidth, shapeConservativeIBounds, maskDevIBounds, maskVisibility,
+                 paint.getColor())
         , fProcessors(std::move(paint)) {  // Paint must be moved after fetching its color above.
     SkDEBUGCODE(fBaseInstance = -1);
     // FIXME: intersect with clip bounds to (hopefully) improve batching.
     // (This is nontrivial due to assumptions in generating the octagon cover geometry.)
-    this->setBounds(devBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
+    this->setBounds(conservativeDevBounds, GrOp::HasAABloat::kYes, GrOp::IsZeroArea::kNo);
 }
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
@@ -82,12 +141,14 @@ GrCCDrawPathsOp::~GrCCDrawPathsOp() {
 }
 
 GrCCDrawPathsOp::SingleDraw::SingleDraw(const SkMatrix& m, const GrShape& shape,
-                                        const SkIRect& shapeDevIBounds,
+                                        float strokeDevWidth,
+                                        const SkIRect& shapeConservativeIBounds,
                                         const SkIRect& maskDevIBounds, Visibility maskVisibility,
                                         GrColor color)
         : fMatrix(m)
         , fShape(shape)
-        , fShapeDevIBounds(shapeDevIBounds)
+        , fStrokeDevWidth(strokeDevWidth)
+        , fShapeConservativeIBounds(shapeConservativeIBounds)
         , fMaskDevIBounds(maskDevIBounds)
         , fMaskVisibility(maskVisibility)
         , fColor(color) {
@@ -111,9 +172,39 @@ GrCCDrawPathsOp::SingleDraw::~SingleDraw() {
 GrDrawOp::RequiresDstTexture GrCCDrawPathsOp::finalize(const GrCaps& caps,
                                                        const GrAppliedClip* clip) {
     SkASSERT(1 == fNumDraws);  // There should only be one single path draw in this Op right now.
-    GrProcessorSet::Analysis analysis =
-            fProcessors.finalize(fDraws.head().fColor, GrProcessorAnalysisCoverage::kSingleChannel,
-                                 clip, false, caps, &fDraws.head().fColor);
+    SingleDraw* draw = &fDraws.head();
+
+    const GrProcessorSet::Analysis& analysis = fProcessors.finalize(
+            draw->fColor, GrProcessorAnalysisCoverage::kSingleChannel, clip, false, caps,
+            &draw->fColor);
+
+    // Lines start looking jagged when they get thinner than 1px. For thin strokes it looks better
+    // if we can convert them to hairline (i.e., inflate the stroke width to 1px), and instead
+    // reduce the opacity to create the illusion of thin-ness. This strategy also helps reduce
+    // artifacts from coverage dilation when there are self intersections.
+    if (analysis.isCompatibleWithCoverageAsAlpha() &&
+            !draw->fShape.style().strokeRec().isFillStyle() && draw->fStrokeDevWidth < 1) {
+        // Modifying the shape affects its cache key. The draw can't have a cache entry yet or else
+        // our next step would invalidate it.
+        SkASSERT(!draw->fCacheEntry);
+        SkASSERT(SkStrokeRec::kStroke_Style == draw->fShape.style().strokeRec().getStyle());
+
+        SkPath path;
+        draw->fShape.asPath(&path);
+
+        // Create a hairline version of our stroke.
+        SkStrokeRec hairlineStroke = draw->fShape.style().strokeRec();
+        hairlineStroke.setStrokeStyle(0);
+
+        // How transparent does a 1px stroke have to be in order to appear as thin as the real one?
+        GrColor coverageAsAlpha = GrColorPackA4(SkScalarFloorToInt(draw->fStrokeDevWidth * 255));
+
+        draw->fShape = GrShape(path, GrStyle(hairlineStroke, nullptr));
+        draw->fStrokeDevWidth = 1;
+        // fShapeConservativeIBounds already accounted for this possibility of inflating the stroke.
+        draw->fColor = GrColorMul(draw->fColor, coverageAsAlpha);
+    }
+
     return RequiresDstTexture(analysis.requiresDstTexture());
 }
 
@@ -180,8 +271,11 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
                 // can copy it into a new 8-bit atlas and keep it in the resource cache.
                 if (stashedAtlasKey.isValid() && stashedAtlasKey == cacheEntry->atlasKey()) {
                     SkASSERT(!cacheEntry->hasCachedAtlas());
-                    ++specs->fNumCopiedPaths;
-                    specs->fCopyPathStats.statPath(path);
+                    int idx = (draw.fShape.style().strokeRec().isFillStyle())
+                            ? GrCCPerFlushResourceSpecs::kFillIdx
+                            : GrCCPerFlushResourceSpecs::kStrokeIdx;
+                    ++specs->fNumCopiedPaths[idx];
+                    specs->fCopyPathStats[idx].statPath(path);
                     specs->fCopyAtlasSpecs.accountForSpace(cacheEntry->width(),
                                                            cacheEntry->height());
                     continue;
@@ -191,18 +285,23 @@ void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,
                 cacheEntry->resetAtlasKeyAndInfo();
             }
 
-            if (Visibility::kMostlyComplete == draw.fMaskVisibility && cacheEntry->hitCount() > 1 &&
-                SkTMax(draw.fShapeDevIBounds.height(),
-                       draw.fShapeDevIBounds.width()) <= onFlushRP->caps()->maxRenderTargetSize()) {
-                // We've seen this path before with a compatible matrix, and it's mostly visible.
-                // Just render the whole mask so we can try to cache it.
-                draw.fMaskDevIBounds = draw.fShapeDevIBounds;
-                draw.fMaskVisibility = Visibility::kComplete;
+            if (Visibility::kMostlyComplete == draw.fMaskVisibility && cacheEntry->hitCount() > 1) {
+                int shapeSize = SkTMax(draw.fShapeConservativeIBounds.height(),
+                                       draw.fShapeConservativeIBounds.width());
+                if (shapeSize <= onFlushRP->caps()->maxRenderTargetSize()) {
+                    // We've seen this path before with a compatible matrix, and it's mostly
+                    // visible. Just render the whole mask so we can try to cache it.
+                    draw.fMaskDevIBounds = draw.fShapeConservativeIBounds;
+                    draw.fMaskVisibility = Visibility::kComplete;
+                }
             }
         }
 
-        ++specs->fNumRenderedPaths;
-        specs->fRenderedPathStats.statPath(path);
+        int idx = (draw.fShape.style().strokeRec().isFillStyle())
+                ? GrCCPerFlushResourceSpecs::kFillIdx
+                : GrCCPerFlushResourceSpecs::kStrokeIdx;
+        ++specs->fNumRenderedPaths[idx];
+        specs->fRenderedPathStats[idx].statPath(path);
         specs->fRenderedAtlasSpecs.accountForSpace(draw.fMaskDevIBounds.width(),
                                                    draw.fMaskDevIBounds.height());
     }
@@ -219,7 +318,8 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
         SkPath path;
         draw.fShape.asPath(&path);
 
-        auto doEvenOddFill = DoEvenOddFill(SkPath::kEvenOdd_FillType == path.getFillType());
+        auto doEvenOddFill = DoEvenOddFill(draw.fShape.style().strokeRec().isFillStyle() &&
+                                           SkPath::kEvenOdd_FillType == path.getFillType());
         SkASSERT(SkPath::kEvenOdd_FillType == path.getFillType() ||
                  SkPath::kWinding_FillType == path.getFillType());
 
@@ -270,9 +370,9 @@ void GrCCDrawPathsOp::setupResources(GrOnFlushResourceProvider* onFlushRP,
         SkRect devBounds, devBounds45;
         SkIRect devIBounds;
         SkIVector devToAtlasOffset;
-        if (auto atlas = resources->renderPathInAtlas(draw.fMaskDevIBounds, draw.fMatrix, path,
-                                                      &devBounds, &devBounds45, &devIBounds,
-                                                      &devToAtlasOffset)) {
+        if (auto atlas = resources->renderShapeInAtlas(
+                    draw.fMaskDevIBounds, draw.fMatrix, draw.fShape, draw.fStrokeDevWidth,
+                    &devBounds, &devBounds45, &devIBounds, &devToAtlasOffset)) {
             this->recordInstance(atlas->textureProxy(), resources->nextPathInstanceIdx());
             resources->appendDrawPathInstance().set(devBounds, devBounds45, devToAtlasOffset,
                                                     draw.fColor, doEvenOddFill);
