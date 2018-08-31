@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7db1dd29_3abe4237",
+        "filename": "src/effects/SkOverdrawColorFilter.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T13:30:08Z",
+      "side": 1,
+      "message": "Outside of testing this and other src strings could nicely just be a variable static to a cpp or function local. Having them in the public header seems a little yucky to me. What if we did something like:\n\nGR_FP_SRC_STRING SKSL_OVERDRAW_SRC \u003d R\"(...\n\nwhere GR_FP_SRC_STRING is\n#if GR_TEST_UTILS\n#define GR_FP_SRC_STRING const char*\n#else\n#define GR_FP_SRC_STRING static const char*\n#endif\n\nand then the declarations with extern could appear in GrSkSLFP.cpp behind GR_TEST_UTILS.\n\nOr some other scheme that avoids having these strings in the public API.",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 3
+      },
+      "revId": "67481cbef25c3c776a2db2a9f1a031e699e34587",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
