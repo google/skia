@@ -117,13 +117,14 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                     continue;
                 }
 
-                sk_sp<SkTypeface> tf(fFontMgr->matchFamilyStyle(jfamily->begin(),
-                                                                FontStyle(jstyle->begin())));
+                const auto& fmgr = fLazyFontMgr.get();
+                sk_sp<SkTypeface> tf(fmgr->matchFamilyStyle(jfamily->begin(),
+                                                            FontStyle(jstyle->begin())));
                 if (!tf) {
                     LOG("!! Could not create typeface for %s|%s\n",
                         jfamily->begin(), jstyle->begin());
                     // Last resort.
-                    tf = fFontMgr->legacyMakeTypeface(nullptr, FontStyle(jstyle->begin()));
+                    tf = fmgr->legacyMakeTypeface(nullptr, FontStyle(jstyle->begin()));
                     if (!tf) {
                         continue;
                     }
