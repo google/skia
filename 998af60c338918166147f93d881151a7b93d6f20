@@ -117,6 +117,30 @@
       "revId": "998af60c338918166147f93d881151a7b93d6f20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e89f5eb8_74413d05",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-08-31T15:31:43Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "1470aaef_943873dd",
+      "range": {
+        "startLine": 310,
+        "startChar": 0,
+        "endLine": 311,
+        "endChar": 42
+      },
+      "revId": "998af60c338918166147f93d881151a7b93d6f20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
