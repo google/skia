@@ -185,10 +185,6 @@ def dm_flags(api, bot):
       # skbug.com/7523 - Flaky on various GPUs
       blacklist('gltestthreading gm _ orientation')
 
-    # Test SkColorSpaceXformCanvas on a few bots
-    if 'GTX1070' in bot:
-      configs.append('gbr-gl')
-
     # CommandBuffer bot *only* runs the command_buffer config.
     if 'CommandBuffer' in bot:
       configs = ['commandbuffer']
@@ -235,6 +231,10 @@ def dm_flags(api, bot):
         blacklist('gltestpersistentcache gm _ atlastext')
         blacklist('gltestpersistentcache gm _ dftext')
         blacklist('gltestpersistentcache gm _ glyph_pos_h_b')
+
+    # Test SkColorSpaceXformCanvas on a few bots
+    if 'BonusConfigs' in api.vars.extra_tokens:
+      configs = ['gbr-gl']
 
     if 'ChromeOS' in bot:
       # Just run GLES for now - maybe add gles_msaa4 in the future
@@ -1026,6 +1026,7 @@ TEST_BUILDERS = [
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Lottie',
   'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
+  'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
   'Test-Win10-Clang-NUC5i7RYH-CPU-AVX2-x86_64-Debug-All-NativeFonts_GDI',
@@ -1035,7 +1036,6 @@ TEST_BUILDERS = [
   'Test-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All-ANGLE',
   'Test-Win10-Clang-ShuttleA-GPU-GTX660-x86_64-Release-All-Vulkan',
   'Test-Win10-Clang-ShuttleC-GPU-GTX960-x86_64-Debug-All-ANGLE',
-  'Test-Win10-Clang-ZBOX-GPU-GTX1070-x86_64-Debug-All-Vulkan',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FAAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FDAA',
   'Test-Win2016-Clang-GCE-CPU-AVX2-x86_64-Debug-All-FSAA',
