@@ -70,12 +70,6 @@ public:
     void testingOnly_drawPathDirectly(const DrawPathArgs&);
     const GrUniqueKey& testingOnly_getStashedAtlasKey() const;
 
-    // If a path spans more pixels than this, we need to crop it or else analytic AA can run out of
-    // fp32 precision.
-    static constexpr float kPathCropThreshold = 1 << 16;
-
-    static void CropPath(const SkPath&, const SkIRect& cropbox, SkPath* out);
-
 private:
     GrCoverageCountingPathRenderer(AllowCaching);
 

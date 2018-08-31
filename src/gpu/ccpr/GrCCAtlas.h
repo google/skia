@@ -57,12 +57,10 @@ public:
     bool addRect(const SkIRect& devIBounds, SkIVector* atlasOffset);
     const SkISize& drawBounds() { return fDrawBounds; }
 
-    // This is an optional space for the caller to jot down which user-defined batches to use when
+    // This is an optional space for the caller to jot down which user-defined batch to use when
     // they render the content of this atlas.
-    void setFillBatchID(int id);
-    int getFillBatchID() const { return fFillBatchID; }
-    void setStrokeBatchID(int id);
-    int getStrokeBatchID() const { return fStrokeBatchID; }
+    void setUserBatchID(int id);
+    int getUserBatchID() const { return fUserBatchID; }
 
     // Manages a unique resource cache key that gets assigned to the atlas texture. The unique key
     // does not get assigned to the texture proxy until it is instantiated.
@@ -100,8 +98,7 @@ private:
     std::unique_ptr<Node> fTopNode;
     SkISize fDrawBounds = {0, 0};
 
-    int fFillBatchID;
-    int fStrokeBatchID;
+    int fUserBatchID;
 
     // Not every atlas will have a unique key -- a mainline CCPR one won't if we don't stash any
     // paths, and only the first atlas in the stack is eligible to be stashed.

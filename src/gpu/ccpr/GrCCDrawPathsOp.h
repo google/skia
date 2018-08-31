@@ -30,7 +30,8 @@ public:
     SK_DECLARE_INTERNAL_LLIST_INTERFACE(GrCCDrawPathsOp);
 
     static std::unique_ptr<GrCCDrawPathsOp> Make(GrContext*, const SkIRect& clipIBounds,
-                                                 const SkMatrix&, const GrShape&, GrPaint&&);
+                                                 const SkMatrix&, const GrShape&,
+                                                 const SkRect& devBounds, GrPaint&&);
     ~GrCCDrawPathsOp() override;
 
     const char* name() const override { return "GrCCDrawPathsOp"; }
@@ -69,35 +70,28 @@ public:
 private:
     friend class GrOpMemoryPool;
 
-    static std::unique_ptr<GrCCDrawPathsOp> InternalMake(GrContext*, const SkIRect& clipIBounds,
-                                                         const SkMatrix&, const GrShape&,
-                                                         float strokeDevWidth,
-                                                         const SkRect& conservativeDevBounds,
-                                                         GrPaint&&);
     enum class Visibility {
         kPartial,
         kMostlyComplete,  // (i.e., can we cache the whole path mask if we think it will be reused?)
         kComplete
     };
 
-    GrCCDrawPathsOp(const SkMatrix&, const GrShape&, float strokeDevWidth,
-                    const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                    Visibility maskVisibility, const SkRect& conservativeDevBounds, GrPaint&&);
+    GrCCDrawPathsOp(const SkMatrix&, const GrShape&, const SkIRect& shapeDevIBounds,
+                    const SkIRect& maskDevIBounds, Visibility maskVisibility,
+                    const SkRect& devBounds, GrPaint&&);
 
     void recordInstance(GrTextureProxy* atlasProxy, int instanceIdx);
 
     const SkMatrix fViewMatrixIfUsingLocalCoords;
 
     struct SingleDraw {
-        SingleDraw(const SkMatrix&, const GrShape&, float strokeDevWidth,
-                   const SkIRect& shapeConservativeIBounds, const SkIRect& maskDevIBounds,
-                   Visibility maskVisibility, GrColor);
+        SingleDraw(const SkMatrix&, const GrShape&, const SkIRect& shapeDevIBounds,
+                   const SkIRect& maskDevIBounds, Visibility maskVisibility, GrColor);
         ~SingleDraw();
 
         SkMatrix fMatrix;
-        GrShape fShape;
-        float fStrokeDevWidth;
-        const SkIRect fShapeConservativeIBounds;
+        const GrShape fShape;
+        const SkIRect fShapeDevIBounds;
         SkIRect fMaskDevIBounds;
         Visibility fMaskVisibility;
         GrColor fColor;
