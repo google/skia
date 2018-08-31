@@ -2044,10 +2044,9 @@ bool skcms_Transform(const void*             src,
     }
 
     // We can't transform in place unless the PixelFormats are the same size.
-    if (dst == src && (dstFmt >> 1) != (srcFmt >> 1)) {
+    if (dst == src && dst_bpp != src_bpp) {
         return false;
     }
-    // TODO: this check lazilly disallows U16 <-> F16, but that would actually be fine.
     // TODO: more careful alias rejection (like, dst == src + 1)?
 
     Op          program  [32];
