@@ -337,6 +337,27 @@ static void test_classify_cubic(skiatest::Reporter* reporter) {
     check_cubic_around_rect(reporter, 0, 0, 1, +std::numeric_limits<float>::quiet_NaN(), true);
 }
 
+static void test_cubic_cusps(skiatest::Reporter* reporter) {
+    std::array<SkPoint, 4> noCusps[] = {
+        {{{0, 0}, {1, 1}, {2, 2}, {3, 3}}},
+        {{{0, 0}, {1, 0}, {1, 1}, {0, 1}}},
+        {{{0, 0}, {1, 0}, {2, 1}, {2, 2}}},
+        {{{0, 0}, {1, 0}, {1, 1}, {2, 1}}},
+    };
+    for (auto noCusp : noCusps) {
+        REPORTER_ASSERT(reporter, SkFindCubicCusp(noCusp.data()) < 0);
+    }
+    std::array<SkPoint, 4> cusps[] = {
+        {{{0, 0}, {1, 1}, {1, 0}, {0, 1}}},
+        {{{0, 0}, {1, 1}, {0, 1}, {1, 0}}},
+        {{{0, 1}, {1, 0}, {0, 0}, {1, 1}}},
+        {{{0, 1}, {1, 0}, {1, 1}, {0, 0}}},
+    };
+    for (auto cusp : cusps) {
+        REPORTER_ASSERT(reporter, SkFindCubicCusp(cusp.data()) > 0);
+    }
+}
+
 DEF_TEST(Geometry, reporter) {
     SkPoint pts[5];
 
@@ -366,4 +387,5 @@ DEF_TEST(Geometry, reporter) {
     test_conic_tangents(reporter);
     test_conic_to_quads(reporter);
     test_classify_cubic(reporter);
+    test_cubic_cusps(reporter);
 }

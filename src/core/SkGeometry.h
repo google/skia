@@ -154,6 +154,9 @@ int SkChopCubicAtInflections(const SkPoint src[4], SkPoint dst[10]);
 int SkFindCubicMaxCurvature(const SkPoint src[4], SkScalar tValues[3]);
 int SkChopCubicAtMaxCurvature(const SkPoint src[4], SkPoint dst[13],
                               SkScalar tValues[3] = nullptr);
+/** Returns t value of cusp if cubic has one; returns -1 otherwise.
+ */
+SkScalar SkFindCubicCusp(const SkPoint src[4]);
 
 bool SkChopMonoCubicAtX(SkPoint src[4], SkScalar y, SkPoint dst[7]);
 bool SkChopMonoCubicAtY(SkPoint src[4], SkScalar x, SkPoint dst[7]);

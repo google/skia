@@ -38,6 +38,7 @@ samples_sources = [
   "$_samplecode/SampleComplexClip.cpp",
   "$_samplecode/SampleConcavePaths.cpp",
   "$_samplecode/SampleCowboy.cpp",
+  "$_samplecode/SampleCusp.cpp",
   "$_samplecode/SampleDegenerateTwoPtRadials.cpp",
   "$_samplecode/SampleDither.cpp",
   "$_samplecode/SampleEffects.cpp",
