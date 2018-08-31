@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "799371aa_bd91b662",
+        "filename": "src/gpu/effects/GrSkSLFP.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T19:56:38Z",
+      "side": 1,
+      "message": "I was thinking we could move the \"extern const char* \u003cPROCESSOR_NAME\u003e\"s here rather than have them in the .h files and including the .h files here.",
+      "range": {
+        "startLine": 399,
+        "startChar": 0,
+        "endLine": 402,
+        "endChar": 34
+      },
+      "revId": "7fb1ec106db0d8d79e7af59b8cd6daa35a21d3c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
