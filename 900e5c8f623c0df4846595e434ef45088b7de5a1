@@ -22,6 +22,30 @@
       "revId": "900e5c8f623c0df4846595e434ef45088b7de5a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "af2ddb64_fcb6d37e",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-31T17:03:20Z",
+      "side": 0,
+      "message": "skia:6082 can be closed. The others are not really being resolved; it was a mistake to blacklist the tests.",
+      "parentUuid": "79ee5388_7fac8aee",
+      "range": {
+        "startLine": 720,
+        "startChar": 8,
+        "endLine": 720,
+        "endChar": 17
+      },
+      "revId": "900e5c8f623c0df4846595e434ef45088b7de5a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
