@@ -549,6 +549,8 @@ public:
     */
     void incReserve(unsigned extraPtCount);
 
+    void shrinkToFit();
+
     /** Adds beginning of contour at SkPoint (x, y).
 
         @param x  x-axis value of contour start
