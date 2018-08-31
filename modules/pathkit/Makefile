@@ -53,19 +53,19 @@ test-continuous-asmjs:
 # you will need to manually call make npm-test to re-build.
 test-docker: npm-test
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
-karma start /SRC/experimental/pathkit/karma.conf.js --single-run
+karma start /SRC/modules/pathkit/karma.conf.js --single-run
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC -e ASM_JS=1 gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
-karma start /SRC/experimental/pathkit/karma.conf.js --single-run
+karma start /SRC/modules/pathkit/karma.conf.js --single-run
 
 test-docker-continuous:
 	echo "Assuming make npm-test has also been run by a user (if needed)"
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
-karma start /SRC/experimental/pathkit/karma.conf.js --no-single-run
+karma start /SRC/modules/pathkit/karma.conf.js --no-single-run
 
 test-docker-continuous-asmjs:
 	echo "Assuming make npm-test has also been run by a user (if needed)"
 	docker run --shm-size=2gb -v $$SKIA_ROOT:/SRC -e ASM_JS=1 gcr.io/skia-public/karma-chrome-tests:68.0.3440.106_v4 \
-karma start /SRC/experimental/pathkit/karma.conf.js --no-single-run
+karma start /SRC/modules/pathkit/karma.conf.js --no-single-run
 
 npm-test:
 	# This compile time is typically faster than release and good for use with
