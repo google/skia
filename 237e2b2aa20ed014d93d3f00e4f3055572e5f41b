@@ -101,6 +101,23 @@
       "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3acb37e2_f386979c",
+        "filename": "tests/PDFTaggedTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-08-31T16:25:27Z",
+      "side": 1,
+      "message": "paint.setSubpixelText(true);\n    paint.setHinting(SkPaint::kNo_Hinting);\n\n(this makes the PDF much better for reasons I don\u0027t want to get into now.)",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
