@@ -300,10 +300,17 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
     return nullptr;
 }
 
+static skcms_PixelFormat jpeg_select_xform_format(const SkEncodedInfo& info) {
+    if (SkEncodedInfo::kGray_Color == info.color()) {
+        return skcms_PixelFormat_G_8;
+    } else {
+        return skcms_PixelFormat_RGBA_8888;
+    }
+}
+
 SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin)
-    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream),
-                origin)
+    : INHERITED(std::move(info), jpeg_select_xform_format(info), std::move(stream), origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
@@ -426,7 +433,6 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType sr
             }
             break;
         case kGray_8_SkColorType:
-            SkASSERT(!needsColorXform);
             if (JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
