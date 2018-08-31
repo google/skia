@@ -11,8 +11,10 @@
 #include "SkPoint3.h"
 #include "SkTemplates.h"
 #include <new>
+#include "../../third_party/skcms/skcms.h"
 
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
+#if defined(SK_USE_LEGACY_PRIMARIES_TO_XYZ)
     if (!is_zero_to_one(fRX) || !is_zero_to_one(fRY) ||
         !is_zero_to_one(fGX) || !is_zero_to_one(fGY) ||
         !is_zero_to_one(fBX) || !is_zero_to_one(fBY) ||
@@ -79,6 +81,14 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
                       toXYZ[1], toXYZ[4], toXYZ[7],
                       toXYZ[2], toXYZ[5], toXYZ[8]);
     return true;
+#else
+    skcms_Matrix3x3 toXYZ;
+    if (!skcms_PrimariesToXYZD50(fRX, fRY, fGX, fGY, fBX, fBY, fWX, fWY, &toXYZ)) {
+        return false;
+    }
+    toXYZ_D50->set3x3RowMajorf(&toXYZ.vals[0][0]);
+    return true;
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
