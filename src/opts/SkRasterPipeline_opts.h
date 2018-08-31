@@ -8,22 +8,23 @@
 #ifndef SkRasterPipeline_opts_DEFINED
 #define SkRasterPipeline_opts_DEFINED
 
+#include "SkTypes.h"
 #include "../jumper/SkJumper.h"
 #include "../jumper/SkJumper_misc.h"
 
 #if !defined(__clang__)
     #define JUMPER_IS_SCALAR
-#elif defined(__ARM_NEON)
+#elif defined(SK_ARM_HAS_NEON)
     #define JUMPER_IS_NEON
-#elif defined(__AVX512F__)
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX512
     #define JUMPER_IS_AVX512
-#elif defined(__AVX2__) && defined(__F16C__) && defined(__FMA__)
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX2
     #define JUMPER_IS_HSW
-#elif defined(__AVX__)
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
     #define JUMPER_IS_AVX
-#elif defined(__SSE4_1__)
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     #define JUMPER_IS_SSE41
-#elif defined(__SSE2__)
+#elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE2
     #define JUMPER_IS_SSE2
 #else
     #define JUMPER_IS_SCALAR
@@ -131,7 +132,7 @@ namespace SK_OPTS_NS {
 
     SI F if_then_else(I32 c, F t, F e) { return vbslq_f32((U32)c,t,e); }
 
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         SI F     mad(F f, F m, F a) { return vfmaq_f32(a,f,m); }
         SI F  floor_(F v) { return vrndmq_f32(v); }
         SI F   sqrt_(F v) { return vsqrtq_f32(v); }
@@ -657,7 +658,7 @@ SI F approx_powf(F x, F y) {
 }
 
 SI F from_half(U16 h) {
-#if defined(__aarch64__) && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
+#if defined(SK_CPU_ARM64) && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
     return vcvt_f32_f16(h);
 
 #elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
@@ -677,7 +678,7 @@ SI F from_half(U16 h) {
 }
 
 SI U16 to_half(F f) {
-#if defined(__aarch64__) && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
+#if defined(SK_CPU_ARM64) && !defined(SK_BUILD_FOR_GOOGLE3)  // Temporary workaround for some Google3 builds.
     return vcvt_f16_f32(f);
 
 #elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
@@ -706,7 +707,7 @@ static const size_t N = sizeof(F) / sizeof(float);
 
 // Any custom ABI to use for all (non-externally-facing) stage functions?
 // Also decide here whether to use narrow (compromise) or wide (ideal) stages.
-#if defined(__arm__) && defined(JUMPER_IS_NEON)
+#if defined(SK_CPU_ARM32) && defined(JUMPER_IS_NEON)
     // This lets us pass vectors more efficiently on 32-bit ARM.
     // We can still only pass 16 floats, so best as 4x {r,g,b,a}.
     #define ABI __attribute__((pcs("aapcs-vfp")))
@@ -721,7 +722,7 @@ static const size_t N = sizeof(F) / sizeof(float);
     // instead of {b,a} on the stack.  Narrow stages work best for __vectorcall.
     #define ABI __vectorcall
     #define JUMPER_NARROW_STAGES 1
-#elif defined(__x86_64__) || defined(__aarch64__)
+#elif defined(__x86_64__) || defined(SK_CPU_ARM64)
     // These platforms are ideal for wider stages, and their default ABI is ideal.
     #define ABI
     #define JUMPER_NARROW_STAGES 0
@@ -2191,7 +2192,7 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
@@ -2417,11 +2418,11 @@ SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 SI F rcp(F x) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
-#elif defined(__SSE__)
+#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
     __m128 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm_rcp_ps(lo), _mm_rcp_ps(hi));
@@ -2438,15 +2439,15 @@ SI F rcp(F x) {
 #endif
 }
 SI F sqrt_(F x) {
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
-#elif defined(__SSE__)
+#elif defined(JUMPER_IS_SSE2) || defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
     __m128 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm_sqrt_ps(lo), _mm_sqrt_ps(hi));
-#elif defined(__aarch64__)
+#elif defined(SK_CPU_ARM64)
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vsqrtq_f32(lo), vsqrtq_f32(hi));
@@ -2469,15 +2470,15 @@ SI F sqrt_(F x) {
 }
 
 SI F floor_(F x) {
-#if defined(__aarch64__)
+#if defined(SK_CPU_ARM64)
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
-#elif defined(JUMPER_IS_HSW)
+#elif defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_floor_ps(lo), _mm256_floor_ps(hi));
-#elif defined(JUMPER_IS_SSE41)
+#elif defined(JUMPER_IS_SSE41) || defined(JUMPER_IS_AVX)
     __m128 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm_floor_ps(lo), _mm_floor_ps(hi));
@@ -2666,7 +2667,7 @@ SI V load(const T* ptr, size_t tail) {
     V v = 0;
     switch (tail & (N-1)) {
         case  0: memcpy(&v, ptr, sizeof(v)); break;
-    #if defined(JUMPER_IS_HSW)
+    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
         case 15: v[14] = ptr[14];
         case 14: v[13] = ptr[13];
         case 13: v[12] = ptr[12];
@@ -2690,7 +2691,7 @@ template <typename V, typename T>
 SI void store(T* ptr, size_t tail, V v) {
     switch (tail & (N-1)) {
         case  0: memcpy(ptr, &v, sizeof(v)); break;
-    #if defined(JUMPER_IS_HSW)
+    #if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
         case 15: ptr[14] = v[14];
         case 14: ptr[13] = v[13];
         case 13: ptr[12] = v[12];
@@ -2710,7 +2711,7 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 }
 
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -2748,7 +2749,7 @@ SI void store(T* ptr, size_t tail, V v) {
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
 SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
-#if 1 && defined(JUMPER_IS_HSW)
+#if 1 && defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
     __m256i _01,_23;
     split(rgba, &_01, &_23);
@@ -3084,7 +3085,7 @@ SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         U16* r, U16* g, U16* b, U16* a) {
 
     F fr, fg, fb, fa, br, bg, bb, ba;
-#if defined(JUMPER_IS_HSW)
+#if defined(JUMPER_IS_HSW) || defined(JUMPER_IS_AVX512)
     if (c->stopCount <=8) {
         __m256i lo, hi;
         split(idx, &lo, &hi);
