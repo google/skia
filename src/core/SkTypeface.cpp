@@ -167,20 +167,36 @@ sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkTypeface::serialize(SkWStream* wstream) const {
+void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
     if (gSerializeTypefaceDelegate) {
         (*gSerializeTypefaceDelegate)(this, wstream);
         return;
     }
-    bool isLocal = false;
+    bool isLocalData = false;
     SkFontDescriptor desc;
-    this->onGetFontDescriptor(&desc, &isLocal);
+    this->onGetFontDescriptor(&desc, &isLocalData);
 
-    // Embed font data if it's a local font.
-    if (isLocal && !desc.hasFontData()) {
+    switch (behavior) {
+        case kDoIncludeData_SerializeBehavior:
+            isLocalData = true;
+            break;
+        case kDontIncludeData_SerializeBehavior:
+            isLocalData = false;
+            break;
+        case kIncludeDataIfLocal_SerializeBehavior:
+            break;
+    }
+
+    if (isLocalData && !desc.hasFontData()) {
         desc.setFontData(this->onMakeFontData());
     }
     desc.serialize(wstream);
+}
+
+sk_sp<SkData> SkTypeface::serialize(SerializeBehavior behavior) const {
+    SkDynamicMemoryWStream stream;
+    this->serialize(&stream, behavior);
+    return stream.detachAsData();
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeDeserialize(SkStream* stream) {
