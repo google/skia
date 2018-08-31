@@ -33,13 +33,13 @@ namespace SkSL {
 class UniformCTypeMapper {
 public:
     // Create a templated mapper that does not support state tracking
-    UniformCTypeMapper(const String& ctype, const std::vector<String>& skslTypes,
+    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
             const char* setUniformFormat)
         : UniformCTypeMapper(ctype, skslTypes, setUniformFormat, false, "", "", "") { }
 
     // Create a templated mapper that provides extra patterns for the state
     // tracking expressions.
-    UniformCTypeMapper(const String& ctype, const std::vector<String>& skslTypes,
+    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
             const String& setUniformFormat, const String& defaultValue,
             const String& dirtyExpressionFormat, const String& saveStateFormat)
         : UniformCTypeMapper(ctype, skslTypes, setUniformFormat,
@@ -58,7 +58,7 @@ public:
     }
 
     // The C++ type name that this mapper applies to
-    const String& ctype() const {
+    Layout::CType ctype() const {
         return fCType;
     }
 
@@ -113,11 +113,11 @@ public:
     }
 
 private:
-    UniformCTypeMapper(const String& ctype, const std::vector<String>& skslTypes,
+    UniformCTypeMapper(Layout::CType ctype, const std::vector<String>& skslTypes,
             const String& setUniformFormat, bool enableTracking, const String& defaultValue,
             const String& dirtyExpressionFormat, const String& saveStateFormat);
 
-    String fCType;
+    Layout::CType fCType;
     std::vector<String> fSKSLTypes;
     String fUniformTemplate;
     bool fInlineValue; // Cached value calculated from fUniformTemplate

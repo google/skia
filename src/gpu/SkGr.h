@@ -38,7 +38,9 @@ class SkPixelRef;
 class SkPixmap;
 struct SkIRect;
 
+#if GR_TEST_UTILS
 extern const char* SKSL_DITHER_SRC;
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Color type conversions

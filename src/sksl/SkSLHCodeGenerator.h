@@ -33,6 +33,9 @@ public:
 
     static String ParameterType(const Context& context, const Type& type, const Layout& layout);
 
+    static Layout::CType ParameterCType(const Context& context, const Type& type,
+                                        const Layout& layout);
+
     static String FieldType(const Context& context, const Type& type, const Layout& layout);
 
     // Either the field type, or a const reference of the field type if the field type is complex.

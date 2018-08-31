@@ -11,6 +11,10 @@
 #ifndef SkOverdrawColorFilter_DEFINED
 #define SkOverdrawColorFilter_DEFINED
 
+#if GR_TEST_UTILS
+extern const char* SKSL_OVERDRAW_SRC;
+#endif
+
 /**
  *  Uses the value in the src alpha channel to set the dst pixel.
  *  0             -> fColors[0]
