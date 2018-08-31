@@ -166,8 +166,18 @@ protected:
     inline static const TextureSampler& IthTextureSampler(int i);
 
 private:
-    virtual const Attribute& onVertexAttribute(int) const = 0;
-    virtual const Attribute& onInstanceAttribute(int) const = 0;
+    virtual const Attribute& onVertexAttribute(int) const {
+        SK_ABORT("No vertex attributes");
+        static constexpr Attribute kBogus;
+        return kBogus;
+    }
+
+    virtual const Attribute& onInstanceAttribute(int i) const {
+        SK_ABORT("No instanced attributes");
+        static constexpr Attribute kBogus;
+        return kBogus;
+    }
+
     virtual const TextureSampler& onTextureSampler(int) const { return IthTextureSampler(0); }
 
     int fVertexAttributeCnt = 0;
