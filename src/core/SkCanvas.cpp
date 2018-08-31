@@ -1892,6 +1892,13 @@ void SkCanvas::drawAnnotation(const SkRect& rect, const char key[], SkData* valu
     }
 }
 
+void SkCanvas::setNodeId(int nodeId) {
+    SkBaseDevice* device = this->getDevice();
+    if (device) {
+        device->setNodeId(nodeId);
+    }
+}
+
 void SkCanvas::legacy_drawImageRect(const SkImage* image, const SkRect* src, const SkRect& dst,
                                     const SkPaint* paint, SrcRectConstraint constraint) {
     if (src) {
@@ -2935,5 +2942,3 @@ SkRasterHandleAllocator::MakeCanvas(std::unique_ptr<SkRasterHandleAllocator> all
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
