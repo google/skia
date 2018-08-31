@@ -167,7 +167,7 @@ sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void SkTypeface::serialize(SkWStream* wstream) const {
+void SkTypeface::serialize(SkWStream* wstream, SerializeBehavior behavior) const {
     if (gSerializeTypefaceDelegate) {
         (*gSerializeTypefaceDelegate)(this, wstream);
         return;
@@ -175,9 +175,20 @@ void SkTypeface::serialize(SkWStream* wstream) const {
     bool isLocal = false;
     SkFontDescriptor desc;
     this->onGetFontDescriptor(&desc, &isLocal);
+    bool includeData = isLocal; // kIncludeDataIfLocal_SerializeBehavior
 
-    // Embed font data if it's a local font.
-    if (isLocal && !desc.hasFontData()) {
+    switch (behavior) {
+        case kDoIncludeData_SerializeBehavior:
+            includeData = true;
+            break;
+        case kDontIncludeData_SerializeBehavior:
+            includeData = false;
+            break;
+        case kIncludeDataIfLocal_SerializeBehavior:
+            break;
+    }
+
+    if (includeData && !desc.hasFontData()) {
         desc.setFontData(this->onMakeFontData());
     }
     desc.serialize(wstream);

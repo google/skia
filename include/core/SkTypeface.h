@@ -141,10 +141,21 @@ public:
     */
     sk_sp<SkTypeface> makeClone(const SkFontArguments&) const;
 
+    /**
+     *  A typeface can serialize just a descriptor (names, etc.), or it can also include the
+     *  actual font data (which can be large). This enum controls how serialize() decides what
+     *  to serialize.
+     */
+    enum SerializeBehavior {
+        kDoIncludeData_SerializeBehavior,
+        kDontIncludeData_SerializeBehavior,
+        kIncludeDataIfLocal_SerializeBehavior,
+    };
+
     /** Write a unique signature to a stream, sufficient to reconstruct a
         typeface referencing the same font when Deserialize is called.
      */
-    void serialize(SkWStream*) const;
+    void serialize(SkWStream*, SerializeBehavior = kIncludeDataIfLocal_SerializeBehavior) const;
 
     /** Given the data previously written by serialize(), return a new instance
         of a typeface referring to the same font. If that font is not available,
