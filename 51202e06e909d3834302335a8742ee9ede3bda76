@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "44a712b7_b88c9484",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T17:12:05Z",
+      "side": 1,
+      "message": "It looks like SkPath doesn\u0027t consider a point path convex.",
+      "parentUuid": "aa738672_09625f4f",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19a00f6e_eb021234",
         "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
         "patchSetId": 7
