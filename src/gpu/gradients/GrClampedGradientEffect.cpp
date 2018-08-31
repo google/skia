@@ -34,9 +34,10 @@ public:
         SkString _child1("_child1");
         this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
-                "half4 t = %s;\nif (t.x < 0.0) {\n    %s = 0.5 * float4(%s);\n} else if "
-                "(float(t.x) > 1.0) {\n    %s = 0.5 * float4(%s);\n} else {",
-                _child1.c_str(), args.fOutputColor,
+                "half4 t = %s;\nif (t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < 0.0) {\n  "
+                "  %s = 0.5 * float4(%s);\n} else if (float(t.x) > 1.0) {\n    %s = 0.5 * "
+                "float4(%s);\n} else {",
+                _child1.c_str(), args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fBottomBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fTopBorderColorVar));
         SkString _input0("t");

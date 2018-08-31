@@ -35,5 +35,6 @@
  }
 
  void main() {
-    sk_OutColor = half4(length(sk_TransformedCoords2D[0].xy));
+    half t = length(sk_TransformedCoords2D[0]);
+    sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
  }
