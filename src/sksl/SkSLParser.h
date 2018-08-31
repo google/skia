@@ -89,7 +89,8 @@ public:
         INVOCATIONS,
         WHEN,
         KEY,
-        CTYPE
+        CTYPE,
+        TRACKED
     };
 
     Parser(const char* text, size_t length, SymbolTable& types, ErrorReporter& errors);

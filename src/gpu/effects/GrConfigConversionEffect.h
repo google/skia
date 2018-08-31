@@ -129,7 +129,7 @@ public:
 
         return true;
     }
-    PMConversion pmConversion() const { return fPmConversion; }
+    const PMConversion& pmConversion() const { return fPmConversion; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(std::unique_ptr<GrFragmentProcessor> fp,
                                                      PMConversion pmConversion) {
