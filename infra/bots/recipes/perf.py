@@ -181,10 +181,6 @@ def nanobench_flags(api, bot):
     # skia:6863
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_carsvg')
-  if ('Vulkan' in bot and ('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and
-      'Win' in bot):
-    # skia:7677
-    match.append('~path_text_clipped_uncached')
   if 'MoltenVK' in bot:
     # skbug.com/7962
     match.append('~^path_text_clipped_uncached$')
@@ -376,7 +372,6 @@ TEST_BUILDERS = [
    'MoltenVK_Vulkan'),
   ('Perf-Ubuntu17-GCC-Golo-GPU-QuadroP400-x86_64-Release-All-'
     'Valgrind_AbandonGpuContext_SK_CPU_LIMIT_SSE41'),
-  'Perf-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Release-All-Vulkan',
   'Perf-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-ANGLE',
   'Perf-Win10-Clang-NUC6i5SYK-GPU-IntelIris540-x86_64-Release-All-Vulkan',

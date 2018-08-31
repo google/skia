@@ -708,10 +708,6 @@ def dm_flags(api, bot):
     match.append('~^RGBA4444TextureTest$')
     match.append('~^WritePixelsNonTextureMSAA_Gpu$')
 
-  if (('RadeonR9M470X' in bot or 'RadeonHD7770' in bot) and 'ANGLE' in bot):
-    # skia:7096
-    match.append('~PinnedImageTest')
-
   if 'ANGLE' in bot:
     # skia:7835
     match.append('~BlurMaskBiggerThanDest')
@@ -1015,7 +1011,6 @@ TEST_BUILDERS = [
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL1',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-DDL3',
   'Test-Ubuntu17-Clang-Golo-GPU-QuadroP400-x86_64-Debug-All-Lottie',
-  'Test-Win10-Clang-AlphaR2-GPU-RadeonR9M470X-x86_64-Debug-All-ANGLE',
   'Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All-BonusConfigs',
   ('Test-Win10-Clang-Golo-GPU-QuadroP400-x86_64-Release-All'
    '-ReleaseAndAbandonGpuContext'),
