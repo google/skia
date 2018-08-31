@@ -18,7 +18,8 @@
 
 //////////////////////////////////////////////////////////////////////
 
-#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_WIN) && !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
+#if !defined(SK_BUILD_FOR_ANDROID) && !defined(SK_BUILD_FOR_IOS) && !defined(SK_BUILD_FOR_WIN) && \
+    !defined(SK_BUILD_FOR_UNIX) && !defined(SK_BUILD_FOR_MAC)
 
     #ifdef __APPLE__
         #include "TargetConditionals.h"
@@ -111,6 +112,7 @@
 #define SK_CPU_SSE_LEVEL_SSE42    42
 #define SK_CPU_SSE_LEVEL_AVX      51
 #define SK_CPU_SSE_LEVEL_AVX2     52
+#define SK_CPU_SSE_LEVEL_AVX512   60
 
 // When targetting iOS and using gyp to generate the build files, it is not
 // possible to select files to build depending on the architecture (i.e. it
@@ -120,11 +122,13 @@
     #define SK_CPU_SSE_LEVEL 0
 #endif
 
-// Are we in GCC?
+// Are we in GCC/Clang?
 #ifndef SK_CPU_SSE_LEVEL
     // These checks must be done in descending order to ensure we set the highest
     // available SSE level.
-    #if defined(__AVX2__)
+    #if defined(__AVX512F__)
+        #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX512
+    #elif defined(__AVX2__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX2
     #elif defined(__AVX__)
         #define SK_CPU_SSE_LEVEL    SK_CPU_SSE_LEVEL_AVX
@@ -165,35 +169,12 @@
 
 #if defined(__arm__) && (!defined(__APPLE__) || !TARGET_IPHONE_SIMULATOR)
     #define SK_CPU_ARM32
-
-    #if defined(__GNUC__)
-        #if defined(__ARM_ARCH_7__) || defined(__ARM_ARCH_7A__) \
-                || defined(__ARM_ARCH_7R__) || defined(__ARM_ARCH_7M__) \
-                || defined(__ARM_ARCH_7EM__) || defined(_ARM_ARCH_7)
-            #define SK_ARM_ARCH 7
-        #elif defined(__ARM_ARCH_6__) || defined(__ARM_ARCH_6J__) \
-                || defined(__ARM_ARCH_6K__) || defined(__ARM_ARCH_6Z__) \
-                || defined(__ARM_ARCH_6ZK__) || defined(__ARM_ARCH_6T2__) \
-                || defined(__ARM_ARCH_6M__) || defined(_ARM_ARCH_6)
-            #define SK_ARM_ARCH 6
-        #elif defined(__ARM_ARCH_5__) || defined(__ARM_ARCH_5T__) \
-                || defined(__ARM_ARCH_5E__) || defined(__ARM_ARCH_5TE__) \
-                || defined(__ARM_ARCH_5TEJ__) || defined(_ARM_ARCH_5)
-            #define SK_ARM_ARCH 5
-        #elif defined(__ARM_ARCH_4__) || defined(__ARM_ARCH_4T__) || defined(_ARM_ARCH_4)
-            #define SK_ARM_ARCH 4
-        #else
-            #define SK_ARM_ARCH 3
-        #endif
-    #endif
-#endif
-
-#if defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
+#elif defined(__aarch64__) && !defined(SK_BUILD_NO_OPTS)
     #define SK_CPU_ARM64
 #endif
 
 // All 64-bit ARM chips have NEON.  Many 32-bit ARM chips do too.
-#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && (defined(__ARM_NEON__) || defined(__ARM_NEON))
+#if !defined(SK_ARM_HAS_NEON) && !defined(SK_BUILD_NO_OPTS) && defined(__ARM_NEON)
     #define SK_ARM_HAS_NEON
 #endif
 
