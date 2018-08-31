@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c0ba2cc3_f0b0e682",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T15:05:18Z",
+      "side": 1,
+      "message": "Not necessarily: cubic maps are optional, and only added when non-trivial.\n\nNow for the example I\u0027m looking at, they do move together.  So it did cross my mind to fuse them, but I\u0027d like to run more measurements and make sure this is not uncommon.",
+      "parentUuid": "de261719_0bd22fa0",
+      "range": {
+        "startLine": 176,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 40
+      },
+      "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b0bcad96_9db49ce6",
         "filename": "modules/skottie/src/SkottieAnimator.cpp",
         "patchSetId": 3
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-31T14:58:27Z",
       "side": 1,
       "message": "Maybe even keep them all together as\n\n   struct {\n     T\n     KeyframeRec;\n     SkCubicMap;\n   }\n\nor however that packs best (and just ignore the last KeyframeRec/SkCubicMap)?",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 214,
+        "endChar": 61
+      },
+      "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "711c340a_abff84f9",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T15:05:18Z",
+      "side": 1,
+      "message": "The animator is split into a non-template base class and a templated subclass to minimize code size (trying to keep t-invariant code from being emitted multiple times).\n\nIIRC this was a significant size reduction when introduced, hence this awkward separation.",
+      "parentUuid": "b0bcad96_9db49ce6",
       "range": {
         "startLine": 213,
         "startChar": 8,
