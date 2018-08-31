@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "239d0525_a31e7195",
+        "filename": "include/core/SkDocument.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Sure, that works great.",
+      "parentUuid": "7fa14953_2fb3b57a",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "331c5982_eb263104",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 17
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "afebe91e_d6fc16a3",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "331c5982_eb263104",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6091301c_92c5a59b",
         "filename": "src/pdf/SkPDFDocument.cpp",
         "patchSetId": 17
@@ -47,6 +83,24 @@
       "writtenOn": "2018-08-31T15:51:10Z",
       "side": 1,
       "message": "this could be a static function.",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8128778a_cf360c69",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "It needs to set fNodeIdToTag",
+      "parentUuid": "6091301c_92c5a59b",
       "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1d79bf53_75862e12",
+        "filename": "src/pdf/SkPDFDocument.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "030e475d_176892bf",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82553339_4fd67d88",
         "filename": "src/pdf/SkPDFTag.h",
         "patchSetId": 17
@@ -84,6 +156,24 @@
       "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "bfefc154_9354d803",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "82553339_4fd67d88",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "15853cf4_e6621564",
+        "filename": "src/pdf/SkPDFTag.h",
+        "patchSetId": 17
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "749b39ff_d91864c8",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3acb37e2_f386979c",
         "filename": "tests/PDFTaggedTest.cpp",
         "patchSetId": 17
@@ -118,6 +226,24 @@
       "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25aa9f2f_31419de3",
+        "filename": "tests/PDFTaggedTest.cpp",
+        "patchSetId": 17
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6205
+      },
+      "writtenOn": "2018-08-31T23:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3acb37e2_f386979c",
+      "revId": "237e2b2aa20ed014d93d3f00e4f3055572e5f41b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
