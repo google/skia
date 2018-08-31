@@ -271,29 +271,29 @@ public:
         SkUnichar u = utf8_next(&fCurrent, fEnd);
         // If the starting typeface can handle this character, use it.
         if (fTypeface->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1)) {
-            fFallbackTypeface.reset();
+            fCurrentTypeface = fTypeface.get();
+            fCurrentHBFont = fHBFont;
+        // If the current fallback can handle this character, use it.
+        } else if (fFallbackTypeface &&
+                   fFallbackTypeface->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
+        {
+            fCurrentTypeface = fFallbackTypeface.get();
+            fCurrentHBFont = fFallbackHBFont.get();
         // If not, try to find a fallback typeface
         } else {
             fFallbackTypeface.reset(fFallbackMgr->matchFamilyStyleCharacter(
                 nullptr, fTypeface->fontStyle(), nullptr, 0, u));
-        }
-
-        if (fFallbackTypeface) {
             fFallbackHBFont = create_hb_font(fFallbackTypeface.get());
             fCurrentTypeface = fFallbackTypeface.get();
             fCurrentHBFont = fFallbackHBFont.get();
-        } else {
-            fFallbackHBFont.reset();
-            fCurrentTypeface = fTypeface.get();
-            fCurrentHBFont = fHBFont;
         }
 
         while (fCurrent < fEnd) {
             const char* prev = fCurrent;
             u = utf8_next(&fCurrent, fEnd);
 
-            // If using a fallback and the initial typeface has this character, stop fallback.
-            if (fFallbackTypeface &&
+            // If not using initial typeface and initial typeface has this character, stop fallback.
+            if (fCurrentTypeface != fTypeface.get() &&
                 fTypeface->charsToGlyphs(&u, SkTypeface::kUTF32_Encoding, nullptr, 1))
             {
                 fCurrent = prev;
@@ -673,6 +673,7 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             previousBreak = glyphIterator;
         }
         SkScalar glyphWidth = glyph->fAdvance.fX;
+        // TODO: if the glyph is non-visible it can be added.
         if (widthSoFar + glyphWidth < width) {
             widthSoFar += glyphWidth;
             glyphIterator.next();
@@ -680,12 +681,14 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             continue;
         }
 
+        // TODO: for both of these emergency break cases
+        // don't break grapheme clusters and pull in any zero width or non-visible
         if (widthSoFar == 0) {
             // Adding just this glyph is too much, just break with this glyph
             glyphIterator.next();
             previousBreak = glyphIterator;
         } else if (!previousBreakValid) {
-            // No break opprotunity found yet, just break without this glyph
+            // No break opportunity found yet, just break without this glyph
             previousBreak = glyphIterator;
         }
         glyphIterator = previousBreak;
