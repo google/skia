@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b3bebb6d_c6fff36f",
+        "filename": "infra/bots/recipes/test.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-08-31T16:38:58Z",
+      "side": 1,
+      "message": "Sorry, I caused a merge conflict. Please add to \"BonusConfigs\" job.",
+      "revId": "bb09facbd7153981f80d74b3681fad631269e11f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    }
+  ]
+}
