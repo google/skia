@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "edf5ded7_10cf6146",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T16:07:14Z",
+      "side": 1,
+      "message": "Is this question related to this change or just asking about another possible bug?",
+      "parentUuid": "74279c2a_108dd5bc",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "19a00f6e_eb021234",
         "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3282658c_d1719a3f",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T16:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19a00f6e_eb021234",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c8417441_17c82037",
         "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
         "patchSetId": 7
@@ -50,6 +86,24 @@
       "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "30a9582e_859a23ae",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T16:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c8417441_17c82037",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "9188f98d_02b8ccc9",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T16:07:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ab362764_269e74b7",
+      "range": {
+        "startLine": 416,
+        "startChar": 33,
+        "endLine": 416,
+        "endChar": 40
+      },
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fa1b47c4_5d7cbdbb",
         "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
         "patchSetId": 7
@@ -87,6 +165,30 @@
       "writtenOn": "2018-08-31T15:44:47Z",
       "side": 1,
       "message": "WDYT about an MakeOrthoNormal helper ?",
+      "range": {
+        "startLine": 417,
+        "startChar": 33,
+        "endLine": 417,
+        "endChar": 43
+      },
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e1d0a642_9eab465d",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-08-31T16:07:14Z",
+      "side": 1,
+      "message": "Given that normalize() can fail, it seems like it might be a little awkward. I moved the MakeOrthog/normalize/assert into a lambda in the new computeNormals() to reduce the duplication.",
+      "parentUuid": "fa1b47c4_5d7cbdbb",
       "range": {
         "startLine": 417,
         "startChar": 33,
