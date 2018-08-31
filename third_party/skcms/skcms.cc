@@ -1873,17 +1873,25 @@ namespace baseline {
     using  U8 = Vec<N,uint8_t>;
 #endif
 
-    #define ATTR
     #include "src/Transform_inl.h"
     #undef N
-    #undef ATTR
 }
 
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
 #if !defined(SKCMS_PORTABLE) && (defined(__clang__) || defined(__GNUC__)) \
         && defined(__x86_64__) && !defined(__AVX2__)
 
+    #if defined(__clang__)
+        #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
+    #elif defined(__GNUC__)
+        #pragma GCC push_options
+        #pragma GCC target("avx2,f16c")
+    #endif
+
     namespace hsw {
+        #define USING_AVX
+        #define USING_AVX_F16C
+        #define USING_AVX2
         #define N 8
         using   F = Vec<N,float>;
         using I32 = Vec<N,int32_t>;
@@ -1892,17 +1900,17 @@ namespace baseline {
         using U16 = Vec<N,uint16_t>;
         using  U8 = Vec<N,uint8_t>;
 
-        #define ATTR __attribute__((target("avx2,f16c")))
-        #define USING_AVX
-        #define USING_AVX_F16C
-        #define USING_AVX2
-
         #include "src/Transform_inl.h"
 
-        #undef N
-        #undef ATTR
         // src/Transform_inl.h will undefine USING_* for us.
+        #undef N
     }
+
+    #if defined(__clang__)
+        #pragma clang attribute pop
+    #elif defined(__GNUC__)
+        #pragma GCC pop_options
+    #endif
 
     #define TEST_FOR_HSW
 
