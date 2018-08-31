@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "039ca90e_4ef65265",
+        "filename": "src/svg/SkSVGDevice.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 869,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T12:51:01Z",
+      "side": 1,
+      "message": "LGTM, but wouldn\u0027t const SkPoint\u0026 here work better?",
+      "range": {
+        "startLine": 869,
+        "startChar": 19,
+        "endLine": 869,
+        "endChar": 26
+      },
+      "revId": "9407864ea906d6167a9ece3878e6233cfb5c7ada",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
