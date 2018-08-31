@@ -44,12 +44,12 @@
 <svg id=svg2 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
 <svg id=svg3 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
 
-<script type="text/javascript" src="/node_modules/experimental-pathkit-wasm/bin/pathkit.js"></script>
+<script type="text/javascript" src="/node_modules/pathkit-wasm/bin/pathkit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
 
   PathKitInit({
-    locateFile: (file) => '/node_modules/experimental-pathkit-wasm/bin/'+file,
+    locateFile: (file) => '/node_modules/pathkit-wasm/bin/'+file,
   }).then((PathKit) => {
     window.PathKit = PathKit;
     OutputsExample(PathKit);
