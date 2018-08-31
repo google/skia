@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7198a901_306b5c7a",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-31T22:21:30Z",
+      "side": 1,
+      "message": "MakeResourceAsTypeface",
+      "range": {
+        "startLine": 366,
+        "startChar": 24,
+        "endLine": 366,
+        "endChar": 66
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9fd8d259_061bbf9b",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-31T22:21:30Z",
+      "side": 1,
+      "message": "sk_sp\u003cSkData\u003e data \u003d GetResourceAsData(",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 62
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "abf3b61d_1db043ac",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-08-31T22:21:30Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 88,
+        "endChar": 82
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
