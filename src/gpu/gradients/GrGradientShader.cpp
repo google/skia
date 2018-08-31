@@ -17,17 +17,152 @@
 
 #include "GrDualIntervalGradientColorizer.h"
 #include "GrSingleIntervalGradientColorizer.h"
+#include "GrTextureGradientColorizer.h"
+#include "GrGradientBitmapCache.h"
 
+#include "SkFloatBits.h"
+#include "SkHalf.h"
 #include "SkMatrix.h"
-#include "SkGradientShaderPriv.h"
+#include "SkGr.h"
+
 #include "GrColor.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrTexture.h"
+
+#include <functional>
 
 namespace GrGradientShader {
+
+static constexpr int kGradientTextureSize = 256;
+
+void FillBitmap(const GrColor4f* colors, const SkScalar* positions, int count,
+                SkColorType colorType, SkBitmap* bitmap) {
+    SkHalf* pixelsF16 = reinterpret_cast<SkHalf*>(bitmap->getPixels());
+    uint32_t* pixels32 = reinterpret_cast<uint32_t*>(bitmap->getPixels());
+
+    typedef std::function<void(const Sk4f&, int)> pixelWriteFn_t;
+
+    pixelWriteFn_t writeF16Pixel = [&](const Sk4f& x, int index) {
+        Sk4h c = SkFloatToHalf_finite_ftz(x);
+        pixelsF16[4*index+0] = c[0];
+        pixelsF16[4*index+1] = c[1];
+        pixelsF16[4*index+2] = c[2];
+        pixelsF16[4*index+3] = c[3];
+    };
+    pixelWriteFn_t write8888Pixel = [&](const Sk4f& c, int index) {
+        pixels32[index] = Sk4f_toL32(c);
+    };
+
+    pixelWriteFn_t writePixel =
+            (colorType == kRGBA_F16_SkColorType) ? writeF16Pixel : write8888Pixel;
+
+    int prevIndex = 0;
+    for (int i = 1; i < count; i++) {
+        // Historically, stops have been mapped to [0, 256], with 256 then nudged to the
+        // next smaller value, then truncate for the texture index. This seems to produce
+        // the best results for some common distributions, so we preserve the behavior.
+        int nextIndex = SkTMin(positions[i] * kGradientTextureSize,
+                               SkIntToScalar(kGradientTextureSize - 1));
+
+        if (nextIndex > prevIndex) {
+            Sk4f          c0 = Sk4f::Load(colors[i - 1].fRGBA),
+                          c1 = Sk4f::Load(colors[i    ].fRGBA);
+
+            Sk4f step = Sk4f(1.0f / static_cast<float>(nextIndex - prevIndex));
+            Sk4f delta = (c1 - c0) * step;
+
+            for (int curIndex = prevIndex; curIndex <= nextIndex; ++curIndex) {
+                writePixel(c0, curIndex);
+                c0 += delta;
+            }
+        }
+        prevIndex = nextIndex;
+    }
+    SkASSERT(prevIndex == kGradientTextureSize - 1);
+}
+
+SK_DECLARE_STATIC_MUTEX(gGradientCacheMutex);
+void GetBitmap(const GrColor4f* colors, const SkScalar* positions, int count,
+               SkColorType colorType, SkAlphaType alphaType, SkBitmap* bitmap) {
+    // build our key: [numColors + colors[] + positions[] + alphaType + colorType ]
+    static_assert(sizeof(GrColor4f) % sizeof(int32_t) == 0, "");
+    const int colorsAsIntCount = count * sizeof(GrColor4f) / sizeof(int32_t);
+    int keyCount = 1 + colorsAsIntCount + 1 + 1;
+    if (count > 2) {
+        keyCount += count - 1;
+    }
+
+    SkAutoSTMalloc<64, int32_t> storage(keyCount);
+    int32_t* buffer = storage.get();
+
+    *buffer++ = count;
+    memcpy(buffer, colors, count * sizeof(GrColor4f));
+    buffer += colorsAsIntCount;
+    if (count > 2) {
+        for (int i = 1; i < count; i++) {
+            *buffer++ = SkFloat2Bits(positions[i]);
+        }
+    }
+    *buffer++ = static_cast<int32_t>(alphaType);
+    *buffer++ = static_cast<int32_t>(colorType);
+    SkASSERT(buffer - storage.get() == keyCount);
+
+    ///////////////////////////////////
+
+    static SkGradientBitmapCache* gCache;
+    // Each cache entry costs 1K or 2K of RAM. Each bitmap will be 1x256 at either 32bpp or 64bpp.
+    static const int MAX_NUM_CACHED_GRADIENT_BITMAPS = 32;
+    SkAutoMutexAcquire ama(gGradientCacheMutex);
+
+    if (nullptr == gCache) {
+        gCache = new SkGradientBitmapCache(MAX_NUM_CACHED_GRADIENT_BITMAPS);
+    }
+    size_t size = keyCount * sizeof(int32_t);
+
+    if (!gCache->find(storage.get(), size, bitmap)) {
+        SkImageInfo info = SkImageInfo::Make(kGradientTextureSize, 1, colorType, alphaType);
+        bitmap->allocPixels(info);
+        FillBitmap(colors, positions, count, colorType, bitmap);
+        bitmap->setImmutable();
+        gCache->add(storage.get(), size, *bitmap);
+    }
+}
+
+// NOTE: signature takes raw pointers to the color/pos arrays and a count to make it easy for
+// MakeColorizer to transparently take care of hard stops at the end points of the gradient.
+std::unique_ptr<GrFragmentProcessor> MakeTexturedColorizer(const GrColor4f* colors,
+                                                           const SkScalar* positions, int count,
+                                                           bool premul, const GrFPArgs& args) {
+    // Use 8888 or F16, depending on the destination config.
+    // TODO: Use 1010102 for opaque gradients, at least if destination is 1010102?
+    SkColorType colorType = kRGBA_8888_SkColorType;
+    if (kLow_GrSLPrecision != GrSLSamplerPrecision(args.fDstColorSpaceInfo->config()) &&
+        args.fContext->contextPriv().caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        colorType = kRGBA_F16_SkColorType;
+    }
+    SkAlphaType alphaType = premul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
+
+    SkBitmap bitmap;
+    GetBitmap(colors, positions, count, colorType, alphaType, &bitmap);
+    SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
+    SkASSERT(bitmap.isImmutable());
+
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
+            args.fContext->contextPriv().proxyProvider(), bitmap);
+    if (proxy == nullptr) {
+        SkDebugf("Gradient won't draw. Could not create texture.");
+        return nullptr;
+    }
+
+    return GrTextureGradientColorizer::Make(std::move(proxy));
+}
 
 // Analyze the shader's color stops and positions and chooses an appropriate
 // colorizer to represent the gradient.
 std::unique_ptr<GrFragmentProcessor> MakeColorizer(const SkTArray<GrColor4f, true>& colors,
-                                                   const SkScalar* positions) {
+                                                   const SkScalar* positions, bool premul,
+                                                   const GrFPArgs& args) {
     // If there are hard stops at the beginning or end, the first and/or last color
     // should be ignored by the colorizer since it should only be used in a
     // clamped border color. By detecting and removing these stops at the
@@ -66,7 +201,8 @@ std::unique_ptr<GrFragmentProcessor> MakeColorizer(const SkTArray<GrColor4f, tru
                                                      positions[offset + 1]);
     }
 
-    return nullptr;
+    // return MakeTexturedColorizer(colors.begin() + offset, positions + offset, count, premul, args);
+    return MakeTexturedColorizer(colors.begin(), positions, count, premul, args);
 }
 
 // Combines the colorizer and layout with an appropriately configured master
@@ -112,7 +248,8 @@ std::unique_ptr<GrFragmentProcessor> MakeGradient(
     }
 
     // All gradients are colorized the same way, regardless of layout
-    std::unique_ptr<GrFragmentProcessor> colorizer = MakeColorizer(colors, positions);
+    std::unique_ptr<GrFragmentProcessor> colorizer = MakeColorizer(
+            colors, positions, inputPremul, args);
     if (colorizer == nullptr) {
         return nullptr;
     }
