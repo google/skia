@@ -214,7 +214,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachNestedAnimation(const char* name
 
     auto animation = Animation::Builder()
             .setResourceProvider(fResourceProvider)
-            .setFontManager(fFontMgr)
+            .setFontManager(fLazyFontMgr.getMaybeNull())
             .make(static_cast<const char*>(data->data()), data->size());
     if (!animation) {
         LOG("!! Could not parse nested animation: %s\n", name);

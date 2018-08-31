@@ -101,8 +101,26 @@ private:
     sk_sp<sksg::RenderNode> attachSolidLayer  (const skjson::ObjectValue&, AnimatorScope*) const;
     sk_sp<sksg::RenderNode> attachTextLayer   (const skjson::ObjectValue&, AnimatorScope*) const;
 
+    // Delay resolving the fontmgr until it is actually needed.
+    struct LazyResolveFontMgr {
+        LazyResolveFontMgr(sk_sp<SkFontMgr> fontMgr) : fFontMgr(std::move(fontMgr)) {}
+
+        const sk_sp<SkFontMgr>& get() {
+            if (!fFontMgr) {
+                fFontMgr = SkFontMgr::RefDefault();
+                SkASSERT(fFontMgr);
+            }
+            return fFontMgr;
+        }
+
+        const sk_sp<SkFontMgr>& getMaybeNull() const { return fFontMgr; }
+
+    private:
+        sk_sp<SkFontMgr> fFontMgr;
+    };
+
     sk_sp<ResourceProvider>    fResourceProvider;
-    sk_sp<SkFontMgr>           fFontMgr;
+    LazyResolveFontMgr         fLazyFontMgr;
     Animation::Builder::Stats* fStats;
     const float                fDuration,
                                fFrameRate;
