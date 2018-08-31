@@ -115,6 +115,7 @@ protected:
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+    friend class GrOpListDAG;      // for TopoSortTraits
 
     void addDependency(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);
@@ -125,7 +126,7 @@ private:
     virtual void purgeOpsWithUninstantiatedProxies() = 0;
 
     // Feed proxy usage intervals to the GrResourceAllocator class
-    virtual void gatherProxyIntervals(GrResourceAllocator*) const = 0;
+    virtual void gatherProxyIntervals1(GrResourceAllocator*) const = 0;
 
     static uint32_t CreateUniqueID();
 
@@ -140,7 +141,7 @@ private:
         fFlags |= flag;
     }
 
-    void resetFlag(uint32_t flag) {
+    void resetFlag1(uint32_t flag) {
         fFlags &= ~flag;
     }
 
@@ -159,7 +160,7 @@ private:
             opList->setFlag(GrOpList::kTempMark_Flag);
         }
         static void ResetTempMark(GrOpList* opList) {
-            opList->resetFlag(GrOpList::kTempMark_Flag);
+            opList->resetFlag1(GrOpList::kTempMark_Flag);
         }
         static bool IsTempMarked(const GrOpList* opList) {
             return opList->isSetFlag(GrOpList::kTempMark_Flag);
