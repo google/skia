@@ -82,6 +82,15 @@ bool AnimationBuilder::FontInfo::matches(const char family[], const char style[]
         && 0 == strcmp(fStyle.c_str(), style);
 }
 
+const sk_sp<SkFontMgr>& AnimationBuilder::lazyFontMgr() {
+    if (!fFontMgr) {
+        fFontMgr = SkFontMgr::RefDefault();
+        SkASSERT(fFontMgr);
+    }
+
+    return fFontMgr;
+}
+
 void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                                   const skjson::ArrayValue* jchars) {
     // Optional array of font entries, referenced (by name) from text layer document nodes. E.g.
@@ -117,13 +126,14 @@ void AnimationBuilder::parseFonts(const skjson::ObjectValue* jfonts,
                     continue;
                 }
 
-                sk_sp<SkTypeface> tf(fFontMgr->matchFamilyStyle(jfamily->begin(),
-                                                                FontStyle(jstyle->begin())));
+                const auto& fmgr = this->lazyFontMgr();
+                sk_sp<SkTypeface> tf(fmgr->matchFamilyStyle(jfamily->begin(),
+                                                            FontStyle(jstyle->begin())));
                 if (!tf) {
                     LOG("!! Could not create typeface for %s|%s\n",
                         jfamily->begin(), jstyle->begin());
                     // Last resort.
-                    tf.reset(fFontMgr->matchFamilyStyle("Arial", SkFontStyle::Normal()));
+                    tf.reset(fmgr->matchFamilyStyle("Arial", SkFontStyle::Normal()));
                     if (!tf) {
                         continue;
                     }
