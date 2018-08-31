@@ -108,6 +108,7 @@ public:
         kGrDistanceFieldLCDTextGeoProc_ClassID,
         kGrDistanceFieldPathGeoProc_ClassID,
         kGrDitherEffect_ClassID,
+        kGrDualIntervalGradientColorizer_ClassID,
         kGrEllipseEffect_ClassID,
         kGrGaussianConvolutionFragmentProcessor_ClassID,
         kGrImprovedPerlinNoiseEffect_ClassID,
