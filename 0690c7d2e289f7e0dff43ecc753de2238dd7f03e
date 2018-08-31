@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "99dd1229_c293a6ff",
+        "filename": "src/core/SkGeometry.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-31T19:08:10Z",
+      "side": 1,
+      "message": "Since it returns a t value, and zero is a legal value for t, I chose to return -1.\nHowever, you\u0027re right, and I could return zero instead to indicate no cusp.\nIs there precedent for other geometry routines that return t and use 0 to represent an invalid t?",
+      "parentUuid": "b1fc7a80_ad551e42",
+      "range": {
+        "startLine": 899,
+        "startChar": 9,
+        "endLine": 899,
+        "endChar": 24
+      },
+      "revId": "0690c7d2e289f7e0dff43ecc753de2238dd7f03e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "f2bd0363_2b0925de",
         "filename": "src/core/SkGeometry.h",
         "patchSetId": 10
@@ -45,6 +69,30 @@
       "revId": "0690c7d2e289f7e0dff43ecc753de2238dd7f03e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "26845dbc_fac570ed",
+        "filename": "src/core/SkGeometry.h",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-08-31T19:08:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f2bd0363_2b0925de",
+      "range": {
+        "startLine": 157,
+        "startChar": 9,
+        "endLine": 157,
+        "endChar": 24
+      },
+      "revId": "0690c7d2e289f7e0dff43ecc753de2238dd7f03e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
