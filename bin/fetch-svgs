@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Copies the latest bot-generated SVG set to ./svgs.
+
+set -x
+set -e
+
+DOWNLOAD_SCRIPT=$(cd $(dirname $0)/..; pwd)/infra/bots/assets/svg/download.py
+python ${DOWNLOAD_SCRIPT} -t $(pwd)/svgs

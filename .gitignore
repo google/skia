@@ -34,6 +34,7 @@ platform_tools/android/apps/*/.externalNativeBuild
 
 sampleapp_prefs.txt
 /skps
+/svgs
 third_party/externals
 tools/skp/page_sets/data/*.json
 tools/skp/page_sets/data/*.wpr
