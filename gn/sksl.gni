@@ -10,6 +10,7 @@ skia_sksl_sources = [
   "$_src/sksl/SkSLCFGGenerator.cpp",
   "$_src/sksl/SkSLCompiler.cpp",
   "$_src/sksl/SkSLCPPCodeGenerator.cpp",
+  "$_src/sksl/SkSLCPPUniformCTypes.cpp",
   "$_src/sksl/SkSLGLSLCodeGenerator.cpp",
   "$_src/sksl/SkSLHCodeGenerator.cpp",
   "$_src/sksl/SkSLInterpreter.cpp",

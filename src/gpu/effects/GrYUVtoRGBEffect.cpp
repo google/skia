@@ -130,11 +130,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrYUVtoRGBEffect& _outer = _proc.cast<GrYUVtoRGBEffect>();
-        {
-            float colorSpaceMatrixValue[16];
-            _outer.colorSpaceMatrix().asColMajorf(colorSpaceMatrixValue);
-            pdman.setMatrix4f(fColorSpaceMatrixVar, colorSpaceMatrixValue);
-        }
+        { pdman.setSkMatrix44(fColorSpaceMatrixVar, (_outer.colorSpaceMatrix())); }
     }
     UniformHandle fColorSpaceMatrixVar;
 };

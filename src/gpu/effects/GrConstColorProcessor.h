@@ -42,8 +42,8 @@ public:
         SK_ABORT("Unexpected mode");
         return GrColor4f::TransparentBlack();
     }
-    GrColor4f color() const { return fColor; }
-    InputMode mode() const { return fMode; }
+    const GrColor4f& color() const { return fColor; }
+    const InputMode& mode() const { return fMode; }
     static std::unique_ptr<GrFragmentProcessor> Make(GrColor4f color, InputMode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrConstColorProcessor(color, mode));
     }

@@ -104,10 +104,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRectBlurEffect& _outer = _proc.cast<GrRectBlurEffect>();
-        {
-            const SkRect rectValue = _outer.rect();
-            pdman.set4fv(fRectVar, 1, (float*)&rectValue);
-        }
+        { pdman.set4fv(fRectVar, 1, reinterpret_cast<const float*>(&(_outer.rect()))); }
         UniformHandle& rect = fRectVar;
         (void)rect;
         auto sigma = _outer.sigma();

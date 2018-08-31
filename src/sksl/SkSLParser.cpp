@@ -120,6 +120,7 @@ void Parser::InitLayoutMap() {
     TOKEN(WHEN,                         "when");
     TOKEN(KEY,                          "key");
     TOKEN(CTYPE,                        "ctype");
+    TOKEN(TRACKED,                      "tracked");
     #undef TOKEN
 }
 
@@ -822,6 +823,9 @@ Layout Parser::layout() {
                         break;
                     case LayoutToken::PUSH_CONSTANT:
                         flags |= Layout::kPushConstant_Flag;
+                        break;
+                    case LayoutToken::TRACKED:
+                        flags |= Layout::kTracked_Flag;
                         break;
                     case LayoutToken::POINTS:
                         primitive = Layout::kPoints_Primitive;

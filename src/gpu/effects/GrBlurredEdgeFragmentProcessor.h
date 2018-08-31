@@ -16,7 +16,7 @@
 class GrBlurredEdgeFragmentProcessor : public GrFragmentProcessor {
 public:
     enum class Mode { kGaussian = 0, kSmoothStep = 1 };
-    Mode mode() const { return fMode; }
+    const Mode& mode() const { return fMode; }
     static std::unique_ptr<GrFragmentProcessor> Make(Mode mode) {
         return std::unique_ptr<GrFragmentProcessor>(new GrBlurredEdgeFragmentProcessor(mode));
     }

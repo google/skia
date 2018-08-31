@@ -35,6 +35,9 @@ public:
 
     static String FieldType(const Context& context, const Type& type, const Layout& layout);
 
+    // Either the field type, or a const reference of the field type if the field type is complex.
+    static String AccessType(const Context& context, const Type& type, const Layout& layout);
+
     static String FieldName(const char* varName) {
         return String::printf("f%c%s", toupper(varName[0]), varName + 1);
     }

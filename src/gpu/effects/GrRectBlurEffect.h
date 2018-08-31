@@ -60,7 +60,7 @@ public:
 
         return blurProfile;
     }
-    SkRect rect() const { return fRect; }
+    const SkRect& rect() const { return fRect; }
     float sigma() const { return fSigma; }
 
     static std::unique_ptr<GrFragmentProcessor> Make(GrProxyProvider* proxyProvider,

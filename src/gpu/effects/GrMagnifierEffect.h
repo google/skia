@@ -15,8 +15,8 @@
 #include "GrCoordTransform.h"
 class GrMagnifierEffect : public GrFragmentProcessor {
 public:
-    SkIRect bounds() const { return fBounds; }
-    SkRect srcRect() const { return fSrcRect; }
+    const SkIRect& bounds() const { return fBounds; }
+    const SkRect& srcRect() const { return fSrcRect; }
     float xInvZoom() const { return fXInvZoom; }
     float yInvZoom() const { return fYInvZoom; }
     float xInvInset() const { return fXInvInset; }

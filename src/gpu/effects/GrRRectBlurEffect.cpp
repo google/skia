@@ -100,7 +100,7 @@ private:
     void onSetData(const GrGLSLProgramDataManager& pdman,
                    const GrFragmentProcessor& _proc) override {
         const GrRRectBlurEffect& _outer = _proc.cast<GrRRectBlurEffect>();
-        { pdman.set1f(fCornerRadiusVar, _outer.cornerRadius()); }
+        { pdman.set1f(fCornerRadiusVar, (_outer.cornerRadius())); }
         auto sigma = _outer.sigma();
         (void)sigma;
         auto rect = _outer.rect();
