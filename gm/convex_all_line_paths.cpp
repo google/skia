@@ -317,9 +317,8 @@ protected:
             this->drawPath(canvas, i, &offset);
         }
 
-        // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
         {
-            canvas->translate(356.0f, 50.0f);
+            // Repro for crbug.com/472723 (Missing AA on portions of graphic with GPU rasterization)
 
             SkPaint p;
             p.setAntiAlias(true);
@@ -334,7 +333,31 @@ protected:
             p1.lineTo(59.4380493f, 364.671021f);
             p1.lineTo(385.414276f, 690.647217f);
             p1.lineTo(386.121399f, 689.940125f);
+            canvas->save();
+            canvas->translate(356.0f, 50.0f);
             canvas->drawPath(p1, p);
+            canvas->restore();
+
+            // Repro for crbug.com/869172 (SVG path incorrectly simplified when using GPU
+            // Rasterization). This will only draw anything in the stroke-and-fill version.
+            SkPath p2;
+            p2.moveTo(10.f, 0.f);
+            p2.lineTo(38.f, 0.f);
+            p2.lineTo(66.f, 0.f);
+            p2.lineTo(94.f, 0.f);
+            p2.lineTo(122.f, 0.f);
+            p2.lineTo(150.f, 0.f);
+            p2.lineTo(150.f, 0.f);
+            p2.lineTo(122.f, 0.f);
+            p2.lineTo(94.f, 0.f);
+            p2.lineTo(66.f, 0.f);
+            p2.lineTo(38.f, 0.f);
+            p2.lineTo(10.f, 0.f);
+            p2.close();
+            canvas->save();
+            canvas->translate(0.0f, 500.0f);
+            canvas->drawPath(p2, p);
+            canvas->restore();
         }
     }
 

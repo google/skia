@@ -147,7 +147,7 @@ static bool compute_vectors(SegmentArray* segments,
         for (int p = 0; p < n; ++p) {
             segb.fNorms[p] = segb.fPts[p] - *prevPt;
             segb.fNorms[p].normalize();
-            SkPointPriv::SetOrthog(&segb.fNorms[p], segb.fNorms[p], normSide);
+            segb.fNorms[p] = SkPointPriv::MakeOrthog(segb.fNorms[p], normSide);
             prevPt = &segb.fPts[p];
         }
         if (Segment::kLine == segb.fType) {
@@ -206,7 +206,7 @@ static void update_degenerate_test(DegenerateTestData* data, const SkPoint& pt) 
             if (SkPointPriv::DistanceToSqd(pt, data->fFirstPoint) > kCloseSqd) {
                 data->fLineNormal = pt - data->fFirstPoint;
                 data->fLineNormal.normalize();
-                SkPointPriv::SetOrthog(&data->fLineNormal, data->fLineNormal);
+                data->fLineNormal = SkPointPriv::MakeOrthog(data->fLineNormal);
                 data->fLineC = -data->fLineNormal.dot(data->fFirstPoint);
                 data->fStage = DegenerateTestData::kLine;
             }
