@@ -22,6 +22,46 @@
       "revId": "a7daed1cb675c8796291da966e8f0541b0da571f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2f703aa1_4f9dda8c",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T19:13:32Z",
+      "side": 1,
+      "message": "SkDEBUGCODE(pr-\u003evalidate();) ?",
+      "revId": "a7daed1cb675c8796291da966e8f0541b0da571f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7e62e223_119e34a6",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-08-31T19:13:32Z",
+      "side": 1,
+      "message": "nit: you could move this under the conditional above.",
+      "range": {
+        "startLine": 84,
+        "startChar": 0,
+        "endLine": 87,
+        "endChar": 5
+      },
+      "revId": "a7daed1cb675c8796291da966e8f0541b0da571f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
