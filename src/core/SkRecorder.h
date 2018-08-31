@@ -43,6 +43,8 @@ public:
     SkRecorder(SkRecord*, int width, int height, SkMiniRecorder* = nullptr);   // legacy version
     SkRecorder(SkRecord*, const SkRect& bounds, SkMiniRecorder* = nullptr);
 
+    void setNodeId(int node_id) override;
+
     enum DrawPictureMode { Record_DrawPictureMode, Playback_DrawPictureMode };
     void reset(SkRecord*, const SkRect& bounds, DrawPictureMode, SkMiniRecorder* = nullptr);
 
