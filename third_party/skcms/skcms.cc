@@ -1878,8 +1878,10 @@ namespace baseline {
 }
 
 // Now, instantiate any other versions of run_program() we may want for runtime detection.
-#if !defined(SKCMS_PORTABLE) && (defined(__clang__) || defined(__GNUC__)) \
-        && defined(__x86_64__) && !defined(__AVX2__)
+#if !defined(SKCMS_PORTABLE) &&                           \
+        (( defined(__clang__) && __clang_major__ >= 5) || \
+         (!defined(__clang__) && defined(__GNUC__)))      \
+     && defined(__x86_64__) && !defined(__AVX2__)
 
     #if defined(__clang__)
         #pragma clang attribute push(__attribute__((target("avx2,f16c"))), apply_to=function)
