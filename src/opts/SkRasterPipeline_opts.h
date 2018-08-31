@@ -2191,7 +2191,7 @@ namespace lowp {
 
 #else  // We are compiling vector code with Clang... let's make some lowp stages!
 
-#if defined(__AVX2__)
+#if defined(JUMPER_IS_HSW)
     using U8  = uint8_t  __attribute__((ext_vector_type(16)));
     using U16 = uint16_t __attribute__((ext_vector_type(16)));
     using I16 =  int16_t __attribute__((ext_vector_type(16)));
@@ -2417,7 +2417,7 @@ SI F mad(F f, F m, F a) { return f*m+a; }
 SI U32 trunc_(F x) { return (U32)cast<I32>(x); }
 
 SI F rcp(F x) {
-#if defined(__AVX2__)
+#if defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_rcp_ps(lo), _mm256_rcp_ps(hi));
@@ -2438,7 +2438,7 @@ SI F rcp(F x) {
 #endif
 }
 SI F sqrt_(F x) {
-#if defined(__AVX2__)
+#if defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_sqrt_ps(lo), _mm256_sqrt_ps(hi));
@@ -2473,11 +2473,11 @@ SI F floor_(F x) {
     float32x4_t lo,hi;
     split(x, &lo,&hi);
     return join<F>(vrndmq_f32(lo), vrndmq_f32(hi));
-#elif defined(__AVX2__)
+#elif defined(JUMPER_IS_HSW)
     __m256 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm256_floor_ps(lo), _mm256_floor_ps(hi));
-#elif defined(__SSE4_1__)
+#elif defined(JUMPER_IS_SSE41)
     __m128 lo,hi;
     split(x, &lo,&hi);
     return join<F>(_mm_floor_ps(lo), _mm_floor_ps(hi));
@@ -2666,7 +2666,7 @@ SI V load(const T* ptr, size_t tail) {
     V v = 0;
     switch (tail & (N-1)) {
         case  0: memcpy(&v, ptr, sizeof(v)); break;
-    #if defined(__AVX2__)
+    #if defined(JUMPER_IS_HSW)
         case 15: v[14] = ptr[14];
         case 14: v[13] = ptr[13];
         case 13: v[12] = ptr[12];
@@ -2690,7 +2690,7 @@ template <typename V, typename T>
 SI void store(T* ptr, size_t tail, V v) {
     switch (tail & (N-1)) {
         case  0: memcpy(ptr, &v, sizeof(v)); break;
-    #if defined(__AVX2__)
+    #if defined(JUMPER_IS_HSW)
         case 15: ptr[14] = v[14];
         case 14: ptr[13] = v[13];
         case 13: ptr[12] = v[12];
@@ -2710,7 +2710,7 @@ SI void store(T* ptr, size_t tail, V v) {
     }
 }
 
-#if defined(__AVX2__)
+#if defined(JUMPER_IS_HSW)
     template <typename V, typename T>
     SI V gather(const T* ptr, U32 ix) {
         return V{ ptr[ix[ 0]], ptr[ix[ 1]], ptr[ix[ 2]], ptr[ix[ 3]],
@@ -2748,7 +2748,7 @@ SI void store(T* ptr, size_t tail, V v) {
 // ~~~~~~ 32-bit memory loads and stores ~~~~~~ //
 
 SI void from_8888(U32 rgba, U16* r, U16* g, U16* b, U16* a) {
-#if 1 && defined(__AVX2__)
+#if 1 && defined(JUMPER_IS_HSW)
     // Swap the middle 128-bit lanes to make _mm256_packus_epi32() in cast_U16() work out nicely.
     __m256i _01,_23;
     split(rgba, &_01, &_23);
@@ -3084,7 +3084,7 @@ SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         U16* r, U16* g, U16* b, U16* a) {
 
     F fr, fg, fb, fa, br, bg, bb, ba;
-#if defined(__AVX2__)
+#if defined(JUMPER_IS_HSW)
     if (c->stopCount <=8) {
         __m256i lo, hi;
         split(idx, &lo, &hi);
