@@ -7,8 +7,8 @@ available to JS clients (e.g. Web Browsers) using WebAssembly and asm.js.
 Download the library
 --------------------
 
-See the the npm page for either the [WebAssembly](https://www.npmjs.com/package/experimental-pathkit-wasm) version
-or the [asm.js](https://www.npmjs.com/package/experimental-pathkit-asmjs) version
+See the the npm page for either the [WebAssembly](https://www.npmjs.com/package/pathkit-wasm) version
+or the [asm.js](https://www.npmjs.com/package/pathkit-asmjs) version
 for details on downloading and getting started.
 
 WebAssembly has faster load times and better overall performance but is
@@ -45,21 +45,34 @@ The primary features are:
   <canvas class=patheffect id=canvasTransform title="Transform: A drawn star moved and rotated by an Affine Matrix"></canvas>
 </div>
 
-<script src="https://unpkg.com/experimental-pathkit-asmjs@0.3.0/bin/pathkit.js"></script>
+<script type="text/javascript" charset="utf-8">
+  //Tries to load the WASM version if supported, then falls back to asmjs
+  let s = document.createElement('script');
+  if (window.WebAssembly && typeof window.WebAssembly.compile === "function") {
+    console.log('WebAssembly is supported! Using the wasm version of PathKit');
+    window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-wasm/0.3.1/bin/';
+  } else {
+    console.log('WebAssembly is not supported (yet) on this browser. Using the asmjs version of PathKit');
+    window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-asmjs/0.3.1/bin/';
+  }
+  s.src = window.__pathkit_locate_file+'pathkit.js';
+  document.write(s.outerHTML);
+</script>
+
 <script>
   try {
     PathKitInit({
-      locateFile: (file) => 'https://unpkg.com/experimental-pathkit-asmjs@0.3.0/bin/'+file,
+      locateFile: (file) => window.__pathkit_locate_file+file,
     }).then((PathKit) => {
       // Code goes here using PathKit
       PathEffectsExample(PathKit);
       MatrixTransformExample(PathKit);
     });
 
-    }
-    catch(error) {
-      console.warn(error, 'falling back to image');
-      docment.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
+  }
+  catch(error) {
+    console.warn(error, 'falling back to image');
+    docment.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
   }
 
   function setCanvasSize(ctx, width, height) {
