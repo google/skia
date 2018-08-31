@@ -5,7 +5,8 @@
   "private": true,
   "main": "index.js",
   "dependencies": {
-    "experimental-pathkit-wasm": "^0.2.0"
+    "pathkit-asmjs": "^0.4.0",
+    "pathkit-wasm": "^0.4.0"
   },
   "devDependencies": {
     "is-docker": "^1.1.0",
