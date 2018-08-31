@@ -1509,7 +1509,6 @@ void GLSLCodeGenerator::writeInputVars() {
 }
 
 bool GLSLCodeGenerator::generateCode() {
-    fProgramKind = fProgram.fKind;
     if (fProgramKind != Program::kPipelineStage_Kind) {
         this->writeHeader();
     }
