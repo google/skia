@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "de261719_0bd22fa0",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-31T14:58:27Z",
+      "side": 1,
+      "message": "These always move together right?  Does it make sense to make a std::vector of\n\n struct {\n   KeyframeRec;\n   SkCubicMap;\n }\n\nor make the SkCubicMap part of the KeyframeRec?",
+      "range": {
+        "startLine": 176,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 40
+      },
+      "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b0bcad96_9db49ce6",
+        "filename": "modules/skottie/src/SkottieAnimator.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-08-31T14:58:27Z",
+      "side": 1,
+      "message": "Maybe even keep them all together as\n\n   struct {\n     T\n     KeyframeRec;\n     SkCubicMap;\n   }\n\nor however that packs best (and just ignore the last KeyframeRec/SkCubicMap)?",
+      "range": {
+        "startLine": 213,
+        "startChar": 8,
+        "endLine": 214,
+        "endChar": 61
+      },
+      "revId": "8fee77a20acc7f5bde141d407b37385fc689d615",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
