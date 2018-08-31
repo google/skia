@@ -138,7 +138,7 @@ public:
     }
 
     AI bool allTrue() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return 0 != vminv_u32(vreinterpret_u32_f32(fVec));
     #else
         auto v = vreinterpret_u32_f32(fVec);
@@ -146,7 +146,7 @@ public:
     #endif
     }
     AI bool anyTrue() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return 0 != vmaxv_u32(vreinterpret_u32_f32(fVec));
     #else
         auto v = vreinterpret_u32_f32(fVec);
@@ -263,7 +263,7 @@ public:
     }
 
     AI float min() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return vminvq_f32(fVec);
     #else
         SkNx min = Min(*this, vrev64q_f32(fVec));
@@ -272,7 +272,7 @@ public:
     }
 
     AI float max() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return vmaxvq_f32(fVec);
     #else
         SkNx max = Max(*this, vrev64q_f32(fVec));
@@ -281,7 +281,7 @@ public:
     }
 
     AI bool allTrue() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return 0 != vminvq_u32(vreinterpretq_u32_f32(fVec));
     #else
         auto v = vreinterpretq_u32_f32(fVec);
@@ -290,7 +290,7 @@ public:
     #endif
     }
     AI bool anyTrue() const {
-    #if defined(__aarch64__)
+    #if defined(SK_CPU_ARM64)
         return 0 != vmaxvq_u32(vreinterpretq_u32_f32(fVec));
     #else
         auto v = vreinterpretq_u32_f32(fVec);

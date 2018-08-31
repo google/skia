@@ -15,7 +15,7 @@ namespace SK_OPTS_NS {
 
     template <typename T>
     static void memsetT(T buffer[], T value, int count) {
-    #if defined(__AVX__)
+    #if defined(SK_CPU_SSE_LEVEL) && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_AVX
         static const int N = 32 / sizeof(T);
     #else
         static const int N = 16 / sizeof(T);
