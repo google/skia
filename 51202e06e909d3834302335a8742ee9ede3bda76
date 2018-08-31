@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "74279c2a_108dd5bc",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-31T15:44:47Z",
+      "side": 1,
+      "message": "What happens with a stroked round capped point?",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "19a00f6e_eb021234",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-31T15:44:47Z",
+      "side": 1,
+      "message": "// Remove any lingering colinear points where the path wraps around\n\n?",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8417441_17c82037",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-31T15:44:47Z",
+      "side": 1,
+      "message": "break this out into a \"computeNormals\" method ?",
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab362764_269e74b7",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-31T15:44:47Z",
+      "side": 1,
+      "message": "rm ?",
+      "range": {
+        "startLine": 416,
+        "startChar": 33,
+        "endLine": 416,
+        "endChar": 40
+      },
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fa1b47c4_5d7cbdbb",
+        "filename": "src/gpu/ops/GrAAConvexTessellator.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-08-31T15:44:47Z",
+      "side": 1,
+      "message": "WDYT about an MakeOrthoNormal helper ?",
+      "range": {
+        "startLine": 417,
+        "startChar": 33,
+        "endLine": 417,
+        "endChar": 43
+      },
+      "revId": "51202e06e909d3834302335a8742ee9ede3bda76",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
