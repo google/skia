@@ -10,7 +10,9 @@
 
 #include "SkImageFilter.h"
 
+#if GR_TEST_UTILS
 extern const char* SKSL_ARITHMETIC_SRC;
+#endif
 
 struct ArithmeticFPInputs {
     ArithmeticFPInputs() {

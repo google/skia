@@ -29,9 +29,8 @@
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
-#endif
 
-const char* SKSL_ARITHMETIC_SRC = R"(
+GR_FP_SRC_STRING SKSL_ARITHMETIC_SRC = R"(
 in uniform float4 k;
 layout(key) const in bool enforcePMColor;
 in fragmentProcessor child;
@@ -44,6 +43,7 @@ void main(int x, int y, inout half4 color) {
     }
 }
 )";
+#endif
 
 class ArithmeticImageFilterImpl : public SkImageFilter {
 public:
