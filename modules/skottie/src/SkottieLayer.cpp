@@ -157,6 +157,7 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
                                               std::move(rec.mask_paint)));
 
     }
+    mask_group->shrink_to_fit();
 
     return sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
 }
@@ -519,6 +520,7 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
     for (int i = layers.count() - 1; i >= 0; --i) {
         comp_group->addChild(std::move(layers[i]));
     }
+    comp_group->shrink_to_fit();
 
     return std::move(comp_group);
 }

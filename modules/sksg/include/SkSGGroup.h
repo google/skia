@@ -9,8 +9,8 @@
 #define SkSGGroup_DEFINED
 
 #include "SkSGRenderNode.h"
-#include "SkTArray.h"
-#include "SkTo.h"
+
+#include <vector>
 
 namespace sksg {
 
@@ -26,8 +26,10 @@ public:
     void addChild(sk_sp<RenderNode>);
     void removeChild(const sk_sp<RenderNode>&);
 
-    size_t size() const { return SkTo<size_t>(fChildren.count()); }
+    size_t size() const { return fChildren.size(); }
     bool  empty() const { return fChildren.empty(); }
+
+    void shrink_to_fit();
 
 protected:
     Group();
@@ -37,7 +39,7 @@ protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    SkTArray<sk_sp<RenderNode>, true> fChildren;
+    std::vector<sk_sp<RenderNode>> fChildren;
 
     typedef RenderNode INHERITED;
 };
