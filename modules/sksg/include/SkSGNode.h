@@ -10,7 +10,8 @@
 
 #include "SkRect.h"
 #include "SkRefCnt.h"
-#include "SkTDArray.h"
+
+#include <vector>
 
 class SkCanvas;
 class SkMatrix;
@@ -75,12 +76,12 @@ private:
     class ScopedFlag;
 
     union {
-        Node*             fInvalObserver;
-        SkTDArray<Node*>* fInvalObserverArray;
+        Node*               fInvalObserver;
+        std::vector<Node*>* fInvalObserverArray;
     };
-    SkRect                fBounds;
-    const uint32_t        fInvalTraits : 16;
-    uint32_t              fFlags       : 16;
+    SkRect                  fBounds;
+    const uint32_t          fInvalTraits : 16;
+    uint32_t                fFlags       : 16;
 
     typedef SkRefCnt INHERITED;
 };

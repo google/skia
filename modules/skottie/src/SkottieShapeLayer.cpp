@@ -586,6 +586,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
     for (auto it = draws.rbegin(); it != draws.rend(); ++it) {
         shape_group->addChild(std::move(*it));
     }
+    shape_group->shrink_to_fit();
 
     return draws.empty() ? nullptr : shape_wrapper;
 }
