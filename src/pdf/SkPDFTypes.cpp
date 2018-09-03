@@ -262,11 +262,11 @@ SkPDFArray::SkPDFArray() { SkDEBUGCODE(fDumped = false;) }
 SkPDFArray::~SkPDFArray() { this->drop(); }
 
 void SkPDFArray::drop() {
-    fValues.reset();
+    fValues = std::vector<SkPDFUnion>();
     SkDEBUGCODE(fDumped = true;)
 }
 
-int SkPDFArray::size() const { return fValues.count(); }
+size_t SkPDFArray::size() const { return fValues.size(); }
 
 void SkPDFArray::reserve(int length) {
     fValues.reserve(length);
@@ -276,9 +276,9 @@ void SkPDFArray::emitObject(SkWStream* stream,
                             const SkPDFObjNumMap& objNumMap) const {
     SkASSERT(!fDumped);
     stream->writeText("[");
-    for (int i = 0; i < fValues.count(); i++) {
+    for (size_t i = 0; i < fValues.size(); i++) {
         fValues[i].emitObject(stream, objNumMap);
-        if (i + 1 < fValues.count()) {
+        if (i + 1 < fValues.size()) {
             stream->writeText(" ");
         }
     }
@@ -341,7 +341,7 @@ void SkPDFArray::appendObjRef(sk_sp<SkPDFObject> objSp) {
 SkPDFDict::~SkPDFDict() { this->drop(); }
 
 void SkPDFDict::drop() {
-    fRecords.reset();
+    fRecords = std::vector<SkPDFDict::Record>();
     SkDEBUGCODE(fDumped = true;)
 }
 
@@ -362,11 +362,11 @@ void SkPDFDict::emitObject(SkWStream* stream,
 void SkPDFDict::emitAll(SkWStream* stream,
                         const SkPDFObjNumMap& objNumMap) const {
     SkASSERT(!fDumped);
-    for (int i = 0; i < fRecords.count(); i++) {
+    for (size_t i = 0; i < fRecords.size(); i++) {
         fRecords[i].fKey.emitObject(stream, objNumMap);
         stream->writeText(" ");
         fRecords[i].fValue.emitObject(stream, objNumMap);
-        if (i + 1 < fRecords.count()) {
+        if (i + 1 < fRecords.size()) {
             stream->writeText("\n");
         }
     }
@@ -374,13 +374,13 @@ void SkPDFDict::emitAll(SkWStream* stream,
 
 void SkPDFDict::addResources(SkPDFObjNumMap* catalog) const {
     SkASSERT(!fDumped);
-    for (int i = 0; i < fRecords.count(); i++) {
+    for (size_t i = 0; i < fRecords.size(); i++) {
         fRecords[i].fKey.addResources(catalog);
         fRecords[i].fValue.addResources(catalog);
     }
 }
 
-int SkPDFDict::size() const { return fRecords.count(); }
+size_t SkPDFDict::size() const { return fRecords.size(); }
 
 void SkPDFDict::reserve(int n) {
     fRecords.reserve(n);

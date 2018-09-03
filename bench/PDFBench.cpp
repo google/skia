@@ -83,7 +83,7 @@ static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     SkNullWStream wStream;
     SkPDFObjNumMap objNumMap;
     objNumMap.addObjectRecursively(object.get());
-    for (int i = 0; i < objNumMap.objects().count(); ++i) {
+    for (size_t i = 0; i < objNumMap.objects().size(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i].get();
         wStream.writeDecAsText(i + 1);
         wStream.writeText(" 0 obj\n");

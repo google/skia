@@ -29,17 +29,19 @@ sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
-struct SkPDFObjectSerializer : SkNoncopyable {
+struct SkPDFObjectSerializer {
     SkPDFObjNumMap fObjNumMap;
-    SkTDArray<int32_t> fOffsets;
+    std::vector<int32_t> fOffsets;
     sk_sp<SkPDFObject> fInfoDict;
     size_t fBaseOffset;
-    int32_t fNextToBeSerialized;  // index in fObjNumMap
+    size_t fNextToBeSerialized;  // index in fObjNumMap
 
     SkPDFObjectSerializer();
     ~SkPDFObjectSerializer();
     SkPDFObjectSerializer(SkPDFObjectSerializer&&);
     SkPDFObjectSerializer& operator=(SkPDFObjectSerializer&&);
+    SkPDFObjectSerializer(const SkPDFObjectSerializer&) = delete;
+    SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 
     void addObjectRecursively(const sk_sp<SkPDFObject>&);
     void serializeHeader(SkWStream*, const SkDocument::PDFMetadata&);
@@ -79,7 +81,7 @@ public:
 private:
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
-    SkTArray<sk_sp<SkPDFDict>> fPages;
+    std::vector<sk_sp<SkPDFDict>> fPages;
     SkTHashSet<SkPDFFont*> fFonts;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;

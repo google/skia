@@ -7,7 +7,6 @@
 
 #include "SkPDFResourceDict.h"
 #include "SkPDFTypes.h"
-#include "SkPostConfig.h"
 
 // Sanity check that the values of enum SkPDFResourceType correspond to the
 // expected values as defined in the arrays below.
@@ -53,26 +52,27 @@ SkString SkPDFResourceDict::getResourceName(
     return SkStringPrintf("%c%d", SkPDFResourceDict::GetResourceTypePrefix(type), key);
 }
 
+template <typename T>
 static void add_subdict(
-        const SkTDArray<SkPDFObject*>& resourceList,
+        std::vector<sk_sp<T>> resourceList,
         SkPDFResourceDict::SkPDFResourceType type,
         SkPDFDict* dst) {
-    if (0 == resourceList.count()) {
+    if (0 == resourceList.size()) {
         return;
     }
     auto resources = sk_make_sp<SkPDFDict>();
-    for (int i = 0; i < resourceList.count(); i++) {
-        resources->insertObjRef(SkPDFResourceDict::getResourceName(type, i),
-                                sk_ref_sp(resourceList[i]));
+    for (size_t i = 0; i < resourceList.size(); i++) {
+        resources->insertObjRef(SkPDFResourceDict::getResourceName(type, SkToInt(i)),
+                                std::move(resourceList[i]));
     }
     dst->insertObject(get_resource_type_name(type), std::move(resources));
 }
 
-sk_sp<SkPDFDict> SkPDFResourceDict::Make(
-        const SkTDArray<SkPDFObject*>* gStateResources,
-        const SkTDArray<SkPDFObject*>* patternResources,
-        const SkTDArray<SkPDFObject*>* xObjectResources,
-        const SkTDArray<SkPDFObject*>* fontResources) {
+sk_sp<SkPDFDict> SkPDFResourceDict::Make(std::vector<sk_sp<SkPDFObject>> graphicStateResources,
+                                         std::vector<sk_sp<SkPDFObject>> shaderResources,
+                                         std::vector<sk_sp<SkPDFObject>> xObjectResources,
+                                         std::vector<sk_sp<SkPDFFont>> fontResources)
+{
     auto dict = sk_make_sp<SkPDFDict>();
     static const char kProcs[][7] = {
         "PDF", "Text", "ImageB", "ImageC", "ImageI"};
@@ -84,17 +84,17 @@ sk_sp<SkPDFDict> SkPDFResourceDict::Make(
     }
     dict->insertObject("ProcSets", std::move(procSets));
 
-    if (gStateResources) {
-        add_subdict(*gStateResources, kExtGState_ResourceType, dict.get());
+    if (graphicStateResources.size() > 0) {
+        add_subdict(std::move(graphicStateResources), kExtGState_ResourceType, dict.get());
     }
-    if (patternResources) {
-        add_subdict(*patternResources, kPattern_ResourceType, dict.get());
+    if (shaderResources.size() > 0) {
+        add_subdict(std::move(shaderResources), kPattern_ResourceType, dict.get());
     }
-    if (xObjectResources) {
-        add_subdict(*xObjectResources, kXObject_ResourceType, dict.get());
+    if (xObjectResources.size() > 0) {
+        add_subdict(std::move(xObjectResources), kXObject_ResourceType, dict.get());
     }
-    if (fontResources) {
-        add_subdict(*fontResources, kFont_ResourceType, dict.get());
+    if (fontResources.size() > 0) {
+        add_subdict(std::move(fontResources), kFont_ResourceType, dict.get());
     }
     return dict;
 }

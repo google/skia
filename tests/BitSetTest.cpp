@@ -6,8 +6,9 @@
  */
 
 #include "SkBitSet.h"
-#include "SkTDArray.h"
 #include "Test.h"
+
+#include <vector>
 
 DEF_TEST(BitSet, reporter) {
     SkBitSet set0(65536);
@@ -24,9 +25,9 @@ DEF_TEST(BitSet, reporter) {
     REPORTER_ASSERT(reporter, set0.has(24) == true);
     REPORTER_ASSERT(reporter, set0.has(35) == true);
 
-    SkTDArray<unsigned int> data;
+    std::vector<unsigned int> data;
     set0.exportTo(&data);
-    REPORTER_ASSERT(reporter, data.count() == 3);
+    REPORTER_ASSERT(reporter, data.size() == 3);
     REPORTER_ASSERT(reporter, data[0] == 22);
     REPORTER_ASSERT(reporter, data[1] == 24);
     REPORTER_ASSERT(reporter, data[2] == 35);

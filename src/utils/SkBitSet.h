@@ -8,8 +8,9 @@
 #ifndef SkBitSet_DEFINED
 #define SkBitSet_DEFINED
 
-#include "SkTDArray.h"
 #include "SkTemplates.h"
+
+#include <vector>
 
 class SkBitSet {
 public:
@@ -45,7 +46,7 @@ public:
 
     /** Export indices of set bits to T array. */
     template<typename T>
-    void exportTo(SkTDArray<T>* array) const {
+    void exportTo(std::vector<T>* array) const {
         static_assert(std::is_integral<T>::value, "T is integral");
         SkASSERT(array);
         uint32_t* data = reinterpret_cast<uint32_t*>(fBitData.get());
