@@ -116,7 +116,7 @@ bool SkFontDescriptor::Deserialize(SkStream* stream, SkFontDescriptor* result) {
     return true;
 }
 
-void SkFontDescriptor::serialize(SkWStream* stream) {
+void SkFontDescriptor::serialize(SkWStream* stream) const {
     uint32_t styleBits = (fStyle.weight() << 16) | (fStyle.width() << 8) | (fStyle.slant());
     stream->writePackedUInt(styleBits);
 
