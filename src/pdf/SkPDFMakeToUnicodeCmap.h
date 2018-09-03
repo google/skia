@@ -7,7 +7,6 @@
 #ifndef SkPDFMakeToUnicodeCmap_DEFINED
 #define SkPDFMakeToUnicodeCmap_DEFINED
 
-#include "SkTDArray.h"
 #include "SkPDFFont.h"
 #include "SkStream.h"
 

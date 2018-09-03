@@ -13,7 +13,6 @@
 #include "SkBitSet.h"
 #include "SkStrikeCache.h"
 #include "SkPDFTypes.h"
-#include "SkTDArray.h"
 #include "SkTypeface.h"
 
 class SkPDFCanon;
