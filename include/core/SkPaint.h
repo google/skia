@@ -232,14 +232,10 @@ public:
         kFakeBoldText_Flag       = 0x20,   //!< mask for setting fake bold
         kLinearText_Flag         = 0x40,   //!< mask for setting linear text
         kSubpixelText_Flag       = 0x80,   //!< mask for setting subpixel text
-        kDevKernText_Flag        = 0x100,  //!< mask for setting full hinting spacing
         kLCDRenderText_Flag      = 0x200,  //!< mask for setting LCD text
         kEmbeddedBitmapText_Flag = 0x400,  //!< mask for setting font embedded bitmaps
         kAutoHinting_Flag        = 0x800,  //!< mask for setting auto-hinting
         kVerticalText_Flag       = 0x1000, //!< mask for setting vertical text
-
-        /** Hack for GDI -- do not use if you can help it */
-        kGenA8FromLCD_Flag       = 0x2000,
 
         /** mask of all Flags, including private flags and flags reserved for future use */
         kAllFlags                = 0xFFFF,
@@ -454,9 +450,7 @@ public:
 
         @return  kDevKernText_Flag state
     */
-    bool isDevKernText() const {
-        return SkToBool(this->getFlags() & kDevKernText_Flag);
-    }
+    bool isDevKernText() const { return false; }
 
     /** Requests, but does not require, to use hinting to adjust glyph spacing.
 
@@ -465,7 +459,7 @@ public:
 
         @param devKernText  setting for devKernText
     */
-    void setDevKernText(bool devKernText);
+    void setDevKernText(bool) { }
 
     /** Returns SkFilterQuality, the image filtering level. A lower setting
         draws faster; a higher setting looks better when the image is scaled.
@@ -521,12 +515,10 @@ public:
         kStrokeAndFill_Style,
     };
 
-    enum {
-        /** The number of different Style values defined.
-            May be used to verify that Style is a legal value.
-        */
-        kStyleCount = kStrokeAndFill_Style + 1,
-    };
+    /** The number of different Style values defined.
+        May be used to verify that Style is a legal value.
+    */
+    static constexpr int kStyleCount = kStrokeAndFill_Style + 1;
 
     /** Whether the geometry is filled, stroked, or filled and stroked.
 
@@ -952,9 +944,7 @@ public:
         kRight_Align,
     };
 
-    enum {
-        kAlignCount = 3, //!< The number of different Align values defined.
-    };
+    static constexpr int kAlignCount = 3; //!< The number of different Align values defined.
 
     /** Returns SkPaint::Align.
         Returns kLeft_Align if SkPaint::Align has not been set.
@@ -1315,9 +1305,7 @@ public:
         @param byteLength  length of character storage in bytes
         @return            number of glyphs represented by text of length byteLength
     */
-    int countText(const void* text, size_t byteLength) const {
-        return this->textToGlyphs(text, byteLength, nullptr);
-    }
+    int countText(const void* text, size_t byteLength) const;
 
     /** Returns the advance width of text if kVerticalText_Flag is clear,
         and the height of text if kVerticalText_Flag is set.
@@ -1652,7 +1640,6 @@ private:
     };
 
     static GlyphCacheProc GetGlyphCacheProc(TextEncoding encoding,
-                                            bool isDevKern,
                                             bool needFullMetrics);
 
     SkScalar measure_text(SkGlyphCache*, const char* text, size_t length,
@@ -1665,23 +1652,21 @@ private:
      */
     SkColor computeLuminanceColor() const;
 
-    enum {
-        /*  This is the size we use when we ask for a glyph's path. We then
-         *  post-transform it as we draw to match the request.
-         *  This is done to try to re-use cache entries for the path.
-         *
-         *  This value is somewhat arbitrary. In theory, it could be 1, since
-         *  we store paths as floats. However, we get the path from the font
-         *  scaler, and it may represent its paths as fixed-point (or 26.6),
-         *  so we shouldn't ask for something too big (might overflow 16.16)
-         *  or too small (underflow 26.6).
-         *
-         *  This value could track kMaxSizeForGlyphCache, assuming the above
-         *  constraints, but since we ask for unhinted paths, the two values
-         *  need not match per-se.
-         */
-        kCanonicalTextSizeForPaths  = 64,
-    };
+    /*  This is the size we use when we ask for a glyph's path. We then
+     *  post-transform it as we draw to match the request.
+     *  This is done to try to re-use cache entries for the path.
+     *
+     *  This value is somewhat arbitrary. In theory, it could be 1, since
+     *  we store paths as floats. However, we get the path from the font
+     *  scaler, and it may represent its paths as fixed-point (or 26.6),
+     *  so we shouldn't ask for something too big (might overflow 16.16)
+     *  or too small (underflow 26.6).
+     *
+     *  This value could track kMaxSizeForGlyphCache, assuming the above
+     *  constraints, but since we ask for unhinted paths, the two values
+     *  need not match per-se.
+     */
+    static constexpr int kCanonicalTextSizeForPaths  = 64;
 
     static bool TooBigToUseCache(const SkMatrix& ctm, const SkMatrix& textM, SkScalar maxLimit);
 
@@ -1705,6 +1690,7 @@ private:
     friend class SkPDFDevice;
     friend class SkScalerContext;  // for computeLuminanceColor()
     friend class SkTextBaseIter;
+    friend class SkTextBlobCacheDiffCanvas;
 };
 
 #endif

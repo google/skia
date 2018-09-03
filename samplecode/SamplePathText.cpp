@@ -12,6 +12,7 @@
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkRandom.h"
+#include "SkStrikeCache.h"
 #include "SkTaskGroup.h"
 #include "sk_tool_utils.h"
 
@@ -24,7 +25,7 @@ public:
 
     PathText() {
         SkPaint defaultPaint;
-        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(defaultPaint);
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(defaultPaint);
         SkPath glyphPaths[52];
         for (int i = 0; i < 52; ++i) {
             // I and l are rects on OS X ...
@@ -318,7 +319,7 @@ public:
 
     void swapAnimationBuffers() override {
         this->INHERITED::swapAnimationBuffers();
-        fFrontPaths.swap(fBackPaths);
+        std::swap(fFrontPaths, fBackPaths);
     }
 
     void drawGlyphs(SkCanvas* canvas) override {

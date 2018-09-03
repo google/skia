@@ -6,6 +6,21 @@
       "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
       "--json-output",
       "/path/to/tmp/json",
+      "ensure-directory",
+      "--mode",
+      "0777",
+      "[START_DIR]/tmp"
+    ],
+    "infra_step": true,
+    "name": "makedirs tmp_dir"
+  },
+  {
+    "cmd": [
+      "python",
+      "-u",
+      "RECIPE_MODULE[recipe_engine::file]/resources/fileutil.py",
+      "--json-output",
+      "/path/to/tmp/json",
       "copy",
       "[START_DIR]/skia/infra/bots/assets/skp/VERSION",
       "/path/to/tmp/"
@@ -91,7 +106,7 @@
       "--json-output",
       "/path/to/tmp/json",
       "rmtree",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "rmtree data"
@@ -106,7 +121,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data"
     ],
     "infra_step": true,
     "name": "makedirs data"
@@ -141,7 +156,7 @@
   },
   {
     "cmd": [
-      "[START_DIR]/out/Release_x64/nanobench",
+      "[START_DIR]/build/out/Release_x64/nanobench",
       "-i",
       "[START_DIR]/skia/resources",
       "--skps",
@@ -182,7 +197,7 @@
       "~inc0.webp",
       "~inc1.webp",
       "--outResultsFile",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All/data/nanobench_abc123_1337000001.json",
       "--properties",
       "gitHash",
       "abc123",
@@ -211,10 +226,8 @@
       "Win10"
     ],
     "env": {
-      "BUILDTYPE": "Release_x64",
       "CHROME_HEADLESS": "1",
-      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]",
-      "SKIA_OUT": "[START_DIR]/out"
+      "PATH": "<PATH>:RECIPE_PACKAGE_REPO[depot_tools]"
     },
     "name": "nanobench"
   },
@@ -228,7 +241,7 @@
       "ensure-directory",
       "--mode",
       "0777",
-      "[CUSTOM_[SWARM_OUT_DIR]]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All"
+      "[START_DIR]/[SWARM_OUT_DIR]/perfdata/Perf-Win10-Clang-NUCD34010WYKH-GPU-IntelHD4400-x86_64-Release-All"
     ],
     "infra_step": true,
     "name": "makedirs perf_dir"

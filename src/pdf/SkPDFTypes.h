@@ -5,9 +5,10 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
+
+#include <type_traits>
 
 #include "SkRefCnt.h"
 #include "SkScalar.h"
@@ -62,6 +63,20 @@ private:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+class SkStorageFor {
+public:
+    const T& get() const { return *reinterpret_cast<const T*>(&fStore); }
+    T& get() { return *reinterpret_cast<T*>(&fStore); }
+    // Up to caller to keep track of status.
+    template<class... Args> void init(Args&&... args) {
+        new (&this->get()) T(std::forward<Args>(args)...);
+    }
+    void destroy() { this->get().~T(); }
+private:
+    typename std::aligned_storage<sizeof(T), alignof(T)>::type fStore;
+};
 
 /**
    A SkPDFUnion is a non-virtualized implementation of the
@@ -129,7 +144,7 @@ private:
         bool fBoolValue;
         SkScalar fScalarValue;
         const char* fStaticString;
-        char fSkString[sizeof(SkString)];
+        SkStorageFor<SkString> fSkString;
         SkPDFObject* fObject;
     };
     enum class Type : char {

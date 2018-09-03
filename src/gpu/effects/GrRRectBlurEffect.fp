@@ -79,6 +79,7 @@ uniform half blurRadius;
                                                    xformedSigma,
                                                    xformedSigma,
                                                    GrTextureDomain::kIgnore_Mode,
+                                                   kPremul_SkAlphaType,
                                                    SkBackingFit::kExact));
             if (!rtc2) {
                 return nullptr;

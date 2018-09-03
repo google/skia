@@ -110,7 +110,7 @@ void GrInstallBitmapUniqueKeyInvalidator(const GrUniqueKey& key, SkPixelRef* pix
 sk_sp<GrTextureProxy> GrCopyBaseMipMapToTextureProxy(GrContext* ctx, GrTextureProxy* baseProxy) {
     SkASSERT(baseProxy);
 
-    if (!ctx->caps()->isConfigCopyable(baseProxy->config())) {
+    if (!ctx->contextPriv().caps()->isConfigCopyable(baseProxy->config())) {
         return nullptr;
     }
 
@@ -300,6 +300,7 @@ GrPixelConfig GrRenderableConfigForColorSpace(const SkColorSpace* colorSpace) {
     if (!colorSpace) {
         return kRGBA_8888_GrPixelConfig;
     } else if (colorSpace->gammaIsLinear()) {
+        // TODO
         return kRGBA_half_GrPixelConfig;
     } else if (colorSpace->gammaCloseToSRGB()) {
         return kSRGBA_8888_GrPixelConfig;

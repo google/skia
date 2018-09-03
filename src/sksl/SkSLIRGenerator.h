@@ -86,7 +86,8 @@ private:
      * Prepare to compile a program. Resets state, pushes a new symbol table, and installs the
      * settings.
      */
-    void start(const Program::Settings* settings);
+    void start(const Program::Settings* settings,
+               std::vector<std::unique_ptr<ProgramElement>>* inherited);
 
     /**
      * Performs cleanup after compilation is complete.
@@ -182,7 +183,7 @@ private:
     ErrorReporter& fErrors;
     int fInvocations;
     std::vector<std::unique_ptr<ProgramElement>>* fProgramElements;
-    Variable* fSkPerVertex;
+    const Variable* fSkPerVertex = nullptr;
     Variable* fRTAdjust;
     Variable* fRTAdjustInterfaceBlock;
     int fRTAdjustFieldIndex;

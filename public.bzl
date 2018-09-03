@@ -566,6 +566,8 @@ def base_copts(os_conditions):
               "-Wno-implicit-fallthrough",  # Some intentional fallthrough.
               # Internal use of deprecated methods. :(
               "-Wno-deprecated-declarations",
+              # TODO(kjlubick)
+              "-Wno-self-assign",  # Spurious warning in tests/PathOpsDVectorTest.cpp?
           ],
           # ANDROID
           [

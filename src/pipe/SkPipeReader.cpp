@@ -562,8 +562,10 @@ static void drawImageLattice_handler(SkPipeReader& reader, uint32_t packedVerb, 
 static void drawVertices_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
     SkASSERT(SkPipeVerb::kDrawVertices == unpack_verb(packedVerb));
     SkBlendMode bmode = (SkBlendMode)unpack_verb_extra(packedVerb);
-    sk_sp<SkData> data = reader.readByteArrayAsData();
-    canvas->drawVertices(SkVertices::Decode(data->data(), data->size()), bmode, read_paint(reader));
+    if (sk_sp<SkData> data = reader.readByteArrayAsData()) {
+        canvas->drawVertices(SkVertices::Decode(data->data(), data->size()), bmode,
+                             read_paint(reader));
+    }
 }
 
 static void drawPicture_handler(SkPipeReader& reader, uint32_t packedVerb, SkCanvas* canvas) {
@@ -634,7 +636,7 @@ static void defineImage_handler(SkPipeReader& reader, uint32_t packedVerb, SkCan
     } else {
         // we are defining a new image
         sk_sp<SkData> data = reader.readByteArrayAsData();
-        sk_sp<SkImage> image = inflator->makeImage(data);
+        sk_sp<SkImage> image = data ? inflator->makeImage(data) : nullptr;
         if (!image) {
             SkDebugf("-- failed to decode\n");
         }
@@ -663,7 +665,7 @@ static void defineTypeface_handler(SkPipeReader& reader, uint32_t packedVerb, Sk
         // we are defining a new image
         sk_sp<SkData> data = reader.readByteArrayAsData();
         // TODO: seems like we could "peek" to see the array, and not need to copy it.
-        sk_sp<SkTypeface> tf = inflator->makeTypeface(data->data(), data->size());
+        sk_sp<SkTypeface> tf = data ? inflator->makeTypeface(data->data(), data->size()) : nullptr;
         inflator->setTypeface(index, tf.get());
     }
 }

@@ -16,8 +16,8 @@
 
 class GrMatrixConvolutionEffect : public GrFragmentProcessor {
 public:
-    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> proxy,
-                                                     const SkIRect& bounds,
+    static std::unique_ptr<GrFragmentProcessor> Make(sk_sp<GrTextureProxy> srcProxy,
+                                                     const SkIRect& srcBounds,
                                                      const SkISize& kernelSize,
                                                      const SkScalar* kernel,
                                                      SkScalar gain,
@@ -26,12 +26,12 @@ public:
                                                      GrTextureDomain::Mode tileMode,
                                                      bool convolveAlpha) {
         return std::unique_ptr<GrFragmentProcessor>(
-                new GrMatrixConvolutionEffect(std::move(proxy), bounds, kernelSize, kernel, gain,
-                                              bias, kernelOffset, tileMode, convolveAlpha));
+                new GrMatrixConvolutionEffect(std::move(srcProxy), srcBounds, kernelSize, kernel,
+                                              gain, bias, kernelOffset, tileMode, convolveAlpha));
     }
 
-    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> proxy,
-                                                             const SkIRect& bounds,
+    static std::unique_ptr<GrFragmentProcessor> MakeGaussian(sk_sp<GrTextureProxy> srcProxy,
+                                                             const SkIRect& srcBounds,
                                                              const SkISize& kernelSize,
                                                              SkScalar gain,
                                                              SkScalar bias,
@@ -55,8 +55,10 @@ public:
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
-    GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> proxy,
-                              const SkIRect& bounds,
+    // srcProxy is the texture that is going to be convolved
+    // srcBounds is the subset of 'srcProxy' that will be used (e.g., for clamp mode)
+    GrMatrixConvolutionEffect(sk_sp<GrTextureProxy> srcProxy,
+                              const SkIRect& srcBounds,
                               const SkISize& kernelSize,
                               const SkScalar* kernel,
                               SkScalar gain,

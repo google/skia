@@ -9,21 +9,26 @@
 
 // skcms.h contains the entire public API for skcms.
 
+#ifndef SKCMS_API
+    #define SKCMS_API
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // A row-major 3x3 matrix (ie vals[row][col])
-typedef struct {
+typedef struct skcms_Matrix3x3 {
     float vals[3][3];
 } skcms_Matrix3x3;
 
 // A row-major 3x4 matrix (ie vals[row][col])
-typedef struct {
+typedef struct skcms_Matrix3x4 {
     float vals[3][4];
 } skcms_Matrix3x4;
 
@@ -34,12 +39,12 @@ typedef struct {
 //          = sign(encoded) * ((a*|encoded| + b)^g + e), d <= |encoded|
 //
 // (A simple gamma transfer function sets g to gamma and a to 1.)
-typedef struct {
+typedef struct skcms_TransferFunction {
     float g, a,b,c,d,e,f;
 } skcms_TransferFunction;
 
 // Unified representation of 'curv' or 'para' tag data, or a 1D table from 'mft1' or 'mft2'
-typedef union {
+typedef union skcms_Curve {
     struct {
         uint32_t alias_of_table_entries;
         skcms_TransferFunction parametric;
@@ -51,7 +56,7 @@ typedef union {
     };
 } skcms_Curve;
 
-typedef struct {
+typedef struct skcms_A2B {
     // Optional: N 1D curves, followed by an N-dimensional CLUT.
     // If input_channels == 0, these curves and CLUT are skipped,
     // Otherwise, input_channels must be in [1, 4].
@@ -73,7 +78,7 @@ typedef struct {
     skcms_Curve     output_curves[3];
 } skcms_A2B;
 
-typedef struct {
+typedef struct skcms_ICCProfile {
     const uint8_t* buffer;
 
     uint32_t size;
@@ -100,40 +105,67 @@ typedef struct {
 } skcms_ICCProfile;
 
 // The sRGB color profile is so commonly used that we offer a canonical skcms_ICCProfile for it.
-extern const skcms_ICCProfile skcms_sRGB_profile;
+SKCMS_API const skcms_ICCProfile* skcms_sRGB_profile(void);
+// Ditto for XYZD50, the most common profile connection space.
+SKCMS_API const skcms_ICCProfile* skcms_XYZD50_profile(void);
+
+SKCMS_API const skcms_TransferFunction* skcms_sRGB_TransferFunction(void);
+SKCMS_API const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction(void);
+SKCMS_API const skcms_TransferFunction* skcms_Identity_TransferFunction(void);
 
 // Practical equality test for two skcms_ICCProfiles.
 // The implementation is subject to change, but it will always try to answer
 // "can I substitute A for B?" and "can I skip transforming from A to B?".
-bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B);
+SKCMS_API bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A,
+                                                const skcms_ICCProfile* B);
+
+// Practical test that answers: Is curve roughly the inverse of inv_tf? Typically used by passing
+// the inverse of a known parametric transfer function (like sRGB), to determine if a particular
+// curve is very close to sRGB.
+SKCMS_API bool skcms_AreApproximateInverses(const skcms_Curve* curve,
+                                            const skcms_TransferFunction* inv_tf);
+
+// Similar to above, answering the question for all three TRC curves of the given profile. Again,
+// passing skcms_sRGB_InverseTransferFunction as inv_tf will answer the question:
+// "Does this profile have a transfer function that is very close to sRGB?"
+SKCMS_API bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
+                                                const skcms_TransferFunction* inv_tf);
 
 // Parse an ICC profile and return true if possible, otherwise return false.
 // The buffer is not copied, it must remain valid as long as the skcms_ICCProfile
 // will be used.
-bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
+SKCMS_API bool skcms_Parse(const void*, size_t, skcms_ICCProfile*);
 
-bool skcms_ApproximateCurve(const skcms_Curve* curve, skcms_TransferFunction* approx,
-                            float* max_error);
+// No-op, to be removed.
+static inline void skcms_OptimizeForSpeed(skcms_ICCProfile* p) { (void)p; }
 
-// A specialized approximation for transfer functions with gamma between 1 and 3.
-//     f(x) = Ax^3 + Bx^2 + (1-A-B)x
-typedef struct {
-    float A,B;
-} skcms_TF13;
+SKCMS_API bool skcms_ApproximateCurve(const skcms_Curve* curve,
+                                      skcms_TransferFunction* approx,
+                                      float* max_error);
 
-bool skcms_ApproximateCurve13(const skcms_Curve* curve, skcms_TF13* approx, float* max_error);
-
-typedef struct {
+typedef struct skcms_ICCTag {
     uint32_t       signature;
     uint32_t       type;
     uint32_t       size;
     const uint8_t* buf;
 } skcms_ICCTag;
 
-void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
-bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
+SKCMS_API void skcms_GetTagByIndex    (const skcms_ICCProfile*, uint32_t idx, skcms_ICCTag*);
+SKCMS_API bool skcms_GetTagBySignature(const skcms_ICCProfile*, uint32_t sig, skcms_ICCTag*);
 
-typedef enum {
+// These are common ICC signature values
+enum {
+    // data_color_space
+    skcms_Signature_CMYK = 0x434D594B,
+    skcms_Signature_Gray = 0x47524159,
+    skcms_Signature_RGB  = 0x52474220,
+
+    // pcs
+    skcms_Signature_Lab  = 0x4C616220,
+    skcms_Signature_XYZ  = 0x58595A20,
+};
+
+typedef enum skcms_PixelFormat {
     skcms_PixelFormat_RGB_565,
     skcms_PixelFormat_BGR_565,
 
@@ -173,7 +205,7 @@ typedef enum {
 // with non-color-managed drawing systems, PremulAsEncoded is probably the "premul"
 // you're looking for; if you want linear blending, PremulLinear is the choice for you.
 
-typedef enum {
+typedef enum skcms_AlphaFormat {
     skcms_AlphaFormat_Opaque,          // alpha is always opaque
                                        //   tf-1(r),   tf-1(g),   tf-1(b),   1.0
     skcms_AlphaFormat_Unpremul,        // alpha and color are unassociated
@@ -186,15 +218,53 @@ typedef enum {
 
 // Convert npixels pixels from src format and color profile to dst format and color profile
 // and return true, otherwise return false.  It is safe to alias dst == src if dstFmt == srcFmt.
-bool skcms_Transform(const void*             src,
-                     skcms_PixelFormat       srcFmt,
-                     skcms_AlphaFormat       srcAlpha,
-                     const skcms_ICCProfile* srcProfile,
-                     void*                   dst,
-                     skcms_PixelFormat       dstFmt,
-                     skcms_AlphaFormat       dstAlpha,
-                     const skcms_ICCProfile* dstProfile,
-                     size_t                  npixels);
+SKCMS_API bool skcms_Transform(const void*             src,
+                               skcms_PixelFormat       srcFmt,
+                               skcms_AlphaFormat       srcAlpha,
+                               const skcms_ICCProfile* srcProfile,
+                               void*                   dst,
+                               skcms_PixelFormat       dstFmt,
+                               skcms_AlphaFormat       dstAlpha,
+                               const skcms_ICCProfile* dstProfile,
+                               size_t                  npixels);
+
+// If profile can be used as a destination in skcms_Transform, return true. Otherwise, attempt to
+// rewrite it with approximations where reasonable. If successful, return true. If no reasonable
+// approximation exists, leave the profile unchanged and return false.
+SKCMS_API bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile);
+
+// If profile can be used as a destination with a single parametric transfer function (ie for
+// rasterization), return true. Otherwise, attempt to rewrite it with approximations where
+// reasonable. If successful, return true. If no reasonable approximation exists, leave the
+// profile unchanged and return false.
+SKCMS_API bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile);
+
+SKCMS_API bool skcms_PrimariesToXYZD50(float rx, float ry,
+                                       float gx, float gy,
+                                       float bx, float by,
+                                       float wx, float wy,
+                                       skcms_Matrix3x3* toXYZD50);
+
+// Utilities for programmatically constructing profiles
+static inline void skcms_Init(skcms_ICCProfile* p) {
+    memset(p, 0, sizeof(*p));
+    p->data_color_space = skcms_Signature_RGB;
+    p->pcs = skcms_Signature_XYZ;
+}
+
+static inline void skcms_SetTransferFunction(skcms_ICCProfile* p,
+                                             const skcms_TransferFunction* tf) {
+    p->has_trc = true;
+    for (int i = 0; i < 3; ++i) {
+        p->trc[i].table_entries = 0;
+        p->trc[i].parametric = *tf;
+    }
+}
+
+static inline void skcms_SetXYZD50(skcms_ICCProfile* p, const skcms_Matrix3x3* m) {
+    p->has_toXYZD50 = true;
+    p->toXYZD50 = *m;
+}
 
 #ifdef __cplusplus
 }

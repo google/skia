@@ -179,8 +179,10 @@ config("default") {
     libs += [
       "c++_static",
       "c++abi",
-      "android_support",
     ]
+    if (ndk_api < 21) {
+      libs += [ "android_support" ]
+    }
   }
 
   if (is_tizen) {
@@ -426,6 +428,7 @@ config("warnings") {
 
     # We are unlikely to want to fix these.
     cflags += [
+      "-Wno-bad-function-cast",
       "-Wno-covered-switch-default",
       "-Wno-deprecated",
       "-Wno-missing-noreturn",

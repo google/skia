@@ -36,9 +36,10 @@ protected:
 
         SkPaint paint;
         paint.setStyle(SkPaint::kFill_Style);
-        paint.setColor(0xFFFF0000);
+        paint.setColor(SK_ColorRED);
         paint.setAntiAlias(true);
 
+        canvas->save();
         canvas->translate(-50.0f, 75.0f);
         canvas->rotate(-45.0f);
         canvas->drawRegion(fRegion, paint);
@@ -60,7 +61,8 @@ protected:
         paint.setPathEffect(SkDashPathEffect::Make(intervals, 2, 2.5f));
         canvas->drawRegion(fRegion, paint);
 
-        canvas->setMatrix(SkMatrix::I());
+        canvas->restore();
+
         canvas->translate(100, 325);
         paint.setPathEffect(nullptr);
         paint.setStyle(SkPaint::kFill_Style);
@@ -71,9 +73,9 @@ protected:
         canvas->drawRegion(fRegion, paint);
     }
 
+private:
     SkRegion fRegion;
 
-private:
     typedef skiagm::GM INHERITED;
 };
 DEF_GM( return new DrawRegionModesGM; )

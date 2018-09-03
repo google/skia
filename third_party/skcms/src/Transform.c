@@ -6,7 +6,9 @@
  */
 
 #include "../skcms.h"
+#include "Curve.h"
 #include "LinearAlgebra.h"
+#include "Macros.h"
 #include "PortableMath.h"
 #include "TransferFunction.h"
 #include "Transform.h"
@@ -14,6 +16,63 @@
 #include <limits.h>
 #include <stdint.h>
 #include <string.h>
+
+extern bool g_skcms_dump_profile;
+bool g_skcms_dump_profile = false;
+
+#if !defined(NDEBUG) && defined(__clang__)
+    // Basic profiling tools to time each Op.  Not at all thread safe.
+
+    #include <stdio.h>
+    #include <stdlib.h>
+
+    #if defined(__arm__) || defined(__aarch64__)
+        #include <time.h>
+        static const char* now_units = "ticks";
+        static uint64_t now() { return (uint64_t)clock(); }
+    #else
+        static const char* now_units = "cycles";
+        static uint64_t now() { return __builtin_readcyclecounter(); }
+    #endif
+
+    #define M(op) +1
+    static uint64_t counts[FOREACH_Op(M)];
+    #undef M
+
+    static void profile_dump_stats() {
+    #define M(op) #op,
+        static const char* names[] = { FOREACH_Op(M) };
+    #undef M
+        for (int i = 0; i < ARRAY_COUNT(counts); i++) {
+            if (counts[i]) {
+                fprintf(stderr, "%16s: %12llu %s\n",
+                        names[i], (unsigned long long)counts[i], now_units);
+            }
+        }
+    }
+
+    static inline Op profile_next_op(Op op) {
+        if (__builtin_expect(g_skcms_dump_profile, false)) {
+            static uint64_t start    = 0;
+            static uint64_t* current = NULL;
+
+            if (!current) {
+                atexit(profile_dump_stats);
+            } else {
+                *current += now() - start;
+            }
+
+            current = &counts[op];
+            start   = now();
+        }
+        return op;
+    }
+#else
+    static inline Op profile_next_op(Op op) {
+        (void)g_skcms_dump_profile;
+        return op;
+    }
+#endif
 
 #if defined(__clang__)
     typedef float    __attribute__((ext_vector_type(4)))   Fx4;
@@ -253,8 +312,8 @@
 #endif
 
 static bool is_identity_tf(const skcms_TransferFunction* tf) {
-    static const skcms_TransferFunction I = {1,1,0,0,0,0,0};
-    return 0 == memcmp(&I, tf, sizeof(I));
+    return tf->g == 1 && tf->a == 1
+        && tf->b == 0 && tf->c == 0 && tf->d == 0 && tf->e == 0 && tf->f == 0;
 }
 
 typedef struct {
@@ -299,6 +358,24 @@ static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     }
     assert(false);
     return 0;
+}
+
+static bool prep_for_destination(const skcms_ICCProfile* profile,
+                                 skcms_Matrix3x3* fromXYZD50,
+                                 skcms_TransferFunction* invR,
+                                 skcms_TransferFunction* invG,
+                                 skcms_TransferFunction* invB) {
+    // We only support destinations with parametric transfer functions
+    // and with gamuts that can be transformed from XYZD50.
+    return profile->has_trc
+        && profile->has_toXYZD50
+        && profile->trc[0].table_entries == 0
+        && profile->trc[1].table_entries == 0
+        && profile->trc[2].table_entries == 0
+        && skcms_TransferFunction_invert(&profile->trc[0].parametric, invR)
+        && skcms_TransferFunction_invert(&profile->trc[1].parametric, invG)
+        && skcms_TransferFunction_invert(&profile->trc[2].parametric, invB)
+        && skcms_Matrix3x3_invert(&profile->toXYZD50, fromXYZD50);
 }
 
 bool skcms_Transform(const void*             src,
@@ -356,10 +433,12 @@ bool skcms_Transform(const void*             src,
         *ops++ = Op_swap_rb;
     }
 
-    if (srcProfile->data_color_space == 0x434D594B /*'CMYK*/) {
+    if (srcProfile->data_color_space == skcms_Signature_CMYK) {
         // Photoshop creates CMYK images as inverse CMYK.
         // These happen to be the only ones we've _ever_ seen.
         *ops++ = Op_invert;
+        // With CMYK, ignore the alpha type, to avoid changing K or conflating CMY with K.
+        srcAlpha = skcms_AlphaFormat_Unpremul;
     }
 
     if (srcAlpha == skcms_AlphaFormat_Opaque) {
@@ -373,6 +452,11 @@ bool skcms_Transform(const void*             src,
     if (dstProfile != srcProfile ||
         srcAlpha == skcms_AlphaFormat_PremulLinear ||
         dstAlpha == skcms_AlphaFormat_PremulLinear) {
+
+        if (!prep_for_destination(dstProfile,
+                                  &from_xyz, &inv_dst_tf_r, &inv_dst_tf_b, &inv_dst_tf_g)) {
+            return false;
+        }
 
         if (srcProfile->has_A2B) {
             if (srcProfile->A2B.input_channels) {
@@ -421,7 +505,7 @@ bool skcms_Transform(const void*             src,
                 }
             }
 
-            if (srcProfile->pcs == 0x4C616220 /* 'Lab ' */) {
+            if (srcProfile->pcs == skcms_Signature_Lab) {
                 *ops++ = Op_lab_to_xyz;
             }
 
@@ -444,11 +528,6 @@ bool skcms_Transform(const void*             src,
             *ops++ = Op_unpremul;
         }
 
-        // We only support destination gamuts that can be transformed from XYZD50.
-        if (!dstProfile->has_toXYZD50) {
-            return false;
-        }
-
         // A2B sources should already be in XYZD50 at this point.
         // Others still need to be transformed using their toXYZD50 matrix.
         // N.B. There are profiles that contain both A2B tags and toXYZD50 matrices.
@@ -464,35 +543,26 @@ bool skcms_Transform(const void*             src,
         // There's a chance the source and destination gamuts are identical,
         // in which case we can skip the gamut transform.
         if (0 != memcmp(&dstProfile->toXYZD50, to_xyz, sizeof(skcms_Matrix3x3))) {
-            if (!skcms_Matrix3x3_invert(&dstProfile->toXYZD50, &from_xyz)) {
-                return false;
-            }
-            // TODO: concat these here and only append one matrix_3x3 op.
-            *ops++ = Op_matrix_3x3; *args++ =    to_xyz;
-            *ops++ = Op_matrix_3x3; *args++ = &from_xyz;
+            // Concat the entire gamut transform into from_xyz,
+            // now slightly misnamed but it's a handy spot to stash the result.
+            from_xyz = skcms_Matrix3x3_concat(&from_xyz, to_xyz);
+            *ops++  = Op_matrix_3x3;
+            *args++ = &from_xyz;
+        }
+
+        if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
+            *ops++ = Op_premul;
         }
 
         // Encode back to dst RGB using its parametric transfer functions.
-        if (dstProfile->has_trc &&
-            dstProfile->trc[0].table_entries == 0 &&
-            dstProfile->trc[1].table_entries == 0 &&
-            dstProfile->trc[2].table_entries == 0 &&
-            skcms_TransferFunction_invert(&dstProfile->trc[0].parametric, &inv_dst_tf_r) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[1].parametric, &inv_dst_tf_g) &&
-            skcms_TransferFunction_invert(&dstProfile->trc[2].parametric, &inv_dst_tf_b)) {
-
-            if (dstAlpha == skcms_AlphaFormat_PremulLinear) {
-                *ops++ = Op_premul;
-            }
-
-            if (!is_identity_tf(&inv_dst_tf_r)) { *ops++ = Op_tf_r; *args++ = &inv_dst_tf_r; }
-            if (!is_identity_tf(&inv_dst_tf_g)) { *ops++ = Op_tf_g; *args++ = &inv_dst_tf_g; }
-            if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
-        } else {
-            return false;
-        }
+        if (!is_identity_tf(&inv_dst_tf_r)) { *ops++ = Op_tf_r; *args++ = &inv_dst_tf_r; }
+        if (!is_identity_tf(&inv_dst_tf_g)) { *ops++ = Op_tf_g; *args++ = &inv_dst_tf_g; }
+        if (!is_identity_tf(&inv_dst_tf_b)) { *ops++ = Op_tf_b; *args++ = &inv_dst_tf_b; }
     }
 
+    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
+        *ops++ = Op_clamp;
+    }
     if (dstAlpha == skcms_AlphaFormat_Opaque) {
         *ops++ = Op_force_opaque;
     } else if (dstAlpha == skcms_AlphaFormat_PremulAsEncoded) {
@@ -500,9 +570,6 @@ bool skcms_Transform(const void*             src,
     }
     if (dstFmt & 1) {
         *ops++ = Op_swap_rb;
-    }
-    if (dstFmt < skcms_PixelFormat_RGB_hhh) {
-        *ops++ = Op_clamp;
     }
     switch (dstFmt >> 1) {
         default: return false;
@@ -525,5 +592,79 @@ bool skcms_Transform(const void*             src,
     }
 #endif
     run(program, arguments, src, dst, n, src_bpp,dst_bpp);
+    return true;
+}
+
+static void assert_usable_as_destination(const skcms_ICCProfile* profile) {
+#if defined(NDEBUG)
+    (void)profile;
+#else
+    skcms_Matrix3x3 fromXYZD50;
+    skcms_TransferFunction invR, invG, invB;
+    assert(prep_for_destination(profile, &fromXYZD50, &invR, &invG, &invB));
+#endif
+}
+
+bool skcms_MakeUsableAsDestination(skcms_ICCProfile* profile) {
+    skcms_Matrix3x3 fromXYZD50;
+    if (!profile->has_trc || !profile->has_toXYZD50
+        || !skcms_Matrix3x3_invert(&profile->toXYZD50, &fromXYZD50)) {
+        return false;
+    }
+
+    skcms_TransferFunction tf[3];
+    for (int i = 0; i < 3; i++) {
+        skcms_TransferFunction inv;
+        if (profile->trc[i].table_entries == 0
+            && skcms_TransferFunction_invert(&profile->trc[i].parametric, &inv)) {
+            tf[i] = profile->trc[i].parametric;
+            continue;
+        }
+
+        float max_error;
+        // Parametric curves from skcms_ApproximateCurve() are guaranteed to be invertible.
+        if (!skcms_ApproximateCurve(&profile->trc[i], &tf[i], &max_error)) {
+            return false;
+        }
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        profile->trc[i].table_entries = 0;
+        profile->trc[i].parametric = tf[i];
+    }
+
+    assert_usable_as_destination(profile);
+    return true;
+}
+
+bool skcms_MakeUsableAsDestinationWithSingleCurve(skcms_ICCProfile* profile) {
+    // Operate on a copy of profile, so we can choose the best TF for the original curves
+    skcms_ICCProfile result = *profile;
+    if (!skcms_MakeUsableAsDestination(&result)) {
+        return false;
+    }
+
+    int best_tf = 0;
+    float min_max_error = INFINITY_;
+    for (int i = 0; i < 3; i++) {
+        skcms_TransferFunction inv;
+        skcms_TransferFunction_invert(&result.trc[i].parametric, &inv);
+
+        float err = 0;
+        for (int j = 0; j < 3; ++j) {
+            err = fmaxf_(err, skcms_MaxRoundtripError(&profile->trc[j], &inv));
+        }
+        if (min_max_error > err) {
+            min_max_error = err;
+            best_tf = i;
+        }
+    }
+
+    for (int i = 0; i < 3; i++) {
+        result.trc[i].parametric = result.trc[best_tf].parametric;
+    }
+
+    *profile = result;
+    assert_usable_as_destination(profile);
     return true;
 }

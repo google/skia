@@ -11,12 +11,14 @@ import calendar
 
 DEPS = [
   'core',
+  'flavor',
   'recipe_engine/context',
   'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/step',
   'recipe_engine/time',
+  'run',
   'vars',
 ]
 
@@ -25,7 +27,7 @@ def FindFile(api, suffix):
   with api.context(cwd=api.path['start_dir']):
     results = api.file.glob_paths(
         'find %s results' % suffix,
-        api.path['start_dir'],
+        api.path['start_dir'].join('perf'),
         '*.%s' % suffix,
         test_data=['bench_modified_master.%s' % suffix])
   if len(results) != 1:  # pragma: nocover
@@ -34,7 +36,9 @@ def FindFile(api, suffix):
 
 
 def RunSteps(api):
-  api.core.setup()
+  api.vars.setup()
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
 
   builder_name = api.properties['buildername']
 
@@ -44,7 +48,7 @@ def RunSteps(api):
   csv_src = FindFile(api, "csv")
 
   ts = int(calendar.timegm(now.utctimetuple()))
-  basename = "bench_modified_master_%s_%d" % (api.vars.got_revision, ts)
+  basename = "bench_modified_master_%s_%d" % (api.properties['revision'], ts)
 
   gs_path = '/'.join((
       'calmbench-v1', str(now.year).zfill(4),

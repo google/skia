@@ -7,11 +7,13 @@
 
 #include "SkCoverageDelta.h"
 
-SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, int top, int bottom, bool forceRLE) {
+SkCoverageDeltaList::SkCoverageDeltaList(SkArenaAlloc* alloc, const SkIRect& bounds, bool forceRLE) {
     fAlloc              = alloc;
-    fTop                = top;
-    fBottom             = bottom;
+    fBounds             = bounds;
     fForceRLE           = forceRLE;
+
+    int top             = bounds.fTop;
+    int bottom          = bounds.fBottom;
 
     // Init the anti-rect to be empty
     fAntiRect.fY        = bottom;

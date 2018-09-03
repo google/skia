@@ -2,15 +2,13 @@
 #Alias IPoints
 #Alias IPoint_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Struct SkIPoint
 
-SkIPoint holds two 32 bit integer coordinates.
+SkIPoint holds two 32-bit integer coordinates.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Related_Function
 #Populate
@@ -453,10 +451,20 @@ Can also be used to add IVector to IVector, returning IVector.
 
 #Struct SkIPoint ##
 
-#Topic IPoint ##
 
-#Topic IVector
+#Subtopic IVector
+#Line # alias for IPoint ##
+    #Alias IVector
     #Alias IVectors
     #Typedef SkIPoint SkIVector
+    #Line # alias for IPoint ##
+    #Code
+    typedef SkIPoint SkIVector;
+    ##
+    SkIVector provides an alternative name for SkIPoint. SkIVector and SkIPoint
+    can be used interchangably for all purposes.
     #Typedef ##
 ##
+
+#Topic IPoint ##
+

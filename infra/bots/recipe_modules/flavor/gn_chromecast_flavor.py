@@ -15,22 +15,21 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
     super(GNChromecastFlavorUtils, self).__init__(m)
     self._ever_ran_adb = False
     self._user_ip = ''
-    self.m.vars.android_bin_dir = self.m.path.join(self.m.vars.android_bin_dir,
-                                                   'bin')
 
     # Disk space is extremely tight on the Chromecasts (~100M) There is not
     # enough space on the android_data_dir (/cache/skia) to fit the images,
     # resources, executable and output the dm images.  So, we have dm_out be
     # on the tempfs (i.e. RAM) /dev/shm. (which is about 140M)
-
+    data_dir = '/cache/skia/'
     self.device_dirs = default_flavor.DeviceDirs(
+        bin_dir       = '/cache/skia/bin',
         dm_dir        = '/dev/shm/skia/dm_out',
-        perf_data_dir = self.m.vars.android_data_dir + 'perf',
-        resource_dir  = self.m.vars.android_data_dir + 'resources',
-        images_dir    = self.m.vars.android_data_dir + 'images',
-        skp_dir       = self.m.vars.android_data_dir + 'skps',
-        svg_dir       = self.m.vars.android_data_dir + 'svgs',
-        tmp_dir       = self.m.vars.android_data_dir)
+        perf_data_dir = data_dir + 'perf',
+        resource_dir  = data_dir + 'resources',
+        images_dir    = data_dir + 'images',
+        skp_dir       = data_dir + 'skps',
+        svg_dir       = data_dir + 'svgs',
+        tmp_dir       = data_dir)
 
   @property
   def user_ip_host(self):
@@ -51,68 +50,10 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def user_ip(self):
     return self.user_ip_host.split(':')[0]
 
-  def compile(self, unused_target):
-    configuration = self.m.vars.builder_cfg.get('configuration')
-    os            = self.m.vars.builder_cfg.get('os')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch')
-
-    # TODO(kjlubick): can this toolchain be replaced/shared with chromebook?
-    toolchain_dir = self.m.vars.slave_dir.join('cast_toolchain', 'armv7a')
-    gles_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
-
-    extra_cflags = [
-      '-I%s' % gles_dir.join('include'),
-      '-DMESA_EGL_NO_X11_HEADERS',
-      "-DSK_NO_COMMAND_BUFFER",
-      # Avoid unused warning with yyunput
-      '-Wno-error=unused-function',
-      # Makes the binary small enough to fit on the small disk.
-      '-g0',
-      ('-DDUMMY_cast_toolchain_version=%s' %
-       self.m.run.asset_version('cast_toolchain')),
-    ]
-
-    extra_ldflags = [
-      # Chromecast does not package libstdc++
-      '-static-libstdc++', '-static-libgcc',
-      '-L%s' % toolchain_dir.join('lib'),
-    ]
-
-    quote = lambda x: '"%s"' % x
-    args = {
-      'cc': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-gcc')),
-      'cxx': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-g++')),
-      'ar': quote(toolchain_dir.join('bin','armv7a-cros-linux-gnueabi-ar')),
-      'target_cpu': quote(target_arch),
-      'skia_use_fontconfig': 'false',
-      'skia_enable_gpu': 'true',
-      # The toolchain won't allow system libraries to be used
-      # when cross-compiling
-      'skia_use_system_freetype2': 'false',
-      # Makes the binary smaller
-      'skia_use_icu': 'false',
-      'skia_use_egl': 'true',
-    }
-
-    if configuration != 'Debug':
-      args['is_debug'] = 'false'
-    args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
-    args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
-
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-
-    gn    = 'gn.exe'    if 'Win' in os else 'gn'
-    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-    gn = self.m.vars.skia_dir.join('bin', gn)
-
-    self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-    self._run('gn gen', gn, 'gen', self.out_dir, '--args=' + gn_args)
-    self._run('ninja', ninja, '-k', '0', '-C', self.out_dir, 'nanobench', 'dm')
-
   def install(self):
     super(GNChromecastFlavorUtils, self).install()
-    self._adb('mkdir ' + self.m.vars.android_bin_dir,
-              'shell', 'mkdir', '-p', self.m.vars.android_bin_dir)
+    self._adb('mkdir ' + self.device_dirs.bin_dir,
+              'shell', 'mkdir', '-p', self.device_dirs.bin_dir)
 
   def _adb(self, title, *cmd, **kwargs):
     if not self._ever_ran_adb:
@@ -162,7 +103,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
   def cleanup_steps(self):
     if self._ever_ran_adb:
       # To clean up disk space for next time
-      self._ssh('Delete executables', 'rm', '-r', self.m.vars.android_bin_dir,
+      self._ssh('Delete executables', 'rm', '-r', self.device_dirs.bin_dir,
                 abort_on_failure=False, infra_step=True)
       # Reconnect if was disconnected
       self._adb('disconnect', 'disconnect')
@@ -183,7 +124,7 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
                 line = line.replace(addr, addr + ' ' + sym.strip())
             print line
           """,
-          args=[self.m.vars.skia_out.join(self.m.vars.configuration)],
+          args=[self.m.vars.skia_out],
           infra_step=True,
           abort_on_failure=False)
 
@@ -191,16 +132,22 @@ class GNChromecastFlavorUtils(gn_android_flavor.GNAndroidFlavorUtils):
       self._adb('kill adb server', 'kill-server')
 
   def _ssh(self, title, *cmd, **kwargs):
+    # Don't use -t -t (Force psuedo-tty allocation) like in the ChromeOS
+    # version because the pseudo-tty allocation seems to fail
+    # instantly when talking to a Chromecast.
+    # This was excacerbated when we migrated to kitchen and was marked by
+    # the symptoms of all the ssh commands instantly failing (even after
+    # connecting and authenticating) with exit code -1 (255)
     ssh_cmd = ['ssh', '-oConnectTimeout=15', '-oBatchMode=yes',
-               '-t', '-t', 'root@%s' % self.user_ip] + list(cmd)
+               '-T', 'root@%s' % self.user_ip] + list(cmd)
 
     return self.m.run(self.m.step, title, cmd=ssh_cmd, **kwargs)
 
   def step(self, name, cmd, **kwargs):
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
 
     self._adb('push %s' % cmd[0],
-              'push', app, self.m.vars.android_bin_dir)
+              'push', app, self.device_dirs.bin_dir)
 
-    cmd[0] = '%s/%s' % (self.m.vars.android_bin_dir, cmd[0])
+    cmd[0] = '%s/%s' % (self.device_dirs.bin_dir, cmd[0])
     self._ssh(str(name), *cmd, infra_step=False)

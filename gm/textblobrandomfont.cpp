@@ -37,19 +37,23 @@ protected:
         // make textbloben
         SkPaint paint;
         paint.setTextSize(32);
+        paint.setAntiAlias(true);
         paint.setLCDRenderText(true);
 
         // Setup our random scaler context
-        sk_sp<SkTypeface> orig(sk_tool_utils::create_portable_typeface(
-                                   "sans-serif", SkFontStyle::Bold()));
-        if (nullptr == orig) {
-            orig = SkTypeface::MakeDefault();
+        auto typeface = sk_tool_utils::create_portable_typeface("sans-serif", SkFontStyle::Bold());
+        if (!typeface) {
+            typeface = SkTypeface::MakeDefault();
         }
-        paint.setTypeface(sk_make_sp<SkRandomTypeface>(orig, paint, false));
+        paint.setColor(SK_ColorMAGENTA);
+        paint.setTypeface(sk_make_sp<SkRandomTypeface>(std::move(typeface), paint, false));
 
+        SkScalar y = 0;
         SkRect bounds;
         paint.measureText(text, strlen(text), &bounds);
-        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, 0);
+        y -= bounds.fTop;
+        sk_tool_utils::add_to_text_blob(&builder, text, paint, 0, y);
+        y += bounds.fBottom;
 
         // A8
         const char* bigtext1 = "The quick brown fox";
@@ -58,20 +62,23 @@ protected:
         paint.setSubpixelText(false);
         paint.setLCDRenderText(false);
         paint.measureText(bigtext1, strlen(bigtext1), &bounds);
-        SkScalar offset = bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, bigtext1, paint, 0, offset);
+        y -= bounds.fTop;
+        sk_tool_utils::add_to_text_blob(&builder, bigtext1, paint, 0, y);
+        y += bounds.fBottom;
 
         paint.measureText(bigtext2, strlen(bigtext2), &bounds);
-        offset += bounds.height();
-        sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, offset);
+        y -= bounds.fTop;
+        sk_tool_utils::add_to_text_blob(&builder, bigtext2, paint, 0, y);
+        y += bounds.fBottom;
 
         // color emoji
         if (sk_sp<SkTypeface> origEmoji = sk_tool_utils::emoji_typeface()) {
+            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
             const char* emojiText = sk_tool_utils::emoji_sample_text();
             paint.measureText(emojiText, strlen(emojiText), &bounds);
-            offset += bounds.height();
-            paint.setTypeface(sk_make_sp<SkRandomTypeface>(origEmoji, paint, false));
-            sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, offset);
+            y -= bounds.fTop;
+            sk_tool_utils::add_to_text_blob(&builder, emojiText, paint, 0, y);
+            y += bounds.fBottom;
         }
 
         // build
@@ -88,6 +95,8 @@ protected:
 
     void onDraw(SkCanvas* canvas) override {
         // This GM exists to test a specific feature of the GPU backend.
+        // This GM uses sk_tool_utils::makeSurface which doesn't work well with vias.
+        // This GM uses SkRandomTypeface which doesn't work well with serialization.
         if (nullptr == canvas->getGrContext()) {
             skiagm::GM::DrawGpuOnlyMessage(canvas);
             return;
@@ -100,37 +109,43 @@ protected:
                                              canvas->imageInfo().refColorSpace());
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
         auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
-        if (surface) {
-            SkPaint paint;
-            paint.setAntiAlias(true);
-
-            SkCanvas* c = surface->getCanvas();
-
-            int stride = SkScalarCeilToInt(fBlob->bounds().height());
-            int yOffset = stride / 8;
-            for (int i = 0; i < 1; i++) {
-                // fiddle the canvas to force regen of textblobs
-                canvas->rotate(i % 2 ? 0.0f : -0.05f);
-                canvas->drawTextBlob(fBlob, 10.0f, SkIntToScalar(yOffset), paint);
-                yOffset += stride;
-
-                // This will draw as black boxes
-                c->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
-                surface->draw(canvas, 0, 0, nullptr);
-
-                // free gpu resources and verify
-                yOffset += stride;
-                canvas->getGrContext()->freeGpuResources();
-                canvas->drawTextBlob(fBlob, 10, SkIntToScalar(yOffset), paint);
-
-                yOffset += stride;
-            }
-
-        } else {
+        if (!surface) {
             const char* text = "This test requires a surface";
             size_t len = strlen(text);
             SkPaint paint;
             canvas->drawText(text, len, 10, 100, paint);
+            return;
+        }
+
+        SkPaint paint;
+        paint.setAntiAlias(true);
+
+        SkCanvas* c = surface->getCanvas();
+
+        SkScalar stride = SkScalarCeilToScalar(fBlob->bounds().height());
+        SkScalar yOffset = 5;
+        for (int i = 0; i < 1; i++) {
+            // fiddle the canvas to force regen of textblobs
+            canvas->rotate(i % 2 ? 0.0f : -0.05f);
+
+            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+            yOffset += stride;
+
+            // this will test lcd masks when not requested
+            // on cpu this currently causes unspecified behavior, so avoid until it is fixed
+            if (canvas->getGrContext()) {
+                c->drawTextBlob(fBlob, 10, yOffset, paint);
+                surface->draw(canvas, 0, 0, nullptr);
+            }
+            yOffset += stride;
+
+            // free gpu resources and verify
+            if (canvas->getGrContext()) {
+                canvas->getGrContext()->freeGpuResources();
+            }
+
+            canvas->drawTextBlob(fBlob, 10, yOffset, paint);
+            yOffset += stride;
         }
     }
 

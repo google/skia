@@ -72,8 +72,7 @@ static void tesselate(intptr_t vertices,
                       const GrQuad* localQuad) {
     SkPoint* positions = reinterpret_cast<SkPoint*>(vertices);
 
-    SkPointPriv::SetRectTriStrip(positions, rect.fLeft, rect.fTop, rect.fRight, rect.fBottom,
-            vertexStride);
+    SkPointPriv::SetRectTriStrip(positions, rect, vertexStride);
 
     if (viewMatrix) {
         SkMatrixPriv::MapPointsWithStride(*viewMatrix, positions, vertexStride, kVertsPerRect);
@@ -127,13 +126,13 @@ public:
         info.fViewMatrix = viewMatrix;
         info.fRect = rect;
         if (localRect && localMatrix) {
-            info.fLocalQuad.setFromMappedRect(*localRect, *localMatrix);
+            info.fLocalQuad = GrQuad(*localRect, *localMatrix);
         } else if (localRect) {
-            info.fLocalQuad.set(*localRect);
+            info.fLocalQuad = GrQuad(*localRect);
         } else if (localMatrix) {
-            info.fLocalQuad.setFromMappedRect(rect, *localMatrix);
+            info.fLocalQuad = GrQuad(rect, *localMatrix);
         } else {
-            info.fLocalQuad.set(rect);
+            info.fLocalQuad = GrQuad(rect);
         }
         this->setTransformedBounds(fRects[0].fRect, viewMatrix, HasAABloat::kNo, IsZeroArea::kNo);
     }

@@ -7,10 +7,9 @@
 
 // skcms.c is a unity build target for skcms, #including every other C source file.
 
-#include "src/GaussNewton.c"
+#include "src/Curve.c"
 #include "src/ICCProfile.c"
 #include "src/LinearAlgebra.c"
 #include "src/PortableMath.c"
-#include "src/TF13.c"
 #include "src/TransferFunction.c"
 #include "src/Transform.c"

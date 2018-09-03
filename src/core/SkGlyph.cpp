@@ -31,8 +31,6 @@ void SkGlyph::zeroMetrics() {
     fHeight   = 0;
     fTop      = 0;
     fLeft     = 0;
-    fRsbDelta = 0;
-    fLsbDelta = 0;
 }
 
 static size_t bits_to_bytes(size_t bits) {
@@ -44,6 +42,7 @@ static size_t format_alignment(SkMask::Format format) {
         case SkMask::kBW_Format:
         case SkMask::kA8_Format:
         case SkMask::k3D_Format:
+        case SkMask::kSDF_Format:
             return alignof(uint8_t);
         case SkMask::kARGB32_Format:
             return alignof(uint32_t);
@@ -59,6 +58,11 @@ static size_t format_alignment(SkMask::Format format) {
 static size_t format_rowbytes(int width, SkMask::Format format) {
     return format == SkMask::kBW_Format ? bits_to_bytes(width)
                                         : width * format_alignment(format);
+}
+
+size_t SkGlyph::formatAlignment() const {
+    auto format = static_cast<SkMask::Format>(fMaskFormat);
+    return format_alignment(format);
 }
 
 size_t SkGlyph::allocImage(SkArenaAlloc* alloc) {

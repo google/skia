@@ -289,7 +289,7 @@ static void test_self_assignment(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, a.count() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);
 
-    a = a;
+    a = static_cast<decltype(a)&>(a);
     REPORTER_ASSERT(reporter, !a.empty());
     REPORTER_ASSERT(reporter, a.count() == 1);
     REPORTER_ASSERT(reporter, a[0] == 1);

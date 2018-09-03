@@ -434,3 +434,35 @@ DEF_TEST(region_inverse_union_skbug_7491, reporter) {
     REPORTER_ASSERT(reporter, clip == rgn);
 }
 
+DEF_TEST(giant_path_region, reporter) {
+    const SkScalar big = 32767;
+    SkPath path;
+    path.moveTo(-big, 0);
+    path.quadTo(big, 0, big, big);
+    SkIRect ir = path.getBounds().round();
+    SkRegion rgn;
+    rgn.setPath(path, SkRegion(ir));
+}
+
+DEF_TEST(rrect_region_crbug_850350, reporter) {
+    SkMatrix m;
+    m.reset();
+    m[1] = 0.753662348f;
+    m[3] = 1.40079998E+20f;
+
+    const SkPoint corners[] = {
+        { 2.65876e-19f, 0.0194088f },
+        { 4896, 0.00114702f },
+        { 0, 0 },
+        { 0.00114702f, 0.00495333f },
+    };
+    SkRRect rrect;
+    rrect.setRectRadii({-8.72387e-31f, 1.29996e-38f, 4896, 1.125f}, corners);
+
+    SkPath path;
+    path.addRRect(rrect);
+    path.transform(m);
+
+    SkRegion rgn;
+    rgn.setPath(path, SkRegion{SkIRect{0, 0, 24, 24}});
+}

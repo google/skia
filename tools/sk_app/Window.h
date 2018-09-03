@@ -16,6 +16,7 @@
 class GrContext;
 class SkCanvas;
 class SkSurface;
+class SkSurfaceProps;
 
 namespace sk_app {
 

@@ -35,8 +35,8 @@ SkCodecImageGenerator::SkCodecImageGenerator(std::unique_ptr<SkCodec> codec, sk_
     , fData(std::move(data))
 {}
 
-SkData* SkCodecImageGenerator::onRefEncodedData() {
-    return SkRef(fData.get());
+sk_sp<SkData> SkCodecImageGenerator::onRefEncodedData() {
+    return fData;
 }
 
 bool SkCodecImageGenerator::onGetPixels(const SkImageInfo& requestInfo, void* requestPixels,

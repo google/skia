@@ -16,13 +16,14 @@
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 
-template <class T> static void renew(T* t) { t->~T(); new (t) T; }
-
 SkPDFObjectSerializer::~SkPDFObjectSerializer() {
     for (int i = 0; i < fObjNumMap.objects().count(); ++i) {
         fObjNumMap.objects()[i]->drop();
     }
 }
+SkPDFObjectSerializer::SkPDFObjectSerializer(SkPDFObjectSerializer&&) = default;
+SkPDFObjectSerializer& SkPDFObjectSerializer::operator=(SkPDFObjectSerializer&&) = default;
+
 
 void SkPDFObjectSerializer::addObjectRecursively(const sk_sp<SkPDFObject>& object) {
     fObjNumMap.addObjectRecursively(object.get());
@@ -206,11 +207,14 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             fObjectSerializer.serializeObjects(this->getStream());
         }
     }
-    SkISize pageSize = SkISize::Make(
-            SkScalarRoundToInt(width), SkScalarRoundToInt(height));
+    SkScalar rasterScale = this->rasterDpi() / SkPDFUtils::kDpiForRasterScaleOne;
+    SkISize pageSize = {SkScalarRoundToInt(width  * rasterScale),
+                        SkScalarRoundToInt(height * rasterScale)};
+
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
-    fCanvas.reset(new SkCanvas(fPageDevice.get()));
+    fCanvas.reset(new SkCanvas(fPageDevice));
+    fCanvas->scale(rasterScale, rasterScale);
     return fCanvas.get();
 }
 
@@ -221,7 +225,13 @@ void SkPDFDocument::onEndPage() {
     SkASSERT(fPageDevice);
     auto page = sk_make_sp<SkPDFDict>("Page");
     page->insertObject("Resources", fPageDevice->makeResourceDict());
-    page->insertObject("MediaBox", fPageDevice->copyMediaBox());
+
+    SkScalar rasterScale =  SkPDFUtils::kDpiForRasterScaleOne / this->rasterDpi();
+
+    SkISize pageSize = fPageDevice->imageInfo().dimensions();
+    page->insertObject("MediaBox", SkPDFUtils::RectToArray(
+                {0, 0, pageSize.width() * rasterScale, pageSize.height() * rasterScale}));
+
     auto annotations = sk_make_sp<SkPDFArray>();
     fPageDevice->appendAnnotations(annotations.get());
     if (annotations->size() > 0) {
@@ -242,8 +252,8 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fCanvas.reset(nullptr);
     fPages.reset();
-    renew(&fCanon);
-    renew(&fObjectSerializer);
+    fCanon = SkPDFCanon();
+    fObjectSerializer = SkPDFObjectSerializer();
     fFonts.reset();
 }
 

@@ -10,6 +10,7 @@
 #define SKDEBUGCANVAS_H_
 
 #include "SkCanvas.h"
+#include "SkCanvasVirtualEnforcer.h"
 #include "SkDrawCommand.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
@@ -22,7 +23,12 @@ class GrAuditTrail;
 class SkNWayCanvas;
 class SkPicture;
 
+// TODO: Continue filling in missing functionality so this can be switched on
+#if 0
+class SkDebugCanvas : public SkCanvasVirtualEnforcer<SkCanvas> {
+#else
 class SkDebugCanvas : public SkCanvas {
+#endif
 public:
     SkDebugCanvas(int width, int height);
 
@@ -149,6 +155,8 @@ protected:
     void onDrawPath(const SkPath&, const SkPaint&) override;
     void onDrawRegion(const SkRegion&, const SkPaint&) override;
     void onDrawBitmap(const SkBitmap&, SkScalar left, SkScalar top, const SkPaint*) override;
+    void onDrawBitmapLattice(const SkBitmap&, const Lattice&, const SkRect&,
+                             const SkPaint*) override;
     void onDrawBitmapRect(const SkBitmap&, const SkRect* src, const SkRect& dst, const SkPaint*,
                           SrcRectConstraint) override;
     void onDrawImage(const SkImage*, SkScalar left, SkScalar top, const SkPaint*) override;
@@ -164,6 +172,7 @@ protected:
     void onClipRRect(const SkRRect&, SkClipOp, ClipEdgeStyle) override;
     void onClipPath(const SkPath&, SkClipOp, ClipEdgeStyle) override;
     void onClipRegion(const SkRegion& region, SkClipOp) override;
+    void onDrawShadowRec(const SkPath&, const SkDrawShadowRec&) override;
 
     void onDrawPicture(const SkPicture*, const SkMatrix*, const SkPaint*) override;
 

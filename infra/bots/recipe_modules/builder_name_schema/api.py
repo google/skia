@@ -19,7 +19,6 @@ class BuilderNameSchemaApi(recipe_api.RecipeApi):
     self.BUILDER_NAME_SCHEMA = builder_name_schema.BUILDER_NAME_SCHEMA
     self.BUILDER_NAME_SEP = builder_name_schema.BUILDER_NAME_SEP
 
-    self.BUILDER_ROLE_CANARY = builder_name_schema.BUILDER_ROLE_CANARY
     self.BUILDER_ROLE_BUILD = builder_name_schema.BUILDER_ROLE_BUILD
     self.BUILDER_ROLE_HOUSEKEEPER = builder_name_schema.BUILDER_ROLE_HOUSEKEEPER
     self.BUILDER_ROLE_INFRA = builder_name_schema.BUILDER_ROLE_INFRA
@@ -28,8 +27,8 @@ class BuilderNameSchemaApi(recipe_api.RecipeApi):
     self.BUILDER_ROLE_CALMBENCH = builder_name_schema.BUILDER_ROLE_CALMBENCH
     self.BUILDER_ROLES = builder_name_schema.BUILDER_ROLES
 
-  def MakeBuilderName(self, *args, **kwargs):
-    return builder_name_schema.MakeBuilderName(*args, **kwargs)
+  def MakeBuilderName(self, **kwargs):
+    return builder_name_schema.MakeBuilderName(**kwargs)
 
   def DictForBuilderName(self, *args, **kwargs):
     return builder_name_schema.DictForBuilderName(*args, **kwargs)

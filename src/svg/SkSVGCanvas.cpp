@@ -15,7 +15,7 @@ std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkXMLWriter* w
     SkISize size = bounds.roundOut().size();
     sk_sp<SkBaseDevice> device(SkSVGDevice::Create(size, writer));
 
-    return skstd::make_unique<SkCanvas>(device.get());
+    return skstd::make_unique<SkCanvas>(device);
 }
 
 std::unique_ptr<SkCanvas> SkSVGCanvas::Make(const SkRect& bounds, SkWStream* writer) {

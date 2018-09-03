@@ -50,7 +50,7 @@ static inline bool can_truncate_to_fixed_for_decal(SkFixed fx,
     // Promote to 64bit (48.16) to avoid overflow.
     const uint64_t lastFx = fx + sk_64_mul(dx, count - 1);
 
-    return sk_64_isS32(lastFx) && (unsigned)SkFixedFloorToInt(sk_64_asS32(lastFx)) < max;
+    return SkTFitsIn<int32_t>(lastFx) && (unsigned)SkFixedFloorToInt(SkTo<int32_t>(lastFx)) < max;
 }
 
 #endif /* #ifndef SkBitmapProcState_utils_DEFINED */

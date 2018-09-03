@@ -136,7 +136,7 @@ SkIRect Request::getBounds() {
         bounds = fPicture->cullRect().roundOut();
         if (fGPUEnabled) {
 #if SK_SUPPORT_GPU
-            int maxRTSize = this->getContext()->caps()->maxRenderTargetSize();
+            int maxRTSize = this->getContext()->maxRenderTargetSize();
             bounds = SkIRect::MakeWH(SkTMin(bounds.width(), maxRTSize),
                                      SkTMin(bounds.height(), maxRTSize));
 #endif

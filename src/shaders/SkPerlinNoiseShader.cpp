@@ -270,7 +270,8 @@ public:
                 SkScalar highFrequencx =
                     SkScalarCeilToScalar(tileWidth * fBaseFrequency.fX) / tileWidth;
                 // BaseFrequency should be non-negative according to the standard.
-                if (fBaseFrequency.fX / lowFrequencx < highFrequencx / fBaseFrequency.fX) {
+                // lowFrequencx can be 0 if fBaseFrequency.fX is very small.
+                if (sk_ieee_float_divide(fBaseFrequency.fX, lowFrequencx) < highFrequencx / fBaseFrequency.fX) {
                     fBaseFrequency.fX = lowFrequencx;
                 } else {
                     fBaseFrequency.fX = highFrequencx;
@@ -281,7 +282,8 @@ public:
                     SkScalarFloorToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
                 SkScalar highFrequency =
                     SkScalarCeilToScalar(tileHeight * fBaseFrequency.fY) / tileHeight;
-                if (fBaseFrequency.fY / lowFrequency < highFrequency / fBaseFrequency.fY) {
+                // lowFrequency can be 0 if fBaseFrequency.fY is very small.
+                if (sk_ieee_float_divide(fBaseFrequency.fY, lowFrequency) < highFrequency / fBaseFrequency.fY) {
                     fBaseFrequency.fY = lowFrequency;
                 } else {
                     fBaseFrequency.fY = highFrequency;
@@ -419,6 +421,8 @@ SkPerlinNoiseShaderImpl::SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::Type t
   , fStitchTiles(!fTileSize.isEmpty())
 {
     SkASSERT(numOctaves >= 0 && numOctaves <= kMaxOctaves);
+    SkASSERT(fBaseFrequencyX >= 0);
+    SkASSERT(fBaseFrequencyY >= 0);
 }
 
 sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
@@ -426,7 +430,6 @@ sk_sp<SkFlattenable> SkPerlinNoiseShaderImpl::CreateProc(SkReadBuffer& buffer) {
 
     SkScalar freqX = buffer.readScalar();
     SkScalar freqY = buffer.readScalar();
-
     int octaves = buffer.read32LE<int>(kMaxOctaves);
 
     SkScalar seed = buffer.readScalar();
@@ -1507,10 +1510,30 @@ void SkPerlinNoiseShaderImpl::toString(SkString* str) const {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+static bool valid_input(SkScalar baseX, SkScalar baseY, int numOctaves, const SkISize* tileSize,
+                        SkScalar seed) {
+    if (!(baseX >= 0 && baseY >= 0)) {
+        return false;
+    }
+    if (!(numOctaves >= 0 && numOctaves <= SkPerlinNoiseShaderImpl::kMaxOctaves)) {
+        return false;
+    }
+    if (tileSize && !(tileSize->width() >= 0 && tileSize->height() >= 0)) {
+        return false;
+    }
+    if (!SkScalarIsFinite(seed)) {
+        return false;
+    }
+    return true;
+}
+
 sk_sp<SkShader> SkPerlinNoiseShader::MakeFractalNoise(SkScalar baseFrequencyX,
                                                       SkScalar baseFrequencyY,
                                                       int numOctaves, SkScalar seed,
                                                       const SkISize* tileSize) {
+    if (!valid_input(baseFrequencyX, baseFrequencyY, numOctaves, tileSize, seed)) {
+        return nullptr;
+    }
     return sk_sp<SkShader>(new SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::kFractalNoise_Type,
                                                  baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                                  tileSize));
@@ -1520,6 +1543,9 @@ sk_sp<SkShader> SkPerlinNoiseShader::MakeTurbulence(SkScalar baseFrequencyX,
                                                     SkScalar baseFrequencyY,
                                                     int numOctaves, SkScalar seed,
                                                     const SkISize* tileSize) {
+    if (!valid_input(baseFrequencyX, baseFrequencyY, numOctaves, tileSize, seed)) {
+        return nullptr;
+    }
     return sk_sp<SkShader>(new SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::kTurbulence_Type,
                                                  baseFrequencyX, baseFrequencyY, numOctaves, seed,
                                                  tileSize));
@@ -1528,6 +1554,9 @@ sk_sp<SkShader> SkPerlinNoiseShader::MakeTurbulence(SkScalar baseFrequencyX,
 sk_sp<SkShader> SkPerlinNoiseShader::MakeImprovedNoise(SkScalar baseFrequencyX,
                                                        SkScalar baseFrequencyY,
                                                        int numOctaves, SkScalar z) {
+    if (!valid_input(baseFrequencyX, baseFrequencyY, numOctaves, nullptr, z)) {
+        return nullptr;
+    }
     return sk_sp<SkShader>(new SkPerlinNoiseShaderImpl(SkPerlinNoiseShaderImpl::kImprovedNoise_Type,
                                                  baseFrequencyX, baseFrequencyY, numOctaves, z,
                                                  nullptr));

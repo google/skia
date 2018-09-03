@@ -10,6 +10,7 @@
 #include "SkBitmap.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkOpts.h"
 #include "SkReadBuffer.h"
@@ -92,7 +93,7 @@ SkRect SkMorphologyImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkMorphologyImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                    MapDirection) const {
+                                                    MapDirection, const SkIRect* inputRect) const {
     SkVector radius = SkVector::Make(SkIntToScalar(this->radius().width()),
                                      SkIntToScalar(this->radius().height()));
     ctm.mapVectors(&radius, 1);
@@ -457,7 +458,7 @@ static void apply_morphology_pass(GrRenderTargetContext* renderTargetContext,
         middleSrcRect.inset(0, radius);
         middleDstRect.inset(0, radius);
     }
-    if (middleSrcRect.fLeft - middleSrcRect.fRight >= 0) {
+    if (middleSrcRect.width() <= 0) {
         // radius covers srcRect; use bounds over entire draw
         apply_morphology_rect(renderTargetContext, clip, std::move(textureProxy),
                               srcRect, dstRect, radius, morphType, bounds, direction);
@@ -543,7 +544,7 @@ sk_sp<SkSpecialImage> SkMorphologyImageFilter::onFilterImage(SkSpecialImage* sou
     }
 
     SkIRect bounds;
-    input = this->applyCropRect(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
+    input = this->applyCropRectAndPad(this->mapContext(ctx), input.get(), &inputOffset, &bounds);
     if (!input) {
         return nullptr;
     }

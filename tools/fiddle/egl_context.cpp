@@ -5,10 +5,15 @@
  * found in the LICENSE file.
  */
 
-#include "fiddle_main.h"
+#include "GrContext.h"
+#include "SkRefCnt.h"
+#include "gl/GrGLFunctions.h"
+#include "gl/GrGLInterface.h"
 
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
+
+#include <sstream>
 
 static const EGLint configAttribs[] = {
     EGL_SURFACE_TYPE, EGL_PBUFFER_BIT,
@@ -56,7 +61,7 @@ sk_sp<GrContext> create_grcontext(std::ostringstream &driverinfo) {
         return nullptr;
     }
 
-    EGLContext eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, NULL);
+    EGLContext eglCtx = eglCreateContext(eglDpy, eglCfg, EGL_NO_CONTEXT, nullptr);
     if (EGL_NO_CONTEXT == eglCtx) {
         return nullptr;
     }

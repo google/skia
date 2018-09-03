@@ -35,11 +35,6 @@ PUBLIC_API_OWNERS = (
     'hcm@google.com',
 )
 
-AUTO_COMMIT_BOTS = (
-    'update-docs@skia.org',
-    'update-skps@skia.org'
-)
-
 AUTHORS_FILE_NAME = 'AUTHORS'
 
 DOCS_PREVIEW_URL = 'https://skia.org/?cl='
@@ -60,7 +55,9 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
     # 'src/image/SkImage_Base.h': 'master5:pqr,stu;master1:abc1;master2:def',
 }
 
-SERVICE_ACCOUNT_SUFFIX = '@skia-buildbots.google.com.iam.gserviceaccount.com'
+SERVICE_ACCOUNT_SUFFIX = [
+    '@%s.iam.gserviceaccount.com' % project for project in [
+        'skia-buildbots.google.com', 'skia-swarming-bots']]
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
@@ -364,8 +361,9 @@ def _CheckOwnerIsInAuthorsFile(input_api, output_api):
     owner_email = cr.GetOwnerEmail()
 
     # Service accounts don't need to be in AUTHORS.
-    if owner_email.endswith(SERVICE_ACCOUNT_SUFFIX):
-      return results
+    for suffix in SERVICE_ACCOUNT_SUFFIX:
+      if owner_email.endswith(suffix):
+        return results
 
     try:
       authors_content = ''
@@ -502,11 +500,12 @@ def PostUploadHook(cl, change, output_api):
 
   issue = cl.issue
   if issue:
-    # Skip PostUploadHooks for all auto-commit bots. New patchsets (caused
-    # due to PostUploadHooks) invalidates the CQ+2 vote from the
-    # "--use-commit-queue" flag to "git cl upload".
-    if cl.GetIssueOwner() in AUTO_COMMIT_BOTS:
-      return results
+    # Skip PostUploadHooks for all auto-commit service account bots. New
+    # patchsets (caused due to PostUploadHooks) invalidates the CQ+2 vote from
+    # the "--use-commit-queue" flag to "git cl upload".
+    for suffix in SERVICE_ACCOUNT_SUFFIX:
+      if cl.GetIssueOwner().endswith(suffix):
+        return results
 
     original_description_lines, footers = cl.GetDescriptionFooters()
     new_description_lines = list(original_description_lines)

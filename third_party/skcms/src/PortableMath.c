@@ -50,19 +50,16 @@ float exp2f_(float x) {
 }
 
 float powf_(float x, float y) {
-    // Handling all the integral powers first increases our precision a little. If y is very large,
-    // this loop may never terminate, but for any reasonably large y, the approximation is fine.
+#if defined(SKCMS_LEGACY_POWF)
     float r = 1.0f;
     while (y >= 1.0f && y < 32) {
         r *= x;
         y -= 1.0f;
     }
-
-    return (x == 0) || (x == 1) ? x : r * exp2f_(log2f_(x) * y);
-}
-
-bool isfinitef_(float x) {
-    uint32_t bits;
-    small_memcpy(&bits, &x, sizeof(bits));
-    return (bits & 0x7f800000) != 0x7f800000;
+    return (x == 0) || (x == 1) ? x
+                                : r * exp2f_(log2f_(x) * y);
+#else
+    return (x == 0) || (x == 1) ? x
+                                : exp2f_(log2f_(x) * y);
+#endif
 }

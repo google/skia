@@ -103,6 +103,8 @@ struct SkNx {
         Half::Store2(ptr + 2*N/2*sizeof(T), a.fHi, b.fHi);
     }
 
+    AI T min() const { return std::min(fLo.min(), fHi.min()); }
+    AI T max() const { return std::max(fLo.max(), fHi.max()); }
     AI bool anyTrue() const { return fLo.anyTrue() || fHi.anyTrue(); }
     AI bool allTrue() const { return fLo.allTrue() && fHi.allTrue(); }
 
@@ -211,6 +213,8 @@ struct SkNx<1,T> {
         b.store(ptr + 1*sizeof(T));
     }
 
+    AI T min() const { return fVal; }
+    AI T max() const { return fVal; }
     AI bool anyTrue() const { return fVal != 0; }
     AI bool allTrue() const { return fVal != 0; }
 

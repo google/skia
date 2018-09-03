@@ -27,8 +27,7 @@ public:
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
     GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrShaderCaps* caps,
-                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0,
-                  GrCoverageCountingPathRenderer* = nullptr);
+                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0, int maxCCPRClipPaths = 0);
 
     enum class InitialState : bool {
         kAllIn,
@@ -97,7 +96,8 @@ public:
      * the render target context, surface allocations, and even switching render targets (pre MDB)
      * may cause flushes or otherwise change which opList the actual draw is going into.
      */
-    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(GrProxyProvider*,
+    std::unique_ptr<GrFragmentProcessor> finishAndDetachAnalyticFPs(GrCoverageCountingPathRenderer*,
+                                                                    GrProxyProvider*,
                                                                     uint32_t opListID,
                                                                     int rtWidth, int rtHeight);
 
@@ -135,7 +135,7 @@ private:
     const GrShaderCaps* fCaps;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;
-    GrCoverageCountingPathRenderer* const fCCPR;
+    const int fMaxCCPRClipPaths;
 
     InitialState fInitialState;
     SkIRect fScissor;

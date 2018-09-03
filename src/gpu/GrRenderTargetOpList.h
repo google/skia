@@ -60,6 +60,10 @@ public:
     void onPrepare(GrOpFlushState* flushState) override;
     bool onExecute(GrOpFlushState* flushState) override;
 
+    /**
+     * Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
+     * into an existing Op or otherwise deleted.
+     */
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
             this->addDependency(p, caps);
@@ -67,11 +71,13 @@ public:
 
         op->visitProxies(addDependency);
 
-        this->recordOp(std::move(op), caps);
-
-        return this->uniqueID();
+        return this->recordOp(std::move(op), caps);
     }
 
+    /**
+     * Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
+     * into an existing Op or otherwise deleted.
+     */
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
         auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
@@ -81,9 +87,7 @@ public:
         op->visitProxies(addDependency);
         clip.visitProxies(addDependency);
 
-        this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
-
-        return this->uniqueID();
+        return this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
     }
 
     void discard();
@@ -109,7 +113,7 @@ public:
 
     GrRenderTargetOpList* asRenderTargetOpList() override { return this; }
 
-    SkDEBUGCODE(void dump() const override;)
+    SkDEBUGCODE(void dump(bool printDependencies) const override;)
 
     SkDEBUGCODE(int numOps() const override { return fRecordedOps.count(); })
     SkDEBUGCODE(int numClips() const override { return fNumClips; })
@@ -147,8 +151,10 @@ private:
 
     void gatherProxyIntervals(GrResourceAllocator*) const override;
 
-    void recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
-                  GrAppliedClip* = nullptr, const DstProxy* = nullptr);
+    // Returns this opList's id if the Op was recorded, or SK_InvalidUniqueID if it was combined
+    // into an existing Op or otherwise deleted.
+    uint32_t recordOp(std::unique_ptr<GrOp>, const GrCaps& caps,
+                      GrAppliedClip* = nullptr, const DstProxy* = nullptr);
 
     void forwardCombine(const GrCaps&);
 

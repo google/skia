@@ -347,7 +347,9 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     static constexpr SkScalar kCleanupTolerance = 0.01f;
 
     insetPolygon->reset();
-    insetPolygon->setReserve(insetVertexCount);
+    if (insetVertexCount >= 0) {
+        insetPolygon->setReserve(insetVertexCount);
+    }
     currIndex = -1;
     for (int i = 0; i < inputPolygonSize; ++i) {
         if (edgeData[i].fValid && (currIndex == -1 ||

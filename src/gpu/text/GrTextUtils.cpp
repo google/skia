@@ -52,28 +52,7 @@ bool GrTextUtils::RunPaint::modifyForRun(std::function<void(SkPaint*)> paintModF
         // The draw filter could have changed either the paint color or color filter.
         this->initFilteredColor();
     }
-    fModifiedPaint.get()->setFlags(FilterTextFlags(fProps, *fModifiedPaint.get()));
     return true;
-}
-
-uint32_t GrTextUtils::FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint) {
-    uint32_t flags = paint.getFlags();
-
-    if (!paint.isLCDRenderText() || !paint.isAntiAlias()) {
-        return flags;
-    }
-
-    if (kUnknown_SkPixelGeometry == surfaceProps.pixelGeometry() || ShouldDisableLCD(paint)) {
-        flags &= ~SkPaint::kLCDRenderText_Flag;
-        flags |= SkPaint::kGenA8FromLCD_Flag;
-    }
-
-    return flags;
-}
-
-bool GrTextUtils::ShouldDisableLCD(const SkPaint& paint) {
-    return paint.getMaskFilter() || paint.getPathEffect() ||
-           paint.isFakeBoldText() || paint.getStyle() != SkPaint::kFill_Style;
 }
 
 bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** path, SkScalar* xpos) {
@@ -83,7 +62,7 @@ bool GrTextUtils::PathTextIter::next(const SkGlyph** skGlyph, const SkPath** pat
     if (fText < fStop) {
         const SkGlyph& glyph = fGlyphCacheProc(fCache.get(), &fText);
 
-        fXPos += (fPrevAdvance + fAutoKern.adjust(glyph)) * fScale;
+        fXPos += fPrevAdvance * fScale;
         SkASSERT(0 == fXYIndex || 1 == fXYIndex);
         fPrevAdvance = SkFloatToScalar((&glyph.fAdvanceX)[fXYIndex]);
 

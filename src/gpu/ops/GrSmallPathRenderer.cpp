@@ -17,6 +17,7 @@
 #include "SkAutoMalloc.h"
 #include "SkAutoPixmapStorage.h"
 #include "SkDistanceFieldGen.h"
+#include "SkPointPriv.h"
 #include "SkRasterClip.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
@@ -322,7 +323,6 @@ private:
                 matrix = &ctm;
             } else if (fHelper.usesLocalCoords()) {
                 if (!ctm.invert(&invert)) {
-                    SkDebugf("Could not invert viewmatrix\n");
                     return;
                 }
                 matrix = &invert;
@@ -336,7 +336,6 @@ private:
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
                 if (!ctm.invert(&invert)) {
-                    SkDebugf("Could not invert viewmatrix\n");
                     return;
                 }
             }
@@ -745,8 +744,7 @@ private:
         // vertex positions
         // TODO make the vertex attributes a struct
         if (fUsesDistanceField && !ctm.hasPerspective()) {
-            GrQuad quad;
-            quad.setFromMappedRect(translatedBounds, ctm);
+            GrQuad quad(translatedBounds, ctm);
             intptr_t positionOffset = offset;
             SkPoint* position = (SkPoint*)positionOffset;
             *position = quad.point(0);
@@ -760,12 +758,7 @@ private:
             position = (SkPoint*)positionOffset;
             *position = quad.point(3);
         } else {
-            SkPointPriv::SetRectTriStrip(positions,
-                                         translatedBounds.left(),
-                                         translatedBounds.top(),
-                                         translatedBounds.right(),
-                                         translatedBounds.bottom(),
-                                         vertexStride);
+            SkPointPriv::SetRectTriStrip(positions, translatedBounds, vertexStride);
         }
 
         // colors

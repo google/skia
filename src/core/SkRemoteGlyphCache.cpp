@@ -9,233 +9,173 @@
 
 #include <iterator>
 #include <memory>
+#include <string>
 #include <tuple>
 
 #include "SkDevice.h"
+#include "SkDraw.h"
 #include "SkFindAndPlaceGlyph.h"
+#include "SkPathEffect.h"
+#include "SkStrikeCache.h"
+#include "SkTextBlobRunIterator.h"
+#include "SkTraceEvent.h"
 #include "SkTypeface_remote.h"
 
-template <typename T>
-class ArraySlice final : public std::tuple<const T*, size_t> {
-public:
-    // Additional constructors as needed.
-    ArraySlice(const T* data, size_t size) : fData{data}, fSize{size} { }
-    ArraySlice() : ArraySlice<T>(nullptr, 0) { }
+#if SK_SUPPORT_GPU
+#include "GrDrawOpAtlas.h"
+#include "text/GrAtlasTextContext.h"
+#endif
 
-    const T* begin() {
-        return this->data();
+static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
+                                               SkFontID font_id,
+                                               SkAutoDescriptor* ad) {
+    ad->reset(source_desc->getLength());
+    auto* desc = ad->getDesc();
+    desc->init();
+
+    // Rec.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kRec_SkDescriptorTag, &size);
+        SkScalerContextRec rec;
+        std::memcpy(&rec, ptr, size);
+        rec.fFontID = font_id;
+        desc->addEntry(kRec_SkDescriptorTag, sizeof(rec), &rec);
     }
 
-    const T* end() {
-        return &this->data()[this->size()];
+    // Path effect.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kPathEffect_SkDescriptorTag, &size);
+        if (ptr) desc->addEntry(kPathEffect_SkDescriptorTag, size, ptr);
     }
 
-    const T* data() const {
-        return fData;
+    // Mask filter.
+    {
+        uint32_t size;
+        auto ptr = source_desc->findEntry(kMaskFilter_SkDescriptorTag, &size);
+        if (ptr) desc->addEntry(kMaskFilter_SkDescriptorTag, size, ptr);
     }
 
-    size_t size() const {
-        return fSize;
-    }
-
-private:
-    const T* fData;
-    size_t   fSize;
-};
-
-// -- SkRemoteStrikeTransport ----------------------------------------------------------------------
-
-static SkRemoteStrikeTransport::IOResult write_data(
-    size_t size, const uint8_t* data, SkRemoteStrikeTransport* t) {
-
-    if (t->write(&size, sizeof(size)) == SkRemoteStrikeTransport::kFail) {
-        return SkRemoteStrikeTransport::kFail;
-    }
-
-    if (t->write(data, size) == SkRemoteStrikeTransport::kFail) {
-        return SkRemoteStrikeTransport::kFail;
-    }
-
-    return SkRemoteStrikeTransport::kSuccess;
-}
-
-static SkRemoteStrikeTransport::IOResult read_data(
-    size_t size, uint8_t* data, SkRemoteStrikeTransport* t) {
-
-    size_t totalRead = 0;
-    while (totalRead < size) {
-        size_t sizeRead;
-        SkRemoteStrikeTransport::IOResult result;
-        std::tie(sizeRead, result) = t->read(&data[totalRead], size - totalRead);
-        if (result == SkRemoteStrikeTransport::kFail || sizeRead == 0) {
-            return SkRemoteStrikeTransport::kFail;
-        }
-        totalRead += sizeRead;
-    }
-
-    return SkRemoteStrikeTransport::kSuccess;
-}
-
-SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::writeSkData(const SkData& data) {
-    return write_data(data.size(), (uint8_t*)data.data(), this);
-}
-
-sk_sp<SkData> SkRemoteStrikeTransport::readSkData() {
-    size_t size;
-    if(std::get<1>(this->read(&size, sizeof(size))) == kFail) {
-        return nullptr;
-    }
-
-    auto data = std::unique_ptr<uint8_t[]>{new uint8_t[size]};
-    if (read_data(size, data.get(), this) == kFail) {
-        return nullptr;
-    }
-
-    return SkData::MakeWithCopy(data.get(), size);
-}
-
-SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::writeVector(
-    const std::vector<uint8_t>& vector) {
-    return write_data(vector.size(), vector.data(), this);
-}
-
-SkRemoteStrikeTransport::IOResult SkRemoteStrikeTransport::readVector(
-    std::vector<uint8_t>* vector) {
-    size_t vectorSize = 0;
-    size_t readSize = 0;
-    SkRemoteStrikeTransport::IOResult result;
-    std::tie(readSize, result) = this->read(&vectorSize, sizeof(vectorSize));
-    if(result == kFail || readSize == 0) {
-        return kFail;
-    }
-
-    vector->resize(vectorSize);
-
-    return read_data(vectorSize, vector->data(), this);
+    desc->computeChecksum();
+    return desc;
 }
 
 // -- Serializer ----------------------------------------------------------------------------------
 
-static size_t pad(size_t size, size_t alignment) {
-    return (size + (alignment - 1)) & ~(alignment - 1);
-}
+size_t pad(size_t size, size_t alignment) { return (size + (alignment - 1)) & ~(alignment - 1); }
 
-// N.B. pointers are only valid until the next call.
 class Serializer {
 public:
     Serializer(std::vector<uint8_t>* buffer) : fBuffer{buffer} { }
 
-    template <typename T>
-    T* push_back(const T& data) {
-        auto result = allocate(sizeof(T), alignof(T));
-        return new (result) T(data);
-    }
-
     template <typename T, typename... Args>
-    T* emplace_back(Args&& ... args) {
+    T* emplace(Args&&... args) {
         auto result = allocate(sizeof(T), alignof(T));
         return new (result) T{std::forward<Args>(args)...};
     }
 
+    template <typename T>
+    void write(const T& data) {
+        T* result = (T*)allocate(sizeof(T), alignof(T));
+        memcpy(result, &data, sizeof(T));
+    }
+
+    template <typename T>
+    T* allocate() {
+        T* result = (T*)allocate(sizeof(T), alignof(T));
+        return result;
+    }
+
     void writeDescriptor(const SkDescriptor& desc) {
+        write(desc.getLength());
         auto result = allocate(desc.getLength(), alignof(SkDescriptor));
         memcpy(result, &desc, desc.getLength());
     }
 
-    template <typename T>
-    T* allocateArray(int count) {
-        auto result = allocate(sizeof(T) * count, alignof(T));
-        return new (result) T[count];
-    }
-
-private:
     void* allocate(size_t size, size_t alignment) {
         size_t aligned = pad(fBuffer->size(), alignment);
         fBuffer->resize(aligned + size);
         return &(*fBuffer)[aligned];
     }
 
+private:
     std::vector<uint8_t>* fBuffer;
 };
 
 // -- Deserializer -------------------------------------------------------------------------------
-
+// Note that the Deserializer is reading untrusted data, we need to guard against invalid data.
 class Deserializer {
 public:
-    Deserializer(const std::vector<uint8_t>& buffer) : fBuffer{buffer} { }
+    Deserializer(const volatile char* memory, size_t memorySize)
+            : fMemory(memory), fMemorySize(memorySize) {}
 
     template <typename T>
-    T* read() {
-        size_t padded = pad(fCursor, alignof(T));
-        fCursor = padded + sizeof(T);
-        return (T*)&fBuffer[padded];
+    bool read(T* val) {
+        auto* result = this->ensureAtLeast(sizeof(T), alignof(T));
+        if (!result) return false;
+
+        memcpy(val, const_cast<const char*>(result), sizeof(T));
+        return true;
     }
 
-    SkDescriptor* readDescriptor() {
-        size_t padded = pad(fCursor, alignof(SkDescriptor));
-        SkDescriptor* result = (SkDescriptor*)&fBuffer[padded];
-        fCursor = padded + result->getLength();
-        return result;
+    bool readDescriptor(SkAutoDescriptor* ad) {
+        uint32_t desc_length = 0u;
+        if (!read<uint32_t>(&desc_length)) return false;
+
+        auto* result = this->ensureAtLeast(desc_length, alignof(SkDescriptor));
+        if (!result) return false;
+
+        ad->reset(desc_length);
+        memcpy(ad->getDesc(), const_cast<const char*>(result), desc_length);
+        return true;
     }
 
-    template <typename T>
-    ArraySlice<T> readArray(int count) {
-        size_t padded = pad(fCursor, alignof(T));
-        size_t size = count * sizeof(T);
-        const T* base = (const T*)&fBuffer[padded];
-        ArraySlice<T> result = ArraySlice<T>{base, (uint32_t)count};
-        fCursor = padded + size;
-        return result;
+    const volatile void* read(size_t size, size_t alignment) {
+      return this->ensureAtLeast(size, alignment);
     }
-
-    size_t size() {return fCursor;}
 
 private:
-    const std::vector<uint8_t>& fBuffer;
-    size_t                      fCursor{0};
+    const volatile char* ensureAtLeast(size_t size, size_t alignment) {
+        size_t padded = pad(fBytesRead, alignment);
+
+        // Not enough data
+        if (padded + size > fMemorySize) return nullptr;
+
+        auto* result = fMemory + padded;
+        fBytesRead = padded + size;
+        return result;
+    }
+
+    // Note that we read each piece of memory only once to guard against TOCTOU violations.
+    const volatile char* fMemory;
+    size_t fMemorySize;
+    size_t fBytesRead = 0u;
 };
 
+// Paths use a SkWriter32 which requires 4 byte alignment.
+static const size_t kPathAlignment  = 4u;
 
-// -- SkStrikeCacheDifferenceSpec ------------------------------------------------------------------
+bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkGlyphCache* cache) {
+    size_t pathSize = 0u;
+    if (!deserializer->read<size_t>(&pathSize)) return false;
 
-SkStrikeCacheDifferenceSpec::StrikeDifferences::StrikeDifferences(
-        SkFontID typefaceID, std::unique_ptr<SkDescriptor> desc)
-        : fTypefaceID{typefaceID}
-        , fDesc{std::move(desc)} { }
+    if (pathSize == 0u) return true;
 
-void SkStrikeCacheDifferenceSpec::StrikeDifferences::operator()(uint16_t glyphID, SkIPoint pos) {
-    SkPackedGlyphID packedGlyphID{glyphID, pos.x(), pos.y()};
-    fGlyphIDs->add(packedGlyphID);
+    auto* path = deserializer->read(pathSize, kPathAlignment);
+    if (!path) return false;
+
+    return cache->initializePath(glyph, path, pathSize);
 }
 
-SkStrikeCacheDifferenceSpec::StrikeDifferences&
-SkStrikeCacheDifferenceSpec::findStrikeDifferences(const SkDescriptor& desc,
-                                                   SkFontID typefaceID) {
-    auto mapIter = fDescriptorToDifferencesMap.find(&desc);
-    if (mapIter == fDescriptorToDifferencesMap.end()) {
-        auto newDesc = desc.copy();
-        auto newDescPtr = newDesc.get();
-        StrikeDifferences strikeDiffs{typefaceID, std::move(newDesc)};
-
-        mapIter = fDescriptorToDifferencesMap.emplace_hint(
-            mapIter, newDescPtr, std::move(strikeDiffs));
+size_t SkDescriptorMapOperators::operator()(const SkDescriptor* key) const {
+    return key->getChecksum();
     }
 
-    return mapIter->second;
-}
-
-template <typename PerStrike, typename PerGlyph>
-void SkStrikeCacheDifferenceSpec::iterateDifferences(PerStrike perStrike, PerGlyph perGlyph) const {
-    for (auto& i : fDescriptorToDifferencesMap) {
-        auto strikeDiff = &i.second;
-        perStrike(strikeDiff->fTypefaceID,
-                  *strikeDiff->fDesc,
-                  strikeDiff->fGlyphIDs->count());
-        strikeDiff->fGlyphIDs->foreach([&](SkPackedGlyphID id) {
-            perGlyph(id);
-        });
+    bool SkDescriptorMapOperators::operator()(const SkDescriptor* lhs,
+                                              const SkDescriptor* rhs) const {
+        return *lhs == *rhs;
     }
-}
 
 // -- TrackLayerDevice -----------------------------------------------------------------------------
 class TrackLayerDevice : public SkNoPixelsDevice {
@@ -246,32 +186,25 @@ public:
         const SkSurfaceProps surfaceProps(this->surfaceProps().flags(), cinfo.fPixelGeometry);
         return new TrackLayerDevice(this->getGlobalBounds(), surfaceProps);
     }
-
-    // Stolen from the SkBitmapDevice, but the SkGPUDevice is similar.
-    bool onShouldDisableLCD(const SkPaint& paint) const override {
-        if (paint.getPathEffect() ||
-            paint.isFakeBoldText() ||
-            paint.getStyle() != SkPaint::kFill_Style ||
-            !paint.isSrcOver())
-        {
-            return true;
-        }
-        return false;
-    }
 };
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
-SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
-        int width, int height,
-        const SkMatrix& deviceMatrix,
-        const SkSurfaceProps& props,
-        SkScalerContextFlags flags,
-        SkStrikeCacheDifferenceSpec* strikeDiffs)
-        : SkNoDrawCanvas{new TrackLayerDevice{SkIRect::MakeWH(width, height), props}}
+SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
+SkTextBlobCacheDiffCanvas::Settings::~Settings() = default;
+
+SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
+                                                     const SkMatrix& deviceMatrix,
+                                                     const SkSurfaceProps& props,
+                                                     SkStrikeServer* strikeSever, Settings settings)
+        : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props)}
         , fDeviceMatrix{deviceMatrix}
         , fSurfaceProps{props}
-        , fScalerContextFlags{flags}
-        , fStrikeCacheDiff{strikeDiffs} { }
+        , fStrikeServer{strikeSever}
+        , fSettings{settings} {
+    SkASSERT(fStrikeServer);
+}
+
+SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
     const SaveLayerRec&rec)
@@ -289,7 +222,6 @@ void SkTextBlobCacheDiffCanvas::onDrawTextBlob(
         // applyFontToPaint() always overwrites the exact same attributes,
         // so it is safe to not re-seed the paint for this reason.
         it.applyFontToPaint(&runPaint);
-        runPaint.setFlags(this->getTopDevice()->filterTextFlags(runPaint));
         if (auto looper = runPaint.getLooper()) {
             this->processLooper(position, it, runPaint, looper);
         } else {
@@ -315,6 +247,10 @@ void SkTextBlobCacheDiffCanvas::processLooper(
     }
 }
 
+#define FAIL_AND_RETURN                         \
+    SkDEBUGFAIL("Failed to process glyph run"); \
+    return;
+
 void SkTextBlobCacheDiffCanvas::processGlyphRun(
         const SkPoint& position,
         const SkTextBlobRunIterator& it,
@@ -322,21 +258,54 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
 {
 
     if (runPaint.getTextEncoding() != SkPaint::TextEncoding::kGlyphID_TextEncoding) {
-        return;
+        TRACE_EVENT0("skia", "kGlyphID_TextEncoding");
+        FAIL_AND_RETURN
     }
 
     // All other alignment modes need the glyph advances. Use the slow drawing mode.
     if (runPaint.getTextAlign() != SkPaint::kLeft_Align) {
+        TRACE_EVENT0("skia", "kLeft_Align");
+        FAIL_AND_RETURN
+    }
+
+    if (it.positioning() == SkTextBlob::kDefault_Positioning) {
+        // Default positioning needs advances. Can't do that.
+        TRACE_EVENT0("skia", "kDefault_Positioning");
+        FAIL_AND_RETURN
+    }
+
+    SkMatrix runMatrix{fDeviceMatrix};
+    runMatrix.preConcat(this->getTotalMatrix());
+    runMatrix.preTranslate(position.x(), position.y());
+    runMatrix.preTranslate(it.offset().x(), it.offset().y());
+
+#if SK_SUPPORT_GPU
+    GrAtlasTextContext::Options options;
+    options.fMinDistanceFieldFontSize = fSettings.fMinDistanceFieldFontSize;
+    options.fMaxDistanceFieldFontSize = fSettings.fMaxDistanceFieldFontSize;
+    GrAtlasTextContext::SanitizeOptions(&options);
+    if (GrAtlasTextContext::CanDrawAsDistanceFields(runPaint, runMatrix, fSurfaceProps,
+                                                    fSettings.fContextSupportsDistanceFieldText,
+                                                    options)) {
+        SkScalar textRatio;
+        SkPaint dfPaint(runPaint);
+        SkScalerContextFlags flags;
+        GrAtlasTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options,
+                                                   &textRatio, &flags);
+        this->processGlyphRunForDFT(it, dfPaint, flags);
+    }
+#endif
+
+    // If the matrix has perspective, we fall back to using distance field text or paths.
+    // TODO: Add distance field text support, and FallbackTextHelper logic from GrAtlasTextContext.
+    if (SkDraw::ShouldDrawTextAsPaths(runPaint, runMatrix)) {
+        this->processGlyphRunForPaths(it, runPaint);
         return;
     }
 
     using PosFn = SkPoint(*)(int index, const SkScalar* pos);
     PosFn posFn;
     switch (it.positioning()) {
-        case SkTextBlob::kDefault_Positioning:
-            // Default positioning needs advances. Can't do that.
-            return;
-
         case SkTextBlob::kHorizontal_Positioning:
             posFn = [](int index, const SkScalar* pos) {
                 return SkPoint{pos[index], 0};
@@ -354,16 +323,6 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             posFn = nullptr;
             SK_ABORT("unhandled positioning mode");
     }
-
-    SkMatrix blobMatrix{fDeviceMatrix};
-    blobMatrix.preConcat(this->getTotalMatrix());
-    if (blobMatrix.hasPerspective()) {
-        return;
-    }
-    blobMatrix.preTranslate(position.x(), position.y());
-
-    SkMatrix runMatrix{blobMatrix};
-    runMatrix.preTranslate(it.offset().x(), it.offset().y());
 
     using MapFn = SkPoint(*)(const SkMatrix& m, SkPoint pt);
     MapFn mapFn;
@@ -395,24 +354,19 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             SK_ABORT("Bad matrix.");
     }
 
-    SkAutoDescriptor ad;
-    SkScalerContextRec rec;
+    SkScalerContextRec deviceSpecificRec;
     SkScalerContextEffects effects;
+    auto* glyphCacheState =
+            static_cast<SkStrikeServer*>(fStrikeServer)
+                    ->getOrCreateCache(runPaint, &fSurfaceProps, &runMatrix,
+                                       SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                       &deviceSpecificRec, &effects);
+    SkASSERT(glyphCacheState);
 
-    SkScalerContext::MakeRecAndEffects(runPaint, &fSurfaceProps, &runMatrix,
-                                       fScalerContextFlags, &rec, &effects);
-
-    auto desc = SkScalerContext::AutoDescriptorGivenRecAndEffects(rec, effects, &ad);
-
-    auto typefaceID = SkTypefaceProxy::DownCast(runPaint.getTypeface())->remoteTypefaceID();
-    auto& addGlyph = fStrikeCacheDiff->findStrikeDifferences(*desc, typefaceID);
-
-    auto cache = SkGlyphCache::FindStrikeExclusive(*desc);
-    bool isSubpixel = SkToBool(rec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
-    SkAxisAlignment axisAlignment = SkAxisAlignment::kNone_SkAxisAlignment;
-    if (it.positioning() == SkTextBlob::kHorizontal_Positioning) {
-        axisAlignment = rec.computeAxisAlignmentForHText();
-    }
+    const bool asPath = false;
+    bool isSubpixel =
+            SkToBool(deviceSpecificRec.fFlags & SkScalerContext::kSubpixelPositioning_Flag);
+    SkAxisAlignment axisAlignment = deviceSpecificRec.computeAxisAlignmentForHText();
     auto pos = it.pos();
     const uint16_t* glyphs = it.glyphs();
     for (uint32_t index = 0; index < it.glyphCount(); index++) {
@@ -422,435 +376,432 @@ void SkTextBlobCacheDiffCanvas::processGlyphRun(
             subPixelPos = SkFindAndPlaceGlyph::SubpixelAlignment(axisAlignment, glyphPos);
         }
 
-        if (cache &&
-            cache->isGlyphCached(glyphs[index], subPixelPos.x(), subPixelPos.y())) {
-            continue;
-        }
-
-        addGlyph(glyphs[index], subPixelPos);
+        glyphCacheState->addGlyph(runPaint.getTypeface(),
+                                  effects,
+                                  SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                                  asPath);
     }
 }
 
-// Op code semantics:
-// * FontMetrics - (SkFontID, SkDescriptor) -> SkPaint::FontMetrics
-// * GlyphPath - (SkFontID, SkDescriptor, SkPackedGlyphID) -> SkPath
-// * GlyphMetricsAndImage - (SkFontID, SkDescriptor, SkPackedGlyphID) -> (SkGlyph, <image bits>)
-// * PrepopulateCache - StrikeCacheDifferenceSpec -> StrikeCacheDifferenceData
+void SkTextBlobCacheDiffCanvas::processGlyphRunForPaths(const SkTextBlobRunIterator& it,
+                                                        const SkPaint& runPaint) {
+    TRACE_EVENT0("skia", "SkTextBlobCacheDiffCanvas::processGlyphRunForPaths");
 
-enum class OpCode : int32_t {
-    kFontMetrics          = 0,
-    kGlyphPath            = 1,
-    kGlyphMetricsAndImage = 2,
-    kPrepopulateCache     = 3,
-};
+    // The code below borrowed from GrAtlasTextContext::DrawBmpPosTextAsPaths.
+    SkPaint pathPaint(runPaint);
+    pathPaint.setupForAsPaths();
+    pathPaint.setStyle(SkPaint::kFill_Style);
+    pathPaint.setPathEffect(nullptr);
 
-struct StrikeDiffHeader {
-    StrikeDiffHeader() {}
-    StrikeDiffHeader(int strikeCount_) : strikeCount{strikeCount_} {}
-    int strikeCount;
-};
+    SkScalerContextRec deviceSpecificRec;
+    SkScalerContextEffects effects;
+    auto* glyphCacheState =
+            static_cast<SkStrikeServer*>(fStrikeServer)
+                    ->getOrCreateCache(pathPaint, &fSurfaceProps, nullptr,
+                                       SkScalerContextFlags::kFakeGammaAndBoostContrast,
+                                       &deviceSpecificRec, &effects);
+
+    const bool asPath = true;
+    const SkIPoint subPixelPos{0, 0};
+    const uint16_t* glyphs = it.glyphs();
+    for (uint32_t index = 0; index < it.glyphCount(); index++) {
+        glyphCacheState->addGlyph(runPaint.getTypeface(),
+                                  effects,
+                                  SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                                  asPath);
+    }
+}
+
+void SkTextBlobCacheDiffCanvas::processGlyphRunForDFT(const SkTextBlobRunIterator& it,
+                                                      const SkPaint& runPaint,
+                                                      SkScalerContextFlags flags) {
+    SkScalerContextRec deviceSpecificRec;
+    SkScalerContextEffects effects;
+    auto* glyphCacheState = static_cast<SkStrikeServer*>(fStrikeServer)
+                                    ->getOrCreateCache(runPaint, &fSurfaceProps, nullptr, flags,
+                                                       &deviceSpecificRec, &effects);
+
+    const bool asPath = false;
+    const SkIPoint subPixelPos{0, 0};
+    const uint16_t* glyphs = it.glyphs();
+    for (uint32_t index = 0; index < it.glyphCount(); index++) {
+        glyphCacheState->addGlyph(runPaint.getTypeface(),
+                                  effects,
+                                  SkPackedGlyphID(glyphs[index], subPixelPos.x(), subPixelPos.y()),
+                                  asPath);
+    }
+}
 
 struct StrikeSpec {
-    StrikeSpec(SkFontID typefaceID_, uint32_t descLength_, int glyphCount_)
-            : typefaceID{typefaceID_}
-            , descLength{descLength_}
-            , glyphCount{glyphCount_} { }
-    SkFontID typefaceID;
-    uint32_t descLength;
-    int glyphCount;
+    StrikeSpec() {}
+    StrikeSpec(SkFontID typefaceID_, SkDiscardableHandleId discardableHandleId_)
+            : typefaceID{typefaceID_}, discardableHandleId(discardableHandleId_) {}
+    SkFontID typefaceID = 0u;
+    SkDiscardableHandleId discardableHandleId = 0u;
     /* desc */
     /* n X (glyphs ids) */
 };
 
 struct WireTypeface {
+    WireTypeface() = default;
+    WireTypeface(SkFontID typeface_id, int glyph_count, SkFontStyle style, bool is_fixed)
+            : typefaceID(typeface_id), glyphCount(glyph_count), style(style), isFixed(is_fixed) {}
+
+    // std::thread::id thread_id;  // TODO:need to figure a good solution
     SkFontID        typefaceID;
     int             glyphCount;
     SkFontStyle     style;
     bool            isFixed;
 };
 
-class Op {
-public:
-    Op(OpCode opCode, SkFontID typefaceId, const SkScalerContextRec& rec)
-        : opCode{opCode}
-        , typefaceId{typefaceId}
-        , descriptor{rec} { }
-    const OpCode opCode;
-    const SkFontID typefaceId;
-    const SkScalerContextRecDescriptor descriptor;
-    union {
-        // kGlyphPath and kGlyphMetricsAndImage
-        SkPackedGlyphID glyphID;
-        // kPrepopulateCache
-        StrikeDiffHeader strikeSpecHeader;
-    };
-};
+// SkStrikeServer -----------------------------------------
 
-class Result {
-    union {
-        SkPaint::FontMetrics fontMetrics;
-        SkGlyph glyph;
-        StrikeDiffHeader strikeDiffHeader;
-    };
-};
-
-size_t SkStrikeCacheDifferenceSpec::sizeBytes() const {
-    size_t sum = sizeof(Op) + sizeof(StrikeDiffHeader);
-    for (auto& pair : fDescriptorToDifferencesMap) {
-        const auto& strike = pair.second;
-        sum += sizeof(StrikeSpec)
-               + strike.fDesc->getLength()
-               + strike.fGlyphIDs->count() * sizeof(SkPackedGlyphID);
-    }
-    return sum;
+SkStrikeServer::SkStrikeServer(DiscardableHandleManager* discardableHandleManager)
+        : fDiscardableHandleManager(discardableHandleManager) {
+    SkASSERT(fDiscardableHandleManager);
 }
 
-static void write_strikes_spec(const SkStrikeCacheDifferenceSpec &spec,
-                               Serializer* serializer) {
-    serializer->emplace_back<Op>(OpCode::kPrepopulateCache, SkFontID{0}, SkScalerContextRec{});
+SkStrikeServer::~SkStrikeServer() = default;
 
-    serializer->emplace_back<StrikeDiffHeader>(spec.strikeCount());
-
-    auto perStrike = [serializer](SkFontID typefaceID, const SkDescriptor& desc, int glyphCount) {
-        serializer->emplace_back<StrikeSpec>(typefaceID, desc.getLength(), glyphCount);
-        serializer->writeDescriptor(desc);
-    };
-
-    auto perGlyph = [serializer](SkPackedGlyphID glyphID) {
-        serializer->push_back<SkPackedGlyphID>(glyphID);
-    };
-
-    spec.iterateDifferences(perStrike, perGlyph);
-}
-
-static void read_strikes_spec_write_strikes_data(
-        Deserializer* deserializer, Serializer* serializer, SkStrikeServer* server)
-{
-    // Don't start because the op started this deserialization.
-    auto header = deserializer->read<StrikeDiffHeader>();
-    serializer->push_back<StrikeDiffHeader>(*header);
-    for (int i = 0; i < header->strikeCount; i++) {
-        auto spec = deserializer->read<StrikeSpec>();
-        auto desc = deserializer->readDescriptor();
-        serializer->push_back<StrikeSpec>(*spec);
-        serializer->writeDescriptor(*desc);
-        SkScalerContextRecDescriptor recDesc{*desc};
-        auto scaler = server->generateScalerContext(recDesc, spec->typefaceID);
-        SkPaint::FontMetrics fontMetrics;
-        scaler->getFontMetrics(&fontMetrics);
-        serializer->push_back<SkPaint::FontMetrics>(fontMetrics);
-        auto glyphIDs = deserializer->readArray<SkPackedGlyphID>(spec->glyphCount);
-        for (auto glyphID : glyphIDs) {
-            auto glyph = serializer->emplace_back<SkGlyph>();
-            glyph->initWithGlyphID(glyphID);
-            scaler->getMetrics(glyph);
-            auto imageSize = glyph->computeImageSize();
-            glyph->fPathData = nullptr;
-            glyph->fImage = nullptr;
-
-            if (imageSize > 0) {
-                // Since the allocateArray can move glyph, make one that stays in one place.
-                SkGlyph stationaryGlyph = *glyph;
-                stationaryGlyph.fImage = serializer->allocateArray<uint8_t>(imageSize);
-                scaler->getImage(stationaryGlyph);
-            }
-        }
-    }
-}
-
-static void update_caches_from_strikes_data(SkStrikeClient *client,
-                                            Deserializer *deserializer) {
-    auto header = deserializer->read<StrikeDiffHeader>();
-    for (int i = 0; i < header->strikeCount; i++) {
-        auto spec = deserializer->read<StrikeSpec>();
-        auto desc = deserializer->readDescriptor();
-        auto fontMetrics = deserializer->read<SkPaint::FontMetrics>();
-        auto tf = client->lookupTypeface(spec->typefaceID);
-
-        // TODO: implement effects handling.
-        SkScalerContextEffects effects;
-        auto strike = SkGlyphCache::FindStrikeExclusive(*desc);
-        if (strike == nullptr) {
-            auto scaler = SkGlyphCache::CreateScalerContext(*desc, effects, *tf);
-            strike = SkGlyphCache::CreateStrikeExclusive(*desc, std::move(scaler), fontMetrics);
-        }
-        for (int j = 0; j < spec->glyphCount; j++) {
-            auto glyph = deserializer->read<SkGlyph>();
-            ArraySlice<uint8_t> image;
-            auto imageSize = glyph->computeImageSize();
-            if (imageSize != 0) {
-                image = deserializer->readArray<uint8_t>(imageSize);
-            }
-            SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph->getPackedID());
-            *allocatedGlyph = *glyph;
-            allocatedGlyph->allocImage(strike->getAlloc());
-            memcpy(allocatedGlyph->fImage, image.data(), image.size());
-        }
-    }
-}
-
-// -- SkStrikeServer -------------------------------------------------------------------------------
-SkStrikeServer::SkStrikeServer(SkRemoteStrikeTransport* transport)
-    : fTransport{transport} { }
-
-SkStrikeServer::~SkStrikeServer() {
-    printf("Strike server - ops: %d\n", fOpCount);
-}
-
-int SkStrikeServer::serve() {
-
-    std::vector<uint8_t> inBuffer;
-    std::vector<uint8_t> outBuffer;
-
-    while (true) {
-        inBuffer.clear();
-        auto result = fTransport->readVector(&inBuffer);
-        if (result == SkRemoteStrikeTransport::kFail) {
-            break;
-        }
-
-        Deserializer deserializer{inBuffer};
-        Op* op = deserializer.read<Op>();
-
-        fOpCount += 1;
-
-        outBuffer.clear();
-        Serializer serializer{&outBuffer};
-
-        switch (op->opCode) {
-            case OpCode::kFontMetrics : {
-                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
-                SkPaint::FontMetrics metrics;
-                sc->getFontMetrics(&metrics);
-                serializer.push_back<SkPaint::FontMetrics>(metrics);
-                break;
-            }
-            case OpCode::kGlyphPath : {
-                auto sc = this->generateScalerContext(op->descriptor, op->typefaceId);
-                // TODO: check for buffer overflow.
-                SkPath path;
-                if (sc->getPath(op->glyphID, &path)) {
-                    size_t pathSize = path.writeToMemory(nullptr);
-                    serializer.push_back<size_t>(pathSize);
-                    auto pathData = serializer.allocateArray<uint8_t>(pathSize);
-                    path.writeToMemory(pathData);
-                }
-                break;
-            }
-            case OpCode::kGlyphMetricsAndImage : {
-                auto scaler = this->generateScalerContext(op->descriptor, op->typefaceId);
-
-                auto glyph = serializer.emplace_back<SkGlyph>();
-                // TODO: check for buffer overflow.
-                glyph->initWithGlyphID(op->glyphID);
-                scaler->getMetrics(glyph);
-                auto imageSize = glyph->computeImageSize();
-                glyph->fPathData = nullptr;
-                glyph->fImage = nullptr;
-
-                if (imageSize > 0) {
-                    // Since the allocateArray can move glyph, make one that stays in one place.
-                    SkGlyph stationaryGlyph = *glyph;
-                    stationaryGlyph.fImage = serializer.allocateArray<uint8_t>(imageSize);
-                    scaler->getImage(stationaryGlyph);
-                }
-                break;
-            }
-            case OpCode::kPrepopulateCache : {
-                read_strikes_spec_write_strikes_data(
-                        &deserializer, &serializer, this);
-                break;
-            }
-
-            default:
-                SK_ABORT("Bad op");
-        }
-
-        fTransport->writeVector(outBuffer);
-    }
-    return 0;
-}
-
-void SkStrikeServer::prepareSerializeProcs(SkSerialProcs* procs) {
-    auto encode = [](SkTypeface* tf, void* ctx) {
-        return reinterpret_cast<SkStrikeServer*>(ctx)->encodeTypeface(tf);
-    };
-    procs->fTypefaceProc = encode;
-    procs->fTypefaceCtx = this;
-}
-
-SkScalerContext* SkStrikeServer::generateScalerContext(
-        const SkScalerContextRecDescriptor& desc, SkFontID typefaceId)
-{
-
-    auto scaler = fScalerContextMap.find(desc);
-    if (scaler == nullptr) {
-        auto typefaceIter = fTypefaceMap.find(typefaceId);
-        if (typefaceIter == nullptr) {
-            // TODO: handle this with some future fallback strategy.
-            SK_ABORT("unknown type face");
-            // Should never happen
-            return nullptr;
-        }
-        auto tf = typefaceIter->get();
-        // TODO: make effects really work.
-        SkScalerContextEffects effects;
-        auto mapSc = tf->createScalerContext(effects, &desc.desc(), false);
-        scaler = fScalerContextMap.set(desc, std::move(mapSc));
-    }
-    return scaler->get();
-}
-
-sk_sp<SkData> SkStrikeServer::encodeTypeface(SkTypeface* tf) {
-    WireTypeface wire = {
-            SkTypeface::UniqueID(tf),
-            tf->countGlyphs(),
-            tf->fontStyle(),
-            tf->isFixedPitch()
-    };
-    auto typeFace = fTypefaceMap.find(SkTypeface::UniqueID(tf));
-    if (typeFace == nullptr) {
-        fTypefaceMap.set(SkTypeface::UniqueID(tf), sk_ref_sp(tf));
-    }
-    // Can this be done with no copy?
+sk_sp<SkData> SkStrikeServer::serializeTypeface(SkTypeface* tf) {
+    WireTypeface wire(SkTypeface::UniqueID(tf), tf->countGlyphs(), tf->fontStyle(),
+                      tf->isFixedPitch());
     return SkData::MakeWithCopy(&wire, sizeof(wire));
 }
 
-// -- SkStrikeClient -------------------------------------------------------------------------------
+void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
+    if (fLockedDescs.empty() && fTypefacesToSend.empty()) return;
 
-SkStrikeClient::SkStrikeClient(SkRemoteStrikeTransport* transport)
-    : fTransport{transport} { }
+    Serializer serializer(memory);
+    serializer.emplace<size_t>(fTypefacesToSend.size());
+    for (const auto& tf : fTypefacesToSend) serializer.write<WireTypeface>(tf);
+    fTypefacesToSend.clear();
 
-void SkStrikeClient::generateFontMetrics(
-        const SkTypefaceProxy& typefaceProxy,
-        const SkScalerContextRec& rec,
-        SkPaint::FontMetrics* metrics) {
-    // Send generateFontMetrics
-    {
-        fBuffer.clear();
-        Serializer serializer{&fBuffer};
-        serializer.emplace_back<Op>(OpCode::kFontMetrics, typefaceProxy.remoteTypefaceID(), rec);
-        fTransport->writeVector(fBuffer);
+    serializer.emplace<size_t>(fLockedDescs.size());
+    for (const auto* desc : fLockedDescs) {
+        auto it = fRemoteGlyphStateMap.find(desc);
+        SkASSERT(it != fRemoteGlyphStateMap.end());
+
+        // TODO: This is unnecessary, write only the descs which has any glyphs
+        // to send. It was getting awkward to write the size after writing the
+        // descs because the vector reallocs.
+        serializer.emplace<bool>(it->second->has_pending_glyphs());
+        if (!it->second->has_pending_glyphs()) continue;
+
+        it->second->writePendingGlyphs(&serializer);
+    }
+    fLockedDescs.clear();
+}
+
+SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
+        const SkPaint& paint,
+        const SkSurfaceProps* props,
+        const SkMatrix* matrix,
+        SkScalerContextFlags flags,
+        SkScalerContextRec* deviceRec,
+        SkScalerContextEffects* effects) {
+    SkScalerContextRec keyRec;
+    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, deviceRec, effects, true);
+    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &keyRec, effects, false);
+    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(keyRec.dump().c_str()));
+
+    // TODO: possible perf improvement - don't recompute the device desc on cache hit.
+    auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(*deviceRec, *effects);
+    auto keyDesc = SkScalerContext::DescriptorGivenRecAndEffects(keyRec, *effects);
+
+    // Already locked.
+    if (fLockedDescs.find(keyDesc.get()) != fLockedDescs.end()) {
+        auto it = fRemoteGlyphStateMap.find(keyDesc.get());
+        SkASSERT(it != fRemoteGlyphStateMap.end());
+        return it->second.get();
     }
 
-    // Receive generateFontMetrics
-    {
-        fBuffer.clear();
-        fTransport->readVector(&fBuffer);
-        Deserializer deserializer(fBuffer);
-        *metrics = *deserializer.read<SkPaint::FontMetrics>();
+    // Try to lock.
+    auto it = fRemoteGlyphStateMap.find(keyDesc.get());
+    if (it != fRemoteGlyphStateMap.end()) {
+        SkASSERT(it->second->getDeviceDescriptor() == *deviceDesc);
+        bool locked = fDiscardableHandleManager->lockHandle(it->second->discardable_handle_id());
+        if (locked) {
+            fLockedDescs.insert(it->first);
+            return it->second.get();
+        }
+
+        // If the lock failed, the entry was deleted on the client. Remove our
+        // tracking.
+        fRemoteGlyphStateMap.erase(it);
+    }
+
+    auto* tf = paint.getTypeface();
+    const SkFontID typefaceId = tf->uniqueID();
+    if (!fCachedTypefaces.contains(typefaceId)) {
+        fCachedTypefaces.add(typefaceId);
+        fTypefacesToSend.emplace_back(typefaceId, tf->countGlyphs(), tf->fontStyle(),
+                                      tf->isFixedPitch());
+    }
+
+    auto* keyDescPtr = keyDesc.get();
+    auto newHandle = fDiscardableHandleManager->createHandle();
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(std::move(deviceDesc),
+                                                            std::move(keyDesc), newHandle);
+    auto* cacheStatePtr = cacheState.get();
+
+    fLockedDescs.insert(keyDescPtr);
+    fRemoteGlyphStateMap[keyDescPtr] = std::move(cacheState);
+    return cacheStatePtr;
+}
+
+SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(std::unique_ptr<SkDescriptor> deviceDescriptor,
+                                                     std::unique_ptr<SkDescriptor>
+                                                             keyDescriptor,
+                                                     uint32_t discardable_handle_id)
+        : fDeviceDescriptor(std::move(deviceDescriptor))
+        , fKeyDescriptor(std::move(keyDescriptor))
+        , fDiscardableHandleId(discardable_handle_id) {
+    SkASSERT(fDeviceDescriptor);
+    SkASSERT(fKeyDescriptor);
+}
+
+SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
+
+void SkStrikeServer::SkGlyphCacheState::addGlyph(SkTypeface* typeface,
+                                                 const SkScalerContextEffects& effects,
+                                                 SkPackedGlyphID glyph,
+                                                 bool asPath) {
+    auto* cache = asPath ? &fCachedGlyphPaths : &fCachedGlyphImages;
+    auto* pending = asPath ? &fPendingGlyphPaths : &fPendingGlyphImages;
+
+    // Already cached.
+    if (cache->contains(glyph)) return;
+
+    // Serialize and cache. Also create the scalar context to use when serializing
+    // this glyph.
+    cache->add(glyph);
+    pending->push_back(glyph);
+    if (!fContext) {
+        fContext = typeface->createScalerContext(effects, fDeviceDescriptor.get(), false);
     }
 }
 
-void SkStrikeClient::generateMetricsAndImage(
-        const SkTypefaceProxy& typefaceProxy,
-        const SkScalerContextRec& rec,
-        SkArenaAlloc* alloc,
-        SkGlyph* glyph) {
-    {
-        fBuffer.clear();
-        Serializer serializer(&fBuffer);
-        Op *op = serializer.emplace_back<Op>(
-            OpCode::kGlyphMetricsAndImage, typefaceProxy.remoteTypefaceID(), rec);
-        op->glyphID = glyph->getPackedID();
-        fTransport->writeVector(fBuffer);
-    }
+void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serializer) {
+    // Write the desc.
+    serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
+    serializer->writeDescriptor(*fKeyDescriptor.get());
 
-    // Receive generateMetricsAndImage
-    {
-        fBuffer.clear();
-        fTransport->readVector(&fBuffer);
-        Deserializer deserializer(fBuffer);
-        *glyph = *deserializer.read<SkGlyph>();
-        auto imageSize = glyph->computeImageSize();
+    // Write FontMetrics.
+    // TODO(khushalsagar): Do we need to re-send each time?
+    SkPaint::FontMetrics fontMetrics;
+    fContext->getFontMetrics(&fontMetrics);
+    serializer->write<SkPaint::FontMetrics>(fontMetrics);
+
+    // Write glyphs images.
+    serializer->emplace<size_t>(fPendingGlyphImages.size());
+    for (const auto& glyphID : fPendingGlyphImages) {
+        auto glyph = serializer->emplace<SkGlyph>();
+        glyph->initWithGlyphID(glyphID);
+        fContext->getMetrics(glyph);
         glyph->fPathData = nullptr;
-        glyph->fImage    = nullptr;
-        if (imageSize > 0) {
-            auto image = deserializer.readArray<uint8_t>(imageSize);
-            SkASSERT(imageSize == image.size());
-            glyph->allocImage(alloc);
-            memcpy(glyph->fImage, image.data(), imageSize);
-        }
-    }
+        glyph->fImage = nullptr;
 
+        bool tooLargeForAtlas = false;
+#if SK_SUPPORT_GPU
+        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph->fWidth, glyph->fHeight);
+#endif
+        if (tooLargeForAtlas) {
+            // Add this to the path cache, since we will always fall back to using paths
+            // for this glyph.
+            fCachedGlyphPaths.add(glyphID);
+            writeGlyphPath(glyphID, serializer);
+            continue;
+        }
+
+        auto imageSize = glyph->computeImageSize();
+        if (imageSize == 0u) continue;
+
+        // Since the allocate can move glyph, make one that stays in one place.
+        SkGlyph stationaryGlyph = *glyph;
+        stationaryGlyph.fImage = serializer->allocate(imageSize, stationaryGlyph.formatAlignment());
+        fContext->getImage(stationaryGlyph);
+    }
+    fPendingGlyphImages.clear();
+
+    // Write glyphs paths.
+    serializer->emplace<size_t>(fPendingGlyphPaths.size());
+    for (const auto& glyphID : fPendingGlyphPaths) {
+        auto glyph = serializer->emplace<SkGlyph>();
+        glyph->initWithGlyphID(glyphID);
+        fContext->getMetrics(glyph);
+        glyph->fPathData = nullptr;
+        glyph->fImage = nullptr;
+        writeGlyphPath(glyphID, serializer);
+    }
+    fPendingGlyphPaths.clear();
+
+    // Note that we reset the context after serializing pending glyphs since we
+    // don't want to extend the lifetime of the typeface.
+    fContext.reset();
 }
-bool SkStrikeClient::generatePath(
-        const SkTypefaceProxy& typefaceProxy,
-        const SkScalerContextRec& rec,
-        SkGlyphID glyphID,
-        SkPath* path) {
-    {
-        fBuffer.clear();
-        Serializer serializer{&fBuffer};
-        Op *op = serializer.emplace_back<Op>(
-            OpCode::kGlyphPath, typefaceProxy.remoteTypefaceID(), rec);
-        op->glyphID = glyphID;
-        fTransport->writeVector(fBuffer);
+
+void SkStrikeServer::SkGlyphCacheState::writeGlyphPath(const SkPackedGlyphID& glyphID,
+                                                       Serializer* serializer) const {
+    SkPath path;
+    if (!fContext->getPath(glyphID, &path)) {
+        serializer->write<size_t>(0u);
+        return;
     }
 
-    {
-        fBuffer.clear();
-        fTransport->readVector(&fBuffer);
-        Deserializer deserializer{fBuffer};
-        size_t pathSize = *deserializer.read<size_t>();
-        if (pathSize == 0) {
-            return false;
-        }
-        auto rawPath = deserializer.readArray<uint8_t>(pathSize);
-        path->readFromMemory(rawPath.data(), rawPath.size());
+    size_t pathSize = path.writeToMemory(nullptr);
+    serializer->write<size_t>(pathSize);
+    path.writeToMemory(serializer->allocate(pathSize, kPathAlignment));
+}
+
+// SkStrikeClient -----------------------------------------
+
+class SkStrikeClient::DiscardableStrikePinner : public SkStrikePinner {
+public:
+    DiscardableStrikePinner(SkDiscardableHandleId discardableHandleId,
+                            sk_sp<DiscardableHandleManager> manager)
+            : fDiscardableHandleId(discardableHandleId), fManager(std::move(manager)) {}
+
+    ~DiscardableStrikePinner() override = default;
+    bool canDelete() override { return fManager->deleteHandle(fDiscardableHandleId); }
+
+private:
+    const SkDiscardableHandleId fDiscardableHandleId;
+    sk_sp<DiscardableHandleManager> fManager;
+};
+
+SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManager)
+        : fDiscardableHandleManager(std::move(discardableManager)) {}
+
+SkStrikeClient::~SkStrikeClient() = default;
+
+#define READ_FAILURE                      \
+    {                                     \
+        SkDEBUGFAIL("Bad serialization"); \
+        return false;                     \
     }
+
+bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySize) {
+    SkASSERT(memorySize != 0u);
+    Deserializer deserializer(static_cast<const volatile char*>(memory), memorySize);
+
+    size_t typefaceSize = 0u;
+    if (!deserializer.read<size_t>(&typefaceSize)) READ_FAILURE
+
+    for (size_t i = 0; i < typefaceSize; ++i) {
+        WireTypeface wire;
+        if (!deserializer.read<WireTypeface>(&wire)) READ_FAILURE
+
+        // TODO(khushalsagar): The typeface no longer needs a reference to the
+        // SkStrikeClient, since all needed glyphs must have been pushed before
+        // raster.
+        addTypeface(wire);
+    }
+
+    size_t strikeCount = 0u;
+    if (!deserializer.read<size_t>(&strikeCount)) READ_FAILURE
+
+    for (size_t i = 0; i < strikeCount; ++i) {
+        bool has_glyphs = false;
+        if (!deserializer.read<bool>(&has_glyphs)) READ_FAILURE
+
+        if (!has_glyphs) continue;
+
+        StrikeSpec spec;
+        if (!deserializer.read<StrikeSpec>(&spec)) READ_FAILURE
+
+        SkAutoDescriptor sourceAd;
+        if (!deserializer.readDescriptor(&sourceAd)) READ_FAILURE
+
+        SkPaint::FontMetrics fontMetrics;
+        if (!deserializer.read<SkPaint::FontMetrics>(&fontMetrics)) READ_FAILURE
+
+        // Get the local typeface from remote fontID.
+        auto* tf = fRemoteFontIdToTypeface.find(spec.typefaceID)->get();
+        // Received strikes for a typeface which doesn't exist.
+        if (!tf) READ_FAILURE
+
+        // Replace the ContextRec in the desc from the server to create the client
+        // side descriptor.
+        // TODO: Can we do this in-place and re-compute checksum? Instead of a complete copy.
+        SkAutoDescriptor ad;
+        auto* client_desc = auto_descriptor_from_desc(sourceAd.getDesc(), tf->uniqueID(), &ad);
+
+        auto strike = SkStrikeCache::FindStrikeExclusive(*client_desc);
+        if (strike == nullptr) {
+            // Note that we don't need to deserialize the effects since we won't be generating any
+            // glyphs here anyway, and the desc is still correct since it includes the serialized
+            // effects.
+            SkScalerContextEffects effects;
+            auto scaler = SkStrikeCache::CreateScalerContext(*client_desc, effects, *tf);
+            strike = SkStrikeCache::CreateStrikeExclusive(
+                    *client_desc, std::move(scaler), &fontMetrics,
+                    skstd::make_unique<DiscardableStrikePinner>(spec.discardableHandleId,
+                                                                fDiscardableHandleManager));
+        }
+
+        size_t glyphImagesCount = 0u;
+        if (!deserializer.read<size_t>(&glyphImagesCount)) READ_FAILURE
+        for (size_t j = 0; j < glyphImagesCount; j++) {
+            SkGlyph glyph;
+            if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
+
+            SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
+            // Don't override the path, if the glyph has one.
+            auto* glyphPath = allocatedGlyph->fPathData;
+            *allocatedGlyph = glyph;
+            allocatedGlyph->fPathData = glyphPath;
+
+            bool tooLargeForAtlas = false;
+#if SK_SUPPORT_GPU
+            tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
+#endif
+            if (tooLargeForAtlas) {
+                if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
+                continue;
+            }
+
+            auto imageSize = glyph.computeImageSize();
+            if (imageSize == 0u) continue;
+
+            auto* image = deserializer.read(imageSize, allocatedGlyph->formatAlignment());
+            if (!image ||
+                !strike->initializeImage(image, imageSize, allocatedGlyph))
+                READ_FAILURE
+        }
+
+        size_t glyphPathsCount = 0u;
+        if (!deserializer.read<size_t>(&glyphPathsCount)) READ_FAILURE
+        for (size_t j = 0; j < glyphPathsCount; j++) {
+            SkGlyph glyph;
+            if (!deserializer.read<SkGlyph>(&glyph)) READ_FAILURE
+
+            SkGlyph* allocatedGlyph = strike->getRawGlyphByID(glyph.getPackedID());
+            // Don't override the image, if the glyph has one.
+            auto* glyphImage = allocatedGlyph->fImage;
+            *allocatedGlyph = glyph;
+            allocatedGlyph->fImage = glyphImage;
+
+            if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
+        }
+    }
+
     return true;
 }
 
-void SkStrikeClient::primeStrikeCache(const SkStrikeCacheDifferenceSpec& strikeDifferences) {
-    {
-        fBuffer.clear();
-        fBuffer.reserve(strikeDifferences.sizeBytes());
-        Serializer serializer{&fBuffer};
-        write_strikes_spec(strikeDifferences, &serializer);
-        fTransport->writeVector(fBuffer);
-    }
-    {
-        fBuffer.clear();
-        fTransport->readVector(&fBuffer);
-        Deserializer deserializer{fBuffer};
-        update_caches_from_strikes_data(this, &deserializer);
-    }
-}
-
-void SkStrikeClient::prepareDeserializeProcs(SkDeserialProcs* procs) {
-    auto decode = [](const void* buf, size_t len, void* ctx) {
-        return reinterpret_cast<SkStrikeClient*>(ctx)->decodeTypeface(buf, len);
-    };
-    procs->fTypefaceProc = decode;
-    procs->fTypefaceCtx = this;
-
-}
-
-SkTypeface* SkStrikeClient::lookupTypeface(SkFontID id) {
-    auto typeface = fMapIdToTypeface.find(id);
-    SkASSERT(typeface != nullptr);
-    return typeface->get();
-}
-
-sk_sp<SkTypeface> SkStrikeClient::decodeTypeface(const void* buf, size_t len) {
+sk_sp<SkTypeface> SkStrikeClient::deserializeTypeface(const void* buf, size_t len) {
     WireTypeface wire;
-    if (len < sizeof(wire)) {
-        SK_ABORT("Incomplete transfer");
-        return nullptr;
-    }
+    if (len != sizeof(wire)) return nullptr;
     memcpy(&wire, buf, sizeof(wire));
+    return addTypeface(wire);
+}
 
-    auto typeFace = fMapIdToTypeface.find(wire.typefaceID);
-    if (typeFace == nullptr) {
-        auto newTypeface = sk_make_sp<SkTypefaceProxy>(
-                wire.typefaceID,
-                wire.glyphCount,
-                wire.style,
-                wire.isFixed,
-                this);
+sk_sp<SkTypeface> SkStrikeClient::addTypeface(const WireTypeface& wire) {
+    auto* typeface = fRemoteFontIdToTypeface.find(wire.typefaceID);
+    if (typeface) return *typeface;
 
-        typeFace = fMapIdToTypeface.set(wire.typefaceID, newTypeface);
-    }
-    return *typeFace;
+    auto newTypeface = sk_make_sp<SkTypefaceProxy>(wire.typefaceID, wire.glyphCount, wire.style,
+                                                   wire.isFixed, fDiscardableHandleManager);
+    fRemoteFontIdToTypeface.set(wire.typefaceID, newTypeface);
+    return std::move(newTypeface);
 }

@@ -77,6 +77,11 @@ public:
                                                          sk_sp<SkColorSpace>,
                                                          const SkSurfaceProps*);
 
+    // Proxy unique key management. See GrProxyProvider.
+    bool assignUniqueKeyToProxy(const GrUniqueKey&, GrTextureProxy*);
+    void removeUniqueKeyFromProxy(const GrUniqueKey&, GrTextureProxy*);
+    sk_sp<GrTextureProxy> findOrCreateProxyByUniqueKey(const GrUniqueKey&, GrSurfaceOrigin);
+
     bool instatiateProxy(GrSurfaceProxy*);
 
     // Creates a GPU buffer with a "dynamic" access pattern.

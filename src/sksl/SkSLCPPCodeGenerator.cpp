@@ -295,10 +295,10 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         ASSERT(Expression::kVariableReference_Kind == c.fArguments[0]->fKind);
         int index = 0;
         bool found = false;
-        for (const auto& p : fProgram.fElements) {
-            if (ProgramElement::kVar_Kind == p->fKind) {
-                const VarDeclarations* decls = (const VarDeclarations*) p.get();
-                for (const auto& raw : decls->fVars) {
+        for (const auto& p : fProgram) {
+            if (ProgramElement::kVar_Kind == p.fKind) {
+                const VarDeclarations& decls = (const VarDeclarations&) p;
+                for (const auto& raw : decls.fVars) {
                     VarDeclaration& decl = (VarDeclaration&) *raw;
                     if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
                         found = true;
@@ -435,10 +435,10 @@ void CPPCodeGenerator::addUniform(const Variable& var) {
 }
 
 void CPPCodeGenerator::writePrivateVars() {
-    for (const auto& p : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == p->fKind) {
-            const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& raw : decls->fVars) {
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kVar_Kind == p.fKind) {
+            const VarDeclarations& decls = (const VarDeclarations&) p;
+            for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 if (is_private(*decl.fVar)) {
                     if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
@@ -458,10 +458,10 @@ void CPPCodeGenerator::writePrivateVars() {
 }
 
 void CPPCodeGenerator::writePrivateVarValues() {
-    for (const auto& p : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == p->fKind) {
-            const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& raw : decls->fVars) {
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kVar_Kind == p.fKind) {
+            const VarDeclarations& decls = (const VarDeclarations&) p;
+            for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 if (is_private(*decl.fVar) && decl.fValue) {
                     this->writef("%s = ", String(decl.fVar->fName).c_str());
@@ -524,10 +524,10 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     this->writef("        const %s& _outer = args.fFp.cast<%s>();\n"
                  "        (void) _outer;\n",
                  fFullName.c_str(), fFullName.c_str());
-    for (const auto& p : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == p->fKind) {
-            const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& raw : decls->fVars) {
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kVar_Kind == p.fKind) {
+            const VarDeclarations& decls = (const VarDeclarations&) p;
+            for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 String nameString(decl.fVar->fName);
                 const char* name = nameString.c_str();
@@ -597,10 +597,10 @@ void CPPCodeGenerator::writeSetData(std::vector<const Variable*>& uniforms) {
     }
     if (section) {
         int samplerIndex = 0;
-        for (const auto& p : fProgram.fElements) {
-            if (ProgramElement::kVar_Kind == p->fKind) {
-                const VarDeclarations* decls = (const VarDeclarations*) p.get();
-                for (const auto& raw : decls->fVars) {
+        for (const auto& p : fProgram) {
+            if (ProgramElement::kVar_Kind == p.fKind) {
+                const VarDeclarations& decls = (const VarDeclarations&) p;
+                for (const auto& raw : decls.fVars) {
                     VarDeclaration& decl = (VarDeclaration&) *raw;
                     String nameString(decl.fVar->fName);
                     const char* name = nameString.c_str();
@@ -750,10 +750,10 @@ void CPPCodeGenerator::writeGetKey() {
 
 bool CPPCodeGenerator::generateCode() {
     std::vector<const Variable*> uniforms;
-    for (const auto& p : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == p->fKind) {
-            const VarDeclarations* decls = (const VarDeclarations*) p.get();
-            for (const auto& raw : decls->fVars) {
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kVar_Kind == p.fKind) {
+            const VarDeclarations& decls = (const VarDeclarations&) p;
+            for (const auto& raw : decls.fVars) {
                 VarDeclaration& decl = (VarDeclaration&) *raw;
                 if ((decl.fVar->fModifiers.fFlags & Modifiers::kUniform_Flag) &&
                            decl.fVar->fType.kind() != Type::kSampler_Kind) {

@@ -14,7 +14,6 @@
 #include "BitmapRegionDecoderBench.h"
 #include "CodecBench.h"
 #include "CodecBenchPriv.h"
-#include "ColorCodecBench.h"
 #include "CrashHandler.h"
 #include "GMBench.h"
 #include "ProcStats.h"
@@ -439,10 +438,10 @@ static void create_config(const SkCommandLineConfig* config, SkTArray<Config>* c
 
         GrContextFactory factory(grContextOpts);
         if (const GrContext* ctx = factory.get(ctxType, ctxOverrides)) {
-            GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(colorType, colorSpace,
-                                                                  *ctx->caps());
+            GrPixelConfig grPixConfig =
+                    SkImageInfo2GrPixelConfig(colorType, colorSpace, *ctx->contextPriv().caps());
             int supportedSampleCount =
-                    ctx->caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
+                    ctx->contextPriv().caps()->getRenderTargetSampleCount(sampleCount, grPixConfig);
             if (sampleCount != supportedSampleCount) {
                 SkDebugf("Configuration '%s' sample count %d is not a supported sample count.\n",
                          config->getTag().c_str(), sampleCount);
@@ -621,7 +620,6 @@ public:
                       , fCurrentCodec(0)
                       , fCurrentAndroidCodec(0)
                       , fCurrentBRDImage(0)
-                      , fCurrentColorImage(0)
                       , fCurrentColorType(0)
                       , fCurrentAlphaType(0)
                       , fCurrentSubsetType(0)
@@ -655,9 +653,6 @@ public:
 
         // Prepare the images for decoding
         if (!CollectImages(FLAGS_images, &fImages)) {
-            exit(1);
-        }
-        if (!CollectImages(FLAGS_colorImages, &fColorImages)) {
             exit(1);
         }
 
@@ -1048,20 +1043,6 @@ public:
             fCurrentColorType = 0;
         }
 
-        while (fCurrentColorImage < fColorImages.count()) {
-            fSourceType = "colorimage";
-            fBenchType = "skcolorcodec";
-            const SkString& path = fColorImages[fCurrentColorImage];
-            fCurrentColorImage++;
-            sk_sp<SkData> encoded = SkData::MakeFromFileName(path.c_str());
-            if (encoded) {
-                return new ColorCodecBench(SkOSPath::Basename(path.c_str()).c_str(),
-                                           std::move(encoded));
-            } else {
-                SkDebugf("Could not read file %s.\n", path.c_str());
-            }
-        }
-
         return nullptr;
     }
 
@@ -1106,7 +1087,6 @@ private:
     SkTArray<SkString> fSVGs;
     SkTArray<bool>     fUseMPDs;
     SkTArray<SkString> fImages;
-    SkTArray<SkString> fColorImages;
     SkTArray<SkColorType, true> fColorTypes;
     SkScalar           fZoomMax;
     double             fZoomPeriodMs;
@@ -1125,7 +1105,6 @@ private:
     int fCurrentCodec;
     int fCurrentAndroidCodec;
     int fCurrentBRDImage;
-    int fCurrentColorImage;
     int fCurrentColorType;
     int fCurrentAlphaType;
     int fCurrentSubsetType;

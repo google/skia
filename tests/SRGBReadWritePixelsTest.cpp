@@ -258,16 +258,16 @@ static void test_write_read(Encoding contextEncoding, Encoding writeEncoding, En
 // are sRGB, linear, or untagged RGBA_8888.
 DEF_GPUTEST_FOR_RENDERING_CONTEXTS(SRGBReadWritePixels, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    if (!context->caps()->isConfigRenderable(kSRGBA_8888_GrPixelConfig) &&
-        !context->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+    if (!context->contextPriv().caps()->isConfigRenderable(kSRGBA_8888_GrPixelConfig) &&
+        !context->contextPriv().caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
         return;
     }
     // We allow more error on GPUs with lower precision shader variables.
-    float error = context->caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
+    float error = context->contextPriv().caps()->shaderCaps()->halfIs32Bits() ? 0.5f : 1.2f;
     // For the all-sRGB case, we allow a small error only for devices that have
     // precision variation because the sRGB data gets converted to linear and back in
     // the shader.
-    float smallError = context->caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
+    float smallError = context->contextPriv().caps()->shaderCaps()->halfIs32Bits() ? 0.0f : 1.f;
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Write sRGB data to a sRGB context - no conversion on the write.

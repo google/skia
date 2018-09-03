@@ -55,13 +55,21 @@ public:
      *  any drawing to this device will have no effect.
      */
     SkBitmapDevice(const SkBitmap& bitmap, const SkSurfaceProps& surfaceProps,
-                   void* externalHandle = nullptr);
+                   void* externalHandle, const SkBitmap* coverage);
 
     static SkBitmapDevice* Create(const SkImageInfo&, const SkSurfaceProps&,
-                                  SkRasterHandleAllocator* = nullptr);
+                                  bool trackCoverage,
+                                  SkRasterHandleAllocator*);
+
+    static SkBitmapDevice* Create(const SkImageInfo& info, const SkSurfaceProps& props) {
+        return Create(info, props, false, nullptr);
+    }
+
+    const SkPixmap* accessCoverage() const {
+        return fCoverage ? &fCoverage->pixmap() : nullptr;
+    }
 
 protected:
-    bool onShouldDisableLCD(const SkPaint&) const override;
     void* getRasterHandle() const override { return fRasterHandle; }
 
     /** These are called inside the per-device-layer loop for each draw call.
@@ -166,8 +174,30 @@ private:
     SkBitmap    fBitmap;
     void*       fRasterHandle = nullptr;
     SkRasterClipStack  fRCStack;
+    std::unique_ptr<SkBitmap> fCoverage;    // if non-null, will have the same dimensions as fBitmap
 
     typedef SkBaseDevice INHERITED;
+};
+
+class SkBitmapDeviceFilteredSurfaceProps {
+public:
+    SkBitmapDeviceFilteredSurfaceProps(const SkBitmap& bitmap, const SkPaint& paint,
+                                       const SkSurfaceProps& surfaceProps)
+        : fSurfaceProps((kN32_SkColorType != bitmap.colorType() || !paint.isSrcOver())
+                        ? fLazy.init(surfaceProps.flags(), kUnknown_SkPixelGeometry)
+                        : &surfaceProps)
+    { }
+
+    SkBitmapDeviceFilteredSurfaceProps(const SkBitmapDeviceFilteredSurfaceProps&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps& operator=(const SkBitmapDeviceFilteredSurfaceProps&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps(SkBitmapDeviceFilteredSurfaceProps&&) = delete;
+    SkBitmapDeviceFilteredSurfaceProps& operator=(SkBitmapDeviceFilteredSurfaceProps&&) = delete;
+
+    const SkSurfaceProps& operator()() const { return *fSurfaceProps; }
+
+private:
+    SkTLazy<SkSurfaceProps> fLazy;
+    SkSurfaceProps const * const fSurfaceProps;
 };
 
 #endif // SkBitmapDevice_DEFINED

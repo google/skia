@@ -11,6 +11,7 @@
 #include "SkPoint.h"
 #include "SkSize.h"
 #include "../private/SkSafe32.h"
+#include "../private/SkTFitsIn.h"
 
 struct SkRect;
 
@@ -209,7 +210,7 @@ struct SK_API SkIRect {
             return true;
         }
         // Return true if either exceeds int32_t
-        return !sk_64_isS32(w | h);
+        return !SkTFitsIn<int32_t>(w | h);
     }
 
     /** Returns true if all members in a: fLeft, fTop, fRight, and fBottom; are
@@ -412,6 +413,25 @@ struct SK_API SkIRect {
         @param dy  subtracted to fTop and added from fBottom
     */
     void outset(int32_t dx, int32_t dy)  { this->inset(-dx, -dy); }
+
+    /** Adjust SkIRect by adding dL to fLeft, dT to fTop, dR to fRight and fB to fBottom.
+
+        If dL is positive, narrows SkIRect on the left. If negative, widens it on the left.
+        If dT is positive, shrinks SkIRect on the top. If negative, lengthens it on the top.
+        If dR is positive, narrows SkIRect on the right. If negative, widens it on the right.
+        If dB is positive, shrinks SkIRect on the bottom. If negative, lengthens it on the bottom.
+
+        @param dL  offset added to fLeft
+        @param dT  offset added to fTop
+        @param dR  offset added to fRight
+        @param dB  offset added to fBottom
+    */
+    void adjust(int32_t dL, int32_t dT, int32_t dR, int32_t dB) {
+        fLeft   = Sk32_sat_add(fLeft,   dL);
+        fTop    = Sk32_sat_add(fTop,    dT);
+        fRight  = Sk32_sat_add(fRight,  dR);
+        fBottom = Sk32_sat_add(fBottom, dB);
+    }
 
     /** Returns true if: fLeft <= x < fRight && fTop <= y < fBottom.
         Returns false if SkIRect is empty.
@@ -1076,6 +1096,12 @@ struct SK_API SkRect {
         @return       true if all SkPoint values are finite
     */
     bool setBoundsCheck(const SkPoint pts[], int count);
+
+    /**
+     *  Like setBoundsCheck() but this does not check for finite/nonfinite values. If any of the
+     *  points are nonfinite, then the bounds will also be nonfinite.
+     */
+    void setBoundsNoCheck(const SkPoint pts[], int count);
 
     /** Sets bounds to the smallest SkRect enclosing SkPoint p0 and p1. The result is
         sorted and may be empty. Does not check to see if values are finite.

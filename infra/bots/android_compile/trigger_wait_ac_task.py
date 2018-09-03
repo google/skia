@@ -23,7 +23,7 @@ GCE_WEBHOOK_SALT_METADATA_URI = (
 
 
 POLLING_FREQUENCY_SECS = 60  # 1 minute.
-DEADLINE_SECS = 40 * 60  # 40 minutes.
+DEADLINE_SECS = 60 * 60  # 60 minutes.
 
 
 class AndroidCompileException(Exception):

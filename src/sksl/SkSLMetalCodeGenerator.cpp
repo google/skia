@@ -17,6 +17,18 @@
 
 namespace SkSL {
 
+void MetalCodeGenerator::setupIntrinsics() {
+#define SPECIAL(x) std::make_tuple(kSpecial_IntrinsicKind, k ## x ## _SpecialIntrinsic, \
+                                k ## x ## _SpecialIntrinsic, k ## x ## _SpecialIntrinsic, \
+                                k ## x ## _SpecialIntrinsic)
+
+    fIntrinsicMap[String("texture")]     = SPECIAL(Texture);
+}
+
+MetalCodeGenerator::TextureId MetalCodeGenerator::nextTextureId() {
+    return fCurrentTextureId++;
+}
+
 void MetalCodeGenerator::write(const char* s) {
     if (!s[0]) {
         return;
@@ -78,6 +90,9 @@ void MetalCodeGenerator::writeType(const Type& type) {
             this->writeType(type.componentType());
             this->write(to_string(type.columns()));
             break;
+        case Type::kSampler_Kind:
+            this->write("texture2d<half> "); //FIXME - support other texture types;
+            break;
         default:
             this->write(type.name());
     }
@@ -132,7 +147,31 @@ void MetalCodeGenerator::writeExpression(const Expression& expr, Precedence pare
     }
 }
 
+void MetalCodeGenerator::writeIntrinsicCall(const FunctionCall& c) {
+    auto intrinsic = fIntrinsicMap.find(c.fFunction.fName);
+    ASSERT(intrinsic != fIntrinsicMap.end());
+    int32_t intrinsicId = 0;
+    if (c.fArguments.size() > 0) {
+        if (std::get<0>(intrinsic->second) == kSpecial_IntrinsicKind) {
+            intrinsicId = std::get<1>(intrinsic->second);
+        }
+    } else {
+        intrinsicId = std::get<1>(intrinsic->second);
+    }
+    switch (std::get<0>(intrinsic->second)) {
+        case kSpecial_IntrinsicKind:
+            return this->writeSpecialIntrinsic(c, (SpecialIntrinsic) intrinsicId);
+        default:
+            ABORT("unsupported intrinsic kind");
+    }
+}
+
 void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
+    const auto& entry = fIntrinsicMap.find(c.fFunction.fName);
+    if (entry != fIntrinsicMap.end()) {
+        this->writeIntrinsicCall(c);
+        return;
+    }
     if (c.fFunction.fBuiltin && "atan" == c.fFunction.fName && 2 == c.fArguments.size()) {
         this->write("atan2");
     } else {
@@ -154,6 +193,11 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->write("_uniforms");
         separator = ", ";
     }
+    if (this->requirements(c.fFunction) & kGlobals_Requirement) {
+        this->write(separator);
+        this->write("_globals");
+        separator = ", ";
+    }
     for (size_t i = 0; i < c.fArguments.size(); ++i) {
         const Expression& arg = *c.fArguments[i];
         this->write(separator);
@@ -164,6 +208,24 @@ void MetalCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         this->writeExpression(arg, kSequence_Precedence);
     }
     this->write(")");
+}
+
+void MetalCodeGenerator::writeSpecialIntrinsic(const FunctionCall & c, SpecialIntrinsic kind) {
+    switch (kind) {
+        case kTexture_SpecialIntrinsic:
+            this->writeExpression(*c.fArguments[0], kSequence_Precedence);
+            this->write(".sample(_globals->colorSampler, ");
+            this->writeExpression(*c.fArguments[1], kSequence_Precedence);
+            if (c.fArguments[1]->fType == *fContext.fFloat3_Type) {
+                this->write(".xy)"); // FIXME - add projection functionality
+            } else {
+                ASSERT(c.fArguments[1]->fType == *fContext.fFloat2_Type);
+                this->write(")");
+            }
+            break;
+        default:
+            ABORT("unsupported special intrinsic kind");
+    }
 }
 
 void MetalCodeGenerator::writeConstructor(const Constructor& c) {
@@ -202,17 +264,19 @@ void MetalCodeGenerator::writeVariableReference(const VariableReference& ref) {
         case SK_FRAGCOLOR_BUILTIN:
             this->write("sk_FragColor");
             break;
+        case SK_FRAGCOORD_BUILTIN:
+            this->writeFragCoord();
+            break;
         default:
             if (Variable::kGlobal_Storage == ref.fVariable.fStorage) {
                 if (ref.fVariable.fModifiers.fFlags & Modifiers::kIn_Flag) {
                     this->write("_in.");
                 } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kOut_Flag) {
-                    this->write("_out.");
+                    this->write("_out->");
                 } else if (ref.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                     this->write("_uniforms.");
                 } else {
-                    fErrors.error(ref.fVariable.fOffset, "Metal backend does not support global "
-                                  "variables");
+                    this->write("_globals->");
                 }
             }
             this->write(ref.fVariable.fName);
@@ -236,7 +300,7 @@ void MetalCodeGenerator::writeFieldAccess(const FieldAccess& f) {
             this->write("gl_ClipDistance");
             break;
         case SK_POSITION_BUILTIN:
-            this->write("_out.position");
+            this->write("_out->position");
             break;
         default:
             this->write(f.fBase->fType.fields()[f.fFieldIndex].fName);
@@ -407,6 +471,24 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
             this->write(", constant Uniforms& _uniforms [[buffer(" +
                         to_string(fUniformBuffer) + ")]]");
         }
+        for (const auto& e : fProgram) {
+            if (ProgramElement::kVar_Kind == e.fKind) {
+                VarDeclarations& decls = (VarDeclarations&) e;
+                if (!decls.fVars.size()) {
+                    continue;
+                }
+                for (const auto& stmt: decls.fVars) {
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    if (var.fVar->fType.kind() == Type::kSampler_Kind) {
+                        this->write(", texture2d<half> "); // FIXME - support other texture types
+                        this->write(var.fVar->fName);
+                        this->write("[[texture(");
+                        this->write(to_string(fTextureMap[var.fVar->fName]));
+                        this->write(")]]");
+                    }
+                }
+            }
+        }
         separator = ", ";
     } else {
         this->writeType(f.fDeclaration.fReturnType);
@@ -417,12 +499,17 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
         }
         if (this->requirements(f.fDeclaration) & kOutputs_Requirement) {
             this->write(separator);
-            this->write("thread Outputs& _out");
+            this->write("thread Outputs* _out");
             separator = ", ";
         }
         if (this->requirements(f.fDeclaration) & kUniforms_Requirement) {
             this->write(separator);
             this->write("Uniforms _uniforms");
+            separator = ", ";
+        }
+        if (this->requirements(f.fDeclaration) & kGlobals_Requirement) {
+            this->write(separator);
+            this->write("thread Globals* _globals");
             separator = ", ";
         }
     }
@@ -454,6 +541,28 @@ void MetalCodeGenerator::writeFunction(const FunctionDefinition& f) {
     ASSERT(!fProgram.fSettings.fFragColorIsInOut);
 
     if ("main" == f.fDeclaration.fName) {
+        if (fNeedsGlobalStructInit) {
+            this->writeLine("    Globals globalStruct;");
+            this->writeLine("    thread Globals* _globals = &globalStruct;");
+            for (const auto var: fInitNonConstGlobalVars) {
+                this->write("    _globals->");
+                this->write(var->fVar->fName);
+                this->write(" = ");
+                this->writeVarInitializer(*var->fVar, *var->fValue);
+                this->writeLine(";");
+            }
+        }
+        if (!fTextureMap.empty()) {
+            this->writeLine("    _globals->colorSampler = sampler(mip_filter::linear, "
+                "mag_filter::linear, min_filter::linear);"); // FIXME - support other samplers
+            for (const auto& texture: fTextureMap) {
+                this->write("    _globals->");
+                this->write(texture.first);
+                this->write(" = ");
+                this->write(texture.first);
+                this->write(";\n");
+            }
+        }
         switch (fProgram.fKind) {
             case Program::kFragment_Kind:
                 this->writeLine("    half4 sk_FragColor;");
@@ -497,7 +606,7 @@ void MetalCodeGenerator::writeModifiers(const Modifiers& modifiers,
         this->write("thread ");
     }
     if (modifiers.fFlags & Modifiers::kConst_Flag) {
-        this->write("const ");
+        this->write("constant ");
     }
 }
 
@@ -542,9 +651,7 @@ void MetalCodeGenerator::writeVarDeclarations(const VarDeclarations& decl, bool 
     bool wroteType = false;
     for (const auto& stmt : decl.fVars) {
         VarDeclaration& var = (VarDeclaration&) *stmt;
-        if (var.fVar->fModifiers.fFlags & (Modifiers::kIn_Flag | Modifiers::kOut_Flag |
-                                           Modifiers::kUniform_Flag)) {
-            ASSERT(global);
+        if (global && !(var.fVar->fModifiers.fFlags & Modifiers::kConst_Flag)) {
             continue;
         }
         if (wroteType) {
@@ -729,9 +836,9 @@ void MetalCodeGenerator::writeHeader() {
 }
 
 void MetalCodeGenerator::writeUniformStruct() {
-    for (const auto& e : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == e->fKind) {
-            VarDeclarations& decls = (VarDeclarations&) *e;
+    for (const auto& e : fProgram) {
+        if (ProgramElement::kVar_Kind == e.fKind) {
+            VarDeclarations& decls = (VarDeclarations&) e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -770,9 +877,9 @@ void MetalCodeGenerator::writeInputStruct() {
     if (Program::kFragment_Kind == fProgram.fKind) {
         this->write("    float4 position [[position]];\n");
     }
-    for (const auto& e : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == e->fKind) {
-            VarDeclarations& decls = (VarDeclarations&) *e;
+    for (const auto& e : fProgram) {
+        if (ProgramElement::kVar_Kind == e.fKind) {
+            VarDeclarations& decls = (VarDeclarations&) e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -800,9 +907,9 @@ void MetalCodeGenerator::writeInputStruct() {
 void MetalCodeGenerator::writeOutputStruct() {
     this->write("struct Outputs {\n");
     this->write("    float4 position [[position]];\n");
-    for (const auto& e : fProgram.fElements) {
-        if (ProgramElement::kVar_Kind == e->fKind) {
-            VarDeclarations& decls = (VarDeclarations&) *e;
+    for (const auto& e : fProgram) {
+        if (ProgramElement::kVar_Kind == e.fKind) {
+            VarDeclarations& decls = (VarDeclarations&) e;
             if (!decls.fVars.size()) {
                 continue;
             }
@@ -820,6 +927,46 @@ void MetalCodeGenerator::writeOutputStruct() {
             }
         }
     }    this->write("};\n");
+}
+
+void MetalCodeGenerator::writeGlobalStruct() {
+    bool wroteStructDecl = false;
+    for (const auto& e : fProgram) {
+        if (ProgramElement::kVar_Kind == e.fKind) {
+            VarDeclarations& decls = (VarDeclarations&) e;
+            if (!decls.fVars.size()) {
+                continue;
+            }
+            const Variable& first = *((VarDeclaration&) *decls.fVars[0]).fVar;
+            if (!first.fModifiers.fFlags && -1 == first.fModifiers.fLayout.fBuiltin) {
+                if (!wroteStructDecl) {
+                    this->write("struct Globals {\n");
+                    wroteStructDecl = true;
+                }
+                fNeedsGlobalStructInit = true;
+                this->write("    ");
+                this->writeType(first.fType);
+                this->write(" ");
+                for (const auto& stmt : decls.fVars) {
+                    VarDeclaration& var = (VarDeclaration&) *stmt;
+                    if (var.fVar->fType.kind() == Type::kSampler_Kind) {
+                        fTextureMap[var.fVar->fName] = this->nextTextureId();
+                    }
+                    this->write(var.fVar->fName);
+                    if (var.fValue) {
+                        fInitNonConstGlobalVars.push_back(&var);
+                    }
+                }
+                this->write(";\n");
+            }
+        }
+    }
+    if (!fTextureMap.empty()) {
+        this->writeLine("    sampler colorSampler;");
+    }
+    if (wroteStructDecl) {
+        this->write("};\n");
+    }
 }
 
 void MetalCodeGenerator::writeProgramElement(const ProgramElement& e) {
@@ -907,6 +1054,8 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Expressi
                     result = kOutputs_Requirement;
                 } else if (v.fVariable.fModifiers.fFlags & Modifiers::kUniform_Flag) {
                     result = kUniforms_Requirement;
+                } else {
+                    result = kGlobals_Requirement;
                 }
             }
             return result;
@@ -978,9 +1127,9 @@ MetalCodeGenerator::Requirements MetalCodeGenerator::requirements(const Function
     }
     auto found = fRequirements.find(&f);
     if (found == fRequirements.end()) {
-        for (const auto& e : fProgram.fElements) {
-            if (ProgramElement::kFunction_Kind == e->fKind) {
-                const FunctionDefinition& def = (const FunctionDefinition&) *e;
+        for (const auto& e : fProgram) {
+            if (ProgramElement::kFunction_Kind == e.fKind) {
+                const FunctionDefinition& def = (const FunctionDefinition&) e;
                 if (&def.fDeclaration == &f) {
                     Requirements reqs = this->requirements(*def.fBody);
                     fRequirements[&f] = reqs;
@@ -1002,10 +1151,11 @@ bool MetalCodeGenerator::generateCode() {
     if (Program::kVertex_Kind == fProgram.fKind) {
         this->writeOutputStruct();
     }
+    this->writeGlobalStruct();
     StringStream body;
     fOut = &body;
-    for (const auto& e : fProgram.fElements) {
-        this->writeProgramElement(*e);
+    for (const auto& e : fProgram) {
+        this->writeProgramElement(e);
     }
     fOut = rawOut;
 

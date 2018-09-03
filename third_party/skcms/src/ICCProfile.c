@@ -6,18 +6,47 @@
  */
 
 #include "../skcms.h"
+#include "ICCProfile.h"
+#include "LinearAlgebra.h"
 #include "Macros.h"
 #include "PortableMath.h"
+#include "RandomBytes.h"
 #include "TransferFunction.h"
 #include <assert.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 
-// A macro so that it can be used in the initialization of skcms_sRGB_profile.
-// Think, static uint32_t make_signature(uint8_t, uint8_t, uint8_t, uint8_t).
-#define make_signature(a,b,c,d) \
-    ( (uint32_t)((a) << 24) | (uint32_t)((b) << 16) | (uint32_t)((c) << 8) | (uint32_t)((d) << 0) )
+// Additional ICC signature values that are only used internally
+enum {
+    // File signature
+    skcms_Signature_acsp = 0x61637370,
+
+    // Tag signatures
+    skcms_Signature_rTRC = 0x72545243,
+    skcms_Signature_gTRC = 0x67545243,
+    skcms_Signature_bTRC = 0x62545243,
+    skcms_Signature_kTRC = 0x6B545243,
+
+    skcms_Signature_rXYZ = 0x7258595A,
+    skcms_Signature_gXYZ = 0x6758595A,
+    skcms_Signature_bXYZ = 0x6258595A,
+
+    skcms_Signature_A2B0 = 0x41324230,
+    skcms_Signature_A2B1 = 0x41324231,
+    skcms_Signature_mAB  = 0x6D414220,
+
+    skcms_Signature_CHAD = 0x63686164,
+
+    // Type signatures
+    skcms_Signature_curv = 0x63757276,
+    skcms_Signature_mft1 = 0x6D667431,
+    skcms_Signature_mft2 = 0x6D667432,
+    skcms_Signature_para = 0x70617261,
+    skcms_Signature_sf32 = 0x73663332,
+    // XYZ is also a PCS signature, so it's defined in skcms.h
+    // skcms_Signature_XYZ = 0x58595A20,
+};
 
 static uint16_t read_big_u16(const uint8_t* ptr) {
     uint16_t be;
@@ -83,6 +112,33 @@ static const tag_Layout* get_tag_table(const skcms_ICCProfile* profile) {
     return (const tag_Layout*)(profile->buffer + SAFE_SIZEOF(header_Layout));
 }
 
+// s15Fixed16ArrayType is technically variable sized, holding N values. However, the only valid
+// use of the type is for the CHAD tag that stores exactly nine values.
+typedef struct {
+    uint8_t type     [ 4];
+    uint8_t reserved [ 4];
+    uint8_t values   [36];
+} sf32_Layout;
+
+bool skcms_GetCHAD(const skcms_ICCProfile* profile, skcms_Matrix3x3* m) {
+    skcms_ICCTag tag;
+    if (!skcms_GetTagBySignature(profile, skcms_Signature_CHAD, &tag)) {
+        return false;
+    }
+
+    if (tag.type != skcms_Signature_sf32 || tag.size < SAFE_SIZEOF(sf32_Layout)) {
+        return false;
+    }
+
+    const sf32_Layout* sf32Tag = (const sf32_Layout*)tag.buf;
+    const uint8_t* values = sf32Tag->values;
+    for (int r = 0; r < 3; ++r)
+    for (int c = 0; c < 3; ++c, values += 4) {
+        m->vals[r][c] = read_big_fixed(values);
+    }
+    return true;
+}
+
 // XYZType is technically variable sized, holding N XYZ triples. However, the only valid uses of
 // the type are for tags/data that store exactly one triple.
 typedef struct {
@@ -94,7 +150,7 @@ typedef struct {
 } XYZ_Layout;
 
 static bool read_tag_xyz(const skcms_ICCTag* tag, float* x, float* y, float* z) {
-    if (tag->type != make_signature('X','Y','Z',' ') || tag->size < SAFE_SIZEOF(XYZ_Layout)) {
+    if (tag->type != skcms_Signature_XYZ || tag->size < SAFE_SIZEOF(XYZ_Layout)) {
         return false;
     }
 
@@ -187,7 +243,7 @@ static bool read_curve_para(const uint8_t* buf, uint32_t size,
             curve->parametric.f = read_big_fixed(paraTag->parameters + 24);
             break;
     }
-    return true;
+    return skcms_TransferFunction_isValid(&curve->parametric);
 }
 
 typedef struct {
@@ -247,9 +303,9 @@ static bool read_curve(const uint8_t* buf, uint32_t size,
     }
 
     uint32_t type = read_big_u32(buf);
-    if (type == make_signature('p', 'a', 'r', 'a')) {
+    if (type == skcms_Signature_para) {
         return read_curve_para(buf, size, curve, curve_size);
-    } else if (type == make_signature('c', 'u', 'r', 'v')) {
+    } else if (type == skcms_Signature_curv) {
         return read_curve_curv(buf, size, curve, curve_size);
     }
 
@@ -579,11 +635,11 @@ static bool read_tag_mab(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xy
 
 static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
     bool ok = false;
-    if (tag->type == make_signature('m', 'f', 't', '1')) {
+    if (tag->type == skcms_Signature_mft1) {
         ok = read_tag_mft1(tag, a2b);
-    } else if (tag->type == make_signature('m', 'f', 't', '2')) {
+    } else if (tag->type == skcms_Signature_mft2) {
         ok = read_tag_mft2(tag, a2b);
-    } else if (tag->type == make_signature('m', 'A', 'B', ' ')) {
+    } else if (tag->type == skcms_Signature_mAB) {
         ok = read_tag_mab(tag, a2b, pcs_is_xyz);
     }
     if (!ok) {
@@ -610,10 +666,10 @@ static bool read_a2b(const skcms_ICCTag* tag, skcms_A2B* a2b, bool pcs_is_xyz) {
         if (curve && curve->table_entries && curve->table_entries <= (uint32_t)INT_MAX) {
             int N = (int)curve->table_entries;
 
-            skcms_TransferFunction tf;
-            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &tf)
-                && tf.c == 1.0f
-                && tf.f == 0.0f) {
+            float c,d,f;
+            if (N == skcms_fit_linear(curve, N, 1.0f/(2*N), &c,&d,&f)
+                && c == 1.0f
+                && f == 0.0f) {
                 curve->table_entries = 0;
                 curve->table_8       = NULL;
                 curve->table_16      = NULL;
@@ -650,6 +706,11 @@ bool skcms_GetTagBySignature(const skcms_ICCProfile* profile, uint32_t sig, skcm
     return false;
 }
 
+static bool usable_as_src(const skcms_ICCProfile* profile) {
+    return profile->has_A2B
+       || (profile->has_trc && profile->has_toXYZD50);
+}
+
 bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     assert(SAFE_SIZEOF(header_Layout) == 132);
 
@@ -678,7 +739,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     // Validate signature, size (smaller than buffer, large enough to hold tag table),
     // and major version
     uint64_t tag_table_size = profile->tag_count * SAFE_SIZEOF(tag_Layout);
-    if (signature != make_signature('a', 'c', 's', 'p') ||
+    if (signature != skcms_Signature_acsp ||
         profile->size > len ||
         profile->size < SAFE_SIZEOF(header_Layout) + tag_table_size ||
         (version >> 24) > 4) {
@@ -703,17 +764,16 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
-    if (profile->pcs != make_signature('X', 'Y', 'Z', ' ') &&
-        profile->pcs != make_signature('L', 'a', 'b', ' ')) {
+    if (profile->pcs != skcms_Signature_XYZ && profile->pcs != skcms_Signature_Lab) {
         return false;
     }
 
-    bool pcs_is_xyz = profile->pcs == make_signature('X', 'Y', 'Z', ' ');
+    bool pcs_is_xyz = profile->pcs == skcms_Signature_XYZ;
 
     // Pre-parse commonly used tags.
     skcms_ICCTag kTRC;
-    if (profile->data_color_space == make_signature('G', 'R', 'A', 'Y') &&
-        skcms_GetTagBySignature(profile, make_signature('k', 'T', 'R', 'C'), &kTRC)) {
+    if (profile->data_color_space == skcms_Signature_Gray &&
+        skcms_GetTagBySignature(profile, skcms_Signature_kTRC, &kTRC)) {
         if (!read_curve(kTRC.buf, kTRC.size, &profile->trc[0], NULL)) {
             // Malformed tag
             return false;
@@ -730,9 +790,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     } else {
         skcms_ICCTag rTRC, gTRC, bTRC;
-        if (skcms_GetTagBySignature(profile, make_signature('r', 'T', 'R', 'C'), &rTRC) &&
-            skcms_GetTagBySignature(profile, make_signature('g', 'T', 'R', 'C'), &gTRC) &&
-            skcms_GetTagBySignature(profile, make_signature('b', 'T', 'R', 'C'), &bTRC)) {
+        if (skcms_GetTagBySignature(profile, skcms_Signature_rTRC, &rTRC) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_gTRC, &gTRC) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_bTRC, &bTRC)) {
             if (!read_curve(rTRC.buf, rTRC.size, &profile->trc[0], NULL) ||
                 !read_curve(gTRC.buf, gTRC.size, &profile->trc[1], NULL) ||
                 !read_curve(bTRC.buf, bTRC.size, &profile->trc[2], NULL)) {
@@ -743,9 +803,9 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
 
         skcms_ICCTag rXYZ, gXYZ, bXYZ;
-        if (skcms_GetTagBySignature(profile, make_signature('r', 'X', 'Y', 'Z'), &rXYZ) &&
-            skcms_GetTagBySignature(profile, make_signature('g', 'X', 'Y', 'Z'), &gXYZ) &&
-            skcms_GetTagBySignature(profile, make_signature('b', 'X', 'Y', 'Z'), &bXYZ)) {
+        if (skcms_GetTagBySignature(profile, skcms_Signature_rXYZ, &rXYZ) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_gXYZ, &gXYZ) &&
+            skcms_GetTagBySignature(profile, skcms_Signature_bXYZ, &bXYZ)) {
             if (!read_to_XYZD50(&rXYZ, &gXYZ, &bXYZ, &profile->toXYZD50)) {
                 // Malformed XYZ tags
                 return false;
@@ -760,7 +820,7 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
     // TODO: prefer A2B1 (relative colormetric) over A2B0 (perceptual)?
     // This breaks with the ICC spec, but we think it's a good idea, given that TRC curves
     // and all our known users are thinking exclusively in terms of relative colormetric.
-    const uint32_t sigs[] = { make_signature('A','2','B','0'), make_signature('A','2','B','1') };
+    const uint32_t sigs[] = { skcms_Signature_A2B0, skcms_Signature_A2B1 };
     for (int i = 0; i < ARRAY_COUNT(sigs); i++) {
         if (skcms_GetTagBySignature(profile, sigs[i], &a2b_tag)) {
             if (!read_a2b(&a2b_tag, &profile->A2B, pcs_is_xyz)) {
@@ -772,72 +832,48 @@ bool skcms_Parse(const void* buf, size_t len, skcms_ICCProfile* profile) {
         }
     }
 
-    return true;
+    return usable_as_src(profile);
 }
 
-const skcms_ICCProfile skcms_sRGB_profile = {
-    // These fields are moot when not a skcms_Parse()'d profile.
-    .buffer    = NULL,
-    .size      =    0,
-    .tag_count =    0,
 
-    // We choose to represent sRGB with its canonical transfer function,
-    // and with its canonical XYZD50 gamut matrix.
-    .data_color_space = make_signature('R', 'G', 'B', ' '),
-    .pcs              = make_signature('X', 'Y', 'Z', ' '),
-    .has_trc      = true,
-    .has_toXYZD50 = true,
-    .has_A2B      = false,
+const skcms_ICCProfile* skcms_sRGB_profile() {
+    static const skcms_ICCProfile sRGB_profile = {
+        // These fields are moot when not a skcms_Parse()'d profile.
+        .buffer    = NULL,
+        .size      =    0,
+        .tag_count =    0,
 
-    .trc = {
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-        {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
-    },
+        // We choose to represent sRGB with its canonical transfer function,
+        // and with its canonical XYZD50 gamut matrix.
+        .data_color_space = skcms_Signature_RGB,
+        .pcs              = skcms_Signature_XYZ,
+        .has_trc      = true,
+        .has_toXYZD50 = true,
+        .has_A2B      = false,
 
-    .toXYZD50 = {{
-        { 0.436065674f, 0.385147095f, 0.143066406f },
-        { 0.222488403f, 0.716873169f, 0.060607910f },
-        { 0.013916016f, 0.097076416f, 0.714096069f },
-    }},
-};
+        .trc = {
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+            {{0, {2.4f, (float)(1/1.055), (float)(0.055/1.055), (float)(1/12.92), 0.04045f, 0, 0 }}},
+        },
 
-bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B) {
-    // For now this is the essentially the same strategy we use in test_only.c
-    // for our skcms_Transform() smoke tests:
-    //    1) transform A to XYZD50
-    //    2) transform B to XYZD50
-    //    3) return true if they're similar enough
-    // Our current criterion in 3) is maximum 1 bit error per XYZD50 byte.
-
-    // Here are 252 of a random shuffle of all possible bytes.
-    // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.
-    static const uint8_t k252_bytes[] = {
-        8, 179, 128, 204, 253, 38, 134, 184, 68, 102, 32, 138, 99, 39, 169, 215,
-        119, 26, 3, 223, 95, 239, 52, 132, 114, 74, 81, 234, 97, 116, 244, 205, 30,
-        154, 173, 12, 51, 159, 122, 153, 61, 226, 236, 178, 229, 55, 181, 220, 191,
-        194, 160, 126, 168, 82, 131, 18, 180, 245, 163, 22, 246, 69, 235, 252, 57,
-        108, 14, 6, 152, 240, 255, 171, 242, 20, 227, 177, 238, 96, 85, 16, 211,
-        70, 200, 149, 155, 146, 127, 145, 100, 151, 109, 19, 165, 208, 195, 164,
-        137, 254, 182, 248, 64, 201, 45, 209, 5, 147, 207, 210, 113, 162, 83, 225,
-        9, 31, 15, 231, 115, 37, 58, 53, 24, 49, 197, 56, 120, 172, 48, 21, 214,
-        129, 111, 11, 50, 187, 196, 34, 60, 103, 71, 144, 47, 203, 77, 80, 232,
-        140, 222, 250, 206, 166, 247, 139, 249, 221, 72, 106, 27, 199, 117, 54,
-        219, 135, 118, 40, 79, 41, 251, 46, 93, 212, 92, 233, 148, 28, 121, 63,
-        123, 158, 105, 59, 29, 42, 143, 23, 0, 107, 176, 87, 104, 183, 156, 193,
-        189, 90, 188, 65, 190, 17, 198, 7, 186, 161, 1, 124, 78, 125, 170, 133,
-        174, 218, 67, 157, 75, 101, 89, 217, 62, 33, 141, 228, 25, 35, 91, 230, 4,
-        2, 13, 73, 86, 167, 237, 84, 243, 44, 185, 66, 130, 110, 150, 142, 216, 88,
-        112, 36, 224, 136, 202, 76, 94, 98, 175, 213
+        .toXYZD50 = {{
+            { 0.436065674f, 0.385147095f, 0.143066406f },
+            { 0.222488403f, 0.716873169f, 0.060607910f },
+            { 0.013916016f, 0.097076416f, 0.714096069f },
+        }},
     };
+    return &sRGB_profile;
+}
 
-    static const skcms_ICCProfile kXYZD50 = {
+const skcms_ICCProfile* skcms_XYZD50_profile() {
+    static const skcms_ICCProfile XYZD50_profile = {
         .buffer           = NULL,
         .size             = 0,
         .tag_count        = 0,
 
-        .data_color_space = make_signature('R', 'G', 'B', ' '),
-        .pcs              = make_signature('X', 'Y', 'Z', ' '),
+        .data_color_space = skcms_Signature_RGB,
+        .pcs              = skcms_Signature_XYZ,
         .has_trc          = true,
         .has_toXYZD50     = true,
         .has_A2B          = false,
@@ -855,6 +891,54 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
         }},
     };
 
+    return &XYZD50_profile;
+}
+
+const skcms_TransferFunction* skcms_sRGB_TransferFunction() {
+    return &skcms_sRGB_profile()->trc[0].parametric;
+}
+
+const skcms_TransferFunction* skcms_sRGB_Inverse_TransferFunction() {
+    static const skcms_TransferFunction sRGB_inv =
+        { (float)(1/2.4), 1.137119f, 0, 12.92f, 0.0031308f, -0.055f, 0 };
+    return &sRGB_inv;
+}
+
+const skcms_TransferFunction* skcms_Identity_TransferFunction() {
+    static const skcms_TransferFunction identity = {1,1,0,0,0,0,0};
+    return &identity;
+}
+
+const uint8_t skcms_252_random_bytes[] = {
+    8, 179, 128, 204, 253, 38, 134, 184, 68, 102, 32, 138, 99, 39, 169, 215,
+    119, 26, 3, 223, 95, 239, 52, 132, 114, 74, 81, 234, 97, 116, 244, 205, 30,
+    154, 173, 12, 51, 159, 122, 153, 61, 226, 236, 178, 229, 55, 181, 220, 191,
+    194, 160, 126, 168, 82, 131, 18, 180, 245, 163, 22, 246, 69, 235, 252, 57,
+    108, 14, 6, 152, 240, 255, 171, 242, 20, 227, 177, 238, 96, 85, 16, 211,
+    70, 200, 149, 155, 146, 127, 145, 100, 151, 109, 19, 165, 208, 195, 164,
+    137, 254, 182, 248, 64, 201, 45, 209, 5, 147, 207, 210, 113, 162, 83, 225,
+    9, 31, 15, 231, 115, 37, 58, 53, 24, 49, 197, 56, 120, 172, 48, 21, 214,
+    129, 111, 11, 50, 187, 196, 34, 60, 103, 71, 144, 47, 203, 77, 80, 232,
+    140, 222, 250, 206, 166, 247, 139, 249, 221, 72, 106, 27, 199, 117, 54,
+    219, 135, 118, 40, 79, 41, 251, 46, 93, 212, 92, 233, 148, 28, 121, 63,
+    123, 158, 105, 59, 29, 42, 143, 23, 0, 107, 176, 87, 104, 183, 156, 193,
+    189, 90, 188, 65, 190, 17, 198, 7, 186, 161, 1, 124, 78, 125, 170, 133,
+    174, 218, 67, 157, 75, 101, 89, 217, 62, 33, 141, 228, 25, 35, 91, 230, 4,
+    2, 13, 73, 86, 167, 237, 84, 243, 44, 185, 66, 130, 110, 150, 142, 216, 88,
+    112, 36, 224, 136, 202, 76, 94, 98, 175, 213
+};
+
+bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICCProfile* B) {
+    // For now this is the essentially the same strategy we use in test_only.c
+    // for our skcms_Transform() smoke tests:
+    //    1) transform A to XYZD50
+    //    2) transform B to XYZD50
+    //    3) return true if they're similar enough
+    // Our current criterion in 3) is maximum 1 bit error per XYZD50 byte.
+
+    // Here are 252 of a random shuffle of all possible bytes.
+    // 252 is evenly divisible by 3 and 4.  Only 192, 10, 241, and 43 are missing.
+
     if (A->data_color_space != B->data_color_space) {
         return false;
     }
@@ -862,21 +946,23 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
     // Interpret as RGB_888 if data color space is RGB or GRAY, RGBA_8888 if CMYK.
     skcms_PixelFormat fmt = skcms_PixelFormat_RGB_888;
     size_t npixels = 84;
-    if (A->data_color_space == make_signature('C', 'M', 'Y', 'K')) {
+    if (A->data_color_space == skcms_Signature_CMYK) {
         fmt = skcms_PixelFormat_RGBA_8888;
         npixels = 63;
     }
 
     uint8_t dstA[252],
             dstB[252];
-    if (!skcms_Transform(k252_bytes,                 fmt, skcms_AlphaFormat_Unpremul, A,
-                         dstA, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &kXYZD50,
-                         npixels)) {
+    if (!skcms_Transform(
+                skcms_252_random_bytes,     fmt, skcms_AlphaFormat_Unpremul, A,
+                dstA, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+                npixels)) {
         return false;
     }
-    if (!skcms_Transform(k252_bytes,                 fmt, skcms_AlphaFormat_Unpremul, B,
-                         dstB, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, &kXYZD50,
-                         npixels)) {
+    if (!skcms_Transform(
+                skcms_252_random_bytes,     fmt, skcms_AlphaFormat_Unpremul, B,
+                dstB, skcms_PixelFormat_RGB_888, skcms_AlphaFormat_Unpremul, skcms_XYZD50_profile(),
+                npixels)) {
         return false;
     }
 
@@ -885,5 +971,87 @@ bool skcms_ApproximatelyEqualProfiles(const skcms_ICCProfile* A, const skcms_ICC
             return false;
         }
     }
+    return true;
+}
+
+bool skcms_TRCs_AreApproximateInverse(const skcms_ICCProfile* profile,
+                                      const skcms_TransferFunction* inv_tf) {
+    if (!profile || !profile->has_trc) {
+        return false;
+    }
+
+    return skcms_AreApproximateInverses(&profile->trc[0], inv_tf) &&
+           skcms_AreApproximateInverses(&profile->trc[1], inv_tf) &&
+           skcms_AreApproximateInverses(&profile->trc[2], inv_tf);
+}
+
+static bool is_zero_to_one(float x) {
+    return 0 <= x && x <= 1;
+}
+
+bool skcms_PrimariesToXYZD50(float rx, float ry,
+                             float gx, float gy,
+                             float bx, float by,
+                             float wx, float wy,
+                             skcms_Matrix3x3* toXYZD50) {
+    if (!is_zero_to_one(rx) || !is_zero_to_one(ry) ||
+        !is_zero_to_one(gx) || !is_zero_to_one(gy) ||
+        !is_zero_to_one(bx) || !is_zero_to_one(by) ||
+        !is_zero_to_one(wx) || !is_zero_to_one(wy) ||
+        !toXYZD50) {
+        return false;
+    }
+
+    // First, we need to convert xy values (primaries) to XYZ.
+    skcms_Matrix3x3 primaries = {{
+        { rx, gx, bx },
+        { ry, gy, by },
+        { 1 - rx - ry, 1 - gx - gy, 1 - bx - by },
+    }};
+    skcms_Matrix3x3 primaries_inv;
+    if (!skcms_Matrix3x3_invert(&primaries, &primaries_inv)) {
+        return false;
+    }
+
+    // Assumes that Y is 1.0f.
+    skcms_Vector3 wXYZ = { { wx / wy, 1, (1 - wx - wy) / wy } };
+    skcms_Vector3 XYZ = skcms_MV_mul(&primaries_inv, &wXYZ);
+
+    skcms_Matrix3x3 toXYZ = {{
+        { XYZ.vals[0],           0,           0 },
+        {           0, XYZ.vals[1],           0 },
+        {           0,           0, XYZ.vals[2] },
+    }};
+    toXYZ = skcms_Matrix3x3_concat(&primaries, &toXYZ);
+
+    // Now convert toXYZ matrix to toXYZD50.
+    skcms_Vector3 wXYZD50 = { { 0.96422f, 1.0f, 0.82521f } };
+
+    // Calculate the chromatic adaptation matrix.  We will use the Bradford method, thus
+    // the matrices below.  The Bradford method is used by Adobe and is widely considered
+    // to be the best.
+    skcms_Matrix3x3 xyz_to_lms = {{
+        {  0.8951f,  0.2664f, -0.1614f },
+        { -0.7502f,  1.7135f,  0.0367f },
+        {  0.0389f, -0.0685f,  1.0296f },
+    }};
+    skcms_Matrix3x3 lms_to_xyz = {{
+        {  0.9869929f, -0.1470543f, 0.1599627f },
+        {  0.4323053f,  0.5183603f, 0.0492912f },
+        { -0.0085287f,  0.0400428f, 0.9684867f },
+    }};
+
+    skcms_Vector3 srcCone = skcms_MV_mul(&xyz_to_lms, &wXYZ);
+    skcms_Vector3 dstCone = skcms_MV_mul(&xyz_to_lms, &wXYZD50);
+
+    skcms_Matrix3x3 DXtoD50 = {{
+        { dstCone.vals[0] / srcCone.vals[0], 0, 0 },
+        { 0, dstCone.vals[1] / srcCone.vals[1], 0 },
+        { 0, 0, dstCone.vals[2] / srcCone.vals[2] },
+    }};
+    DXtoD50 = skcms_Matrix3x3_concat(&DXtoD50, &xyz_to_lms);
+    DXtoD50 = skcms_Matrix3x3_concat(&lms_to_xyz, &DXtoD50);
+
+    *toXYZD50 = skcms_Matrix3x3_concat(&DXtoD50, &toXYZ);
     return true;
 }

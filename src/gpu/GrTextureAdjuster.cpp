@@ -6,7 +6,6 @@
  */
 
 #include "GrTextureAdjuster.h"
-
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -65,8 +64,11 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     return copy;
 }
 
-sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSamplerState& params,
-                                                                      SkScalar scaleAdjust[2]) {
+sk_sp<GrTextureProxy> GrTextureAdjuster::onRefTextureProxyForParams(
+        const GrSamplerState& params,
+        SkColorSpace* dstColorSpace,
+        sk_sp<SkColorSpace>* texColorSpace,
+        SkScalar scaleAdjust[2]) {
     sk_sp<GrTextureProxy> proxy = this->originalProxyRef();
     CopyParams copyParams;
 
@@ -75,9 +77,15 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxySafeForParams(const GrSa
         return nullptr;
     }
 
-    if (!GrGpu::IsACopyNeededForTextureParams(fContext->caps(),
-                                              proxy.get(), proxy->width(), proxy->height(),
-                                              params, &copyParams, scaleAdjust)) {
+    if (texColorSpace) {
+        *texColorSpace = sk_ref_sp(fColorSpace);
+    }
+    SkASSERT(this->width() <= fContext->contextPriv().caps()->maxTextureSize() &&
+             this->height() <= fContext->contextPriv().caps()->maxTextureSize());
+
+    if (!GrGpu::IsACopyNeededForTextureParams(fContext->contextPriv().caps(), proxy.get(),
+                                              proxy->width(), proxy->height(), params, &copyParams,
+                                              scaleAdjust)) {
         return proxy;
     }
 
@@ -101,7 +109,7 @@ std::unique_ptr<GrFragmentProcessor> GrTextureAdjuster::createFragmentProcessor(
     }
     SkScalar scaleAdjust[2] = { 1.0f, 1.0f };
     sk_sp<GrTextureProxy> proxy(
-            this->refTextureProxySafeForParams(samplerState, scaleAdjust));
+            this->refTextureProxyForParams(samplerState, nullptr, nullptr, scaleAdjust));
     if (!proxy) {
         return nullptr;
     }

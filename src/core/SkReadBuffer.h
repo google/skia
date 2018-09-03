@@ -9,7 +9,6 @@
 #define SkReadBuffer_DEFINED
 
 #include "SkColorFilter.h"
-#include "SkData.h"
 #include "SkSerialProcs.h"
 #include "SkDrawLooper.h"
 #include "SkImageFilter.h"
@@ -24,6 +23,7 @@
 #include "SkTHash.h"
 #include "SkWriteBuffer.h"
 
+class SkData;
 class SkImage;
 class SkInflator;
 
@@ -96,11 +96,12 @@ public:
         fVersion = version;
     }
 
-    size_t size() { return fReader.size(); }
-    size_t offset() { return fReader.offset(); }
+    size_t size() const { return fReader.size(); }
+    size_t offset() const { return fReader.offset(); }
     bool eof() { return fReader.eof(); }
     const void* skip(size_t size);
     const void* skip(size_t count, size_t size);    // does safe multiply
+    size_t available() const { return fReader.available(); }
 
     template <typename T> const T* skipT() {
         return static_cast<const T*>(this->skip(sizeof(T)));
@@ -167,15 +168,7 @@ public:
     bool readPointArray(SkPoint* points, size_t size);
     bool readScalarArray(SkScalar* values, size_t size);
 
-    sk_sp<SkData> readByteArrayAsData() {
-        size_t len = this->getArrayCount();
-        void* buffer = sk_malloc_throw(len);
-        if (!this->readByteArray(buffer, len)) {
-            sk_free(buffer);
-            return SkData::MakeEmpty();
-        }
-        return SkData::MakeFromMalloc(buffer, len);
-    }
+    sk_sp<SkData> readByteArrayAsData();
 
     // helpers to get info about arrays and binary data
     uint32_t getArrayCount();
@@ -226,6 +219,17 @@ public:
         }
         return !fError;
     }
+
+    /**
+     * Helper function to do a preflight check before a large allocation or read.
+     * Returns true if there is enough bytes in the buffer to read n elements of T.
+     * If not, the buffer will be "invalid" and false will be returned.
+     */
+    template <typename T>
+    bool validateCanReadN(size_t n) {
+        return this->validate(n <= (fReader.available() / sizeof(T)));
+    }
+
     bool isValid() const { return !fError; }
     bool validateIndex(int index, int count) {
         return this->validate(index >= 0 && index < count);

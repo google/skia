@@ -41,6 +41,8 @@ protected:
 
     void drawBitmap(const SkBitmap&, const SkMatrix&, const SkRect* dstOrNull,
                     const SkPaint&) override;
+    void drawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
+                        const SkPaint& paint, SkCanvas::SrcRectConstraint constraint) override;
 
     sk_sp<SkSpecialImage> snapSpecial() override;
 
@@ -144,6 +146,7 @@ private:
             }
             SkASSERT(fSize < MAX_QUEUE_SIZE);
             SkIRect drawBounds = fDevice->transformDrawBounds<useCTM>(rawDrawBounds);
+            fElements[fSize].~DrawElement(); // release previous resources to prevent memory leak
             new (&fElements[fSize++]) DrawElement(fDevice, std::move(fn), drawBounds);
             fTasks->addColumn();
         }
@@ -182,6 +185,8 @@ private:
        memcpy(clone, array, sizeof(T) * count);
        return clone;
     }
+
+    SkBitmap snapBitmap(const SkBitmap& bitmap);
 
     const int fTileCnt;
     const int fThreadCnt;

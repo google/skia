@@ -42,7 +42,7 @@ struct SkRegion::RunHead {
 private:
 
 public:
-    int32_t fRefCnt;
+    std::atomic<int32_t> fRefCnt;
     int32_t fRunCount;
 
     /**
@@ -73,7 +73,7 @@ public:
         }
 
         const int64_t size = sk_64_mul(count, sizeof(RunType)) + sizeof(RunHead);
-        if (count < 0 || !sk_64_isS32(size)) { SK_ABORT("Invalid Size"); }
+        if (count < 0 || !SkTFitsIn<int32_t>(size)) { SK_ABORT("Invalid Size"); }
 
         RunHead* head = (RunHead*)sk_malloc_throw(size);
         head->fRefCnt = 1;
@@ -120,7 +120,7 @@ public:
             // fRefCount might have changed since we last checked.
             // If we own the last reference at this point, we need to
             // free the memory.
-            if (sk_atomic_dec(&fRefCnt) == 1) {
+            if (--fRefCnt == 0) {
                 sk_free(this);
             }
         }

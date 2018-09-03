@@ -86,8 +86,7 @@ private:
             return;
         }
 
-        SkPointPriv::SetRectTriStrip(verts, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                               sizeof(SkPoint));
+        SkPointPriv::SetRectTriStrip(verts, fRect, sizeof(SkPoint));
 
         helper.recordDraw(
                 target, gp.get(),

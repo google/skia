@@ -1,15 +1,9 @@
 #Topic Pixmap
 #Alias Pixmap_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Class SkPixmap
 
-Pixmap provides a utility to pair SkImageInfo with pixels and row bytes. 
+Pixmap provides a utility to pair SkImageInfo with pixels and row bytes.
 Pixmap is a low level class which provides convenience functions to access
 raster destinations. Canvas can not draw Pixmap, nor does Pixmap provide
 a direct drawing destination.
@@ -19,6 +13,10 @@ pixels referenced by Pixmap.
 
 Pixmap does not try to manage the lifetime of the pixel memory. Use Pixel_Ref
 to manage pixel memory; Pixel_Ref is safe across threads.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Related_Function
 #Populate
@@ -75,7 +73,7 @@ width: 25  height: 35  color: kRGBA_8888_SkColorType  alpha: kOpaque_SkAlphaType
 # ------------------------------------------------------------------------------
 
 #Method SkPixmap(const SkImageInfo& info, const void* addr, size_t rowBytes)
-        
+
 #In Initialization
 #Line # constructs from Image_Info, pixels ##
 Creates Pixmap from info width, height, SkAlphaType, and SkColorType.
@@ -83,7 +81,7 @@ addr points to pixels, or nullptr. rowBytes should be info.width() times
 info.bytesPerPixel(), or larger.
 
 No parameter checking is performed; it is up to the caller to ensure that
-addr and rowBytes agree with info.  
+addr and rowBytes agree with info.
 
 The memory lifetime of pixels is managed by the caller. When Pixmap goes
 out of scope, addr is unaffected.
@@ -100,7 +98,7 @@ storage.
 #Example
 #Image 3
 #Description
-SkImage::MakeRasterCopy takes const SkPixmap& as an argument. The example 
+SkImage::MakeRasterCopy takes const SkPixmap& as an argument. The example
 constructs a SkPixmap from the brace-delimited parameters.
 ##
     SkDebugf("image alpha only = %s\n", image->isAlphaOnly() ? "true" : "false");
@@ -125,7 +123,7 @@ copy alpha only = true
 
 #In Initialization
 #Line # reuses existing Pixmap with replacement values ##
-Sets width, height, row bytes to zero; pixel address to nullptr; SkColorType to 
+Sets width, height, row bytes to zero; pixel address to nullptr; SkColorType to
 kUnknown_SkColorType; and SkAlphaType to kUnknown_SkAlphaType.
 
 The prior pixels are unaffected; it is up to the caller to release pixels
@@ -161,12 +159,12 @@ width:  0  height:  0  color: kUnknown_SkColorType  alpha: kUnknown_SkAlphaType
 
 #In Initialization
 Sets width, height, SkAlphaType, and SkColorType from info.
-Sets pixel address from addr, which may be nullptr. 
+Sets pixel address from addr, which may be nullptr.
 Sets row bytes from rowBytes, which should be info.width() times
 info.bytesPerPixel(), or larger.
 
 Does not check addr. Asserts if built with SK_DEBUG defined and if rowBytes is
-too small to hold one row of pixels.  
+too small to hold one row of pixels.
 
 The memory lifetime pixels are managed by the caller. When Pixmap goes
 out of scope, addr is unaffected.
@@ -186,7 +184,7 @@ void draw(SkCanvas* canvas) {
     image->readPixels(pixmap, 0, 0);
     int x = 0;
     for (auto colorType : { kRGBA_8888_SkColorType, kBGRA_8888_SkColorType } ) {
-        pixmap.reset(SkImageInfo::Make(image->width(), image->height(), colorType, 
+        pixmap.reset(SkImageInfo::Make(image->width(), image->height(), colorType,
                 image->alphaType()), (const void*) &pixels.front(), image->width() * 4);
         SkBitmap bitmap;
         bitmap.installPixels(pixmap);
@@ -218,9 +216,9 @@ void draw(SkCanvas* canvas) {
     SkPixmap pixmap;
     sk_sp<SkColorSpace> colorSpace1 = SkColorSpace::MakeRGB(SkColorSpace::kLinear_RenderTargetGamma,
                                                             SkColorSpace::kRec2020_Gamut);
-    SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not "); 
+    SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not ");
     pixmap.setColorSpace(colorSpace1);
-    SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not ");   
+    SkDebugf("is %sunique\n", colorSpace1->unique() ? "" : "not ");
 }
 #StdOut
 is unique
@@ -246,7 +244,7 @@ is not unique
 #Line # sets pointer to portion of original ##
 Sets subset width, height, pixel address to intersection of Pixmap with area,
 if intersection is not empty; and return true. Otherwise, leave subset unchanged
-and return false. 
+and return false.
 
 Failing to read the return value generates a compile time warning.
 
@@ -284,7 +282,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method const SkImageInfo& info() const 
+#Method const SkImageInfo& info() const
 
 #In Image_Info_Access
 #Line # returns Image_Info ##
@@ -319,12 +317,12 @@ width: 384 height: 384 color: BGRA_8888 alpha: Opaque
 
 # ------------------------------------------------------------------------------
 
-#Method size_t rowBytes() const 
+#Method size_t rowBytes() const
 
 #In Image_Info_Access
 #Line # returns interval between rows in bytes ##
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as: 
+is at least as large as:
 #Formula
 width() * info().bytesPerPixel()
 ##
@@ -339,7 +337,7 @@ It is up to the Bitmap creator to ensure that row bytes is a useful value.
 SkPixmap badPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 2};
 SkPixmap okPixmap = {SkImageInfo::MakeA8(4, 4), nullptr, 8};
 for (auto& pixmap : { badPixmap, okPixmap } ) {
-    SkDebugf("rowBytes: %d minRowBytes: %d\n", pixmap.rowBytes(), 
+    SkDebugf("rowBytes: %d minRowBytes: %d\n", pixmap.rowBytes(),
        pixmap.info().minRowBytes());
 }
 #StdOut
@@ -354,7 +352,7 @@ rowBytes: 8 minRowBytes: 4
 
 # ------------------------------------------------------------------------------
 
-#Method const void* addr() const 
+#Method const void* addr() const
 
 #In Image_Info_Access
 #Line # returns readable pixel address as void pointer ##
@@ -389,7 +387,7 @@ inset address:  0x7f2a440fb210
 
 # ------------------------------------------------------------------------------
 
-#Method int width() const 
+#Method int width() const
 
 #In Image_Info_Access
 #Line # returns pixel column count ##
@@ -398,7 +396,7 @@ Returns pixel count in each pixel row. Should be equal or less than:
 #Formula
 rowBytes() / info().bytesPerPixel()
 ##
-. 
+.
 
 #Return  pixel width in Image_Info ##
 
@@ -417,7 +415,7 @@ pixmap width: 16  info width: 16
 
 # ------------------------------------------------------------------------------
 
-#Method int height() const 
+#Method int height() const
 
 #In Image_Info_Access
 #Line # returns pixel row count ##
@@ -439,7 +437,7 @@ pixmap height: 32  info height: 32
 
 # ------------------------------------------------------------------------------
 
-#Method SkColorType colorType() const 
+#Method SkColorType colorType() const
 
 #In Image_Info_Access
 #Line # returns Image_Info Color_Type ##
@@ -463,7 +461,7 @@ color type: kAlpha_8_SkColorType
 
 # ------------------------------------------------------------------------------
 
-#Method SkAlphaType alphaType() const 
+#Method SkAlphaType alphaType() const
 
 #In Image_Info_Access
 #Line # returns Image_Info Alpha_Type ##
@@ -486,7 +484,7 @@ alpha type: kPremul_SkAlphaType
 
 # ------------------------------------------------------------------------------
 
-#Method SkColorSpace* colorSpace() const 
+#Method SkColorSpace* colorSpace() const
 
 #In Image_Info_Access
 #Line # returns Image_Info Color_Space ##
@@ -501,7 +499,7 @@ immutable.
 SkColorSpace::MakeSRGBLinear creates Color_Space with linear gamma
 and an sRGB gamut. This Color_Space gamma is not close to sRGB gamma.
 ##
-    SkPixmap pixmap(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType, 
+    SkPixmap pixmap(SkImageInfo::MakeN32(16, 32, kPremul_SkAlphaType,
             SkColorSpace::MakeSRGBLinear()), nullptr, 64);
     SkColorSpace* colorSpace = pixmap.colorSpace();
     SkDebugf("gammaCloseToSRGB: %s  gammaIsLinear: %s  isSRGB: %s\n",
@@ -519,7 +517,7 @@ gammaCloseToSRGB: false  gammaIsLinear: true  isSRGB: false
 
 # ------------------------------------------------------------------------------
 
-#Method bool isOpaque() const 
+#Method bool isOpaque() const
 
 #In Image_Info_Access
 #Line # returns true if Image_Info describes opaque pixels ##
@@ -561,7 +559,7 @@ isOpaque: true
 
 # ------------------------------------------------------------------------------
 
-#Method SkIRect bounds() const 
+#Method SkIRect bounds() const
 
 #In Image_Info_Access
 #Line # returns width and height as Rectangle ##
@@ -585,13 +583,13 @@ width: 2 height: 2 empty: false
 ##
 ##
 
-#SeeAlso height() width() IRect 
+#SeeAlso height() width() IRect
 
 ##
 
 # ------------------------------------------------------------------------------
 
-#Method int rowBytesAsPixels() const 
+#Method int rowBytesAsPixels() const
 
 #In Image_Info_Access
 #Line # returns interval between rows in pixels ##
@@ -621,7 +619,7 @@ rowBytes: 8 rowBytesAsPixels: 2
 
 # ------------------------------------------------------------------------------
 
-#Method int shiftPerPixel() const 
+#Method int shiftPerPixel() const
 
 #In Image_Info_Access
 #Line # returns bit shift from pixels to bytes ##
@@ -635,7 +633,7 @@ Returns zero for kUnknown_SkColorType.
                             "BGRA_8888", "RGBA_1010102", "RGB_101010x", "Gray_8", "RGBA_F16"};
     SkImageInfo info = SkImageInfo::MakeA8(1, 1);
     for (SkColorType colorType : { kUnknown_SkColorType,   kAlpha_8_SkColorType,
-                                   kRGB_565_SkColorType,   kARGB_4444_SkColorType, 
+                                   kRGB_565_SkColorType,   kARGB_4444_SkColorType,
                                    kRGBA_8888_SkColorType, kBGRA_8888_SkColorType,
                                    kGray_8_SkColorType,    kRGBA_F16_SkColorType } ) {
         SkPixmap pixmap(info.makeColorType(colorType), nullptr, 4);
@@ -723,7 +721,7 @@ For Color_Type kARGB_4444_SkColorType: returns true if all pixel Alpha values ar
 For kRGBA_F16_SkColorType: returns true if all pixel Alpha values are 1.0 or
 greater.
 
-Returns false for kUnknown_SkColorType. 
+Returns false for kUnknown_SkColorType.
 
 #Return true if all pixels have opaque values or Color_Type is opaque  ##
 
@@ -769,7 +767,7 @@ SK_RELEASE is defined. Fails if Color_Type is kUnknown_SkColorType or
 pixel address is nullptr.
 
 Color_Space in Image_Info is ignored. Some Color precision may be lost in the
-conversion to Unpremultiplied Color; original pixel data may have additional 
+conversion to Unpremultiplied Color; original pixel data may have additional
 precision.
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -801,15 +799,15 @@ precision.
     }
 #StdOut
 Premultiplied:
-(0, 0) 0x00000000 0x2a0e002a 0x55380055 0x7f7f007f 
-(0, 1) 0x2a000e2a 0x551c1c55 0x7f542a7f 0xaaaa38aa 
-(0, 2) 0x55003855 0x7f2a547f 0xaa7171aa 0xd4d48dd4 
-(0, 3) 0x7f007f7f 0xaa38aaaa 0xd48dd4d4 0xffffffff 
+(0, 0) 0x00000000 0x2a0e002a 0x55380055 0x7f7f007f
+(0, 1) 0x2a000e2a 0x551c1c55 0x7f542a7f 0xaaaa38aa
+(0, 2) 0x55003855 0x7f2a547f 0xaa7171aa 0xd4d48dd4
+(0, 3) 0x7f007f7f 0xaa38aaaa 0xd48dd4d4 0xffffffff
 Unpremultiplied:
-(0, 0) 0x00000000 0x2a5500ff 0x55a800ff 0x7fff00ff 
-(0, 1) 0x2a0055ff 0x555454ff 0x7fa954ff 0xaaff54ff 
-(0, 2) 0x5500a8ff 0x7f54a9ff 0xaaaaaaff 0xd4ffaaff 
-(0, 3) 0x7f00ffff 0xaa54ffff 0xd4aaffff 0xffffffff 
+(0, 0) 0x00000000 0x2a5500ff 0x55a800ff 0x7fff00ff
+(0, 1) 0x2a0055ff 0x555454ff 0x7fa954ff 0xaaff54ff
+(0, 2) 0x5500a8ff 0x7f54a9ff 0xaaaaaaff 0xd4ffaaff
+(0, 3) 0x7f00ffff 0xaa54ffff 0xd4aaffff 0xffffffff
 ##
 ##
 
@@ -832,7 +830,7 @@ Returns readable pixel address at (x, y). Returns nullptr if Pixel_Ref is nullpt
 Input is not validated: out of bounds values of x or y trigger an assert() if
 built with SK_DEBUG defined. Returns nullptr if Color_Type is kUnknown_SkColorType.
 
-Performs a lookup of pixel size; for better performance, call 
+Performs a lookup of pixel size; for better performance, call
 one of: addr8, addr16, addr32, addr64, or addrF16.
 
 #Param x  column index, zero or greater, and less than width() ##
@@ -859,7 +857,7 @@ pixmap.addr(1, 2) == &storage[1 + 2 * w]
 
 # ------------------------------------------------------------------------------
 
-#Method const uint8_t* addr8() const 
+#Method const uint8_t* addr8() const
 
 #In Readable_Address
 #Line # returns readable pixel address as 8-bit pointer ##
@@ -890,7 +888,7 @@ pixmap.addr8() == storage
 
 # ------------------------------------------------------------------------------
 
-#Method const uint16_t* addr16() const 
+#Method const uint16_t* addr16() const
 
 #In Readable_Address
 #Line # returns readable pixel address as 16-bit pointer ##
@@ -921,7 +919,7 @@ pixmap.addr16() == storage
 
 # ------------------------------------------------------------------------------
 
-#Method const uint32_t* addr32() const 
+#Method const uint32_t* addr32() const
 
 #In Readable_Address
 #Line # returns readable pixel address as 32-bit pointer ##
@@ -952,7 +950,7 @@ pixmap.addr32() == storage
 
 # ------------------------------------------------------------------------------
 
-#Method const uint64_t* addr64() const 
+#Method const uint64_t* addr64() const
 
 #In Readable_Address
 #Line # returns readable pixel address as 64-bit pointer ##
@@ -983,7 +981,7 @@ pixmap.addr64() == storage
 
 # ------------------------------------------------------------------------------
 
-#Method const uint16_t* addrF16() const 
+#Method const uint16_t* addrF16() const
 
 #In Readable_Address
 #Line # returns readable pixel component address as 16-bit pointer ##
@@ -1015,7 +1013,7 @@ pixmap.addrF16() == storage
 
 # ------------------------------------------------------------------------------
 
-#Method const uint8_t* addr8(int x, int y) const 
+#Method const uint8_t* addr8(int x, int y) const
 
 #In Readable_Address
 Returns readable pixel address at (x, y).
@@ -1050,7 +1048,7 @@ pixmap.addr8(1, 2) == &storage[1 + 2 * w]
 
 # ------------------------------------------------------------------------------
 
-#Method const uint16_t* addr16(int x, int y) const 
+#Method const uint16_t* addr16(int x, int y) const
 
 #In Readable_Address
 Returns readable pixel address at (x, y).
@@ -1085,7 +1083,7 @@ pixmap.addr16(1, 2) == &storage[1 + 2 * w]
 
 # ------------------------------------------------------------------------------
 
-#Method const uint32_t* addr32(int x, int y) const 
+#Method const uint32_t* addr32(int x, int y) const
 
 #In Readable_Address
 Returns readable pixel address at (x, y).
@@ -1120,7 +1118,7 @@ pixmap.addr32(1, 2) == &storage[1 + 2 * w]
 
 # ------------------------------------------------------------------------------
 
-#Method const uint64_t* addr64(int x, int y) const 
+#Method const uint64_t* addr64(int x, int y) const
 
 #In Readable_Address
 Returns readable pixel address at (x, y).
@@ -1155,7 +1153,7 @@ pixmap.addr64(1, 2) == &storage[1 + 2 * w]
 
 # ------------------------------------------------------------------------------
 
-#Method const uint16_t* addrF16(int x, int y) const 
+#Method const uint16_t* addrF16(int x, int y) const
 
 #In Readable_Address
 Returns readable pixel address at (x, y).
@@ -1200,7 +1198,7 @@ pixmap.addrF16(1, 2) == &storage[1 * wordsPerPixel + 2 * rowWords]
 
 # ------------------------------------------------------------------------------
 
-#Method void* writable_addr() const 
+#Method void* writable_addr() const
 
 #In Writable_Address
 #Line # returns writable pixel address as void pointer ##
@@ -1234,7 +1232,7 @@ pixmap.getColor(0, 0) == 0xFFFFFFFF
 
 # ------------------------------------------------------------------------------
 
-#Method void* writable_addr(int x, int y) const 
+#Method void* writable_addr(int x, int y) const
 
 #In Writable_Address
 Returns writable pixel address at (x, y).
@@ -1273,7 +1271,7 @@ pixmap.getColor(1, 2) == 0xFFFFFFFF
 
 # ------------------------------------------------------------------------------
 
-#Method uint8_t* writable_addr8(int x, int y) const 
+#Method uint8_t* writable_addr8(int x, int y) const
 
 #In Writable_Address
 #Line # returns writable pixel address as 8-bit pointer ##
@@ -1319,7 +1317,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method uint16_t* writable_addr16(int x, int y) const 
+#Method uint16_t* writable_addr16(int x, int y) const
 
 #In Writable_Address
 #Line # returns writable pixel address as 16-bit pointer ##
@@ -1362,7 +1360,7 @@ The low nibble of the 16-bit word is Alpha.
 
 # ------------------------------------------------------------------------------
 
-#Method uint32_t* writable_addr32(int x, int y) const 
+#Method uint32_t* writable_addr32(int x, int y) const
 
 #In Writable_Address
 #Line # returns writable pixel address as 32-bit pointer ##
@@ -1389,7 +1387,7 @@ One word corresponds to one pixel.
     for (int y = 0; y < pixmap.height() / 2; ++y) {
         for (int x = 0; x < pixmap.width(); ++x) {
             if ((x & 4) == (y & 4)) {
-                SkTSwap(*pixmap.writable_addr32(x, y), 
+                SkTSwap(*pixmap.writable_addr32(x, y),
                         *pixmap.writable_addr32(pixmap.width() - x, pixmap.height() - y));
             }
         }
@@ -1405,7 +1403,7 @@ One word corresponds to one pixel.
 
 # ------------------------------------------------------------------------------
 
-#Method uint64_t* writable_addr64(int x, int y) const 
+#Method uint64_t* writable_addr64(int x, int y) const
 
 #In Writable_Address
 #Line # returns writable pixel address as 64-bit pointer ##
@@ -1442,7 +1440,7 @@ One word corresponds to one pixel.
 
 # ------------------------------------------------------------------------------
 
-#Method uint16_t* writable_addrF16(int x, int y) const 
+#Method uint16_t* writable_addrF16(int x, int y) const
 
 #In Writable_Address
 #Line # returns writable pixel component address as 16-bit pointer ##
@@ -1462,7 +1460,7 @@ Four words correspond to one pixel.
 #Height 64
 #Description
 Left bitmap is drawn with two pixels defined in half float format. Right bitmap
-is drawn after overwriting bottom half float color with top half float color. 
+is drawn after overwriting bottom half float color with top half float color.
 ##
     SkImageInfo info = SkImageInfo::Make(1, 2, kRGBA_F16_SkColorType, kPremul_SkAlphaType);
     uint16_t storage[2][4];
@@ -1502,9 +1500,9 @@ is drawn after overwriting bottom half float color with top half float color.
 #Line # copies and converts pixels ##
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
-exceed Pixmap (width(), height()). 
+exceed Pixmap (width(), height()).
 
-dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+dstInfo specifies width, height, Color_Type, Alpha_Type, and
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1515,7 +1513,7 @@ If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
 If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
 match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative. Returns false if:
 
@@ -1539,7 +1537,7 @@ pixels are treated as if they are linear, regardless of how they are encoded.
 #Param srcX  column index whose absolute value is less than width() ##
 #Param srcY  row index whose absolute value is less than height() ##
 #Param behavior  one of: SkTransferFunctionBehavior::kRespect,
-                         SkTransferFunctionBehavior::kIgnore 
+                         SkTransferFunctionBehavior::kIgnore
 ##
 
 #Return  true if pixels are copied to dstPixels ##
@@ -1578,13 +1576,13 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const 
+#Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes) const
 
 #In Pixels
 Copies a Rect of pixels to dstPixels. Copy starts at (0, 0), and does not
 exceed Pixmap (width(), height()).
 
-dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+dstInfo specifies width, height, Color_Type, Alpha_Type, and
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1642,12 +1640,12 @@ creates visible banding.
 # ------------------------------------------------------------------------------
 
 #Method bool readPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRowBytes, int srcX,
-                    int srcY) const 
+                    int srcY) const
 
 Copies a Rect of pixels to dstPixels. Copy starts at (srcX, srcY), and does not
 exceed Pixmap (width(), height()).
 
-dstInfo specifies width, height, Color_Type, Alpha_Type, and 
+dstInfo specifies width, height, Color_Type, Alpha_Type, and
 Color_Space of destination. dstRowBytes specifics the gap from one destination
 row to the next. Returns true if pixels are copied. Returns false if
 dstInfo.addr() equals nullptr, or dstRowBytes is less than dstInfo.minRowBytes.
@@ -1658,7 +1656,7 @@ If Pixmap colorType is kGray_8_SkColorType, dstInfo.colorSpace must match.
 If Pixmap alphaType is kOpaque_SkAlphaType, dstInfo.alphaType must
 match. If Pixmap colorSpace is nullptr, dstInfo.colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if Pixmap width() or height() is zero or negative. Returns false if:
 
@@ -1707,7 +1705,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const 
+#Method bool readPixels(const SkPixmap& dst, int srcX, int srcY) const
 
 Copies a Rect of pixels to dst. Copy starts at (srcX, srcY), and does not
 exceed Pixmap (width(), height()). dst specifies width, height, Color_Type,
@@ -1721,7 +1719,7 @@ If Pixmap colorType is kGray_8_SkColorType, dst.info().colorSpace must match.
 If Pixmap alphaType is kOpaque_SkAlphaType, dst.info().alphaType must
 match. If Pixmap colorSpace is nullptr, dst.info().colorSpace must match. Returns
 false if pixel conversion is not possible.
- 
+
 srcX and srcY may be negative to copy only top or left of source. Returns
 false Pixmap width() or height() is zero or negative. Returns false if:
 
@@ -1768,7 +1766,7 @@ void draw(SkCanvas* canvas) {
 
 # ------------------------------------------------------------------------------
 
-#Method bool readPixels(const SkPixmap& dst) const 
+#Method bool readPixels(const SkPixmap& dst) const
 
 Copies pixels inside bounds() to dst. dst specifies width, height, Color_Type,
 Alpha_Type, and Color_Space of destination.  Returns true if pixels are copied.
@@ -1781,7 +1779,7 @@ If Pixmap colorType is kGray_8_SkColorType, dst Color_Space must match.
 If Pixmap alphaType is kOpaque_SkAlphaType, dst Alpha_Type must
 match. If Pixmap colorSpace is nullptr, dst Color_Space must match. Returns
 false if pixel conversion is not possible.
- 
+
 Returns false if Pixmap width() or height() is zero or negative.
 
 #Param dst  Image_Info and pixel address to write to ##
@@ -1842,7 +1840,7 @@ Filter_Quality_Bilerp, and Filter_Quality_MipMap when size is reduced.
 kHigh_SkFilterQuality is slowest, typically implemented with Filter_Quality_BiCubic.
 
 #Param dst  Image_Info and pixel address to write to ##
-#Param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality, 
+#Param filterQuality  one of: kNone_SkFilterQuality, kLow_SkFilterQuality,
                       kMedium_SkFilterQuality, kHigh_SkFilterQuality
 ##
 
@@ -1885,7 +1883,7 @@ void draw(SkCanvas* canvas) {
 Writes color to pixels bounded by subset; returns true on success.
 Returns false if colorType is kUnknown_SkColorType, or if subset does
 not intersect bounds().
-  
+
 #Param color  Unpremultiplied Color to write ##
 #Param subset bounding integer Rect of written pixels ##
 
@@ -1910,7 +1908,7 @@ not intersect bounds().
 
 # ------------------------------------------------------------------------------
 
-#Method bool erase(SkColor color) const 
+#Method bool erase(SkColor color) const
 
 Writes color to pixels inside bounds(); returns true on success.
 Returns false if colorType is kUnknown_SkColorType, or if bounds()

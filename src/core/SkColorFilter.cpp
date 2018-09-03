@@ -261,11 +261,10 @@ private:
 
 sk_sp<SkFlattenable> SkSRGBGammaColorFilter::CreateProc(SkReadBuffer& buffer) {
     uint32_t dir = buffer.read32();
-    if (dir <= 1) {
-        return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
+    if (!buffer.validate(dir <= 1)) {
+        return nullptr;
     }
-    buffer.validate(false);
-    return nullptr;
+    return sk_sp<SkFlattenable>(new SkSRGBGammaColorFilter(static_cast<Direction>(dir)));
 }
 
 void SkSRGBGammaColorFilter::toString(SkString* str) const {

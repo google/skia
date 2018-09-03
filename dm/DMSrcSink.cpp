@@ -32,6 +32,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkLiteDL.h"
 #include "SkLiteRecorder.h"
+#include "SkMakeUnique.h"
 #include "SkMallocPixelRef.h"
 #include "SkMultiPictureDocumentPriv.h"
 #include "SkMultiPictureDraw.h"
@@ -60,7 +61,7 @@
     #include <XpsObjectModel.h>
 #endif
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
     #include "Skottie.h"
 #endif
 
@@ -68,6 +69,10 @@
     #include "SkSVGCanvas.h"
     #include "SkSVGDOM.h"
     #include "SkXMLWriter.h"
+#endif
+
+#if defined(SK_USE_SKCMS)
+    #include "skcms.h"
 #endif
 
 #if SK_SUPPORT_GPU
@@ -418,6 +423,7 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
     premultiply_if_necessary(bitmap);
     swap_rb_if_necessary(bitmap, dstColorType);
     canvas->drawBitmap(bitmap, left, top);
+    canvas->flush();
 }
 
 // For codec srcs, we want the "draw" step to be a memcpy.  Any interesting color space or
@@ -1082,7 +1088,14 @@ Error ColorCodecSrc::draw(SkCanvas* canvas) const {
     if (kDst_sRGB_Mode == fMode) {
         dstSpace = SkColorSpace::MakeSRGB();
     } else if (kDst_HPZR30w_Mode == fMode) {
-        dstSpace = SkColorSpace::MakeICC(dstData->data(), dstData->size());
+#if defined(SK_USE_SKCMS)
+        skcms_ICCProfile profile;
+        SkAssertResult(skcms_Parse(dstData->data(), dstData->size(), &profile));
+        dstSpace = SkColorSpace::Make(profile);
+        SkASSERT(dstSpace);
+#else
+        return "Cannot use ICC profile without skcms support.";
+#endif
     }
 
     SkImageInfo decodeInfo = codec->getInfo().makeColorType(fColorType).makeColorSpace(dstSpace);
@@ -1200,7 +1213,7 @@ Name SKPSrc::name() const { return SkOSPath::Basename(fPath.c_str()); }
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
 SkottieSrc::SkottieSrc(Path path)
     : fName(SkOSPath::Basename(path.c_str())) {
 
@@ -1495,7 +1508,7 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     sk_sp<SkSurface> surface;
 #if SK_SUPPORT_GPU
     GrContext* context = factory.getContextInfo(fContextType, fContextOverrides).grContext();
-    const int maxDimension = context->caps()->maxTextureSize();
+    const int maxDimension = context->contextPriv().caps()->maxTextureSize();
     if (maxDimension < SkTMax(size.width(), size.height())) {
         return Error::Nonfatal("Src too large to create a texture.\n");
     }
@@ -1510,7 +1523,8 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
             break;
         case SkCommandLineConfigGpu::SurfType::kBackendTexture:
             backendTexture = context->contextPriv().getGpu()->createTestingOnlyBackendTexture(
-                    nullptr, info.width(), info.height(), info.colorType(), true, GrMipMapped::kNo);
+                    nullptr, info.width(), info.height(), info.colorType(), info.colorSpace(),
+                    true, GrMipMapped::kNo);
             surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
                                                         kTopLeft_GrSurfaceOrigin, fSampleCount,
                                                         fColorType, info.refColorSpace(), &props);
@@ -1605,9 +1619,11 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     // Also, force us to only use the software path renderer, so we really stress-test the threaded
     // version of that code.
     GrContextOptions contextOptions = this->baseContextOptions();
+#if SK_SUPPORT_GPU
     contextOptions.fGpuPathRenderers = GpuPathRenderers::kNone;
-
     contextOptions.fExecutor = fExecutor.get();
+#endif
+
     Error err = this->onDraw(src, dst, wStream, log, contextOptions);
     if (!err.isEmpty() || !dst) {
         return err;
@@ -1616,7 +1632,9 @@ Error GPUThreadTestingSink::draw(const Src& src, SkBitmap* dst, SkWStream* wStre
     SkBitmap reference;
     SkString refLog;
     SkDynamicMemoryWStream refStream;
+#if SK_SUPPORT_GPU
     contextOptions.fExecutor = nullptr;
+#endif
     Error refErr = this->onDraw(src, &reference, &refStream, &refLog, contextOptions);
     if (!refErr.isEmpty()) {
         return refErr;
@@ -1791,16 +1809,14 @@ Error RasterSink::draw(const Src& src, SkBitmap* dst, SkWStream*, SkString*) con
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 ThreadedSink::ThreadedSink(SkColorType colorType, sk_sp<SkColorSpace> colorSpace)
-        : RasterSink(colorType, colorSpace)
-        , fExecutor(SkExecutor::MakeFIFOThreadPool(FLAGS_backendThreads)) {
-}
+        : RasterSink(colorType, colorSpace) {}
 
 Error ThreadedSink::draw(const Src& src, SkBitmap* dst, SkWStream* stream, SkString* str) const {
     this->allocPixels(src, dst);
 
-    std::unique_ptr<SkThreadedBMPDevice> device(new SkThreadedBMPDevice(
-            *dst, FLAGS_backendTiles, FLAGS_backendThreads, fExecutor.get()));
-    std::unique_ptr<SkCanvas> canvas(new SkCanvas(device.get()));
+    auto canvas = skstd::make_unique<SkCanvas>(
+            sk_make_sp<SkThreadedBMPDevice>(
+                    *dst, FLAGS_backendTiles, FLAGS_backendThreads));
     Error result = src.draw(canvas.get());
     canvas->flush();
     return result;
@@ -2099,12 +2115,15 @@ public:
             sk_sp<PromiseImageCallbackContext> callbackContext(
                                                     new PromiseImageCallbackContext(context));
 
+            const PromiseImageInfo& info = fImageInfo[i];
+
             // DDL TODO: how can we tell if we need mipmapping!
             callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                                fImageInfo[i].fBitmap.getPixels(),
-                                                                fImageInfo[i].fBitmap.width(),
-                                                                fImageInfo[i].fBitmap.height(),
-                                                                fImageInfo[i].fBitmap.colorType(),
+                                                                info.fBitmap.getPixels(),
+                                                                info.fBitmap.width(),
+                                                                info.fBitmap.height(),
+                                                                info.fBitmap.colorType(),
+                                                                info.fBitmap.colorSpace(),
                                                                 false, GrMipMapped::kNo));
             // The GMs sometimes request too large an image
             //SkAssertResult(callbackContext->backendTexture().isValid());
@@ -2262,8 +2281,11 @@ private:
         const PromiseImageHelper::PromiseImageInfo& curImage = helper->getInfo(*indexPtr);
 
         if (!curImage.fCallbackContext->backendTexture().isValid()) {
-            // We weren't able to make a backend texture for this SkImage
-            return nullptr;
+            // We weren't able to make a backend texture for this SkImage. In this case we create
+            // a separate bitmap-backed image for each thread.
+            // Note: we would like to share the same bitmap between all the threads but
+            // SkBitmap is not thread-safe.
+            return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
         }
         SkASSERT(curImage.fIndex == *indexPtr);
 

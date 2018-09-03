@@ -49,7 +49,8 @@ protected:
     sk_sp<SkSpecialImage> onFilterImage(SkSpecialImage* source, const Context&,
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
 
 private:
     typedef SkImageFilter INHERITED;
@@ -650,14 +651,15 @@ sk_sp<SkSpecialImage> SkBlurImageFilterImpl::gpuFilter(
     // Then, when we create the output image later, we tag it with the input's color space, so
     // it will be tagged correctly, regardless of how we created the intermediate RTCs.
     sk_sp<GrRenderTargetContext> renderTargetContext(SkGpuBlurUtils::GaussianBlur(
-        context,
-        std::move(inputTexture),
-        outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
-        dstBounds,
-        inputBounds,
-        sigma.x(),
-        sigma.y(),
-        to_texture_domain_mode(fTileMode)));
+                            context,
+                            std::move(inputTexture),
+                            outProps.colorSpace() ? sk_ref_sp(input->getColorSpace()) : nullptr,
+                            dstBounds,
+                            inputBounds,
+                            sigma.x(),
+                            sigma.y(),
+                            to_texture_domain_mode(fTileMode),
+                            input->alphaType()));
     if (!renderTargetContext) {
         return nullptr;
     }
@@ -691,7 +693,7 @@ SkRect SkBlurImageFilterImpl::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkBlurImageFilterImpl::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                              MapDirection) const {
+                                                  MapDirection, const SkIRect* inputRect) const {
     SkVector sigma = map_sigma(fSigma, ctm);
     return src.makeOutset(SkScalarCeilToInt(sigma.x() * 3), SkScalarCeilToInt(sigma.y() * 3));
 }

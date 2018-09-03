@@ -69,6 +69,35 @@ public:
             const GrSamplerState::Filter* filterOrNullForBicubic,
             SkColorSpace* dstColorSpace) = 0;
 
+    /**
+     *  Returns a texture that is safe for use with the params.
+     *
+     * If the size of the returned texture does not match width()/height() then the contents of the
+     * original may have been scaled to fit the texture or the original may have been copied into
+     * a subrect of the copy. 'scaleAdjust' must be  applied to the normalized texture coordinates
+     * in order to correct for the latter case.
+     *
+     * If the GrSamplerState is known to clamp and use kNearest or kBilerp filter mode then the
+     * proxy will always be unscaled and nullptr can be passed for scaleAdjust. There is a weird
+     * contract that if scaleAdjust is not null it must be initialized to {1, 1} before calling
+     * this method. (TODO: Fix this and make this function always initialize scaleAdjust).
+     *
+     * Places the color space of the texture in (*proxyColorSpace).
+     */
+    sk_sp<GrTextureProxy> refTextureProxyForParams(const GrSamplerState&,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* proxyColorSpace,
+                                                   SkScalar scaleAdjust[2]);
+
+    sk_sp<GrTextureProxy> refTextureProxyForParams(GrSamplerState::Filter filter,
+                                                   SkColorSpace* dstColorSpace,
+                                                   sk_sp<SkColorSpace>* proxyColorSpace,
+                                                   SkScalar scaleAdjust[2]) {
+        return this->refTextureProxyForParams(
+                GrSamplerState(GrSamplerState::WrapMode::kClamp, filter), dstColorSpace,
+                proxyColorSpace, scaleAdjust);
+    }
+
     virtual ~GrTextureProducer() {}
 
     int width() const { return fWidth; }
@@ -142,6 +171,11 @@ protected:
             const GrSamplerState::Filter* filterOrNullForBicubic);
 
 private:
+    virtual sk_sp<GrTextureProxy> onRefTextureProxyForParams(const GrSamplerState&,
+                                                             SkColorSpace* dstColorSpace,
+                                                             sk_sp<SkColorSpace>* proxyColorSpace,
+                                                             SkScalar scaleAdjust[2]) = 0;
+
     const int   fWidth;
     const int   fHeight;
     const bool  fIsAlphaOnly;

@@ -253,9 +253,7 @@ int SkDCubic::ComplexBreak(const SkPoint pointsPtr[4], SkScalar* t) {
         case SkCubicType::kLoop: {
             const double &td = tt[0], &te = tt[1], &sd = ss[0], &se = ss[1];
             if (roughly_between(0, td, sd) && roughly_between(0, te, se)) {
-                SkASSERT(roughly_between(0, td/sd, 1) && roughly_between(0, te/se, 1));
                 t[0] = static_cast<SkScalar>((td * se + te * sd) / (2 * sd * se));
-                SkASSERT(roughly_between(0, *t, 1));
                 return (int) (t[0] > 0 && t[0] < 1);
             }
         }

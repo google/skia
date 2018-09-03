@@ -29,9 +29,9 @@
 namespace SkSL {
 
 void Interpreter::run() {
-    for (const auto& e : fProgram->fElements) {
-        if (ProgramElement::kFunction_Kind == e->fKind) {
-            const FunctionDefinition& f = (const FunctionDefinition&) *e;
+    for (const auto& e : *fProgram) {
+        if (ProgramElement::kFunction_Kind == e.fKind) {
+            const FunctionDefinition& f = (const FunctionDefinition&) e;
             if ("appendStages" == f.fDeclaration.fName) {
                 this->run(f);
                 return;
@@ -244,9 +244,9 @@ void Interpreter::appendStage(const AppendStage& a) {
             CallbackCtx* ctx = new CallbackCtx();
             ctx->fInterpreter = this;
             ctx->fn = do_callback;
-            for (const auto& e : fProgram->fElements) {
-                if (ProgramElement::kFunction_Kind == e->fKind) {
-                    const FunctionDefinition& f = (const FunctionDefinition&) *e;
+            for (const auto& e : *fProgram) {
+                if (ProgramElement::kFunction_Kind == e.fKind) {
+                    const FunctionDefinition& f = (const FunctionDefinition&) e;
                     if (&f.fDeclaration ==
                                       ((const FunctionReference&) *a.fArguments[0]).fFunctions[0]) {
                         ctx->fFunction = &f;

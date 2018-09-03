@@ -49,7 +49,18 @@ inline static SkAlpha ScalarToAlpha(SkScalar a) {
 
 void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkIRect bounds = rect.roundOut();
-    SkASSERT(bounds.width() >= 3 && bounds.height() >= 3);
+    SkASSERT(bounds.width() >= 3);
+
+    // skbug.com/7813
+    // To ensure consistency of the threaded backend (a rect that's considered fat in the init-once
+    // phase must also be considered fat in the draw phase), we have to deal with rects with small
+    // heights because the horizontal tiling in the threaded backend may change the height.
+    //
+    // This also implies that we cannot do vertical tiling unless we can blit any rect (not just the
+    // fat one.)
+    if (bounds.height() == 0) {
+        return;
+    }
 
     int         runSize = bounds.width() + 1; // +1 so we can set runs[bounds.width()] = 0
     void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
@@ -66,28 +77,34 @@ void SkBlitter::blitFatAntiRect(const SkRect& rect) {
     SkScalar partialT = bounds.fTop + 1 - rect.fTop;
     SkScalar partialB = rect.fBottom - (bounds.fBottom - 1);
 
+    if (bounds.height() == 1) {
+        partialT = rect.fBottom - rect.fTop;
+    }
+
     alphas[0] = ScalarToAlpha(partialL * partialT);
     alphas[1] = ScalarToAlpha(partialT);
     alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialT);
     this->blitAntiH(bounds.fLeft, bounds.fTop, alphas, runs);
 
-    this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
-                       ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+    if (bounds.height() > 2) {
+        this->blitAntiRect(bounds.fLeft, bounds.fTop + 1, bounds.width() - 2, bounds.height() - 2,
+                           ScalarToAlpha(partialL), ScalarToAlpha(partialR));
+    }
 
-    alphas[0] = ScalarToAlpha(partialL * partialB);
-    alphas[1] = ScalarToAlpha(partialB);
-    alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
-    this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
+    if (bounds.height() > 1) {
+        alphas[0] = ScalarToAlpha(partialL * partialB);
+        alphas[1] = ScalarToAlpha(partialB);
+        alphas[bounds.width() - 1] = ScalarToAlpha(partialR * partialB);
+        this->blitAntiH(bounds.fLeft, bounds.fBottom - 1, alphas, runs);
+    }
 }
 
 void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& clip,
-                                   bool isEvenOdd, bool isInverse, bool isConvex,
-                                   SkArenaAlloc* alloc) {
-    // We cannot use blitter to allocate the storage because the same blitter might be used across
-    // many threads.
-    int      runSize    = clip.width() + 1; // +1 so we can set runs[clip.width()] = 0
-    int16_t* runs       = alloc->makeArrayDefault<int16_t>(runSize);
-    SkAlpha* alphas     = alloc->makeArrayDefault<SkAlpha>(runSize);
+                                   bool isEvenOdd, bool isInverse, bool isConvex) {
+    int         runSize = clip.width() + 1; // +1 so we can set runs[clip.width()] = 0
+    void*       storage = this->allocBlitMemory(runSize * (sizeof(int16_t) + sizeof(SkAlpha)));
+    int16_t*    runs    = reinterpret_cast<int16_t*>(storage);
+    SkAlpha*    alphas  = reinterpret_cast<SkAlpha*>(runs + runSize);
     runs[clip.width()]  = 0; // we must set the last run to 0 so blitAntiH can stop there
 
     bool canUseMask = !deltas->forceRLE() &&
@@ -98,10 +115,41 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
     int top = SkTMax(deltas->top(), clip.fTop);
     int bottom = SkTMin(deltas->bottom(), clip.fBottom);
     for(int y = top; y < bottom; ++y) {
-        // If antiRect is non-empty and we're at its top row, blit it and skip to the bottom
-        if (antiRect.fHeight && y == antiRect.fY) {
-            this->blitAntiRect(antiRect.fX, antiRect.fY, antiRect.fWidth, antiRect.fHeight,
-                               antiRect.fLeftAlpha, antiRect.fRightAlpha);
+        // If antiRect is non-empty and we're in it, blit it and skip to the bottom
+        if (y >= antiRect.fY && y < antiRect.fY + antiRect.fHeight) {
+            // Clip the antiRect because of possible tilings (e.g., the threaded backend)
+            int leftOverClip = clip.fLeft - antiRect.fX;
+            int rightOverClip = antiRect.fX + antiRect.fWidth - clip.fRight;
+            int topOverClip = clip.fTop - antiRect.fY;
+            int botOverClip = antiRect.fY + antiRect.fHeight - clip.fBottom;
+
+            int rectX = antiRect.fX;
+            int rectY = antiRect.fY;
+            int width = antiRect.fWidth;
+            int height = antiRect.fHeight;
+            SkAlpha leftAlpha = antiRect.fLeftAlpha;
+            SkAlpha rightAlpha = antiRect.fRightAlpha;
+
+            if (leftOverClip > 0) {
+                rectX = clip.fLeft;
+                width -= leftOverClip;
+                leftAlpha = 0xFF;
+            }
+            if (rightOverClip > 0) {
+                width -= rightOverClip;
+                rightAlpha = 0xFF;
+            }
+            if (topOverClip > 0) {
+                rectY = clip.fTop;
+                height -= topOverClip;
+            }
+            if (botOverClip > 0) {
+                height -= botOverClip;
+            }
+
+            if (width >= 0) {
+                this->blitAntiRect(rectX, rectY, width, height, leftAlpha, rightAlpha);
+            }
             y += antiRect.fHeight - 1; // -1 because ++y in the for loop
             continue;
         }
@@ -110,7 +158,16 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         // This is such an important optimization that will bring ~2x speedup for benches like
         // path_fill_small_long_line and path_stroke_small_sawtooth.
         if (canUseMask && !deltas->sorted(y) && deltas->count(y) << 3 >= clip.width()) {
+#ifdef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
             SkIRect rowIR = SkIRect::MakeLTRB(clip.fLeft, y, clip.fRight, y + 1);
+#else
+            // Note that deltas->left()/right() may be different than clip.fLeft/fRight because in
+            // the threaded backend, deltas are generated in the initFn with full clip, while
+            // blitCoverageDeltas is called in drawFn with a subclip. For inverse fill, the clip
+            // might be wider than deltas' bounds (which is clippedIR).
+            SkIRect rowIR = SkIRect::MakeLTRB(SkTMin(clip.fLeft, deltas->left()), y,
+                                              SkTMax(clip.fRight, deltas->right()), y + 1);
+#endif
             SkSTArenaAlloc<SkCoverageDeltaMask::MAX_SIZE> alloc;
             SkCoverageDeltaMask mask(&alloc, rowIR);
             for(int i = 0; i < deltas->count(y); ++i) {
@@ -129,9 +186,15 @@ void SkBlitter::blitCoverageDeltas(SkCoverageDeltaList* deltas, const SkIRect& c
         int     lastX = clip.fLeft; // init x to clip.fLeft
         SkFixed coverage = 0;       // init coverage to 0
 
-        // skip deltas with x less than clip.fLeft; they must be precision errors
-        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i)
-            ;
+        // skip deltas with x less than clip.fLeft; they may be:
+        //   1. precision errors
+        //   2. deltas generated during init-once phase (threaded backend) that has a wider
+        //      clip than the final tile clip.
+        for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fLeft; ++i) {
+#ifndef SK_SUPPORT_LEGACY_THREADED_DAA_BUGS
+            coverage += deltas->getDelta(y, i).fDelta;
+#endif
+        }
         for(; i < deltas->count(y) && deltas->getDelta(y, i).fX < clip.fRight; ++i) {
             const SkCoverageDelta& delta = deltas->getDelta(y, i);
             SkASSERT(delta.fX >= lastX);    // delta must be x sorted

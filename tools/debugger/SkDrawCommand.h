@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkDrawShadowInfo.h"
 #include "SkFlattenable.h"
 #include "SkTLazy.h"
 #include "SkPath.h"
@@ -34,6 +35,7 @@ public:
         kConcat_OpType,
         kDrawAnnotation_OpType,
         kDrawBitmap_OpType,
+        kDrawBitmapLattice_OpType,
         kDrawBitmapNine_OpType,
         kDrawBitmapRect_OpType,
         kDrawDRRect_OpType,
@@ -52,6 +54,7 @@ public:
         kDrawRect_OpType,
         kDrawRRect_OpType,
         kDrawRegion_OpType,
+        kDrawShadow_OpType,
         kDrawText_OpType,
         kDrawTextBlob_OpType,
         kDrawTextOnPath_OpType,
@@ -102,6 +105,7 @@ public:
     static Json::Value MakeJsonColor4f(const SkColor4f& color);
     static Json::Value MakeJsonPoint(const SkPoint& point);
     static Json::Value MakeJsonPoint(SkScalar x, SkScalar y);
+    static Json::Value MakeJsonPoint3(const SkPoint3& point);
     static Json::Value MakeJsonRect(const SkRect& rect);
     static Json::Value MakeJsonIRect(const SkIRect&);
     static Json::Value MakeJsonMatrix(const SkMatrix&);
@@ -258,6 +262,25 @@ private:
     SkScalar fTop;
     SkPaint  fPaint;
     SkPaint* fPaintPtr;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawBitmapLatticeCommand : public SkDrawCommand {
+public:
+    SkDrawBitmapLatticeCommand(const SkBitmap& bitmap, const SkCanvas::Lattice& lattice,
+                               const SkRect& dst, const SkPaint* paint);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawBitmapLatticeCommand* fromJSON(Json::Value& command,
+                                                UrlDataManager& urlDataManager);
+
+private:
+    SkBitmap          fBitmap;
+    SkCanvas::Lattice fLattice;
+    SkRect            fDst;
+    SkTLazy<SkPaint>  fPaint;
 
     typedef SkDrawCommand INHERITED;
 };
@@ -758,6 +781,21 @@ public:
 
 private:
     SkMatrix fMatrix;
+
+    typedef SkDrawCommand INHERITED;
+};
+
+class SkDrawShadowCommand : public SkDrawCommand {
+public:
+    SkDrawShadowCommand(const SkPath& path, const SkDrawShadowRec& rec);
+    void execute(SkCanvas* canvas) const override;
+    bool render(SkCanvas* canvas) const override;
+    Json::Value toJSON(UrlDataManager& urlDataManager) const override;
+    static SkDrawShadowCommand* fromJSON(Json::Value& command, UrlDataManager& urlDataManager);
+
+private:
+    SkPath           fPath;
+    SkDrawShadowRec  fShadowRec;
 
     typedef SkDrawCommand INHERITED;
 };

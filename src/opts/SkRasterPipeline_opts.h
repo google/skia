@@ -1275,12 +1275,6 @@ STAGE(swap_rb, Ctx::None) {
     r = b;
     b = tmp;
 }
-STAGE(invert, Ctx::None) {
-    r = inv(r);
-    g = inv(g);
-    b = inv(b);
-    a = inv(a);
-}
 
 STAGE(move_src_dst, Ctx::None) {
     dr = r;
@@ -1475,38 +1469,6 @@ STAGE(lerp_565, const SkJumper_MemoryCtx* ctx) {
     a = lerp(da, a, ca);
 }
 
-STAGE(load_tables, const SkJumper_LoadTablesCtx* c) {
-    auto px = load<U32>((const uint32_t*)c->src + dx, tail);
-    r = gather(c->r, (px      ) & 0xff);
-    g = gather(c->g, (px >>  8) & 0xff);
-    b = gather(c->b, (px >> 16) & 0xff);
-    a = cast(        (px >> 24)) * (1/255.0f);
-}
-STAGE(load_tables_u16_be, const SkJumper_LoadTablesCtx* c) {
-    auto ptr = (const uint16_t*)c->src + 4*dx;
-
-    U16 R,G,B,A;
-    load4(ptr, tail, &R,&G,&B,&A);
-
-    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
-    r = gather(c->r, expand(R) & 0xff);
-    g = gather(c->g, expand(G) & 0xff);
-    b = gather(c->b, expand(B) & 0xff);
-    a = (1/65535.0f) * cast(expand(bswap(A)));
-}
-STAGE(load_tables_rgb_u16_be, const SkJumper_LoadTablesCtx* c) {
-    auto ptr = (const uint16_t*)c->src + 3*dx;
-
-    U16 R,G,B;
-    load3(ptr, tail, &R,&G,&B);
-
-    // c->src is big-endian, so & 0xff grabs the 8 most signficant bits.
-    r = gather(c->r, expand(R) & 0xff);
-    g = gather(c->g, expand(G) & 0xff);
-    b = gather(c->b, expand(B) & 0xff);
-    a = 1.0f;
-}
-
 STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTablesCtx
     struct Tables { const uint8_t *r, *g, *b, *a; };
     auto tables = (const Tables*)ctx;
@@ -1516,21 +1478,6 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     b = from_byte(gather(tables->b, to_unorm(b, 255)));
     a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
-
-STAGE(byte_tables_rgb, const SkJumper_ByteTablesRGBCtx* ctx) {
-    int scale = ctx->n - 1;
-    r = from_byte(gather(ctx->r, to_unorm(r, scale)));
-    g = from_byte(gather(ctx->g, to_unorm(g, scale)));
-    b = from_byte(gather(ctx->b, to_unorm(b, scale)));
-}
-
-SI F table(F v, const SkJumper_TableCtx* ctx) {
-    return gather(ctx->table, to_unorm(v, ctx->size - 1));
-}
-STAGE(table_r, const SkJumper_TableCtx* ctx) { r = table(r, ctx); }
-STAGE(table_g, const SkJumper_TableCtx* ctx) { g = table(g, ctx); }
-STAGE(table_b, const SkJumper_TableCtx* ctx) { b = table(b, ctx); }
-STAGE(table_a, const SkJumper_TableCtx* ctx) { a = table(a, ctx); }
 
 SI F parametric(F v, const SkJumper_ParametricTransferFunction* ctx) {
     F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
@@ -1551,25 +1498,6 @@ STAGE(gamma_dst, const float* G) {
     dr = approx_powf(dr, *G);
     dg = approx_powf(dg, *G);
     db = approx_powf(db, *G);
-}
-
-STAGE(lab_to_xyz, Ctx::None) {
-    F L = r * 100.0f,
-      A = g * 255.0f - 128.0f,
-      B = b * 255.0f - 128.0f;
-
-    F Y = (L + 16.0f) * (1/116.0f),
-      X = Y + A*(1/500.0f),
-      Z = Y - B*(1/200.0f);
-
-    X = if_then_else(X*X*X > 0.008856f, X*X*X, (X - (16/116.0f)) * (1/7.787f));
-    Y = if_then_else(Y*Y*Y > 0.008856f, Y*Y*Y, (Y - (16/116.0f)) * (1/7.787f));
-    Z = if_then_else(Z*Z*Z > 0.008856f, Z*Z*Z, (Z - (16/116.0f)) * (1/7.787f));
-
-    // Adjust to D50 illuminant.
-    r = X * 0.96422f;
-    g = Y           ;
-    b = Z * 0.82521f;
 }
 
 STAGE(load_a8, const SkJumper_MemoryCtx* ctx) {
@@ -1774,28 +1702,6 @@ STAGE(store_f16, const SkJumper_MemoryCtx* ctx) {
                               , to_half(a));
 }
 
-STAGE(load_u16_be, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint16_t>(ctx, 4*dx,dy);
-
-    U16 R,G,B,A;
-    load4(ptr,tail, &R,&G,&B,&A);
-
-    r = (1/65535.0f) * cast(expand(bswap(R)));
-    g = (1/65535.0f) * cast(expand(bswap(G)));
-    b = (1/65535.0f) * cast(expand(bswap(B)));
-    a = (1/65535.0f) * cast(expand(bswap(A)));
-}
-STAGE(load_rgb_u16_be, const SkJumper_MemoryCtx* ctx) {
-    auto ptr = ptr_at_xy<const uint16_t>(ctx, 3*dx,dy);
-
-    U16 R,G,B;
-    load3(ptr,tail, &R,&G,&B);
-
-    r = (1/65535.0f) * cast(expand(bswap(R)));
-    g = (1/65535.0f) * cast(expand(bswap(G)));
-    b = (1/65535.0f) * cast(expand(bswap(B)));
-    a = 1.0f;
-}
 STAGE(store_u16_be, const SkJumper_MemoryCtx* ctx) {
     auto ptr = ptr_at_xy<uint16_t>(ctx, 4*dx,dy);
 
@@ -2195,58 +2101,6 @@ STAGE(callback, SkJumper_CallbackCtx* c) {
     load4(c->read_from,0, &r,&g,&b,&a);
 }
 
-// Our general strategy is to recursively interpolate each dimension,
-// accumulating the index to sample at, and our current pixel stride to help accumulate the index.
-template <int dim>
-SI void color_lookup_table(const SkJumper_ColorLookupTableCtx* ctx,
-                           F& r, F& g, F& b, F a, U32 index, U32 stride) {
-    // We'd logically like to sample this dimension at x.
-    int limit = ctx->limits[dim-1];
-    F src;
-    switch(dim) {
-        case 1: src = r; break;
-        case 2: src = g; break;
-        case 3: src = b; break;
-        case 4: src = a; break;
-    }
-    F x = src * (limit - 1);
-
-    // We can't index an array by a float (darn) so we have to snap to nearby integers lo and hi.
-    U32 lo = trunc_(x          ),
-        hi = trunc_(x + 0.9999f);
-
-    // Recursively sample at lo and hi.
-    F lr = r, lg = g, lb = b,
-      hr = r, hg = g, hb = b;
-    color_lookup_table<dim-1>(ctx, lr,lg,lb,a, stride*lo + index, stride*limit);
-    color_lookup_table<dim-1>(ctx, hr,hg,hb,a, stride*hi + index, stride*limit);
-
-    // Linearly interpolate those colors based on their distance to x.
-    F t = x - cast(lo);
-    r = lerp(lr, hr, t);
-    g = lerp(lg, hg, t);
-    b = lerp(lb, hb, t);
-}
-
-// Bottom out our recursion at 0 dimensions, i.e. just return the colors at index.
-template<>
-inline void color_lookup_table<0>(const SkJumper_ColorLookupTableCtx* ctx,
-                                  F& r, F& g, F& b, F a, U32 index, U32 stride) {
-    r = gather(ctx->table, 3*index+0);
-    g = gather(ctx->table, 3*index+1);
-    b = gather(ctx->table, 3*index+2);
-}
-
-STAGE(clut_3D, const SkJumper_ColorLookupTableCtx* ctx) {
-    color_lookup_table<3>(ctx, r,g,b,a, 0,1);
-    // This 3D color lookup table leaves alpha alone.
-}
-STAGE(clut_4D, const SkJumper_ColorLookupTableCtx* ctx) {
-    color_lookup_table<4>(ctx, r,g,b,a, 0,1);
-    // "a" was really CMYK's K, so we just set alpha opaque.
-    a = 1.0f;
-}
-
 STAGE(gauss_a_to_rgba, Ctx::None) {
     // x = 1 - x;
     // exp(-x * x * 4) - 0.018f;
@@ -2264,7 +2118,7 @@ STAGE(gauss_a_to_rgba, Ctx::None) {
 }
 
 // A specialized fused image shader for clamp-x, clamp-y, non-sRGB sampling.
-STAGE(bilerp_clamp_8888, SkJumper_GatherCtx* ctx) {
+STAGE(bilerp_clamp_8888, const SkJumper_GatherCtx* ctx) {
     // (cx,cy) are the center of our sample.
     F cx = r,
       cy = g;
@@ -2600,6 +2454,7 @@ SI F floor_(F x) {
     return roundtrip - if_then_else(roundtrip > x, F(1), F(0));
 #endif
 }
+SI F fract(F x) { return x - floor_(x); }
 SI F abs_(F x) { return bit_cast<F>( bit_cast<I32>(x) & 0x7fffffff ); }
 
 // ~~~~~~ Basic / misc. stages ~~~~~~ //
@@ -2694,13 +2549,6 @@ STAGE_PP(move_dst_src, Ctx::None) {
     g = dg;
     b = db;
     a = da;
-}
-
-STAGE_PP(invert, Ctx::None) {
-    r = inv(r);
-    g = inv(g);
-    b = inv(b);
-    a = inv(a);
 }
 
 // ~~~~~~ Blend modes ~~~~~~ //
@@ -3320,6 +3168,70 @@ STAGE_PP(srcover_bgra_8888, const SkJumper_MemoryCtx* ctx) {
     store_8888_(ptr, tail, b,g,r,a);
 }
 
+#if defined(SK_DISABLE_LOWP_BILERP_CLAMP_CLAMP_STAGE)
+    static void(*bilerp_clamp_8888)(void) = nullptr;
+#else
+STAGE_GP(bilerp_clamp_8888, const SkJumper_GatherCtx* ctx) {
+    // (cx,cy) are the center of our sample.
+    F cx = x,
+      cy = y;
+
+    // All sample points are at the same fractional offset (fx,fy).
+    // They're the 4 corners of a logical 1x1 pixel surrounding (x,y) at (0.5,0.5) offsets.
+    F fx = fract(cx + 0.5f),
+      fy = fract(cy + 0.5f);
+
+    // We'll accumulate the color of all four samples into {r,g,b,a} directly.
+    r = g = b = a = 0;
+
+    // The first three sample points will calculate their area using math
+    // just like in the float code above, but the fourth will take up all the rest.
+    //
+    // Logically this is the same as doing the math for the fourth pixel too,
+    // but rounding error makes this a better strategy, keeping opaque opaque, etc.
+    //
+    // We can keep up to 8 bits of fractional precision without overflowing 16-bit,
+    // so our "1.0" area is 256.
+    const uint16_t bias = 256;
+    U16 remaining = bias;
+
+    for (float dy = -0.5f; dy <= +0.5f; dy += 1.0f)
+    for (float dx = -0.5f; dx <= +0.5f; dx += 1.0f) {
+        // (x,y) are the coordinates of this sample point.
+        F x = cx + dx,
+          y = cy + dy;
+
+        // ix_and_ptr() will clamp to the image's bounds for us.
+        const uint32_t* ptr;
+        U32 ix = ix_and_ptr(&ptr, ctx, x,y);
+
+        U16 sr,sg,sb,sa;
+        from_8888(gather<U32>(ptr, ix), &sr,&sg,&sb,&sa);
+
+        // In bilinear interpolation, the 4 pixels at +/- 0.5 offsets from the sample pixel center
+        // are combined in direct proportion to their area overlapping that logical query pixel.
+        // At positive offsets, the x-axis contribution to that rectangle is fx,
+        // or (1-fx) at negative x.  Same deal for y.
+        F sx = (dx > 0) ? fx : 1.0f - fx,
+          sy = (dy > 0) ? fy : 1.0f - fy;
+
+        U16 area = (dy == 0.5f && dx == 0.5f) ? remaining
+                                              : cast<U16>(sx * sy * bias);
+        remaining -= area;
+
+        r += sr * area;
+        g += sg * area;
+        b += sb * area;
+        a += sa * area;
+    }
+
+    r /= bias;
+    g /= bias;
+    b /= bias;
+    a /= bias;
+}
+#endif
+
 // Now we'll add null stand-ins for stages we haven't implemented in lowp.
 // If a pipeline uses these stages, it'll boot it out of lowp into highp.
 
@@ -3333,15 +3245,13 @@ static NotImplemented
         load_f16    , load_f16_dst    , store_f16    , gather_f16,
         load_f32    , load_f32_dst    , store_f32    , gather_f32,
         load_1010102, load_1010102_dst, store_1010102, gather_1010102,
-        load_u16_be, load_rgb_u16_be, store_u16_be,
-        load_tables_u16_be, load_tables_rgb_u16_be,
-        load_tables, byte_tables, byte_tables_rgb,
+        store_u16_be,
+        byte_tables,
         colorburn, colordodge, softlight, hue, saturation, color, luminosity,
         matrix_3x4, matrix_4x5, matrix_4x3,
         parametric_r, parametric_g, parametric_b, parametric_a,
-        table_r, table_g, table_b, table_a,
         gamma, gamma_dst,
-        lab_to_xyz, rgb_to_hsl, hsl_to_rgb, clut_3D, clut_4D,
+        rgb_to_hsl, hsl_to_rgb,
         gauss_a_to_rgba,
         mirror_x, repeat_x,
         mirror_y, repeat_y,
@@ -3360,8 +3270,7 @@ static NotImplemented
         alter_2pt_conical_unswap,
         mask_2pt_conical_nan,
         mask_2pt_conical_degenerates,
-        apply_vector_mask,
-        bilerp_clamp_8888;
+        apply_vector_mask;
 
 #endif//defined(JUMPER_IS_SCALAR) controlling whether we build lowp stages
 }  // namespace lowp

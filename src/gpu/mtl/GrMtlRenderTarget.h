@@ -40,8 +40,6 @@ public:
         return true;
     }
 
-    GrBackendObject getRenderTargetHandle() const override;
-
     GrBackendRenderTarget getBackendRenderTarget() const override {
         return GrBackendRenderTarget(); // invalid
     }

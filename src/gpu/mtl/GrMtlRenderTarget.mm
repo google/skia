@@ -63,11 +63,6 @@ GrMtlGpu* GrMtlRenderTarget::getMtlGpu() const {
     return static_cast<GrMtlGpu*>(this->getGpu());
 }
 
-GrBackendObject GrMtlRenderTarget::getRenderTargetHandle() const {
-    void* voidRT = (__bridge_retained void*)fRenderTexture;
-    return (GrBackendObject)voidRT;
-}
-
 void GrMtlRenderTarget::onAbandon() {
     fRenderTexture = nil;
     fResolveTexture = nil;

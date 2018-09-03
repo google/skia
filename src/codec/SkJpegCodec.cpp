@@ -433,11 +433,6 @@ bool SkJpegCodec::setOutputColorSpace(const SkImageInfo& dstInfo) {
             break;
         case kRGBA_F16_SkColorType:
             SkASSERT(this->colorXform());
-
-            if (!dstInfo.colorSpace()->gammaIsLinear()) {
-                return false;
-            }
-
             fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
             break;
         default:

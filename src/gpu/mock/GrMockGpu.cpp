@@ -69,12 +69,17 @@ void GrMockGpu::submitCommandBuffer(const GrMockGpuRTCommandBuffer* cmdBuffer) {
 
 GrMockGpu::GrMockGpu(GrContext* context, const GrMockOptions& options,
                      const GrContextOptions& contextOptions)
-        : INHERITED(context) {
+        : INHERITED(context)
+        , fMockOptions(options) {
     fCaps.reset(new GrMockCaps(contextOptions, options));
 }
 
 sk_sp<GrTexture> GrMockGpu::onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
                                             const GrMipLevel texels[], int mipLevelCount) {
+    if (fMockOptions.fFailTextureAllocations) {
+        return nullptr;
+    }
+
     GrMipMapsStatus mipMapsStatus = mipLevelCount > 1 ? GrMipMapsStatus::kValid
                                                       : GrMipMapsStatus::kNotAllocated;
     GrMockTextureInfo texInfo;

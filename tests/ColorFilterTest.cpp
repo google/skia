@@ -6,15 +6,17 @@
  */
 
 #include "SkAutoMalloc.h"
+#include "SkBlendMode.h"
 #include "SkColor.h"
 #include "SkColorFilter.h"
-#include "SkColorPriv.h"
-#include "SkLumaColorFilter.h"
 #include "SkRandom.h"
 #include "SkReadBuffer.h"
+#include "SkRefCnt.h"
 #include "SkWriteBuffer.h"
-#include "SkRandom.h"
+#include "SkTypes.h"
 #include "Test.h"
+
+class SkFlattenable;
 
 static sk_sp<SkColorFilter> reincarnate_colorfilter(SkFlattenable* obj) {
     SkBinaryWriteBuffer wb;

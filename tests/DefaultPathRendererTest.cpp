@@ -5,20 +5,33 @@
  * found in the LICENSE file.
  */
 
-#include "Test.h"
-#include "SkBitmap.h"
+#include "SkTypes.h"
 
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
+#include "GrColor.h"
+#include "GrContext.h"
+#include "GrContextFactory.h"
+#include "GrContextOptions.h"
+#include "GrContextPriv.h"
+#include "GrFragmentProcessor.h"
+#include "GrPaint.h"
 #include "GrRenderTargetContext.h"
 #include "GrStyle.h"
 #include "GrTypesPriv.h"
-
+#include "SkBitmap.h"
+#include "SkColor.h"
+#include "SkColorSpace.h"
+#include "SkImageInfo.h"
+#include "SkMatrix.h"
+#include "SkPath.h"
+#include "SkRect.h"
+#include "SkRefCnt.h"
+#include "SkStrokeRec.h"
+#include "Test.h"
 #include "effects/GrConstColorProcessor.h"
 
-static void allow_default_and_msaa(GrContextOptions* options) {
-    options->fGpuPathRenderers = GpuPathRenderers::kMSAA;
-}
+#include <utility>
 
 static void only_allow_default(GrContextOptions* options) {
     options->fGpuPathRenderers = GpuPathRenderers::kNone;
@@ -122,18 +135,6 @@ DEF_GPUTEST_FOR_CONTEXTS(GrDefaultPathRendererTest,
                          sk_gpu_test::GrContextFactory::IsRenderingContext,
                          reporter, ctxInfo, only_allow_default) {
     GrContext* ctx = ctxInfo.grContext();
-
-    run_test(ctx, reporter);
-}
-
-DEF_GPUTEST_FOR_CONTEXTS(GrMSAAPathRendererTest,
-                         sk_gpu_test::GrContextFactory::IsRenderingContext,
-                         reporter, ctxInfo, allow_default_and_msaa) {
-    GrContext* ctx = ctxInfo.grContext();
-
-    if (!ctx->caps()->sampleShadingSupport()) {   // The MSAAPathRenderer requires this
-        return;
-    }
 
     run_test(ctx, reporter);
 }

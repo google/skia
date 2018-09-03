@@ -122,7 +122,7 @@ private:
 
 GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
                                          const sk_sp<GrTextureProxy>* proxies,
-                                         int numProxies,
+                                         int numActiveProxies,
                                          const GrSamplerState& params, GrMaskFormat format,
                                          const SkMatrix& localMatrix, bool usesLocalCoords)
         : INHERITED(kGrBitmapTextGeoProc_ClassID)
@@ -131,7 +131,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
         , fUsesLocalCoords(usesLocalCoords)
         , fInColor(nullptr)
         , fMaskFormat(format) {
-    SkASSERT(numProxies <= kMaxTextures);
+    SkASSERT(numActiveProxies <= kMaxTextures);
 
     fInPosition = &this->addVertexAttrib("inPosition", kFloat2_GrVertexAttribType);
 
@@ -142,7 +142,7 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     }
 
     fInTextureCoords = &this->addVertexAttrib("inTextureCoords", kUShort2_GrVertexAttribType);
-    for (int i = 0; i < numProxies; ++i) {
+    for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
 
         fTextureSamplers[i].reset(std::move(proxies[i]), params);
@@ -151,11 +151,11 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
 }
 
 void GrBitmapTextGeoProc::addNewProxies(const sk_sp<GrTextureProxy>* proxies,
-                                        int numProxies,
+                                        int numActiveProxies,
                                         const GrSamplerState& params) {
-    SkASSERT(numProxies <= kMaxTextures);
+    SkASSERT(numActiveProxies <= kMaxTextures);
 
-    for (int i = 0; i < numProxies; ++i) {
+    for (int i = 0; i < numActiveProxies; ++i) {
         SkASSERT(proxies[i]);
 
         if (!fTextureSamplers[i].isInitialized()) {

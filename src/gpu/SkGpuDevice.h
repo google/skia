@@ -8,16 +8,17 @@
 #ifndef SkGpuDevice_DEFINED
 #define SkGpuDevice_DEFINED
 
-#include "SkGr.h"
+#include "GrClipStackClip.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+#include "GrRenderTargetContext.h"
+#include "GrTypes.h"
 #include "SkBitmap.h"
 #include "SkClipStackDevice.h"
+#include "SkGr.h"
 #include "SkPicture.h"
 #include "SkRegion.h"
 #include "SkSurface.h"
-#include "GrClipStackClip.h"
-#include "GrRenderTargetContext.h"
-#include "GrContext.h"
-#include "GrTypes.h"
 
 class GrAccelData;
 class GrTextureMaker;
@@ -128,7 +129,6 @@ public:
 protected:
     bool onReadPixels(const SkPixmap&, int, int) override;
     bool onWritePixels(const SkPixmap&, int, int) override;
-    bool onShouldDisableLCD(const SkPaint&) const final;
 
 private:
     // We want these unreffed in RenderTargetContext, GrContext order.
@@ -157,6 +157,8 @@ private:
     bool forceConservativeRasterClip() const override { return true; }
 
     GrClipStackClip clip() const { return GrClipStackClip(&this->cs()); }
+
+    const GrCaps* caps() const { return fContext->contextPriv().caps(); }
 
     /**
      * Helper functions called by drawBitmapCommon. By the time these are called the SkDraw's
@@ -241,16 +243,9 @@ private:
                                  const SkMatrix& srcToDstMatrix,
                                  const SkPaint&);
 
-    bool drawFilledDRRect(const SkMatrix& viewMatrix, const SkRRect& outer,
-                          const SkRRect& inner, const SkPaint& paint);
+    void drawProducerLattice(GrTextureProducer*, std::unique_ptr<SkLatticeIter>, const SkRect& dst,
+                             const SkPaint&);
 
-    void drawProducerNine(GrTextureProducer*, const SkIRect& center,
-                          const SkRect& dst, const SkPaint&);
-
-    void drawProducerLattice(GrTextureProducer*, const SkCanvas::Lattice& lattice,
-                             const SkRect& dst, const SkPaint&);
-
-    bool drawDashLine(const SkPoint pts[2], const SkPaint& paint);
     void drawStrokedLine(const SkPoint pts[2], const SkPaint&);
 
     void wireframeVertices(SkVertices::VertexMode, int vertexCount, const SkPoint verts[],

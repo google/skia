@@ -71,11 +71,6 @@ GrMtlGpu* GrMtlTexture::getMtlGpu() const {
     return static_cast<GrMtlGpu*>(this->getGpu());
 }
 
-GrBackendObject GrMtlTexture::getTextureHandle() const {
-    void* voidTex = (__bridge_retained void*)fTexture;
-    return (GrBackendObject)voidTex;
-}
-
 GrBackendTexture GrMtlTexture::getBackendTexture() const {
     return GrBackendTexture(); // invalid
 }

@@ -127,9 +127,10 @@ private:
 static const int kPartitionSize = 10;
 
 /**
- * Calculate the approximate arc length given a bezier curve's control points.
+ *  Calculate the approximate arc length given a bezier curve's control points.
+ *  Returns -1 if bad calc (i.e. non-finite)
  */
-static SkScalar approx_arc_length(SkPoint* points, int count) {
+static SkScalar approx_arc_length(const SkPoint points[], int count) {
     if (count < 2) {
         return 0;
     }
@@ -137,7 +138,7 @@ static SkScalar approx_arc_length(SkPoint* points, int count) {
     for (int i = 0; i < count - 1; i++) {
         arcLength += SkPoint::Distance(points[i], points[i + 1]);
     }
-    return arcLength;
+    return SkScalarIsFinite(arcLength) ? arcLength : -1;
 }
 
 static SkScalar bilerp(SkScalar tx, SkScalar ty, SkScalar c00, SkScalar c10, SkScalar c01,
@@ -155,7 +156,6 @@ static Sk4f bilerp(SkScalar tx, SkScalar ty,
 }
 
 SkISize SkPatchUtils::GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix* matrix) {
-
     // Approximate length of each cubic.
     SkPoint pts[kNumPtsCubic];
     SkPatchUtils::GetTopCubic(cubics, pts);
@@ -173,6 +173,10 @@ SkISize SkPatchUtils::GetLevelOfDetail(const SkPoint cubics[12], const SkMatrix*
     SkPatchUtils::GetRightCubic(cubics, pts);
     matrix->mapPoints(pts, kNumPtsCubic);
     SkScalar rightLength = approx_arc_length(pts, kNumPtsCubic);
+
+    if (topLength < 0 || bottomLength < 0 || leftLength < 0 || rightLength < 0) {
+        return {0, 0};  // negative length is a sentinel for bad length (i.e. non-finite)
+    }
 
     // Level of detail per axis, based on the larger side between top and bottom or left and right
     int lodX = static_cast<int>(SkMaxScalar(topLength, bottomLength) / kPartitionSize);
@@ -311,8 +315,9 @@ sk_sp<SkVertices> SkPatchUtils::MakeVertices(const SkPoint cubics[12], const SkC
 
         // 200 comes from the 100 * 2 which is the max value of vertices because of the limit of
         // 60000 indices ( sqrt(60000 / 6) that comes from data->fIndexCount = lodX * lodY * 6)
-        lodX = static_cast<int>(weightX * 200);
-        lodY = static_cast<int>(weightY * 200);
+        // Need a min of 1 since we later divide by lod
+        lodX = std::max(1, sk_float_floor2int_no_saturate(weightX * 200));
+        lodY = std::max(1, sk_float_floor2int_no_saturate(weightY * 200));
         vertexCount = (lodX + 1) * (lodY + 1);
     }
     const int indexCount = lodX * lodY * 6;

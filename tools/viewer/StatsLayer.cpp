@@ -60,6 +60,13 @@ void StatsLayer::onPaint(SkCanvas* canvas) {
         fTimers[i].fTimes[fCurrentMeasurement] = 0;
     }
 
+#ifdef SK_BUILD_FOR_ANDROID
+    // Scale up the stats overlay on Android devices
+    static constexpr SkScalar kScale = 1.5;
+#else
+    static constexpr SkScalar kScale = 1;
+#endif
+
     // Now draw everything
     static const float kPixelPerMS = 2.0f;
     static const int kDisplayWidth = 192;
@@ -76,6 +83,14 @@ void StatsLayer::onPaint(SkCanvas* canvas) {
                                    SkIntToScalar(kDisplayWidth), SkIntToScalar(kDisplayHeight));
     SkPaint paint;
     canvas->save();
+
+    // Scale the canvas while keeping the right edge in place.
+    canvas->concat(SkMatrix::MakeRectToRect(SkRect::Make(canvasSize),
+                                            SkRect::MakeXYWH(canvasSize.width()  * (1 - kScale),
+                                                             0,
+                                                             canvasSize.width()  * kScale,
+                                                             canvasSize.height() * kScale),
+                                            SkMatrix::kFill_ScaleToFit));
 
     paint.setColor(SK_ColorBLACK);
     canvas->drawRect(rect, paint);

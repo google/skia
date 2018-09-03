@@ -35,7 +35,7 @@ SkXPSDocument::~SkXPSDocument() {
 
 SkCanvas* SkXPSDocument::onBeginPage(SkScalar width, SkScalar height) {
     fDevice.beginSheet(fUnitsPerMeter, fPixelsPerMeter, {width, height});
-    fCanvas.reset(new SkCanvas(&fDevice));
+    fCanvas.reset(new SkCanvas(sk_ref_sp(&fDevice)));
     return fCanvas.get();
 }
 

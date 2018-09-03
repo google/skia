@@ -91,7 +91,7 @@ protected:
         GrSurfaceDesc desc;
         desc.fWidth = fBmp.width();
         desc.fHeight = fBmp.height();
-        desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->caps());
+        desc.fConfig = SkImageInfo2GrPixelConfig(fBmp.info(), *context->contextPriv().caps());
         SkASSERT(kUnknown_GrPixelConfig != desc.fConfig);
 
         sk_sp<GrTextureProxy> proxy = proxyProvider->createTextureProxy(

@@ -10,7 +10,7 @@
 
 #include "Benchmark.h"
 #include "SkCanvas.h"
-#include "SkGlyphCache_Globals.h"
+#include "SkStrikeCache.h"
 #include "SkGraphics.h"
 #include "SkTaskGroup.h"
 #include "SkTypeface.h"
@@ -20,7 +20,7 @@
 static void do_font_stuff(SkPaint* paint) {
     for (SkScalar i = 8; i < 64; i++) {
         paint->setTextSize(i);
-        auto cache = SkGlyphCache::FindOrCreateStrikeExclusive(
+        auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
                 *paint, nullptr, SkScalerContextFlags::kNone, nullptr);
         uint16_t glyphs['z'];
         for (int c = ' '; c < 'z'; c++) {

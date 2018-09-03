@@ -21,16 +21,16 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     super(GNChromebookFlavorUtils, self).__init__(m)
     self._user_ip = ''
 
+    self.chromeos_homedir = '/home/chronos/user/'
     self.device_dirs = default_flavor.DeviceDirs(
-      dm_dir        = self.m.vars.chromeos_homedir + 'dm_out',
-      perf_data_dir = self.m.vars.chromeos_homedir + 'perf',
-      resource_dir  = self.m.vars.chromeos_homedir + 'resources',
-      images_dir    = self.m.vars.chromeos_homedir + 'images',
-      skp_dir       = self.m.vars.chromeos_homedir + 'skps',
-      svg_dir       = self.m.vars.chromeos_homedir + 'svgs',
-      tmp_dir       = self.m.vars.chromeos_homedir)
-
-    self._bin_dir = self.m.vars.chromeos_homedir + 'bin'
+      bin_dir       = self.chromeos_homedir + 'bin',
+      dm_dir        = self.chromeos_homedir + 'dm_out',
+      perf_data_dir = self.chromeos_homedir + 'perf',
+      resource_dir  = self.chromeos_homedir + 'resources',
+      images_dir    = self.chromeos_homedir + 'images',
+      skp_dir       = self.chromeos_homedir + 'skps',
+      svg_dir       = self.chromeos_homedir + 'svgs',
+      tmp_dir       = self.chromeos_homedir)
 
   @property
   def user_ip(self):
@@ -62,103 +62,10 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
               self.device_dirs.resource_dir)
 
     # Ensure the home dir is marked executable
-    self._ssh('remount %s as exec' % self.m.vars.chromeos_homedir,
+    self._ssh('remount %s as exec' % self.chromeos_homedir,
               'sudo', 'mount', '-i', '-o', 'remount,exec', '/home/chronos')
 
-    self.create_clean_device_dir(self._bin_dir)
-
-  def compile(self, unused_target):
-    configuration = self.m.vars.builder_cfg.get('configuration')
-    os            = self.m.vars.builder_cfg.get('os')
-    target_arch   = self.m.vars.builder_cfg.get('target_arch')
-
-    clang_linux = self.m.vars.slave_dir.join('clang_linux')
-    # This is a pretty typical arm-linux-gnueabihf sysroot
-    sysroot_dir = self.m.vars.slave_dir.join('armhf_sysroot')
-
-    if 'arm' == target_arch:
-      # This is the extra things needed to link against for the chromebook.
-      #  For example, the Mali GL drivers.
-      gl_dir = self.m.vars.slave_dir.join('chromebook_arm_gles')
-      env = {'LD_LIBRARY_PATH': sysroot_dir.join('lib')}
-      extra_asmflags = [
-        '--target=armv7a-linux-gnueabihf',
-        '--sysroot=%s' % sysroot_dir,
-        '-march=armv7-a',
-        '-mfpu=neon',
-        '-mthumb',
-      ]
-
-      extra_cflags = [
-        '--target=armv7a-linux-gnueabihf',
-        '--sysroot=%s' % sysroot_dir,
-        '-I%s' % gl_dir.join('include'),
-        '-I%s' % sysroot_dir.join('include'),
-        '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4'),
-        '-I%s' % sysroot_dir.join('include', 'c++', '4.8.4',
-                                  'arm-linux-gnueabihf'),
-        '-DMESA_EGL_NO_X11_HEADERS',
-      ]
-
-      extra_ldflags = [
-        '--target=armv7a-linux-gnueabihf',
-        '--sysroot=%s' % sysroot_dir,
-        # use sysroot's ld which can properly link things.
-        '-B%s' % sysroot_dir.join('bin'),
-        # helps locate crt*.o
-        '-B%s' % sysroot_dir.join('gcc-cross'),
-        # helps locate libgcc*.so
-        '-L%s' % sysroot_dir.join('gcc-cross'),
-        '-L%s' % sysroot_dir.join('lib'),
-        '-L%s' % gl_dir.join('lib'),
-        # Explicitly do not use lld for cross compiling like this - I observed
-        # failures like "Unrecognized reloc 41" and couldn't find out why.
-      ]
-    else:
-      gl_dir = self.m.vars.slave_dir.join('chromebook_x86_64_gles')
-      env = {}
-      extra_asmflags = []
-      extra_cflags = [
-        '-DMESA_EGL_NO_X11_HEADERS',
-        '-I%s' % gl_dir.join('include'),
-      ]
-      extra_ldflags = [
-        '-L%s' % gl_dir.join('lib'),
-        '-static-libstdc++', '-static-libgcc',
-        '-fuse-ld=lld',
-      ]
-
-    quote = lambda x: '"%s"' % x
-    args = {
-      'cc': quote(clang_linux.join('bin','clang')),
-      'cxx': quote(clang_linux.join('bin','clang++')),
-      'target_cpu': quote(target_arch),
-      'skia_use_fontconfig': 'false',
-      'skia_use_system_freetype2': 'false',
-      'skia_use_egl': 'true',
-    }
-    extra_cflags.append('-DDUMMY_clang_linux_version=%s' %
-                        self.m.run.asset_version('clang_linux'))
-
-    if configuration != 'Debug':
-      args['is_debug'] = 'false'
-    args['extra_asmflags'] = repr(extra_asmflags).replace("'", '"')
-    args['extra_cflags'] = repr(extra_cflags).replace("'", '"')
-    args['extra_ldflags'] = repr(extra_ldflags).replace("'", '"')
-
-    gn_args = ' '.join('%s=%s' % (k,v) for (k,v) in sorted(args.iteritems()))
-
-    gn    = 'gn.exe'    if 'Win' in os else 'gn'
-    ninja = 'ninja.exe' if 'Win' in os else 'ninja'
-    gn = self.m.vars.skia_dir.join('bin', gn)
-
-    with self.m.context(cwd=self.m.vars.skia_dir,
-                        env=env):
-      self._py('fetch-gn', self.m.vars.skia_dir.join('bin', 'fetch-gn'))
-      self._run('gn gen', [gn, 'gen', self.out_dir, '--args=' + gn_args])
-      self._run('ninja', [ninja, '-k', '0'
-                               , '-C', self.out_dir
-                               , 'nanobench', 'dm'])
+    self.create_clean_device_dir(self.device_dirs.bin_dir)
 
   def create_clean_device_dir(self, path):
     # use -f to silently return if path doesn't exist
@@ -214,13 +121,13 @@ class GNChromebookFlavorUtils(gn_flavor.GNFlavorUtils):
     name = cmd[0]
 
     if name == 'dm':
-      self.create_clean_host_dir(self.m.vars.dm_dir)
+      self.create_clean_host_dir(self.host_dirs.dm_dir)
     if name == 'nanobench':
-      self.create_clean_host_dir(self.m.vars.perf_data_dir)
+      self.create_clean_host_dir(self.host_dirs.perf_data_dir)
 
-    app = self.m.vars.skia_out.join(self.m.vars.configuration, cmd[0])
+    app = self.m.vars.skia_out.join(cmd[0])
 
-    cmd[0] = '%s/%s' % (self._bin_dir, cmd[0])
+    cmd[0] = '%s/%s' % (self.device_dirs.bin_dir, cmd[0])
     self.copy_file_to_device(app, cmd[0])
 
     self._ssh('chmod %s' % name, 'chmod', '+x', cmd[0])

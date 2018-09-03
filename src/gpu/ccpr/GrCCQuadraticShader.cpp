@@ -28,11 +28,11 @@ void GrCCQuadraticShader::emitSetupCode(GrGLSLVertexGeoBuilder* s, const char* p
         // Clip the bezier triangle by the tangent line at maximum height. Quadratics have the nice
         // property that maximum height always occurs at T=.5. This is a simple application for
         // De Casteljau's algorithm.
-        s->codeAppendf("float2 quadratic_hull[4] = float2[4](%s[0], "
-                                                            "(%s[0] + %s[1]) * .5, "
-                                                            "(%s[1] + %s[2]) * .5, "
-                                                            "%s[2]);",
-                                                            pts, pts, pts, pts, pts, pts);
+        s->codeAppend ("float2 quadratic_hull[4];");
+        s->codeAppendf("quadratic_hull[0] = %s[0];", pts);
+        s->codeAppendf("quadratic_hull[1] = (%s[0] + %s[1]) * .5;", pts, pts);
+        s->codeAppendf("quadratic_hull[2] = (%s[1] + %s[2]) * .5;", pts, pts);
+        s->codeAppendf("quadratic_hull[3] = %s[2];", pts);
         *outHull4 = "quadratic_hull";
     }
 }

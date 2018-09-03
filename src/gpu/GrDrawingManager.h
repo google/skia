@@ -59,6 +59,8 @@ public:
                                     GrPathRendererChain::DrawType drawType,
                                     GrPathRenderer::StencilSupport* stencilSupport = nullptr);
 
+    GrPathRenderer* getSoftwarePathRenderer();
+
     // Returns a direct pointer to the coverage counting path renderer, or null if it is not
     // supported and turned on.
     GrCoverageCountingPathRenderer* getCoverageCountingPathRenderer();

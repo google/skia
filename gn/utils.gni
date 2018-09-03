@@ -21,7 +21,6 @@ skia_utils_sources = [
   "$_include/utils/SkParsePath.h",
   "$_include/utils/SkRandom.h",
   "$_include/utils/SkShadowUtils.h",
-  "$_include/utils/SkTextBox.h",
 
   "$_src/utils/SkBase64.cpp",
   "$_src/utils/SkBase64.h",
@@ -58,7 +57,6 @@ skia_utils_sources = [
   "$_src/utils/SkShadowTessellator.cpp",
   "$_src/utils/SkShadowTessellator.h",
   "$_src/utils/SkShadowUtils.cpp",
-  "$_src/utils/SkTextBox.cpp",
   "$_src/utils/SkThreadUtils_pthread.cpp",
   "$_src/utils/SkThreadUtils_win.cpp",
   "$_src/utils/SkWhitelistTypefaces.cpp",

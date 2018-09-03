@@ -550,7 +550,9 @@ SkScanClipper::SkScanClipper(SkBlitter* blitter, const SkRegion* clip,
 ///////////////////////////////////////////////////////////////////////////////
 
 static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
-    const int32_t limit = 32767;
+    // need to limit coordinates such that the width/height of our rect can be represented
+    // in SkFixed (16.16). See skbug.com/7998
+    const int32_t limit = 32767 >> 1;
 
     SkIRect limitR;
     limitR.set(-limit, -limit, limit, limit);
@@ -567,7 +569,9 @@ static bool clip_to_limit(const SkRegion& orig, SkRegion* reduced) {
 //
 // This value has been determined trial and error: pick the smallest value (after the 0.5) that
 // fixes any problematic cases (e.g. crbug.com/844457)
-static const double kConservativeRoundBias = 0.5 + 1.0 / SK_FDot6One;
+// NOTE: cubics appear to be the main reason for needing this slop. If we could (perhaps) have a
+// more accurate walker for cubics, we may be able to reduce this fudge factor.
+static const double kConservativeRoundBias = 0.5 + 1.5 / SK_FDot6One;
 
 /**
  *  Round the value down. This is used to round the top and left of a rectangle,
@@ -734,6 +738,37 @@ static void sk_fill_triangle(const SkPoint pts[], const SkIRect* clipRect,
 //    walk_edges(&headEdge, SkPath::kEvenOdd_FillType, blitter, start_y, stop_y, nullptr);
 }
 
+/**
+ *  We need to match the rounding behavior of the line edge, which does this:
+ *  1. scale by 64 (to get into FDot6)
+ *  2. cast to an int
+ *  3. round that to an int (undoing the FDot6)
+ *  This should (in theory) be the same as sk_float_round2int, except for float values very very
+ *  close to 0.5 (like 0.49999997f). For those values, x + 0.5 gives 1.0 instead of 0.9999999,
+ *  and therefore they round2int differently as floats than as FDot6 values in the edge code.
+ *
+ *  A fix is to go into double temporarily, so that 0.49999997f + 0.5 stays < 1.0.
+ *
+ *  This sample triangle triggers the problem (if we just use SkRect::round() instead of
+ *  this double_round version.
+ *
+ *  {  0.499069244f, 9.63295173f },
+ *  {  0.499402374f, 7.88207579f },
+ *  { 10.2363272f,   0.49999997f },
+ *
+ *  Note: this version is basically just more correct than SkRect::round(). If we thought we could
+ *  afford the perf hit (assuming going to doubles cost more), then we might replace round()'s
+ *  impl with this.
+ */
+static SkIRect double_round(const SkRect& r) {
+    return {
+        sk_double_round2int(r.fLeft),
+        sk_double_round2int(r.fTop),
+        sk_double_round2int(r.fRight),
+        sk_double_round2int(r.fBottom),
+    };
+}
+
 void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
                           SkBlitter* blitter) {
     if (clip.isEmpty()) {
@@ -753,7 +788,7 @@ void SkScan::FillTriangle(const SkPoint pts[], const SkRasterClip& clip,
         return;
     }
 
-    SkIRect ir = r.round();
+    SkIRect ir = double_round(r);
     if (ir.isEmpty() || !SkIRect::Intersects(ir, clip.getBounds())) {
         return;
     }

@@ -55,7 +55,7 @@ public:
             , fRect(r)
             , fHelper(helperArgs, GrAAType::kNone) {
         if (fHasLocalRect) {
-            fLocalQuad.set(*localRect);
+            fLocalQuad = GrQuad(*localRect);
         }
         // Choose some conservative values for aa bloat and zero area.
         this->setBounds(r, HasAABloat::kYes, IsZeroArea::kYes);
@@ -139,8 +139,7 @@ private:
 
         // Setup positions
         SkPoint* position = (SkPoint*) vertices;
-        SkPointPriv::SetRectTriStrip(position, fRect.fLeft, fRect.fTop, fRect.fRight, fRect.fBottom,
-                                  vertexStride);
+        SkPointPriv::SetRectTriStrip(position, fRect, vertexStride);
 
         // Setup vertex colors
         GrColor* color = (GrColor*)((intptr_t)vertices + kColorOffset);
@@ -210,7 +209,7 @@ public:
     void setColor(GrColor color) { fColor = color; }
     void setLocalRect(const SkRect& localRect) {
         SkASSERT(fHasLocalRect);    // This should've been created to anticipate this
-        fLocalQuad.set(localRect);
+        fLocalQuad = GrQuad(localRect);
     }
 
     AtlasedRectOp* next() const { return fNext; }
@@ -443,6 +442,7 @@ static sk_sp<GrTextureProxy> make_upstream_image(GrContext* context, AtlasObject
         AtlasedRectOp* sparePtr = op.get();
 
         uint32_t opListID = rtc->priv().testingOnly_addDrawOp(std::move(op));
+        SkASSERT(SK_InvalidUniqueID != opListID);
 
         object->addOp(opListID, sparePtr);
     }

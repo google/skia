@@ -70,7 +70,6 @@ public:
         return true;
     }
 
-    GrBackendObject getRenderTargetHandle() const override;
     GrBackendRenderTarget getBackendRenderTarget() const override;
 
     void getAttachmentsDescriptor(GrVkRenderPass::AttachmentsDescriptor* desc,

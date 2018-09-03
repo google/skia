@@ -42,12 +42,17 @@ private:
         kColumn,
     };
 
+    enum class PrintCheck {
+        kWordsOnly,
+        kAllowNumbers,
+    };
+
     bool check(Definition* );
     bool checkable(MarkType markType);
-    void childCheck(const Definition* def, const char* start);
+    void childCheck(Definition* def, const char* start);
     void leafCheck(const char* start, const char* end);
     bool parseFromFile(const char* path) override { return true; }
-    void printCheck(const string& str);
+    void printCheck(string str, PrintCheck);
 
     void reset() override {
         INHERITED::resetCommon();
@@ -60,7 +65,7 @@ private:
         fInStdOut = false;
     }
 
-    void wordCheck(const string& str);
+    void wordCheck(string str);
     void wordCheck(ptrdiff_t len, const char* ch);
 
     unordered_map<string, CheckEntry> fCode;
@@ -121,7 +126,7 @@ bool SpellCheck::check(const char* match) {
     return true;
 }
 
-static bool all_lower(const string& str) {
+static bool all_lower(string str) {
     for (auto c : str) {
         if (!islower(c)) {
             return false;
@@ -168,7 +173,7 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kDescription:
             fInDescription = true;
             break;
-        case MarkType::kDoxygen:
+        case MarkType::kDetails:
             break;
         case MarkType::kDuration:
             break;
@@ -181,8 +186,6 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kExperimental:
             break;
         case MarkType::kExternal:
-            break;
-        case MarkType::kFile:
             break;
         case MarkType::kFormula:
             fInFormula = true;
@@ -223,6 +226,8 @@ bool SpellCheck::check(Definition* def) {
             } break;
         case MarkType::kNoExample:
             break;
+        case MarkType::kNoJustify:
+            break;
         case MarkType::kOutdent:
             break;
         case MarkType::kParam: {
@@ -231,14 +236,20 @@ bool SpellCheck::check(Definition* def) {
             paramParser.skipWhiteSpace();
             SkASSERT(paramParser.startsWith("#Param"));
             paramParser.next(); // skip hash
-            paramParser.skipToNonAlphaNum(); // skip Param
+            paramParser.skipToNonName(); // skip Param
             paramParser.skipSpace();
             const char* paramName = paramParser.fChar;
             paramParser.skipToSpace();
             fInCode = true;
             this->wordCheck(paramParser.fChar - paramName, paramName);
             fInCode = false;
-       } break;
+        } break;
+        case MarkType::kPhraseDef:
+            break;
+        case MarkType::kPhraseParam:
+            break;
+        case MarkType::kPhraseRef:
+            break;
         case MarkType::kPlatform:
             break;
         case MarkType::kPopulate:
@@ -271,7 +282,10 @@ bool SpellCheck::check(Definition* def) {
         case MarkType::kSubstitute:
             break;
         case MarkType::kSubtopic:
-            this->printCheck(printable);
+            // TODO: add a tag that allows subtopic labels in illustrations to skip spellcheck?
+            if (string::npos == fFileName.find("illustrations.bmh")) {
+                this->printCheck(printable, PrintCheck::kAllowNumbers);
+            }
             break;
         case MarkType::kTable:
             break;
@@ -279,16 +293,11 @@ bool SpellCheck::check(Definition* def) {
             break;
         case MarkType::kText:
             break;
-        case MarkType::kTime:
-            break;
         case MarkType::kToDo:
             break;
         case MarkType::kTopic:
-            this->printCheck(printable);
+            this->printCheck(printable, PrintCheck::kWordsOnly);
             break;
-        case MarkType::kTrack:
-            // don't output children
-            return true;
         case MarkType::kTypedef:
             break;
         case MarkType::kUnion:
@@ -345,14 +354,14 @@ bool SpellCheck::check(Definition* def) {
 }
 
 bool SpellCheck::checkable(MarkType markType) {
-    return BmhParser::Resolvable::kYes == fBmhParser.fMaps[(int) markType].fResolve;
+    return BmhParser::Resolvable::kYes == fBmhParser.kMarkProps[(int) markType].fResolve;
 }
 
-void SpellCheck::childCheck(const Definition* def, const char* start) {
+void SpellCheck::childCheck(Definition* def, const char* start) {
     const char* end;
     fLineCount = def->fLineCount;
     if (def->isRoot()) {
-        fRoot = const_cast<RootDefinition*>(def->asRoot());
+        fRoot = def->asRoot();
     }
     for (auto& child : def->fChildren) {
         end = child->fStart;
@@ -459,9 +468,16 @@ void SpellCheck::leafCheck(const char* start, const char* end) {
     } while (++chPtr <= end);
 }
 
-void SpellCheck::printCheck(const string& str) {
+void SpellCheck::printCheck(string str, PrintCheck allowed) {
     string word;
     for (std::stringstream stream(str); stream >> word; ) {
+        if (PrintCheck::kAllowNumbers == allowed && (std::isdigit(word.back()) || 'x' == word.back())) {
+            // allow ###x for RGB_888x
+            if ((size_t) std::count_if(word.begin(), word.end() - 1,
+                    [](unsigned char c){ return std::isdigit(c); } ) == word.length() - 1) {
+                continue;
+            }
+        }
         wordCheck(word);
     }
 }
@@ -566,7 +582,7 @@ void SpellCheck::report(SkCommandLineFlags::StringArray report) {
     }
 }
 
-void SpellCheck::wordCheck(const string& str) {
+void SpellCheck::wordCheck(string str) {
     if ("nullptr" == str) {
         return;  // doesn't seem worth it, treating nullptr as a word in need of correction
     }

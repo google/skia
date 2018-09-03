@@ -108,8 +108,8 @@ public:
      */
     class RunPaint : public Paint {
     public:
-        RunPaint(const Paint* paint, SkDrawFilter* filter, const SkSurfaceProps& props)
-                : fOriginalPaint(paint), fFilter(filter), fProps(props) {
+        RunPaint(const Paint* paint, SkDrawFilter* filter)
+                : fOriginalPaint(paint), fFilter(filter) {
             // Initially we represent the original paint.
             fPaint = &fOriginalPaint->skPaint();
             fDstColorSpaceInfo = fOriginalPaint->dstColorSpaceInfo();
@@ -122,12 +122,7 @@ public:
         SkTLazy<SkPaint> fModifiedPaint;
         const Paint* fOriginalPaint;
         SkDrawFilter* fFilter;
-        const SkSurfaceProps& fProps;
     };
-
-    static uint32_t FilterTextFlags(const SkSurfaceProps& surfaceProps, const SkPaint& paint);
-
-    static bool ShouldDisableLCD(const SkPaint& paint);
 
     class PathTextIter : SkTextBaseIter {
     public:

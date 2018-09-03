@@ -252,7 +252,7 @@ private:
 };
 
 
-#if !defined(SK_BUILD_FOR_GOOGLE3)
+#if defined(SK_ENABLE_SKOTTIE)
 class SkottieSrc final : public Src {
 public:
     explicit SkottieSrc(Path path);
@@ -433,9 +433,6 @@ class ThreadedSink : public RasterSink {
 public:
     explicit ThreadedSink(SkColorType, sk_sp<SkColorSpace> = nullptr);
     Error draw(const Src&, SkBitmap*, SkWStream*, SkString*) const override;
-
-private:
-    std::unique_ptr<SkExecutor> fExecutor;
 };
 
 class SKPSink : public Sink {

@@ -10,10 +10,10 @@
 #include "GrContext.h"
 #include "GrOpFlushState.h"
 #include "GrResourceProvider.h"
-#include "SkGlyphCache.h"
 #include "SkMathPriv.h"
 #include "SkMatrixPriv.h"
 #include "SkPoint3.h"
+#include "SkStrikeCache.h"
 #include "effects/GrBitmapTextGeoProc.h"
 #include "effects/GrDistanceFieldGeoProc.h"
 #include "text/GrAtlasManager.h"
@@ -220,7 +220,6 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
     // TODO actually only invert if we don't have RGBA
     SkMatrix localMatrix;
     if (this->usesLocalCoords() && !fGeoData[0].fViewMatrix.invert(&localMatrix)) {
-        SkDebugf("Cannot invert viewmatrix\n");
         return;
     }
 
@@ -229,25 +228,26 @@ void GrAtlasTextOp::onPrepareDraws(Target* target) {
 
     GrMaskFormat maskFormat = this->maskFormat();
 
-    unsigned int atlasPageCount;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &atlasPageCount);
-    if (!proxies[0]) {
+    unsigned int numActiveProxies;
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
+    if (!proxies) {
         SkDebugf("Could not allocate backing texture for atlas\n");
         return;
     }
+    SkASSERT(proxies[0]);
 
     FlushInfo flushInfo;
     flushInfo.fPipeline =
             target->makePipeline(fSRGBFlags, std::move(fProcessors), target->detachAppliedClip());
     SkDEBUGCODE(bool dfPerspective = false);
     if (this->usesDistanceFields()) {
-        flushInfo.fGeometryProcessor = this->setupDfProcessor(atlasManager);
+        flushInfo.fGeometryProcessor = this->setupDfProcessor(proxies, numActiveProxies);
         SkDEBUGCODE(dfPerspective = fGeoData[0].fViewMatrix.hasPerspective());
     } else {
         GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
                                                        : GrSamplerState::ClampNearest();
         flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-            this->color(), proxies, atlasPageCount, samplerState, maskFormat,
+            this->color(), proxies, numActiveProxies, samplerState, maskFormat,
             localMatrix, this->usesLocalCoords());
     }
 
@@ -331,23 +331,24 @@ void GrAtlasTextOp::flush(GrMeshDrawOp::Target* target, FlushInfo* flushInfo) co
     GrGeometryProcessor* gp = flushInfo->fGeometryProcessor.get();
     GrMaskFormat maskFormat = this->maskFormat();
 
-    unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numProxies);
-    if (gp->numTextureSamplers() != (int) numProxies) {
+    unsigned int numActiveProxies;
+    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(maskFormat, &numActiveProxies);
+    SkASSERT(proxies);
+    if (gp->numTextureSamplers() != (int) numActiveProxies) {
         // During preparation the number of atlas pages has increased.
         // Update the proxies used in the GP to match.
         if (this->usesDistanceFields()) {
             if (this->isLCD()) {
                 reinterpret_cast<GrDistanceFieldLCDTextGeoProc*>(gp)->addNewProxies(
-                    proxies, numProxies, GrSamplerState::ClampBilerp());
+                    proxies, numActiveProxies, GrSamplerState::ClampBilerp());
             } else {
                 reinterpret_cast<GrDistanceFieldA8TextGeoProc*>(gp)->addNewProxies(
-                    proxies, numProxies, GrSamplerState::ClampBilerp());
+                    proxies, numActiveProxies, GrSamplerState::ClampBilerp());
             }
         } else {
             GrSamplerState samplerState = fHasScaledGlyphs ? GrSamplerState::ClampBilerp()
                                                            : GrSamplerState::ClampNearest();
-            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(proxies, numProxies,
+            reinterpret_cast<GrBitmapTextGeoProc*>(gp)->addNewProxies(proxies, numActiveProxies,
                                                                       samplerState);
         }
     }
@@ -442,10 +443,8 @@ bool GrAtlasTextOp::onCombineIfPossible(GrOp* t, const GrCaps& caps) {
 
 // TODO trying to figure out why lcd is so whack
 // (see comments in GrAtlasTextContext::ComputeCanonicalColor)
-sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrAtlasManager* atlasManager) const {
-    unsigned int numProxies;
-    const sk_sp<GrTextureProxy>* proxies = atlasManager->getProxies(this->maskFormat(),
-                                                                    &numProxies);
+sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(const sk_sp<GrTextureProxy>* proxies,
+                                                           unsigned int numActiveProxies) const {
     bool isLCD = this->isLCD();
 
     SkMatrix localMatrix = SkMatrix::I();
@@ -469,7 +468,7 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrAtlasManager* atlas
         GrDistanceFieldLCDTextGeoProc::DistanceAdjust widthAdjust =
                 GrDistanceFieldLCDTextGeoProc::DistanceAdjust::Make(
                         redCorrection, greenCorrection, blueCorrection);
-        return GrDistanceFieldLCDTextGeoProc::Make(proxies, numProxies,
+        return GrDistanceFieldLCDTextGeoProc::Make(proxies, numActiveProxies,
                                                    GrSamplerState::ClampBilerp(), widthAdjust,
                                                    fDFGPFlags, localMatrix);
     } else {
@@ -481,11 +480,11 @@ sk_sp<GrGeometryProcessor> GrAtlasTextOp::setupDfProcessor(GrAtlasManager* atlas
             correction = fDistanceAdjustTable->getAdjustment(lum >> kDistanceAdjustLumShift,
                                                              fUseGammaCorrectDistanceTable);
         }
-        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   correction, fDFGPFlags, localMatrix);
 #else
-        return GrDistanceFieldA8TextGeoProc::Make(proxies, numProxies,
+        return GrDistanceFieldA8TextGeoProc::Make(proxies, numActiveProxies,
                                                   GrSamplerState::ClampBilerp(),
                                                   fDFGPFlags, localMatrix);
 #endif

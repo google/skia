@@ -71,7 +71,7 @@ SkExclusiveStrikePtr GrAtlasTextBlob::setupCache(int runIndex,
     run->fTypeface = SkPaintPriv::RefTypefaceOrDefault(skPaint);
     run->fPathEffect = sk_ref_sp(effects.fPathEffect);
     run->fMaskFilter = sk_ref_sp(effects.fMaskFilter);
-    return SkGlyphCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
+    return SkStrikeCache::FindOrCreateStrikeExclusive(*desc->getDesc(), effects, *run->fTypeface);
 }
 
 void GrAtlasTextBlob::appendGlyph(int runIndex,
@@ -257,11 +257,10 @@ inline std::unique_ptr<GrAtlasTextOp> GrAtlasTextBlob::makeOp(
     target->makeGrPaint(info.maskFormat(), paint, viewMatrix, &grPaint);
     std::unique_ptr<GrAtlasTextOp> op;
     if (info.drawAsDistanceFields()) {
-        bool useBGR = SkPixelGeometryIsBGR(props.pixelGeometry());
         op = GrAtlasTextOp::MakeDistanceField(
                 std::move(grPaint), glyphCount, distanceAdjustTable,
                 target->colorSpaceInfo().isGammaCorrect(), paint.luminanceColor(),
-                info.hasUseLCDText(), useBGR, info.isAntiAliased());
+                props, info.isAntiAliased(), info.hasUseLCDText());
     } else {
         op = GrAtlasTextOp::MakeBitmap(std::move(grPaint), format, glyphCount,
                                        info.hasScaledGlyphs());
@@ -309,7 +308,7 @@ void GrAtlasTextBlob::flush(GrTextUtils::Target* target, const SkSurfaceProps& p
     // GrAtlasTextBlob::makeOp only takes uint16_t values for run and subRun indices.
     // Encountering something larger than this is highly unlikely, so we'll just not draw it.
     int lastRun = SkTMin(fRunCount, (1 << 16)) - 1;
-    GrTextUtils::RunPaint runPaint(&paint, nullptr, props);
+    GrTextUtils::RunPaint runPaint(&paint, nullptr);
     for (int runIndex = 0; runIndex <= lastRun; runIndex++) {
         Run& run = fRuns[runIndex];
 

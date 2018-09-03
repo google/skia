@@ -223,6 +223,15 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
     SkPoint* devVerts = outerAlloc.makeArray<SkPoint>(count);
     fMatrix->mapPoints(devVerts, vertices, count);
 
+    {
+        SkRect bounds;
+        // this also sets bounds to empty if we see a non-finite value
+        bounds.set(devVerts, count);
+        if (bounds.isEmpty()) {
+            return;
+        }
+    }
+
     VertState       state(count, indices, indexCount);
     VertState::Proc vertProc = state.chooseProc(vmode);
 
@@ -294,7 +303,7 @@ void SkDraw::drawVertices(SkVertices::VertexMode vmode, int count,
         // no colors[] and no texture, stroke hairlines with paint's color.
         SkPaint p;
         p.setStyle(SkPaint::kStroke_Style);
-        SkAutoBlitterChoose blitter(fDst, *fMatrix, p);
+        SkAutoBlitterChoose blitter(*this, nullptr, p);
         // Abort early if we failed to create a shader context.
         if (blitter->isNullBlitter()) {
             return;

@@ -2,15 +2,13 @@
 #Alias Points
 #Alias Point_Reference
 
-#Subtopic Overview
-    #Subtopic Subtopic
-    #Populate
-    ##
-##
-
 #Struct SkPoint
 
-SkPoint holds two 32 bit floating point coordinates.
+SkPoint holds two 32-bit floating point coordinates.
+
+#Subtopic Overview
+#Populate
+##
 
 #Subtopic Related_Function
 #Populate
@@ -174,9 +172,9 @@ pt1 == pt2
 #Line # sets to integer input ##
 Sets fX to x and fY to y, promoting integers to SkScalar values.
 
-Assigning a large integer value directly to fX or fY may cause a compiler 
+Assigning a large integer value directly to fX or fY may cause a compiler
 error, triggered by narrowing conversion of int to SkScalar. This safely
-casts x and y to avoid the error. 
+casts x and y to avoid the error.
 
 #Param x  new value for fX ##
 #Param y  new value for fY ##
@@ -199,7 +197,7 @@ Sets fX to p.fX and fY to p.fY, promoting integers to SkScalar values.
 
 Assigning an IPoint containing a large integer value directly to fX or fY may
 cause a compiler error, triggered by narrowing conversion of int to SkScalar.
-This safely casts p.fX and p.fY to avoid the error. 
+This safely casts p.fX and p.fY to avoid the error.
 
 #Param p  IPoint members promoted to SkScalar ##
 
@@ -245,7 +243,7 @@ pt: nan, -nan  abs: nan, nan
 ##
 ##
 
-#SeeAlso set Make negate 
+#SeeAlso set Make negate
 
 #Method ##
 
@@ -1258,12 +1256,21 @@ Returns the dot product of Vector and Vector vec.
 
 #Struct SkPoint ##
 
-#Topic Point ##
 
 # ------------------------------------------------------------------------------
 
-#Topic Vector
+#Subtopic Vector
+#Line # alias for Point ##
+    #Alias Vector
     #Alias Vectors
     #Typedef SkPoint SkVector
+    #Line # alias for Point ##
+    #Code
+    typedef SkPoint SkVector;
+    ##
+    SkVector provides an alternative name for SkPoint. SkVector and SkPoint can
+    be used interchangably for all purposes.
     #Typedef ##
 ##
+
+#Topic Point ##

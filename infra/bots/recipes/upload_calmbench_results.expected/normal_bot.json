@@ -22,14 +22,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]",
+      "[START_DIR]/perf",
       "*.json"
     ],
     "infra_step": true,
     "name": "find json results",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.json@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.json@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -41,14 +41,14 @@
       "--json-output",
       "/path/to/tmp/json",
       "glob",
-      "[START_DIR]",
+      "[START_DIR]/perf",
       "*.csv"
     ],
     "infra_step": true,
     "name": "find csv results",
     "stdout": "/path/to/tmp/",
     "~followup_annotations": [
-      "@@@STEP_LOG_LINE@glob@[START_DIR]/bench_modified_master.csv@@@",
+      "@@@STEP_LOG_LINE@glob@[START_DIR]/perf/bench_modified_master.csv@@@",
       "@@@STEP_LOG_END@glob@@@"
     ]
   },
@@ -58,7 +58,7 @@
       "cp",
       "-z",
       "json",
-      "[START_DIR]/bench_modified_master.json",
+      "[START_DIR]/perf/bench_modified_master.json",
       "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_abc123_1337000001.json"
     ],
     "infra_step": true,
@@ -70,7 +70,7 @@
       "cp",
       "-z",
       "csv",
-      "[START_DIR]/bench_modified_master.csv",
+      "[START_DIR]/perf/bench_modified_master.csv",
       "gs://skia-calmbench/calmbench-v1/2012/05/14/12/Calmbench-Debian9-Clang-GCE-CPU-AVX2-x86_64-Release-All/bench_modified_master_abc123_1337000001.csv"
     ],
     "infra_step": true,

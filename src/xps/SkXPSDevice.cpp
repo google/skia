@@ -44,6 +44,7 @@
 #include "SkShader.h"
 #include "SkSize.h"
 #include "SkStream.h"
+#include "SkStrikeCache.h"
 #include "SkTDArray.h"
 #include "SkTLazy.h"
 #include "SkTScopedComPtr.h"
@@ -1885,7 +1886,7 @@ HRESULT SkXPSDevice::CreateTypefaceUse(const SkPaint& paint,
     newTypefaceUse.fontData = fontData;
     newTypefaceUse.xpsFont = xpsFontResource.release();
     auto glyphCache =
-        SkGlyphCache::FindOrCreateStrikeExclusive(
+        SkStrikeCache::FindOrCreateStrikeExclusive(
             paint, &this->surfaceProps(),
             SkScalerContextFlags::kNone, nullptr);
     unsigned int glyphCount = glyphCache->getGlyphCount();
@@ -2072,7 +2073,7 @@ void SkXPSDevice::drawText(const void* text, size_t byteLen,
     HRV(CreateTypefaceUse(paint, &typeface));
 
     auto cache =
-        SkGlyphCache::FindOrCreateStrikeExclusive(
+        SkStrikeCache::FindOrCreateStrikeExclusive(
             paint, &this->surfaceProps(),
             SkScalerContextFlags::kNone, nullptr);
 
@@ -2130,7 +2131,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
     HRV(CreateTypefaceUse(paint, &typeface));
 
     auto cache =
-        SkGlyphCache::FindOrCreateStrikeExclusive(
+        SkStrikeCache::FindOrCreateStrikeExclusive(
             paint, &this->surfaceProps(),
             SkScalerContextFlags::kNone, nullptr);
 
@@ -2145,8 +2146,7 @@ void SkXPSDevice::drawPosText(const void* text, size_t byteLen,
 
     SkFindAndPlaceGlyph::ProcessPosText(
         paint.getTextEncoding(), static_cast<const char*>(text), byteLen,
-        offset, SkMatrix::I(), pos, scalarsPerPos, paint.getTextAlign(),
-        cache.get(), processOneGlyph);
+        offset, SkMatrix::I(), pos, scalarsPerPos, cache.get(), processOneGlyph);
 
     if (xpsGlyphs.count() == 0) {
         return;

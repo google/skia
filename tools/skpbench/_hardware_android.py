@@ -29,9 +29,9 @@ class HardwareAndroid(Hardware):
 
       # disable GPS.
       '''
-      for MODE in gps wifi network; do
-        settings put secure location_providers_allowed -$MODE
-      done''']))
+      settings put secure location_providers_allowed -gps
+      settings put secure location_providers_allowed -wifi
+      settings put secure location_providers_allowed -network''']))
 
     if self._adb.is_root():
       self._adb.shell('\n'.join([

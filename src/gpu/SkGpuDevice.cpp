@@ -6,6 +6,7 @@
  */
 
 #include "SkGpuDevice.h"
+#include "../private/SkShadowFlags.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrBlurUtils.h"
 #include "GrColorSpaceXform.h"
@@ -28,6 +29,7 @@
 #include "SkImageInfoPriv.h"
 #include "SkImage_Base.h"
 #include "SkLatticeIter.h"
+#include "SkMakeUnique.h"
 #include "SkMaskFilterBase.h"
 #include "SkPathEffect.h"
 #include "SkPicture.h"
@@ -48,7 +50,6 @@
 #include "effects/GrBicubicEffect.h"
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrTextureDomain.h"
-#include "../private/SkShadowFlags.h"
 #include "text/GrTextUtils.h"
 
 #define ASSERT_SINGLE_OWNER \
@@ -156,7 +157,7 @@ sk_sp<GrRenderTargetContext> SkGpuDevice::MakeRenderTargetContext(
         return nullptr;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->caps());
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(origInfo, *context->contextPriv().caps());
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
     }
@@ -509,14 +510,6 @@ void SkGpuDevice::drawRegion(const SkRegion& region, const SkPaint& paint) {
 void SkGpuDevice::drawOval(const SkRect& oval, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawOval", fContext.get());
-    // Presumably the path effect warps this to something other than an oval
-    if (paint.getPathEffect()) {
-        SkPath path;
-        path.setIsVolatile(true);
-        path.addOval(oval);
-        this->drawPath(path, paint, nullptr, true);
-        return;
-    }
 
     if (paint.getMaskFilter()) {
         // The RRect path can handle special case blurring
@@ -776,7 +769,7 @@ bool SkGpuDevice::shouldTileImage(const SkImage* image, const SkRect* srcRectPtr
     }
     samplerState.setFilterMode(textureFilterMode);
 
-    int maxTileSize = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+    int maxTileSize = this->caps()->maxTileSize() - 2 * tileFilterPad;
 
     // these are output, which we safely ignore, as we just want to know the predicate
     int outTileSize;
@@ -796,7 +789,7 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
     SkMatrix viewMatrix;
     viewMatrix.setConcat(this->ctm(), m);
 
-    int maxTileSize = fContext->caps()->maxTileSize();
+    int maxTileSize = this->caps()->maxTileSize();
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
@@ -828,7 +821,7 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
         }
         samplerState.setFilterMode(textureFilterMode);
 
-        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
         if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), viewMatrix,
                                     SkMatrix::I(), samplerState, &srcRect, maxTileSizeForFilter,
                                     &tileSize, &clippedSrcRect)) {
@@ -839,8 +832,8 @@ void SkGpuDevice::drawBitmap(const SkBitmap& bitmap,
         }
     }
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawTextureProducer(&maker, nullptr, nullptr, SkCanvas::kStrict_SrcRectConstraint,
-                              viewMatrix, paint);
+    this->drawTextureMaker(&maker, bitmap.width(), bitmap.height(), nullptr, nullptr,
+                           SkCanvas::kStrict_SrcRectConstraint, viewMatrix, paint);
 }
 
 // This method outsets 'iRect' by 'outset' all around and then clamps its extents to
@@ -975,22 +968,23 @@ void SkGpuDevice::drawBitmapTile(const SkBitmap& bitmap,
                                  bool bicubic,
                                  bool needsTextureDomain) {
     // We should have already handled bitmaps larger than the max texture size.
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTextureSize() &&
-             bitmap.height() <= fContext->caps()->maxTextureSize());
+    SkASSERT(bitmap.width() <= this->caps()->maxTextureSize() &&
+             bitmap.height() <= this->caps()->maxTextureSize());
     // We should be respecting the max tile size by the time we get here.
-    SkASSERT(bitmap.width() <= fContext->caps()->maxTileSize() &&
-             bitmap.height() <= fContext->caps()->maxTileSize());
+    SkASSERT(bitmap.width() <= this->caps()->maxTileSize() &&
+             bitmap.height() <= this->caps()->maxTileSize());
     SkASSERT(!samplerState.isRepeated());
 
+    SkScalar scales[2] = {1.f, 1.f};
     sk_sp<GrTextureProxy> proxy =
-            GrRefCachedBitmapTextureProxy(fContext.get(), bitmap, samplerState, nullptr);
+            GrRefCachedBitmapTextureProxy(fContext.get(), bitmap, samplerState, scales);
     if (!proxy) {
         return;
     }
 
     // Compute a matrix that maps the rect we will draw to the src rect.
-    const SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect,
-                                                        SkMatrix::kFill_ScaleToFit);
+    SkMatrix texMatrix = SkMatrix::MakeRectToRect(dstRect, srcRect, SkMatrix::kFill_ScaleToFit);
+    texMatrix.postScale(scales[0], scales[1]);
 
     // Construct a GrPaint by setting the bitmap texture as the first effect and then configuring
     // the rest from the SkPaint.
@@ -1060,7 +1054,7 @@ void SkGpuDevice::drawSprite(const SkBitmap& bitmap,
 
 
 void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const SkPaint& paint,
-                              SkImage* clipImage,const SkMatrix& clipMatrix) {
+                              SkImage* clipImage, const SkMatrix& clipMatrix) {
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawSpecial", fContext.get());
 
@@ -1070,9 +1064,7 @@ void SkGpuDevice::drawSpecial(SkSpecialImage* special1, int left, int top, const
 
     sk_sp<SkSpecialImage> result;
     if (paint.getImageFilter()) {
-        result = this->filterTexture(special1, left, top,
-                                      &offset,
-                                      paint.getImageFilter());
+        result = this->filterTexture(special1, left, top, &offset, paint.getImageFilter());
         if (!result) {
             return;
         }
@@ -1156,7 +1148,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
     }
 
-    int maxTileSize = fContext->caps()->maxTileSize();
+    int maxTileSize = this->caps()->maxTileSize();
 
     // The tile code path doesn't currently support AA, so if the paint asked for aa and we could
     // draw untiled, then we bypass checking for tiling purely for optimization reasons.
@@ -1187,7 +1179,7 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
         sampleState.setFilterMode(textureFilterMode);
 
-        int maxTileSizeForFilter = fContext->caps()->maxTileSize() - 2 * tileFilterPad;
+        int maxTileSizeForFilter = this->caps()->maxTileSize() - 2 * tileFilterPad;
         if (this->shouldTileImageID(bitmap.getGenerationID(), bitmap.getSubset(), this->ctm(),
                                     srcToDstMatrix, sampleState, src, maxTileSizeForFilter,
                                     &tileSize, &clippedSrcRect)) {
@@ -1197,7 +1189,8 @@ void SkGpuDevice::drawBitmapRect(const SkBitmap& bitmap,
         }
     }
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawTextureProducer(&maker, src, dst, constraint, this->ctm(), paint);
+    this->drawTextureMaker(&maker, bitmap.width(), bitmap.height(), src, dst, constraint,
+                           this->ctm(), paint);
 }
 
 sk_sp<SkSpecialImage> SkGpuDevice::makeSpecial(const SkBitmap& bitmap) {
@@ -1358,66 +1351,34 @@ void SkGpuDevice::drawImageRect(const SkImage* image, const SkRect* src, const S
     }
 }
 
-void SkGpuDevice::drawProducerNine(GrTextureProducer* producer,
-                                   const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerNine", fContext.get());
-
-    bool useFallback = paint.getMaskFilter() || paint.isAntiAlias() ||
-                       GrFSAAType::kUnifiedMSAA == fRenderTargetContext->fsaaType();
-    bool doBicubic;
-    GrSamplerState::Filter textureFilterMode = GrSkFilterQualityToGrFilterMode(
-            paint.getFilterQuality(), this->ctm(), SkMatrix::I(),
-            fContext->contextPriv().sharpenMipmappedTextures(), &doBicubic);
-    if (useFallback || doBicubic || GrSamplerState::Filter::kNearest != textureFilterMode) {
-        SkLatticeIter iter(producer->width(), producer->height(), center, dst);
-
-        SkRect srcR, dstR;
-        while (iter.next(&srcR, &dstR)) {
-            this->drawTextureProducer(producer, &srcR, &dstR, SkCanvas::kStrict_SrcRectConstraint,
-                                      this->ctm(), paint);
-        }
-        return;
+// When drawing nine-patches or n-patches, cap the filter quality at kBilerp.
+static GrSamplerState::Filter compute_lattice_filter_mode(const SkPaint& paint) {
+    if (paint.getFilterQuality() == kNone_SkFilterQuality) {
+        return GrSamplerState::Filter::kNearest;
     }
 
-    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
-    auto fp = producer->createFragmentProcessor(
-            SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
-            GrTextureProducer::kNo_FilterConstraint, true, &kMode,
-            fRenderTargetContext->colorSpaceInfo().colorSpace());
-    if (!fp) {
-        return;
-    }
-    GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                                     this->ctm(), std::move(fp), producer->isAlphaOnly(),
-                                     &grPaint)) {
-        return;
-    }
-
-    std::unique_ptr<SkLatticeIter> iter(
-            new SkLatticeIter(producer->width(), producer->height(), center, dst));
-    fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
-                                           producer->width(), producer->height(), std::move(iter),
-                                           dst);
+    return GrSamplerState::Filter::kBilerp;
 }
 
 void SkGpuDevice::drawImageNine(const SkImage* image,
                                 const SkIRect& center, const SkRect& dst, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
+    auto iter = skstd::make_unique<SkLatticeIter>(image->width(), image->height(), center, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
-        this->drawProducerNine(&adjuster, center, dst, paint);
+        this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
             GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
-            this->drawProducerNine(&maker, center, dst, paint);
+            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm,
                                              fRenderTargetContext->colorSpaceInfo().colorSpace())) {
-            this->drawBitmapNine(bm, center, dst, paint);
+            GrBitmapTextureMaker maker(fContext.get(), bm);
+            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }
 }
@@ -1425,35 +1386,39 @@ void SkGpuDevice::drawImageNine(const SkImage* image,
 void SkGpuDevice::drawBitmapNine(const SkBitmap& bitmap, const SkIRect& center,
                                  const SkRect& dst, const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+    auto iter = skstd::make_unique<SkLatticeIter>(bitmap.width(), bitmap.height(), center, dst);
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawProducerNine(&maker, center, dst, paint);
+    this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
 void SkGpuDevice::drawProducerLattice(GrTextureProducer* producer,
-                                      const SkCanvas::Lattice& lattice, const SkRect& dst,
-                                      const SkPaint& paint) {
+                                      std::unique_ptr<SkLatticeIter> iter, const SkRect& dst,
+                                      const SkPaint& origPaint) {
     GR_CREATE_TRACE_MARKER_CONTEXT("SkGpuDevice", "drawProducerLattice", fContext.get());
+    SkTCopyOnFirstWrite<SkPaint> paint(&origPaint);
 
-    static const GrSamplerState::Filter kMode = GrSamplerState::Filter::kNearest;
-    std::unique_ptr<GrFragmentProcessor> fp(producer->createFragmentProcessor(
-            SkMatrix::I(), SkRect::MakeIWH(producer->width(), producer->height()),
-            GrTextureProducer::kNo_FilterConstraint, true, &kMode,
-            fRenderTargetContext->colorSpaceInfo().colorSpace()));
-    if (!fp) {
-        return;
+    if (!producer->isAlphaOnly() && (paint->getColor() & 0x00FFFFFF) != 0x00FFFFFF) {
+        paint.writable()->setColor(SkColorSetARGB(origPaint.getAlpha(), 0xFF, 0xFF, 0xFF));
     }
     GrPaint grPaint;
-    if (!SkPaintToGrPaintWithTexture(this->context(), fRenderTargetContext->colorSpaceInfo(), paint,
-                                     this->ctm(), std::move(fp), producer->isAlphaOnly(),
-                                     &grPaint)) {
+    if (!SkPaintToGrPaintWithPrimitiveColor(this->context(), fRenderTargetContext->colorSpaceInfo(),
+                                            *paint, &grPaint)) {
         return;
     }
 
-    std::unique_ptr<SkLatticeIter> iter(
-            new SkLatticeIter(lattice, dst));
+    auto dstColorSpace = fRenderTargetContext->colorSpaceInfo().colorSpace();
+    const GrSamplerState::Filter filter = compute_lattice_filter_mode(*paint);
+    sk_sp<SkColorSpace> proxyColorSpace;
+    auto proxy =
+            producer->refTextureProxyForParams(filter, dstColorSpace, &proxyColorSpace, nullptr);
+    if (!proxy) {
+        return;
+    }
+    auto csxf = GrColorSpaceXform::Make(proxyColorSpace.get(), proxy->config(), dstColorSpace);
+
     fRenderTargetContext->drawImageLattice(this->clip(), std::move(grPaint), this->ctm(),
-                                           producer->width(), producer->height(), std::move(iter),
-                                           dst);
+                                           std::move(proxy), std::move(csxf), filter,
+                                           std::move(iter), dst);
 }
 
 void SkGpuDevice::drawImageLattice(const SkImage* image,
@@ -1461,19 +1426,21 @@ void SkGpuDevice::drawImageLattice(const SkImage* image,
                                    const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
     uint32_t pinnedUniqueID;
+    auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
     if (sk_sp<GrTextureProxy> proxy = as_IB(image)->refPinnedTextureProxy(&pinnedUniqueID)) {
         GrTextureAdjuster adjuster(this->context(), std::move(proxy),
                                    image->alphaType(), pinnedUniqueID,
                                    as_IB(image)->onImageInfo().colorSpace());
-        this->drawProducerLattice(&adjuster, lattice, dst, paint);
+        this->drawProducerLattice(&adjuster, std::move(iter), dst, paint);
     } else {
         SkBitmap bm;
         if (image->isLazyGenerated()) {
             GrImageTextureMaker maker(fContext.get(), image, SkImage::kAllow_CachingHint);
-            this->drawProducerLattice(&maker, lattice, dst, paint);
+            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         } else if (as_IB(image)->getROPixels(&bm,
                                              fRenderTargetContext->colorSpaceInfo().colorSpace())) {
-            this->drawBitmapLattice(bm, lattice, dst, paint);
+            GrBitmapTextureMaker maker(fContext.get(), bm);
+            this->drawProducerLattice(&maker, std::move(iter), dst, paint);
         }
     }
 }
@@ -1482,8 +1449,9 @@ void SkGpuDevice::drawBitmapLattice(const SkBitmap& bitmap,
                                     const SkCanvas::Lattice& lattice, const SkRect& dst,
                                     const SkPaint& paint) {
     ASSERT_SINGLE_OWNER
+    auto iter = skstd::make_unique<SkLatticeIter>(lattice, dst);
     GrBitmapTextureMaker maker(fContext.get(), bitmap);
-    this->drawProducerLattice(&maker, lattice, dst, paint);
+    this->drawProducerLattice(&maker, std::move(iter), dst, paint);
 }
 
 static bool init_vertices_paint(GrContext* context, const GrColorSpaceInfo& colorSpaceInfo,
@@ -1535,8 +1503,10 @@ void SkGpuDevice::wireframeVertices(SkVertices::VertexMode vmode, int vertexCoun
             triangleCount = n / 3;
             break;
         case SkVertices::kTriangleStrip_VertexMode:
-        case SkVertices::kTriangleFan_VertexMode:
             triangleCount = n - 2;
+            break;
+        case SkVertices::kTriangleFan_VertexMode:
+            SK_ABORT("Unexpected triangle fan.");
             break;
     }
 
@@ -1672,12 +1642,6 @@ void SkGpuDevice::drawTextBlob(const SkTextBlob* blob, SkScalar x, SkScalar y,
 
     fRenderTargetContext->drawTextBlob(this->clip(), paint, this->ctm(), blob, x, y, drawFilter,
                                        this->devClipBounds());
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-bool SkGpuDevice::onShouldDisableLCD(const SkPaint& paint) const {
-    return GrTextUtils::ShouldDisableLCD(paint);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

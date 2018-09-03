@@ -88,10 +88,6 @@ static transform_scanline_proc choose_proc(const SkImageInfo& info,
         case kGray_8_SkColorType:
             return transform_scanline_gray;
         case kRGBA_F16_SkColorType:
-            if (!info.colorSpace() || !info.colorSpace()->gammaIsLinear()) {
-                return nullptr;
-            }
-
             switch (info.alphaType()) {
                 case kOpaque_SkAlphaType:
                 case kUnpremul_SkAlphaType:

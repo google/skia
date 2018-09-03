@@ -106,6 +106,12 @@ public:
                                   SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
 
     /**
+     * Determines whether an arc produced by CreateDrawArcPath will be convex. Assumes a non-empty
+     * oval.
+     */
+    static bool DrawArcIsConvex(SkScalar sweepAngle, bool useCenter, bool isFillNoPathEffect);
+
+    /**
      * Returns a C++11-iterable object that traverses a path's verbs in order. e.g:
      *
      *   for (SkPath::Verb verb : SkPathPriv::Verbs(path)) {
@@ -215,6 +221,44 @@ public:
     // For crbug.com/821353 and skbug.com/6886
     static bool IsBadForDAA(const SkPath& path) { return path.fIsBadForDAA; }
     static void SetIsBadForDAA(SkPath& path, bool isBadForDAA) { path.fIsBadForDAA = isBadForDAA; }
+
+    /**
+     *  Sometimes in the drawing pipeline, we have to perform math on path coordinates, even after
+     *  the path is in device-coordinates. Tessellation and clipping are two examples. Usually this
+     *  is pretty modest, but it can involve subtracting/adding coordinates, or multiplying by
+     *  small constants (e.g. 2,3,4). To try to preflight issues where these optionations could turn
+     *  finite path values into infinities (or NaNs), we allow the upper drawing code to reject
+     *  the path if its bounds (in device coordinates) is too close to max float.
+     */
+    static bool TooBigForMath(const SkRect& bounds) {
+        // This value is just a guess. smaller is safer, but we don't want to reject largish paths
+        // that we don't have to.
+        constexpr SkScalar scale_down_to_allow_for_small_multiplies = 0.25f;
+        constexpr SkScalar max = SK_ScalarMax * scale_down_to_allow_for_small_multiplies;
+
+        // use ! expression so we return true if bounds contains NaN
+        return !(bounds.fLeft >= -max && bounds.fTop >= -max &&
+                 bounds.fRight <= max && bounds.fBottom <= max);
+    }
+    static bool TooBigForMath(const SkPath& path) {
+        return TooBigForMath(path.getBounds());
+    }
+
+    // Returns number of valid points for each SkPath::Iter verb
+    static int PtsInIter(unsigned verb) {
+        static const uint8_t gPtsInVerb[] = {
+            1,  // kMove    pts[0]
+            2,  // kLine    pts[0..1]
+            3,  // kQuad    pts[0..2]
+            3,  // kConic   pts[0..2]
+            4,  // kCubic   pts[0..3]
+            0,  // kClose
+            0   // kDone
+        };
+
+        SkASSERT(verb < SK_ARRAY_COUNT(gPtsInVerb));
+        return gPtsInVerb[verb];
+    }
 };
 
 #endif

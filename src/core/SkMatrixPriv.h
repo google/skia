@@ -146,34 +146,6 @@ public:
     static void MapHomogeneousPointsWithStride(const SkMatrix& mx, SkPoint3 dst[], size_t dstStride,
                                                const SkPoint3 src[], size_t srcStride, int count);
 
-    static void SetMappedRectTriStrip(const SkMatrix& mx, const SkRect& rect, SkPoint quad[4]) {
-        SkMatrix::TypeMask tm = mx.getType();
-        SkScalar l = rect.fLeft;
-        SkScalar t = rect.fTop;
-        SkScalar r = rect.fRight;
-        SkScalar b = rect.fBottom;
-        if (tm <= (SkMatrix::kScale_Mask | SkMatrix::kTranslate_Mask)) {
-            const SkScalar tx = mx.getTranslateX();
-            const SkScalar ty = mx.getTranslateY();
-            if (tm <= SkMatrix::kTranslate_Mask) {
-                l += tx;
-                t += ty;
-                r += tx;
-                b += ty;
-            } else {
-                const SkScalar sx = mx.getScaleX();
-                const SkScalar sy = mx.getScaleY();
-                l = sx * l + tx;
-                t = sy * t + ty;
-                r = sx * r + tx;
-                b = sy * b + ty;
-            }
-           SkPointPriv::SetRectTriStrip(quad, l, t, r, b, sizeof(SkPoint));
-        } else {
-            SkPointPriv::SetRectTriStrip(quad, l, t, r, b, sizeof(SkPoint));
-            mx.mapPoints(quad, quad, 4);
-        }
-    }
 };
 
 #endif

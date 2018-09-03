@@ -80,7 +80,7 @@ void read_and_check_pixels(skiatest::Reporter* reporter, GrSurfaceContext* conte
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SRGBMipMaps, reporter, ctxInfo) {
     GrContext* context = ctxInfo.grContext();
-    if (!context->caps()->srgbSupport()) {
+    if (!context->contextPriv().caps()->srgbSupport()) {
         return;
     }
 

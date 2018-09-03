@@ -96,7 +96,6 @@ public:
                                     GrPixelConfigIsClamped) override {
             return RequiresDstTexture::kNo;
         }
-        void wasRecorded(GrRenderTargetOpList*) override {}
         bool onCombineIfPossible(GrOp* other, const GrCaps& caps) override { return false; }
         void onPrepare(GrOpFlushState*) override {}
 
@@ -233,6 +232,7 @@ DEF_GPUTEST(LazyProxyReleaseTest, reporter, /* options */) {
                     desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                     SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
 
+            REPORTER_ASSERT(reporter, proxy.get());
             REPORTER_ASSERT(reporter, 0 == testCount);
 
             if (doInstantiate) {
@@ -280,6 +280,8 @@ public:
                 },
                 desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, SkBackingFit::kExact,
                 SkBudgeted::kNo);
+
+        SkASSERT(fLazyProxy.get());
 
         this->setBounds(SkRect::MakeIWH(kSize, kSize),
                         HasAABloat::kNo, IsZeroArea::kNo);
@@ -424,6 +426,12 @@ DEF_GPUTEST(LazyProxyUninstantiateTest, reporter, /* options */) {
                 },
                 desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, GrInternalSurfaceFlags::kNone,
                 SkBackingFit::kExact, SkBudgeted::kNo, lazyType);
+
+        REPORTER_ASSERT(reporter, lazyProxy.get());
+
+        // We can't pass the fact that this creates a wrapped texture into createLazyProxy so we
+        // need to manually call setDoesNotSupportMipMaps.
+        lazyProxy->texPriv().setDoesNotSupportMipMaps();
 
         rtc->priv().testingOnly_addDrawOp(skstd::make_unique<LazyUninstantiateTestOp>(lazyProxy));
 

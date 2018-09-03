@@ -10,6 +10,7 @@
 #include "SkCanvas.h"
 #include "SkColorData.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkReadBuffer.h"
 #include "SkSpecialImage.h"
@@ -42,7 +43,8 @@ protected:
                                         SkIPoint* offset) const override;
     sk_sp<SkImageFilter> onMakeColorSpace(SkColorSpaceXformer*) const override;
 
-    SkIRect onFilterBounds(const SkIRect&, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterBounds(const SkIRect&, const SkMatrix& ctm,
+                           MapDirection, const SkIRect* inputRect) const override;
 
 #if SK_SUPPORT_GPU
     sk_sp<SkSpecialImage> filterImageGPU(SkSpecialImage* source,
@@ -179,17 +181,19 @@ sk_sp<SkSpecialImage> SkXfermodeImageFilter_Base::onFilterImage(SkSpecialImage* 
 
 SkIRect SkXfermodeImageFilter_Base::onFilterBounds(const SkIRect& src,
                                                    const SkMatrix& ctm,
-                                                   MapDirection direction) const {
-    if (kReverse_MapDirection == direction) {
-        return SkImageFilter::onFilterBounds(src, ctm, direction);
+                                                   MapDirection dir,
+                                                   const SkIRect* inputRect) const {
+    if (kReverse_MapDirection == dir) {
+        return SkImageFilter::onFilterBounds(src, ctm, dir, inputRect);
     }
 
+    SkASSERT(!inputRect);
     SkASSERT(2 == this->countInputs());
     auto getBackground = [&]() {
-        return this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, direction) : src;
+        return this->getInput(0) ? this->getInput(0)->filterBounds(src, ctm, dir, inputRect) : src;
     };
     auto getForeground = [&]() {
-        return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, direction) : src;
+        return this->getInput(1) ? this->getInput(1)->filterBounds(src, ctm, dir, inputRect) : src;
     };
     switch (fMode) {
         case SkBlendMode::kClear:
@@ -375,6 +379,9 @@ sk_sp<SkFlattenable> SkXfermodeImageFilter_Base::LegacyArithmeticCreateProc(SkRe
         k[i] = buffer.readScalar();
     }
     const bool enforcePMColor = buffer.readBool();
+    if (!buffer.isValid()) {
+        return nullptr;
+    }
     return SkArithmeticImageFilter::Make(k[0], k[1], k[2], k[3], enforcePMColor, common.getInput(0),
                                          common.getInput(1), &common.cropRect());
 }

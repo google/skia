@@ -1020,8 +1020,7 @@ static void check_color_xform(skiatest::Reporter* r, const char* path) {
 
     const int dstWidth = subsetWidth / opts.fSampleSize;
     const int dstHeight = subsetHeight / opts.fSampleSize;
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
-    sk_sp<SkColorSpace> colorSpace = SkColorSpace::MakeICC(data->data(), data->size());
+    auto colorSpace = SkColorSpace::MakeRGB(g2Dot2_TransferFn, SkColorSpace::kAdobeRGB_Gamut);
     SkImageInfo dstInfo = codec->getInfo().makeWH(dstWidth, dstHeight)
                                           .makeColorType(kN32_SkColorType)
                                           .makeColorSpace(colorSpace);
@@ -1144,22 +1143,22 @@ static void test_conversion_possible(skiatest::Reporter* r, const char* path,
     SkBitmap bm;
     bm.allocPixels(infoF16);
     SkCodec::Result result = codec->getPixels(infoF16, bm.getPixels(), bm.rowBytes());
-    REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 
     result = codec->startScanlineDecode(infoF16);
     if (supportsScanlineDecoder) {
-        REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     } else {
         REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
-                        || SkCodec::kInvalidConversion == result);
+                        || SkCodec::kSuccess == result);
     }
 
     result = codec->startIncrementalDecode(infoF16, bm.getPixels(), bm.rowBytes());
     if (supportsIncrementalDecoder) {
-        REPORTER_ASSERT(r, SkCodec::kInvalidConversion == result);
+        REPORTER_ASSERT(r, SkCodec::kSuccess == result);
     } else {
         REPORTER_ASSERT(r, SkCodec::kUnimplemented == result
-                        || SkCodec::kInvalidConversion == result);
+                        || SkCodec::kSuccess == result);
     }
 
     infoF16 = infoF16.makeColorSpace(infoF16.colorSpace()->makeLinearGamma());

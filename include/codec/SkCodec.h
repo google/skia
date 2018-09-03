@@ -34,7 +34,6 @@ namespace DM {
 class CodecSrc;
 class ColorCodecSrc;
 }
-class ColorCodecBench;
 
 /**
  *  Abstraction layer directly on top of an image codec.

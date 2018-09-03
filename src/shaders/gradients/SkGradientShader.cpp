@@ -9,6 +9,7 @@
 #include "Sk4fLinearGradient.h"
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpaceXformer.h"
+#include "SkFlattenablePriv.h"
 #include "SkFloatBits.h"
 #include "SkGradientBitmapCache.h"
 #include "SkGradientShaderPriv.h"
@@ -71,6 +72,16 @@ void SkGradientShaderBase::Descriptor::flatten(SkWriteBuffer& buffer) const {
     }
 }
 
+template <int N, typename T, bool MEM_MOVE>
+static bool validate_array(SkReadBuffer& buffer, size_t count, SkSTArray<N, T, MEM_MOVE>* array) {
+    if (!buffer.validateCanReadN<T>(count)) {
+        return false;
+    }
+
+    array->resize_back(count);
+    return true;
+}
+
 bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     // New gradient format. Includes floating point color, color space, densely packed flags
     uint32_t flags = buffer.readUInt();
@@ -79,28 +90,25 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
     fGradFlags = (flags >> kGradFlagsShift_GSF) & kGradFlagsMask_GSF;
 
     fCount = buffer.getArrayCount();
-    if (fCount > kStorageCount) {
-        size_t allocSize = (sizeof(SkColor4f) + sizeof(SkScalar)) * fCount;
-        fDynamicStorage.reset(allocSize);
-        fColors = (SkColor4f*)fDynamicStorage.get();
-        fPos = (SkScalar*)(fColors + fCount);
-    } else {
-        fColors = fColorStorage;
-        fPos = fPosStorage;
-    }
-    if (!buffer.readColor4fArray(mutableColors(), fCount)) {
+
+    if (!(validate_array(buffer, fCount, &fColorStorage) &&
+          buffer.readColor4fArray(fColorStorage.begin(), fCount))) {
         return false;
     }
+    fColors = fColorStorage.begin();
+
     if (SkToBool(flags & kHasColorSpace_GSF)) {
         sk_sp<SkData> data = buffer.readByteArrayAsData();
-        fColorSpace = SkColorSpace::Deserialize(data->data(), data->size());
+        fColorSpace = data ? SkColorSpace::Deserialize(data->data(), data->size()) : nullptr;
     } else {
         fColorSpace = nullptr;
     }
     if (SkToBool(flags & kHasPosition_GSF)) {
-        if (!buffer.readScalarArray(mutablePos(), fCount)) {
+        if (!(validate_array(buffer, fCount, &fPosStorage) &&
+              buffer.readScalarArray(fPosStorage.begin(), fCount))) {
             return false;
         }
+        fPos = fPosStorage.begin();
     } else {
         fPos = nullptr;
     }
@@ -118,6 +126,7 @@ bool SkGradientShaderBase::DescriptorScope::unflatten(SkReadBuffer& buffer) {
 SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit)
     : INHERITED(desc.fLocalMatrix)
     , fPtsToUnit(ptsToUnit)
+    , fColorSpace(desc.fColorSpace ? desc.fColorSpace : SkColorSpace::MakeSRGBLinear())
     , fColorsAreOpaque(true)
 {
     fPtsToUnit.getType();  // Precache so reads are threadsafe.
@@ -166,16 +175,6 @@ SkGradientShaderBase::SkGradientShaderBase(const Descriptor& desc, const SkMatri
     if (dummyLast) {
         origColors += desc.fCount;
         *origColors = desc.fColors[desc.fCount - 1];
-    }
-
-    if (!desc.fColorSpace) {
-        // This happens if we were constructed from SkColors, so our colors are really sRGB
-        fColorSpace = SkColorSpace::MakeSRGBLinear();
-    } else {
-        // The color space refers to the float colors, so it must be linear gamma
-        // TODO: GPU code no longer requires this (see GrGradientEffect). Remove this restriction?
-        SkASSERT(desc.fColorSpace->gammaIsLinear());
-        fColorSpace = desc.fColorSpace;
     }
 
     if (desc.fPos) {
@@ -1266,11 +1265,12 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
     } else {
         SkGradientShaderBase::GradientBitmapType bitmapType =
             SkGradientShaderBase::GradientBitmapType::kLegacy;
+        auto caps = args.fContext->contextPriv().caps();
         if (args.fDstColorSpace) {
             // Try to use F16 if we can
-            if (args.fContext->caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+            if (caps->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
                 bitmapType = SkGradientShaderBase::GradientBitmapType::kHalfFloat;
-            } else if (args.fContext->caps()->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
+            } else if (caps->isConfigTexturable(kSRGBA_8888_GrPixelConfig)) {
                 bitmapType = SkGradientShaderBase::GradientBitmapType::kSRGB;
             } else {
                 // This can happen, but only if someone explicitly creates an unsupported
@@ -1288,7 +1288,7 @@ GrGradientEffect::GrGradientEffect(ClassID classID, const CreateArgs& args, bool
         desc.fWidth  = bitmap.width();
         desc.fHeight = 32;
         desc.fRowHeight = bitmap.height(); // always 1 here
-        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *args.fContext->caps());
+        desc.fConfig = SkImageInfo2GrPixelConfig(bitmap.info(), *caps);
         fAtlas = atlasManager->refAtlas(desc);
         SkASSERT(fAtlas);
 

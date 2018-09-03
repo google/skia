@@ -144,6 +144,7 @@ bool FiddleParser::textOut(Definition* example, const char* stdOutStart,
                 }
             } else  if (strncmp(bmh.fChar, fiddle.fChar, fiddleLen)) {
                 if (!foundVolatile) {
+                    SkDebugf("%.*s\n", fiddleLen, fiddle.fChar);
                     bmh.reportError("mismatched stdout text\n");
                 }
             }

@@ -51,7 +51,6 @@ class GrTexture;
 */
 class SK_API SkImage : public SkRefCnt {
 public:
-    typedef SkImageInfo Info;
     typedef void* ReleaseContext;
 
     /** Creates SkImage from SkPixmap and copy of pixels. Since pixels are copied, SkPixmap
@@ -83,7 +82,8 @@ public:
         @param rowBytes  size of pixel row or larger
         @return          SkImage sharing pixels, or nullptr
     */
-    static sk_sp<SkImage> MakeRasterData(const Info& info, sk_sp<SkData> pixels, size_t rowBytes);
+    static sk_sp<SkImage> MakeRasterData(const SkImageInfo& info, sk_sp<SkData> pixels,
+                                         size_t rowBytes);
 
     typedef void (*RasterReleaseProc)(const void* pixels, ReleaseContext);
 
@@ -240,14 +240,16 @@ public:
         SkImage is returned using MakeFromEncoded() if context is nullptr or does not support
         moving resources between contexts.
 
-        @param context        GPU context
-        @param data           SkImage to decode
-        @param buildMips      create SkImage as Mip_Map if true
-        @param dstColorSpace  range of colors of matching SkSurface on GPU
-        @return               created SkImage, or nullptr
+        @param context                GPU context
+        @param data                   SkImage to decode
+        @param buildMips              create SkImage as Mip_Map if true
+        @param dstColorSpace          range of colors of matching SkSurface on GPU
+        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
+        @return                       created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromEncoded(GrContext* context, sk_sp<SkData> data,
-                                                      bool buildMips, SkColorSpace* dstColorSpace);
+                                                      bool buildMips, SkColorSpace* dstColorSpace,
+                                                      bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from pixmap. SkImage is uploaded to GPU back-end using context.
 
@@ -267,14 +269,16 @@ public:
         as returned in raster format if possible; nullptr may be returned.
         Recognized GPU formats vary by platform and GPU back-end.
 
-        @param context        GPU context
-        @param pixmap         SkImageInfo, pixel address, and row bytes
-        @param buildMips      create SkImage as Mip_Map if true
-        @param dstColorSpace  range of colors of matching SkSurface on GPU
-        @return               created SkImage, or nullptr
+        @param context                GPU context
+        @param pixmap                 SkImageInfo, pixel address, and row bytes
+        @param buildMips              create SkImage as Mip_Map if true
+        @param dstColorSpace          range of colors of matching SkSurface on GPU
+        @param limitToMaxTextureSize  downscale image to GPU maximum texture size, if necessary
+        @return                       created SkImage, or nullptr
     */
     static sk_sp<SkImage> MakeCrossContextFromPixmap(GrContext* context, const SkPixmap& pixmap,
-                                                     bool buildMips, SkColorSpace* dstColorSpace);
+                                                     bool buildMips, SkColorSpace* dstColorSpace,
+                                                     bool limitToMaxTextureSize = false);
 
     /** Creates SkImage from backendTexture associated with context. backendTexture and
         returned SkImage are managed internally, and are released when no longer needed.
@@ -529,19 +533,6 @@ public:
         @return         true if SkImage can be drawn
     */
     bool isValid(GrContext* context) const;
-
-    /** Retrieves the back-end API handle of texture. If flushPendingGrContextIO is true,
-        complete deferred I/O operations.
-
-        If origin is not nullptr, copies location of content drawn into SkImage.
-
-        @param flushPendingGrContextIO  flag to flush outstanding requests
-        @param origin                   storage for one of: kTopLeft_GrSurfaceOrigin,
-                                        kBottomLeft_GrSurfaceOrigin; or nullptr
-        @return                         back-end API texture handle, or nullptr
-    */
-    GrBackendObject getTextureHandle(bool flushPendingGrContextIO,
-                                     GrSurfaceOrigin* origin = nullptr) const;
 
     /** Retrieves the backend texture. If SkImage has no backend texture, an invalid
         object is returned. Call GrBackendTexture::isValid to determine if the result

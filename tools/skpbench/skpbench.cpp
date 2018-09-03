@@ -5,13 +5,20 @@
  * found in the LICENSE file.
  */
 
+#include <stdlib.h>
+#include <algorithm>
+#include <array>
+#include <chrono>
+#include <cmath>
+#include <vector>
 #include "GpuTimer.h"
+#include "GrCaps.h"
 #include "GrContextFactory.h"
-#include "SkGr.h"
-
+#include "GrContextPriv.h"
 #include "SkCanvas.h"
 #include "SkCommonFlags.h"
 #include "SkCommonFlagsGpu.h"
+#include "SkGr.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPerlinNoiseShader.h"
@@ -20,16 +27,10 @@
 #include "SkStream.h"
 #include "SkSurface.h"
 #include "SkSurfaceProps.h"
-#include "picture_utils.h"
-#include "sk_tool_utils.h"
 #include "flags/SkCommandLineFlags.h"
 #include "flags/SkCommonFlagsConfig.h"
-#include <stdlib.h>
-#include <algorithm>
-#include <array>
-#include <chrono>
-#include <cmath>
-#include <vector>
+#include "picture_utils.h"
+#include "sk_tool_utils.h"
 
 /**
  * This is a minimalist program whose sole purpose is to open an skp file, benchmark it on a single
@@ -290,19 +291,18 @@ int main(int argc, char** argv) {
         exitf(ExitErr::kUnavailable, "failed to create context for config %s",
                                      config->getTag().c_str());
     }
-    if (ctx->caps()->maxRenderTargetSize() < SkTMax(width, height)) {
+    if (ctx->maxRenderTargetSize() < SkTMax(width, height)) {
         exitf(ExitErr::kUnavailable, "render target size %ix%i not supported by platform (max: %i)",
-                                     width, height, ctx->caps()->maxRenderTargetSize());
+              width, height, ctx->maxRenderTargetSize());
     }
-    GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(config->getColorType(),
-                                                          config->getColorSpace(),
-                                                          *ctx->caps());
+    GrPixelConfig grPixConfig = SkImageInfo2GrPixelConfig(
+            config->getColorType(), config->getColorSpace(), *ctx->contextPriv().caps());
     if (kUnknown_GrPixelConfig == grPixConfig) {
         exitf(ExitErr::kUnavailable, "failed to get GrPixelConfig from SkColorType: %d",
                                      config->getColorType());
     }
-    int supportedSampleCount =
-            ctx->caps()->getRenderTargetSampleCount(config->getSamples(), grPixConfig);
+    int supportedSampleCount = ctx->contextPriv().caps()->getRenderTargetSampleCount(
+            config->getSamples(), grPixConfig);
     if (supportedSampleCount != config->getSamples()) {
         exitf(ExitErr::kUnavailable, "sample count %i not supported by platform",
                                      config->getSamples());

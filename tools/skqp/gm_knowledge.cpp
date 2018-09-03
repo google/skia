@@ -297,7 +297,7 @@ static constexpr char kDocHead[] =
     "function f(backend, gm, e1, e2) {\n"
     "  var b = ce(\"div\");\n"
     "  var x = ce(\"h2\");\n"
-    "  var t = backend + \"/\" + gm;\n"
+    "  var t = backend + \"_\" + gm;\n"
     "  ac(x, ct(t));\n"
     "  ac(b, x);\n"
     "  ac(b, ct(\"backend: \" + backend));\n"

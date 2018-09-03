@@ -5,9 +5,13 @@
  * found in the LICENSE file.
  */
 
+#include "SkDiscardableMemory.h"
 #include "SkDiscardableMemoryPool.h"
-
+#include "SkRefCnt.h"
 #include "Test.h"
+
+#include <cstring>
+#include <memory>
 
 namespace {
 constexpr char kTestString[] = "HELLO, WORLD!";

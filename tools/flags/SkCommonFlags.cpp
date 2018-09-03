@@ -91,7 +91,7 @@ DEFINE_bool(forceAnalyticAA, false, "Force analytic anti-aliasing even if the pa
                                     "whether it's concave or convex, we consider a path complicated"
                                     "if its number of points is comparable to its resolution.");
 
-#if defined(SK_SUPPORT_LEGACY_DELTA_AA) || (defined(_MSC_VER) && !defined(__clang__))
+#if (defined(_MSC_VER) && !defined(__clang__))
 constexpr bool kDefaultDeltaAA = false;
 #else
 constexpr bool kDefaultDeltaAA = true;
@@ -163,7 +163,7 @@ DEFINE_bool(noGS, false, "Disables support for geometry shaders.");
 
 DEFINE_string(pr, "default",
               "Set of enabled gpu path renderers. Defined as a list of: "
-              "[[~]all [~]default [~]dashline [~]nvpr [~]msaa [~]aaconvex "
+              "[~]all [~]default [~]dashline [~]nvpr [~]aaconvex "
               "[~]aalinearizing [~]small [~]tess]");
 
 void SetCtxOptionsFromCommonFlags(GrContextOptions* ctxOptions) {

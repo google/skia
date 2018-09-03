@@ -60,7 +60,21 @@ public:
      */
     void notifyDrawingChanged();
 
-    SK_DEFINE_FLATTENABLE_TYPE(SkDrawable)
+    static SkFlattenable::Type GetFlattenableType() {
+        return kSkDrawable_Type;
+    }
+
+    SkFlattenable::Type getFlattenableType() const override {
+        return kSkDrawable_Type;
+    }
+
+    static sk_sp<SkDrawable> Deserialize(const void* data, size_t size,
+                                          const SkDeserialProcs* procs = nullptr) {
+        return sk_sp<SkDrawable>(static_cast<SkDrawable*>(
+                                  SkFlattenable::Deserialize(
+                                  kSkDrawable_Type, data, size, procs).release()));
+    }
+
     Factory getFactory() const override { return nullptr; }
 
 protected:

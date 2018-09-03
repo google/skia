@@ -7,6 +7,8 @@
 #ifndef SkPDFCanon_DEFINED
 #define SkPDFCanon_DEFINED
 
+#include <vector>
+
 #include "SkBitmapKey.h"
 #include "SkPDFGradientShader.h"
 #include "SkPDFGraphicState.h"
@@ -14,6 +16,7 @@
 #include "SkTDArray.h"
 #include "SkTHash.h"
 #include "SkTypeface.h"
+#include "SkString.h"
 
 class SkPDFFont;
 struct SkAdvancedTypefaceMetrics;
@@ -26,7 +29,9 @@ class SkPDFCanon {
 public:
     ~SkPDFCanon();
     SkPDFCanon();
+    SkPDFCanon(SkPDFCanon&&);
     SkPDFCanon(const SkPDFCanon&) = delete;
+    SkPDFCanon& operator=(SkPDFCanon&&);
     SkPDFCanon& operator=(const SkPDFCanon&) = delete;
 
     SkTHashMap<SkPDFImageShaderKey, sk_sp<SkPDFObject>> fImageShaderMap;
@@ -36,6 +41,8 @@ public:
     SkTHashMap<SkBitmapKey, sk_sp<SkPDFObject>> fPDFBitmapMap;
 
     SkTHashMap<uint32_t, std::unique_ptr<SkAdvancedTypefaceMetrics>> fTypefaceMetrics;
+    SkTHashMap<uint32_t, std::vector<SkString>> fType1GlyphNames;
+    SkTHashMap<uint32_t, std::vector<SkUnichar>> fToUnicodeMap;
     SkTHashMap<uint32_t, sk_sp<SkPDFDict>> fFontDescriptors;
     SkTHashMap<uint64_t, sk_sp<SkPDFFont>> fFontMap;
 

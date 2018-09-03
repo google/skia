@@ -8,6 +8,7 @@
 #include "SkOffsetImageFilter.h"
 #include "SkColorSpaceXformer.h"
 #include "SkCanvas.h"
+#include "SkFlattenablePriv.h"
 #include "SkImageFilterPriv.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
@@ -49,8 +50,8 @@ sk_sp<SkSpecialImage> SkOffsetImageFilter::onFilterImage(SkSpecialImage* source,
         return input;
     } else {
         SkIRect bounds;
-        SkIRect srcBounds = SkIRect::MakeWH(input->width(), input->height());
-        srcBounds.offset(srcOffset);
+        const SkIRect srcBounds = SkIRect::MakeXYWH(srcOffset.fX, srcOffset.fY,
+                                                    input->width(), input->height());
         if (!this->applyCropRect(ctx, srcBounds, &bounds)) {
             return nullptr;
         }
@@ -97,9 +98,9 @@ SkRect SkOffsetImageFilter::computeFastBounds(const SkRect& src) const {
 }
 
 SkIRect SkOffsetImageFilter::onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
-                                                MapDirection direction) const {
+                                                MapDirection dir, const SkIRect* inputRect) const {
     SkIPoint vec = map_offset_vector(ctm, fOffset);
-    if (kReverse_MapDirection == direction) {
+    if (kReverse_MapDirection == dir) {
         SkPointPriv::Negate(vec);
     }
 

@@ -581,6 +581,21 @@ static SkPoint lerp(SkPoint a, SkPoint b, float t) {
     return a * (1 - t) + b * t;
 }
 
+static int find_max_deviation_cubic(const SkPoint src[4], SkScalar ts[2]) {
+    // deviation = F' x (d - a) == 0, solve for t(s)
+    // F = At^3 + Bt^2 + Ct + D
+    // F' = 3At^2 + 2Bt + C
+    // Z = d - a
+    // F' x Z = 3(A x Z)t^2 + 2(B x Z)t + (C x Z)
+    //
+    SkVector A = src[3] + (src[1] - src[2]) * 3 - src[0];
+    SkVector B = (src[2] - src[1] - src[1] + src[0]) * 3;
+    SkVector C = (src[1] - src[0]) * 3;
+    SkVector Z = src[3] - src[0];
+    // now forumlate the quadratic coefficients we need to solve for t : F' x Z
+    return SkFindUnitQuadRoots(3 * A.cross(Z), 2 * B.cross(Z), C.cross(Z), ts);
+}
+
 class CubicCurve2 : public SampleView {
 public:
     enum {
@@ -590,6 +605,8 @@ public:
     SkPoint* fQuad = fPts + 4;
     SkScalar fT = 0.5f;
     bool fShowSub = false;
+    bool fShowFlatness = false;
+    SkScalar fScale = 0.75;
 
     CubicCurve2() {
         fPts[0] = { 90, 300 };
@@ -612,6 +629,7 @@ protected:
         if (SampleCode::CharQ(*evt, &uni)) {
             switch (uni) {
                 case 's': fShowSub = !fShowSub; break;
+                case 'f': fShowFlatness = !fShowFlatness; break;
                 case '-': fT -= 1.0f / 32; break;
                 case '=': fT += 1.0f / 32; break;
                 default: goto DONE;
@@ -645,6 +663,46 @@ protected:
             canvas->drawCircle(storage[i].fX, storage[i].fY, 4, paint);
         }
     }
+    
+    void showFlattness(SkCanvas* canvas) {
+        SkPaint paint;
+        paint.setStyle(SkPaint::kStroke_Style);
+        paint.setAntiAlias(true);
+
+        SkPaint paint2(paint);
+        paint2.setColor(0xFF008800);
+
+        paint.setColor(0xFF888888);
+        canvas->drawLine(fPts[0], fPts[3], paint);
+        canvas->drawLine(fQuad[0], fQuad[2], paint);
+
+        paint.setColor(0xFF0000FF);
+        SkPoint pts[2];
+        pts[0] = (fQuad[0] + fQuad[1] + fQuad[1] + fQuad[2])*0.25;
+        pts[1] = (fQuad[0] + fQuad[2]) * 0.5;
+        canvas->drawLine(pts[0], pts[1], paint);
+
+        // cubic
+
+        SkVector v0 = (fPts[0] - fPts[1] - fPts[1] + fPts[2]) * fScale;
+        SkVector v1 = (fPts[1] - fPts[2] - fPts[2] + fPts[3]) * fScale;
+        SkVector v = (v0 + v1) * 0.5f;
+
+        SkPoint anchor;
+        SkScalar ts[2];
+        int n = find_max_deviation_cubic(fPts, ts);
+        if (n > 0) {
+            SkEvalCubicAt(fPts, ts[0], &anchor, nullptr, nullptr);
+            canvas->drawLine(anchor, anchor + v, paint2);
+            canvas->drawLine(anchor, anchor + v0, paint);
+            if (n == 2) {
+                SkEvalCubicAt(fPts, ts[1], &anchor, nullptr, nullptr);
+                canvas->drawLine(anchor, anchor + v, paint2);
+            }
+            canvas->drawLine(anchor, anchor + v1, paint);
+        }
+        // not sure we can get here
+    }
 
     void onDrawContent(SkCanvas* canvas) override {
         SkPaint paint;
@@ -672,6 +730,10 @@ protected:
             paint.setStyle(SkPaint::kFill_Style);
             paint.setTextSize(20);
             canvas->drawText(str.c_str(), str.size(), 20, 20, paint);
+        }
+
+        if (fShowFlatness) {
+            this->showFlattness(canvas);
         }
 
         paint.setStyle(SkPaint::kFill_Style);

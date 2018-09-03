@@ -10,6 +10,7 @@
 
 #include "SkBitmap.h"
 #include "SkCanvas.h"
+#include "SkMetaData.h"
 #include "SkPaint.h"
 #include "SkSize.h"
 #include "SkString.h"
@@ -89,6 +90,9 @@ namespace skiagm {
             return this->onHandleKey(uni);
         }
 
+        bool getControls(SkMetaData* controls) { return this->onGetControls(controls); }
+        void setControls(const SkMetaData& controls) { this->onSetControls(controls); }
+
         virtual void modifyGrContextOptions(GrContextOptions* options) {}
 
         /** draws a standard message that the GM is only intended to be used with the GPU.*/
@@ -103,6 +107,8 @@ namespace skiagm {
 
         virtual bool onAnimate(const SkAnimTimer&) { return false; }
         virtual bool onHandleKey(SkUnichar uni) { return false; }
+        virtual bool onGetControls(SkMetaData*) { return false; }
+        virtual void onSetControls(const SkMetaData&) {}
 
     private:
         Mode     fMode;

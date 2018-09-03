@@ -81,7 +81,7 @@ std::unique_ptr<SkCodec> SkWebpCodec::MakeFromStream(std::unique_ptr<SkStream> s
     {
         const int64_t size = sk_64_mul(width, height);
         // now check that if we are 4-bytes per pixel, we also don't overflow
-        if (!sk_64_isS32(size) || sk_64_asS32(size) > (0x7FFFFFFF >> 2)) {
+        if (!SkTFitsIn<int32_t>(size) || SkTo<int32_t>(size) > (0x7FFFFFFF >> 2)) {
             *result = kInvalidInput;
             return nullptr;
         }

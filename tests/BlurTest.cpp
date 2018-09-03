@@ -708,3 +708,39 @@ DEF_TEST(BlurZeroSigma, reporter) {
     }
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////
+#if SK_SUPPORT_GPU
+
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
+    GrContext* context = ctxInfo.grContext();
+
+    SkImageInfo ii = SkImageInfo::Make(32, 32, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+
+    sk_sp<SkSurface> dst(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
+    if (!dst) {
+        ERRORF(reporter, "Could not create surface for test.");
+        return;
+    }
+
+    SkPaint p;
+    p.setColor(SK_ColorRED);
+    p.setMaskFilter(SkMaskFilter::MakeBlur(kNormal_SkBlurStyle, 3));
+
+    SkCanvas* canvas = dst->getCanvas();
+
+    canvas->clear(SK_ColorBLACK);
+    canvas->drawCircle(SkPoint::Make(16, 16), 8, p);
+
+    SkBitmap readback;
+    SkAssertResult(readback.tryAllocPixels(ii));
+
+    canvas->readPixels(readback, 0, 0);
+    REPORTER_ASSERT(reporter, SkColorGetR(readback.getColor(15, 15)) > 128);
+    REPORTER_ASSERT(reporter, SkColorGetG(readback.getColor(15, 15)) == 0);
+    REPORTER_ASSERT(reporter, SkColorGetB(readback.getColor(15, 15)) == 0);
+    REPORTER_ASSERT(reporter, readback.getColor(31, 31) == SK_ColorBLACK);
+}
+
+#endif
+

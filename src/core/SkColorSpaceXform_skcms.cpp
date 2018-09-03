@@ -17,8 +17,7 @@ public:
                             skcms_AlphaFormat premulFormat)
         : fSrcProfile(srcProfile)
         , fDstProfile(dstProfile)
-        , fPremulFormat(premulFormat)
-    {}
+        , fPremulFormat(premulFormat) {}
 
     bool apply(ColorFormat, void*, ColorFormat, const void*, int, SkAlphaType) const override;
 
@@ -61,59 +60,78 @@ bool SkColorSpaceXform_skcms::apply(ColorFormat dstFormat, void* dst,
                            dst, get_skcms_format(dstFormat), dstAlpha, &fDstProfile, count);
 }
 
-static bool cs_to_profile(const SkColorSpace* cs, skcms_ICCProfile* profile) {
-    if (cs->profileData()) {
-        bool result = skcms_Parse(cs->profileData()->data(), cs->profileData()->size(), profile);
-        // We shouldn't encounter color spaces that were constructed from invalid profiles!
-        SkASSERT(result);
-        return result;
+void SkColorSpace::toProfile(skcms_ICCProfile* profile) const {
+    if (auto blob = this->onProfileData()) {
+        SkAssertResult(skcms_Parse(blob->data(), blob->size(), profile));
+    } else {
+        SkMatrix44 toXYZ(SkMatrix44::kUninitialized_Constructor);
+        SkColorSpaceTransferFn tf;
+        SkAssertResult(this->toXYZD50(&toXYZ) && this->isNumericalTransferFn(&tf));
+
+        skcms_Matrix3x3 m = {{
+            { toXYZ.get(0, 0), toXYZ.get(0, 1), toXYZ.get(0, 2) },
+            { toXYZ.get(1, 0), toXYZ.get(1, 1), toXYZ.get(1, 2) },
+            { toXYZ.get(2, 0), toXYZ.get(2, 1), toXYZ.get(2, 2) },
+        }};
+
+        skcms_Init(profile);
+        skcms_SetTransferFunction(profile, (const skcms_TransferFunction*)&tf);
+        skcms_SetXYZD50(profile, &m);
     }
-
-    SkMatrix44 toXYZ;
-    SkColorSpaceTransferFn tf;
-    if (cs->toXYZD50(&toXYZ) && cs->isNumericalTransferFn(&tf)) {
-        memset(profile, 0, sizeof(*profile));
-
-        profile->has_trc = true;
-        profile->trc[0].parametric.g = tf.fG;
-        profile->trc[0].parametric.a = tf.fA;
-        profile->trc[0].parametric.b = tf.fB;
-        profile->trc[0].parametric.c = tf.fC;
-        profile->trc[0].parametric.d = tf.fD;
-        profile->trc[0].parametric.e = tf.fE;
-        profile->trc[0].parametric.f = tf.fF;
-        profile->trc[1].parametric = profile->trc[0].parametric;
-        profile->trc[2].parametric = profile->trc[0].parametric;
-
-        profile->has_toXYZD50 = true;
-        for (int r = 0; r < 3; ++r) {
-            for (int c = 0; c < 3; ++c) {
-                profile->toXYZD50.vals[r][c] = toXYZ.get(r, c);
-            }
-        }
-
-        return true;
-    }
-
-    // It should be impossible to make a color space that gets here with our available factories.
-    // All ICC-based profiles have profileData. All remaining factories produce XYZ spaces with
-    // a single (numerical) transfer function.
-    SkDEBUGFAIL("How did we get here?");
-    return false;
 }
 
-std::unique_ptr<SkColorSpaceXform> MakeSkcmsXform(SkColorSpace* src, SkColorSpace* dst,
-                                                  SkTransferFunctionBehavior premulBehavior) {
+std::unique_ptr<SkColorSpaceXform> SkMakeColorSpaceXform_skcms(SkColorSpace* src,
+                                                               SkColorSpace* dst,
+                                                               SkTransferFunctionBehavior premul) {
     // Construct skcms_ICCProfiles from each color space. For now, support A2B and XYZ.
-    // Eventually, only need to support XYZ. Map premulBehavior to one of the two premul formats
+    // Eventually, only need to support XYZ. Map premul to one of the two premul formats
     // in skcms.
     skcms_ICCProfile srcProfile, dstProfile;
 
-    if (!cs_to_profile(src, &srcProfile) || !cs_to_profile(dst, &dstProfile)) {
+    src->toProfile(&srcProfile);
+    dst->toProfile(&dstProfile);
+
+    if (!skcms_MakeUsableAsDestination(&dstProfile)) {
         return nullptr;
     }
 
-    skcms_AlphaFormat premulFormat = SkTransferFunctionBehavior::kRespect == premulBehavior
-            ? skcms_AlphaFormat_PremulLinear : skcms_AlphaFormat_PremulAsEncoded;
+    skcms_AlphaFormat premulFormat = SkTransferFunctionBehavior::kRespect == premul
+            ? skcms_AlphaFormat_PremulLinear
+            : skcms_AlphaFormat_PremulAsEncoded;
     return skstd::make_unique<SkColorSpaceXform_skcms>(srcProfile, dstProfile, premulFormat);
+}
+
+sk_sp<SkColorSpace> SkColorSpace::Make(const skcms_ICCProfile& profile) {
+    if (!profile.has_toXYZD50 || !profile.has_trc) {
+        return nullptr;
+    }
+
+    if (skcms_ApproximatelyEqualProfiles(&profile, skcms_sRGB_profile())) {
+        return SkColorSpace::MakeSRGB();
+    }
+
+    SkMatrix44 toXYZD50(SkMatrix44::kUninitialized_Constructor);
+    toXYZD50.set3x3RowMajorf(&profile.toXYZD50.vals[0][0]);
+    if (!toXYZD50.invert(nullptr)) {
+        return nullptr;
+    }
+
+    const skcms_Curve* trc = profile.trc;
+    if (trc[0].table_entries ||
+        trc[1].table_entries ||
+        trc[2].table_entries ||
+        memcmp(&trc[0].parametric, &trc[1].parametric, sizeof(trc[0].parametric)) ||
+        memcmp(&trc[0].parametric, &trc[2].parametric, sizeof(trc[0].parametric))) {
+        return nullptr;
+    }
+
+    SkColorSpaceTransferFn skia_tf;
+    memcpy(&skia_tf, &profile.trc[0].parametric, sizeof(skia_tf));
+
+    return SkColorSpace::MakeRGB(skia_tf, toXYZD50);
+}
+
+bool skcms_can_parse(const void* buf, size_t len) {
+    skcms_ICCProfile p;
+    return skcms_Parse(buf, len, &p);
 }

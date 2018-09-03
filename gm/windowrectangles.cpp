@@ -11,13 +11,15 @@
 #include "SkRRect.h"
 
 #if SK_SUPPORT_GPU
-#  include "GrAppliedClip.h"
-#  include "GrStencilClip.h"
-#  include "GrReducedClip.h"
-#  include "GrRenderTargetContext.h"
-#  include "GrRenderTargetContextPriv.h"
-#  include "GrResourceProvider.h"
-#  include "effects/GrTextureDomain.h"
+#include "GrAppliedClip.h"
+#include "GrCaps.h"
+#include "GrContextPriv.h"
+#include "GrReducedClip.h"
+#include "GrRenderTargetContext.h"
+#include "GrRenderTargetContextPriv.h"
+#include "GrResourceProvider.h"
+#include "GrStencilClip.h"
+#include "effects/GrTextureDomain.h"
 #endif
 
 constexpr static SkIRect kDeviceRect = {0, 0, 600, 600};

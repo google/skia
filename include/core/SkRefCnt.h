@@ -291,7 +291,9 @@ public:
      *  object.
      */
     sk_sp<T>& operator=(const sk_sp<T>& that) {
-        this->reset(SkSafeRef(that.get()));
+        if (this != &that) {
+            this->reset(SkSafeRef(that.get()));
+        }
         return *this;
     }
     template <typename U, typename = skstd::enable_if_t<std::is_convertible<U*, T*>::value>>

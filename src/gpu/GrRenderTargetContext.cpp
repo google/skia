@@ -340,7 +340,7 @@ void GrRenderTargetContext::internalClear(const GrFixedClip& clip,
     if (!clip.hasWindowRectangles()) {
         isFull = !clip.scissorEnabled() ||
                  (CanClearFullscreen::kYes == canClearFullscreen &&
-                  fContext->caps()->preferFullscreenClears()) ||
+                  this->caps()->preferFullscreenClears()) ||
                  clip.scissorRect().contains(SkIRect::MakeWH(this->width(), this->height()));
     }
 
@@ -389,14 +389,12 @@ void GrRenderTargetContext::drawPaint(const GrClip& clip,
     // produce a correct result for some perspective matrices.
     if (!isPerspective) {
         if (!SkMatrixPriv::InverseMapRect(viewMatrix, &r, r)) {
-            SkDebugf("Could not invert matrix\n");
             return;
         }
         this->drawRect(clip, std::move(paint), GrAA::kNo, viewMatrix, r);
     } else {
         SkMatrix localMatrix;
         if (!viewMatrix.invert(&localMatrix)) {
-            SkDebugf("Could not invert matrix\n");
             return;
         }
 
@@ -503,7 +501,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
     AutoCheckFlush acf(this->drawingManager());
 
     const SkStrokeRec& stroke = style->strokeRec();
-    if (stroke.getStyle() == SkStrokeRec::kFill_Style) {
+    if (stroke.getStyle() == SkStrokeRec::kFill_Style && !paint.numCoverageFragmentProcessors()) {
         // Check if this is a full RT draw and can be replaced with a clear. We don't bother
         // checking cases where the RT is fully inside a stroke.
         SkRect rtRect = fRenderTargetProxy->getBoundsRect();
@@ -514,8 +512,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
                 return;
             }
             // Does the rect bound the RT?
-            GrQuad quad;
-            quad.setFromMappedRect(rtRect, invM);
+            GrQuad quad(rtRect, invM);
             if (rect_contains_inclusive(rect, quad.point(0)) &&
                 rect_contains_inclusive(rect, quad.point(1)) &&
                 rect_contains_inclusive(rect, quad.point(2)) &&
@@ -591,7 +588,7 @@ void GrRenderTargetContext::drawRect(const GrClip& clip,
 
 int GrRenderTargetContextPriv::maxWindowRectangles() const {
     return fRenderTargetContext->fRenderTargetProxy->maxWindowRectangles(
-                                                    *fRenderTargetContext->fContext->caps());
+            *fRenderTargetContext->caps());
 }
 
 void GrRenderTargetContextPriv::clearStencilClip(const GrFixedClip& clip, bool insideStencilMask) {
@@ -766,16 +763,15 @@ static bool must_filter(const SkRect& src, const SkRect& dst, const SkMatrix& ct
     return !SkScalarIsInt(x) || !SkScalarIsInt(y);
 }
 
-void GrRenderTargetContext::drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
-                                              GrSamplerState::Filter filter, GrColor color,
-                                              const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                                              const SkMatrix& viewMatrix,
-                                              sk_sp<GrColorSpaceXform> colorSpaceXform) {
+void GrRenderTargetContext::drawTexture(const GrClip& clip, sk_sp<GrTextureProxy> proxy,
+                                        GrSamplerState::Filter filter, GrColor color,
+                                        const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                                        const SkMatrix& viewMatrix,
+                                        sk_sp<GrColorSpaceXform> colorSpaceXform) {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTextureAffine", fContext);
-    SkASSERT(!viewMatrix.hasPerspective());
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawTexture", fContext);
     if (filter != GrSamplerState::Filter::kNearest && !must_filter(srcRect, dstRect, viewMatrix)) {
         filter = GrSamplerState::Filter::kNearest;
     }
@@ -919,7 +915,7 @@ void GrRenderTargetContext::drawRRect(const GrClip& origClip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeRRectOp(std::move(paint),
                                                                     viewMatrix,
                                                                     rrect,
@@ -1110,7 +1106,7 @@ bool GrRenderTargetContext::drawFastShadow(const GrClip& clip,
                 maxOffset = SkScalarSqrt(SkTMax(SkPointPriv::LengthSqd(upperLeftOffset),
                                                 SkPointPriv::LengthSqd(lowerRightOffset))) + dr;
             }
-            insetWidth += maxOffset;
+            insetWidth += SkTMax(blurOutset, maxOffset);
         }
 
         // Outset the shadow rrect to the border of the penumbra
@@ -1167,7 +1163,8 @@ bool GrRenderTargetContext::drawFilledDRRect(const GrClip& clip,
             SkStrokeRec stroke(SkStrokeRec::kFill_InitStyle);
             stroke.setStrokeStyle(outerR - innerR);
             auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, circleBounds,
-                                                  stroke, this->caps()->shaderCaps());
+                                                  GrStyle(stroke, nullptr),
+                                                  this->caps()->shaderCaps());
             if (op) {
                 this->addDrawOp(clip, std::move(op));
                 return true;
@@ -1299,28 +1296,25 @@ void GrRenderTargetContext::drawOval(const GrClip& clip,
     SkDEBUGCODE(this->validate();)
     GR_CREATE_TRACE_MARKER_CONTEXT("GrRenderTargetContext", "drawOval", fContext);
 
-    if (oval.isEmpty()) {
-       return;
+    if (oval.isEmpty() && !style.pathEffect()) {
+        return;
     }
 
-    SkASSERT(!style.pathEffect()); // this should've been devolved to a path in SkGpuDevice
-
     AutoCheckFlush acf(this->drawingManager());
-    const SkStrokeRec& stroke = style.strokeRec();
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
-        std::unique_ptr<GrDrawOp> op =
-                GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, stroke, shaderCaps);
-        if (op) {
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
+        if (auto op = GrOvalOpFactory::MakeOvalOp(std::move(paint), viewMatrix, oval, style,
+                                                  shaderCaps)) {
             this->addDrawOp(clip, std::move(op));
             return;
         }
     }
 
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix,
-                                     GrShape(SkRRect::MakeOval(oval), style));
+    this->drawShapeUsingPathRenderer(
+            clip, std::move(paint), aa, viewMatrix,
+            GrShape(SkRRect::MakeOval(oval), SkPath::kCW_Direction, 2, false, style));
 }
 
 void GrRenderTargetContext::drawArc(const GrClip& clip,
@@ -1341,7 +1335,7 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
 
     GrAAType aaType = this->chooseAAType(aa, GrAllowMixedSamples::kNo);
     if (GrAAType::kCoverage == aaType) {
-        const GrShaderCaps* shaderCaps = fContext->caps()->shaderCaps();
+        const GrShaderCaps* shaderCaps = this->caps()->shaderCaps();
         std::unique_ptr<GrDrawOp> op = GrOvalOpFactory::MakeArcOp(std::move(paint),
                                                                   viewMatrix,
                                                                   oval,
@@ -1355,17 +1349,17 @@ void GrRenderTargetContext::drawArc(const GrClip& clip,
             return;
         }
     }
-    SkPath path;
-    SkPathPriv::CreateDrawArcPath(&path, oval, startAngle, sweepAngle, useCenter,
-                                  style.isSimpleFill());
-    this->drawShapeUsingPathRenderer(clip, std::move(paint), aa, viewMatrix, GrShape(path, style));
+    this->drawShapeUsingPathRenderer(
+            clip, std::move(paint), aa, viewMatrix,
+            GrShape::MakeArc(oval, startAngle, sweepAngle, useCenter, style));
 }
 
 void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
                                              GrPaint&& paint,
                                              const SkMatrix& viewMatrix,
-                                             int imageWidth,
-                                             int imageHeight,
+                                             sk_sp<GrTextureProxy> image,
+                                             sk_sp<GrColorSpaceXform> csxf,
+                                             GrSamplerState::Filter filter,
                                              std::unique_ptr<SkLatticeIter> iter,
                                              const SkRect& dst) {
     ASSERT_SINGLE_OWNER
@@ -1375,8 +1369,9 @@ void GrRenderTargetContext::drawImageLattice(const GrClip& clip,
 
     AutoCheckFlush acf(this->drawingManager());
 
-    std::unique_ptr<GrDrawOp> op = GrLatticeOp::MakeNonAA(std::move(paint), viewMatrix, imageWidth,
-                                                          imageHeight, std::move(iter), dst);
+    std::unique_ptr<GrDrawOp> op =
+            GrLatticeOp::MakeNonAA(std::move(paint), viewMatrix, std::move(image), std::move(csxf),
+                                   filter, std::move(iter), dst);
     this->addDrawOp(clip, std::move(op));
 }
 
@@ -1566,7 +1561,7 @@ bool GrRenderTargetContextPriv::drawAndStencilPath(const GrHardClip& clip,
 
     GrShape shape(path, GrStyle::SimpleFill());
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = fRenderTargetContext->drawingManager()->getContext()->caps();
+    canDrawArgs.fCaps = fRenderTargetContext->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &shape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
@@ -1630,7 +1625,7 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                                                     : GrAllowMixedSamples::kYes;
     GrAAType aaType = this->chooseAAType(aa, allowMixedSamples);
     GrPathRenderer::CanDrawPathArgs canDrawArgs;
-    canDrawArgs.fCaps = this->drawingManager()->getContext()->caps();
+    canDrawArgs.fCaps = this->caps();
     canDrawArgs.fViewMatrix = &viewMatrix;
     canDrawArgs.fShape = &originalShape;
     canDrawArgs.fClipConservativeBounds = &clipConservativeBounds;
@@ -1665,9 +1660,11 @@ void GrRenderTargetContext::drawShapeUsingPathRenderer(const GrClip& clip,
                 return;
             }
             canDrawArgs.fShape = &tempShape;
+            // This time, allow SW renderer
+            pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
+        } else {
+            pr = this->drawingManager()->getSoftwarePathRenderer();
         }
-        // This time, allow SW renderer
-        pr = this->drawingManager()->getPathRenderer(canDrawArgs, true, kType);
     }
 
     if (!pr) {

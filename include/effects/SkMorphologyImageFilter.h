@@ -9,6 +9,7 @@
 #define SkMorphologyImageFilter_DEFINED
 
 #include "SkColor.h"
+#include "SkFlattenable.h"
 #include "SkImageFilter.h"
 #include "SkSize.h"
 
@@ -16,7 +17,8 @@
 class SK_API SkMorphologyImageFilter : public SkImageFilter {
 public:
     SkRect computeFastBounds(const SkRect& src) const override;
-    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix&, MapDirection) const override;
+    SkIRect onFilterNodeBounds(const SkIRect& src, const SkMatrix& ctm,
+                               MapDirection, const SkIRect* inputRect) const override;
 
     /**
      * All morphology procs have the same signature: src is the source buffer, dst the
@@ -61,7 +63,8 @@ public:
                                      const CropRect* cropRect = nullptr);
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkDilateImageFilter)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     Op op() const override { return kDilate_Op; }
@@ -71,6 +74,8 @@ private:
                         sk_sp<SkImageFilter> input,
                         const CropRect* cropRect)
         : INHERITED(radiusX, radiusY, input, cropRect) {}
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
     typedef SkMorphologyImageFilter INHERITED;
 };
@@ -83,7 +88,8 @@ public:
                                      const CropRect* cropRect = nullptr);
 
     void toString(SkString* str) const override;
-    SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkErodeImageFilter)
+
+    Factory getFactory() const override { return CreateProc; }
 
 protected:
     Op op() const override { return kErode_Op; }
@@ -92,6 +98,8 @@ private:
     SkErodeImageFilter(int radiusX, int radiusY,
                        sk_sp<SkImageFilter> input, const CropRect* cropRect)
         : INHERITED(radiusX, radiusY, input, cropRect) {}
+    static sk_sp<SkFlattenable> CreateProc(SkReadBuffer&);
+    friend class SkFlattenable::PrivateInitializer;
 
     typedef SkMorphologyImageFilter INHERITED;
 };

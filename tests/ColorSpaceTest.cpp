@@ -8,11 +8,23 @@
 #include "Resources.h"
 #include "SkCodec.h"
 #include "SkColorSpace.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
+#include "SkColorSpace_XYZ.h"
+#include "SkData.h"
+#include "SkImageInfo.h"
+#include "SkMatrix44.h"
+#include "SkRefCnt.h"
+#include "SkStream.h"
+#include "SkTypes.h"
 #include "Test.h"
-
 #include "png.h"
+
+#if defined(SK_USE_SKCMS)
+#include "skcms.h"
+#endif
+
+#include <memory>
+#include <utility>
 
 static bool almost_equal(float a, float b) {
     return SkTAbs(a - b) < 0.001f;
@@ -173,7 +185,7 @@ DEF_TEST(ColorSpaceSRGBLinearCompare, r) {
     REPORTER_ASSERT(r, strangeColorSpace != namedColorSpace);
 }
 
-static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNamed) {
+static void test_serialize(skiatest::Reporter* r, sk_sp<SkColorSpace> space, bool isNamed) {
     sk_sp<SkData> data1 = space->serialize();
 
     size_t bytes = space->writeToMemory(nullptr);
@@ -184,26 +196,33 @@ static void test_serialize(skiatest::Reporter* r, SkColorSpace* space, bool isNa
     sk_sp<SkColorSpace> newSpace2 = SkColorSpace::Deserialize(data2->data(), data2->size());
 
     if (isNamed) {
-        REPORTER_ASSERT(r, space == newSpace1.get());
-        REPORTER_ASSERT(r, space == newSpace2.get());
+        REPORTER_ASSERT(r, space.get() == newSpace1.get());
+        REPORTER_ASSERT(r, space.get() == newSpace2.get());
     } else {
-        REPORTER_ASSERT(r, SkColorSpace::Equals(space, newSpace1.get()));
-        REPORTER_ASSERT(r, SkColorSpace::Equals(space, newSpace2.get()));
+        REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace1.get()));
+        REPORTER_ASSERT(r, SkColorSpace::Equals(space.get(), newSpace2.get()));
     }
 }
 
 DEF_TEST(ColorSpace_Serialize, r) {
-    test_serialize(r, SkColorSpace::MakeSRGB().get(), true);
-    test_serialize(r, SkColorSpace::MakeSRGBLinear().get(), true);
+    test_serialize(r, SkColorSpace::MakeSRGB(), true);
+    test_serialize(r, SkColorSpace::MakeSRGBLinear(), true);
 
-    sk_sp<SkData> monitorData = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
-    test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/HP_Z32x.icc");
-    test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/upperLeft.icc");
-    test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
-    monitorData = GetResourceAsData("icc_profiles/upperRight.icc");
-    test_serialize(r, SkColorSpace::MakeICC(monitorData->data(), monitorData->size()).get(), false);
+#if defined(SK_USE_SKCMS)
+    auto test = [&](const char* path) {
+        sk_sp<SkData> data = GetResourceAsData(path);
+
+        skcms_ICCProfile profile;
+        REPORTER_ASSERT(r, skcms_Parse(data->data(), data->size(), &profile));
+
+        sk_sp<SkColorSpace> space = SkColorSpace::Make(profile);
+        REPORTER_ASSERT(r, space);
+
+        test_serialize(r, space, false);
+    };
+    test("icc_profiles/HP_ZR30w.icc");
+    test("icc_profiles/HP_Z32x.icc");
+#endif
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -214,19 +233,27 @@ DEF_TEST(ColorSpace_Serialize, r) {
     fn.fF = 0.0f;
     fn.fG = 1.0f;
     SkMatrix44 toXYZ(SkMatrix44::kIdentity_Constructor);
-    test_serialize(r, SkColorSpace::MakeRGB(fn, toXYZ).get(), false);
+    test_serialize(r, SkColorSpace::MakeRGB(fn, toXYZ), false);
 }
 
 DEF_TEST(ColorSpace_Equals, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/HP_ZR30w.icc");
-    sk_sp<SkColorSpace> z30 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/HP_Z32x.icc");
-    sk_sp<SkColorSpace> z32 = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperLeft.icc");
-    sk_sp<SkColorSpace> upperLeft = SkColorSpace::MakeICC(data->data(), data->size());
-    data = GetResourceAsData("icc_profiles/upperRight.icc");
-    sk_sp<SkColorSpace> upperRight = SkColorSpace::MakeICC(data->data(), data->size());
+
+#if defined(SK_USE_SKCMS)
+    auto parse = [&](const char* path) {
+        sk_sp<SkData> data = GetResourceAsData(path);
+
+        skcms_ICCProfile profile;
+        REPORTER_ASSERT(r, skcms_Parse(data->data(), data->size(), &profile));
+
+        sk_sp<SkColorSpace> space = SkColorSpace::Make(profile);
+        REPORTER_ASSERT(r, space);
+
+        return space;
+    };
+    sk_sp<SkColorSpace> z30 = parse("icc_profiles/HP_ZR30w.icc");
+    sk_sp<SkColorSpace> z32 = parse("icc_profiles/HP_Z32x.icc");
+#endif
 
     SkColorSpaceTransferFn fn;
     fn.fA = 1.0f;
@@ -241,20 +268,19 @@ DEF_TEST(ColorSpace_Equals, r) {
 
     REPORTER_ASSERT(r, SkColorSpace::Equals(nullptr, nullptr));
     REPORTER_ASSERT(r, SkColorSpace::Equals(srgb.get(), srgb.get()));
+#if defined(SK_USE_SKCMS)
     REPORTER_ASSERT(r, SkColorSpace::Equals(z30.get(), z30.get()));
     REPORTER_ASSERT(r, SkColorSpace::Equals(z32.get(), z32.get()));
-    REPORTER_ASSERT(r, SkColorSpace::Equals(upperLeft.get(), upperLeft.get()));
-    REPORTER_ASSERT(r, SkColorSpace::Equals(upperRight.get(), upperRight.get()));
+#endif
     REPORTER_ASSERT(r, SkColorSpace::Equals(rgb4.get(), rgb4.get()));
 
     REPORTER_ASSERT(r, !SkColorSpace::Equals(nullptr, srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), nullptr));
+#if defined(SK_USE_SKCMS)
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), srgb.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z32.get(), z30.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), srgb.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(upperLeft.get(), upperRight.get()));
-    REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), upperRight.get()));
     REPORTER_ASSERT(r, !SkColorSpace::Equals(z30.get(), rgb4.get()));
+#endif
     REPORTER_ASSERT(r, !SkColorSpace::Equals(srgb.get(), rgb4.get()));
 }
 
@@ -368,25 +394,6 @@ DEF_TEST(ColorSpace_Primaries, r) {
     check_primaries(r, rec2020, reference);
 }
 
-DEF_TEST(ColorSpace_InvalidICC, r) {
-    // This color space has a matrix that is not D50.
-    sk_sp<SkData> data = GetResourceAsData("icc_profiles/SM2333SW.icc");
-    if (!data) {
-        return;
-    }
-    sk_sp<SkColorSpace> cs = SkColorSpace::MakeICC(data->data(), data->size());
-    REPORTER_ASSERT(r, !cs);
-
-    // The color space has a color lut with only one entry in each dimension.
-    data = GetResourceAsData("icc_profiles/invalid_color_lut.icc");
-    if (!data) {
-        return;
-    }
-
-    cs = SkColorSpace::MakeICC(data->data(), data->size());
-    REPORTER_ASSERT(r, !cs);
-}
-
 DEF_TEST(ColorSpace_MatrixHash, r) {
     sk_sp<SkColorSpace> srgb = SkColorSpace::MakeSRGB();
 
@@ -423,3 +430,10 @@ DEF_TEST(ColorSpace_IsSRGB, r) {
     REPORTER_ASSERT(r, srgb0->isSRGB());
     REPORTER_ASSERT(r, !twoDotTwo->isSRGB());
 }
+
+#if defined(SK_USE_SKCMS)
+DEF_TEST(ColorSpace_skcms_IsSRGB, r) {
+    sk_sp<SkColorSpace> srgb = SkColorSpace::Make(*skcms_sRGB_profile());
+    REPORTER_ASSERT(r, srgb->isSRGB());
+}
+#endif

@@ -271,7 +271,7 @@ private:
             }
 
             int currentIndices = tess.numIndices();
-            if (indexCount + currentIndices > UINT16_MAX) {
+            if (indexCount + currentIndices > static_cast<int>(UINT16_MAX)) {
                 // if we added the current instance, we would overflow the indices we can store in a
                 // uint16_t. Draw what we've got so far and reset.
                 this->draw(target, gp.get(), pipeline, vertexCount, vertexStride, vertices,

@@ -35,6 +35,9 @@ declare_args() {
 
   clang_win = ""
 
+  skia_vulkan_sdk = getenv("VULKAN_SDK")
+  skia_moltenvk_path = ""
+
   ncli = ""
   ncli_version = "4.0"
 }

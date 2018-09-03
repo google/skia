@@ -37,9 +37,7 @@ public:
         kText_Type,
     };
 
-    enum {
-        kTypeCount = kText_Type + 1
-    };
+    static constexpr int kTypeCount = kText_Type + 1;
 
     /**
      *  Called with the paint that will be used to draw the specified type.

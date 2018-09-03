@@ -6,12 +6,10 @@
  */
 
 #include "GrSurfaceContext.h"
-
 #include "GrContextPriv.h"
 #include "GrDrawingManager.h"
 #include "GrOpList.h"
 #include "SkGr.h"
-
 #include "../private/GrAuditTrail.h"
 
 #define ASSERT_SINGLE_OWNER \
@@ -85,8 +83,13 @@ bool GrSurfaceContext::copy(GrSurfaceProxy* src, const SkIRect& srcRect, const S
     ASSERT_SINGLE_OWNER
     RETURN_FALSE_IF_ABANDONED
     SkDEBUGCODE(this->validate();)
-    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::onCopy");
+    GR_AUDIT_TRAIL_AUTO_FRAME(fAuditTrail, "GrSurfaceContext::copy");
 
-    return this->getOpList()->copySurface(*fContext->caps(),
-                                          this->asSurfaceProxy(), src, srcRect, dstPoint);
+    if (!fContext->contextPriv().caps()->canCopySurface(this->asSurfaceProxy(), src, srcRect,
+                                                        dstPoint)) {
+        return false;
+    }
+
+    return this->getOpList()->copySurface(*fContext->contextPriv().caps(), this->asSurfaceProxy(),
+                                          src, srcRect, dstPoint);
 }

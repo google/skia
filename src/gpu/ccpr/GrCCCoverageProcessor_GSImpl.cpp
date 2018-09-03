@@ -52,24 +52,18 @@ protected:
         int numInputPoints = proc.numInputPoints();
         SkASSERT(3 == numInputPoints || 4 == numInputPoints);
 
-        const char* posValues = (4 == numInputPoints) ? "sk_Position" : "sk_Position.xyz";
+        int inputWidth = (4 == numInputPoints || proc.hasInputWeight()) ? 4 : 3;
+        const char* posValues = (4 == inputWidth) ? "sk_Position" : "sk_Position.xyz";
         g->codeAppendf("float%ix2 pts = transpose(float2x%i(sk_in[0].%s, sk_in[1].%s));",
-                       numInputPoints, numInputPoints, posValues, posValues);
+                       inputWidth, inputWidth, posValues, posValues);
 
         GrShaderVar wind("wind", kHalf_GrSLType);
         g->declareGlobal(wind);
-        if (PrimitiveType::kWeightedTriangles != proc.fPrimitiveType) {
-            g->codeAppend ("float area_x2 = determinant(float2x2(pts[0] - pts[1], "
-                                                                "pts[0] - pts[2]));");
-            if (4 == numInputPoints) {
-                g->codeAppend ("area_x2 += determinant(float2x2(pts[0] - pts[2], "
-                                                               "pts[0] - pts[3]));");
-            }
-            g->codeAppendf("%s = sign(area_x2);", wind.c_str());
-        } else {
+        Shader::CalcWind(proc, g, "pts", wind.c_str());
+        if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
             SkASSERT(kFloat4_GrVertexAttribType == proc.getAttrib(0).fType);
-            g->codeAppendf("%s = sk_in[0].sk_Position.w;", wind.c_str());
+            g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
         }
 
         SkString emitVertexFn;
@@ -305,10 +299,8 @@ public:
                               const GrShaderVar& wind, const char* emitVertexFn) const override {
         fShader->emitSetupCode(g, "pts", wind.c_str());
 
-        bool isTriangle = PrimitiveType::kTriangles == proc.fPrimitiveType ||
-                          PrimitiveType::kWeightedTriangles == proc.fPrimitiveType;
         g->codeAppendf("int corneridx = sk_InvocationID;");
-        if (!isTriangle) {
+        if (!proc.isTriangles()) {
             g->codeAppendf("corneridx *= %i;", proc.numInputPoints() - 1);
         }
 
@@ -335,7 +327,7 @@ public:
         Shader::CalcCornerAttenuation(g, "leftdir", "rightdir", "attenuation");
         g->codeAppend ("}");
 
-        if (isTriangle) {
+        if (proc.isTriangles()) {
             g->codeAppend ("half2 left_coverages; {");
             Shader::CalcEdgeCoveragesAtBloatVertices(g, "left", "corner", "-outbloat",
                                                      "-crossbloat", "left_coverages");
@@ -383,14 +375,13 @@ public:
             g->codeAppendf("%s(corner + crossbloat * bloat, -1, half2(1));", emitVertexFn);
         }
 
-        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, isTriangle ? 3 : 2);
+        g->configure(InputType::kLines, OutputType::kTriangleStrip, 4, proc.isTriangles() ? 3 : 2);
     }
 };
 
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
-    if (PrimitiveType::kCubics == fPrimitiveType ||
-        PrimitiveType::kWeightedTriangles == fPrimitiveType) {
+    if (4 == this->numInputPoints() || this->hasInputWeight()) {
         this->addVertexAttrib("x_or_y_values", kFloat4_GrVertexAttribType);
         SkASSERT(sizeof(QuadPointInstance) == this->getVertexStride() * 2);
         SkASSERT(offsetof(QuadPointInstance, fY) == this->getVertexStride());
@@ -416,8 +407,7 @@ void GrCCCoverageProcessor::appendGSMesh(GrBuffer* instanceBuffer, int instanceC
 
 GrGLSLPrimitiveProcessor* GrCCCoverageProcessor::createGSImpl(std::unique_ptr<Shader> shadr) const {
     if (GSSubpass::kHulls == fGSSubpass) {
-        return (PrimitiveType::kTriangles == fPrimitiveType ||
-                PrimitiveType::kWeightedTriangles == fPrimitiveType)
+        return this->isTriangles()
                    ? (GSImpl*) new GSTriangleHullImpl(std::move(shadr))
                    : (GSImpl*) new GSCurveHullImpl(std::move(shadr));
     }

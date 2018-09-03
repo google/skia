@@ -16,8 +16,9 @@
 #include <thread>
 #include <unistd.h>
 
-#include "SkRemoteGlyphCache.h"
 #include "SkGraphics.h"
+#include "SkRemoteGlyphCache.h"
+#include "SkScalerContext.h"
 #include "SkSurface.h"
 
 static std::string gSkpName;
@@ -25,35 +26,91 @@ static bool gUseGpu = true;
 static bool gPurgeFontCaches = true;
 static bool gUseProcess = true;
 
-class ReadWriteTransport : public SkRemoteStrikeTransport {
+class ServerDiscardableManager : public SkStrikeServer::DiscardableHandleManager {
 public:
-    ReadWriteTransport(int readFd, int writeFd) : fReadFd{readFd}, fWriteFd{writeFd} {}
-    ~ReadWriteTransport() override {
-        close(fWriteFd);
-        close(fReadFd);
-    }
-    IOResult write(const void* buffer, size_t size) override {
-        ssize_t writeSize = ::write(fWriteFd, buffer, size);
-        if (writeSize < 0) {
-            err(1,"Failed write %zu", size);
-            return kFail;
-        }
-        return kSuccess;
-    }
+    ServerDiscardableManager() = default;
+    ~ServerDiscardableManager() override = default;
 
-    std::tuple<size_t, IOResult> read(void* buffer, size_t size) override {
-        ssize_t readSize = ::read(fReadFd, buffer, size);
-        if (readSize < 0) {
-            err(1,"Failed read %zu", size);
-            return {size, kFail};
-        }
-        return {readSize, kSuccess};
+    SkDiscardableHandleId createHandle() override { return ++nextHandleId; }
+    bool lockHandle(SkDiscardableHandleId handleId) override {
+        return handleId > lastPurgedHandleId;
     }
+    void purgeAll() { lastPurgedHandleId = nextHandleId; }
 
 private:
-    const int fReadFd,
-              fWriteFd;
+    SkDiscardableHandleId nextHandleId = 0u;
+    SkDiscardableHandleId lastPurgedHandleId = 0u;
 };
+
+class ClientDiscardableManager : public SkStrikeClient::DiscardableHandleManager {
+public:
+    class ScopedPurgeCache {
+    public:
+        ScopedPurgeCache(ClientDiscardableManager* manager) : fManager(manager) {
+            if (fManager) fManager->allowPurging = true;
+        }
+        ~ScopedPurgeCache() {
+            if (fManager) fManager->allowPurging = false;
+        }
+
+    private:
+        ClientDiscardableManager* fManager;
+    };
+
+    ClientDiscardableManager() = default;
+    ~ClientDiscardableManager() override = default;
+
+    bool deleteHandle(SkDiscardableHandleId) override { return allowPurging; }
+
+private:
+    bool allowPurging = false;
+};
+
+static bool write_SkData(int fd, const SkData& data) {
+    size_t size = data.size();
+    ssize_t bytesWritten = ::write(fd, &size, sizeof(size));
+    if (bytesWritten < 0) {
+        err(1,"Failed write %zu", size);
+        return false;
+    }
+
+    bytesWritten = ::write(fd, data.data(), data.size());
+    if (bytesWritten < 0) {
+        err(1,"Failed write %zu", size);
+        return false;
+    }
+
+    return true;
+}
+
+static sk_sp<SkData> read_SkData(int fd) {
+    size_t size;
+    ssize_t readSize = ::read(fd, &size, sizeof(size));
+    if (readSize <= 0) {
+        if (readSize < 0) {
+            err(1, "Failed read %zu", size);
+        }
+        return nullptr;
+    }
+
+    auto out = SkData::MakeUninitialized(size);
+    auto data = (uint8_t*)out->data();
+
+    size_t totalRead = 0;
+    while (totalRead < size) {
+        ssize_t sizeRead;
+        sizeRead = ::read(fd, &data[totalRead], size - totalRead);
+        if (sizeRead <= 0) {
+            if (readSize < 0) {
+                err(1, "Failed read %zu", size);
+            }
+            return nullptr;
+        }
+        totalRead += sizeRead;
+    }
+
+    return out;
+}
 
 class Timer {
 public:
@@ -75,44 +132,56 @@ private:
     std::chrono::duration<double>                       fElapsedSeconds{0.0};
 };
 
-static void build_prime_cache_spec(const SkIRect &bounds,
-                                   const SkSurfaceProps &props,
-                                   const SkPicture &pic,
-                                   SkStrikeCacheDifferenceSpec *strikeDifference) {
+static bool push_font_data(const SkPicture& pic, SkStrikeServer* strikeServer, int writeFd) {
     SkMatrix deviceMatrix = SkMatrix::I();
-
-    SkTextBlobCacheDiffCanvas filter(
-            bounds.width(), bounds.height(), deviceMatrix, props,
-            SkScalerContextFlags::kFakeGammaAndBoostContrast,
-            strikeDifference);
-
+    const SkIRect bounds = pic.cullRect().round();
+    const SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+    SkTextBlobCacheDiffCanvas filter(bounds.width(), bounds.height(), deviceMatrix, props,
+                                     strikeServer);
     pic.playback(&filter);
+
+    std::vector<uint8_t> fontData;
+    strikeServer->writeStrikeData(&fontData);
+    auto data = SkData::MakeWithoutCopy(fontData.data(), fontData.size());
+    return write_SkData(writeFd, *data);
 }
 
-static void final_draw(std::string outFilename,
-                       SkDeserialProcs* procs,
-                       SkData* picData,
-                       SkStrikeClient* client) {
+static void final_draw(std::string outFilename, SkData* picData, SkStrikeClient* client,
+                       ClientDiscardableManager* discardableManager, int readFd, int writeFd) {
+    SkDeserialProcs procs;
+    auto decode = [](const void* data, size_t length, void* ctx) -> sk_sp<SkTypeface> {
+        return reinterpret_cast<SkStrikeClient*>(ctx)->deserializeTypeface(data, length);
+    };
+    procs.fTypefaceProc = decode;
+    procs.fTypefaceCtx = client;
 
-    auto pic = SkPicture::MakeFromData(picData, procs);
+    auto pic = SkPicture::MakeFromData(picData, &procs);
 
     auto cullRect = pic->cullRect();
     auto r = cullRect.round();
 
     auto s = SkSurface::MakeRasterN32Premul(r.width(), r.height());
     auto c = s->getCanvas();
-    auto picUnderTest = SkPicture::MakeFromData(picData, procs);
+    auto picUnderTest = SkPicture::MakeFromData(picData, &procs);
 
     Timer drawTime;
+    auto randomData = SkData::MakeUninitialized(1u);
     for (int i = 0; i < 100; i++) {
         if (gPurgeFontCaches) {
+            ClientDiscardableManager::ScopedPurgeCache purge(discardableManager);
             SkGraphics::PurgeFontCache();
+            SkASSERT(SkGraphics::GetFontCacheUsed() == 0u);
         }
+
         drawTime.start();
         if (client != nullptr) {
-            SkStrikeCacheDifferenceSpec strikeDifference;
-            build_prime_cache_spec(r, s->props(), *picUnderTest, &strikeDifference);
-            client->primeStrikeCache(strikeDifference);
+            // Kick the renderer to send us the fonts.
+            write_SkData(writeFd, *randomData);
+            auto fontData = read_SkData(readFd);
+            if (fontData && !fontData->isEmpty()) {
+                if (!client->readStrikeData(fontData->data(), fontData->size()))
+                    SK_ABORT("Bad serialization");
+            }
         }
         c->drawPicture(picUnderTest);
         drawTime.stop();
@@ -133,20 +202,20 @@ static void final_draw(std::string outFilename,
 static void gpu(int readFd, int writeFd) {
 
     if (gUseGpu) {
-        ReadWriteTransport rwTransport{readFd, writeFd};
-
-        auto picData = rwTransport.readSkData();
+        auto picData = read_SkData(readFd);
         if (picData == nullptr) {
             return;
         }
 
-        SkStrikeClient client{&rwTransport};
+        sk_sp<ClientDiscardableManager> discardableManager = sk_make_sp<ClientDiscardableManager>();
+        SkStrikeClient strikeClient(discardableManager);
 
-        SkDeserialProcs procs;
-        client.prepareDeserializeProcs(&procs);
-
-        final_draw("test.png", &procs, picData.get(), &client);
+        final_draw("test.png", picData.get(), &strikeClient, discardableManager.get(), readFd,
+                   writeFd);
     }
+
+    ::close(writeFd);
+    ::close(readFd);
 
     printf("GPU is exiting\n");
 }
@@ -154,29 +223,46 @@ static void gpu(int readFd, int writeFd) {
 static int renderer(
     const std::string& skpName, int readFd, int writeFd)
 {
-    ReadWriteTransport rwTransport{readFd, writeFd};
-    SkStrikeServer server{&rwTransport};
+    ServerDiscardableManager discardableManager;
+    SkStrikeServer server(&discardableManager);
+    auto closeAll = [readFd, writeFd]() {
+        ::close(writeFd);
+        ::close(readFd);
+    };
 
     auto skpData = SkData::MakeFromFileName(skpName.c_str());
     std::cout << "skp stream is " << skpData->size() << " bytes long " << std::endl;
 
-    SkSerialProcs procs;
     sk_sp<SkData> stream;
     if (gUseGpu) {
         auto pic = SkPicture::MakeFromData(skpData.get());
-        server.prepareSerializeProcs(&procs);
+        SkSerialProcs procs;
+        auto encode = [](SkTypeface* tf, void* ctx) -> sk_sp<SkData> {
+            return reinterpret_cast<SkStrikeServer*>(ctx)->serializeTypeface(tf);
+        };
+        procs.fTypefaceProc = encode;
+        procs.fTypefaceCtx = &server;
+
         stream = pic->serialize(&procs);
 
-        if (rwTransport.writeSkData(*stream) == SkRemoteStrikeTransport::kFail) {
+        if (!write_SkData(writeFd, *stream)) {
+            closeAll();
             return 1;
         }
 
-        std::cout << "Waiting for scaler context ops." << std::endl;
-
-        return server.serve();
+        while (true) {
+            auto inBuffer = read_SkData(readFd);
+            if (inBuffer == nullptr) {
+                closeAll();
+                return 0;
+            }
+            if (gPurgeFontCaches) discardableManager.purgeAll();
+            push_font_data(*pic.get(), &server, writeFd);
+        }
     } else {
         stream = skpData;
-        final_draw("test-correct.png", nullptr, stream.get(), nullptr);
+        final_draw("test-correct.png", stream.get(), nullptr, nullptr, -1, -1);
+        closeAll();
         return 0;
     }
 }

@@ -11,6 +11,7 @@
 #include "../private/SkAtomics.h"
 #include "GrGpuResource.h"
 #include "GrNonAtomicRef.h"
+#include "GrTracing.h"
 #include "GrXferProcessor.h"
 #include "SkMatrix.h"
 #include "SkRect.h"
@@ -50,6 +51,9 @@ class GrRenderTargetOpList;
     #define GrOP_SPEW(code)
     #define GrOP_INFO(...)
 #endif
+
+// Print out op information at flush time
+#define GR_FLUSH_TIME_OP_SPEW 0
 
 // A helper macro to generate a class static id
 #define DEFINE_OP_CLASS_ID \
@@ -134,21 +138,16 @@ public:
     }
 
     /**
-     * This is called to notify the op that it has been recorded into a GrOpList. Ops can use this
-     * to begin preparations for the flush of the op list. Note that the op still may either be
-     * combined into another op or have another op combined into it via combineIfPossible() after
-     * this call is made.
-     */
-    virtual void wasRecorded(GrRenderTargetOpList*) {}
-
-    /**
      * Called prior to executing. The op should perform any resource creation or data transfers
      * necessary before execute() is called.
      */
     void prepare(GrOpFlushState* state) { this->onPrepare(state); }
 
     /** Issues the op's commands to GrGpu. */
-    void execute(GrOpFlushState* state) { this->onExecute(state); }
+    void execute(GrOpFlushState* state) {
+        TRACE_EVENT0("skia", name());
+        this->onExecute(state);
+    }
 
     /** Used for spewing information about ops when debugging. */
     virtual SkString dumpInfo() const {

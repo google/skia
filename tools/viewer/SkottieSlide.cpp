@@ -11,13 +11,51 @@
 #include "SkCanvas.h"
 #include "Skottie.h"
 
+static void draw_stats_box(SkCanvas* canvas, const skottie::Animation::Stats& stats) {
+    static constexpr SkRect kR = { 10, 10, 280, 120 };
+    static constexpr SkScalar kTextSize = 20;
+
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(0xffeeeeee);
+    paint.setTextSize(kTextSize);
+
+    canvas->drawRect(kR, paint);
+
+    paint.setColor(SK_ColorBLACK);
+
+    const auto json_size = SkStringPrintf("Json size: %lu bytes",
+                                          stats.fJsonSize);
+    canvas->drawText(json_size.c_str(),
+                     json_size.size(), kR.x() + 10, kR.y() + kTextSize * 1, paint);
+    const auto animator_count = SkStringPrintf("Animator count: %lu",
+                                               stats.fAnimatorCount);
+    canvas->drawText(animator_count.c_str(),
+                     animator_count.size(), kR.x() + 10, kR.y() + kTextSize * 2, paint);
+    const auto json_parse_time = SkStringPrintf("Json parse time: %.3f ms",
+                                                stats.fJsonParseTimeMS);
+    canvas->drawText(json_parse_time.c_str(),
+                     json_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 3, paint);
+    const auto scene_parse_time = SkStringPrintf("Scene build time: %.3f ms",
+                                                 stats.fSceneParseTimeMS);
+    canvas->drawText(scene_parse_time.c_str(),
+                     scene_parse_time.size(), kR.x() + 10, kR.y() + kTextSize * 4, paint);
+    const auto total_load_time = SkStringPrintf("Total load time: %.3f ms",
+                                                stats.fTotalLoadTimeMS);
+    canvas->drawText(total_load_time.c_str(),
+                     total_load_time.size(), kR.x() + 10, kR.y() + kTextSize * 5, paint);
+
+    paint.setStyle(SkPaint::kStroke_Style);
+    canvas->drawRect(kR, paint);
+}
+
 SkottieSlide::SkottieSlide(const SkString& name, const SkString& path)
     : fPath(path) {
     fName = name;
 }
 
 void SkottieSlide::load(SkScalar w, SkScalar h) {
-    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str());
+    fAnimation = skottie::Animation::MakeFromFile(fPath.c_str(), nullptr, &fAnimationStats);
     fWinSize   = SkSize::Make(w, h);
     fTimeBase  = 0; // force a time reset
 
@@ -47,6 +85,10 @@ void SkottieSlide::draw(SkCanvas* canvas) {
         SkAutoCanvasRestore acr(canvas, true);
         const auto dstR = SkRect::MakeSize(fWinSize);
         fAnimation->render(canvas, &dstR);
+
+        if (fShowAnimationStats) {
+            draw_stats_box(canvas, fAnimationStats);
+        }
     }
 }
 
@@ -66,10 +108,7 @@ bool SkottieSlide::animate(const SkAnimTimer& timer) {
 bool SkottieSlide::onChar(SkUnichar c) {
     switch (c) {
     case 'I':
-        if (fAnimation) {
-            fShowAnimationInval = !fShowAnimationInval;
-            fAnimation->setShowInval(fShowAnimationInval);
-        }
+        fShowAnimationStats = !fShowAnimationStats;
         break;
     default:
         break;
@@ -82,6 +121,7 @@ bool SkottieSlide::onMouse(SkScalar x, SkScalar y, sk_app::Window::InputState st
     switch (state) {
     case sk_app::Window::kUp_InputState:
         fShowAnimationInval = !fShowAnimationInval;
+        fShowAnimationStats = !fShowAnimationStats;
         fAnimation->setShowInval(fShowAnimationInval);
         break;
     default:

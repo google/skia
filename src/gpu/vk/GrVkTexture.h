@@ -29,7 +29,6 @@ public:
 
     ~GrVkTexture() override;
 
-    GrBackendObject getTextureHandle() const override;
     GrBackendTexture getBackendTexture() const override;
 
     void textureParamsModified() override {}

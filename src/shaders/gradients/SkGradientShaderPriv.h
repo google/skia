@@ -11,7 +11,6 @@
 #include "SkGradientShader.h"
 
 #include "SkArenaAlloc.h"
-#include "SkAutoMalloc.h"
 #include "SkMatrix.h"
 #include "SkShaderBase.h"
 #include "SkTArray.h"
@@ -54,13 +53,9 @@ public:
         SkScalar* mutablePos() { return const_cast<SkScalar*>(fPos); }
 
     private:
-        enum {
-            kStorageCount = 16
-        };
-        SkColor4f fColorStorage[kStorageCount];
-        SkScalar fPosStorage[kStorageCount];
-        SkMatrix fLocalMatrixStorage;
-        SkAutoMalloc fDynamicStorage;
+        SkSTArray<16, SkColor4f, true> fColorStorage;
+        SkSTArray<16, SkScalar , true> fPosStorage;
+        SkMatrix                       fLocalMatrixStorage;
     };
 
     SkGradientShaderBase(const Descriptor& desc, const SkMatrix& ptsToUnit);

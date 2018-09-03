@@ -28,16 +28,6 @@ CODE_SIGN_IDENTITY="iPhone Developer"
 
 IOS_RESULTS_DIR="results"
 
-# BUILDTYPE is 'Debug' by default.
-if [[ -z "$BUILDTYPE" ]]; then
-  BUILDTYPE="Debug"
-fi
-
-# Out dir is $SKIA_SRC_DIR/out by default.
-if [[ -z "$SKIA_OUT" ]]; then
-  SKIA_OUT="$SKIA_SRC_DIR/out"
-fi
-
 # Location of XCode build products.
 if [[ -z "$XCODEBUILD" ]]; then
   XCODEBUILD="${SKIA_SRC_DIR}/xcodebuild"

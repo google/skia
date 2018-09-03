@@ -9,7 +9,7 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorSpace.h"
-#include "SkColorSpaceXform_Base.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkData.h"
 #include "SkFrameHolder.h"
 #include "SkGifCodec.h"
@@ -169,7 +169,7 @@ bool SkCodec::conversionSupported(const SkImageInfo& dst, SkColorType srcColor,
         case kBGRA_8888_SkColorType:
             return true;
         case kRGBA_F16_SkColorType:
-            return dst.colorSpace() && dst.colorSpace()->gammaIsLinear();
+            return dst.colorSpace();
         case kRGB_565_SkColorType:
             return srcIsOpaque;
         case kGray_8_SkColorType:
@@ -657,8 +657,9 @@ bool SkCodec::initializeColorXform(const SkImageInfo& dstInfo, SkEncodedInfo::Al
     bool needsColorCorrectPremul = needs_premul(dstInfo.alphaType(), encodedAlpha) &&
                                    SkTransferFunctionBehavior::kRespect == premulBehavior;
     if (needs_color_xform(dstInfo, fSrcInfo.colorSpace(), needsColorCorrectPremul)) {
-        fColorXform = SkColorSpaceXform_Base::New(fSrcInfo.colorSpace(), dstInfo.colorSpace(),
-                                                  premulBehavior);
+        fColorXform = SkMakeColorSpaceXform(fSrcInfo.colorSpace(),
+                                            dstInfo.colorSpace(),
+                                            premulBehavior);
         if (!fColorXform) {
             return false;
         }

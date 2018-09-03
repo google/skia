@@ -41,6 +41,9 @@
 #include "SkTypeface.h"
 #include "SkView.h"
 #include "SkXfermodeImageFilter.h"
+#if SK_SUPPORT_GPU
+#include "text/GrSDFMaskFilter.h"
+#endif
 #include <stdio.h>
 #include <time.h>
 
@@ -455,7 +458,11 @@ static sk_sp<SkPathEffect> make_path_effect(bool canBeNull = true) {
 
 static sk_sp<SkMaskFilter> make_mask_filter() {
     sk_sp<SkMaskFilter> maskFilter;
+#if SK_SUPPORT_GPU
+    switch (R(4)) {
+#else
     switch (R(3)) {
+#endif
         case 0:
             maskFilter = SkMaskFilter::MakeBlur(make_blur_style(), make_scalar(),
                                                 make_blur_mask_filter_respectctm());
@@ -469,7 +476,13 @@ static sk_sp<SkMaskFilter> make_mask_filter() {
             light.fSpecular = R(256);
             maskFilter = SkEmbossMaskFilter::Make(make_scalar(), light);
         }
+#if SK_SUPPORT_GPU
         case 2:
+            maskFilter = GrSDFMaskFilter::Make();
+        case 3:
+#else
+        case 2:
+#endif
         default:
             break;
     }

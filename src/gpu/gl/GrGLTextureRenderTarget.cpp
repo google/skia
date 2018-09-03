@@ -6,8 +6,8 @@
  */
 
 #include "GrGLTextureRenderTarget.h"
-
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrGLGpu.h"
 #include "GrTexturePriv.h"
 #include "SkTraceMemoryDump.h"
@@ -52,7 +52,7 @@ void GrGLTextureRenderTarget::dumpMemoryStatistics(
 bool GrGLTextureRenderTarget::canAttemptStencilAttachment() const {
     // The RT FBO of GrGLTextureRenderTarget is never created from a
     // wrapped FBO, so we only care about the flag.
-    return !this->getGpu()->getContext()->caps()->avoidStencilBuffers();
+    return !this->getGpu()->getContext()->contextPriv().caps()->avoidStencilBuffers();
 }
 
 sk_sp<GrGLTextureRenderTarget> GrGLTextureRenderTarget::MakeWrapped(

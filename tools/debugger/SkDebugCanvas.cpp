@@ -343,6 +343,11 @@ void SkDebugCanvas::onDrawBitmap(const SkBitmap& bitmap, SkScalar left,
     this->addDrawCommand(new SkDrawBitmapCommand(bitmap, left, top, paint));
 }
 
+void SkDebugCanvas::onDrawBitmapLattice(const SkBitmap& bitmap, const Lattice& lattice,
+                                        const SkRect& dst, const SkPaint* paint) {
+    this->addDrawCommand(new SkDrawBitmapLatticeCommand(bitmap, lattice, dst, paint));
+}
+
 void SkDebugCanvas::onDrawBitmapRect(const SkBitmap& bitmap, const SkRect* src, const SkRect& dst,
                                      const SkPaint* paint, SrcRectConstraint constraint) {
     this->addDrawCommand(new SkDrawBitmapRectCommand(bitmap, src, dst, paint,
@@ -466,6 +471,10 @@ void SkDebugCanvas::onDrawVerticesObject(const SkVertices* vertices, SkBlendMode
                                          const SkPaint& paint) {
     this->addDrawCommand(new SkDrawVerticesCommand(sk_ref_sp(const_cast<SkVertices*>(vertices)),
                                                    bmode, paint));
+}
+
+void SkDebugCanvas::onDrawShadowRec(const SkPath& path, const SkDrawShadowRec& rec) {
+    this->addDrawCommand(new SkDrawShadowCommand(path, rec));
 }
 
 void SkDebugCanvas::willRestore() {

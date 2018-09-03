@@ -31,26 +31,25 @@
 class SkPictureRecord : public SkCanvasVirtualEnforcer<SkCanvas> {
 public:
     SkPictureRecord(const SkISize& dimensions, uint32_t recordFlags);
-    ~SkPictureRecord() override;
 
-    const SkTDArray<const SkPicture* >& getPictureRefs() const {
-        return fPictureRefs;
+    const SkTArray<sk_sp<const SkPicture>>& getPictures() const {
+        return fPictures;
     }
 
-    const SkTDArray<SkDrawable* >& getDrawableRefs() const {
-        return fDrawableRefs;
+    const SkTArray<sk_sp<SkDrawable>>& getDrawables() const {
+        return fDrawables;
     }
 
-    const SkTDArray<const SkTextBlob* >& getTextBlobRefs() const {
-        return fTextBlobRefs;
+    const SkTArray<sk_sp<const SkTextBlob>>& getTextBlobs() const {
+        return fTextBlobs;
     }
 
-    const SkTDArray<const SkVertices* >& getVerticesRefs() const {
-        return fVerticesRefs;
+    const SkTArray<sk_sp<const SkVertices>>& getVertices() const {
+        return fVertices;
     }
 
-   const SkTDArray<const SkImage* >& getImageRefs() const {
-        return fImageRefs;
+    const SkTArray<sk_sp<const SkImage>>& getImages() const {
+        return fImages;
     }
 
     sk_sp<SkData> opData() const {
@@ -251,12 +250,11 @@ private:
 
     SkWriter32 fWriter;
 
-    // we ref each item in these arrays
-    SkTDArray<const SkImage*>    fImageRefs;
-    SkTDArray<const SkPicture*>  fPictureRefs;
-    SkTDArray<SkDrawable*>       fDrawableRefs;
-    SkTDArray<const SkTextBlob*> fTextBlobRefs;
-    SkTDArray<const SkVertices*> fVerticesRefs;
+    SkTArray<sk_sp<const SkImage>>    fImages;
+    SkTArray<sk_sp<const SkPicture>>  fPictures;
+    SkTArray<sk_sp<SkDrawable>>       fDrawables;
+    SkTArray<sk_sp<const SkTextBlob>> fTextBlobs;
+    SkTArray<sk_sp<const SkVertices>> fVertices;
 
     uint32_t fRecordFlags;
     int      fInitialSaveCount;

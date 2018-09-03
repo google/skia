@@ -81,6 +81,24 @@ sk_sp<GrRenderTargetContext> GrOnFlushResourceProvider::makeRenderTargetContext(
     return renderTargetContext;
 }
 
+bool GrOnFlushResourceProvider::assignUniqueKeyToProxy(const GrUniqueKey& key,
+                                                       GrTextureProxy* proxy) {
+    auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    return proxyProvider->assignUniqueKeyToProxy(key, proxy);
+}
+
+void GrOnFlushResourceProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key,
+                                                         GrTextureProxy* proxy) {
+    auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    proxyProvider->removeUniqueKeyFromProxy(key, proxy);
+}
+
+sk_sp<GrTextureProxy> GrOnFlushResourceProvider::findOrCreateProxyByUniqueKey(
+        const GrUniqueKey& key, GrSurfaceOrigin origin) {
+    auto proxyProvider = fDrawingMgr->getContext()->contextPriv().proxyProvider();
+    return proxyProvider->findOrCreateProxyByUniqueKey(key, origin);
+}
+
 bool GrOnFlushResourceProvider::instatiateProxy(GrSurfaceProxy* proxy) {
     auto resourceProvider = fDrawingMgr->getContext()->contextPriv().resourceProvider();
 
@@ -115,5 +133,5 @@ sk_sp<const GrBuffer> GrOnFlushResourceProvider::findOrMakeStaticBuffer(GrBuffer
 }
 
 const GrCaps* GrOnFlushResourceProvider::caps() const {
-    return fDrawingMgr->getContext()->caps();
+    return fDrawingMgr->getContext()->contextPriv().caps();
 }

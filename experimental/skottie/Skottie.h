@@ -11,8 +11,6 @@
 #include "SkRefCnt.h"
 #include "SkSize.h"
 #include "SkString.h"
-#include "SkTArray.h"
-#include "SkTHash.h"
 #include "SkTypes.h"
 
 #include <memory>
@@ -21,23 +19,32 @@ class SkCanvas;
 struct SkRect;
 class SkStream;
 
-namespace Json { class Value; }
-
 namespace sksg { class Scene;  }
 
 namespace skottie {
 
-class ResourceProvider : public SkNoncopyable {
+namespace json { class ValueRef; }
+
+class SK_API ResourceProvider : public SkNoncopyable {
 public:
     virtual ~ResourceProvider() = default;
 
     virtual std::unique_ptr<SkStream> openStream(const char resource[]) const = 0;
 };
 
-class Animation : public SkRefCnt {
+class SK_API Animation : public SkRefCnt {
 public:
-    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&);
-    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr);
+    struct Stats {
+        float  fTotalLoadTimeMS,
+               fJsonParseTimeMS,
+               fSceneParseTimeMS;
+        size_t fJsonSize,
+               fAnimatorCount;
+    };
+
+    static sk_sp<Animation> Make(SkStream*, const ResourceProvider&, Stats* = nullptr);
+    static sk_sp<Animation> MakeFromFile(const char path[], const ResourceProvider* = nullptr,
+                                         Stats* = nullptr);
 
     ~Animation() override;
 
@@ -54,9 +61,8 @@ public:
     void setShowInval(bool show);
 
 private:
-    Animation(const ResourceProvider&,
-              SkString ver, const SkSize& size, SkScalar fps,
-              const Json::Value&);
+    Animation(const ResourceProvider&, SkString ver, const SkSize& size, SkScalar fps,
+              const json::ValueRef&, Stats*);
 
     SkString                     fVersion;
     SkSize                       fSize;

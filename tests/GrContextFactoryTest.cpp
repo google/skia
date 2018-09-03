@@ -29,9 +29,8 @@ DEF_GPUTEST(GrContextFactory_NVPRContextOptionHasPathRenderingSupport, reporter,
         if (!context) {
             continue;
         }
-        REPORTER_ASSERT(
-            reporter,
-            context->caps()->shaderCaps()->pathRenderingSupport());
+        REPORTER_ASSERT(reporter,
+                        context->contextPriv().caps()->shaderCaps()->pathRenderingSupport());
     }
 }
 
@@ -44,9 +43,8 @@ DEF_GPUTEST(GrContextFactory_NoPathRenderingIfNVPRDisabled, reporter, options) {
         GrContext* context =
             testFactory.get(ctxType, GrContextFactory::ContextOverrides::kDisableNVPR);
         if (context) {
-            REPORTER_ASSERT(
-                reporter,
-                !context->caps()->shaderCaps()->pathRenderingSupport());
+            REPORTER_ASSERT(reporter,
+                            !context->contextPriv().caps()->shaderCaps()->pathRenderingSupport());
         }
     }
 }
@@ -63,11 +61,11 @@ DEF_GPUTEST(GrContextFactory_RequiredSRGBSupport, reporter, options) {
             testFactory.get(ctxType, GrContextFactory::ContextOverrides::kRequireSRGBSupport);
 
         if (context) {
-            REPORTER_ASSERT(reporter, context->caps()->srgbSupport());
+            REPORTER_ASSERT(reporter, context->contextPriv().caps()->srgbSupport());
         } else {
             context = testFactory.get(ctxType);
             if (context) {
-                REPORTER_ASSERT(reporter, !context->caps()->srgbSupport());
+                REPORTER_ASSERT(reporter, !context->contextPriv().caps()->srgbSupport());
             }
         }
     }

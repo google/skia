@@ -114,6 +114,7 @@ protected:
             boundPaint.setColor(SK_ColorRED);
             boundPaint.setStyle(SkPaint::kStroke_Style);
             canvas->drawRect(bounds, boundPaint);
+            canvas->clipRect(bounds);
             canvas->saveLayer(&bounds, nullptr);
         }
 

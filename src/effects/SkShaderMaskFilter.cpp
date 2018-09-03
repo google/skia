@@ -70,7 +70,9 @@ static void rect_memcpy(void* dst, size_t dstRB, const void* src, size_t srcRB,
 
 bool SkShaderMF::filterMask(SkMask* dst, const SkMask& src, const SkMatrix& ctm,
                             SkIPoint* margin) const {
-    SkASSERT(src.fFormat == SkMask::kA8_Format);
+    if (src.fFormat != SkMask::kA8_Format) {
+        return false;
+    }
 
     if (margin) {
         margin->set(0, 0);

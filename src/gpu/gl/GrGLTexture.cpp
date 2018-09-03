@@ -71,8 +71,7 @@ void GrGLTexture::init(const GrSurfaceDesc& desc, const IDDesc& idDesc) {
     SkASSERT(0 != idDesc.fInfo.fFormat);
     if (idDesc.fInfo.fTarget == GR_GL_TEXTURE_RECTANGLE ||
         idDesc.fInfo.fTarget == GR_GL_TEXTURE_EXTERNAL) {
-        this->setDoesNotSupportMipMaps();
-        this->setIsClampOnly();
+        this->setIsGLTextureRectangleOrExternal();
     }
     fTexParams.invalidate();
     fTexParamsTimestamp = GrGpu::kExpiredTimestamp;
@@ -96,10 +95,6 @@ void GrGLTexture::onAbandon() {
     fInfo.fID = 0;
     this->invokeReleaseProc();
     INHERITED::onAbandon();
-}
-
-GrBackendObject GrGLTexture::getTextureHandle() const {
-    return reinterpret_cast<GrBackendObject>(&fInfo);
 }
 
 GrBackendTexture GrGLTexture::getBackendTexture() const {

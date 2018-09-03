@@ -6,7 +6,9 @@
 # Recipe for the Skia PerCommit Housekeeper.
 
 DEPS = [
+  'build',
   'recipe_engine/context',
+  'recipe_engine/file',
   'recipe_engine/path',
   'recipe_engine/properties',
   'recipe_engine/python',
@@ -21,7 +23,11 @@ DEPS = [
 
 def RunSteps(api):
   # Checkout, compile, etc.
-  api.core.setup()
+  api.vars.setup()
+  checkout_root = api.core.default_checkout_root
+  api.core.checkout_bot_update(checkout_root=checkout_root)
+  api.file.ensure_directory('makedirs tmp_dir', api.vars.tmp_dir)
+  api.flavor.setup()
 
   cwd = api.path['checkout']
 
@@ -50,7 +56,8 @@ for r, d, files in os.walk('%s'):
 """ % cwd)
 
     # Regenerate the SKSL files.
-    api.flavor.compile('compile_processors')
+    api.build(checkout_root=checkout_root,
+              out_dir=api.vars.build_dir.join('out', 'Release'))
 
     # Get a second diff. If this doesn't match the first, then there have been
     # modifications to the generated files.

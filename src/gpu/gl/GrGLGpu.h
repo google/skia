@@ -179,6 +179,9 @@ public:
 
     void insertEventMarker(const char*);
 
+    void bindFramebuffer(GrGLenum fboTarget, GrGLuint fboid);
+    void deleteFramebuffer(GrGLuint fboid);
+
 private:
     GrGLGpu(std::unique_ptr<GrGLContext>, GrContext*);
 
@@ -573,6 +576,8 @@ private:
     TriState                                fHWSRGBFramebuffer;
     SkTArray<GrGpuResource::UniqueID, true> fHWBoundTextureUniqueIDs;
 
+    GrGLuint fBoundDrawFramebuffer = 0;
+
     struct BufferTexture {
         BufferTexture() : fTextureID(0), fKnownBound(false),
                           fAttachedBufferUniqueID(SK_InvalidUniqueID),
@@ -628,8 +633,9 @@ private:
         return (wide ? 0x2 : 0x0) | (tall ? 0x1 : 0x0);
     }
 
-    float                                   fHWMinSampleShading;
-    GrPrimitiveType                         fLastPrimitiveType;
+    float fHWMinSampleShading;
+    GrPrimitiveType fLastPrimitiveType;
+    bool fRequiresFlushBeforeNextInstancedDraw = false;
 
     typedef GrGpu INHERITED;
     friend class GrGLPathRendering; // For accessing setTextureUnit.

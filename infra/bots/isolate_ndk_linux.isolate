@@ -1,7 +1,0 @@
-{
-  'variables': {
-    'command': [
-      '/bin/cp', '-rL', 'android_ndk_linux', '${ISOLATED_OUTDIR}',
-    ],
-  },
-}

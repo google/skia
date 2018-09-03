@@ -146,11 +146,11 @@ public:
      * Creates an op that draws a subrectangle of a texture. The passed color is modulated by the
      * texture's color. 'srcRect' specifies the rectangle of the texture to draw. 'dstRect'
      * specifies the rectangle to draw in local coords which will be transformed by 'viewMatrix' to
-     * device space. This asserts that the view matrix does not have perspective.
+     * device space.
      */
-    void drawTextureAffine(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter,
-                           GrColor, const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
-                           const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
+    void drawTexture(const GrClip& clip, sk_sp<GrTextureProxy>, GrSamplerState::Filter, GrColor,
+                     const SkRect& srcRect, const SkRect& dstRect, GrAA aa,
+                     const SkMatrix& viewMatrix, sk_sp<GrColorSpaceXform>);
 
     /**
      * Draw a roundrect using a paint.
@@ -309,11 +309,12 @@ public:
      * Draw the image as a set of rects, specified by |iter|.
      */
     void drawImageLattice(const GrClip&,
-                          GrPaint&& paint,
+                          GrPaint&&,
                           const SkMatrix& viewMatrix,
-                          int imageWidth,
-                          int imageHeight,
-                          std::unique_ptr<SkLatticeIter> iter,
+                          sk_sp<GrTextureProxy>,
+                          sk_sp<GrColorSpaceXform>,
+                          GrSamplerState::Filter,
+                          std::unique_ptr<SkLatticeIter>,
                           const SkRect& dst);
 
     /**
@@ -332,7 +333,7 @@ public:
     void insertEventMarker(const SkString&);
 
     GrFSAAType fsaaType() const { return fRenderTargetProxy->fsaaType(); }
-    const GrCaps* caps() const { return fContext->caps(); }
+    const GrCaps* caps() const { return fContext->contextPriv().caps(); }
     int width() const { return fRenderTargetProxy->width(); }
     int height() const { return fRenderTargetProxy->height(); }
     int numColorSamples() const { return fRenderTargetProxy->numColorSamples(); }
@@ -403,7 +404,6 @@ private:
     friend class GrAALinearizingConvexPathRenderer;  // for access to add[Mesh]DrawOp
     friend class GrSmallPathRenderer;                // for access to add[Mesh]DrawOp
     friend class GrDefaultPathRenderer;              // for access to add[Mesh]DrawOp
-    friend class GrMSAAPathRenderer;                 // for access to add[Mesh]DrawOp
     friend class GrStencilAndCoverPathRenderer;      // for access to add[Mesh]DrawOp
     friend class GrTessellatingPathRenderer;         // for access to add[Mesh]DrawOp
     friend class GrCCAtlas;                          // for access to addDrawOp
@@ -435,7 +435,7 @@ private:
 
     // These perform processing specific to Gr[Mesh]DrawOp-derived ops before recording them into
     // the op list. They return the id of the opList to which the op was added, or 0, if it was
-    // dropped (e.g., due to clipping).
+    // dropped (e.g., due to clipping or being combined).
     uint32_t addDrawOp(const GrClip&, std::unique_ptr<GrDrawOp>);
 
     // Makes a copy of the proxy if it is necessary for the draw and places the texture that should

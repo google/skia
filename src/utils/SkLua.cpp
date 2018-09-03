@@ -26,6 +26,7 @@
 #include "SkPictureRecorder.h"
 #include "SkPixelRef.h"
 #include "SkRRect.h"
+#include "SkShaper.h"
 #include "SkString.h"
 #include "SkSurface.h"
 #include "SkTextBlob.h"
@@ -1960,7 +1961,6 @@ static int lsk_newRRect(lua_State* L) {
     return 1;
 }
 
-#include "SkTextBox.h"
 // Sk.newTextBlob(text, rect, paint)
 static int lsk_newTextBlob(lua_State* L) {
     const char* text = lua_tolstring(L, 1, nullptr);
@@ -1968,14 +1968,14 @@ static int lsk_newTextBlob(lua_State* L) {
     lua2rect(L, 2, &bounds);
     const SkPaint& paint = *get_obj<SkPaint>(L, 3);
 
-    SkTextBox box;
-    box.setMode(SkTextBox::kLineBreak_Mode);
-    box.setBox(bounds);
-    box.setText(text, strlen(text), paint);
+    SkShaper shaper(nullptr);
 
-    SkScalar newBottom;
-    push_ref<SkTextBlob>(L, box.snapshotTextBlob(&newBottom));
-    SkLua(L).pushScalar(newBottom);
+    SkTextBlobBuilder builder;
+    SkPoint end = shaper.shape(&builder, paint, text, strlen(text), true,
+                               { bounds.left(), bounds.top() }, bounds.width());
+
+    push_ref<SkTextBlob>(L, builder.make());
+    SkLua(L).pushScalar(end.fY);
     return 2;
 }
 

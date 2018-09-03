@@ -634,7 +634,7 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
 // Something went wrong in the creation of the next ring. If we're filling the shape, just go ahead
 // and fan it.
 void GrAAConvexTessellator::terminate(const Ring& ring) {
-    if (fStyle != SkStrokeRec::kStroke_Style) {
+    if (fStyle != SkStrokeRec::kStroke_Style && ring.numPts() > 0) {
         this->fanRing(ring);
     }
 }
@@ -934,7 +934,7 @@ void GrAAConvexTessellator::lineTo(const SkMatrix& m, SkPoint p, CurveState curv
 
 void GrAAConvexTessellator::quadTo(const SkPoint pts[3]) {
     int maxCount = GrPathUtils::quadraticPointCount(pts, kQuadTolerance);
-    fPointBuffer.setReserve(maxCount);
+    fPointBuffer.setCount(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateQuadraticPoints(pts[0], pts[1], pts[2],
                                                      kQuadTolerance, &target, maxCount);
@@ -953,7 +953,7 @@ void GrAAConvexTessellator::quadTo(const SkMatrix& m, SkPoint pts[3]) {
 void GrAAConvexTessellator::cubicTo(const SkMatrix& m, SkPoint pts[4]) {
     m.mapPoints(pts, 4);
     int maxCount = GrPathUtils::cubicPointCount(pts, kCubicTolerance);
-    fPointBuffer.setReserve(maxCount);
+    fPointBuffer.setCount(maxCount);
     SkPoint* target = fPointBuffer.begin();
     int count = GrPathUtils::generateCubicPoints(pts[0], pts[1], pts[2], pts[3],
             kCubicTolerance, &target, maxCount);

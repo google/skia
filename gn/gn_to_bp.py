@@ -212,13 +212,14 @@ cc_test {
 
 # We'll run GN to get the main source lists and include directories for Skia.
 gn_args = {
-  'is_official_build':  'true',
-  'skia_enable_tools':  'true',
-  'skia_use_libheif':   'true',
-  'skia_use_vulkan':    'true',
-  'target_cpu':         '"none"',
-  'target_os':          '"android"',
-  'skia_vulkan_header': '"Skia_Vulkan_Android.h"',
+  'is_official_build':   'true',
+  'skia_enable_tools':   'true',
+  'skia_enable_skottie': 'false', # requires rapidjson third-party
+  'skia_use_libheif':    'true',
+  'skia_use_vulkan':     'true',
+  'target_cpu':          '"none"',
+  'target_os':           '"android"',
+  'skia_vulkan_header':  '"Skia_Vulkan_Android.h"',
 }
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
@@ -244,6 +245,11 @@ gn_to_bp_utils.GrabDependentValues(js, '//:skia', 'sources', srcs, None)
 gn_to_bp_utils.GrabDependentValues(js, '//:dm', 'sources', dm_srcs, 'skia')
 gn_to_bp_utils.GrabDependentValues(js, '//:nanobench', 'sources',
                                    nanobench_srcs, 'skia')
+
+# skcms is a little special, kind of a second-party library.
+srcs          .add("third_party/skcms/skcms.c")
+local_includes.add("third_party/skcms")
+dm_includes   .add("third_party/skcms")
 
 # No need to list headers.
 srcs            = {s for s in srcs           if not s.endswith('.h')}

@@ -122,7 +122,7 @@ static sk_sp<GrRenderTarget> create_RT_with_SB(GrResourceProvider* provider,
 DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angle_es3, reporter,
                          ctxInfo, nullptr) {
     GrContext* context = ctxInfo.grContext();
-    if (context->caps()->avoidStencilBuffers()) {
+    if (context->contextPriv().caps()->avoidStencilBuffers()) {
         return;
     }
 
@@ -155,7 +155,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
         REPORTER_ASSERT(reporter, get_SB(smallRT0.get()) != get_SB(bigRT.get()));
     }
 
-    int smallSampleCount = context->caps()->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig);
+    int smallSampleCount =
+            context->contextPriv().caps()->getRenderTargetSampleCount(2, kRGBA_8888_GrPixelConfig);
     if (smallSampleCount > 1) {
         // An RT with a different sample count should not share.
         sk_sp<GrRenderTarget> smallMSAART0 = create_RT_with_SB(resourceProvider, 4,
@@ -183,8 +184,8 @@ DEF_GPUTEST_FOR_CONTEXTS(ResourceCacheStencilBuffers, &is_rendering_and_not_angl
 
         // But one with a larger sample count should not. (Also check that the two requests didn't
         // rounded up to the same actual sample count or else they could share.).
-        int bigSampleCount =
-                context->caps()->getRenderTargetSampleCount(5, kRGBA_8888_GrPixelConfig);
+        int bigSampleCount = context->contextPriv().caps()->getRenderTargetSampleCount(
+                5, kRGBA_8888_GrPixelConfig);
         if (bigSampleCount > 0 && bigSampleCount != smallSampleCount) {
             sk_sp<GrRenderTarget> smallMSAART2 = create_RT_with_SB(resourceProvider, 4,
                                                                    bigSampleCount,
@@ -1766,8 +1767,8 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
         size_t size = tex->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4 == size);
 
-        size_t sampleCount =
-                (size_t)context->caps()->getRenderTargetSampleCount(4, kRGBA_8888_GrPixelConfig);
+        size_t sampleCount = (size_t)context->contextPriv().caps()->getRenderTargetSampleCount(
+                4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
             tex = make_normal_texture(resourceProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
                                       sampleCount);
@@ -1785,15 +1786,15 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GPUMemorySize, reporter, ctxInfo) {
 
 
     // Mipmapped versions
-    if (context->caps()->mipMapSupport()) {
+    if (context->contextPriv().caps()->mipMapSupport()) {
         sk_sp<GrTextureProxy> proxy;
 
         proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize, 1);
         size_t size = proxy->gpuMemorySize();
         REPORTER_ASSERT(reporter, kSize*kSize*4+(kSize*kSize*4)/3 == size);
 
-        size_t sampleCount =
-                (size_t)context->caps()->getRenderTargetSampleCount(4, kRGBA_8888_GrPixelConfig);
+        size_t sampleCount = (size_t)context->contextPriv().caps()->getRenderTargetSampleCount(
+                4, kRGBA_8888_GrPixelConfig);
         if (sampleCount >= 4) {
             proxy = make_mipmap_proxy(proxyProvider, kRenderTarget_GrSurfaceFlag, kSize, kSize,
                                       sampleCount);

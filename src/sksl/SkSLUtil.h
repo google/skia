@@ -16,7 +16,7 @@
 #include "SkSLString.h"
 #include "SkSLStringStream.h"
 
-#ifndef SKSL_STANDALONE
+#if !defined(SKSL_STANDALONE) && SK_SUPPORT_GPU
 #include "GrContextOptions.h"
 #include "GrShaderCaps.h"
 #endif
@@ -31,9 +31,11 @@
 #endif // SK_BUILD_FOR_WIN
 #endif // SKSL_STANDALONE
 
+class GrShaderCaps;
+
 namespace SkSL {
 
-#ifdef SKSL_STANDALONE
+#if defined(SKSL_STANDALONE) || !SK_SUPPORT_GPU
 
 // we're being compiled standalone, so we don't have access to caps...
 enum GrGLSLGeneration {
@@ -151,6 +153,14 @@ public:
         return nullptr;
     }
 
+    const char* externalTextureExtensionString() const {
+        return nullptr;
+    }
+
+    const char* secondExternalTextureExtensionString() const {
+        return nullptr;
+    }
+
     const char* versionDeclString() const {
         return "";
     }
@@ -169,6 +179,10 @@ public:
 
     bool incompleteShortIntPrecision() const {
         return false;
+    }
+
+    const char* fbFetchColorName() const {
+        return nullptr;
     }
 };
 

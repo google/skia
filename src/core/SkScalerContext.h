@@ -54,7 +54,11 @@ enum SkAxisAlignment {
 /*
  *  To allow this to be forward-declared, it must be its own typename, rather
  *  than a nested struct inside SkScalerContext (where it started).
+ *
+ *  SkScalerContextRec must be dense, and all bytes must be set to a know quantity because this
+ *  structure is used to calculate a checksum.
  */
+SK_BEGIN_REQUIRE_DENSE
 struct SkScalerContextRec {
     uint32_t    fFontID;
     SkScalar    fTextSize, fPreScaleX, fPreSkewX;
@@ -135,8 +139,8 @@ public:
                    fPost2x2[0][1], fPost2x2[1][0], fPost2x2[1][1]);
         msg.appendf("  frame %g miter %g format %d join %d cap %d flags %#hx\n",
                    fFrameWidth, fMiterLimit, fMaskFormat, fStrokeJoin, fStrokeCap, fFlags);
-        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n",
-                    fLumBits, fDeviceGamma, fPaintGamma, fContrast);
+        msg.appendf("  lum bits %x, device gamma %d, paint gamma %d contrast %d\n", fLumBits,
+                    fDeviceGamma, fPaintGamma, fContrast);
         return msg;
     }
 
@@ -212,6 +216,7 @@ private:
         fLumBits = c;
     }
 };
+SK_END_REQUIRE_DENSE
 
 //The following typedef hides from the rest of the implementation the number of
 //most significant bits to consider when creating mask gamma tables. Two bits
@@ -224,7 +229,7 @@ class SkScalerContext {
 public:
     enum Flags {
         kFrameAndFill_Flag        = 0x0001,
-        kDevKernText_Flag         = 0x0002,
+        kUnused                   = 0x0002,
         kEmbeddedBitmapText_Flag  = 0x0004,
         kEmbolden_Flag            = 0x0008,
         kSubpixelPositioning_Flag = 0x0010,
@@ -310,7 +315,8 @@ public:
                                   const SkMatrix* deviceMatrix,
                                   SkScalerContextFlags scalerContextFlags,
                                   SkScalerContextRec* rec,
-                                  SkScalerContextEffects* effects);
+                                  SkScalerContextEffects* effects,
+                                  bool enableTypefaceFiltering = true);
 
     static SkDescriptor*  MakeDescriptorForPaths(SkFontID fontID,
                                                  SkAutoDescriptor* ad);
@@ -416,8 +422,7 @@ private:
     bool fGenerateImageFromPath;
 
     /** Returns false if the glyph has no path at all. */
-    bool internalGetPath(SkPackedGlyphID id, SkPath* fillPath,
-                         SkPath* devPath, SkMatrix* fillToDevMatrix);
+    bool internalGetPath(SkPackedGlyphID id, SkPath* devPath);
 
     // SkMaskGamma::PreBlend converts linear masks to gamma correcting masks.
 protected:

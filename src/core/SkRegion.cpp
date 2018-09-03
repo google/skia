@@ -129,7 +129,7 @@ SkRegion::~SkRegion() {
 void SkRegion::freeRuns() {
     if (this->isComplex()) {
         SkASSERT(fRunHead->fRefCnt >= 1);
-        if (sk_atomic_dec(&fRunHead->fRefCnt) == 1) {
+        if (--fRunHead->fRefCnt == 0) {
             //SkASSERT(gRgnAllocCounter > 0);
             //SkDEBUGCODE(sk_atomic_dec(&gRgnAllocCounter));
             //SkDEBUGF(("************** gRgnAllocCounter::free %d\n", gRgnAllocCounter));
@@ -199,7 +199,7 @@ bool SkRegion::setRegion(const SkRegion& src) {
         fBounds = src.fBounds;
         fRunHead = src.fRunHead;
         if (this->isComplex()) {
-            sk_atomic_inc(&fRunHead->fRefCnt);
+            fRunHead->fRefCnt++;
         }
     }
     return fRunHead != SkRegion_gEmptyRunHeadPtr;
@@ -574,6 +574,16 @@ bool SkRegion::operator==(const SkRegion& b) const {
                     ah->fRunCount * sizeof(SkRegion::RunType));
 }
 
+// Return a (new) offset such that when applied (+=) to min and max, we don't overflow/underflow
+static int32_t pin_offset_s32(int32_t min, int32_t max, int32_t offset) {
+    SkASSERT(min <= max);
+    const int32_t lo = -SK_MaxS32-1,
+                  hi = +SK_MaxS32;
+    if ((int64_t)min + offset < lo) { offset = lo - min; }
+    if ((int64_t)max + offset > hi) { offset = hi - max; }
+    return offset;
+}
+
 void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     SkDEBUGCODE(this->validate();)
 
@@ -582,9 +592,14 @@ void SkRegion::translate(int dx, int dy, SkRegion* dst) const {
     }
     if (this->isEmpty()) {
         dst->setEmpty();
-    } else if (this->isRect()) {
-        dst->setRect(fBounds.fLeft + dx, fBounds.fTop + dy,
-                     fBounds.fRight + dx, fBounds.fBottom + dy);
+        return;
+    }
+    // pin dx and dy so we don't overflow our existing bounds
+    dx = pin_offset_s32(fBounds.fLeft, fBounds.fRight, dx);
+    dy = pin_offset_s32(fBounds.fTop, fBounds.fBottom, dy);
+
+    if (this->isRect()) {
+        dst->setRect(fBounds.makeOffset(dx, dy));
     } else {
         if (this == dst) {
             dst->fRunHead = dst->fRunHead->ensureWritable();
@@ -1219,13 +1234,10 @@ static bool validate_run(const int32_t* runs,
 
         int32_t xIntervals = *runs++;
         SkASSERT(runs < end);
-        if (xIntervals < 0 || runs + 1 + 2 * xIntervals > end) {
+        if (xIntervals < 0 || xIntervals > intervalCount || runs + 1 + 2 * xIntervals > end) {
             return false;
         }
         intervalCount -= xIntervals;
-        if (intervalCount < 0) {
-            return false;  // too many intervals
-        }
         bool firstInterval = true;
         int32_t lastRight = 0;  // check that x-intervals are distinct and ordered.
         while (xIntervals-- > 0) {

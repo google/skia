@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-#include "SkColorSpaceXform_Base.h"
 #include "SkColorSpaceXformPriv.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorTable.h"
@@ -119,7 +118,7 @@ static inline bool optimized_color_xform(const SkImageInfo& dstInfo, const SkIma
     return true;
 }
 
-static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
+static inline bool apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                                      const SkImageInfo& srcInfo, const void* srcPixels,
                                      size_t srcRB, SkTransferFunctionBehavior behavior) {
     SkColorSpaceXform::ColorFormat dstFormat = select_xform_format(dstInfo.colorType());
@@ -149,8 +148,10 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
     }
 
     std::unique_ptr<SkColorSpaceXform> xform =
-            SkColorSpaceXform_Base::New(srcInfo.colorSpace(), dstInfo.colorSpace(), behavior);
-    SkASSERT(xform);
+            SkMakeColorSpaceXform(srcInfo.colorSpace(), dstInfo.colorSpace(), behavior);
+    if (!xform) {
+        return false;
+    }
 
     for (int y = 0; y < dstInfo.height(); y++) {
         SkAssertResult(xform->apply(dstFormat, dstPixels, srcFormat, srcPixels, dstInfo.width(),
@@ -158,6 +159,7 @@ static inline void apply_color_xform(const SkImageInfo& dstInfo, void* dstPixels
         dstPixels = SkTAddOffset<void>(dstPixels, dstRB);
         srcPixels = SkTAddOffset<const void>(srcPixels, srcRB);
     }
+    return true;
 }
 
 // Fast Path 4: Alpha 8 dsts.
@@ -425,8 +427,9 @@ void SkConvertPixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
 
     // Fast Path 3: Color space xform.
     if (isColorAware && optimized_color_xform(dstInfo, srcInfo, behavior)) {
-        apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, behavior);
-        return;
+        if (apply_color_xform(dstInfo, dstPixels, dstRB, srcInfo, srcPixels, srcRB, behavior)) {
+            return;
+        }
     }
 
     // Fast Path 4: Alpha 8 dsts.

@@ -34,6 +34,12 @@ public:
     AI static SkNx Load(const void* ptr) { return vld1_f32((const float*)ptr); }
     AI void store(void* ptr) const { vst1_f32((float*)ptr, fVec); }
 
+    AI static void Load2(const void* ptr, SkNx* x, SkNx* y) {
+        float32x2x2_t xy = vld2_f32((const float*) ptr);
+        *x = xy.val[0];
+        *y = xy.val[1];
+    }
+
     AI static void Store2(void* dst, const SkNx& a, const SkNx& b) {
         float32x2x2_t ab = {{
             a.fVec,
@@ -242,6 +248,24 @@ public:
         SkASSERT(0 <= k && k < 4);
         union { float32x4_t v; float fs[4]; } pun = {fVec};
         return pun.fs[k&3];
+    }
+
+    AI float min() const {
+    #if defined(__aarch64__)
+        return vminvq_f32(fVec);
+    #else
+        SkNx min = Min(*this, vrev64q_f32(fVec));
+        return std::min(min[0], min[2]);
+    #endif
+    }
+
+    AI float max() const {
+    #if defined(__aarch64__)
+        return vmaxvq_f32(fVec);
+    #else
+        SkNx max = Max(*this, vrev64q_f32(fVec));
+        return std::max(max[0], max[2]);
+    #endif
     }
 
     AI bool allTrue() const {

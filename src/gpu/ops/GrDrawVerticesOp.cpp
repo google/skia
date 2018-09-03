@@ -6,6 +6,7 @@
  */
 
 #include "GrDrawVerticesOp.h"
+#include "GrCaps.h"
 #include "GrDefaultGeoProcFactory.h"
 #include "GrOpFlushState.h"
 #include "SkGr.h"
@@ -312,7 +313,6 @@ static uint32_t seed_vertices(GrPrimitiveType type) {
     switch (type) {
         case GrPrimitiveType::kTriangles:
         case GrPrimitiveType::kTriangleStrip:
-        case GrPrimitiveType::kTriangleFan:
             return 3;
         case GrPrimitiveType::kPoints:
             return 1;
@@ -333,7 +333,6 @@ static uint32_t primitive_vertices(GrPrimitiveType type) {
         case GrPrimitiveType::kLines:
             return 2;
         case GrPrimitiveType::kTriangleStrip:
-        case GrPrimitiveType::kTriangleFan:
         case GrPrimitiveType::kPoints:
         case GrPrimitiveType::kLineStrip:
             return 1;
@@ -376,7 +375,7 @@ GR_DRAW_OP_TEST_DEFINE(GrDrawVerticesOp) {
     do {
        type = GrPrimitiveType(random->nextULessThan(kNumGrPrimitiveTypes));
     } while (GrPrimTypeRequiresGeometryShaderSupport(type) &&
-             !context->caps()->shaderCaps()->geometryShaderSupport());
+             !context->contextPriv().caps()->shaderCaps()->geometryShaderSupport());
 
     uint32_t primitiveCount = random->nextRangeU(1, 100);
 

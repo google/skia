@@ -21,6 +21,7 @@
 #if SK_SUPPORT_GPU
 #include "GrClip.h"
 #include "GrContext.h"
+#include "GrContextPriv.h"
 #include "GrFragmentProcessor.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
@@ -758,7 +759,8 @@ bool SkBlurMaskFilterImpl::directFilterMaskGPU(GrContext* context,
         SkScalar pad = 3.0f * xformedSigma;
         rect.outset(pad, pad);
 
-        fp = GrRectBlurEffect::Make(proxyProvider, rect, xformedSigma);
+        fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
+                                    rect, xformedSigma);
     } else if (path.isOval(&rect) && SkScalarNearlyEqual(rect.width(), rect.height())) {
         fp = GrCircleBlurFragmentProcessor::Make(proxyProvider, rect, xformedSigma);
 
@@ -811,7 +813,8 @@ bool SkBlurMaskFilterImpl::directFilterRRectMaskGPU(GrContext* context,
             SkScalar pad = 3.0f * xformedSigma;
             const SkRect dstCoverageRect = devRRect.rect().makeOutset(pad, pad);
 
-            fp = GrRectBlurEffect::Make(proxyProvider, dstCoverageRect, xformedSigma);
+            fp = GrRectBlurEffect::Make(proxyProvider, *context->contextPriv().caps()->shaderCaps(),
+                                        dstCoverageRect, xformedSigma);
         } else {
             fp = GrCircleBlurFragmentProcessor::Make(proxyProvider,
                                                      devRRect.rect(), xformedSigma);
@@ -954,7 +957,8 @@ sk_sp<GrTextureProxy> SkBlurMaskFilterImpl::filterMaskGPU(GrContext* context,
                                            SkIRect::EmptyIRect(),
                                            xformedSigma,
                                            xformedSigma,
-                                           GrTextureDomain::kIgnore_Mode));
+                                           GrTextureDomain::kIgnore_Mode,
+                                           kPremul_SkAlphaType));
     if (!renderTargetContext) {
         return nullptr;
     }

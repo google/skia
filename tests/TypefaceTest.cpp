@@ -8,6 +8,7 @@
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkData.h"
 #include "SkFixed.h"
+#include "SkFontDescriptor.h"
 #include "SkFontMgr.h"
 #include "SkMakeUnique.h"
 #include "SkOTTable_OS_2.h"
@@ -109,6 +110,30 @@ DEF_TEST(TypefaceRoundTrip, reporter) {
     REPORTER_ASSERT(reporter, typeface2);
 }
 
+DEF_TEST(FontDescriptorNegativeVariationSerialize, reporter) {
+    SkFontDescriptor desc;
+    SkFixed axis = -SK_Fixed1;
+    auto font = skstd::make_unique<SkMemoryStream>("a", 1, false);
+    desc.setFontData(skstd::make_unique<SkFontData>(std::move(font), 0, &axis, 1));
+
+    SkDynamicMemoryWStream stream;
+    desc.serialize(&stream);
+    SkFontDescriptor descD;
+    SkFontDescriptor::Deserialize(stream.detachAsStream().get(), &descD);
+    std::unique_ptr<SkFontData> fontData = descD.detachFontData();
+    if (!fontData) {
+        REPORT_FAILURE(reporter, "fontData", SkString());
+        return;
+    }
+
+    if (fontData->getAxisCount() != 1) {
+        REPORT_FAILURE(reporter, "fontData->getAxisCount() != 1", SkString());
+        return;
+    }
+
+    REPORTER_ASSERT(reporter, fontData->getAxis()[0] == -SK_Fixed1);
+};
+
 DEF_TEST(TypefaceAxes, reporter) {
     std::unique_ptr<SkStreamAsset> distortable(GetResourceAsStream("fonts/Distortable.ttf"));
     if (!distortable) {
@@ -203,11 +228,11 @@ DEF_TEST(Typeface, reporter) {
 
 namespace {
 
-class SkEmptyTypeface : public SkTypeface {
+class EmptyTypeface : public SkTypeface {
 public:
-    static sk_sp<SkTypeface> Create() { return sk_sp<SkTypeface>(new SkEmptyTypeface()); }
+    static sk_sp<SkTypeface> Create() { return sk_sp<SkTypeface>(new EmptyTypeface()); }
 protected:
-    SkEmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
+    EmptyTypeface() : SkTypeface(SkFontStyle(), true) { }
 
     SkStreamAsset* onOpenStream(int* ttcIndex) const override { return nullptr; }
     SkScalerContext* onCreateScalerContext(const SkScalerContextEffects&,
@@ -255,12 +280,12 @@ static int count(skiatest::Reporter* reporter, const SkTypefaceCache& cache) {
 }
 
 DEF_TEST(TypefaceCache, reporter) {
-    sk_sp<SkTypeface> t1(SkEmptyTypeface::Create());
+    sk_sp<SkTypeface> t1(EmptyTypeface::Create());
     {
         SkTypefaceCache cache;
         REPORTER_ASSERT(reporter, count(reporter, cache) == 0);
         {
-            sk_sp<SkTypeface> t0(SkEmptyTypeface::Create());
+            sk_sp<SkTypeface> t0(EmptyTypeface::Create());
             cache.add(t0.get());
             REPORTER_ASSERT(reporter, count(reporter, cache) == 1);
             cache.add(t1.get());

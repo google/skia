@@ -12,6 +12,7 @@
 #include "SkMath.h"
 #include "SkRect.h"
 #include "SkSize.h"
+#include "../private/SkTFitsIn.h"
 
 class SkReadBuffer;
 class SkWriteBuffer;
@@ -216,6 +217,42 @@ enum SkYUVColorSpace {
 
     /** Describes standard used by HDTV; */
     kLastEnum_SkYUVColorSpace = kRec709_SkYUVColorSpace,
+};
+
+/** \enum SkImageInfo::SkImageSourceChannel
+    Describes different channels we could read from image source.
+*/
+enum SkImageSourceChannel {
+    /** Describes the red channel; */
+    kR_SkImageSourceChannel,
+
+    /** Describes the green channel; */
+    kG_SkImageSourceChannel,
+
+    /** Describes the blue channel; */
+    kB_SkImageSourceChannel,
+
+    /** Describes the alpha channel; */
+    kA_SkImageSourceChannel,
+
+    /** Describes the alpha channel; */
+    kLastEnum_SkImageSourceChannel = kA_SkImageSourceChannel,
+};
+
+/** \struct SkYUVAIndex
+    Describes from which image source and which channel to read each individual YUVA plane.
+
+    SkYUVAIndex contains a index for which image source to read from and a enum for which channel
+    to read from.
+*/
+struct SK_API SkYUVAIndex {
+    /** The index is a number between -1..3 which definies which image source to read from, where -1
+     * means the image source doesn't exist. The assumption is we will always have image sources for
+     * each of YUV planes, but optionally have image source for A plane. */
+    int fIndex;
+    /** The channel describes from which channel to read the info from. Currently we only deal with
+     * YUV and NV12 and channel info is ignored. */
+    SkImageSourceChannel fChannel;
 };
 
 /** \struct SkImageInfo
@@ -551,10 +588,10 @@ public:
     */
     size_t minRowBytes() const {
         uint64_t minRowBytes = this->minRowBytes64();
-        if (!sk_64_isS32(minRowBytes)) {
+        if (!SkTFitsIn<int32_t>(minRowBytes)) {
             return 0;
         }
-        return sk_64_asS32(minRowBytes);
+        return SkTo<int32_t>(minRowBytes);
     }
 
     /** Returns byte offset of pixel from pixel base address.

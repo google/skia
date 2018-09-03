@@ -7,7 +7,7 @@
 
 #include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
-#include "SkColorSpaceXform_Base.h"
+#include "SkColorSpaceXformPriv.h"
 #include "SkOpts.h"
 
 SkColorSpace_XYZ::SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkMatrix44& toXYZD50)
@@ -103,19 +103,12 @@ sk_sp<SkColorSpace> SkColorSpace_XYZ::makeColorSpin() const {
     return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, fGammas, spin, fProfileData));
 }
 
-void SkColorSpace_XYZ::toDstGammaTables(const uint8_t* tables[3], sk_sp<SkData>* storage,
-                                         int numTables) const {
-    fToDstGammaOnce([this, numTables] {
-        const bool gammasAreMatching = numTables <= 1;
-        fDstStorage =
-                SkData::MakeUninitialized(numTables * SkColorSpaceXform_Base::kDstGammaTableSize);
-        SkColorSpaceXform_Base::BuildDstGammaTables(fToDstGammaTables,
-                                                    (uint8_t*) fDstStorage->writable_data(), this,
-                                                    gammasAreMatching);
-    });
+sk_sp<SkColorSpace> SkColorSpace_XYZ::makeNonlinearBlending() const {
+    if (this->nonlinearBlending()) {
+        return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
+    }
 
-    *storage = fDstStorage;
-    tables[0] = fToDstGammaTables[0];
-    tables[1] = fToDstGammaTables[1];
-    tables[2] = fToDstGammaTables[2];
+    auto cs = sk_make_sp<SkColorSpace_XYZ>(fGammaNamed, fGammas, fToXYZD50, fProfileData);
+    cs->fNonlinearBlending = true;
+    return std::move(cs);
 }

@@ -8,7 +8,6 @@
 #ifndef GrContext_DEFINED
 #define GrContext_DEFINED
 
-#include "GrCaps.h"
 #include "SkMatrix.h"
 #include "SkPathEffect.h"
 #include "SkTypes.h"
@@ -16,11 +15,16 @@
 #include "../private/GrSingleOwner.h"
 #include "GrContextOptions.h"
 
+// We shouldn't need this but currently Android is relying on this being include transitively.
+#include "SkUnPreMultiply.h"
+
 class GrAtlasManager;
 class GrBackendFormat;
 class GrBackendSemaphore;
+class GrCaps;
 class GrContextPriv;
 class GrContextThreadSafeProxy;
+class GrContextThreadSafeProxyPriv;
 class GrDrawingManager;
 struct GrDrawOpAtlasConfig;
 class GrFragmentProcessor;
@@ -203,9 +207,6 @@ public:
      */
     void purgeUnlockedResources(bool scratchResourcesOnly);
 
-    /** Access the context capabilities */
-    const GrCaps* caps() const { return fCaps.get(); }
-
     /**
      * Gets the maximum supported texture size.
      */
@@ -280,6 +281,8 @@ public:
     /** Enumerates all cached GPU resources and dumps their memory to traceMemoryDump. */
     // Chrome is using this!
     void dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const;
+
+    bool supportsDistanceFieldText() const;
 
     GrBackend backend() { return fBackend; }
 
@@ -361,6 +364,8 @@ private:
  */
 class SK_API GrContextThreadSafeProxy : public SkRefCnt {
 public:
+    ~GrContextThreadSafeProxy();
+
     bool matches(GrContext* context) const { return context->uniqueID() == fContextUniqueID; }
 
     /**
@@ -390,28 +395,34 @@ public:
      *                               with this characterization will be replayed into
      *  @param isMipMapped           Will the surface the DDL will be replayed into have space
      *                               allocated for mipmaps?
+     *  @param willUseGLFBO0         Will the surface the DDL will be replayed into be backed by GL
+     *                               FBO 0. This flag is only valid if using an GL backend.
      */
     SkSurfaceCharacterization createCharacterization(
                                   size_t cacheMaxResourceBytes,
                                   const SkImageInfo& ii, const GrBackendFormat& backendFormat,
                                   int sampleCount, GrSurfaceOrigin origin,
                                   const SkSurfaceProps& surfaceProps,
-                                  bool isMipMapped);
+                                  bool isMipMapped, bool willUseGLFBO0 = false);
 
-    const GrCaps* caps() const { return fCaps.get(); }
-    sk_sp<const GrCaps> refCaps() const { return fCaps; }
+    bool operator==(const GrContextThreadSafeProxy& that) const {
+        // Each GrContext should only ever have a single thread-safe proxy.
+        SkASSERT((this == &that) == (fContextUniqueID == that.fContextUniqueID));
+        return this == &that;
+    }
+
+    bool operator!=(const GrContextThreadSafeProxy& that) const { return !(*this == that); }
+
+    // Provides access to functions that aren't part of the public API.
+    GrContextThreadSafeProxyPriv priv();
+    const GrContextThreadSafeProxyPriv priv() const;
 
 private:
     // DDL TODO: need to add unit tests for backend & maybe options
     GrContextThreadSafeProxy(sk_sp<const GrCaps> caps,
                              uint32_t uniqueID,
                              GrBackend backend,
-                             const GrContextOptions& options)
-        : fCaps(std::move(caps))
-        , fContextUniqueID(uniqueID)
-        , fBackend(backend)
-        , fOptions(options) {
-    }
+                             const GrContextOptions& options);
 
     sk_sp<const GrCaps>    fCaps;
     const uint32_t         fContextUniqueID;
@@ -419,9 +430,7 @@ private:
     const GrContextOptions fOptions;
 
     friend class GrDirectContext; // To construct this object
-    friend class GrContextPriv;   // for access to 'fOptions' in MakeDDL
-    friend class GrDDLContext;    // to implement the GrDDLContext ctor (access to all members)
-    friend class SkSurfaceCharacterization; // for access to 'fContextUniqueID' for operator==
+    friend class GrContextThreadSafeProxyPriv;
 
     typedef SkRefCnt INHERITED;
 };

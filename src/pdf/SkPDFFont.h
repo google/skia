@@ -11,7 +11,7 @@
 
 #include "SkAdvancedTypefaceMetrics.h"
 #include "SkBitSet.h"
-#include "SkGlyphCache.h"
+#include "SkStrikeCache.h"
 #include "SkPDFTypes.h"
 #include "SkTDArray.h"
 #include "SkTypeface.h"
@@ -42,6 +42,7 @@ public:
     SkAdvancedTypefaceMetrics::FontType getType() const { return fFontType; }
 
     static SkAdvancedTypefaceMetrics::FontType FontType(const SkAdvancedTypefaceMetrics&);
+    static void GetType1GlyphNames(const SkTypeface&, SkString*);
 
     static bool IsMultiByte(SkAdvancedTypefaceMetrics::FontType type) {
         return type == SkAdvancedTypefaceMetrics::kType1CID_Font ||
@@ -92,6 +93,9 @@ public:
      *  @return nullptr only when typeface is bad.
      */
     static const SkAdvancedTypefaceMetrics* GetMetrics(SkTypeface* typeface,
+                                                       SkPDFCanon* canon);
+
+    static const std::vector<SkUnichar>& GetUnicodeMap(const SkTypeface* typeface,
                                                        SkPDFCanon* canon);
 
     /** Subset the font based on current usage.

@@ -229,13 +229,9 @@ static void check_length(skiatest::Reporter* reporter,
     REPORTER_ASSERT(reporter, len > 0.999f && len < 1.001f);
 }
 
-static float make_zero() {
-    return sk_float_sin(0);
-}
-
 static void unittest_isfinite(skiatest::Reporter* reporter) {
     float nan = sk_float_asin(2);
-    float inf = 1.0f / make_zero();
+    float inf = SK_ScalarInfinity;
     float big = 3.40282e+038f;
 
     REPORTER_ASSERT(reporter, !SkScalarIsNaN(inf));
@@ -416,6 +412,21 @@ static void test_copysign(skiatest::Reporter* reporter) {
     }
 }
 
+static void huge_vector_normalize(skiatest::Reporter* reporter) {
+    // these values should fail (overflow/underflow) trying to normalize
+    const SkVector fail[] = {
+        { 0, 0 },
+        { SK_ScalarInfinity, 0 }, { 0, SK_ScalarInfinity },
+        { 0, SK_ScalarNaN }, { SK_ScalarNaN, 0 },
+    };
+    for (SkVector v : fail) {
+        SkVector v2 = v;
+        if (v2.setLength(1.0f)) {
+            REPORTER_ASSERT(reporter, !v.setLength(1.0f));
+        }
+    }
+}
+
 DEF_TEST(Math, reporter) {
     int         i;
     SkRandom    rand;
@@ -488,6 +499,7 @@ DEF_TEST(Math, reporter) {
         REPORTER_ASSERT(reporter, (SkFixedCeilToFixed(-SK_Fixed1 * 10) >> 1) == -SK_Fixed1 * 5);
     }
 
+    huge_vector_normalize(reporter);
     unittest_isfinite(reporter);
     unittest_half(reporter);
     test_rsqrt(reporter, sk_float_rsqrt);

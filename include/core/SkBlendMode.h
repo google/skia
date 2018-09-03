@@ -47,7 +47,7 @@ enum class SkBlendMode {
     kSaturation,
     kColor,
     kLuminosity,
-    kLastMode = kLuminosity
+    kLastMode = kLuminosity,
 };
 
 /**
