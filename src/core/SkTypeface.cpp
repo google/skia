@@ -271,6 +271,9 @@ std::unique_ptr<SkFontData> SkTypeface::makeFontData() const {
 std::unique_ptr<SkFontData> SkTypeface::onMakeFontData() const {
     int index;
     std::unique_ptr<SkStreamAsset> stream(this->onOpenStream(&index));
+    if (!stream) {
+        return nullptr;
+    }
     return skstd::make_unique<SkFontData>(std::move(stream), index, nullptr, 0);
 };
 
