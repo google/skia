@@ -8,14 +8,15 @@
 #ifndef SkPDFTypes_DEFINED
 #define SkPDFTypes_DEFINED
 
-#include <new>
-#include <type_traits>
-
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkTHash.h"
 #include "SkTo.h"
 #include "SkTypes.h"
+
+#include <new>
+#include <type_traits>
+#include <vector>
 
 class SkData;
 class SkPDFObjNumMap;
@@ -214,7 +215,7 @@ public:
 
     /** The size of the array.
      */
-    int size() const;
+    size_t size() const;
 
     /** Preallocate space for the given number of entries.
      *  @param length The number of array slots to preallocate.
@@ -236,7 +237,7 @@ public:
     void appendObjRef(sk_sp<SkPDFObject>);
 
 private:
-    SkTArray<SkPDFUnion> fValues;
+    std::vector<SkPDFUnion> fValues;
     void append(SkPDFUnion&& value);
     SkDEBUGCODE(bool fDumped;)
 };
@@ -262,7 +263,7 @@ public:
 
     /** The size of the dictionary.
      */
-    int size() const;
+    size_t size() const;
 
     /** Preallocate space for n key-value pairs */
     void reserve(int n);
@@ -299,7 +300,7 @@ private:
         SkPDFUnion fKey;
         SkPDFUnion fValue;
     };
-    SkTArray<Record> fRecords;
+    std::vector<Record> fRecords;
     SkDEBUGCODE(bool fDumped;)
 };
 
@@ -386,10 +387,10 @@ public:
      */
     int32_t getObjectNumber(SkPDFObject* obj) const;
 
-    const SkTArray<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
+    const std::vector<sk_sp<SkPDFObject>>& objects() const { return fObjects; }
 
 private:
-    SkTArray<sk_sp<SkPDFObject>> fObjects;
+    std::vector<sk_sp<SkPDFObject>> fObjects;
     SkTHashMap<SkPDFObject*, int32_t> fObjectNumbers;
 };
 

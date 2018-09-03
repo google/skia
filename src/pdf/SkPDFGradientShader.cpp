@@ -224,8 +224,8 @@ static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
 
     // normalize color stops
     int colorCount = info.fColorCount;
-    SkTDArray<SkColor>    colors(info.fColors, colorCount);
-    SkTDArray<SkScalar>   colorOffsets(info.fColorOffsets, colorCount);
+    std::vector<SkColor>  colors(info.fColors, info.fColors + colorCount);
+    std::vector<SkScalar> colorOffsets(info.fColorOffsets, info.fColorOffsets + colorCount);
 
     int i = 1;
     while (i < colorCount - 1) {
@@ -237,8 +237,8 @@ static sk_sp<SkPDFDict> gradientStitchCode(const SkShader::GradientInfo& info) {
         // remove points that are between 2 coincident points
         if ((colorOffsets[i - 1] == colorOffsets[i]) && (colorOffsets[i] == colorOffsets[i + 1])) {
             colorCount -= 1;
-            colors.remove(i);
-            colorOffsets.remove(i);
+            colors.erase(colors.begin() + i);
+            colorOffsets.erase(colorOffsets.begin() + i);
         } else {
             i++;
         }
@@ -787,17 +787,19 @@ static sk_sp<SkPDFObject> find_pdf_shader(SkPDFDocument* doc,
                                           SkPDFGradientShader::Key key,
                                           bool keyHasAlpha);
 
-static sk_sp<SkPDFDict> get_gradient_resource_dict(SkPDFObject* functionShader,
-                                                   SkPDFObject* gState) {
-    SkTDArray<SkPDFObject*> patterns;
+static sk_sp<SkPDFDict> get_gradient_resource_dict(sk_sp<SkPDFObject> functionShader,
+                                                   sk_sp<SkPDFObject> gState) {
+    std::vector<sk_sp<SkPDFObject>> patternShaders;
     if (functionShader) {
-        patterns.push_back(functionShader);
+        patternShaders.push_back(std::move(functionShader));
     }
-    SkTDArray<SkPDFObject*> graphicStates;
+    std::vector<sk_sp<SkPDFObject>> graphicStates;
     if (gState) {
-        graphicStates.push_back(gState);
+        graphicStates.push_back(std::move(gState));
     }
-    return SkPDFResourceDict::Make(&graphicStates, &patterns, nullptr, nullptr);
+    return SkPDFResourceDict::Make(std::move(graphicStates), std::move(patternShaders),
+                                   std::vector<sk_sp<SkPDFObject>>(),
+                                   std::vector<sk_sp<SkPDFFont>>());
 }
 
 // Creates a content stream which fills the pattern P0 across bounds.
@@ -855,7 +857,7 @@ static sk_sp<SkPDFObject> create_smask_graphic_state(SkPDFDocument* doc,
 
     SkASSERT(!gradient_has_alpha(luminosityState));
     sk_sp<SkPDFObject> luminosityShader = find_pdf_shader(doc, std::move(luminosityState), false);
-    sk_sp<SkPDFDict> resources = get_gradient_resource_dict(luminosityShader.get(), nullptr);
+    sk_sp<SkPDFDict> resources = get_gradient_resource_dict(std::move(luminosityShader), nullptr);
     SkRect bbox = SkRect::Make(state.fBBox);
     sk_sp<SkPDFObject> alphaMask = SkPDFMakeFormXObject(create_pattern_fill_content(-1, bbox),
                                                         SkPDFUtils::RectToArray(bbox),
@@ -888,7 +890,7 @@ static sk_sp<SkPDFStream> make_alpha_function_shader(SkPDFDocument* doc,
     sk_sp<SkPDFObject> alphaGs = create_smask_graphic_state(doc, state);
 
     sk_sp<SkPDFDict> resourceDict =
-            get_gradient_resource_dict(colorShader.get(), alphaGs.get());
+            get_gradient_resource_dict(std::move(colorShader), std::move(alphaGs));
 
     std::unique_ptr<SkStreamAsset> colorStream(create_pattern_fill_content(0, bbox));
     auto alphaFunctionShader = sk_make_sp<SkPDFStream>(std::move(colorStream));

@@ -81,12 +81,12 @@ static void write_glyph(SkDynamicMemoryWStream* cmap,
     }
 }
 
-static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
+static void append_bfchar_section(const std::vector<BFChar>& bfchar,
                                   bool multiByte,
                                   SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfchar.count(); i += 100) {
-        int count = bfchar.count() - i;
+    for (size_t i = 0; i < bfchar.size(); i += 100) {
+        int count = SkToInt(bfchar.size() - i);
         count = SkMin32(count, 100);
         cmap->writeDecAsText(count);
         cmap->writeText(" beginbfchar\n");
@@ -101,12 +101,12 @@ static void append_bfchar_section(const SkTDArray<BFChar>& bfchar,
     }
 }
 
-static void append_bfrange_section(const SkTDArray<BFRange>& bfrange,
+static void append_bfrange_section(const std::vector<BFRange>& bfrange,
                                    bool multiByte,
                                    SkDynamicMemoryWStream* cmap) {
     // PDF spec defines that every bf* list can have at most 100 entries.
-    for (int i = 0; i < bfrange.count(); i += 100) {
-        int count = bfrange.count() - i;
+    for (size_t i = 0; i < bfrange.size(); i += 100) {
+        int count = SkToInt(bfrange.size() - i);
         count = SkMin32(count, 100);
         cmap->writeDecAsText(count);
         cmap->writeText(" beginbfrange\n");
@@ -160,8 +160,8 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
         glyphOffset = firstGlyphID - 1;
     }
 
-    SkTDArray<BFChar> bfcharEntries;
-    SkTDArray<BFRange> bfrangeEntries;
+    std::vector<BFChar> bfcharEntries;
+    std::vector<BFRange> bfrangeEntries;
 
     BFRange currentRangeEntry = {0, 0, 0};
     bool rangeEmpty = true;
@@ -184,9 +184,7 @@ void SkPDFAppendCmapSections(const SkUnichar* glyphToUnicode,
                 if (currentRangeEntry.fEnd > currentRangeEntry.fStart) {
                     bfrangeEntries.push_back(currentRangeEntry);
                 } else {
-                    BFChar* entry = bfcharEntries.append();
-                    entry->fGlyphId = currentRangeEntry.fStart;
-                    entry->fUnicode = currentRangeEntry.fUnicode;
+                    bfcharEntries.push_back({currentRangeEntry.fStart, currentRangeEntry.fUnicode});
                 }
                 rangeEmpty = true;
             }

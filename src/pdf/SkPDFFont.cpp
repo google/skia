@@ -349,7 +349,7 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
         int ttcIndex) {
     // Generate glyph id array in format needed by sfntly.
     // TODO(halcanary): sfntly should take a more compact format.
-    SkTDArray<unsigned> subset;
+    std::vector<unsigned> subset;
     if (!glyphUsage.has(0)) {
         subset.push_back(0);  // Always include glyph 0.
     }
@@ -363,20 +363,20 @@ static sk_sp<SkPDFStream> get_subset_font_stream(
     int subsetFontSize = SfntlyWrapper::SubsetFont(fontName,
                                                    fontData->bytes(),
                                                    fontData->size(),
-                                                   subset.begin(),
-                                                   subset.count(),
+                                                   subset.data(),
+                                                   subset.size(),
                                                    &subsetFont);
 #else
     (void)fontName;
     int subsetFontSize = SfntlyWrapper::SubsetFont(ttcIndex,
                                                    fontData->bytes(),
                                                    fontData->size(),
-                                                   subset.begin(),
-                                                   subset.count(),
+                                                   subset.data(),
+                                                   subset.size(),
                                                    &subsetFont);
 #endif
     fontData.reset();
-    subset.reset();
+    subset = std::vector<unsigned>();
     SkASSERT(subsetFontSize > 0 || subsetFont == nullptr);
     if (subsetFontSize < 1) {
         return nullptr;
