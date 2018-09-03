@@ -245,8 +245,9 @@ static sk_sp<SkPDFStream> make_image_shader(SkPDFDocument* doc,
     }
 
     auto imageShader = sk_make_sp<SkPDFStream>(patternDevice->content());
+    auto resourceDict = patternDevice->makeResourceDict();
     SkPDFUtils::PopulateTilingPatternDict(imageShader->dict(), patternBBox,
-                                          patternDevice->makeResourceDict(), finalMatrix);
+                                          resourceDict, finalMatrix);
     return imageShader;
 }
 
