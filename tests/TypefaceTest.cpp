@@ -296,3 +296,30 @@ DEF_TEST(TypefaceCache, reporter) {
     }
     REPORTER_ASSERT(reporter, t1->unique());
 }
+
+static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
+                                      skiatest::Reporter* reporter) {
+    if (!tf) {
+        return;
+    }
+    auto data0 = tf->serialize(SkTypeface::SerializeBehavior::kDoIncludeData);
+    auto data1 = tf->serialize(SkTypeface::SerializeBehavior::kDontIncludeData);
+    auto data2 = tf->serialize(SkTypeface::SerializeBehavior::kIncludeDataIfLocal);
+
+    REPORTER_ASSERT(reporter, data0->size() >= data1->size());
+
+    if (isLocalData) {
+        REPORTER_ASSERT(reporter, data0->equals(data2.get()));
+    } else {
+        REPORTER_ASSERT(reporter, data1->equals(data2.get()));
+    }
+}
+
+DEF_TEST(Typeface_serialize, reporter) {
+    check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
+    check_serialize_behaviors(SkTypeface::MakeFromStream(
+                                         GetResourceAsStream("fonts/Distortable.ttf").release()),
+                              true, reporter);
+
+}
+
