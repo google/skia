@@ -1676,7 +1676,6 @@ a different arrangement.
 ##
 
 #Method SkColor getColor() const
-
 #In Color_Methods
 #Line # returns Color_Alpha and RGB, one drawing color ##
     Retrieves Alpha and RGB, Unpremultiplied, packed into 32 bits.
@@ -1697,12 +1696,36 @@ a different arrangement.
         ##
     ##
 
-    #SeeAlso SkColor
+    #SeeAlso getColor4f SkColor
 
 ##
 
-#Method void setColor(SkColor color)
+#Method SkColor4f getColor4f() const
+#In Color_Methods
+#Line # returns Color_Alpha and RGB, one drawing color ##
+    Retrieves alpha and RGB, unpmreultiplied, as four floating point values. RGB are
+    are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
 
+    #Return  Unpremultiplied RGBA ##
+
+    #ToDo enable and correct example once fiddle picks up getColor4f ##
+    #NoExample
+        SkPaint paint;
+        paint.setColor(SK_ColorYELLOW);
+        SkColor4f y = paint.getColor4f();
+        SkDebugf("Yellow is %d%% red, %d%% green, and %d%% blue.\n", (int) (y.fR * 100),
+                (int) (y.fG * 100), (int) (y.fB * 100));
+
+        #StdOut
+            Yellow is 100% red, 100% green, and 0% blue.
+        ##
+    ##
+
+    #SeeAlso getColor SkColor
+##
+
+
+#Method void setColor(SkColor color)
 #In Color_Methods
 #Line # sets Color_Alpha and RGB, one drawing color ##
     Sets Alpha and RGB used when stroking and filling. The color is a 32-bit value,
@@ -1725,9 +1748,37 @@ a different arrangement.
         ##
     ##
 
-    #SeeAlso SkColor setARGB SkColorSetARGB
+    #SeeAlso SkColor setColor4f setARGB SkColorSetARGB
 
 ##
+
+#Method void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace)
+#In Color_Methods
+#Line # sets Color_Alpha and RGB, one drawing color ##
+    Sets alpha and RGB used when stroking and filling. The color is four floating
+    point values, unpremultiplied. The color values are interpreted as being in
+    the colorSpace. If colorSpace is nullptr, then color is assumed to be in the
+    sRGB color space.
+
+    #Param color    Unpremultiplied RGBA ##
+    #Param colorSpace  Color_Space describing the encoding of color ##
+
+    #ToDo enable and correct example once fiddle picks up setColor4f ##
+    #NoExample
+        SkPaint green1, green2;
+        green1.setColor4f({0, 1, 0, 1}, nullptr);  // R=0 G=1 B=0 A=1
+        green2.setColor(0xFF00FF00); // A=255 R=0 G=255 B=0
+        SkDebugf("green1 %c= green2\n", green1 == green2 ? '=' : '!');
+
+        #StdOut
+            green1 == green2
+        ##
+    ##
+
+    #SeeAlso SkColor setColor setARGB SkColorSetARGB
+
+##
+
 #Subtopic Color_Methods ##
 
 #Subtopic Alpha_Methods
