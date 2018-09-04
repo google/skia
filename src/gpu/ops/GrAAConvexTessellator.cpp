@@ -584,6 +584,10 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                             // The two triangles for the corner
                             this->addTri(originalIdx, perp1Idx, miterIdx);
                             this->addTri(originalIdx, miterIdx, perp2Idx);
+                        } else {
+                            // ignore the miter point as it's so close to perp1/perp2 and simply
+                            // bevel.
+                            this->addTri(originalIdx, perp1Idx, perp2Idx);
                         }
                         break;
                     }
