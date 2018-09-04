@@ -8,8 +8,6 @@
 #include "SkPaint.h"
 
 #include "SkColorFilter.h"
-#include "SkColorSpacePriv.h"
-#include "SkColorSpaceXformSteps.h"
 #include "SkData.h"
 #include "SkDraw.h"
 #include "SkFontDescriptor.h"
@@ -54,7 +52,7 @@ SkPaint::SkPaint() {
     fTextSize   = SkPaintDefaults_TextSize;
     fTextScaleX = SK_Scalar1;
     fTextSkewX  = 0;
-    fColor4f    = { 0, 0, 0, 1 }; // opaque black
+    fColor      = SK_ColorBLACK;
     fWidth      = 0;
     fMiterLimit = SkPaintDefaults_MiterLimit;
     fBlendMode  = (unsigned)SkBlendMode::kSrcOver;
@@ -82,7 +80,7 @@ SkPaint::SkPaint(const SkPaint& src)
     , COPY(fTextSize)
     , COPY(fTextScaleX)
     , COPY(fTextSkewX)
-    , COPY(fColor4f)
+    , COPY(fColor)
     , COPY(fWidth)
     , COPY(fMiterLimit)
     , COPY(fBlendMode)
@@ -102,7 +100,7 @@ SkPaint::SkPaint(SkPaint&& src) {
     MOVE(fTextSize);
     MOVE(fTextScaleX);
     MOVE(fTextSkewX);
-    MOVE(fColor4f);
+    MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
     MOVE(fBlendMode);
@@ -128,7 +126,7 @@ SkPaint& SkPaint::operator=(const SkPaint& src) {
     ASSIGN(fTextSize);
     ASSIGN(fTextScaleX);
     ASSIGN(fTextSkewX);
-    ASSIGN(fColor4f);
+    ASSIGN(fColor);
     ASSIGN(fWidth);
     ASSIGN(fMiterLimit);
     ASSIGN(fBlendMode);
@@ -154,7 +152,7 @@ SkPaint& SkPaint::operator=(SkPaint&& src) {
     MOVE(fTextSize);
     MOVE(fTextScaleX);
     MOVE(fTextSkewX);
-    MOVE(fColor4f);
+    MOVE(fColor);
     MOVE(fWidth);
     MOVE(fMiterLimit);
     MOVE(fBlendMode);
@@ -176,7 +174,7 @@ bool operator==(const SkPaint& a, const SkPaint& b) {
         && EQUAL(fTextSize)
         && EQUAL(fTextScaleX)
         && EQUAL(fTextSkewX)
-        && EQUAL(fColor4f)
+        && EQUAL(fColor)
         && EQUAL(fWidth)
         && EQUAL(fMiterLimit)
         && EQUAL(fBlendMode)
@@ -259,18 +257,12 @@ void SkPaint::setStyle(Style style) {
 }
 
 void SkPaint::setColor(SkColor color) {
-    fColor4f = SkColor4f::FromColor(color);
-}
-
-void SkPaint::setColor4f(const SkColor4f& color, SkColorSpace* colorSpace) {
-    SkColorSpaceXformSteps steps{colorSpace,          kUnpremul_SkAlphaType,
-                                 sk_srgb_singleton(), kUnpremul_SkAlphaType};
-    fColor4f = color;
-    steps.apply(fColor4f.vec());
+    fColor = color;
 }
 
 void SkPaint::setAlpha(U8CPU a) {
-    fColor4f.fA = a * (1.0f / 255);
+    this->setColor(SkColorSetARGB(a, SkColorGetR(fColor),
+                                  SkColorGetG(fColor), SkColorGetB(fColor)));
 }
 
 void SkPaint::setARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b) {
@@ -1204,7 +1196,7 @@ void SkPaintPriv::Flatten(const SkPaint& paint, SkWriteBuffer& buffer) {
     buffer.writeScalar(paint.getTextSkewX());
     buffer.writeScalar(paint.getStrokeWidth());
     buffer.writeScalar(paint.getStrokeMiter());
-    buffer.writeColor4f(paint.getColor4f());
+    buffer.writeColor(paint.getColor());
 
     buffer.writeUInt(pack_paint_flags(paint.getFlags(), paint.getHinting(), paint.getTextAlign(),
                                       paint.getFilterQuality(), flatFlags));
@@ -1233,13 +1225,7 @@ bool SkPaintPriv::Unflatten(SkPaint* paint, SkReadBuffer& buffer) {
     paint->setTextSkewX(buffer.readScalar());
     paint->setStrokeWidth(buffer.readScalar());
     paint->setStrokeMiter(buffer.readScalar());
-    if (buffer.isVersionLT(SkReadBuffer::kFloat4PaintColor_Version)) {
-        paint->setColor(buffer.readColor());
-    } else {
-        SkColor4f color;
-        buffer.readColor4f(&color);
-        paint->setColor4f(color, sk_srgb_singleton());
-    }
+    paint->setColor(buffer.readColor());
 
     unsigned flatFlags = unpack_paint_flags(paint, buffer.readUInt());
 
@@ -1508,9 +1494,9 @@ bool SkPaint::nothingToDraw() const {
 }
 
 uint32_t SkPaint::getHash() const {
-    // We're going to hash 7 pointers and 11 32-bit values, finishing up with fBitfields,
-    // so fBitfields should be 7 pointers and 10 32-bit values from the start.
-    static_assert(offsetof(SkPaint, fBitfields) == 7 * sizeof(void*) + 10 * sizeof(uint32_t),
+    // We're going to hash 7 pointers and 7 32-bit values, finishing up with fBitfields,
+    // so fBitfields should be 7 pointers and 6 32-bit values from the start.
+    static_assert(offsetof(SkPaint, fBitfields) == 7 * sizeof(void*) + 7 * sizeof(uint32_t),
                   "SkPaint_notPackedTightly");
     return SkOpts::hash(reinterpret_cast<const uint32_t*>(this),
                         offsetof(SkPaint, fBitfields) + sizeof(fBitfields));

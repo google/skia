@@ -28,7 +28,6 @@
 class GrTextBlob;
 class SkAutoDescriptor;
 class SkColorFilter;
-class SkColorSpace;
 class SkData;
 class SkDescriptor;
 class SkDrawLooper;
@@ -495,14 +494,7 @@ public:
 
         @return  unpremultiplied ARGB
     */
-    SkColor getColor() const { return fColor4f.toSkColor(); }
-
-    /** Retrieves alpha and RGB, unpmreultiplied, as four floating point values. RGB are
-        are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
-
-        @return  unpremultiplied RGBA
-    */
-    SkColor4f getColor4f() const { return fColor4f; }
+    SkColor getColor() const { return fColor; }
 
     /** Sets alpha and RGB used when stroking and filling. The color is a 32-bit value,
         unpremultiplied, packing 8-bit components for alpha, red, blue, and green.
@@ -511,21 +503,11 @@ public:
     */
     void setColor(SkColor color);
 
-    /** Sets alpha and RGB used when stroking and filling. The color is four floating
-        point values, unpremultiplied. The color values are interpreted as being in
-        the colorSpace. If colorSpace is nullptr, then color is assumed to be in the
-        sRGB color space.
-
-        @param color       unpremultiplied RGBA
-        @param colorSpace  SkColorSpace describing the encoding of color
-    */
-    void setColor4f(const SkColor4f& color, SkColorSpace* colorSpace);
-
     /** Retrieves alpha from the color used when stroking and filling.
 
         @return  alpha ranging from zero, fully transparent, to 255, fully opaque
     */
-    uint8_t getAlpha() const { return sk_float_round2int(fColor4f.fA * 255); }
+    uint8_t getAlpha() const { return SkToU8(SkColorGetA(fColor)); }
 
     /** Replaces alpha, leaving RGB
         unchanged. An out of range value triggers an assert in the debug
@@ -1487,7 +1469,7 @@ private:
     SkScalar        fTextSize;
     SkScalar        fTextScaleX;
     SkScalar        fTextSkewX;
-    SkColor4f       fColor4f;
+    SkColor         fColor;
     SkScalar        fWidth;
     SkScalar        fMiterLimit;
     uint32_t        fBlendMode; // just need 5-6 bits
