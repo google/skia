@@ -1,0 +1,280 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0ef44ec5_a989d5c1",
+        "filename": "bench/PDFBench.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "This should be decltype(objNumMap.objects())::size_type, but I\u0027ll settle for size_t.\n\nOr one could use\n\nfor (const SkPDFObject\u0026 object : objNumMap.objects()) {\n    wStream.writeDecAsText(SkTo\u003cint32_t\u003e(\u0026object - objNumMap.objects.data() + 1));\n    ...\n}\n\nwhich trades indexes for iterators.",
+      "range": {
+        "startLine": 86,
+        "startChar": 9,
+        "endLine": 86,
+        "endChar": 17
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "104fe2f7_b59f5d2c",
+        "filename": "src/pdf/SkPDFDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 886,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "const std::vector\u003csk_sp\u003cT\u003e\u003e\u0026 ?",
+      "range": {
+        "startLine": 886,
+        "startChar": 23,
+        "endLine": 886,
+        "endChar": 49
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d8179953_bfd9f827",
+        "filename": "src/pdf/SkPDFDevice.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "Weird placement for this include. Should go down between the \u0027#include\u0027 list and the forward declarations.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b7b21b03_ddb07da0",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "Pretty trivial to make this a range based for loop.",
+      "range": {
+        "startLine": 21,
+        "startChar": 9,
+        "endLine": 21,
+        "endChar": 59
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ad096813_ca148e76",
+        "filename": "src/pdf/SkPDFDocument.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "fNextToBeSerialized is pretty much just used here, can it just be made size_t to avoid the casting (and the cast should be to int32_t anyway)? Then just make it obvious when creating \u0027index\u0027 that that is an int32_t (is that really an issue for PDF, or just a silly limitation of writeDecAsText?).",
+      "range": {
+        "startLine": 57,
+        "startChar": 11,
+        "endLine": 57,
+        "endChar": 40
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0de20b4f_8a00d3a7",
+        "filename": "src/pdf/SkPDFGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "std::move",
+      "range": {
+        "startLine": 794,
+        "startChar": 33,
+        "endLine": 794,
+        "endChar": 47
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd94ddc4_cfb4188f",
+        "filename": "src/pdf/SkPDFGradientShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "std::move",
+      "range": {
+        "startLine": 798,
+        "startChar": 32,
+        "endLine": 798,
+        "endChar": 38
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "49db0ae1_78eeb770",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "size_t",
+      "range": {
+        "startLine": 85,
+        "startChar": 9,
+        "endLine": 85,
+        "endChar": 17
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "de5eab17_a818003f",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "used as size_t, is it not?",
+      "range": {
+        "startLine": 99,
+        "startChar": 4,
+        "endLine": 99,
+        "endChar": 12
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "72e79922_14c80377",
+        "filename": "src/pdf/SkPDFMakeCIDGlyphWidthsArray.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "size_t",
+      "range": {
+        "startLine": 125,
+        "startChar": 17,
+        "endLine": 125,
+        "endChar": 25
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8357a8af_8c70ef1d",
+        "filename": "src/pdf/SkPDFShader.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "now that this has a name, should it be moved? The use of auto clouds the ownership here (I can\u0027t tell just by looking).",
+      "range": {
+        "startLine": 250,
+        "startChar": 42,
+        "endLine": 250,
+        "endChar": 54
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6e930c6c_d44b1fcc",
+        "filename": "src/xps/SkXPSDevice.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-04T18:31:29Z",
+      "side": 1,
+      "message": "SkTo?",
+      "range": {
+        "startLine": 357,
+        "startChar": 8,
+        "endLine": 357,
+        "endChar": 24
+      },
+      "revId": "9e841734b6eeec07cb4c6b79fe73b3545a8fbac7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
