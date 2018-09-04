@@ -1498,13 +1498,6 @@
     "name": "SkPaint::getColor",
         "stdout": "Yellow is 100% red, 100% green, and 0% blue.\\n"
     },
-        "SkPaint_getColor4f": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint paint;\n    paint.setColor(SK_ColorYELLOW);\n    SkColor4f y = paint.getColor4f();\n    SkDebugf(\"Yellow is %d%% red, %d%% green, and %d%% blue.\\n\", (int) (y.fR * 100),\n            (int) (y.fG * 100), (int) (y.fB * 100));\n}",
-    "hash": "8512ea2176f36e8f1aeef311ff228790",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::getColor4f",
-        "stdout": "Yellow is 100% red, 100% green, and 0% blue.\\n"
-    },
         "SkPaint_getColorFilter": {
     "code": "void draw(SkCanvas* canvas) {\n   SkPaint paint;\n   SkDebugf(\"nullptr %c= color filter\\n\", paint.getColorFilter() ? '!' : '=');\n   paint.setColorFilter(SkColorFilter::MakeModeFilter(SK_ColorLTGRAY, SkBlendMode::kSrcIn));\n   SkDebugf(\"nullptr %c= color filter\\n\", paint.getColorFilter() ? '!' : '=');\n}\n",
     "hash": "093bdc627d6b59002670fd290931f6c9",
@@ -1853,13 +1846,6 @@
     "hash": "6e70f18300bd676a3c056ceb6b62f8df",
     "file": "SkPaint_Reference",
     "name": "SkPaint::setColor",
-        "stdout": "green1 == green2\\n"
-    },
-        "SkPaint_setColor4f": {
-    "code": "void draw(SkCanvas* canvas) {\n    SkPaint green1, green2;\n    green1.setColor4f({0, 1, 0, 1}, nullptr);  // R=0 G=1 B=0 A=1\n    green2.setColor(0xFF00FF00); // A=255 R=0 G=255 B=0\n    SkDebugf(\"green1 %c= green2\\n\", green1 == green2 ? '=' : '!');\n}",
-    "hash": "fa60859e3d03bdc117a05b32e093a8f1",
-    "file": "SkPaint_Reference",
-    "name": "SkPaint::setColor4f",
         "stdout": "green1 == green2\\n"
     },
         "SkPaint_setDither": {

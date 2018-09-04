@@ -1709,7 +1709,7 @@ a different arrangement.
     #Return  Unpremultiplied RGBA ##
 
     #ToDo enable and correct example once fiddle picks up getColor4f ##
-    #Example
+    #NoExample
         SkPaint paint;
         paint.setColor(SK_ColorYELLOW);
         SkColor4f y = paint.getColor4f();
@@ -1764,7 +1764,7 @@ a different arrangement.
     #Param colorSpace  Color_Space describing the encoding of color ##
 
     #ToDo enable and correct example once fiddle picks up setColor4f ##
-    #Example
+    #NoExample
         SkPaint green1, green2;
         green1.setColor4f({0, 1, 0, 1}, nullptr);  // R=0 G=1 B=0 A=1
         green2.setColor(0xFF00FF00); // A=255 R=0 G=255 B=0
