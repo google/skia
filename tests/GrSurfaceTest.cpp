@@ -13,7 +13,6 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTarget.h"
 #include "GrResourceProvider.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "SkMipMap.h"
 #include "Test.h"

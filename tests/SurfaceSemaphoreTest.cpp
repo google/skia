@@ -9,7 +9,6 @@
 
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
-#include "GrTest.h"
 #include "Test.h"
 
 #include "GrBackendSemaphore.h"

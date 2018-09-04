@@ -15,7 +15,6 @@
 #include "GrResourceAllocator.h"
 #include "GrResourceProvider.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "GrUninstantiateProxyTracker.h"

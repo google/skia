@@ -11,7 +11,6 @@
 
 #if defined(SK_VULKAN)
 
-#include "GrTest.h"
 #include "Test.h"
 
 #include "GrBackendSurface.h"

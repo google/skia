@@ -13,7 +13,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrShaderCaps.h"
 #include "GrSurfacePriv.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureContext.h"
 #include "GrTexturePriv.h"

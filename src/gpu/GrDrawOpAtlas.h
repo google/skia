@@ -228,11 +228,6 @@ public:
 
     void compact(GrDeferredUploadToken startTokenForNextFlush);
 
-    static constexpr auto kGlyphMaxDim = 256;
-    static bool GlyphTooLargeForAtlas(int width, int height) {
-        return width > kGlyphMaxDim || height > kGlyphMaxDim;
-    }
-
     static uint32_t GetPageIndexFromID(AtlasID id) {
         return id & 0xff;
     }

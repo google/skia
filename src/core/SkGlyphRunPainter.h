@@ -83,10 +83,6 @@ private:
     SkAutoTMalloc<SkPoint> fPositions;
 };
 
-inline static bool glyph_too_big_for_atlas(const SkGlyph& glyph) {
-    return glyph.fWidth > 256 || glyph.fHeight > 256;
-}
-
 inline static SkRect rect_to_draw(
         const SkGlyph& glyph, SkPoint origin, SkScalar textScale, bool isDFT) {
 
@@ -146,7 +142,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsBMPWithPathFallback(
     auto eachGlyph =
             [perGlyph{std::move(perGlyph)}, perPath{std::move(perPath)}]
                     (const SkGlyph& glyph, SkPoint pt, SkPoint mappedPt) {
-                if (glyph_too_big_for_atlas(glyph)) {
+                if (SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph)) {
                     SkScalar sx = SkScalarFloorToScalar(mappedPt.fX),
                             sy = SkScalarFloorToScalar(mappedPt.fY);
 

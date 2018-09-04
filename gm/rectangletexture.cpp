@@ -13,7 +13,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrTest.h"
 #include "gl/GrGLContext.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"

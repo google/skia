@@ -9,10 +9,10 @@
 
 #include "gm.h"
 
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
-#include "GrTest.h"
 #include "SkBitmap.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"

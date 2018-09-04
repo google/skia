@@ -9,6 +9,7 @@
 
 #include "SkCanvas.h"
 #include "SkFontMgr.h"
+#include "SkGlyphRun.h"
 #include "SkGraphics.h"
 #include "SkPaint.h"
 #include "SkPoint.h"
@@ -25,7 +26,6 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrTest.h"
 
 static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>& blobs) {
     int yOffset = 0;
@@ -43,6 +43,29 @@ static void draw(SkCanvas* canvas, int redraw, const SkTArray<sk_sp<SkTextBlob>>
 static const int kWidth = 1024;
 static const int kHeight = 768;
 
+static void setup_always_evict_atlas(GrContext* context) {
+    int dim = SkGlyphCacheCommon::kSkSideTooBigForAtlas;
+    // These sizes were selected because they allow each atlas to hold a single plot and will thus
+    // stress the atlas
+    GrDrawOpAtlasConfig configs[3];
+    configs[kA8_GrMaskFormat].fWidth = dim;
+    configs[kA8_GrMaskFormat].fHeight = dim;
+    configs[kA8_GrMaskFormat].fPlotWidth = dim;
+    configs[kA8_GrMaskFormat].fPlotHeight = dim;
+
+    configs[kA565_GrMaskFormat].fWidth = dim;
+    configs[kA565_GrMaskFormat].fHeight = dim;
+    configs[kA565_GrMaskFormat].fPlotWidth = dim;
+    configs[kA565_GrMaskFormat].fPlotHeight = dim;
+
+    configs[kARGB_GrMaskFormat].fWidth = dim;
+    configs[kARGB_GrMaskFormat].fHeight = dim;
+    configs[kARGB_GrMaskFormat].fPlotWidth = dim;
+    configs[kARGB_GrMaskFormat].fPlotHeight = dim;
+
+    context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
+}
+
 // This test hammers the GPU textblobcache and font atlas
 static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* context,
                                   int maxTotalText, int maxGlyphID, int maxFamilies, bool normal,
@@ -53,7 +76,7 @@ static void text_blob_cache_inner(skiatest::Reporter* reporter, GrContext* conte
 
     // configure our context for maximum stressing of cache and atlas
     if (stressTest) {
-        GrTest::SetupAlwaysEvictAtlas(context);
+        setup_always_evict_atlas(context);
         context->contextPriv().setTextBlobCacheLimit_ForTesting(0);
     }
 

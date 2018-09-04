@@ -8,13 +8,13 @@
 #include <functional>
 #include <initializer_list>
 #include <vector>
+#include "GrBackendSurface.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrGpuResourcePriv.h"
 #include "GrRenderTargetContext.h"
 #include "GrResourceProvider.h"
-#include "GrTest.h"
 #include "SkCanvas.h"
 #include "SkData.h"
 #include "SkDevice.h"
