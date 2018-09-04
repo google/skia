@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "adda2f93_961fa6ee",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-04T19:06:47Z",
+      "side": 1,
+      "message": "Nothing. :) For all the RGB(A) formats, there are two versions: RGB and BGR. Mike arranged the enum so that the low bit encodes the R/B swap. To keep that logic intact for single-channel formats like Gray, there are two copies of the Gray enum value. So using G_8_ will do the same splat of the single-channel source to RGB, then swap the two identical values.",
+      "parentUuid": "fd9ccef5_332bf136",
+      "range": {
+        "startLine": 613,
+        "startChar": 25,
+        "endLine": 613,
+        "endChar": 46
+      },
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d07e9db_6633d960",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 5
@@ -60,6 +84,24 @@
     },
     {
       "key": {
+        "uuid": "5b29d233_63a110cd",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-04T19:06:47Z",
+      "side": 1,
+      "message": "Okay. I\u0027m tempted to just leave this as-is, then - clearly no one has been clamoring for this feature.",
+      "parentUuid": "2cbe2a24_4260fb7d",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ce4ccf9_41d6d56f",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 5
@@ -77,6 +119,23 @@
         "endLine": 453,
         "endChar": 37
       },
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "483c6838_17cf3dac",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-04T19:06:47Z",
+      "side": 1,
+      "message": "I think this prevents us from ever seeing 16-bit gray, right?",
       "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
