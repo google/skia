@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8f544cab_733a8a04",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-04T15:45:43Z",
+      "side": 1,
+      "message": "upem \u003d\u003d 0",
+      "range": {
+        "startLine": 748,
+        "startChar": 8,
+        "endLine": 748,
+        "endChar": 13
+      },
+      "revId": "99493ec6fc9fc8df193fd30f071757af974e73bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c7e549_c4a213fa",
+        "filename": "src/ports/SkFontHost_FreeType_common.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-04T15:45:43Z",
+      "side": 1,
+      "message": "Rename to GetUnitsPerEm as this is part of the interface.",
+      "range": {
+        "startLine": 89,
+        "startChar": 15,
+        "endLine": 89,
+        "endChar": 22
+      },
+      "revId": "99493ec6fc9fc8df193fd30f071757af974e73bd",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
