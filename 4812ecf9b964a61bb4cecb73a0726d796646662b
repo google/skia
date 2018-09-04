@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7cd6cf0a_3e653eda",
+        "filename": "tests/SerializationTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-04T01:04:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7198a901_306b5c7a",
+      "range": {
+        "startLine": 366,
+        "startChar": 24,
+        "endLine": 366,
+        "endChar": 66
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fd8d259_061bbf9b",
         "filename": "tests/TypefaceTest.cpp",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-08-31T22:21:30Z",
       "side": 1,
       "message": "sk_sp\u003cSkData\u003e data \u003d GetResourceAsData(",
+      "range": {
+        "startLine": 83,
+        "startChar": 4,
+        "endLine": 83,
+        "endChar": 62
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "25246c06_d1a1b534",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-04T01:04:35Z",
+      "side": 1,
+      "message": "Turns out TypefaceStyle_test wants to write into the SkData, which isn\u0027t always legal if we build the data directly from a file (sometimes we mmap it). Thus the calling code is \"correct\" (I didn\u0027t write it) to force the data to be build from a stream.\n\nIf we want to restructure this entire test/file, that\u0027s ok w/ me (e.g. we could have the test itself make a defensive copy), but let\u0027s do it in a separate CL.",
+      "parentUuid": "9fd8d259_061bbf9b",
       "range": {
         "startLine": 83,
         "startChar": 4,
@@ -68,6 +116,30 @@
       "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fc7f4944_b2adc867",
+        "filename": "tests/TypefaceTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-04T01:04:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "abf3b61d_1db043ac",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 88,
+        "endChar": 82
+      },
+      "revId": "4812ecf9b964a61bb4cecb73a0726d796646662b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
