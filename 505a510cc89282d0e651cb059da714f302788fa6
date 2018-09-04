@@ -140,6 +140,30 @@
       "revId": "505a510cc89282d0e651cb059da714f302788fa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d38566ec_aaa08b33",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-04T13:15:25Z",
+      "side": 1,
+      "message": "We could always add SkASSERT(renderTargetContext) at the top of the function.",
+      "parentUuid": "0db4eac2_f7e185fc",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 5
+      },
+      "revId": "505a510cc89282d0e651cb059da714f302788fa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
