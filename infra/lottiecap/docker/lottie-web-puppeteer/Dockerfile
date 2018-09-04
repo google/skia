@@ -24,7 +24,6 @@ RUN npm install --global \
     command-line-args@5.0.2 \
     command-line-usage@5.0.3 \
     express@4.16.3 \
-    lottie-web@5.2.1 \
     node-fetch@2.2.0 \
     puppeteer@1.6.2
 
