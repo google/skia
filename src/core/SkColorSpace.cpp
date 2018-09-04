@@ -6,11 +6,10 @@
  */
 
 #include "SkColorSpace.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
-#include "SkPoint3.h"
-#include "SkTemplates.h"
-#include <new>
+#include "SkData.h"
+#include "SkOnce.h"
+#include "SkOpts.h"
 #include "../../third_party/skcms/skcms.h"
 
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
@@ -92,6 +91,90 @@ bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+class SkColorSpace_XYZ : public SkColorSpace {
+public:
+    SkColorSpace_XYZ(SkGammaNamed gammaNamed, const SkColorSpaceTransferFn* transferFn,
+                     const SkMatrix44& toXYZ)
+            : fGammaNamed(gammaNamed)
+            , fToXYZD50(toXYZ)
+            , fToXYZD50Hash(SkOpts::hash_fn(toXYZ.values(), 16 * sizeof(SkMScalar), 0))
+            , fFromXYZD50(SkMatrix44::kUninitialized_Constructor) {
+        SkASSERT(fGammaNamed != kNonStandard_SkGammaNamed || transferFn);
+        if (transferFn) {
+            fTransferFn = *transferFn;
+        }
+    }
+
+    SkGammaNamed gammaNamed() const override { return fGammaNamed; }
+
+    const SkMatrix44* toXYZD50() const override { return &fToXYZD50; }
+    uint32_t toXYZD50Hash() const override { return fToXYZD50Hash; }
+
+    const SkMatrix44* fromXYZD50() const override {
+        fFromXYZOnce([this] {
+            if (!fToXYZD50.invert(&fFromXYZD50)) {
+                SkMatrix44 srgbToXYZD50(SkMatrix44::kUninitialized_Constructor);
+                srgbToXYZD50.set3x3RowMajorf(gSRGB_toXYZD50);
+                srgbToXYZD50.invert(&fFromXYZD50);
+            }
+        });
+        return &fFromXYZD50;
+    }
+
+    bool isNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const override {
+        switch (fGammaNamed) {
+            case kSRGB_SkGammaNamed:
+                *coeffs = gSRGB_TransferFn;
+                break;
+            case k2Dot2Curve_SkGammaNamed:
+                *coeffs = g2Dot2_TransferFn;
+                break;
+            case kLinear_SkGammaNamed:
+                *coeffs = gLinear_TransferFn;
+                break;
+            case kNonStandard_SkGammaNamed:
+                *coeffs = fTransferFn;
+                break;
+            default:
+                SkDEBUGFAIL("Unknown named gamma");
+                return false;
+        }
+
+        return true;
+    }
+
+    sk_sp<SkColorSpace> makeLinearGamma() const override {
+        if (this->gammaIsLinear()) {
+            return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
+        }
+        return SkColorSpace::MakeRGB(kLinear_SkGammaNamed, fToXYZD50);
+    }
+
+    sk_sp<SkColorSpace> makeSRGBGamma() const override {
+        if (this->gammaCloseToSRGB()) {
+            return sk_ref_sp(const_cast<SkColorSpace_XYZ*>(this));
+        }
+        return SkColorSpace::MakeRGB(kSRGB_SkGammaNamed, fToXYZD50);
+    }
+
+    sk_sp<SkColorSpace> makeColorSpin() const override {
+        SkMatrix44 spin(SkMatrix44::kUninitialized_Constructor);
+        spin.set3x3(0, 1, 0, 0, 0, 1, 1, 0, 0);
+        spin.postConcat(fToXYZD50);
+        (void)spin.getType();
+        return sk_sp<SkColorSpace>(new SkColorSpace_XYZ(fGammaNamed, &fTransferFn, spin));
+    }
+
+private:
+    SkGammaNamed fGammaNamed;
+    SkColorSpaceTransferFn fTransferFn;
+    SkMatrix44 fToXYZD50;
+    uint32_t fToXYZD50Hash;
+
+    mutable SkMatrix44 fFromXYZD50;
+    mutable SkOnce fFromXYZOnce;
+};
 
 /**
  *  Checks if our toXYZ matrix is a close match to a known color gamut.
@@ -211,42 +294,14 @@ sk_sp<SkColorSpace> SkColorSpace::MakeSRGBLinear() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-SkGammaNamed SkColorSpace::gammaNamed() const {
-    return this->onGammaNamed();
-}
-
-bool SkColorSpace::gammaCloseToSRGB() const {
-    return this->onGammaCloseToSRGB();
-}
-
-bool SkColorSpace::gammaIsLinear() const {
-    return this->onGammaIsLinear();
-}
-
-bool SkColorSpace::isNumericalTransferFn(SkColorSpaceTransferFn* fn) const {
-    return this->onIsNumericalTransferFn(fn);
-}
-
 bool SkColorSpace::toXYZD50(SkMatrix44* toXYZD50) const {
-    const SkMatrix44* matrix = this->onToXYZD50();
+    const SkMatrix44* matrix = this->toXYZD50();
     if (matrix) {
         *toXYZD50 = *matrix;
         return true;
     }
 
     return false;
-}
-
-const SkMatrix44* SkColorSpace::toXYZD50() const {
-    return this->onToXYZD50();
-}
-
-const SkMatrix44* SkColorSpace::fromXYZD50() const {
-    return this->onFromXYZD50();
-}
-
-uint32_t SkColorSpace::toXYZD50Hash() const {
-    return this->onToXYZD50Hash();
 }
 
 bool SkColorSpace::isSRGB() const {

@@ -136,19 +136,17 @@ public:
      */
     void toProfile(skcms_ICCProfile*) const;
 
-    SkGammaNamed gammaNamed() const;
+    virtual SkGammaNamed gammaNamed() const = 0;
 
     /**
      *  Returns true if the color space gamma is near enough to be approximated as sRGB.
-     *  This includes the canonical sRGB transfer function as well as a 2.2f exponential
-     *  transfer function.
      */
-    bool gammaCloseToSRGB() const;
+    bool gammaCloseToSRGB() const { return kSRGB_SkGammaNamed == this->gammaNamed(); }
 
     /**
      *  Returns true if the color space gamma is linear.
      */
-    bool gammaIsLinear() const;
+    bool gammaIsLinear() const { return kLinear_SkGammaNamed == this->gammaNamed(); }
 
     /**
      *  If the transfer function can be represented as coefficients to the standard
@@ -156,7 +154,7 @@ public:
      *
      *  If not, returns false.
      */
-    bool isNumericalTransferFn(SkColorSpaceTransferFn* fn) const;
+    virtual bool isNumericalTransferFn(SkColorSpaceTransferFn* fn) const = 0;
 
     /**
      *  Returns true and sets |toXYZD50| if the color gamut can be described as a matrix.
@@ -168,20 +166,20 @@ public:
      *  Describes color space gamut as a transformation to XYZ D50.
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
-    const SkMatrix44* toXYZD50() const;
+    virtual const SkMatrix44* toXYZD50() const = 0;
 
     /**
      *  Describes color space gamut as a transformation from XYZ D50
      *  Returns nullptr if color gamut cannot be described in terms of XYZ D50.
      */
-    const SkMatrix44* fromXYZD50() const;
+    virtual const SkMatrix44* fromXYZD50() const = 0;
 
     /**
      *  Returns a hash of the gamut transofmration to XYZ D50. Allows for fast equality checking
      *  of gamuts, at the (very small) risk of collision.
      *  Returns 0 if color gamut cannot be described in terms of XYZ D50.
      */
-    uint32_t toXYZD50Hash() const;
+    virtual uint32_t toXYZD50Hash() const = 0;
 
     /**
      *  Returns a color space with the same gamut as this one, but with a linear gamma.
@@ -205,7 +203,7 @@ public:
      *
      *  This is used for testing, to construct color spaces that have severe and testable behavior.
      */
-    virtual sk_sp<SkColorSpace> makeColorSpin() const { return nullptr; }
+    virtual sk_sp<SkColorSpace> makeColorSpin() const = 0;
 
     /**
      *  Returns true if the color space is sRGB.
@@ -242,15 +240,6 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 private:
-    virtual const SkMatrix44* onToXYZD50() const = 0;
-    virtual uint32_t onToXYZD50Hash() const = 0;
-    virtual const SkMatrix44* onFromXYZD50() const = 0;
-
-    virtual SkGammaNamed onGammaNamed() const = 0;
-    virtual bool onGammaCloseToSRGB() const = 0;
-    virtual bool onGammaIsLinear() const = 0;
-    virtual bool onIsNumericalTransferFn(SkColorSpaceTransferFn* coeffs) const = 0;
-
     using INHERITED = SkRefCnt;
 };
 
