@@ -12,6 +12,9 @@
 #include "SkPoint3.h"
 #include "../../third_party/skcms/skcms.h"
 
+// TODO: this is kind of ridiculous
+static_assert(sizeof(SkColorSpace) == 45*4, "");
+
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 #if defined(SK_USE_LEGACY_PRIMARIES_TO_XYZ)
     if (!is_zero_to_one(fRX) || !is_zero_to_one(fRY) ||

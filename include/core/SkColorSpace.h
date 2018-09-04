@@ -83,7 +83,7 @@ struct SK_API SkColorSpaceTransferFn {
     }
 };
 
-class SK_API SkColorSpace : public SkRefCnt {
+class SK_API SkColorSpace : public SkNVRefCnt<SkColorSpace> {
 public:
     /**
      *  Create the sRGB color space.
@@ -241,19 +241,18 @@ public:
     static bool Equals(const SkColorSpace* src, const SkColorSpace* dst);
 
 private:
-    SkColorSpace(SkGammaNamed gammaNamed, const SkColorSpaceTransferFn* transferFn,
+    SkColorSpace(SkGammaNamed gammaNamed,
+                 const SkColorSpaceTransferFn* transferFn,
                  const SkMatrix44& toXYZ);
     friend class SkColorSpaceSingletonFactory;
 
-    SkGammaNamed           fGammaNamed;
+    SkGammaNamed           fGammaNamed;    // TODO: 2-bit, pack more tightly?  or drop?
     SkColorSpaceTransferFn fTransferFn;
-    SkMatrix44             fToXYZD50;
-    uint32_t               fToXYZD50Hash;
+    SkMatrix44             fToXYZD50;      // TODO: SkMatrix, or just 9 floats?
+    uint32_t               fToXYZD50Hash;  // TODO: Drop?
 
-    mutable SkMatrix44     fFromXYZD50;
+    mutable SkMatrix44     fFromXYZD50;    // TODO: Maybe don't cache?
     mutable SkOnce         fFromXYZOnce;
-
-    using INHERITED = SkRefCnt;
 };
 
 #endif
