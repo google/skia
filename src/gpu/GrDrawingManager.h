@@ -26,6 +26,52 @@ class GrTextureContext;
 class GrTextureOpList;
 class SkDeferredDisplayList;
 
+// This class encapsulates maintenance and manipulation of the drawing manager's DAG of opLists.
+// It should only ever be used by the drawing manager.
+class GrOpListDAG {
+public:
+    GrOpListDAG(bool explicitlyAllocating, GrContextOptions::Enable sortOpLists);
+    ~GrOpListDAG();
+
+    // Currently, when explicitly allocating resources, this call will topologically sort the
+    // opLists.
+    // MDB TODO: remove once incremental opList sorting is enabled
+    void prepForFlush();
+
+    void closeAll(const GrCaps* caps);
+
+    // A yucky combination of closeAll and reset
+    void cleanup(const GrCaps* caps);
+
+    void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
+
+    void reset();
+
+    // This call forceably removes an opList from the DAG. It is problematic bc it just removes
+    // the opList but doesn't cleanup any pointers to it (i.e., dependency pointers in the
+    // DAG). It works right now bc it is only called while flushing after the topological sort
+    // is complete.
+    void removeOpList(int index);
+
+    bool empty() const { return fOpLists.empty(); }
+    int numOpLists() const { return fOpLists.count(); }
+
+    GrOpList* opList(int index) { return fOpLists[index].get(); }
+    const GrOpList* opList(int index) const { return fOpLists[index].get(); }
+
+    GrOpList* back() { return fOpLists.back().get(); }
+    const GrOpList* back() const { return fOpLists.back().get(); }
+
+    void add(sk_sp<GrOpList>);
+    void add(const SkTArray<sk_sp<GrOpList>>&);
+
+    void swap(SkTArray<sk_sp<GrOpList>>* opLists);
+
+private:
+    SkTArray<sk_sp<GrOpList>> fOpLists;
+    bool                      fSortOpLists;
+};
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -119,7 +165,7 @@ private:
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTArray<sk_sp<GrOpList>>         fOpLists;
+    GrOpListDAG                       fDAG;
     GrOpList*                         fActiveOpList = nullptr;
     // These are the IDs of the opLists currently being flushed (in internalFlush)
     SkSTArray<8, uint32_t, true>      fFlushingOpListIDs;
