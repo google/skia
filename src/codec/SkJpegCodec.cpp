@@ -302,7 +302,8 @@ std::unique_ptr<SkCodec> SkJpegCodec::MakeFromStream(std::unique_ptr<SkStream> s
 
 SkJpegCodec::SkJpegCodec(SkEncodedInfo&& info, std::unique_ptr<SkStream> stream,
                          JpegDecoderMgr* decoderMgr, SkEncodedOrigin origin)
-    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream), origin)
+    : INHERITED(std::move(info), skcms_PixelFormat_RGBA_8888, std::move(stream),
+                origin)
     , fDecoderMgr(decoderMgr)
     , fReadyState(decoderMgr->dinfo()->global_state)
     , fSwizzleSrcRow(nullptr)
@@ -425,15 +426,12 @@ bool SkJpegCodec::conversionSupported(const SkImageInfo& dstInfo, SkColorType sr
             }
             break;
         case kGray_8_SkColorType:
+            SkASSERT(!needsColorXform);
             if (JCS_GRAYSCALE != encodedColorType) {
                 return false;
             }
 
-            if (needsColorXform) {
-                fDecoderMgr->dinfo()->out_color_space = JCS_EXT_RGBA;
-            } else {
-                fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
-            }
+            fDecoderMgr->dinfo()->out_color_space = JCS_GRAYSCALE;
             break;
         case kRGBA_F16_SkColorType:
             SkASSERT(needsColorXform);
@@ -507,8 +505,7 @@ int SkJpegCodec::readRows(const SkImageInfo& dstInfo, void* dst, size_t rowBytes
     // We can never swizzle "in place" because the swizzler may perform sampling and/or
     // subsetting.
     // When fColorXformSrcRow is non-null, it means that we need to color xform and that
-    // we cannot color xform "in place" (many times we can, but not when the src and dst
-    // are different sizes).
+    // we cannot color xform "in place" (many times we can, but not when the dst is F16).
     // In this case, we will color xform from fColorXformSrcRow into the dst.
     JSAMPLE* decodeDst = (JSAMPLE*) dst;
     uint32_t* swizzleDst = (uint32_t*) dst;
@@ -627,8 +624,8 @@ void SkJpegCodec::allocateStorage(const SkImageInfo& dstInfo) {
     }
 
     size_t xformBytes = 0;
-
-    if (this->colorXform() && sizeof(uint32_t) != dstInfo.bytesPerPixel()) {
+    if (this->colorXform() && (kRGBA_F16_SkColorType == dstInfo.colorType() ||
+                               kRGB_565_SkColorType == dstInfo.colorType())) {
         xformBytes = dstWidth * sizeof(uint32_t);
     }
 
