@@ -10,13 +10,15 @@
 # at /LOTTIE_FILES.
 
 # For example:
-# docker run -v ~/lottie-samples:/LOTTIE_FILES -v $SKIA_ROOT:/SRC -v /tmp/dockerout:/OUT gcr.io/skia-public/gold-lottie-web-puppeteer:5.2.1_v1 /SRC/infra/lottiecap/docker/lottiecap_gold.sh
+# docker run -v ~/lottie-samples:/LOTTIE_FILES -v $LOTTIE_ROOT/build/player:/LOTTIE_BUILD -v $SKIA_ROOT:/SRC -v /tmp/dockerout:/OUT gcr.io/skia-public/gold-lottie-web-puppeteer:v2 /SRC/infra/lottiecap/docker/lottiecap_gold.sh
 
 set -ex
 
 #BASE_DIR is the dir this script is in ($SKIA_ROOT/infra/lottiecap/docker)
 BASE_DIR=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`
 LOTTIECAP_DIR=$BASE_DIR/../../../tools/lottiecap
+
+ls -ahl /LOTTIE_BUILD/
 
 # Start the aggregator in the background
 /opt/gold-aggregator $@ &
@@ -27,7 +29,7 @@ cd $LOTTIECAP_DIR
 # did not work here.
 find /LOTTIE_FILES -not -path /LOTTIE_FILES -exec \
     node ./lottiecap.js --port 8082 \
-            --lottie_player /usr/local/lib/node_modules/lottie-web/build/player/lottie.min.js \
+            --lottie_player /LOTTIE_BUILD/lottie.min.js \
             --in_docker \
             --post_to http://localhost:8081/report_gold_data \
             --input {} \;
