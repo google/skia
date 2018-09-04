@@ -51,7 +51,7 @@ static void TypefaceStyle_test(skiatest::Reporter* reporter,
     using WidthType = SkOTTableOS2_V0::WidthClass::Value;
     os2Table->usWidthClass.value = static_cast<WidthType>(SkEndian_SwapBE16(width));
 
-    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromStream(new SkMemoryStream(sk_ref_sp(data))));
+    sk_sp<SkTypeface> newTypeface(SkTypeface::MakeFromData(sk_ref_sp(data)));
     if (!newTypeface) {
         // Not all SkFontMgr can MakeFromStream().
         return;
@@ -318,7 +318,7 @@ static void check_serialize_behaviors(sk_sp<SkTypeface> tf, bool isLocalData,
 DEF_TEST(Typeface_serialize, reporter) {
     check_serialize_behaviors(SkTypeface::MakeDefault(), false, reporter);
     check_serialize_behaviors(SkTypeface::MakeFromStream(
-                                         GetResourceAsStream("fonts/Distortable.ttf").release()),
+                                         GetResourceAsStream("fonts/Distortable.ttf")),
                               true, reporter);
 
 }

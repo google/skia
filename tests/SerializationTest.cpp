@@ -363,8 +363,7 @@ static void serialize_and_compare_typeface(sk_sp<SkTypeface> typeface, const cha
 static void TestPictureTypefaceSerialization(skiatest::Reporter* reporter) {
     {
         // Load typeface from file to test CreateFromFile with index.
-        auto data = GetResourceAsData("fonts/test.ttc");
-        auto typeface = SkTypeface::MakeFromStream(new SkMemoryStream(std::move(data)), 1);
+        auto typeface = MakeResourceAsTypeface("fonts/test.ttc", 1);
         if (!typeface) {
             INFOF(reporter, "Could not run fontstream test because test.ttc not found.");
         } else {

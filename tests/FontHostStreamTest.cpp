@@ -94,7 +94,7 @@ DEF_TEST(FontHostStream, reporter) {
             return;
         }
 
-        sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(fontData.release()));
+        sk_sp<SkTypeface> streamTypeface(SkTypeface::MakeFromStream(std::move(fontData)));
 
         SkFontDescriptor desc;
         bool isLocalStream = false;

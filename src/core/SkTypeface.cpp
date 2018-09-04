@@ -142,23 +142,36 @@ sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
             (fontStyle.weight() == SkFontStyle::kBold_Weight ? SkTypeface::kBold :
                                                                SkTypeface::kNormal))));
     }
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->legacyMakeTypeface(name, fontStyle);
+    return SkFontMgr::RefDefault()->legacyMakeTypeface(name, fontStyle);
 }
 
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
+// DEPRECATED
 sk_sp<SkTypeface> SkTypeface::MakeFromStream(SkStreamAsset* stream, int index) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->makeFromStream(std::unique_ptr<SkStreamAsset>(stream), index);
+    return MakeFromStream(std::unique_ptr<SkStreamAsset>(stream), index);
+}
+#endif
+
+sk_sp<SkTypeface> SkTypeface::MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index) {
+    if (!stream) {
+        return nullptr;
+    }
+    return SkFontMgr::RefDefault()->makeFromStream(std::move(stream), index);
+}
+
+sk_sp<SkTypeface> SkTypeface::MakeFromData(sk_sp<SkData> data, int index) {
+    if (!data) {
+        return nullptr;
+    }
+    return SkFontMgr::RefDefault()->makeFromData(std::move(data), index);
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromFontData(std::unique_ptr<SkFontData> data) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->makeFromFontData(std::move(data));
+    return SkFontMgr::RefDefault()->makeFromFontData(std::move(data));
 }
 
 sk_sp<SkTypeface> SkTypeface::MakeFromFile(const char path[], int index) {
-    sk_sp<SkFontMgr> fm(SkFontMgr::RefDefault());
-    return fm->makeFromFile(path, index);
+    return SkFontMgr::RefDefault()->makeFromFile(path, index);
 }
 
 sk_sp<SkTypeface> SkTypeface::makeClone(const SkFontArguments& args) const {
