@@ -115,6 +115,7 @@ protected:
 
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+    friend class GrOpListDAG;      // for TopoSortTraits
 
     void addDependency(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);
