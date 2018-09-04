@@ -33,6 +33,8 @@ typedef uint32_t SkFontID;
 /** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
+#define SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
+
 /** \class SkTypeface
 
     The SkTypeface class specifies the typeface and intrinsic style of a font.
@@ -127,7 +129,17 @@ public:
         not a valid font file, returns nullptr. Ownership of the stream is
         transferred, so the caller must not reference it again.
     */
+    static sk_sp<SkTypeface> MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index = 0);
+
+#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
+    // DEPRECATED -- call the version that takes unique_ptr
     static sk_sp<SkTypeface> MakeFromStream(SkStreamAsset* stream, int index = 0);
+#endif
+
+    /** Return a new typeface given a SkData. If the data is null, or is not a valid font file,
+     *  returns nullptr.
+     */
+    static sk_sp<SkTypeface> MakeFromData(sk_sp<SkData>, int index = 0);
 
     /** Return a new typeface given font data and configuration. If the data
         is not valid font data, returns nullptr.
