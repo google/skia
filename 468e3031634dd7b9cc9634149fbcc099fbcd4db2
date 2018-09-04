@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e81b637f_214a9530",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T19:23:50Z",
+      "side": 1,
+      "message": "Thanks for the explanation!",
+      "parentUuid": "adda2f93_961fa6ee",
+      "range": {
+        "startLine": 613,
+        "startChar": 25,
+        "endLine": 613,
+        "endChar": 46
+      },
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0d07e9db_6633d960",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 5
@@ -102,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "7b094ec9_bf2dbb8f",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T19:23:50Z",
+      "side": 1,
+      "message": "Sgtm.",
+      "parentUuid": "5b29d233_63a110cd",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ce4ccf9_41d6d56f",
         "filename": "src/codec/SkPngCodec.cpp",
         "patchSetId": 5
@@ -136,6 +178,24 @@
       "writtenOn": "2018-09-04T19:06:47Z",
       "side": 1,
       "message": "I think this prevents us from ever seeing 16-bit gray, right?",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "96f8a173_236f8843",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T19:23:50Z",
+      "side": 1,
+      "message": "Yep! Forgot about this...",
+      "parentUuid": "483c6838_17cf3dac",
       "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
