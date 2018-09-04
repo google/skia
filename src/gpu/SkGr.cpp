@@ -257,15 +257,15 @@ sk_sp<GrTextureProxy> GrMakeCachedImageProxy(GrProxyProvider* proxyProvider,
 
 GrColor4f SkColorToPremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
     // We want to premultiply after color space conversion, so this is easy:
-    return SkColor4fToUnpremulGrColor4f(SkColor4f::FromColor(c), colorSpaceInfo).premul();
+    return SkColorToUnpremulGrColor4f(c, colorSpaceInfo).premul();
 }
 
-GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f c) {
-    return GrColor4f::FromSkColor4f(c).premul();
+GrColor4f SkColorToPremulGrColor4fLegacy(SkColor c) {
+    return GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c)).premul();
 }
 
-GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f c, const GrColorSpaceInfo& colorSpaceInfo) {
-    GrColor4f color = GrColor4f::FromSkColor4f(c);
+GrColor4f SkColorToUnpremulGrColor4f(SkColor c, const GrColorSpaceInfo& colorSpaceInfo) {
+    GrColor4f color = GrColor4f::FromGrColor(SkColorToUnpremulGrColor(c));
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->apply(color);
     }
@@ -367,7 +367,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
                                            SkBlendMode* primColorMode,
                                            GrPaint* grPaint) {
     // Convert SkPaint color to 4f format in the destination color space
-    GrColor4f origColor = SkColor4fToUnpremulGrColor4f(skPaint.getColor4f(), colorSpaceInfo);
+    GrColor4f origColor = SkColorToUnpremulGrColor4f(skPaint.getColor(), colorSpaceInfo);
 
     const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
@@ -409,7 +409,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             }
 
             // We can ignore origColor here - alpha is unchanged by gamma
-            GrColor paintAlpha = GrColorPackA4(skPaint.getAlpha());
+            GrColor paintAlpha = SkColorAlphaToGrColor(skPaint.getColor());
             if (GrColor_WHITE != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
@@ -437,7 +437,7 @@ static inline bool skpaint_to_grpaint_impl(GrContext* context,
             grPaint->setColor4f(origColor.opaque());
 
             // We can ignore origColor here - alpha is unchanged by gamma
-            GrColor paintAlpha = GrColorPackA4(skPaint.getAlpha());
+            GrColor paintAlpha = SkColorAlphaToGrColor(skPaint.getColor());
             if (GrColor_WHITE != paintAlpha) {
                 // No gamut conversion - paintAlpha is a (linear) alpha value, splatted to all
                 // color channels. It's value should be treated as the same in ANY color space.
