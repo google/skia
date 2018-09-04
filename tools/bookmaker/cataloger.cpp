@@ -79,8 +79,6 @@ bool Catalog::closeCatalog(const char* outDir) {
         if (ParserCommon::WrittenFileDiffers(fullName, kCatalogFileName)) {
             ParserCommon::CopyToFile(fullName, kCatalogFileName);
             SkDebugf("wrote %s\n", fullName.c_str());
-        } else {
-            remove(kCatalogFileName.c_str());
         }
         fOut = nullptr;
     }
