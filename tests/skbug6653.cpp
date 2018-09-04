@@ -12,7 +12,6 @@
 
 #include "GrContext.h"
 #include "GrContextPriv.h"
-#include "GrTest.h"
 #include "Test.h"
 
 static SkBitmap read_pixels(sk_sp<SkSurface> surface) {

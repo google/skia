@@ -18,7 +18,6 @@
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
-#include "GrTest.h"
 
 #include <initializer_list>
 

@@ -7,12 +7,12 @@
 
 #include "Test.h"
 
+#include "GrBackendSurface.h"
 #include "GrContextFactory.h"
 #include "GrContextOptions.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrProxyProvider.h"
-#include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "effects/GrPorterDuffXferProcessor.h"
 #include "gl/GrGLCaps.h"

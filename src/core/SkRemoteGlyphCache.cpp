@@ -593,11 +593,8 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
         // Glyphs which are too large for the atlas still request images when computing the bounds
         // for the glyph, which is why its necessary to send both. See related code in
         // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
-        bool tooLargeForAtlas = false;
-#if SK_SUPPORT_GPU
-        tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(stationaryGlyph.fWidth,
-                                                                stationaryGlyph.fHeight);
-#endif
+        bool tooLargeForAtlas = SkGlyphCacheCommon::GlyphTooBigForAtlas(stationaryGlyph);
+
         if (tooLargeForAtlas) {
             // Add this to the path cache, since we will always fall back to using paths
             // for this glyph.
@@ -793,10 +790,8 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 allocatedGlyph->fPathData = glyphPath;
             }
 
-            bool tooLargeForAtlas = false;
-#if SK_SUPPORT_GPU
-            tooLargeForAtlas = GrDrawOpAtlas::GlyphTooLargeForAtlas(glyph.fWidth, glyph.fHeight);
-#endif
+            bool tooLargeForAtlas = SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph);
+
             if (tooLargeForAtlas) {
                 if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
             }

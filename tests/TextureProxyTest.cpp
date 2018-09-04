@@ -14,7 +14,6 @@
 #include "GrResourceCache.h"
 #include "GrProxyProvider.h"
 #include "GrResourceProvider.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 

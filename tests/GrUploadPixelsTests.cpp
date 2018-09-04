@@ -12,7 +12,6 @@
 #include "GrContextFactory.h"
 #include "GrContextPriv.h"
 #include "GrSurfaceProxy.h"
-#include "GrTest.h"
 #include "ProxyUtils.h"
 #include "SkGr.h"
 #include "Test.h"
