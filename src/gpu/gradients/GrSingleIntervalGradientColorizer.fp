@@ -12,6 +12,12 @@
 layout(ctype=GrColor4f, tracked) in uniform half4 start;
 layout(ctype=GrColor4f, tracked) in uniform half4 end;
 
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (start.isOpaque() && end.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag :
+                                          kNone_OptimizationFlags)
+}
+
 void main() {
     half t = sk_InColor.x;
 

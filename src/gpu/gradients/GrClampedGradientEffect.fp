@@ -21,6 +21,17 @@ in fragmentProcessor gradLayout;
 layout(ctype=GrColor4f, tracked) in uniform half4 bottomBorderColor; // t < 0.0
 layout(ctype=GrColor4f, tracked) in uniform half4 topBorderColor;    // t > 1.0
 
+layout(key) in bool makePremul;
+
+// If the border colors are not opaque, remove the opaque optimization;
+// but otherwise preserve the colorizer's exposed optimizations
+@optimizationFlags {
+    (colorizer->compatibleWithCoverageAsAlpha() ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                                : kNone_OptimizationFlags) |
+    (colorizer->preservesOpaqueInput() && bottomBorderColor.isOpaque() && topBorderColor.isOpaque()
+            ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags)
+}
+
 void main() {
     half4 t = process(gradLayout);
     // If t.x is below 0, use the bottom border color without invoking the child
@@ -31,12 +42,17 @@ void main() {
         // layout has rejected this fragment
         // FIXME: only 2pt conic does this, can we add an optimization flag
         // that lets us assume t.y >= 0 in many cases?
+        // FIXME: will this invalidate opaque preserving optimization?
         sk_OutColor = half4(0);
     } else if (t.x < 0) {
-        sk_OutColor = 0.5 * bottomBorderColor;
+        sk_OutColor = bottomBorderColor;
     } else if (t.x > 1.0) {
-        sk_OutColor = 0.5 * topBorderColor;
+        sk_OutColor = topBorderColor;
     } else {
-        sk_OutColor = 0.5 * process(colorizer, t);
+        sk_OutColor = process(colorizer, t);
+    }
+
+    @if(makePremul) {
+        sk_OutColor.xyz *= sk_OutColor.w;
     }
 }

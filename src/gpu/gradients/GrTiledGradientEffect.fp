@@ -11,6 +11,15 @@ in fragmentProcessor colorizer;
 in fragmentProcessor gradLayout;
 
 layout(key) in bool mirror;
+layout(key) in bool makePremul;
+
+// Mirror colorizer's optimizations for opaque and coverage
+@optimizationFlags {
+    (colorizer->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
+                                       : kNone_OptimizationFlags) |
+    (colorizer->compatibleWithCoverageAsAlpha() ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                                : kNone_OptimizationFlags)
+}
 
 void main() {
     half4 t = process(gradLayout);
@@ -19,6 +28,8 @@ void main() {
         // layout has rejected this fragment
         // FIXME: only 2pt conic does this, can we add an optimization flag
         // that lets us assume t.y >= 0 in many cases?
+        // FIXME: if we hit this region of the paint, does outputting transparent
+        // black invalidate an otherwise opaque preserving gradient?
         sk_OutColor = half4(0);
     } else {
         @if(mirror) {
@@ -39,6 +50,10 @@ void main() {
 
         // t.x has been tiled (repeat or mirrored), but pass through remaining
         // 3 components unmodified.
-        sk_OutColor = 0.5 * process(colorizer, t);
+        sk_OutColor = process(colorizer, t);
+    }
+
+    @if (makePremul) {
+        sk_OutColor.xyz *= sk_OutColor.w;
     }
 }

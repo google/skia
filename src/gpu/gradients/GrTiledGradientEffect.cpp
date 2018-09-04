@@ -24,6 +24,8 @@ public:
         (void)_outer;
         auto mirror = _outer.mirror();
         (void)mirror;
+        auto makePremul = _outer.makePremul();
+        (void)makePremul;
         SkString _child1("_child1");
         this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
@@ -38,8 +40,10 @@ public:
         SkString _input0("t");
         SkString _child0("_child0");
         this->emitChild(0, _input0.c_str(), &_child0, args);
-        fragBuilder->codeAppendf("\n    %s = 0.5 * float4(%s);\n}\n", args.fOutputColor,
-                                 _child0.c_str());
+        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                                 args.fOutputColor, _child0.c_str(),
+                                 (_outer.makePremul() ? "true" : "false"), args.fOutputColor,
+                                 args.fOutputColor);
     }
 
 private:
@@ -52,15 +56,19 @@ GrGLSLFragmentProcessor* GrTiledGradientEffect::onCreateGLSLInstance() const {
 void GrTiledGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
                                                   GrProcessorKeyBuilder* b) const {
     b->add32((int32_t)fMirror);
+    b->add32((int32_t)fMakePremul);
 }
 bool GrTiledGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrTiledGradientEffect& that = other.cast<GrTiledGradientEffect>();
     (void)that;
     if (fMirror != that.fMirror) return false;
+    if (fMakePremul != that.fMakePremul) return false;
     return true;
 }
 GrTiledGradientEffect::GrTiledGradientEffect(const GrTiledGradientEffect& src)
-        : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags()), fMirror(src.fMirror) {
+        : INHERITED(kGrTiledGradientEffect_ClassID, src.optimizationFlags())
+        , fMirror(src.fMirror)
+        , fMakePremul(src.fMakePremul) {
     this->registerChildProcessor(src.childProcessor(0).clone());
     this->registerChildProcessor(src.childProcessor(1).clone());
 }

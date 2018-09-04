@@ -12,6 +12,12 @@ in uniform sampler2D gradient;
     GrSamplerState::ClampBilerp()
 }
 
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (GrPixelConfigIsOpaque(gradient->config()) ? kPreservesOpaqueInput_OptimizationFlag :
+                                                 kNone_OptimizationFlags)
+}
+
 void main() {
     half2 coord = half2(sk_InColor.x, 0.5);
     sk_OutColor = texture(gradient, coord);

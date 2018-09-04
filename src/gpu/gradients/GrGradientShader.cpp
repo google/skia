@@ -27,7 +27,6 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 
-
 namespace GrGradientShader {
 
 // Each cache entry costs 1K or 2K of RAM. Each bitmap will be 1x256 at either 32bpp or 64bpp.
@@ -166,11 +165,11 @@ std::unique_ptr<GrFragmentProcessor> MakeGradient(
     switch(shader.getTileMode()) {
         case SkShader::kRepeat_TileMode:
             master = GrTiledGradientEffect::Make(
-                std::move(colorizer), std::move(layout), /* mirror */ false);
+                std::move(colorizer), std::move(layout), /* mirror */ false, !inputPremul);
             break;
         case SkShader::kMirror_TileMode:
             master = GrTiledGradientEffect::Make(
-                std::move(colorizer), std::move(layout), /* mirror */ true);
+                std::move(colorizer), std::move(layout), /* mirror */ true, !inputPremul);
             break;
         case SkShader::kClamp_TileMode: {
             // For the clamped mode, the border colors are the first and last
@@ -179,27 +178,19 @@ std::unique_ptr<GrFragmentProcessor> MakeGradient(
             // a hard stop, this grabs the expected outer colors for the border.
             master = GrClampedGradientEffect::Make(
                 std::move(colorizer), std::move(layout),
-                colors[0], colors[shader.fColorCount - 1]);
+                colors[0], colors[shader.fColorCount - 1], !inputPremul);
             break;
         }
         case SkShader::kDecal_TileMode:
             master = GrClampedGradientEffect::Make(
                 std::move(colorizer), std::move(layout),
-                GrColor4f::TransparentBlack(), GrColor4f::TransparentBlack());
+                GrColor4f::TransparentBlack(), GrColor4f::TransparentBlack(), !inputPremul);
             break;
     }
 
     if (master == nullptr) {
         // Unexpected tile mode
         return nullptr;
-    }
-
-    if (!inputPremul) {
-        // When interpolating unpremul colors, the output of the gradient
-        // effect fp's will also be unpremul, so wrap it to ensure its premul.
-        // - this is unnecessary when interpolating premul colors since the
-        //   output color is premul by nature
-        master = GrFragmentProcessor::PremulOutput(std::move(master));
     }
 
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(master));
