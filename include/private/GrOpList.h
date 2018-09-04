@@ -114,7 +114,8 @@ protected:
     SkTArray<GrTextureProxy*, true> fDeferredProxies;
 
 private:
-    friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
+    friend class GrDrawingManager; // for gatherProxyIntervals
+    friend class GrOpListDAG;      // for resetFlag, TopoSortTraits
 
     void addDependency(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);
