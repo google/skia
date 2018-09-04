@@ -40,9 +40,9 @@ SK_C_API const gr_glinterface_t* gr_glinterface_assemble_interface(void* ctx, gr
 SK_C_API const gr_glinterface_t* gr_glinterface_assemble_gl_interface(void* ctx, gr_gl_get_proc get);
 SK_C_API const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_get_proc get);
 
-SK_C_API void gr_glinterface_unref(gr_glinterface_t* glInterface);
-SK_C_API bool gr_glinterface_validate(gr_glinterface_t* glInterface);
-SK_C_API bool gr_glinterface_has_extension(gr_glinterface_t* glInterface, const char* extension);
+SK_C_API void gr_glinterface_unref(const gr_glinterface_t* glInterface);
+SK_C_API bool gr_glinterface_validate(const gr_glinterface_t* glInterface);
+SK_C_API bool gr_glinterface_has_extension(const gr_glinterface_t* glInterface, const char* extension);
 
 
 // GrBackendTexture

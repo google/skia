@@ -86,15 +86,15 @@ const gr_glinterface_t* gr_glinterface_assemble_gles_interface(void* ctx, gr_gl_
     return ToGrGLInterface(GrGLMakeAssembledGLESInterface(ctx, get).release());
 }
 
-void gr_glinterface_unref(gr_glinterface_t* glInterface) {
+void gr_glinterface_unref(const gr_glinterface_t* glInterface) {
     SkSafeUnref(AsGrGLInterface(glInterface));
 }
 
-bool gr_glinterface_validate(gr_glinterface_t* glInterface) {
+bool gr_glinterface_validate(const gr_glinterface_t* glInterface) {
     return AsGrGLInterface(glInterface)->validate();
 }
 
-bool gr_glinterface_has_extension(gr_glinterface_t* glInterface, const char* extension) {
+bool gr_glinterface_has_extension(const gr_glinterface_t* glInterface, const char* extension) {
     return AsGrGLInterface(glInterface)->hasExtension(extension);
 }
 
