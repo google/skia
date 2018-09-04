@@ -571,7 +571,7 @@ static void push_brd_src(Path path, CodecSrc::DstColorType dstColorType, BRDSrc:
 }
 
 static void push_brd_srcs(Path path, bool gray) {
-    if (gray) {
+    if (gray && false) {
         // Only run grayscale to one sampleSize and Mode. Though interesting
         // to test grayscale, it should not reveal anything across various
         // sampleSizes and Modes
@@ -585,7 +585,7 @@ static void push_brd_srcs(Path path, bool gray) {
     // - multiples of 2 which are not divisible by 4 (analogous for 4)
     // - larger powers of two, since BRD clients generally use powers of 2
     // We will only produce output for the larger sizes on large images.
-    const uint32_t sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
+    const uint32_t sampleSizes[] = { /*1, 2,*/ 3, 4, 5, 6, 7, 8, 12, 16, 24, 32, 64 };
 
     const BRDSrc::Mode modes[] = { BRDSrc::kFullImage_Mode, BRDSrc::kDivisor_Mode, };
 
@@ -648,7 +648,7 @@ static void push_codec_srcs(Path path) {
     if (codec->getInfo().alphaType() != kOpaque_SkAlphaType) {
         alphaModes.push_back(kUnpremul_SkAlphaType);
     }
-
+    /*
     for (CodecSrc::Mode mode : nativeModes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {
             for (SkAlphaType alphaType : alphaModes) {
@@ -674,7 +674,8 @@ static void push_codec_srcs(Path path) {
             }
         }
     }
-
+    */
+    /*
     {
         std::vector<SkCodec::FrameInfo> frameInfos = codec->getFrameInfo();
         if (frameInfos.size() > 1) {
@@ -687,11 +688,11 @@ static void push_codec_srcs(Path path) {
         }
 
     }
-
+    */
     if (FLAGS_simpleCodec) {
         return;
     }
-
+    /*
     const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
 
     for (int sampleSize : sampleSizes) {
@@ -707,7 +708,7 @@ static void push_codec_srcs(Path path) {
             }
         }
     }
-
+    */
     const char* ext = strrchr(path.c_str(), '.');
     if (ext) {
         ext++;
@@ -735,7 +736,7 @@ static void push_codec_srcs(Path path) {
             }
         }
     }
-
+    /*
     // Push image generator GPU test.
     push_image_gen_src(path, ImageGenSrc::kCodec_Mode, codec->getInfo().alphaType(), true);
 
@@ -758,6 +759,7 @@ static void push_codec_srcs(Path path) {
         }
 #endif
     }
+    */
 }
 
 template <typename T>
