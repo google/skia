@@ -181,6 +181,8 @@ def nanobench_flags(api, bot):
     # skia:6863
     match.append('~desk_skbug6850overlay2')
     match.append('~desk_carsvg')
+    match.append('~desk_googlespreadsheet.skp_1_mpd')
+    match.append('~desk_googlespreadsheet.skp_1.1')
   if 'MoltenVK' in bot:
     # skbug.com/7962
     match.append('~^path_text_clipped_uncached$')
