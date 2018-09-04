@@ -180,6 +180,7 @@ def nanobench_flags(api, bot):
       match.append('~text_16_LCD_WT')
     # skia:6863
     match.append('~desk_skbug6850overlay2')
+    match.append('~desk_googlespreadsheet')
     match.append('~desk_carsvg')
   if 'MoltenVK' in bot:
     # skbug.com/7962
