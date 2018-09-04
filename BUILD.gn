@@ -1034,7 +1034,10 @@ if (skia_enable_tools) {
     sources = [
       "tools/public_headers_warnings_check.cpp",
     ]
-    configs -= [ "//gn:warnings_except_public_headers" ]
+    if (!is_official_build) {
+      # This isn't there to begin with in is_official_builds.
+      configs -= [ "//gn:warnings_except_public_headers" ]
+    }
     deps = [
       ":skia",
       ":skia.h",
