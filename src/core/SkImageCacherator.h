@@ -29,6 +29,8 @@ class SkImageCacherator {
 public:
     virtual ~SkImageCacherator() {}
 
+    virtual SkImageInfo buildCacheInfo() const = 0;
+
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. If the cacherator is generating the texture and wants to cache it,
     // it should use the passed in key (if the key is valid).
