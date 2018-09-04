@@ -12,6 +12,9 @@
 #include "SkPoint3.h"
 #include "../../third_party/skcms/skcms.h"
 
+// TODO: this is kind of ridiculous
+static_assert(sizeof(SkColorSpace) == 45*4, "");
+
 bool SkColorSpacePrimaries::toXYZD50(SkMatrix44* toXYZ_D50) const {
 #if defined(SK_USE_LEGACY_PRIMARIES_TO_XYZ)
     if (!is_zero_to_one(fRX) || !is_zero_to_one(fRY) ||
@@ -197,24 +200,19 @@ sk_sp<SkColorSpace> SkColorSpace::MakeRGB(const SkColorSpaceTransferFn& coeffs, 
     return SkColorSpace::MakeRGB(coeffs, toXYZD50);
 }
 
-class SkColorSpaceSingletonFactory {
-public:
-    static SkColorSpace* Make(SkGammaNamed gamma, const float to_xyz[9]) {
-        SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
-        m44.set3x3RowMajorf(to_xyz);
-        (void)m44.getType();  // Force typemask to be computed to avoid races.
-        return new SkColorSpace(gamma, nullptr, m44);
-    }
-};
+static SkColorSpace* make_singleton(SkGammaNamed gamma, const float to_xyz[9]) {
+    SkMatrix44 m44(SkMatrix44::kUninitialized_Constructor);
+    m44.set3x3RowMajorf(to_xyz);
+    (void)m44.getType();  // Force typemask to be computed to avoid races.
+    return SkColorSpace::MakeRGB(gamma, m44).release();
+}
 
 SkColorSpace* sk_srgb_singleton() {
-    static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(kSRGB_SkGammaNamed,
-                                                                 gSRGB_toXYZD50);
+    static SkColorSpace* cs = make_singleton(kSRGB_SkGammaNamed, gSRGB_toXYZD50);
     return cs;
 }
 SkColorSpace* sk_srgb_linear_singleton() {
-    static SkColorSpace* cs = SkColorSpaceSingletonFactory::Make(kLinear_SkGammaNamed,
-                                                                 gSRGB_toXYZD50);
+    static SkColorSpace* cs = make_singleton(kLinear_SkGammaNamed, gSRGB_toXYZD50);
     return cs;
 }
 
