@@ -334,39 +334,6 @@ static void swap_rb_if_necessary(SkBitmap& bitmap, CodecSrc::DstColorType dstCol
     }
 }
 
-// FIXME: Currently we cannot draw unpremultiplied sources. skbug.com/3338 and skbug.com/3339.
-// This allows us to still test unpremultiplied decodes.
-static void premultiply_if_necessary(SkBitmap& bitmap) {
-    if (kUnpremul_SkAlphaType != bitmap.alphaType()) {
-        return;
-    }
-
-    switch (bitmap.colorType()) {
-        case kRGBA_F16_SkColorType: {
-            SkJumper_MemoryCtx ctx = { bitmap.getAddr(0,0), bitmap.rowBytesAsPixels() };
-            SkRasterPipeline_<256> p;
-            p.append(SkRasterPipeline::load_f16, &ctx);
-            p.append(SkRasterPipeline::premul);
-            p.append(SkRasterPipeline::store_f16, &ctx);
-            p.run(0,0, bitmap.width(), bitmap.height());
-        }
-            break;
-        case kN32_SkColorType:
-            for (int y = 0; y < bitmap.height(); y++) {
-                uint32_t* row = (uint32_t*) bitmap.getAddr(0, y);
-                SkOpts::RGBA_to_rgbA(row, row, bitmap.width());
-            }
-            break;
-        default:
-            // No need to premultiply kGray or k565 outputs.
-            break;
-    }
-
-    // In the kIndex_8 case, the canvas won't even try to draw unless we mark the
-    // bitmap as kPremul.
-    bitmap.setAlphaType(kPremul_SkAlphaType);
-}
-
 static bool get_decode_info(SkImageInfo* decodeInfo, SkColorType canvasColorType,
                             CodecSrc::DstColorType dstColorType, SkAlphaType dstAlphaType) {
     switch (dstColorType) {
@@ -406,7 +373,6 @@ static void draw_to_canvas(SkCanvas* canvas, const SkImageInfo& info, void* pixe
                            SkScalar left = 0, SkScalar top = 0) {
     SkBitmap bitmap;
     bitmap.installPixels(info, pixels, rowBytes);
-    premultiply_if_necessary(bitmap);
     swap_rb_if_necessary(bitmap, dstColorType);
     canvas->drawBitmap(bitmap, left, top);
     canvas->flush();

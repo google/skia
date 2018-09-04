@@ -600,7 +600,7 @@ static const void* five_reference_pixels(SkColorType colorType) {
         case kRGBA_F16_SkColorType:
             return f16;
         default:
-            return nullptr; // remove me when kIndex_8 is removed from the enum
+            return nullptr;
     }
 
     SkASSERT(false);

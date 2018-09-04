@@ -381,8 +381,6 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
             proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
             break;
         default:
-            // TODO: We could build miplevels for kIndex8 if the levels were in 8888.
-            //       Means using more ram, but the quality would be fine.
             return nullptr;
     }
 
