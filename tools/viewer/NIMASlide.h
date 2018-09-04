@@ -31,6 +31,8 @@ public:
     NIMASlide(const SkString& name, const SkString& path);
     ~NIMASlide() override;
 
+    SkISize getDimensions() const override;
+
     void draw(SkCanvas* canvas) override;
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void unload() override;

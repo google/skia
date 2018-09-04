@@ -341,6 +341,10 @@ NIMASlide::NIMASlide(const SkString& name, const SkString& path)
 
 NIMASlide::~NIMASlide() {}
 
+SkISize NIMASlide::getDimensions() const {
+    return SkISize::MakeEmpty(); // TODO
+}
+
 void NIMASlide::draw(SkCanvas* canvas) {
     canvas->save();
 

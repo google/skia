@@ -21,9 +21,7 @@ class Slide : public SkRefCnt {
 public:
     virtual ~Slide() {}
 
-    virtual SkISize getDimensions() const {
-        return SkISize::Make(0, 0);
-    }
+    virtual SkISize getDimensions() const = 0;
 
     virtual void draw(SkCanvas* canvas) = 0;
     virtual bool animate(const SkAnimTimer&) { return false;  }

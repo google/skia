@@ -16,6 +16,8 @@ public:
     SampleSlide(const SampleFactory factory);
     ~SampleSlide() override;
 
+    SkISize getDimensions() const override;
+
     void draw(SkCanvas* canvas) override;
     void load(SkScalar winWidth, SkScalar winHeight) override;
     void resize(SkScalar winWidth, SkScalar winHeight) override {
