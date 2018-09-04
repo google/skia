@@ -2613,17 +2613,11 @@ are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer functio
 
 <a href='undocumented#Unpremultiply'>Unpremultiplied</a> RGBA
 
-### Example
-
-<div><fiddle-embed name="8512ea2176f36e8f1aeef311ff228790">
-
 #### Example Output
 
 ~~~~
 Yellow is 100% red, 100% green, and 0% blue.
 ~~~~
-
-</fiddle-embed></div>
 
 ### See Also
 
@@ -2688,17 +2682,11 @@ sRGB <a href='#SkPaint_setColor4f_color'>color</a> space.
   </tr>
 </table>
 
-### Example
-
-<div><fiddle-embed name="fa60859e3d03bdc117a05b32e093a8f1">
-
 #### Example Output
 
 ~~~~
 green1 == green2
 ~~~~
-
-</fiddle-embed></div>
 
 ### See Also
 
