@@ -23,6 +23,10 @@ SampleSlide::SampleSlide(const SampleFactory factory)
 
 SampleSlide::~SampleSlide() { delete fClick; }
 
+SkISize SampleSlide::getDimensions() const  {
+    return SkISize::Make(SkScalarCeilToInt(fSample->width()), SkScalarCeilToInt(fSample->height()));
+}
+
 void SampleSlide::draw(SkCanvas* canvas) {
     SkASSERT(fSample);
     fSample->draw(canvas);
