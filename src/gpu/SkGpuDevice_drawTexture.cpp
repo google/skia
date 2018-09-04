@@ -134,7 +134,7 @@ static void draw_texture(const SkPaint& paint, const SkMatrix& ctm, const SkRect
         color = paintColorXform ? SkColorToUnpremulGrColor(paint.getColor())
                                 : SkColorToPremulGrColor(paint.getColor());
     } else {
-        color = SkColorAlphaToGrColor(paint.getColor());
+        color = GrColorPackA4(paint.getAlpha());
     }
     rtc->drawTexture(clip, std::move(proxy), filter, color, srcRect, dstRect, aa, constraint, ctm,
                      std::move(textureXform), std::move(paintColorXform));
