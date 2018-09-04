@@ -997,6 +997,8 @@ bool BmhParser::dumpExamples(const char* fiddleJsonFileName) const {
     if (ParserCommon::WrittenFileDiffers(oldFiddle, newFiddle)) {
         ParserCommon::CopyToFile(oldFiddle, newFiddle);
         SkDebugf("wrote %s\n", fiddleJsonFileName);
+    } else {
+        remove(newFiddle.c_str());
     }
     return true;
 }
