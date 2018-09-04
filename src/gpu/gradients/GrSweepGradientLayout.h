@@ -11,6 +11,8 @@
 #ifndef GrSweepGradientLayout_DEFINED
 #define GrSweepGradientLayout_DEFINED
 #include "SkTypes.h"
+
+#include "GrGradientShader.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrSweepGradientLayout : public GrFragmentProcessor {

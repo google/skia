@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+ @header {
+#include "GrGradientShader.h"
+}
+
 in half4x4 gradientMatrix;
 
 layout(tracked) in uniform half bias;
@@ -46,4 +50,19 @@ void main() {
     // 0.1591549430918 is 1/(2*pi), used since atan returns values [-pi, pi]
     half t = (angle * 0.1591549430918 + 0.5 + bias) * scale;
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
+}
+
+@test(d) {
+    SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+
+    GrGradientShader::RandomParams params(d->fRandom);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeSweep(center.fX, center.fY, params.fColors4f, params.fColorSpace,
+                                    params.fStops, params.fColorCount) :
+        SkGradientShader::MakeSweep(center.fX, center.fY,  params.fColors,
+                                    params.fStops, params.fColorCount);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    GrAlwaysAssert(fp);
+    return fp;
 }

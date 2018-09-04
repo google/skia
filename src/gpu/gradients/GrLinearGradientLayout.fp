@@ -5,6 +5,10 @@
  * found in the LICENSE file.
  */
 
+@header {
+#include "GrGradientShader.h"
+}
+
 in half4x4 gradientMatrix;
 
 @coordTransform {
@@ -41,4 +45,20 @@ in half4x4 gradientMatrix;
 void main() {
     half t = sk_TransformedCoords2D[0].x;
     sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
+}
+
+@test(d) {
+    SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
+                        {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
+
+    GrGradientShader::RandomParams params(d->fRandom);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeLinear(points, params.fColors4f, params.fColorSpace, params.fStops,
+                                     params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
+                                     params.fColorCount, params.fTileMode);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    GrAlwaysAssert(fp);
+    return fp;
 }

@@ -11,6 +11,8 @@
 #ifndef GrLinearGradientLayout_DEFINED
 #define GrLinearGradientLayout_DEFINED
 #include "SkTypes.h"
+
+#include "GrGradientShader.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrLinearGradientLayout : public GrFragmentProcessor {
