@@ -17,7 +17,7 @@ DEPS = [
 ]
 
 
-DOCKER_IMAGE = 'gcr.io/skia-public/gold-lottie-web-puppeteer:5.2.1_v1'
+DOCKER_IMAGE = 'gcr.io/skia-public/gold-lottie-web-puppeteer:v2'
 LOTTIECAP_SCRIPT = '/SRC/skia/infra/lottiecap/docker/lottiecap_gold.sh'
 
 
@@ -27,6 +27,11 @@ def RunSteps(api):
   out_dir = api.vars.swarming_out_dir
   lottie_files_src = api.vars.slave_dir.join('lottie-samples')
   lottie_files_dir = '/tmp/lottie_files'
+  # The lottie-web repo is DEP'd in. This links to its build directory
+  # to make finding the lottie.min.js easier to reference from inside
+  # the docker image.
+  lottie_build = checkout_root.join('lottie', 'build', 'player')
+
   api.checkout.bot_update(checkout_root=checkout_root)
 
   # Make sure this exists, otherwise Docker will make it with root permissions.
@@ -64,6 +69,7 @@ os.chmod(out_dir, 0o777)
   cmd = ['docker', 'run', '--shm-size=2gb', '--rm',
          '-v', '%s:/SRC' % checkout_root,
          '-v', '%s:/OUT' % out_dir,
+         '-v', '%s:/LOTTIE_BUILD' % lottie_build,
          '-v', '%s:/LOTTIE_FILES' % lottie_files_dir]
 
   cmd.extend([
