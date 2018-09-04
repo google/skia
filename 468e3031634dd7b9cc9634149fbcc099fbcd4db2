@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0d07e9db_6633d960",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-04T17:42:17Z",
+      "side": 1,
+      "message": "This check doesn\u0027t seem strictly necessary, either - We could do a color-\u003egray conversion, and libjpeg will do that, as well.",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
