@@ -384,6 +384,7 @@ struct ShapedGlyph {
     bool fMayLineBreakBefore;
     bool fMustLineBreakBefore;
     bool fHasVisual;
+    bool fGraphemeBreakBefore;
 };
 struct ShapedRun {
     ShapedRun(const char* utf8Start, const char* utf8End, int numGlyphs, const SkPaint& paint,
@@ -475,7 +476,8 @@ struct SkShaper::Impl {
     HBFont fHarfBuzzFont;
     HBBuffer fBuffer;
     sk_sp<SkTypeface> fTypeface;
-    std::unique_ptr<icu::BreakIterator> fBreakIterator;
+    std::unique_ptr<icu::BreakIterator> fLineBreakIterator;
+    std::unique_ptr<icu::BreakIterator> fGraphemeBreakIterator;
 };
 
 SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
@@ -490,11 +492,18 @@ SkShaper::SkShaper(sk_sp<SkTypeface> tf) : fImpl(new Impl) {
 
     icu::Locale thai("th");
     UErrorCode status = U_ZERO_ERROR;
-    fImpl->fBreakIterator.reset(icu::BreakIterator::createLineInstance(thai, status));
+    fImpl->fLineBreakIterator.reset(icu::BreakIterator::createLineInstance(thai, status));
     if (U_FAILURE(status)) {
-        SkDebugf("Could not create break iterator: %s", u_errorName(status));
+        SkDebugf("Could not create line break iterator: %s", u_errorName(status));
         SK_ABORT("");
     }
+
+    fImpl->fGraphemeBreakIterator.reset(icu::BreakIterator::createCharacterInstance(thai, status));
+    if (U_FAILURE(status)) {
+        SkDebugf("Could not create grapheme break iterator: %s", u_errorName(status));
+        SK_ABORT("");
+    }
+
 }
 
 SkShaper::~SkShaper() {}
@@ -503,7 +512,8 @@ bool SkShaper::good() const {
     return fImpl->fHarfBuzzFont &&
            fImpl->fBuffer &&
            fImpl->fTypeface &&
-           fImpl->fBreakIterator;
+           fImpl->fLineBreakIterator &&
+           fImpl->fGraphemeBreakIterator;
 }
 
 SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
@@ -547,7 +557,8 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
     }
     runSegmenter.insert(font);
 
-    icu::BreakIterator& breakIterator = *fImpl->fBreakIterator;
+    icu::BreakIterator& lineBreakIterator = *fImpl->fLineBreakIterator;
+    icu::BreakIterator& graphemeBreakIterator = *fImpl->fGraphemeBreakIterator;
     {
         UErrorCode status = U_ZERO_ERROR;
         UText utf8UText = UTEXT_INITIALIZER;
@@ -557,10 +568,14 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             SkDebugf("Could not create utf8UText: %s", u_errorName(status));
             return point;
         }
-        breakIterator.setText(&utf8UText, status);
-        //utext_close(&utf8UText);
+        lineBreakIterator.setText(&utf8UText, status);
         if (U_FAILURE(status)) {
-            SkDebugf("Could not setText on break iterator: %s", u_errorName(status));
+            SkDebugf("Could not setText on line break iterator: %s", u_errorName(status));
+            return point;
+        }
+        graphemeBreakIterator.setText(&utf8UText, status);
+        if (U_FAILURE(status)) {
+            SkDebugf("Could not setText on grapheme break iterator: %s", u_errorName(status));
             return point;
         }
     }
@@ -637,7 +652,9 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
             glyph.fOffset.fY = pos[i].y_offset * textSizeY;
             glyph.fAdvance.fX = pos[i].x_advance * textSizeX;
             glyph.fAdvance.fY = pos[i].y_advance * textSizeY;
-            glyph.fHasVisual = true; //!font->currentTypeface()->glyphBoundsAreZero(glyph.fID);
+            SkRect bounds;
+            paint.measureText(&glyph.fID, sizeof(glyph.fID), &bounds);
+            glyph.fHasVisual = !bounds.isEmpty(); //!font->currentTypeface()->glyphBoundsAreZero(glyph.fID);
             //info->mask safe_to_break;
             glyph.fMustLineBreakBefore = false;
         }
@@ -647,14 +664,25 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         for (unsigned i = 0; i < len; ++i) {
             ShapedGlyph& glyph = run.fGlyphs[i];
             int32_t glyphCluster = glyph.fCluster + clusterOffset;
-            int32_t breakIteratorCurrent = breakIterator.current();
-            while (breakIteratorCurrent != icu::BreakIterator::DONE &&
-                   breakIteratorCurrent < glyphCluster)
+
+            int32_t lineBreakIteratorCurrent = lineBreakIterator.current();
+            while (lineBreakIteratorCurrent != icu::BreakIterator::DONE &&
+                   lineBreakIteratorCurrent < glyphCluster)
             {
-                breakIteratorCurrent = breakIterator.next();
+                lineBreakIteratorCurrent = lineBreakIterator.next();
             }
             glyph.fMayLineBreakBefore = glyph.fCluster != previousCluster &&
-                                        breakIteratorCurrent == glyphCluster;
+                                        lineBreakIteratorCurrent == glyphCluster;
+
+            int32_t graphemeBreakIteratorCurrent = graphemeBreakIterator.current();
+            while (graphemeBreakIteratorCurrent != icu::BreakIterator::DONE &&
+                   graphemeBreakIteratorCurrent < glyphCluster)
+            {
+                graphemeBreakIteratorCurrent = graphemeBreakIterator.next();
+            }
+            glyph.fGraphemeBreakBefore = glyph.fCluster != previousCluster &&
+                                         graphemeBreakIteratorCurrent == glyphCluster;
+
             previousCluster = glyph.fCluster;
         }
     }
@@ -662,43 +690,70 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
 
 // Iterate over the glyphs in logical order to mark line endings.
 {
-    SkScalar widthSoFar = 0;
-    bool previousBreakValid = false; // Set when previousBreak is set to a valid candidate break.
-    bool canAddBreakNow = false; // Disallow line breaks before the first glyph of a run.
-    ShapedRunGlyphIterator previousBreak(runs);
-    ShapedRunGlyphIterator glyphIterator(runs);
-    while (ShapedGlyph* glyph = glyphIterator.current()) {
-        if (canAddBreakNow && glyph->fMayLineBreakBefore) {
-            previousBreakValid = true;
-            previousBreak = glyphIterator;
-        }
-        SkScalar glyphWidth = glyph->fAdvance.fX;
-        // TODO: if the glyph is non-visible it can be added.
-        if (widthSoFar + glyphWidth < width) {
-            widthSoFar += glyphWidth;
-            glyphIterator.next();
-            canAddBreakNow = true;
-            continue;
+    /** The position of the beginning of the line. */
+    ShapedRunGlyphIterator beginning(runs);
+
+    /** The position of the candidate line break. */
+    ShapedRunGlyphIterator candidateLineBreak(runs);
+    SkScalar candidateLineBreakWidth = 0;
+
+    /** The position of the candidate grapheme break. */
+    ShapedRunGlyphIterator candidateGraphemeBreak(runs);
+    SkScalar candidateGraphemeBreakWidth = 0;
+
+    /** The position of the current location. */
+    ShapedRunGlyphIterator current(runs);
+    SkScalar currentWidth = 0;
+    while (ShapedGlyph* glyph = current.current()) {
+        if (current != beginning) {
+            if (glyph->fGraphemeBreakBefore || glyph->fMayLineBreakBefore) {
+                // TODO: preserve line breaks <= grapheme breaks
+                // and prevent line breaks inside graphemes
+                candidateGraphemeBreak = current;
+                candidateGraphemeBreakWidth = currentWidth;
+                if (glyph->fMayLineBreakBefore) {
+                    candidateLineBreak = current;
+                    candidateLineBreakWidth = currentWidth;
+                }
+            }
         }
 
-        // TODO: for both of these emergency break cases
-        // don't break grapheme clusters and pull in any zero width or non-visible
-        if (widthSoFar == 0) {
-            // Adding just this glyph is too much, just break with this glyph
-            glyphIterator.next();
-            previousBreak = glyphIterator;
-        } else if (!previousBreakValid) {
-            // No break opportunity found yet, just break without this glyph
-            previousBreak = glyphIterator;
+        SkScalar glyphWidth = glyph->fAdvance.fX;
+        // Break when overwidth, the glyph has a visual representation, and some space is used.
+        if (width < currentWidth + glyphWidth && glyph->fHasVisual && candidateGraphemeBreakWidth > 0){
+            if (candidateLineBreak != beginning) {
+                beginning = candidateLineBreak;
+                currentWidth -= candidateLineBreakWidth;
+                candidateGraphemeBreakWidth -= candidateLineBreakWidth;
+                candidateLineBreakWidth = 0;
+            } else if (candidateGraphemeBreak != beginning) {
+                beginning = candidateGraphemeBreak;
+                candidateLineBreak = beginning;
+                currentWidth -= candidateGraphemeBreakWidth;
+                candidateGraphemeBreakWidth = 0;
+                candidateLineBreakWidth = 0;
+            } else {
+                SK_ABORT("");
+            }
+
+            if (width < currentWidth) {
+                if (width < candidateGraphemeBreakWidth) {
+                    candidateGraphemeBreak = candidateLineBreak;
+                    candidateGraphemeBreakWidth = candidateLineBreakWidth;
+                }
+                current = candidateGraphemeBreak;
+                currentWidth = candidateGraphemeBreakWidth;
+            }
+
+            glyph = beginning.current();
+            if (glyph) {
+                glyph->fMustLineBreakBefore = true;
+            }
+
+        } else {
+            current.next();
+            currentWidth += glyphWidth;
         }
-        glyphIterator = previousBreak;
-        glyph = glyphIterator.current();
-        if (glyph) {
-            glyph->fMustLineBreakBefore = true;
-        }
-        widthSoFar = 0;
-        previousBreakValid = false;
-        canAddBreakNow = false;
     }
 }
 
@@ -739,6 +794,9 @@ SkPoint SkShaper::shape(SkTextBlobBuilder* builder,
         }
         SkAutoSTMalloc<4, int32_t> logicalFromVisual(numRuns);
         ubidi_reorderVisual(runLevels, numRuns, logicalFromVisual);
+
+        // step through the runs in reverse visual order, though the glyphs in reverse logical order
+        // until a visible glyph is found
 
         for (int i = 0; i < numRuns; ++i) {
             int logicalIndex = previousBreak.fRunIndex + logicalFromVisual[i];
