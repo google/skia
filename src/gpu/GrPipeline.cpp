@@ -77,6 +77,7 @@ GrPipeline::GrPipeline(const InitArgs& args,
     }
 }
 
+#if 0
 void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
     for (int i = 0; i < fFragmentProcessors.count(); ++i) {
         GrFragmentProcessor::TextureAccessIter iter(fFragmentProcessors[i].get());
@@ -90,6 +91,7 @@ void GrPipeline::addDependenciesTo(GrOpList* opList, const GrCaps& caps) const {
     }
 
 }
+#endif
 
 GrXferBarrierType GrPipeline::xferBarrierType(const GrCaps& caps) const {
     if (fDstTextureProxy.get() &&

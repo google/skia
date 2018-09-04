@@ -62,7 +62,9 @@ public:
     /*
      * Notify this GrOpList that it relies on the contents of 'dependedOn'
      */
-    void addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+    void addDependency1(GrSurfaceProxy* dependedOn, const GrCaps& caps);
+
+    void addDependencies(const SkTDArray<GrOpList*>& dependedOn, const GrCaps& caps);
 
     /*
      * Does this opList depend on 'dependedOn'?
@@ -116,7 +118,7 @@ protected:
 private:
     friend class GrDrawingManager; // for resetFlag, TopoSortTraits & gatherProxyIntervals
 
-    void addDependency(GrOpList* dependedOn);
+    void addDependency2(GrOpList* dependedOn);
     void addDependent(GrOpList* dependent);
     SkDEBUGCODE(bool isDependedent(const GrOpList* dependent) const);
     SkDEBUGCODE(void validate() const);
