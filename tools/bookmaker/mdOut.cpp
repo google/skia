@@ -621,12 +621,16 @@ bool MdOut::buildRefFromFile(const char* name, const char* outDir) {
         this->writePending();
         fclose(fOut);
         fflush(fOut);
-        if (ParserCommon::WrittenFileDiffers(fullName, filename)) {
-            ParserCommon::CopyToFile(fullName, filename);
-            SkDebugf("wrote %s\n", fullName.c_str());
-        } else {
-            remove(filename.c_str());
+        if (ParserCommon::WrittenFileDiffers(filename, fullName)) {
+            fOut = fopen(fullName.c_str(), "wb");
+            int writtenSize;
+            const char* written = ReadToBuffer(filename, &writtenSize);
+            fwrite(written, 1, writtenSize, fOut);
+            fclose(fOut);
+            fflush(fOut);
+            SkDebugf("wrote updated %s\n", fullName.c_str());
         }
+        remove(filename.c_str());
         fOut = nullptr;
     }
     return !fAddRefFailed;
