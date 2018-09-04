@@ -11,10 +11,10 @@
 
 #if defined(SK_VULKAN)
 
+#include "GrBackendSurface.h"
 #include "GrContextPriv.h"
 #include "GrContextFactory.h"
 #include "GrRenderTarget.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 
 #include "Test.h"

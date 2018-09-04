@@ -35,7 +35,6 @@
 #include "GrContextPriv.h"
 #include "GrGpu.h"
 #include "GrResourceCache.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "SkGr.h"
 

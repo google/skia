@@ -19,7 +19,6 @@
 #include "GrResourceCache.h"
 #include "GrSemaphore.h"
 #include "GrSurfaceContextPriv.h"
-#include "GrTest.h"
 #include "GrTexture.h"
 #include "SkGr.h"
 #include "SkImage_Gpu.h"
@@ -31,32 +30,6 @@
 #include "text/GrGlyphCache.h"
 #include "text/GrTextBlobCache.h"
 #include <algorithm>
-
-namespace GrTest {
-
-void SetupAlwaysEvictAtlas(GrContext* context, int dim) {
-    // These sizes were selected because they allow each atlas to hold a single plot and will thus
-    // stress the atlas
-    GrDrawOpAtlasConfig configs[3];
-    configs[kA8_GrMaskFormat].fWidth = dim;
-    configs[kA8_GrMaskFormat].fHeight = dim;
-    configs[kA8_GrMaskFormat].fPlotWidth = dim;
-    configs[kA8_GrMaskFormat].fPlotHeight = dim;
-
-    configs[kA565_GrMaskFormat].fWidth = dim;
-    configs[kA565_GrMaskFormat].fHeight = dim;
-    configs[kA565_GrMaskFormat].fPlotWidth = dim;
-    configs[kA565_GrMaskFormat].fPlotHeight = dim;
-
-    configs[kARGB_GrMaskFormat].fWidth = dim;
-    configs[kARGB_GrMaskFormat].fHeight = dim;
-    configs[kARGB_GrMaskFormat].fPlotWidth = dim;
-    configs[kARGB_GrMaskFormat].fPlotHeight = dim;
-
-    context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
-}
-
-}  // namespace GrTest
 
 bool GrSurfaceProxy::isWrapped_ForTesting() const {
     return SkToBool(fTarget);

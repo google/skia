@@ -15,7 +15,6 @@
 #include "GrRenderTargetContext.h"
 #include "GrSemaphore.h"
 #include "GrSurfaceProxyPriv.h"
-#include "GrTest.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxy.h"
 #include "SkCanvas.h"
