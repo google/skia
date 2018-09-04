@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fd9ccef5_332bf136",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T18:55:16Z",
+      "side": 1,
+      "message": "What is the difference between this and the one with the trailing underscore?",
+      "range": {
+        "startLine": 613,
+        "startChar": 25,
+        "endLine": 613,
+        "endChar": 46
+      },
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0d07e9db_6633d960",
         "filename": "src/codec/SkJpegCodec.cpp",
         "patchSetId": 5
@@ -13,6 +36,47 @@
       "writtenOn": "2018-09-04T17:42:17Z",
       "side": 1,
       "message": "This check doesn\u0027t seem strictly necessary, either - We could do a color-\u003egray conversion, and libjpeg will do that, as well.",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2cbe2a24_4260fb7d",
+        "filename": "src/codec/SkJpegCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T18:55:16Z",
+      "side": 1,
+      "message": "That is true, and we used to support that. I\u0027ve been wondering when we took it out (or alternatively, whether my memory was deceiving me), but I\u0027ve finally tracked it down. Matt disabled it as part of a larger change to add transforms to SkJpegCodec (https://codereview.chromium.org/2174493002/). He did have a comment about why he removed it (https://codereview.chromium.org/2174493002/diff/60001/src/codec/SkJpegCodec.cpp#oldcode402): \n\n\"This was a dumb feature that nobody uses and currently isn\u0027t being tested.\"",
+      "parentUuid": "0d07e9db_6633d960",
+      "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7ce4ccf9_41d6d56f",
+        "filename": "src/codec/SkPngCodec.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-04T18:55:16Z",
+      "side": 1,
+      "message": "It\u0027s possible to have a Gray PNG with 16 bits per component. Then we\u0027ll fall down to RGBA_8888, which is not what we want. (I don\u0027t suppose we have a test image for this...)",
+      "range": {
+        "startLine": 453,
+        "startChar": 8,
+        "endLine": 453,
+        "endChar": 37
+      },
       "revId": "468e3031634dd7b9cc9634149fbcc099fbcd4db2",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
