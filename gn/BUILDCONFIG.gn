@@ -216,16 +216,20 @@ default_configs = [
   "//gn:default",
   "//gn:no_exceptions",
   "//gn:no_rtti",
-  "//gn:warnings",
-  "//gn:warnings_except_public_headers",
 ]
 if (!is_debug) {
   default_configs += [ "//gn:release" ]
 }
 if (!is_official_build) {
-  default_configs += [ "//gn:debug_symbols" ]
+  default_configs += [
+    "//gn:debug_symbols",
+    "//gn:warnings",
+  ]
 }
-default_configs += [ "//gn:extra_flags" ]
+default_configs += [
+  "//gn:warnings_except_public_headers",
+  "//gn:extra_flags",
+]
 
 set_defaults("executable") {
   configs = [ "//gn:executable" ] + default_configs
