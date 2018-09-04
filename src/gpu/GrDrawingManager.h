@@ -26,6 +26,38 @@ class GrTextureContext;
 class GrTextureOpList;
 class SkDeferredDisplayList;
 
+class GrOpListDAG {
+public:
+    GrOpListDAG(bool explicitlyAllocating, GrContextOptions::Enable sortOpLists);
+    ~GrOpListDAG();
+
+    void prepForFlush();
+    void closeAll(const GrCaps* caps);
+    void cleanup(const GrCaps* caps);
+    void gimmeIDs(SkSTArray<8, uint32_t, true>* idArray) const;
+
+    void reset();
+    void nukeFromOrbit(int index);
+
+    bool empty() const { return fOpLists.empty(); }
+    int numOpLists() const { return fOpLists.count(); }
+
+    GrOpList* opList(int index) { return fOpLists[index].get(); }
+    const GrOpList* opList(int index) const { return fOpLists[index].get(); }
+
+    GrOpList* back() { return fOpLists.back().get(); }
+    const GrOpList* back() const { return fOpLists.back().get(); }
+
+    void add(sk_sp<GrOpList>);
+    void add(const SkTArray<sk_sp<GrOpList>>&);
+
+    void swap(SkTArray<sk_sp<GrOpList>>* opLists);
+
+private:
+    SkTArray<sk_sp<GrOpList>> fOpLists;
+    bool                      fSortOpLists;
+};
+
 // The GrDrawingManager allocates a new GrRenderTargetContext for each GrRenderTarget
 // but all of them still land in the same GrOpList!
 //
@@ -119,7 +151,7 @@ private:
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTArray<sk_sp<GrOpList>>         fOpLists;
+    GrOpListDAG                       fDAG;
     GrOpList*                         fActiveOpList = nullptr;
     // These are the IDs of the opLists currently being flushed (in internalFlush)
     SkSTArray<8, uint32_t, true>      fFlushingOpListIDs;
