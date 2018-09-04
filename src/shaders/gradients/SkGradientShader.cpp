@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include "Sk4fLinearGradient.h"
-#include "SkColorSpace_XYZ.h"
 #include "SkColorSpacePriv.h"
 #include "SkColorSpaceXformer.h"
 #include "SkFlattenablePriv.h"
