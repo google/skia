@@ -14,7 +14,6 @@
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
 #include "GrSurfacePriv.h"
-#include "GrTest.h"
 #include "GrTexturePriv.h"
 #include "GrTextureProxyPriv.h"
 #include "gl/GLTestContext.h"

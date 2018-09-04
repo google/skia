@@ -15,7 +15,6 @@
 #include "GrOpFlushState.h"
 #include "GrPathUtils.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrTest.h"
 #include "SkColorPriv.h"
 #include "SkGeometry.h"
 #include "SkPoint3.h"

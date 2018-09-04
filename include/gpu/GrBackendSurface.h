@@ -8,6 +8,7 @@
 #ifndef GrBackendSurface_DEFINED
 #define GrBackendSurface_DEFINED
 
+#include "GrBackendSurface.h"
 #include "GrTypes.h"
 #include "gl/GrGLTypes.h"
 #include "mock/GrMockTypes.h"

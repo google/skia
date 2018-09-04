@@ -18,7 +18,6 @@
 #include "GrDrawingManager.h"
 #include "GrPipeline.h"
 #include "GrRenderTargetContextPriv.h"
-#include "GrTest.h"
 #include "GrXferProcessor.h"
 #include "SkChecksum.h"
 #include "SkRandom.h"
