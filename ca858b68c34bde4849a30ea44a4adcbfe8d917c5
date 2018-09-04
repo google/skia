@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12879fab_d42305ab",
+        "filename": "modules/sksg/include/SkSGGroup.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-04T15:50:29Z",
+      "side": 1,
+      "message": "Are there any of these Groups that we know how many children there will be ahead of time?  Looks like most, maybe all of them?\n\nWhen we know ahead of time, adding reserve(size_t) or add a Make(size_t reserve) would let us avoid a malloc/copy/free from each of these shrink_to_fit() calls, and still be sized exactly right.",
+      "revId": "ca858b68c34bde4849a30ea44a4adcbfe8d917c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
