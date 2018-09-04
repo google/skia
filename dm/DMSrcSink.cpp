@@ -370,8 +370,6 @@ static void premultiply_if_necessary(SkBitmap& bitmap) {
             break;
     }
 
-    // In the kIndex_8 case, the canvas won't even try to draw unless we mark the
-    // bitmap as kPremul.
     bitmap.setAlphaType(kPremul_SkAlphaType);
 }
 
