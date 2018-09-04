@@ -106,7 +106,6 @@ config("default") {
     cflags += [
       "-fstrict-aliasing",
       "-fPIC",
-      "-Werror",
     ]
     cflags_cc += [ "-std=c++11" ]
 
@@ -351,6 +350,7 @@ config("warnings") {
     ]
   } else {
     cflags += [
+      "-Werror",
       "-Wall",
       "-Wextra",
       "-Winit-self",
