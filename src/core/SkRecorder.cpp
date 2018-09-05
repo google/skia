@@ -404,6 +404,6 @@ void SkRecorder::onClipRegion(const SkRegion& deviceRgn, SkClipOp op) {
     this->append<SkRecords::ClipRegion>(deviceRgn, op);
 }
 
-sk_sp<SkSurface> SkRecorder::onNewSurface(const SkImageInfo&, const SkSurfaceProps&) {
-    return nullptr;
+sk_sp<SkSurface> SkRecorder::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
+    return SkSurface::MakeRaster(info, &props);
 }
