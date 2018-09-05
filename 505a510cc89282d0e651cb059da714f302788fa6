@@ -164,6 +164,30 @@
       "revId": "505a510cc89282d0e651cb059da714f302788fa6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "65da9f94_fddb4a63",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 423,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-09-05T03:13:41Z",
+      "side": 1,
+      "message": "Thx for the suggestion! Done.",
+      "parentUuid": "d38566ec_aaa08b33",
+      "range": {
+        "startLine": 421,
+        "startChar": 0,
+        "endLine": 423,
+        "endChar": 5
+      },
+      "revId": "505a510cc89282d0e651cb059da714f302788fa6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
