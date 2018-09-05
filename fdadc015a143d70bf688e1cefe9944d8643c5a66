@@ -22,6 +22,30 @@
       "revId": "fdadc015a143d70bf688e1cefe9944d8643c5a66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4999a364_3276a6a4",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-05T14:45:01Z",
+      "side": 1,
+      "message": "Brian and I looked at this.\n\nSwitching U8CPU to uint8_t here keeps the calling code have the same cost, and makes SkPaint::setAlpha() up to one instruction cheaper.",
+      "parentUuid": "936595f4_dde570c6",
+      "range": {
+        "startLine": 272,
+        "startChar": 23,
+        "endLine": 272,
+        "endChar": 28
+      },
+      "revId": "fdadc015a143d70bf688e1cefe9944d8643c5a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
