@@ -19,7 +19,7 @@ import subprocess
 # scripting gcloud and also for updates.
 BASE_URL = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/%s'
 GCLOUD_BASE_NAME='google-cloud-sdk'
-GCLOUD_ARCHIVE = '%s-200.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
+GCLOUD_ARCHIVE = '%s-215.0.0-linux-x86_64.tar.gz' % GCLOUD_BASE_NAME
 GCLOUD_URL = BASE_URL % GCLOUD_ARCHIVE
 
 def create_asset(target_dir):
@@ -39,6 +39,9 @@ def create_asset(target_dir):
   gcloud_exe = os.path.join(target_dir, 'bin', 'gcloud')
   subprocess.check_call([gcloud_exe, 'components',
                          'install', 'beta', 'cloud-datastore-emulator',
+                         '--quiet'], env=env)
+  subprocess.check_call([gcloud_exe, 'components',
+                         'install', 'beta', 'bigtable',
                          '--quiet'], env=env)
   subprocess.check_call([gcloud_exe, 'components','update', '--quiet'], env=env)
 
