@@ -45,35 +45,36 @@ The primary features are:
   <canvas class=patheffect id=canvasTransform title="Transform: A drawn star moved and rotated by an Affine Matrix"></canvas>
 </div>
 
-<script type="text/javascript" charset="utf-8">
-  //Tries to load the WASM version if supported, then falls back to asmjs
+<script type="text/javascript">
+(function() {
+  // Tries to load the WASM version if supported, then falls back to asmjs
   let s = document.createElement('script');
-  if (window.WebAssembly && typeof window.WebAssembly.compile === "function") {
+  if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported! Using the wasm version of PathKit');
-    window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-wasm/0.3.1/bin/';
+    window.__pathkit_locate_file = 'https://unpkg.com/experimental-pathkit-wasm@0.3.1/bin/';
   } else {
     console.log('WebAssembly is not supported (yet) on this browser. Using the asmjs version of PathKit');
-    window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-asmjs/0.3.1/bin/';
+    window.__pathkit_locate_file = 'https://unpkg.com/experimental-pathkit-asmjs@0.3.1/bin/';
   }
   s.src = window.__pathkit_locate_file+'pathkit.js';
-  document.write(s.outerHTML);
-</script>
+  s.onload = () => {
+    try {
+      PathKitInit({
+        locateFile: (file) => window.__pathkit_locate_file+file,
+      }).then((PathKit) => {
+        // Code goes here using PathKit
+        PathEffectsExample(PathKit);
+        MatrixTransformExample(PathKit);
+      });
 
-<script>
-  try {
-    PathKitInit({
-      locateFile: (file) => window.__pathkit_locate_file+file,
-    }).then((PathKit) => {
-      // Code goes here using PathKit
-      PathEffectsExample(PathKit);
-      MatrixTransformExample(PathKit);
-    });
+    }
+    catch(error) {
+      console.warn(error, 'falling back to image');
+      document.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
+    }
+  }
 
-  }
-  catch(error) {
-    console.warn(error, 'falling back to image');
-    docment.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
-  }
+  document.head.appendChild(s);
 
   function setCanvasSize(ctx, width, height) {
     ctx.canvas.width = width;
@@ -144,7 +145,12 @@ The primary features are:
         // The transforms apply directly to the path.
         effects[i](path, counter);
 
-        let ctx = document.getElementById(`canvas${i+1}`).getContext('2d');
+        let ctx = document.getElementById(`canvas${i+1}`);
+        if (!ctx) {
+          return;
+        } else {
+          ctx = ctx.getContext('2d');
+        }
         setCanvasSize(ctx, 300, 300);
         ctx.strokeStyle = '#3c597a';
         ctx.fillStyle = '#3c597a';
@@ -204,6 +210,7 @@ The primary features are:
     }
     window.requestAnimationFrame(frame);
   }
+})();
 </script>
 
 
