@@ -17,6 +17,12 @@ using sk_app::GLWindowContext;
 
 namespace {
 
+static bool gCtxErrorOccurred = false;
+static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
+    gCtxErrorOccurred = true;
+    return 0;
+}
+
 class GLWindowContext_xlib : public GLWindowContext {
 public:
     GLWindowContext_xlib(const XlibWindowInfo&, const DisplayParams&);
@@ -65,6 +71,9 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
     CreateContextAttribsFn* createContextAttribs = (CreateContextAttribsFn*)glXGetProcAddressARB(
             (const GLubyte*)"glXCreateContextAttribsARB");
     if (createContextAttribs && fFBConfig) {
+        // Install Xlib error handler that will set gCtxErrorOccurred
+        int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
+
         // Specifying 3.2 allows an arbitrarily high context version (so long as no 3.2 features
         // have been removed).
         for (int minor = 2; minor >= 0 && !fGLContext; --minor) {
@@ -72,12 +81,18 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
             // requires a core profile. Edit this code to use RenderDoc.
             for (int profile : {GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
                                 GLX_CONTEXT_CORE_PROFILE_BIT_ARB}) {
+                gCtxErrorOccurred = false;
                 int attribs[] = {
                         GLX_CONTEXT_MAJOR_VERSION_ARB, 3, GLX_CONTEXT_MINOR_VERSION_ARB, minor,
                         GLX_CONTEXT_PROFILE_MASK_ARB, profile,
                         0
                 };
                 fGLContext = createContextAttribs(fDisplay, *fFBConfig, nullptr, True, attribs);
+
+                // Sync to ensure any errors generated are processed.
+                XSync(fDisplay, False);
+                if (gCtxErrorOccurred) { continue; }
+
                 if (fGLContext && profile == GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB &&
                     glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
                     current = true;
@@ -97,6 +112,8 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                 }
             }
         }
+        // Restore the original error handler
+        XSetErrorHandler(oldHandler);
     }
     if (!fGLContext) {
         fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
