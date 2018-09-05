@@ -247,7 +247,7 @@ protected:
 
 private:
     sk_sp<SkTextBlob> fBlob;
-    SkTArray<sk_sp<SkDrawLooper>, true> fLoopers;
+    SkTArray<sk_sp<SkDrawLooper>> fLoopers;
 
     typedef GM INHERITED;
 };
