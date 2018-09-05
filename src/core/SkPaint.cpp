@@ -270,6 +270,7 @@ void SkPaint::setColor4f(const SkColor4f& color, SkColorSpace* colorSpace) {
 }
 
 void SkPaint::setAlpha(U8CPU a) {
+    SkASSERT(a <= 255);
     fColor4f.fA = a * (1.0f / 255);
 }
 
