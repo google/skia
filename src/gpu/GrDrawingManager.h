@@ -81,6 +81,52 @@ public:
     void copyOpListsFromDDL(const SkDeferredDisplayList*, GrRenderTargetProxy* newDest);
 
 private:
+    // This class encapsulates maintenance and manipulation of the drawing manager's DAG of opLists.
+    class OpListDAG {
+    public:
+        OpListDAG(bool explicitlyAllocating, GrContextOptions::Enable sortOpLists);
+        ~OpListDAG();
+
+        // Currently, when explicitly allocating resources, this call will topologically sort the
+        // opLists.
+        // MDB TODO: remove once incremental opList sorting is enabled
+        void prepForFlush();
+
+        void closeAll(const GrCaps* caps);
+
+        // A yucky combination of closeAll and reset
+        void cleanup(const GrCaps* caps);
+
+        void gatherIDs(SkSTArray<8, uint32_t, true>* idArray) const;
+
+        void reset();
+
+        // These calls forceably remove an opList from the DAG. They are problematic bc they just
+        // remove the opList but don't cleanup any refering pointers (i.e., dependency pointers
+        // in the DAG). They work right now bc they are only called at flush time, after the
+        // topological sort is complete (so the dangling pointers aren't used).
+        void removeOpList(int index);
+        void removeOpLists(int startIndex, int stopIndex);
+
+        bool empty() const { return fOpLists.empty(); }
+        int numOpLists() const { return fOpLists.count(); }
+
+        GrOpList* opList(int index) { return fOpLists[index].get(); }
+        const GrOpList* opList(int index) const { return fOpLists[index].get(); }
+
+        GrOpList* back() { return fOpLists.back().get(); }
+        const GrOpList* back() const { return fOpLists.back().get(); }
+
+        void add(sk_sp<GrOpList>);
+        void add(const SkTArray<sk_sp<GrOpList>>&);
+
+        void swap(SkTArray<sk_sp<GrOpList>>* opLists);
+
+    private:
+        SkTArray<sk_sp<GrOpList>> fOpLists;
+        bool                      fSortOpLists;
+    };
+
     GrDrawingManager(GrContext*, const GrPathRendererChain::Options&,
                      const GrTextContext::Options&, GrSingleOwner*,
                      bool explicitlyAllocating, GrContextOptions::Enable sortRenderTargets);
@@ -119,7 +165,7 @@ private:
     GrSingleOwner*                    fSingleOwner;
 
     bool                              fAbandoned;
-    SkTArray<sk_sp<GrOpList>>         fOpLists;
+    OpListDAG                         fDAG;
     GrOpList*                         fActiveOpList = nullptr;
     // These are the IDs of the opLists currently being flushed (in internalFlush)
     SkSTArray<8, uint32_t, true>      fFlushingOpListIDs;
