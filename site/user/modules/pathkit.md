@@ -45,10 +45,11 @@ The primary features are:
   <canvas class=patheffect id=canvasTransform title="Transform: A drawn star moved and rotated by an Affine Matrix"></canvas>
 </div>
 
-<script type="text/javascript" charset="utf-8">
+<script type="text/javascript">
   //Tries to load the WASM version if supported, then falls back to asmjs
+  console.log('Loading PathKitDemos');
   let s = document.createElement('script');
-  if (window.WebAssembly && typeof window.WebAssembly.compile === "function") {
+  if (window.WebAssembly && typeof window.WebAssembly.compile === 'function') {
     console.log('WebAssembly is supported! Using the wasm version of PathKit');
     window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-wasm/0.3.1/bin/';
   } else {
@@ -56,24 +57,24 @@ The primary features are:
     window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-asmjs/0.3.1/bin/';
   }
   s.src = window.__pathkit_locate_file+'pathkit.js';
-  document.write(s.outerHTML);
-</script>
+  s.onload = () => {
+    try {
+      PathKitInit({
+        locateFile: (file) => window.__pathkit_locate_file+file,
+      }).then((PathKit) => {
+        // Code goes here using PathKit
+        PathEffectsExample(PathKit);
+        MatrixTransformExample(PathKit);
+      });
 
-<script>
-  try {
-    PathKitInit({
-      locateFile: (file) => window.__pathkit_locate_file+file,
-    }).then((PathKit) => {
-      // Code goes here using PathKit
-      PathEffectsExample(PathKit);
-      MatrixTransformExample(PathKit);
-    });
+    }
+    catch(error) {
+      console.warn(error, 'falling back to image');
+      document.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
+    }
+  }
 
-  }
-  catch(error) {
-    console.warn(error, 'falling back to image');
-    docment.getElementById('effects').innerHTML = '<img width=800 src="./PathKit_effects.png"/>'
-  }
+  document.head.appendChild(s);
 
   function setCanvasSize(ctx, width, height) {
     ctx.canvas.width = width;
