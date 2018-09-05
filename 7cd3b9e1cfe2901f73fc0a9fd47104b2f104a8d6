@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0469dc4_730dbade",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 12
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-05T14:28:12Z",
+      "side": 1,
+      "message": "Given that, should this be GrDrawingManager::OpListDAG?",
+      "range": {
+        "startLine": 30,
+        "startChar": 3,
+        "endLine": 30,
+        "endChar": 54
+      },
+      "revId": "7cd3b9e1cfe2901f73fc0a9fd47104b2f104a8d6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
