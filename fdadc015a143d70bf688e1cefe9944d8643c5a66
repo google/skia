@@ -46,6 +46,30 @@
       "revId": "fdadc015a143d70bf688e1cefe9944d8643c5a66",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c20c2b0_83ce5cab",
+        "filename": "src/core/SkPaint.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-05T14:55:52Z",
+      "side": 1,
+      "message": "If we change the parameter to uint8_t, then the caller never knows that they accidentally passed an out-of-range value, as the compiler will have magically cast it down to a byte. That was part of the motivation for accepting an \"int\".",
+      "parentUuid": "4999a364_3276a6a4",
+      "range": {
+        "startLine": 272,
+        "startChar": 23,
+        "endLine": 272,
+        "endChar": 28
+      },
+      "revId": "fdadc015a143d70bf688e1cefe9944d8643c5a66",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
