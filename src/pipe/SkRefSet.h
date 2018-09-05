@@ -32,7 +32,7 @@ public:
     }
 
 private:
-    SkTArray<sk_sp<T>, true> fArray;
+    SkTArray<sk_sp<T>> fArray;
 };
 
 #endif

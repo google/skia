@@ -267,7 +267,7 @@ public:
     }
 
 private:
-    SkTArray<sk_sp<SkTypeface_AndroidSystem>, true> fStyles;
+    SkTArray<sk_sp<SkTypeface_AndroidSystem>> fStyles;
 
     friend struct NameToFamily;
     friend class SkFontMgr_Android;
@@ -515,7 +515,7 @@ private:
 
     SkTypeface_FreeType::Scanner fScanner;
 
-    SkTArray<sk_sp<SkFontStyleSet_Android>, true> fStyleSets;
+    SkTArray<sk_sp<SkFontStyleSet_Android>> fStyleSets;
     sk_sp<SkFontStyleSet> fDefaultStyleSet;
 
     SkTArray<NameToFamily, true> fNameToFamilyMap;
