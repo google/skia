@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "97fcb34c_d85bd1f6",
+        "filename": "tests/TArrayTest.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-05T19:42:09Z",
+      "side": 0,
+      "message": "These tests all seem like overkill esp. now that we\u0027re not trying to ensure that memcpy/sk_free of sk_sps is equivalent to std::move()ing them one at a time.",
+      "range": {
+        "startLine": 349,
+        "startChar": 0,
+        "endLine": 356,
+        "endChar": 24
+      },
+      "revId": "27140526ec25c125fc70363585381225c60bfd2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
