@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a0010ad9_62e413b0",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-05T16:18:39Z",
+      "side": 1,
+      "message": "I guess maybe this is obvious, but we\u0027re choosing to not change anything here about what color space these colors are blended in, esRGB.  That make sense to you?",
+      "revId": "188b28f3c7bc48d32297faa8c6500d57e0eee24b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce14b429_22ef9967",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-05T16:18:39Z",
+      "side": 1,
+      "message": "SkBlendMode_Apply special cases src and dst too, so if you don\u0027t mind the premul/unpremul, you could just use it all the time.",
+      "range": {
+        "startLine": 60,
+        "startChar": 19,
+        "endLine": 60,
+        "endChar": 36
+      },
+      "revId": "188b28f3c7bc48d32297faa8c6500d57e0eee24b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
