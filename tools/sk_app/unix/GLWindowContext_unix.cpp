@@ -17,6 +17,12 @@ using sk_app::GLWindowContext;
 
 namespace {
 
+static bool ctxErrorOccurred = false;
+static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
+    ctxErrorOccurred = true;
+    return 0;
+}
+
 class GLWindowContext_xlib : public GLWindowContext {
 public:
     GLWindowContext_xlib(const XlibWindowInfo&, const DisplayParams&);
@@ -65,6 +71,10 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
     CreateContextAttribsFn* createContextAttribs = (CreateContextAttribsFn*)glXGetProcAddressARB(
             (const GLubyte*)"glXCreateContextAttribsARB");
     if (createContextAttribs && fFBConfig) {
+        // Install Xlib error handler that will set ctxErrorOccurred
+        ctxErrorOccurred = false;
+        int (*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
+
         // Specifying 3.2 allows an arbitrarily high context version (so long as no 3.2 features
         // have been removed).
         for (int minor = 2; minor >= 0 && !fGLContext; --minor) {
@@ -78,7 +88,12 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                         0
                 };
                 fGLContext = createContextAttribs(fDisplay, *fFBConfig, nullptr, True, attribs);
-                if (fGLContext && profile == GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB &&
+
+                // Sync to ensure any errrors generated are processed.
+                XSync(fDisplay, False);
+
+                if (!ctxErrorOccurred && fGLContext &&
+                    profile == GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB &&
                     glXMakeCurrent(fDisplay, fWindow, fGLContext)) {
                     current = true;
                     // Look to see if RenderDoc is attached. If so, re-create the context with a
@@ -92,11 +107,16 @@ sk_sp<const GrGLInterface> GLWindowContext_xlib::onInitializeContext() {
                         fGLContext = nullptr;
                     }
                 }
-                if (fGLContext) {
+                if (!ctxErrorOccurred && fGLContext) {
                     break;
                 }
+
+                // Reset, try again
+                ctxErrorOccurred = false;
             }
         }
+        // Restore the original error handler
+        XSetErrorHandler(oldHandler);
     }
     if (!fGLContext) {
         fGLContext = glXCreateContext(fDisplay, fVisualInfo, nullptr, GL_TRUE);
