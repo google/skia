@@ -96,9 +96,7 @@ public:
      *  The default implementation simply returns a new typeface built using data obtained from
      *  openStream(), but derived classes may implement more complex caching schemes.
      */
-    virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity) {
-        return SkTypeface::MakeFromStream(this->openStream(identity), identity.fTTCIndex);
-    }
+    virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity);
 
     /**
      *  Return a singleton instance of a direct subclass that calls into

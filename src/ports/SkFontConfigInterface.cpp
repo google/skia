@@ -9,6 +9,7 @@
 #include "SkFontMgr.h"
 #include "SkMutex.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
 
 SK_DECLARE_STATIC_MUTEX(gFontConfigInterfaceMutex);
 static SkFontConfigInterface* gFontConfigInterface;
@@ -27,4 +28,9 @@ void SkFontConfigInterface::SetGlobal(sk_sp<SkFontConfigInterface> fc) {
 
     SkSafeUnref(gFontConfigInterface);
     gFontConfigInterface = fc.release();
+}
+
+sk_sp<SkTypeface> SkFontConfigInterface::makeTypeface(const FontIdentity& identity) {
+    return SkTypeface::MakeFromStream(std::unique_ptr<SkStreamAsset>(this->openStream(identity)),
+                                      identity.fTTCIndex);
 }
