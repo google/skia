@@ -105,7 +105,7 @@ public:
 
     void makeGrPaint(GrMaskFormat, const SkPaint& skPaint, const SkMatrix&,
                      GrPaint* grPaint) override {
-        grPaint->setColor4f(SkColorToPremulGrColor4fLegacy(skPaint.getColor()));
+        grPaint->setColor4f(SkColor4fToPremulGrColor4fLegacy(skPaint.getColor4f()));
     }
 
     GrContext* getContext() override {
