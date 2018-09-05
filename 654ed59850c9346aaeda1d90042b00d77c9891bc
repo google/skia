@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fbc22be5_ad23b86a",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-05T16:41:27Z",
+      "side": 1,
+      "message": "Aye, this is all copied verbatim from CreatePlatformGLTestContext_glx.cpp, but I can update it.",
+      "parentUuid": "6fe40b49_e6670f25",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 28
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddeb3cdb_6d9a9a92",
         "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "186fbc48_4effde07",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-05T16:41:27Z",
+      "side": 1,
+      "message": "Yup, much cleaner.",
+      "parentUuid": "ddeb3cdb_6d9a9a92",
+      "range": {
+        "startLine": 85,
+        "startChar": 15,
+        "endLine": 85,
+        "endChar": 16
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fa134c4_24d57d0e",
         "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a98f3879_4e8fcfa4",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-05T16:41:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fa134c4_24d57d0e",
+      "range": {
+        "startLine": 92,
+        "startChar": 38,
+        "endLine": 92,
+        "endChar": 45
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
