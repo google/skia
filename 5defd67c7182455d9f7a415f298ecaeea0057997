@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b8ac9bd1_2d498a0e",
+        "filename": "tests/SerialProcsTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-05T15:26:04Z",
+      "side": 1,
+      "message": "SkTestEmptyTypeface (might need to implement onGetFontDescriptor there) or make tests be able to get at the native fontmgr instead of the dm imposed fontmgr and create the typefaces with that.",
+      "range": {
+        "startLine": 193,
+        "startChar": 15,
+        "endLine": 193,
+        "endChar": 59
+      },
+      "revId": "5defd67c7182455d9f7a415f298ecaeea0057997",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
