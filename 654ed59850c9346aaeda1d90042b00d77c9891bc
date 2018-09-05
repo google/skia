@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6fe40b49_e6670f25",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-05T15:47:13Z",
+      "side": 1,
+      "message": "gCtxErrorOccurred?",
+      "range": {
+        "startLine": 20,
+        "startChar": 12,
+        "endLine": 20,
+        "endChar": 28
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddeb3cdb_6d9a9a92",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-05T15:47:13Z",
+      "side": 1,
+      "message": "You could put \u0027ctxErrorOccurred \u003d false;\u0027 here, then after the XSync() add \u0027if (ctxErrorOccurred) { continue; }\u0027, and leave the rest as it was.",
+      "range": {
+        "startLine": 85,
+        "startChar": 15,
+        "endLine": 85,
+        "endChar": 16
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fa134c4_24d57d0e",
+        "filename": "tools/sk_app/unix/GLWindowContext_unix.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-05T15:47:13Z",
+      "side": 1,
+      "message": "errors",
+      "range": {
+        "startLine": 92,
+        "startChar": 38,
+        "endLine": 92,
+        "endChar": 45
+      },
+      "revId": "654ed59850c9346aaeda1d90042b00d77c9891bc",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
