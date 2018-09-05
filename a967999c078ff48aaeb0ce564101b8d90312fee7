@@ -34,6 +34,24 @@
       "revId": "a967999c078ff48aaeb0ce564101b8d90312fee7",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "381b75d5_e8433e2e",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-05T15:19:15Z",
+      "side": 1,
+      "message": "oh of course.",
+      "parentUuid": "5a7fc4ce_71841f90",
+      "revId": "a967999c078ff48aaeb0ce564101b8d90312fee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
