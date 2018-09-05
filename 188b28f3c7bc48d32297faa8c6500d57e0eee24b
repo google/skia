@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "454b7b9a_f7e31b04",
+        "filename": "src/effects/SkLayerDrawLooper.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-05T16:33:17Z",
+      "side": 1,
+      "message": "Yeah, I thought about that when I did this. It means that even if you sent colors in as P3, for example, we do this work in sRGB. That\u0027s going to be true for many other similar changes throughout Skia.",
+      "parentUuid": "a0010ad9_62e413b0",
+      "revId": "188b28f3c7bc48d32297faa8c6500d57e0eee24b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "ce14b429_22ef9967",
         "filename": "src/effects/SkLayerDrawLooper.cpp",
         "patchSetId": 2
