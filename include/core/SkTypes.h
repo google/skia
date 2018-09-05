@@ -80,11 +80,6 @@ SK_API extern void sk_abort_no_print(void);
 */
 typedef unsigned U8CPU;
 
-/** Fast type for signed 16 bits. Use for parameter passing and local variables,
-    not for storage
-*/
-typedef int S16CPU;
-
 /** Fast type for unsigned 16 bits. Use for parameter passing and local
     variables, not for storage
 */

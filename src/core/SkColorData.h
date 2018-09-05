@@ -189,21 +189,6 @@ static inline int SkAlphaBlend(int src, int dst, int scale256) {
     return dst + SkAlphaMul(src - dst, scale256);
 }
 
-/**
- *  Returns (src * alpha + dst * (255 - alpha)) / 255
- *
- *  This is more accurate than SkAlphaBlend, but slightly slower
- */
-static inline int SkAlphaBlend255(S16CPU src, S16CPU dst, U8CPU alpha) {
-    SkASSERT((int16_t)src == src);
-    SkASSERT((int16_t)dst == dst);
-    SkASSERT((uint8_t)alpha == alpha);
-
-    int prod = (src - dst) * alpha + 128;
-    prod = (prod + (prod >> 8)) >> 8;
-    return dst + prod;
-}
-
 #define SkR16Assert(r)  SkASSERT((unsigned)(r) <= SK_R16_MASK)
 #define SkG16Assert(g)  SkASSERT((unsigned)(g) <= SK_G16_MASK)
 #define SkB16Assert(b)  SkASSERT((unsigned)(b) <= SK_B16_MASK)
