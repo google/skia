@@ -89,7 +89,7 @@ void GrOpList::prepare(GrOpFlushState* flushState) {
 }
 
 // Add a GrOpList-based dependency
-void GrOpList::addDependency(GrOpList* dependedOn) {
+void GrOpList::addDependency2(GrOpList* dependedOn) {
     SkASSERT(!dependedOn->dependsOn(this));  // loops are bad
 
     if (this->dependsOn(dependedOn)) {
@@ -103,7 +103,7 @@ void GrOpList::addDependency(GrOpList* dependedOn) {
 }
 
 // Convert from a GrSurface-based dependency to a GrOpList one
-void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
+void GrOpList::addDependency1(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     if (dependedOn->getLastOpList()) {
         // If it is still receiving dependencies, this GrOpList shouldn't be closed
         SkASSERT(!this->isClosed());
@@ -112,7 +112,7 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
         if (opList == this) {
             // self-read - presumably for dst reads. We can't make it closed in the self-read case.
         } else {
-            this->addDependency(opList);
+            this->addDependency2(opList);
 
             // We are closing 'opList' here bc the current contents of it are what 'this' opList
             // depends on. We need a break in 'opList' so that the usage of that state has a
@@ -128,6 +128,21 @@ void GrOpList::addDependency(GrSurfaceProxy* dependedOn, const GrCaps& caps) {
     }
 }
 
+void GrOpList::addDependencies(const SkTDArray<GrOpList*>& dependedOn, const GrCaps& caps) {
+    // If it is still receiving dependencies, this GrOpList shouldn't be closed
+    SkASSERT(!this->isClosed());
+
+    for (int i = 0; i < dependedOn.count(); ++i) {
+        GrOpList* opList = dependedOn[i];
+
+        // We are closing 'opList' here bc the current contents of it are what 'this' opList
+        // depends on. We need a break in 'opList' so that the usage of that state has a
+        // chance to execute.
+        opList->makeClosed(caps);
+        this->addDependency2(opList);
+    }
+}
+
 bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
     for (int i = 0; i < fDependencies.count(); ++i) {
         if (fDependencies[i] == dependedOn) {
@@ -137,7 +152,6 @@ bool GrOpList::dependsOn(const GrOpList* dependedOn) const {
 
     return false;
 }
-
 
 void GrOpList::addDependent(GrOpList* dependent) {
     fDependents.push_back(dependent);

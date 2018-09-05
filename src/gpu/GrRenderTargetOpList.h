@@ -66,11 +66,26 @@ public:
      * into an existing Op or otherwise deleted.
      */
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
-            this->addDependency(p, caps);
+        SkTDArray<GrOpList*> dependencies;
+
+        auto addDependency = [ this, &dependencies ] (GrSurfaceProxy* p) {
+            if (!p->getLastOpList()) {
+                return;
+            }
+
+            GrOpList* opList = p->getLastOpList();
+            if (opList == this) {
+                // self-read - presumably for dst reads
+                return;
+            }
+
+            dependencies.push_back(opList);
+//            this->addDependency(p, caps);
         };
 
         op->visitProxies(addDependency);
+
+        this->addDependencies(dependencies, caps);
 
         return this->recordOp(std::move(op), caps);
     }
@@ -81,8 +96,21 @@ public:
      */
     uint32_t addOp(std::unique_ptr<GrOp> op, const GrCaps& caps,
                    GrAppliedClip&& clip, const DstProxy& dstProxy) {
-        auto addDependency = [ &caps, this ] (GrSurfaceProxy* p) {
-            this->addDependency(p, caps);
+        SkTDArray<GrOpList*> dependencies;
+
+        auto addDependency = [ this, &dependencies ] (GrSurfaceProxy* p) {
+            if (!p->getLastOpList()) {
+                return;
+            }
+
+            GrOpList* opList = p->getLastOpList();
+            if (opList == this) {
+                // self-read - presumably for dst reads
+                return;
+            }
+
+            dependencies.push_back(opList);
+//            this->addDependency(p, caps);
         };
 
         op->visitProxies(addDependency);
@@ -90,6 +118,8 @@ public:
         if (dstProxy.proxy()) {
             addDependency(dstProxy.proxy());
         }
+
+        this->addDependencies(dependencies, caps);
 
         return this->recordOp(std::move(op), caps, clip.doesClip() ? &clip : nullptr, &dstProxy);
     }

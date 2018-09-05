@@ -147,11 +147,26 @@ bool GrTextureOpList::copySurface(GrContext* context,
         return false;
     }
 
-    const GrCaps* caps = context->contextPriv().caps();
-    auto addDependency = [ caps, this ] (GrSurfaceProxy* p) {
-        this->addDependency(p, *caps);
+    SkTDArray<GrOpList*> dependencies;
+
+    auto addDependency = [ this, &dependencies ] (GrSurfaceProxy* p) {
+        if (!p->getLastOpList()) {
+            return;
+        }
+
+        GrOpList* opList = p->getLastOpList();
+        if (opList == this) {
+            // self-read - presumably for dst reads
+            return;
+        }
+
+        dependencies.push_back(opList);
+//        this->addDependency(p, *caps);
     };
     op->visitProxies(addDependency);
+
+    const GrCaps* caps = context->contextPriv().caps();
+    this->addDependencies(dependencies, *caps);
 
     this->recordOp(std::move(op));
     return true;
