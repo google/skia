@@ -358,6 +358,30 @@ protected:
             canvas->translate(0.0f, 500.0f);
             canvas->drawPath(p2, p);
             canvas->restore();
+
+            // Repro for crbug.com/856137. This path previously caused GrAAConvexTessellator to turn
+            // inset rings into outsets when adjacent bisector angles converged outside the previous
+            // ring due to accumulated error.
+            SkPath p3;
+            p3.setFillType(SkPath::kEvenOdd_FillType);
+            p3.moveTo(1184.96f, 982.557f);
+            p3.lineTo(1183.71f, 982.865f);
+            p3.lineTo(1180.99f, 982.734f);
+            p3.lineTo(1178.5f, 981.541f);
+            p3.lineTo(1176.35f, 979.367f);
+            p3.lineTo(1178.94f, 938.854f);
+            p3.lineTo(1181.35f, 936.038f);
+            p3.lineTo(1183.96f, 934.117f);
+            p3.lineTo(1186.67f, 933.195f);
+            p3.lineTo(1189.36f, 933.342f);
+            p3.lineTo(1191.58f, 934.38f);
+            p3.close();
+            canvas->save();
+            SkMatrix m;
+            m.setAll(0.0893210843f, 0, 79.1197586f, 0, 0.0893210843f, 300, 0, 0, 1);
+            canvas->concat(m);
+            canvas->drawPath(p3, p);
+            canvas->restore();
         }
     }
 
