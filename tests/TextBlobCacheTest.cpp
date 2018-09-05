@@ -44,7 +44,7 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 static void setup_always_evict_atlas(GrContext* context) {
-    int dim = SkGlyphCacheCommon::kSkSideTooBigForAtlas;
+    int dim = SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas;
     // These sizes were selected because they allow each atlas to hold a single plot and will thus
     // stress the atlas
     GrDrawOpAtlasConfig configs[3];
