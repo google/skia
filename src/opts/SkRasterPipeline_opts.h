@@ -1474,9 +1474,12 @@ STAGE(parametric, const SkJumper_ParametricTransferFunction* ctx) {
 
         F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
                                       , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
+#if defined(SK_LEGACY_PARAMETRIC_CLAMP)
         // Clamp to [0,1], with argument order mattering to handle NaN.
-        // TODO: should we really be clamping here?
         return apply_sign(min(max(r, 0), 1.0f), sign);
+#else
+        return apply_sign(r, sign);
+#endif
     };
     r = fn(r);
     g = fn(g);
