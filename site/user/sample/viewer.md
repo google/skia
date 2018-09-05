@@ -14,7 +14,7 @@ Linux, Macintosh and Windows
 The Viewer can be built using the regular GN build process, e.g.
 
     bin/gn gen out/Release --args='is_debug=false'
-    ninja -C out/Release/viewer
+    ninja -C out/Release viewer
 
 To load resources in the desktop Viewers, use the `--resourcePath` option:
 
