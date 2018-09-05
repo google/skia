@@ -1901,9 +1901,6 @@ Error ViaTiles::draw(const Src& src, SkBitmap* bitmap, SkWStream* stream, SkStri
                 // This lets our ultimate Sink determine the best kind of surface.
                 // E.g., if it's a GpuSink, the surfaces and images are textures.
                 auto s = canvas->makeSurface(info);
-                if (!s) {
-                    s = SkSurface::MakeRaster(info);  // Some canvases can't create surfaces.
-                }
                 surfaces.push_back(s);
                 SkCanvas* c = s->getCanvas();
                 c->translate(SkIntToScalar(-i * fW),

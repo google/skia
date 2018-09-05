@@ -241,7 +241,7 @@ static sk_sp<SkPicture> make_sierpinski_picture() {
 static sk_sp<SkSurface> create_compat_surface(SkCanvas* canvas, int width, int height) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return canvas->makeSurface(info);
 }
 
 // This class stores the information required to compose all the result
