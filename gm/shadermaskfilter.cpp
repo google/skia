@@ -170,7 +170,7 @@ DEF_SIMPLE_GM(combinemaskfilter, canvas, 560, 510) {
 #include "SkMaskFilter.h"
 static sk_sp<SkImage> make_circle_image(SkCanvas* canvas, SkScalar radius, int margin) {
     const int n = SkScalarCeilToInt(radius) * 2 + margin * 2;
-    auto surf = canvas->makeSurface(SkImageInfo::MakeN32Premul(n, n));
+    auto surf = sk_tool_utils::makeSurface(canvas, SkImageInfo::MakeN32Premul(n, n));
     SkPaint paint;
     paint.setAntiAlias(true);
     surf->getCanvas()->drawCircle(n * 0.5f, n * 0.5f, radius, paint);
@@ -233,7 +233,8 @@ DEF_SIMPLE_GM(shadermaskfilter_localmatrix, canvas, 1500, 1000) {
     using ShaderMakerT = sk_sp<SkShader>(*)(SkCanvas*, const SkMatrix& lm);
     static const ShaderMakerT gShaderMakers[] = {
         [](SkCanvas* canvas, const SkMatrix& lm) -> sk_sp<SkShader> {
-            auto surface = canvas->makeSurface(SkImageInfo::MakeN32Premul(kSize, kSize));
+            auto surface = sk_tool_utils::makeSurface(canvas,
+                                                      SkImageInfo::MakeN32Premul(kSize, kSize));
             draw_mask(surface->getCanvas());
             return surface->makeImageSnapshot()->makeShader(SkShader::kClamp_TileMode,
                                                             SkShader::kClamp_TileMode, &lm);

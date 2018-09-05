@@ -626,4 +626,12 @@ void copy_to_g8(SkBitmap* dst, const SkBitmap& src) {
                equal_pixels(pm0, pm1, maxDiff, respectColorSpaces);
     }
 
+    sk_sp<SkSurface> makeSurface(SkCanvas* canvas, const SkImageInfo& info,
+                                 const SkSurfaceProps* props) {
+        auto surf = canvas->makeSurface(info, props);
+        if (!surf) {
+            surf = SkSurface::MakeRaster(info, props);
+        }
+        return surf;
+    }
 }  // namespace sk_tool_utils

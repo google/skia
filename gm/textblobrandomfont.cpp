@@ -106,7 +106,7 @@ protected:
                                              kPremul_SkAlphaType,
                                              canvas->imageInfo().refColorSpace());
         SkSurfaceProps props(0, kUnknown_SkPixelGeometry);
-        auto surface(canvas->makeSurface(info, &props));
+        auto surface(sk_tool_utils::makeSurface(canvas, info, &props));
         if (!surface) {
             const char* text = "This test requires a surface";
             size_t len = strlen(text);

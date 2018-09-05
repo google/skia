@@ -150,6 +150,9 @@ static void draw_rect_geom_diff_grid(SkCanvas* canvas, ShapeDrawFunc f1, ShapeDr
 
     SkImageInfo info = canvas->imageInfo().makeWH(50, 50);
     auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRasterN32Premul(50, 50);
+    }
 
     for (const SkRect& rect : kRects) {
         for (const auto& style : kStyles) {

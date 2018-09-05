@@ -17,6 +17,14 @@
 #include "SkRandom.h"
 #include "SkTime.h"
 
+static sk_sp<SkSurface> make_surface(SkCanvas* canvas, const SkImageInfo& info) {
+    auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRaster(info);
+    }
+    return surface;
+}
+
 static sk_sp<SkShader> make_shader(const SkRect& bounds) {
     sk_sp<SkImage> image(GetResourceAsImage("images/mandrill_128.png"));
     return image ? image->makeShader() : nullptr;
@@ -209,7 +217,7 @@ protected:
             // scale up so we don't clip rotations
             SkImageInfo info = SkImageInfo::MakeN32(fImage->width() * 2, fImage->height() * 2,
                                                     kOpaque_SkAlphaType);
-            surface = canvas->makeSurface(info);
+            surface = make_surface(canvas, info);
             canvas = surface->getCanvas();
             canvas->drawColor(SK_ColorWHITE);
             size.set(info.width(), info.height());

@@ -421,7 +421,7 @@ static sk_sp<SkImage> serial_deserial(SkImage* img) {
 
 DEF_SIMPLE_GM(image_subset, canvas, 440, 220) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(200, 200, nullptr);
-    auto surf = canvas->makeSurface(info, nullptr);
+    auto surf = sk_tool_utils::makeSurface(canvas, info, nullptr);
     auto img = make_lazy_image(surf.get());
     if (!img) {
         return;
