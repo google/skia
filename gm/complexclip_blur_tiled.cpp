@@ -38,7 +38,7 @@ protected:
         SkRect bounds = canvas->getLocalClipBounds();
         int ts = SkScalarCeilToInt(tileSize);
         SkImageInfo info = SkImageInfo::MakeN32Premul(ts, ts);
-        auto tileSurface(sk_tool_utils::makeSurface(canvas, info));
+        auto tileSurface(canvas->makeSurface(info));
         SkCanvas* tileCanvas = tileSurface->getCanvas();
         for (SkScalar y = bounds.top(); y < bounds.bottom(); y += tileSize) {
             for (SkScalar x = bounds.left(); x < bounds.right(); x += tileSize) {
