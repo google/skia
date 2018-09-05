@@ -194,11 +194,7 @@ static inline int SkAlphaBlend(int src, int dst, int scale256) {
  *
  *  This is more accurate than SkAlphaBlend, but slightly slower
  */
-static inline int SkAlphaBlend255(S16CPU src, S16CPU dst, U8CPU alpha) {
-    SkASSERT((int16_t)src == src);
-    SkASSERT((int16_t)dst == dst);
-    SkASSERT((uint8_t)alpha == alpha);
-
+static inline int SkAlphaBlend255(int16_t src, int16_t dst, uint8_t alpha) {
     int prod = (src - dst) * alpha + 128;
     prod = (prod + (prod >> 8)) >> 8;
     return dst + prod;

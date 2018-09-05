@@ -462,8 +462,8 @@ DEF_TEST(Math, reporter) {
     }
 
     for (i = 0; i < 1000; i++) {
-        int value = rand.nextS16();
-        int max = rand.nextU16();
+        int value = rand.nextS() >> 16;
+        int max = rand.nextU() >> 16;
 
         int clamp = SkClampMax(value, max);
         int clamp2 = value < 0 ? 0 : (value > max ? max : value);

@@ -324,8 +324,8 @@ DEF_TEST(SkNx_u16_float, r) {
     SkRandom rand;
     for (int i = 0; i < 10000; ++i) {
         const uint16_t s16[4] {
-            (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),
-            (uint16_t)rand.nextU16(), (uint16_t)rand.nextU16(),
+            (uint16_t)(rand.nextU() >> 16), (uint16_t)(rand.nextU() >> 16),
+            (uint16_t)(rand.nextU() >> 16), (uint16_t)(rand.nextU() >> 16),
         };
         auto u4_0 = Sk4h::Load(s16);
         auto f4 = SkNx_cast<float>(u4_0);

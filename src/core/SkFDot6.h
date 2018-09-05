@@ -41,7 +41,7 @@ inline SkFDot6 SkScalarRoundToFDot6(SkScalar x, int shift = 0)
 #define SK_FDot6Half        (32)
 
 #ifdef SK_DEBUG
-    inline SkFDot6 SkIntToFDot6(S16CPU x) {
+    inline SkFDot6 SkIntToFDot6(int x) {
         SkASSERT(SkToS16(x) == x);
         return x << 6;
     }
