@@ -348,7 +348,7 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
     AHardwareBuffer_acquire(hardwareBuffer);
 
-    GrTexture** ownedTexturePtr = &fOwnedTexture;
+    GrGpuResource** ownedTexturePtr = &fOwnedTexture;
     const bool isProtectedContent = fIsProtectedContent;
 
     fCachedProxy = proxyProvider->createLazyProxy(
