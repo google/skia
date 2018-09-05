@@ -48,6 +48,7 @@ The primary features are:
 <script type="text/javascript" charset="utf-8">
   //Tries to load the WASM version if supported, then falls back to asmjs
   let s = document.createElement('script');
+  s.defer = true;
   if (window.WebAssembly && typeof window.WebAssembly.compile === "function") {
     console.log('WebAssembly is supported! Using the wasm version of PathKit');
     window.__pathkit_locate_file = 'https://storage.googleapis.com/skia-cdn/pathkit-wasm/0.3.1/bin/';
@@ -59,7 +60,7 @@ The primary features are:
   document.write(s.outerHTML);
 </script>
 
-<script>
+<script defer>
   try {
     PathKitInit({
       locateFile: (file) => window.__pathkit_locate_file+file,
