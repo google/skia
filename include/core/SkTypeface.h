@@ -33,7 +33,7 @@ typedef uint32_t SkFontID;
 /** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
-#define SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
+//#define SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
 
 /** \class SkTypeface
 
