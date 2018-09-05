@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "529b0bd0_2c40a919",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-05T16:02:16Z",
+      "side": 1,
+      "message": "Do we want this to be more like:\n\nsk_sp\u003cSkSurface\u003e result;\nif (dev) {\n   result \u003d dev-\u003emakeSurface(info, props);\n}\nif (!result) {\n   result \u003d SkSurface::MakeRaster(info);\n}\nreturn result;\n\n?\n\nAlso, it seems like we should still pass the props MakeRaster",
+      "revId": "b6ce1901efbfa87f18659f17b7705ae1da453b03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
