@@ -27,17 +27,10 @@ DEF_FUZZ(PolyUtils, fuzz) {
     fuzz->next(&inset);
     SkTDArray<SkPoint> output;
     ignoreResult(SkInsetConvexPolygon(polygon, count, inset, &output));
-    std::function<SkScalar(const SkPoint&)> distanceFunc = [fuzz](const SkPoint& p) {
-        SkScalar retVal;
-        fuzz->next(&retVal);
-        return retVal;
-    };
-    ignoreResult(SkInsetConvexPolygon(polygon, count, distanceFunc, &output));
 
     SkScalar offset;
     fuzz->next(&offset);
     ignoreResult(SkOffsetSimplePolygon(polygon, count, offset, &output));
-    ignoreResult(SkOffsetSimplePolygon(polygon, count, distanceFunc, &output));
 
     SkAutoSTMalloc<64, uint16_t> indexMap(count);
     for (int index = 0; index < count; ++index) {
