@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b34cc37_5f186ac5",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-05T13:38:53Z",
+      "side": 1,
+      "message": "You can remove this now, can\u0027t you?",
+      "range": {
+        "startLine": 597,
+        "startChar": 0,
+        "endLine": 597,
+        "endChar": 18
+      },
+      "revId": "8cec368217ffb5d31a522e2e3398bdcab7dec08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b240313f_a8239fce",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 796,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-05T13:38:53Z",
+      "side": 1,
+      "message": "Same here.",
+      "range": {
+        "startLine": 796,
+        "startChar": 0,
+        "endLine": 796,
+        "endChar": 18
+      },
+      "revId": "8cec368217ffb5d31a522e2e3398bdcab7dec08e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
