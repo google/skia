@@ -253,10 +253,13 @@ dm_includes   .add("third_party/skcms")
 srcs.add("third_party/vulkanmemoryallocator/GrVulkanMemoryAllocator.cpp")
 local_includes.add("third_party/vulkanmemoryallocator/")
 
-# No need to list headers.
-srcs            = {s for s in srcs           if not s.endswith('.h')}
-dm_srcs         = {s for s in dm_srcs        if not s.endswith('.h')}
-nanobench_srcs  = {s for s in nanobench_srcs if not s.endswith('.h')}
+# Android's build will choke if we list headers.
+def strip_headers(sources):
+  return {s for s in sources if not s.endswith('.h')}
+
+srcs            = strip_headers(srcs)
+dm_srcs         = strip_headers(dm_srcs)
+nanobench_srcs  = strip_headers(nanobench_srcs)
 
 cflags = gn_to_bp_utils.CleanupCFlags(cflags)
 cflags_cc = gn_to_bp_utils.CleanupCCFlags(cflags_cc)
@@ -281,17 +284,17 @@ with open('Android.bp', 'w') as f:
     'cflags':          bpfmt(8, cflags, False),
     'cflags_cc':       bpfmt(8, cflags_cc),
 
-    'arm_srcs':      bpfmt(16, defs['armv7']),
-    'arm_neon_srcs': bpfmt(20, defs['neon']),
-    'arm64_srcs':    bpfmt(16, defs['arm64'] +
-                               defs['crc32']),
-    'none_srcs':     bpfmt(16, defs['none']),
-    'x86_srcs':      bpfmt(16, defs['sse2'] +
-                               defs['ssse3'] +
-                               defs['sse41'] +
-                               defs['sse42'] +
-                               defs['avx'  ] +
-                               defs['hsw'  ]),
+    'arm_srcs':      bpfmt(16, strip_headers(defs['armv7'])),
+    'arm_neon_srcs': bpfmt(20, strip_headers(defs['neon'])),
+    'arm64_srcs':    bpfmt(16, strip_headers(defs['arm64'] +
+                                             defs['crc32'])),
+    'none_srcs':     bpfmt(16, strip_headers(defs['none'])),
+    'x86_srcs':      bpfmt(16, strip_headers(defs['sse2'] +
+                                             defs['ssse3'] +
+                                             defs['sse41'] +
+                                             defs['sse42'] +
+                                             defs['avx'  ] +
+                                             defs['hsw'  ])),
 
     'dm_includes'       : bpfmt(8, dm_includes),
     'dm_srcs'           : bpfmt(8, dm_srcs),
