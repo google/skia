@@ -73,10 +73,11 @@ public:
         return {lookupX, lookupY};
     }
 
-    static constexpr uint16_t kSkSideTooBigForAtlas = 256;
+    static constexpr uint16_t kSkGlyphSideTooBigForAtlas = 256;
 
     inline static bool GlyphTooBigForAtlas(const SkGlyph& glyph) {
-        return glyph.fWidth > kSkSideTooBigForAtlas || glyph.fHeight > kSkSideTooBigForAtlas;
+        return glyph.fWidth > kSkGlyphSideTooBigForAtlas
+               || glyph.fHeight > kSkGlyphSideTooBigForAtlas;
     }
 };
 

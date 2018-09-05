@@ -7,65 +7,81 @@
 
 #include "GrAtlasManager.h"
 
+#include <algorithm>
+#include <cmath>
+
 #include "GrGlyph.h"
 #include "GrGlyphCache.h"
+#include "SkGlyphRun.h"
 
-void GrAtlasManager::ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
-                                        int* minDim, int* maxPlot, int* minPlot) {
-    SkASSERT(maxDim && minDim && maxPlot && minPlot);
-    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
-    int log2MaxTextureSize = SkPrevLog2(maxTextureSize);
-    int log2MaxDim = 9;
-    static const size_t kOne = 1u;
-    for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
-        size_t maxDimTmp = kOne << log2MaxDim;
-        size_t minDimTmp = kOne << (log2MaxDim - 1);
+GrDrawOpAtlasConfig GrAtlasManager::ComputeAtlasLimits(
+        int maxTextureSize, size_t maxTextureBytes, int pixelSize) {
+    // Find the largest area of pixels in a width:height with a proportion of 1:2 that fits in
+    // maxTextureBytes. In the following P is pixel size, H is height, and W is width.
+    // P*H*W = maxTextureSize => P*H*(H/2) = maxTextureSize => H = sqrt(2*maxTextureSize/P)
+    double fitsHeight = std::sqrt(2.0 * maxTextureBytes / pixelSize);
 
-        if (maxDimTmp * minDimTmp * 4 >= maxTextureBytes) {
-            break;
-        }
+    // The minimum atlas height.
+    static constexpr double kMinimumAtlasHeight = 512;
+
+    // Limit height to the maximum texture dimension and the minimum atlas size.
+    double height = std::max(std::min(fitsHeight, (double)maxTextureSize), kMinimumAtlasHeight);
+
+    // Find the greatest power of 2 that is less than height.
+    double alignedHeight = std::exp2(std::floor(std::log2(height)));
+
+    // Calculate the atlas dimensions.
+    int atlasHeight = (int)alignedHeight;
+    int atlasWidth = atlasHeight / 2;
+
+    // Constant copied from BulkUseTokenUpdater
+    // TODO: unify kMaxPlots.
+    static constexpr size_t kMaxPlots = 32;
+
+    // Start with a plot that is large enough to satisfy the maximum glyph dimension limit.
+    int plotWidth = SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas;
+    int plotHeight = SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas;
+
+    auto countPlots = [&plotWidth, &plotHeight, atlasWidth, atlasHeight] () -> size_t {
+        return ((size_t)atlasWidth / plotWidth) * ((size_t)atlasHeight / plotHeight);
+    };
+
+    // If there are too many plots increase from 256x256 to 256x512.
+    if (countPlots() > kMaxPlots) {
+        plotWidth = 2 * SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas;
     }
 
+    // If there are still too many plots increase from 256x512 to 512x512.
+    if (countPlots() > kMaxPlots) {
+        plotHeight = 2 * SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas;
+    }
 
-    int log2MinDim = log2MaxDim - 1;
-    *maxDim = 1 << log2MaxDim;
-    *minDim = 1 << log2MinDim;
-    // Plots are either 256 or 512.
-    *maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
-    *minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
+    return {atlasWidth, atlasHeight, plotWidth, plotHeight};
 }
 
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
-                               float maxTextureBytes,
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider,
+                               GrGlyphCache* glyphCache,
+                               size_t maxTextureBytes,
                                GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
             : fAllowMultitexturing(allowMultitexturing)
             , fProxyProvider(proxyProvider)
             , fGlyphCache(glyphCache) {
     fCaps = fProxyProvider->refCaps();
 
-    int maxDim, minDim, maxPlot, minPlot;
-    ComputeAtlasLimits(fCaps->maxTextureSize(), maxTextureBytes, &maxDim, &minDim, &maxPlot,
-                       &minPlot);
+    SkASSERT(maxTextureBytes > 0);
 
-    // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
-    // format is already very compact.
-    fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = minPlot;
+    int maxTexSize = fCaps->maxTextureSize();
+    fAtlasConfigs[kA8_GrMaskFormat] =
+            ComputeAtlasLimits(maxTexSize, maxTextureBytes,
+                               GrMaskFormatBytesPerPixel(kA8_GrMaskFormat));
+    fAtlasConfigs[kA565_GrMaskFormat] =
+            ComputeAtlasLimits(maxTexSize, maxTextureBytes,
+                               GrMaskFormatBytesPerPixel(kA565_GrMaskFormat));
+    fAtlasConfigs[kARGB_GrMaskFormat] =
+            ComputeAtlasLimits(maxTexSize, maxTextureBytes,
+                               GrMaskFormatBytesPerPixel(kARGB_GrMaskFormat));
 
-    // A565 and ARGB use maxDim x minDim.
-    fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = minPlot;
-    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = minPlot;
-
-    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = minDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
-    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
-
-    fGlyphSizeLimit = minPlot;
+    fGlyphSizeLimit = fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth;
 }
 
 GrAtlasManager::~GrAtlasManager() {

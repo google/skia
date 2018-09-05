@@ -27,7 +27,7 @@ struct GrGlyph;
 class GrAtlasManager : public GrOnFlushCallbackObject {
 public:
     GrAtlasManager(GrProxyProvider*, GrGlyphCache*,
-                   float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+                   size_t maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasManager() override;
 
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
@@ -57,8 +57,8 @@ public:
 
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
 
-    static void ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
-                                   int* minDim, int* maxPlot, int* minPlot);
+    static GrDrawOpAtlasConfig ComputeAtlasLimits(
+            int maxTextureSize, size_t maxTextureBytes, int pixelSize);
 
     void freeAll();
 
