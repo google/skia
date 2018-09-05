@@ -109,6 +109,10 @@ public:
     bool supportsPhysicalDeviceProperties2() const { return fSupportsPhysicalDeviceProperties2; }
     // Returns whether the device supports the ability to extend VkMemoryRequirements struct.
     bool supportsMemoryRequirements2() const { return fSupportsMemoryRequirements2; }
+
+    // Returns whether the device supports the ability to extend the vkBindMemory call.
+    bool supportsBindMemory2() const { return fSupportsBindMemory2; }
+
     // Returns whether or not the device suports the various API maintenance fixes to Vulkan 1.0. In
     // Vulkan 1.1 all these maintenance are part of the core spec.
     bool supportsMaintenance1() const { return fSupportsMaintenance1; }
@@ -219,6 +223,7 @@ private:
 
     bool fSupportsPhysicalDeviceProperties2 = false;
     bool fSupportsMemoryRequirements2 = false;
+    bool fSupportsBindMemory2 = false;
     bool fSupportsMaintenance1 = false;
     bool fSupportsMaintenance2 = false;
     bool fSupportsMaintenance3 = false;
