@@ -162,7 +162,7 @@ private:
     const SkPictInfo fInfo;
 
     static void WriteFactories(SkWStream* stream, const SkFactorySet& rec);
-    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec);
+    static void WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec, const SkSerialProcs&);
 
     void initForPlayback() const;
 };

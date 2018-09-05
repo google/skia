@@ -121,7 +121,8 @@ void SkPictureData::WriteFactories(SkWStream* stream, const SkFactorySet& rec) {
     SkASSERT(size == (stream->bytesWritten() - start));
 }
 
-void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
+void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec,
+                                   const SkSerialProcs& procs) {
     int count = rec.count();
 
     write_tag_size(stream, SK_PICT_TYPEFACE_TAG, count);
@@ -131,6 +132,14 @@ void SkPictureData::WriteTypefaces(SkWStream* stream, const SkRefCntSet& rec) {
     rec.copyToArray((SkRefCnt**)array);
 
     for (int i = 0; i < count; i++) {
+        SkTypeface* tf = array[i];
+        if (procs.fTypefaceProc) {
+            auto data = procs.fTypefaceProc(tf, procs.fTypefaceCtx);
+            if (data) {
+                stream->write(data->data(), data->size());
+                continue;
+            }
+        }
         array[i]->serialize(stream);
     }
 }
@@ -175,6 +184,18 @@ void SkPictureData::flattenToBuffer(SkWriteBuffer& buffer) const {
     }
 }
 
+// SkPictureData::serialize() will write out paints, and then write out an array of typefaces
+// (unique set). However, paint's serializer will respect SerialProcs, which can cause us to
+// call that custom typefaceproc on *every* typeface, not just on the unique ones. To avoid this,
+// we ignore the custom proc (here) when we serialize the paints, and then do respect it when
+// we serialize the typefaces.
+static SkSerialProcs skip_typeface_proc(const SkSerialProcs& procs) {
+    SkSerialProcs newProcs = procs;
+    newProcs.fTypefaceProc = nullptr;
+    newProcs.fTypefaceCtx = nullptr;
+    return newProcs;
+}
+
 void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
                               SkRefCntSet* topLevelTypeFaceSet) const {
     // This can happen at pretty much any time, so might as well do it first.
@@ -190,7 +211,7 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     SkFactorySet factSet;  // buffer refs factSet, so factSet must come first.
     SkBinaryWriteBuffer buffer;
     buffer.setFactoryRecorder(sk_ref_sp(&factSet));
-    buffer.setSerialProcs(procs);
+    buffer.setSerialProcs(skip_typeface_proc(procs));
     buffer.setTypefaceRecorder(sk_ref_sp(typefaceSet));
     this->flattenToBuffer(buffer);
 
@@ -210,7 +231,10 @@ void SkPictureData::serialize(SkWStream* stream, const SkSerialProcs& procs,
     // We need to write typefaces before we write the buffer or any sub-picture.
     WriteFactories(stream, factSet);
     if (typefaceSet == &localTypefaceSet) {
-        WriteTypefaces(stream, *typefaceSet);
+        // Pass the original typefaceproc (if any) now that we're ready to actually serialize the
+        // typefaces. We skipped this proc before, when we were serializing paints, so that the
+        // paints would just write indices into our typeface set.
+        WriteTypefaces(stream, *typefaceSet, procs);
     }
 
     // Write the buffer.
