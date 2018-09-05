@@ -206,6 +206,10 @@ public:
         VkPtr<PFN_vkGetBufferMemoryRequirements2> fGetBufferMemoryRequirements2;
         VkPtr<PFN_vkGetImageSparseMemoryRequirements2> fGetImageSparseMemoryRequirements2;
 
+        //Functions for VK_KHR_bind_memory2
+        VkPtr<PFN_vkBindBufferMemory2> fBindBufferMemory2;
+        VkPtr<PFN_vkBindImageMemory2> fBindImageMemory2;
+
         // Functions for VK_KHR_maintenance1 or vulkan 1.1
         VkPtr<PFN_vkTrimCommandPool> fTrimCommandPool;
 
