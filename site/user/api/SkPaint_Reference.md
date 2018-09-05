@@ -555,239 +555,247 @@ SkPaint member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getColor4f'>getColor4f</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getColorFilter'>getColorFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Color_Filter'>Color Filter</a>, how colors are altered</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getDrawLooper'>getDrawLooper</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Draw_Looper'>Draw Looper</a>, multiple layers</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFillPath'>getFillPath</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns fill path equivalent to stroke</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFilterQuality'>getFilterQuality</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Filter_Quality'>Filter Quality</a>, image filtering level</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFlags'>getFlags</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Flags'>Flags</a> stored in a bit field</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFontBounds'>getFontBounds</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns union all glyph bounds</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFontMetrics'>getFontMetrics</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Typeface'>Typeface</a> metrics scaled by text size</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getFontSpacing'>getFontSpacing</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns recommended spacing between lines</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getHash'>getHash</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns a shallow hash for equality checks</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getHinting'>getHinting</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Hinting'>Hinting</a>, glyph outline adjustment level</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getImageFilter'>getImageFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Image_Filter'>Image Filter</a>, alter pixels; blur</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getMaskFilter'>getMaskFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Mask_Filter'>Mask Filter</a>, alterations to <a href='undocumented#Mask_Alpha'>Mask Alpha</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getPathEffect'>getPathEffect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Path_Effect'>Path Effect</a>, modifications to path geometry; dashing</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getPosTextHIntercepts'>getPosTextHIntercepts</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns where lines intersect horizontally positioned text; underlines</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getPosTextIntercepts'>getPosTextIntercepts</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns where lines intersect positioned text; underlines</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getPosTextPath'>getPosTextPath</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPath_Reference#Path'>Path</a> equivalent to positioned text</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getShader'>getShader</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Shader'>Shader</a>, multiple drawing colors; gradients</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getStrokeCap'>getStrokeCap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Cap'>Cap</a>, the area drawn at path ends</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getStrokeJoin'>getStrokeJoin</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Join'>Join</a>, geometry on path corners</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getStrokeMiter'>getStrokeMiter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#Miter_Limit'>Miter Limit</a>, angles with sharp corners</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getStrokeWidth'>getStrokeWidth</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns thickness of the stroke</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getStyle'>getStyle</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Style'>Style</a>: stroke, fill, or both</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextAlign'>getTextAlign</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='#SkPaint_Align'>Align</a>: left, center, or right</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextBlobIntercepts'>getTextBlobIntercepts</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns where lines intersect <a href='SkTextBlob_Reference#Text_Blob'>Text Blob</a>; underlines</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextEncoding'>getTextEncoding</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns character or glyph encoded size</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextIntercepts'>getTextIntercepts</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns where lines intersect text; underlines</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextPath'>getTextPath</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='SkPath_Reference#Path'>Path</a> equivalent to text</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextScaleX'>getTextScaleX</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns the text horizontal scale; condensed text</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextSize'>getTextSize</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns text size in points</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextSkewX'>getTextSkewX</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns the text horizontal skew; oblique text</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTextWidths'>getTextWidths</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns advance and bounds for each glyph in text</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_getTypeface'>getTypeface</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns <a href='undocumented#Typeface'>Typeface</a>, font description</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_glyphsToUnichars'>glyphsToUnichars</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>converts <a href='undocumented#Glyph'>Glyphs</a> into text</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isAntiAlias'>isAntiAlias</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Anti_Alias'>Anti Alias</a> is set</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isAutohinted'>isAutohinted</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='undocumented#Glyph'>Glyphs</a> are always hinted</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isDither'>isDither</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Dither'>Dither</a> is set</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isEmbeddedBitmapText'>isEmbeddedBitmapText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Font_Embedded_Bitmaps'>Font Embedded Bitmaps</a> is set</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isFakeBoldText'>isFakeBoldText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Fake_Bold'>Fake Bold</a> is set</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isLCDRenderText'>isLCDRenderText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#LCD_Text'>LCD Text</a> is set</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isLinearText'>isLinearText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if text is converted to <a href='SkPath_Reference#Path'>Path</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isSrcOver'>isSrcOver</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a> is <a href='SkBlendMode_Reference#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isSubpixelText'>isSubpixelText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Subpixel_Text'>Subpixel Text</a> is set</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_isVerticalText'>isVerticalText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Vertical_Text'>Vertical Text</a> is set</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_measureText'>measureText</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns advance width and bounds of text</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_nothingToDraw'>nothingToDraw</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns true if <a href='#Paint'>Paint</a> prevents all drawing</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refColorFilter'>refColorFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Color_Filter'>Color Filter</a>, how colors are altered</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refDrawLooper'>refDrawLooper</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Draw_Looper'>Draw Looper</a>, multiple layers</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refImageFilter'>refImageFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Image_Filter'>Image Filter</a>, alter pixels; blur</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refMaskFilter'>refMaskFilter</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Mask_Filter'>Mask Filter</a>, alterations to <a href='undocumented#Mask_Alpha'>Mask Alpha</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refPathEffect'>refPathEffect</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Path_Effect'>Path Effect</a>, modifications to path geometry; dashing</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refShader'>refShader</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Shader'>Shader</a>, multiple drawing colors; gradients</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_refTypeface'>refTypeface</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>references <a href='undocumented#Typeface'>Typeface</a>, font description</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_reset'>reset</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets to default values</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setARGB'>setARGB</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets color by component</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setAlpha'>setAlpha</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkColor_Reference#Alpha'>Color Alpha</a>, color opacity</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setAntiAlias'>setAntiAlias</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets or clears <a href='#Anti_Alias'>Anti Alias</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setAutohinted'>setAutohinted</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='undocumented#Glyph'>Glyphs</a> to always be hinted</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setBlendMode'>setBlendMode</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkBlendMode_Reference#Blend_Mode'>Blend Mode</a>, how colors combine with destination</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setColor'>setColor</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPaint_setColor4f'>setColor4f</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='SkColor_Reference#Alpha'>Color Alpha</a> and RGB, one drawing color</td>
   </tr>
   <tr>
@@ -2587,7 +2595,33 @@ Yellow is 100% red, 100% green, and 0% blue.
 
 ### See Also
 
-<a href='SkColor_Reference#SkColor'>SkColor</a>
+<a href='#SkPaint_getColor4f'>getColor4f</a> <a href='SkColor_Reference#SkColor'>SkColor</a>
+
+---
+
+<a name='SkPaint_getColor4f'></a>
+## getColor4f
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+<a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a> <a href='#SkPaint_getColor4f'>getColor4f</a>() const
+</pre>
+
+Retrieves alpha and RGB, unpmreultiplied, as four floating point values. RGB are
+are extended sRGB values (sRGB gamut, and encoded with the sRGB transfer function).
+
+### Return Value
+
+<a href='undocumented#Unpremultiply'>Unpremultiplied</a> RGBA
+
+#### Example Output
+
+~~~~
+Yellow is 100% red, 100% green, and 0% blue.
+~~~~
+
+### See Also
+
+<a href='#SkPaint_getColor'>getColor</a> <a href='SkColor_Reference#SkColor'>SkColor</a>
 
 ---
 
@@ -2622,7 +2656,41 @@ green1 == green2
 
 ### See Also
 
-<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_setARGB'>setARGB</a> <a href='SkColor_Reference#SkColorSetARGB'>SkColorSetARGB</a>
+<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_setColor4f'>setColor4f</a> <a href='#SkPaint_setARGB'>setARGB</a> <a href='SkColor_Reference#SkColorSetARGB'>SkColorSetARGB</a>
+
+---
+
+<a name='SkPaint_setColor4f'></a>
+## setColor4f
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkPaint_setColor4f'>setColor4f</a>(const <a href='SkColor4f_Reference#SkColor4f'>SkColor4f</a>& color, <a href='undocumented#SkColorSpace'>SkColorSpace</a>* colorSpace)
+</pre>
+
+Sets alpha and RGB used when stroking and filling. The <a href='#SkPaint_setColor4f_color'>color</a> is four floating
+point values, unpremultiplied. The <a href='#SkPaint_setColor4f_color'>color</a> values are interpreted as being in
+the <a href='#SkPaint_setColor4f_colorSpace'>colorSpace</a>. If <a href='#SkPaint_setColor4f_colorSpace'>colorSpace</a> is nullptr, then <a href='#SkPaint_setColor4f_color'>color</a> is assumed to be in the
+sRGB <a href='#SkPaint_setColor4f_color'>color</a> space.
+
+### Parameters
+
+<table>  <tr>    <td><a name='SkPaint_setColor4f_color'><code><strong>color</strong></code></a></td>
+    <td><a href='undocumented#Unpremultiply'>Unpremultiplied</a> RGBA</td>
+  </tr>
+  <tr>    <td><a name='SkPaint_setColor4f_colorSpace'><code><strong>colorSpace</strong></code></a></td>
+    <td><a href='undocumented#Color_Space'>Color Space</a> describing the encoding of <a href='#SkPaint_setColor4f_color'>color</a></td>
+  </tr>
+</table>
+
+#### Example Output
+
+~~~~
+green1 == green2
+~~~~
+
+### See Also
+
+<a href='SkColor_Reference#SkColor'>SkColor</a> <a href='#SkPaint_setColor'>setColor</a> <a href='#SkPaint_setARGB'>setARGB</a> <a href='SkColor_Reference#SkColorSetARGB'>SkColorSetARGB</a>
 
 ---
 
