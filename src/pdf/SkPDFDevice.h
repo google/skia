@@ -99,6 +99,7 @@ public:
                       const SkPaint&) override;
     void drawDevice(SkBaseDevice*, int x, int y,
                     const SkPaint&) override;
+    void setNodeId(int nodeId) override;
 
     // PDF specific methods.
 
@@ -188,6 +189,7 @@ private:
     std::vector<sk_sp<SkPDFObject>> fXObjectResources;
     std::vector<sk_sp<SkPDFObject>> fShaderResources;
     std::vector<sk_sp<SkPDFFont>> fFontResources;
+    int fNodeId;
 
     struct ContentEntry {
         GraphicStateEntry fState;
