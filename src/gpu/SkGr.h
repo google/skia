@@ -58,16 +58,11 @@ static inline GrColor SkColorToUnpremulGrColor(SkColor c) {
     return GrColorPackRGBA(r, g, b, a);
 }
 
-/** Transform an SkColor (sRGB bytes) to GrColor4f for the specified color space info. */
+/** Transform an SkColor (sRGB bytes) or SkColor4f (sRGB floats) to GrColor4f
+    for the specified color space info. */
 GrColor4f SkColorToPremulGrColor4f(SkColor, const GrColorSpaceInfo&);
-GrColor4f SkColorToPremulGrColor4fLegacy(SkColor);
-GrColor4f SkColorToUnpremulGrColor4f(SkColor, const GrColorSpaceInfo&);
-
-/** Replicates the SkColor's alpha to all four channels of the GrColor. */
-static inline GrColor SkColorAlphaToGrColor(SkColor c) {
-    U8CPU a = SkColorGetA(c);
-    return GrColorPackRGBA(a, a, a, a);
-}
+GrColor4f SkColor4fToPremulGrColor4fLegacy(SkColor4f);
+GrColor4f SkColor4fToUnpremulGrColor4f(SkColor4f, const GrColorSpaceInfo&);
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -290,7 +290,7 @@ void SkGlyphRunListPainter::drawGlyphRunAsSDFWithFallback(
 
 // -- GrTextContext --------------------------------------------------------------------------------
 GrColor generate_filtered_color(const SkPaint& paint, const GrColorSpaceInfo& colorSpaceInfo) {
-    GrColor4f filteredColor = SkColorToUnpremulGrColor4f(paint.getColor(), colorSpaceInfo);
+    GrColor4f filteredColor = SkColor4fToUnpremulGrColor4f(paint.getColor4f(), colorSpaceInfo);
     if (paint.getColorFilter() != nullptr) {
         filteredColor = GrColor4f::FromSkColor4f(
                 paint.getColorFilter()->filterColor4f(filteredColor.toSkColor4f(),
