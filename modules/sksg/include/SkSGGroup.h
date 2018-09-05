@@ -37,7 +37,7 @@ protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    SkTArray<sk_sp<RenderNode>, true> fChildren;
+    SkTArray<sk_sp<RenderNode>> fChildren;
 
     typedef RenderNode INHERITED;
 };

@@ -249,7 +249,7 @@ private:
     using INHERITED = sksg::Animator;
 };
 
-SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>, true>&& slides, int columns)
+SlideDir::SlideDir(const SkString& name, SkTArray<sk_sp<Slide>>&& slides, int columns)
     : fSlides(std::move(slides))
     , fColumns(columns) {
     fName = name;

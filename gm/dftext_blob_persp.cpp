@@ -130,7 +130,7 @@ private:
         canvas->restore();
     }
 
-    SkTArray<sk_sp<SkTextBlob>, true> fBlobs;
+    SkTArray<sk_sp<SkTextBlob>> fBlobs;
     typedef skiagm::GM INHERITED;
 };
 
