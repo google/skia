@@ -454,7 +454,7 @@ sk_sp<SkTextBlob> make_blob_causing_fallback(
     SkRect glyphBounds;
     paint.measureText(runBuffer.glyphs, 2, &glyphBounds);
 
-    REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkSideTooBigForAtlas);
+    REPORTER_ASSERT(reporter, glyphBounds.width() > SkGlyphCacheCommon::kSkGlyphSideTooBigForAtlas);
 
     for (int i = 0; i < runSize; i++) {
         runBuffer.pos[i] = i * 10;

@@ -34,7 +34,9 @@ public:
     }
 
     void modifyGrContextOptions(GrContextOptions* options) override {
-        options->fGlyphCacheTextureMaximumBytes = 0;
+        // Make the cache small to force multiple layers. This constant is derived from the
+        // original code in ComputeAtlasLimits which had a minimum cache size of 512 x 256.
+        options->fGlyphCacheTextureMaximumBytes = 512 * 256 * 4;
         options->fAllowMultipleGlyphCacheTextures = fAllowMultipleTextures;
     }
 
