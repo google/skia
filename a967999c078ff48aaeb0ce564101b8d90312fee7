@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68abb535_a1a11da9",
+        "filename": "src/gpu/GrDrawingManager.h",
+        "patchSetId": 14
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-05T15:09:37Z",
+      "side": 1,
+      "message": "Couldn\u0027t this just be:\n\nclass OpListDag;\n\nwith the class definition in the cpp?",
+      "revId": "a967999c078ff48aaeb0ce564101b8d90312fee7",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
