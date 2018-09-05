@@ -123,6 +123,9 @@ static void draw_zero_length_capped_paths(SkCanvas* canvas, bool aa) {
 
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
     auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRasterN32Premul(kCellWidth, kCellHeight);
+    }
 
     SkPaint paint;
     paint.setColor(SK_ColorWHITE);
@@ -180,6 +183,9 @@ static void draw_zero_length_capped_paths_dbl_contour(SkCanvas* canvas, bool aa)
 
     SkImageInfo info = canvas->imageInfo().makeWH(kCellWidth, kCellHeight);
     auto surface = canvas->makeSurface(info);
+    if (!surface) {
+        surface = SkSurface::MakeRasterN32Premul(kCellWidth, kCellHeight);
+    }
 
     SkPaint paint;
     paint.setColor(SK_ColorWHITE);

@@ -13,7 +13,7 @@
 
 static sk_sp<SkImage> make_image(SkCanvas* rootCanvas, SkColor color) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(100, 100);
-    auto surface(rootCanvas->makeSurface(info));
+    auto surface(sk_tool_utils::makeSurface(rootCanvas, info));
 
     SkPaint paint;
     paint.setAntiAlias(true);

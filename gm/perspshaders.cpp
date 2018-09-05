@@ -15,7 +15,7 @@
 
 static sk_sp<SkImage> make_image(SkCanvas* origCanvas, int w, int h) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    auto surface(origCanvas->makeSurface(info));
+    auto surface(sk_tool_utils::makeSurface(origCanvas, info));
     SkCanvas* canvas = surface->getCanvas();
 
     sk_tool_utils::draw_checkerboard(canvas, SK_ColorRED, SK_ColorGREEN, w/10);

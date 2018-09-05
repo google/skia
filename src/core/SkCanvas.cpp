@@ -1158,14 +1158,7 @@ sk_sp<SkSurface> SkCanvas::makeSurface(const SkImageInfo& info, const SkSurfaceP
 
 sk_sp<SkSurface> SkCanvas::onNewSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
     SkBaseDevice* dev = this->getDevice();
-    sk_sp<SkSurface> result = nullptr;
-    if (dev) {
-        result = dev->makeSurface(info, props);
-    }
-    if (!result) {
-        result = SkSurface::MakeRaster(info, 0, &props);
-    }
-    return result;
+    return dev ? dev->makeSurface(info, props) : nullptr;
 }
 
 SkImageInfo SkCanvas::imageInfo() const {

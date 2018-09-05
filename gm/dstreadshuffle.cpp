@@ -154,6 +154,20 @@ protected:
                                      canvas->imageInfo().refColorSpace());
         }
         auto surf = canvas->makeSurface(info);
+        if (!surf) {
+            // Fall back to raster. Raster supports only one of the 8 bit per-channel RGBA or BGRA
+            // formats. This fall back happens when running with --preAbandonGpuContext.
+            if ((info.colorType() == kRGBA_8888_SkColorType ||
+                 info.colorType() == kBGRA_8888_SkColorType) &&
+                info.colorType() != kN32_SkColorType) {
+                info = SkImageInfo::Make(35, 35,
+                                         kN32_SkColorType,
+                                         canvas->imageInfo().alphaType(),
+                                         canvas->imageInfo().refColorSpace());
+            }
+            surf = SkSurface::MakeRaster(info);
+            SkASSERT(surf);
+        }
         canvas->scale(5.f, 5.f);
         canvas->translate(67.f, 10.f);
         DrawHairlines(surf->getCanvas());
