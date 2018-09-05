@@ -46,6 +46,10 @@ public:
         SkCanvas::setMatrix(fTarget->getTotalMatrix());
     }
 
+    void setNodeId(int node_id) override {
+        fTarget->setNodeId(node_id);
+    }
+
     SkImageInfo onImageInfo() const override {
         return fTarget->imageInfo().makeColorSpace(fTargetCS);
     }
