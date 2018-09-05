@@ -451,7 +451,7 @@ skia_core_sources = [
   "$_src/opts/SkBlitMask_opts.h",
   "$_src/opts/SkBlitRow_opts.h",
   "$_src/opts/SkChecksum_opts.h",
-  "$_src/opts/SkMorpologyImageFilter_opts.h",
+  "$_src/opts/SkMorphologyImageFilter_opts.h",
   "$_src/opts/SkNx_neon.h",
   "$_src/opts/SkNx_sse.h",
   "$_src/opts/SkRasterPipeline_opts.h",
