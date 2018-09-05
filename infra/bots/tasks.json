@@ -85,9 +85,9 @@
         "Build-Debian9-Clang-arm64-Release-Android_Vulkan"
       ]
     },
-    "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework": {
+    "Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework": {
       "tasks": [
-        "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework"
+        "Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework"
       ],
       "trigger": "on demand"
     },
@@ -5081,7 +5081,7 @@
       ],
       "service_account": "skia-external-compile-tasks@skia-swarming-bots.iam.gserviceaccount.com"
     },
-    "Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework": {
+    "Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework": {
       "caches": [
         {
           "name": "vpython",
@@ -5143,7 +5143,7 @@
         "-recipe",
         "android_compile",
         "-properties",
-        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-gce_x86_phone-eng-Android_Framework\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
+        "{\"$kitchen\":{\"devshell\":true,\"git_auth\":true},\"buildbucket_build_id\":\"<(BUILDBUCKET_BUILD_ID)\",\"buildername\":\"Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework\",\"patch_issue\":\"<(ISSUE)\",\"patch_ref\":\"<(PATCH_REF)\",\"patch_repo\":\"<(PATCH_REPO)\",\"patch_set\":\"<(PATCHSET)\",\"patch_storage\":\"<(PATCH_STORAGE)\",\"repository\":\"<(REPO)\",\"revision\":\"<(REVISION)\",\"swarm_out_dir\":\"output_ignored\"}",
         "-logdog-annotation-url",
         "logdog://logs.chromium.org/skia/<(TASK_ID)/+/annotations"
       ],
