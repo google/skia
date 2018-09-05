@@ -16,6 +16,24 @@
       "revId": "b6ce1901efbfa87f18659f17b7705ae1da453b03",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a3ca1b0_39131c0c",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 1161,
+      "author": {
+        "id": 6190
+      },
+      "writtenOn": "2018-09-05T17:07:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "529b0bd0_2c40a919",
+      "revId": "b6ce1901efbfa87f18659f17b7705ae1da453b03",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
