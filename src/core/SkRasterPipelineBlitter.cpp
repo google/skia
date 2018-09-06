@@ -50,8 +50,9 @@ public:
     void blitV     (int x, int y, int height, SkAlpha alpha)        override;
 
 private:
-    void append_load_dst(SkRasterPipeline*) const;
-    void append_store   (SkRasterPipeline*) const;
+    void append_color_pipeline(SkRasterPipeline*) const;
+    void append_load_dst      (SkRasterPipeline*) const;
+    void append_store         (SkRasterPipeline*) const;
 
     // If we have an burst context, use it to fill our shader buffer.
     void burst_shade(int x, int y, int w);
@@ -239,6 +240,21 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
     return blitter;
 }
 
+void SkRasterPipelineBlitter::append_color_pipeline(SkRasterPipeline* p) const {
+    p->extend(fColorPipeline);
+
+    // TODO: can we refine this condition further to avoid clamps when we're known in-gamut?
+    // When opaque we could _probably_ get away without a clamp, but for consistency we keep it.
+    if (fDst.info().colorType() != kRGBA_F16_SkColorType &&
+        fDst.info().colorType() != kRGBA_F32_SkColorType &&
+        fDst.info().alphaType() == kPremul_SkAlphaType)
+    {
+        // TODO: this will be common enough that we may want to fuse into ::clamp_premul.
+        p->append(SkRasterPipeline::clamp_0);
+        p->append(SkRasterPipeline::clamp_a);
+    }
+}
+
 void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
     const void* ctx = &fDstPtr;
     switch (fDst.info().colorType()) {
@@ -324,7 +340,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
 
     if (!fBlitRect) {
         SkRasterPipeline p(fAlloc);
-        p.extend(fColorPipeline);
+        this->append_color_pipeline(&p);
         if (fBlend == SkBlendMode::kSrcOver
                 && (fDst.info().colorType() == kRGBA_8888_SkColorType ||
                     fDst.info().colorType() == kBGRA_8888_SkColorType)
@@ -360,7 +376,7 @@ void SkRasterPipelineBlitter::blitRect(int x, int y, int w, int h) {
 void SkRasterPipelineBlitter::blitAntiH(int x, int y, const SkAlpha aa[], const int16_t runs[]) {
     if (!fBlitAntiH) {
         SkRasterPipeline p(fAlloc);
-        p.extend(fColorPipeline);
+        this->append_color_pipeline(&p);
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
             p.append(SkRasterPipeline::scale_1_float, &fCurrentCoverage);
             this->append_load_dst(&p);
@@ -444,7 +460,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     // Lazily build whichever pipeline we need, specialized for each mask format.
     if (effectiveMaskFormat == SkMask::kA8_Format && !fBlitMaskA8) {
         SkRasterPipeline p(fAlloc);
-        p.extend(fColorPipeline);
+        this->append_color_pipeline(&p);
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/false)) {
             p.append(SkRasterPipeline::scale_u8, &fMaskPtr);
             this->append_load_dst(&p);
@@ -459,7 +475,7 @@ void SkRasterPipelineBlitter::blitMask(const SkMask& mask, const SkIRect& clip) 
     }
     if (effectiveMaskFormat == SkMask::kLCD16_Format && !fBlitMaskLCD16) {
         SkRasterPipeline p(fAlloc);
-        p.extend(fColorPipeline);
+        this->append_color_pipeline(&p);
         if (SkBlendMode_ShouldPreScaleCoverage(fBlend, /*rgb_coverage=*/true)) {
             // Somewhat unusually, scale_565 needs dst loaded first.
             this->append_load_dst(&p);
