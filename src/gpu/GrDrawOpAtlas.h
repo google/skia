@@ -19,7 +19,7 @@ class GrRectanizer;
 
 struct GrDrawOpAtlasConfig {
     int numPlotsX() const { return fWidth / fPlotWidth; }
-    int numPlotsY() const { return fHeight / fPlotWidth; }
+    int numPlotsY() const { return fHeight / fPlotHeight; }
     int fWidth;
     int fHeight;
     int fPlotWidth;
