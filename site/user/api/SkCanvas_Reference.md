@@ -795,9 +795,7 @@ canvas is empty
 explicit <a href='#SkCanvas'>SkCanvas</a>(<a href='undocumented#sk_sp'>sk sp</a>&lt;<a href='undocumented#SkBaseDevice'>SkBaseDevice</a>&gt; device)
 </pre>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 ---
 
@@ -2277,17 +2275,17 @@ Initializes <a href='#Layer'>Layer</a> with the contents of the previous <a href
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag'><code>SkCanvas::kMaskAgainstCoverage_EXPERIMENTAL_DONT_USE_SaveLayerFlag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>8</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Experimental.
+Experimental. Do not use.
 
-do not use</td>
+</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_kDontClipToLayer_Legacy_SaveLayerFlag'><code>SkCanvas::kDontClipToLayer_Legacy_SaveLayerFlag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x80000000</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
+To be deprecated soon.
 
-soon</td>
+</td>
   </tr>
 </table>
 
@@ -2567,9 +2565,9 @@ rec1 == rec2
              const <a href='SkImage_Reference#SkImage'>SkImage</a>* clipMask, const <a href='SkMatrix_Reference#SkMatrix'>SkMatrix</a>* clipMatrix, <a href='#SkCanvas_SaveLayerFlags'>SaveLayerFlags</a> saveLayerFlags)
 </pre>
 
-Experimental.
+Experimental. Not ready for general use.
 
-not readySets <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>, <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>, <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>, <a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a>, <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a>, and <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>.
+Sets <a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a>, <a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a>, <a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a>, <a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a>, <a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a>, and <a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a>.
 <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMatrix'>clipMatrix</a> uses <a href='SkColor_Reference#Alpha'>Color Alpha</a> channel of image, transformed by <a href='#SkCanvas_SaveLayerRec_const_SkRect_star_const_SkPaint_star_const_SkImageFilter_star_const_SkImage_star_const_SkMatrix_star_clipMatrix'>clipMatrix</a>, to clip
 <a href='#Layer'>Layer</a> when drawn to <a href='#Canvas'>Canvas</a>.
 
@@ -3329,9 +3327,9 @@ is set to <a href='SkPath_Reference#SkPath_kWinding_FillType'>SkPath::kWinding F
 void <a href='#SkCanvas_setAllowSimplifyClip'>setAllowSimplifyClip</a>(bool allow)
 </pre>
 
-Experimental.
+Experimental. For testing only.
 
-testingSet to simplify clip stack using <a href='undocumented#PathOps'>PathOps</a>.
+Set to simplify clip stack using <a href='undocumented#PathOps'>PathOps</a>.
 
 ---
 
