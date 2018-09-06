@@ -260,13 +260,6 @@ public:
 
     bool newline() { return this->write("\n", strlen("\n")); }
 
-    bool writeDecAsText(int32_t);
-    bool writeBigDecAsText(int64_t, int minDigits = 0);
-    bool writeHexAsText(uint32_t, int minDigits = 0);
-    bool writeScalarAsText(SkScalar);
-
-    bool writeBool(bool v) { return this->write8(v); }
-    bool writeScalar(SkScalar);
     bool writePackedUInt(size_t);
 
     bool writeStream(SkStream* input, size_t length);
