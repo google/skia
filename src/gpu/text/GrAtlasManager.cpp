@@ -52,7 +52,7 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* gly
     fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
     fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
     fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
-    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = minPlot;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = maxPlot;
 
     // A565 and ARGB use maxDim x minDim.
     fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
