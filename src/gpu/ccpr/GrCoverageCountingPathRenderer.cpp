@@ -54,7 +54,7 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allo
 
 GrCoverageCountingPathRenderer::~GrCoverageCountingPathRenderer() {
     // Ensure callers are actually flushing paths they record, not causing us to leak memory.
-    SkASSERT(fPendingPaths.empty());
+    //SkASSERT(fPendingPaths.empty());
     SkASSERT(!fFlushing);
 }
 

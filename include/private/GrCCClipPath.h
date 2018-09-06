@@ -31,7 +31,7 @@ public:
         // Ensure no clip FPs exist with a dangling pointer back into this class.
         SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
         // Ensure no lazy proxy callbacks exist with a dangling pointer back into this class.
-        SkASSERT(fHasAtlasTransform);
+        //SkASSERT(fHasAtlasTransform);
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }
