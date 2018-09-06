@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3f556c0d_1b7cc98f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1289,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-06T20:40:32Z",
+      "side": 1,
+      "message": "Any particular reason not to just assert that it is?",
+      "range": {
+        "startLine": 1289,
+        "startChar": 0,
+        "endLine": 1289,
+        "endChar": 50
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "caa889e3_37960b2f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-06T20:40:32Z",
+      "side": 1,
+      "message": "Checking for Expression::kBoolLiteral_Kind is sufficient - that\u0027s constant by definition.",
+      "range": {
+        "startLine": 1314,
+        "startChar": 8,
+        "endLine": 1314,
+        "endChar": 25
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "092a4d53_a284ea5c",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-06T20:40:32Z",
+      "side": 1,
+      "message": "Same",
+      "range": {
+        "startLine": 1316,
+        "startChar": 15,
+        "endLine": 1316,
+        "endChar": 33
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
