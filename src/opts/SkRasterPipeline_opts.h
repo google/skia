@@ -1446,26 +1446,15 @@ STAGE(byte_tables, const void* ctx) {  // TODO: rename Tables SkJumper_ByteTable
     a = from_byte(gather(tables->a, to_unorm(a, 255)));
 }
 
-#if defined(SK_LEGACY_EXTENDED_TRANSFER_FUNCTIONS)
-    SI F strip_sign(F x, U32* sign) {
-        (void)sign;
-        return x;
-    }
-    SI F apply_sign(F x, U32 sign) {
-        (void)sign;
-        return x;
-    }
-#else
-    SI F strip_sign(F x, U32* sign) {
-        U32 bits = bit_cast<U32>(x);
-        *sign = bits & 0x80000000;
-        return bit_cast<F>(bits ^ *sign);
-    }
+SI F strip_sign(F x, U32* sign) {
+    U32 bits = bit_cast<U32>(x);
+    *sign = bits & 0x80000000;
+    return bit_cast<F>(bits ^ *sign);
+}
 
-    SI F apply_sign(F x, U32 sign) {
-        return bit_cast<F>(sign | bit_cast<U32>(x));
-    }
-#endif
+SI F apply_sign(F x, U32 sign) {
+    return bit_cast<F>(sign | bit_cast<U32>(x));
+}
 
 STAGE(parametric, const SkJumper_ParametricTransferFunction* ctx) {
     auto fn = [&](F v) {
@@ -1474,12 +1463,7 @@ STAGE(parametric, const SkJumper_ParametricTransferFunction* ctx) {
 
         F r = if_then_else(v <= ctx->D, mad(ctx->C, v, ctx->F)
                                       , approx_powf(mad(ctx->A, v, ctx->B), ctx->G) + ctx->E);
-#if defined(SK_LEGACY_PARAMETRIC_CLAMP)
-        // Clamp to [0,1], with argument order mattering to handle NaN.
-        return apply_sign(min(max(r, 0), 1.0f), sign);
-#else
         return apply_sign(r, sign);
-#endif
     };
     r = fn(r);
     g = fn(g);
