@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f5ed62d_c11309c7",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-09-06T15:57:55Z",
+      "side": 1,
+      "message": "Putting on my doc hat, I prefer that we do not add to public interfaces\nfunctionality that we only call internally.",
+      "revId": "19ea0d72aa7b65b97e7db5f64232786425e99211",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
