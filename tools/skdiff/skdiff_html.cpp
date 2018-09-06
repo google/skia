@@ -8,6 +8,7 @@
 #include "skdiff.h"
 #include "skdiff_html.h"
 #include "SkStream.h"
+#include "SkStreamPriv.h"
 #include "SkTime.h"
 
 /// Make layout more consistent by scaling image to 240 height, 360 width,
@@ -39,28 +40,28 @@ static void print_table_header(SkFILEWStream* stream,
         SkTime::DateTime dt;
         SkTime::GetDateTime(&dt);
         stream->writeText("SkDiff run at ");
-        stream->writeDecAsText(dt.fHour);
+        SkWStreamWriteDecAsText(stream, dt.fHour);
         stream->writeText(":");
         if (dt.fMinute < 10) {
             stream->writeText("0");
         }
-        stream->writeDecAsText(dt.fMinute);
+        SkWStreamWriteDecAsText(stream, dt.fMinute);
         stream->writeText(":");
         if (dt.fSecond < 10) {
             stream->writeText("0");
         }
-        stream->writeDecAsText(dt.fSecond);
+        SkWStreamWriteDecAsText(stream, dt.fSecond);
         stream->writeText("<br>");
     }
-    stream->writeDecAsText(matchCount);
+    SkWStreamWriteDecAsText(stream, matchCount);
     stream->writeText(" of ");
-    stream->writeDecAsText(differences.count());
+    SkWStreamWriteDecAsText(stream, differences.count());
     stream->writeText(" diffs matched ");
     if (colorThreshold == 0) {
         stream->writeText("exactly");
     } else {
         stream->writeText("within ");
-        stream->writeDecAsText(colorThreshold);
+        SkWStreamWriteDecAsText(stream, colorThreshold);
         stream->writeText(" color units per component");
     }
     stream->writeText(".<br>");
@@ -78,12 +79,12 @@ static void print_table_header(SkFILEWStream* stream,
 
 static void print_pixel_count(SkFILEWStream* stream, const DiffRecord& diff) {
     stream->writeText("<br>(");
-    stream->writeDecAsText(static_cast<int>(diff.fFractionDifference *
+    SkWStreamWriteDecAsText(stream, static_cast<int>(diff.fFractionDifference *
                                             diff.fBase.fBitmap.width() *
                                             diff.fBase.fBitmap.height()));
     stream->writeText(" pixels)");
 /*
-    stream->writeDecAsText(diff.fWeightedFraction *
+    SkWStreamWriteDecAsText(stream, diff.fWeightedFraction *
                            diff.fBaseWidth *
                            diff.fBaseHeight);
     stream->writeText(" weighted pixels)");
@@ -127,22 +128,22 @@ static void print_label_cell(SkFILEWStream* stream, const DiffRecord& diff) {
         stream->writeText("<br>");
         if (SkScalarRoundToInt(diff.fAverageMismatchA) > 0) {
           stream->writeText("<br>Average alpha channel mismatch ");
-          stream->writeDecAsText(SkScalarRoundToInt(diff.fAverageMismatchA));
+          SkWStreamWriteDecAsText(stream, SkScalarRoundToInt(diff.fAverageMismatchA));
         }
 
         stream->writeText("<br>Max alpha channel mismatch ");
-        stream->writeDecAsText(SkScalarRoundToInt(diff.fMaxMismatchA));
+        SkWStreamWriteDecAsText(stream, SkScalarRoundToInt(diff.fMaxMismatchA));
 
         stream->writeText("<br>Total alpha channel mismatch ");
-        stream->writeDecAsText(static_cast<int>(diff.fTotalMismatchA));
+        SkWStreamWriteDecAsText(stream, static_cast<int>(diff.fTotalMismatchA));
 
         stream->writeText("<br>");
         stream->writeText("<br>Average color mismatch ");
-        stream->writeDecAsText(SkScalarRoundToInt(MAX3(diff.fAverageMismatchR,
+        SkWStreamWriteDecAsText(stream, SkScalarRoundToInt(MAX3(diff.fAverageMismatchR,
                                                        diff.fAverageMismatchG,
                                                        diff.fAverageMismatchB)));
         stream->writeText("<br>Max color mismatch ");
-        stream->writeDecAsText(MAX3(diff.fMaxMismatchR,
+        SkWStreamWriteDecAsText(stream, MAX3(diff.fMaxMismatchR,
                                     diff.fMaxMismatchG,
                                     diff.fMaxMismatchB));
         stream->writeText("</td>");
@@ -166,7 +167,7 @@ static void print_image_cell(SkFILEWStream* stream, const SkString& path, int he
     stream->writeText("\"><img src=\"");
     stream->writeText(path.c_str());
     stream->writeText("\" height=\"");
-    stream->writeDecAsText(height);
+    SkWStreamWriteDecAsText(stream, height);
     stream->writeText("px\"></a></td>");
 }
 
