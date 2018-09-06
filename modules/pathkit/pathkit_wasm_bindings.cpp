@@ -14,6 +14,7 @@
 #include "SkStrokeRec.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
+#include "SkCubicMap.h"
 #include "SkRect.h"
 #include "SkPaintDefaults.h"
 #include "SkString.h"
@@ -621,6 +622,19 @@ EMSCRIPTEN_BINDINGS(skia) {
         .element(&SimpleMatrix::pers0)
         .element(&SimpleMatrix::pers1)
         .element(&SimpleMatrix::pers2);
+
+    value_array<SkPoint>("SkPoint")
+        .element(&SkPoint::fX)
+        .element(&SkPoint::fY);
+
+    // Not intended for external clients to call directly.
+    // See helper.js for the client-facing implementation.
+    class_<SkCubicMap>("_SkCubicMap")
+        .constructor<SkPoint, SkPoint>()
+
+        .function("computeYFromX", &SkCubicMap::computeYFromX)
+        .function("computePtFromT", &SkCubicMap::computeFromT);
+
 
     // Test Utils
     function("SkBits2FloatUnsigned", &SkBits2FloatUnsigned);
