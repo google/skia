@@ -18,7 +18,13 @@ Gradients can be thought of, at a very high level, as three pieces:
 
 
 GrClampedGradientEffect handles clamped and decal tile modes, while
-GrTiledGradientEffect implements repeat and mirror tile modes. The GrClampedGradientEffect requires border colors to be specified outside of its colorizer child, but these border colors may be defined by the gradient color stops. Both of these master effects delegate calculating a t interpolant to a child process, perform their respective tile mode operations, and possibly convert the tiled t value (guaranteed to be within 0 and 1) into an output color using their child colorizer process.
+GrTiledGradientEffect implements repeat and mirror tile modes. The
+GrClampedGradientEffect requires border colors to be specified outside of its
+colorizer child, but these border colors may be defined by the gradient color
+stops. Both of these master effects delegate calculating a t interpolant to a
+child process, perform their respective tile mode operations, and possibly
+convert the tiled t value (guaranteed to be within 0 and 1) into an output
+color using their child colorizer process.
 
 Because of how child processors are currently defined, where they have a single
 half4 input and a single half4 output, their is a type mismatch between the 1D
@@ -26,12 +32,17 @@ t value and the 4D inputs/outputs of the layout and colorizer processes. For
 now, the master effect assumes an untiled t is output in sk_OutColor.x by the
 layout and it tiles solely off of that value.
 
-However, layouts can output a negative value in the w component to invalidate
+However, layouts can output a negative value in the y component to invalidate
 the gradient location (currently on the two point conical gradient does this).
 When invalidated, the master effect outputs transparent black and does not
 invoke the child processor. Other than this condition, any value in y, z, or w
 are passed into the colorizer unmodified. The colorizer should assume that the
 valid tiled t value is in sk_InColor.x and can safely ignore y, z, and w.
+
+Layouts that potentially reject pixels (i.e. could output a negative y value)
+must not report kPreservesOpaqueInput_OptimizationFlag. Layouts that never
+reject a pixel should report kPreservesOpaqueInput_OptimizationFlag since the
+master effects can optimize away checking if the layout rejects a pixel.
 
 Currently there are color interpolators (colorizers) for analytic color cases
 (evaluated directly on the GPU) and sampling a generated texture map.
