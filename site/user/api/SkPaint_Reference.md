@@ -1537,9 +1537,9 @@ mask of all <a href='#SkPaint_Flags'>Flags</a>, including private flags and flag
 
 ## <a name='SkPaint_ReserveFlags'>Enum SkPaint::ReserveFlags</a>
 
-Deprecated.
+To be deprecated soon.
 
-soonOnly valid for Android framework.
+Only valid for Android framework.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkPaint_ReserveFlags'>ReserveFlags</a> {
@@ -1558,17 +1558,17 @@ soonOnly valid for Android framework.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kUnderlineText_ReserveFlag'><code>SkPaint::kUnderlineText_ReserveFlag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0008</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
+To be deprecated soon.
 
-soon</td>
+</td>
   </tr>
   <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkPaint_kStrikeThruText_ReserveFlag'><code>SkPaint::kStrikeThruText_ReserveFlag</code></a></td>
     <td style='text-align: center; border: 2px solid #dddddd; padding: 8px; '>0x0010</td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
-Deprecated.
+To be deprecated soon.
 
-soon</td>
+</td>
   </tr>
 </table>
 

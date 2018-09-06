@@ -432,9 +432,7 @@ is not unique
 bool SK_WARN_UNUSED_RESULT <a href='#SkPixmap_reset'>reset</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask)
 </pre>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 ---
 

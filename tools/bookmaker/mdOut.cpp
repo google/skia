@@ -740,6 +740,9 @@ bool MdOut::checkParamReturnBody(const Definition* def) {
 }
 
 void MdOut::childrenOut(Definition* def, const char* start) {
+    if (MarkType::kDeprecated == def->fMarkType || MarkType::kExperimental == def->fMarkType) {
+        return;
+    }
     const char* end;
     fLineCount = def->fLineCount;
     if (MarkType::kEnumClass == def->fMarkType) {
@@ -1368,7 +1371,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             this->lf(2);
             break;
         case MarkType::kDeprecated:
-            this->writeString("Deprecated.");
+            this->writeString(def->fParent->incompleteMessage(
+                    Definition::DetailsType::kSentence).c_str());
             this->lf(2);
             break;
         case MarkType::kDescription:
@@ -1424,7 +1428,8 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             }
             } break;
         case MarkType::kExperimental:
-            writeString("Experimental.");
+            this->writeString(def->fParent->incompleteMessage(
+                    Definition::DetailsType::kSentence).c_str());
             this->lf(2);
             break;
         case MarkType::kExternal:
