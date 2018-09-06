@@ -38,7 +38,6 @@
 #include "SkScalerContext.h"
 #include "SkSize.h"
 #include "SkStream.h"
-#include "SkStreamPriv.h"
 #include "SkSurface.h"
 #include "SkTDArray.h"
 #include "SkTemplates.h"
@@ -307,16 +306,16 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  <GlyphOrder>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
         out->writeText("    <GlyphID name=\"glyf");
-        SkWStreamWriteHexAsText(out, i, 4);
+        out->writeHexAsText(i, 4);
         out->writeText("\"/>\n");
     }
     if (glyfInfo) {
         for (int i = 0; i < fGlyphCount; ++i) {
             for (int j = 0; j < (*glyfInfo)[i].fLayers.count(); ++j) {
                 out->writeText("    <GlyphID name=\"glyf");
-                    SkWStreamWriteHexAsText(out, i, 4);
+                    out->writeHexAsText(i, 4);
                     out->writeText("l");
-                    SkWStreamWriteHexAsText(out, j, 4);
+                    out->writeHexAsText(j, 4);
                     out->writeText("\"/>\n");
                 ++totalGlyphs;
             }
@@ -331,22 +330,22 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("    <magicNumber value=\"0x5f0f3cf5\"/>\n");
     out->writeText("    <flags value=\"00000000 00011011\"/>\n");
     out->writeText("    <unitsPerEm value=\"");
-        SkWStreamWriteDecAsText(out, fUpem);
+        out->writeDecAsText(fUpem);
         out->writeText("\"/>\n");
     out->writeText("    <created value=\"Thu Feb 15 12:55:49 2018\"/>\n");
     out->writeText("    <modified value=\"Thu Feb 15 12:55:49 2018\"/>\n");
     // TODO: not recalculated for bitmap fonts?
     out->writeText("    <xMin value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fXMin);
+        out->writeScalarAsText(fFontMetrics.fXMin);
         out->writeText("\"/>\n");
     out->writeText("    <yMin value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fBottom);
+        out->writeScalarAsText(-fFontMetrics.fBottom);
         out->writeText("\"/>\n");
     out->writeText("    <xMax value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fXMax);
+        out->writeScalarAsText(fFontMetrics.fXMax);
         out->writeText("\"/>\n");
     out->writeText("    <yMax value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fTop);
+        out->writeScalarAsText(-fFontMetrics.fTop);
         out->writeText("\"/>\n");
 
     char macStyle[16] = {'0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0'};
@@ -384,19 +383,19 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  <hhea>\n");
     out->writeText("    <tableVersion value=\"0x00010000\"/>\n");
     out->writeText("    <ascent value=\"");
-        SkWStreamWriteDecAsText(out, -fFontMetrics.fAscent);
+        out->writeDecAsText(-fFontMetrics.fAscent);
         out->writeText("\"/>\n");
     out->writeText("    <descent value=\"");
-        SkWStreamWriteDecAsText(out, -fFontMetrics.fDescent);
+        out->writeDecAsText(-fFontMetrics.fDescent);
         out->writeText("\"/>\n");
     out->writeText("    <lineGap value=\"");
-        SkWStreamWriteDecAsText(out, fFontMetrics.fLeading);
+        out->writeDecAsText(fFontMetrics.fLeading);
         out->writeText("\"/>\n");
     out->writeText("    <advanceWidthMax value=\"0\"/>\n");
     out->writeText("    <minLeftSideBearing value=\"0\"/>\n");
     out->writeText("    <minRightSideBearing value=\"0\"/>\n");
     out->writeText("    <xMaxExtent value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fXMax - fFontMetrics.fXMin);
+        out->writeScalarAsText(fFontMetrics.fXMax - fFontMetrics.fXMin);
         out->writeText("\"/>\n");
     out->writeText("    <caretSlopeRise value=\"1\"/>\n");
     out->writeText("    <caretSlopeRun value=\"0\"/>\n");
@@ -413,7 +412,7 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  <maxp>\n");
     out->writeText("    <tableVersion value=\"0x10000\"/>\n");
     out->writeText("    <numGlyphs value=\"");
-        SkWStreamWriteDecAsText(out, totalGlyphs);
+        out->writeDecAsText(totalGlyphs);
         out->writeText("\"/>\n");
     out->writeText("    <maxPoints value=\"4\"/>\n");
     out->writeText("    <maxContours value=\"1\"/>\n");
@@ -433,13 +432,13 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  <OS_2>\n");
     out->writeText("    <version value=\"4\"/>\n");
     out->writeText("    <xAvgCharWidth value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fAvgCharWidth);
+        out->writeScalarAsText(fFontMetrics.fAvgCharWidth);
         out->writeText("\"/>\n");
     out->writeText("    <usWeightClass value=\"");
-        SkWStreamWriteDecAsText(out, this->fontStyle().weight());
+        out->writeDecAsText(this->fontStyle().weight());
         out->writeText("\"/>\n");
     out->writeText("    <usWidthClass value=\"");
-        SkWStreamWriteDecAsText(out, this->fontStyle().width());
+        out->writeDecAsText(this->fontStyle().width());
         out->writeText("\"/>\n");
     out->writeText("    <fsType value=\"00000000 00000000\"/>\n");
     out->writeText("    <ySubscriptXSize value=\"665\"/>\n");
@@ -451,10 +450,10 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("    <ySuperscriptXOffset value=\"0\"/>\n");
     out->writeText("    <ySuperscriptYOffset value=\"491\"/>\n");
     out->writeText("    <yStrikeoutSize value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fStrikeoutThickness);
+        out->writeScalarAsText(fFontMetrics.fStrikeoutThickness);
         out->writeText("\"/>\n");
     out->writeText("    <yStrikeoutPosition value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fStrikeoutPosition);
+        out->writeScalarAsText(-fFontMetrics.fStrikeoutPosition);
         out->writeText("\"/>\n");
     out->writeText("    <sFamilyClass value=\"0\"/>\n");
     out->writeText("    <panose>\n");
@@ -503,27 +502,27 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("    <usFirstCharIndex value=\"0\"/>\n");
     out->writeText("    <usLastCharIndex value=\"0\"/>\n");
     out->writeText("    <sTypoAscender value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fAscent);
+        out->writeScalarAsText(-fFontMetrics.fAscent);
         out->writeText("\"/>\n");
     out->writeText("    <sTypoDescender value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fDescent);
+        out->writeScalarAsText(-fFontMetrics.fDescent);
         out->writeText("\"/>\n");
     out->writeText("    <sTypoLineGap value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fLeading);
+        out->writeScalarAsText(fFontMetrics.fLeading);
         out->writeText("\"/>\n");
     out->writeText("    <usWinAscent value=\"");
-        SkWStreamWriteScalarAsText(out, -fFontMetrics.fAscent);
+        out->writeScalarAsText(-fFontMetrics.fAscent);
         out->writeText("\"/>\n");
     out->writeText("    <usWinDescent value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fDescent);
+        out->writeScalarAsText(fFontMetrics.fDescent);
         out->writeText("\"/>\n");
     out->writeText("    <ulCodePageRange1 value=\"00000000 00000000 00000000 00000000\"/>\n");
     out->writeText("    <ulCodePageRange2 value=\"00000000 00000000 00000000 00000000\"/>\n");
     out->writeText("    <sxHeight value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fXHeight);
+        out->writeScalarAsText(fFontMetrics.fXHeight);
         out->writeText("\"/>\n");
     out->writeText("    <sCapHeight value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fCapHeight);
+        out->writeScalarAsText(fFontMetrics.fCapHeight);
         out->writeText("\"/>\n");
     out->writeText("    <usDefaultChar value=\"0\"/>\n");
     out->writeText("    <usBreakChar value=\"32\"/>\n");
@@ -533,29 +532,29 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("  <hmtx>\n");
     for (int i = 0; i < fGlyphCount; ++i) {
         out->writeText("    <mtx name=\"glyf");
-        SkWStreamWriteHexAsText(out, i, 4);
+        out->writeHexAsText(i, 4);
         out->writeText("\" width=\"");
-        SkWStreamWriteDecAsText(out, fGlyphs[i].fAdvance);
+        out->writeDecAsText(fGlyphs[i].fAdvance);
         out->writeText("\" lsb=\"");
         int lsb = fGlyphs[i].fOrigin.fX;
         if (glyfInfo) {
             lsb += (*glyfInfo)[i].fBounds.fLeft;
         }
-        SkWStreamWriteDecAsText(out, lsb);
+        out->writeDecAsText(lsb);
         out->writeText("\"/>\n");
     }
     if (glyfInfo) {
         for (int i = 0; i < fGlyphCount; ++i) {
             for (int j = 0; j < (*glyfInfo)[i].fLayers.count(); ++j) {
                 out->writeText("    <mtx name=\"glyf");
-                    SkWStreamWriteHexAsText(out, i, 4);
+                    out->writeHexAsText(i, 4);
                     out->writeText("l");
-                    SkWStreamWriteHexAsText(out, j, 4);
+                    out->writeHexAsText(j, 4);
                     out->writeText("\" width=\"");
-                    SkWStreamWriteDecAsText(out, fGlyphs[i].fAdvance);
+                    out->writeDecAsText(fGlyphs[i].fAdvance);
                     out->writeText("\" lsb=\"");
                     int32_t lsb = fGlyphs[i].fOrigin.fX + (*glyfInfo)[i].fLayers[j].fBounds.fLeft;
-                    SkWStreamWriteDecAsText(out, lsb);
+                    out->writeDecAsText(lsb);
                     out->writeText("\"/>\n");
             }
         }
@@ -572,9 +571,9 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
             return;
         }
         out->writeText("      <map code=\"0x");
-        SkWStreamWriteHexAsText(out, c, 4);
+        out->writeHexAsText(c, 4);
         out->writeText("\" name=\"glyf");
-        SkWStreamWriteHexAsText(out, g, 4);
+        out->writeHexAsText(g, 4);
         out->writeText("\"/>\n");
     });
     out->writeText("    </cmap_format_4>\n");
@@ -582,9 +581,9 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
         out->writeText("    <cmap_format_12 platformID=\"3\" platEncID=\"10\" format=\"12\" reserved=\"0\" length=\"1\" language=\"0\" nGroups=\"0\">\n");
         fCMap.foreach([&out](const SkUnichar& c, const SkGlyphID& g) {
             out->writeText("      <map code=\"0x");
-            SkWStreamWriteHexAsText(out, c, 6);
+            out->writeHexAsText(c, 6);
             out->writeText("\" name=\"glyf");
-            SkWStreamWriteHexAsText(out, g, 4);
+            out->writeHexAsText(g, 4);
             out->writeText("\"/>\n");
         });
         out->writeText("    </cmap_format_12>\n");
@@ -608,10 +607,10 @@ void SkTestSVGTypeface::exportTtxCommon(SkWStream* out, const char* type,
     out->writeText("    <formatType value=\"3.0\"/>\n");
     out->writeText("    <italicAngle value=\"0.0\"/>\n");
     out->writeText("    <underlinePosition value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fUnderlinePosition);
+        out->writeScalarAsText(fFontMetrics.fUnderlinePosition);
         out->writeText("\"/>\n");
     out->writeText("    <underlineThickness value=\"");
-        SkWStreamWriteScalarAsText(out, fFontMetrics.fUnderlineThickness);
+        out->writeScalarAsText(fFontMetrics.fUnderlineThickness);
         out->writeText("\"/>\n");
     out->writeText("    <isFixedPitch value=\"0\"/>\n");
     out->writeText("    <minMemType42 value=\"0\"/>\n");
@@ -637,7 +636,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
     for (size_t strikeIndex = 0; strikeIndex < SK_ARRAY_COUNT(strikeSizes); ++strikeIndex) {
         paint.setTextSize(strikeSizes[strikeIndex]);
         out->writeText("    <strikedata index=\"");
-            SkWStreamWriteDecAsText(out, strikeIndex);
+            out->writeDecAsText(strikeIndex);
             out->writeText("\">\n");
         for (int i = 0; i < fGlyphCount; ++i) {
             SkGlyphID gid = i;
@@ -661,23 +660,23 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
             out->writeText("      <cbdt_bitmap_format_17 name=\"glyf");
-                SkWStreamWriteHexAsText(out, i, 4);
+                out->writeHexAsText(i, 4);
                 out->writeText("\">\n");
             out->writeText("        <SmallGlyphMetrics>\n");
             out->writeText("          <height value=\"");
-                SkWStreamWriteDecAsText(out, image->height());
+                out->writeDecAsText(image->height());
                 out->writeText("\"/>\n");
             out->writeText("          <width value=\"");
-                SkWStreamWriteDecAsText(out, image->width());
+                out->writeDecAsText(image->width());
                 out->writeText("\"/>\n");
             out->writeText("          <BearingX value=\"");
-                SkWStreamWriteDecAsText(out, bounds.fLeft);
+                out->writeDecAsText(bounds.fLeft);
                 out->writeText("\"/>\n");
             out->writeText("          <BearingY value=\"");
-                SkWStreamWriteScalarAsText(out, -bounds.fTop);
+                out->writeScalarAsText(-bounds.fTop);
                 out->writeText("\"/>\n");
             out->writeText("          <Advance value=\"");
-                SkWStreamWriteScalarAsText(out, advance);
+                out->writeScalarAsText(advance);
                 out->writeText("\"/>\n");
             out->writeText("        </SmallGlyphMetrics>\n");
             out->writeText("        <rawimagedata>");
@@ -688,7 +687,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
                 } else if (((i - 1) % 0x4) == 0x3) {
                     out->writeText(" ");
                 }
-                SkWStreamWriteHexAsText(out, bytes[i], 2);
+                out->writeHexAsText(bytes[i], 2);
             }
             out->writeText("\n");
             out->writeText("        </rawimagedata>\n");
@@ -705,18 +704,18 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         paint.setTextSize(strikeSizes[strikeIndex]);
         paint.getFontMetrics(&fm);
         out->writeText("    <strike index=\"");
-            SkWStreamWriteDecAsText(out, strikeIndex);
+            out->writeDecAsText(strikeIndex);
             out->writeText("\">\n");
         out->writeText("      <bitmapSizeTable>\n");
         out->writeText("        <sbitLineMetrics direction=\"hori\">\n");
         out->writeText("          <ascender value=\"");
-            SkWStreamWriteScalarAsText(out, -fm.fTop);
+            out->writeScalarAsText(-fm.fTop);
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            SkWStreamWriteScalarAsText(out, -fm.fBottom);
+            out->writeScalarAsText(-fm.fBottom);
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            SkWStreamWriteScalarAsText(out, fm.fXMax - fm.fXMin);
+            out->writeScalarAsText(fm.fXMax - fm.fXMin);
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -730,13 +729,13 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("        </sbitLineMetrics>\n");
         out->writeText("        <sbitLineMetrics direction=\"vert\">\n");
         out->writeText("          <ascender value=\"");
-            SkWStreamWriteScalarAsText(out, -fm.fTop);
+            out->writeScalarAsText(-fm.fTop);
             out->writeText("\"/>\n");
         out->writeText("          <descender value=\"");
-            SkWStreamWriteScalarAsText(out, -fm.fBottom);
+            out->writeScalarAsText(-fm.fBottom);
             out->writeText("\"/>\n");
         out->writeText("          <widthMax value=\"");
-            SkWStreamWriteScalarAsText(out, fm.fXMax - fm.fXMin);
+            out->writeScalarAsText(fm.fXMax - fm.fXMin);
             out->writeText("\"/>\n");
         out->writeText("          <caretSlopeNumerator value=\"0\"/>\n");
         out->writeText("          <caretSlopeDenominator value=\"0\"/>\n");
@@ -752,10 +751,10 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
         out->writeText("        <startGlyphIndex value=\"1\"/>\n");
         out->writeText("        <endGlyphIndex value=\"1\"/>\n");
         out->writeText("        <ppemX value=\"");
-            SkWStreamWriteDecAsText(out, strikeSizes[strikeIndex]);
+            out->writeDecAsText(strikeSizes[strikeIndex]);
             out->writeText("\"/>\n");
         out->writeText("        <ppemY value=\"");
-            SkWStreamWriteDecAsText(out, strikeSizes[strikeIndex]);
+            out->writeDecAsText(strikeSizes[strikeIndex]);
             out->writeText("\"/>\n");
         out->writeText("        <bitDepth value=\"32\"/>\n");
         out->writeText("        <flags value=\"1\"/>\n");
@@ -769,7 +768,7 @@ void SkTestSVGTypeface::exportTtxCbdt(SkWStream* out) const {
                 continue;
             }
             out->writeText("        <glyphLoc name=\"glyf");
-                SkWStreamWriteHexAsText(out, i, 4);
+                out->writeHexAsText(i, 4);
                 out->writeText("\"/>\n");
         }
         out->writeText("      </eblc_index_sub_table_1>\n");
@@ -810,28 +809,28 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
                                          containerSize.fWidth, containerSize.fHeight);
         SkIRect ibounds = bounds.roundOut();
         out->writeText("    <TTGlyph name=\"glyf");
-            SkWStreamWriteHexAsText(out, i, 4);
+            out->writeHexAsText(i, 4);
             out->writeText("\" xMin=\"");
-            SkWStreamWriteDecAsText(out, ibounds.fLeft);
+            out->writeDecAsText(ibounds.fLeft);
             out->writeText("\" yMin=\"");
-            SkWStreamWriteDecAsText(out, -ibounds.fBottom);
+            out->writeDecAsText(-ibounds.fBottom);
             out->writeText("\" xMax=\"");
-            SkWStreamWriteDecAsText(out, ibounds.fRight);
+            out->writeDecAsText(ibounds.fRight);
             out->writeText("\" yMax=\"");
-            SkWStreamWriteDecAsText(out, -ibounds.fTop);
+            out->writeDecAsText(-ibounds.fTop);
             out->writeText("\">\n");
         out->writeText("      <contour>\n");
         out->writeText("        <pt x=\"");
-            SkWStreamWriteDecAsText(out, ibounds.fLeft);
+            out->writeDecAsText(ibounds.fLeft);
             out->writeText("\" y=\"");
-            SkWStreamWriteDecAsText(out, -ibounds.fBottom);
+            out->writeDecAsText(-ibounds.fBottom);
             out->writeText("\" on=\"1\"/>\n");
         out->writeText("      </contour>\n");
         out->writeText("      <contour>\n");
         out->writeText("        <pt x=\"");
-            SkWStreamWriteDecAsText(out, ibounds.fRight);
+            out->writeDecAsText(ibounds.fRight);
             out->writeText("\" y=\"");
-            SkWStreamWriteDecAsText(out, -ibounds.fTop);
+            out->writeDecAsText(-ibounds.fTop);
             out->writeText("\" on=\"1\"/>\n");
         out->writeText("      </contour>\n");
         out->writeText("      <instructions/>\n");
@@ -851,7 +850,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
         paint.setTextSize(strikeSizes[strikeIndex]);
         out->writeText("    <strike>\n");
         out->writeText("      <ppem value=\"");
-            SkWStreamWriteDecAsText(out, strikeSizes[strikeIndex]);
+            out->writeDecAsText(strikeSizes[strikeIndex]);
             out->writeText("\"/>\n");
         out->writeText("      <resolution value=\"72\"/>\n");
         for (int i = 0; i < fGlyphCount; ++i) {
@@ -876,11 +875,11 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
             sk_sp<SkData> data = image->encodeToData(SkEncodedImageFormat::kPNG, 100);
 
             out->writeText("      <glyph name=\"glyf");
-                SkWStreamWriteHexAsText(out, i, 4);
+                out->writeHexAsText(i, 4);
                 out->writeText("\" graphicType=\"png \" originOffsetX=\"");
-                SkWStreamWriteDecAsText(out, bounds.fLeft);
+                out->writeDecAsText(bounds.fLeft);
                 out->writeText("\" originOffsetY=\"");
-                SkWStreamWriteScalarAsText(out, bounds.fBottom);
+                out->writeScalarAsText(bounds.fBottom);
                 out->writeText("\">\n");
 
             out->writeText("        <hexdata>");
@@ -891,7 +890,7 @@ void SkTestSVGTypeface::exportTtxSbix(SkWStream* out) const {
                 } else if (((i - 1) % 0x4) == 0x3) {
                     out->writeText(" ");
                 }
-                SkWStreamWriteHexAsText(out, bytes[i], 2);
+                out->writeHexAsText(bytes[i], 2);
             }
             out->writeText("\n");
             out->writeText("        </hexdata>\n");
@@ -1034,9 +1033,9 @@ public:
 
     void writePoint(SkScalar x, SkScalar y, bool on) {
         fOut->writeText("        <pt x=\"");
-        SkWStreamWriteDecAsText(fOut, SkScalarRoundToInt(x));
+        fOut->writeDecAsText(SkScalarRoundToInt(x));
         fOut->writeText("\" y=\"");
-        SkWStreamWriteDecAsText(fOut, SkScalarRoundToInt(y));
+        fOut->writeDecAsText(SkScalarRoundToInt(y));
         fOut->writeText("\" on=\"");
         fOut->write8(on ? '1' : '0');
         fOut->writeText("\"/>\n");
@@ -1050,19 +1049,19 @@ public:
         SkIRect ibounds = bounds.roundOut();
         // The bounds will be re-calculated anyway.
         fOut->writeText("    <TTGlyph name=\"glyf");
-            SkWStreamWriteHexAsText(fOut, fGlyphId, 4);
+            fOut->writeHexAsText(fGlyphId, 4);
             if (layer) {
                 fOut->writeText("l");
-                SkWStreamWriteHexAsText(fOut, fLayerId, 4);
+                fOut->writeHexAsText(fLayerId, 4);
             }
             fOut->writeText("\" xMin=\"");
-            SkWStreamWriteDecAsText(fOut, ibounds.fLeft);
+            fOut->writeDecAsText(ibounds.fLeft);
             fOut->writeText("\" yMin=\"");
-            SkWStreamWriteDecAsText(fOut, ibounds.fTop);
+            fOut->writeDecAsText(ibounds.fTop);
             fOut->writeText("\" xMax=\"");
-            SkWStreamWriteDecAsText(fOut, ibounds.fRight);
+            fOut->writeDecAsText(ibounds.fRight);
             fOut->writeText("\" yMax=\"");
-            SkWStreamWriteDecAsText(fOut, ibounds.fBottom);
+            fOut->writeDecAsText(ibounds.fBottom);
             fOut->writeText("\">\n");
 
         SkPath::RawIter iter(quads);
@@ -1258,16 +1257,16 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
             continue;
         }
         out->writeText("    <ColorGlyph name=\"glyf");
-            SkWStreamWriteHexAsText(out, i, 4);
+            out->writeHexAsText(i, 4);
             out->writeText("\">\n");
         for (int j = 0; j < glyfInfos[i].fLayers.count(); ++j) {
             const int colorIndex = glyfInfos[i].fLayers[j].fLayerColorIndex;
             out->writeText("      <layer colorID=\"");
-                SkWStreamWriteDecAsText(out, colorIndex);
+                out->writeDecAsText(colorIndex);
                 out->writeText("\" name=\"glyf");
-                SkWStreamWriteHexAsText(out, i, 4);
+                out->writeHexAsText(i, 4);
                 out->writeText("l");
-                SkWStreamWriteHexAsText(out, j, 4);
+                out->writeHexAsText(j, 4);
                 out->writeText("\"/>\n");
         }
         out->writeText("    </ColorGlyph>\n");
@@ -1282,18 +1281,18 @@ void SkTestSVGTypeface::exportTtxColr(SkWStream* out) const {
     out->writeText("  <CPAL>\n");
     out->writeText("    <version value=\"0\"/>\n");
     out->writeText("    <numPaletteEntries value=\"");
-        SkWStreamWriteDecAsText(out, colors.count());
+        out->writeDecAsText(colors.count());
         out->writeText("\"/>\n");
     out->writeText("    <palette index=\"0\">\n");
     for (int i = 0; i < colors.count(); ++i) {
         SkColor c = colorsInOrder[i];
         out->writeText("      <color index=\"");
-            SkWStreamWriteDecAsText(out, i);
+            out->writeDecAsText(i);
             out->writeText("\" value=\"#");
-            SkWStreamWriteHexAsText(out, SkColorGetR(c), 2);
-            SkWStreamWriteHexAsText(out, SkColorGetG(c), 2);
-            SkWStreamWriteHexAsText(out, SkColorGetB(c), 2);
-            SkWStreamWriteHexAsText(out, SkColorGetA(c), 2);
+            out->writeHexAsText(SkColorGetR(c), 2);
+            out->writeHexAsText(SkColorGetG(c), 2);
+            out->writeHexAsText(SkColorGetB(c), 2);
+            out->writeHexAsText(SkColorGetA(c), 2);
             out->writeText("\"/>\n");
     }
     out->writeText("    </palette>\n");

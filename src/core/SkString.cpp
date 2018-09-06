@@ -120,24 +120,6 @@ char* SkStrAppendU32(char string[], uint32_t dec) {
     return string;
 }
 
-char* SkStrAppendU32Hex(char* dst, uint32_t value, int minDigits) {
-    int digits = SkTClamp<int>(minDigits, 1, 8);
-    int optional = 8 - digits;
-    unsigned nibble = value >> 28;  // 28 = 32 - 4
-    while (optional > 0 && nibble == 0) {
-        --optional;
-        nibble = (value <<= 4) >> 28;
-    }
-    digits += optional;
-    while (true) {
-        *dst++ = SkHexadecimalDigits::gUpper[nibble];
-        if (--digits == 0) {
-            return dst;
-        }
-        nibble = (value <<= 4) >> 28;
-    }
-}
-
 char* SkStrAppendS32(char string[], int32_t dec) {
     uint32_t udec = dec;
     if (dec < 0) {
@@ -148,7 +130,6 @@ char* SkStrAppendS32(char string[], int32_t dec) {
 }
 
 char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
-    minDigits = SkTClamp<int>(minDigits, 1, SkStrAppendU64_MaxSize);
     SkDEBUGCODE(char* start = string;)
 
     char    buffer[SkStrAppendU64_MaxSize];
@@ -498,9 +479,23 @@ void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
 }
 
 void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
-    char    buffer[SkStrAppendU32Hex_MaxSize];
-    char*   stop = SkStrAppendU32Hex(buffer, hex, minDigits);
-    this->insert(offset, buffer, stop - buffer);
+    minDigits = SkTPin(minDigits, 0, 8);
+
+    char    buffer[8];
+    char*   p = buffer + sizeof(buffer);
+
+    do {
+        *--p = SkHexadecimalDigits::gUpper[hex & 0xF];
+        hex >>= 4;
+        minDigits -= 1;
+    } while (hex != 0);
+
+    while (--minDigits >= 0) {
+        *--p = '0';
+    }
+
+    SkASSERT(p >= buffer);
+    this->insert(offset, p, buffer + sizeof(buffer) - p);
 }
 
 void SkString::insertScalar(size_t offset, SkScalar value) {
