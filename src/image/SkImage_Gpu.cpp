@@ -125,7 +125,8 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
     if (context != fContext.get()) {
-        SkASSERT(0);
+      //      fprintf(stderr, "FIXME %p %p\n", context, fContext.get());
+      //        SkASSERT(0);
         return nullptr;
     }
 
