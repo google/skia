@@ -11,7 +11,7 @@
 
 static sk_sp<SkSurface> make_surface(SkCanvas* root, int N) {
     SkImageInfo info = SkImageInfo::MakeN32Premul(N, N);
-    return sk_tool_utils::makeSurface(root, info);
+    return root->makeSurface(info);
 }
 
 static sk_sp<SkImage> make_image(SkCanvas* root, SkIRect* center) {

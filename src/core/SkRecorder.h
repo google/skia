@@ -131,8 +131,6 @@ public:
 
     void onDrawAnnotation(const SkRect&, const char[], SkData*) override;
 
-    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-
     void flushMiniRecorder();
 
 private:

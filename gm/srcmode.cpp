@@ -121,7 +121,6 @@ protected:
         }
         sk_sp<SkSurface> surface = callNewSurface ? canvas->makeSurface(info) : nullptr;
         if (nullptr == surface) {
-            // picture canvas will return null, so fall-back to raster
             surface = SkSurface::MakeRaster(info);
         }
         return surface;

@@ -811,10 +811,6 @@ static int find_or_append(SkTArray<sk_sp<T>>& array, T* obj) {
     return array.count() - 1;
 }
 
-sk_sp<SkSurface> SkPictureRecord::onNewSurface(const SkImageInfo& info, const SkSurfaceProps&) {
-    return nullptr;
-}
-
 void SkPictureRecord::addImage(const SkImage* image) {
     // convention for images is 0-based index
     this->addInt(find_or_append(fImages, image));
