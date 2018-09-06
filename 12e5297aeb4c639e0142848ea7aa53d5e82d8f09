@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0814d762_65e098bb",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-06T21:01:58Z",
+      "side": 0,
+      "message": "This was just moved to the bottom of the file and removed the mip map copy which is already handled by SkImage_Lazy",
+      "range": {
+        "startLine": 131,
+        "startChar": 1,
+        "endLine": 131,
+        "endChar": 72
+      },
+      "revId": "12e5297aeb4c639e0142848ea7aa53d5e82d8f09",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
