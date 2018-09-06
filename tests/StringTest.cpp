@@ -388,10 +388,6 @@ DEF_TEST(String_StrAppend, rep) {
             rep, rand, &SkRandom::nextS, SkStrAppendS32, "%d");
         str_append_test<SkStrAppendScalar_MaxSize>(
             rep, rand, &SkRandom::nextF, SkStrAppendFloat, "%.8g");
-        str_append_test<SkStrAppendU64_MaxSize>(
-            rep, rand, &SkRandom::next64, SkStrAppendU64, "%0*" PRIu64);
-        str_append_test<SkStrAppendS64_MaxSize>(
-            rep, rand, &SkRandom::next64, SkStrAppendS64, "%0*" PRId64);
         str_append_test<SkStrAppendU32Hex_MaxSize>(
             rep, rand, &SkRandom::nextU, SkStrAppendU32Hex, "%0*X");
     }
