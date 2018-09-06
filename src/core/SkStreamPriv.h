@@ -9,10 +9,10 @@
 #define SkStreamPriv_DEFINED
 
 #include "SkRefCnt.h"
+#include "SkStringUtils.h"
+#include "SkStream.h"
 
 class SkData;
-class SkStream;
-class SkWStream;
 
 /**
  *  Copy the provided stream to an SkData variable.
@@ -30,5 +30,32 @@ sk_sp<SkData> SkCopyStreamToData(SkStream* stream);
  *  Does not rewind the input stream.
  */
 bool SkStreamCopy(SkWStream* out, SkStream* input);
+
+static inline bool SkWStreamWriteDecAsText(SkWStream* out, int32_t dec) {
+    char buffer[SkStrAppendS32_MaxSize];
+    return out->write(buffer, SkStrAppendS32(buffer, dec) - buffer);
+}
+
+static inline bool SkWStreamWriteBigDecAsText(SkWStream* out, int64_t dec, int minDigits = 0) {
+    char buffer[SkStrAppendU64_MaxSize];
+    return out->write(buffer, SkStrAppendU64(buffer, dec, minDigits) - buffer);
+}
+
+static inline bool SkWStreamWriteHexAsText(SkWStream* out, uint32_t hex, int minDigits = 0) {
+    char buffer[8];
+    char* p = SkStrFillU32Hex(buffer, hex, minDigits);
+    return out->write(p, &buffer[8] - p);
+}
+
+static inline bool SkWStreamWriteScalarAsText(SkWStream* out, SkScalar value) {
+    char buffer[SkStrAppendScalar_MaxSize];
+    return out->write(buffer, SkStrAppendScalar(buffer, value) - buffer);
+}
+
+static inline bool SkWStreamWriteScalar(SkWStream* out, SkScalar value) {
+    return out->write(&value, sizeof(value));
+}
+
+static inline bool SkWStreamWriteBool(SkWStream* out, bool v) { return out->write8(v); }
 
 #endif  // SkStreamPriv_DEFINED

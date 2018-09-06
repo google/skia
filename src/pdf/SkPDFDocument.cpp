@@ -13,6 +13,7 @@
 #include "SkPDFDevice.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
+#include "SkStreamPriv.h"
 #include "SkTo.h"
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
@@ -64,7 +65,7 @@ void SkPDFObjectSerializer::serializeObjects(SkWStream* wStream) {
         // the head of the linked list of free objects."
         SkASSERT(fOffsets.size() == fNextToBeSerialized);
         fOffsets.push_back(this->offset(wStream));
-        wStream->writeDecAsText(index);
+        SkWStreamWriteDecAsText(wStream, index);
         wStream->writeText(" 0 obj\n");  // Generation number is always 0.
         object->emitObject(wStream, fObjNumMap);
         wStream->writeText("\nendobj\n");
@@ -82,10 +83,10 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
     // Include the special zeroth object in the count.
     int32_t objCount = SkToS32(fOffsets.size() + 1);
     wStream->writeText("xref\n0 ");
-    wStream->writeDecAsText(objCount);
+    SkWStreamWriteDecAsText(wStream, objCount);
     wStream->writeText("\n0000000000 65535 f \n");
     for (size_t i = 0; i < fOffsets.size(); i++) {
-        wStream->writeBigDecAsText(fOffsets[i], 10);
+        SkWStreamWriteBigDecAsText(wStream, fOffsets[i], 10);
         wStream->writeText(" 00000 n \n");
     }
     SkPDFDict trailerDict;
@@ -100,7 +101,7 @@ void SkPDFObjectSerializer::serializeFooter(SkWStream* wStream,
     wStream->writeText("trailer\n");
     trailerDict.emitObject(wStream, fObjNumMap);
     wStream->writeText("\nstartxref\n");
-    wStream->writeBigDecAsText(xRefFileOffset);
+    SkWStreamWriteBigDecAsText(wStream, xRefFileOffset);
     wStream->writeText("\n%%EOF");
 }
 

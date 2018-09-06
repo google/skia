@@ -8,7 +8,9 @@
 #include "SkString.h"
 
 #include "SkAtomics.h"
+#include "SkMathPriv.h"
 #include "SkSafeMath.h"
+#include "SkStringUtils.h"
 #include "SkTo.h"
 #include "SkUtils.h"
 
@@ -130,6 +132,7 @@ char* SkStrAppendS32(char string[], int32_t dec) {
 }
 
 char* SkStrAppendU64(char string[], uint64_t dec, int minDigits) {
+    minDigits = SkTClamp<int>(minDigits, 1, SkStrAppendU64_MaxSize);
     SkDEBUGCODE(char* start = string;)
 
     char    buffer[SkStrAppendU64_MaxSize];
@@ -478,11 +481,9 @@ void SkString::insertU64(size_t offset, uint64_t dec, int minDigits) {
     this->insert(offset, buffer, stop - buffer);
 }
 
-void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
+char* SkStrFillU32Hex(char buffer[8], uint32_t hex, int minDigits) {
     minDigits = SkTPin(minDigits, 0, 8);
-
-    char    buffer[8];
-    char*   p = buffer + sizeof(buffer);
+    char* p = &buffer[8];
 
     do {
         *--p = SkHexadecimalDigits::gUpper[hex & 0xF];
@@ -495,7 +496,14 @@ void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
     }
 
     SkASSERT(p >= buffer);
+    return p;
+}
+
+void SkString::insertHex(size_t offset, uint32_t hex, int minDigits) {
+    char buffer[8];
+    char* p = SkStrFillU32Hex(buffer, hex, minDigits);
     this->insert(offset, p, buffer + sizeof(buffer) - p);
+
 }
 
 void SkString::insertScalar(size_t offset, SkScalar value) {
