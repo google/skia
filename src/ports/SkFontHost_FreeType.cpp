@@ -1185,11 +1185,10 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
             glyph->fTop = 0;
             glyph->fLeft = 0;
         } else {
-            FT_BBox bbox;
-
+            using FT_PosLimits = std::numeric_limits<FT_Pos>;
+            FT_BBox bounds = { FT_PosLimits::max(), FT_PosLimits::max(),
+                               FT_PosLimits::min(), FT_PosLimits::min() };
 #ifdef FT_COLOR_H
-            SkRect bounds = SkRect::MakeEmpty();
-
             FT_LayerIterator layerIterator;
             layerIterator.p  = NULL;
             FT_Bool haveLayers = false;
@@ -1210,37 +1209,35 @@ void SkScalerContext_FreeType::generateMetrics(SkGlyph* glyph) {
                 emboldenIfNeeded(fFace, fFace->glyph, layerGlyphIndex);
 
                 if (0 < fFace->glyph->outline.n_contours) {
+                    FT_BBox bbox;
                     getBBoxForCurrentGlyph(glyph, &bbox, true);
 
-                    SkRect layerBounds = SkRect::MakeLTRB(SkFDot6ToScalar(bbox.xMin),
-                                                          SkFDot6ToScalar(-bbox.yMax),
-                                                          SkFDot6ToScalar(bbox.xMax),
-                                                          SkFDot6ToScalar(-bbox.yMin)
-                    );
-
-                    bounds.join(layerBounds);
+                    // Union
+                    if (bbox.xMin < bounds.xMin) { bounds.xMin = bbox.xMin; }
+                    if (bbox.yMin < bounds.yMin) { bounds.yMin = bbox.yMin; }
+                    if (bbox.xMax > bounds.xMax) { bounds.xMax = bbox.xMax; }
+                    if (bbox.yMax > bounds.yMax) { bounds.yMax = bbox.yMax; }
                 }
             }
 
             if (haveLayers) {
                 glyph->fMaskFormat = SkMask::kARGB32_Format;
-
-                SkIRect ibounds = bounds.roundOut();
-                glyph->fWidth   = SkToU16(ibounds.width());
-                glyph->fHeight  = SkToU16(ibounds.height());
-                glyph->fTop     = SkToS16(ibounds.top());
-                glyph->fLeft    = SkToS16(ibounds.left());
             } else {
 #endif
-                getBBoxForCurrentGlyph(glyph, &bbox, true);
-
-                glyph->fWidth   = SkToU16(SkFDot6Floor(bbox.xMax - bbox.xMin));
-                glyph->fHeight  = SkToU16(SkFDot6Floor(bbox.yMax - bbox.yMin));
-                glyph->fTop     = -SkToS16(SkFDot6Floor(bbox.yMax));
-                glyph->fLeft    = SkToS16(SkFDot6Floor(bbox.xMin));
+                getBBoxForCurrentGlyph(glyph, &bounds, true);
 #ifdef FT_COLOR_H
             }
 #endif
+            // Round out, no longer dot6.
+            bounds.xMin = SkFDot6Floor(bounds.xMin);
+            bounds.yMin = SkFDot6Floor(bounds.yMin);
+            bounds.xMax = SkFDot6Ceil (bounds.xMax);
+            bounds.yMax = SkFDot6Ceil (bounds.yMax);
+
+            glyph->fWidth  =  bounds.xMax - bounds.xMin;
+            glyph->fHeight =  bounds.yMax - bounds.yMin;
+            glyph->fTop    = -bounds.yMax;
+            glyph->fLeft   =  bounds.xMin;
             updateGlyphIfLCD(glyph);
         }
         break;
