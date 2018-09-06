@@ -119,14 +119,6 @@ public:
         return this->nextUScalar1() <= fractionTrue;
     }
 
-    /**
-     *  Return the next pseudo random number as a signed 64bit value.
-     */
-    int64_t next64() {
-        int64_t hi = this->nextS();
-        return (hi << 32) | this->nextU();
-    }
-
     /** Reset the random object.
      */
     void setSeed(uint32_t seed) { init(seed); }
