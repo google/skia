@@ -34,6 +34,24 @@
       "revId": "19ea0d72aa7b65b97e7db5f64232786425e99211",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b8bdae97_a198cc63",
+        "filename": "include/core/SkString.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-06T16:22:52Z",
+      "side": 1,
+      "message": "Okay.  I removed them all.",
+      "parentUuid": "c317f548_a1e550e5",
+      "revId": "19ea0d72aa7b65b97e7db5f64232786425e99211",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
