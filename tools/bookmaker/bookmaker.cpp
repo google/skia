@@ -34,18 +34,7 @@ DEFINE_bool2(skip, z, false, "Skip degenerate missed in legacy preprocessor.");
 
 /* todos:
 
-add new markup to associate enum SaveLayerFlagsSet with typedef SaveLayerFlags, if needed.
-
-should Return be on same line as 'Return Value'?
-#Member lost all formatting
 #List needs '# content ##', formatting
-consts like enum members need fully qualfied refs to make a valid link
-enum comments should be disallowed unless after #Enum and before first #Const
-    ... or, should look for enum comments in other places
-trouble with aliases, plurals
-    need to keep first letter of includeWriter @param / @return lowercase
-    Quad -> quad, Quads -> quads
-deprecated methods should be sorted down in md out, and show include "Deprecated." text body.
 rewrap text to fit in some number of columns
 #Literal is inflexible, making the entire #Code block link-less (see $Literal in SkImageInfo)
      would rather keep links for body above #Literal, and/or make it a block and not a one-liner

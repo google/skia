@@ -1902,9 +1902,7 @@ surf.props(): kRGB_H_SkPixelGeometry
 void <a href='#SkSurface_prepareForExternalIO'>prepareForExternalIO</a>()
 </pre>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 ---
 

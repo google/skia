@@ -11,15 +11,34 @@ Completed InProgress
 
 #Topic Bookmaker
 
-How to use the Bookmaker utility.
+Bookmaker generates markdown files to view documentation on skia.org, and generates includes for use in C++.
+Bookmaker reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
+files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.
+
+The docs files must be manually edited to stay current with Skia as it evolves.
 
 #Subtopic Broken_Build
 
-If the
+The bots 
 #A Housekeeper-PerCommit-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker ##
- bot is red, the bot has detected that the files in docs and include/core differ.
+and
+#A Housekeeper-Nightly-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker ##
+verify that Bookmaker data in docs builds without error and is consistent with include files it documents.
 
-The bot output describes what changed.
+Possible failures include:
+#List
+# Public interface in include directory does not match documented interface in docs directory. ##
+# Example in bookmaker bmh file does not compile, or does not produce expected output. ##
+# Undocumented but referenced interface is missing from undocumented bookmaker file in docs directory. ##
+##
+
+Editing comments in includes or editing private interfaces will not break the bots.
+Bookmaker detects that comments edited in includes do not match comments in docs; it will generate an updated include in the
+directory where it is run.
+
+If 
+#A Housekeeper-PerCommit-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker ##
+bot is red, the error is usually related to an edit to an include which has not been reflected in docs.
 
 To fix this, edit the docs file corresponding to the changed include file.
 
@@ -39,16 +58,14 @@ $$
 Use
 
 $Code
-##Deprecated soon
+#Deprecated soon
 $$
 
 if the change is soon to be deprecated.
 
 $$$#
 
-To regenerate the documentation, follow the Installing and Regenerate steps below.
-
-If the
+If
 #A Housekeeper-Nightly-Bookmaker # https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker ##
  bot is red, one of several things may have gone wrong:
 
@@ -95,9 +112,12 @@ and Bookmaker will not generate any output.
 
 #Subtopic Broken_Example
 
-An example may cause Bookmaker or a bot running Bookmaker to fail if it can't
-be compiled by fiddle. If the example cannot be fixed, it can be commented out
-by changing
+An example may cause Bookmaker or a bot running Bookmaker to fail if it fails to compile.
+
+Fix the example by pasting it into #A Skia Fiddle # https://fiddle.skia.org ##
+and editing it until it runs successfully.
+
+If the example cannot be fixed, it can be commented out by changing
 ###$
 $Code
 $Literal
@@ -108,8 +128,7 @@ $Code
 #NoExample
 $Code $$
 $$$#
-. The disabled example can contain additional markup,
-which will be ignored.
+. The disabled example can contain additional markup, which will be ignored.
 
 #Subtopic Broken_Example ##
 
@@ -118,7 +137,7 @@ which will be ignored.
 Install
 #A Go # https://golang.org/doc/install ##
  if needed.
-Check the version. The resuls should be 1.10 or greater.
+Check the version. The results should be 1.10 or greater.
 
 #Code
 $ go version
@@ -144,12 +163,12 @@ $ ninja -C out/dir bookmaker
 Complete rebuilding of all bookmaker output looks like:
 
 #Code
-$ ./out/skia/bookmaker -a docs/status.json -e fiddle.json
+$ ./out/dir/bookmaker -a docs/status.json -e fiddle.json
 $ ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json
-$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
-$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
-$ ./out/skia/bookmaker -a docs/status.json -x
-$ ./out/skia/bookmaker -a docs/status.json -p
+$ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
+$ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
+$ ./out/dir/bookmaker -a docs/status.json -x
+$ ./out/dir/bookmaker -a docs/status.json -p
 ##
 
 #Subtopic Regenerate ##

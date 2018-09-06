@@ -2530,9 +2530,7 @@ true if back-end texture was created
 
 ## <a name='SkImage_LegacyBitmapMode'>Enum SkImage::LegacyBitmapMode</a>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     enum <a href='#SkImage_LegacyBitmapMode'>LegacyBitmapMode</a> {
