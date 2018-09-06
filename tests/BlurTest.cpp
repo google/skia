@@ -23,6 +23,7 @@
 #include "SkMaskFilter.h"
 #include "SkMaskFilterBase.h"
 #include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPerlinNoiseShader.h"
