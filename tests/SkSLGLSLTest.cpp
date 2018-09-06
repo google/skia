@@ -152,7 +152,7 @@ DEF_TEST(SkSLOperators, r) {
          "    x = -6.0;\n"
          "    y = -1.0;\n"
          "    z = 8;\n"
-         "    bool b = false == true || 2.0 >= sqrt(2.0) && true;\n"
+         "    bool b = false == true || 2.0 >= sqrt(2.0);\n"
          "    x += 12.0;\n"
          "    x -= 12.0;\n"
          "    x *= (y /= float(z = 10));\n"
@@ -745,6 +745,58 @@ DEF_TEST(SkSLBoolFolding, r) {
          "    sk_FragColor.x = -4.0;\n"
          "    sk_FragColor.x = 5.0;\n"
          "    sk_FragColor.x = -6.0;\n"
+         "}\n");
+}
+
+DEF_TEST(SkSLShortCircuitBoolFolding, r) {
+    test(r,
+         "void main() {"
+         "bool expr1 = sk_FragCoord.x > 0;"
+         "bool expr2 = sk_FragCoord.y > 0;"
+         "    if (true && expr1) {"          // -> if (expr1)
+         "        sk_FragColor.r = 1;"
+         "    } else if (false && expr1) {"  // -> if (false) -> block removed
+         "        sk_FragColor.r = -2;"
+         "    } else if (false || expr2) {"  // -> if (expr2)
+         "        sk_FragColor.r = 3;"
+         "    } else if (true || expr2) {"   // -> if (true) -> replaces unreachable else
+         "        sk_FragColor.r = 4;"
+         "    } else {"                      // removed
+         "        sk_FragColor.r = -5;"
+         "    }"
+         // Test short-circuiting of right hand side boolean literals
+         "    if (expr1 && true) {"          // -> if (expr1)
+         "        sk_FragColor.r = 1;"
+         "    } else if (expr1 && false) {"  // -> if (false) -> block removed
+         "        sk_FragColor.r = -2;"
+         "    } else if (expr2 || false) {"  // -> if (expr2)
+         "        sk_FragColor.r = 3;"
+         "    } else if (expr2 || true) {"   // -> if (true) -> replaces unreachable else
+         "        sk_FragColor.r = 4;"
+         "    } else {"                      // removed
+         "        sk_FragColor.r = -5;"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         "#version 400\n"
+         "out vec4 sk_FragColor;\n"
+         "void main() {\n"
+         "    bool expr1 = gl_FragCoord.x > 0.0;\n"
+         "    bool expr2 = gl_FragCoord.y > 0.0;\n"
+         "    if (expr1) {\n"
+         "        sk_FragColor.x = 1.0;\n"
+         "    } else if (expr2) {\n"
+         "        sk_FragColor.x = 3.0;\n"
+         "    } else {\n"
+         "        sk_FragColor.x = 4.0;\n"
+         "    }\n"
+         "    if (expr1) {\n"
+         "        sk_FragColor.x = 1.0;\n"
+         "    } else if (expr2) {\n"
+         "        sk_FragColor.x = 3.0;\n"
+         "    } else {\n"
+         "        sk_FragColor.x = 4.0;\n"
+         "    }\n"
          "}\n");
 }
 
