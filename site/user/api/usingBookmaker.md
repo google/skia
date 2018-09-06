@@ -2,13 +2,32 @@ usingBookmaker
 ===
 
 # <a name='Bookmaker'>Bookmaker</a>
-How to use the <a href='#Bookmaker'>Bookmaker</a> utility.
+<a href='#Bookmaker'>Bookmaker</a> generates markdown files to view documentation on skia.org, and generates includes for use in C++.
+<a href='#Bookmaker'>Bookmaker</a> reads canonical documentation from files suffixed with bmh in the docs directory. These bmh
+files describe how public interfaces work, and generate Skia fiddle examples to illustrate them.
+
+The docs files must be manually edited to stay current with Skia as it evolves.
 
 ## <a name='Broken_Build'>Broken Build</a>
 
-If the <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the bot has detected that the files in docs and include/core differ.
+The bots <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> and <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> verify that <a href='#Bookmaker'>Bookmaker</a> data in docs builds without error and is consistent with include files it documents.
 
-The bot output describes what changed.
+Possible failures include:
+
+<table>  <tr>
+    <td>Public interface in include directory does not match documented interface in docs directory.</td>
+  </tr>  <tr>
+    <td>Example in bookmaker bmh file does not compile, or does not produce expected output.</td>
+  </tr>  <tr>
+    <td>Undocumented but referenced interface is missing from undocumented bookmaker file in docs directory.</td>
+  </tr>
+</table>
+
+Editing comments in includes or editing private interfaces will not break the bots.
+<a href='#Bookmaker'>Bookmaker</a> detects that comments edited in includes do not match comments in docs; it will generate an updated include in the
+directory where it is run.
+
+If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-PerCommit-Bookmaker'>Housekeeper-PerCommit-Bookmaker</a></a> bot is red, the error is usually related to an edit to an include which has not been reflected in docs.
 
 To fix this, edit the docs file corresponding to the changed include file.
 
@@ -27,14 +46,12 @@ documentation to be deprecated as well.
 Use
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-##Deprecated soon
+#Deprecated soon
 </pre>
 
 if the change is soon to be deprecated.
 
-To regenerate the documentation, follow the <a href='#Installing'>Installing</a> and <a href='#Regenerate'>Regenerate</a> steps below.
-
-If the <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
+If <a href='https://status.skia.org/repo/skia?filter=search&search_value=Housekeeper-Nightly-Bookmaker'>Housekeeper-Nightly-Bookmaker</a></a> bot is red, one of several things may have gone wrong:
 
 <table>  <tr>
     <td>A change to include broke documentation examples.</td>
@@ -79,9 +96,11 @@ and <a href='#Bookmaker'>Bookmaker</a> will not generate any output.
 
 ## <a name='Broken_Example'>Broken Example</a>
 
-An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it can't
-be compiled by fiddle. If the example cannot be fixed, it can be commented out
-by changing
+An example may cause <a href='#Bookmaker'>Bookmaker</a> or a bot running <a href='#Bookmaker'>Bookmaker</a> to fail if it fails to compile.
+
+Fix the example by pasting it into <a href='https://fiddle.skia.org'>Skia Fiddle</a></a> and editing it until it runs successfully.
+
+If the example cannot be fixed, it can be commented out by changing
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 #Example
@@ -94,13 +113,12 @@ to
 </pre>
 
 .
-The disabled example can contain additional markup,
-which will be ignored.
+The disabled example can contain additional markup, which will be ignored.
 
 ## <a name='Installing'>Installing</a>
 
 Install <a href='https://golang.org/doc/install'>Go</a></a> if needed.
-Check the version. The resuls should be 1.10 or greater.
+Check the version. The results should be 1.10 or greater.
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
 $ go version
@@ -124,12 +142,12 @@ $ ninja -C out/dir bookmaker
 Complete rebuilding of all bookmaker output looks like:
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-$ ./out/skia/bookmaker -a docs/status.json -e fiddle.json
+$ ./out/dir/bookmaker -a docs/status.json -e fiddle.json
 $ ~/go/bin/fiddlecli --input fiddle.json --output fiddleout.json
-$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
-$ ./out/skia/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
-$ ./out/skia/bookmaker -a docs/status.json -x
-$ ./out/skia/bookmaker -a docs/status.json -p
+$ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api -c
+$ ./out/dir/bookmaker -a docs/status.json -f fiddleout.json -r site/user/api
+$ ./out/dir/bookmaker -a docs/status.json -x
+$ ./out/dir/bookmaker -a docs/status.json -p
 </pre>
 
 ## <a name='New_Documentation'>New Documentation</a>

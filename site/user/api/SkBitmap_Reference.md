@@ -2698,9 +2698,7 @@ true if <a href='SkImageInfo_Reference#Image_Info'>Image Info</a> was set to pix
 bool <a href='#SkBitmap_installMaskPixels'>installMaskPixels</a>(const <a href='undocumented#SkMask'>SkMask</a>& mask)
 </pre>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 ---
 
