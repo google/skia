@@ -8,6 +8,7 @@
 #ifndef SkBitmapRegionDecoderPriv_DEFINED
 #define SkBitmapRegionDecoderPriv_DEFINED
 
+#include "SkMath.h"
 #include "SkRect.h"
 
 enum SubsetType {

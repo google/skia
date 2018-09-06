@@ -7,6 +7,7 @@
 #ifndef PathOpsTSectDebug_DEFINED
 #define PathOpsTSectDebug_DEFINED
 
+#include "SkMath.h"
 #include "SkPathOpsTSect.h"
 
 template<typename TCurve, typename OppCurve>
