@@ -44,6 +44,9 @@
 <svg id=svg2 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
 <svg id=svg3 xmlns='http://www.w3.org/2000/svg' width=200 height=200></svg>
 
+<h2> Solves Cubics for Y given X </h2>
+<canvas class=big id=cubics></canvas>
+
 <script type="text/javascript" src="/node_modules/pathkit-asmjs/bin/pathkit.js"></script>
 
 <script type="text/javascript" charset="utf-8">
@@ -57,6 +60,7 @@
     PathEffectsExample(PathKit);
     MatrixTransformExample(PathKit);
     FilledSVGExample(PathKit);
+    CubicSolverExample(PathKit);
   });
 
   function setCanvasSize(ctx, width, height) {
@@ -333,6 +337,32 @@
 
     outerRect.delete();
     innerRect.delete();
+  }
+
+  function CubicSolverExample(PathKit) {
+    let ctx = document.getElementById('cubics').getContext('2d');
+    setCanvasSize(ctx, 300, 300);
+    // Draw lines between cp0 (0, 0) and cp1 and then cp2 and cp3 (1, 1)
+    // scaled up to be on a 300x300 grid instead of unit square
+    ctx.strokeStyle = 'black';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(0.1 * 300, 0.5*300);
+
+    ctx.moveTo(0.5 * 300, 0.1*300);
+    ctx.lineTo(300, 300);
+    ctx.stroke();
+
+
+    ctx.strokeStyle = 'green';
+    ctx.beginPath();
+
+    for (let x = 0; x < 300; x++) {
+      // scale X into unit square
+      let y = PathKit.cubicYFromX(0.1, 0.5, 0.5, 0.1, x/300);
+      ctx.arc(x, y*300, 2, 0, 2*Math.PI);
+    }
+    ctx.stroke();
   }
 
 </script>
