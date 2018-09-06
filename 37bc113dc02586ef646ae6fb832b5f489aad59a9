@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e14b55b5_f7059a31",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 1165,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-06T20:20:38Z",
+      "side": 1,
+      "message": "I wonder if this check should happen above the on-virtual... i.e. in makeSurface() itself. So that we catch this for all canvas subclasses.",
+      "range": {
+        "startLine": 1165,
+        "startChar": 0,
+        "endLine": 1165,
+        "endChar": 18
+      },
+      "revId": "37bc113dc02586ef646ae6fb832b5f489aad59a9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
