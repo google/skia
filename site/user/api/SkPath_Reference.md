@@ -1336,9 +1336,9 @@ true if <a href='#Path'>Paths</a> contain same number of <a href='SkPoint_Refere
 bool <a href='#SkPath_unique'>unique</a>() const
 </pre>
 
-Deprecated.
+To be deprecated soon.
 
-soonOnly valid for Android framework.
+Only valid for Android framework.
 
 ---
 
@@ -5928,9 +5928,7 @@ true if <a href='#Path'>Path</a> data is consistent
 bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const
 </pre>
 
-Deprecated.
-
-soon
+To be deprecated soon.
 
 ---
 
