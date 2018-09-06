@@ -12,15 +12,60 @@
 #include "SkStream.h"
 
 int main(int argc, char** argv) {
-    const char* image_path = argc > 1 ? argv[1] : nullptr;
-    if (!image_path) {
-        SkDebugf("Please pass an image to convert as the first argument to this program.\n");
+    const char* source_path = argc > 1 ? argv[1] : nullptr;
+    if (!source_path) {
+        SkDebugf("Please pass an image or profile to convert"
+                 " as the first argument to this program.\n");
         return 1;
     }
 
-    sk_sp<SkImage> image = SkImage::MakeFromEncoded(SkData::MakeFromFileName(image_path));
+    const char* dst_profile_path = argc > 2 ? argv[2] : nullptr;
+    skcms_ICCProfile dst_profile = *skcms_sRGB_profile();
+    if (dst_profile_path) {
+        sk_sp<SkData> blob = SkData::MakeFromFileName(dst_profile_path);
+        if (!skcms_Parse(blob->data(), blob->size(), &dst_profile)) {
+            SkDebugf("Can't parse %s as an ICC profile.\n", dst_profile_path);
+            return 1;
+        }
+    }
+
+    auto blob = SkData::MakeFromFileName(source_path);
+
+    skcms_ICCProfile src_profile;
+    if (skcms_Parse(blob->data(), blob->size(), &src_profile)) {
+        // Transform white, black, primaries, and primary complements.
+        float src[] = {
+           0,0,0,
+           1,1,1,
+
+           1,0,0,
+           0,1,0,
+           0,0,1,
+
+           0,1,1,
+           1,0,1,
+           1,1,0,
+        };
+        float dst[24] = {0};
+
+        if (!skcms_Transform(
+                    src, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &src_profile,
+                    dst, skcms_PixelFormat_RGB_fff, skcms_AlphaFormat_Unpremul, &dst_profile,
+                    8)) {
+            SkDebugf("Cannot transform.\n");
+            return 1;
+        }
+        for (int i = 0; i < 8; i++) {
+            SkDebugf("(%g, %g, %g) --> (%+.4f, %+.4f, %+.4f)\n",
+                     src[3*i+0], src[3*i+1], src[3*i+2],
+                     dst[3*i+0], dst[3*i+1], dst[3*i+2]);
+        }
+        return 0;
+    }
+
+    sk_sp<SkImage> image = SkImage::MakeFromEncoded(blob);
     if (!image) {
-        SkDebugf("Couldn't decode %s as an SkImage.\n", image_path);
+        SkDebugf("Couldn't decode %s as an SkImage or an ICC profile.\n", source_path);
         return 1;
     }
 
@@ -38,18 +83,7 @@ int main(int argc, char** argv) {
 
     SkColorSpace* src_cs = image->colorSpace() ? image->colorSpace()
                                                : sk_srgb_singleton();
-    skcms_ICCProfile src_profile;
     src_cs->toProfile(&src_profile);
-
-    const char* dst_profile_path = argc > 2 ? argv[2] : nullptr;
-    skcms_ICCProfile dst_profile = *skcms_sRGB_profile();
-    if (dst_profile_path) {
-        sk_sp<SkData> blob = SkData::MakeFromFileName(dst_profile_path);
-        if (!skcms_Parse(blob->data(), blob->size(), &dst_profile)) {
-            SkDebugf("Can't parse %s as an ICC profile.\n", dst_profile_path);
-            return 1;
-        }
-    }
 
     skcms_PixelFormat fmt;
     switch (pixmap.colorType()) {
