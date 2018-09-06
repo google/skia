@@ -314,7 +314,7 @@ func kitchenTask(name, recipe, isolate, serviceAccount string, dimensions []stri
 		Dependencies: []string{BUNDLE_RECIPES_NAME},
 		Dimensions:   dimensions,
 		EnvPrefixes: map[string][]string{
-			"PATH": []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
+			"PATH":                    []string{"cipd_bin_packages", "cipd_bin_packages/bin"},
 			"VPYTHON_VIRTUALENV_ROOT": []string{"cache/vpython"},
 		},
 		ExtraTags: map[string]string{
@@ -626,7 +626,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 		// Specify "rack" dimension for consistent test results.
 		// See https://bugs.chromium.org/p/chromium/issues/detail?id=784662&desc=2#c34
 		// for more context.
-		d["rack"] = "1"
+		d["rack"] = "2"
 	}
 
 	rv := make([]string, 0, len(d))
