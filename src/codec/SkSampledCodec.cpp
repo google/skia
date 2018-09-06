@@ -8,6 +8,7 @@
 #include "SkCodec.h"
 #include "SkCodecPriv.h"
 #include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkSampledCodec.h"
 #include "SkSampler.h"
 #include "SkTemplates.h"

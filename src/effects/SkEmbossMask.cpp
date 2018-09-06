@@ -9,6 +9,7 @@
 
 #include "SkFixed.h"
 #include "SkMath.h"
+#include "SkMathPriv.h"
 #include "SkTo.h"
 
 static inline int nonzero_to_one(int x) {

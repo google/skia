@@ -8,6 +8,7 @@
 #include "SkBmpStandardCodec.h"
 #include "SkCodecPriv.h"
 #include "SkColorData.h"
+#include "SkMathPriv.h"
 #include "SkStream.h"
 
 /*
