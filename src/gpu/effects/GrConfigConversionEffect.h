@@ -15,10 +15,12 @@
 #include "GrClip.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
+#include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrProxyProvider.h"
 #include "GrRenderTargetContext.h"
-#include "GrFragmentProcessor.h"
-#include "GrCoordTransform.h"
+#include "SkMath.h"
+
 class GrConfigConversionEffect : public GrFragmentProcessor {
 public:
     static bool TestForPreservingPMConversions(GrContext* context) {

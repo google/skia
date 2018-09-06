@@ -20,6 +20,7 @@
 
 #include "SkPoint.h"
 #include "SkSize.h"
+#include "SkMath.h"
 #include "../private/SkSafe32.h"
 #include "../private/SkTFitsIn.h"
 

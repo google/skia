@@ -9,6 +9,7 @@
 #define SkMathPriv_DEFINED
 
 #include "SkMath.h"
+#include "SkMath.h"
 
 /** Returns -1 if n < 0, else returns 0
  */
