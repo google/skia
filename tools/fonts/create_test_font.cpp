@@ -10,6 +10,7 @@
 // ./tools/fonts/SkTestFontMgr.cpp
 
 #include "SkFontStyle.h"
+#include "SkMath.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
 #include "SkPaint.h"
@@ -20,6 +21,7 @@
 #include "SkTSort.h"
 #include "SkTypeface.h"
 #include "SkUTF.h"
+
 #include <stdio.h>
 
 namespace {

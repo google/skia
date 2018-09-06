@@ -9,6 +9,7 @@
 #define SkImageInfoPriv_DEFINED
 
 #include "SkImageInfo.h"
+#include "SkMath.h"
 
 enum SkColorTypeComponentFlag {
     kRed_SkColorTypeComponentFlag    = 0x1,

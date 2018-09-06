@@ -8,6 +8,7 @@
 #ifndef SkNx_DEFINED
 #define SkNx_DEFINED
 
+#include "SkMath.h"
 #include "SkSafe_math.h"
 #include "SkScalar.h"
 #include "SkTypes.h"

@@ -9,6 +9,7 @@
 #define SkScalar_DEFINED
 
 #include "../private/SkFloatingPoint.h"
+#include "SkMath.h"
 
 #undef SK_SCALAR_IS_FLOAT
 #define SK_SCALAR_IS_FLOAT  1

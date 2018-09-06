@@ -7,6 +7,7 @@
 #ifndef SkPathOpsRect_DEFINED
 #define SkPathOpsRect_DEFINED
 
+#include "SkMath.h"
 #include "SkPathOpsPoint.h"
 
 struct SkDRect {

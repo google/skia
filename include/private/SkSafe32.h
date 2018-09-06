@@ -8,6 +8,7 @@
 #ifndef SkSafe32_DEFINED
 #define SkSafe32_DEFINED
 
+#include "SkMath.h"
 #include "SkTypes.h"
 
 static constexpr int32_t Sk64_pin_to_s32(int64_t x) {

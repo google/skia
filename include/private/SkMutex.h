@@ -8,9 +8,9 @@
 #ifndef SkMutex_DEFINED
 #define SkMutex_DEFINED
 
-#include "../private/SkMacros.h"
-#include "../private/SkSemaphore.h"
-#include "../private/SkThreadID.h"
+#include "SkMacros.h"
+#include "SkSemaphore.h"
+#include "SkThreadID.h"
 #include "SkTypes.h"
 
 #define SK_DECLARE_STATIC_MUTEX(name) static SkBaseMutex name;

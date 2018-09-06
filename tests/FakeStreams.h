@@ -6,6 +6,7 @@
  */
 
 #include "SkData.h"
+#include "SkMath.h"
 #include "SkStream.h"
 
 #ifndef FakeStreams_DEFINED

@@ -10,6 +10,7 @@
 #include "SkArenaAlloc.h"
 #include "SkIntersections.h"
 #include "SkMacros.h"
+#include "SkMath.h"
 #include "SkPathOpsBounds.h"
 #include "SkPathOpsRect.h"
 #include "SkTSort.h"
