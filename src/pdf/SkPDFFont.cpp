@@ -21,7 +21,6 @@
 #include "SkRefCnt.h"
 #include "SkScalar.h"
 #include "SkStream.h"
-#include "SkStreamPriv.h"
 #include "SkTo.h"
 #include "SkTypes.h"
 #include "SkUTF.h"
@@ -99,13 +98,13 @@ void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
     // Specify width and bounding box for the glyph.
     SkPDFUtils::AppendScalar(width, content);
     content->writeText(" 0 ");
-    SkWStreamWriteDecAsText(content, box.fLeft);
+    content->writeDecAsText(box.fLeft);
     content->writeText(" ");
-    SkWStreamWriteDecAsText(content, box.fTop);
+    content->writeDecAsText(box.fTop);
     content->writeText(" ");
-    SkWStreamWriteDecAsText(content, box.fRight);
+    content->writeDecAsText(box.fRight);
     content->writeText(" ");
-    SkWStreamWriteDecAsText(content, box.fBottom);
+    content->writeDecAsText(box.fBottom);
     content->writeText(" d1\n");
 }
 

@@ -41,7 +41,6 @@
 #include "SkRasterClip.h"
 #include "SkScopeExit.h"
 #include "SkString.h"
-#include "SkStreamPriv.h"
 #include "SkSurface.h"
 #include "SkTemplates.h"
 #include "SkTextBlob.h"
@@ -437,7 +436,7 @@ void GraphicStackState::updateDrawingState(const SkPDFDevice::GraphicStateEntry&
             static_assert(SkPaint::kFill_Style == 0, "enum_must_match_value");
             static_assert(SkPaint::kStroke_Style == 1, "enum_must_match_value");
             static_assert(SkPaint::kStrokeAndFill_Style == 2, "enum_must_match_value");
-            SkWStreamWriteDecAsText(fContentStream, state.fTextFill);
+            fContentStream->writeDecAsText(state.fTextFill);
             fContentStream->writeText(" Tr\n");
             currentEntry()->fTextFill = state.fTextFill;
         }
@@ -1107,7 +1106,7 @@ static void update_font(SkWStream* wStream, int fontIndex, SkScalar textSize) {
     wStream->writeText("/");
     char prefix = SkPDFResourceDict::GetResourceTypePrefix(SkPDFResourceDict::kFont_ResourceType);
     wStream->write(&prefix, 1);
-    SkWStreamWriteDecAsText(wStream, fontIndex);
+    wStream->writeDecAsText(fontIndex);
     wStream->writeText(" ");
     SkPDFUtils::AppendScalar(textSize, wStream);
     wStream->writeText(" Tf\n");

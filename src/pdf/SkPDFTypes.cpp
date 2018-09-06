@@ -116,7 +116,7 @@ void SkPDFUnion::emitObject(SkWStream* stream,
                             const SkPDFObjNumMap& objNumMap) const {
     switch (fType) {
         case Type::kInt:
-            SkWStreamWriteDecAsText(stream, fIntValue);
+            stream->writeDecAsText(fIntValue);
             return;
         case Type::kColorComponent:
             SkPDFUtils::AppendColorComponent(SkToU8(fIntValue), stream);
@@ -145,7 +145,7 @@ void SkPDFUnion::emitObject(SkWStream* stream,
             SkPDFUtils::WriteString(stream, fSkString.get().c_str(), fSkString.get().size());
             return;
         case Type::kObjRef:
-            SkWStreamWriteDecAsText(stream, objNumMap.getObjectNumber(fObject));
+            stream->writeDecAsText(objNumMap.getObjectNumber(fObject));
             stream->writeText(" 0 R");  // Generation number is always 0.
             return;
         case Type::kObject:
