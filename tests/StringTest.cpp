@@ -7,12 +7,14 @@
 
 #include "Test.h"
 
+#include "SkRandom.h"
+#include "SkString.h"
+#include "SkStringUtils.h"
+
+#include <cinttypes>
 #include <stdarg.h>
 #include <stdio.h>
 #include <thread>
-
-#include "SkString.h"
-#include "SkStringUtils.h"
 
 static const char* gThirtyWideDecimal = "%30d";
 
@@ -115,9 +117,11 @@ DEF_TEST(String, reporter) {
     a.set("");
     a.appendS64(0x0000000001000000LL, 15);
     REPORTER_ASSERT(reporter, a.equals("000000016777216"));
+    REPORTER_ASSERT(reporter, a.size() == 15);
     a.set("");
     a.appendS64(0xFFFFFFFFFF000000LL, 15);
     REPORTER_ASSERT(reporter, a.equals("-000000016777216"));
+    REPORTER_ASSERT(reporter, a.size() == 16);
 
     a.set("");
     a.appendU64(0x7FFFFFFFFFFFFFFFULL, 0);
@@ -335,3 +339,80 @@ DEF_TEST(String_fromUTF16, r) {
     REPORTER_ASSERT(r, SkStringFromUTF16(test3, SK_ARRAY_COUNT(test3)).equals("αβγδε ζηθικ"));
 }
 
+constexpr size_t kBufferSize = 22;
+
+template <typename T>
+static void append_test(skiatest::Reporter* rep,
+                        char* (*fn)(char*, T),
+                        size_t size,
+                        T value,
+                        const char* fmtString) {
+    SkASSERT(size + 1 <= kBufferSize);
+    char buffer[kBufferSize];
+    char* p = fn(buffer, value);
+    REPORTER_ASSERT(rep, p <= buffer + size);
+    *p = '\0';
+    char buffer2[kBufferSize];
+    sprintf(buffer2, fmtString, value);
+    if (0 != strcmp(buffer, buffer2)) {
+        ERRORF(rep, "'%s' '%s'\n", buffer2, buffer);
+    }
+}
+
+template <typename T>
+static void append_test(skiatest::Reporter* rep,
+                        char* (*fn)(char*, T, int),
+                        size_t size,
+                        T value,
+                        const char* fmtString,
+                        unsigned minDigits) {
+    SkASSERT(size + 1 <= kBufferSize);
+    minDigits = minDigits % size;
+    char buffer[kBufferSize];
+    char* p = fn(buffer, value, (int)minDigits);
+    REPORTER_ASSERT(rep, p <= buffer + size);
+    *p = '\0';
+    char buffer2[kBufferSize];
+    if (value < 0) {
+        ++minDigits;
+    }
+    sprintf(buffer2, fmtString, (int)minDigits, value);
+    if (0 != strcmp(buffer, buffer2)) {
+        ERRORF(rep, "'%s' '%s'\n", buffer2, buffer);
+    }
+}
+
+static uint64_t nextU64(SkRandom& rand) {
+    uint64_t hi = rand.nextU();
+    return (hi << 32) | rand.nextU();
+}
+
+static int64_t nextS64(SkRandom& rand) { return (int64_t)nextU64(rand); }
+
+DEF_TEST(String_StrAppend, rep) {
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        #define APPEND_TEST(rep, fn, ...) append_test(rep, fn, fn ## _MaxSize, __VA_ARGS__)
+        APPEND_TEST(rep, SkStrAppendU32,    rand.nextU(), "%u");
+        APPEND_TEST(rep, SkStrAppendS32,    rand.nextS(), "%d");
+        APPEND_TEST(rep, SkStrAppendScalar, rand.nextF(), "%.8g");
+        APPEND_TEST(rep, SkStrAppendU64,    nextU64(rand), "%0*" PRIu64, rand.nextU());
+        APPEND_TEST(rep, SkStrAppendS64,    nextS64(rand), "%0*" PRId64, rand.nextU());
+        #undef APPEND_TEST
+
+    }
+}
+DEF_TEST(String_StrU32Hex, rep) {
+    SkRandom rand;
+    for (int i = 0; i < 100; ++i) {
+        uint32_t value = rand.nextU();
+        int minDigits = (int)(rand.nextU() % 9);
+        char buffer[9] = {0};
+        char expected[9] = {0};
+        char* p = SkStrFillU32Hex(buffer, value, minDigits);
+        sprintf(expected, "%0*X", minDigits, value);
+        if (0 != strcmp(p, expected)) {
+            ERRORF(rep, "'%s' '%s'\n", p, buffer);
+        }
+    }
+}
