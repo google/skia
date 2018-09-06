@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0c456eea_574e0c7c",
+        "filename": "src/core/SkMathPriv.h",
+        "patchSetId": 20
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-06T16:55:38Z",
+      "side": 1,
+      "message": "Duplicate?",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 19
+      },
+      "revId": "514efa700aa2959d5517d12506a689bf82a50864",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
