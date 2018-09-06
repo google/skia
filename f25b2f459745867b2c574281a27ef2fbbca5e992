@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9bcc5d4a_2ab1cc0f",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1289,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-06T21:02:12Z",
+      "side": 1,
+      "message": "Nope, I\u0027ll switch it to an assert.",
+      "parentUuid": "3f556c0d_1b7cc98f",
+      "range": {
+        "startLine": 1289,
+        "startChar": 0,
+        "endLine": 1289,
+        "endChar": 50
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "caa889e3_37960b2f",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ad3fadae_0b181433",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1314,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-06T21:02:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "caa889e3_37960b2f",
+      "range": {
+        "startLine": 1314,
+        "startChar": 8,
+        "endLine": 1314,
+        "endChar": 25
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "092a4d53_a284ea5c",
         "filename": "src/sksl/SkSLIRGenerator.cpp",
         "patchSetId": 1
@@ -68,6 +116,30 @@
       "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8fbd0fff_e92532c9",
+        "filename": "src/sksl/SkSLIRGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-06T21:02:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "092a4d53_a284ea5c",
+      "range": {
+        "startLine": 1316,
+        "startChar": 15,
+        "endLine": 1316,
+        "endChar": 33
+      },
+      "revId": "f25b2f459745867b2c574281a27ef2fbbca5e992",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
