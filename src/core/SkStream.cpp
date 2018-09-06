@@ -63,45 +63,9 @@ bool SkStream::readPackedUInt(size_t* i) {
 
 //////////////////////////////////////////////////////////////////////////////////////
 
-SkWStream::~SkWStream()
-{
-}
+SkWStream::~SkWStream() {}
 
-void SkWStream::flush()
-{
-}
-
-bool SkWStream::writeDecAsText(int32_t dec)
-{
-    char buffer[SkStrAppendS32_MaxSize];
-    char* stop = SkStrAppendS32(buffer, dec);
-    return this->write(buffer, stop - buffer);
-}
-
-bool SkWStream::writeBigDecAsText(int64_t dec, int minDigits)
-{
-    char buffer[SkStrAppendU64_MaxSize];
-    char* stop = SkStrAppendU64(buffer, dec, minDigits);
-    return this->write(buffer, stop - buffer);
-}
-
-bool SkWStream::writeHexAsText(uint32_t hex, int digits)
-{
-    SkString    tmp;
-    tmp.appendHex(hex, digits);
-    return this->write(tmp.c_str(), tmp.size());
-}
-
-bool SkWStream::writeScalarAsText(SkScalar value)
-{
-    char buffer[SkStrAppendScalar_MaxSize];
-    char* stop = SkStrAppendScalar(buffer, value);
-    return this->write(buffer, stop - buffer);
-}
-
-bool SkWStream::writeScalar(SkScalar value) {
-    return this->write(&value, sizeof(value));
-}
+void SkWStream::flush() {}
 
 int SkWStream::SizeOfPackedUInt(size_t value) {
     if (value <= SK_MAX_BYTE_FOR_U8) {

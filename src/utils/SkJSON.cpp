@@ -9,6 +9,7 @@
 
 #include "SkMalloc.h"
 #include "SkStream.h"
+#include "SkStreamPriv.h"
 #include "SkString.h"
 
 #include <cmath>
@@ -777,7 +778,7 @@ void Write(const Value& v, SkWStream* stream) {
         stream->writeText(*v.as<BoolValue>() ? "true" : "false");
         break;
     case Value::Type::kNumber:
-        stream->writeScalarAsText(*v.as<NumberValue>());
+        SkWStreamWriteScalarAsText(stream, *v.as<NumberValue>());
         break;
     case Value::Type::kString:
         stream->writeText("\"");

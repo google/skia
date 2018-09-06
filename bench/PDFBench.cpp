@@ -16,6 +16,7 @@
 #include "SkPixmap.h"
 #include "SkRandom.h"
 #include "SkStream.h"
+#include "SkStreamPriv.h"
 #include "SkTo.h"
 
 namespace {
@@ -85,7 +86,7 @@ static void test_pdf_object_serialization(const sk_sp<SkPDFObject> object) {
     objNumMap.addObjectRecursively(object.get());
     for (size_t i = 0; i < objNumMap.objects().size(); ++i) {
         SkPDFObject* object = objNumMap.objects()[i].get();
-        wStream.writeDecAsText(i + 1);
+        SkWStreamWriteDecAsText(&wStream, i + 1);
         wStream.writeText(" 0 obj\n");
         object->emitObject(&wStream, objNumMap);
         wStream.writeText("\nendobj\n");

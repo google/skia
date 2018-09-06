@@ -8,6 +8,7 @@
 #include "SkPDFMakeToUnicodeCmap.h"
 
 #include "SkPDFUtils.h"
+#include "SkStreamPriv.h"
 #include "SkTo.h"
 #include "SkUTF.h"
 
@@ -88,7 +89,7 @@ static void append_bfchar_section(const std::vector<BFChar>& bfchar,
     for (size_t i = 0; i < bfchar.size(); i += 100) {
         int count = SkToInt(bfchar.size() - i);
         count = SkMin32(count, 100);
-        cmap->writeDecAsText(count);
+        SkWStreamWriteDecAsText(cmap, count);
         cmap->writeText(" beginbfchar\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
@@ -108,7 +109,7 @@ static void append_bfrange_section(const std::vector<BFRange>& bfrange,
     for (size_t i = 0; i < bfrange.size(); i += 100) {
         int count = SkToInt(bfrange.size() - i);
         count = SkMin32(count, 100);
-        cmap->writeDecAsText(count);
+        SkWStreamWriteDecAsText(cmap, count);
         cmap->writeText(" beginbfrange\n");
         for (int j = 0; j < count; ++j) {
             cmap->writeText("<");
