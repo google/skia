@@ -6,6 +6,7 @@
  */
 
 #include "SkPDFDocument.h"
+#include "SkPDFDocumentPriv.h"
 
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
@@ -40,7 +41,7 @@ static_assert((SKPDF_MAGIC[2] & 0x7F) == "Skia"[2], "");
 static_assert((SKPDF_MAGIC[3] & 0x7F) == "Skia"[3], "");
 #endif
 void SkPDFObjectSerializer::serializeHeader(SkWStream* wStream,
-                                            const SkDocument::PDFMetadata& md) {
+                                            const SkPDF::Metadata& md) {
     fBaseOffset = wStream->bytesWritten();
     static const char kHeader[] = "%PDF-1.4\n%" SKPDF_MAGIC "\n";
     wStream->writeText(kHeader);
@@ -183,9 +184,9 @@ static void reset_object(T* dst, Args&&... args) {
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
-                             const SkDocument::PDFMetadata& metadata)
+                             SkPDF::Metadata metadata)
     : SkDocument(stream)
-    , fMetadata(metadata) {
+    , fMetadata(std::move(metadata)) {
     constexpr float kDpiForRasterScaleOne = 72.0f;
     if (fMetadata.fRasterDPI != kDpiForRasterScaleOne) {
         fInverseRasterScale = kDpiForRasterScaleOne / fMetadata.fRasterDPI;
@@ -281,7 +282,7 @@ void SkPDFDocument::reset() {
     fPageDevice = nullptr;
     fID = nullptr;
     fXMP = nullptr;
-    fMetadata = SkDocument::PDFMetadata();
+    fMetadata = SkPDF::Metadata();
     fRasterScale = 1;
     fInverseRasterScale = 1;
 }
@@ -453,25 +454,44 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     this->reset();
 }
 
+static SkPDF::Metadata convert(const SkDocument::PDFMetadata& src) {
+    SkPDF::Metadata result;
+    result.fTitle           = src.fTitle;
+    result.fAuthor          = src.fAuthor;
+    result.fSubject         = src.fSubject;
+    result.fKeywords        = src.fKeywords;
+    result.fCreator         = src.fCreator;
+    result.fProducer        = src.fProducer;
+    result.fRasterDPI       = src.fRasterDPI;
+    result.fPDFA            = src.fPDFA;
+    result.fEncodingQuality = src.fEncodingQuality;
+    if (src.fCreation.fEnabled) { result.fCreation = src.fCreation.fDateTime; }
+    if (src.fModified.fEnabled) { result.fModified = src.fModified.fDateTime; }
+    return result;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    const SkDocument::PDFMetadata& metadata) {
-    SkDocument::PDFMetadata meta = metadata;
+static sk_sp<SkDocument> make_pdf_document(SkWStream* stream,
+                                           SkPDF::Metadata meta) {
     if (meta.fRasterDPI <= 0) {
         meta.fRasterDPI = 72.0f;
     }
     if (meta.fEncodingQuality < 0) {
         meta.fEncodingQuality = 0;
     }
-    return stream ? sk_make_sp<SkPDFDocument>(stream, meta) : nullptr;
+    return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
-    return SkPDFMakeDocument(stream, metadata);
+    return make_pdf_document(stream, convert(metadata));
 }
 
 sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
-    return SkPDFMakeDocument(stream, PDFMetadata());
+    return make_pdf_document(stream, SkPDF::Metadata());
+}
+
+sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
+    return make_pdf_document(stream, metadata);
 }
 

@@ -74,7 +74,7 @@ DEF_BENCH(return new PDFScalarBench("PDFScalar_random", next_any);)
 #ifdef SK_SUPPORT_PDF
 
 #include "SkPDFBitmap.h"
-#include "SkPDFDocument.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFShader.h"
 
 namespace {
@@ -231,7 +231,7 @@ struct PDFShaderBench : public Benchmark {
         SkASSERT(fShader);
         while (loops-- > 0) {
             SkNullWStream nullStream;
-            SkPDFDocument doc(&nullStream, SkDocument::PDFMetadata());
+            SkPDFDocument doc(&nullStream, SkPDF::Metadata());
             sk_sp<SkPDFObject> shader = SkPDFMakeShader(&doc, fShader.get(), SkMatrix::I(),
                                                         {0, 0, 400, 400}, SK_ColorBLACK);
         }
