@@ -13,9 +13,10 @@
 #include <atomic>
 
 #if SK_SUPPORT_GPU
-    #include "GrTextureProxy.h"
+#include "GrTextureProxy.h"
+#include "SkTDArray.h"
 
-    class GrTexture;
+class GrTexture;
 #endif
 
 #include <new>
@@ -95,6 +96,13 @@ public:
     virtual sk_sp<SkImage> onMakeColorSpace(sk_sp<SkColorSpace>, SkColorType) const = 0;
 protected:
     SkImage_Base(int width, int height, uint32_t uniqueID);
+
+#if SK_SUPPORT_GPU
+    // When the SkImage_Base goes away, we will iterate over all the unique keys we've used and
+    // send messages to the GrContexts to say the unique keys are no longer valid. The GrContexts
+    // can then release the resources, conntected with the those unique keys, from their caches.
+    SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
+#endif
 
 private:
     // Set true by caches when they cache content that's derived from the current pixels.

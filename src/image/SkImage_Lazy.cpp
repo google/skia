@@ -572,6 +572,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
             if (!willBeMipped || GrMipMapped::kYes == proxy->mipMapped()) {
+                *fUniqueKeyInvalidatedMessages.append() =
+                        new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
                 return proxy;
             }
         }
@@ -600,6 +602,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
                 SK_HISTOGRAM_ENUMERATION("LockTexturePath", kYUV_LockTexturePath,
                                          kLockTexturePathCount);
                 set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
+                *fUniqueKeyInvalidatedMessages.append() =
+                        new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
                 return proxy;
             }
         }
@@ -618,6 +622,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
             SK_HISTOGRAM_ENUMERATION("LockTexturePath", kRGBA_LockTexturePath,
                                      kLockTexturePathCount);
             set_key_on_proxy(proxyProvider, proxy.get(), nullptr, key);
+            *fUniqueKeyInvalidatedMessages.append() =
+                    new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
             return proxy;
         }
     }
@@ -629,6 +635,8 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
         // generate the rest of the mips.
         SkASSERT(willBeMipped);
         SkASSERT(GrMipMapped::kNo == proxy->mipMapped());
+        *fUniqueKeyInvalidatedMessages.append() =
+                new GrUniqueKeyInvalidatedMessage(key, ctx->uniqueID());
         if (auto mippedProxy = GrCopyBaseMipMapToTextureProxy(ctx, proxy.get())) {
             set_key_on_proxy(proxyProvider, mippedProxy.get(), proxy.get(), key);
             return mippedProxy;
