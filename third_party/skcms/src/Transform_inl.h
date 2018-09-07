@@ -587,7 +587,7 @@ DEF_CLUT(4,3,16)
 
 static void exec_ops(const Op* ops, const void** args,
                      const char* src, char* dst, int i) {
-    F r = F0, g = F0, b = F0, a = F0;
+    F r = F0, g = F0, b = F0, a = F1;
     while (true) {
         switch (*ops++) {
             case Op_noop: break;
@@ -615,7 +615,6 @@ static void exec_ops(const Op* ops, const void** args,
                 r = cast<F>(rgb & (uint16_t)(31<< 0)) * (1.0f / (31<< 0));
                 g = cast<F>(rgb & (uint16_t)(63<< 5)) * (1.0f / (63<< 5));
                 b = cast<F>(rgb & (uint16_t)(31<<11)) * (1.0f / (31<<11));
-                a = F1;
             } break;
 
             case Op_load_888:{
@@ -641,7 +640,6 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>(load_3<U32>(rgb+1) ) * (1/255.0f);
                 b = cast<F>(load_3<U32>(rgb+2) ) * (1/255.0f);
             #endif
-                a = F1;
             } break;
 
             case Op_load_8888:{
@@ -680,7 +678,6 @@ static void exec_ops(const Op* ops, const void** args,
                 g = cast<F>((G & 0x00ff)<<8 | (G & 0xff00)>>8) * (1/65535.0f);
                 b = cast<F>((B & 0x00ff)<<8 | (B & 0xff00)>>8) * (1/65535.0f);
             #endif
-                a = F1;
             } break;
 
             case Op_load_16161616:{
@@ -720,7 +717,6 @@ static void exec_ops(const Op* ops, const void** args,
                 r = F_from_Half(R);
                 g = F_from_Half(G);
                 b = F_from_Half(B);
-                a = F1;
             } break;
 
             case Op_load_hhhh:{
@@ -760,7 +756,6 @@ static void exec_ops(const Op* ops, const void** args,
                 g = load_3<F>(rgb+1);
                 b = load_3<F>(rgb+2);
             #endif
-                a = F1;
             } break;
 
             case Op_load_ffff:{
