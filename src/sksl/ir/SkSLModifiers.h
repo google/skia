@@ -40,7 +40,7 @@ struct Modifiers {
     : fLayout(Layout())
     , fFlags(0) {}
 
-    Modifiers(Layout& layout, int flags)
+    Modifiers(const Layout& layout, int flags)
     : fLayout(layout)
     , fFlags(flags) {}
 

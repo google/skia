@@ -323,6 +323,53 @@ void CPPCodeGenerator::writeSwitchStatement(const SwitchStatement& s) {
     INHERITED::writeSwitchStatement(s);
 }
 
+void CPPCodeGenerator::writeFieldAccess(const FieldAccess& access) {
+    if (access.fBase->fType.name() == "fragmentProcessor") {
+        // Special field access on fragment processors are converted into function calls on
+        // GrFragmentProcessor's getters.
+        if (access.fBase->fKind != Expression::kVariableReference_Kind) {
+            fErrors.error(access.fBase->fOffset, "fragmentProcessor must be a reference\n");
+            return;
+        }
+
+        const Type::Field& field = fContext.fFragmentProcessor_Type->fields()[access.fFieldIndex];
+        int index = getChildFPIndex((const VariableReference&) *access.fBase);
+        String cppAccess = String::printf("_outer.childProcessor(%s).%s()",
+                                          to_string(index).c_str(), String(field.fName).c_str());
+
+        if (fCPPMode) {
+            this->write(cppAccess.c_str());
+        } else {
+            writeRuntimeValue(*field.fType, Layout(), cppAccess);
+        }
+        return;
+    }
+    INHERITED::writeFieldAccess(access);
+}
+
+int CPPCodeGenerator::getChildFPIndex(const VariableReference& reference) const {
+    int index = 0;
+    bool found = false;
+    for (const auto& p : fProgram) {
+        if (ProgramElement::kVar_Kind == p.fKind) {
+            const VarDeclarations& decls = (const VarDeclarations&) p;
+            for (const auto& raw : decls.fVars) {
+                const VarDeclaration& decl = (VarDeclaration&) *raw;
+                if (decl.fVar == &reference.fVariable) {
+                    found = true;
+                } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
+                    ++index;
+                }
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    SkASSERT(found);
+    return index;
+}
+
 void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
     if (c.fFunction.fBuiltin && c.fFunction.fName == "process") {
         // Sanity checks that are detected by function definition in sksl_fp.inc
@@ -341,25 +388,7 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
             // Second argument must also be a half4 expression
             SkASSERT("half4" == c.fArguments[1]->fType.name());
         }
-        int index = 0;
-        bool found = false;
-        for (const auto& p : fProgram) {
-            if (ProgramElement::kVar_Kind == p.fKind) {
-                const VarDeclarations& decls = (const VarDeclarations&) p;
-                for (const auto& raw : decls.fVars) {
-                    VarDeclaration& decl = (VarDeclaration&) *raw;
-                    if (decl.fVar == &((VariableReference&) *c.fArguments[0]).fVariable) {
-                        found = true;
-                    } else if (decl.fVar->fType == *fContext.fFragmentProcessor_Type) {
-                        ++index;
-                    }
-                }
-            }
-            if (found) {
-                break;
-            }
-        }
-        SkASSERT(found);
+        int index = getChildFPIndex((const VariableReference&) *c.fArguments[0]);
 
         // Start a new extra emit code section so that the emitted child processor can depend on
         // sksl variables defined in earlier sksl code.

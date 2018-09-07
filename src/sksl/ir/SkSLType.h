@@ -71,6 +71,17 @@ public:
         fName.fLength = fNameString.size();
     }
 
+    // Create an "other" (special) type that supports field access.
+    Type(String name, std::vector<Field> fields)
+    : INHERITED(-1, kType_Kind, StringFragment())
+    , fNameString(std::move(name))
+    , fTypeKind(kOther_Kind)
+    , fNumberKind(kNonnumeric_NumberKind)
+    , fFields(std::move(fields)) {
+        fName.fChars = fNameString.c_str();
+        fName.fLength = fNameString.size();
+    }
+
     // Create a simple type.
     Type(String name, Kind kind)
     : INHERITED(-1, kType_Kind, StringFragment())
@@ -289,7 +300,7 @@ public:
     }
 
     const std::vector<Field>& fields() const {
-        SkASSERT(fTypeKind == kStruct_Kind);
+        SkASSERT(fTypeKind == kStruct_Kind || fTypeKind == kOther_Kind);
         return fFields;
     }
 

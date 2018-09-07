@@ -573,3 +573,56 @@ DEF_TEST(SkSLFPChildFPAndGlobal, r) {
             "this->registerChildProcessor(src.childProcessor(0).clone());"
          });
 }
+
+DEF_TEST(SkSLFPChildProcessorInlineFieldAccess, r) {
+    test(r,
+         "in fragmentProcessor child;"
+         "void main() {"
+         "    if (child.preservesOpaqueInput) {"
+         "        sk_OutColor = process(child, sk_InColor);"
+         "    } else {"
+         "        sk_OutColor = half4(1);"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child));"
+         },
+         {
+            "fragBuilder->codeAppendf(\"if (%s) {\", "
+                    "(_outer.childProcessor(0).preservesOpaqueInput() ? \"true\" : \"false\"));",
+            "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, _input0.c_str(), &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());"
+         });
+}
+
+DEF_TEST(SkSLFPChildProcessorFieldAccess, r) {
+    test(r,
+         "in fragmentProcessor child;"
+         "bool opaque = child.preservesOpaqueInput;"
+         "void main() {"
+         "    if (opaque) {"
+         "        sk_OutColor = process(child);"
+         "    } else {"
+         "        sk_OutColor = half4(0.5);"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child));"
+         },
+         {
+            "opaque = _outer.childProcessor(0).preservesOpaqueInput();",
+            "fragBuilder->codeAppendf(\"bool opaque = %s;\\nif (opaque) {\", "
+                    "(opaque ? \"true\" : \"false\"));",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(0.5);\\n}\\n\""
+                    ", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());"
+         });
+}
