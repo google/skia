@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a067f9f_6ab1fb56",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 1224,
+      "author": {
+        "id": 5140
+      },
+      "writtenOn": "2018-09-07T03:25:05Z",
+      "side": 1,
+      "message": "Right here bounds may not have been set.\n\nif (!(bounds.xMin \u003c bounds.xMax \u0026\u0026 bounds.yMin \u003c bounds.yMax)) {\n  bounds \u003d { 0, 0, 0, 0 }\n}",
+      "range": {
+        "startLine": 1224,
+        "startChar": 12,
+        "endLine": 1224,
+        "endChar": 16
+      },
+      "revId": "53737f59411b52ccfc46c43aee2d5daffeb27e1d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
