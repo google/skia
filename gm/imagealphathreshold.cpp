@@ -104,7 +104,7 @@ static sk_sp<SkSurface> make_color_matching_surface(SkCanvas* canvas, int width,
 
     SkImageInfo info = SkImageInfo::Make(width, height, ct, at, std::move(cs));
 
-    return sk_tool_utils::makeSurface(canvas, info);
+    return canvas->makeSurface(info);
 }
 
 class ImageAlphaThresholdSurfaceGM : public skiagm::GM {
