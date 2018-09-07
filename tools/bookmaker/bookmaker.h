@@ -657,6 +657,19 @@ public:
         return fChar + index;
     }
 
+    const char* trimmedBracketNoEnd(const char bracket) const {
+        int max = (int) (fEnd - fChar);
+        int index = 0;
+        while (index < max && bracket != fChar[index]) {
+            ++index;
+        }
+        SkASSERT(index < max);
+        while (index > 0 && ' ' >= fChar[index - 1]) {
+            --index;
+        }
+        return fChar + index;
+    }
+
     const char* trimmedLineEnd() const {
         const char* result = this->lineEnd();
         while (result > fChar && ' ' >= result[-1]) {
@@ -971,6 +984,8 @@ public:
         }
         return nullptr;
     }
+
+    void trimEnd();
 
     string fText;  // if text is constructed instead of in a file, it's put here
     const char* fStart = nullptr;  // .. in original text file, or the start of fText
@@ -1453,8 +1468,11 @@ public:
         return findDefinitions();
     }
 
-    bool popParentStack(Definition* definition);
-    void reportDuplicates(const Definition& def, string dup) const;
+    void parseHashAnchor(Definition* );
+    void parseHashFormula(Definition* );
+    void parseHashLine(Definition* );
+    bool popParentStack(Definition* );
+    void reportDuplicates(const Definition& , string dup) const;
     void resetExampleHashes();
 
     void reset() override {

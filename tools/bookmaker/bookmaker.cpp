@@ -506,6 +506,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
 // can't do this here; phrase refs may not have been defined yet
 //                    this->setWrapper(definition);
                 }
+                if (MarkType::kFormula == markType) {
+                    this->parseHashFormula(definition);
+                }
             } else {
                 fMarkup.emplace_front(markType, defStart, fLineCount, fParent, fMC);
                 definition = &fMarkup.front();
@@ -573,52 +576,9 @@ bool BmhParser::addDefinition(const char* defStart, bool hasEnd, MarkType markTy
             definition->fTerminator = this->lineEnd() - 1;
             fParent->fChildren.push_back(definition);
             if (MarkType::kAnchor == markType) {
-                this->skipToEndBracket(fMC);
-                fMarkup.emplace_front(MarkType::kLink, fChar, fLineCount, definition, fMC);
-                SkAssertResult(fMC == this->next());
-                this->skipWhiteSpace();
-                Definition* link = &fMarkup.front();
-                link->fContentStart = fChar;
-                link->fContentEnd = this->trimmedBracketEnd(fMC);
-                this->skipToEndBracket(fMC);
-                SkAssertResult(fMC == this->next());
-                SkAssertResult(fMC == this->next());
-                link->fTerminator = fChar;
-                definition->fContentEnd = link->fContentEnd;
-                definition->fTerminator = fChar;
-                definition->fChildren.emplace_back(link);
+                this->parseHashAnchor(definition);
 			} else if (MarkType::kLine == markType) {
-				const char* nextLF = this->strnchr('\n', this->fEnd);
-				const char* start = fChar;
-				const char* end = this->trimmedBracketEnd(fMC);
-				this->skipToEndBracket(fMC, nextLF);
-				if (fMC != this->next() || fMC != this->next()) {
-					return this->reportError<bool>("expected ## to delineate line");
-				}
-				fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition, fMC);
-				Definition* text = &fMarkup.front();
-                if (!islower(start[0]) && (!isdigit(start[0])
-                        || MarkType::kConst != definition->fParent->fMarkType)) {
-                    return this->reportError<bool>("expect lower case start");
-                }
-                string contents = string(start, end - start);
-                if (string::npos != contents.find('.')) {
-                    return this->reportError<bool>("expect phrase, not sentence");
-                }
-                size_t firstSpace = contents.find(' ');
-                if (string::npos == firstSpace || 0 == firstSpace || 's' != start[firstSpace - 1]) {
-                    if (MarkType::kMethod == fParent->fMarkType && "experimental" != contents
-                             && "incomplete" != contents) {
-                        return this->reportError<bool>( "expect phrase in third person present"
-                                " tense (1st word should end in 's'");
-                    }
-                }
-				text->fContentStart = start;
-				text->fContentEnd = end;
-				text->fTerminator = fChar;
-				definition->fContentEnd = text->fContentEnd;
-				definition->fTerminator = fChar;
-				definition->fChildren.emplace_back(text);
+                this->parseHashLine(definition);
 			} else if (IncompleteAllowed(markType)) {
                  this->skipSpace();
                  fParent->fDeprecated = true;
@@ -1283,7 +1243,9 @@ bool BmhParser::findDefinitions() {
             if (this->peek() == fMC) {
                 this->next();
                 if (!lineStart && ' ' < this->peek()) {
-                    return this->reportError<bool>("expected definition");
+                    if (!fParent || MarkType::kFormula != fParent->fMarkType) {
+                        return this->reportError<bool>("expected definition");
+                    }
                 }
                 if (this->peek() != fMC) {
                     if (MarkType::kColumn == fParent->fMarkType) {
@@ -1356,10 +1318,11 @@ bool BmhParser::findDefinitions() {
                 }
                 continue;
             } else if (this->peek() == ' ') {
-                if (!fParent || (MarkType::kTable != fParent->fMarkType
+                if (!fParent || (MarkType::kFormula != fParent->fMarkType
                         && MarkType::kLegend != fParent->fMarkType
                         && MarkType::kList != fParent->fMarkType
-						&& MarkType::kLine != fParent->fMarkType)) {
+						&& MarkType::kLine != fParent->fMarkType
+                        && MarkType::kTable != fParent->fMarkType)) {
                     int endHashes = this->endHashCount();
                     if (endHashes <= 1) {
                         if (fParent) {
@@ -1942,6 +1905,69 @@ const char* BmhParser::checkForFullTerminal(const char* end, const Definition* d
     return start;
 }
 
+void BmhParser::parseHashAnchor(Definition* definition) {
+    this->skipToEndBracket(fMC);
+    fMarkup.emplace_front(MarkType::kLink, fChar, fLineCount, definition, fMC);
+    SkAssertResult(fMC == this->next());
+    this->skipWhiteSpace();
+    Definition* link = &fMarkup.front();
+    link->fContentStart = fChar;
+    link->fContentEnd = this->trimmedBracketEnd(fMC);
+    this->skipToEndBracket(fMC);
+    SkAssertResult(fMC == this->next());
+    SkAssertResult(fMC == this->next());
+    link->fTerminator = fChar;
+    definition->fContentEnd = link->fContentEnd;
+    definition->fTerminator = fChar;
+    definition->fChildren.emplace_back(link);
+}
+
+void BmhParser::parseHashFormula(Definition* definition) {
+    const char* start = definition->fContentStart;
+    definition->trimEnd();
+	const char* end = definition->fContentEnd;
+	fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition, fMC);
+	Definition* text = &fMarkup.front();
+	text->fContentStart = start;
+	text->fContentEnd = end;
+	text->fTerminator = definition->fTerminator;
+	definition->fChildren.emplace_back(text);
+}
+
+void BmhParser::parseHashLine(Definition* definition) {
+	const char* nextLF = this->strnchr('\n', this->fEnd);
+	const char* start = fChar;
+	const char* end = this->trimmedBracketEnd(fMC);
+	this->skipToEndBracket(fMC, nextLF);
+	if (fMC != this->next() || fMC != this->next()) {
+		return this->reportError<void>("expected ## to delineate line");
+	}
+	fMarkup.emplace_front(MarkType::kText, start, fLineCount, definition, fMC);
+	Definition* text = &fMarkup.front();
+    if (!islower(start[0]) && (!isdigit(start[0])
+            || MarkType::kConst != definition->fParent->fMarkType)) {
+        return this->reportError<void>("expect lower case start");
+    }
+    string contents = string(start, end - start);
+    if (string::npos != contents.find('.')) {
+        return this->reportError<void>("expect phrase, not sentence");
+    }
+    size_t firstSpace = contents.find(' ');
+    if (string::npos == firstSpace || 0 == firstSpace || 's' != start[firstSpace - 1]) {
+        if (MarkType::kMethod == fParent->fMarkType && "experimental" != contents
+                    && "incomplete" != contents) {
+            return this->reportError<void>( "expect phrase in third person present"
+                    " tense (1st word should end in 's'");
+        }
+    }
+	text->fContentStart = start;
+	text->fContentEnd = end;
+	text->fTerminator = fChar;
+	definition->fContentEnd = text->fContentEnd;
+	definition->fTerminator = fChar;
+	definition->fChildren.emplace_back(text);
+}
+
 bool BmhParser::popParentStack(Definition* definition) {
     if (!fParent) {
         return this->reportError<bool>("missing parent");
@@ -2118,11 +2144,11 @@ bool BmhParser::skipNoName() {
     }
     this->skipWhiteSpace();
     if (fMC != this->peek()) {
-        return this->reportError<bool>("expected end mark");
+        return this->reportError<bool>("expected end mark 1");
     }
     this->next();
     if (fMC != this->peek()) {
-        return this->reportError<bool>("expected end mark");
+        return this->reportError<bool>("expected end mark 2");
     }
     this->next();
     return true;
@@ -2175,7 +2201,7 @@ bool BmhParser::skipToDefinitionEnd(MarkType markType) {
 bool BmhParser::skipToString() {
 	this->skipSpace();
 	if (fMC != this->peek()) {
-		return this->reportError<bool>("expected end mark");
+		return this->reportError<bool>("expected end mark 3");
 	}
 	this->next();
 	this->skipSpace();
@@ -2238,7 +2264,6 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kCode:
         case MarkType::kDescription:
         case MarkType::kExternal:
-        case MarkType::kFormula:
         case MarkType::kFunction:
         case MarkType::kLegend:
         case MarkType::kList:
@@ -2246,6 +2271,7 @@ vector<string> BmhParser::typeName(MarkType markType, bool* checkEnd) {
         case MarkType::kPrivate:
             this->skipNoName();
             break;
+        case MarkType::kFormula:
 		case MarkType::kLine:
 			this->skipToString();
 			break;
