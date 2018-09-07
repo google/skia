@@ -30,8 +30,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-x86_64-Release-NoGPU/Release"
     ],

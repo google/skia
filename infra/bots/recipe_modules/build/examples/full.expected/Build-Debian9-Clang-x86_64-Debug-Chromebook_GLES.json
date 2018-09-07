@@ -44,8 +44,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-Clang-x86_64-Debug-Chromebook_GLES/Debug",
       "nanobench",

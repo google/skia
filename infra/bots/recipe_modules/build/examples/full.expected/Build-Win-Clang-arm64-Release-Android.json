@@ -44,8 +44,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Win-Clang-arm64-Release-Android/Release"
     ],

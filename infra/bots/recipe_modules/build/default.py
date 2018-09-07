@@ -298,7 +298,7 @@ def compile_fn(api, checkout_root, out_dir):
     with api.env(env):
       api.run(api.step, 'gn gen',
               cmd=[gn, 'gen', out_dir, '--args=' + gn_args])
-      api.run(api.step, 'ninja', cmd=['ninja', '-k', '0', '-C', out_dir])
+      api.run(api.step, 'ninja', cmd=['ninja', '-C', out_dir])
 
 
 def copy_extra_build_products(api, src, dst):

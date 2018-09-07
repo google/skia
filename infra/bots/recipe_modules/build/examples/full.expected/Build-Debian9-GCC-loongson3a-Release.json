@@ -45,8 +45,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Debian9-GCC-loongson3a-Release/Release"
     ],
