@@ -62,12 +62,6 @@ there is special case code to skip phrase def when looking for additional substi
 phrase def. Could put it in the token list instead I guess, or make a definition subclass used
 by phrase def with an additional slot...
 
-#Deprecated soon
-##
-should emit the text "To be deprecated soon." (right now you get just "soon")
-
-SkCanvas_ColorBehavior_kLegacy missing </table> in md out
-
 rearrange const out for md so that const / value / short description comes first in a table,
 followed by more elaborate descriptions, examples, seealso. In md.cpp, look to see if #Subtopic
 has #Const children. If so, generate a summary table first.
