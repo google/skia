@@ -1217,7 +1217,7 @@ Definition* RootDefinition::find(string ref, AllowParens allowParens) {
         return &leafIter->second;
     }
     if (AllowParens::kYes == allowParens) {
-        int leftParen = ref.find('(');
+        size_t leftParen = ref.find('(');
         if (string::npos == leftParen
                 || (leftParen + 1 < ref.length() && ')' != ref[leftParen + 1])) {
             string withParens = ref + "()";
@@ -1228,7 +1228,7 @@ Definition* RootDefinition::find(string ref, AllowParens allowParens) {
         }
         if (string::npos != leftParen) {
             string name = ref.substr(0, leftParen);
-            int posInDefName = fName.find(name);
+            size_t posInDefName = fName.find(name);
             if (string::npos != posInDefName && posInDefName > 2
                     && "::" == fName.substr(posInDefName - 2, 2)) {
                 string fullRef = fName + "::" + ref;

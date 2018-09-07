@@ -2367,7 +2367,7 @@ public:
         : TextParser(fileName, start, end, lineCount)
         , fClassName(className)
         , fLocalName(className) {
-        int doubleColons = className.find_last_of("::");
+        size_t doubleColons = className.find_last_of("::");
         if (string::npos != doubleColons) {
             fLocalName = className.substr(doubleColons + 1);
             SkASSERT(fLocalName.length() > 0);
