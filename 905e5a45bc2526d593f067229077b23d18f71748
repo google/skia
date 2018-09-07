@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "596fcdd9_da8b10cf",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-07T17:22:16Z",
+      "side": 1,
+      "message": "I split the this function into two. The second one is the same as the original but with the \"constrainWithinTangents\" parameter removed and assumed to be true. This one assumes !constrainWithinTangents and adds the parameters to preserve the initial/ending tangent vectors.",
+      "range": {
+        "startLine": 398,
+        "startChar": 5,
+        "endLine": 398,
+        "endChar": 38
+      },
+      "revId": "905e5a45bc2526d593f067229077b23d18f71748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
