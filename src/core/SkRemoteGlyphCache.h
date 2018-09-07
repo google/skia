@@ -54,7 +54,6 @@ class SK_API SkTextBlobCacheDiffCanvas : public SkNoDrawCanvas {
 public:
     struct SK_API Settings {
         Settings();
-        ~Settings();
 
         bool fContextSupportsDistanceFieldText = true;
         SkScalar fMinDistanceFieldFontSize = -1.f;
@@ -62,14 +61,12 @@ public:
         int fMaxTextureSize = 0;
         size_t fMaxTextureBytes = 0u;
     };
-    SkTextBlobCacheDiffCanvas(int width, int height, const SkSurfaceProps& props,
-                              SkStrikeServer* strikeserver, Settings settings = Settings());
 
     // TODO(khushalsagar): Remove once removed from chromium.
     SkTextBlobCacheDiffCanvas(int width, int height, const SkMatrix& deviceMatrix,
                               const SkSurfaceProps& props, SkStrikeServer* strikeserver,
                               Settings settings = Settings());
-    ~SkTextBlobCacheDiffCanvas() override;
+    ~SkTextBlobCacheDiffCanvas() override = default;
 
 protected:
     SkCanvas::SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec& rec) override;
@@ -91,7 +88,7 @@ public:
     // entries on the remote client.
     class SK_API DiscardableHandleManager {
     public:
-        virtual ~DiscardableHandleManager() {}
+        virtual ~DiscardableHandleManager() = default;
 
         // Creates a new *locked* handle and returns a unique ID that can be used to identify
         // it on the remote client.
@@ -111,7 +108,7 @@ public:
         virtual bool isHandleDeleted(SkDiscardableHandleId) { return false; }
     };
 
-    SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
+    explicit SkStrikeServer(DiscardableHandleManager* discardableHandleManager);
     ~SkStrikeServer();
 
     // Serializes the typeface to be remoted using this server.
@@ -170,8 +167,6 @@ public:
     // An interface to delete handles that may be pinned by the remote server.
     class DiscardableHandleManager : public SkRefCnt {
     public:
-        virtual ~DiscardableHandleManager() {}
-
         // Returns true if the handle was unlocked and can be safely deleted. Once
         // successful, subsequent attempts to delete the same handle are invalid.
         virtual bool deleteHandle(SkDiscardableHandleId) = 0;
@@ -179,10 +174,9 @@ public:
         virtual void notifyCacheMiss(CacheMissType) {}
     };
 
-    SkStrikeClient(sk_sp<DiscardableHandleManager>,
-                   bool isLogging = true,
-                   SkStrikeCache* strikeCache = nullptr);
-    ~SkStrikeClient();
+    explicit SkStrikeClient(sk_sp<DiscardableHandleManager>,
+                            bool isLogging = true,
+                            SkStrikeCache* strikeCache = nullptr);
 
     // Deserializes the typeface previously serialized using the SkStrikeServer. Returns null if the
     // data is invalid.
