@@ -93,6 +93,8 @@ def _TriggerTask(options):
 
 
 def TriggerAndWait(options):
+  # Only trigger task if it does not exist in Google Storage yet.
+
   task_id = _TriggerTask(options)
   task_str = '[id: %d, issue: %d, patchset: %d, hash: %s]' % (
       task_id, options.issue, options.patchset, options.hash)
