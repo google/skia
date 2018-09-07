@@ -3098,8 +3098,15 @@ STAGE_PP(check_decal_mask, SkJumper_DecalTileCtx* ctx) {
     a = a & mask;
 }
 
+SI void round_F_to_U16(F    R, F    G, F    B, F    A,
+                       U16* r, U16* g, U16* b, U16* a) {
+    auto round = [](F x) { return cast<U16>(x * 255.0f + 0.5f); };
 
-SI U16 round_F_to_U16(F x) { return cast<U16>(x * 255.0f + 0.5f); }
+    *r = round(min(max(0,R),A));
+    *g = round(min(max(0,G),A));
+    *b = round(min(max(0,B),A));
+    *a = round(A);  // we assume this is already in [0,1].
+}
 
 SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
                         U16* r, U16* g, U16* b, U16* a) {
@@ -3138,10 +3145,11 @@ SI void gradient_lookup(const SkJumper_GradientCtx* c, U32 idx, F t,
         bb = gather<F>(c->bs[2], idx);
         ba = gather<F>(c->bs[3], idx);
     }
-    *r = round_F_to_U16(mad(t, fr, br));
-    *g = round_F_to_U16(mad(t, fg, bg));
-    *b = round_F_to_U16(mad(t, fb, bb));
-    *a = round_F_to_U16(mad(t, fa, ba));
+    round_F_to_U16(mad(t, fr, br),
+                   mad(t, fg, bg),
+                   mad(t, fb, bb),
+                   mad(t, fa, ba),
+                   r,g,b,a);
 }
 
 STAGE_GP(gradient, const SkJumper_GradientCtx* c) {
@@ -3168,10 +3176,11 @@ STAGE_GP(evenly_spaced_2_stop_gradient, const void* ctx) {
     auto c = (const Ctx*)ctx;
 
     auto t = x;
-    r = round_F_to_U16(mad(t, c->f[0], c->b[0]));
-    g = round_F_to_U16(mad(t, c->f[1], c->b[1]));
-    b = round_F_to_U16(mad(t, c->f[2], c->b[2]));
-    a = round_F_to_U16(mad(t, c->f[3], c->b[3]));
+    round_F_to_U16(mad(t, c->f[0], c->b[0]),
+                   mad(t, c->f[1], c->b[1]),
+                   mad(t, c->f[2], c->b[2]),
+                   mad(t, c->f[3], c->b[3]),
+                   &r,&g,&b,&a);
 }
 
 STAGE_GG(xy_to_unit_angle, Ctx::None) {
