@@ -46,6 +46,7 @@ protected:
     bool accumulateCentroid(const SkPoint& c, const SkPoint& n);
     bool checkConvexity(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2);
     void finishPathPolygon();
+    bool computeConcaveShadow(SkScalar inset, SkScalar outset);
     void stitchConcaveRings(const SkTDArray<SkPoint>& umbraPolygon,
                             SkTDArray<int>* umbraIndices,
                             const SkTDArray<SkPoint>& penumbraPolygon,
@@ -80,6 +81,7 @@ protected:
     SkTDArray<uint16_t> fIndices;
 
     SkTDArray<SkPoint>  fPathPolygon;
+    SkTDArray<SkPoint>  fUmbraPolygon;
     SkPoint             fCentroid;
     SkScalar            fArea;
     SkScalar            fLastArea;
@@ -212,6 +214,41 @@ void SkBaseShadowTessellator::finishPathPolygon() {
 
     // if area is positive, winding is ccw
     fDirection = fArea > 0 ? -1 : 1;
+}
+
+bool SkBaseShadowTessellator::computeConcaveShadow(SkScalar inset, SkScalar outset) {
+    if (!SkIsSimplePolygon(&fPathPolygon[0], fPathPolygon.count())) {
+        return false;
+    }
+
+    // generate inner ring
+    SkTDArray<int> umbraIndices;
+    umbraIndices.setReserve(fPathPolygon.count());
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), inset,
+                               &fUmbraPolygon, &umbraIndices)) {
+        // TODO: figure out how to handle this case
+        return false;
+    }
+
+    // generate outer ring
+    SkTDArray<SkPoint> penumbraPolygon;
+    SkTDArray<int> penumbraIndices;
+    penumbraPolygon.setReserve(fUmbraPolygon.count());
+    penumbraIndices.setReserve(fUmbraPolygon.count());
+    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), outset,
+                               &penumbraPolygon, &penumbraIndices)) {
+        // TODO: figure out how to handle this case
+        return false;
+    }
+
+    if (!fUmbraPolygon.count() || !penumbraPolygon.count()) {
+        return false;
+    }
+
+    // attach the rings together
+    this->stitchConcaveRings(fUmbraPolygon, &umbraIndices, penumbraPolygon, &penumbraIndices);
+
+    return true;
 }
 
 void SkBaseShadowTessellator::stitchConcaveRings(const SkTDArray<SkPoint>& umbraPolygon,
@@ -521,12 +558,11 @@ public:
 private:
     bool computePathPolygon(const SkPath& path, const SkMatrix& ctm);
     bool computeConvexShadow();
-    bool computeConcaveShadow();
 
     void handlePolyPoint(const SkPoint& p, bool finalPoint);
     void addEdge(const SkPoint& nextPoint, const SkVector& nextNormal, bool finalEdge);
 
-    static constexpr auto kInsetFactor = -0.5f;
+    static constexpr auto kInsetFactor = 0.5f;
 
     typedef SkBaseShadowTessellator INHERITED;
 };
@@ -546,6 +582,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     fUmbraColor = SkColorSetARGB(umbraAlpha * 255.9999f, 0, 0, 0);
     fPenumbraColor = SkColorSetARGB(0, 0, 0, 0);
     fRadius = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
+    const SkScalar umbraRecipAlpha = SkDrawShadowMetrics::AmbientRecipAlpha(baseZ);
 
     if (!this->computePathPolygon(path, ctm)) {
         return;
@@ -567,7 +604,7 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow();
     } else {
-        fSucceeded = this->computeConcaveShadow();
+        fSucceeded = this->computeConcaveShadow(kInsetFactor, -fRadius);
     }
 }
 
@@ -669,43 +706,6 @@ bool SkAmbientShadowTessellator::computeConvexShadow() {
     return true;
 }
 
-bool SkAmbientShadowTessellator::computeConcaveShadow() {
-    if (!SkIsSimplePolygon(&fPathPolygon[0], fPathPolygon.count())) {
-        return false;
-    }
-
-    // generate inner ring
-    SkTDArray<SkPoint> umbraPolygon;
-    SkTDArray<int> umbraIndices;
-    umbraIndices.setReserve(fPathPolygon.count());
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), 0.5f,
-                               &umbraPolygon, &umbraIndices)) {
-        // TODO: figure out how to handle this case
-        return false;
-    }
-
-    // generate outer ring
-    SkTDArray<SkPoint> penumbraPolygon;
-    SkTDArray<int> penumbraIndices;
-    penumbraPolygon.setReserve(umbraPolygon.count());
-    penumbraIndices.setReserve(umbraPolygon.count());
-
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), -fRadius,
-                               &penumbraPolygon, &penumbraIndices)) {
-        // TODO: figure out how to handle this case
-        return false;
-    }
-
-    if (!umbraPolygon.count() || !penumbraPolygon.count()) {
-        return false;
-    }
-
-    // attach the rings together
-    this->stitchConcaveRings(umbraPolygon, &umbraIndices, penumbraPolygon, &penumbraIndices);
-
-    return true;
-}
-
 void SkAmbientShadowTessellator::handlePolyPoint(const SkPoint& p, bool finalPoint)  {
     SkVector normal;
     if (compute_normal(fPrevPoint, p, fDirection, &normal)) {
@@ -721,7 +721,7 @@ void SkAmbientShadowTessellator::addEdge(const SkPoint& nextPoint, const SkVecto
     // We compute the inset in two stages: first we inset by half the current normal,
     // then on the next addEdge() we add half of the next normal to get an average of the two
     SkVector insetNormal = nextNormal;
-    insetNormal *= 0.5f*kInsetFactor;
+    insetNormal *= -0.5f*kInsetFactor;
 
     // Adding the other half of the average for the previous edge
     fPositions[fPrevUmbraIndex] += insetNormal;
@@ -789,7 +789,6 @@ private:
     int getClosestUmbraPoint(const SkPoint& point);
 
     bool computeConvexShadow(SkScalar radius);
-    bool computeConcaveShadow(SkScalar radius);
 
     bool handlePolyPoint(const SkPoint& p, bool lastPoint);
 
@@ -969,7 +968,7 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
     if (fIsConvex) {
         fSucceeded = this->computeConvexShadow(radius);
     } else {
-        fSucceeded = this->computeConcaveShadow(radius);
+        fSucceeded = this->computeConcaveShadow(radius, -radius);
     }
 
     if (!fSucceeded) {
@@ -1239,41 +1238,6 @@ bool SkSpotShadowTessellator::computeConvexShadow(SkScalar radius) {
             fPositions[fFirstVertexIndex + 1] = fPositions[fPositions.count() - 1];
         }
     }
-
-    return true;
-}
-
-bool SkSpotShadowTessellator::computeConcaveShadow(SkScalar radius) {
-    if (!SkIsSimplePolygon(&fPathPolygon[0], fPathPolygon.count())) {
-        return false;
-    }
-
-    // generate inner ring
-    SkTDArray<int> umbraIndices;
-    umbraIndices.setReserve(fPathPolygon.count());
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), radius,
-                               &fUmbraPolygon, &umbraIndices)) {
-        // TODO: figure out how to handle this case
-        return false;
-    }
-
-    // generate outer ring
-    SkTDArray<SkPoint> penumbraPolygon;
-    SkTDArray<int> penumbraIndices;
-    penumbraPolygon.setReserve(fUmbraPolygon.count());
-    penumbraIndices.setReserve(fUmbraPolygon.count());
-    if (!SkOffsetSimplePolygon(&fPathPolygon[0], fPathPolygon.count(), -radius,
-                               &penumbraPolygon, &penumbraIndices)) {
-        // TODO: figure out how to handle this case
-        return false;
-    }
-
-    if (!fUmbraPolygon.count() || !penumbraPolygon.count()) {
-        return false;
-    }
-
-    // attach the rings together
-    this->stitchConcaveRings(fUmbraPolygon, &umbraIndices, penumbraPolygon, &penumbraIndices);
 
     return true;
 }
