@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d968e871_06a44281",
+        "filename": "modules/pathkit/helper.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-09-07T17:58:34Z",
+      "side": 1,
+      "message": "return cachedMap.computeYFromX(X);",
+      "range": {
+        "startLine": 89,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 13
+      },
+      "revId": "aac831edc54acbc71575af4f216dbb993b7ef898",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "785f2358_5e30b853",
+        "filename": "modules/pathkit/helper.js",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5205
+      },
+      "writtenOn": "2018-09-07T17:58:34Z",
+      "side": 1,
+      "message": "return cachedMap.computePtFromT(T);",
+      "range": {
+        "startLine": 103,
+        "startChar": 4,
+        "endLine": 104,
+        "endChar": 14
+      },
+      "revId": "aac831edc54acbc71575af4f216dbb993b7ef898",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
