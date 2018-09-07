@@ -613,7 +613,7 @@ static void push_codec_srcs(Path path) {
 
     SkTArray<CodecSrc::Mode> nativeModes;
     nativeModes.push_back(CodecSrc::kCodec_Mode);
-    nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
+//    nativeModes.push_back(CodecSrc::kCodecZeroInit_Mode);
     switch (codec->getEncodedFormat()) {
         case SkEncodedImageFormat::kJPEG:
             nativeModes.push_back(CodecSrc::kScanline_Mode);
@@ -628,16 +628,16 @@ static void push_codec_srcs(Path path) {
         case SkEncodedImageFormat::kDNG:
             break;
         default:
-            nativeModes.push_back(CodecSrc::kScanline_Mode);
+//            nativeModes.push_back(CodecSrc::kScanline_Mode);
             break;
     }
 
     SkTArray<CodecSrc::DstColorType> colorTypes;
     colorTypes.push_back(CodecSrc::kGetFromCanvas_DstColorType);
-    colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
+//    colorTypes.push_back(CodecSrc::kNonNative8888_Always_DstColorType);
     switch (codec->getInfo().colorType()) {
         case kGray_8_SkColorType:
-            colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
+//            colorTypes.push_back(CodecSrc::kGrayscale_Always_DstColorType);
             break;
         default:
             break;
@@ -659,7 +659,7 @@ static void push_codec_srcs(Path path) {
                     continue;
                 }
 
-                push_codec_src(path, mode, colorType, alphaType, 1.0f);
+//                push_codec_src(path, mode, colorType, alphaType, 1.0f);
 
                 // Skip kNonNative on different native scales.  It won't be interestingly
                 // different.
@@ -692,7 +692,7 @@ static void push_codec_srcs(Path path) {
         return;
     }
 
-    const int sampleSizes[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    const int sampleSizes[] = { 1, 2, /*3, 4, 5, 6, 7, 8*/ };
 
     for (int sampleSize : sampleSizes) {
         for (CodecSrc::DstColorType colorType : colorTypes) {
@@ -706,6 +706,10 @@ static void push_codec_srcs(Path path) {
                 push_android_codec_src(path, colorType, alphaType, sampleSize);
             }
         }
+    }
+
+    if (true) {
+        return;
     }
 
     const char* ext = strrchr(path.c_str(), '.');
