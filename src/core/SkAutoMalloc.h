@@ -11,7 +11,6 @@
 #include "SkMacros.h"
 #include "SkMalloc.h"
 #include "SkNoncopyable.h"
-#include "SkMath.h"
 #include "SkTypes.h"
 
 #include <memory>

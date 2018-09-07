@@ -8,9 +8,9 @@
 #ifndef SkTArray_DEFINED
 #define SkTArray_DEFINED
 
-#include "SkSafe32.h"
-#include "SkTLogic.h"
-#include "SkTemplates.h"
+#include "../private/SkSafe32.h"
+#include "../private/SkTLogic.h"
+#include "../private/SkTemplates.h"
 #include "SkTypes.h"
 
 #include <new>

@@ -9,10 +9,8 @@
 #ifndef SkFloatBits_DEFINED
 #define SkFloatBits_DEFINED
 
-#include "SkMath.h"
-#include "SkSafe_math.h"
 #include "SkTypes.h"
-
+#include "SkSafe_math.h"
 #include <float.h>
 
 /** Convert a sign-bit int (i.e. float interpreted as int) into a 2s compliement

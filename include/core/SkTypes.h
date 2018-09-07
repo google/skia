@@ -99,12 +99,37 @@ static constexpr int32_t SK_NaN32  = INT32_MIN;
 static constexpr int64_t SK_MaxS64 = INT64_MAX;
 static constexpr int64_t SK_MinS64 = -SK_MaxS64;
 
+static inline constexpr int32_t SkLeftShift(int32_t value, int32_t shift) {
+    return (int32_t) ((uint32_t) value << shift);
+}
+
+static inline constexpr int64_t SkLeftShift(int64_t value, int32_t shift) {
+    return (int64_t) ((uint64_t) value << shift);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /** @return the number of entries in an array (not a pointer)
 */
 template <typename T, size_t N> char (&SkArrayCountHelper(T (&array)[N]))[N];
 #define SK_ARRAY_COUNT(array) (sizeof(SkArrayCountHelper(array)))
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T> static constexpr T SkAlign2(T x) { return (x + 1) >> 1 << 1; }
+template <typename T> static constexpr T SkAlign4(T x) { return (x + 3) >> 2 << 2; }
+template <typename T> static constexpr T SkAlign8(T x) { return (x + 7) >> 3 << 3; }
+
+template <typename T> static constexpr bool SkIsAlign2(T x) { return 0 == (x & 1); }
+template <typename T> static constexpr bool SkIsAlign4(T x) { return 0 == (x & 3); }
+template <typename T> static constexpr bool SkIsAlign8(T x) { return 0 == (x & 7); }
+
+template <typename T> static constexpr T SkAlignPtr(T x) {
+    return sizeof(void*) == 8 ? SkAlign8(x) : SkAlign4(x);
+}
+template <typename T> static constexpr bool SkIsAlignPtr(T x) {
+    return sizeof(void*) == 8 ? SkIsAlign8(x) : SkIsAlign4(x);
+}
 
 typedef uint32_t SkFourByteTag;
 static inline constexpr SkFourByteTag SkSetFourByteTag(char a, char b, char c, char d) {
@@ -137,6 +162,51 @@ static constexpr uint32_t SK_InvalidGenID = 0;
 /** The unique IDs in Skia reserve 0 has an invalid marker.
 */
 static constexpr uint32_t SK_InvalidUniqueID = 0;
+
+static inline int32_t SkAbs32(int32_t value) {
+    SkASSERT(value != SK_NaN32);  // The most negative int32_t can't be negated.
+    if (value < 0) {
+        value = -value;
+    }
+    return value;
+}
+
+template <typename T> static inline T SkTAbs(T value) {
+    if (value < 0) {
+        value = -value;
+    }
+    return value;
+}
+
+static inline int32_t SkMax32(int32_t a, int32_t b) {
+    if (a < b)
+        a = b;
+    return a;
+}
+
+static inline int32_t SkMin32(int32_t a, int32_t b) {
+    if (a > b)
+        a = b;
+    return a;
+}
+
+template <typename T> constexpr const T& SkTMin(const T& a, const T& b) {
+    return (a < b) ? a : b;
+}
+
+template <typename T> constexpr const T& SkTMax(const T& a, const T& b) {
+    return (b < a) ? a : b;
+}
+
+template <typename T> constexpr const T& SkTClamp(const T& x, const T& lo, const T& hi) {
+    return (x < lo) ? lo : SkTMin(x, hi);
+}
+
+/** @return value pinned (clamped) between min and max, inclusively.
+*/
+template <typename T> static constexpr const T& SkTPin(const T& value, const T& min, const T& max) {
+    return SkTMax(SkTMin(value, max), min);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

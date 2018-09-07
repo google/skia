@@ -12,7 +12,6 @@
 
 #include "SkAtomics.h"
 #include "SkMalloc.h"
-#include "SkMath.h"
 #include "SkTo.h"
 
 
