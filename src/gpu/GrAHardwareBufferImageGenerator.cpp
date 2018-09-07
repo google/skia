@@ -105,90 +105,32 @@ GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageIn
     AHardwareBuffer_acquire(fHardwareBuffer);
 }
 
-void GrAHardwareBufferImageGenerator::releaseTextureRef() {
-    // We must release our ref on the proxy before we send the free message to the actual texture so
-    // that we make sure the last ref (if it is owned by this class) is released on the owning
-    // context.
-    fCachedProxy.reset();
-    if (fOwnedTexture) {
-        SkASSERT(fOwningContextID != SK_InvalidGenID);
-        // Notify the original cache that it can free the last ref, so it happens on the correct
-        // thread.
-        GrGpuResourceFreedMessage msg { fOwnedTexture, fOwningContextID };
-        SkMessageBus<GrGpuResourceFreedMessage>::Post(msg);
-        fOwnedTexture = nullptr;
-        fOwningContextID = SK_InvalidGenID;
-    }
-}
-
 GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
-    this->releaseTextureRef();
     AHardwareBuffer_release(fHardwareBuffer);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
-        GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
-    this->makeProxy(context);
-    if (!fCachedProxy) {
-        return nullptr;
-    }
-
-    bool makingASubset = true;
-    if (0 == origin.fX && 0 == origin.fY &&
-            info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
-        makingASubset = false;
-        if (!willNeedMipMaps || GrMipMapped::kYes == fCachedProxy->mipMapped()) {
-            // If the caller wants the full texture and we have the correct mip support, we're done
-            return fCachedProxy;
-        }
-    }
-    // Otherwise, make a copy for the requested subset or for mip maps.
-    SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
-
-    GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
-
-    sk_sp<GrTextureProxy> texProxy = GrSurfaceProxy::Copy(context, fCachedProxy.get(), mipMapped,
-                                                          subset, SkBudgeted::kYes);
-    if (!makingASubset && texProxy) {
-        // We are in this case if we wanted the full texture, but we will be mip mapping the
-        // texture. Therefore we want to update the cached texture so that we point to the
-        // mipped version instead of the old one.
-        SkASSERT(willNeedMipMaps);
-        SkASSERT(GrMipMapped::kYes == texProxy->mipMapped());
-
-        // The only way we should get into here is if we just made a new texture in makeProxy or
-        // we found a cached texture in the same context. Thus the current and cached contexts
-        // should match.
-        SkASSERT(context->uniqueID() == fOwningContextID);
-
-        // Since we no longer will be caching the and reusing the texture that actually wraps the
-        // hardware buffer, we can release our refs on it.
-        this->releaseTextureRef();
-
-        fCachedProxy = texProxy;
-    }
-    return texProxy;
-}
-
-class BufferCleanupHelper {
+class GLCleanupHelper {
 public:
-    BufferCleanupHelper(EGLImageKHR image, EGLDisplay display)
-        : fImage(image)
+    GLCleanupHelper(GrGLuint texID, EGLImageKHR image, EGLDisplay display)
+        : fTexID(texID)
+        , fImage(image)
         , fDisplay(display) { }
-    ~BufferCleanupHelper() {
+    ~GLCleanupHelper() {
+        glDeleteTextures(1, &fTexID);
         // eglDestroyImageKHR will remove a ref from the AHardwareBuffer
         eglDestroyImageKHR(fDisplay, fImage);
     }
 private:
+    GrGLuint    fTexID;
     EGLImageKHR fImage;
-    EGLDisplay fDisplay;
+    EGLDisplay  fDisplay;
 };
 
 
-void GrAHardwareBufferImageGenerator::DeleteEGLImage(void* context) {
-    BufferCleanupHelper* cleanupHelper = static_cast<BufferCleanupHelper*>(context);
+void GrAHardwareBufferImageGenerator::DeleteGLTexture(void* context) {
+    GLCleanupHelper* cleanupHelper = static_cast<GLCleanupHelper*>(context);
     delete cleanupHelper;
 }
 
@@ -244,8 +186,8 @@ static GrBackendTexture make_gl_backend_texture(
     textureInfo.fTarget = *backendFormat.getGLTarget();
     textureInfo.fFormat = *backendFormat.getGLFormat();
 
-    *deleteProc = GrAHardwareBufferImageGenerator::DeleteEGLImage;
-    *deleteCtx = new BufferCleanupHelper(image, display);
+    *deleteProc = GrAHardwareBufferImageGenerator::DeleteGLTexture;
+    *deleteCtx = new GLCleanupHelper(texID, image, display);
 
     return GrBackendTexture(width, height, GrMipMapped::kNo, textureInfo);
 }
@@ -264,22 +206,6 @@ static GrBackendTexture make_backend_texture(
     bool createProtectedImage = isProtectedContent && can_import_protected_content(context);
     return make_gl_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
                                    deleteCtx, createProtectedImage, backendFormat);
-}
-
-static void free_backend_texture(GrBackendTexture* backendTexture) {
-    SkASSERT(backendTexture && backendTexture->isValid());
-
-    switch (backendTexture->backend()) {
-        case kOpenGL_GrBackend: {
-            GrGLTextureInfo texInfo;
-            SkAssertResult(backendTexture->getGLTextureInfo(&texInfo));
-            glDeleteTextures(1, &texInfo.fID);
-            return;
-        }
-        case kVulkan_GrBackend: // fall through
-        default:
-            return;
-    }
 }
 
 GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
@@ -304,30 +230,18 @@ GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
     return GrBackendFormat();
 }
 
-void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
+sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
         // Check if GrContext is not abandoned and the backend is GL.
-        return;
+        return nullptr;
     }
-
-    if (SK_InvalidGenID != fOwningContextID) {
-        SkASSERT(fCachedProxy);
-        if (context->uniqueID() != fOwningContextID) {
-            this->releaseTextureRef();
-        } else {
-            return;
-        }
-    }
-    SkASSERT(!fCachedProxy);
-
-    fOwningContextID = context->uniqueID();
 
     GrPixelConfig pixelConfig;
     GrBackendFormat backendFormat = get_backend_format(context->contextPriv().getBackend(),
                                                        fBufferFormat);
     if (!context->contextPriv().caps()->getConfigFromBackendFormat(
             backendFormat, this->getInfo().colorType(), &pixelConfig)) {
-        return;
+        return nullptr;
     }
 
     int width = this->getInfo().width();
@@ -348,19 +262,15 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
     AHardwareBuffer* hardwareBuffer = fHardwareBuffer;
     AHardwareBuffer_acquire(hardwareBuffer);
 
-    GrGpuResource** ownedTexturePtr = &fOwnedTexture;
     const bool isProtectedContent = fIsProtectedContent;
 
-    fCachedProxy = proxyProvider->createLazyProxy(
-            [context, hardwareBuffer, width, height, pixelConfig, ownedTexturePtr,
-             isProtectedContent, backendFormat]
+    sk_sp<GrTextureProxy> texProxy = proxyProvider->createLazyProxy(
+            [context, hardwareBuffer, width, height, pixelConfig, isProtectedContent, backendFormat]
             (GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     AHardwareBuffer_release(hardwareBuffer);
                     return sk_sp<GrTexture>();
                 }
-
-                SkASSERT(!*ownedTexturePtr);
 
                 DeleteImageProc deleteImageProc = nullptr;
                 DeleteImageCtx deleteImageCtx = nullptr;
@@ -377,10 +287,8 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
                 SkASSERT(deleteImageProc && deleteImageCtx);
 
                 backendTex.fConfig = pixelConfig;
-                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(
-                        backendTex, kAdopt_GrWrapOwnership);
+                sk_sp<GrTexture> tex = resourceProvider->wrapBackendTexture(backendTex);
                 if (!tex) {
-                    free_backend_texture(&backendTex);
                     deleteImageProc(deleteImageCtx);
                     return sk_sp<GrTexture>();
                 }
@@ -389,24 +297,36 @@ void GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
                         new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
                 tex->setRelease(releaseProcHelper);
 
-                *ownedTexturePtr = tex.get();
-
-                // Attach our texture to this context's resource cache. This ensures that deletion
-                // will happen in the correct thread/context. This adds the only ref to the texture
-                // that will persist from this point. To trigger GrTexture deletion a message is
-                // sent by generator dtor or by makeProxy when it is invoked with a different
-                // context.
-                context->contextPriv().getResourceCache()->insertCrossContextGpuResource(tex.get());
                 return tex;
             },
             desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, textureType, SkBackingFit::kExact,
             SkBudgeted::kNo);
 
-
-    if (!fCachedProxy) {
+    if (!texProxy) {
         AHardwareBuffer_release(hardwareBuffer);
-        return;
     }
+    return texProxy;
+}
+
+sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::onGenerateTexture(
+        GrContext* context, const SkImageInfo& info, const SkIPoint& origin, bool willNeedMipMaps) {
+    sk_sp<GrTextureProxy> texProxy = this->makeProxy(context);
+    if (!texProxy) {
+        return nullptr;
+    }
+
+    if (0 == origin.fX && 0 == origin.fY &&
+        info.width() == this->getInfo().width() && info.height() == this->getInfo().height()) {
+        // If the caller wants the full texture we're done. The caller will handle making a copy for
+        // mip maps if that is required.
+        return texProxy;
+    }
+    // Otherwise, make a copy for the requested subset.
+    SkIRect subset = SkIRect::MakeXYWH(origin.fX, origin.fY, info.width(), info.height());
+
+    GrMipMapped mipMapped = willNeedMipMaps ? GrMipMapped::kYes : GrMipMapped::kNo;
+
+    return GrSurfaceProxy::Copy(context, texProxy.get(), mipMapped, subset, SkBudgeted::kYes);
 }
 
 bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {

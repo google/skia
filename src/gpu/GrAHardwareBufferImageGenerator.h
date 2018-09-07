@@ -38,7 +38,7 @@ public:
     typedef void* DeleteImageCtx;
     typedef void (*DeleteImageProc)(DeleteImageCtx);
 
-    static void DeleteEGLImage(void* ctx);
+    static void DeleteGLTexture(void* ctx);
 
 protected:
 
@@ -51,32 +51,15 @@ protected:
 private:
     GrAHardwareBufferImageGenerator(const SkImageInfo&, AHardwareBuffer*, SkAlphaType,
                                     bool isProtectedContent, uint32_t bufferFormat);
-    void makeProxy(GrContext* context);
+    sk_sp<GrTextureProxy> makeProxy(GrContext* context);
 
     void releaseTextureRef();
 
     static void ReleaseRefHelper_TextureReleaseProc(void* ctx);
 
     AHardwareBuffer* fHardwareBuffer;
-
-    // There is never a ref associated with this pointer. We rely on our atomic bookkeeping
-    // with the context ID to know when this pointer is valid and safe to use. This lets us
-    // avoid releasing a ref from another thread, or get into races during context shutdown.
-    //
-    // We store this object as a GrGpuResource* and not a GrTexture* even though we are always
-    // using a GrTexutre. The reason for this is that it is possible for the underlying GrTexture
-    // object to get freed before this class sends its unref message (i.e. if the owning GrContext
-    // is destroyed). In this case, when we try to create the unfef message to be posted, we end up
-    // casting the GrTexture* to a GrGpuResource*. Since GrTexture has virtual inheritance, this
-    // cast causes us to dereference the vptr to get the offset to the base pointer. In other words
-    // casting with virtual inheritance counts as a use and we hit a use after free issue. Thus if
-    // we store a GrGpuResource* here instead then we don't run into the issue of needing a cast.
-    GrGpuResource*       fOwnedTexture = nullptr;
-    uint32_t             fOwningContextID = SK_InvalidGenID;
-    uint32_t             fBufferFormat;
-
-    sk_sp<GrTextureProxy> fCachedProxy;
-    const bool fIsProtectedContent;
+    uint32_t         fBufferFormat;
+    const bool       fIsProtectedContent;
 
     typedef SkImageGenerator INHERITED;
 };
