@@ -590,8 +590,6 @@ static void exec_ops(const Op* ops, const void** args,
     F r = F0, g = F0, b = F0, a = F1;
     while (true) {
         switch (*ops++) {
-            case Op_noop: break;
-
             case Op_load_a8:{
                 a = F_from_U8(load<U8>(src + 1*i));
             } break;

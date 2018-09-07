@@ -1750,8 +1750,6 @@ bool skcms_ApproximateCurve(const skcms_Curve* curve,
 // ~~~~ Impl. of skcms_Transform() ~~~~
 
 typedef enum {
-    Op_noop,
-
     Op_load_a8,
     Op_load_g8,
     Op_load_4444,
@@ -1976,9 +1974,11 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
         { Op_tf_a, Op_table_8_a, Op_table_16_a },
     };
 
+    const OpAndArg noop = { Op_load_a8/*doesn't matter*/, nullptr };
+
     if (curve->table_entries == 0) {
         return is_identity_tf(&curve->parametric)
-            ? OpAndArg{ Op_noop, nullptr }
+            ? noop
             : OpAndArg{ ops[channel].parametric, &curve->parametric };
     } else if (curve->table_8) {
         return OpAndArg{ ops[channel].table_8,  curve };
@@ -1987,7 +1987,7 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
     }
 
     assert(false);
-    return OpAndArg{Op_noop,nullptr};
+    return noop;
 }
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
@@ -2121,7 +2121,7 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->A2B.input_channels) {
                 for (int i = 0; i < (int)srcProfile->A2B.input_channels; i++) {
                     OpAndArg oa = select_curve_op(&srcProfile->A2B.input_curves[i], i);
-                    if (oa.op != Op_noop) {
+                    if (oa.arg) {
                         *ops++  = oa.op;
                         *args++ = oa.arg;
                     }
@@ -2139,7 +2139,7 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->A2B.matrix_channels == 3) {
                 for (int i = 0; i < 3; i++) {
                     OpAndArg oa = select_curve_op(&srcProfile->A2B.matrix_curves[i], i);
-                    if (oa.op != Op_noop) {
+                    if (oa.arg) {
                         *ops++  = oa.op;
                         *args++ = oa.arg;
                     }
@@ -2159,7 +2159,7 @@ bool skcms_Transform(const void*             src,
             if (srcProfile->A2B.output_channels == 3) {
                 for (int i = 0; i < 3; i++) {
                     OpAndArg oa = select_curve_op(&srcProfile->A2B.output_curves[i], i);
-                    if (oa.op != Op_noop) {
+                    if (oa.arg) {
                         *ops++  = oa.op;
                         *args++ = oa.arg;
                     }
@@ -2173,7 +2173,7 @@ bool skcms_Transform(const void*             src,
         } else if (srcProfile->has_trc && srcProfile->has_toXYZD50) {
             for (int i = 0; i < 3; i++) {
                 OpAndArg oa = select_curve_op(&srcProfile->trc[i], i);
-                if (oa.op != Op_noop) {
+                if (oa.arg) {
                     *ops++  = oa.op;
                     *args++ = oa.arg;
                 }
