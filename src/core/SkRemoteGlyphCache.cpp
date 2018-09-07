@@ -285,8 +285,12 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
         glyphCacheState->addGlyph(glyph.getPackedID(), false);
     };
 
+    auto perPath = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
+        glyphCacheState->addGlyph(glyph.getPackedID(), true);
+    };
+
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perGlyph);
+            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
@@ -388,7 +392,6 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
-SkTextBlobCacheDiffCanvas::Settings::~Settings() = default;
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
@@ -397,8 +400,6 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      Settings settings)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
                                                       strikeServer, settings)} {}
-
-SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
 SkCanvas::SaveLayerStrategy SkTextBlobCacheDiffCanvas::getSaveLayerStrategy(
         const SaveLayerRec& rec) {
@@ -590,18 +591,6 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
             stationaryGlyph = *glyph;
         }
 
-        // Glyphs which are too large for the atlas still request images when computing the bounds
-        // for the glyph, which is why its necessary to send both. See related code in
-        // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
-        bool tooLargeForAtlas = SkGlyphCacheCommon::GlyphTooBigForAtlas(stationaryGlyph);
-
-        if (tooLargeForAtlas) {
-            // Add this to the path cache, since we will always fall back to using paths
-            // for this glyph.
-            fCachedGlyphPaths.add(glyphID);
-            writeGlyphPath(glyphID, serializer);
-        }
-
         auto imageSize = stationaryGlyph.computeImageSize();
         if (imageSize == 0u) continue;
 
@@ -704,8 +693,6 @@ SkStrikeClient::SkStrikeClient(sk_sp<DiscardableHandleManager> discardableManage
         : fDiscardableHandleManager(std::move(discardableManager))
         , fStrikeCache{strikeCache ? strikeCache : SkStrikeCache::GlobalStrikeCache()}
         , fIsLogging{isLogging} {}
-
-SkStrikeClient::~SkStrikeClient() = default;
 
 #define READ_FAILURE                      \
     {                                     \
