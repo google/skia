@@ -97,9 +97,9 @@ void CPPCodeGenerator::writeIndexExpression(const IndexExpression& i) {
             String name = "sk_TransformedCoords2D_" + to_string(index);
             fFormatArgs.push_back(name + ".c_str()");
             if (fWrittenTransformedCoords.find(index) == fWrittenTransformedCoords.end()) {
-                addExtraEmitCodeLine("SkString " + name +
-                                     " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
-                                     to_string(index) + "]);");
+                fExtraEmitCodeCode += "        SkString " + name +
+                                      " = fragBuilder->ensureCoords2D(args.fTransformedCoords[" +
+                                      to_string(index) + "]);\n";
                 fWrittenTransformedCoords.insert(index);
             }
             return;
@@ -361,20 +361,23 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
         }
         SkASSERT(found);
 
-        // Start a new extra emit code section so that the emitted child processor can depend on
-        // sksl variables defined in earlier sksl code.
-        this->newExtraEmitCodeBlock();
+        // Flush all previous statements so that this emitted child can
+        // depend upon any declared variables within that section
+        this->flushEmittedCode();
 
-        // Set to the empty string when no input color parameter should be emitted, which means this
-        // must be properly formatted with a prefixed comma when the parameter should be inserted
-        // into the emitChild() parameter list.
+        // Set to the empty string when no input color parameter should be emitted,
+        // which means this must be properly formatted with a prefixed comma
+        // when the parameter should be inserted into the emitChild() parameter list.
         String inputArg;
         if (c.fArguments.size() > 1) {
             SkASSERT(c.fArguments.size() == 2);
-            // Use the emitChild() variant that accepts an input color, so convert the 2nd
-            // argument's expression into C++ code that produces sksl stored in an SkString.
+            // Use the emitChild() variant that accepts an input color, so convert
+            // the 2nd argument's expression into C++ code that produces sksl
+            // stored in an SkString.
+
             String inputName = "_input" + to_string(index);
-            addExtraEmitCodeLine(convertSKSLExpressionToCPP(*c.fArguments[1], inputName));
+            fExtraEmitCodeCode += "        " + convertSKSLExpressionToCPP(
+                    *c.fArguments[1], inputName);
 
             // emitChild() needs a char*
             inputArg = ", " + inputName + ".c_str()";
@@ -382,9 +385,9 @@ void CPPCodeGenerator::writeFunctionCall(const FunctionCall& c) {
 
         // Write the output handling after the possible input handling
         String childName = "_child" + to_string(index);
-        addExtraEmitCodeLine("SkString " + childName + "(\"" + childName + "\");");
-        addExtraEmitCodeLine("this->emitChild(" + to_string(index) + inputArg +
-                             ", &" + childName + ", args);");
+        fExtraEmitCodeCode += "        SkString " + childName + "(\"" + childName + "\");\n";
+        fExtraEmitCodeCode += "        this->emitChild(" + to_string(index) + inputArg +
+                              ", &" + childName + ", args);\n";
 
         this->write("%s");
         fFormatArgs.push_back(childName + ".c_str()");
@@ -572,26 +575,7 @@ static bool is_accessible(const Variable& var) {
            Type::kOther_Kind != var.fType.kind();
 }
 
-void CPPCodeGenerator::newExtraEmitCodeBlock() {
-    // This should only be called when emitting SKSL for emitCode(), which can be detected if the
-    // cpp buffer is not null, and the cpp buffer is not the current output.
-    SkASSERT(fCPPBuffer && fCPPBuffer != fOut);
-
-    // Start a new block as an empty string
-    fExtraEmitCodeBlocks.push_back("");
-    // Mark its location in the output buffer, uses ${\d} for the token since ${} will not occur in
-    // valid sksl and makes detection trivial.
-    this->writef("${%zu}", fExtraEmitCodeBlocks.size() - 1);
-}
-
-void CPPCodeGenerator::addExtraEmitCodeLine(const String& toAppend) {
-    SkASSERT(fExtraEmitCodeBlocks.size() > 0);
-    String& currentBlock = fExtraEmitCodeBlocks[fExtraEmitCodeBlocks.size() - 1];
-    // Automatically add indentation and newline
-    currentBlock += "        " + toAppend + "\n";
-}
-
-void CPPCodeGenerator::flushEmittedCode() {
+void CPPCodeGenerator::flushEmittedCode(bool flushAll) {
     if (fCPPBuffer == nullptr) {
         // Not actually within writeEmitCode() so nothing to flush
         return;
@@ -600,69 +584,41 @@ void CPPCodeGenerator::flushEmittedCode() {
     StringStream* skslBuffer = static_cast<StringStream*>(fOut);
 
     String sksl = skslBuffer->str();
-    // Empty the accumulation buffer since its current contents are consumed.
+    // Empty the accumulation buffer; if there are any partial statements in
+    // the extracted sksl string they will be re-added later
     skslBuffer->reset();
 
-    // Switch to the cpp buffer
-    fOut = fCPPBuffer;
+    if (!flushAll) {
+        // Find the last ';', '{', or '}' and leave everything after that in the buffer
+        int lastStatementEnd = sksl.findLastOf(';');
+        int lastBlockOpen = sksl.findLastOf('{');
+        int lastBlockEnd = sksl.findLastOf('}');
 
-    // Iterate through the sksl, keeping track of where the last statement ended (e.g. the latest
-    // encountered ';', '{', or '}'). If an extra emit code block token is encountered then the
-    // code from 0 to last statement end is sent to writeCodeAppend, the extra code block is
-    // appended to the cpp buffer, and then the sksl string is trimmed to start where the last
-    // statement left off (minus the encountered token).
-    size_t i = 0;
-    size_t flushPoint = -1;
-    int tokenStart = -1;
-    while (i < sksl.size()) {
-        if (tokenStart >= 0) {
-            // Looking for the end of the token
-            if (sksl[i] == '}') {
-                // Must append the sksl from 0 to flushPoint (inclusive) then the extra code
-                // accumulated in the block with index parsed from chars [tokenStart+2, i-1]
-                String toFlush = String(sksl.c_str(), flushPoint + 1);
-                // writeCodeAppend automatically removes the format args that it consumed, so
-                // fFormatArgs will be in a valid state for any future sksl
-                this->writeCodeAppend(toFlush);
+        int flushPoint = std::max(lastStatementEnd, std::max(lastBlockEnd, lastBlockOpen));
 
-                int codeBlock = stoi(String(sksl.c_str() + tokenStart + 2, i - tokenStart - 2));
-                SkASSERT(codeBlock < (int) fExtraEmitCodeBlocks.size());
-                if (fExtraEmitCodeBlocks[codeBlock].size() > 0) {
-                    this->write(fExtraEmitCodeBlocks[codeBlock].c_str());
-                }
-
-                // Now reset the sksl buffer to start after the flush point, but remove the token.
-                String compacted = String(sksl.c_str() + flushPoint + 1,
-                                          tokenStart - flushPoint - 1);
-                if (i < sksl.size() - 1) {
-                    compacted += String(sksl.c_str() + i + 1, sksl.size() - i - 1);
-                }
-                sksl = compacted;
-
-                // And reset iteration
-                i = -1;
-                flushPoint = -1;
-                tokenStart = -1;
-            }
-        } else {
-            // Looking for the start of extra emit block tokens, and tracking when statements end
-            if (sksl[i] == ';' || sksl[i] == '{' || sksl[i] == '}') {
-                flushPoint = i;
-            } else if (i < sksl.size() - 1 && sksl[i] == '$' && sksl[i + 1] == '{') {
-                // found an extra emit code block token
-                tokenStart = i++;
-            }
+        // NOTE: this does the right thing when flushPoint = -1
+        if (flushPoint < (int) sksl.size() - 1) {
+            // There is partial sksl content that can't be flushed yet so put
+            // that back into the sksl buffer and remove it from the string
+            skslBuffer->writeText(sksl.c_str() + flushPoint + 1);
+            sksl = String(sksl.c_str(), flushPoint + 1);
         }
-        i++;
     }
 
-    // Once we've gone through the sksl string to this point, there are no remaining extra emit
-    // code blocks to interleave, so append the remainder as usual.
+    // Switch back to the CPP buffer for the actual code appending statements
+    fOut = fCPPBuffer;
+    if (fExtraEmitCodeCode.size() > 0) {
+        this->writef("%s", fExtraEmitCodeCode.c_str());
+        fExtraEmitCodeCode.reset();
+    }
+    // writeCodeAppend automatically removes the format args that it consumed,
+    // so fFormatArgs will be in a valid state for any partial statements left
+    // in the sksl buffer.
     this->writeCodeAppend(sksl);
 
-    // After appending, switch back to the emptied sksl buffer and reset the extra code blocks
+    // After appending, switch back to an sksl buffer that contains any
+    // remaining partial statements that couldn't be appended
     fOut = skslBuffer;
-    fExtraEmitCodeBlocks.clear();
 }
 
 void CPPCodeGenerator::writeCodeAppend(const String& code) {
@@ -723,39 +679,18 @@ String CPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
     // Convert the argument expression into a format string and args
     this->writeExpression(e, Precedence::kTopLevel_Precedence);
     std::vector<String> newArgs(fFormatArgs);
-    String expr = exprBuffer.str();
+    String exprFormat = exprBuffer.str();
 
     // After generating, restore the original output stream and format args
     fFormatArgs = oldArgs;
     fOut = oldSKSL;
-
-    // The sksl written to exprBuffer is not processed by flushEmittedCode(), so any extra emit code
-    // block tokens won't get handled. So we need to strip them from the expression and stick them
-    // to the end of the original sksl stream.
-    String exprFormat = "";
-    int tokenStart = -1;
-    for (size_t i = 0; i < expr.size(); i++) {
-        if (tokenStart >= 0) {
-            if (expr[i] == '}') {
-                // End of the token, so append the token to fOut
-                fOut->write(expr.c_str() + tokenStart, i - tokenStart + 1);
-                tokenStart = -1;
-            }
-        } else {
-            if (i < expr.size() - 1 && expr[i] == '$' && expr[i + 1] == '{') {
-                tokenStart = i++;
-            } else {
-                exprFormat += expr[i];
-            }
-        }
-    }
 
     // Now build the final C++ code snippet from the format string and args
     String cppExpr;
     if (newArgs.size() == 0) {
         // This was a static expression, so we can simplify the input
         // color declaration in the emitted code to just a static string
-        cppExpr = "SkString " + cppVar + "(\"" + exprFormat + "\");";
+        cppExpr = "SkString " + cppVar + "(\"" + exprFormat + "\");\n";
     } else {
         // String formatting must occur dynamically, so have the C++ declaration
         // use SkStringPrintf with the format args that were accumulated
@@ -764,7 +699,7 @@ String CPPCodeGenerator::convertSKSLExpressionToCPP(const Expression& e,
         for (size_t i = 0; i < newArgs.size(); i++) {
             cppExpr += ", " + newArgs[i];
         }
-        cppExpr += ");";
+        cppExpr += ");\n";
     }
     return cppExpr;
 }
@@ -802,9 +737,9 @@ bool CPPCodeGenerator::writeEmitCode(std::vector<const Variable*>& uniforms) {
     StringStream skslBuffer;
     fOut = &skslBuffer;
 
-    this->newExtraEmitCodeBlock();
     bool result = INHERITED::generateCode();
-    this->flushEmittedCode();
+    // Final flush in case there is anything extra, forcing it to emit everything
+    this->flushEmittedCode(true);
 
     // Then restore the original CPP buffer and close the function
     fOut = fCPPBuffer;

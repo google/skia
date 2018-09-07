@@ -23,6 +23,21 @@ public:
     bool generateCode() override;
 
 private:
+    // When inside writeEmitCode(), certain SkSL elements need to control
+    // when fragBuilder->codeAppendf is added to the function block. This
+    // takes all completed statements in the SkSL buffer, and their corresponding
+    // format args, and writes them into the emitCode()'s statement block
+    // using writeCodeAppend().
+    //
+    // This control is necessary for handling special functions in SkSL, like
+    // process(), which need to intermix the current FP's SkSL with that of
+    // an emitted child.
+    //
+    //  :forceAll - If false, only the completed statements (terminated by ;),
+    //     will be flushed and the sksl buffer will be set to any partial
+    //     statements that remain. If true, everything is flushed, regardless.
+    void flushEmittedCode(bool forceAll = false);
+
     void writef(const char* s, va_list va) SKSL_PRINTF_LIKE(2, 0);
 
     void writef(const char* s, ...) SKSL_PRINTF_LIKE(2, 3);
@@ -88,36 +103,19 @@ private:
 
     void writeTest();
 
-    // If the returned C++ is included in the generated code, then the variable name stored in
-    // cppVar will refer to a valid SkString that matches the Expression. Successful returns leave
-    // the output buffer (and related state) unmodified.
+    // If the returned C++ is included in the generated code, then the variable
+    // name stored in cppVar will refer to a valid SkString that matches the
+    // Expression. Successful returns leave the output buffer (and related state)
+    // unmodified.
     //
-    // In the simplest cases, this will return "SkString {cppVar}(\"{e}\");", while more advanced
-    // cases will properly insert format arguments.
+    // In the simplest cases, this will return "SkString {cppVar}(\"{e}\");",
+    // while more advanced cases will properly insert format arguments.
     String convertSKSLExpressionToCPP(const Expression& e, const String& cppVar);
-
-    // Process accumulated sksl to split it into appended code sections, properly interleaved with
-    // the extra emit code blocks, based on statement/block locations and the inserted tokens
-    // from newExtraEmitCodeBlock(). It is necessary to split the sksl after the program has been
-    // fully walked since many elements redirect fOut to simultaneously build header sections and
-    // bodies that are then concatenated; due to this it is not possible to split the sksl emission
-    // on the fly.
-    void flushEmittedCode();
-
-    // Start a new extra emit code block for accumulating C++ code. This will insert a token into
-    // the sksl stream to mark the fence between previous complete sksl statements and where the
-    // C++ code added to the new block will be added to emitCode(). These tokens are removed by
-    // flushEmittedCode() as it consumes them before passing pure sksl to writeCodeAppend().
-    void newExtraEmitCodeBlock();
-
-    // Append CPP code to the current extra emit code block.
-    void addExtraEmitCodeLine(const String& toAppend);
 
     String fName;
     String fFullName;
     SectionAndParameterHelper fSectionAndParameterHelper;
-    std::vector<String> fExtraEmitCodeBlocks;
-
+    String fExtraEmitCodeCode;
     std::vector<String> fFormatArgs;
     std::set<int> fWrittenTransformedCoords;
     // if true, we are writing a C++ expression instead of a GLSL expression
