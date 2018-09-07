@@ -64,6 +64,7 @@
     #include "SkAutoCoInitialize.h"
     #include "SkHRESULT.h"
     #include "SkTScopedComPtr.h"
+    #include "../src/xps/SkXPSDocument.h"
     #include <XpsObjectModel.h>
 #endif
 
@@ -1645,7 +1646,7 @@ Error XPSSink::draw(const Src& src, SkBitmap*, SkWStream* dst, SkString*) const 
     if (!factory) {
         return "Failed to create XPS Factory.";
     }
-    sk_sp<SkDocument> doc(SkDocument::MakeXPS(dst, factory.get()));
+    sk_sp<SkDocument> doc(SkXPS::MakeDocument(dst, factory.get()));
     if (!doc) {
         return "SkDocument::MakeXPS() returned nullptr";
     }
