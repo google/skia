@@ -53,6 +53,28 @@ GrRadialGradientLayout::GrRadialGradientLayout(const GrRadialGradientLayout& src
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradientLayout(*this));
 }
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradientLayout);
+#if GR_TEST_UTILS
+std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::TestCreate(GrProcessorTestData* d) {
+    sk_sp<SkShader> shader;
+    do {
+        GrGradientShader::RandomParams params(d->fRandom);
+        SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+        SkScalar radius = d->fRandom->nextUScalar1();
+        shader = params.fUseColors4f
+                         ? SkGradientShader::MakeRadial(center, radius, params.fColors4f,
+                                                        params.fColorSpace, params.fStops,
+                                                        params.fColorCount, params.fTileMode)
+                         : SkGradientShader::MakeRadial(center, radius, params.fColors,
+                                                        params.fStops, params.fColorCount,
+                                                        params.fTileMode);
+    } while (!shader);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    GrAlwaysAssert(fp);
+    return fp;
+}
+#endif
 
 std::unique_ptr<GrFragmentProcessor> GrRadialGradientLayout::Make(const SkRadialGradient& grad,
                                                                   const GrFPArgs& args) {
