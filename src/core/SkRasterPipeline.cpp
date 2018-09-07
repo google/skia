@@ -107,9 +107,9 @@ void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rg
 
         // uniform_color requires colors in range and can go lowp,
         // while unbounded_uniform_color supports out-of-range colors too but not lowp.
-        if (0 <= rgba[0] && rgba[0] <= 1 &&
-            0 <= rgba[1] && rgba[1] <= 1 &&
-            0 <= rgba[2] && rgba[2] <= 1) {
+        if (0 <= rgba[0] && rgba[0] <= rgba[3] &&
+            0 <= rgba[1] && rgba[1] <= rgba[3] &&
+            0 <= rgba[2] && rgba[2] <= rgba[3]) {
             // To make loads more direct, we store 8-bit values in 16-bit slots.
             color = color * 255.0f + 0.5f;
             ctx->rgba[0] = (uint16_t)color[0];
