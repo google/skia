@@ -315,7 +315,7 @@ Returns Region if set; otherwise, returns nullptr.
 #Code
     class SK_API Cliperator {
     public:
-        Cliperator(const SkRegion&, const SkIRect& clip);
+        Cliperator(const SkRegion& region, const SkIRect& clip);
         bool done();
         void next();
         const SkIRect& rect() const;
