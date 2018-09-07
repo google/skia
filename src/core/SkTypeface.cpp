@@ -145,13 +145,6 @@ sk_sp<SkTypeface> SkTypeface::MakeFromName(const char name[],
     return SkFontMgr::RefDefault()->legacyMakeTypeface(name, fontStyle);
 }
 
-#ifdef SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
-// DEPRECATED
-sk_sp<SkTypeface> SkTypeface::MakeFromStream(SkStreamAsset* stream, int index) {
-    return MakeFromStream(std::unique_ptr<SkStreamAsset>(stream), index);
-}
-#endif
-
 sk_sp<SkTypeface> SkTypeface::MakeFromStream(std::unique_ptr<SkStreamAsset> stream, int index) {
     if (!stream) {
         return nullptr;
