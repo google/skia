@@ -397,11 +397,69 @@ bool is_point_within_cubic_tangents(const SkPoint& a,
 
 void convert_noninflect_cubic_to_quads(const SkPoint p[4],
                                        SkScalar toleranceSqd,
-                                       bool constrainWithinTangents,
-                                       SkPathPriv::FirstDirection dir,
                                        SkTArray<SkPoint, true>* quads,
-                                       int sublevel = 0) {
+                                       int sublevel = 0,
+                                       bool preserveFirstTangent = true,
+                                       bool preserveLastTangent = true) {
+    // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
+    // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].
+    SkVector ab = p[1] - p[0];
+    SkVector dc = p[2] - p[3];
 
+    if (SkPointPriv::LengthSqd(ab) < SK_ScalarNearlyZero) {
+        if (SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero) {
+            SkPoint* degQuad = quads->push_back_n(3);
+            degQuad[0] = p[0];
+            degQuad[1] = p[0];
+            degQuad[2] = p[3];
+            return;
+        }
+        ab = p[2] - p[0];
+    }
+    if (SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero) {
+        dc = p[1] - p[3];
+    }
+
+    static const SkScalar kLengthScale = 3 * SK_Scalar1 / 2;
+    static const int kMaxSubdivs = 10;
+
+    ab.scale(kLengthScale);
+    dc.scale(kLengthScale);
+
+    // c0 and c1 are extrapolations along vectors ab and dc.
+    SkPoint c0 = p[0] + ab;
+    SkPoint c1 = p[3] + dc;
+
+    SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : SkPointPriv::DistanceToSqd(c0, c1);
+    if (dSqd < toleranceSqd && !(preserveFirstTangent && preserveLastTangent && c0 != c1)) {
+        SkPoint newC;
+        if (preserveFirstTangent) {
+            newC = c0;
+        } else if (preserveLastTangent) {
+            newC = c1;
+        } else {
+            newC = (c0 + c1) * 0.5f;
+        }
+
+        SkPoint* pts = quads->push_back_n(3);
+        pts[0] = p[0];
+        pts[1] = newC;
+        pts[2] = p[3];
+        return;
+    }
+    SkPoint choppedPts[7];
+    SkChopCubicAtHalf(p, choppedPts);
+    convert_noninflect_cubic_to_quads(
+            choppedPts + 0, toleranceSqd, quads, sublevel + 1, preserveFirstTangent, false);
+    convert_noninflect_cubic_to_quads(
+            choppedPts + 3, toleranceSqd, quads, sublevel + 1, false, preserveLastTangent);
+}
+
+void convert_noninflect_cubic_to_quads_with_constraint(const SkPoint p[4],
+                                                       SkScalar toleranceSqd,
+                                                       SkPathPriv::FirstDirection dir,
+                                                       SkTArray<SkPoint, true>* quads,
+                                                       int sublevel = 0) {
     // Notation: Point a is always p[0]. Point b is p[1] unless p[1] == p[0], in which case it is
     // p[2]. Point d is always p[3]. Point c is p[2] unless p[2] == p[3], in which case it is p[1].
 
@@ -429,50 +487,47 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     // control points are very close to the baseline vector. If so then we just pick quadratic
     // points on the control polygon.
 
-    if (constrainWithinTangents) {
-        SkVector da = p[0] - p[3];
-        bool doQuads = SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero ||
-                       SkPointPriv::LengthSqd(ab) < SK_ScalarNearlyZero;
-        if (!doQuads) {
-            SkScalar invDALengthSqd = SkPointPriv::LengthSqd(da);
-            if (invDALengthSqd > SK_ScalarNearlyZero) {
-                invDALengthSqd = SkScalarInvert(invDALengthSqd);
-                // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
-                // same goes for point c using vector cd.
-                SkScalar detABSqd = ab.cross(da);
-                detABSqd = SkScalarSquare(detABSqd);
-                SkScalar detDCSqd = dc.cross(da);
-                detDCSqd = SkScalarSquare(detDCSqd);
-                if (detABSqd * invDALengthSqd < toleranceSqd &&
-                    detDCSqd * invDALengthSqd < toleranceSqd)
-                {
-                    doQuads = true;
-                }
+    SkVector da = p[0] - p[3];
+    bool doQuads = SkPointPriv::LengthSqd(dc) < SK_ScalarNearlyZero ||
+                   SkPointPriv::LengthSqd(ab) < SK_ScalarNearlyZero;
+    if (!doQuads) {
+        SkScalar invDALengthSqd = SkPointPriv::LengthSqd(da);
+        if (invDALengthSqd > SK_ScalarNearlyZero) {
+            invDALengthSqd = SkScalarInvert(invDALengthSqd);
+            // cross(ab, da)^2/length(da)^2 == sqd distance from b to line from d to a.
+            // same goes for point c using vector cd.
+            SkScalar detABSqd = ab.cross(da);
+            detABSqd = SkScalarSquare(detABSqd);
+            SkScalar detDCSqd = dc.cross(da);
+            detDCSqd = SkScalarSquare(detDCSqd);
+            if (detABSqd * invDALengthSqd < toleranceSqd &&
+                detDCSqd * invDALengthSqd < toleranceSqd) {
+                doQuads = true;
             }
         }
-        if (doQuads) {
-            SkPoint b = p[0] + ab;
-            SkPoint c = p[3] + dc;
-            SkPoint mid = b + c;
-            mid.scale(SK_ScalarHalf);
-            // Insert two quadratics to cover the case when ab points away from d and/or dc
-            // points away from a.
-            if (SkVector::DotProduct(da, dc) < 0 || SkVector::DotProduct(ab,da) > 0) {
-                SkPoint* qpts = quads->push_back_n(6);
-                qpts[0] = p[0];
-                qpts[1] = b;
-                qpts[2] = mid;
-                qpts[3] = mid;
-                qpts[4] = c;
-                qpts[5] = p[3];
-            } else {
-                SkPoint* qpts = quads->push_back_n(3);
-                qpts[0] = p[0];
-                qpts[1] = mid;
-                qpts[2] = p[3];
-            }
-            return;
+    }
+    if (doQuads) {
+        SkPoint b = p[0] + ab;
+        SkPoint c = p[3] + dc;
+        SkPoint mid = b + c;
+        mid.scale(SK_ScalarHalf);
+        // Insert two quadratics to cover the case when ab points away from d and/or dc
+        // points away from a.
+        if (SkVector::DotProduct(da, dc) < 0 || SkVector::DotProduct(ab, da) > 0) {
+            SkPoint* qpts = quads->push_back_n(6);
+            qpts[0] = p[0];
+            qpts[1] = b;
+            qpts[2] = mid;
+            qpts[3] = mid;
+            qpts[4] = c;
+            qpts[5] = p[3];
+        } else {
+            SkPoint* qpts = quads->push_back_n(3);
+            qpts[0] = p[0];
+            qpts[1] = mid;
+            qpts[2] = p[3];
         }
+        return;
     }
 
     static const SkScalar kLengthScale = 3 * SK_Scalar1 / 2;
@@ -481,22 +536,16 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     ab.scale(kLengthScale);
     dc.scale(kLengthScale);
 
-    // e0 and e1 are extrapolations along vectors ab and dc.
-    SkVector c0 = p[0];
-    c0 += ab;
-    SkVector c1 = p[3];
-    c1 += dc;
+    // c0 and c1 are extrapolations along vectors ab and dc.
+    SkVector c0 = p[0] + ab;
+    SkVector c1 = p[3] + dc;
 
     SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : SkPointPriv::DistanceToSqd(c0, c1);
     if (dSqd < toleranceSqd) {
-        SkPoint cAvg = c0;
-        cAvg += c1;
-        cAvg.scale(SK_ScalarHalf);
-
+        SkPoint cAvg = (c0 + c1) * 0.5f;
         bool subdivide = false;
 
-        if (constrainWithinTangents &&
-            !is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
+        if (!is_point_within_cubic_tangents(p[0], ab, dc, p[3], dir, cAvg)) {
             // choose a new cAvg that is the intersection of the two tangent lines.
             ab = SkPointPriv::MakeOrthog(ab);
             SkScalar z0 = -ab.dot(p[0]);
@@ -529,18 +578,10 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     }
     SkPoint choppedPts[7];
     SkChopCubicAtHalf(p, choppedPts);
-    convert_noninflect_cubic_to_quads(choppedPts + 0,
-                                      toleranceSqd,
-                                      constrainWithinTangents,
-                                      dir,
-                                      quads,
-                                      sublevel + 1);
-    convert_noninflect_cubic_to_quads(choppedPts + 3,
-                                      toleranceSqd,
-                                      constrainWithinTangents,
-                                      dir,
-                                      quads,
-                                      sublevel + 1);
+    convert_noninflect_cubic_to_quads_with_constraint(
+            choppedPts + 0, toleranceSqd, dir, quads, sublevel + 1);
+    convert_noninflect_cubic_to_quads_with_constraint(
+            choppedPts + 3, toleranceSqd, dir, quads, sublevel + 1);
 }
 }
 
@@ -560,9 +601,7 @@ void GrPathUtils::convertCubicToQuads(const SkPoint p[4],
 
     for (int i = 0; i < count; ++i) {
         SkPoint* cubic = chopped + 3*i;
-        // The direction param is ignored if the third param is false.
-        convert_noninflect_cubic_to_quads(cubic, tolSqd, false,
-                                          SkPathPriv::kCCW_FirstDirection, quads);
+        convert_noninflect_cubic_to_quads(cubic, tolSqd, quads);
     }
 }
 
@@ -583,7 +622,7 @@ void GrPathUtils::convertCubicToQuadsConstrainToTangents(const SkPoint p[4],
 
     for (int i = 0; i < count; ++i) {
         SkPoint* cubic = chopped + 3*i;
-        convert_noninflect_cubic_to_quads(cubic, tolSqd, true, dir, quads);
+        convert_noninflect_cubic_to_quads_with_constraint(cubic, tolSqd, dir, quads);
     }
 }
 
