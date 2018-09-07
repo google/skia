@@ -18,8 +18,6 @@ public:
     SkLiteRecorder();
     void reset(SkLiteDL*, const SkIRect& bounds);
 
-    sk_sp<SkSurface> onNewSurface(const SkImageInfo&, const SkSurfaceProps&) override;
-
     void willSave() override;
     SaveLayerStrategy getSaveLayerStrategy(const SaveLayerRec&) override;
     void willRestore() override;
