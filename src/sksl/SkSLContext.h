@@ -196,7 +196,7 @@ public:
                                      fBool3_Type.get(), fBool4_Type.get() }))
     , fSkCaps_Type(new Type("$sk_Caps"))
     , fSkArgs_Type(new Type("$sk_Args"))
-    , fFragmentProcessor_Type(new Type("fragmentProcessor"))
+    , fFragmentProcessor_Type(fp_type(fInt_Type.get(), fBool_Type.get()))
     , fSkRasterPipeline_Type(new Type("SkRasterPipeline"))
     , fDefined_Expression(new Defined(*fInvalid_Type)) {}
 
@@ -385,6 +385,22 @@ private:
 
         typedef Expression INHERITED;
     };
+
+    static std::unique_ptr<Type> fp_type(const Type* intType, const Type* boolType) {
+        // Build fields for FragmentProcessors, which should parallel the
+        // C++ API for GrFragmentProcessor.
+        Modifiers mods(Layout(), Modifiers::kConst_Flag);
+        std::vector<Type::Field> fields = {
+            Type::Field(mods, "numTextureSamplers", intType),
+            Type::Field(mods, "numCoordTransforms", intType),
+            Type::Field(mods, "numChildProcessors", intType),
+            Type::Field(mods, "usesLocalCoords", boolType),
+            Type::Field(mods, "compatibleWithCoverageAsAlpha", boolType),
+            Type::Field(mods, "preservesOpaqueInput", boolType),
+            Type::Field(mods, "hasConstantOutputForConstantInput", boolType)
+        };
+        return std::unique_ptr<Type>(new Type("fragmentProcessor", fields));
+    }
 };
 
 } // namespace
