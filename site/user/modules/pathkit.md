@@ -327,6 +327,33 @@ Example:
     // Users can also do pathOne.op(pathTwo, PathKit.PathOp.UNION);
     // to have the resulting path be stored to pathOne and avoid allocating another object.
 
+#### `cubicYFromX(cpx1, cpy1, cpx2, cpy2, X)` ####
+**cpx1, cpy1, cpx2, cpy2** - `Number`, coordinates for control points. <br>
+**X** - `Number`, The X coordinate for which to find the corresponding Y coordinate.
+
+Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic
+curve inside the unit square. Makes the following assumptions:
+
+  - pt[0] is implicitly { 0, 0 }
+  - pt[3] is implicitly { 1, 1 }
+  - pts[1, 2] are inside the unit square
+
+This returns the Y coordinate for the given X coordinate.
+
+#### `cubicPtFromT(cpx1, cpy1, cpx2, cpy2, T)` ####
+**cpx1, cpy1, cpx2, cpy2** - `Number`, coordinates for control points. <br>
+**T** - `Number`, The T param for which to find the corresponding (X, Y) coordinates.
+
+Fast evaluation of a cubic ease-in / ease-out curve. This is defined as a parametric cubic
+curve inside the unit square. Makes the following assumptions:
+
+  - pt[0] is implicitly { 0, 0 }
+  - pt[3] is implicitly { 1, 1 }
+  - pts[1, 2] are inside the unit square
+
+This returns the (X, Y) coordinate for the given T value as a length 2 array.
+
+
 ### SkPath (object) ###
 
 #### `addPath(otherPath)` ####

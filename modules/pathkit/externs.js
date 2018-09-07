@@ -27,6 +27,9 @@ var PathKit = {
 	_FromCmds: function(ptr, size) {},
 	loadCmdsTypedArray: function(arr) {},
 	FromCmds: function(arr) {},
+	_SkCubicMap: function(cp1, cp2) {},
+	cubicYFromX: function(cpx1, cpy1, cpx2, cpy2, X) {},
+	cubicPtFromT: function(cpx1, cpy1, cpx2, cpy2, T) {},
 
 	HEAPF32: {},
 
@@ -70,6 +73,10 @@ StrokeOpts.prototype.miter_limit;
 StrokeOpts.prototype.cap;
 StrokeOpts.prototype.join;
 
+// Define CubicMap object
+var CubicMap = {};
+CubicMap.prototype.computeYFromX = function(x) {};
+CubicMap.prototype.computePtFromT = function(t) {};
 
 
 // For whatever reason, the closure compiler thinks it can rename some of our

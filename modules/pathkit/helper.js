@@ -65,5 +65,41 @@
     var ptrLen = PathKit.loadCmdsTypedArray(cmds);
     return PathKit._FromCmds(ptrLen[0], ptrLen[1]);
   }
+
+  /**
+   * A common pattern is to call this function in sequence with the same
+   * params. We can just remember the last one to speed things up.
+   * Caching in this way is about a 10-15x speed up.
+   * See externs.js for this definition
+   * @type {CubicMap}
+   */
+  var cachedMap;
+  var _cpx1, _cpy1, _cpx2, _cpy2;
+
+  PathKit.cubicYFromX = function(cpx1, cpy1, cpx2, cpy2, X) {
+    if (!cachedMap || _cpx1 !== cpx1 || _cpy1 !== cpy1 ||
+       _cpx2 !== cpx2 || _cpy2 !== cpy2) {
+      if (cachedMap) {
+        // Delete previous cached map to avoid memory leaks.
+        cachedMap.delete()
+      }
+      cachedMap = new PathKit._SkCubicMap([cpx1, cpy1], [cpx2, cpy2]);
+      _cpx1 = cpx1, _cpy1 = cpy1, _cpx2 = cpx2, _cpy2 = cpy2;
+    }
+    return cachedMap.computeYFromX(X);
+  }
+
+  PathKit.cubicPtFromT = function(cpx1, cpy1, cpx2, cpy2, T) {
+    if (!cachedMap || _cpx1 !== cpx1 || _cpy1 !== cpy1 ||
+       _cpx2 !== cpx2 || _cpy2 !== cpy2) {
+      if (cachedMap) {
+        // Delete previous cached map to avoid memory leaks.
+        cachedMap.delete()
+      }
+      cachedMap = new PathKit._SkCubicMap([cpx1, cpy1], [cpx2, cpy2]);
+      _cpx1 = cpx1, _cpy1 = cpy1, _cpx2 = cpx2, _cpy2 = cpy2;
+    }
+    return cachedMap.computePtFromT(T);
+  }
 }(Module)); // When this file is loaded in, the high level object is "Module";
 

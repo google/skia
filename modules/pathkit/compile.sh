@@ -101,6 +101,7 @@ $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
 src/core/SkAnalyticEdge.cpp \
 src/core/SkArenaAlloc.cpp \
+src/core/SkCubicMap.cpp \
 src/core/SkEdge.cpp \
 src/core/SkEdgeBuilder.cpp \
 src/core/SkEdgeClipper.cpp \
