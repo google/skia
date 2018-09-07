@@ -93,126 +93,15 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
     return kLinear_GradientType;
 }
 
-#if SK_SUPPORT_GPU
+/////////////////////////////////////////////////////////////////////
 
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-#include "SkGr.h"
+#if SK_SUPPORT_GPU
 
 #include "gradients/GrGradientShader.h"
 
-/////////////////////////////////////////////////////////////////////
-
-class GrLinearGradient : public GrGradientEffect {
-public:
-    class GLSLLinearProcessor;
-
-    static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return GrGradientEffect::AdjustFP(std::unique_ptr<GrLinearGradient>(
-                new GrLinearGradient(args)),
-                args);
-    }
-
-    const char* name() const override { return "Linear Gradient"; }
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradient(*this));
-    }
-
-private:
-    explicit GrLinearGradient(const CreateArgs& args)
-            : INHERITED(kGrLinearGradient_ClassID, args, args.fShader->colorsAreOpaque()) {
-    }
-
-    explicit GrLinearGradient(const GrLinearGradient& that) : INHERITED(that) {}
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    typedef GrGradientEffect INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class GrLinearGradient::GLSLLinearProcessor : public GrGradientEffect::GLSLProcessor {
-public:
-    GLSLLinearProcessor(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs&) override;
-
-private:
-    typedef GrGradientEffect::GLSLProcessor INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-GrGLSLFragmentProcessor* GrLinearGradient::onCreateGLSLInstance() const {
-    return new GrLinearGradient::GLSLLinearProcessor(*this);
-}
-
-/////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrLinearGradient);
-
-#if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> GrLinearGradient::TestCreate(GrProcessorTestData* d) {
-    SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
-                        {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
-
-    RandomGradientParams params(d->fRandom);
-    auto shader = params.fUseColors4f ?
-        SkGradientShader::MakeLinear(points, params.fColors4f, params.fColorSpace, params.fStops,
-                                     params.fColorCount, params.fTileMode) :
-        SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
-                                     params.fColorCount, params.fTileMode);
-    GrTest::TestAsFPArgs asFPArgs(d);
-    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
-    GrAlwaysAssert(fp);
-    return fp;
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////
-
-void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
-    const GrLinearGradient& ge = args.fFp.cast<GrLinearGradient>();
-    this->emitUniforms(args.fUniformHandler, ge);
-    SkString t = args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]);
-    t.append(".x");
-    this->emitColor(args.fFragBuilder,
-                    args.fUniformHandler,
-                    args.fShaderCaps,
-                    ge,
-                    t.c_str(),
-                    args.fOutputColor,
-                    args.fInputColor,
-                    args.fTexSamplers);
-}
-
-/////////////////////////////////////////////////////////////////////
-
 std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
-    SkASSERT(args.fContext);
-
-    // Try to use new gradient system first
-    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeLinear(*this, args);
-    if (gradient) {
-        return gradient;
-    }
-
-    SkMatrix matrix;
-    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
-        return nullptr;
-    }
-    matrix.postConcat(fPtsToUnit);
-
-    return GrLinearGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, args.fDstColorSpaceInfo));
+    return GrGradientShader::MakeLinear(*this, args);
 }
 
-
 #endif
-
-
