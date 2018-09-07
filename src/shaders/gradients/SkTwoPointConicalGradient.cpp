@@ -181,8 +181,16 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
 #include "SkGr.h"
 #include "SkTwoPointConicalGradient_gpu.h"
 
+#include "gradients/GrGradientShader.h"
+
 std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
+    // Try to use new gradient system first
+    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeConical(*this, args);
+    if (gradient) {
+        return gradient;
+    }
+
     SkMatrix matrix;
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
