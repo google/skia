@@ -10,6 +10,7 @@
 
 #include "SkFontStyle.h"
 #include "SkRefCnt.h"
+#include "SkStream.h"
 #include "SkTypeface.h"
 
 class SkFontMgr;
@@ -97,7 +98,9 @@ public:
      *  openStream(), but derived classes may implement more complex caching schemes.
      */
     virtual sk_sp<SkTypeface> makeTypeface(const FontIdentity& identity) {
-        return SkTypeface::MakeFromStream(this->openStream(identity), identity.fTTCIndex);
+        return SkTypeface::MakeFromStream(std::unique_ptr<SkStreamAsset>(this->openStream(identity)),
+                                          identity.fTTCIndex);
+
     }
 
     /**
