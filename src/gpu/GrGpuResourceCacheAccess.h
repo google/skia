@@ -58,22 +58,9 @@ private:
     uint32_t timestamp() const { return fResource->fTimestamp; }
     void setTimestamp(uint32_t ts) { fResource->fTimestamp = ts; }
 
-    /** Called by the cache to record when this became purgeable. */
-    void setFlushCntWhenResourceBecamePurgeable(uint32_t cnt) {
-        SkASSERT(fResource->isPurgeable());
-        fResource->fExternalFlushCntWhenBecamePurgeable = cnt;
-    }
     void setTimeWhenResourceBecomePurgeable() {
         SkASSERT(fResource->isPurgeable());
         fResource->fTimeWhenBecamePurgeable = GrStdSteadyClock::now();
-    }
-    /**
-     * Called by the cache to determine whether this resource has been puregable for more than
-     * a threshold number of external flushes.
-     */
-    uint32_t flushCntWhenResourceBecamePurgeable() {
-        SkASSERT(fResource->isPurgeable());
-        return fResource->fExternalFlushCntWhenBecamePurgeable;
     }
     /**
      * Called by the cache to determine whether this resource should be purged based on the length

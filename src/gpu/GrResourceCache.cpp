@@ -68,7 +68,6 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
         , fTimestamp(0)
         , fMaxCount(kDefaultMaxCount)
         , fMaxBytes(kDefaultMaxSize)
-        , fMaxUnusedFlushes(kDefaultMaxUnusedFlushes)
 #if GR_CACHE_STATS
         , fHighWaterCount(0)
         , fHighWaterBytes(0)
@@ -80,7 +79,6 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
         , fBudgetedBytes(0)
         , fPurgeableBytes(0)
         , fRequestFlush(false)
-        , fExternalFlushCnt(0)
         , fInvalidUniqueKeyInbox(contextUniqueID)
         , fFreedGpuResourceInbox(contextUniqueID)
         , fContextUniqueID(contextUniqueID)
@@ -94,10 +92,9 @@ GrResourceCache::~GrResourceCache() {
     this->releaseAll();
 }
 
-void GrResourceCache::setLimits(int count, size_t bytes, int maxUnusedFlushes) {
+void GrResourceCache::setLimits(int count, size_t bytes) {
     fMaxCount = count;
     fMaxBytes = bytes;
-    fMaxUnusedFlushes = maxUnusedFlushes;
     this->purgeAsNeeded();
 }
 
@@ -389,7 +386,6 @@ void GrResourceCache::notifyCntReachedZero(GrGpuResource* resource, uint32_t fla
     SkASSERT(resource->isPurgeable());
     this->removeFromNonpurgeableArray(resource);
     fPurgeableQueue.insert(resource);
-    resource->cacheAccess().setFlushCntWhenResourceBecamePurgeable(fExternalFlushCnt);
     resource->cacheAccess().setTimeWhenResourceBecomePurgeable();
     fPurgeableBytes += resource->gpuMemorySize();
 
@@ -453,32 +449,6 @@ void GrResourceCache::purgeAsNeeded() {
     }
 
     this->processFreedGpuResources();
-
-    if (fMaxUnusedFlushes > 0) {
-        // We want to know how many complete flushes have occurred without the resource being used.
-        // If the resource was tagged when fExternalFlushCnt was N then this means it became
-        // purgeable during activity that became the N+1th flush. So when the flush count is N+2
-        // it has sat in the purgeable queue for one entire flush.
-        uint32_t oldestAllowedFlushCnt = fExternalFlushCnt - fMaxUnusedFlushes - 1;
-        // check for underflow
-        if (oldestAllowedFlushCnt < fExternalFlushCnt) {
-            while (fPurgeableQueue.count()) {
-                uint32_t flushWhenResourceBecamePurgeable =
-                        fPurgeableQueue.peek()->cacheAccess().flushCntWhenResourceBecamePurgeable();
-                if (oldestAllowedFlushCnt < flushWhenResourceBecamePurgeable) {
-                    // Resources were given both LRU timestamps and tagged with a flush cnt when
-                    // they first became purgeable. The LRU timestamp won't change again until the
-                    // resource is made non-purgeable again. So, at this point all the remaining
-                    // resources in the timestamp-sorted queue will have a flush count >= to this
-                    // one.
-                    break;
-                }
-                GrGpuResource* resource = fPurgeableQueue.peek();
-                SkASSERT(resource->isPurgeable());
-                resource->cacheAccess().release();
-            }
-        }
-    }
 
     bool stillOverbudget = this->overBudget();
     while (stillOverbudget && fPurgeableQueue.count()) {
@@ -709,13 +679,6 @@ void GrResourceCache::notifyFlushOccurred(FlushType type) {
             fRequestFlush = false;
             break;
         case FlushType::kExternal:
-            ++fExternalFlushCnt;
-            if (0 == fExternalFlushCnt) {
-                // When this wraps just reset all the purgeable resources' last used flush state.
-                for (int i = 0; i < fPurgeableQueue.count(); ++i) {
-                    fPurgeableQueue.at(i)->cacheAccess().setFlushCntWhenResourceBecamePurgeable(0);
-                }
-            }
             break;
     }
     this->purgeAsNeeded();
