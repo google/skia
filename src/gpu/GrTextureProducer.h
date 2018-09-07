@@ -152,8 +152,7 @@ protected:
     *  depends on the destination color space, then that information should also be incorporated
     *  in the key.
     */
-    virtual void makeCopyKey(const CopyParams&, GrUniqueKey* copyKey,
-                             SkColorSpace* dstColorSpace) = 0;
+    virtual void makeCopyKey(const CopyParams&, GrUniqueKey* copyKey) = 0;
 
     /**
     *  If a stretched version of the texture is generated, it may be cached (assuming that

@@ -24,8 +24,7 @@ GrTextureAdjuster::GrTextureAdjuster(GrContext* context, sk_sp<GrTextureProxy> o
     , fColorSpace(cs)
     , fUniqueID(uniqueID) {}
 
-void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
-                                    SkColorSpace* dstColorSpace) {
+void GrTextureAdjuster::makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) {
     // Destination color space is irrelevant - we already have a texture so we're just sub-setting
     GrUniqueKey baseKey;
     GrMakeKeyFromImageID(&baseKey, fUniqueID, SkIRect::MakeWH(this->width(), this->height()));
@@ -41,7 +40,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
     GrProxyProvider* proxyProvider = fContext->contextPriv().proxyProvider();
 
     GrUniqueKey key;
-    this->makeCopyKey(copyParams, &key, nullptr);
+    this->makeCopyKey(copyParams, &key);
     sk_sp<GrTextureProxy> cachedCopy;
     if (key.isValid()) {
         cachedCopy = proxyProvider->findOrCreateProxyByUniqueKey(key,
