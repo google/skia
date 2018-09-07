@@ -457,6 +457,11 @@ static skcms_PixelFormat png_select_xform_format(const SkEncodedInfo& info) {
             return skcms_PixelFormat_RGB_161616;
         }
     }
+#if GRAY_CS
+    else if (SkEncodedInfo::kGray_Color == info.color()) {
+        return skcms_PixelFormat_G_8;
+    }
+#endif
 
     return skcms_PixelFormat_RGBA_8888;
 }
@@ -1020,6 +1025,9 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
 
             // Fall through
         case SkEncodedInfo::kRGBA_Color:
+#if GRAY_CS
+        case SkEncodedInfo::kGray_Color:
+#endif
             skipFormatConversion = this->colorXform();
             break;
         default:
