@@ -2184,6 +2184,7 @@ std::unique_ptr<Expression> IRGenerator::convertSuffixExpression(
             switch (base->fType.kind()) {
                 case Type::kVector_Kind:
                     return this->convertSwizzle(std::move(base), field);
+                case Type::kOther_Kind:
                 case Type::kStruct_Kind:
                     return this->convertField(std::move(base), field);
                 default:

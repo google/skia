@@ -43,6 +43,8 @@ private:
 
     void writeSwizzle(const Swizzle& swizzle) override;
 
+    void writeFieldAccess(const FieldAccess& access) override;
+
     void writeVariableReference(const VariableReference& ref) override;
 
     String getSamplerHandle(const Variable& var);
@@ -112,6 +114,8 @@ private:
 
     // Append CPP code to the current extra emit code block.
     void addExtraEmitCodeLine(const String& toAppend);
+
+    int getChildFPIndex(const VariableReference& reference) const;
 
     String fName;
     String fFullName;
