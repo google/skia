@@ -12,6 +12,7 @@
 
 #include "GrLinearGradientLayout.h"
 #include "GrRadialGradientLayout.h"
+#include "GrSweepGradientLayout.h"
 
 #include "GrSingleIntervalGradientColorizer.h"
 
@@ -126,6 +127,11 @@ std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
 std::unique_ptr<GrFragmentProcessor> MakeRadial(const SkRadialGradient& shader,
                                                 const GrFPArgs& args) {
     return MakeGradient(shader,args, GrRadialGradientLayout::Make(shader, args));
+}
+
+std::unique_ptr<GrFragmentProcessor> MakeSweep(const SkSweepGradient& shader,
+                                               const GrFPArgs& args) {
+    return MakeGradient(shader,args, GrSweepGradientLayout::Make(shader, args));
 }
 
 }
