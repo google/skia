@@ -63,6 +63,7 @@ def CleanupCFlags(cflags):
     "-DSKIA_IMPLEMENTATION=1",
     "-DATRACE_TAG=ATRACE_TAG_VIEW",
     "-DSK_PRINT_CODEC_MESSAGES",
+    "-DSK_SUPPORT_LEGACY_DOCUMENT_FACTORY",
   ])
 
   # We need to undefine FORTIFY_SOURCE before we define it. Insert it at the
