@@ -4,29 +4,16 @@
  * Use of this source code is governed by a BSD-style license that can be
  * found in the LICENSE file.
  */
-#ifndef SkPDFDocument_DEFINED
-#define SkPDFDocument_DEFINED
+#ifndef SkPDFDocumentPriv_DEFINED
+#define SkPDFDocumentPriv_DEFINED
 
 #include "SkCanvas.h"
-#include "SkDocument.h"
+#include "SkPDFDocument.h"
 #include "SkPDFCanon.h"
 #include "SkPDFFont.h"
 #include "SkPDFMetadata.h"
 
 class SkPDFDevice;
-
-/*  @param rasterDpi the DPI at which features without native PDF
- *         support will be rasterized (e.g. draw image with
- *         perspective, draw text with perspective, ...).  A
- *         larger DPI would create a PDF that reflects the
- *         original intent with better fidelity, but it can make
- *         for larger PDF files too, which would use more memory
- *         while rendering, and it would be slower to be processed
- *         or sent online or to printer.  A good choice is
- *         SK_ScalarDefaultRasterDPI(72.0f).
- */
-sk_sp<SkDocument> SkPDFMakeDocument(SkWStream* stream,
-                                    const SkDocument::PDFMetadata&);
 
 // Logically part of SkPDFDocument (like SkPDFCanon), but separate to
 // keep similar functionality together.
@@ -45,7 +32,7 @@ struct SkPDFObjectSerializer {
     SkPDFObjectSerializer& operator=(const SkPDFObjectSerializer&) = delete;
 
     void addObjectRecursively(const sk_sp<SkPDFObject>&);
-    void serializeHeader(SkWStream*, const SkDocument::PDFMetadata&);
+    void serializeHeader(SkWStream*, const SkPDF::Metadata&);
     void serializeObjects(SkWStream*);
     void serializeFooter(SkWStream*, const sk_sp<SkPDFObject>, sk_sp<SkPDFObject>);
     int32_t offset(SkWStream*);
@@ -56,8 +43,7 @@ struct SkPDFObjectSerializer {
     it attempts to use a minimum amount of RAM. */
 class SkPDFDocument : public SkDocument {
 public:
-    SkPDFDocument(SkWStream*,
-                  const SkDocument::PDFMetadata&);
+    SkPDFDocument(SkWStream*, SkPDF::Metadata);
     ~SkPDFDocument() override;
     SkCanvas* onBeginPage(SkScalar, SkScalar) override;
     void onEndPage() override;
@@ -76,7 +62,7 @@ public:
     void serialize(const sk_sp<SkPDFObject>&);
     SkPDFCanon* canon() { return &fCanon; }
     void registerFont(SkPDFFont* f) { fFonts.add(f); }
-    const PDFMetadata& metadata() const { return fMetadata; }
+    const SkPDF::Metadata& metadata() const { return fMetadata; }
 
 private:
     SkPDFObjectSerializer fObjectSerializer;
@@ -88,11 +74,11 @@ private:
     sk_sp<SkPDFDevice> fPageDevice;
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
-    SkDocument::PDFMetadata fMetadata;
+    SkPDF::Metadata fMetadata;
     SkScalar fRasterScale = 1;
     SkScalar fInverseRasterScale = 1;
 
     void reset();
 };
 
-#endif  // SkPDFDocument_DEFINED
+#endif  // SkPDFDocumentPriv_DEFINED

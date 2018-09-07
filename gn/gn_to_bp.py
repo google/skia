@@ -219,6 +219,7 @@ gn_args = {
   'skia_use_vulkan':     'true',
   'target_cpu':          '"none"',
   'target_os':           '"android"',
+  'extra_cflags':        '["-DSK_SUPPORT_LEGACY_DOCUMENT_FACTORY"]',
 }
 
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
