@@ -71,6 +71,13 @@ struct SkJumper_GradientCtx {
     float* fs[4];
     float* bs[4];
     float* ts;
+    bool interpolatedInPremul;
+};
+
+struct SkJumper_EvenlySpaced2StopGradientCtx {
+    float f[4];
+    float b[4];
+    bool interpolatedInPremul;
 };
 
 struct SkJumper_2PtConicalCtx {
