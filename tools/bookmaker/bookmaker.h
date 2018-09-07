@@ -2365,7 +2365,13 @@ public:
     MethodParser(string className, string fileName,
             const char* start, const char* end, int lineCount)
         : TextParser(fileName, start, end, lineCount)
-        , fClassName(className) {
+        , fClassName(className)
+        , fLocalName(className) {
+        int doubleColons = className.find_last_of("::");
+        if (string::npos != doubleColons) {
+            fLocalName = className.substr(doubleColons + 1);
+            SkASSERT(fLocalName.length() > 0);
+        }
     }
 
     ~MethodParser() override {}
@@ -2384,18 +2390,18 @@ public:
         if (this->eof()) {
             return;
         }
-        if (fClassName.length()) {
+        if (fLocalName.length()) {
             if ('~' == this->peek()) {
                 this->next();
-                if (!this->startsWith(fClassName.c_str())) {
+                if (!this->startsWith(fLocalName.c_str())) {
                     --fChar;
                     return;
                 }
             }
             if (BmhParser::Resolvable::kSimple != resolvable
-                    && (this->startsWith(fClassName.c_str()) || this->startsWith("operator"))) {
+                    && (this->startsWith(fLocalName.c_str()) || this->startsWith("operator"))) {
                 const char* ptr = this->anyOf("\n (");
-                if (ptr && '(' ==  *ptr) {
+                if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
                     this->skipToEndBracket(')');
                     SkAssertResult(')' == this->next());
                     this->skipExact("_const");
@@ -2432,6 +2438,7 @@ public:
 
 private:
     string fClassName;
+    string fLocalName;
     typedef TextParser INHERITED;
 };
 
