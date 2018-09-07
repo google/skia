@@ -37,6 +37,7 @@ void main() {
 
 @header {
     #include "SkSweepGradient.h"
+    #include "GrGradientShader.h"
 }
 
 // The sweep gradient never rejects a pixel so it doesn't change opacity
@@ -60,4 +61,21 @@ void main() {
         return std::unique_ptr<GrFragmentProcessor>(new GrSweepGradientLayout(
                 matrix, grad.getTBias(), grad.getTScale()));
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+@test(d) {
+    SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+
+    GrGradientShader::RandomParams params(d->fRandom);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeSweep(center.fX, center.fY, params.fColors4f, params.fColorSpace,
+                                    params.fStops, params.fColorCount) :
+        SkGradientShader::MakeSweep(center.fX, center.fY,  params.fColors,
+                                    params.fStops, params.fColorCount);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    GrAlwaysAssert(fp);
+    return fp;
 }
