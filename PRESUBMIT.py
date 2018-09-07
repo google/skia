@@ -57,7 +57,8 @@ PATH_PREFIX_TO_EXTRA_TRYBOTS = {
 
 SERVICE_ACCOUNT_SUFFIX = [
     '@%s.iam.gserviceaccount.com' % project for project in [
-        'skia-buildbots.google.com', 'skia-swarming-bots']]
+        'skia-buildbots.google.com', 'skia-swarming-bots', 'skia-public',
+        'skia-corp.google.com']]
 
 
 def _CheckChangeHasEol(input_api, output_api, source_file_filter=None):
