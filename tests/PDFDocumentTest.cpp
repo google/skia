@@ -11,6 +11,7 @@
 #include "SkDocument.h"
 #include "SkOSFile.h"
 #include "SkOSPath.h"
+#include "SkPDFDocument.h"
 #include "SkStream.h"
 
 #include "sk_tool_utils.h"
@@ -152,14 +153,13 @@ static bool contains(const uint8_t* result, size_t size, const char expectation[
 DEF_TEST(SkPDF_pdfa_document, r) {
     REQUIRE_PDF_DOCUMENT(SkPDF_pdfa_document, r);
 
-    SkDocument::PDFMetadata pdfMetadata;
+    SkPDF::Metadata pdfMetadata;
     pdfMetadata.fTitle = "test document";
-    pdfMetadata.fCreation.fEnabled = true;
-    pdfMetadata.fCreation.fDateTime = {0, 1999, 12, 5, 31, 23, 59, 59};
+    pdfMetadata.fCreation = {0, 1999, 12, 5, 31, 23, 59, 59};
     pdfMetadata.fPDFA = true;
 
     SkDynamicMemoryWStream buffer;
-    auto doc = SkDocument::MakePDF(&buffer, pdfMetadata);
+    auto doc = SkPDF::MakeDocument(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     sk_sp<SkData> data(buffer.detachAsData());
@@ -178,7 +178,7 @@ DEF_TEST(SkPDF_pdfa_document, r) {
     }
     pdfMetadata.fProducer = "phoney library";
     pdfMetadata.fPDFA = true;
-    doc = SkDocument::MakePDF(&buffer, pdfMetadata);
+    doc = SkPDF::MakeDocument(&buffer, pdfMetadata);
     doc->beginPage(64, 64)->drawColor(SK_ColorRED);
     doc->close();
     data = buffer.detachAsData();
