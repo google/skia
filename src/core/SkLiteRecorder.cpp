@@ -18,10 +18,6 @@ void SkLiteRecorder::reset(SkLiteDL* dl, const SkIRect& bounds) {
     fDL = dl;
 }
 
-sk_sp<SkSurface> SkLiteRecorder::onNewSurface(const SkImageInfo&, const SkSurfaceProps&) {
-    return nullptr;
-}
-
 void SkLiteRecorder::onFlush() { fDL->flush(); }
 
 void SkLiteRecorder::willSave() { fDL->save(); }
