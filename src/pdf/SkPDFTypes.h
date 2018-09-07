@@ -20,6 +20,8 @@
 #include <vector>
 
 class SkData;
+class SkPDFCanon;
+class SkPDFDocument;
 class SkPDFObjNumMap;
 class SkPDFObject;
 class SkStreamAsset;

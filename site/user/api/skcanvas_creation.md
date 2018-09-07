@@ -125,13 +125,13 @@ a document must include multiple pages.
 
 <!--?prettify lang=cc?-->
 
-    #include "SkDocument.h"
+    #include "SkPDFDocument.h"
     #include "SkStream.h"
     void skpdf(int width, int height,
                void (*draw)(SkCanvas*),
                const char* path) {
         SkFILEWStream pdfStream(path);
-        sk_sp<SkDocument> pdfDoc = SkDocument::MakePDF(&pdfStream);
+        sk_sp<SkDocument> pdfDoc = SkPDF::MakeDocument(&pdfStream);
         SkCanvas* pdfCanvas = pdfDoc->beginPage(SkIntToScalar(width),
                                                 SkIntToScalar(height));
         draw(pdfCanvas);

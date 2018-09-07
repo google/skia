@@ -8,11 +8,11 @@
 #define skiatest_Test_DEFINED
 
 #include "../tools/Registry.h"
+#include "GrContextFactory.h"
 #include "SkClipOpPriv.h"
 #include "SkString.h"
 #include "SkTraceEvent.h"
 #include "SkTypes.h"
-#include "GrContextFactory.h"
 
 namespace skiatest {
 
@@ -221,7 +221,7 @@ private:
 #define REQUIRE_PDF_DOCUMENT(TEST_NAME, REPORTER)                          \
     do {                                                                   \
         SkDynamicMemoryWStream testStream;                                 \
-        sk_sp<SkDocument> testDoc(SkDocument::MakePDF(&testStream));       \
+        sk_sp<SkDocument> testDoc(SkPDF::MakeDocument(&testStream));       \
         if (!testDoc) {                                                    \
             INFOF(REPORTER, "PDF disabled; %s test skipped.", #TEST_NAME); \
             return;                                                        \

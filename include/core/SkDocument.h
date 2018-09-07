@@ -36,6 +36,7 @@ static constexpr SkScalar SK_ScalarDefaultRasterDPI = 72.0f;
  */
 class SK_API SkDocument : public SkRefCnt {
 public:
+#ifdef SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
     struct OptionalTimestamp {
         SkTime::DateTime fDateTime;
         bool fEnabled;
@@ -151,7 +152,8 @@ public:
     static sk_sp<SkDocument> MakeXPS(SkWStream* stream,
                                      IXpsOMObjectFactory* xpsFactory,
                                      SkScalar dpi = SK_ScalarDefaultRasterDPI);
-#endif
+#endif  // SK_BUILD_FOR_WIN
+#endif  // SK_SUPPORT_LEGACY_DOCUMENT_FACTORY
 
     /**
      *  Begin a new page for the document, returning the canvas that will draw

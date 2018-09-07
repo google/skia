@@ -7,8 +7,8 @@
 
 #include "SkCanvas.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkImageGenerator.h"
+#include "SkPDFDocument.h"
 #include "SkStream.h"
 
 #include "Resources.h"
@@ -55,7 +55,7 @@ DEF_TEST(SkPDF_JpegEmbedTest, r) {
     }
     ////////////////////////////////////////////////////////////////////////////
     SkDynamicMemoryWStream pdf;
-    sk_sp<SkDocument> document(SkDocument::MakePDF(&pdf));
+    sk_sp<SkDocument> document(SkPDF::MakeDocument(&pdf));
     SkCanvas* canvas = document->beginPage(642, 1028);
 
     canvas->clear(SK_ColorLTGRAY);

@@ -15,12 +15,12 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkData.h"
-#include "SkDocument.h"
 #include "SkFontStyle.h"
 #include "SkGradientShader.h"
 #include "SkImage.h"
 #include "SkMakeUnique.h"
 #include "SkMatrix.h"
+#include "SkPDFDocument.h"
 #include "SkPaint.h"
 #include "SkPath.h"
 #include "SkPictureRecorder.h"
@@ -1898,7 +1898,7 @@ static int lsk_newDocumentPDF(lua_State* L) {
     if (!file->isValid()) {
         return 0;
     }
-    sk_sp<SkDocument> doc = SkDocument::MakePDF(file.get());
+    sk_sp<SkDocument> doc = SkPDF::MakeDocument(file.get());
     if (!doc) {
         return 0;
     }

@@ -221,6 +221,11 @@ gn_args = {
   'target_os':           '"android"',
 }
 
+extra_userconfig_defines = [
+  # remove once we've fixed call-sites
+  'SK_SUPPORT_LEGACY_DOCUMENT_FACTORY',
+]
+
 js = gn_to_bp_utils.GenerateJSONFromGN(gn_args)
 
 def strip_slashes(lst):
@@ -232,6 +237,7 @@ cflags_cc       = strip_slashes(js['targets']['//:skia']['cflags_cc'])
 local_includes  = strip_slashes(js['targets']['//:skia']['include_dirs'])
 export_includes = strip_slashes(js['targets']['//:public']['include_dirs'])
 defines      = [str(d) for d in js['targets']['//:skia']['defines']]
+defines      += extra_userconfig_defines
 
 dm_srcs         = strip_slashes(js['targets']['//:dm']['sources'])
 dm_includes     = strip_slashes(js['targets']['//:dm']['include_dirs'])

@@ -5,8 +5,10 @@
 
 # Things are easiest for everyone if these source paths are absolute.
 _src = get_path_info("../src", "abspath")
+_include = get_path_info("../include", "abspath")
 
 skia_pdf_sources = [
+  "$_include/docs/SkPDFDocument.h",
   "$_src/pdf/SkBitmapKey.h",
   "$_src/pdf/SkClusterator.cpp",
   "$_src/pdf/SkClusterator.h",
@@ -25,7 +27,7 @@ skia_pdf_sources = [
   "$_src/pdf/SkPDFDevice.cpp",
   "$_src/pdf/SkPDFDevice.h",
   "$_src/pdf/SkPDFDocument.cpp",
-  "$_src/pdf/SkPDFDocument.h",
+  "$_src/pdf/SkPDFDocumentPriv.h",
   "$_src/pdf/SkPDFFont.cpp",
   "$_src/pdf/SkPDFFont.h",
   "$_src/pdf/SkPDFFormXObject.cpp",

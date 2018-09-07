@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "SkCanvas.h"
-#include "SkDocument.h"
+#include "SkPDFDocument.h"
 #include "SkShaper.h"
 #include "SkStream.h"
 #include "SkTextBlob.h"
@@ -178,7 +178,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStream) {
-    SkDocument::PDFMetadata pdf_info;
+    SkPDF::Metadata pdf_info;
     pdf_info.fTitle = config.title.value.c_str();
     pdf_info.fAuthor = config.author.value.c_str();
     pdf_info.fSubject = config.subject.value.c_str();
@@ -187,13 +187,11 @@ static sk_sp<SkDocument> MakePDFDocument(const Config &config, SkWStream *wStrea
     #if 0
         SkTime::DateTime now;
         SkTime::GetDateTime(&now);
-        pdf_info.fCreation.fEnabled = true;
-        pdf_info.fCreation.fDateTime = now;
-        pdf_info.fModified.fEnabled = true;
-        pdf_info.fModified.fDateTime = now;
+        pdf_info.fCreation = now;
+        pdf_info.fModified = now;
         pdf_info.fPDFA = true;
     #endif
-    return SkDocument::MakePDF(wStream, pdf_info);
+    return SkPDF::MakeDocument(wStream, pdf_info);
 }
 
 int main(int argc, char **argv) {

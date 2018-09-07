@@ -25,7 +25,7 @@
 #include "SkMaskFilterBase.h"
 #include "SkPDFBitmap.h"
 #include "SkPDFCanon.h"
-#include "SkPDFDocument.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFFont.h"
 #include "SkPDFFormXObject.h"
 #include "SkPDFGraphicState.h"
