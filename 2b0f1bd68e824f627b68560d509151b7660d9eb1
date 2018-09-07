@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5ede88c2_d114a1f9",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1219,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-07T17:46:33Z",
+      "side": 1,
+      "message": "Can this use min and max, or do the types not work out?",
+      "range": {
+        "startLine": 1216,
+        "startChar": 19,
+        "endLine": 1219,
+        "endChar": 77
+      },
+      "revId": "2b0f1bd68e824f627b68560d509151b7660d9eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0d30859_227f9fdd",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-07T17:46:33Z",
+      "side": 1,
+      "message": "Can you add a reminder of why this is negative?",
+      "range": {
+        "startLine": 1242,
+        "startChar": 12,
+        "endLine": 1242,
+        "endChar": 41
+      },
+      "revId": "2b0f1bd68e824f627b68560d509151b7660d9eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9c68e87c_861ad6d3",
+        "filename": "src/ports/SkFontHost_FreeType.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-07T17:46:33Z",
+      "side": 1,
+      "message": "Why the parens around width and others?",
+      "range": {
+        "startLine": 1244,
+        "startChar": 52,
+        "endLine": 1244,
+        "endChar": 60
+      },
+      "revId": "2b0f1bd68e824f627b68560d509151b7660d9eb1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
