@@ -59,13 +59,6 @@ public:
     static const int    kDefaultMaxCount            = 2 * (1 << 12);
     // Default maximum number of bytes of gpu memory of budgeted resources in the cache.
     static const size_t kDefaultMaxSize             = 96 * (1 << 20);
-    // Default number of external flushes a budgeted resources can go unused in the cache before it
-    // is purged. Using a value <= 0 disables this feature. This will be removed once Chrome
-    // starts using time-based purging.
-    static const int    kDefaultMaxUnusedFlushes =
-            1  * /* flushes per frame */
-            60 * /* fps */
-            30;  /* seconds */
 
     /** Used to access functionality needed by GrGpuResource for lifetime management. */
     class ResourceAccess;
@@ -74,13 +67,8 @@ public:
     /** Unique ID of the owning GrContext. */
     uint32_t contextUniqueID() const { return fContextUniqueID; }
 
-    /**
-     * Sets the cache limits in terms of number of resources, max gpu memory byte size, and number
-     * of external GrContext flushes that a resource can be unused before it is evicted. The latter
-     * value is a suggestion and there is no promise that a resource will be purged immediately
-     * after it hasn't been used in maxUnusedFlushes flushes.
-     */
-    void setLimits(int count, size_t bytes, int maxUnusedFlushes = kDefaultMaxUnusedFlushes);
+    /** Sets the cache limits in terms of number of resources and max gpu memory byte size. */
+    void setLimits(int count, size_t bytes);
 
     /**
      * Returns the number of resources.
@@ -347,7 +335,6 @@ private:
     // our budget, used in purgeAsNeeded()
     int                                 fMaxCount;
     size_t                              fMaxBytes;
-    int                                 fMaxUnusedFlushes;
 
 #if GR_CACHE_STATS
     int                                 fHighWaterCount;
@@ -366,7 +353,6 @@ private:
     size_t                              fPurgeableBytes;
 
     bool                                fRequestFlush;
-    uint32_t                            fExternalFlushCnt;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
     FreedGpuResourceInbox               fFreedGpuResourceInbox;
