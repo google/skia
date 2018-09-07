@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8fb8b10c_ae7b8a86",
+        "filename": "src/core/SkCanvas.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5649
+      },
+      "writtenOn": "2018-09-07T13:51:01Z",
+      "side": 1,
+      "message": "Why not MakeRaster(info), so we can respect the caller\u0027s colortype?",
+      "range": {
+        "startLine": 1158,
+        "startChar": 28,
+        "endLine": 1158,
+        "endChar": 47
+      },
+      "revId": "ba9d577fe26ea24671d4be2288ddff43dbd8e3cb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
