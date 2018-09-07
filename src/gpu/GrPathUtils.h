@@ -107,7 +107,8 @@ namespace GrPathUtils {
 
     // Converts a cubic into a sequence of quads. If working in device space
     // use tolScale = 1, otherwise set based on stretchiness of the matrix. The
-    // result is sets of 3 points in quads.
+    // result is sets of 3 points in quads. This will preserve the starting and
+    // ending tangent vectors (modulo FP precision).
     void convertCubicToQuads(const SkPoint p[4],
                              SkScalar tolScale,
                              SkTArray<SkPoint, true>* quads);
