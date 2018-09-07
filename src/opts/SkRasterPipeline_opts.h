@@ -1276,6 +1276,13 @@ STAGE(clamp_a_dst, Ctx::None) {
     db = min(db, da);
 }
 
+STAGE(clamp_gamut, Ctx::None) {
+    // If you're using this stage, a should already be in [0,1].
+    r = min(max(r, 0), a);
+    g = min(max(g, 0), a);
+    b = min(max(b, 0), a);
+}
+
 STAGE(set_rgb, const float* rgb) {
     r = rgb[0];
     g = rgb[1];
@@ -2571,6 +2578,11 @@ STAGE_PP(clamp_a_dst, Ctx::None) {
     dr = min(dr, da);
     dg = min(dg, da);
     db = min(db, da);
+}
+
+STAGE_PP(clamp_gamut, Ctx::None) {
+    // It shouldn't be possible to get out-of-gamut
+    // colors when working in lowp.
 }
 
 STAGE_PP(premul, Ctx::None) {

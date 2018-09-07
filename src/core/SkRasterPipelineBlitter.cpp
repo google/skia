@@ -97,9 +97,7 @@ static void append_color_pipeline(SkRasterPipeline* p,
         dstInfo.colorType() != kRGBA_F32_SkColorType &&
         dstInfo.alphaType() == kPremul_SkAlphaType)
     {
-        // TODO: this will be common enough that we may want to fuse into ::clamp_premul.
-        p->append(SkRasterPipeline::clamp_0);
-        p->append(SkRasterPipeline::clamp_a);
+        p->append(SkRasterPipeline::clamp_gamut);
     }
 }
 
