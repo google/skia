@@ -545,3 +545,31 @@ DEF_TEST(SkSLFPNestedChildProcessors, r) {
             "this->registerChildProcessor(src.childProcessor(1).clone());"
          });
 }
+
+DEF_TEST(SkSLFPChildFPAndGlobal, r) {
+    test(r,
+         "in fragmentProcessor child;"
+         "bool hasCap = sk_Caps.externalTextureSupport;"
+         "void main() {"
+         "    if (hasCap) {"
+         "        sk_OutColor = process(child, sk_InColor);"
+         "    } else {"
+         "        sk_OutColor = half4(1);"
+         "    }"
+         "}",
+         *SkSL::ShaderCapsFactory::Default(),
+         {
+            "this->registerChildProcessor(std::move(child));"
+         },
+         {
+            "hasCap = sk_Caps.externalTextureSupport;",
+            "fragBuilder->codeAppendf(\"bool hasCap = %s;\\nif (hasCap) {\", "
+                    "(hasCap ? \"true\" : \"false\"));",
+            "SkString _input0 = SkStringPrintf(\"%s\", args.fInputColor);",
+            "SkString _child0(\"_child0\");",
+            "this->emitChild(0, _input0.c_str(), &_child0, args);",
+            "fragBuilder->codeAppendf(\"\\n    %s = %s;\\n} else {\\n    %s = half4(1.0);\\n}"
+                    "\\n\", args.fOutputColor, _child0.c_str(), args.fOutputColor);",
+            "this->registerChildProcessor(src.childProcessor(0).clone());"
+         });
+}
