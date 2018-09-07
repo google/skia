@@ -24,6 +24,8 @@
 
 #include <vector>
 
+#define GRAY_CS 1
+
 class SkColorSpace;
 class SkData;
 class SkFrameHolder;

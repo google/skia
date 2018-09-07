@@ -598,6 +598,7 @@ static void exec_ops(const Op* ops, const void** args,
 
             case Op_load_g8:{
                 r = g = b = F_from_U8(load<U8>(src + 1*i));
+                a = F1;
             } break;
 
             case Op_load_4444:{
