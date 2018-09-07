@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "651d14e5_24c1fd39",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-07T19:07:51Z",
+      "side": 1,
+      "message": "Does it make sense to remove SkImageCacherator::getColorSpace() now that this is so trivial?",
+      "range": {
+        "startLine": 484,
+        "startChar": 34,
+        "endLine": 484,
+        "endChar": 47
+      },
+      "revId": "55cb87015a507a2561c009f080908360209e8ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "76e94082_be50bdfa",
+        "filename": "src/image/SkImage_Lazy.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-07T19:07:51Z",
+      "side": 1,
+      "message": "Probably can just pass fInfo here?",
+      "range": {
+        "startLine": 552,
+        "startChar": 53,
+        "endLine": 552,
+        "endChar": 62
+      },
+      "revId": "55cb87015a507a2561c009f080908360209e8ba9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
