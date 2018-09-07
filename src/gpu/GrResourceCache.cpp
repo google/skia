@@ -672,18 +672,6 @@ uint32_t GrResourceCache::getNextTimestamp() {
     return fTimestamp++;
 }
 
-void GrResourceCache::notifyFlushOccurred(FlushType type) {
-    switch (type) {
-        case FlushType::kCacheRequested:
-            SkASSERT(fRequestFlush);
-            fRequestFlush = false;
-            break;
-        case FlushType::kExternal:
-            break;
-    }
-    this->purgeAsNeeded();
-}
-
 void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
     for (int i = 0; i < fNonpurgeableResources.count(); ++i) {
         fNonpurgeableResources[i]->dumpMemoryStatistics(traceMemoryDump);
