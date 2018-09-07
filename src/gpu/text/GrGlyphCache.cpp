@@ -42,10 +42,7 @@ void GrGlyphCache::freeAll() {
 }
 
 SkScalar GrGlyphCache::ComputeGlyphSizeLimit(int maxTextureSize, size_t maxTextureBytes) {
-    int maxDim, minDim, maxPlot, minPlot;
-    GrAtlasManager::ComputeAtlasLimits(maxTextureSize, maxTextureBytes, &maxDim, &minDim, &maxPlot,
-                                       &minPlot);
-    return minPlot;
+    return SkGlyphCacheCommon::kSkSideTooBigForAtlas;
 }
 
 void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {
