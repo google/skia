@@ -30,8 +30,11 @@ public:
 
 private:
     GrDualIntervalGradientColorizer(GrColor4f scale01, GrColor4f bias01, GrColor4f scale23,
-                                    GrColor4f bias23, float threshold)
-            : INHERITED(kGrDualIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
+                                    GrColor4f bias23, float threshold, bool colorsAreOpaque)
+            : INHERITED(kGrDualIntervalGradientColorizer_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                                (colorsAreOpaque ? kPreservesOpaqueInput_OptimizationFlag
+                                                 : kNone_OptimizationFlags))
             , fScale01(scale01)
             , fBias01(bias01)
             , fScale23(scale23)

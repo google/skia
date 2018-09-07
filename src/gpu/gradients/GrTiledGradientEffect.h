@@ -16,11 +16,12 @@
 class GrTiledGradientEffect : public GrFragmentProcessor {
 public:
     bool mirror() const { return fMirror; }
+    bool makePremul() const { return fMakePremul; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             std::unique_ptr<GrFragmentProcessor> colorizer,
-            std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror) {
-        return std::unique_ptr<GrFragmentProcessor>(
-                new GrTiledGradientEffect(std::move(colorizer), std::move(gradLayout), mirror));
+            std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror, bool makePremul) {
+        return std::unique_ptr<GrFragmentProcessor>(new GrTiledGradientEffect(
+                std::move(colorizer), std::move(gradLayout), mirror, makePremul));
     }
     GrTiledGradientEffect(const GrTiledGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -28,8 +29,18 @@ public:
 
 private:
     GrTiledGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
-                          std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror)
-            : INHERITED(kGrTiledGradientEffect_ClassID, kNone_OptimizationFlags), fMirror(mirror) {
+                          std::unique_ptr<GrFragmentProcessor> gradLayout, bool mirror,
+                          bool makePremul)
+            : INHERITED(kGrTiledGradientEffect_ClassID,
+                        (OptimizationFlags)(colorizer->preservesOpaqueInput() &&
+                                                            gradLayout->preservesOpaqueInput()
+                                                    ? kPreservesOpaqueInput_OptimizationFlag
+                                                    : kNone_OptimizationFlags) |
+                                (colorizer->compatibleWithCoverageAsAlpha()
+                                         ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                         : kNone_OptimizationFlags))
+            , fMirror(mirror)
+            , fMakePremul(makePremul) {
         this->registerChildProcessor(std::move(colorizer));
         this->registerChildProcessor(std::move(gradLayout));
     }
@@ -38,6 +49,7 @@ private:
     bool onIsEqual(const GrFragmentProcessor&) const override;
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     bool fMirror;
+    bool fMakePremul;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
