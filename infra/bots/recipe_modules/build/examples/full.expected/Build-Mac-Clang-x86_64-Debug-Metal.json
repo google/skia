@@ -65,8 +65,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/cache/work/skia/out/Build-Mac-Clang-x86_64-Debug-Metal/Debug"
     ],

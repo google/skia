@@ -124,8 +124,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/skia/out/Build-Debian9-Clang-x86_64-Release-NoDEPS/Release"
     ],

@@ -192,8 +192,6 @@
   {
     "cmd": [
       "ninja",
-      "-k",
-      "0",
       "-C",
       "[START_DIR]/build/out/Release"
     ],
