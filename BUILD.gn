@@ -93,6 +93,7 @@ skia_public_includes = [
   "include/codec",
   "include/config",
   "include/core",
+  "include/docs",
   "include/effects",
   "include/encode",
   "include/gpu",
