@@ -456,6 +456,8 @@ static skcms_PixelFormat png_select_xform_format(const SkEncodedInfo& info) {
         } else if (SkEncodedInfo::kRGB_Color == info.color()) {
             return skcms_PixelFormat_RGB_161616;
         }
+    } else if (SkEncodedInfo::kGray_Color == info.color()) {
+        return skcms_PixelFormat_G_8;
     }
 
     return skcms_PixelFormat_RGBA_8888;
@@ -1020,6 +1022,7 @@ SkCodec::Result SkPngCodec::initializeXforms(const SkImageInfo& dstInfo, const O
 
             // Fall through
         case SkEncodedInfo::kRGBA_Color:
+        case SkEncodedInfo::kGray_Color:
             skipFormatConversion = this->colorXform();
             break;
         default:
@@ -1059,7 +1062,11 @@ void SkPngCodec::initializeSwizzler(const SkImageInfo& dstInfo, const Options& o
     Options swizzlerOptions = options;
     fXformMode = kSwizzleOnly_XformMode;
     if (this->colorXform() && this->xformOnDecode()) {
-        swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
+        if (SkEncodedInfo::kGray_Color == this->getEncodedInfo().color()) {
+            swizzlerInfo = swizzlerInfo.makeColorType(kGray_8_SkColorType);
+        } else {
+            swizzlerInfo = swizzlerInfo.makeColorType(kXformSrcColorType);
+        }
         if (kPremul_SkAlphaType == dstInfo.alphaType()) {
             swizzlerInfo = swizzlerInfo.makeAlphaType(kUnpremul_SkAlphaType);
         }

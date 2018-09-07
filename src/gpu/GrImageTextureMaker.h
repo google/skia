@@ -27,8 +27,7 @@ protected:
                                                   SkColorSpace* dstColorSpace,
                                                   AllowedTexGenType onlyIfFast) override;
 
-    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey,
-                     SkColorSpace* dstColorSpace) override;
+    void makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override {}
 
     SkAlphaType alphaType() const override;

@@ -33,7 +33,6 @@
 #include "SkBitmapCache.h"
 #include "SkCanvas.h"
 #include "SkGr.h"
-#include "SkImageCacherator.h"
 #include "SkImageInfoPriv.h"
 #include "SkImage_Gpu.h"
 #include "SkMipMap.h"

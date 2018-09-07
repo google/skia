@@ -107,8 +107,7 @@ sk_sp<GrTextureProxy> GrBitmapTextureMaker::refOriginalTextureProxy(bool willBeM
     return nullptr;
 }
 
-void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey,
-                                       SkColorSpace* dstColorSpace) {
+void GrBitmapTextureMaker::makeCopyKey(const CopyParams& copyParams, GrUniqueKey* copyKey) {
     // Destination color space is irrelevant - we always upload the bitmap's contents as-is
     if (fOriginalKey.isValid()) {
         MakeCopyKeyFromOrigKey(fOriginalKey, copyParams, copyKey);

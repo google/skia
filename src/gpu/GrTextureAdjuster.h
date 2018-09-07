@@ -35,8 +35,7 @@ public:
 
 protected:
     SkAlphaType alphaType() const override { return fAlphaType; }
-    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey,
-                     SkColorSpace* dstColorSpace) override;
+    void makeCopyKey(const CopyParams& params, GrUniqueKey* copyKey) override;
     void didCacheCopy(const GrUniqueKey& copyKey, uint32_t contextUniqueID) override;
 
     GrTextureProxy* originalProxy() const { return fOriginal.get(); }
