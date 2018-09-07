@@ -43,13 +43,6 @@ void GrContextPriv::setTextBlobCacheLimit_ForTesting(size_t bytes) {
     fContext->fTextBlobCache->setBudget(bytes);
 }
 
-void GrContextPriv::setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs) {
-    GrAtlasManager* atlasManager = this->getAtlasManager();
-    if (atlasManager) {
-        atlasManager->setAtlasSizes_ForTesting(configs);
-    }
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 void GrContextPriv::purgeAllUnlockedResources_ForTesting() {
