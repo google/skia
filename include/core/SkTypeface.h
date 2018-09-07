@@ -33,8 +33,6 @@ typedef uint32_t SkFontID;
 /** Machine endian. */
 typedef uint32_t SkFontTableTag;
 
-#define SK_SUPPORT_LEGACY_TYPEFACE_MAKEFROMSTREAM
-
 /** \class SkTypeface
 
     The SkTypeface class specifies the typeface and intrinsic style of a font.
