@@ -129,7 +129,7 @@ SkPicture::AbortCallback can be constructed or initialized by these functions, i
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default constructor</td>
   </tr>
   <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default destructor</td>
   </tr>
 </table>
@@ -155,7 +155,9 @@ SkPicture::AbortCallback member functions read and modify the structure properti
     class <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> {
     public:
         <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a> {}
-        virtual
+        virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a> {}
+        virtual bool <a href='#SkPicture_AbortCallback_abort'>abort</a> = 0;
+    };
 </pre>
 
 <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> is an abstract class. An implementation of <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> may
@@ -187,7 +189,7 @@ abstract class cannot be instantiated
 ## ~AbortCallback
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-virtual
+virtual <a href='#SkPicture_AbortCallback_destructor'>~AbortCallback</a>()
 </pre>
 
 Has no effect.

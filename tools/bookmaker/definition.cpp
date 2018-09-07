@@ -1216,11 +1216,27 @@ Definition* RootDefinition::find(string ref, AllowParens allowParens) {
     if (leafIter != fLeaves.end()) {
         return &leafIter->second;
     }
-    if (AllowParens::kYes == allowParens && string::npos == ref.find("()")) {
-        string withParens = ref + "()";
-        const auto parensIter = fLeaves.find(withParens);
-        if (parensIter != fLeaves.end()) {
-            return &parensIter->second;
+    if (AllowParens::kYes == allowParens) {
+        size_t leftParen = ref.find('(');
+        if (string::npos == leftParen
+                || (leftParen + 1 < ref.length() && ')' != ref[leftParen + 1])) {
+            string withParens = ref + "()";
+            const auto parensIter = fLeaves.find(withParens);
+            if (parensIter != fLeaves.end()) {
+                return &parensIter->second;
+            }
+        }
+        if (string::npos != leftParen) {
+            string name = ref.substr(0, leftParen);
+            size_t posInDefName = fName.find(name);
+            if (string::npos != posInDefName && posInDefName > 2
+                    && "::" == fName.substr(posInDefName - 2, 2)) {
+                string fullRef = fName + "::" + ref;
+                const auto fullIter = fLeaves.find(fullRef);
+                if (fullIter != fLeaves.end()) {
+                    return &fullIter->second;
+                }
+            }
         }
     }
     const auto branchIter = fBranches.find(ref);
