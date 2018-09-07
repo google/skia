@@ -12,7 +12,8 @@ in half4x4 gradientMatrix;
 }
 
 void main() {
-    sk_OutColor = half4(sk_TransformedCoords2D[0].x);
+    half t = sk_TransformedCoords2D[0].x;
+    sk_OutColor = half4(t, 1, 0, 0); // y = 1 for always valid
 }
 
 //////////////////////////////////////////////////////////////////////////////
