@@ -6,13 +6,14 @@
  * found in the LICENSE file.
  */
 
+
+
 #ifndef GrColor_DEFINED
 #define GrColor_DEFINED
 
 #include "GrTypes.h"
 #include "SkColor.h"
 #include "SkColorPriv.h"
-#include "SkMath.h"
 #include "SkUnPreMultiply.h"
 
 /**

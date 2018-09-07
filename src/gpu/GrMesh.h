@@ -10,7 +10,6 @@
 
 #include "GrBuffer.h"
 #include "GrPendingIOResource.h"
-#include "SkMath.h"
 
 class GrPrimitiveProcessor;
 

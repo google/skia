@@ -9,7 +9,6 @@
 #define SkMorphologyImageFilter_opts_DEFINED
 
 #include "SkColor.h"
-#include "SkMath.h"
 
 namespace SK_OPTS_NS {
 
