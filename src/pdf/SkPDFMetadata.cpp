@@ -20,6 +20,19 @@
 #define SKPDF_PRODUCER "Skia/PDF m" SKPDF_STRING(SK_MILESTONE)
 #define SKPDF_CUSTOM_PRODUCER_KEY "ProductionLibrary"
 
+static constexpr SkTime::DateTime kZeroTime = {0, 0, 0, 0, 0, 0, 0, 0};
+
+static bool operator!=(const SkTime::DateTime& u, const SkTime::DateTime& v) {
+    return u.fTimeZoneMinutes != v.fTimeZoneMinutes ||
+           u.fYear != v.fYear ||
+           u.fMonth != v.fMonth ||
+           u.fDayOfWeek != v.fDayOfWeek ||
+           u.fDay != v.fDay ||
+           u.fHour != v.fHour ||
+           u.fMinute != v.fMinute ||
+           u.fSecond != v.fSecond;
+}
+
 static SkString pdf_date(const SkTime::DateTime& dt) {
     int timeZoneMinutes = SkToInt(dt.fTimeZoneMinutes);
     char timezoneSign = timeZoneMinutes >= 0 ? '+' : '-';
@@ -103,18 +116,18 @@ static SkString convert(const char* src) {
 namespace {
 static const struct {
     const char* const key;
-    SkString SkDocument::PDFMetadata::*const valuePtr;
+    SkString SkPDF::Metadata::*const valuePtr;
 } gMetadataKeys[] = {
-        {"Title", &SkDocument::PDFMetadata::fTitle},
-        {"Author", &SkDocument::PDFMetadata::fAuthor},
-        {"Subject", &SkDocument::PDFMetadata::fSubject},
-        {"Keywords", &SkDocument::PDFMetadata::fKeywords},
-        {"Creator", &SkDocument::PDFMetadata::fCreator},
+        {"Title", &SkPDF::Metadata::fTitle},
+        {"Author", &SkPDF::Metadata::fAuthor},
+        {"Subject", &SkPDF::Metadata::fSubject},
+        {"Keywords", &SkPDF::Metadata::fKeywords},
+        {"Creator", &SkPDF::Metadata::fCreator},
 };
 }  // namespace
 
 sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
-        const SkDocument::PDFMetadata& metadata) {
+        const SkPDF::Metadata& metadata) {
     auto dict = sk_make_sp<SkPDFDict>();
     for (const auto keyValuePtr : gMetadataKeys) {
         const SkString& value = metadata.*(keyValuePtr.valuePtr);
@@ -128,17 +141,17 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeDocumentInformationDict(
         dict->insertString("Producer", convert(metadata.fProducer));
         dict->insertString(SKPDF_CUSTOM_PRODUCER_KEY, convert(SKPDF_PRODUCER));
     }
-    if (metadata.fCreation.fEnabled) {
-        dict->insertString("CreationDate", pdf_date(metadata.fCreation.fDateTime));
+    if (metadata.fCreation != kZeroTime) {
+        dict->insertString("CreationDate", pdf_date(metadata.fCreation));
     }
-    if (metadata.fModified.fEnabled) {
-        dict->insertString("ModDate", pdf_date(metadata.fModified.fDateTime));
+    if (metadata.fModified != kZeroTime) {
+        dict->insertString("ModDate", pdf_date(metadata.fModified));
     }
     return std::move(dict);
 }
 
 SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
-        const SkDocument::PDFMetadata& metadata) {
+        const SkPDF::Metadata& metadata) {
     // The main requirement is for the UUID to be unique; the exact
     // format of the data that will be hashed is not important.
     SkMD5 md5;
@@ -149,14 +162,8 @@ SkPDFMetadata::UUID SkPDFMetadata::CreateUUID(
     SkTime::DateTime dateTime;
     SkTime::GetDateTime(&dateTime);
     md5.write(&dateTime, sizeof(dateTime));
-    if (metadata.fCreation.fEnabled) {
-        md5.write(&metadata.fCreation.fDateTime,
-                  sizeof(metadata.fCreation.fDateTime));
-    }
-    if (metadata.fModified.fEnabled) {
-        md5.write(&metadata.fModified.fDateTime,
-                  sizeof(metadata.fModified.fDateTime));
-    }
+    md5.write(&metadata.fCreation, sizeof(metadata.fCreation));
+    md5.write(&metadata.fModified, sizeof(metadata.fModified));
 
     for (const auto keyValuePtr : gMetadataKeys) {
         md5.writeText(keyValuePtr.key);
@@ -299,7 +306,7 @@ const SkString escape_xml(const SkString& input,
 }
 
 sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
-        const SkDocument::PDFMetadata& metadata,
+        const SkPDF::Metadata& metadata,
         const UUID& doc,
         const UUID& instance) {
     static const char templateString[] =
@@ -336,17 +343,17 @@ sk_sp<SkPDFObject> SkPDFMetadata::MakeXMPObject(
 
     SkString creationDate;
     SkString modificationDate;
-    if (metadata.fCreation.fEnabled) {
+    if (metadata.fCreation != kZeroTime) {
         SkString tmp;
-        metadata.fCreation.fDateTime.toISO8601(&tmp);
+        metadata.fCreation.toISO8601(&tmp);
         SkASSERT(0 == count_xml_escape_size(tmp));
         // YYYY-mm-ddTHH:MM:SS[+|-]ZZ:ZZ; no need to escape
         creationDate = SkStringPrintf("<xmp:CreateDate>%s</xmp:CreateDate>\n",
                                       tmp.c_str());
     }
-    if (metadata.fModified.fEnabled) {
+    if (metadata.fModified != kZeroTime) {
         SkString tmp;
-        metadata.fModified.fDateTime.toISO8601(&tmp);
+        metadata.fModified.toISO8601(&tmp);
         SkASSERT(0 == count_xml_escape_size(tmp));
         modificationDate = SkStringPrintf(
                 "<xmp:ModifyDate>%s</xmp:ModifyDate>\n", tmp.c_str());

@@ -8,8 +8,10 @@
 #include "SkPDFGradientShader.h"
 
 #include "SkOpts.h"
-#include "SkPDFDocument.h"
+#include "SkPDFCanon.h"
+#include "SkPDFDocumentPriv.h"
 #include "SkPDFFormXObject.h"
+#include "SkPDFGraphicState.h"
 #include "SkPDFResourceDict.h"
 #include "SkPDFUtils.h"
 
