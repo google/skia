@@ -663,7 +663,7 @@ SkRegion::Cliperator member functions read and modify the structure properties.
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class SK_API <a href='#SkRegion_Cliperator'>Cliperator</a> {
     public:
-        <a href='#SkRegion_Cliperator_const_SkRegion_const_SkIRect'>Cliperator(const SkRegion& region, const SkIRect& clip)</a>;
+        <a href='#SkRegion_Cliperator'>Cliperator(const SkRegion&, const SkIRect& clip)</a>;
         bool <a href='#SkRegion_Cliperator_done'>done</a>;
         void <a href='#SkRegion_Cliperator_next'>next</a>;
         const <a href='SkIRect_Reference#SkIRect'>SkIRect</a>& <a href='#SkRegion_Cliperator_rect'>rect</a> const;
