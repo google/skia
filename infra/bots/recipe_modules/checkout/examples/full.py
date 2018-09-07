@@ -164,3 +164,13 @@ def GenTests(api):
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
   )
+  yield (
+      api.test('trybot') +
+      api.properties(buildername=buildername,
+                     repository='https://skia.googlesource.com/skia.git',
+                     revision='abc123',
+                     path_config='kitchen',
+                     patch_ref='refs/changes/89/456789/12',
+                     patch_storage='gerrit',
+                     swarm_out_dir='[SWARM_OUT_DIR]')
+  )
