@@ -12,12 +12,12 @@
 #include "SkCanvas.h"
 #include "SkColorFilter.h"
 #include "SkDebugCanvas.h"
-#include "SkDocument.h"
 #include "SkFontMgr.h"
 #include "SkImageFilter.h"
 #include "SkMaskFilter.h"
 #include "SkNullCanvas.h"
 #include "SkOSFile.h"
+#include "SkPDFDocument.h"
 #include "SkPathEffect.h"
 #include "SkPicturePriv.h"
 #include "SkPictureRecorder.h"
@@ -1796,7 +1796,7 @@ DEF_FUZZ(MockGPUCanvas, fuzz) {
 
 DEF_FUZZ(PDFCanvas, fuzz) {
     SkNullWStream stream;
-    auto doc = SkDocument::MakePDF(&stream);
+    auto doc = SkPDF::MakeDocument(&stream);
     fuzz_canvas(fuzz, doc->beginPage(SkIntToScalar(kCanvasSize.width()),
                                      SkIntToScalar(kCanvasSize.height())));
 }
