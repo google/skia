@@ -26,6 +26,8 @@ public:
         (void)bottomBorderColor;
         auto topBorderColor = _outer.topBorderColor();
         (void)topBorderColor;
+        auto makePremul = _outer.makePremul();
+        (void)makePremul;
         fBottomBorderColorVar =
                 args.fUniformHandler->addUniform(kFragment_GrShaderFlag, kHalf4_GrSLType,
                                                  kDefault_GrSLPrecision, "bottomBorderColor");
@@ -34,17 +36,20 @@ public:
         SkString _child1("_child1");
         this->emitChild(1, &_child1, args);
         fragBuilder->codeAppendf(
-                "half4 t = %s;\nif (t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < 0.0) {\n  "
-                "  %s = 0.5 * float4(%s);\n} else if (float(t.x) > 1.0) {\n    %s = 0.5 * "
-                "float4(%s);\n} else {",
-                _child1.c_str(), args.fOutputColor, args.fOutputColor,
+                "half4 t = %s;\nif (!%s && t.y < 0.0) {\n    %s = half4(0.0);\n} else if (t.x < "
+                "0.0) {\n    %s = %s;\n} else if (float(t.x) > 1.0) {\n    %s = %s;\n} else {",
+                _child1.c_str(),
+                (_outer.childProcessor(1).preservesOpaqueInput() ? "true" : "false"),
+                args.fOutputColor, args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fBottomBorderColorVar), args.fOutputColor,
                 args.fUniformHandler->getUniformCStr(fTopBorderColorVar));
         SkString _input0("t");
         SkString _child0("_child0");
         this->emitChild(0, _input0.c_str(), &_child0, args);
-        fragBuilder->codeAppendf("\n    %s = 0.5 * float4(%s);\n}\n", args.fOutputColor,
-                                 _child0.c_str());
+        fragBuilder->codeAppendf("\n    %s = %s;\n}\n@if (%s) {\n    %s.xyz *= %s.w;\n}\n",
+                                 args.fOutputColor, _child0.c_str(),
+                                 (_outer.makePremul() ? "true" : "false"), args.fOutputColor,
+                                 args.fOutputColor);
     }
 
 private:
@@ -73,18 +78,22 @@ GrGLSLFragmentProcessor* GrClampedGradientEffect::onCreateGLSLInstance() const {
     return new GrGLSLClampedGradientEffect();
 }
 void GrClampedGradientEffect::onGetGLSLProcessorKey(const GrShaderCaps& caps,
-                                                    GrProcessorKeyBuilder* b) const {}
+                                                    GrProcessorKeyBuilder* b) const {
+    b->add32((int32_t)fMakePremul);
+}
 bool GrClampedGradientEffect::onIsEqual(const GrFragmentProcessor& other) const {
     const GrClampedGradientEffect& that = other.cast<GrClampedGradientEffect>();
     (void)that;
     if (fBottomBorderColor != that.fBottomBorderColor) return false;
     if (fTopBorderColor != that.fTopBorderColor) return false;
+    if (fMakePremul != that.fMakePremul) return false;
     return true;
 }
 GrClampedGradientEffect::GrClampedGradientEffect(const GrClampedGradientEffect& src)
         : INHERITED(kGrClampedGradientEffect_ClassID, src.optimizationFlags())
         , fBottomBorderColor(src.fBottomBorderColor)
-        , fTopBorderColor(src.fTopBorderColor) {
+        , fTopBorderColor(src.fTopBorderColor)
+        , fMakePremul(src.fMakePremul) {
     this->registerChildProcessor(src.childProcessor(0).clone());
     this->registerChildProcessor(src.childProcessor(1).clone());
 }

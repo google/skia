@@ -11,14 +11,14 @@ in fragmentProcessor colorizer;
 in fragmentProcessor gradLayout;
 
 layout(key) in bool mirror;
+layout(key) in bool makePremul;
 
 void main() {
     half4 t = process(gradLayout);
 
-    if (t.y < 0) {
-        // layout has rejected this fragment
-        // FIXME: only 2pt conic does this, can we add an optimization flag
-        // that lets us assume t.y >= 0 in many cases?
+    if (!gradLayout.preservesOpaqueInput && t.y < 0) {
+        // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
+        // preserves opacity is false)
         sk_OutColor = half4(0);
     } else {
         @if(mirror) {
@@ -38,6 +38,21 @@ void main() {
 
         // t.x has been tiled (repeat or mirrored), but pass through remaining 3 components
         // unmodified.
-        sk_OutColor = 0.5 * process(colorizer, t);
+        sk_OutColor = process(colorizer, t);
     }
+
+    @if (makePremul) {
+        sk_OutColor.xyz *= sk_OutColor.w;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// Mirror colorizer's optimizations for opaque and coverage, unless the layout
+// does not support opacity preservation (i.e. it rejects pixels possibly)
+@optimizationFlags {
+    (colorizer->preservesOpaqueInput() && gradLayout->preservesOpaqueInput()
+            ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags) |
+    (colorizer->compatibleWithCoverageAsAlpha() ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                                : kNone_OptimizationFlags)
 }

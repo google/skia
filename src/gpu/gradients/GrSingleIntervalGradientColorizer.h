@@ -27,7 +27,11 @@ public:
 
 private:
     GrSingleIntervalGradientColorizer(GrColor4f start, GrColor4f end)
-            : INHERITED(kGrSingleIntervalGradientColorizer_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrSingleIntervalGradientColorizer_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                                (start.isOpaque() && end.isOpaque()
+                                         ? kPreservesOpaqueInput_OptimizationFlag
+                                         : kNone_OptimizationFlags))
             , fStart(start)
             , fEnd(end) {}
     GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
