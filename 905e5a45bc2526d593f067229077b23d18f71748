@@ -22,6 +22,75 @@
       "revId": "905e5a45bc2526d593f067229077b23d18f71748",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "027b1a90_b088f9b4",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-07T17:43:20Z",
+      "side": 1,
+      "message": "you have preserveFirstTangent twice here",
+      "range": {
+        "startLine": 434,
+        "startChar": 33,
+        "endLine": 434,
+        "endChar": 77
+      },
+      "revId": "905e5a45bc2526d593f067229077b23d18f71748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b488f224_a1165bbc",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-07T17:43:20Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 438,
+        "startChar": 19,
+        "endLine": 438,
+        "endChar": 41
+      },
+      "revId": "905e5a45bc2526d593f067229077b23d18f71748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5ceb5191_974d7a95",
+        "filename": "src/gpu/GrPathUtils.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-07T17:43:20Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 455,
+        "startChar": 70,
+        "endLine": 455,
+        "endChar": 90
+      },
+      "revId": "905e5a45bc2526d593f067229077b23d18f71748",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
