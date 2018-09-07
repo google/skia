@@ -44,26 +44,7 @@ static const int kWidth = 1024;
 static const int kHeight = 768;
 
 static void setup_always_evict_atlas(GrContext* context) {
-    int dim = SkGlyphCacheCommon::kSkSideTooBigForAtlas;
-    // These sizes were selected because they allow each atlas to hold a single plot and will thus
-    // stress the atlas
-    GrDrawOpAtlasConfig configs[3];
-    configs[kA8_GrMaskFormat].fWidth = dim;
-    configs[kA8_GrMaskFormat].fHeight = dim;
-    configs[kA8_GrMaskFormat].fPlotWidth = dim;
-    configs[kA8_GrMaskFormat].fPlotHeight = dim;
-
-    configs[kA565_GrMaskFormat].fWidth = dim;
-    configs[kA565_GrMaskFormat].fHeight = dim;
-    configs[kA565_GrMaskFormat].fPlotWidth = dim;
-    configs[kA565_GrMaskFormat].fPlotHeight = dim;
-
-    configs[kARGB_GrMaskFormat].fWidth = dim;
-    configs[kARGB_GrMaskFormat].fHeight = dim;
-    configs[kARGB_GrMaskFormat].fPlotWidth = dim;
-    configs[kARGB_GrMaskFormat].fPlotHeight = dim;
-
-    context->contextPriv().setTextContextAtlasSizes_ForTesting(configs);
+    context->contextPriv().getAtlasManager()->setAtlasSizesToMinimum_ForTesting();
 }
 
 // This test hammers the GPU textblobcache and font atlas
@@ -175,7 +156,7 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobCache, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressCache, reporter, ctxInfo) {
-    text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, true, true);
+    text_blob_cache_inner(reporter, ctxInfo.grContext(), 512, 256, 10, true, true);
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
@@ -183,5 +164,5 @@ DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobAbnormal, reporter, ctxInfo) {
 }
 
 DEF_GPUTEST_FOR_NULLGL_CONTEXT(TextBlobStressAbnormal, reporter, ctxInfo) {
-    text_blob_cache_inner(reporter, ctxInfo.grContext(), 256, 256, 10, false, true);
+    text_blob_cache_inner(reporter, ctxInfo.grContext(), 1024, 256, 10, false, true);
 }
