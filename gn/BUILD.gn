@@ -48,7 +48,6 @@ config("default") {
   if (is_win) {
     cflags += [
       "/bigobj",  # Some of our files are bigger than the regular limits.
-      "/WX",  # Treat warnings as errors.
       "/utf-8",  # Set Source and Executable character sets to UTF-8.
     ]
     if (is_clang) {
@@ -337,6 +336,7 @@ config("warnings") {
   cflags_objcc = []
   if (is_win) {
     cflags += [
+      "/WX",  # Treat warnings as errors.
       "/W3",  # Turn on lots of warnings.
 
       # Disable a bunch of warnings:
