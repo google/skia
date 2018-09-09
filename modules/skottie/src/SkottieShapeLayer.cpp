@@ -24,6 +24,7 @@
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
 
+#include <algorithm>
 #include <iterator>
 
 namespace skottie {
@@ -577,16 +578,12 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
         // For a single draw, we don't need a group.
         shape_wrapper = std::move(draws.front());
     } else if (!draws.empty()) {
-        // We need a group to dispatch multiple draws.
-        auto group = sksg::Group::Make();
-
         // Emit local draws reversed (bottom->top, per spec).
-        for (auto it = draws.rbegin(); it != draws.rend(); ++it) {
-            group->addChild(std::move(*it));
-        }
-        group->shrink_to_fit();
+        std::reverse(draws.begin(), draws.end());
+        draws.shrink_to_fit();
 
-        shape_wrapper = std::move(group);
+        // We need a group to dispatch multiple draws.
+        shape_wrapper = sksg::Group::Make(std::move(draws));
     }
 
     sk_sp<sksg::Matrix> shape_matrix;

@@ -11,7 +11,12 @@
 
 namespace sksg {
 
-Group::Group() {}
+Group::Group(std::vector<sk_sp<RenderNode>> children)
+    : fChildren(std::move(children)) {
+    for (const auto& child : fChildren) {
+        this->observeInval(child);
+    }
+}
 
 Group::~Group() {
     for (const auto& child : fChildren) {
@@ -39,10 +44,6 @@ void Group::removeChild(const sk_sp<RenderNode>& node) {
     SkASSERT(fChildren.size() == origSize - 1);
 
     this->invalidate();
-}
-
-void Group::shrink_to_fit() {
-    fChildren.shrink_to_fit();
 }
 
 void Group::onRender(SkCanvas* canvas, const RenderContext* ctx) const {

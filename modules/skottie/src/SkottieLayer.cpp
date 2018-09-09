@@ -27,6 +27,7 @@
 #include "SkSGRect.h"
 #include "SkSGTransform.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace skottie {
@@ -151,15 +152,16 @@ sk_sp<sksg::RenderNode> AttachMask(const skjson::ArrayValue* jmask,
         return sksg::ClipEffect::Make(std::move(childNode), std::move(clip_node), true);
     }
 
-    auto mask_group = sksg::Group::Make();
+    std::vector<sk_sp<sksg::RenderNode>> masks;
+    masks.reserve(SkToSizeT(mask_stack.count()));
     for (const auto& rec : mask_stack) {
-        mask_group->addChild(sksg::Draw::Make(std::move(rec.mask_path),
-                                              std::move(rec.mask_paint)));
-
+        masks.push_back(sksg::Draw::Make(std::move(rec.mask_path), std::move(rec.mask_paint)));
     }
-    mask_group->shrink_to_fit();
 
-    return sksg::MaskEffect::Make(std::move(childNode), std::move(mask_group));
+    return sksg::MaskEffect::Make(std::move(childNode),
+                                  masks.size() == 1
+                                      ? std::move(masks.front()) // no group needed for single mask
+                                      : sksg::Group::Make(std::move(masks)));
 }
 
 } // namespace
@@ -502,12 +504,12 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
     const skjson::ArrayValue* jlayers = comp["layers"];
     if (!jlayers) return nullptr;
 
-    SkSTArray<16, sk_sp<sksg::RenderNode>, true> layers;
-    AttachLayerContext                           layerCtx(*jlayers, scope);
+    std::vector<sk_sp<sksg::RenderNode>> layers;
+    AttachLayerContext                   layerCtx(*jlayers, scope);
 
     for (const auto& l : *jlayers) {
-        if (auto layer_fragment = this->attachLayer(l, &layerCtx)) {
-            layers.push_back(std::move(layer_fragment));
+        if (auto layer = this->attachLayer(l, &layerCtx)) {
+            layers.push_back(std::move(layer));
         }
     }
 
@@ -516,13 +518,10 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachComposition(const skjson::Object
     }
 
     // Layers are painted in bottom->top order.
-    auto comp_group = sksg::Group::Make();
-    for (int i = layers.count() - 1; i >= 0; --i) {
-        comp_group->addChild(std::move(layers[i]));
-    }
-    comp_group->shrink_to_fit();
+    std::reverse(layers.begin(), layers.end());
+    layers.shrink_to_fit();
 
-    return std::move(comp_group);
+    return sksg::Group::Make(std::move(layers));
 }
 
 } // namespace internal
