@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3b599959_e133ac55",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-09T17:24:30Z",
+      "side": 1,
+      "message": "Looks like we could avoid allocating masks when mask_stack.count() \u003d\u003d 1?",
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e22dccd4_c7588255",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-09T17:24:30Z",
+      "side": 1,
+      "message": "If we know we\u0027ve got a worst case upper bound on layers.size() (size of jlayers, right?), might make sense to reserve to that first?  That way there are always 1 or 2 mallocs instead of worrying about how std::vector grows: one up front, and then maybe one at shrink_to_fit() if we didn\u0027t hit the worst case.",
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c9267a9b_11aebbd9",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-09T17:24:30Z",
+      "side": 1,
+      "message": "Can you iterate jlayers backward, to avoid a need to explicitly reverse layers later?",
+      "range": {
+        "startLine": 510,
+        "startChar": 25,
+        "endLine": 510,
+        "endChar": 33
+      },
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
