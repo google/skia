@@ -16,6 +16,24 @@
       "revId": "ca858b68c34bde4849a30ea44a4adcbfe8d917c5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "54b41d35_61834c0e",
+        "filename": "modules/sksg/include/SkSGGroup.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-09T00:23:39Z",
+      "side": 1,
+      "message": "Ack.\n\nIn order to avoid adding all these vector-y methods to Group, I think a factory variant which takes a vector of children would make sense -- then clients can size and build that as they see fit before passing down.\n\nShould be easy to do after https://skia-review.googlesource.com/c/skia/+/152860 lands.",
+      "parentUuid": "12879fab_d42305ab",
+      "revId": "ca858b68c34bde4849a30ea44a4adcbfe8d917c5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
