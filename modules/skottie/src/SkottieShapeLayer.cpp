@@ -24,6 +24,8 @@
 #include "SkSGTransform.h"
 #include "SkSGTrimEffect.h"
 
+#include <iterator>
+
 namespace skottie {
 namespace internal {
 
@@ -452,9 +454,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
 
     SkDEBUGCODE(const auto initialGeometryEffects = ctx->fGeometryEffectStack->size();)
 
-    sk_sp<sksg::Group> shape_group = sksg::Group::Make();
-    sk_sp<sksg::RenderNode> shape_wrapper = shape_group;
-    sk_sp<sksg::Matrix> shape_matrix;
+    const skjson::ObjectValue* jtransform = nullptr;
 
     struct ShapeRec {
         const skjson::ObjectValue& fJson;
@@ -482,11 +482,8 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
 
         switch (info->fShapeType) {
         case ShapeType::kTransform:
-            if ((shape_matrix = ctx->fBuilder->attachMatrix(*shape, ctx->fScope, nullptr))) {
-                shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
-            }
-            shape_wrapper = ctx->fBuilder->attachOpacity(*shape, ctx->fScope,
-                                                         std::move(shape_wrapper));
+            // Just track the transform property for now -- we'll deal with it later.
+            jtransform = shape;
             break;
         case ShapeType::kGeometryEffect:
             SkASSERT(info->fAttacherIndex < SK_ARRAY_COUNT(gGeometryEffectAttachers));
@@ -575,6 +572,42 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
     // By now we should have popped all local geometry effects.
     SkASSERT(ctx->fGeometryEffectStack->size() == initialGeometryEffects);
 
+    sk_sp<sksg::RenderNode> shape_wrapper;
+    if (draws.size() == 1) {
+        // For a single draw, we don't need a group.
+        shape_wrapper = std::move(draws.front());
+    } else if (!draws.empty()) {
+        // We need a group to dispatch multiple draws.
+        auto group = sksg::Group::Make();
+
+        // Emit local draws reversed (bottom->top, per spec).
+        for (auto it = draws.rbegin(); it != draws.rend(); ++it) {
+            group->addChild(std::move(*it));
+        }
+        group->shrink_to_fit();
+
+        shape_wrapper = std::move(group);
+    }
+
+    sk_sp<sksg::Matrix> shape_matrix;
+    if (jtransform) {
+        // This is tricky due to the interaction with ctx->fCommittedAnimators: we want any
+        // animators related to tranform/opacity to be committed => they must be inserted in front
+        // of the dangling/uncommitted ones.
+        AnimatorScope local_scope;
+
+        if ((shape_matrix = ctx->fBuilder->attachMatrix(*jtransform, &local_scope, nullptr))) {
+            shape_wrapper = sksg::Transform::Make(std::move(shape_wrapper), shape_matrix);
+        }
+        shape_wrapper = ctx->fBuilder->attachOpacity(*jtransform, &local_scope,
+                                                     std::move(shape_wrapper));
+
+        ctx->fScope->insert(ctx->fScope->begin() + ctx->fCommittedAnimators,
+                            std::make_move_iterator(local_scope.begin()),
+                            std::make_move_iterator(local_scope.end()));
+        ctx->fCommittedAnimators += local_scope.size();
+    }
+
     // Push transformed local geometries to parent list, for subsequent paints.
     for (const auto& geo : geos) {
         ctx->fGeometryStack->push_back(shape_matrix
@@ -582,13 +615,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
             : std::move(geo));
     }
 
-    // Emit local draws reversed (bottom->top, per spec).
-    for (auto it = draws.rbegin(); it != draws.rend(); ++it) {
-        shape_group->addChild(std::move(*it));
-    }
-    shape_group->shrink_to_fit();
-
-    return draws.empty() ? nullptr : shape_wrapper;
+    return shape_wrapper;
 }
 
 } // namespace
