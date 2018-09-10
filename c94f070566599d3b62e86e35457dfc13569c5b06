@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "526ca098_fccb656b",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-10T13:57:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b599959_e133ac55",
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e22dccd4_c7588255",
         "filename": "modules/skottie/src/SkottieLayer.cpp",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ed99b35a_5b8c5db8",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-10T13:57:52Z",
+      "side": 1,
+      "message": "Good point, done.",
+      "parentUuid": "e22dccd4_c7588255",
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c9267a9b_11aebbd9",
         "filename": "modules/skottie/src/SkottieLayer.cpp",
         "patchSetId": 1
@@ -47,6 +83,30 @@
       "writtenOn": "2018-09-09T17:24:30Z",
       "side": 1,
       "message": "Can you iterate jlayers backward, to avoid a need to explicitly reverse layers later?",
+      "range": {
+        "startLine": 510,
+        "startChar": 25,
+        "endLine": 510,
+        "endChar": 33
+      },
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "df17f8d4_90a57ab2",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-10T13:57:52Z",
+      "side": 1,
+      "message": "I had the same thought.\n\nThere might be some subtleties related to instantiation order, but I believe it should work (we sort out dependencies transitively, so theoretically the resolution order should not matter).\n\nI\u0027ll try this separately and see if anything breaks.",
+      "parentUuid": "c9267a9b_11aebbd9",
       "range": {
         "startLine": 510,
         "startChar": 25,
