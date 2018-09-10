@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "ef4b146f_ba391414",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:22:55Z",
+      "side": 1,
+      "message": "Errr... I meant SkAutoSTMalloc.",
+      "parentUuid": "331b7b19_f84fecaf",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 37
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4822c955_82380d17",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 13
