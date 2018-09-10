@@ -148,7 +148,6 @@
 //
 //
 
-
 #define SKC_TAGGED_BLOCK_ID_BITS_ID   27 // this size is cast in stone
 #define SKC_TAGGED_BLOCK_ID_BITS_TAG   5 // which leaves 5 bits of tag
 
@@ -163,7 +162,8 @@ typedef enum skc_block_id_tag {
   SKC_BLOCK_ID_TAG_PATH_CUBIC,     // 2 -- 8  segments
   SKC_BLOCK_ID_TAG_PATH_RAT_QUAD,  // 3 -- 8  segments : 6 + w0 + na
   SKC_BLOCK_ID_TAG_PATH_RAT_CUBIC, // 4 -- 10 segments : 8 + w0 + w1
-  SKC_BLOCK_ID_TAG_PATH_NEXT,      // 5 -- this represents the end of path tags
+  SKC_BLOCK_ID_TAG_PATH_COUNT,     // 5 -- this represents the end of path tags
+  SKC_BLOCK_ID_TAG_PATH_NEXT = SKC_BLOCK_ID_TAG_PATH_COUNT,
 
   //
   // TAGS [6-30] ARE AVAILABLE

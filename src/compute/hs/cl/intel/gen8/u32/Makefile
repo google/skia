@@ -28,7 +28,7 @@ hs_kernels.bin:		hs_kernels.pre.cl
 hs_kernels.src.len.xxd:	hs_kernels.pre.cl
 			$(shell bytes=$$(wc -c < $<); printf "%.8x" $$bytes | xxd -r -p | xxd -i 1> $@)
 
-hs_kernels.src.xxd:		hs_kernels.pre.cl
+hs_kernels.src.xxd:	hs_kernels.pre.cl
 			$(shell xxd -i < $< 1> $@)
 
 hs_kernels.pre.cl:	hs_kernels.cl

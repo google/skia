@@ -38,6 +38,9 @@
 #include "hs/vk/nvidia/sm_35/u32/hs_target.h"
 #include "hs/vk/nvidia/sm_35/u64/hs_target.h"
 
+#include "hs/vk/amd/gcn/u32/hs_target.h"
+#include "hs/vk/amd/gcn/u64/hs_target.h"
+
 //
 //
 //
@@ -297,6 +300,16 @@ is_matching_device(VkPhysicalDeviceProperties const * const phy_device_props,
         *hs_target = &hs_intel_gen8_u32;
       else
         *hs_target = &hs_intel_gen8_u64;
+    }
+  else if (phy_device_props->vendorID == 0x1002)
+    {
+      //
+      // AMD GCN
+      //
+      if (key_val_words == 1)
+        *hs_target = &hs_amd_gcn_u32;
+      else
+        *hs_target = &hs_amd_gcn_u64;
     }
   else
     {

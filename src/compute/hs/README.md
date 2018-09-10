@@ -21,13 +21,17 @@ implementations when sorting arrays of smaller than 500K-2M keys.
 
 ### Throughput
 
-Here are results for HotSort on Vulkan and CUDA sorting 32-bit and
-64-bit keys on a 640-core Quadro M1200:
+Here is a throughput plot for HotSort on Vulkan and CUDA sorting
+32-bit and 64-bit keys on a 640-core Quadro M1200:
 
 ![](images/hs_nvidia_sm35_u32_mkeys.svg)
 ![](images/hs_nvidia_sm35_u64_mkeys.svg)
 
-Here are results for HotSort on Vulkan and OpenCL on an Intel HD 630:
+HotSort throughput on Vulkan on an AMD V1807B APU (similar to a Ryzen 2400G) with DDR4-2666 RAM:
+
+![](images/hs_amd_gcn_mkeys.svg)
+
+HotSort throughput on Vulkan and OpenCL on an Intel HD 630:
 
 ![](images/hs_intel_gen8_mkeys.svg)
 
@@ -38,6 +42,7 @@ multi-millisecond execution times on small GPUs:
 
 ![](images/hs_nvidia_sm35_u32_msecs.svg)
 ![](images/hs_nvidia_sm35_u64_msecs.svg)
+![](images/hs_amd_gcn_msecs.svg)
 ![](images/hs_intel_gen8_msecs.svg)
 
 # Usage
@@ -58,10 +63,10 @@ The following architectures are supported:
 
 Vendor | Architecture                              | 32‑bit             | 64‑bit             | 32+32‑bit   | Notes
 -------|-------------------------------------------|:------------------:|:------------------:|:-----------:|------
-NVIDIA | sm_35,sm_37,sm_50,sm_52,sm_60,sm_61,sm_70 | :white_check_mark: | :white_check_mark: | :x:         | Performance matches CUDA
+NVIDIA | sm_35,sm_37,sm_50,sm_52,sm_60,sm_61,sm_70 | :white_check_mark: | :white_check_mark: | :x:         | Not tested on all architectures
 NVIDIA | sm_30,sm_32,sm_53,sm_62                   | :x:                | :x:                | :x:         | Need to generate properly shaped kernels
-AMD    | GCN                                       | :x:                | :x:                | :x:         | TODO
-Intel  | GEN8+                                     | :white_check_mark: | :white_check_mark: | :x:         | Good but the assumed *best* kernels are not being generated at this time due to a compiler issue
+AMD    | GCN                                       | :white_check_mark: | :white_check_mark: | :x:         | Tested on Linux MESA 18.2
+Intel  | GEN8+                                     | :white_check_mark: | :white_check_mark: | :x:         | Good but the assumed *best-shaped* kernels aren't being used due to a compiler issue
 Intel  | APL/GLK using a 2x9 or 1x12 thread pool   | :x:                | :x:                | :x:         | Need to generate properly shaped kernels
 
 Add an arch-specific HotSort algorithm (aka "target") to your project
@@ -199,7 +204,7 @@ hs_cl_release(hs,...);
 
 ```
 
-The [`hs_cl.h`](vk/hs_cl.h) header file describes these functions in
+The [`hs_cl.h`](cl/hs_cl.h) header file describes these functions in
 greater detail.
 
 # Background
@@ -207,7 +212,7 @@ greater detail.
 The HotSort sorting algorithm was created in 2012 and generalized in
 2015 to support GPUs that benefit from non-power-of-two workgroups.
 
-The goal of HotSort was to achieve high throughput as *early* as
+The objective of HotSort is to achieve high throughput as *early* as
 possible on small GPUs when sorting modestly-sized arrays ― 1,000s to
 100s of thousands of 64‑bit keys.
 

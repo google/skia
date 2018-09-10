@@ -83,7 +83,7 @@
 //  |    27   |  12  |  12  |        13        |
 //
 //
-// TTRK (32-BIT COMPARE)
+// TTRK (32-BIT COMPARE) ( DEFAULT )
 //
 //  0                                               63
 //  | TTSB ID | N/A |   X  |   Y  | RASTER COHORT ID |
@@ -91,7 +91,7 @@
 //  |    27   |  5  |  12  |  12  |        8         |
 //
 //
-// TTSK v2:
+// TTSK v1
 //
 //  0                                     63
 //  | TTSB ID | IS_PREFIX |  N/A |  X |  Y |
@@ -99,7 +99,7 @@
 //  |    27   |   1 (=0)  |  12  | 12 | 12 |
 //
 //
-// TTPK v2:
+// TTPK v2 ( DEFAULT )
 //
 //  0                                       63
 //  | TTPB ID | IS_PREFIX | SPAN |  X  |  Y  |
@@ -107,7 +107,7 @@
 //  |    27   |   1 (=1)  |  12  | 12  | 12  |
 //
 //
-// TTCK (32-BIT COMPARE) v1:
+// TTCK (32-BIT COMPARE) v1
 //
 //  0                                                           63
 //  | PAYLOAD/TTSB/TTPB ID | PREFIX | ESCAPE | LAYER |  X  |  Y  |
@@ -115,7 +115,7 @@
 //  |          30          |    1   |    1   |   18  |  7  |  7  |
 //
 //
-// TTCK (32-BIT COMPARE) v2:
+// TTCK (32-BIT COMPARE) v2
 //
 //  0                                                           63
 //  | PAYLOAD/TTSB/TTPB ID | PREFIX | ESCAPE | LAYER |  X  |  Y  |
@@ -123,7 +123,7 @@
 //  |          30          |    1   |    1   |   15  |  9  |  8  |
 //
 //
-// TTCK (64-BIT COMPARE) -- achieves 4K x 4K with an 8x16 tile:
+// TTCK (64-BIT COMPARE) -- achieves 4K x 4K with an 8x16 tile ( DEFAULT )
 //
 //  0                                                           63
 //  | PAYLOAD/TTSB/TTPB ID | PREFIX | ESCAPE | LAYER |  X  |  Y  |

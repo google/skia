@@ -57,7 +57,14 @@ union skc_raster_node_elem
 };
 
 //
+// FIXME -- we're eventually going to convert this layout to split the
+// 64-bit key into lo and hi segments because it will simplify later
+// reclamation.
 //
+//   u32[0]: header.blocks | header.nodes | bounds.x0 | bounds.y0 | TTXK.lo[] ...
+//   u32[1]: header.na     | header.keys  | bounds.x1 | bounds.y1 | TTXK.hi[] ...
+//   u32[2]: TTXK.lo[] ...
+//   u32[3]: TTXK.hi[] ...
 //
 
 union skc_raster_header

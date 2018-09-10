@@ -12,11 +12,12 @@
 //
 //
 
-#define HS_HASH                   #
 #define HS_EVAL(a)                a
-#define HS_GLSL_EXT()             HS_EVAL(HS_HASH)##extension
+#define HS_HASH_SYMBOL            #
+#define HS_HASH()                 HS_EVAL(HS_HASH_SYMBOL)
+#define HS_GLSL_EXT()             HS_HASH()extension   // will be indented one space
 #define HS_GLSL_EXT_REQUIRE(name) HS_GLSL_EXT() name : require
-#define HS_GLSL_VERSION(ver)      HS_EVAL(HS_HASH)##version ver
+#define HS_GLSL_VERSION(ver)      HS_HASH()version ver // will be indented one space
 
 //
 //

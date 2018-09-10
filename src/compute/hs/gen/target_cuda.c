@@ -381,9 +381,13 @@ hsg_target_cuda(struct hsg_target       * const target,
 
     case HSG_OP_TYPE_FM_KERNEL_PROTO:
       {
-        uint32_t const msb = msb_idx_u32(pow2_ru_u32(merge[0].warps));
+        uint32_t const span_left  = (merge[0].warps << ops->a) / 2;
+        uint32_t const span_right = 1 << ops->b;
 
-        if ((ops->a + ops->b - 1) == msb)
+        // uint32_t const msb = msb_idx_u32(pow2_ru_u32(merge[0].warps));
+        // if ((ops->a + ops->b - 1) == msb)
+
+        if (span_right == span_left)
           {
             fprintf(target->state->source,
                     "\nHS_FM_KERNEL_PROTO(%u,%u)\n",
