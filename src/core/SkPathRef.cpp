@@ -43,54 +43,6 @@ SkPathRef::Editor::Editor(sk_sp<SkPathRef>* pathRef,
     SkDEBUGCODE(sk_atomic_inc(&fPathRef->fEditorsAttached);)
 }
 
-// Sort of like makeSpace(0) but the the additional requirement that we actively shrink the
-// allocations to just fit the current needs. makeSpace() will only grow, but never shrinks.
-//
-void SkPath::shrinkToFit() {
-    const size_t kMinFreeSpaceForShrink = 8;    // just made up a small number
-
-    if (fPathRef->fFreeSpace <= kMinFreeSpaceForShrink) {
-        return;
-    }
-
-    int pointCount = fPathRef->fPointCnt;
-    int verbCount = fPathRef->fVerbCnt;
-
-    size_t ptsSize = sizeof(SkPoint) * pointCount;
-    size_t vrbSize = sizeof(uint8_t) * verbCount;
-    size_t minSize = ptsSize + vrbSize;
-
-    void* newAlloc = sk_malloc_canfail(minSize);
-    if (!newAlloc) {
-        return; // couldn't allocate the smaller buffer, but that's ok
-    }
-    memcpy(newAlloc, fPathRef->fPoints, ptsSize);
-    memcpy((char*)newAlloc + minSize - vrbSize, fPathRef->fVerbs, vrbSize);
-
-    SkPathRef* pr = fPathRef.get();
-    if (fPathRef->unique()) {
-        sk_free(fPathRef->fPoints);
-    } else {
-        pr = new SkPathRef;
-        pr->fPointCnt = pointCount;
-        pr->fVerbCnt = verbCount;
-        pr->fConicWeights = fPathRef->fConicWeights;
-        fPathRef.reset(pr);
-    }
-
-    pr->fPoints = static_cast<SkPoint*>(newAlloc);
-    pr->fVerbs = (uint8_t*)newAlloc + minSize;
-    pr->fFreeSpace = 0;
-    pr->fConicWeights.shrinkToFit();
-    SkDEBUGCODE(pr->validate();)
-}
-
-#ifdef SK_DEBUG
-size_t SkPath::debugging_private_getFreeSpace() const {
-    return fPathRef->fFreeSpace;
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 
 SkPathRef::~SkPathRef() {

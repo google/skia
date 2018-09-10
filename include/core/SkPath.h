@@ -549,8 +549,6 @@ public:
     */
     void incReserve(unsigned extraPtCount);
 
-    void shrinkToFit();
-
     /** Adds beginning of contour at SkPoint (x, y).
 
         @param x  x-axis value of contour start
@@ -1668,8 +1666,6 @@ public:
     bool isValid() const { return this->isValidImpl(); }
     bool pathRefIsValid() const { return fPathRef->isValid(); }
 #endif
-
-    SkDEBUGCODE(size_t debugging_private_getFreeSpace() const;)
 
 private:
     sk_sp<SkPathRef>                                     fPathRef;
