@@ -117,6 +117,9 @@ public:
                                            bool willBeMipped,
                                            SkColorSpace* dstColorSpace,
                                            GrTextureMaker::AllowedTexGenType genType) override;
+
+    // TODO: Need to pass in dstColorSpace to fold into key here?
+    void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) override;
 #endif
 
 private:
@@ -431,6 +434,15 @@ sk_sp<SkImage> SkImage::MakeFromGenerator(std::unique_ptr<SkImageGenerator> gene
 
 #if SK_SUPPORT_GPU
 
+void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) {
+    // TODO: Take dstColorSpace, include hash in key
+    SkASSERT(!cacheKey->isValid());
+    if (origKey.isValid()) {
+        static const GrUniqueKey::Domain kDomain = GrUniqueKey::GenerateDomain();
+        GrUniqueKey::Builder builder(cacheKey, origKey, kDomain, 0, "Image");
+    }
+}
+
 class Generator_GrYUVProvider : public GrYUVProvider {
     SkImageGenerator* fGen;
 
@@ -473,7 +485,7 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
  *  4. Ask the generator to return RGB(A) data, which the GPU can convert
  */
 sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
-                                                     const GrUniqueKey& key,
+                                                     const GrUniqueKey& origKey,
                                                      SkImage::CachingHint chint,
                                                      bool willBeMipped,
                                                      SkColorSpace* dstColorSpace,
@@ -491,7 +503,10 @@ sk_sp<GrTextureProxy> SkImage_Lazy::lockTextureProxy(GrContext* ctx,
 
     enum { kLockTexturePathCount = kRGBA_LockTexturePath + 1 };
 
-    // TODO: When implementing decode-to-dst, fold dstColorSpace hash into key
+    // Build our texture key.
+    // TODO: This needs to include the dstColorSpace.
+    GrUniqueKey key;
+    this->makeCacheKeyFromOrigKey(origKey, &key);
 
     GrProxyProvider* proxyProvider = ctx->contextPriv().proxyProvider();
     sk_sp<GrTextureProxy> proxy;
