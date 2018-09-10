@@ -238,6 +238,30 @@
     },
     {
       "key": {
+        "uuid": "98dbbb86_25b28fd4",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T18:29:19Z",
+      "side": 1,
+      "message": "Just static. For a while we were using anonymous namespaces for file level functions so you may still encounter some but aside from that period we just use anonymous namespaces for things like classes or enums that don\u0027t take static.",
+      "parentUuid": "2af4f2c6_af1f8114",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 1
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "85012509_ab1ecfc3",
         "filename": "src/gpu/gradients/GrLinearGradientLayout.fp",
         "patchSetId": 13
@@ -273,6 +297,30 @@
       "side": 1,
       "message": "I don\u0027t know how ready it is, but Ethan had mentioned to me that a new FP system he\u0027s working on has its inputs/outputs as declared inouts, which would provide a convenient mechanism for typing as half or half4.",
       "parentUuid": "85012509_ab1ecfc3",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 53
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3abc2496_68b63db8",
+        "filename": "src/gpu/gradients/GrLinearGradientLayout.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T18:29:19Z",
+      "side": 1,
+      "message": "great",
+      "parentUuid": "e4998a0d_490cd9ae",
       "range": {
         "startLine": 15,
         "startChar": 4,
