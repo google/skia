@@ -52,14 +52,10 @@ public:
      *         de-duplicating across pages (via the SkPDFCanon) and
      *         for early serializing of large immutable objects, such
      *         as images (via SkPDFDocument::serialize()).
+     *  @param initialTransform Transform to be applied to the entire page.
      */
-    SkPDFDevice(SkISize pageSize, SkPDFDocument* document);
-
-    /**
-     *  Apply a scale-and-translate transform to move the origin from the
-     *  bottom left (PDF default) to the top left (Skia default).
-     */
-    void setFlip();
+    SkPDFDevice(SkISize pageSize, SkPDFDocument* document,
+                const SkMatrix& initialTransform = SkMatrix::I());
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
         return sk_make_sp<SkPDFDevice>(this->imageInfo().dimensions(), fDocument);
