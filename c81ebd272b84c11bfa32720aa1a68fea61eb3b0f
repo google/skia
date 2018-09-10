@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d9f95673_7f64a1aa",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-10T18:12:14Z",
+      "side": 0,
+      "message": "Is this necessary to remove?",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 20
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "862d8fc6_546f9f75",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-10T18:12:14Z",
+      "side": 0,
+      "message": "Could we keep this one? I think the |deviceMatrix| param is unnecessary, if a client wants to apply a matrix to the complete draw they can do it by just adding an op to the SkCanvas before playback of the drawing. I was planning to use this ctor in chromium instead.",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "23ed89fc_f951a5a3",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-10T18:12:14Z",
+      "side": 0,
+      "message": "Why remove this?",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 22
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
