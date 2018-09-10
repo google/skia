@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "96e995e0_67df37e0",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-10T13:38:35Z",
+      "side": 1,
+      "message": "FWIW I definitely have a left / right mental model by default.",
+      "parentUuid": "e6a013f1_daaed18c",
+      "range": {
+        "startLine": 20,
+        "startChar": 50,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "331b7b19_f84fecaf",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 13
@@ -152,6 +176,30 @@
       "writtenOn": "2018-09-10T13:09:46Z",
       "side": 1,
       "message": "Another note: Maybe we (Ethan) could look at putting this workaround into the code generator rather than into effects.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "63b73193_f56ce25b",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5640
+      },
+      "writtenOn": "2018-09-10T13:38:35Z",
+      "side": 1,
+      "message": "So if I detect that floor and abs are used \"next to\" one another, for some interpretation of \"next to\"... what do I rewrite the code to?\n\nIf they\u0027re, say, nested calls buried in the middle of a complex expression, I can\u0027t just insert a noop in the \"middle\" to split it up, and trying to break the expression apart either changes evaluation order or introduces a ton of temporary variables (which normally I would trust an optimizer to eliminate, but I don\u0027t think OpenGL backends are generally very smart).\n\nI suppose I could rewrite either the abs or floor to be a call to a user-defined implementation, but I\u0027m afraid that would murder performance. Is there a better way to do it?\n\n(If we can\u0027t figure out how to rewrite the code automatically, reporting an error so the smart human at the keyboard can figure out how to rewrite it is at least an option)",
+      "parentUuid": "ab1dd45a_49994d49",
       "range": {
         "startLine": 21,
         "startChar": 0,
