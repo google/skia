@@ -27,16 +27,16 @@ Draw::~Draw() {
 }
 
 void Draw::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    SkTCopyOnFirstWrite<SkPaint> paint(fPaint->makePaint());
+    auto paint = fPaint->makePaint();
     if (ctx) {
-        ctx->modulatePaint(paint.writable());
+        ctx->modulatePaint(&paint);
     }
 
-    const auto skipDraw = paint->nothingToDraw() ||
-            (paint->getStyle() == SkPaint::kStroke_Style && paint->getStrokeWidth() <= 0);
+    const auto skipDraw = paint.nothingToDraw() ||
+            (paint.getStyle() == SkPaint::kStroke_Style && paint.getStrokeWidth() <= 0);
 
     if (!skipDraw) {
-        fGeometry->draw(canvas, *paint);
+        fGeometry->draw(canvas, paint);
     }
 }
 
