@@ -57,8 +57,8 @@
 //
 //
 
-#define STRINGIFY2_MACRO(a)     #a
-#define STRINGIFY_MACRO(a)      STRINGIFY2_MACRO(a)
+#define STRINGIFY_MACRO_2(a)    #a
+#define STRINGIFY_MACRO(a)      STRINGIFY_MACRO_2(a)
 
 //
 //

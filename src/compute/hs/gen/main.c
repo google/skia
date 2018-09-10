@@ -1559,7 +1559,7 @@ main(int argc, char * argv[])
   //
   uint32_t const warps_ru_pow2 = pow2_ru_u32(hsg_merge[0].warps);
 
-  for (uint32_t ii=1; ii<=MERGE_LEVELS_MAX_LOG2; ii++)
+  for (uint32_t ii=1; ii<MERGE_LEVELS_MAX_LOG2; ii++)
     {
       hsg_merge[ii].index = ii;
       hsg_merge[ii].warps = warps_ru_pow2 >> ii;
