@@ -672,11 +672,7 @@ pt: nan, -nan  negate: -nan, nan
 #Method void operator+=(const SkVector& v)
 
 #Line # adds Vector to Point ##
-Adds Vector v to Point. Sets Point to:
-#Formula
-(fX + v.fX, fY + v.fY)
-##
-.
+Adds Vector v to Point. Sets Point to: #Formula # (fX + v.fX, fY + v.fY) ##.
 
 #Param v  Vector to add ##
 
@@ -706,11 +702,7 @@ Adds Vector v to Point. Sets Point to:
 #Method void operator-=(const SkVector& v)
 
 #Line # subtracts Vector from Point ##
-Subtracts Vector v from Point. Sets Point to:
-#Formula
-(fX - v.fX, fY - v.fY)
-##
-.
+Subtracts Vector v from Point. Sets Point to: #Formula # (fX - v.fX, fY - v.fY) ##.
 
 #Param v  Vector to subtract ##
 
@@ -773,11 +765,7 @@ Returns Point multiplied by scale.
 #Method SkPoint& operator*=(SkScalar scale)
 
 #Line # multiplies Point by scale factor ##
-Multiplies Point by scale. Sets Point to:
-#Formula
-(fX * scale, fY * scale)
-##
-.
+Multiplies Point by scale. Sets Point to: #Formula # (fX * scale, fY * scale) ##.
 
 #Param scale  Scalar to multiply by ##
 
@@ -923,11 +911,7 @@ pt: nan, -1  != pt
 #Method SkVector operator-(const SkPoint& a, const SkPoint& b)
 
 #Line # returns Vector between Points ##
-Returns Vector from b to a, computed as
-#Formula
-(a.fX - b.fX, a.fY - b.fY)
-##
-.
+Returns Vector from b to a, computed as #Formula # (a.fX - b.fX, a.fY - b.fY) ##.
 
 Can also be used to subtract Vector from Point, returning Point.
 Can also be used to subtract Vector from Vector, returning Vector.
@@ -963,10 +947,7 @@ Can also be used to subtract Vector from Vector, returning Vector.
 
 #Line # returns Point offset by Vector ##
 Returns Point resulting from Point a offset by Vector b, computed as:
-#Formula
-(a.fX + b.fX, a.fY + b.fY)
-##
-.
+#Formula # (a.fX + b.fX, a.fY + b.fY) ##.
 
 Can also be used to offset Point b by Vector a, returning Point.
 Can also be used to add Vector to Vector, returning Vector.
