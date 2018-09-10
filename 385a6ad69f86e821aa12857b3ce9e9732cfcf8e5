@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "782c0fc7_7c49998d",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 9
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T18:29:35Z",
+      "side": 1,
+      "message": "super minor: you could use SkTDArray::push_back(const T\u0026) which is more std::vector-like (here and in a bunch of other places). I don\u0027t think it\u0027s necessarily easier to read but it is a tiny step towards replacing SkTDArray with std::vector.",
+      "range": {
+        "startLine": 291,
+        "startChar": 4,
+        "endLine": 291,
+        "endChar": 33
+      },
+      "revId": "385a6ad69f86e821aa12857b3ce9e9732cfcf8e5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
