@@ -5061,6 +5061,13 @@ DEF_TEST(Path_isRect, reporter) {
     REPORTER_ASSERT(reporter, rect == compare);
 }
 
+// Be sure we can safely add ourselves
+DEF_TEST(Path_self_add, reporter) {
+    SkPath path;
+    path.addPath(path, 1, 2);
+    path.addPath(path, 3, 4);
+}
+
 #include "SkVertices.h"
 static void draw_triangle(SkCanvas* canvas, const SkPoint pts[]) {
     // draw in different ways, looking for an assert
@@ -5102,4 +5109,3 @@ DEF_TEST(triangle_big, reporter) {
     };
     draw_triangle(surface->getCanvas(), pts);
 }
-
