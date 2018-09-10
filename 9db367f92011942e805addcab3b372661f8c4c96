@@ -22,6 +22,30 @@
       "revId": "9db367f92011942e805addcab3b372661f8c4c96",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4425672c_d221b477",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-10T17:16:40Z",
+      "side": 1,
+      "message": "It comes down to if you think this routine will ever have to accommodate more than 16MiB as in input for maxBytes. Right now the default for the atlas system is at 8MiB, so I think \u003e 16 MiB is probable in the future. I would feel more comfortable with double which can handle 15 EiB.",
+      "parentUuid": "4b2b4d24_c4ae08d0",
+      "range": {
+        "startLine": 66,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 25
+      },
+      "revId": "9db367f92011942e805addcab3b372661f8c4c96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
