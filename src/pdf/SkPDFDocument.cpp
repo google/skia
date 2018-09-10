@@ -7,13 +7,14 @@
 
 #include "SkPDFDocument.h"
 
-#include "SkCanvas.h"
 #include "SkMakeUnique.h"
 #include "SkPDFCanon.h"
 #include "SkPDFDevice.h"
 #include "SkPDFUtils.h"
 #include "SkStream.h"
 #include "SkTo.h"
+
+#include <utility>
 
 SkPDFObjectSerializer::SkPDFObjectSerializer() : fBaseOffset(0), fNextToBeSerialized(0) {}
 
@@ -173,6 +174,12 @@ static sk_sp<SkPDFDict> generate_page_tree(std::vector<sk_sp<SkPDFDict>>* pages)
     return std::move(curNodes[0]);
 }
 
+template<typename T, typename... Args>
+static void reset_object(T* dst, Args&&... args) {
+    dst->~T();
+    new (dst) T(std::forward<Args>(args)...);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 SkPDFDocument::SkPDFDocument(SkWStream* stream,
@@ -192,7 +199,7 @@ void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
 }
 
 SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
-    SkASSERT(!fCanvas.get());  // endPage() was called before this.
+    SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
         // if this is the first page if the document.
         fObjectSerializer.serializeHeader(this->getStream(), fMetadata);
@@ -216,9 +223,9 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
 
     fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
     fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
-    fCanvas.reset(new SkCanvas(fPageDevice));
-    fCanvas->scale(rasterScale, rasterScale);
-    return fCanvas.get();
+    reset_object(&fCanvas, fPageDevice);
+    fCanvas.scale(rasterScale, rasterScale);
+    return &fCanvas;
 }
 
 static sk_sp<SkPDFArray> calculate_page_size(SkScalar rasterDpi, SkISize size) {
@@ -227,9 +234,9 @@ static sk_sp<SkPDFArray> calculate_page_size(SkScalar rasterDpi, SkISize size) {
 }
 
 void SkPDFDocument::onEndPage() {
-    SkASSERT(fCanvas.get());
-    fCanvas->flush();
-    fCanvas.reset(nullptr);
+    SkASSERT(!fCanvas.imageInfo().dimensions().isZero());
+    fCanvas.flush();
+    reset_object(&fCanvas);
     SkASSERT(fPageDevice);
 
     auto page = sk_make_sp<SkPDFDict>("Page");
@@ -258,11 +265,11 @@ void SkPDFDocument::onAbort() {
 void SkPDFDocument::reset() {
     fObjectSerializer = SkPDFObjectSerializer();
     fCanon = SkPDFCanon();
+    reset_object(&fCanvas);
     fPages = std::vector<sk_sp<SkPDFDict>>();
     fFonts.reset();
     fDests = nullptr;
     fPageDevice = nullptr;
-    fCanvas = nullptr;
     fID = nullptr;
     fXMP = nullptr;
     fMetadata = SkDocument::PDFMetadata();
@@ -412,7 +419,7 @@ static sk_sp<SkPDFArray> make_srgb_output_intents() {
 }
 
 void SkPDFDocument::onClose(SkWStream* stream) {
-    SkASSERT(!fCanvas.get());
+    SkASSERT(fCanvas.imageInfo().dimensions().isZero());
     if (fPages.empty()) {
         this->reset();
         return;
