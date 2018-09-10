@@ -8,8 +8,9 @@
 #ifndef SkRemoteGlyphCacheImpl_DEFINED
 #define SkRemoteGlyphCacheImpl_DEFINED
 
-#include "SkRemoteGlyphCache.h"
+#include "SkDescriptor.h"
 #include "SkGlyphRun.h"
+#include "SkRemoteGlyphCache.h"
 
 class SkStrikeServer::SkGlyphCacheState : public SkGlyphCacheInterface {
 public:
@@ -79,6 +80,8 @@ public:
                      const SkTextBlobCacheDiffCanvas::Settings& settings);
 
     SkBaseDevice* onCreateDevice(const CreateInfo& cinfo, const SkPaint*) override;
+    std::unique_ptr<SkScalerContext> createContext(
+            const SkScalerContextRec& rec, const SkScalerContextEffects& effects);
 
 protected:
     void drawGlyphRunList(const SkGlyphRunList& glyphRunList) override;
