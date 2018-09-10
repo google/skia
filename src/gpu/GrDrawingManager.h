@@ -139,14 +139,7 @@ private:
 
     GrSemaphoresSubmitted flush(GrSurfaceProxy* proxy,
                                 int numSemaphores = 0,
-                                GrBackendSemaphore backendSemaphores[] = nullptr) {
-        return this->internalFlush(proxy, GrResourceCache::FlushType::kExternal,
-                                   numSemaphores, backendSemaphores);
-    }
-    GrSemaphoresSubmitted internalFlush(GrSurfaceProxy*,
-                                        GrResourceCache::FlushType,
-                                        int numSemaphores,
-                                        GrBackendSemaphore backendSemaphores[]);
+                                GrBackendSemaphore backendSemaphores[] = nullptr);
 
     SkDEBUGCODE(void validate() const);
 
