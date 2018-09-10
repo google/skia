@@ -431,14 +431,19 @@ void convert_noninflect_cubic_to_quads(const SkPoint p[4],
     SkPoint c1 = p[3] + dc;
 
     SkScalar dSqd = sublevel > kMaxSubdivs ? 0 : SkPointPriv::DistanceToSqd(c0, c1);
-    if (dSqd < toleranceSqd && !(preserveFirstTangent && preserveLastTangent && c0 != c1)) {
+    if (dSqd < toleranceSqd) {
         SkPoint newC;
-        if (preserveFirstTangent) {
-            newC = c0;
-        } else if (preserveLastTangent) {
-            newC = c1;
-        } else {
+        if (preserveFirstTangent == preserveLastTangent) {
+            // We used to force a split when both tangents need to be preserved and c0 != c1.
+            // This introduced a large performance regression for tiny paths for no noticeable
+            // quality improvement. However, we aren't quite fulfilling our contract of guaranteeing
+            // the two tangent vectors and this could introduce a missed pixel in
+            // GrAAHairlinePathRenderer.
             newC = (c0 + c1) * 0.5f;
+        } else if (preserveFirstTangent) {
+            newC = c0;
+        } else {
+            newC = c1;
         }
 
         SkPoint* pts = quads->push_back_n(3);
