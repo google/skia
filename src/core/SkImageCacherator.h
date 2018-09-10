@@ -39,6 +39,9 @@ public:
                                                    SkImage::CachingHint, bool willBeMipped,
                                                    SkColorSpace* dstColorSpace,
                                                    GrTextureMaker::AllowedTexGenType genType) = 0;
+
+
+    virtual void makeCacheKeyFromOrigKey(const GrUniqueKey& origKey, GrUniqueKey* cacheKey) = 0;
 #endif
 };
 
