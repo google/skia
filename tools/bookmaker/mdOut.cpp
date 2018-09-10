@@ -1692,6 +1692,13 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
         case MarkType::kTemplate:
             break;
         case MarkType::kText:
+            if (def->fParent && MarkType::kFormula == def->fParent->fMarkType) {
+                if (fColumn > 0) {
+                    this->writeSpace();
+                }
+                this->resolveOut(def->fContentStart, def->fContentEnd,
+                        BmhParser::Resolvable::kFormula);
+            }
             break;
         case MarkType::kToDo:
             break;
