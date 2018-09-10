@@ -5140,3 +5140,10 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         SkDebugf("max_free %zu\n", max_free);
     }
 }
+
+// Be sure we can safely add ourselves
+DEF_TEST(Path_self_add, reporter) {
+    SkPath path;
+    path.addPath(path, 1, 2);
+    path.addPath(path, 3, 4);
+}
