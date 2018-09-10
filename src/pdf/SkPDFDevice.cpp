@@ -546,23 +546,13 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc)
+SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc, const SkMatrix& transform)
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fInitialTransform(SkMatrix::I())
+    , fInitialTransform(transform)
     , fDocument(doc)
 {
     SkASSERT(!pageSize.isEmpty());
-}
-
-void SkPDFDevice::setFlip() {
-    // Skia generally uses the top left as the origin but PDF
-    // natively has the origin at the bottom left. This matrix
-    // corrects for that.  But that only needs to be done once, we
-    // don't do it when layering.
-    SkScalar rasterScale = SkPDFUtils::kDpiForRasterScaleOne / fDocument->rasterDpi();
-    fInitialTransform.setConcat(SkMatrix::MakeScale(rasterScale, -rasterScale),
-                                SkMatrix::MakeTrans(0, -this->height()));
 }
 
 SkPDFDevice::~SkPDFDevice() = default;

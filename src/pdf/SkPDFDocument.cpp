@@ -186,6 +186,11 @@ SkPDFDocument::SkPDFDocument(SkWStream* stream,
                              const SkDocument::PDFMetadata& metadata)
     : SkDocument(stream)
     , fMetadata(metadata) {
+    constexpr float kDpiForRasterScaleOne = 72.0f;
+    if (fMetadata.fRasterDPI != kDpiForRasterScaleOne) {
+        fInverseRasterScale = kDpiForRasterScaleOne / fMetadata.fRasterDPI;
+        fRasterScale        = fMetadata.fRasterDPI / kDpiForRasterScaleOne;
+    }
 }
 
 SkPDFDocument::~SkPDFDocument() {
@@ -197,6 +202,9 @@ void SkPDFDocument::serialize(const sk_sp<SkPDFObject>& object) {
     fObjectSerializer.addObjectRecursively(object);
     fObjectSerializer.serializeObjects(this->getStream());
 }
+
+static SkSize operator*(SkISize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
+static SkSize operator*(SkSize u, SkScalar s) { return SkSize{u.width() * s, u.height() * s}; }
 
 SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
     SkASSERT(fCanvas.imageInfo().dimensions().isZero());
@@ -217,20 +225,20 @@ SkCanvas* SkPDFDocument::onBeginPage(SkScalar width, SkScalar height) {
             fObjectSerializer.serializeObjects(this->getStream());
         }
     }
-    SkScalar rasterScale = this->rasterDpi() / SkPDFUtils::kDpiForRasterScaleOne;
-    SkISize pageSize = {SkScalarRoundToInt(width  * rasterScale),
-                        SkScalarRoundToInt(height * rasterScale)};
-
-    fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this);
-    fPageDevice->setFlip();  // Only the top-level device needs to be flipped.
+    // By scaling the page at the device level, we will create bitmap layer
+    // devices at the rasterized scale, not the 72dpi scale.  Bitmap layer
+    // devices are created when saveLayer is called with an ImageFilter;  see
+    // SkPDFDevice::onCreateDevice().
+    SkISize pageSize = (SkSize{width, height} * fRasterScale).toRound();
+    SkMatrix initialTransform;
+    // Skia uses the top left as the origin but PDF natively has the origin at the
+    // bottom left. This matrix corrects for that, as well as the raster scale.
+    initialTransform.setScaleTranslate(fInverseRasterScale, -fInverseRasterScale,
+                                       0, fInverseRasterScale * pageSize.height());
+    fPageDevice = sk_make_sp<SkPDFDevice>(pageSize, this, initialTransform);
     reset_object(&fCanvas, fPageDevice);
-    fCanvas.scale(rasterScale, rasterScale);
+    fCanvas.scale(fRasterScale, fRasterScale);
     return &fCanvas;
-}
-
-static sk_sp<SkPDFArray> calculate_page_size(SkScalar rasterDpi, SkISize size) {
-    SkScalar scale = SkPDFUtils::kDpiForRasterScaleOne / rasterDpi;
-    return SkPDFUtils::RectToArray({0, 0, size.width() * scale, size.height() * scale});
 }
 
 void SkPDFDocument::onEndPage() {
@@ -241,7 +249,7 @@ void SkPDFDocument::onEndPage() {
 
     auto page = sk_make_sp<SkPDFDict>("Page");
 
-    SkISize pageSize = fPageDevice->imageInfo().dimensions();
+    SkSize mediaSize = fPageDevice->imageInfo().dimensions() * fInverseRasterScale;
     auto contentObject = sk_make_sp<SkPDFStream>(fPageDevice->content());
     auto resourceDict = fPageDevice->makeResourceDict();
     auto annotations = fPageDevice->getAnnotations();
@@ -249,7 +257,8 @@ void SkPDFDocument::onEndPage() {
     fPageDevice = nullptr;
 
     page->insertObject("Resources", resourceDict);
-    page->insertObject("MediaBox", calculate_page_size(this->rasterDpi(), pageSize));
+    page->insertObject("MediaBox", SkPDFUtils::RectToArray(SkRect::MakeSize(mediaSize)));
+
     if (annotations) {
         page->insertObject("Annots", std::move(annotations));
     }
@@ -273,6 +282,8 @@ void SkPDFDocument::reset() {
     fID = nullptr;
     fXMP = nullptr;
     fMetadata = SkDocument::PDFMetadata();
+    fRasterScale = 1;
+    fInverseRasterScale = 1;
 }
 
 static sk_sp<SkData> SkSrgbIcm() {
