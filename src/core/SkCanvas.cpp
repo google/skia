@@ -546,22 +546,15 @@ void SkCanvas::init(sk_sp<SkBaseDevice> device, InitFlags flags) {
         flags = InitFlags(flags | kConservativeRasterClip_InitFlag);
     }
 
-    fAllowSimplifyClip = false;
-    fSaveCount = 1;
-    fMetaData = nullptr;
-
     fMCRec = (MCRec*)fMCStack.push_back();
     new (fMCRec) MCRec;
     fMCRec->fRasterClip.setDeviceClipRestriction(&fClipRestrictionRect);
-    fIsScaleTranslate = true;
 
     SkASSERT(sizeof(DeviceCM) <= sizeof(fDeviceCMStorage));
     fMCRec->fLayer = (DeviceCM*)fDeviceCMStorage;
     new (fDeviceCMStorage) DeviceCM(device, nullptr, fMCRec->fMatrix, nullptr, nullptr);
 
     fMCRec->fTopLayer = fMCRec->fLayer;
-
-    fSurfaceBase = nullptr;
 
     if (device) {
         // The root device and the canvas should always have the same pixel geometry
@@ -666,8 +659,6 @@ SkCanvas::~SkCanvas() {
 
     this->internalRestore();    // restore the last, since we're going away
 
-    delete fMetaData;
-
     dec_canvas();
 }
 
@@ -675,9 +666,9 @@ SkMetaData& SkCanvas::getMetaData() {
     // metadata users are rare, so we lazily allocate it. If that changes we
     // can decide to just make it a field in the device (rather than a ptr)
     if (nullptr == fMetaData) {
-        fMetaData = new SkMetaData;
+        fMetaData = skstd::make_unique<SkMetaData>();
     }
-    return *fMetaData;
+    return *fMetaData.get();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

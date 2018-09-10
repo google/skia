@@ -2566,12 +2566,12 @@ private:
 
     const SkSurfaceProps fProps;
 
-    int         fSaveCount;         // value returned by getSaveCount()
+    int         fSaveCount = 1;     // value returned by getSaveCount()
 
-    SkMetaData* fMetaData;
+    std::unique_ptr<SkMetaData> fMetaData;
     std::unique_ptr<SkRasterHandleAllocator> fAllocator;
 
-    SkSurface_Base*  fSurfaceBase;
+    SkSurface_Base*  fSurfaceBase = nullptr;
     SkSurface_Base* getSurfaceBase() const { return fSurfaceBase; }
     void setSurfaceBase(SkSurface_Base* sb) {
         fSurfaceBase = sb;
@@ -2579,7 +2579,7 @@ private:
     friend class SkSurface_Base;
     friend class SkSurface_Gpu;
 
-    SkIRect fClipRestrictionRect = SkIRect::MakeEmpty();
+    SkIRect fClipRestrictionRect = {0, 0, 0, 0};
 
     void doSave();
     void checkForDeferredSave();
@@ -2666,11 +2666,11 @@ private:
      *  Keep track of the device clip bounds and if the matrix is scale-translate.  This allows
      *  us to do a fast quick reject in the common case.
      */
-    bool   fIsScaleTranslate;
+    bool   fIsScaleTranslate = true;
     SkRect fDeviceClipBounds;
 
     bool fAllowSoftClip;
-    bool fAllowSimplifyClip;
+    bool fAllowSimplifyClip = false;
 
     class AutoValidateClip {
     public:
