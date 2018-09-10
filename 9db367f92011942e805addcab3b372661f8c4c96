@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4b2b4d24_c4ae08d0",
+        "filename": "src/gpu/GrDrawOpAtlas.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-10T17:07:49Z",
+      "side": 1,
+      "message": "Can we use SkScalar routines for this and the following instead? We don\u0027t need double precision, I wouldn\u0027t think.",
+      "range": {
+        "startLine": 66,
+        "startChar": 16,
+        "endLine": 66,
+        "endChar": 25
+      },
+      "revId": "9db367f92011942e805addcab3b372661f8c4c96",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
