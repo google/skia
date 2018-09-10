@@ -24,7 +24,7 @@ struct IXpsOMObjectFactory;
 
 /** SK_ScalarDefaultDPI is 72 DPI.
 */
-#define SK_ScalarDefaultRasterDPI           72.0f
+constexpr SkScalar SK_ScalarDefaultRasterDPI = 72.0f;
 
 /**
  *  High-level API for creating a document-based canvas. To use..
@@ -160,7 +160,7 @@ public:
      *  into the page. The document owns this canvas, and it will go out of
      *  scope when endPage() or close() is called, or the document is deleted.
      */
-    SkCanvas* beginPage(SkScalar width, SkScalar height, const SkRect* content = nullptr);
+    SkCanvas* beginPage(SkScalar width, SkScalar height);
 
     /**
      *  Call endPage() when the content for the current page has been drawn
