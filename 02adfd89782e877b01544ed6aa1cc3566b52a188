@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "09b347d6_2d70c945",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "Left/right makes sense, I will change it.",
+      "parentUuid": "96e995e0_67df37e0",
+      "range": {
+        "startLine": 20,
+        "startChar": 50,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "331b7b19_f84fecaf",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 13
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "58681bd7_083aaa13",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "SkAutoSTMalloc looks like the way go. I have it set to 4 requested instances since that will cover the currently supported analytic color cases.",
+      "parentUuid": "ef4b146f_ba391414",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 37
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4822c955_82380d17",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 13
@@ -119,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "e1ea27dc_0ed1fbe5",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "Oops, good spot",
+      "parentUuid": "4822c955_82380d17",
+      "range": {
+        "startLine": 95,
+        "startChar": 40,
+        "endLine": 103,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18dc2238_91d5a794",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 13
@@ -130,6 +202,30 @@
       "writtenOn": "2018-09-10T13:09:46Z",
       "side": 1,
       "message": "If these functions aren\u0027t going to need to be accessible outside this cpp file then we\u0027d typically mark them as \"static\", name_them_hacker_style, and locate them outside the namespace.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 1
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2af4f2c6_af1f8114",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "Does it go in no namespace, or an anonymous namespace? I\u0027ve updated it to just be outside any namespace for now.",
+      "parentUuid": "18dc2238_91d5a794",
       "range": {
         "startLine": 21,
         "startChar": 0,
@@ -162,6 +258,30 @@
       "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e4998a0d_490cd9ae",
+        "filename": "src/gpu/gradients/GrLinearGradientLayout.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "I don\u0027t know how ready it is, but Ethan had mentioned to me that a new FP system he\u0027s working on has its inputs/outputs as declared inouts, which would provide a convenient mechanism for typing as half or half4.",
+      "parentUuid": "85012509_ab1ecfc3",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 53
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -224,6 +344,30 @@
       "side": 1,
       "message": "I\u0027m not sure what \"next to means\" exactly either. Maybe you could take the output of floor and wrap it in a no-op like maybe trunc(floor(...))? TBH I\u0027m not really familiar with the nature of the bug were working around here.",
       "parentUuid": "63b73193_f56ce25b",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "86bdb855_f8ff1ede",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-10T18:00:29Z",
+      "side": 1,
+      "message": "The only spot the capability appears to be checked is in the old (and new) gradient code. The capability flag says: \"\"\"    \n// On some Intel GPUs there is an issue where the driver outputs bogus values in the shader\n// when floor and abs are called on the same line. Thus we must execute an Op between them to\n// make sure the compiler doesn\u0027t re-inline them even if we break the calls apart.\n\"\"\"\n\nDepending on how \"called on the same line\" is interpreted, we would have to actually break expressions into multiple statements and insert a no-op statement. If all we have to do is protect from some attempted inlining of floor+abs, then wrapping floor with a noop could work. In this instance, there are non-function expressions between the floor and abs that apparently were not enough to fix Intel\u0027s issue, which makes me think it any solution will have to be the former. That\u0027s going to be trickier, so perhaps Ethan\u0027s suggestion of erroring, and requiring someone to manually determine a valid no-op in each situation is the best bet.\n\nHere\u0027s the original CL where this was added by Greg: https://skia-review.googlesource.com/c/skia/+/76820 so maybe we can get his thoughts on an SkSL built-in solution?",
+      "parentUuid": "79e0195d_826ed315",
       "range": {
         "startLine": 21,
         "startChar": 0,
