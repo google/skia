@@ -189,13 +189,7 @@ public:
 
     /** Returns true if the cache would like a flush to occur in order to make more resources
         purgeable. */
-    bool requestsFlush() const { return fRequestFlush; }
-
-    enum FlushType {
-        kExternal,
-        kCacheRequested,
-    };
-    void notifyFlushOccurred(FlushType);
+    bool requestsFlush() const { return this->overBudget() && !fPurgeableQueue.count(); }
 
     /** Maintain a ref to this resource until we receive a GrGpuResourceFreedMessage. */
     void insertCrossContextGpuResource(GrGpuResource* resource);
@@ -351,8 +345,6 @@ private:
     int                                 fBudgetedCount;
     size_t                              fBudgetedBytes;
     size_t                              fPurgeableBytes;
-
-    bool                                fRequestFlush;
 
     InvalidUniqueKeyInbox               fInvalidUniqueKeyInbox;
     FreedGpuResourceInbox               fFreedGpuResourceInbox;

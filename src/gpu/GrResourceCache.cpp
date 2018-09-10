@@ -78,7 +78,6 @@ GrResourceCache::GrResourceCache(const GrCaps* caps, uint32_t contextUniqueID)
         , fBudgetedCount(0)
         , fBudgetedBytes(0)
         , fPurgeableBytes(0)
-        , fRequestFlush(false)
         , fInvalidUniqueKeyInbox(contextUniqueID)
         , fFreedGpuResourceInbox(contextUniqueID)
         , fContextUniqueID(contextUniqueID)
@@ -459,12 +458,6 @@ void GrResourceCache::purgeAsNeeded() {
     }
 
     this->validate();
-
-    if (stillOverbudget) {
-        // Set this so that GrDrawingManager will issue a flush to free up resources with pending
-        // IO that we were unable to purge in this pass.
-        fRequestFlush = true;
-    }
 }
 
 void GrResourceCache::purgeUnlockedResources(bool scratchResourcesOnly) {
@@ -670,18 +663,6 @@ uint32_t GrResourceCache::getNextTimestamp() {
         }
     }
     return fTimestamp++;
-}
-
-void GrResourceCache::notifyFlushOccurred(FlushType type) {
-    switch (type) {
-        case FlushType::kCacheRequested:
-            SkASSERT(fRequestFlush);
-            fRequestFlush = false;
-            break;
-        case FlushType::kExternal:
-            break;
-    }
-    this->purgeAsNeeded();
 }
 
 void GrResourceCache::dumpMemoryStatistics(SkTraceMemoryDump* traceMemoryDump) const {
