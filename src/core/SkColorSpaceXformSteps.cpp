@@ -27,6 +27,10 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
     if (!src) { src = sk_srgb_singleton(); }
     if (!dst) { dst = src; }
 
+    if (src == dst && srcAT == dstAT) {
+        return;
+    }
+
     this->flags.unpremul        = srcAT == kPremul_SkAlphaType;
     this->flags.linearize       = !src->gammaIsLinear();
     this->flags.gamut_transform = src->toXYZD50Hash() != dst->toXYZD50Hash();
