@@ -21,7 +21,7 @@
 // they are actually required
 // Beware: the uniqueID of the TextureRenderTargetProxy will usually be different than
 // the uniqueID of the RenderTarget/Texture it represents!
-class GrTextureRenderTargetProxy : public GrTextureProxy, public GrRenderTargetProxy {
+class GrTextureRenderTargetProxy : public GrRenderTargetProxy, public GrTextureProxy {
 private:
     // DDL TODO: rm the GrSurfaceProxy friending
     friend class GrSurfaceProxy; // for ctors
