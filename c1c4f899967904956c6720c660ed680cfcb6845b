@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8d5dd43c_275718b5",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T15:30:04Z",
+      "side": 1,
+      "message": "connected",
+      "range": {
+        "startLine": 400,
+        "startChar": 44,
+        "endLine": 400,
+        "endChar": 54
+      },
+      "revId": "c1c4f899967904956c6720c660ed680cfcb6845b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
