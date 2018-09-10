@@ -19,3 +19,11 @@ void main() {
     // simple lerp.
     sk_OutColor = (1 - t) * start + t * end;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (start.isOpaque() && end.isOpaque() ? kPreservesOpaqueInput_OptimizationFlag :
+                                          kNone_OptimizationFlags)
+}

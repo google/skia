@@ -34,6 +34,15 @@ void main() {
 
 //////////////////////////////////////////////////////////////////////////////
 
+@constructorParams {
+    bool colorsAreOpaque
+}
+
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (colorsAreOpaque ? kPreservesOpaqueInput_OptimizationFlag : kNone_OptimizationFlags)
+}
+
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(const GrColor4f& c0, const GrColor4f& c1,
                                                      const GrColor4f& c2, const GrColor4f& c3,
@@ -55,9 +64,11 @@ void main() {
         auto scale23 = (vc3 - vc2) / (1 - threshold);
         auto bias23 = vc2 - threshold * scale23;
 
+        bool colorsAreOpaque = c0.isOpaque() && c1.isOpaque() && c2.isOpaque() && c3.isOpaque();
+
         return std::unique_ptr<GrFragmentProcessor>(new GrDualIntervalGradientColorizer(
                 GrColor4f(scale01[0], scale01[1], scale01[2], scale01[3]), c0,
                 GrColor4f(scale23[0], scale23[1], scale23[2], scale23[3]),
-                GrColor4f(bias23[0], bias23[1], bias23[2], bias23[3]), threshold));
+                GrColor4f(bias23[0], bias23[1], bias23[2], bias23[3]), threshold, colorsAreOpaque));
     }
 }

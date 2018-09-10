@@ -17,12 +17,14 @@ class GrClampedGradientEffect : public GrFragmentProcessor {
 public:
     const GrColor4f& leftBorderColor() const { return fLeftBorderColor; }
     const GrColor4f& rightBorderColor() const { return fRightBorderColor; }
+    bool makePremul() const { return fMakePremul; }
     static std::unique_ptr<GrFragmentProcessor> Make(
             std::unique_ptr<GrFragmentProcessor> colorizer,
             std::unique_ptr<GrFragmentProcessor> gradLayout, GrColor4f leftBorderColor,
-            GrColor4f rightBorderColor) {
-        return std::unique_ptr<GrFragmentProcessor>(new GrClampedGradientEffect(
-                std::move(colorizer), std::move(gradLayout), leftBorderColor, rightBorderColor));
+            GrColor4f rightBorderColor, bool makePremul) {
+        return std::unique_ptr<GrFragmentProcessor>(
+                new GrClampedGradientEffect(std::move(colorizer), std::move(gradLayout),
+                                            leftBorderColor, rightBorderColor, makePremul));
     }
     GrClampedGradientEffect(const GrClampedGradientEffect& src);
     std::unique_ptr<GrFragmentProcessor> clone() const override;
@@ -31,10 +33,21 @@ public:
 private:
     GrClampedGradientEffect(std::unique_ptr<GrFragmentProcessor> colorizer,
                             std::unique_ptr<GrFragmentProcessor> gradLayout,
-                            GrColor4f leftBorderColor, GrColor4f rightBorderColor)
-            : INHERITED(kGrClampedGradientEffect_ClassID, kNone_OptimizationFlags)
+                            GrColor4f leftBorderColor, GrColor4f rightBorderColor, bool makePremul)
+            : INHERITED(
+                      kGrClampedGradientEffect_ClassID,
+                      (OptimizationFlags)(colorizer->compatibleWithCoverageAsAlpha()
+                                                  ? kCompatibleWithCoverageAsAlpha_OptimizationFlag
+                                                  : kNone_OptimizationFlags) |
+                              (colorizer->preservesOpaqueInput() &&
+                                               gradLayout->preservesOpaqueInput() &&
+                                               leftBorderColor.isOpaque() &&
+                                               rightBorderColor.isOpaque()
+                                       ? kPreservesOpaqueInput_OptimizationFlag
+                                       : kNone_OptimizationFlags))
             , fLeftBorderColor(leftBorderColor)
-            , fRightBorderColor(rightBorderColor) {
+            , fRightBorderColor(rightBorderColor)
+            , fMakePremul(makePremul) {
         this->registerChildProcessor(std::move(colorizer));
         this->registerChildProcessor(std::move(gradLayout));
     }
@@ -44,6 +57,7 @@ private:
     GR_DECLARE_FRAGMENT_PROCESSOR_TEST
     GrColor4f fLeftBorderColor;
     GrColor4f fRightBorderColor;
+    bool fMakePremul;
     typedef GrFragmentProcessor INHERITED;
 };
 #endif
