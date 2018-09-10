@@ -72,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "59e5b4fd_434176c6",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-10T23:09:48Z",
+      "side": 0,
+      "message": "Could you add one instead of removing this? I\u0027ll remove the one below after landing the chromium side patch (thanks for the reminder).",
+      "parentUuid": "f6994f62_41776974",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23ed89fc_f951a5a3",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -107,6 +131,30 @@
       "side": 0,
       "message": "See comment above for Settings.",
       "parentUuid": "23ed89fc_f951a5a3",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 22
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "61302ac8_cdba3d69",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-10T23:09:48Z",
+      "side": 0,
+      "message": "Ummm, there is no comment for Settings. I can understand removing it still, because it\u0027s just a POD struct. But that\u0027s not the case for SkStrikeClient. And if we don\u0027t explicitly define an out-of-line destructor, this will implicitly create an inline destructor which is better to avoid for complex classes like this.\n\nThe Google C++ style guide highlights this as well (https://google.github.io/styleguide/cppguide.html#Inline_Functions).",
+      "parentUuid": "a073f0b0_f4beba9e",
       "range": {
         "startLine": 185,
         "startChar": 4,
