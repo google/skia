@@ -311,8 +311,22 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachImageAsset(const skjson::ObjectV
         return nullptr;
     }
 
-    // TODO: non-intrisic image sizing
-    return *fAssetCache.set(res_id, sksg::Image::Make(SkImage::MakeFromEncoded(data)));
+    auto image = SkImage::MakeFromEncoded(data);
+    if (!image) {
+        return nullptr;
+    }
+
+    const auto width  = ParseDefault<int>(jimage["w"], image->width()),
+               height = ParseDefault<int>(jimage["h"], image->height());
+
+    sk_sp<sksg::RenderNode> image_node = sksg::Image::Make(image);
+    if (width != image->width() || height != image->height()) {
+        image_node = sksg::Transform::Make(std::move(image_node),
+            SkMatrix::MakeScale(static_cast<float>(width)  / image->width(),
+                                static_cast<float>(height) / image->height()));
+    }
+
+    return *fAssetCache.set(res_id, std::move(image_node));
 }
 
 sk_sp<sksg::RenderNode> AnimationBuilder::attachImageLayer(const skjson::ObjectValue& jlayer,
