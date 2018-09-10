@@ -108,6 +108,14 @@ protected:
     sk_sp<GrSurface> createSurface(GrResourceProvider*) const override;
 
 private:
+    // WARNING: Be careful when adding or removing fields here. ASAN is likely to trigger warnings
+    // when instantiating GrTextureRenderTargetProxy. The std::function in GrSurfaceProxy makes
+    // each class in the diamond require 16 byte alignment. Clang appears to layout the fields for
+    // each class to achieve the necessary alignment. However, ASAN checks the alignment of 'this'
+    // in the constructors, and always looks for the full 16 byte alignment, even if the fields in
+    // that particular class don't require it. Changing the size of this object can move the start
+    // address of other types, leading to this problem.
+
     GrMipMapped      fMipMapped;
     GrTextureType    fTextureType;
 
