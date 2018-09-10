@@ -20,7 +20,11 @@ namespace sksg {
 class Group : public RenderNode {
 public:
     static sk_sp<Group> Make() {
-        return sk_sp<Group>(new Group());
+        return sk_sp<Group>(new Group(std::vector<sk_sp<RenderNode>>()));
+    }
+
+    static sk_sp<Group> Make(std::vector<sk_sp<RenderNode>> children) {
+        return sk_sp<Group>(new Group(std::move(children)));
     }
 
     void addChild(sk_sp<RenderNode>);
@@ -29,10 +33,8 @@ public:
     size_t size() const { return fChildren.size(); }
     bool  empty() const { return fChildren.empty(); }
 
-    void shrink_to_fit();
-
 protected:
-    Group();
+    explicit Group(std::vector<sk_sp<RenderNode>>);
     ~Group() override;
 
     void onRender(SkCanvas*, const RenderContext*) const override;
