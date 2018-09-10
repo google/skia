@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f6994f62_41776974",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-10T21:47:49Z",
+      "side": 0,
+      "message": "I see how that simplifies the interface, but there is currently no implementation to back it up.",
+      "parentUuid": "862d8fc6_546f9f75",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "23ed89fc_f951a5a3",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -59,6 +83,30 @@
       "writtenOn": "2018-09-10T18:12:14Z",
       "side": 0,
       "message": "Why remove this?",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 22
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a073f0b0_f4beba9e",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-10T21:47:49Z",
+      "side": 0,
+      "message": "See comment above for Settings.",
+      "parentUuid": "23ed89fc_f951a5a3",
       "range": {
         "startLine": 185,
         "startChar": 4,

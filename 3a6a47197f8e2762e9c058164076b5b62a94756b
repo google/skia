@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e6e131a5_2dff5dfb",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-10T21:47:49Z",
+      "side": 1,
+      "message": "Nice catch. Thanks.",
+      "parentUuid": "371e119c_5e84377a",
+      "range": {
+        "startLine": 288,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 6
+      },
+      "revId": "3a6a47197f8e2762e9c058164076b5b62a94756b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0bf9ed6f_a0becff2",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-10T18:12:14Z",
       "side": 1,
       "message": "Why inline this?",
+      "range": {
+        "startLine": 69,
+        "startChar": 42,
+        "endLine": 69,
+        "endChar": 52
+      },
+      "revId": "3a6a47197f8e2762e9c058164076b5b62a94756b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aedcc842_6449f9c7",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-10T21:47:49Z",
+      "side": 1,
+      "message": "Sometimes the dtor needs to be in the implementation, but here that is not needed. Using default here signals that there are no fields that have trouble with partial definitions; as opposed to SkStrikeServer that has vector\u003cWireTypeface\u003e which requires the dtor to be in the .cc file.",
+      "parentUuid": "0bf9ed6f_a0becff2",
       "range": {
         "startLine": 69,
         "startChar": 42,
