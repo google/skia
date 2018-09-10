@@ -12,28 +12,29 @@ namespace sksg {
 // Paint nodes don't generate damage on their own, but via their aggregation ancestor Draw nodes.
 PaintNode::PaintNode() : INHERITED(kBubbleDamage_Trait) {}
 
-const SkPaint& PaintNode::makePaint() {
+SkPaint PaintNode::makePaint() const {
     SkASSERT(!this->hasInval());
 
-    return fPaint;
+    SkPaint paint;
+
+    paint.setAntiAlias(fAntiAlias);
+    paint.setBlendMode(fBlendMode);
+    paint.setStyle(fStyle);
+    paint.setStrokeWidth(fStrokeWidth);
+    paint.setStrokeMiter(fStrokeMiter);
+    paint.setStrokeJoin(fStrokeJoin);
+    paint.setStrokeCap(fStrokeCap);
+
+    this->onApplyToPaint(&paint);
+
+    // Compose opacity on top of the subclass value.
+    paint.setAlpha(SkScalarRoundToInt(paint.getAlpha() * SkTPin<SkScalar>(fOpacity, 0, 1)));
+
+    return paint;
 }
 
 SkRect PaintNode::onRevalidate(InvalidationController*, const SkMatrix&) {
     SkASSERT(this->hasInval());
-
-    fPaint.reset();
-    fPaint.setAntiAlias(fAntiAlias);
-    fPaint.setBlendMode(fBlendMode);
-    fPaint.setStyle(fStyle);
-    fPaint.setStrokeWidth(fStrokeWidth);
-    fPaint.setStrokeMiter(fStrokeMiter);
-    fPaint.setStrokeJoin(fStrokeJoin);
-    fPaint.setStrokeCap(fStrokeCap);
-
-    this->onApplyToPaint(&fPaint);
-
-    // Compose opacity on top of the subclass value.
-    fPaint.setAlpha(SkScalarRoundToInt(fPaint.getAlpha() * SkTPin<SkScalar>(fOpacity, 0, 1)));
 
     return SkRect::MakeEmpty();
 }
