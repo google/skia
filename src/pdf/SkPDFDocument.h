@@ -7,10 +7,11 @@
 #ifndef SkPDFDocument_DEFINED
 #define SkPDFDocument_DEFINED
 
+#include "SkCanvas.h"
 #include "SkDocument.h"
 #include "SkPDFCanon.h"
-#include "SkPDFMetadata.h"
 #include "SkPDFFont.h"
+#include "SkPDFMetadata.h"
 
 class SkPDFDevice;
 
@@ -81,11 +82,11 @@ public:
 private:
     SkPDFObjectSerializer fObjectSerializer;
     SkPDFCanon fCanon;
+    SkCanvas fCanvas;
     std::vector<sk_sp<SkPDFDict>> fPages;
     SkTHashSet<SkPDFFont*> fFonts;
     sk_sp<SkPDFDict> fDests;
     sk_sp<SkPDFDevice> fPageDevice;
-    std::unique_ptr<SkCanvas> fCanvas;
     sk_sp<SkPDFObject> fID;
     sk_sp<SkPDFObject> fXMP;
     SkDocument::PDFMetadata fMetadata;
