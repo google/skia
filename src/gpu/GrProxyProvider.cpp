@@ -81,15 +81,6 @@ bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTexturePr
     // if it already existed in the cache).
     SkASSERT(!fResourceCache || !fResourceCache->findAndRefUniqueResource(key));
 
-    // Uncached resources can never have a unique key, unless they're wrapped resources. Wrapped
-    // resources are a special case: the unique keys give us a weak ref so that we can reuse the
-    // same resource (rather than re-wrapping). When a wrapped resource is no longer referenced,
-    // it will always be released - it is never converted to a scratch resource.
-    if (SkBudgeted::kNo == proxy->isBudgeted() &&
-        (!proxy->isInstantiated() || !proxy->peekSurface()->resourcePriv().refsWrappedObjects())) {
-        return false;
-    }
-
     SkASSERT(!fUniquelyKeyedProxies.find(key));     // multiple proxies can't get the same key
 
     proxy->cacheAccess().setUniqueKey(this, key);

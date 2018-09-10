@@ -534,17 +534,18 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                               cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
-    // Unreffing the wrapped resource should free it right away.
+    // Unreffing the wrapped resource with a unique key shouldn't free it right away.
     wrapped->unref();
-    REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
-                              unbudgeted->gpuMemorySize() == cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
+                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
+                              cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
     wrapped = TestResource::CreateWrapped(gpu);
     unique->unref();
-    REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
+    REPORTER_ASSERT(reporter, 23 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
@@ -563,6 +564,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
+    // Unreffing the wrapped resource (with no unique key) should free it right away.
     wrapped->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache->getResourceBytes());
