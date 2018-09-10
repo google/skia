@@ -27,7 +27,7 @@ struct GrGlyph;
 class GrAtlasManager : public GrOnFlushCallbackObject {
 public:
     GrAtlasManager(GrProxyProvider*, GrGlyphCache*,
-                   size_t maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
+                   float maxTextureBytes, GrDrawOpAtlas::AllowMultitexturing);
     ~GrAtlasManager() override;
 
     // Change an expected 565 mask format to 8888 if 565 is not supported (will happen when using
@@ -56,6 +56,9 @@ public:
     }
 
     SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
+
+    static void ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
+                                   int* minDim, int* maxPlot, int* minPlot);
 
     void freeAll();
 
@@ -118,7 +121,7 @@ public:
     void dump(GrContext* context) const;
 #endif
 
-    void setAtlasSizesToMinimum_ForTesting();
+    void setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]);
     void setMaxPages_TestingOnly(uint32_t maxPages);
 
 private:
@@ -144,13 +147,13 @@ private:
         return fAtlases[atlasIndex].get();
     }
 
+    sk_sp<const GrCaps> fCaps;
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
+    GrDrawOpAtlasConfig fAtlasConfigs[kMaskFormatCount];
     SkScalar fGlyphSizeLimit;
     GrProxyProvider* fProxyProvider;
-    sk_sp<const GrCaps> fCaps;
     GrGlyphCache* fGlyphCache;
-    GrDrawOpAtlasConfig fAtlasConfigs;
 
     typedef GrOnFlushCallbackObject INHERITED;
 };
