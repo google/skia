@@ -420,6 +420,13 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
         return false;
     }
 
+    if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
+        const GrUniqueKey& key = texProxy->getUniqueKey();
+        if (key.isValid()) {
+            resourceProvider->assignUniqueKeyToResource(key, surface.get());
+        }
+    }
+
     this->assign(std::move(surface));
     return true;
 }
