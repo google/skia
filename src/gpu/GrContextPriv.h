@@ -263,6 +263,10 @@ public:
         this is for testing only */
     void setTextBlobCacheLimit_ForTesting(size_t bytes);
 
+    /** Specify the sizes of the GrAtlasTextContext atlases.  The configs pointer below should be
+        to an array of 3 entries */
+    void setTextContextAtlasSizes_ForTesting(const GrDrawOpAtlasConfig* configs);
+
     /** Get pointer to atlas texture for given mask format. Note that this wraps an
         actively mutating texture in an SkImage. This could yield unexpected results
         if it gets cached or used more generally. */

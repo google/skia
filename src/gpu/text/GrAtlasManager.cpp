@@ -10,17 +10,66 @@
 #include "GrGlyph.h"
 #include "GrGlyphCache.h"
 
-GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
-                               size_t maxTextureBytes,
-                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
-            : fAllowMultitexturing{allowMultitexturing}
-            , fGlyphSizeLimit{SkGlyphCacheCommon::kSkSideTooBigForAtlas}
-            , fProxyProvider{proxyProvider}
-            , fCaps{fProxyProvider->refCaps()}
-            , fGlyphCache{glyphCache}
-            , fAtlasConfigs{fCaps->maxTextureSize(), maxTextureBytes} { }
+void GrAtlasManager::ComputeAtlasLimits(int maxTextureSize, size_t maxTextureBytes, int* maxDim,
+                                        int* minDim, int* maxPlot, int* minPlot) {
+    SkASSERT(maxDim && minDim && maxPlot && minPlot);
+    // Calculate RGBA size. Must be between 512 x 256 and MaxTextureSize x MaxTextureSize / 2
+    int log2MaxTextureSize = SkPrevLog2(maxTextureSize);
+    int log2MaxDim = 9;
+    static const size_t kOne = 1u;
+    for (; log2MaxDim <= log2MaxTextureSize; ++log2MaxDim) {
+        size_t maxDimTmp = kOne << log2MaxDim;
+        size_t minDimTmp = kOne << (log2MaxDim - 1);
 
-GrAtlasManager::~GrAtlasManager() = default;
+        if (maxDimTmp * minDimTmp * 4 >= maxTextureBytes) {
+            break;
+        }
+    }
+
+
+    int log2MinDim = log2MaxDim - 1;
+    *maxDim = 1 << log2MaxDim;
+    *minDim = 1 << log2MinDim;
+    // Plots are either 256 or 512.
+    *maxPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 2)));
+    *minPlot = SkTMin(512, SkTMax(256, 1 << (log2MaxDim - 3)));
+}
+
+GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* glyphCache,
+                               float maxTextureBytes,
+                               GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
+            : fAllowMultitexturing(allowMultitexturing)
+            , fProxyProvider(proxyProvider)
+            , fGlyphCache(glyphCache) {
+    fCaps = fProxyProvider->refCaps();
+
+    int maxDim, minDim, maxPlot, minPlot;
+    ComputeAtlasLimits(fCaps->maxTextureSize(), maxTextureBytes, &maxDim, &minDim, &maxPlot,
+                       &minPlot);
+
+    // Setup default atlas configs. The A8 atlas uses maxDim for both width and height, as the A8
+    // format is already very compact.
+    fAtlasConfigs[kA8_GrMaskFormat].fWidth = maxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotWidth = maxPlot;
+    fAtlasConfigs[kA8_GrMaskFormat].fPlotHeight = maxPlot;
+
+    // A565 and ARGB use maxDim x minDim.
+    fAtlasConfigs[kA565_GrMaskFormat].fWidth = minDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotWidth = minPlot;
+    fAtlasConfigs[kA565_GrMaskFormat].fPlotHeight = minPlot;
+
+    fAtlasConfigs[kARGB_GrMaskFormat].fWidth = minDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fHeight = maxDim;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotWidth = minPlot;
+    fAtlasConfigs[kARGB_GrMaskFormat].fPlotHeight = minPlot;
+
+    fGlyphSizeLimit = minPlot;
+}
+
+GrAtlasManager::~GrAtlasManager() {
+}
 
 static GrPixelConfig mask_format_to_pixel_config(GrMaskFormat format) {
     switch (format) {
@@ -147,28 +196,28 @@ void GrAtlasManager::dump(GrContext* context) const {
 }
 #endif
 
-void GrAtlasManager::setAtlasSizesToMinimum_ForTesting() {
+void GrAtlasManager::setAtlasSizes_ForTesting(const GrDrawOpAtlasConfig configs[3]) {
     // Delete any old atlases.
     // This should be safe to do as long as we are not in the middle of a flush.
     for (int i = 0; i < kMaskFormatCount; i++) {
         fAtlases[i] = nullptr;
     }
-
-    // Set all the atlas sizes to 1x1 plot each.
-    new (&fAtlasConfigs) GrDrawOpAtlasConfig{};
+    memcpy(fAtlasConfigs, configs, sizeof(fAtlasConfigs));
 }
 
 bool GrAtlasManager::initAtlas(GrMaskFormat format) {
     int index = MaskFormatToAtlasIndex(format);
-    if (fAtlases[index] == nullptr) {
+    if (!fAtlases[index]) {
         GrPixelConfig config = mask_format_to_pixel_config(format);
-        SkISize atlasDimensions = fAtlasConfigs.atlasDimensions(format);
-        SkISize numPlots = fAtlasConfigs.numPlots(format);
+        int width = fAtlasConfigs[index].fWidth;
+        int height = fAtlasConfigs[index].fHeight;
+        int numPlotsX = fAtlasConfigs[index].numPlotsX();
+        int numPlotsY = fAtlasConfigs[index].numPlotsY();
 
-        fAtlases[index] = GrDrawOpAtlas::Make(
-                fProxyProvider, config, atlasDimensions.width(), atlasDimensions.height(),
-                numPlots.width(), numPlots.height(), fAllowMultitexturing,
-                &GrGlyphCache::HandleEviction, fGlyphCache);
+        fAtlases[index] = GrDrawOpAtlas::Make(fProxyProvider, config, width, height,
+                                              numPlotsX, numPlotsY, fAllowMultitexturing,
+                                              &GrGlyphCache::HandleEviction,
+                                              fGlyphCache);
         if (!fAtlases[index]) {
             return false;
         }
