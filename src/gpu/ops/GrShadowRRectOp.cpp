@@ -204,10 +204,10 @@ public:
         RRectType type = kFill_RRectType;
         if (isCircle) {
             umbraInset = 0;
-        } else if (insetWidth > 0 && insetWidth <= outerRadius) {
-            // If the client has requested a stroke smaller than the outer radius,
-            // we will assume they want no special umbra inset (this is for ambient shadows).
-            umbraInset = outerRadius;
+        //} else if (insetWidth > 0 && insetWidth <= outerRadius) {
+        //    // If the client has requested a stroke smaller than the outer radius,
+        //    // we will assume they want no special umbra inset (this is for ambient shadows).
+        //    umbraInset = outerRadius;
         } else {
             umbraInset = SkTMax(outerRadius, blurRadius);
         }

@@ -857,15 +857,12 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
                                                        bool transparent)
         : INHERITED(zPlaneParams, transparent) {
     // Set base colors
-    SkScalar baseZ = heightFunc(path.getBounds().centerX(), path.getBounds().centerY());
-    SkScalar umbraAlpha = SkScalarInvert(SkDrawShadowMetrics::AmbientRecipAlpha(baseZ));
+    auto baseZ = heightFunc(path.getBounds().centerX(), path.getBounds().centerY());
     // umbraColor is the interior value, penumbraColor the exterior value.
-    // umbraAlpha is the factor that is linearly interpolated from outside to inside, and
-    // then "blurred" by the GrBlurredEdgeFP. It is then multiplied by fAmbientAlpha to get
-    // the final alpha.
-    fUmbraColor = SkColorSetARGB(umbraAlpha * 255.9999f, 0, 0, 0);
+    fUmbraColor = SkColorSetARGB(255, 0, 0, 0);
     fPenumbraColor = SkColorSetARGB(0, 0, 0, 0);
-    SkScalar outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
+    auto outset = SkDrawShadowMetrics::AmbientBlurRadius(baseZ);
+    auto inset = outset * SkDrawShadowMetrics::AmbientRecipAlpha(baseZ) - outset;
 
     if (!this->computePathPolygon(path, ctm)) {
         return;
@@ -885,9 +882,9 @@ SkAmbientShadowTessellator::SkAmbientShadowTessellator(const SkPath& path,
     fIndices.setReserve(12 * path.countPoints());
 
     if (fIsConvex) {
-        fSucceeded = this->computeConvexShadow(kInsetFactor, outset, false);
+        fSucceeded = this->computeConvexShadow(inset, outset, false);
     } else {
-        fSucceeded = this->computeConcaveShadow(kInsetFactor, outset);
+        fSucceeded = this->computeConcaveShadow(inset, outset);
     }
 }
 

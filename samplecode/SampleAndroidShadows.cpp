@@ -215,9 +215,11 @@ protected:
 
         paint.setColor(SK_ColorWHITE);
         canvas->translate(200, 90);
-        zPlaneParams.fZ = SkTMax(1.0f, 2 + fZDelta);
+        zPlaneParams.fZ = SkTMax(1.0f, 64 + fZDelta);
         this->drawShadowedPath(canvas, fRRPath, zPlaneParams, paint, fAnimAlpha*kAmbientAlpha,
                                lightPos, kLightWidth, fAnimAlpha*kSpotAlpha);
+
+        return;
 
         paint.setColor(SK_ColorRED);
         canvas->translate(250, 0);
