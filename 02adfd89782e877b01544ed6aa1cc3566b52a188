@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6a013f1_daaed18c",
+        "filename": "src/gpu/gradients/GrClampedGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "really minor, but I wonder if most people\u0027s mental model is left and right rather than top and bottom?",
+      "range": {
+        "startLine": 20,
+        "startChar": 50,
+        "endLine": 20,
+        "endChar": 67
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "331b7b19_f84fecaf",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "should this just be\nstd::unique_ptr\u003cGrColor4f[]\u003e colors(new GrColor4f[shader.fColorCount]);\n?\n\nOr maybe we want to avoid allocations for small color counts and use something like SkAutoTArray?",
+      "range": {
+        "startLine": 70,
+        "startChar": 4,
+        "endLine": 70,
+        "endChar": 37
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4822c955_82380d17",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "seems like this doesn\u0027t need to be in a block",
+      "range": {
+        "startLine": 95,
+        "startChar": 40,
+        "endLine": 103,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18dc2238_91d5a794",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 13
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "If these functions aren\u0027t going to need to be accessible outside this cpp file then we\u0027d typically mark them as \"static\", name_them_hacker_style, and locate them outside the namespace.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 117,
+        "endChar": 1
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "85012509_ab1ecfc3",
+        "filename": "src/gpu/gradients/GrLinearGradientLayout.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "Just a note: we should think about allowing FP\u0027s to declare that their output is a single value and how that fits into the rest of the system.",
+      "range": {
+        "startLine": 15,
+        "startChar": 4,
+        "endLine": 15,
+        "endChar": 53
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ab1dd45a_49994d49",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-10T13:09:46Z",
+      "side": 1,
+      "message": "Another note: Maybe we (Ethan) could look at putting this workaround into the code generator rather than into effects.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
