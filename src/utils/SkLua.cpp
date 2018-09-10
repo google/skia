@@ -676,10 +676,8 @@ const struct luaL_Reg gSkCanvas_Methods[] = {
 ///////////////////////////////////////////////////////////////////////////////
 
 static int ldocument_beginPage(lua_State* L) {
-    const SkRect* contentPtr = nullptr;
     push_ptr(L, get_obj<DocHolder>(L, 1)->fDoc->beginPage(lua2scalar(L, 2),
-                                                          lua2scalar(L, 3),
-                                                          contentPtr));
+                                                          lua2scalar(L, 3)));
     return 1;
 }
 

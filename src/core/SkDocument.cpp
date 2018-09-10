@@ -15,21 +15,7 @@ SkDocument::~SkDocument() {
     this->close();
 }
 
-static SkCanvas* trim(SkCanvas* canvas, SkScalar width, SkScalar height,
-                      const SkRect* content) {
-    if (content && canvas) {
-        SkRect inner = *content;
-        if (!inner.intersect({0, 0, width, height})) {
-            return nullptr;
-        }
-        canvas->clipRect(inner);
-        canvas->translate(inner.x(), inner.y());
-    }
-    return canvas;
-}
-
-SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
-                                const SkRect* content) {
+SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height) {
     if (width <= 0 || height <= 0 || kClosed_State == fState) {
         return nullptr;
     }
@@ -38,7 +24,7 @@ SkCanvas* SkDocument::beginPage(SkScalar width, SkScalar height,
     }
     SkASSERT(kBetweenPages_State == fState);
     fState = kInPage_State;
-    return trim(this->onBeginPage(width, height), width, height, content);
+    return this->onBeginPage(width, height);
 }
 
 void SkDocument::endPage() {
