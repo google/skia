@@ -116,6 +116,30 @@
       "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c1d1a57a_81b6f6ef",
+        "filename": "modules/skottie/src/SkottieLayer.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-10T14:21:39Z",
+      "side": 1,
+      "message": "Stuff does break: matte layers are tagged in a way which turns them into mask for the following layer in the array (and the masked layer does not necessarily reference them in any way).  So changing the iteration order would take some work to avoid breaking mattes...",
+      "parentUuid": "df17f8d4_90a57ab2",
+      "range": {
+        "startLine": 510,
+        "startChar": 25,
+        "endLine": 510,
+        "endChar": 33
+      },
+      "revId": "c94f070566599d3b62e86e35457dfc13569c5b06",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
