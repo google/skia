@@ -67,6 +67,8 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
 #include "GrShaderCaps.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
+#include "gradients/GrGradientShader.h"
+
 class GrRadialGradient : public GrGradientEffect {
 public:
     class GLSLRadialProcessor;
@@ -162,6 +164,12 @@ void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
 
 std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
+    // Try to use new gradient system first
+    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeRadial(*this, args);
+    if (gradient) {
+        return gradient;
+    }
+
     SkMatrix matrix;
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
