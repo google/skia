@@ -454,22 +454,6 @@ void SkPDFDocument::onClose(SkWStream* stream) {
     this->reset();
 }
 
-static SkPDF::Metadata convert(const SkDocument::PDFMetadata& src) {
-    SkPDF::Metadata result;
-    result.fTitle           = src.fTitle;
-    result.fAuthor          = src.fAuthor;
-    result.fSubject         = src.fSubject;
-    result.fKeywords        = src.fKeywords;
-    result.fCreator         = src.fCreator;
-    result.fProducer        = src.fProducer;
-    result.fRasterDPI       = src.fRasterDPI;
-    result.fPDFA            = src.fPDFA;
-    result.fEncodingQuality = src.fEncodingQuality;
-    if (src.fCreation.fEnabled) { result.fCreation = src.fCreation.fDateTime; }
-    if (src.fModified.fEnabled) { result.fModified = src.fModified.fDateTime; }
-    return result;
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 static sk_sp<SkDocument> make_pdf_document(SkWStream* stream,
@@ -481,14 +465,6 @@ static sk_sp<SkDocument> make_pdf_document(SkWStream* stream,
         meta.fEncodingQuality = 0;
     }
     return stream ? sk_make_sp<SkPDFDocument>(stream, std::move(meta)) : nullptr;
-}
-
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream, const PDFMetadata& metadata) {
-    return make_pdf_document(stream, convert(metadata));
-}
-
-sk_sp<SkDocument> SkDocument::MakePDF(SkWStream* stream) {
-    return make_pdf_document(stream, SkPDF::Metadata());
 }
 
 sk_sp<SkDocument> SkPDF::MakeDocument(SkWStream* stream, const SkPDF::Metadata& metadata) {
