@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "13102b11_4b8bd915",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 5066,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-10T21:09:44Z",
+      "side": 1,
+      "message": "You don\u0027t want to add a shape that has conics ?",
+      "range": {
+        "startLine": 5066,
+        "startChar": 4,
+        "endLine": 5066,
+        "endChar": 10
+      },
+      "revId": "ade698008c11260d1fb3bb7d1247fbf65efa3b69",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
