@@ -5103,3 +5103,40 @@ DEF_TEST(triangle_big, reporter) {
     draw_triangle(surface->getCanvas(), pts);
 }
 
+static void add_verbs(SkPath* path, int count) {
+    path->moveTo(0, 0);
+    for (int i = 0; i < count; ++i) {
+        switch (i & 3) {
+            case 0: path->lineTo(10, 20); break;
+            case 1: path->quadTo(5, 6, 7, 8); break;
+            case 2: path->conicTo(1, 2, 3, 4, 0.5f); break;
+            case 3: path->cubicTo(2, 4, 6, 8, 10, 12); break;
+        }
+    }
+}
+
+// Make sure when we call shrinkToFit() that we always shrink (or stay the same)
+// and that if we call twice, we stay the same.
+DEF_TEST(Path_shrinkToFit, reporter) {
+    SkPath path;
+    size_t max_free = 0;
+    for (int verbs = 0; verbs < 100; ++verbs) {
+        SkPath path;
+        add_verbs(&path, verbs);
+#ifdef SK_DEBUG
+        size_t before = path.debugging_private_getFreeSpace();
+#endif
+        path.shrinkToFit();
+#ifdef SK_DEBUG
+        size_t after = path.debugging_private_getFreeSpace();
+        REPORTER_ASSERT(reporter, before >= after);
+        max_free = std::max(max_free, before - after);
+
+        size_t after2 = path.debugging_private_getFreeSpace();
+        REPORTER_ASSERT(reporter, after == after2);
+#endif
+    }
+    if (false) {
+        SkDebugf("max_free %zu\n", max_free);
+    }
+}
