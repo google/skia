@@ -227,9 +227,8 @@ protected:
         return nullptr;
     }
 
-    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData>, int ttcIndex) const override {
-        SK_ABORT("Not implemented.");
-        return nullptr;
+    sk_sp<SkTypeface> onMakeFromData(sk_sp<SkData> data, int ttcIndex) const override {
+        return this->onMakeFromStreamIndex(SkMemoryStream::Make(std::move(data)), ttcIndex);
     }
 
     sk_sp<SkTypeface> onMakeFromStreamIndex(std::unique_ptr<SkStreamAsset> stream,
