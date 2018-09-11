@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ffc4643_cfefa2b0",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "// This should only, currently, be true on Android devices w/ API level \u003e\u003d 26\n\n?",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 8
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b68ed333_98876457",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "// This can happen if ...\n\n?",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ddfc782e_13d72f6e",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "Should this only be set to true on Android?",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "249d7840_0468d9ab",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "why does this have to be static ?",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 10
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cbd297fb_e3ede5e2",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "expectedBitmap ?",
+      "range": {
+        "startLine": 74,
+        "startChar": 69,
+        "endLine": 74,
+        "endChar": 78
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0eb642f1_831c1248",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "actualBitmap ?",
+      "range": {
+        "startLine": 75,
+        "startChar": 39,
+        "endLine": 75,
+        "endChar": 48
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "400d0b62_9487ada4",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter at all but we could compare against \"get_src_color(x, y)\"",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fd3ee945_394a6fd4",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "const ?",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 12
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a5c7ee32_95884240",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "extra \u0027 \u0027 ?",
+      "range": {
+        "startLine": 133,
+        "startChar": 26,
+        "endLine": 133,
+        "endChar": 27
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d522bbcb_f483e449",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "It seems like we could skip making srcBitmap all together and just jam the result of get_src_color in here",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 38
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6b6041b5_838ce130",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "unused ?",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28b7bce7_f7536ddb",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-11T16:24:30Z",
+      "side": 1,
+      "message": "readbackBitmap ?",
+      "range": {
+        "startLine": 182,
+        "startChar": 13,
+        "endLine": 182,
+        "endChar": 16
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
