@@ -50,12 +50,14 @@ public:
      * Creates an effect that clips against the path. If the path is not a convex polygon, is
      * inverse filled, or has too many edges, this will return nullptr.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkPath&);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkPath&,
+                                                     GrContext* context);
 
     /**
-     * Creates an effect that fills inside the rect with AA edges..
+     * Creates an effect that fills inside the rect with AA edges.
      */
-    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkRect&);
+    static std::unique_ptr<GrFragmentProcessor> Make(GrClipEdgeType, const SkRect&,
+                                                     GrContext* context);
 
     ~GrConvexPolyEffect() override;
 

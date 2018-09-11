@@ -693,9 +693,9 @@ void IRGenerator::convertFunction(const ASTFunction& f) {
                          parameters[2]->fModifiers.fFlags == (Modifiers::kIn_Flag |
                                                               Modifiers::kOut_Flag);
             if (!valid) {
-                fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
-                                         "int, inout half4)");
-                return;
+//                fErrors.error(f.fOffset, "pipeline stage 'main' must be declared main(int, "
+//                                         "int, inout half4)");
+//                return;
             }
         } else if (parameters.size()) {
             fErrors.error(f.fOffset, "shader 'main' must have zero parameters");
