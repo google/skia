@@ -22,7 +22,6 @@ class GrTexture;
 #include <new>
 
 class GrSamplerState;
-class SkImageCacherator;
 
 enum {
     kNeedNewImageUniqueID = 0
@@ -66,8 +65,6 @@ public:
     virtual GrBackendTexture onGetBackendTexture(bool flushPendingGrContextIO,
                                                  GrSurfaceOrigin* origin) const;
 
-    virtual SkImageCacherator* peekCacherator() const { return nullptr; }
-
     // return a read-only copy of the pixels. We promise to not modify them,
     // but only inspect them (or encode them).
     virtual bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace,
@@ -101,7 +98,7 @@ protected:
     // When the SkImage_Base goes away, we will iterate over all the unique keys we've used and
     // send messages to the GrContexts to say the unique keys are no longer valid. The GrContexts
     // can then release the resources, conntected with the those unique keys, from their caches.
-    SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
+    mutable SkTDArray<GrUniqueKeyInvalidatedMessage*> fUniqueKeyInvalidatedMessages;
 #endif
 
 private:
