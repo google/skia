@@ -7,6 +7,8 @@
 
 #include "SkPolyUtils.h"
 
+#include <limits>
+
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -309,7 +311,7 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
 
     // restrict this to match other routines
     // practically we don't want anything bigger than this anyway
-    if (inputPolygonSize >= (1 << 16)) {
+    if (inputPolygonSize > std::numeric_limits<uint16_t>::max()) {
         return false;
     }
 
@@ -346,11 +348,12 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     OffsetEdge* currEdge = head;
     OffsetEdge* prevEdge = currEdge->fPrev;
     int insetVertexCount = inputPolygonSize;
-    int iterations = 0;
+    unsigned int iterations = 0;
+    unsigned int maxIterations = inputPolygonSize * inputPolygonSize;
     while (head && prevEdge != currEdge) {
         ++iterations;
         // we should check each edge against each other edge at most once
-        if (iterations > inputPolygonSize*inputPolygonSize) {
+        if (iterations > maxIterations) {
             return false;
         }
 
@@ -406,30 +409,31 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
     insetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (insetVertexCount >= 0) {
-            insetPolygon->setReserve(insetVertexCount);
+    if (!head) {
+        return false;
+    }
+
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+    if (insetVertexCount >= 0) {
+        insetPolygon->setReserve(insetVertexCount);
+    }
+    int currIndex = 0;
+    *insetPolygon->push() = head->fIntersection;
+    currEdge = head->fNext;
+    while (currEdge != head) {
+        if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
+                                                (*insetPolygon)[currIndex],
+                                                kCleanupTolerance)) {
+            *insetPolygon->push() = currEdge->fIntersection;
+            currIndex++;
         }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *insetPolygon->push() = currEdge->fIntersection;
         currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*insetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *insetPolygon->push() = currEdge->fIntersection;
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-           SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
-                                              kCleanupTolerance)) {
-            insetPolygon->pop();
-        }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
+                                            kCleanupTolerance)) {
+        insetPolygon->pop();
     }
 
     return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
@@ -455,7 +459,7 @@ bool SkComputeRadialSteps(const SkVector& v1, const SkVector& v2, SkScalar offse
     SkScalar floatSteps = SkScalarAbs(offset*theta*kRecipPixelsPerArcSegment);
     // limit the number of steps to at most max uint16_t (that's all we can index)
     // knock one value off the top to account for rounding
-    if (floatSteps >= (1 << 16)-1) {
+    if (floatSteps >= std::numeric_limits<uint16_t>::max()) {
         return false;
     }
     int steps = SkScalarRoundToInt(floatSteps);
@@ -1029,7 +1033,7 @@ bool SkIsSimplePolygon(const SkPoint* polygon, int polygonSize) {
     }
 
     // need to be able to represent all the vertices in the 16-bit indices
-    if (polygonSize >= (1 << 16)) {
+    if (polygonSize > std::numeric_limits<uint16_t>::max()) {
         return false;
     }
 
@@ -1129,7 +1133,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     }
 
     // need to be able to represent all the vertices in the 16-bit indices
-    if (inputPolygonSize >= (1 << 16)) {
+    if (inputPolygonSize >= std::numeric_limits<uint16_t>::max()) {
         return false;
     }
 
@@ -1145,7 +1149,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
 
     // build normals
     SkAutoSTMalloc<64, SkVector> normals(inputPolygonSize);
-    int numEdges = 0;
+    unsigned int numEdges = 0;
     for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
          currIndex < inputPolygonSize;
          prevIndex = currIndex, ++currIndex) {
@@ -1179,6 +1183,13 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
             return false;
         }
         numEdges += SkTMax(numSteps, 1);
+    }
+
+    // Make sure we don't overflow the max array count.
+    // We shouldn't overflow numEdges, as SkComputeRadialSteps returns a max of 2^16-1,
+    // and we have a max of 2^16-1 original vertices.
+    if (numEdges > (unsigned int)std::numeric_limits<int32_t>::max()) {
+        return false;
     }
 
     // build initial offset edge list
@@ -1243,15 +1254,16 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     edgeData[0].fPrev = prevEdge;
 
     // now clip edges
-    SkASSERT(edgeData.count() == numEdges);
+    SkASSERT(edgeData.count() == (int)numEdges);
     auto head = &edgeData[0];
     auto currEdge = head;
-    int offsetVertexCount = numEdges;
-    int iterations = 0;
-    while (head && prevEdge != currEdge) {
+    unsigned int offsetVertexCount = numEdges;
+    unsigned long long iterations = 0;
+    unsigned long long maxIterations = (unsigned long long)(numEdges*numEdges);
+    while (head && prevEdge != currEdge && offsetVertexCount > 0) {
         ++iterations;
         // we should check each edge against each other edge at most once
-        if (iterations > numEdges*numEdges) {
+        if (iterations > maxIterations) {
             return false;
         }
 
@@ -1327,38 +1339,38 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
     offsetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (offsetVertexCount >= 0) {
-            offsetPolygon->setReserve(offsetVertexCount);
-        }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *offsetPolygon->push() = currEdge->fIntersection;
-        if (polygonIndices) {
-            *polygonIndices->push() = currEdge->fIndex;
+    if (!head || offsetVertexCount == 0 ||
+        offsetVertexCount >= std::numeric_limits<uint16_t>::max()) {
+        return false;
+    }
+
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+    offsetPolygon->setReserve(offsetVertexCount);
+    int currIndex = 0;
+    *offsetPolygon->push() = head->fIntersection;
+    if (polygonIndices) {
+        *polygonIndices->push() = head->fIndex;
+    }
+    currEdge = head->fNext;
+    while (currEdge != head) {
+        if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
+                                                (*offsetPolygon)[currIndex],
+                                                kCleanupTolerance)) {
+            *offsetPolygon->push() = currEdge->fIntersection;
+            if (polygonIndices) {
+                *polygonIndices->push() = currEdge->fIndex;
+            }
+            currIndex++;
         }
         currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*offsetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *offsetPolygon->push() = currEdge->fIntersection;
-                if (polygonIndices) {
-                    *polygonIndices->push() = currEdge->fIndex;
-                }
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-            SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
-                                               kCleanupTolerance)) {
-            offsetPolygon->pop();
-            if (polygonIndices) {
-                polygonIndices->pop();
-            }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
+                                            kCleanupTolerance)) {
+        offsetPolygon->pop();
+        if (polygonIndices) {
+            polygonIndices->pop();
         }
     }
 
@@ -1462,7 +1474,7 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         return false;
     }
     // need to be able to represent all the vertices in the 16-bit indices
-    if (polygonSize >= (1 << 16)) {
+    if (polygonSize >= std::numeric_limits<uint16_t>::max()) {
         return false;
     }
 
