@@ -1981,8 +1981,7 @@ false if pixel conversion is not possible.
 
 <a href='#SkImage_readPixels_srcX'>srcX</a> and <a href='#SkImage_readPixels_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#SkImage_width'>width</a> or <a href='#SkImage_height'>height</a> is zero or negative.
-Returns false ifabs(srcX) >= <a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>,
-or ifabs(srcY) >= <a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a></code>.
 
 If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
 If <a href='#SkImage_readPixels_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
@@ -2054,8 +2053,7 @@ false if pixel conversion is not possible.
 
 <a href='#SkImage_readPixels_2_srcX'>srcX</a> and <a href='#SkImage_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#SkImage_width'>width</a> or <a href='#SkImage_height'>height</a> is zero or negative.
-Returns false ifabs(srcX) >= <a href='#Image'>Image</a> <a href='#SkImage_width'>width</a>,
-or ifabs(srcY) >= <a href='#Image'>Image</a> <a href='#SkImage_height'>height</a>.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Image'>Image</a> <a href='#SkImage_height'>height</a></code>.
 
 If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a>, pixels may be retained locally.
 If <a href='#SkImage_readPixels_2_cachingHint'>cachingHint</a> is <a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a>, pixels are not added to the local cache.
