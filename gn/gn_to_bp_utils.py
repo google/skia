@@ -50,8 +50,9 @@ def CleanupCFlags(cflags):
   # Add additional warning suppressions so we can build
   # third_party/vulkanmemoryallocator
   cflags = cflags.union([
-    "-Wno-thread-safety-analysis",
+    "-Wno-implicit-fallthrough",
     "-Wno-missing-field-initializers",
+    "-Wno-thread-safety-analysis",
     "-Wno-unused-variable",
   ])
   # Add the rest of the flags we want.
