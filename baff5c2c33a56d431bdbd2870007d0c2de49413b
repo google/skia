@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c307e5b1_4eba914a",
+        "filename": "src/gpu/GrImageTextureMaker.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-11T13:51:02Z",
+      "side": 1,
+      "message": "Do you think it makes sense to keep the const_cast\u003c\u003e and keep lockTextureProxy() non-const?  Is that clearer than a mutable fUniqueKeyInvalidatedMessages on SkImage_Base?\n\nCome to think of it, is there a way for fUniqueKeyInvalidatedMessages to only be on SkImage_Lazy?  Isn\u0027t that the only one that ever adds them?",
+      "range": {
+        "startLine": 15,
+        "startChar": 17,
+        "endLine": 15,
+        "endChar": 48
+      },
+      "revId": "baff5c2c33a56d431bdbd2870007d0c2de49413b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
