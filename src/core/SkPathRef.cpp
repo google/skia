@@ -53,37 +53,34 @@ void SkPath::shrinkToFit() {
         return;
     }
 
-    int pointCount = fPathRef->fPointCnt;
-    int verbCount = fPathRef->fVerbCnt;
-
-    size_t ptsSize = sizeof(SkPoint) * pointCount;
-    size_t vrbSize = sizeof(uint8_t) * verbCount;
-    size_t minSize = ptsSize + vrbSize;
-
-    void* newAlloc = sk_malloc_canfail(minSize);
-    if (!newAlloc) {
-        return; // couldn't allocate the smaller buffer, but that's ok
-    }
-    memcpy(newAlloc, fPathRef->fPoints, ptsSize);
-    memcpy((char*)newAlloc + minSize - vrbSize, fPathRef->verbsMemBegin(), vrbSize);
-
-    SkPathRef* pr = fPathRef.get();
     if (fPathRef->unique()) {
+        int pointCount = fPathRef->fPointCnt;
+        int verbCount = fPathRef->fVerbCnt;
+
+        size_t ptsSize = sizeof(SkPoint) * pointCount;
+        size_t vrbSize = sizeof(uint8_t) * verbCount;
+        size_t minSize = ptsSize + vrbSize;
+
+        void* newAlloc = sk_malloc_canfail(minSize);
+        if (!newAlloc) {
+            return; // couldn't allocate the smaller buffer, but that's ok
+        }
+
+        sk_careful_memcpy(newAlloc, fPathRef->fPoints, ptsSize);
+        sk_careful_memcpy((char*)newAlloc + minSize - vrbSize, fPathRef->verbsMemBegin(), vrbSize);
+
         sk_free(fPathRef->fPoints);
+        fPathRef->fPoints = static_cast<SkPoint*>(newAlloc);
+        fPathRef->fVerbs = (uint8_t*)newAlloc + minSize;
+        fPathRef->fFreeSpace = 0;
+        fPathRef->fConicWeights.shrinkToFit();
     } else {
-        pr = new SkPathRef;
-        pr->fPointCnt = pointCount;
-        pr->fVerbCnt  = verbCount;
-        pr->fConicWeights = fPathRef->fConicWeights;
-        pr->fSegmentMask  = fPathRef->fSegmentMask;
-        fPathRef.reset(pr);
+        sk_sp<SkPathRef> pr(new SkPathRef);
+        pr->copy(*fPathRef, 0, 0);
+        fPathRef = std::move(pr);
     }
 
-    pr->fPoints = static_cast<SkPoint*>(newAlloc);
-    pr->fVerbs = (uint8_t*)newAlloc + minSize;
-    pr->fFreeSpace = 0;
-    pr->fConicWeights.shrinkToFit();
-    SkDEBUGCODE(pr->validate();)
+    SkDEBUGCODE(fPathRef->validate();)
 }
 
 #ifdef SK_DEBUG
