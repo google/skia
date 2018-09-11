@@ -254,10 +254,12 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     if (commentLen > 1 && '\n' == commentStart[0] && '\n' == commentStart[1]) {
                         this->lf(2);
                     } else {
+                /*
                         SkASSERT('\n' == prop->fTerminator[0]);
                         if ('.' != prop->fTerminator[1] && !fLinefeeds) {
                             this->writeSpace();
                         }
+                 */
                     }
                 }
                 } break;
