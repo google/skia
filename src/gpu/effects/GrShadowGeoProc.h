@@ -45,7 +45,7 @@ private:
 
     static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
     static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInShadowParams = {"inShadowParams", kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInShadowParams = {"inShadowParams", kHalf3_GrVertexAttribType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
