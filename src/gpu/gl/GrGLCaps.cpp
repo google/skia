@@ -290,6 +290,8 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClearTextureSupport = true;
     }
 
+    fSupportsAHardwareBufferImages = true;
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/
