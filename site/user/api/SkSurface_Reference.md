@@ -1797,8 +1797,7 @@ void <a href='#SkSurface_writePixels'>writePixels</a>(const <a href='SkPixmap_Re
 Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_src'>src</a> <a href='SkPixmap_Reference#Pixmap'>Pixmap</a> to the <a href='#Surface'>Surface</a>.
 
 Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_src'>src</a>.<a href='#SkSurface_height'>height</a>).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_dstX'>dstX</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a>) and(<a href='#SkSurface_writePixels_dstX'>dstX</a> + <a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a> + <a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>)
-.
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_dstX'>dstX</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a>) and <code>\(<a href='#SkSurface_writePixels_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>\)</code>.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>Surface</a> alphaType() if required.
@@ -1835,8 +1834,7 @@ void <a href='#SkSurface_writePixels'>writePixels</a>(const <a href='SkBitmap_Re
 Copies <a href='SkRect_Reference#Rect'>Rect</a> of pixels from the <a href='#SkSurface_writePixels_2_src'>src</a> <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> to the <a href='#Surface'>Surface</a>.
 
 Source <a href='SkRect_Reference#Rect'>Rect</a> corners are (0, 0) and (<a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_2_src'>src</a>.<a href='#SkSurface_height'>height</a>).
-Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_2_dstX'>dstX</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a>) and(<a href='#SkSurface_writePixels_2_dstX'>dstX</a> + <a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a> + <a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>)
-.
+Destination <a href='SkRect_Reference#Rect'>Rect</a> corners are (<a href='#SkSurface_writePixels_2_dstX'>dstX</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a>) and <code>\(<a href='#SkSurface_writePixels_2_dstX'>dstX</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_width'>width</a>, <a href='#SkSurface_writePixels_2_dstY'>dstY</a>&nbsp;\+&nbsp;<a href='#Surface'>Surface</a> <a href='#SkSurface_height'>height</a>\)</code>.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to <a href='#Surface'>Surface</a> colorType() and <a href='#Surface'>Surface</a> alphaType() if required.

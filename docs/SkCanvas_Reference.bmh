@@ -4850,11 +4850,7 @@ remaining space, if any.
     #Member const RectType* fRectTypes
     #Line # array of fill types ##
         Optional array of fill types, one per rectangular grid entry:
-        array length must be
-    #Formula
-        (fXCount + 1) * (fYCount + 1)
-    ##
-        .
+        array length must be #Formula # (fXCount + 1) * (fYCount + 1) ##.
 
         Each RectType is one of: kDefault, kTransparent, kFixedColor.
 
@@ -4883,11 +4879,7 @@ remaining space, if any.
     #Member const SkColor*   fColors
     #Line # array of colors ##
        Optional array of colors, one per rectangular grid entry.
-       Array length must be
-       #Formula
-       (fXCount + 1) * (fYCount + 1)
-       ##
-       .
+       Array length must be #Formula # (fXCount + 1) * (fYCount + 1) ##.
 
        Array entries correspond to the rectangular grid entries, ascending
        left to right, then top to bottom.

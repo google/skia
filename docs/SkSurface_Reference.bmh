@@ -1413,10 +1413,7 @@ Copies Rect of pixels from the src Pixmap to the Surface.
 
 Source Rect corners are (0, 0) and (src.width(), src.height()).
 Destination Rect corners are (dstX, dstY) and
-#Formula
-(dstX + Surface width(), dstY + Surface height())
-##
-.
+#Formula # (dstX + Surface width(), dstY + Surface height()) ##.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
@@ -1454,10 +1451,7 @@ Copies Rect of pixels from the src Bitmap to the Surface.
 
 Source Rect corners are (0, 0) and (src.width(), src.height()).
 Destination Rect corners are (dstX, dstY) and
-#Formula
-(dstX + Surface width(), dstY + Surface height())
-##
-.
+#Formula # (dstX + Surface width(), dstY + Surface height()) ##.
 
 Copies each readable pixel intersecting both rectangles, without scaling,
 converting to Surface colorType() and Surface alphaType() if required.
