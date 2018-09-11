@@ -22,6 +22,30 @@
       "revId": "e6b04430dc30346a35b8c7ae6ff021f2caed8202",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4f2ea2ad_bb476a3f",
+        "filename": "src/gpu/gradients/GrSweepGradientLayout.fp",
+        "patchSetId": 9
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-11T14:33:03Z",
+      "side": 1,
+      "message": "Yes, that is probably the best spot for it since any use of atan could benefit from this. Recorded in a new issue: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8371",
+      "parentUuid": "e7a3c5b8_7d4e21ec",
+      "range": {
+        "startLine": 24,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 5
+      },
+      "revId": "e6b04430dc30346a35b8c7ae6ff021f2caed8202",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
