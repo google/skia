@@ -237,10 +237,10 @@ struct GrColor4f {
 
     GrColor toGrColor() const {
         return GrColorPackRGBA(
-            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[0] * 255.0f + 0.5f), 0, 255),
-            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[1] * 255.0f + 0.5f), 0, 255),
-            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[2] * 255.0f + 0.5f), 0, 255),
-            SkTPin<unsigned>(static_cast<unsigned>(fRGBA[3] * 255.0f + 0.5f), 0, 255));
+                static_cast<unsigned>(SkTPin(fRGBA[0], 0.0f,1.0f) * 255 + 0.5f),
+                static_cast<unsigned>(SkTPin(fRGBA[1], 0.0f,1.0f) * 255 + 0.5f),
+                static_cast<unsigned>(SkTPin(fRGBA[2], 0.0f,1.0f) * 255 + 0.5f),
+                static_cast<unsigned>(SkTPin(fRGBA[3], 0.0f,1.0f) * 255 + 0.5f));
     }
 
     SkColor4f toSkColor4f() const {
