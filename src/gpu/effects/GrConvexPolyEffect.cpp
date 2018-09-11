@@ -7,12 +7,52 @@
 
 #include "GrConvexPolyEffect.h"
 #include "SkPathPriv.h"
-#include "effects/GrAARectEffect.h"
 #include "effects/GrConstColorProcessor.h"
+#include "effects/GrSkSLFP.h"
 #include "glsl/GrGLSLFragmentProcessor.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "glsl/GrGLSLProgramDataManager.h"
 #include "glsl/GrGLSLUniformHandler.h"
+
+GR_FP_SRC_STRING SKSL_AARECT_SRC = R"(
+layout(key) in GrClipEdgeType edgeType;
+layout(ctype=SkRect) in float4 rect;
+uniform float4 rectUniform;
+
+void main(int x, int y, inout half4 color) {
+    half alpha;
+    @switch (edgeType) {
+        case GrClipEdgeType::kFillBW: // fall through
+        case GrClipEdgeType::kInverseFillBW:
+            // non-AA
+            alpha = all(greaterThan(float4(x, y, rectUniform.zw),
+                                    float4(rectUniform.xy, x, y))) ? 1 : 0;
+            break;
+        default:
+            // The amount of coverage removed in x and y by the edges is computed as a pair of
+            // negative numbers, xSub and ySub.
+            half xSub, ySub;
+            xSub = min(sk_FragCoord.x - rectUniform.x, 0.0);
+            xSub += min(rectUniform.z - x, 0.0);
+            ySub = min(sk_FragCoord.y - rectUniform.y, 0.0);
+            ySub += min(rectUniform.w - y, 0.0);
+            // Now compute coverage in x and y and multiply them to get the fraction of the pixel
+            // covered.
+            alpha = (1.0 + max(xSub, -1.0)) * (1.0 + max(ySub, -1.0));
+    }
+
+    @if (edgeType == GrClipEdgeType::kInverseFillBW || edgeType == GrClipEdgeType::kInverseFillAA) {
+        alpha = 1.0 - alpha;
+    }
+    color *= alpha;
+}
+)";
+
+struct AARectInputs {
+    GrClipEdgeType fEdgeType;
+    SkRect fRect;
+    SkRect fPrevRect;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -88,7 +128,8 @@ void GrGLConvexPolyEffect::GenKey(const GrProcessor& processor, const GrShaderCa
 //////////////////////////////////////////////////////////////////////////////
 
 std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType type,
-                                                              const SkPath& path) {
+                                                              const SkPath& path,
+                                                              GrContext* context) {
     if (GrClipEdgeType::kHairlineAA == type) {
         return nullptr;
     }
@@ -158,12 +199,32 @@ std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType typ
     return Make(type, n, edges);
 }
 
+static void aa_rect_set_data_hook(const GrGLSLProgramDataManager& pdman, void* rawInputs,
+                                  const std::vector<GrGLSLUniformHandler::UniformHandle> uniforms) {
+    AARectInputs& inputs = *(AARectInputs*) rawInputs;
+    const SkRect& newRect = GrProcessorEdgeTypeIsAA(inputs.fEdgeType) ?
+                            inputs.fRect.makeInset(.5f, .5f) : inputs.fRect;
+    if (newRect != inputs.fPrevRect) {
+        pdman.set4f(uniforms[0], newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);
+        inputs.fPrevRect = newRect;
+    }
+}
+
 std::unique_ptr<GrFragmentProcessor> GrConvexPolyEffect::Make(GrClipEdgeType edgeType,
-                                                              const SkRect& rect) {
+                                                              const SkRect& rect,
+                                                              GrContext* context) {
     if (GrClipEdgeType::kHairlineAA == edgeType){
         return nullptr;
     }
-    return GrAARectEffect::Make(edgeType, rect);
+    static int aaRectIndex = GrSkSLFP::NewIndex();
+    AARectInputs inputs;
+    inputs.fEdgeType = edgeType;
+    inputs.fRect = rect;
+    inputs.fPrevRect = SkRect::MakeXYWH(-1, -1, -1, -1);
+    std::unique_ptr<GrSkSLFP> result = GrSkSLFP::Make(context, aaRectIndex, "AARect",
+                                                      SKSL_AARECT_SRC, &inputs, sizeof(inputs));
+    result->setSetDataHook(aa_rect_set_data_hook);
+    return result;
 }
 
 GrConvexPolyEffect::~GrConvexPolyEffect() {}
