@@ -22,6 +22,30 @@
       "revId": "d737ab95e56e172a66134085d25086b9a2faf7d1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e672ee7a_8f81a4f8",
+        "filename": "src/utils/SkShadowTessellator.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-11T15:39:11Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "06055fdf_4c969740",
+      "range": {
+        "startLine": 888,
+        "startChar": 47,
+        "endLine": 888,
+        "endChar": 59
+      },
+      "revId": "d737ab95e56e172a66134085d25086b9a2faf7d1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
