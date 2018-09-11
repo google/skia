@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fde34dfb_ac072b48",
+        "filename": "infra/bots/assets/mesa_intel_driver/common.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b2ac944_74f625ad",
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "48ae6c64_9886c75e",
         "filename": "infra/bots/assets/mesa_intel_driver/common.py",
         "patchSetId": 16
@@ -33,6 +51,24 @@
       "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "97bc8e76_90f0827f",
+        "filename": "infra/bots/assets/mesa_intel_driver/common.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48ae6c64_9886c75e",
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -59,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "b3a24472_6c5651fb",
+        "filename": "infra/bots/assets/mesa_intel_driver/create.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done.  --interactive removed intentionally.",
+      "parentUuid": "1da6ee75_380b0980",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f47c6570_51955cf9",
+        "filename": "infra/bots/assets/mesa_intel_driver/create.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1da6ee75_380b0980",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0b7ac416_d0b35f54",
         "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/Dockerfile",
         "patchSetId": 16
@@ -79,6 +163,30 @@
       "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4394328a_00777ff3",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/Dockerfile",
+        "patchSetId": 16
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "buster and stretch-backports have the same version of libdrm2.  I figured it would be safer to just stick with backports.",
+      "parentUuid": "0b7ac416_d0b35f54",
+      "range": {
+        "startLine": 3,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -105,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "42166e03_2c52e186",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06e3ca93_9db413f0",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 32
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a1837ba_be8f6067",
         "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
         "patchSetId": 16
@@ -128,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "26729f0a_75eedb44",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a1837ba_be8f6067",
+      "range": {
+        "startLine": 18,
+        "startChar": 14,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7c0d0123_d9861028",
         "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
         "patchSetId": 16
@@ -148,6 +304,30 @@
       "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ce555eda_a6d4ae9e",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-11T21:11:13Z",
+      "side": 1,
+      "message": "The process can be (marginally) easier to debug if it goes wrong by having the /tmp/mesa folder instead of in /tmp directly (/tmp gets some other, unrelated things in it)",
+      "parentUuid": "7c0d0123_d9861028",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 7
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
