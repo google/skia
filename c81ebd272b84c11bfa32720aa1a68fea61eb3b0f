@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "34d9d973_59f6f19f",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-11T16:13:01Z",
+      "side": 0,
+      "message": "Ack",
+      "parentUuid": "d9f95673_7f64a1aa",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 20
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "862d8fc6_546f9f75",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "e688d161_979952d3",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-11T16:13:01Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "59e5b4fd_434176c6",
+      "range": {
+        "startLine": 65,
+        "startChar": 4,
+        "endLine": 65,
+        "endChar": 29
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "23ed89fc_f951a5a3",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -164,6 +212,30 @@
       "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8cc47512_e0cc0d22",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-11T16:13:01Z",
+      "side": 0,
+      "message": "I changed it back.",
+      "parentUuid": "61302ac8_cdba3d69",
+      "range": {
+        "startLine": 185,
+        "startChar": 4,
+        "endLine": 185,
+        "endChar": 22
+      },
+      "revId": "c81ebd272b84c11bfa32720aa1a68fea61eb3b0f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }

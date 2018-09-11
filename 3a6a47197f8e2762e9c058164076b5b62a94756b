@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "9de85526_6d5d9999",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-11T16:13:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca896fee_46f5818e",
+      "range": {
+        "startLine": 288,
+        "startChar": 4,
+        "endLine": 290,
+        "endChar": 6
+      },
+      "revId": "3a6a47197f8e2762e9c058164076b5b62a94756b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0bf9ed6f_a0becff2",
         "filename": "src/core/SkRemoteGlyphCache.h",
         "patchSetId": 2
@@ -141,6 +165,30 @@
       "revId": "3a6a47197f8e2762e9c058164076b5b62a94756b",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8728ba09_2e9ab466",
+        "filename": "src/core/SkRemoteGlyphCache.h",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-11T16:13:01Z",
+      "side": 1,
+      "message": "Thanks, this was an interesting read. I changed it back.",
+      "parentUuid": "a06fc4bb_339a635d",
+      "range": {
+        "startLine": 69,
+        "startChar": 42,
+        "endLine": 69,
+        "endChar": 52
+      },
+      "revId": "3a6a47197f8e2762e9c058164076b5b62a94756b",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
