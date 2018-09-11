@@ -164,6 +164,7 @@ cc_defaults {
         "libskia",
     ],
     cflags: [
+        "-Wno-implicit-fallthrough",
         "-Wno-unused-parameter",
         "-Wno-unused-variable",
     ],
