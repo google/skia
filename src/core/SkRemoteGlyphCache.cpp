@@ -63,6 +63,24 @@ static SkDescriptor* auto_descriptor_from_desc(const SkDescriptor* source_desc,
     return desc;
 }
 
+enum DescriptorType : bool { kKey = false, kDevice = true };
+static const SkDescriptor* create_descriptor(
+        DescriptorType type, const SkPaint& paint, const SkMatrix& m,
+        const SkSurfaceProps& props, SkScalerContextFlags flags,
+        SkAutoDescriptor* ad, SkScalerContextEffects* effects) {
+    SkScalerContextRec deviceRec;
+    SkScalerContext::MakeRecAndEffects(paint, &props, &m, flags, &deviceRec, effects, type);
+    return SkScalerContext::AutoDescriptorGivenRecAndEffects(deviceRec, *effects, ad);
+}
+
+static SkString dump_rec_from_desc(const SkDescriptor& desc) {
+    uint32_t size;
+    auto ptr = desc.findEntry(kRec_SkDescriptorTag, &size);
+    SkScalerContextRec rec;
+    std::memcpy(&rec, ptr, size);
+    return rec.dump();
+}
+
 // -- Serializer ----------------------------------------------------------------------------------
 
 size_t pad(size_t size, size_t alignment) { return (size + (alignment - 1)) & ~(alignment - 1); }
@@ -285,8 +303,16 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
         glyphCacheState->addGlyph(glyph.getPackedID(), false);
     };
 
+    // Glyphs which are too large for the atlas still request images when computing the bounds
+    // for the glyph, which is why its necessary to send both. See related code in
+    // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
+    auto perPath = [glyphCacheState] (const SkGlyph& glyph, SkPoint mappedPt) {
+        glyphCacheState->addGlyph(glyph.getPackedID(), true);
+        glyphCacheState->addGlyph(glyph.getPackedID(), false);
+    };
+
     fPainter.drawGlyphRunAsBMPWithPathFallback(
-            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perGlyph);
+            glyphCacheState, glyphRun, origin, runMatrix, perGlyph, perPath);
 }
 
 void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
@@ -310,7 +336,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            pathPaint, &this->surfaceProps(), nullptr,
+            pathPaint, &this->surfaceProps(), &SkMatrix::I(),
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
     const bool asPath = true;
@@ -359,7 +385,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
                                           &flags);
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(),
-                                                            nullptr, flags, &effects);
+                                                            &SkMatrix::I(), flags, &effects);
 
     GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(
             runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
@@ -388,7 +414,6 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
 
 // -- SkTextBlobCacheDiffCanvas -------------------------------------------------------------------
 SkTextBlobCacheDiffCanvas::Settings::Settings() = default;
-SkTextBlobCacheDiffCanvas::Settings::~Settings() = default;
 
 SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      const SkMatrix& deviceMatrix,
@@ -397,6 +422,12 @@ SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(int width, int height,
                                                      Settings settings)
         : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(SkIRect::MakeWH(width, height), props,
                                                       strikeServer, settings)} {}
+
+SkTextBlobCacheDiffCanvas::SkTextBlobCacheDiffCanvas(
+        int width, int height, const SkSurfaceProps& props,
+        SkStrikeServer* strikeServer, Settings settings)
+    : SkNoDrawCanvas{sk_make_sp<TrackLayerDevice>(
+            SkIRect::MakeWH(width, height), props, strikeServer, settings)} {}
 
 SkTextBlobCacheDiffCanvas::~SkTextBlobCacheDiffCanvas() = default;
 
@@ -462,34 +493,34 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkMatrix* matrix,
         SkScalerContextFlags flags,
         SkScalerContextEffects* effects) {
-    SkScalerContextRec keyRec;
-    SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &keyRec, effects, false);
-    auto keyDesc = SkScalerContext::DescriptorGivenRecAndEffects(keyRec, *effects);
-    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(keyRec.dump().c_str()));
+    SkAutoDescriptor keyAutoDesc;
+    auto keyDesc = create_descriptor(kKey, paint, *matrix, *props, flags, &keyAutoDesc, effects);
+    TRACE_EVENT1("skia", "RecForDesc", "rec", TRACE_STR_COPY(dump_rec_from_desc(*keyDesc).c_str()));
 
     // Already locked.
-    if (fLockedDescs.find(keyDesc.get()) != fLockedDescs.end()) {
-        auto it = fRemoteGlyphStateMap.find(keyDesc.get());
+    if (fLockedDescs.find(keyDesc) != fLockedDescs.end()) {
+        auto it = fRemoteGlyphStateMap.find(keyDesc);
         SkASSERT(it != fRemoteGlyphStateMap.end());
         SkGlyphCacheState* cache = it->second.get();
-        cache->ensureScalerContext(paint, props, matrix, flags, effects);
+        cache->setPaint(paint);
         return cache;
     }
 
     // Try to lock.
-    auto it = fRemoteGlyphStateMap.find(keyDesc.get());
+    auto it = fRemoteGlyphStateMap.find(keyDesc);
     if (it != fRemoteGlyphStateMap.end()) {
         SkGlyphCacheState* cache = it->second.get();
 #ifdef SK_DEBUG
-        SkScalerContextRec deviceRec;
-        SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
-        auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
+        SkScalerContextEffects deviceEffects;
+        SkAutoDescriptor deviceAutoDesc;
+        auto deviceDesc = create_descriptor(
+                kDevice, paint, *matrix, *props, flags, &deviceAutoDesc, &deviceEffects);
         SkASSERT(cache->getDeviceDescriptor() == *deviceDesc);
 #endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
         if (locked) {
             fLockedDescs.insert(it->first);
-            cache->ensureScalerContext(paint, props, matrix, flags, effects);
+            cache->setPaint(paint);
             return cache;
         }
 
@@ -506,17 +537,25 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
                                       tf->isFixedPitch());
     }
 
+    SkScalerContextEffects deviceEffects;
+    SkAutoDescriptor deviceAutoDesc;
+    auto deviceDesc = create_descriptor(
+            kDevice, paint, *matrix, *props, flags, &deviceAutoDesc, &deviceEffects);
+
+    auto context = tf->createScalerContext(deviceEffects, deviceDesc);
+
     // Create a new cache state and insert it into the map.
-    auto* keyDescPtr = keyDesc.get();
     auto newHandle = fDiscardableHandleManager->createHandle();
-    auto cacheState = skstd::make_unique<SkGlyphCacheState>(std::move(keyDesc), newHandle);
+    auto cacheState = skstd::make_unique<SkGlyphCacheState>(
+            *keyDesc, *deviceDesc, std::move(context), newHandle);
+
     auto* cacheStatePtr = cacheState.get();
 
-    fLockedDescs.insert(keyDescPtr);
-    fRemoteGlyphStateMap[keyDescPtr] = std::move(cacheState);
-    cacheStatePtr->ensureScalerContext(paint, props, matrix, flags, effects);
+    fLockedDescs.insert(&cacheStatePtr->getKeyDescriptor());
+    fRemoteGlyphStateMap[&cacheStatePtr->getKeyDescriptor()] = std::move(cacheState);
 
     checkForDeletedEntries();
+    cacheStatePtr->setPaint(paint);
     return cacheStatePtr;
 }
 
@@ -534,10 +573,20 @@ void SkStrikeServer::checkForDeletedEntries() {
 
 // -- SkGlyphCacheState ----------------------------------------------------------------------------
 SkStrikeServer::SkGlyphCacheState::SkGlyphCacheState(
-        std::unique_ptr<SkDescriptor> keyDescriptor, uint32_t discardableHandleId)
-        : fKeyDescriptor(std::move(keyDescriptor))
-        , fDiscardableHandleId(discardableHandleId) {
-    SkASSERT(fKeyDescriptor);
+        const SkDescriptor& keyDescriptor,
+        const SkDescriptor& deviceDescriptor,
+        std::unique_ptr<SkScalerContext> context,
+        uint32_t discardableHandleId)
+        : fKeyDescriptor{keyDescriptor}
+        , fDeviceDescriptor{deviceDescriptor}
+        , fDiscardableHandleId(discardableHandleId)
+        , fIsSubpixel{context->isSubpixel()}
+        , fAxisAlignmentForHText{context->computeAxisAlignmentForHText()}
+        // N.B. context must come last because it is used above.
+        , fContext{std::move(context)} {
+    SkASSERT(fKeyDescriptor.getDesc() != nullptr);
+    SkASSERT(fDeviceDescriptor.getDesc() != nullptr);
+    SkASSERT(fContext != nullptr);
 }
 
 SkStrikeServer::SkGlyphCacheState::~SkGlyphCacheState() = default;
@@ -550,6 +599,9 @@ void SkStrikeServer::SkGlyphCacheState::addGlyph(SkPackedGlyphID glyph, bool asP
     if (cache->contains(glyph)) {
         return;
     }
+
+    // A glyph is going to be sent. Make sure we have a scaler context to send it.
+    this->ensureScalerContext();
 
     // Serialize and cache. Also create the scalar context to use when serializing
     // this glyph.
@@ -567,7 +619,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
     // Write the desc.
     serializer->emplace<StrikeSpec>(fContext->getTypeface()->uniqueID(), fDiscardableHandleId);
-    serializer->writeDescriptor(*fKeyDescriptor.get());
+    serializer->writeDescriptor(*fKeyDescriptor.getDesc());
 
     // Write FontMetrics.
     // TODO(khushalsagar): Do we need to re-send each time?
@@ -588,18 +640,6 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 
             // Since the allocate can move glyph, make one that stays in one place.
             stationaryGlyph = *glyph;
-        }
-
-        // Glyphs which are too large for the atlas still request images when computing the bounds
-        // for the glyph, which is why its necessary to send both. See related code in
-        // get_packed_glyph_bounds in GrGlyphCache.cpp and crbug.com/510931.
-        bool tooLargeForAtlas = SkGlyphCacheCommon::GlyphTooBigForAtlas(stationaryGlyph);
-
-        if (tooLargeForAtlas) {
-            // Add this to the path cache, since we will always fall back to using paths
-            // for this glyph.
-            fCachedGlyphPaths.add(glyphID);
-            writeGlyphPath(glyphID, serializer);
         }
 
         auto imageSize = stationaryGlyph.computeImageSize();
@@ -631,6 +671,7 @@ void SkStrikeServer::SkGlyphCacheState::writePendingGlyphs(Serializer* serialize
 const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyphID) {
     auto* glyph = fGlyphMap.find(glyphID);
     if (glyph == nullptr) {
+        this->ensureScalerContext();
         glyph = fGlyphMap.set(glyphID, SkGlyph());
         glyph->initWithGlyphID(glyphID);
         fContext->getMetrics(glyph);
@@ -639,22 +680,17 @@ const SkGlyph& SkStrikeServer::SkGlyphCacheState::findGlyph(SkPackedGlyphID glyp
     return *glyph;
 }
 
-void SkStrikeServer::SkGlyphCacheState::ensureScalerContext(
-        const SkPaint& paint,
-        const SkSurfaceProps* props,
-        const SkMatrix* matrix,
-        SkScalerContextFlags flags,
-        SkScalerContextEffects* effects) {
-    if (fContext == nullptr || fDeviceDescriptor == nullptr) {
-        SkScalerContextRec deviceRec;
-        SkScalerContext::MakeRecAndEffects(paint, props, matrix, flags, &deviceRec, effects, true);
-        auto deviceDesc = SkScalerContext::DescriptorGivenRecAndEffects(deviceRec, *effects);
-        auto* tf = paint.getTypeface();
-        fContext = tf->createScalerContext(*effects, deviceDesc.get(), false);
-        fIsSubpixel = fContext->isSubpixel();
-        fAxisAlignmentForHText = fContext->computeAxisAlignmentForHText();
-        fDeviceDescriptor = std::move(deviceDesc);
+void SkStrikeServer::SkGlyphCacheState::ensureScalerContext() {
+    if (fContext == nullptr) {
+        SkScalerContextEffects effects;
+        new (&effects) SkScalerContextEffects{*fPaint};
+        auto tf = fPaint->getTypeface();
+        fContext = tf->createScalerContext(effects, fDeviceDescriptor.getDesc());
     }
+}
+
+void SkStrikeServer::SkGlyphCacheState::setPaint(const SkPaint& paint) {
+    fPaint = &paint;
 }
 
 SkVector SkStrikeServer::SkGlyphCacheState::rounding() const {
@@ -788,12 +824,6 @@ bool SkStrikeClient::readStrikeData(const volatile void* memory, size_t memorySi
                 auto* glyphPath = allocatedGlyph->fPathData;
                 *allocatedGlyph = glyph;
                 allocatedGlyph->fPathData = glyphPath;
-            }
-
-            bool tooLargeForAtlas = SkGlyphCacheCommon::GlyphTooBigForAtlas(glyph);
-
-            if (tooLargeForAtlas) {
-                if (!read_path(&deserializer, allocatedGlyph, strike.get())) READ_FAILURE
             }
 
             auto imageSize = glyph.computeImageSize();
