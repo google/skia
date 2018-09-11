@@ -288,7 +288,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef2(GrContext* context,
                                                       const GrSamplerState& params,
                                                       SkColorSpace* dstColorSpace,
                                                       sk_sp<SkColorSpace>* texColorSpace,
@@ -299,6 +299,11 @@ sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
 
     GrImageTextureMaker textureMaker(context, this, kAllow_CachingHint);
     return textureMaker.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Lazy::asYUVATextureProxies(GrContext*) const {
+
+    return false;
 }
 #endif
 
