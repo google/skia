@@ -2748,7 +2748,8 @@ reducing the number and size of allocations when creating <a href='#Path'>Path</
 void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>()
 </pre>
 
-Removes unused space in <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a>.
+Shrinks <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> storage to discard unused capacity.
+May reduce the heap overhead for <a href='#Path'>Paths</a> known to be fully constructed.
 
 ### See Also
 
@@ -5952,17 +5953,6 @@ bool <a href='#SkPath_pathRefIsValid'>pathRefIsValid</a>() const
 </pre>
 
 To be deprecated soon.
-
----
-
-<a name='SkPath_debugging_private_getFreeSpace'></a>
-## debugging_private_getFreeSpace
-
-<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-size_t <a href='#SkPath_debugging_private_getFreeSpace'>debugging private getFreeSpace</a>() const
-</pre>
-
-Experimental.
 
 ---
 
