@@ -51,10 +51,11 @@ public:
     bool onReadPixels(const SkImageInfo&, void*, size_t, int srcX, int srcY,
                       CachingHint) const override;
 #if SK_SUPPORT_GPU
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*,
+    sk_sp<GrTextureProxy> asTextureProxyRef2(GrContext*,
                                             const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+    bool asYUVATextureProxies(GrContext*) const override;
 #endif
     sk_sp<SkData> onRefEncoded() const override;
     sk_sp<SkImage> onMakeSubset(const SkIRect&) const override;
@@ -69,6 +70,8 @@ public:
     // Call the underlying generator directly
     bool directGeneratePixels(const SkImageInfo& dstInfo, void* dstPixels, size_t dstRB,
                               int srcX, int srcY) const;
+
+    bool foo();
 
 #if SK_SUPPORT_GPU
     // Returns the texture proxy. If we're going to generate and cache the texture, we should use

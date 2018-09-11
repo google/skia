@@ -288,7 +288,7 @@ bool SkImage_Lazy::onIsValid(GrContext* context) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 #if SK_SUPPORT_GPU
-sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef2(GrContext* context,
                                                       const GrSamplerState& params,
                                                       SkColorSpace* dstColorSpace,
                                                       sk_sp<SkColorSpace>* texColorSpace,
@@ -299,6 +299,11 @@ sk_sp<GrTextureProxy> SkImage_Lazy::asTextureProxyRef(GrContext* context,
 
     GrImageTextureMaker textureMaker(context, this, kAllow_CachingHint);
     return textureMaker.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Lazy::asYUVATextureProxies(GrContext*) const {
+
+    return false;
 }
 #endif
 
@@ -351,18 +356,21 @@ void SkImage_Lazy::makeCacheKeyFromOrigKey(const GrUniqueKey& origKey,
 }
 
 class Generator_GrYUVProvider : public GrYUVProvider {
-    SkImageGenerator* fGen;
-
 public:
     Generator_GrYUVProvider(SkImageGenerator* gen) : fGen(gen) {}
 
-    uint32_t onGetID() override { return fGen->uniqueID(); }
-    bool onQueryYUV8(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
+private:
+    uint32_t onGetID() const override { return fGen->uniqueID(); }
+    bool onQueryYUV81(SkYUVSizeInfo* sizeInfo, SkYUVColorSpace* colorSpace) const override {
         return fGen->queryYUV8(sizeInfo, colorSpace);
     }
-    bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
+    bool onGetYUV8Planes1(const SkYUVSizeInfo& sizeInfo, void* planes[3]) override {
         return fGen->getYUV8Planes(sizeInfo, planes);
     }
+
+    SkImageGenerator* fGen;
+
+    typedef GrYUVProvider INHERITED;
 };
 
 static void set_key_on_proxy(GrProxyProvider* proxyProvider,
@@ -382,6 +390,22 @@ static void set_key_on_proxy(GrProxyProvider* proxyProvider,
         proxyProvider->assignUniqueKeyToProxy(key, proxy);
     }
 }
+
+bool SkImage_Lazy::foo() {
+    ScopedGenerator generator(fSharedGenerator);
+    Generator_GrYUVProvider provider(generator);
+
+    SkYUVSizeInfo   fSizeInfo;
+    SkYUVColorSpace fColorSpace;
+    void* planes[3];
+    sk_sp<SkCachedData> data = provider.getPlanes(&fSizeInfo, &fColorSpace, planes);
+    if (!data) {
+        return false;
+    }
+
+    return true;
+}
+
 
 /*
  *  We have 4 ways to try to return a texture (in sorted order)

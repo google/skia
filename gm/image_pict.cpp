@@ -156,7 +156,7 @@ public:
             surface->getCanvas()->translate(-100, -100);
             surface->getCanvas()->drawPicture(pic);
             sk_sp<SkImage> image(surface->makeImageSnapshot());
-            fProxy = as_IB(image)->asTextureProxyRef();
+            fProxy = as_IB(image)->asTextureProxyRef1();
         }
     }
 protected:
@@ -265,7 +265,7 @@ protected:
 
     static void draw_as_tex(SkCanvas* canvas, SkImage* image, SkScalar x, SkScalar y) {
         sk_sp<SkColorSpace> texColorSpace;
-        sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef(
+        sk_sp<GrTextureProxy> proxy(as_IB(image)->asTextureProxyRef2(
                 canvas->getGrContext(), GrSamplerState::ClampBilerp(),
                 canvas->imageInfo().colorSpace(), &texColorSpace, nullptr));
         if (!proxy) {

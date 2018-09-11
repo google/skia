@@ -14,6 +14,7 @@
 #include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -118,7 +119,7 @@ bool SkImage_Gpu::getROPixels(SkBitmap* dst, SkColorSpace*, CachingHint chint) c
     return true;
 }
 
-sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
+sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef2(GrContext* context,
                                                      const GrSamplerState& params,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
@@ -131,6 +132,10 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
     GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Gpu::asYUVATextureProxies(GrContext* context) const {
+    return false;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
@@ -498,7 +503,7 @@ sk_sp<SkImage> SkImage::makeTextureImage(GrContext* context, SkColorSpace* dstCo
         if (incumbent != context) {
             return nullptr;
         }
-        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef();
+        sk_sp<GrTextureProxy> proxy = as_IB(this)->asTextureProxyRef1();
         SkASSERT(proxy);
         if (GrMipMapped::kNo == mipMapped || proxy->mipMapped() == mipMapped) {
             return sk_ref_sp(const_cast<SkImage*>(this));
