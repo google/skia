@@ -27,8 +27,9 @@
 <canvas id=canvas2></canvas>
 
 <h2> Interact with NewPath() just like a Path2D Object </h2>
-<canvas class=big id=canvas3></canvas>
-<canvas class=big id=canvas4></canvas>
+<canvas class=big id=canvasPath2D></canvas>
+<canvas class=big id=canvasPathKit></canvas>
+<canvas class=big id=canvasGLDirect></canvas>
 
 <h2> Has various Path Effects </h2>
 <canvas class=big id=canvas5></canvas>
@@ -98,6 +99,7 @@
     ctx.scale(8, 8);
     ctx.beginPath();
     firstPath.toCanvas(ctx);
+    ctx.fill();
     ctx.stroke();
 
     // create Path2D object and use it in a Canvas.
@@ -120,8 +122,8 @@
   function Path2DExample(PathKit) {
     let objs = [new Path2D(), PathKit.NewPath(), new Path2D(), PathKit.NewPath()];
     let canvases = [
-      document.getElementById('canvas3').getContext('2d'),
-      document.getElementById('canvas4').getContext('2d')
+      document.getElementById('canvasPath2D').getContext('2d'),
+      document.getElementById('canvasPathKit').getContext('2d')
     ];
 
     for (i = 0; i <= 1; i++) {
@@ -175,8 +177,15 @@
       } else {
         canvasCtx.stroke(path);
       }
-    }
 
+      if (path.toCanvasGL) {
+        let glCanvas = document.getElementById('canvasGLDirect');
+        glCanvas.width = 300;
+        glCanvas.height = 300;
+        // canvas id, color helper(rgba), isFill
+        path.toCanvasGL('canvasGLDirect', PathKit.Color(200, 150, 100, .7), false);
+      }
+    }
 
     objs[1].delete();
   }

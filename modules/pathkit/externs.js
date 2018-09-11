@@ -30,9 +30,12 @@ var PathKit = {
 	_SkCubicMap: function(cp1, cp2) {},
 	cubicYFromX: function(cpx1, cpy1, cpx2, cpy2, X) {},
 	cubicPtFromT: function(cpx1, cpy1, cpx2, cpy2, T) {},
+	Color: function(r, g, b, a) {},
 
 	HEAPF32: {},
 
+	// The ones listed here are on the wasm-produced object
+	// They usually have a 1:1 mapping in chaining.js.
 	SkPath: {
 		_addPath: function(path, scaleX, skewX, transX, skewY, scaleY, transY, pers0, pers1, pers2) {},
 		_arc: function(x, y, radius, startAngle, endAngle, ccw) {},
@@ -50,8 +53,9 @@ var PathKit = {
 		_rect: function(x, y, w, h) {},
 		_simplify: function() {},
 		_stroke: function(opts) {},
-		_trim: function(startT, stopT, isComplement) {},
+		_toCanvasGL: function(htmlID, color, isFill, height, width) {},
 		_transform: function() {}, // takes 1 or 9 params
+		_trim: function(startT, stopT, isComplement) {},
 	},
 
 	StrokeCap: {
@@ -100,6 +104,7 @@ PathKit.SkPath.prototype.quadraticCurveTo = function(x1, y1, x2, y2) {};
 PathKit.SkPath.prototype.rect = function(x, y, w, h) {};
 PathKit.SkPath.prototype.simplify = function() {};
 PathKit.SkPath.prototype.stroke = function(opts) {};
+PathKit.SkPath.prototype.toCanvasGL = function(htmlID, color, isFill) {};
 PathKit.SkPath.prototype.transform = function() {};
 PathKit.SkPath.prototype.trim = function(startT, stopT, isComplement) {};
 // The following was taken from https://github.com/google/closure-compiler/blob/master/contrib/externs/svg.js
