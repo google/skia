@@ -230,6 +230,7 @@ SkPath ValueTraits<ShapeValue>::As<SkPath>(const ShapeValue& shape) {
     }
 
     path.setIsVolatile(shape.fVolatile);
+    path.shrinkToFit();
 
     return path;
 }

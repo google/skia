@@ -90,6 +90,8 @@ SkRect Merge::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
         builder.resolve(&fMerged);
     }
 
+    fMerged.shrinkToFit();
+
     return fMerged.computeTightBounds();
 }
 

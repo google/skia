@@ -50,6 +50,8 @@ SkRect TrimEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm)
         fTrimmedPath = path;
     }
 
+    fTrimmedPath.shrinkToFit();
+
     return fTrimmedPath.computeTightBounds();
 }
 
