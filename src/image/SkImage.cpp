@@ -201,13 +201,6 @@ SkImage_Base::~SkImage_Base() {
     if (fAddedToRasterCache.load()) {
         SkNotifyBitmapGenIDIsStale(this->uniqueID());
     }
-
-#if SK_SUPPORT_GPU
-    for (int i = 0; i < fUniqueKeyInvalidatedMessages.count(); ++i) {
-        SkMessageBus<GrUniqueKeyInvalidatedMessage>::Post(*fUniqueKeyInvalidatedMessages[i]);
-    }
-    fUniqueKeyInvalidatedMessages.deleteAll();
-#endif
 }
 
 GrBackendTexture SkImage_Base::onGetBackendTexture(bool flushPendingGrContextIO,

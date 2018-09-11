@@ -160,7 +160,6 @@ skia_core_sources = [
   "$_src/core/SkImageFilterCache.cpp",
   "$_src/core/SkImageFilterCache.h",
   "$_src/core/SkImageInfo.cpp",
-  "$_src/core/SkImageCacherator.h",
   "$_src/core/SkImageGenerator.cpp",
   "$_src/core/SkLights.cpp",
   "$_src/core/SkLineClipper.cpp",
@@ -350,6 +349,7 @@ skia_core_sources = [
 
   #        "$_src/image/SkImage_Gpu.cpp",
   "$_src/image/SkImage_Lazy.cpp",
+  "$_src/image/SkImage_Lazy.h",
   "$_src/image/SkImage_Raster.cpp",
   "$_src/image/SkSurface.cpp",
   "$_src/image/SkSurface_Base.h",

@@ -89,7 +89,7 @@ struct BitmapShaderRec : public SkResourceCache::Rec {
 
     const Key& getKey() const override { return fKey; }
     size_t bytesUsed() const override {
-        // Just the record overhead -- the actual pixels are accounted by SkImageCacherator.
+        // Just the record overhead -- the actual pixels are accounted by SkImage_Lazy.
         return sizeof(fKey) + sizeof(SkImageShader);
     }
     const char* getCategory() const override { return "bitmap-shader"; }

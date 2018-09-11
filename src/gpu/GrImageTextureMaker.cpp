@@ -6,21 +6,15 @@
  */
 
 #include "GrImageTextureMaker.h"
-#include "GrContext.h"
-#include "GrContextPriv.h"
-#include "GrGpuResourcePriv.h"
 #include "SkGr.h"
-#include "SkImageCacherator.h"
-#include "SkImage_Base.h"
-#include "SkPixelRef.h"
+#include "SkImage_Lazy.h"
 
 GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* client,
                                          SkImage::CachingHint chint)
         : INHERITED(context, client->width(), client->height(), client->isAlphaOnly())
-        , fCacher(as_IB(client)->peekCacherator())
-        , fClient(client)
+        , fImage(static_cast<const SkImage_Lazy*>(client))
         , fCachingHint(chint) {
-    SkASSERT(fCacher);
+    SkASSERT(client->isLazyGenerated());
     GrMakeKeyFromImageID(&fOriginalKey, client->uniqueID(),
                          SkIRect::MakeWH(this->width(), this->height()));
 }
@@ -28,21 +22,21 @@ GrImageTextureMaker::GrImageTextureMaker(GrContext* context, const SkImage* clie
 sk_sp<GrTextureProxy> GrImageTextureMaker::refOriginalTextureProxy(bool willBeMipped,
                                                                    SkColorSpace* dstColorSpace,
                                                                    AllowedTexGenType onlyIfFast) {
-    return fCacher->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
-                                     willBeMipped, dstColorSpace, onlyIfFast);
+    return fImage->lockTextureProxy(this->context(), fOriginalKey, fCachingHint,
+                                    willBeMipped, dstColorSpace, onlyIfFast);
 }
 
 void GrImageTextureMaker::makeCopyKey(const CopyParams& stretch, GrUniqueKey* paramsCopyKey) {
     if (fOriginalKey.isValid() && SkImage::kAllow_CachingHint == fCachingHint) {
         GrUniqueKey cacheKey;
-        fCacher->makeCacheKeyFromOrigKey(fOriginalKey, &cacheKey);
+        fImage->makeCacheKeyFromOrigKey(fOriginalKey, &cacheKey);
         MakeCopyKeyFromOrigKey(cacheKey, stretch, paramsCopyKey);
     }
 }
 
 SkAlphaType GrImageTextureMaker::alphaType() const {
-    return fClient->alphaType();
+    return fImage->alphaType();
 }
 sk_sp<SkColorSpace> GrImageTextureMaker::getColorSpace(SkColorSpace* dstColorSpace) {
-    return fClient->refColorSpace();
+    return fImage->refColorSpace();
 }
