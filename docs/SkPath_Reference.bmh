@@ -2117,6 +2117,17 @@ void draw(SkCanvas* canvas) {
 
 ##
 
+#Method void shrinkToFit()
+#In Utility
+#Line # removes unused reserved space ##
+
+Removes unused space in Path Verb_Array and Point_Array.
+
+#NoExample
+##
+#SeeAlso incReserve
+##
+
 # ------------------------------------------------------------------------------
 #Subtopic Build
 #Populate
@@ -5371,6 +5382,10 @@ empty genID = 1
 
 #Method bool pathRefIsValid() const
 #Deprecated soon
+##
+
+#Method size_t debugging_private_getFreeSpace() const
+#Experimental
 ##
 
 # ------------------------------------------------------------------------------
