@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5b2ac944_74f625ad",
+        "filename": "infra/bots/assets/mesa_intel_driver/common.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "nit: asset name should end with _linux, since it\u0027s Linux-specific.",
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "48ae6c64_9886c75e",
+        "filename": "infra/bots/assets/mesa_intel_driver/common.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "IIUC, you shouldn\u0027t update the year on copyright headers, even if you move or copy the file.",
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1da6ee75_380b0980",
+        "filename": "infra/bots/assets/mesa_intel_driver/create.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "nit: consider using long option names in scripts (--interactive, --volume, --env)",
+      "range": {
+        "startLine": 24,
+        "startChar": 21,
+        "endLine": 24,
+        "endChar": 23
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b7ac416_d0b35f54",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/Dockerfile",
+        "patchSetId": 16
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "Did you consider using buster?",
+      "range": {
+        "startLine": 3,
+        "startChar": 2,
+        "endLine": 3,
+        "endChar": 20
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06e3ca93_9db413f0",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "nit: Why not use the --gunzip (aka -z) option to tar?",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 32
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5a1837ba_be8f6067",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "nit: consider using long option names (--file) in scripts",
+      "range": {
+        "startLine": 18,
+        "startChar": 14,
+        "endLine": 18,
+        "endChar": 16
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7c0d0123_d9861028",
+        "filename": "infra/bots/assets/mesa_intel_driver/mesa-driver-builder/build_mesa.sh",
+        "patchSetId": 16
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5120
+      },
+      "writtenOn": "2018-09-11T19:47:31Z",
+      "side": 1,
+      "message": "nit: consider using --strip-components\u003d1 option to tar",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 7
+      },
+      "revId": "945d98c14023b32bf1ead3d92dea9dd8419034b9",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
