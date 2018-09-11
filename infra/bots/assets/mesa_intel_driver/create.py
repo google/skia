@@ -6,15 +6,27 @@
 # found in the LICENSE file.
 
 
-"""Create the asset."""
+"""Create the mesa driver. This defers to a Docker container
+   with the build_mesa.sh script."""
 
 
 import argparse
+import subprocess
+
+DOCKER_IMAGE='gcr.io/skia-public/mesa-driver-builder:v1'
+BUILD_SCRIPT='/opt/build_mesa.sh'
+MESA_VERSION='18.1.7'
 
 
 def create_asset(target_dir):
   """Create the asset."""
-  raise NotImplementedError('Implement me!')
+  cmd = [
+    'docker', 'run','-i', '-v', '%s:/OUT' % target_dir,
+    '-e', 'MESA_VERSION=%s' % MESA_VERSION,
+    DOCKER_IMAGE, BUILD_SCRIPT
+  ]
+  print('Running docker cmd', cmd)
+  subprocess.check_output(cmd)
 
 
 def main():
