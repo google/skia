@@ -549,6 +549,8 @@ public:
     */
     void incReserve(unsigned extraPtCount);
 
+    /** Shrinks the verb and point array allocation to discard unused capacity.
+    */
     void shrinkToFit();
 
     /** Adds beginning of contour at SkPoint (x, y).
@@ -1668,8 +1670,6 @@ public:
     bool isValid() const { return this->isValidImpl(); }
     bool pathRefIsValid() const { return fPathRef->isValid(); }
 #endif
-
-    SkDEBUGCODE(size_t debugging_private_getFreeSpace() const;)
 
 private:
     sk_sp<SkPathRef>                                     fPathRef;

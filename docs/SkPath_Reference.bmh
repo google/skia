@@ -2120,12 +2120,22 @@ void draw(SkCanvas* canvas) {
 #Method void shrinkToFit()
 #In Utility
 #Line # removes unused reserved space ##
-
-Removes unused space in Path Verb_Array and Point_Array.
+Shrinks Path Verb_Array and Point_Array storage to discard unused capacity.
+May reduce the heap overhead for Paths known to be fully constructed.
 
 #NoExample
+#Height 192
+void draw(SkCanvas* canvas) {
+    SkPath skinnyPath;
+    skinnyPath.lineTo(100, 100);
+    skinnyPath.shrinkToFit();
+
+    SkDebugf("no wasted Path capacity in my house!\n");
+}
 ##
+
 #SeeAlso incReserve
+
 ##
 
 # ------------------------------------------------------------------------------
@@ -5382,10 +5392,6 @@ empty genID = 1
 
 #Method bool pathRefIsValid() const
 #Deprecated soon
-##
-
-#Method size_t debugging_private_getFreeSpace() const
-#Experimental
 ##
 
 # ------------------------------------------------------------------------------

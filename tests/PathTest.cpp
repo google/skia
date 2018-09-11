@@ -4090,6 +4090,10 @@ static void test_contains(skiatest::Reporter* reporter) {
 
 class PathRefTest_Private {
 public:
+    static size_t GetFreeSpace(const SkPathRef& ref) {
+        return ref.fFreeSpace;
+    }
+
     static void TestPathRef(skiatest::Reporter* reporter) {
         static const int kRepeatCnt = 10;
 
@@ -4259,6 +4263,10 @@ private:
 
 class PathTest_Private {
 public:
+    static size_t GetFreeSpace(const SkPath& path) {
+        return PathRefTest_Private::GetFreeSpace(*path.fPathRef);
+    }
+
     static void TestPathTo(skiatest::Reporter* reporter) {
         SkPath p, q;
         p.lineTo(4, 4);
@@ -5129,7 +5137,7 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         REPORTER_ASSERT(reporter, shared_path == copy);
 
 #ifdef SK_DEBUG
-        size_t before = unique_path.debugging_private_getFreeSpace();
+        size_t before = PathTest_Private::GetFreeSpace(unique_path);
 #endif
         unique_path.shrinkToFit();
         shared_path.shrinkToFit();
@@ -5137,11 +5145,11 @@ DEF_TEST(Path_shrinkToFit, reporter) {
         REPORTER_ASSERT(reporter, shared_path == copy);
 
 #ifdef SK_DEBUG
-        size_t after = unique_path.debugging_private_getFreeSpace();
+        size_t after = PathTest_Private::GetFreeSpace(unique_path);
         REPORTER_ASSERT(reporter, before >= after);
         max_free = std::max(max_free, before - after);
 
-        size_t after2 = unique_path.debugging_private_getFreeSpace();
+        size_t after2 = PathTest_Private::GetFreeSpace(unique_path);
         REPORTER_ASSERT(reporter, after == after2);
 #endif
     }

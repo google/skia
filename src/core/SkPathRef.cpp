@@ -83,12 +83,6 @@ void SkPath::shrinkToFit() {
     SkDEBUGCODE(fPathRef->validate();)
 }
 
-#ifdef SK_DEBUG
-size_t SkPath::debugging_private_getFreeSpace() const {
-    return fPathRef->fFreeSpace;
-}
-#endif
-
 //////////////////////////////////////////////////////////////////////////////
 
 SkPathRef::~SkPathRef() {
