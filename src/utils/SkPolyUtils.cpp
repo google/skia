@@ -346,11 +346,12 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     OffsetEdge* currEdge = head;
     OffsetEdge* prevEdge = currEdge->fPrev;
     int insetVertexCount = inputPolygonSize;
-    int iterations = 0;
+    unsigned int iterations = 0;
+    unsigned int maxIterations = inputPolygonSize * inputPolygonSize;
     while (head && prevEdge != currEdge) {
         ++iterations;
         // we should check each edge against each other edge at most once
-        if (iterations > inputPolygonSize*inputPolygonSize) {
+        if (iterations > maxIterations) {
             return false;
         }
 
@@ -406,30 +407,31 @@ bool SkInsetConvexPolygon(const SkPoint* inputPolygonVerts, int inputPolygonSize
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
     insetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (insetVertexCount >= 0) {
-            insetPolygon->setReserve(insetVertexCount);
+    if (!head) {
+        return false;
+    }
+
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+    if (insetVertexCount >= 0) {
+        insetPolygon->setReserve(insetVertexCount);
+    }
+    int currIndex = 0;
+    *insetPolygon->push() = head->fIntersection;
+    currEdge = head->fNext;
+    while (currEdge != head) {
+        if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
+                                                (*insetPolygon)[currIndex],
+                                                kCleanupTolerance)) {
+            *insetPolygon->push() = currEdge->fIntersection;
+            currIndex++;
         }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *insetPolygon->push() = currEdge->fIntersection;
         currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*insetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *insetPolygon->push() = currEdge->fIntersection;
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-           SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
-                                              kCleanupTolerance)) {
-            insetPolygon->pop();
-        }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        SkPointPriv::EqualsWithinTolerance((*insetPolygon)[0], (*insetPolygon)[currIndex],
+                                            kCleanupTolerance)) {
+        insetPolygon->pop();
     }
 
     return SkIsConvexPolygon(insetPolygon->begin(), insetPolygon->count());
@@ -1145,7 +1147,7 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
 
     // build normals
     SkAutoSTMalloc<64, SkVector> normals(inputPolygonSize);
-    int numEdges = 0;
+    unsigned int numEdges = 0;
     for (int currIndex = 0, prevIndex = inputPolygonSize - 1;
          currIndex < inputPolygonSize;
          prevIndex = currIndex, ++currIndex) {
@@ -1246,12 +1248,13 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     SkASSERT(edgeData.count() == numEdges);
     auto head = &edgeData[0];
     auto currEdge = head;
-    int offsetVertexCount = numEdges;
-    int iterations = 0;
-    while (head && prevEdge != currEdge) {
+    unsigned int offsetVertexCount = numEdges;
+    unsigned long long iterations = 0;
+    unsigned long long maxIterations = (unsigned long long)(numEdges*numEdges);
+    while (head && prevEdge != currEdge && offsetVertexCount > 0) {
         ++iterations;
         // we should check each edge against each other edge at most once
-        if (iterations > numEdges*numEdges) {
+        if (iterations > maxIterations) {
             return false;
         }
 
@@ -1327,38 +1330,37 @@ bool SkOffsetSimplePolygon(const SkPoint* inputPolygonVerts, int inputPolygonSiz
     // store all the valid intersections that aren't nearly coincident
     // TODO: look at the main algorithm and see if we can detect these better
     offsetPolygon->reset();
-    if (head) {
-        static constexpr SkScalar kCleanupTolerance = 0.01f;
-        if (offsetVertexCount >= 0) {
-            offsetPolygon->setReserve(offsetVertexCount);
-        }
-        int currIndex = 0;
-        OffsetEdge* currEdge = head;
-        *offsetPolygon->push() = currEdge->fIntersection;
-        if (polygonIndices) {
-            *polygonIndices->push() = currEdge->fIndex;
+    if (!head || offsetVertexCount == 0 || offsetVertexCount >= (1 << 16)) {
+        return false;
+    }
+
+    static constexpr SkScalar kCleanupTolerance = 0.01f;
+    offsetPolygon->setReserve(offsetVertexCount);
+    int currIndex = 0;
+    *offsetPolygon->push() = head->fIntersection;
+    if (polygonIndices) {
+        *polygonIndices->push() = head->fIndex;
+    }
+    currEdge = head->fNext;
+    while (currEdge != head) {
+        if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
+                                                (*offsetPolygon)[currIndex],
+                                                kCleanupTolerance)) {
+            *offsetPolygon->push() = currEdge->fIntersection;
+            if (polygonIndices) {
+                *polygonIndices->push() = currEdge->fIndex;
+            }
+            currIndex++;
         }
         currEdge = currEdge->fNext;
-        while (currEdge != head) {
-            if (!SkPointPriv::EqualsWithinTolerance(currEdge->fIntersection,
-                                                    (*offsetPolygon)[currIndex],
-                                                    kCleanupTolerance)) {
-                *offsetPolygon->push() = currEdge->fIntersection;
-                if (polygonIndices) {
-                    *polygonIndices->push() = currEdge->fIndex;
-                }
-                currIndex++;
-            }
-            currEdge = currEdge->fNext;
-        }
-        // make sure the first and last points aren't coincident
-        if (currIndex >= 1 &&
-            SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
-                                               kCleanupTolerance)) {
-            offsetPolygon->pop();
-            if (polygonIndices) {
-                polygonIndices->pop();
-            }
+    }
+    // make sure the first and last points aren't coincident
+    if (currIndex >= 1 &&
+        SkPointPriv::EqualsWithinTolerance((*offsetPolygon)[0], (*offsetPolygon)[currIndex],
+                                            kCleanupTolerance)) {
+        offsetPolygon->pop();
+        if (polygonIndices) {
+            polygonIndices->pop();
         }
     }
 
