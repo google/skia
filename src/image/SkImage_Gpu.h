@@ -37,12 +37,13 @@ public:
     GrTextureProxy* peekProxy() const override {
         return fProxy.get();
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef() const override {
+    sk_sp<GrTextureProxy> asTextureProxyRef1() const override {
         return fProxy;
     }
-    sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
+    sk_sp<GrTextureProxy> asTextureProxyRef2(GrContext*, const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+    bool asYUVATextureProxies(GrContext*) const override;
 
     sk_sp<GrTextureProxy> refPinnedTextureProxy(uint32_t* uniqueID) const override {
         *uniqueID = this->uniqueID();

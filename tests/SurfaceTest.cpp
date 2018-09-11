@@ -779,7 +779,7 @@ DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(SurfaceClear_Gpu, reporter, ctxInfo) {
         [] (SkSurface* s){
             sk_sp<SkImage> i(s->makeImageSnapshot());
             SkImage_Gpu* gpuImage = (SkImage_Gpu *) as_IB(i);
-            sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef();
+            sk_sp<GrTextureProxy> proxy = gpuImage->asTextureProxyRef1();
             GrContext* context = gpuImage->context();
             return context->contextPriv().makeWrappedSurfaceContext(std::move(proxy),
                                                                     gpuImage->refColorSpace());
