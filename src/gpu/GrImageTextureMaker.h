@@ -11,7 +11,7 @@
 #include "GrTextureMaker.h"
 #include "SkImage.h"
 
-class SkImageCacherator;
+class SkImage_Lazy;
 
 /** This class manages the conversion of generator-backed images to GrTextures. If the caching hint
     is kAllow the image's ID is used for the cache key. */
@@ -34,8 +34,7 @@ protected:
     sk_sp<SkColorSpace> getColorSpace(SkColorSpace* dstColorSpace) override;
 
 private:
-    SkImageCacherator*      fCacher;
-    const SkImage*          fClient;
+    const SkImage_Lazy*     fImage;
     GrUniqueKey             fOriginalKey;
     SkImage::CachingHint    fCachingHint;
 
