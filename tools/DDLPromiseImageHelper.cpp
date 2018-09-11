@@ -144,12 +144,20 @@ int DDLPromiseImageHelper::findImage(SkImage* image) const {
     return -1;
 }
 
+#include "SkImage_Base.h"
+
 int DDLPromiseImageHelper::addImage(SkImage* image) {
+    SkImage_Base* base = as_IB(image);
+
+    if (true) {
+
+    }
+
     sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
 
     SkImageInfo ii = SkImageInfo::Make(rasterImage->width(), rasterImage->height(),
-                                        rasterImage->colorType(), rasterImage->alphaType(),
-                                        rasterImage->refColorSpace());
+                                       rasterImage->colorType(), rasterImage->alphaType(),
+                                       rasterImage->refColorSpace());
 
     SkBitmap bm;
     bm.allocPixels(ii);
