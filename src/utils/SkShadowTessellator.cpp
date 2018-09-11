@@ -269,7 +269,7 @@ bool SkBaseShadowTessellator::computeConvexShadow(SkScalar inset, SkScalar outse
         }
     }
     static constexpr auto kTolerance = 1.0e-2f;
-    if (minDistSq < (inset + kTolerance)*(inset + kTolerance)) {
+    if (inset > 0 && minDistSq < (inset + kTolerance)*(inset + kTolerance)) {
         // if the umbra would collapse, we back off a bit on inner blur and adjust the alpha
         auto newInset = SkScalarSqrt(minDistSq) - kTolerance;
         auto ratio = 128 * (newInset + inset) / inset;
