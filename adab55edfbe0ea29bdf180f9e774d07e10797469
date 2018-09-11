@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5c11037a_36a19eeb",
+        "filename": "src/gpu/gradients/GrTextureGradientColorizer.fp",
+        "patchSetId": 7
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-11T21:29:55Z",
+      "side": 1,
+      "message": "Doesn\u0027t really matter, but do we ever expect the config to be opaque? I\u0027m pretty sure it will always have an alpha component. I\u0027m not sure how important it is, but we could track the opaqueness of the colors used to populate the texture. It looks like SkGradientBase does this with fColorsAreOpaque.",
+      "revId": "adab55edfbe0ea29bdf180f9e774d07e10797469",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
