@@ -987,19 +987,19 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // Any context should be able to borrow the texture at this point
             sk_sp<SkColorSpace> texColorSpace;
-            sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef(
+            sk_sp<GrTextureProxy> proxy = as_IB(refImg)->asTextureProxyRef2(
                     ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxy);
 
             // But once it's borrowed, no other context should be able to borrow
             otherTestContext->makeCurrent();
-            sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef(
+            sk_sp<GrTextureProxy> otherProxy = as_IB(refImg)->asTextureProxyRef2(
                     otherCtx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, !otherProxy);
 
             // Original context (that's already borrowing) should be okay
             testContext->makeCurrent();
-            sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef(
+            sk_sp<GrTextureProxy> proxySecondRef = as_IB(refImg)->asTextureProxyRef2(
                     ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxySecondRef);
 
@@ -1009,7 +1009,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
             // We released one proxy but not the other from the current borrowing context. Make sure
             // a new context is still not able to borrow the texture.
             otherTestContext->makeCurrent();
-            otherProxy = as_IB(refImg)->asTextureProxyRef(otherCtx, GrSamplerState::ClampNearest(),
+            otherProxy = as_IB(refImg)->asTextureProxyRef2(otherCtx, GrSamplerState::ClampNearest(),
                                                           nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, !otherProxy);
 
@@ -1019,7 +1019,7 @@ static void test_cross_context_image(skiatest::Reporter* reporter, const GrConte
 
             // Now we should be able to borrow the texture from the other context
             otherTestContext->makeCurrent();
-            otherProxy = as_IB(refImg)->asTextureProxyRef(otherCtx, GrSamplerState::ClampNearest(),
+            otherProxy = as_IB(refImg)->asTextureProxyRef2(otherCtx, GrSamplerState::ClampNearest(),
                                                           nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, otherProxy);
 
@@ -1070,7 +1070,7 @@ DEF_GPUTEST(SkImage_CrossContextGrayAlphaConfigs, reporter, options) {
             REPORTER_ASSERT(reporter, image);
 
             sk_sp<SkColorSpace> texColorSpace;
-            sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef(
+            sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef2(
                 ctx, GrSamplerState::ClampNearest(), nullptr, &texColorSpace, nullptr);
             REPORTER_ASSERT(reporter, proxy);
 

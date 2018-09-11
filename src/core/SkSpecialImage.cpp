@@ -190,7 +190,7 @@ sk_sp<SkSpecialImage> SkSpecialImage::MakeFromImage(const SkIRect& subset,
     SkASSERT(rect_fits(subset, image->width(), image->height()));
 
 #if SK_SUPPORT_GPU
-    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef()) {
+    if (sk_sp<GrTextureProxy> proxy = as_IB(image)->asTextureProxyRef1()) {
         GrContext* context = ((SkImage_Gpu*) as_IB(image))->context();
 
         return MakeDeferredFromGpu(context, subset, image->uniqueID(), std::move(proxy),
