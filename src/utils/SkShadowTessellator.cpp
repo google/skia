@@ -272,7 +272,8 @@ bool SkBaseShadowTessellator::computeConvexShadow(SkScalar inset, SkScalar outse
     if (minDistSq < (inset + kTolerance)*(inset + kTolerance)) {
         // if the umbra would collapse, we back off a bit on inner blur and adjust the alpha
         auto newInset = SkScalarSqrt(minDistSq) - kTolerance;
-        auto ratio = 128 * (newInset + inset) / inset;
+        auto ratio = 128 * (newInset/inset + 1);
+        SkASSERT(SkScalarIsFinite(ratio));
         // they aren't PMColors, but the interpolation algorithm is the same
         umbraColor = SkPMLerp(kUmbraColor, kPenumbraColor, (unsigned)ratio);
         inset = newInset;
