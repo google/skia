@@ -449,6 +449,30 @@
       "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c057d2e2_3fffb5fc",
+        "filename": "src/gpu/gradients/GrTiledGradientEffect.fp",
+        "patchSetId": 13
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-11T14:36:11Z",
+      "side": 1,
+      "message": "Recorded this in a new issue: https://bugs.chromium.org/p/skia/issues/detail?id\u003d8372",
+      "parentUuid": "86bdb855_f8ff1ede",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 26,
+        "endChar": 9
+      },
+      "revId": "02adfd89782e877b01544ed6aa1cc3566b52a188",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
