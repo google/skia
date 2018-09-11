@@ -407,7 +407,7 @@ private:
             fFreeSpace = 0;
             fVerbCnt = 0;
             fPointCnt = 0;
-            this->makeSpace(minSize, true);
+            this->makeSpace(minSize);
             fVerbCnt = verbCount;
             fPointCnt = pointCount;
             fFreeSpace -= newSize;
@@ -437,28 +437,24 @@ private:
 
     /**
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
-     * are not changed. May allocate extra capacity, unless |exact| is true.
+     * are not changed.
      */
-    void makeSpace(size_t size, bool exact = false) {
+    void makeSpace(size_t size) {
         SkDEBUGCODE(this->validate();)
         if (size <= fFreeSpace) {
             return;
         }
         size_t growSize = size - fFreeSpace;
         size_t oldSize = this->currSize();
-
-        if (!exact) {
-            // round to next multiple of 8 bytes
-            growSize = (growSize + 7) & ~static_cast<size_t>(7);
-            // we always at least double the allocation
-            if (growSize < oldSize) {
-                growSize = oldSize;
-            }
-            if (growSize < kMinSize) {
-                growSize = kMinSize;
-            }
+        // round to next multiple of 8 bytes
+        growSize = (growSize + 7) & ~static_cast<size_t>(7);
+        // we always at least double the allocation
+        if (growSize < oldSize) {
+            growSize = oldSize;
         }
-
+        if (growSize < kMinSize) {
+            growSize = kMinSize;
+        }
         constexpr size_t maxSize = std::numeric_limits<size_t>::max();
         size_t newSize;
         if (growSize <= maxSize - oldSize) {
