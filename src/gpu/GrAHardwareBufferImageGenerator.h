@@ -40,6 +40,10 @@ public:
 
     static void DeleteGLTexture(void* ctx);
 
+#ifdef SK_VULKAN
+    static void DeleteVkImage(void* ctx);
+#endif
+
 protected:
 
     bool onIsValid(GrContext*) const override;

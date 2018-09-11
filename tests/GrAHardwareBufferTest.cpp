@@ -74,14 +74,17 @@ static SkBitmap make_src_bitmap() {
 static bool check_read(skiatest::Reporter* reporter, const SkBitmap& srcBitmap,
                        const SkBitmap& dstBitmap) {
     bool result = true;
-    for (int y = 0; y < DEV_H && result; ++y) {
-        for (int x = 0; x < DEV_W && result; ++x) {
+    for (int y = 0; y < DEV_H /*&& result*/; ++y) {
+        for (int x = 0; x < DEV_W /*&& result*/; ++x) {
             const uint32_t srcPixel = *srcBitmap.getAddr32(x, y);
             const uint32_t dstPixel = *dstBitmap.getAddr32(x, y);
             if (srcPixel != dstPixel) {
                 ERRORF(reporter, "Expected readback pixel (%d, %d) value 0x%08x, got 0x%08x.",
                        x, y,  srcPixel, dstPixel);
                 result = false;
+            } else {
+                SkDebugf("Got good pixel (%d, %d) value 0x%08x, got 0x%08x.\n",
+                       x, y,  srcPixel, dstPixel);
             }
         }
     }
