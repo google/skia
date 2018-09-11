@@ -113,7 +113,7 @@ SkBlitter* SkCreateRasterPipelineBlitter(const SkPixmap& dst,
 #else
     SkColorSpace* dstCS = dst.colorSpace();
 #endif
-    SkPM4f paintColor = premul_in_dst_colorspace(paint.getColor(), dstCS);
+    SkPM4f paintColor = premul_in_dst_colorspace(paint.getColor4f(), sk_srgb_singleton(), dstCS);
 
     auto shader = as_SB(paint.getShader());
 
