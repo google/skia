@@ -2118,6 +2118,29 @@ void draw(SkCanvas* canvas) {
 ##
 
 # ------------------------------------------------------------------------------
+
+#Method void shrinkToFit()
+#In Utility
+#Line # discards unused storage capacity ##
+Shrinks Path Verb_Array and Point_Array storage to discard unused capacity.
+May reduce the heap overhead for Paths known to be fully constructed.
+
+#Example
+#Height 192
+void draw(SkCanvas* canvas) {
+    SkPath skinnyPath;
+    skinnyPath.lineTo(100, 100);
+    skinnyPath.shrinkToFit();
+
+    SkDebugf("no wasted Path capacity in my house!\n");
+}
+##
+
+#SeeAlso Point_Array
+
+##
+
+# ------------------------------------------------------------------------------
 #Subtopic Build
 #Populate
 #Line # adds points and verbs to path ##
