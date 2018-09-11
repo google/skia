@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a014cf5e_50e3ac41",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5641
+      },
+      "writtenOn": "2018-09-11T13:48:51Z",
+      "side": 1,
+      "message": "I think this is the ASAN-caught issue -- per comments: fVerbs; // points just past the end of the allocation (verbs grow backwards)\n\nso (fPathRef-\u003efVerbs - vrbSize) ?",
+      "range": {
+        "startLine": 68,
+        "startChar": 48,
+        "endLine": 68,
+        "endChar": 64
+      },
+      "revId": "3d69be51bb799fd8154a9f29bf64903a0a48aa46",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
