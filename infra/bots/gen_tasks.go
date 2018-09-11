@@ -564,6 +564,7 @@ func defaultSwarmDimensions(parts map[string]string) []string {
 					glog.Fatalf("Entry %q not found in Ubuntu GPU mapping.", parts["cpu_or_gpu_value"])
 				}
 				d["gpu"] = gpu
+				d["id"] = "skia-e-linux-012" // FIXME: for debugging driver updates
 			} else if strings.Contains(parts["os"], "Mac") {
 				gpu, ok := map[string]string{
 					"IntelHD6000":   "8086:1626",
@@ -1351,11 +1352,7 @@ func process(b *specs.TasksCfgBuilder, name string) {
 			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_sdk"))
 		}
 		if strings.Contains(name, "Intel") && strings.Contains(name, "GPU") {
-			if strings.Contains(name, "Release") {
-				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_release"))
-			} else {
-				pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("linux_vulkan_intel_driver_debug"))
-			}
+			pkgs = append(pkgs, b.MustGetCipdPackageFromAsset("mesa_intel_driver"))
 		}
 		if strings.Contains(name, "OpenCL") {
 			pkgs = append(pkgs,
