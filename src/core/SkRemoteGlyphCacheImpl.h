@@ -8,13 +8,16 @@
 #ifndef SkRemoteGlyphCacheImpl_DEFINED
 #define SkRemoteGlyphCacheImpl_DEFINED
 
-#include "SkRemoteGlyphCache.h"
+#include "SkDescriptor.h"
 #include "SkGlyphRun.h"
+#include "SkRemoteGlyphCache.h"
 
 class SkStrikeServer::SkGlyphCacheState : public SkGlyphCacheInterface {
 public:
     // N.B. SkGlyphCacheState is not valid until ensureScalerContext is called.
-    SkGlyphCacheState(std::unique_ptr<SkDescriptor> keyDescriptor,
+    SkGlyphCacheState(const SkDescriptor& keyDescriptor,
+                      const SkDescriptor& deviceDescriptor,
+                      std::unique_ptr<SkScalerContext> context,
                       SkDiscardableHandleId discardableHandleId);
     ~SkGlyphCacheState() override;
 
@@ -22,21 +25,19 @@ public:
     void writePendingGlyphs(Serializer* serializer);
     SkDiscardableHandleId discardableHandleId() const { return fDiscardableHandleId; }
     const SkDescriptor& getDeviceDescriptor() {
-        return *fDeviceDescriptor;
+        return *fDeviceDescriptor.getDesc();
     }
+
     bool isSubpixel() const { return fIsSubpixel; }
     SkAxisAlignment axisAlignmentForHText() const { return fAxisAlignmentForHText; }
 
     const SkDescriptor& getKeyDescriptor() {
-        return *fKeyDescriptor;
+        return *fKeyDescriptor.getDesc();
     }
+
     const SkGlyph& findGlyph(SkPackedGlyphID);
 
-    void ensureScalerContext(const SkPaint& paint,
-                             const SkSurfaceProps* props,
-                             const SkMatrix* matrix,
-                             SkScalerContextFlags flags,
-                             SkScalerContextEffects* effects);
+    void setPaint(const SkPaint& paint);
 
     SkVector rounding() const override;
 
@@ -47,6 +48,8 @@ private:
         return !fPendingGlyphImages.empty() || !fPendingGlyphPaths.empty();
     }
     void writeGlyphPath(const SkPackedGlyphID& glyphID, Serializer* serializer) const;
+
+    void ensureScalerContext();
 
     // The set of glyphs cached on the remote client.
     SkTHashSet<SkPackedGlyphID> fCachedGlyphImages;
@@ -60,13 +63,21 @@ private:
     // The device descriptor is used to create the scaler context. The glyphs to have the
     // correct device rendering. The key descriptor is used for communication. The GPU side will
     // create descriptors with out the device filtering, thus matching the key descriptor.
-    std::unique_ptr<SkDescriptor> fDeviceDescriptor;
-    std::unique_ptr<SkDescriptor> fKeyDescriptor;
+    const SkAutoDescriptor fKeyDescriptor;
+    const SkAutoDescriptor fDeviceDescriptor;
+
     const SkDiscardableHandleId fDiscardableHandleId;
+
+    // Values saved from the initial context.
+    const bool fIsSubpixel;
+    const SkAxisAlignment fAxisAlignmentForHText;
+
     // The context built using fDeviceDescriptor
     std::unique_ptr<SkScalerContext> fContext;
-    bool fIsSubpixel;
-    SkAxisAlignment fAxisAlignmentForHText;
+
+    // This field is set everytime getOrCreateCache. This allows the code to maintain the fContext
+    // as lazy as possible.
+    const SkPaint* fPaint{nullptr};
 
     // FallbackTextHelper cases require glyph metrics when analyzing a glyph run, in which case
     // we cache them here.
