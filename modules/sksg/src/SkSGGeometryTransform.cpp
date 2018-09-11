@@ -41,6 +41,7 @@ SkRect GeometryTransform::onRevalidate(InvalidationController* ic, const SkMatri
     auto bounds = fChild->revalidate(ic, ctm);
     fTransformed = fChild->asPath();
     fTransformed.transform(m);
+    fTransformed.shrinkToFit();
 
     m.mapRect(&bounds);
     return  bounds;
