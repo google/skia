@@ -34,6 +34,9 @@ GrSkSLFPFactory::GrSkSLFPFactory(const char* name, const GrShaderCaps* shaderCap
                 if (var.fModifiers.fFlags & SkSL::Modifiers::kIn_Flag) {
                     fInputVars.push_back(&var);
                 }
+                if (var.fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
+                    fUniformVars.push_back(&var);
+                }
                 if (var.fModifiers.fLayout.fKey) {
                     fKeyVars.push_back(&var);
                 }
@@ -53,7 +56,8 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
     size_t offset = 0;
     for (const auto& v : fInputVars) {
         SkSL::String name(v->fName);
-        if (&v->fType == fCompiler.context().fInt_Type.get()) {
+        if (v->fType.kind() == SkSL::Type::kEnum_Kind ||
+            &v->fType == fCompiler.context().fInt_Type.get()) {
             offset = SkAlign4(offset);
             int32_t v = *(int32_t*) (((uint8_t*) inputs) + offset);
             inputMap.insert(std::make_pair(name, SkSL::Program::Settings::Value(v)));
@@ -82,10 +86,12 @@ const SkSL::Program* GrSkSLFPFactory::getSpecialization(const SkSL::String& key,
 
 class GrGLSLSkSLFP : public GrGLSLFragmentProcessor {
 public:
-    GrGLSLSkSLFP(const SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
-                 SkSL::String glsl, std::vector<SkSL::Compiler::FormatArg> formatArgs)
+    GrGLSLSkSLFP(SkSL::Context* context, const std::vector<const SkSL::Variable*>* inputVars,
+                 const std::vector<const SkSL::Variable*>* uniformVars, SkSL::String glsl,
+                 std::vector<SkSL::Compiler::FormatArg> formatArgs)
             : fContext(*context)
             , fInputVars(*inputVars)
+            , fUniformVars(*uniformVars)
             , fGLSL(glsl)
             , fFormatArgs(formatArgs) {}
 
@@ -111,15 +117,13 @@ public:
         } else if (type == *fContext.fInt_Type) {
             return kInt_GrSLType;
         }
-        printf("%s\n", SkSL::String(type.fName).c_str());
         SK_ABORT("unsupported uniform type");
         return kFloat_GrSLType;
     }
 
     void emitCode(EmitArgs& args) override {
-        for (const auto& v : fInputVars) {
-            if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag && v->fType !=
-                                                                *fContext.fFragmentProcessor_Type) {
+        for (const auto& v : fUniformVars) {
+            if (v->fType != *fContext.fFragmentProcessor_Type) {
                 fUniformHandles.push_back(args.fUniformHandler->addUniform(
                                                                    kFragment_GrShaderFlag,
                                                                    this->uniformType(v->fType),
@@ -208,7 +212,8 @@ public:
                 if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
                     pdman.set4f(fUniformHandles[uniformIndex++], f1, f2, f3, f4);
                 }
-            } else if (&v->fType == context.fInt_Type.get()) {
+            } else if (v->fType.kind() == SkSL::Type::kEnum_Kind ||
+                       &v->fType == context.fInt_Type.get()) {
                 int32_t i = *(int*) (inputs + offset);
                 offset += sizeof(int32_t);
                 if (v->fModifiers.fFlags & SkSL::Modifiers::kUniform_Flag) {
@@ -221,10 +226,14 @@ public:
                 SkASSERT(&v->fType == context.fFragmentProcessor_Type.get());
             }
         }
+        if (outer.fSetDataHook) {
+            outer.fSetDataHook(pdman, outer.fInputs.get(), fUniformHandles);
+        }
     }
 
     const SkSL::Context& fContext;
     const std::vector<const SkSL::Variable*>& fInputVars;
+    const std::vector<const SkSL::Variable*>& fUniformVars;
     // nearly-finished GLSL; still contains printf-style "%s" format tokens
     const SkSL::String fGLSL;
     std::vector<SkSL::Compiler::FormatArg> fFormatArgs;
@@ -262,7 +271,8 @@ GrSkSLFP::GrSkSLFP(const GrSkSLFP& other)
         , fName(other.fName)
         , fSkSL(other.fSkSL)
         , fInputs(new int8_t[other.fInputSize])
-        , fInputSize(other.fInputSize) {
+        , fInputSize(other.fInputSize)
+        , fSetDataHook(other.fSetDataHook) {
     memcpy(fInputs.get(), other.fInputs.get(), fInputSize);
 }
 
@@ -284,6 +294,12 @@ void GrSkSLFP::addChild(std::unique_ptr<GrFragmentProcessor> child) {
     this->registerChildProcessor(std::move(child));
 }
 
+void GrSkSLFP::setSetDataHook(void (*hook)(const GrGLSLProgramDataManager&,
+                                           void* inputs,
+                                           const std::vector<UniformHandle> uniforms)) {
+    fSetDataHook = hook;
+}
+
 GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
     this->createFactory();
     const SkSL::Program* specialized = fFactory->getSpecialization(fKey, fInputs.get(), fInputSize);
@@ -293,7 +309,8 @@ GrGLSLFragmentProcessor* GrSkSLFP::onCreateGLSLInstance() const {
         printf("%s\n", fFactory->fCompiler.errorText().c_str());
         SkASSERT(false);
     }
-    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars, glsl, formatArgs);
+    return new GrGLSLSkSLFP(specialized->fContext.get(), &fFactory->fInputVars,
+                            &fFactory->fUniformVars, glsl, formatArgs);
 }
 
 void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
@@ -303,7 +320,7 @@ void GrSkSLFP::onGetGLSLProcessorKey(const GrShaderCaps& caps,
     char* inputs = (char*) fInputs.get();
     const SkSL::Context& context = fFactory->fCompiler.context();
     for (const auto& v : fFactory->fInputVars) {
-        if (&v->fType == context.fInt_Type.get()) {
+        if (v->fType.kind() == SkSL::Type::kEnum_Kind || &v->fType == context.fInt_Type.get()) {
             offset = SkAlign4(offset);
             if (v->fModifiers.fLayout.fKey) {
                 fKey += inputs[offset + 0];
@@ -398,6 +415,7 @@ GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrSkSLFP);
 
 #include "GrConstColorProcessor.h"
 #include "SkArithmeticImageFilter.h"
+#include "effects/GrConvexPolyEffect.h"
 
 extern const char* SKSL_ARITHMETIC_SRC;
 extern const char* SKSL_DITHER_SRC;
@@ -406,7 +424,7 @@ extern const char* SKSL_OVERDRAW_SRC;
 using Value = SkSL::Program::Settings::Value;
 
 std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d) {
-    int type = d->fRandom->nextULessThan(3);
+    int type = d->fRandom->nextULessThan(4);
     switch (type) {
         case 0: {
             static int ditherIndex = NewIndex();
@@ -442,6 +460,20 @@ std::unique_ptr<GrFragmentProcessor> GrSkSLFP::TestCreate(GrProcessorTestData* d
                                                               "Overdraw", SKSL_OVERDRAW_SRC,
                                                               &inputs, sizeof(inputs));
             return std::unique_ptr<GrFragmentProcessor>(result.release());
+        }
+        case 3: {
+            SkRect rect = SkRect::MakeLTRB(d->fRandom->nextSScalar1(),
+                                           d->fRandom->nextSScalar1(),
+                                           d->fRandom->nextSScalar1(),
+                                           d->fRandom->nextSScalar1());
+            std::unique_ptr<GrFragmentProcessor> fp;
+            do {
+                GrClipEdgeType edgeType = static_cast<GrClipEdgeType>(
+                        d->fRandom->nextULessThan(kGrClipEdgeTypeCnt));
+
+                fp = GrConvexPolyEffect::Make(edgeType, rect, d->context());
+            } while (nullptr == fp);
+            return fp;
         }
     }
     SK_ABORT("unreachable");
