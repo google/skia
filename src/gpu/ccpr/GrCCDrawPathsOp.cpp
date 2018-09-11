@@ -14,6 +14,10 @@
 #include "ccpr/GrCCPerFlushResources.h"
 #include "ccpr/GrCoverageCountingPathRenderer.h"
 
+static constexpr float kPathCropThreshold = GrCoverageCountingPathRenderer::kPathCropThreshold;
+static constexpr float kMaxBoundsInflationFromStroke =
+        GrCoverageCountingPathRenderer::kMaxBoundsInflationFromStroke;
+
 static bool has_coord_transforms(const GrPaint& paint) {
     GrFragmentProcessor::Iter iter(paint);
     while (const GrFragmentProcessor* fp = iter.next()) {
@@ -31,8 +35,6 @@ static int64_t area(const SkIRect& r) {
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
         GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
         GrPaint&& paint) {
-    static constexpr int kPathCropThreshold = GrCoverageCountingPathRenderer::kPathCropThreshold;
-
     SkRect conservativeDevBounds;
     m.mapRect(&conservativeDevBounds, shape.bounds());
 
@@ -40,17 +42,8 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
     float strokeDevWidth = 0;
     float conservativeInflationRadius = 0;
     if (!stroke.isFillStyle()) {
-        if (stroke.isHairlineStyle()) {
-            strokeDevWidth = 1;
-        } else {
-            SkASSERT(m.isSimilarity());  // Otherwise matrixScaleFactor = m.getMaxScale().
-            float matrixScaleFactor = SkVector::Length(m.getScaleX(), m.getSkewY());
-            strokeDevWidth = stroke.getWidth() * matrixScaleFactor;
-        }
-        // Inflate for a minimum stroke width of 1. In some cases when the stroke is less than 1px
-        // wide, we may inflate it to 1px and instead reduce the opacity.
-        conservativeInflationRadius = SkStrokeRec::GetInflationRadius(
-                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), SkTMax(strokeDevWidth, 1.f));
+        strokeDevWidth = GrCoverageCountingPathRenderer::GetStrokeDevWidth(
+                m, stroke, &conservativeInflationRadius);
         conservativeDevBounds.outset(conservativeInflationRadius, conservativeInflationRadius);
     }
 
@@ -91,6 +84,8 @@ std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::Make(
 std::unique_ptr<GrCCDrawPathsOp> GrCCDrawPathsOp::InternalMake(
         GrContext* context, const SkIRect& clipIBounds, const SkMatrix& m, const GrShape& shape,
         float strokeDevWidth, const SkRect& conservativeDevBounds, GrPaint&& paint) {
+    SkASSERT(SkTMax(conservativeDevBounds.height(), conservativeDevBounds.width()) <
+             kPathCropThreshold + kMaxBoundsInflationFromStroke + 1);
     SkIRect shapeConservativeIBounds;
     conservativeDevBounds.roundOut(&shapeConservativeIBounds);
 
