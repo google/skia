@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "07a45de8_6be8cc41",
+        "filename": "src/image/SkImage_Lazy.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-11T14:13:35Z",
+      "side": 1,
+      "message": "Any idea why the raw pointer here?  Does it make sense to use an array of unique_ptrs, or just an array of GrUniqueKeyInvalidatedMessage?",
+      "range": {
+        "startLine": 116,
+        "startChar": 12,
+        "endLine": 116,
+        "endChar": 53
+      },
+      "revId": "61123169912f461e9ba120f065002a1e583c9896",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
