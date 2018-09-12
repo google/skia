@@ -418,6 +418,7 @@ INCLUDES = [
     "src/ports",
     "src/sfnt",
     "src/shaders",
+    "src/shaders/gradients",
     "src/sksl",
     "src/utils",
     "third_party/gif",

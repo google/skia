@@ -109,6 +109,10 @@ public:
         return true;
     }
 
+    bool mustDoOpBetweenFloorAndAbs() const {
+        return false;
+    }
+
     bool mustEnableAdvBlendEqs() const {
         return false;
     }
