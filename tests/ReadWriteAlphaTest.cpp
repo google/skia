@@ -66,8 +66,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         // We are initializing the texture with zeros here
         memset(alphaData, 0, X_SIZE * Y_SIZE);
 
+        const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
+
+        SkPixmap pixmap(ii, alphaData, ii.minRowBytes());
+        sk_sp<SkImage> alphaImg = SkImage::MakeRasterCopy(pixmap);
         sk_sp<GrTextureProxy> proxy =
-                proxyProvider->createTextureProxy(desc, SkBudgeted::kNo, alphaData, 0);
+            proxyProvider->createTextureProxy(alphaImg, kNone_GrSurfaceFlags, 1,
+                                              SkBudgeted::kNo, SkBackingFit::kExact);
         if (!proxy) {
             ERRORF(reporter, "Could not create alpha texture.");
             return;
@@ -75,7 +80,6 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(ReadWriteAlpha, reporter, ctxInfo) {
         sk_sp<GrSurfaceContext> sContext(context->contextPriv().makeWrappedSurfaceContext(
                                                                   std::move(proxy)));
 
-        const SkImageInfo ii = SkImageInfo::MakeA8(X_SIZE, Y_SIZE);
         sk_sp<SkSurface> surf(SkSurface::MakeRenderTarget(context, SkBudgeted::kNo, ii));
 
         // create a distinctive texture

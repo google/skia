@@ -251,10 +251,6 @@ void test_draw_op(GrContext* context,
 bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
                         sk_sp<GrTextureProxy> proxies[2]) {
     static const int kTestTextureSize = 256;
-    GrSurfaceDesc desc;
-    desc.fWidth = kTestTextureSize;
-    desc.fHeight = kTestTextureSize;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
     {
         // Put premul data into the RGBA texture that the test FPs can optionally use.
@@ -266,13 +262,16 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[0] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, rgbaData.get(),
-                                                       kTestTextureSize * sizeof(GrColor));
+        SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
+                                           kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+        SkPixmap pixmap(ii, rgbaData.get(), ii.minRowBytes());
+        sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
+        proxies[0] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
+                                                       SkBudgeted::kYes, SkBackingFit::kExact);
     }
 
     {
         // Put random values into the alpha texture that the test FPs can optionally use.
-        desc.fConfig = kAlpha_8_GrPixelConfig;
         std::unique_ptr<uint8_t[]> alphaData(new uint8_t[kTestTextureSize * kTestTextureSize]);
         for (int y = 0; y < kTestTextureSize; ++y) {
             for (int x = 0; x < kTestTextureSize; ++x) {
@@ -280,8 +279,12 @@ bool init_test_textures(GrProxyProvider* proxyProvider, SkRandom* random,
             }
         }
 
-        proxies[1] = proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, alphaData.get(),
-                                                       kTestTextureSize);
+        SkImageInfo ii = SkImageInfo::Make(kTestTextureSize, kTestTextureSize,
+                                           kAlpha_8_SkColorType, kPremul_SkAlphaType);
+        SkPixmap pixmap(ii, alphaData.get(), ii.minRowBytes());
+        sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
+        proxies[1] = proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
+                                                       SkBudgeted::kYes, SkBackingFit::kExact);
     }
 
     return proxies[0] && proxies[1];
@@ -296,13 +299,12 @@ sk_sp<GrTextureProxy> make_input_texture(GrProxyProvider* proxyProvider, int wid
             data.get()[width * y + x] = input_texel_color(x, y);
         }
     }
-    GrSurfaceDesc desc;
-    desc.fWidth = width;
-    desc.fHeight = height;
-    desc.fConfig = kRGBA_8888_GrPixelConfig;
 
-    return proxyProvider->createTextureProxy(desc, SkBudgeted::kYes, data.get(),
-                                             width * sizeof(GrColor));
+    SkImageInfo ii = SkImageInfo::Make(width, height, kRGBA_8888_SkColorType, kPremul_SkAlphaType);
+    SkPixmap pixmap(ii, data.get(), ii.minRowBytes());
+    sk_sp<SkImage> img = SkImage::MakeRasterCopy(pixmap);
+    return proxyProvider->createTextureProxy(img, kNone_GrSurfaceFlags, 1,
+                                             SkBudgeted::kYes, SkBackingFit::kExact);
 }
 
 DEF_GPUTEST_FOR_GL_RENDERING_CONTEXTS(ProcessorOptimizationValidationTest, reporter, ctxInfo) {
