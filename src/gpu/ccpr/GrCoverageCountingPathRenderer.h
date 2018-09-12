@@ -76,6 +76,13 @@ public:
 
     static void CropPath(const SkPath&, const SkIRect& cropbox, SkPath* out);
 
+    // Maximum inflation of path bounds due to stroking (from width, miter, caps). Strokes wider
+    // than this will be converted to fill paths and drawn by the CCPR filler instead.
+    static constexpr float kMaxBoundsInflationFromStroke = 4096;
+
+    static float GetStrokeDevWidth(const SkMatrix&, const SkStrokeRec&,
+                                   float* inflationRadius = nullptr);
+
 private:
     GrCoverageCountingPathRenderer(AllowCaching);
 
