@@ -4,7 +4,7 @@
 steps:
   # To test locally, first uncomment the last two lines of this comment block, then submit with:
   #
-  #    gcloud container builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=e01683e81de03caf5a2f9a23a5ae9f644908b56f
+  #    gcloud builds submit --config cloudbuild.yaml --no-source --substitutions=COMMIT_SHA=b2acf0a93927a57cc1fa9323839e788379ae3366
   #
   # Where COMMIT_SHA is updated to the last commit into Skia.
   #
