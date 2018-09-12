@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "71e541d7_6b6654e0",
+        "filename": "src/gpu/GrCaps.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ffc4643_cfefa2b0",
+      "range": {
+        "startLine": 233,
+        "startChar": 4,
+        "endLine": 233,
+        "endChar": 8
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b68ed333_98876457",
         "filename": "src/gpu/GrResourceCache.cpp",
         "patchSetId": 1
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "083d2681_b89c9373",
+        "filename": "src/gpu/GrResourceCache.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 597,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b68ed333_98876457",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ddfc782e_13d72f6e",
         "filename": "src/gpu/gl/GrGLCaps.cpp",
         "patchSetId": 1
@@ -56,6 +98,24 @@
       "revId": "980641eb20086ee1db22cf0b45e925d904563546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d7afbcac_e9fc9c57",
+        "filename": "src/gpu/gl/GrGLCaps.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ddfc782e_13d72f6e",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "29bfddf0_b4476e90",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Leaving as is for mini optimization in follow on test update that will do more iterations and creating of src bitmap",
+      "parentUuid": "249d7840_0468d9ab",
+      "range": {
+        "startLine": 59,
+        "startChar": 4,
+        "endLine": 59,
+        "endChar": 10
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cbd297fb_e3ede5e2",
         "filename": "tests/GrAHardwareBufferTest.cpp",
         "patchSetId": 1
@@ -102,6 +186,30 @@
       "revId": "980641eb20086ee1db22cf0b45e925d904563546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f65a61ed_ffecbfc9",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cbd297fb_e3ede5e2",
+      "range": {
+        "startLine": 74,
+        "startChar": 69,
+        "endLine": 74,
+        "endChar": 78
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "2c0f586b_e441ffaa",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0eb642f1_831c1248",
+      "range": {
+        "startLine": 75,
+        "startChar": 39,
+        "endLine": 75,
+        "endChar": 48
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "400d0b62_9487ada4",
         "filename": "tests/GrAHardwareBufferTest.cpp",
         "patchSetId": 1
@@ -142,6 +274,24 @@
       "revId": "980641eb20086ee1db22cf0b45e925d904563546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "306f5ee4_4e691606",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "leaving as is",
+      "parentUuid": "400d0b62_9487ada4",
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -168,6 +318,30 @@
     },
     {
       "key": {
+        "uuid": "d2ab0322_1aeceac2",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fd3ee945_394a6fd4",
+      "range": {
+        "startLine": 110,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 12
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5c7ee32_95884240",
         "filename": "tests/GrAHardwareBufferTest.cpp",
         "patchSetId": 1
@@ -191,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "60d400bd_6c392e76",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5c7ee32_95884240",
+      "range": {
+        "startLine": 133,
+        "startChar": 26,
+        "endLine": 133,
+        "endChar": 27
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d522bbcb_f483e449",
         "filename": "tests/GrAHardwareBufferTest.cpp",
         "patchSetId": 1
@@ -202,6 +400,30 @@
       "writtenOn": "2018-09-11T16:24:30Z",
       "side": 1,
       "message": "It seems like we could skip making srcBitmap all together and just jam the result of get_src_color in here",
+      "range": {
+        "startLine": 152,
+        "startChar": 8,
+        "endLine": 152,
+        "endChar": 38
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c03bfec0_59e5762f",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "As discussed offline, future updates to this test won\u0027t be filling in the AHardwareBuffer on the CPU and instead will use the bitmap to draw the values into the AHardwareBuffer. So just getting the test set up now for how it will be used in future.",
+      "parentUuid": "d522bbcb_f483e449",
       "range": {
         "startLine": 152,
         "startChar": 8,
@@ -237,6 +459,30 @@
     },
     {
       "key": {
+        "uuid": "a4f9ece7_b50bb609",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b6041b5_838ce130",
+      "range": {
+        "startLine": 179,
+        "startChar": 12,
+        "endLine": 179,
+        "endChar": 17
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "28b7bce7_f7536ddb",
         "filename": "tests/GrAHardwareBufferTest.cpp",
         "patchSetId": 1
@@ -257,6 +503,30 @@
       "revId": "980641eb20086ee1db22cf0b45e925d904563546",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3ab8051c_6b38a93a",
+        "filename": "tests/GrAHardwareBufferTest.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T13:17:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28b7bce7_f7536ddb",
+      "range": {
+        "startLine": 182,
+        "startChar": 13,
+        "endLine": 182,
+        "endChar": 16
+      },
+      "revId": "980641eb20086ee1db22cf0b45e925d904563546",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
