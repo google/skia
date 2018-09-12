@@ -78,7 +78,8 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
     SkPath path;
     shape.asPath(&path);
 
-    switch (shape.style().strokeRec().getStyle()) {
+    const SkStrokeRec& stroke = shape.style().strokeRec();
+    switch (stroke.getStyle()) {
         case SkStrokeRec::kFill_Style: {
             SkRect devBounds;
             args.fViewMatrix->mapRect(&devBounds, path.getBounds());
@@ -122,9 +123,21 @@ GrPathRenderer::CanDrawPath GrCoverageCountingPathRenderer::onCanDrawPath(
                 return CanDrawPath::kNo;
             }
             // fallthru
-        case SkStrokeRec::kHairline_Style:
-            // The stroker does not support conics yet.
-            return !SkPathPriv::ConicWeightCnt(path) ? CanDrawPath::kYes : CanDrawPath::kNo;
+        case SkStrokeRec::kHairline_Style: {
+            float inflationRadius;
+            GetStrokeDevWidth(*args.fViewMatrix, stroke, &inflationRadius);
+            if (!(inflationRadius <= kMaxBoundsInflationFromStroke)) {
+                // Let extremely wide strokes be converted to fill paths and drawn by the CCPR
+                // filler instead. (Cast the logic negatively in order to also catch r=NaN.)
+                return CanDrawPath::kNo;
+            }
+            SkASSERT(!SkScalarIsNaN(inflationRadius));
+            if (SkPathPriv::ConicWeightCnt(path)) {
+                // The stroker does not support conics yet.
+                return CanDrawPath::kNo;
+            }
+            return CanDrawPath::kYes;
+        }
 
         case SkStrokeRec::kStrokeAndFill_Style:
             return CanDrawPath::kNo;
@@ -322,4 +335,25 @@ void GrCoverageCountingPathRenderer::CropPath(const SkPath& path, const SkIRect&
         out->reset();
     }
     out->setIsVolatile(true);
+}
+
+float GrCoverageCountingPathRenderer::GetStrokeDevWidth(const SkMatrix& m,
+                                                        const SkStrokeRec& stroke,
+                                                        float* inflationRadius) {
+    float strokeDevWidth;
+    if (stroke.isHairlineStyle()) {
+        strokeDevWidth = 1;
+    } else {
+        SkASSERT(SkStrokeRec::kStroke_Style == stroke.getStyle());
+        SkASSERT(m.isSimilarity());  // Otherwise matrixScaleFactor = m.getMaxScale().
+        float matrixScaleFactor = SkVector::Length(m.getScaleX(), m.getSkewY());
+        strokeDevWidth = stroke.getWidth() * matrixScaleFactor;
+    }
+    if (inflationRadius) {
+        // Inflate for a minimum stroke width of 1. In some cases when the stroke is less than 1px
+        // wide, we may inflate it to 1px and instead reduce the opacity.
+        *inflationRadius = SkStrokeRec::GetInflationRadius(
+                stroke.getJoin(), stroke.getMiter(), stroke.getCap(), SkTMax(strokeDevWidth, 1.f));
+    }
+    return strokeDevWidth;
 }
