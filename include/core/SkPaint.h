@@ -15,6 +15,7 @@
    to create an updated version of this file.
  */
 
+test
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 
