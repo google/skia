@@ -171,10 +171,6 @@ bool read_path(Deserializer* deserializer, SkGlyph* glyph, SkGlyphCache* cache) 
 }
 
 #if SK_SUPPORT_GPU
-SkScalar glyph_size_limit(const SkTextBlobCacheDiffCanvas::Settings& settings) {
-    return GrGlyphCache::ComputeGlyphSizeLimit(settings.fMaxTextureSize, settings.fMaxTextureBytes);
-}
-
 void add_glyph_to_cache(SkStrikeServer::SkGlyphCacheState* cache, SkTypeface* tf,
                         const SkScalerContextEffects& effects, SkGlyphID glyphID) {
     SkASSERT(cache != nullptr);
@@ -306,9 +302,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     SkPaint pathPaint(runPaint);
 #if SK_SUPPORT_GPU
     SkScalar matrixScale = pathPaint.setupForAsPaths();
-    GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(
-            runMatrix, runPaint, glyph_size_limit(fSettings), matrixScale);
-    const SkPoint emptyPosition{0, 0};
+    GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(runMatrix, runPaint, matrixScale);
 #else
     pathPaint.setupForAsPaths();
 #endif
@@ -331,7 +325,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
         if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
             // Note that we send data for the original glyph even in the case of fallback
             // since its glyph metrics will still be used on the client.
-            fallbackTextHelper.appendGlyph(glyph, glyphID, emptyPosition);
+            fallbackTextHelper.appendGlyph(glyph, glyphID, {0, 0});
         }
 #endif
         glyphCacheState->addGlyph(glyphID, asPath);
@@ -369,8 +363,7 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(),
                                                             nullptr, flags, &effects);
 
-    GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(
-            runMatrix, runPaint, glyph_size_limit(fSettings), textRatio);
+    GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(runMatrix, runPaint, textRatio);
     const bool asPath = false;
     const SkPoint emptyPosition{0, 0};
     auto glyphs = glyphRun.shuntGlyphsIDs();

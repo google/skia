@@ -112,8 +112,6 @@ public:
     GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes);
     ~GrGlyphCache();
 
-    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
-
     void setStrikeToPreserve(GrTextStrike* strike) { fPreserveStrike = strike; }
 
     // The user of the cache may hold a long-lived ref to the returned strike. However, actions by
@@ -147,7 +145,6 @@ private:
 
     StrikeHash fCache;
     GrTextStrike* fPreserveStrike;
-    SkScalar fGlyphSizeLimit;
     std::unique_ptr<const SkMasks> f565Masks;
 };
 
