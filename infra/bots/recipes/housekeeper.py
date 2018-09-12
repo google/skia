@@ -63,12 +63,11 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
+		     patch_issue='456789',
+		     patch_set='11',
+                     patch_ref='refs/changes/89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
                      patch_storage='gerrit',
                      swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.properties.tryserver(
-          buildername='Housekeeper-PerCommit',
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      ) +
       api.path.exists(api.path['start_dir'])
   )

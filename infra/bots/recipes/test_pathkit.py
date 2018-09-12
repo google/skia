@@ -167,6 +167,8 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
+                     patch_ref='89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
                      patch_storage='gerrit',
                      patch_set=7,
                      patch_issue=1234,
