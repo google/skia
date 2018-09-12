@@ -1,4 +1,4 @@
-PathKit - Skia in the Browser
+PathKit - Geometry in the Browser
 =============================
 
 Skia has made its [SkPath](../api/SkPath_Reference) object and many related methods
