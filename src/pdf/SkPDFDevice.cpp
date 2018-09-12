@@ -379,6 +379,19 @@ void GraphicStackState::updateClip(const SkClipStack& clipStack,
     append_clip(clipStack, bounds, fContentStream);
 }
 
+static void append_transform(const SkMatrix& matrix, SkWStream* content) {
+    SkScalar values[6];
+    if (!matrix.asAffine(values)) {
+        SkMatrix::SetAffineIdentity(values);
+    }
+    (void)matrix.asAffine(values);
+    for (SkScalar v : values) {
+        SkPDFUtils::AppendScalar(v, content);
+        content->writeText(" ");
+    }
+    content->writeText("cm\n");
+}
+
 void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
     if (matrix == currentEntry()->fMatrix) {
         return;
@@ -397,7 +410,7 @@ void GraphicStackState::updateMatrix(const SkMatrix& matrix) {
     }
 
     push();
-    SkPDFUtils::AppendTransform(matrix, fContentStream);
+    append_transform(matrix, fContentStream);
     currentEntry()->fMatrix = matrix;
 }
 
@@ -734,22 +747,15 @@ static sk_sp<SkPDFDict> create_link_annotation(const SkRect& translatedRect) {
     auto annotation = sk_make_sp<SkPDFDict>("Annot");
     annotation->insertName("Subtype", "Link");
     annotation->insertInt("F", 4);  // required by ISO 19005
+    // Border: 0 = Horizontal corner radius.
+    //         0 = Vertical corner radius.
+    //         0 = Width, 0 = no border.
+    annotation->insertObject("Border", SkPDFMakeArray(0, 0, 0));
 
-    auto border = sk_make_sp<SkPDFArray>();
-    border->reserve(3);
-    border->appendInt(0);  // Horizontal corner radius.
-    border->appendInt(0);  // Vertical corner radius.
-    border->appendInt(0);  // Width, 0 = no border.
-    annotation->insertObject("Border", std::move(border));
-
-    auto rect = sk_make_sp<SkPDFArray>();
-    rect->reserve(4);
-    rect->appendScalar(translatedRect.fLeft);
-    rect->appendScalar(translatedRect.fTop);
-    rect->appendScalar(translatedRect.fRight);
-    rect->appendScalar(translatedRect.fBottom);
-    annotation->insertObject("Rect", std::move(rect));
-
+    annotation->insertObject("Rect", SkPDFMakeArray(translatedRect.fLeft,
+                                                    translatedRect.fTop,
+                                                    translatedRect.fRight,
+                                                    translatedRect.fBottom));
     return annotation;
 }
 
@@ -1400,6 +1406,14 @@ void SkPDFDevice::drawVertices(const SkVertices*, const SkVertices::Bone[], int,
     // TODO: implement drawVertices
 }
 
+static void draw_form_xobject(int objectIndex, SkWStream* content) {
+    content->writeText("/");
+    content->writeText(SkPDFResourceDict::getResourceName(
+            SkPDFResourceDict::kXObject_ResourceType,
+            objectIndex).c_str());
+    content->writeText(" Do\n");
+}
+
 void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& paint) {
     SkASSERT(!paint.getImageFilter());
 
@@ -1453,7 +1467,7 @@ void SkPDFDevice::drawDevice(SkBaseDevice* device, int x, int y, const SkPaint& 
 
     int xObjectResourceIndex = find_or_add(&fXObjectResources,
                                            pdfDevice->makeFormXObjectFromDevice());
-    SkPDFUtils::DrawFormXObject(xObjectResourceIndex, content.stream());
+    draw_form_xobject(xObjectResourceIndex, content.stream());
 }
 
 sk_sp<SkSurface> SkPDFDevice::makeSurface(const SkImageInfo& info, const SkSurfaceProps& props) {
@@ -1468,20 +1482,10 @@ sk_sp<SkPDFDict> SkPDFDevice::makeResourceDict() {
                                    std::move(fFontResources));
 }
 
-sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
-    auto mediaBox = sk_make_sp<SkPDFArray>();
-    mediaBox->reserve(4);
-    mediaBox->appendInt(0);
-    mediaBox->appendInt(0);
-    mediaBox->appendInt(this->width());
-    mediaBox->appendInt(this->height());
-    return mediaBox;
-}
-
 std::unique_ptr<SkStreamAsset> SkPDFDevice::content() const {
     SkDynamicMemoryWStream buffer;
     if (fInitialTransform.getType() != SkMatrix::kIdentity_Mask) {
-        SkPDFUtils::AppendTransform(fInitialTransform, &buffer);
+        append_transform(fInitialTransform, &buffer);
     }
 
     GraphicStackState gsState(fExistingClipStack, &buffer);
@@ -1609,8 +1613,10 @@ sk_sp<SkPDFObject> SkPDFDevice::makeFormXObjectFromDevice(bool alpha) {
         }
     }
     const char* colorSpace = alpha ? "DeviceGray" : nullptr;
+
     sk_sp<SkPDFObject> xobject =
-        SkPDFMakeFormXObject(this->content(), this->copyMediaBox(),
+        SkPDFMakeFormXObject(this->content(),
+                             SkPDFMakeArray(0, 0, this->width(), this->height()),
                              this->makeResourceDict(), inverseTransform, colorSpace);
     // We always draw the form xobjects that we create back into the device, so
     // we simply preserve the font usage instead of pulling it out and merging
@@ -1640,7 +1646,7 @@ void SkPDFDevice::drawFormXObjectWithMask(int xObjectIndex,
     }
     int gStateResourceIndex = find_or_add(&fGraphicStateResources, std::move(sMaskGS));
     SkPDFUtils::ApplyGraphicState(gStateResourceIndex, content.stream());
-    SkPDFUtils::DrawFormXObject(xObjectIndex, content.stream());
+    draw_form_xobject(xObjectIndex, content.stream());
     this->clearMaskOnGraphicState(content.stream());
 }
 
@@ -1746,7 +1752,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         if (shape == nullptr || blendMode == SkBlendMode::kDstOut ||
                 blendMode == SkBlendMode::kSrcATop) {
             ScopedContentEntry content(this, fExistingClipStack, SkMatrix::I(), stockPaint);
-            SkPDFUtils::DrawFormXObject(
+            draw_form_xobject(
                     find_or_add(&fXObjectResources, std::move(dst)), content.stream());
             return;
         } else {
@@ -1791,8 +1797,8 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
             blendMode == SkBlendMode::kDstATop) {
         ScopedContentEntry content(this, fExistingClipStack, SkMatrix::I(), stockPaint);
         if (content.entry()) {
-            SkPDFUtils::DrawFormXObject(find_or_add(&fXObjectResources, srcFormXObject),
-                                        content.stream());
+            draw_form_xobject(find_or_add(&fXObjectResources, srcFormXObject),
+                              content.stream());
         }
         if (blendMode == SkBlendMode::kSrc) {
             return;
@@ -1801,7 +1807,7 @@ void SkPDFDevice::finishContentEntry(SkBlendMode blendMode,
         ScopedContentEntry content(this, fExistingClipStack,
                                    SkMatrix::I(), stockPaint);
         if (content.entry()) {
-            SkPDFUtils::DrawFormXObject(find_or_add(&fXObjectResources, dst), content.stream());
+            draw_form_xobject(find_or_add(&fXObjectResources, dst), content.stream());
         }
     }
 
@@ -2188,7 +2194,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
         fDocument->canon()->fPDFBitmapMap.set(key, pdfimage);
     }
     int xObjectResourceIndex = find_or_add(&fXObjectResources, std::move(pdfimage));
-    SkPDFUtils::DrawFormXObject(xObjectResourceIndex, content.stream());
+    draw_form_xobject(xObjectResourceIndex, content.stream());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
