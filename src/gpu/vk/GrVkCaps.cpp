@@ -32,7 +32,6 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fOversizedStencilSupport = false; //TODO: figure this out
     fInstanceAttribSupport = true;
 
-    fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
 
@@ -487,7 +486,7 @@ void GrVkCaps::initShaderCaps(const VkPhysicalDeviceProperties& properties,
 
     shaderCaps->fShaderDerivativeSupport = true;
 
-    shaderCaps->fGeometryShaderSupport = features.features.geometryShader;
+    shaderCaps->fGeometryShaderSupport = false;//features.features.geometryShader;
     shaderCaps->fGSInvocationsSupport = shaderCaps->fGeometryShaderSupport;
 
     shaderCaps->fDualSourceBlendingSupport = features.features.dualSrcBlend;
