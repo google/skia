@@ -15,11 +15,11 @@ class SkRasterPipeline;
 
 struct SkColorSpaceXformSteps {
     struct Flags {
-        bool unpremul;
-        bool linearize;
-        bool gamut_transform;
-        bool encode;
-        bool premul;
+        bool unpremul         = false;
+        bool linearize        = false;
+        bool gamut_transform  = false;
+        bool encode           = false;
+        bool premul           = false;
 
         uint32_t mask() const {
             return (unpremul        ?  1 : 0)

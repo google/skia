@@ -534,17 +534,18 @@ static void test_budgeting(skiatest::Reporter* reporter) {
                               cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
-    // Unreffing the wrapped resource should free it right away.
+    // Unreffing the wrapped resource with a unique key shouldn't free it right away.
     wrapped->unref();
-    REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
+    REPORTER_ASSERT(reporter, 4 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + unique->gpuMemorySize() +
-                              unbudgeted->gpuMemorySize() == cache->getResourceBytes());
-    REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
+                              wrapped->gpuMemorySize() + unbudgeted->gpuMemorySize() ==
+                              cache->getResourceBytes());
+    REPORTER_ASSERT(reporter, 12 == cache->getPurgeableBytes());
 
     // Now try freeing the budgeted resources first
     wrapped = TestResource::CreateWrapped(gpu);
     unique->unref();
-    REPORTER_ASSERT(reporter, 11 == cache->getPurgeableBytes());
+    REPORTER_ASSERT(reporter, 23 == cache->getPurgeableBytes());
     cache->purgeAllUnlocked();
     REPORTER_ASSERT(reporter, 3 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, scratch->gpuMemorySize() + wrapped->gpuMemorySize() +
@@ -563,6 +564,7 @@ static void test_budgeting(skiatest::Reporter* reporter) {
     REPORTER_ASSERT(reporter, 0 == cache->getBudgetedResourceBytes());
     REPORTER_ASSERT(reporter, 0 == cache->getPurgeableBytes());
 
+    // Unreffing the wrapped resource (with no unique key) should free it right away.
     wrapped->unref();
     REPORTER_ASSERT(reporter, 1 == cache->getResourceCount());
     REPORTER_ASSERT(reporter, unbudgeted->gpuMemorySize() == cache->getResourceBytes());
@@ -1147,104 +1149,6 @@ static void test_timestamp_wrap(skiatest::Reporter* reporter) {
     }
 }
 
-static void test_flush(skiatest::Reporter* reporter) {
-    Mock mock(1000000, 1000000);
-    GrContext* context = mock.context();
-    GrResourceCache* cache = mock.cache();
-    GrGpu* gpu = context->contextPriv().getGpu();
-
-    // The current cache impl will round the max flush count to the next power of 2. So we choose a
-    // power of two here to keep things simpler.
-    static const int kFlushCount = 16;
-    cache->setLimits(1000000, 1000000, kFlushCount);
-
-    {
-        // Insert a resource and send a flush notification kFlushCount times.
-        for (int i = 0; i < kFlushCount; ++i) {
-            TestResource* r = new TestResource(gpu);
-            GrUniqueKey k;
-            make_unique_key<1>(&k, i);
-            r->resourcePriv().setUniqueKey(k);
-            r->unref();
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
-        }
-
-        // Send flush notifications to the cache. Each flush should purge the oldest resource.
-        for (int i = 0; i < kFlushCount; ++i) {
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
-            REPORTER_ASSERT(reporter, kFlushCount - i - 1 == cache->getResourceCount());
-            for (int j = 0; j < i; ++j) {
-                GrUniqueKey k;
-                make_unique_key<1>(&k, j);
-                GrGpuResource* r = cache->findAndRefUniqueResource(k);
-                REPORTER_ASSERT(reporter, !SkToBool(r));
-                SkSafeUnref(r);
-            }
-        }
-
-        REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-        cache->purgeAllUnlocked();
-    }
-
-    // Do a similar test but where we leave refs on some resources to prevent them from being
-    // purged.
-    {
-        GrGpuResource* refedResources[kFlushCount >> 1];
-        for (int i = 0; i < kFlushCount; ++i) {
-            TestResource* r = new TestResource(gpu);
-            GrUniqueKey k;
-            make_unique_key<1>(&k, i);
-            r->resourcePriv().setUniqueKey(k);
-            // Leave a ref on every other resource, beginning with the first.
-            if (SkToBool(i & 0x1)) {
-                refedResources[i/2] = r;
-            } else {
-                r->unref();
-            }
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
-        }
-
-        for (int i = 0; i < kFlushCount; ++i) {
-            // Should get a resource purged every other flush.
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
-            REPORTER_ASSERT(reporter, kFlushCount - i/2 - 1 == cache->getResourceCount());
-        }
-
-        // Unref all the resources that we kept refs on in the first loop.
-        for (int i = 0; i < kFlushCount >> 1; ++i) {
-            refedResources[i]->unref();
-        }
-
-        // After kFlushCount + 1 flushes they all will have sat in the purgeable queue for
-        // kFlushCount full flushes.
-        for (int i = 0; i < kFlushCount + 1; ++i) {
-            REPORTER_ASSERT(reporter, kFlushCount >> 1 == cache->getResourceCount());
-            cache->notifyFlushOccurred(GrResourceCache::kExternal);
-        }
-        REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-
-        cache->purgeAllUnlocked();
-    }
-
-    REPORTER_ASSERT(reporter, 0 == cache->getResourceCount());
-
-    // Verify that calling flush() on a GrContext with nothing to do will not trigger resource
-    // eviction.
-    context->flush();
-    for (int i = 0; i < 10; ++i) {
-        TestResource* r = new TestResource(gpu);
-        GrUniqueKey k;
-        make_unique_key<1>(&k, i);
-        r->resourcePriv().setUniqueKey(k);
-        r->unref();
-    }
-    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
-    for (int i = 0; i < 10 * kFlushCount; ++i) {
-        context->flush();
-    }
-    REPORTER_ASSERT(reporter, 10 == cache->getResourceCount());
-}
-
 static void test_time_purge(skiatest::Reporter* reporter) {
     Mock mock(1000000, 1000000);
     GrContext* context = mock.context();
@@ -1650,7 +1554,6 @@ DEF_GPUTEST(ResourceCacheMisc, reporter, /* options */) {
     test_purge_invalidated(reporter);
     test_cache_chained_purge(reporter);
     test_timestamp_wrap(reporter);
-    test_flush(reporter);
     test_time_purge(reporter);
     test_partial_purge(reporter);
     test_large_resource_count(reporter);

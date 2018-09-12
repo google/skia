@@ -62,7 +62,7 @@ public:
     void setFlip();
 
     sk_sp<SkPDFDevice> makeCongruentDevice() {
-        return sk_make_sp<SkPDFDevice>(fPageSize, fDocument);
+        return sk_make_sp<SkPDFDevice>(this->imageInfo().dimensions(), fDocument);
     }
 
     ~SkPDFDevice() override;
@@ -176,7 +176,6 @@ private:
     // order to get the right access levels without using friend.
     friend class ScopedContentEntry;
 
-    SkISize fPageSize;
     SkMatrix fInitialTransform;
     SkClipStack fExistingClipStack;
 

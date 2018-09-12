@@ -28,8 +28,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(const GrCaps& caps,
                                                        GrInternalSurfaceFlags surfaceFlags)
         : GrSurfaceProxy(desc, origin, fit, budgeted, surfaceFlags)
         // for now textures w/ data are always wrapped
-        , GrTextureProxy(desc, origin, mipMapped, textureType, fit, budgeted, surfaceFlags)
-        , GrRenderTargetProxy(caps, desc, origin, fit, budgeted, surfaceFlags) {}
+        , GrRenderTargetProxy(caps, desc, origin, fit, budgeted, surfaceFlags)
+        , GrTextureProxy(desc, origin, mipMapped, textureType, fit, budgeted, surfaceFlags) {}
 
 // Lazy-callback version
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&& callback,
@@ -44,10 +44,10 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&&
         : GrSurfaceProxy(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
         // Since we have virtual inheritance, we initialize GrSurfaceProxy directly. Send null
         // callbacks to the texture and RT proxies simply to route to the appropriate constructors.
-        , GrTextureProxy(LazyInstantiateCallback(), lazyType, desc, origin, mipMapped, textureType,
-                         fit, budgeted, surfaceFlags)
         , GrRenderTargetProxy(LazyInstantiateCallback(), lazyType, desc, origin, fit, budgeted,
-                              surfaceFlags) {}
+                              surfaceFlags)
+        , GrTextureProxy(LazyInstantiateCallback(), lazyType, desc, origin, mipMapped, textureType,
+                         fit, budgeted, surfaceFlags) {}
 
 // Wrapped version
 // This class is virtually derived from GrSurfaceProxy (via both GrTextureProxy and
@@ -55,8 +55,8 @@ GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(LazyInstantiateCallback&&
 GrTextureRenderTargetProxy::GrTextureRenderTargetProxy(sk_sp<GrSurface> surf,
                                                        GrSurfaceOrigin origin)
         : GrSurfaceProxy(surf, origin, SkBackingFit::kExact)
-        , GrTextureProxy(surf, origin)
-        , GrRenderTargetProxy(surf, origin) {
+        , GrRenderTargetProxy(surf, origin)
+        , GrTextureProxy(surf, origin) {
     SkASSERT(surf->asTexture());
     SkASSERT(surf->asRenderTarget());
 }

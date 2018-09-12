@@ -195,11 +195,10 @@ void GrDrawingManager::freeGpuResources() {
 }
 
 // MDB TODO: make use of the 'proxy' parameter.
-GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
-                                                      GrResourceCache::FlushType type,
-                                                      int numSemaphores,
-                                                      GrBackendSemaphore backendSemaphores[]) {
-    GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "internalFlush", fContext);
+GrSemaphoresSubmitted GrDrawingManager::flush(GrSurfaceProxy*,
+                                              int numSemaphores,
+                                              GrBackendSemaphore backendSemaphores[]) {
+    GR_CREATE_TRACE_MARKER_CONTEXT("GrDrawingManager", "flush", fContext);
 
     if (fFlushing || this->wasAbandoned()) {
         return GrSemaphoresSubmitted::kNo;
@@ -321,9 +320,9 @@ GrSemaphoresSubmitted GrDrawingManager::internalFlush(GrSurfaceProxy*,
 
     flushState.uninstantiateProxyTracker()->uninstantiateAllProxies();
 
-    // We always have to notify the cache when it requested a flush so it can reset its state.
-    if (flushed || type == GrResourceCache::FlushType::kCacheRequested) {
-        fContext->contextPriv().getResourceCache()->notifyFlushOccurred(type);
+    // Give the cache a chance to purge resources that become purgeable due to flushing.
+    if (flushed) {
+        fContext->contextPriv().getResourceCache()->purgeAsNeeded();
     }
     for (GrOnFlushCallbackObject* onFlushCBObject : fOnFlushCBObjects) {
         onFlushCBObject->postFlush(fTokenTracker.nextTokenToFlush(), fFlushingOpListIDs.begin(),
@@ -633,7 +632,8 @@ GrCoverageCountingPathRenderer* GrDrawingManager::getCoverageCountingPathRendere
 void GrDrawingManager::flushIfNecessary() {
     GrResourceCache* resourceCache = fContext->contextPriv().getResourceCache();
     if (resourceCache && resourceCache->requestsFlush()) {
-        this->internalFlush(nullptr, GrResourceCache::kCacheRequested, 0, nullptr);
+        this->flush(nullptr, 0, nullptr);
+        resourceCache->purgeAsNeeded();
     }
 }
 

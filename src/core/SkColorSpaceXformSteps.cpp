@@ -19,13 +19,14 @@ SkColorSpaceXformSteps::SkColorSpaceXformSteps(SkColorSpace* src, SkAlphaType sr
         dstAT =  srcAT;
     }
 
-    // Set all bools to false, all floats to 0.0f.
-    memset(this, 0, sizeof(*this));
-
     // We have some options about what to do with null src or dst here.
     // This pair seems to be the most consistent with legacy expectations.
     if (!src) { src = sk_srgb_singleton(); }
     if (!dst) { dst = src; }
+
+    if (src == dst && srcAT == dstAT) {
+        return;
+    }
 
     this->flags.unpremul        = srcAT == kPremul_SkAlphaType;
     this->flags.linearize       = !src->gammaIsLinear();
