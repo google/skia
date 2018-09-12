@@ -26,6 +26,9 @@ public:
 protected:
     void onApplyToPaint(SkPaint*) const override;
 
+    bool onGetColor(SkColor4f*) const override;
+    bool onSetColor(const SkColor4f&) override;
+
 private:
     explicit Color(SkColor);
 

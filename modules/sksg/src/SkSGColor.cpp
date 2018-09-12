@@ -15,4 +15,18 @@ void Color::onApplyToPaint(SkPaint* paint) const {
     paint->setColor(fColor);
 }
 
+bool Color::onGetColor(SkColor4f* c) const {
+    SkPaint p;
+    p.setColor(fColor);
+    *c = p.getColor4f();
+    return true;
+}
+
+bool Color::onSetColor(const SkColor4f& c) {
+    SkPaint p;
+    p.setColor4f(c, nullptr);
+    fColor = p.getColor();
+    return true;
+}
+
 } // namespace sksg
