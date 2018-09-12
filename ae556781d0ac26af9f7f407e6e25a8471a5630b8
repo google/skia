@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c0933237_dfd475d7",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T15:20:21Z",
+      "side": 1,
+      "message": "Yes I have another change I am working on to add support for those formats to our vulkan backend. Them not currently drawing is expected.",
+      "parentUuid": "5f986f4e_bd24b054",
+      "range": {
+        "startLine": 467,
+        "startChar": 11,
+        "endLine": 468,
+        "endChar": 73
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "9e2b3c93_4e8869ad",
         "filename": "src/gpu/vk/GrVkCaps.cpp",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2018-09-12T14:51:16Z",
       "side": 1,
       "message": "Is fSupportsAHardwareBufferImages defined in GrCaps? Also it does not seem to be used anywhere.",
+      "range": {
+        "startLine": 259,
+        "startChar": 7,
+        "endLine": 259,
+        "endChar": 46
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1e5fd76b_13c6ca53",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-12T15:20:21Z",
+      "side": 1,
+      "message": "Yes it is in GrCaps",
+      "parentUuid": "9e2b3c93_4e8869ad",
       "range": {
         "startLine": 259,
         "startChar": 7,
