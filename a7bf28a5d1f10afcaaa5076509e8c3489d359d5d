@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9078f340_79ad0f94",
+        "filename": "tests/PathTest.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 5079,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T14:17:03Z",
+      "side": 1,
+      "message": "through various",
+      "range": {
+        "startLine": 5079,
+        "startChar": 21,
+        "endLine": 5079,
+        "endChar": 36
+      },
+      "revId": "a7bf28a5d1f10afcaaa5076509e8c3489d359d5d",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
