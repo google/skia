@@ -329,8 +329,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     for (uint32_t index = 0; index < glyphRun.runSize(); index++) {
         auto glyphID = glyphs[index];
 #if SK_SUPPORT_GPU
-        const auto& glyph =
-                glyphCacheState->findGlyph(glyphID);
+        const auto& glyph = glyphCacheState->findGlyph(glyphID);
         if (SkMask::kARGB32_Format == glyph.fMaskFormat) {
             // Note that we send data for the original glyph even in the case of fallback
             // since its glyph metrics will still be used on the client.
