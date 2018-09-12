@@ -56,7 +56,7 @@ void sk_test_c_api(sk_canvas_t* canvas) {
     info.colorType = sk_colortype_get_default_8888();
     info.alphaType = OPAQUE_SK_ALPHATYPE;
 
-    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY };
+    sk_surfaceprops_t surfaceProps = { UNKNOWN_SK_PIXELGEOMETRY, (sk_surfaceprops_flags_t)0 };
     sk_surface_t* surf = sk_surface_new_raster(&info, 0, &surfaceProps);
     do_draw(sk_surface_get_canvas(surf));
 
