@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e85f3eab_2bc3ca33",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T21:03:04Z",
+      "side": 1,
+      "message": "fProc_1_2 + all the others ?\nDon\u0027t we normally define the type to be a function pointer (i.e., these would be just \u0027FilterProc\u0027, not \u0027FilterProc*\")?",
+      "range": {
+        "startLine": 317,
+        "startChar": 16,
+        "endLine": 317,
+        "endChar": 25
+      },
+      "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "933b5a64_8b9b6627",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T21:03:04Z",
+      "side": 1,
+      "message": "fCountLevels + rest ?",
+      "range": {
+        "startLine": 326,
+        "startChar": 8,
+        "endLine": 326,
+        "endChar": 19
+      },
+      "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24505d14_7c3f7ade",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T21:03:04Z",
+      "side": 1,
+      "message": "Do you want to assert that this succeeds ?",
+      "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
