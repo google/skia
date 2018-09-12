@@ -214,6 +214,11 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
+        extensions.hasExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME, 1)) {
+        fSupportsBindMemory2 = true;
+    }
+
+    if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
         extensions.hasExtension(VK_KHR_MAINTENANCE1_EXTENSION_NAME, 1)) {
         fSupportsMaintenance1 = true;
     }
@@ -229,7 +234,7 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
     if (physicalDeviceVersion >= VK_MAKE_VERSION(1, 1, 0) ||
-        (extensions.hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 3) &&
+        (extensions.hasExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME, 1) &&
          this->supportsMemoryRequirements2())) {
         fSupportsDedicatedAllocation = true;
     }
@@ -243,11 +248,15 @@ void GrVkCaps::init(const GrContextOptions& contextOptions, const GrVkInterface*
     }
 
 #ifdef SK_BUILD_FOR_ANDROID
+    // Currently Adreno devices are not supporting the QUEUE_FAMILY_FOREIGN_EXTENSION, so until they
+    // do we don't explicitly require it here even the spec says it is required.
     if (extensions.hasExtension(
-            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 3) &&
-        extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&
-        this->supportsExternalMemory()) {
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME, 2) &&
+       /* extensions.hasExtension(VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME, 1) &&*/
+        this->supportsExternalMemory() &&
+        this->supportsBindMemory2()) {
         fSupportsAndroidHWBExternalMemory = true;
+        fSupportsAHardwareBufferImages = true;
     }
 #endif
 

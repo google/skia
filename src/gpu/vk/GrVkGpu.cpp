@@ -118,6 +118,7 @@ GrVkGpu::GrVkGpu(GrContext* context, const GrContextOptions& options,
         , fInterface(std::move(interface))
         , fMemoryAllocator(backendContext.fMemoryAllocator)
         , fInstance(backendContext.fInstance)
+        , fPhysicalDevice(backendContext.fPhysicalDevice)
         , fDevice(backendContext.fDevice)
         , fQueue(backendContext.fQueue)
         , fQueueIndex(backendContext.fGraphicsQueueIndex)

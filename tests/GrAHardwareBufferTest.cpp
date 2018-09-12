@@ -82,7 +82,10 @@ static bool check_read(skiatest::Reporter* reporter, const SkBitmap& expectedBit
                 ERRORF(reporter, "Expected readback pixel (%d, %d) value 0x%08x, got 0x%08x.",
                        x, y,  srcPixel, dstPixel);
                 result = false;
-            }
+            }/* else {
+                SkDebugf("Got good pixel (%d, %d) value 0x%08x, got 0x%08x.\n",
+                       x, y,  srcPixel, dstPixel);
+            }*/
         }
     }
     return result;
