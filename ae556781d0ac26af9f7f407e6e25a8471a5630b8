@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5f986f4e_bd24b054",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-09-12T14:51:16Z",
+      "side": 1,
+      "message": "Are there any missing bits in Skia for this format to work? The camera app is using this format for panorama and photo sphere features and they draw blank screen.",
+      "range": {
+        "startLine": 467,
+        "startChar": 11,
+        "endLine": 468,
+        "endChar": 73
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e2b3c93_4e8869ad",
+        "filename": "src/gpu/vk/GrVkCaps.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-09-12T14:51:16Z",
+      "side": 1,
+      "message": "Is fSupportsAHardwareBufferImages defined in GrCaps? Also it does not seem to be used anywhere.",
+      "range": {
+        "startLine": 259,
+        "startChar": 7,
+        "endLine": 259,
+        "endChar": 46
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
