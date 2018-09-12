@@ -55,8 +55,6 @@ public:
         return nullptr;
     }
 
-    SkScalar getGlyphSizeLimit() const { return fGlyphSizeLimit; }
-
     void freeAll();
 
     bool hasGlyph(GrGlyph* glyph);
@@ -146,7 +144,6 @@ private:
 
     GrDrawOpAtlas::AllowMultitexturing fAllowMultitexturing;
     std::unique_ptr<GrDrawOpAtlas> fAtlases[kMaskFormatCount];
-    SkScalar fGlyphSizeLimit;
     GrProxyProvider* fProxyProvider;
     sk_sp<const GrCaps> fCaps;
     GrGlyphCache* fGlyphCache;
