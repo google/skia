@@ -71,22 +71,6 @@ def GenTests(api):
                        swarm_out_dir='[SWARM_OUT_DIR]')
     )
 
-  buildername = 'Build-Win-Clang-x86_64-Release-Vulkan'
-  yield (
-      api.test('test') +
-      api.properties(buildername=buildername,
-                     repository='https://skia.googlesource.com/skia.git',
-                     revision='abc123',
-                     path_config='kitchen',
-                     swarm_out_dir='[SWARM_OUT_DIR]') +
-      api.properties(patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
-    )
-
   buildername = 'Build-Win-Clang-x86_64-Release-ParentRevision'
   yield (
       api.test('parent_revision_trybot') +
@@ -95,14 +79,11 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
-                     patch_issue=500,
-                     patch_set=1,
-                     patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      )
+                     patch_issue=456789,
+                     patch_set=12,
+                     patch_ref='refs/changes/89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
+                     patch_storage='gerrit')
   )
 
   buildername = 'Build-Debian9-GCC-x86_64-Release-Flutter_Android'
@@ -114,14 +95,11 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          patch_issue=500,
-          patch_set=1,
+          patch_issue=456789,
+          patch_set=12,
+          patch_ref='refs/changes/89/456789/12',
+          patch_repo='https://skia.googlesource.com/skia.git',
           patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      ) +
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
@@ -135,9 +113,10 @@ def GenTests(api):
                      revision='abc123',
                      path_config='kitchen',
                      swarm_out_dir='[SWARM_OUT_DIR]',
-                     patch_issue=500,
+                     patch_issue=456789,
+                     patch_set=12,
+                     patch_ref='refs/changes/89/456789/12',
                      patch_repo='https://skia.googlesource.com/skia.git',
-                     patch_set=1,
                      patch_storage='gerrit') +
       api.path.exists(api.path['start_dir'].join('skp_output'))
   )
@@ -151,15 +130,11 @@ def GenTests(api):
           path_config='kitchen',
           swarm_out_dir='[SWARM_OUT_DIR]',
           revision='abc123',
-          patch_issue=500,
+          patch_issue=456789,
+          patch_set=12,
+          patch_ref='refs/changes/89/456789/12',
           patch_repo='https://skia.googlesource.com/skia.git',
-          patch_set=1,
           patch_storage='gerrit') +
-      api.properties.tryserver(
-          buildername=buildername,
-          gerrit_project='skia',
-          gerrit_url='https://skia-review.googlesource.com/',
-      ) +
       api.path.exists(
           api.path['start_dir'].join('tmp', 'uninteresting_hashes.txt')
       )
@@ -170,7 +145,10 @@ def GenTests(api):
                      repository='https://skia.googlesource.com/skia.git',
                      revision='abc123',
                      path_config='kitchen',
+                     patch_issue=456789,
+                     patch_set=12,
                      patch_ref='refs/changes/89/456789/12',
+                     patch_repo='https://skia.googlesource.com/skia.git',
                      patch_storage='gerrit',
                      swarm_out_dir='[SWARM_OUT_DIR]')
   )

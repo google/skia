@@ -17,10 +17,6 @@ class CheckoutApi(recipe_api.RecipeApi):
     """The default location for cached persistent checkouts."""
     return self.m.vars.cache_dir.join('work')
 
-  def patch_ref(self, issue, patchset):
-    """Build a ref for the given issue and patchset."""
-    return 'refs/changes/%s/%s/%s' % (issue[-2:], issue, patchset)
-
   def git(self, checkout_root):
     """Run the steps to perform a pure-git checkout without DEPS."""
     skia_dir = checkout_root.join('skia')
@@ -28,8 +24,7 @@ class CheckoutApi(recipe_api.RecipeApi):
         self.m.properties['repository'], dir_path=skia_dir,
         ref=self.m.properties['revision'], submodules=False)
     if self.m.vars.is_trybot:
-      ref = self.patch_ref(str(self.m.vars.issue), str(self.m.vars.patchset))
-      self.m.git('fetch', 'origin', ref)
+      self.m.git('fetch', 'origin', self.m.properties['patch_ref'])
       self.m.git('checkout', 'FETCH_HEAD')
       self.m.git('rebase', self.m.properties['revision'])
       return self.m.properties['revision']
@@ -109,7 +104,6 @@ class CheckoutApi(recipe_api.RecipeApi):
       gclient_cfg.patch_projects['skia'] = (skia_dep_path, 'HEAD')
       gclient_cfg.revisions[skia_dep_path] = self.m.properties['revision']
       m[skia_dep_path] = 'got_revision'
-      patch_repo = 'https://skia.googlesource.com/skia.git'
       patch_root = skia_dep_path
 
     if checkout_chromium:
@@ -124,17 +118,13 @@ class CheckoutApi(recipe_api.RecipeApi):
                          entries_file)
 
     # Run bot_update.
-    if patch_repo != self.m.properties['repository']:
-      # TODO(borenet): bot_update uses the 'repository' property to determine
-      # which repo the patch should come from. This conflicts with our usage of
-      # the same property to determine which root repo to check out, which may
-      # not be the same as the repository the patch comes from, for which we use
-      # the patch_repo property. Remove this hack by refactoring our checkout
-      # code and properties to agree with bot_update.
-      self.m.bot_update._repository = patch_repo
-
     if not self.m.vars.is_trybot and parent_rev:
       main.revision = main.revision + '^'
+
+    patch_refs = None
+    patch_ref = self.m.properties.get('patch_ref')
+    if patch_ref:
+      patch_refs = ['%s@%s' % (self.m.properties['patch_repo'], patch_ref)]
 
     self.m.gclient.c = gclient_cfg
     with self.m.context(cwd=checkout_root):
@@ -144,7 +134,8 @@ class CheckoutApi(recipe_api.RecipeApi):
           # patch=False, we'll see "... (without patch)" in the step names, even
           # for non-trybot runs, which is misleading and confusing. Therefore,
           # always specify patch=True for non-trybot runs.
-          patch=not (self.m.vars.is_trybot and parent_rev)
+          patch=not (self.m.vars.is_trybot and parent_rev),
+          patch_refs=patch_refs,
       )
 
     if checkout_chromium or checkout_flutter:

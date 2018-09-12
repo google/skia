@@ -69,7 +69,7 @@
       "git",
       "fetch",
       "origin",
-      "refs/changes/00/500/1"
+      "refs/changes/89/456789/12"
     ],
     "cwd": "[START_DIR]/skia",
     "infra_step": true,
