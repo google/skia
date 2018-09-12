@@ -15,33 +15,54 @@
 namespace sksg {
 
 /**
- * Concrete node, wrapping an SkMatrix, with an optional parent Matrix (to allow chaining):
- *
- *    M' = parent x M
+ * Concrete node, wrapping an SkMatrix.
  */
 class Matrix : public Node {
 public:
-    static sk_sp<Matrix> Make(const SkMatrix& m, sk_sp<Matrix> parent = nullptr) {
-        return sk_sp<Matrix>(new Matrix(m, std::move(parent)));
+    static sk_sp<Matrix> Make(const SkMatrix& m) {
+        return sk_sp<Matrix>(new Matrix(m));
     }
 
-    ~Matrix() override;
+    SG_ATTRIBUTE(Matrix, SkMatrix, fMatrix)
 
-    SG_ATTRIBUTE(Matrix, SkMatrix, fLocalMatrix)
-
-    const SkMatrix& getTotalMatrix() const { return fTotalMatrix; }
+    virtual SkMatrix getTotalMatrix() const;
 
 protected:
-    Matrix(const SkMatrix&, sk_sp<Matrix>);
+    explicit Matrix(const SkMatrix&);
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
-private:
-    sk_sp<Matrix> fParent;
-    SkMatrix      fLocalMatrix,
-                  fTotalMatrix; // cached during revalidation
+    SkMatrix fMatrix;
 
+private:
     typedef Node INHERITED;
+};
+
+/**
+ * Same as Matrix, but with an optional parent matrix (to support chaining):
+ *
+ *     M' = parent x M
+ */
+class ComposedMatrix final : public Matrix {
+public:
+    static sk_sp<Matrix> Make(const SkMatrix& m, sk_sp<Matrix> parent) {
+        return parent ? sk_sp<Matrix>(new ComposedMatrix(m, std::move(parent)))
+                      : Matrix::Make(m);
+    }
+
+    ~ComposedMatrix() override;
+
+    SkMatrix getTotalMatrix() const override;
+
+protected:
+    SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
+
+private:
+    ComposedMatrix(const SkMatrix& m, sk_sp<Matrix> parent);
+
+    const sk_sp<Matrix> fParent;
+
+    using INHERITED = Matrix;
 };
 
 /**
