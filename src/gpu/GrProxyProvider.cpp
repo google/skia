@@ -279,20 +279,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    SkPixmap pixmap;
-    if (!bitmap.peekPixels(&pixmap)) {
-        return nullptr;
-    }
-
-    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", pixmap.width(), pixmap.height());
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
-    if (!mipmaps) {
-        return nullptr;
-    }
-
-    if (mipmaps->countLevels() < 0) {
-        return nullptr;
-    }
+    ATRACE_ANDROID_FRAMEWORK("Upload MipMap Texture [%ux%u]", bitmap.width(), bitmap.height());
 
     // In non-ddl we will always instantiate right away. Thus we never want to copy the SkBitmap
     // even if its mutable. In ddl, if the bitmap is mutable then we must make a copy since the
@@ -305,24 +292,30 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
         return nullptr;
     }
 
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(pixmap.info());
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
 
-    if (0 == mipmaps->countLevels()) {
+    if (0 == SkMipMap::ComputeLevelCount(baseLevel->width(), baseLevel->height())) {
         return this->createTextureProxy(baseLevel, kNone_GrSurfaceFlags, 1, SkBudgeted::kYes,
                                         SkBackingFit::kExact);
     }
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
+            [desc, baseLevel](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     return sk_sp<GrTexture>();
                 }
 
-                const int mipLevelCount = mipmaps->countLevels() + 1;
-                std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
-
                 SkPixmap pixmap;
                 SkAssertResult(baseLevel->peekPixels(&pixmap));
+
+                sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
+                if (!mipmaps) {
+                    return sk_sp<GrTexture>();
+                }
+                SkASSERT(mipmaps->countLevels() > 0);
+
+                const int mipLevelCount = mipmaps->countLevels() + 1;
+                std::unique_ptr<GrMipLevel[]> texels(new GrMipLevel[mipLevelCount]);
 
                 // DDL TODO: Instead of copying all this info into GrMipLevels we should just plumb
                 // the use of SkMipMap down through Ganesh.
