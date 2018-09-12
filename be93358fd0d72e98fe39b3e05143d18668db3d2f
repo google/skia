@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ab79c2ed_cfbf4949",
+        "filename": "src/gpu/ccpr/GrCCDrawPathsOp.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-09-12T23:27:12Z",
+      "side": 1,
+      "message": "The path itself will be cropped by kPathCropThreshold. If it has a stroke, that will inflate its draw bounds a bit further.",
+      "parentUuid": "8c23a5a3_8dcf7a19",
+      "range": {
+        "startLine": 85,
+        "startChar": 32,
+        "endLine": 85,
+        "endChar": 50
+      },
+      "revId": "be93358fd0d72e98fe39b3e05143d18668db3d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "86a63629_145cac84",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
         "patchSetId": 5
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "4b9b2496_a9950e1a",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-09-12T23:27:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "86a63629_145cac84",
+      "range": {
+        "startLine": 339,
+        "startChar": 62,
+        "endLine": 339,
+        "endChar": 70
+      },
+      "revId": "be93358fd0d72e98fe39b3e05143d18668db3d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "67c1e1b4_3bfb6c94",
         "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
         "patchSetId": 5
@@ -68,6 +116,30 @@
       "revId": "be93358fd0d72e98fe39b3e05143d18668db3d2f",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "353b29d3_176fc70d",
+        "filename": "src/gpu/ccpr/GrCoverageCountingPathRenderer.h",
+        "patchSetId": 5
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5633
+      },
+      "writtenOn": "2018-09-12T23:27:12Z",
+      "side": 1,
+      "message": "Eek!",
+      "parentUuid": "67c1e1b4_3bfb6c94",
+      "range": {
+        "startLine": 83,
+        "startChar": 41,
+        "endLine": 83,
+        "endChar": 49
+      },
+      "revId": "be93358fd0d72e98fe39b3e05143d18668db3d2f",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
