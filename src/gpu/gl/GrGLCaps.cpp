@@ -291,6 +291,10 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
         fClearTextureSupport = true;
     }
 
+#if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
+    fSupportsAHardwareBufferImages = true;
+#endif
+
     /**************************************************************************
     * GrShaderCaps fields
     **************************************************************************/

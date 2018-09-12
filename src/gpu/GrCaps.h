@@ -228,6 +228,12 @@ public:
         is not initialized (even if not read by draw calls). */
     bool mustClearUploadedBufferData() const { return fMustClearUploadedBufferData; }
 
+    /** Returns true if the given backend supports importing AHardwareBuffers via the
+     * GrAHardwarebufferImageGenerator. This will only ever be supported on Android devices with API
+     * level >= 26.
+     * */
+    bool supportsAHardwareBufferImages() const { return fSupportsAHardwareBufferImages; }
+
     bool wireframeMode() const { return fWireframeMode; }
 
     bool sampleShadingSupport() const { return fSampleShadingSupport; }
@@ -315,6 +321,7 @@ protected:
     bool fPreferClientSideDynamicBuffers             : 1;
     bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;
+    bool fSupportsAHardwareBufferImages              : 1;
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
