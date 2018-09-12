@@ -72,6 +72,8 @@ void SkSweepGradient::flatten(SkWriteBuffer& buffer) const {
 #include "gl/GrGLContext.h"
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 
+#include "gradients/GrGradientShader.h"
+
 class GrSweepGradient : public GrGradientEffect {
 public:
     class GLSLSweepProcessor;
@@ -216,6 +218,13 @@ void GrSweepGradient::GLSLSweepProcessor::emitCode(EmitArgs& args) {
 
 std::unique_ptr<GrFragmentProcessor> SkSweepGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
+
+    // Try to use new gradient system first
+    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeSweep(*this, args);
+    if (gradient) {
+        return gradient;
+    }
+
     SkMatrix matrix;
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
         return nullptr;
