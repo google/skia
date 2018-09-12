@@ -459,8 +459,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             cacheBlob->setSubRunHasDistanceFields(runIndex, runPaint.isLCDRenderText(),
                                                   runPaint.isAntiAlias(), hasWCoord);
 
-            FallbackGlyphRunHelper fallbackTextHelper(
-                    viewMatrix, runPaint, glyphCache->getGlyphSizeLimit(), textRatio);
+            FallbackGlyphRunHelper fallbackTextHelper(viewMatrix, runPaint, textRatio);
 
             sk_sp<GrTextStrike> currStrike;
 
@@ -512,8 +511,7 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
             SkPaint pathPaint(runPaint);
             SkScalar matrixScale = pathPaint.setupForAsPaths();
 
-            FallbackGlyphRunHelper fallbackTextHelper(
-                    viewMatrix, runPaint, glyphCache->getGlyphSizeLimit(), matrixScale);
+            FallbackGlyphRunHelper fallbackTextHelper(viewMatrix, runPaint, matrixScale);
 
             // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
             pathPaint.setStyle(SkPaint::kFill_Style);

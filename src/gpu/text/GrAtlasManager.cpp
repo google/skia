@@ -14,7 +14,6 @@ GrAtlasManager::GrAtlasManager(GrProxyProvider* proxyProvider, GrGlyphCache* gly
                                size_t maxTextureBytes,
                                GrDrawOpAtlas::AllowMultitexturing allowMultitexturing)
             : fAllowMultitexturing{allowMultitexturing}
-            , fGlyphSizeLimit{SkGlyphCacheCommon::kSkSideTooBigForAtlas}
             , fProxyProvider{proxyProvider}
             , fCaps{fProxyProvider->refCaps()}
             , fGlyphCache{glyphCache}
