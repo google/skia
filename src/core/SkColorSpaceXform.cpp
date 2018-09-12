@@ -49,9 +49,9 @@ static skcms_PixelFormat get_skcms_format(SkColorSpaceXform::ColorFormat fmt) {
         case SkColorSpaceXform::kBGRA_8888_ColorFormat:
             return skcms_PixelFormat_BGRA_8888;
         case SkColorSpaceXform::kRGB_U16_BE_ColorFormat:
-            return skcms_PixelFormat_RGB_161616;
+            return skcms_PixelFormat_RGB_161616BE;
         case SkColorSpaceXform::kRGBA_U16_BE_ColorFormat:
-            return skcms_PixelFormat_RGBA_16161616;
+            return skcms_PixelFormat_RGBA_16161616BE;
         case SkColorSpaceXform::kRGBA_F16_ColorFormat:
             return skcms_PixelFormat_RGBA_hhhh;
         case SkColorSpaceXform::kRGBA_F32_ColorFormat:
