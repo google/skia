@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ed967bd5_671340f3",
+        "filename": "src/pdf/SkPDFResourceDict.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d1d0ad57_8f0231c4",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 68
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "966913ee_f7bb7415",
         "filename": "src/pdf/SkPDFResourceDict.cpp",
         "patchSetId": 8
@@ -45,6 +69,30 @@
       "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2a84adff_ee7bc4cf",
+        "filename": "src/pdf/SkPDFResourceDict.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "just like SkStrAppendS32, it returns a pointer past what is written.  commented.",
+      "parentUuid": "966913ee_f7bb7415",
+      "range": {
+        "startLine": 41,
+        "startChar": 32,
+        "endLine": 41,
+        "endChar": 44
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "d3808709_86ef97c5",
+        "filename": "src/pdf/SkPDFResourceDict.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aeb6f864_e94fc002",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3f57df1a_7a3856bb",
         "filename": "src/pdf/SkPDFResourceDict.h",
         "patchSetId": 8
@@ -91,6 +163,30 @@
       "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "17f850b0_a5df15e1",
+        "filename": "src/pdf/SkPDFResourceDict.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3f57df1a_7a3856bb",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 62
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "665b08f4_955f17f7",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "I would prefer to keep it simple.",
+      "parentUuid": "406ded54_b915e1f6",
+      "range": {
+        "startLine": 180,
+        "startChar": 59,
+        "endLine": 180,
+        "endChar": 69
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2a550e7_48fec50a",
         "filename": "src/pdf/SkPDFTypes.h",
         "patchSetId": 8
@@ -163,6 +283,30 @@
     },
     {
       "key": {
+        "uuid": "80b9e429_55b11b46",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d2a550e7_48fec50a",
+      "range": {
+        "startLine": 249,
+        "startChar": 19,
+        "endLine": 249,
+        "endChar": 36
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "accb867c_ad16c37e",
         "filename": "src/pdf/SkPDFTypes.h",
         "patchSetId": 8
@@ -183,6 +327,30 @@
       "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d75c1271_d389505a",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5110
+      },
+      "writtenOn": "2018-09-12T21:23:19Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "accb867c_ad16c37e",
+      "range": {
+        "startLine": 260,
+        "startChar": 25,
+        "endLine": 260,
+        "endChar": 39
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
