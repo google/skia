@@ -10,30 +10,57 @@
 #include "SkCanvas.h"
 
 namespace sksg {
-// Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
-Matrix::Matrix(const SkMatrix& m, sk_sp<Matrix> parent)
-    : INHERITED(kBubbleDamage_Trait)
-    , fParent(std::move(parent))
-    , fLocalMatrix(m) {
-    if (fParent) {
+namespace {
+
+class ComposedMatrix final : public Matrix {
+public:
+    ComposedMatrix(const SkMatrix& m, sk_sp<Matrix> parent)
+        : INHERITED(m)
+        , fParent(std::move(parent)) {
+        SkASSERT(fParent);
         this->observeInval(fParent);
     }
-}
 
-Matrix::~Matrix() {
-    if (fParent) {
+    ~ComposedMatrix() override {
         this->unobserveInval(fParent);
     }
-}
 
-SkRect Matrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    fTotalMatrix = fLocalMatrix;
-
-    if (fParent) {
-        fParent->revalidate(ic, ctm);
-        fTotalMatrix.postConcat(fParent->getTotalMatrix());
+    const SkMatrix& getTotalMatrix() const override {
+        SkASSERT(!this->hasInval());
+        return fTotalMatrix;
     }
 
+protected:
+    SkRect onRevalidate(InvalidationController* ic, const SkMatrix& ctm) override {
+        fParent->revalidate(ic, ctm);
+        fTotalMatrix = SkMatrix::Concat(fParent->getTotalMatrix(), this->getMatrix());
+        return SkRect::MakeEmpty();
+    }
+
+private:
+    const sk_sp<Matrix> fParent;
+    SkMatrix            fTotalMatrix; // cached during revalidation.
+
+    using INHERITED = Matrix;
+};
+
+} // namespace
+
+sk_sp<Matrix> Matrix::Make(const SkMatrix& m, sk_sp<Matrix> parent) {
+    return sk_sp<Matrix>(parent ? new ComposedMatrix(m, std::move(parent))
+                                : new Matrix(m));
+}
+
+// Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
+Matrix::Matrix(const SkMatrix& m)
+    : INHERITED(kBubbleDamage_Trait)
+    , fMatrix(m) {}
+
+const SkMatrix& Matrix::getTotalMatrix() const {
+    return fMatrix;
+}
+
+SkRect Matrix::onRevalidate(InvalidationController*, const SkMatrix&) {
     return SkRect::MakeEmpty();
 }
 
