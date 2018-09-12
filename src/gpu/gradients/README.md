@@ -24,8 +24,13 @@ Because of how child processors are currently defined, where they have a single
 half4 input and a single half4 output, their is a type mismatch between the 1D
 t value and the 4D inputs/outputs of the layout and colorizer processes. For
 now, the master effect assumes an untiled t is output in sk_OutColor.x by the
-layout and it tiles solely off of that value. Any value in y, z, or w are
-passed into the colorizer unmodified. The colorizer should assume that the
+layout and it tiles solely off of that value.
+
+However, layouts can output a negative value in the w component to invalidate
+the gradient location (currently on the two point conical gradient does this).
+When invalidated, the master effect outputs transparent black and does not
+invoke the child processor. Other than this condition, any value in y, z, or w
+are passed into the colorizer unmodified. The colorizer should assume that the
 valid tiled t value is in sk_InColor.x and can safely ignore y, z, and w.
 
 Currently there are color interpolators (colorizers) for analytic color cases

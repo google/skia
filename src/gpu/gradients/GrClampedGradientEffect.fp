@@ -22,11 +22,15 @@ layout(ctype=GrColor4f, tracked) in uniform half4 rightBorderColor; // t > 1.0
 
 void main() {
     half4 t = process(gradLayout);
-
     // If t.x is below 0, use the left border color without invoking the child processor. If any t.x
     // is above 1, use the right border color. Otherwise, t is in the [0, 1] range assumed by the
     // colorizer FP, so delegate to the child processor.
-    if (t.x < 0) {
+    if (t.y < 0) {
+        // layout has rejected this fragment
+        // FIXME: only 2pt conic does this, can we add an optimization flag
+        // that lets us assume t.y >= 0 in many cases?
+        sk_OutColor = half4(0);
+    } else if (t.x < 0) {
         sk_OutColor = leftBorderColor;
     } else if (t.x > 1.0) {
         sk_OutColor = rightBorderColor;
