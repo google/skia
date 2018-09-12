@@ -43,6 +43,9 @@ def create_asset(target_dir):
   subprocess.check_call([gcloud_exe, 'components',
                          'install', 'beta', 'bigtable',
                          '--quiet'], env=env)
+  subprocess.check_call([gcloud_exe, 'components',
+                         'install', 'pubsub-emulator',
+                         '--quiet'], env=env)
   subprocess.check_call([gcloud_exe, 'components','update', '--quiet'], env=env)
 
   # Remove the tarball.
