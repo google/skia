@@ -85,7 +85,6 @@ protected:
                                            allowMultitexturing);
         this->contextPriv().addOnFlushCallbackObject(fAtlasManager);
 
-        SkASSERT(glyphCache->getGlyphSizeLimit() == fAtlasManager->getGlyphSizeLimit());
         return true;
     }
 
