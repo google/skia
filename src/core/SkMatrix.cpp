@@ -306,6 +306,11 @@ void SkMatrix::preTranslate(SkScalar dx, SkScalar dy) {
     this->updateTranslateMask();
 }
 
+void SkMatrix::positionAt(SkPoint position) {
+    fMat[kMTransX] = position.x();
+    fMat[kMTransY] = position.y();
+}
+
 void SkMatrix::postTranslate(SkScalar dx, SkScalar dy) {
     if (this->hasPerspective()) {
         SkMatrix    m;
