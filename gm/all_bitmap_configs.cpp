@@ -112,7 +112,7 @@ static void draw(SkCanvas* canvas,
     canvas->drawString(text, 0.0f, 12.0f, p);
 }
 
-DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 5 * SCALE) {
+DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     SkPaint p;
     p.setColor(SK_ColorBLACK);
@@ -135,8 +135,13 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 5 * SCALE) {
         canvas->translate(0.0f, SkIntToScalar(SCALE));
         SkBitmap copy4444 = copy_bitmap(bitmap, kARGB_4444_SkColorType);
         draw(canvas, p, copy4444, kARGB_4444_SkColorType, "ARGB 4444");
+
+        canvas->translate(0.0f, SkIntToScalar(SCALE));
+        SkBitmap copyF16 = copy_bitmap(bitmap, kRGBA_F16_SkColorType);
+        draw(canvas, p, copyF16, kRGBA_F16_SkColorType, "RGBA F16");
+
     } else {
-        canvas->translate(0.0f, SkIntToScalar(2 * SCALE));
+        canvas->translate(0.0f, SkIntToScalar(3 * SCALE));
     }
 
     canvas->translate(0.0f, SkIntToScalar(SCALE));
