@@ -5,23 +5,32 @@
  * found in the LICENSE file.
  */
 
+#include "GrBackendSurface.h"
+#include "GrContext.h"
+#include "SkCanvas.h"
+#include "SkColor.h"
+#include "SkCubicMap.h"
 #include "SkDashPathEffect.h"
 #include "SkFloatBits.h"
 #include "SkFloatingPoint.h"
 #include "SkMatrix.h"
 #include "SkPaint.h"
+#include "SkPaintDefaults.h"
 #include "SkParsePath.h"
-#include "SkStrokeRec.h"
 #include "SkPath.h"
 #include "SkPathOps.h"
-#include "SkCubicMap.h"
 #include "SkRect.h"
-#include "SkPaintDefaults.h"
 #include "SkString.h"
+#include "SkStrokeRec.h"
+#include "SkSurface.h"
 #include "SkTrimPathEffect.h"
+#include "gl/GrGLInterface.h"
+
+#include <GL/gl.h>
 
 #include <emscripten/emscripten.h>
 #include <emscripten/bind.h>
+#include <emscripten/html5.h>
 
 using namespace emscripten;
 
@@ -38,6 +47,8 @@ static const int CLOSE = 5;
 using SkPathOrNull = emscripten::val;
 // Self-documenting for when we return a string
 using JSString = emscripten::val;
+
+using JSColor = int32_t;
 
 // =================================================================================
 // Creating/Exporting Paths with cmd arrays
@@ -305,6 +316,88 @@ void EMSCRIPTEN_KEEPALIVE ToCanvas(const SkPath& path, emscripten::val /* Path2D
     }
 }
 
+// From https://github.com/Zubnix/skia-wasm-port/blob/master/skia_bindings.cpp
+sk_sp<SkSurface> makeWebGLSurface(std::string id, int width, int height) {
+    // Context configurations
+    EmscriptenWebGLContextAttributes attrs;
+    emscripten_webgl_init_context_attributes(&attrs);
+    attrs.alpha = true;
+    attrs.premultipliedAlpha = true;
+    attrs.majorVersion = 1;
+    attrs.enableExtensionsByDefault = true;
+
+    EMSCRIPTEN_WEBGL_CONTEXT_HANDLE context = emscripten_webgl_create_context(id.c_str(), &attrs);
+    if (context < 0) {
+        SkDebugf("failed to create webgl context %d\n", context);
+        return nullptr;
+    }
+    // See https://github.com/kripken/emscripten/blob/89d4ae23e5149eebcf64181bdd74e88cfae568fc/system/include/emscripten/html5.h#L61
+    // for error codes
+    EMSCRIPTEN_RESULT r = emscripten_webgl_make_context_current(context);
+    if (r < 0) {
+        SkDebugf("failed to make webgl current %d\n", r);
+        return nullptr;
+    }
+    if (r == EMSCRIPTEN_RESULT_DEFERRED) {
+        SkDebugf("Deferred until next user event handle\n");
+    }
+
+    glViewport(0, 0, width, height);
+    glClearColor(1, 1, 1, 1);
+    glClearStencil(0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    // setup GrContext
+    auto interface = GrGLMakeNativeInterface();
+    if (!interface) {
+        SkDebugf("Could not make native interface\n");
+        return nullptr;
+    }
+
+    // setup contexts
+    sk_sp<GrContext> grContext(GrContext::MakeGL(interface));
+
+    // Wrap the frame buffer object attached to the screen in a Skia render target so Skia can
+    // render to it
+    GrGLint buffer;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &buffer);
+    GrGLFramebufferInfo info;
+    info.fFBOID = (GrGLuint) buffer;
+    SkColorType colorType;
+
+    info.fFormat = GL_RGBA8;
+    colorType = kRGBA_8888_SkColorType;
+
+    GrBackendRenderTarget target(width, height, 0, 8, info);
+
+    //SkSurfaceProps props(SkSurfaceProps::kLegacyFontHost_InitType);
+
+    sk_sp<SkSurface> surface(SkSurface::MakeFromBackendRenderTarget(grContext.get(), target,
+                                                                    kBottomLeft_GrSurfaceOrigin,
+                                                                    colorType, nullptr, nullptr));
+    return surface;
+}
+
+bool EMSCRIPTEN_KEEPALIVE toCanvasGL(const SkPath& path, std::string htmlID, JSColor color,
+                                     bool isFill, int width, int height) {
+    auto surface = makeWebGLSurface(htmlID, width, height);
+    if (!surface) {
+        SkDebugf("Could not make surface\n");
+        return false;
+    }
+
+    SkPaint paint;
+    paint.setColor(SkColor(color));
+    if (isFill) {
+        // idk
+    } else {
+        paint.setStrokeWidth(1);
+    }
+    paint.setAntiAlias(true);
+    surface->getCanvas()->drawPath(path, paint);
+    return true;
+}
+
 emscripten::val JSPath2D = emscripten::val::global("Path2D");
 
 emscripten::val EMSCRIPTEN_KEEPALIVE ToPath2D(const SkPath& path) {
@@ -527,6 +620,8 @@ EMSCRIPTEN_BINDINGS(skia) {
         .function("toCmds", &ToCmds)
         .function("toPath2D", &ToPath2D)
         .function("toCanvas", &ToCanvas)
+        // Helper is used to fill in width/height of canvas
+        .function("_toCanvasGL", &toCanvasGL)
         .function("toSVGString", &ToSVGString)
 
 #ifdef PATHKIT_TESTING

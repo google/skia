@@ -10,15 +10,15 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      { pattern: 'npm-wasm/bin/test/pathkit.wasm', included:false, served:true},
+      { pattern: 'npm-wasm/bin/pathkit.wasm', included:false, served:true},
       { pattern: 'tests/*.json', included:false, served:true},
       'tests/testReporter.js',
-      'npm-wasm/bin/test/pathkit.js',
+      'npm-wasm/bin/pathkit.js',
       'tests/*.spec.js'
     ],
 
     proxies: {
-      "/pathkit/": "/base/npm-wasm/bin/test/"
+      "/pathkit/": "/base/npm-wasm/"
     },
 
     // test results reporter to use
@@ -72,15 +72,15 @@ module.exports = function(config) {
   if (process.env.ASM_JS) {
     console.log('asm.js is under test');
     cfg.files = [
-      { pattern: 'npm-asmjs/bin/test/pathkit.js.mem', included:false, served:true},
+      { pattern: 'npm-asmjs/bin/pathkit.js.mem', included:false, served:true},
       { pattern: 'tests/*.json', included:false, served:true},
       'tests/testReporter.js',
-      'npm-asmjs/bin/test/pathkit.js',
+      'npm-asmjs/bin/pathkit.js',
       'tests/*.spec.js'
     ];
 
     cfg.proxies = {
-      "/pathkit/": "/base/npm-asmjs/bin/test/"
+      "/pathkit/": "/base/npm-asmjs/bin/"
     };
   } else {
     console.log('wasm is under test');

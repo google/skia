@@ -154,6 +154,14 @@
       return null;
     };
 
+    PathKit.SkPath.prototype.toCanvasGL = function(htmlID, color, isFill) {
+      var canvas = document.getElementById(htmlID);
+      if (!canvas) {
+        throw 'Canvas with id ' + htmlID + ' was not found';
+      }
+      this._toCanvasGL(htmlID, color, isFill, canvas.width, canvas.height);
+    };
+
     PathKit.SkPath.prototype.transform = function() {
       // Takes 1 or 9 args
       if (arguments.length === 1) {

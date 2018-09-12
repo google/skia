@@ -71,22 +71,39 @@ set -e
 mkdir -p $BUILD_DIR
 
 em++ $RELEASE_CONF -std=c++14 \
+-Iinclude/codec \
 -Iinclude/config \
 -Iinclude/core \
 -Iinclude/effects \
+-Iinclude/encode \
 -Iinclude/gpu \
 -Iinclude/pathops \
+-Iinclude/ports \
 -Iinclude/private \
+-Iinclude/svg \
 -Iinclude/utils \
 -Isrc/core \
+-Isrc/codec \
+-Isrc/sksl \
 -Isrc/gpu \
--Isrc/shaders \
+-Isrc/pdf \
+-Isrc/image \
+-Isrc/images \
+-Isrc/sfnt \
 -Isrc/opts \
+-Isrc/shaders \
+-Isrc/sksl \
+-Isrc/svg \
 -Isrc/utils \
+-Ithird_party/libjpeg-turbo \
+-Ithird_party/externals/libjpeg-turbo \
+-lEGL \
+-lGLESv2 \
 --bind \
 --pre-js $BASE_DIR/helper.js \
 --pre-js $BASE_DIR/chaining.js \
 -DWEB_ASSEMBLY=1 \
+-DSK_SUPPORT_GPU=1 \
 -fno-rtti -fno-exceptions -DEMSCRIPTEN_HAS_UNBOUND_TYPE_NAMES=0 \
 $WASM_CONF \
 -s MODULARIZE=1 \
@@ -95,48 +112,94 @@ $WASM_CONF \
 -s ERROR_ON_UNDEFINED_SYMBOLS=1 \
 -s ERROR_ON_MISSING_LIBRARIES=1 \
 -s NO_FILESYSTEM=1 \
+-s FULL_ES2=1 \
 -s BINARYEN_IGNORE_IMPLICIT_TRAPS=1 \
 -s STRICT=1 \
 $OUTPUT \
 $BASE_DIR/pathkit_wasm_bindings.cpp \
-src/core/SkAnalyticEdge.cpp \
-src/core/SkArenaAlloc.cpp \
-src/core/SkCubicMap.cpp \
-src/core/SkEdge.cpp \
-src/core/SkEdgeBuilder.cpp \
-src/core/SkEdgeClipper.cpp \
-src/core/SkFDot6Constants.cpp \
-src/core/SkFlattenable.cpp \
-src/core/SkGeometry.cpp \
-src/core/SkLineClipper.cpp \
-src/core/SkMallocPixelRef.cpp \
-src/core/SkMath.cpp \
-src/core/SkMatrix.cpp \
-src/core/SkOpts.cpp \
-src/core/SkPaint.cpp \
-src/core/SkPath.cpp \
-src/core/SkPathEffect.cpp \
-src/core/SkPathMeasure.cpp \
-src/core/SkPathRef.cpp \
-src/core/SkPoint.cpp \
-src/core/SkRRect.cpp \
-src/core/SkRect.cpp \
-src/core/SkStream.cpp \
-src/core/SkString.cpp \
-src/core/SkStringUtils.cpp \
-src/core/SkStroke.cpp \
-src/core/SkStrokeRec.cpp \
-src/core/SkStrokerPriv.cpp \
-src/core/SkUtils.cpp \
-src/effects/SkDashPathEffect.cpp \
-src/effects/SkTrimPathEffect.cpp \
+src/codec/SkJpegCodec.cpp \
+src/codec/SkJpegDecoderMgr.cpp \
+src/codec/SkJpegUtility.cpp \
+src/codec/SkMaskSwizzler.cpp \
+src/codec/SkMasks.cpp \
+src/core/*.cpp \
+src/effects/*.cpp \
+src/gpu/*.cpp \
+src/gpu/ccpr/*.cpp \
+src/gpu/effects/*.cpp \
+src/gpu/gl/GrGLAssembleInterface.cpp \
+src/gpu/gl/GrGLBuffer.cpp \
+src/gpu/gl/GrGLCaps.cpp \
+src/gpu/gl/GrGLContext.cpp \
+src/gpu/gl/GrGLCreateNullInterface.cpp \
+src/gpu/gl/GrGLExtensions.cpp \
+src/gpu/gl/GrGLGLSL.cpp \
+src/gpu/gl/GrGLGpu.cpp \
+src/gpu/gl/GrGLGpuCommandBuffer.cpp \
+src/gpu/gl/GrGLGpuProgramCache.cpp \
+src/gpu/gl/GrGLInterface.cpp \
+src/gpu/gl/GrGLPath.cpp \
+src/gpu/gl/GrGLPathRendering.cpp \
+src/gpu/gl/GrGLProgram.cpp \
+src/gpu/gl/GrGLProgramDataManager.cpp \
+src/gpu/gl/GrGLRenderTarget.cpp \
+src/gpu/gl/GrGLSemaphore.cpp \
+src/gpu/gl/GrGLStencilAttachment.cpp \
+src/gpu/gl/GrGLTestInterface.cpp \
+src/gpu/gl/GrGLTexture.cpp \
+src/gpu/gl/GrGLTextureRenderTarget.cpp \
+src/gpu/gl/GrGLUniformHandler.cpp \
+src/gpu/gl/GrGLUtil.cpp \
+src/gpu/gl/GrGLVaryingHandler.cpp \
+src/gpu/gl/GrGLVertexArray.cpp \
+src/gpu/gl/builders/*.cpp \
+src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp \
+src/gpu/glsl/*.cpp \
+src/gpu/ops/*.cpp \
+src/gpu/text/*.cpp \
+src/image/*.cpp \
+src/images/*.cpp \
+src/jumper/SkJumper.cpp \
+src/lazy/SkDiscardableMemoryPool.cpp \
+src/opts/SkBitmapProcState_opts_none.cpp \
+src/opts/SkBlitMask_opts_none.cpp \
+src/opts/SkBlitRow_opts_none.cpp \
 src/pathops/*.cpp \
+src/pipe/SkPipeCanvas.cpp \
+src/pipe/SkPipeReader.cpp \
 src/ports/SkDebug_stdio.cpp \
+src/ports/SkFontMgr_empty_factory.cpp \
+src/ports/SkImageGenerator_none.cpp \
 src/ports/SkMemory_malloc.cpp \
+src/shaders/*.cpp \
+src/sksl/SkSLCFGGenerator.cpp \
+src/sksl/SkSLGLSLCodeGenerator.cpp \
+src/sksl/SkSLJIT.cpp \
+src/sksl/SkSLParser.cpp \
+src/sksl/SkSLUtil.cpp \
+src/sksl/SkSLCompiler.cpp \
+src/sksl/SkSLHCodeGenerator.cpp \
+src/sksl/SkSLLexer.cpp \
+src/sksl/SkSLPipelineStageCodeGenerator.cpp \
+src/sksl/SkSLCPPCodeGenerator.cpp \
+src/sksl/SkSLInterpreter.cpp \
+src/sksl/SkSLSPIRVCodeGenerator.cpp \
+src/sksl/SkSLCPPUniformCTypes.cpp \
+src/sksl/SkSLIRGenerator.cpp \
+src/sksl/SkSLMetalCodeGenerator.cpp \
+src/sksl/SkSLString.cpp \
+src/sksl/ir/*.cpp \
 src/utils/SkDashPath.cpp \
+src/utils/SkEventTracer.cpp \
+src/utils/SkJSONWriter.cpp \
 src/utils/SkParse.cpp \
 src/utils/SkParsePath.cpp \
-src/utils/SkUTF.cpp
+src/utils/SkPatchUtils.cpp \
+src/utils/SkPolyUtils.cpp \
+src/utils/SkShadowTessellator.cpp \
+src/utils/SkShadowUtils.cpp \
+src/utils/SkUTF.cpp \
+third_party/skcms/skcms.cc
 
 if [[ $@ == *serve* ]]; then
   pushd $BUILD_DIR
