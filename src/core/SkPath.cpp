@@ -203,11 +203,16 @@ bool operator==(const SkPath& a, const SkPath& b) {
 
 void SkPath::swap(SkPath& that) {
     if (this != &that) {
-        using std::swap;
         fPathRef.swap(that.fPathRef);
-        swap(fLastMoveToIndex, that.fLastMoveToIndex);
-        swap(fFillType, that.fFillType);
-        swap(fIsVolatile, that.fIsVolatile);
+        std::swap(fLastMoveToIndex, that.fLastMoveToIndex);
+
+        const auto ft = fFillType;
+        fFillType = that.fFillType;
+        that.fFillType = ft;
+
+        const auto iv = fIsVolatile;
+        fIsVolatile = that.fIsVolatile;
+        that.fIsVolatile = iv;
 
         // Non-atomic swaps of atomic values.
         Convexity c = fConvexity.load();

@@ -1674,11 +1674,11 @@ public:
 private:
     sk_sp<SkPathRef>                                     fPathRef;
     int                                                  fLastMoveToIndex;
-    uint8_t                                              fFillType;
     mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
-    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;// SkPathPriv::FirstDirection
-    bool                                                 fIsVolatile;
-    bool                                                 fIsBadForDAA = false;
+    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;  // SkPathPriv::FirstDirection
+    uint8_t                                              fFillType    : 2; // SkPath::Convexity
+    uint8_t                                              fIsVolatile  : 1;
+    uint8_t                                              fIsBadForDAA : 1;
 
     /** Resets all fields other than fPathRef to their initial 'empty' values.
      *  Assumes the caller has already emptied fPathRef.
