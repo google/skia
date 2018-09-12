@@ -15,6 +15,7 @@
 #include "GrSweepGradientLayout.h"
 #include "GrTwoPointConicalGradientLayout.h"
 
+#include "GrDualIntervalGradientColorizer.h"
 #include "GrSingleIntervalGradientColorizer.h"
 
 #include "SkGradientShaderPriv.h"
@@ -22,23 +23,21 @@
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
-static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkGradientShaderBase& shader,
-        const GrFPArgs& args, const GrColor4f* colors) {
+static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colors,
+                                                           const SkScalar* positions,
+                                                           int count) {
     // If there are hard stops at the beginning or end, the first and/or last color should be
     // ignored by the colorizer since it should only be used in a clamped border color. By detecting
     // and removing these stops at the beginning, it makes optimizing the remaining color stops
     // simpler.
 
-    // SkGradientShaderBase guarantees that fOrigPos[0] == 0 by adding a dummy
-    bool bottomHardStop = shader.fOrigPos && SkScalarNearlyEqual(shader.fOrigPos[0],
-                                                                 shader.fOrigPos[1]);
-    // The same is true for fOrigPos[end] == 1
-    bool topHardStop = shader.fOrigPos &&
-            SkScalarNearlyEqual(shader.fOrigPos[shader.fColorCount - 2],
-                                shader.fOrigPos[shader.fColorCount - 1]);
+    // SkGradientShaderBase guarantees that pos[0] == 0 by adding a dummy
+    bool bottomHardStop = SkScalarNearlyEqual(positions[0], positions[1]);
+    // The same is true for pos[end] == 1
+    bool topHardStop = SkScalarNearlyEqual(positions[count - 2],
+                                           positions[count - 1]);
 
     int offset = 0;
-    int count = shader.fColorCount;
     if (bottomHardStop) {
         offset += 1;
         count--;
@@ -47,10 +46,21 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const SkGradientShade
         count--;
     }
 
-    // Currently only supports 2-color single intervals. However, when the gradient has hard stops
-    // and is clamped, certain 3 or 4 color gradients are equivalent to a two color interval
+    // Two remaining colors means a single interval from 0 to 1
+    // (but it may have originally been a 3 or 4 color gradient with 1-2 hard stops at the ends)
     if (count == 2) {
         return GrSingleIntervalGradientColorizer::Make(colors[offset], colors[offset + 1]);
+    } else if (count == 3) {
+        // Must be a dual interval gradient, where the middle point is at offset+1 and the two
+        // intervals share the middle color stop.
+        return GrDualIntervalGradientColorizer::Make(colors[offset], colors[offset + 1],
+                                                     colors[offset + 1], colors[offset + 2],
+                                                     positions[offset + 1]);
+    } else if (count == 4 && SkScalarNearlyEqual(positions[offset + 1], positions[offset + 2])) {
+        // Two separate intervals that join at the same threshold position
+        return GrDualIntervalGradientColorizer::Make(colors[offset], colors[offset + 1],
+                                                     colors[offset + 2], colors[offset + 3],
+                                                     positions[offset + 1]);
     }
 
     return nullptr;
@@ -79,8 +89,25 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         }
     }
 
+    // SkGradientShader stores positions implicitly when they are evenly spaced, but the getPos()
+    // implementation performs a branch for every position index. Since the shader conversion
+    // requires lots of position tests, calculate all of the positions up front if needed.
+    SkTArray<SkScalar, true> implicitPos;
+    SkScalar* positions;
+    if (shader.fOrigPos) {
+        positions = shader.fOrigPos;
+    } else {
+        implicitPos.reserve(shader.fColorCount);
+        SkScalar posScale = SkScalarFastInvert(shader.fColorCount - 1);
+        for (int i = 0 ; i < shader.fColorCount; i++) {
+            implicitPos.push_back(SkIntToScalar(i) * posScale);
+        }
+        positions = implicitPos.begin();
+    }
+
     // All gradients are colorized the same way, regardless of layout
-    std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(shader, args, colors.get());
+    std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(colors.get(), positions,
+                                                                    shader.fColorCount);
     if (colorizer == nullptr) {
         return nullptr;
     }
