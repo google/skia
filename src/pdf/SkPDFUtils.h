@@ -44,13 +44,9 @@ namespace SkPDFUtils {
 
 sk_sp<SkPDFArray> RectToArray(const SkRect& rect);
 sk_sp<SkPDFArray> MatrixToArray(const SkMatrix& matrix);
-void AppendTransform(const SkMatrix& matrix, SkWStream* content);
 
 void MoveTo(SkScalar x, SkScalar y, SkWStream* content);
 void AppendLine(SkScalar x, SkScalar y, SkWStream* content);
-void AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                 SkScalar ctl2X, SkScalar ctl2Y,
-                 SkScalar dstX, SkScalar dstY, SkWStream* content);
 void AppendRectangle(const SkRect& rect, SkWStream* content);
 void EmitPath(const SkPath& path, SkPaint::Style paintStyle,
               bool doConsumeDegerates, SkWStream* content, SkScalar tolerance = 0.25f);
@@ -62,7 +58,6 @@ void ClosePath(SkWStream* content);
 void PaintPath(SkPaint::Style style, SkPath::FillType fill,
                       SkWStream* content);
 void StrokePath(SkWStream* content);
-void DrawFormXObject(int objectIndex, SkWStream* content);
 void ApplyGraphicState(int objectIndex, SkWStream* content);
 void ApplyPattern(int objectIndex, SkWStream* content);
 
@@ -82,14 +77,11 @@ inline void AppendScalar(SkScalar value, SkWStream* stream) {
     stream->write(result, len);
 }
 
-void WriteString(SkWStream* wStream, const char* input, size_t len);
-
 inline void WriteUInt16BE(SkDynamicMemoryWStream* wStream, uint16_t value) {
-    char result[4];
-    result[0] = SkHexadecimalDigits::gUpper[       value >> 12 ];
-    result[1] = SkHexadecimalDigits::gUpper[0xF & (value >> 8 )];
-    result[2] = SkHexadecimalDigits::gUpper[0xF & (value >> 4 )];
-    result[3] = SkHexadecimalDigits::gUpper[0xF & (value      )];
+    char result[4] = { SkHexadecimalDigits::gUpper[       value >> 12 ],
+                       SkHexadecimalDigits::gUpper[0xF & (value >> 8 )],
+                       SkHexadecimalDigits::gUpper[0xF & (value >> 4 )],
+                       SkHexadecimalDigits::gUpper[0xF & (value      )] };
     wStream->write(result, 4);
 }
 

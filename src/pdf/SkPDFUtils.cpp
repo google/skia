@@ -18,44 +18,18 @@
 
 #include <cmath>
 
-sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& rect) {
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(4);
-    result->appendScalar(rect.fLeft);
-    result->appendScalar(rect.fTop);
-    result->appendScalar(rect.fRight);
-    result->appendScalar(rect.fBottom);
-    return result;
+sk_sp<SkPDFArray> SkPDFUtils::RectToArray(const SkRect& r) {
+    return SkPDFMakeArray(r.left(), r.top(), r.right(), r.bottom());
 }
 
 sk_sp<SkPDFArray> SkPDFUtils::MatrixToArray(const SkMatrix& matrix) {
-    SkScalar values[6];
-    if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
+    SkScalar a[6];
+    if (!matrix.asAffine(a)) {
+        SkMatrix::SetAffineIdentity(a);
     }
-
-    auto result = sk_make_sp<SkPDFArray>();
-    result->reserve(6);
-    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        result->appendScalar(values[i]);
-    }
-    return result;
+    return SkPDFMakeArray(a[0], a[1], a[2], a[3], a[4], a[5]);
 }
 
-// static
-void SkPDFUtils::AppendTransform(const SkMatrix& matrix, SkWStream* content) {
-    SkScalar values[6];
-    if (!matrix.asAffine(values)) {
-        SkMatrix::SetAffineIdentity(values);
-    }
-    for (size_t i = 0; i < SK_ARRAY_COUNT(values); i++) {
-        SkPDFUtils::AppendScalar(values[i], content);
-        content->writeText(" ");
-    }
-    content->writeText("cm\n");
-}
-
-// static
 void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
@@ -63,7 +37,6 @@ void SkPDFUtils::MoveTo(SkScalar x, SkScalar y, SkWStream* content) {
     content->writeText(" m\n");
 }
 
-// static
 void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
     SkPDFUtils::AppendScalar(x, content);
     content->writeText(" ");
@@ -71,10 +44,9 @@ void SkPDFUtils::AppendLine(SkScalar x, SkScalar y, SkWStream* content) {
     content->writeText(" l\n");
 }
 
-// static
-void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
-                             SkScalar ctl2X, SkScalar ctl2Y,
-                             SkScalar dstX, SkScalar dstY, SkWStream* content) {
+static void append_cubic(SkScalar ctl1X, SkScalar ctl1Y,
+                         SkScalar ctl2X, SkScalar ctl2Y,
+                         SkScalar dstX, SkScalar dstY, SkWStream* content) {
     SkString cmd("y\n");
     SkPDFUtils::AppendScalar(ctl1X, content);
     content->writeText(" ");
@@ -97,11 +69,10 @@ void SkPDFUtils::AppendCubic(SkScalar ctl1X, SkScalar ctl1Y,
 static void append_quad(const SkPoint quad[], SkWStream* content) {
     SkPoint cubic[4];
     SkConvertQuadToCubic(quad, cubic);
-    SkPDFUtils::AppendCubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
-                            cubic[3].fX, cubic[3].fY, content);
+    append_cubic(cubic[1].fX, cubic[1].fY, cubic[2].fX, cubic[2].fY,
+                 cubic[3].fX, cubic[3].fY, content);
 }
 
-// static
 void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     // Skia has 0,0 at top left, pdf at bottom left.  Do the right thing.
     SkScalar bottom = SkMinScalar(rect.fBottom, rect.fTop);
@@ -116,7 +87,6 @@ void SkPDFUtils::AppendRectangle(const SkRect& rect, SkWStream* content) {
     content->writeText(" re\n");
 }
 
-// static
 void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                           bool doConsumeDegerates, SkWStream* content,
                           SkScalar tolerance) {
@@ -185,8 +155,8 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
                 fillState = kNonSingleLine_SkipFillState;
             } break;
             case SkPath::kCubic_Verb:
-                AppendCubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
-                            args[3].fX, args[3].fY, &currentSegment);
+                append_cubic(args[1].fX, args[1].fY, args[2].fX, args[2].fY,
+                             args[3].fX, args[3].fY, &currentSegment);
                 fillState = kNonSingleLine_SkipFillState;
                 break;
             case SkPath::kClose_Verb:
@@ -204,12 +174,10 @@ void SkPDFUtils::EmitPath(const SkPath& path, SkPaint::Style paintStyle,
     }
 }
 
-// static
 void SkPDFUtils::ClosePath(SkWStream* content) {
     content->writeText("h\n");
 }
 
-// static
 void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
                            SkWStream* content) {
     if (style == SkPaint::kFill_Style) {
@@ -230,41 +198,23 @@ void SkPDFUtils::PaintPath(SkPaint::Style style, SkPath::FillType fill,
     content->writeText("\n");
 }
 
-// static
 void SkPDFUtils::StrokePath(SkWStream* content) {
     SkPDFUtils::PaintPath(
         SkPaint::kStroke_Style, SkPath::kWinding_FillType, content);
 }
 
-// static
-void SkPDFUtils::DrawFormXObject(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kXObject_ResourceType,
-            objectIndex).c_str());
-    content->writeText(" Do\n");
-}
-
-// static
 void SkPDFUtils::ApplyGraphicState(int objectIndex, SkWStream* content) {
-    content->writeText("/");
-    content->writeText(SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kExtGState_ResourceType,
-            objectIndex).c_str());
+    SkPDFWriteResourceName(content, SkPDFResourceType::kExtGState, objectIndex);
     content->writeText(" gs\n");
 }
 
-// static
 void SkPDFUtils::ApplyPattern(int objectIndex, SkWStream* content) {
     // Select Pattern color space (CS, cs) and set pattern object as current
     // color (SCN, scn)
-    SkString resourceName = SkPDFResourceDict::getResourceName(
-            SkPDFResourceDict::kPattern_ResourceType,
-            objectIndex);
-    content->writeText("/Pattern CS/Pattern cs/");
-    content->writeText(resourceName.c_str());
-    content->writeText(" SCN/");
-    content->writeText(resourceName.c_str());
+    content->writeText("/Pattern CS/Pattern cs");
+    SkPDFWriteResourceName(content, SkPDFResourceType::kPattern, objectIndex);
+    content->writeText(" SCN");
+    SkPDFWriteResourceName(content, SkPDFResourceType::kPattern, objectIndex);
     content->writeText(" scn\n");
 }
 
@@ -291,49 +241,6 @@ size_t SkPDFUtils::ColorToDecimal(uint8_t value, char result[5]) {
     return j + 1;
 }
 
-void SkPDFUtils::WriteString(SkWStream* wStream, const char* cin, size_t len) {
-    SkDEBUGCODE(static const size_t kMaxLen = 65535;)
-    SkASSERT(len <= kMaxLen);
-
-    size_t extraCharacterCount = 0;
-    for (size_t i = 0; i < len; i++) {
-        if (cin[i] > '~' || cin[i] < ' ') {
-            extraCharacterCount += 3;
-        }
-        if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-            ++extraCharacterCount;
-        }
-    }
-    if (extraCharacterCount <= len) {
-        wStream->writeText("(");
-        for (size_t i = 0; i < len; i++) {
-            if (cin[i] > '~' || cin[i] < ' ') {
-                uint8_t c = static_cast<uint8_t>(cin[i]);
-                uint8_t octal[4];
-                octal[0] = '\\';
-                octal[1] = '0' + ( c >> 6        );
-                octal[2] = '0' + ((c >> 3) & 0x07);
-                octal[3] = '0' + ( c       & 0x07);
-                wStream->write(octal, 4);
-            } else {
-                if (cin[i] == '\\' || cin[i] == '(' || cin[i] == ')') {
-                    wStream->writeText("\\");
-                }
-                wStream->write(&cin[i], 1);
-            }
-        }
-        wStream->writeText(")");
-    } else {
-        wStream->writeText("<");
-        for (size_t i = 0; i < len; i++) {
-            uint8_t c = static_cast<uint8_t>(cin[i]);
-            char hexValue[2] = { SkHexadecimalDigits::gUpper[c >> 4],
-                                 SkHexadecimalDigits::gUpper[c & 0xF] };
-            wStream->write(hexValue, 2);
-        }
-        wStream->writeText(">");
-    }
-}
 
 bool SkPDFUtils::InverseTransformBBox(const SkMatrix& matrix, SkRect* bbox) {
     SkMatrix inverse;

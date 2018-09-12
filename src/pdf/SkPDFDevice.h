@@ -110,9 +110,6 @@ public:
      */
     void appendDestinations(SkPDFDict* dict, SkPDFObject* page) const;
 
-    /** Returns a copy of the media box for this device. */
-    sk_sp<SkPDFArray> copyMediaBox() const;
-
     /** Returns a SkStream with the page contents.
      */
     std::unique_ptr<SkStreamAsset> content() const;

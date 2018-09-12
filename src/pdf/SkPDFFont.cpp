@@ -107,16 +107,6 @@ void setGlyphWidthAndBoundingBox(SkScalar width, SkIRect box,
     content->writeDecAsText(box.fBottom);
     content->writeText(" d1\n");
 }
-
-static sk_sp<SkPDFArray> makeFontBBox(SkIRect glyphBBox, uint16_t emSize) {
-    auto bbox = sk_make_sp<SkPDFArray>();
-    bbox->reserve(4);
-    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fLeft, emSize));
-    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fBottom, emSize));
-    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fRight, emSize));
-    bbox->appendScalar(scaleFromFontUnits(glyphBBox.fTop, emSize));
-    return bbox;
-}
 }  // namespace
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -297,8 +287,11 @@ static void  add_common_font_descriptor_entries(SkPDFDict* descriptor,
     descriptor->insertScalar("CapHeight",
             scaleFromFontUnits(metrics.fCapHeight, emSize));
     descriptor->insertInt("ItalicAngle", metrics.fItalicAngle);
-    descriptor->insertObject(
-            "FontBBox", makeFontBBox(metrics.fBBox, emSize));
+    descriptor->insertObject("FontBBox",
+                             SkPDFMakeArray(scaleFromFontUnits(metrics.fBBox.left(), emSize),
+                                            scaleFromFontUnits(metrics.fBBox.bottom(), emSize),
+                                            scaleFromFontUnits(metrics.fBBox.right(), emSize),
+                                            scaleFromFontUnits(metrics.fBBox.top(), emSize)));
     if (defaultWidth > 0) {
         descriptor->insertScalar("MissingWidth",
                 scaleFromFontUnits(defaultWidth, emSize));
@@ -731,13 +724,11 @@ static void add_type3_font_info(SkPDFCanon* canon,
       rectangle enclosing the shape that would result if all of the
       glyphs of the font were placed with their origins coincident and
       then filled." */
-    auto fontBBox = sk_make_sp<SkPDFArray>();
-    fontBBox->reserve(4);
-    fontBBox->appendInt(bbox.left());
-    fontBBox->appendInt(bbox.bottom());
-    fontBBox->appendInt(bbox.right());
-    fontBBox->appendInt(bbox.top());
-    font->insertObject("FontBBox", std::move(fontBBox));
+    font->insertObject("FontBBox", SkPDFMakeArray(bbox.left(),
+                                                  bbox.bottom(),
+                                                  bbox.right(),
+                                                  bbox.top()));
+
     font->insertName("CIDToGIDMap", "Identity");
 
     const std::vector<SkUnichar>& glyphToUnicode = SkPDFFont::GetUnicodeMap(typeface, canon);
