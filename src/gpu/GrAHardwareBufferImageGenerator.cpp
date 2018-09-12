@@ -20,6 +20,7 @@
 #include "GrProxyProvider.h"
 #include "GrResourceCache.h"
 #include "GrResourceProvider.h"
+#include "GrResourceProviderPriv.h"
 #include "GrTexture.h"
 #include "GrTextureProxy.h"
 #include "SkMessageBus.h"
@@ -30,6 +31,11 @@
 #include <EGL/eglext.h>
 #include <GLES/gl.h>
 #include <GLES/glext.h>
+
+#ifdef SK_VULKAN
+#include "vk/GrVkExtensions.h"
+#include "vk/GrVkGpu.h"
+#endif
 
 #define PROT_CONTENT_EXT_STR "EGL_EXT_protected_content"
 #define EGL_PROTECTED_CONTENT_EXT 0x32C0
@@ -111,6 +117,216 @@ GrAHardwareBufferImageGenerator::~GrAHardwareBufferImageGenerator() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef SK_VULKAN
+
+class VulkanCleanupHelper {
+public:
+    VulkanCleanupHelper(GrVkGpu* gpu, VkImage image, VkDeviceMemory memory)
+        : fDevice(gpu->device())
+        , fImage(image)
+        , fMemory(memory)
+        , fDestroyImage(gpu->vkInterface()->fFunctions.fDestroyImage)
+        , fFreeMemory(gpu->vkInterface()->fFunctions.fFreeMemory) {}
+    ~VulkanCleanupHelper() {
+        fDestroyImage(fDevice, fImage, nullptr);
+        fFreeMemory(fDevice, fMemory, nullptr);
+    }
+private:
+    VkDevice           fDevice;
+    VkImage            fImage;
+    VkDeviceMemory     fMemory;
+    PFN_vkDestroyImage fDestroyImage;
+    PFN_vkFreeMemory   fFreeMemory;
+};
+
+void GrAHardwareBufferImageGenerator::DeleteVkImage(void* context) {
+    VulkanCleanupHelper* cleanupHelper = static_cast<VulkanCleanupHelper*>(context);
+    delete cleanupHelper;
+}
+
+#define VK_CALL(X) gpu->vkInterface()->fFunctions.f##X;
+
+static GrBackendTexture make_vk_backend_texture(
+        GrContext* context, AHardwareBuffer* hardwareBuffer,
+        int width, int height, GrPixelConfig config,
+        GrAHardwareBufferImageGenerator::DeleteImageProc* deleteProc,
+        GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
+        bool isProtectedContent,
+        const GrBackendFormat& backendFormat) {
+    SkASSERT(context->contextPriv().getBackend() == kVulkan_GrBackend);
+    GrVkGpu* gpu = static_cast<GrVkGpu*>(context->contextPriv().getGpu());
+
+    VkPhysicalDevice physicalDevice = gpu->physicalDevice();
+    VkDevice device = gpu->device();
+
+    SkASSERT(gpu);
+
+    if (!gpu->vkCaps().supportsAndroidHWBExternalMemory()) {
+        return GrBackendTexture();
+    }
+
+    SkASSERT(backendFormat.getVkFormat());
+    VkFormat format = *backendFormat.getVkFormat();
+
+    VkResult err;
+
+    VkAndroidHardwareBufferFormatPropertiesANDROID hwbFormatProps;
+    hwbFormatProps.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_FORMAT_PROPERTIES_ANDROID;
+    hwbFormatProps.pNext = nullptr;
+
+    VkAndroidHardwareBufferPropertiesANDROID hwbProps;
+    hwbProps.sType = VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID;
+    hwbProps.pNext = &hwbFormatProps;
+
+    err = VK_CALL(GetAndroidHardwareBufferProperties(device, hardwareBuffer, &hwbProps));
+    if (VK_SUCCESS != err) {
+        return GrBackendTexture();
+    }
+
+    SkASSERT(format == hwbFormatProps.format);
+    SkASSERT(SkToBool(VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT & hwbFormatProps.formatFeatures) &&
+             SkToBool(VK_FORMAT_FEATURE_TRANSFER_SRC_BIT & hwbFormatProps.formatFeatures) &&
+             SkToBool(VK_FORMAT_FEATURE_TRANSFER_DST_BIT & hwbFormatProps.formatFeatures));
+
+    const VkExternalMemoryImageCreateInfo externalMemoryImageInfo {
+        VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO, // sType
+        nullptr, // pNext
+        VK_EXTERNAL_MEMORY_HANDLE_TYPE_ANDROID_HARDWARE_BUFFER_BIT_ANDROID, // handleTypes
+    };
+    VkImageUsageFlags usageFlags = VK_IMAGE_USAGE_SAMPLED_BIT |
+                                   VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
+                                   VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+
+    // TODO: Check the supported tilings vkGetPhysicalDeviceImageFormatProperties2 to see if we have
+    // to use linear. Add better linear support throughout Ganesh.
+    VkImageTiling tiling = VK_IMAGE_TILING_OPTIMAL;
+
+    const VkImageCreateInfo imageCreateInfo = {
+        VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,         // sType
+        &externalMemoryImageInfo,                    // pNext
+        0,                                           // VkImageCreateFlags
+        VK_IMAGE_TYPE_2D,                            // VkImageType
+        format,                                      // VkFormat
+        { (uint32_t)width, (uint32_t)height, 1 },    // VkExtent3D
+        1,                                           // mipLevels
+        1,                                           // arrayLayers
+        VK_SAMPLE_COUNT_1_BIT,                       // samples
+        tiling,                                      // VkImageTiling
+        usageFlags,                                  // VkImageUsageFlags
+        VK_SHARING_MODE_EXCLUSIVE,                   // VkSharingMode
+        0,                                           // queueFamilyCount
+        0,                                           // pQueueFamilyIndices
+        VK_IMAGE_LAYOUT_UNDEFINED,                   // initialLayout
+    };
+
+    VkImage image;
+    err = VK_CALL(CreateImage(device, &imageCreateInfo, nullptr, &image));
+    if (VK_SUCCESS != err) {
+        return GrBackendTexture();
+    }
+
+    VkImageMemoryRequirementsInfo2 memReqsInfo;
+    memReqsInfo.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2;
+    memReqsInfo.pNext = nullptr;
+    memReqsInfo.image = image;
+
+    VkMemoryDedicatedRequirements dedicatedMemReqs;
+    dedicatedMemReqs.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_REQUIREMENTS;
+    dedicatedMemReqs.pNext = nullptr;
+
+    VkMemoryRequirements2 memReqs;
+    memReqs.sType = VK_STRUCTURE_TYPE_MEMORY_REQUIREMENTS_2;
+    memReqs.pNext = &dedicatedMemReqs;
+
+    VK_CALL(GetImageMemoryRequirements2(device, &memReqsInfo, &memReqs));
+    SkASSERT(VK_TRUE == dedicatedMemReqs.requiresDedicatedAllocation);
+
+    VkPhysicalDeviceMemoryProperties2 phyDevMemProps;
+    phyDevMemProps.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
+    phyDevMemProps.pNext = nullptr;
+
+    uint32_t typeIndex = 0;
+    uint32_t heapIndex = 0;
+    bool foundHeap = false;
+    VK_CALL(GetPhysicalDeviceMemoryProperties2(physicalDevice, &phyDevMemProps));
+    uint32_t memTypeCnt = phyDevMemProps.memoryProperties.memoryTypeCount;
+    for (uint32_t i = 0; i < memTypeCnt && !foundHeap; ++i) {
+        if (hwbProps.memoryTypeBits & (1 << i)) {
+            const VkPhysicalDeviceMemoryProperties& pdmp = phyDevMemProps.memoryProperties;
+            uint32_t supportedFlags = pdmp.memoryTypes[i].propertyFlags &
+                    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            if (supportedFlags == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+                typeIndex = i;
+                heapIndex = pdmp.memoryTypes[i].heapIndex;
+                foundHeap = true;
+            }
+        }
+    }
+    if (!foundHeap) {
+        VK_CALL(DestroyImage(device, image, nullptr));
+        return GrBackendTexture();
+    }
+
+    VkImportAndroidHardwareBufferInfoANDROID hwbImportInfo;
+    hwbImportInfo.sType = VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID;
+    hwbImportInfo.pNext = nullptr;
+    hwbImportInfo.buffer = hardwareBuffer;
+
+    VkMemoryDedicatedAllocateInfo dedicatedAllocInfo;
+    dedicatedAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_DEDICATED_ALLOCATE_INFO;
+    dedicatedAllocInfo.pNext = &hwbImportInfo;
+    dedicatedAllocInfo.image = image;
+    dedicatedAllocInfo.buffer = VK_NULL_HANDLE;
+
+    VkMemoryAllocateInfo allocInfo = {
+        VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,      // sType
+        &dedicatedAllocInfo,                         // pNext
+        hwbProps.allocationSize,                     // allocationSize
+        typeIndex,                                   // memoryTypeIndex
+    };
+
+    VkDeviceMemory memory;
+
+    err = VK_CALL(AllocateMemory(device, &allocInfo, nullptr, &memory));
+    if (VK_SUCCESS != err) {
+        VK_CALL(DestroyImage(device, image, nullptr));
+        return GrBackendTexture();
+    }
+
+    VkBindImageMemoryInfo bindImageInfo;
+    bindImageInfo.sType = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
+    bindImageInfo.pNext = nullptr;
+    bindImageInfo.image = image;
+    bindImageInfo.memory = memory;
+    bindImageInfo.memoryOffset = 0;
+
+    err = VK_CALL(BindImageMemory2(device, 1, &bindImageInfo));
+    if (VK_SUCCESS != err) {
+        VK_CALL(DestroyImage(device, image, nullptr));
+        VK_CALL(FreeMemory(device, memory, nullptr));
+        return GrBackendTexture();
+    }
+
+    GrVkImageInfo imageInfo;
+
+    imageInfo.fImage = image;
+    imageInfo.fAlloc = GrVkAlloc(memory, 0, hwbProps.allocationSize, 0);
+    imageInfo.fImageTiling = tiling;
+    imageInfo.fImageLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.fFormat = format;
+    imageInfo.fLevelCount = 1;
+    // TODO: This should possibly be VK_QUEUE_FAMILY_FOREIGN_EXT but current Adreno devices do not
+    // support that extension. Or if we know the source of the AHardwareBuffer is not from a
+    // "foreign" device we can leave them as external.
+    imageInfo.fCurrentQueueFamily = VK_QUEUE_FAMILY_EXTERNAL;
+
+    *deleteProc = GrAHardwareBufferImageGenerator::DeleteVkImage;
+    *deleteCtx = new VulkanCleanupHelper(gpu, image, memory);
+
+    return GrBackendTexture(width, height, imageInfo);
+}
+#endif
+
 class GLCleanupHelper {
 public:
     GLCleanupHelper(GrGLuint texID, EGLImageKHR image, EGLDisplay display)
@@ -127,7 +343,6 @@ private:
     EGLImageKHR fImage;
     EGLDisplay  fDisplay;
 };
-
 
 void GrAHardwareBufferImageGenerator::DeleteGLTexture(void* context) {
     GLCleanupHelper* cleanupHelper = static_cast<GLCleanupHelper*>(context);
@@ -199,13 +414,25 @@ static GrBackendTexture make_backend_texture(
         GrAHardwareBufferImageGenerator::DeleteImageCtx* deleteCtx,
         bool isProtectedContent,
         const GrBackendFormat& backendFormat) {
-    if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
-        // Check if GrContext is not abandoned and the backend is GL.
+    if (context->abandoned()) {
         return GrBackendTexture();
     }
     bool createProtectedImage = isProtectedContent && can_import_protected_content(context);
-    return make_gl_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
-                                   deleteCtx, createProtectedImage, backendFormat);
+
+    if (kOpenGL_GrBackend == context->contextPriv().getBackend()) {
+        return make_gl_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
+                                       deleteCtx, createProtectedImage, backendFormat);
+    } else {
+        SkASSERT(kVulkan_GrBackend == context->contextPriv().getBackend());
+#ifdef SK_VULKAN
+        // Currently we don't support protected images on vulkan
+        SkASSERT(!createProtectedImage);
+        return make_vk_backend_texture(context, hardwareBuffer, width, height, config, deleteProc,
+                                       deleteCtx, createProtectedImage, backendFormat);
+#else
+        return GrBackendTexture();
+#endif
+    }
 }
 
 GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
@@ -226,13 +453,30 @@ GrBackendFormat get_backend_format(GrBackend backend, uint32_t bufferFormat) {
             default:
                 return GrBackendFormat::MakeGL(GR_GL_RGBA8, GR_GL_TEXTURE_EXTERNAL);
         }
+    } else if (backend == kVulkan_GrBackend) {
+        switch (bufferFormat) {
+            //TODO: find out if we can detect, which graphic buffers support GR_GL_TEXTURE_2D
+            case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
+            case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R16G16B16A16_SFLOAT);
+            case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R5G6B5_UNORM_PACK16);
+            case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_A2B10G10R10_UNORM_PACK32);
+            case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8A8_UNORM);
+            case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+            default:
+                return GrBackendFormat::MakeVk(VK_FORMAT_R8G8B8_UNORM);
+        }
     }
     return GrBackendFormat();
 }
 
 sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* context) {
-    if (context->abandoned() || kOpenGL_GrBackend != context->contextPriv().getBackend()) {
-        // Check if GrContext is not abandoned and the backend is GL.
+    if (context->abandoned()) {
         return nullptr;
     }
 
@@ -293,9 +537,11 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
                     return sk_sp<GrTexture>();
                 }
 
-                sk_sp<GrReleaseProcHelper> releaseProcHelper(
-                        new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
-                tex->setRelease(releaseProcHelper);
+                if (deleteImageProc) {
+                    sk_sp<GrReleaseProcHelper> releaseProcHelper(
+                            new GrReleaseProcHelper(deleteImageProc, deleteImageCtx));
+                    tex->setRelease(releaseProcHelper);
+                }
 
                 return tex;
             },
@@ -333,8 +579,8 @@ bool GrAHardwareBufferImageGenerator::onIsValid(GrContext* context) const {
     if (nullptr == context) {
         return false; //CPU backend is not supported, because hardware buffer can be swizzled
     }
-    // TODO: add Vulkan support
-    return kOpenGL_GrBackend == context->contextPriv().getBackend();
+    return kOpenGL_GrBackend == context->contextPriv().getBackend() ||
+           kVulkan_GrBackend == context->contextPriv().getBackend();
 }
 
 #endif //SK_BUILD_FOR_ANDROID_FRAMEWORK
