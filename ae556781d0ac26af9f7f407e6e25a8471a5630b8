@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "2d7c8db6_7dac928d",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-12T15:48:33Z",
+      "side": 1,
+      "message": "I guess in this case we don\u0027t want to use our internal heap management?",
+      "range": {
+        "startLine": 290,
+        "startChar": 18,
+        "endLine": 290,
+        "endChar": 32
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f986f4e_bd24b054",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 8
