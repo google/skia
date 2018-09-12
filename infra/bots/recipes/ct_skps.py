@@ -455,12 +455,9 @@ def GenTests(api):
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
-        patch_storage='gerrit') +
-    api.properties.tryserver(
-        buildername=builder,
-        gerrit_project='skia',
-        gerrit_url='https://skia-review.googlesource.com/',
-    )
+        patch_ref='refs/changes/89/456789/12',
+        patch_repo='https://skia.googlesource.com/skia.git',
+        patch_storage='gerrit')
   )
 
   builder = ('Test-Ubuntu14-Clang-GCE-CPU-AVX2-x86_64-Debug-All-'
@@ -475,10 +472,7 @@ def GenTests(api):
         num_per_slave=num_per_slave,
         repository='https://skia.googlesource.com/skia.git',
         revision=skia_revision,
-        patch_storage='gerrit') +
-    api.properties.tryserver(
-        buildername=builder,
-        gerrit_project='skia',
-        gerrit_url='https://skia-review.googlesource.com/',
-    )
+        patch_ref='refs/changes/89/456789/12',
+        patch_repo='https://skia.googlesource.com/skia.git',
+        patch_storage='gerrit')
   )
