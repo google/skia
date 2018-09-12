@@ -10,6 +10,7 @@
 #include "GrContext.h"
 #include "GrContextPriv.h"
 #include "GrGpu.h"
+#include "SkCachedData.h"
 #include "SkDeferredDisplayListRecorder.h"
 
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
@@ -57,10 +58,10 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
         // DDL TODO: how can we tell if we need mipmapping!
         callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
-                                                            info.fBitmap.getPixels(),
-                                                            info.fBitmap.width(),
-                                                            info.fBitmap.height(),
-                                                            info.fBitmap.colorType(),
+                                                            info.fBitmap1.getPixels(),
+                                                            info.fBitmap1.width(),
+                                                            info.fBitmap1.height(),
+                                                            info.fBitmap1.colorType(),
                                                             false, GrMipMapped::kNo));
         // The GMs sometimes request too large an image
         //SkAssertResult(callbackContext->backendTexture().isValid());
@@ -104,7 +105,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         // a separate bitmap-backed image for each thread.
         // Note: we would like to share the same bitmap between all the threads but
         // SkBitmap is not thread-safe.
-        return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
+        return SkImage::MakeRasterCopy(curImage.fBitmap1.pixmap());
     }
     SkASSERT(curImage.fIndex == *indexPtr);
 
@@ -117,13 +118,13 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
     // DDL TODO: sort out mipmapping
     sk_sp<SkImage> image = recorder->makePromiseTexture(
                                             backendFormat,
-                                            curImage.fBitmap.width(),
-                                            curImage.fBitmap.height(),
+                                            curImage.fBitmap1.width(),
+                                            curImage.fBitmap1.height(),
                                             GrMipMapped::kNo,
                                             GrSurfaceOrigin::kTopLeft_GrSurfaceOrigin,
-                                            curImage.fBitmap.colorType(),
-                                            curImage.fBitmap.alphaType(),
-                                            curImage.fBitmap.refColorSpace(),
+                                            curImage.fBitmap1.colorType(),
+                                            curImage.fBitmap1.alphaType(),
+                                            curImage.fBitmap1.refColorSpace(),
                                             DDLPromiseImageHelper::PromiseImageFulfillProc,
                                             DDLPromiseImageHelper::PromiseImageReleaseProc,
                                             DDLPromiseImageHelper::PromiseImageDoneProc,
@@ -135,7 +136,7 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
 
 int DDLPromiseImageHelper::findImage(SkImage* image) const {
     for (int i = 0; i < fImageInfo.count(); ++i) {
-        if (fImageInfo[i].fOriginalUniqueID == image->uniqueID()) { // trying to dedup here
+        if (fImageInfo[i].fOriginalUniqueID1 == image->uniqueID()) { // trying to dedup here
             SkASSERT(fImageInfo[i].fIndex == i);
             SkASSERT(this->isValidID(i) && this->isValidID(fImageInfo[i].fIndex));
             return i;
@@ -144,27 +145,43 @@ int DDLPromiseImageHelper::findImage(SkImage* image) const {
     return -1;
 }
 
+#include "SkImage_Base.h"
+#include "SkYUVSizeInfo.h"
+
 int DDLPromiseImageHelper::addImage(SkImage* image) {
-    sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
+    SkImage_Base* ib = as_IB(image);
 
-    SkImageInfo ii = SkImageInfo::Make(rasterImage->width(), rasterImage->height(),
-                                        rasterImage->colorType(), rasterImage->alphaType(),
-                                        rasterImage->refColorSpace());
+    SkYUVSizeInfo yuvSizeInfo;
+    SkYUVColorSpace yuvColorSpace;
+    const void* planes[3];
+    sk_sp<SkCachedData> yuvData = ib->getPlanes(&yuvSizeInfo, &yuvColorSpace, planes);
+    if (yuvData) {
+        PromiseImageInfo& newImageInfo = fImageInfo.push_back();
+        newImageInfo.fIndex = fImageInfo.count()-1;
+        newImageInfo.fOriginalUniqueID1 = image->uniqueID();
+//        newImageInfo.fBitmap = bm;
+    } else {
+        sk_sp<SkImage> rasterImage = image->makeRasterImage(); // force decoding of lazy images
 
-    SkBitmap bm;
-    bm.allocPixels(ii);
+        SkImageInfo ii = SkImageInfo::Make(rasterImage->width(), rasterImage->height(),
+                                           rasterImage->colorType(), rasterImage->alphaType(),
+                                           rasterImage->refColorSpace());
 
-    if (!rasterImage->readPixels(bm.pixmap(), 0, 0)) {
-        return -1;
+        SkBitmap bm;
+        bm.allocPixels(ii);
+
+        if (!rasterImage->readPixels(bm.pixmap(), 0, 0)) {
+            return -1;
+        }
+
+        bm.setImmutable();
+
+        PromiseImageInfo& newImageInfo = fImageInfo.push_back();
+        newImageInfo.fIndex = fImageInfo.count()-1;
+        newImageInfo.fOriginalUniqueID1 = image->uniqueID();
+        newImageInfo.fBitmap1 = bm;
+        /* fCallbackContext is filled in by uploadAllToGPU */
     }
-
-    bm.setImmutable();
-
-    PromiseImageInfo& newImageInfo = fImageInfo.push_back();
-    newImageInfo.fIndex = fImageInfo.count()-1;
-    newImageInfo.fOriginalUniqueID = image->uniqueID();
-    newImageInfo.fBitmap = bm;
-    /* fCallbackContext is filled in by uploadAllToGPU */
 
     return fImageInfo.count()-1;
 }

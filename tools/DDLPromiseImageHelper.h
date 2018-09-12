@@ -35,7 +35,7 @@ class SkPicture;
 //    This class is then reset - dropping all of its refs on the PromiseImageCallbackContexts
 //
 //    Each done callback unrefs its PromiseImageCallbackContext so, once all the promise images
-//       are done the PromiseImageCallbackContext is freed and its GrBackendTexture removed
+//       are done, the PromiseImageCallbackContext is freed and its GrBackendTexture removed
 //       from VRAM
 //
 // Note: if DDLs are going to be replayed multiple times, the reset call can be delayed until
@@ -92,8 +92,8 @@ private:
     class PromiseImageInfo {
     public:
         int                                fIndex;                // index in the 'fImageInfo' array
-        uint32_t                           fOriginalUniqueID;     // original ID for deduping
-        SkBitmap                           fBitmap;               // CPU-side cache of the contents
+        uint32_t                           fOriginalUniqueID1;     // original ID for deduping
+        SkBitmap                           fBitmap1;               // CPU-side cache of the contents
         sk_sp<PromiseImageCallbackContext> fCallbackContext;
     };
 
