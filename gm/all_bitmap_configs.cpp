@@ -108,11 +108,13 @@ static void draw(SkCanvas* canvas,
                  SkColorType colorType,
                  const char text[]) {
     SkASSERT(src.colorType() == colorType);
-    canvas->drawBitmap(src, 0.0f, 0.0f);
+    SkPaint medium;
+    medium.setFilterQuality(kMedium_SkFilterQuality);
+    canvas->drawBitmap(src, 0.0f, 0.0f, &medium);
     canvas->drawString(text, 0.0f, 12.0f, p);
 }
 
-DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
+static void draw_all_bitmap_configs(SkCanvas* canvas) {
     SkAutoCanvasRestore autoCanvasRestore(canvas, true);
     SkPaint p;
     p.setColor(SK_ColorBLACK);
@@ -152,6 +154,20 @@ DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
     canvas->translate(0.0f, SkIntToScalar(SCALE));
     SkBitmap bitmapG8 = make_bitmap(kGray_8_SkColorType);
     draw(canvas, p, bitmapG8, kGray_8_SkColorType, "Gray 8");
+
+}
+
+DEF_SIMPLE_GM(all_bitmap_configs, canvas, SCALE, 6 * SCALE) {
+    draw_all_bitmap_configs(canvas);
+}
+
+#define SMALL_SCALE 50
+
+DEF_SIMPLE_GM(all_bitmap_configs_scaled, canvas, SMALL_SCALE, 6 * SMALL_SCALE) {
+    SkAutoCanvasRestore autoCanvasRestore(canvas, true);
+    SkScalar scale = SkIntToScalar(SMALL_SCALE) / SkIntToScalar(SCALE);
+    canvas->scale(scale, scale);
+    draw_all_bitmap_configs(canvas);
 }
 
 sk_sp<SkImage> make_not_native32_color_wheel() {
