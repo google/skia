@@ -1757,8 +1757,10 @@ typedef enum {
     Op_load_888,
     Op_load_8888,
     Op_load_1010102,
-    Op_load_161616,
-    Op_load_16161616,
+    Op_load_161616LE,
+    Op_load_16161616LE,
+    Op_load_161616BE,
+    Op_load_16161616BE,
     Op_load_hhh,
     Op_load_hhhh,
     Op_load_fff,
@@ -1805,8 +1807,10 @@ typedef enum {
     Op_store_888,
     Op_store_8888,
     Op_store_1010102,
-    Op_store_161616,
-    Op_store_16161616,
+    Op_store_161616LE,
+    Op_store_16161616LE,
+    Op_store_161616BE,
+    Op_store_16161616BE,
     Op_store_hhh,
     Op_store_hhhh,
     Op_store_fff,
@@ -1992,19 +1996,21 @@ static OpAndArg select_curve_op(const skcms_Curve* curve, int channel) {
 
 static size_t bytes_per_pixel(skcms_PixelFormat fmt) {
     switch (fmt >> 1) {   // ignore rgb/bgr
-        case skcms_PixelFormat_A_8           >> 1: return  1;
-        case skcms_PixelFormat_G_8           >> 1: return  1;
-        case skcms_PixelFormat_ABGR_4444     >> 1: return  2;
-        case skcms_PixelFormat_RGB_565       >> 1: return  2;
-        case skcms_PixelFormat_RGB_888       >> 1: return  3;
-        case skcms_PixelFormat_RGBA_8888     >> 1: return  4;
-        case skcms_PixelFormat_RGBA_1010102  >> 1: return  4;
-        case skcms_PixelFormat_RGB_161616    >> 1: return  6;
-        case skcms_PixelFormat_RGBA_16161616 >> 1: return  8;
-        case skcms_PixelFormat_RGB_hhh       >> 1: return  6;
-        case skcms_PixelFormat_RGBA_hhhh     >> 1: return  8;
-        case skcms_PixelFormat_RGB_fff       >> 1: return 12;
-        case skcms_PixelFormat_RGBA_ffff     >> 1: return 16;
+        case skcms_PixelFormat_A_8             >> 1: return  1;
+        case skcms_PixelFormat_G_8             >> 1: return  1;
+        case skcms_PixelFormat_ABGR_4444       >> 1: return  2;
+        case skcms_PixelFormat_RGB_565         >> 1: return  2;
+        case skcms_PixelFormat_RGB_888         >> 1: return  3;
+        case skcms_PixelFormat_RGBA_8888       >> 1: return  4;
+        case skcms_PixelFormat_RGBA_1010102    >> 1: return  4;
+        case skcms_PixelFormat_RGB_161616LE    >> 1: return  6;
+        case skcms_PixelFormat_RGBA_16161616LE >> 1: return  8;
+        case skcms_PixelFormat_RGB_161616BE    >> 1: return  6;
+        case skcms_PixelFormat_RGBA_16161616BE >> 1: return  8;
+        case skcms_PixelFormat_RGB_hhh         >> 1: return  6;
+        case skcms_PixelFormat_RGBA_hhhh       >> 1: return  8;
+        case skcms_PixelFormat_RGB_fff         >> 1: return 12;
+        case skcms_PixelFormat_RGBA_ffff       >> 1: return 16;
     }
     assert(false);
     return 0;
@@ -2070,19 +2076,21 @@ bool skcms_Transform(const void*             src,
 
     switch (srcFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_A_8           >> 1: *ops++ = Op_load_a8;       break;
-        case skcms_PixelFormat_G_8           >> 1: *ops++ = Op_load_g8;       break;
-        case skcms_PixelFormat_ABGR_4444     >> 1: *ops++ = Op_load_4444;     break;
-        case skcms_PixelFormat_RGB_565       >> 1: *ops++ = Op_load_565;      break;
-        case skcms_PixelFormat_RGB_888       >> 1: *ops++ = Op_load_888;      break;
-        case skcms_PixelFormat_RGBA_8888     >> 1: *ops++ = Op_load_8888;     break;
-        case skcms_PixelFormat_RGBA_1010102  >> 1: *ops++ = Op_load_1010102;  break;
-        case skcms_PixelFormat_RGB_161616    >> 1: *ops++ = Op_load_161616;   break;
-        case skcms_PixelFormat_RGBA_16161616 >> 1: *ops++ = Op_load_16161616; break;
-        case skcms_PixelFormat_RGB_hhh       >> 1: *ops++ = Op_load_hhh;      break;
-        case skcms_PixelFormat_RGBA_hhhh     >> 1: *ops++ = Op_load_hhhh;     break;
-        case skcms_PixelFormat_RGB_fff       >> 1: *ops++ = Op_load_fff;      break;
-        case skcms_PixelFormat_RGBA_ffff     >> 1: *ops++ = Op_load_ffff;     break;
+        case skcms_PixelFormat_A_8             >> 1: *ops++ = Op_load_a8;         break;
+        case skcms_PixelFormat_G_8             >> 1: *ops++ = Op_load_g8;         break;
+        case skcms_PixelFormat_ABGR_4444       >> 1: *ops++ = Op_load_4444;       break;
+        case skcms_PixelFormat_RGB_565         >> 1: *ops++ = Op_load_565;        break;
+        case skcms_PixelFormat_RGB_888         >> 1: *ops++ = Op_load_888;        break;
+        case skcms_PixelFormat_RGBA_8888       >> 1: *ops++ = Op_load_8888;       break;
+        case skcms_PixelFormat_RGBA_1010102    >> 1: *ops++ = Op_load_1010102;    break;
+        case skcms_PixelFormat_RGB_161616LE    >> 1: *ops++ = Op_load_161616LE;   break;
+        case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_load_16161616LE; break;
+        case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_load_161616BE;   break;
+        case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_load_16161616BE; break;
+        case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_load_hhh;        break;
+        case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_load_hhhh;       break;
+        case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_load_fff;        break;
+        case skcms_PixelFormat_RGBA_ffff       >> 1: *ops++ = Op_load_ffff;       break;
     }
     if (srcFmt & 1) {
         *ops++ = Op_swap_rb;
@@ -2228,19 +2236,21 @@ bool skcms_Transform(const void*             src,
     }
     switch (dstFmt >> 1) {
         default: return false;
-        case skcms_PixelFormat_A_8           >> 1: *ops++ = Op_store_a8;       break;
-        case skcms_PixelFormat_G_8           >> 1: *ops++ = Op_store_g8;       break;
-        case skcms_PixelFormat_ABGR_4444     >> 1: *ops++ = Op_store_4444;     break;
-        case skcms_PixelFormat_RGB_565       >> 1: *ops++ = Op_store_565;      break;
-        case skcms_PixelFormat_RGB_888       >> 1: *ops++ = Op_store_888;      break;
-        case skcms_PixelFormat_RGBA_8888     >> 1: *ops++ = Op_store_8888;     break;
-        case skcms_PixelFormat_RGBA_1010102  >> 1: *ops++ = Op_store_1010102;  break;
-        case skcms_PixelFormat_RGB_161616    >> 1: *ops++ = Op_store_161616;   break;
-        case skcms_PixelFormat_RGBA_16161616 >> 1: *ops++ = Op_store_16161616; break;
-        case skcms_PixelFormat_RGB_hhh       >> 1: *ops++ = Op_store_hhh;      break;
-        case skcms_PixelFormat_RGBA_hhhh     >> 1: *ops++ = Op_store_hhhh;     break;
-        case skcms_PixelFormat_RGB_fff       >> 1: *ops++ = Op_store_fff;      break;
-        case skcms_PixelFormat_RGBA_ffff     >> 1: *ops++ = Op_store_ffff;     break;
+        case skcms_PixelFormat_A_8             >> 1: *ops++ = Op_store_a8;         break;
+        case skcms_PixelFormat_G_8             >> 1: *ops++ = Op_store_g8;         break;
+        case skcms_PixelFormat_ABGR_4444       >> 1: *ops++ = Op_store_4444;       break;
+        case skcms_PixelFormat_RGB_565         >> 1: *ops++ = Op_store_565;        break;
+        case skcms_PixelFormat_RGB_888         >> 1: *ops++ = Op_store_888;        break;
+        case skcms_PixelFormat_RGBA_8888       >> 1: *ops++ = Op_store_8888;       break;
+        case skcms_PixelFormat_RGBA_1010102    >> 1: *ops++ = Op_store_1010102;    break;
+        case skcms_PixelFormat_RGB_161616LE    >> 1: *ops++ = Op_store_161616LE;   break;
+        case skcms_PixelFormat_RGBA_16161616LE >> 1: *ops++ = Op_store_16161616LE; break;
+        case skcms_PixelFormat_RGB_161616BE    >> 1: *ops++ = Op_store_161616BE;   break;
+        case skcms_PixelFormat_RGBA_16161616BE >> 1: *ops++ = Op_store_16161616BE; break;
+        case skcms_PixelFormat_RGB_hhh         >> 1: *ops++ = Op_store_hhh;        break;
+        case skcms_PixelFormat_RGBA_hhhh       >> 1: *ops++ = Op_store_hhhh;       break;
+        case skcms_PixelFormat_RGB_fff         >> 1: *ops++ = Op_store_fff;        break;
+        case skcms_PixelFormat_RGBA_ffff       >> 1: *ops++ = Op_store_ffff;       break;
     }
 
     auto run = baseline::run_program;

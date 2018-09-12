@@ -658,7 +658,43 @@ static void exec_ops(const Op* ops, const void** args,
                 a = cast<F>((rgba >> 30) & 0x3  ) * (1/   3.0f);
             } break;
 
-            case Op_load_161616:{
+            case Op_load_161616LE:{
+                uintptr_t ptr = (uintptr_t)(src + 6*i);
+                assert( (ptr & 1) == 0 );                   // src must be 2-byte aligned for this
+                const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
+            #if defined(USING_NEON)
+                uint16x4x3_t v = vld3_u16(rgb);
+                r = cast<F>((U16)v.val[0]) * (1/65535.0f);
+                g = cast<F>((U16)v.val[1]) * (1/65535.0f);
+                b = cast<F>((U16)v.val[2]) * (1/65535.0f);
+            #else
+                r = cast<F>(load_3<U32>(rgb+0)) * (1/65535.0f);
+                g = cast<F>(load_3<U32>(rgb+1)) * (1/65535.0f);
+                b = cast<F>(load_3<U32>(rgb+2)) * (1/65535.0f);
+            #endif
+            } break;
+
+            case Op_load_16161616LE:{
+                uintptr_t ptr = (uintptr_t)(src + 8*i);
+                assert( (ptr & 1) == 0 );                    // src must be 2-byte aligned for this
+                const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
+            #if defined(USING_NEON)
+                uint16x4x4_t v = vld4_u16(rgba);
+                r = cast<F>((U16)v.val[0]) * (1/65535.0f);
+                g = cast<F>((U16)v.val[1]) * (1/65535.0f);
+                b = cast<F>((U16)v.val[2]) * (1/65535.0f);
+                a = cast<F>((U16)v.val[3]) * (1/65535.0f);
+            #else
+                U64 px = load<U64>(rgba);
+
+                r = cast<F>((px >>  0) & 0xffff) * (1/65535.0f);
+                g = cast<F>((px >> 16) & 0xffff) * (1/65535.0f);
+                b = cast<F>((px >> 32) & 0xffff) * (1/65535.0f);
+                a = cast<F>((px >> 48) & 0xffff) * (1/65535.0f);
+            #endif
+            } break;
+
+            case Op_load_161616BE:{
                 uintptr_t ptr = (uintptr_t)(src + 6*i);
                 assert( (ptr & 1) == 0 );                   // src must be 2-byte aligned for this
                 const uint16_t* rgb = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -678,7 +714,7 @@ static void exec_ops(const Op* ops, const void** args,
             #endif
             } break;
 
-            case Op_load_16161616:{
+            case Op_load_16161616BE:{
                 uintptr_t ptr = (uintptr_t)(src + 8*i);
                 assert( (ptr & 1) == 0 );                    // src must be 2-byte aligned for this
                 const uint16_t* rgba = (const uint16_t*)ptr; // cast to const uint16_t* to be safe.
@@ -977,7 +1013,47 @@ static void exec_ops(const Op* ops, const void** args,
                                | cast<U32>(to_fixed(a *    3) << 30));
             } return;
 
-            case Op_store_161616: {
+            case Op_store_161616LE: {
+                uintptr_t ptr = (uintptr_t)(dst + 6*i);
+                assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
+                uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
+            #if defined(USING_NEON)
+                uint16x4x3_t v = {{
+                    (uint16x4_t)cast<U16>(to_fixed(r * 65535)),
+                    (uint16x4_t)cast<U16>(to_fixed(g * 65535)),
+                    (uint16x4_t)cast<U16>(to_fixed(b * 65535)),
+                }};
+                vst3_u16(rgb, v);
+            #else
+                store_3(rgb+0, cast<U16>(to_fixed(r * 65535)));
+                store_3(rgb+1, cast<U16>(to_fixed(g * 65535)));
+                store_3(rgb+2, cast<U16>(to_fixed(b * 65535)));
+            #endif
+
+            } return;
+
+            case Op_store_16161616LE: {
+                uintptr_t ptr = (uintptr_t)(dst + 8*i);
+                assert( (ptr & 1) == 0 );               // The dst pointer must be 2-byte aligned
+                uint16_t* rgba = (uint16_t*)ptr;        // for this cast to uint16_t* to be safe.
+            #if defined(USING_NEON)
+                uint16x4x4_t v = {{
+                    (uint16x4_t)cast<U16>(to_fixed(r * 65535)),
+                    (uint16x4_t)cast<U16>(to_fixed(g * 65535)),
+                    (uint16x4_t)cast<U16>(to_fixed(b * 65535)),
+                    (uint16x4_t)cast<U16>(to_fixed(a * 65535)),
+                }};
+                vst4_u16(rgba, v);
+            #else
+                U64 px = cast<U64>(to_fixed(r * 65535)) <<  0
+                       | cast<U64>(to_fixed(g * 65535)) << 16
+                       | cast<U64>(to_fixed(b * 65535)) << 32
+                       | cast<U64>(to_fixed(a * 65535)) << 48;
+                store(rgba, px);
+            #endif
+            } return;
+
+            case Op_store_161616BE: {
                 uintptr_t ptr = (uintptr_t)(dst + 6*i);
                 assert( (ptr & 1) == 0 );                // The dst pointer must be 2-byte aligned
                 uint16_t* rgb = (uint16_t*)ptr;          // for this cast to uint16_t* to be safe.
@@ -999,7 +1075,7 @@ static void exec_ops(const Op* ops, const void** args,
 
             } return;
 
-            case Op_store_16161616: {
+            case Op_store_16161616BE: {
                 uintptr_t ptr = (uintptr_t)(dst + 8*i);
                 assert( (ptr & 1) == 0 );               // The dst pointer must be 2-byte aligned
                 uint16_t* rgba = (uint16_t*)ptr;        // for this cast to uint16_t* to be safe.
