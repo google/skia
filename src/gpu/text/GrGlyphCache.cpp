@@ -16,11 +16,8 @@
 
 GrGlyphCache::GrGlyphCache(const GrCaps* caps, size_t maxTextureBytes)
         : fPreserveStrike(nullptr)
-        , fGlyphSizeLimit(0)
         , f565Masks(SkMasks::CreateMasks({0xF800, 0x07E0, 0x001F, 0},
-                    GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8)) {
-    fGlyphSizeLimit = ComputeGlyphSizeLimit(caps->maxTextureSize(), maxTextureBytes);
-}
+                    GrMaskFormatBytesPerPixel(kA565_GrMaskFormat) * 8)) { }
 
 GrGlyphCache::~GrGlyphCache() {
     StrikeHash::Iter iter(&fCache);
@@ -39,10 +36,6 @@ void GrGlyphCache::freeAll() {
         ++iter;
     }
     fCache.rewind();
-}
-
-SkScalar GrGlyphCache::ComputeGlyphSizeLimit(int maxTextureSize, size_t maxTextureBytes) {
-    return SkGlyphCacheCommon::kSkSideTooBigForAtlas;
 }
 
 void GrGlyphCache::HandleEviction(GrDrawOpAtlas::AtlasID id, void* ptr) {

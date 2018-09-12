@@ -72,11 +72,9 @@ public:
     public:
         FallbackGlyphRunHelper(const SkMatrix& viewMatrix,
                            const SkPaint& pathPaint,
-                           SkScalar maxTextSize,
                            SkScalar textRatio)
                 : fViewMatrix(viewMatrix)
                 , fTextSize(pathPaint.getTextSize())
-                , fMaxTextSize(maxTextSize)
                 , fTextRatio(textRatio)
                 , fTransformedFallbackTextSize(fMaxTextSize)
                 , fUseTransformedFallback(false) {
@@ -98,7 +96,7 @@ public:
 
         const SkMatrix& fViewMatrix;
         SkScalar fTextSize;
-        SkScalar fMaxTextSize;
+        SkScalar fMaxTextSize{SkGlyphCacheCommon::kSkSideTooBigForAtlas};
         SkScalar fTextRatio;
         SkScalar fTransformedFallbackTextSize;
         SkScalar fMaxScale;
