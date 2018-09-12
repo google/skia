@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d1d0ad57_8f0231c4",
+        "filename": "src/pdf/SkPDFResourceDict.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "where does this come from?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 68
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "966913ee_f7bb7415",
+        "filename": "src/pdf/SkPDFResourceDict.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "What does this return? (I expected it to be a size_t.)",
+      "range": {
+        "startLine": 41,
+        "startChar": 32,
+        "endLine": 41,
+        "endChar": 44
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aeb6f864_e94fc002",
+        "filename": "src/pdf/SkPDFResourceDict.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "Should this be an enum class? I\u0027m guessing you don\u0027t want to allow values outside of this?\n\nEdit: Maybe not, since it looks like you will convert to an int?",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 17
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3f57df1a_7a3856bb",
+        "filename": "src/pdf/SkPDFResourceDict.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "Is this comment still relevant?",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 27,
+        "endChar": 62
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f9deb57c_6b165b57",
+        "filename": "src/pdf/SkPDFTypes.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "It looks like this was just moved? Good; code looks fine, but I don\u0027t know why it\u0027s doing what it\u0027s doing.",
+      "range": {
+        "startLine": 115,
+        "startChar": 12,
+        "endLine": 115,
+        "endChar": 24
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "406ded54_b915e1f6",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "Many call sites I\u0027ve seen of this method call strlen on cin. Could you drop this parameter and call it in this method, or make it optional and default to strlen(cin)?",
+      "range": {
+        "startLine": 180,
+        "startChar": 59,
+        "endLine": 180,
+        "endChar": 69
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d2a550e7_48fec50a",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "At first I didn\u0027t see why these were necessary (not much typing saved), but I think it\u0027s so the template can choose the right one?",
+      "range": {
+        "startLine": 249,
+        "startChar": 19,
+        "endLine": 249,
+        "endChar": 36
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "accb867c_ad16c37e",
+        "filename": "src/pdf/SkPDFTypes.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5255
+      },
+      "writtenOn": "2018-09-12T18:46:07Z",
+      "side": 1,
+      "message": "This is all very neat, and I love how it cleans up the code!",
+      "range": {
+        "startLine": 260,
+        "startChar": 25,
+        "endLine": 260,
+        "endChar": 39
+      },
+      "revId": "dc122cf579d132f0f2983a75b1c3a5fb2a71b952",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
