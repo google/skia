@@ -9,20 +9,22 @@ import base64
 import hashlib
 import json
 import optparse
+import os
 import requests
+import subprocess
 import sys
 import time
 
-
-ANDROID_COMPILE_HOST = "https://android-compile.skia.org"
-ANDROID_COMPILE_REGISTER_POST_URI = ANDROID_COMPILE_HOST + "/_/register"
-ANDROID_COMPILE_TASK_STATUS_URI = ANDROID_COMPILE_HOST + "/get_task_status"
-GCE_WEBHOOK_SALT_METADATA_URI = (
-    "http://metadata/computeMetadata/v1/project/attributes/"
-    "ac_webhook_request_salt")
+INFRA_BOTS_DIR = os.path.abspath(os.path.realpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), os.pardir)))
+sys.path.insert(0, INFRA_BOTS_DIR)
+import utils
 
 
-POLLING_FREQUENCY_SECS = 60  # 1 minute.
+ANDROID_COMPILE_BUCKET = "android-compile-tasks"
+
+# CHANGE TO 10 or it doesnt matter...
+POLLING_FREQUENCY_SECS = 5
 DEADLINE_SECS = 60 * 60  # 60 minutes.
 
 INFRA_FAILURE_ERROR_MSG = (
@@ -41,71 +43,95 @@ class AndroidCompileException(Exception):
   pass
 
 
-def _CreateTaskJSON(options):
-  """Creates a JSON representation of the requested task."""
+def _CreateTaskDict(options):
+  """Creates a dict representation of the requested task."""
   params = {}
   params["issue"] = options.issue
   params["patchset"] = options.patchset
   params["hash"] = options.hash
-  return json.dumps(params)
+  return params
 
 
-def _GetWebhookSaltFromMetadata():
-  """Gets webhook_request_salt from GCE's metadata server."""
-  headers = {"Metadata-Flavor": "Google"}
-  resp = requests.get(GCE_WEBHOOK_SALT_METADATA_URI, headers=headers)
-  if resp.status_code != 200:
-      raise AndroidCompileException(
-          'Return code from %s was %s' % (GCE_WEBHOOK_SALT_METADATA_URI,
-                                          resp.status_code))
-  return base64.standard_b64decode(resp.text)
+def _GetGsUtil():
+  gsutil = subprocess.check_output(['which', 'gsutil']).rstrip()
+  gsutil_ret = [gsutil]
+  if gsutil.endswith('.py'):
+    gsutil_ret = ['python', gsutil]
+  return gsutil_ret
 
 
-def _GetAuthHeaders(data, options):
-  m = hashlib.sha512()
-  if data:
-    m.update(data)
-  m.update('notverysecret' if options.local else _GetWebhookSaltFromMetadata())
-  encoded = base64.standard_b64encode(m.digest())
-  return {
-      "Content-type": "application/x-www-form-urlencoded",
-      "Accept": "application/json",
-      "X-Webhook-Auth-Hash": encoded}
+def _GetGsBucket():
+  return 'gs://%s' % ANDROID_COMPILE_BUCKET
+
+
+# Rename all of this stuff.
+def _WriteToStorage(task):
+  with utils.tmp_dir():
+    json_file = os.path.join(os.getcwd(), _GetTaskFileName(task))
+    with open(json_file, 'w') as f:
+      json.dump(task, f)
+    with open(json_file, 'r') as f:
+      subprocess.check_call(
+          _GetGsUtil() + ['cp', f.name, '%s/' % _GetGsBucket()])
+      print 'Created %s/%s' % (_GetGsBucket(), os.path.basename(f.name))
+
+
+# TODO(rmistry): Rename all functions!!!!
+def _GetTaskFileName(task):
+  return '%s-%s.json' % (task["issue"], task["patchset"])
+
+
+# Checks to see if task already exists in Google storage.
+# If the task has completed then the Google storage file is deleted.
+def _DoesTaskExistInGs(task):
+  gs_file = '%s/%s' % (_GetGsBucket(), _GetTaskFileName(task))
+  try:
+    output = subprocess.check_output(
+        _GetGsUtil() + ['cat', gs_file])
+  except subprocess.CalledProcessError:
+    print 'Task does not exist in Google storage'
+    return False
+  taskJSON = json.loads(output)
+  if taskJSON.get('done'):
+    print 'Task exists in Google storage and has completed.'
+    print 'Deleting it so that a new run can be scheduled.'
+    subprocess.check_call(_GetGsUtil() + ['rm', gs_file])
+    return False
+  else:
+    print 'Tasks exists in Google storage and is still running.'
+    return True
 
 
 def _TriggerTask(options):
-  """Triggers the task on Android Compile and returns the new task's ID."""
-  task = _CreateTaskJSON(options)
-  headers = _GetAuthHeaders(task, options)
-  resp = requests.post(ANDROID_COMPILE_REGISTER_POST_URI, task, headers=headers)
+  """Triggers the task by creating a file in Google storage (if necessary).
 
-  if resp.status_code != 200:
-    raise AndroidCompileException(
-        'Return code from %s was %s' % (ANDROID_COMPILE_REGISTER_POST_URI,
-                                        resp.status_code))
-  try:
-    ret = json.loads(resp.text)
-  except ValueError, e:
-    raise AndroidCompileException(
-        'Did not get a JSON response from %s: %s' % (
-            ANDROID_COMPILE_REGISTER_POST_URI, e))
-  return ret["taskID"]
+  Algorithm:
+  """
+  task = _CreateTaskDict(options)
+  # Check to see if file already exists in Google Storage.
+  if not _DoesTaskExistInGs(task):
+    _WriteToStorage(task)
+  return task
 
 
 def TriggerAndWait(options):
-  task_id = _TriggerTask(options)
-  task_str = '[id: %d, issue: %d, patchset: %d, hash: %s]' % (
-      task_id, options.issue, options.patchset, options.hash)
+  # Only trigger task if it does not exist in Google Storage yet.
+
+  task = _TriggerTask(options)
+  # This will have to be updated with the ID when you have the ID. It' scalled task_id.
+  task_str = '[issue: %d, patchset: %d, hash: %s]' % (
+      options.issue, options.patchset, options.hash)
 
   print
-  print 'Task %s has been successfully scheduled on %s.' % (
-      task_str, ANDROID_COMPILE_HOST)
+  print 'Task %s has been successfully added to %s.' % (
+      task_str, ANDROID_COMPILE_BUCKET)
   print
-  print 'The server will be polled every %d seconds.' % POLLING_FREQUENCY_SECS
+  print '%s will be polled every %d seconds.' % (ANDROID_COMPILE_BUCKET,
+                                                 POLLING_FREQUENCY_SECS)
   print
 
-  headers = _GetAuthHeaders('', options)
-  # Now poll the server till the task completes or till deadline is hit.
+  # Now poll the Google storage file till the task completes or till deadline
+  # is hit.
   time_started_polling = time.time()
   while True:
     if (time.time() - time_started_polling) > DEADLINE_SECS:
@@ -113,23 +139,18 @@ def TriggerAndWait(options):
           'Task did not complete in the deadline of %s seconds.' % (
               DEADLINE_SECS))
 
-    # Get the status of the task the trybot added.
-    get_url = '%s?task=%s' % (ANDROID_COMPILE_TASK_STATUS_URI, task_id)
-    resp = requests.get(get_url, headers=headers)
-    if resp.status_code != 200:
-      raise AndroidCompileException(
-          'Return code from %s was %s' % (ANDROID_COMPILE_TASK_STATUS_URI,
-                                          resp.status_code))
+    # Get the status of the task.
+    gs_file = '%s/%s' % (_GetGsBucket(), _GetTaskFileName(task))
     try:
-      ret = json.loads(resp.text)
-    except ValueError, e:
-      raise AndroidCompileException(
-          'Did not get a JSON response from %s: %s' % (get_url, e))
+      output = subprocess.check_output(_GetGsUtil() + ['cat', gs_file])
+    except subprocess.CalledProcessError:
+      raise AndroidCompileException('The %s file no longer exists.' % gs_file)
+    ret = json.loads(output)
 
-    if ret["infra_failure"]:
+    if ret.get("infra_failure"):
       raise AndroidCompileException(INFRA_FAILURE_ERROR_MSG)
 
-    if ret["done"]:
+    if ret.get("done"):
       print
       print
       if not ret.get("is_master_branch", True):
@@ -159,8 +180,14 @@ def TriggerAndWait(options):
         print 'No patch logs are here: %s' % ret["nopatch_log"]
         return 0
 
-    print '.'
+    # Print more informative logs here. withpatch_log and nopatch_log.....
+    print 'Still running. Task: %s\n' % pretty_task_str(ret)
     time.sleep(POLLING_FREQUENCY_SECS)
+
+
+def pretty_task_str(task):
+  return '[id: %s, checkout: %s]' % (
+      task.get('task_id'), task.get('checkout'))
 
 
 def main():
@@ -174,10 +201,6 @@ def main():
   option_parser.add_option(
       '', '--hash', type=str, default='',
       help='The Skia repo hash to compile against.')
-  option_parser.add_option(
-      '', '--local', default=False, action='store_true',
-      help='Uses a dummy metadata salt if this flag is true else it tries to '
-           'get the salt from GCE metadata.')
   options, _ = option_parser.parse_args()
   sys.exit(TriggerAndWait(options))
 
