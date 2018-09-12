@@ -127,6 +127,7 @@ public:
         kGrPremulInputFragmentProcessor_ClassID,
         kGrQuadEffect_ClassID,
         kGrRadialGradient_ClassID,
+        kGrRadialGradientLayout_ClassID,
         kGrRectBlurEffect_ClassID,
         kGrRRectBlurEffect_ClassID,
         kGrRRectShadowGeoProc_ClassID,

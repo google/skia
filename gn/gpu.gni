@@ -405,6 +405,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.h",
   "$_src/gpu/gradients/GrLinearGradientLayout.cpp",
   "$_src/gpu/gradients/GrLinearGradientLayout.h",
+  "$_src/gpu/gradients/GrRadialGradientLayout.cpp",
+  "$_src/gpu/gradients/GrRadialGradientLayout.h",
   "$_src/gpu/gradients/GrClampedGradientEffect.cpp",
   "$_src/gpu/gradients/GrClampedGradientEffect.h",
   "$_src/gpu/gradients/GrTiledGradientEffect.cpp",
