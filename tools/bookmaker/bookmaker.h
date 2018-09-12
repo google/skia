@@ -657,6 +657,19 @@ public:
         return fChar + index;
     }
 
+    const char* trimmedBracketNoEnd(const char bracket) const {
+        int max = (int) (fEnd - fChar);
+        int index = 0;
+        while (index < max && bracket != fChar[index]) {
+            ++index;
+        }
+        SkASSERT(index < max);
+        while (index > 0 && ' ' >= fChar[index - 1]) {
+            --index;
+        }
+        return fChar + index;
+    }
+
     const char* trimmedLineEnd() const {
         const char* result = this->lineEnd();
         while (result > fChar && ' ' >= result[-1]) {
@@ -972,6 +985,8 @@ public:
         return nullptr;
     }
 
+    void trimEnd();
+
     string fText;  // if text is constructed instead of in a file, it's put here
     const char* fStart = nullptr;  // .. in original text file, or the start of fText
     const char* fContentStart;  // start past optional markup name
@@ -1255,7 +1270,7 @@ public:
         SkAssertResult(writeBlockTrim(size, data));
     }
 
-    bool writeBlockIndent(int size, const char* data);
+    bool writeBlockIndent(int size, const char* data, bool ignoreIndent);
 
     void writeBlockSeparator() {
             this->writeString(
@@ -1369,7 +1384,8 @@ public:
         kNo,      // neither resolved nor output
         kYes,     // resolved, output
         kOut,     // mostly resolved, output (FIXME: is this really different from kYes?)
-        kFormula, // resolve methods as they are used, not as they are prototyped
+        kCode,    // resolve methods as they are used, not as they are prototyped
+        kFormula, // kCode, plus make most spaces non-breaking
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
         kSimple,  // resolve simple words (used to resolve method declarations)
@@ -1453,8 +1469,11 @@ public:
         return findDefinitions();
     }
 
-    bool popParentStack(Definition* definition);
-    void reportDuplicates(const Definition& def, string dup) const;
+    void parseHashAnchor(Definition* );
+    void parseHashFormula(Definition* );
+    void parseHashLine(Definition* );
+    bool popParentStack(Definition* );
+    void reportDuplicates(const Definition& , string dup) const;
     void resetExampleHashes();
 
     void reset() override {

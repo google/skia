@@ -1177,6 +1177,13 @@ bool Definition::paramsMatch(string matchFormatted, string name) const {
     return !def.eof() && ')' == def.peek() && !m.eof() && ')' == m.peek();
 }
 
+
+void Definition::trimEnd() {
+    while (fContentEnd > fContentStart && ' ' >= fContentEnd[-1]) {
+        --fContentEnd;
+    }
+}
+
 void RootDefinition::clearVisited() {
     fVisited = false;
     for (auto& leaf : fLeaves) {
