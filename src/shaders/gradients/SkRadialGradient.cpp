@@ -59,129 +59,6 @@ void SkRadialGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius);
 }
 
-/////////////////////////////////////////////////////////////////////
-
-#if SK_SUPPORT_GPU
-
-#include "SkGr.h"
-#include "GrShaderCaps.h"
-#include "glsl/GrGLSLFragmentShaderBuilder.h"
-
-#include "gradients/GrGradientShader.h"
-
-class GrRadialGradient : public GrGradientEffect {
-public:
-    class GLSLRadialProcessor;
-
-    static std::unique_ptr<GrFragmentProcessor> Make(const CreateArgs& args) {
-        return GrGradientEffect::AdjustFP(std::unique_ptr<GrRadialGradient>(
-                new GrRadialGradient(args)),
-                args);
-    }
-
-    const char* name() const override { return "Radial Gradient"; }
-
-    std::unique_ptr<GrFragmentProcessor> clone() const override {
-        return std::unique_ptr<GrFragmentProcessor>(new GrRadialGradient(*this));
-    }
-
-private:
-    explicit GrRadialGradient(const CreateArgs& args)
-            : INHERITED(kGrRadialGradient_ClassID, args, args.fShader->colorsAreOpaque()) {}
-
-    explicit GrRadialGradient(const GrRadialGradient& that) : INHERITED(that) {}
-
-    GrGLSLFragmentProcessor* onCreateGLSLInstance() const override;
-
-    GR_DECLARE_FRAGMENT_PROCESSOR_TEST
-
-    typedef GrGradientEffect INHERITED;
-};
-
-/////////////////////////////////////////////////////////////////////
-
-class GrRadialGradient::GLSLRadialProcessor : public GrGradientEffect::GLSLProcessor {
-public:
-    GLSLRadialProcessor(const GrProcessor&) {}
-
-    virtual void emitCode(EmitArgs&) override;
-
-private:
-    typedef GrGradientEffect::GLSLProcessor INHERITED;
-
-};
-
-/////////////////////////////////////////////////////////////////////
-
-GrGLSLFragmentProcessor* GrRadialGradient::onCreateGLSLInstance() const {
-    return new GrRadialGradient::GLSLRadialProcessor(*this);
-}
-
-/////////////////////////////////////////////////////////////////////
-
-GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrRadialGradient);
-
-#if GR_TEST_UTILS
-std::unique_ptr<GrFragmentProcessor> GrRadialGradient::TestCreate(GrProcessorTestData* d) {
-    sk_sp<SkShader> shader;
-    do {
-        RandomGradientParams params(d->fRandom);
-        SkPoint center = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
-        SkScalar radius = d->fRandom->nextUScalar1();
-        shader = params.fUseColors4f
-                         ? SkGradientShader::MakeRadial(center, radius, params.fColors4f,
-                                                        params.fColorSpace, params.fStops,
-                                                        params.fColorCount, params.fTileMode)
-                         : SkGradientShader::MakeRadial(center, radius, params.fColors,
-                                                        params.fStops, params.fColorCount,
-                                                        params.fTileMode);
-    } while (!shader);
-    GrTest::TestAsFPArgs asFPArgs(d);
-    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
-    GrAlwaysAssert(fp);
-    return fp;
-}
-#endif
-
-/////////////////////////////////////////////////////////////////////
-
-void GrRadialGradient::GLSLRadialProcessor::emitCode(EmitArgs& args) {
-    const GrRadialGradient& ge = args.fFp.cast<GrRadialGradient>();
-    this->emitUniforms(args.fUniformHandler, ge);
-    SkString t("length(");
-    t.append(args.fFragBuilder->ensureCoords2D(args.fTransformedCoords[0]));
-    t.append(")");
-    this->emitColor(args.fFragBuilder,
-                    args.fUniformHandler,
-                    args.fShaderCaps,
-                    ge, t.c_str(),
-                    args.fOutputColor,
-                    args.fInputColor,
-                    args.fTexSamplers);
-}
-
-/////////////////////////////////////////////////////////////////////
-
-std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    // Try to use new gradient system first
-    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeRadial(*this, args);
-    if (gradient) {
-        return gradient;
-    }
-
-    SkMatrix matrix;
-    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
-        return nullptr;
-    }
-    matrix.postConcat(fPtsToUnit);
-
-    return GrRadialGradient::Make(GrGradientEffect::CreateArgs(
-            args.fContext, this, &matrix, fTileMode, args.fDstColorSpaceInfo));
-}
-
-#endif
-
 sk_sp<SkShader> SkRadialGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     const AutoXformColors xformedColors(*this, xformer);
     return SkGradientShader::MakeRadial(fCenter, fRadius, xformedColors.fColors.get(), fOrigPos,
@@ -193,3 +70,16 @@ void SkRadialGradient::appendGradientStages(SkArenaAlloc*, SkRasterPipeline* p,
                                             SkRasterPipeline*) const {
     p->append(SkRasterPipeline::xy_to_radius);
 }
+
+/////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+#include "gradients/GrGradientShader.h"
+
+std::unique_ptr<GrFragmentProcessor> SkRadialGradient::asFragmentProcessor(
+        const GrFPArgs& args) const {
+    return GrGradientShader::MakeRadial(*this, args);
+}
+
+#endif

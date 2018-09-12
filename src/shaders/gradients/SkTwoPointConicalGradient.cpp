@@ -176,33 +176,6 @@ void SkTwoPointConicalGradient::flatten(SkWriteBuffer& buffer) const {
     buffer.writeScalar(fRadius2);
 }
 
-#if SK_SUPPORT_GPU
-
-#include "SkGr.h"
-#include "SkTwoPointConicalGradient_gpu.h"
-
-#include "gradients/GrGradientShader.h"
-
-std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
-        const GrFPArgs& args) const {
-    // Try to use new gradient system first
-    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeConical(*this, args);
-    if (gradient) {
-        return gradient;
-    }
-
-    SkMatrix matrix;
-    if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {
-        return nullptr;
-    }
-
-    return Gr2PtConicalGradientEffect::Make(
-            GrGradientEffect::CreateArgs(args.fContext, this, &matrix, fTileMode,
-                                         args.fDstColorSpaceInfo));
-}
-
-#endif
-
 sk_sp<SkShader> SkTwoPointConicalGradient::onMakeColorSpace(SkColorSpaceXformer* xformer) const {
     const AutoXformColors xformedColors(*this, xformer);
     return SkGradientShader::MakeTwoPointConical(fCenter1, fRadius1, fCenter2, fRadius2,
@@ -266,3 +239,16 @@ void SkTwoPointConicalGradient::appendGradientStages(SkArenaAlloc* alloc, SkRast
         postPipeline->append(SkRasterPipeline::apply_vector_mask, &ctx->fMask);
     }
 }
+
+/////////////////////////////////////////////////////////////////////
+
+#if SK_SUPPORT_GPU
+
+#include "gradients/GrGradientShader.h"
+
+std::unique_ptr<GrFragmentProcessor> SkTwoPointConicalGradient::asFragmentProcessor(
+        const GrFPArgs& args) const {
+    return GrGradientShader::MakeConical(*this, args);
+}
+
+#endif

@@ -9,11 +9,16 @@
 #define GrGradientShader_DEFINE
 
 #include "GrFPArgs.h"
+#include "GrFragmentProcessor.h"
 #include "SkGradientShaderPriv.h"
 #include "SkLinearGradient.h"
 #include "SkRadialGradient.h"
 #include "SkSweepGradient.h"
 #include "SkTwoPointConicalGradient.h"
+
+#if GR_TEST_UTILS
+#include "SkRandom.h"
+#endif
 
 namespace GrGradientShader {
     std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
