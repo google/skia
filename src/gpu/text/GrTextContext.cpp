@@ -200,6 +200,22 @@ void GrTextContext::InitDistanceFieldPaint(GrTextBlob* blob,
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Fallback uses a fast strategy and a general strategy. If the viewMatrix is only scale and
+// translate, and all the glyphs in the run are small enough, then the font uses the runPaint for
+// the size of the colored glyph, and the positions are all transformed. In the general case,
+// a suitable font size is found, and the view transformation happens during rendering. The font
+// in the general case is oriented with x and y, and all rotations, scaling, etc. happen during
+// rendering.
+
+GrTextContext::FallbackGlyphRunHelper::FallbackGlyphRunHelper(
+        const SkMatrix& viewMatrix, const SkPaint& runPaint, SkScalar textRatio)
+        : fViewMatrix(viewMatrix)
+        , fTextSize(runPaint.getTextSize())
+        , fMaxTextSize(SkGlyphCacheCommon::kSkSideTooBigForAtlas)
+        , fTextRatio(textRatio)
+        , fTransformedFallbackTextSize(fMaxTextSize)
+        , fMaxScale(viewMatrix.getMaxScale())
+        , fUseTransformedFallback(false) { }
 
 void GrTextContext::FallbackGlyphRunHelper::appendGlyph(
         const SkGlyph& glyph, SkGlyphID glyphID, SkPoint glyphPos) {
@@ -213,7 +229,6 @@ void GrTextContext::FallbackGlyphRunHelper::appendGlyph(
         }
     }
 
-    fFallbackTxt.push_back(glyphID);
     if (fUseTransformedFallback) {
         // If there's a glyph in the font that's particularly large, it's possible
         // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
@@ -223,6 +238,7 @@ void GrTextContext::FallbackGlyphRunHelper::appendGlyph(
                 SkTMax(SkScalarFloorToScalar(fTextSize * fMaxTextSize/maxDim), 0.5f*fMaxTextSize);
         fTransformedFallbackTextSize = SkTMin(glyphTextSize, fTransformedFallbackTextSize);
     }
+    fFallbackTxt.push_back(glyphID);
     fFallbackPos.push_back(glyphPos);
 }
 
