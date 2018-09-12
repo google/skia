@@ -40,12 +40,22 @@ public:
     void drawUsingPaths(
             const SkGlyphRun& glyphRun, SkPoint origin, SkGlyphCache* cache, PerPath perPath) const;
 
-    //using PerGlyph = std::function<void(const SkGlyph&, SkPoint)>;
     template <typename PerGlyphT, typename PerPathT>
     void drawGlyphRunAsBMPWithPathFallback(
             SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
             SkPoint origin, const SkMatrix& deviceMatrix,
             PerGlyphT perGlyph, PerPathT perPath);
+
+    // Draw glyphs as paths with fallback to scaled ARGB glyphs if color is needed.
+    // PerPath - perPath(const SkGlyph&, SkPoint position)
+    // FallbackARGB - fallbackARGB(SkSpan<const SkGlyphID>, SkSpan<const SkPoint>)
+    // For each glyph that is not ARGB call perPath. If the glyph is ARGB then store the glyphID
+    // and the position in fallback vectors. After all the glyphs are processed, pass the
+    // fallback glyphIDs and positions to fallbackARGB.
+    template <typename PerPath, typename FallbackARGB>
+    void drawGlyphRunAsPathWithARGBFallback(
+            SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+            SkPoint origin, PerPath perPath, FallbackARGB fallbackARGB);
 
     template <typename PerSDFT, typename PerPathT, typename PerFallbackT>
     void drawGlyphRunAsSDFWithFallback(
@@ -131,6 +141,35 @@ void SkGlyphRunListPainter::forEachMappedDrawableGlyph(
             }
         }
     }
+}
+
+template <typename PerPathT, typename FallbackARGB>
+void SkGlyphRunListPainter::drawGlyphRunAsPathWithARGBFallback(
+        SkGlyphCacheInterface* cache, const SkGlyphRun& glyphRun,
+        SkPoint origin, PerPathT perPath, FallbackARGB fallbackARGB) {
+    std::vector<SkGlyphID> fallbackGlyphIDs;
+    std::vector<SkPoint> fallbackPositions;
+
+    auto eachGlyph =
+            [cache, origin, perPath{std::move(perPath)}, &fallbackGlyphIDs, &fallbackPositions]
+            (SkGlyphID glyphID, SkPoint position) {
+                if (SkScalarsAreFinite(position.x(), position.y())) {
+                    const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
+                    if (!glyph.isEmpty()) {
+                        if (glyph.fMaskFormat != SkMask::kARGB32_Format) {
+                            perPath(glyph, origin + position);
+                        } else {
+                            fallbackGlyphIDs.push_back(glyphID);
+                            fallbackPositions.push_back(position);
+                        }
+                    }
+                }
+            };
+
+    glyphRun.forEachGlyphAndPosition(eachGlyph);
+
+    fallbackARGB(SkSpan<const SkGlyphID>{fallbackGlyphIDs},
+                 SkSpan<const SkPoint>{fallbackPositions});
 }
 
 template <typename PerGlyphT, typename PerPathT>
