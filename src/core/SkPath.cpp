@@ -19,6 +19,7 @@
 #include "SkPointPriv.h"
 #include "SkRRect.h"
 #include "SkSafeMath.h"
+#include "SkTLazy.h"
 #include "SkTo.h"
 
 #include <cmath>
@@ -1577,10 +1578,17 @@ SkPath& SkPath::addPath(const SkPath& path, SkScalar dx, SkScalar dy, AddPathMod
     return this->addPath(path, matrix, mode);
 }
 
-SkPath& SkPath::addPath(const SkPath& path, const SkMatrix& matrix, AddPathMode mode) {
-    SkPathRef::Editor(&fPathRef, path.countVerbs(), path.countPoints());
+SkPath& SkPath::addPath(const SkPath& srcPath, const SkMatrix& matrix, AddPathMode mode) {
+    // Detect if we're trying to add ourself
+    const SkPath* src = &srcPath;
+    SkTLazy<SkPath> tmp;
+    if (this == src) {
+        src = tmp.set(srcPath);
+    }
 
-    RawIter iter(path);
+    SkPathRef::Editor(&fPathRef, src->countVerbs(), src->countPoints());
+
+    RawIter iter(*src);
     SkPoint pts[4];
     Verb    verb;
 
