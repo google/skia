@@ -169,6 +169,11 @@ void GrResourceCache::removeResource(GrGpuResource* resource) {
 void GrResourceCache::abandonAll() {
     AutoValidate av(this);
 
+    for (int i = 0; i < fResourcesWaitingForFreeMsg.count(); ++i) {
+        fResourcesWaitingForFreeMsg[i]->abandon();
+    }
+    fResourcesWaitingForFreeMsg.reset();
+
     while (fNonpurgeableResources.count()) {
         GrGpuResource* back = *(fNonpurgeableResources.end() - 1);
         SkASSERT(!back->wasDestroyed());
@@ -189,6 +194,7 @@ void GrResourceCache::abandonAll() {
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
     SkASSERT(!fPurgeableBytes);
+    SkASSERT(!fResourcesWaitingForFreeMsg.count());
 }
 
 void GrResourceCache::releaseAll() {
@@ -201,6 +207,7 @@ void GrResourceCache::releaseAll() {
     for (int i = 0; i < fResourcesWaitingForFreeMsg.count(); ++i) {
         fResourcesWaitingForFreeMsg[i]->unref();
     }
+    fResourcesWaitingForFreeMsg.reset();
 
     SkASSERT(fProxyProvider); // better have called setProxyProvider
     // We must remove the uniqueKeys from the proxies here. While they possess a uniqueKey
@@ -227,6 +234,7 @@ void GrResourceCache::releaseAll() {
     SkASSERT(!fBudgetedCount);
     SkASSERT(!fBudgetedBytes);
     SkASSERT(!fPurgeableBytes);
+    SkASSERT(!fResourcesWaitingForFreeMsg.count());
 }
 
 class GrResourceCache::AvailableForScratchUse {
@@ -586,9 +594,14 @@ void GrResourceCache::processFreedGpuResources() {
     for (int i = 0; i < msgs.count(); ++i) {
         SkASSERT(msgs[i].fOwningUniqueID == fContextUniqueID);
         int index = fResourcesWaitingForFreeMsg.find(msgs[i].fResource);
-        SkASSERT(index != -1);
-        fResourcesWaitingForFreeMsg.removeShuffle(index);
-        msgs[i].fResource->unref();
+        // If we called release or abandon on the GrContext we will have already released our ref on
+        // the GrGpuResource. If then the message arrives before the actual GrContext gets destroyed
+        // we will try to process the message when we destroy the GrContext. This protects us from
+        // trying to unref the resource twice.
+        if (index != -1) {
+            fResourcesWaitingForFreeMsg.removeShuffle(index);
+            msgs[i].fResource->unref();
+        }
     }
 }
 
