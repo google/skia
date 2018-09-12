@@ -115,14 +115,15 @@ bool ParserCommon::parseSetup(const char* path) {
     return true;
 }
 
-bool ParserCommon::writeBlockIndent(int size, const char* data) {
+bool ParserCommon::writeBlockIndent(int size, const char* data, bool ignoreIdent) {
     bool wroteSomething = false;
     while (size && ' ' >= data[size - 1]) {
         --size;
     }
     bool newLine = false;
+    char firstCh = 0;
     while (size) {
-        while (size && ' ' > data[0]) {
+        while (size && (' ' > data[0] || (' ' == data[0] && ignoreIdent))) {
             ++data;
             --size;
         }
@@ -135,11 +136,17 @@ bool ParserCommon::writeBlockIndent(int size, const char* data) {
         if (newLine) {
             this->lf(1);
         }
+        int indent = fIndent;
+        if (!firstCh) {
+            firstCh = data[0];
+        } else if ('(' == firstCh) {
+            indent += 1;
+        }
         TextParser parser(fFileName, data, data + size, fLineCount);
         const char* lineEnd = parser.strnchr('\n', data + size);
         int len = lineEnd ? (int) (lineEnd - data) : size;
         this->writePending();
-        this->indentToColumn(fIndent);
+        this->indentToColumn(indent);
         if (fDebugOut) {
             debug_out(len, data);
         }

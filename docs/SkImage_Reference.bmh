@@ -1444,15 +1444,7 @@ false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if
-#Formula
-abs(srcX) >= Image width()
-##
-, or if
-#Formula
-abs(srcY) >= Image height()
-##
-.
+Returns false if #Formula # abs(srcX) >= Image width() ##, or if #Formula # abs(srcY) >= Image height() ##.
 
 If cachingHint is kAllow_CachingHint, pixels may be retained locally.
 If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
@@ -1518,15 +1510,7 @@ false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if
-#Formula
-abs(srcX) >= Image width()
-##
-, or if
-#Formula
-abs(srcY) >= Image height()
-##
-.
+Returns false if #Formula # abs(srcX) >= Image width() ##, or if #Formula # abs(srcY) >= Image height() ##.
 
 If cachingHint is kAllow_CachingHint, pixels may be retained locally.
 If cachingHint is kDisallow_CachingHint, pixels are not added to the local cache.
