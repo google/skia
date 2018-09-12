@@ -413,6 +413,108 @@ void GrTextContext::AppendGlyph(GrTextBlob* blob, int runIndex,
     }
 }
 
+enum NeedsTransform : bool {kTransformDone = false, kDoTransform = true };
+
+// Getting glyphs to the screen in a fallback situation can be complex. Here is the set of
+// transformations that have to happen. Normally, they would all be accommodated by the font
+// scaler, but the atlas has an upper limit to the glyphs it can handle. So the GPU is used to
+// make up the difference from the smaller atlas size to the larger size needed by the final
+// transform. Here are the transformations that are applied.
+//
+// final transform = [view matrix] * [text scale] * [text size]
+//
+// There are three cases:
+// * Go Fast - view matrix is scale and translate, and all the glyphs are small enough
+//   Just scale the positions, and have the glyph cache handle the view matrix transformation.
+//   The text scale is 1.
+// * It's complicated - view matrix is not scale and translate, and the glyphs are small enough
+//   The glyph cache does not handle the view matrix, but stores the glyphs at the text size
+//   specified by the run paint. The GPU handles the rotation, etc. specified by the view matrix.
+//   The text scale is 1.
+// * Too big - The glyphs are too big to fit in the atlas
+//   Reduce the text size so the glyphs will fit in the atlas, but don't apply any
+//   transformations from the view matrix. Calculate a text scale based on that reduction. This
+//   scale factor is used to increase the size of the destination rectangles. The destination
+//   rectangles are then scaled, rotated, etc. by the GPU using the view matrix.
+
+using ARGBFallback =
+    std::function<void(const SkPaint& fallbackPaint,  // The run paint maybe with a new text size
+            SkSpan<const SkGlyphID> fallbackGlyphIDs, // Colored glyphs that need to be handled
+            SkSpan<const SkPoint> fallbackPositions,  // Positions of above glyphs
+            SkScalar fallbackTextScale,               // Factor to go from text size to final size
+            const SkMatrix& glyphCacheMatrix,         // Transformation performed by the glyph cache
+            NeedsTransform handleTransformLater)>;
+
+static void ARGB_fallback_helper(
+        SkSpan<const SkGlyphID> glyphIDs,
+        SkSpan<const SkPoint> positions,
+        SkScalar maxGlyphDimension,
+        const SkPaint& runPaint,
+        const SkMatrix& viewMatrix,
+        SkScalar pathScale,
+        ARGBFallback fallback) {
+    SkASSERT(!glyphIDs.empty());
+
+    SkScalar maxScale = viewMatrix.getMaxScale();
+
+    // This is a conservative estimate of the longest dimension among all the glyph widths and
+    // heights.
+    SkScalar conservativeMaxGlyphDimension = maxGlyphDimension * pathScale * maxScale;
+
+    // If the situation that the matrix is simple, and all the glyphs are small enough. Go fast!
+    bool useFastPath =
+            viewMatrix.isScaleTranslate() && conservativeMaxGlyphDimension <= maxGlyphDimension;
+
+    // A scaled and translated transform is the common case, and is handled directly in fallback.
+    // Even if the transform is scale and translate, fallback must be careful to use glyphs that
+    // fit in the atlas. If a glyph will not fit in the atlas, then the general transform case is
+    // used to render the glyphs.
+    if (useFastPath) {
+        // Translate the positions to device space.
+        std::vector<SkPoint> transformedPositions{positions.begin(), positions.end()};
+        viewMatrix.mapPoints(transformedPositions.data(), transformedPositions.size());
+        for (SkPoint& point : transformedPositions) {
+            point.fX =  SkScalarFloorToScalar(point.fX);
+            point.fY =  SkScalarFloorToScalar(point.fY);
+        }
+
+        auto pos = SkSpan<const SkPoint>{transformedPositions};
+        fallback(runPaint, glyphIDs, pos, SK_Scalar1, viewMatrix, kTransformDone);
+
+    } else {
+        // If the matrix is complicated or if scaling is used to fit the glyphs in the cache,
+        // then this case is used.
+
+        // Subtract 2 to account for the bilerp pad around the glyph
+        SkScalar maxAtlasDimension = SkGlyphCacheCommon::kSkSideTooBigForAtlas - 2;
+
+        SkScalar runPaintTextSize = runPaint.getTextSize();
+
+        // Scale the text size down so the long side of all the glyphs will fit in the atlas.
+        SkScalar reducedTextSize =
+                (maxAtlasDimension / conservativeMaxGlyphDimension) * runPaintTextSize;
+
+        // If there's a glyph in the font that's particularly large, it's possible
+        // that fScaledFallbackTextSize may end up minimizing too much. We'd rather skip
+        // that glyph than make the others blurry, so we set a minimum size of half the
+        // maximum text size to avoid this case.
+        SkScalar fallbackTextSize =
+                SkScalarFloorToScalar(std::max(reducedTextSize, 0.5f * runPaintTextSize));
+
+        // Don't allow the text size to get too big. This will also improve glyph cache hit rate
+        // for larger text sizes.
+        fallbackTextSize = std::min(fallbackTextSize, 256.0f);
+
+        SkPaint fallbackPaint{runPaint};
+        fallbackPaint.setTextSize(fallbackTextSize);
+        SkScalar fallbackTextScale = runPaintTextSize / fallbackTextSize;
+
+        fallback(
+            fallbackPaint, glyphIDs, positions, fallbackTextScale, SkMatrix::I(), kDoTransform);
+    }
+}
+
+
 void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                                            GrGlyphCache* glyphCache,
                                            const GrShaderCaps& shaderCaps,
@@ -493,49 +595,64 @@ void GrTextContext::regenerateGlyphRunList(GrTextBlob* cacheBlob,
                     runPaint, filteredColor, scalerContextFlags);
 
         } else if (SkDraw::ShouldDrawTextAsPaths(runPaint, viewMatrix)) {
+            // The glyphs are big, so use paths to draw them.
+
             // Ensure the blob is set for bitmaptext
             cacheBlob->setHasBitmap();
 
             // setup our std runPaint, in hopes of getting hits in the cache
             SkPaint pathPaint(runPaint);
-            SkScalar matrixScale = pathPaint.setupForAsPaths();
 
-            FallbackGlyphRunHelper fallbackTextHelper(viewMatrix, runPaint, matrixScale);
-
-            // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-            pathPaint.setStyle(SkPaint::kFill_Style);
-            pathPaint.setPathEffect(nullptr);
-
-            auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(
+            SkScalar textScale = pathPaint.setupForAsPaths();
+            auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     pathPaint, &props, scalerContextFlags, &SkMatrix::I());
 
-            auto perPath = [matrixScale, runIndex, cacheBlob, &cache]
+            // Given a glyph that is not ARGB, draw it.
+            auto perPath = [textScale, runIndex, cacheBlob, &pathCache]
                            (const SkGlyph& glyph, SkPoint position) {
-                const SkPath* path = cache->findPath(glyph);
+                const SkPath* path = pathCache->findPath(glyph);
                 if (path != nullptr) {
                     cacheBlob->appendPathGlyph(
-                            runIndex, *path, position.fX, position.fY, matrixScale, false);
+                            runIndex, *path, position.fX, position.fY, textScale, false);
                 }
             };
 
-            auto fallbackARGB = [cache{cache.get()}, &fallbackTextHelper]
+            // Handle the fallback glyphs given the fallbackPaint, matrix, and scale.
+            auto argbFallback =
+                [blob{cacheBlob}, runIndex, props, scalerContextFlags, glyphCache, filteredColor]
+                (const SkPaint& fallbackPaint, SkSpan<const SkGlyphID> glyphIDs,
+                 SkSpan<const SkPoint> positions, SkScalar textScale,
+                 const SkMatrix& glyphCacheMatrix, NeedsTransform needsTransform) {
+                    blob->initOverride(runIndex);
+                    blob->setHasBitmap();
+                    blob->setSubRunHasW(runIndex, glyphCacheMatrix.hasPerspective());
+                    SkExclusiveStrikePtr fallbackCache =
+                        blob->setupCache(runIndex, props, scalerContextFlags,
+                                         fallbackPaint, &glyphCacheMatrix);
+                    sk_sp<GrTextStrike> strike = glyphCache->getStrike(fallbackCache.get());
+                    const SkPoint* glyphPos = positions.data();
+                    for (auto glyphID : glyphIDs) {
+                        const SkGlyph& glyph = fallbackCache->getGlyphIDMetrics(glyphID);
+                        GrTextContext::AppendGlyph(blob, runIndex, strike, glyph,
+                                                   GrGlyph::kCoverage_MaskStyle,
+                                                   glyphPos->fX, glyphPos->fY, filteredColor,
+                                                   fallbackCache.get(), textScale, needsTransform);
+                        glyphPos++;
+                    }
+                };
+
+            // Calculate paint, matrix, scale and positions for the fallback glyphs.
+            auto fallbackARGB = [&runPaint, &viewMatrix, textScale, argbFallback]
                                 (SkSpan<const SkGlyphID> glyphIDs,
-                                 SkSpan<const SkPoint>positions) {
-                const SkPoint* pos = positions.data();
-                for (auto glyphID : glyphIDs) {
-                    SkPoint position = *pos++;
-                    const SkGlyph& glyph = cache->getGlyphMetrics(glyphID, {0, 0});
-                    fallbackTextHelper.appendGlyph(glyph, glyph.getGlyphID(), position);
-                }
+                                 SkSpan<const SkPoint>positions,
+                                 SkScalar maxGlyphDimension) {
+
+                ARGB_fallback_helper(glyphIDs, positions, maxGlyphDimension, runPaint,
+                                     viewMatrix, textScale, argbFallback);
             };
 
             glyphPainter->drawGlyphRunAsPathWithARGBFallback(
-                    cache.get(), glyphRun, origin, perPath, fallbackARGB);
-
-            fallbackTextHelper.drawGlyphs(
-                    cacheBlob, runIndex, glyphCache, props,
-                    runPaint, filteredColor, scalerContextFlags);
-
+                    pathCache.get(), glyphRun, origin, perPath, fallbackARGB);
         } else {
             // Ensure the blob is set for bitmaptext
             cacheBlob->setHasBitmap();

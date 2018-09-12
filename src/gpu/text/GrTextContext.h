@@ -70,21 +70,13 @@ public:
 
     class FallbackGlyphRunHelper {
     public:
-        FallbackGlyphRunHelper(const SkMatrix& viewMatrix,
-                           const SkPaint& pathPaint,
-                           SkScalar textRatio)
-                : fViewMatrix(viewMatrix)
-                , fTextSize(pathPaint.getTextSize())
-                , fTextRatio(textRatio)
-                , fTransformedFallbackTextSize(fMaxTextSize)
-                , fUseTransformedFallback(false) {
-            fMaxScale = viewMatrix.getMaxScale();
-        }
+        FallbackGlyphRunHelper(
+                const SkMatrix& viewMatrix, const SkPaint& runPaint, SkScalar textRatio);
 
         void appendGlyph(const SkGlyph& glyph, SkGlyphID glyphID, SkPoint glyphPos);
         void drawGlyphs(
                 GrTextBlob* blob, int runIndex, GrGlyphCache* cache,
-                const SkSurfaceProps& props, const SkPaint& paint, GrColor filteredColor,
+                const SkSurfaceProps& props, const SkPaint& runPaint, GrColor filteredColor,
                 SkScalerContextFlags scalerContextFlags);
 
         void initializeForDraw(SkPaint* paint, SkScalar* textRatio, SkMatrix* matrix) const;
