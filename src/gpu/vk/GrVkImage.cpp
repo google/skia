@@ -216,7 +216,7 @@ GrVkImage::~GrVkImage() {
 
 void GrVkImage::releaseImage(const GrVkGpu* gpu) {
     if (fInfo.fCurrentQueueFamily != fInitialQueueFamily) {
-        this->setImageLayout(gpu, fInfo.fImageLayout, 0, 0, false, true);
+        this->setImageLayout(gpu, this->currentLayout(), 0, 0, false, true);
     }
     if (fResource) {
         fResource->unref(gpu);
