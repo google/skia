@@ -21,25 +21,19 @@ namespace sksg {
  */
 class Matrix : public Node {
 public:
-    static sk_sp<Matrix> Make(const SkMatrix& m, sk_sp<Matrix> parent = nullptr) {
-        return sk_sp<Matrix>(new Matrix(m, std::move(parent)));
-    }
+    static sk_sp<Matrix> Make(const SkMatrix& m, sk_sp<Matrix> parent = nullptr);
 
-    ~Matrix() override;
+    SG_ATTRIBUTE(Matrix, SkMatrix, fMatrix)
 
-    SG_ATTRIBUTE(Matrix, SkMatrix, fLocalMatrix)
-
-    const SkMatrix& getTotalMatrix() const { return fTotalMatrix; }
+    virtual const SkMatrix& getTotalMatrix() const;
 
 protected:
-    Matrix(const SkMatrix&, sk_sp<Matrix>);
+    explicit Matrix(const SkMatrix&);
 
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) override;
 
 private:
-    sk_sp<Matrix> fParent;
-    SkMatrix      fLocalMatrix,
-                  fTotalMatrix; // cached during revalidation
+    SkMatrix fMatrix;
 
     typedef Node INHERITED;
 };
