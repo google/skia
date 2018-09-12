@@ -25,6 +25,15 @@
 #include <cmath>
 #include <utility>
 
+struct SkPath_Storage_Equivalent {
+    void*    fPtr;
+    int32_t  fIndex;
+    uint32_t fFlags;
+};
+
+static_assert(sizeof(SkPath) == sizeof(SkPath_Storage_Equivalent),
+              "Please keep an eye on SkPath packing.");
+
 static float poly_eval(float A, float B, float C, float t) {
     return (A * t + B) * t + C;
 }
@@ -203,11 +212,16 @@ bool operator==(const SkPath& a, const SkPath& b) {
 
 void SkPath::swap(SkPath& that) {
     if (this != &that) {
-        using std::swap;
         fPathRef.swap(that.fPathRef);
-        swap(fLastMoveToIndex, that.fLastMoveToIndex);
-        swap(fFillType, that.fFillType);
-        swap(fIsVolatile, that.fIsVolatile);
+        std::swap(fLastMoveToIndex, that.fLastMoveToIndex);
+
+        const auto ft = fFillType;
+        fFillType = that.fFillType;
+        that.fFillType = ft;
+
+        const auto iv = fIsVolatile;
+        fIsVolatile = that.fIsVolatile;
+        that.fIsVolatile = iv;
 
         // Non-atomic swaps of atomic values.
         Convexity c = fConvexity.load();
