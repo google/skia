@@ -403,14 +403,7 @@ static sk_sp<SkData> SkSrgbIcm() {
 static sk_sp<SkPDFStream> make_srgb_color_profile() {
     sk_sp<SkPDFStream> stream = sk_make_sp<SkPDFStream>(SkSrgbIcm());
     stream->dict()->insertInt("N", 3);
-    sk_sp<SkPDFArray> array = sk_make_sp<SkPDFArray>();
-    array->appendScalar(0.0f);
-    array->appendScalar(1.0f);
-    array->appendScalar(0.0f);
-    array->appendScalar(1.0f);
-    array->appendScalar(0.0f);
-    array->appendScalar(1.0f);
-    stream->dict()->insertObject("Range", std::move(array));
+    stream->dict()->insertObject("Range", SkPDFMakeArray(0, 1, 0, 1, 0, 1));
     return stream;
 }
 
