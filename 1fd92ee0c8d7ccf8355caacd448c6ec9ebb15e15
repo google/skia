@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c16efcc4_30917ce7",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T18:51:13Z",
+      "side": 1,
+      "message": "mv this down to line 301 ?",
+      "revId": "1fd92ee0c8d7ccf8355caacd448c6ec9ebb15e15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d9e8fe89_f42f78c2",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T18:51:13Z",
+      "side": 1,
+      "message": "// This was never going to get mipmapping anyway\n\n?",
+      "revId": "1fd92ee0c8d7ccf8355caacd448c6ec9ebb15e15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9a69ef7a_f9b444e7",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-12T18:51:13Z",
+      "side": 1,
+      "message": "Could we have something like:\n\nint mipLevelCount \u003d 1;\nsk_sp\u003cSkMipMap\u003e mipmaps(SkMipMap::Build(pixmap, nullptr));\nif (mipmaps) {\n   mipLevelCount \u003d mipmaps-\u003ecountLevels() + 1;\n}",
+      "revId": "1fd92ee0c8d7ccf8355caacd448c6ec9ebb15e15",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
