@@ -851,6 +851,8 @@ public:
     */
     void preConcat(const SkMatrix& other);
 
+    void positionAt(SkPoint position);
+
     /** Sets SkMatrix to SkMatrix constructed from translation (dx, dy) multiplied by SkMatrix.
         This can be thought of as moving the point to be mapped after applying SkMatrix.
 
