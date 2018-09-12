@@ -24,7 +24,11 @@ public:
 
 private:
     GrTextureGradientColorizer(sk_sp<GrTextureProxy> gradient)
-            : INHERITED(kGrTextureGradientColorizer_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrTextureGradientColorizer_ClassID,
+                        (OptimizationFlags)kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+                                (GrPixelConfigIsOpaque(gradient->config())
+                                         ? kPreservesOpaqueInput_OptimizationFlag
+                                         : kNone_OptimizationFlags))
             , fGradient(std::move(gradient), GrSamplerState::ClampBilerp()) {
         this->setTextureSamplerCnt(1);
     }
