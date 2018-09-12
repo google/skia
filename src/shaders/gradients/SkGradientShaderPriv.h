@@ -68,6 +68,8 @@ public:
 
     uint32_t getGradFlags() const { return fGradFlags; }
 
+    const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
+
 protected:
     class GradientShaderBase4fContext;
 

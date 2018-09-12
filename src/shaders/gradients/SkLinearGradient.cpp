@@ -99,6 +99,8 @@ SkShader::GradientType SkLinearGradient::asAGradient(GradientInfo* info) const {
 #include "glsl/GrGLSLFragmentShaderBuilder.h"
 #include "SkGr.h"
 
+#include "gradients/GrGradientShader.h"
+
 /////////////////////////////////////////////////////////////////////
 
 class GrLinearGradient : public GrGradientEffect {
@@ -193,6 +195,12 @@ void GrLinearGradient::GLSLLinearProcessor::emitCode(EmitArgs& args) {
 std::unique_ptr<GrFragmentProcessor> SkLinearGradient::asFragmentProcessor(
         const GrFPArgs& args) const {
     SkASSERT(args.fContext);
+
+    // Try to use new gradient system first
+    std::unique_ptr<GrFragmentProcessor> gradient = GrGradientShader::MakeLinear(*this, args);
+    if (gradient) {
+        return gradient;
+    }
 
     SkMatrix matrix;
     if (!this->totalLocalMatrix(args.fPreLocalMatrix, args.fPostLocalMatrix)->invert(&matrix)) {

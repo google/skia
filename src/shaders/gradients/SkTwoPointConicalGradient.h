@@ -62,7 +62,6 @@ public:
     SkScalar getEndRadius() const { return fRadius2; }
 
     Type getType() const { return fType; }
-    const SkMatrix& getGradientMatrix() const { return fPtsToUnit; }
     const FocalData& getFocalData() const { return fFocalData; }
 
     SK_DECLARE_PUBLIC_FLATTENABLE_DESERIALIZATION_PROCS(SkTwoPointConicalGradient)
