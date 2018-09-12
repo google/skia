@@ -11,6 +11,8 @@
 #include "GrTiledGradientEffect.h"
 
 #include "GrLinearGradientLayout.h"
+#include "GrRadialGradientLayout.h"
+
 #include "GrSingleIntervalGradientColorizer.h"
 
 #include "SkGradientShaderPriv.h"
@@ -128,6 +130,11 @@ namespace GrGradientShader {
 std::unique_ptr<GrFragmentProcessor> MakeLinear(const SkLinearGradient& shader,
                                                 const GrFPArgs& args) {
     return make_gradient(shader, args, GrLinearGradientLayout::Make(shader, args));
+}
+
+std::unique_ptr<GrFragmentProcessor> MakeRadial(const SkRadialGradient& shader,
+                                                const GrFPArgs& args) {
+    return make_gradient(shader,args, GrRadialGradientLayout::Make(shader, args));
 }
 
 }
