@@ -2751,6 +2751,18 @@ void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>()
 Shrinks <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> storage to discard unused capacity.
 May reduce the heap overhead for <a href='#Path'>Paths</a> known to be fully constructed.
 
+<div><a href='#SkPath_shrinkToFit'>shrinkToFit</a> minimizes the storage used internally by <a href='#Path'>Path</a>, but does not affect
+storage required externally by <a href='#Path'>Path</a>.
+</div>
+
+#### Example Output
+
+~~~~
+empty size: 16
+line size: 36
+shrunk size: 36
+~~~~
+
 ### See Also
 
 <a href='#SkPath_incReserve'>incReserve</a>

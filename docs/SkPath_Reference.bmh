@@ -2124,14 +2124,23 @@ Shrinks Path Verb_Array and Point_Array storage to discard unused capacity.
 May reduce the heap overhead for Paths known to be fully constructed.
 
 #NoExample
-#Height 192
+#Description
+shrinkToFit minimizes the storage used internally by Path, but does not affect
+storage required externally by Path.
+##
 void draw(SkCanvas* canvas) {
-    SkPath skinnyPath;
-    skinnyPath.lineTo(100, 100);
-    skinnyPath.shrinkToFit();
-
-    SkDebugf("no wasted Path capacity in my house!\n");
+    SkPath path;
+    SkDebugf("empty size: %d\n", path.writeToMemory(nullptr));
+    path.lineTo(1, 1);
+    SkDebugf("line size: %d\n", path.writeToMemory(nullptr));
+    path.shrinkToFit();
+    SkDebugf("shrunk size: %d\n", path.writeToMemory(nullptr));
 }
+#StdOut
+empty size: 16
+line size: 36
+shrunk size: 36
+##
 ##
 
 #SeeAlso incReserve
