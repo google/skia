@@ -186,30 +186,6 @@ sk_sp<GrTextureProxy> GrProxyProvider::createInstantiatedProxy(const GrSurfaceDe
     return this->createWrapped(std::move(tex), origin);
 }
 
-sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(const GrSurfaceDesc& desc,
-                                                          SkBudgeted budgeted, const void* srcData,
-                                                          size_t rowBytes) {
-    ASSERT_SINGLE_OWNER
-
-    if (this->isAbandoned()) {
-        return nullptr;
-    }
-
-    if (srcData) {
-        GrMipLevel mipLevel = { srcData, rowBytes };
-
-        sk_sp<GrTexture> tex =
-                fResourceProvider->createTexture(desc, budgeted, SkBackingFit::kExact, mipLevel);
-        if (!tex) {
-            return nullptr;
-        }
-
-        return this->createWrapped(std::move(tex), kTopLeft_GrSurfaceOrigin);
-    }
-
-    return this->createProxy(desc, kTopLeft_GrSurfaceOrigin, SkBackingFit::kExact, budgeted);
-}
-
 sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImage,
                                                           GrSurfaceDescFlags descFlags,
                                                           int sampleCnt,
