@@ -16,6 +16,7 @@
 
 #include <new>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 class SkData;
@@ -241,6 +242,24 @@ private:
     void append(SkPDFUnion&& value);
     SkDEBUGCODE(bool fDumped;)
 };
+
+static inline void SkPDFArray_Append(SkPDFArray* a, int v) { a->appendInt(v); }
+
+static inline void SkPDFArray_Append(SkPDFArray* a, SkScalar v) { a->appendScalar(v); }
+
+template <typename T, typename... Args>
+inline void SkPDFArray_Append(SkPDFArray* a, T v, Args... args) {
+    SkPDFArray_Append(a, v);
+    SkPDFArray_Append(a, args...);
+}
+
+template <typename... Args>
+inline sk_sp<SkPDFArray> SkPDFMakeArray(Args... args) {
+    auto ret = sk_make_sp<SkPDFArray>();
+    ret->reserve(sizeof...(Args));
+    SkPDFArray_Append(ret.get(), args...);
+    return ret;
+}
 
 /** \class SkPDFDict
 
