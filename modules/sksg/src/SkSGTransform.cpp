@@ -11,30 +11,37 @@
 
 namespace sksg {
 // Matrix nodes don't generate damage on their own, but via aggregation ancestor Transform nodes.
-Matrix::Matrix(const SkMatrix& m, sk_sp<Matrix> parent)
+Matrix::Matrix(const SkMatrix& m)
     : INHERITED(kBubbleDamage_Trait)
-    , fParent(std::move(parent))
-    , fLocalMatrix(m) {
-    if (fParent) {
-        this->observeInval(fParent);
-    }
+    , fMatrix(m) {}
+
+SkRect Matrix::onRevalidate(InvalidationController*, const SkMatrix&) {
+    return SkRect::MakeEmpty();
 }
 
-Matrix::~Matrix() {
-    if (fParent) {
-        this->unobserveInval(fParent);
-    }
+SkMatrix Matrix::getTotalMatrix() const {
+    return fMatrix;
 }
 
-SkRect Matrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
-    fTotalMatrix = fLocalMatrix;
+ChainedMatrix::ChainedMatrix(const SkMatrix& m, sk_sp<Matrix> parent)
+    : INHERITED(m)
+    , fParent(std::move(parent)) {
+    SkASSERT(fParent);
+    this->observeInval(fParent);
+}
 
-    if (fParent) {
-        fParent->revalidate(ic, ctm);
-        fTotalMatrix.postConcat(fParent->getTotalMatrix());
-    }
+ChainedMatrix::~ChainedMatrix() {
+    this->unobserveInval(fParent);
+}
+
+SkRect ChainedMatrix::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
+    fParent->revalidate(ic, ctm);
 
     return SkRect::MakeEmpty();
+}
+
+SkMatrix ChainedMatrix::getTotalMatrix() const {
+    return SkMatrix::Concat(fParent->getTotalMatrix(), fMatrix);
 }
 
 Transform::Transform(sk_sp<RenderNode> child, sk_sp<Matrix> matrix)

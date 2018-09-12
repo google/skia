@@ -129,7 +129,7 @@ static void inval_test2(skiatest::Reporter* reporter) {
     auto color = sksg::Color::Make(0xff000000);
     auto rect  = sksg::Rect::Make(SkRect::MakeWH(100, 100));
     auto m1    = sksg::Matrix::Make(SkMatrix::I()),
-         m2    = sksg::Matrix::Make(SkMatrix::I(), m1);
+         m2    = sksg::ChainedMatrix::Make(SkMatrix::I(), m1);
     auto t1    = sksg::Transform::Make(sksg::Draw::Make(rect, color), m2),
          t2    = sksg::Transform::Make(sksg::Draw::Make(rect, color), m1);
     auto root  = sksg::Group::Make();
