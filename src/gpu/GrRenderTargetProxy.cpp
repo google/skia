@@ -39,8 +39,8 @@ GrRenderTargetProxy::GrRenderTargetProxy(const GrCaps& caps, const GrSurfaceDesc
 GrRenderTargetProxy::GrRenderTargetProxy(LazyInstantiateCallback&& callback,
                                          LazyInstantiationType lazyType, const GrSurfaceDesc& desc,
                                          GrSurfaceOrigin origin, SkBackingFit fit,
-                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
-        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags)
+                                         SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags, bool foo)
+        : INHERITED(std::move(callback), lazyType, desc, origin, fit, budgeted, surfaceFlags, foo)
         , fSampleCnt(desc.fSampleCnt)
         , fNeedsStencil(false) {
     SkASSERT(SkToBool(kRenderTarget_GrSurfaceFlag & desc.fFlags));

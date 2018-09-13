@@ -81,7 +81,7 @@ protected:
     // know the final size until flush time.
     GrRenderTargetProxy(LazyInstantiateCallback&&, LazyInstantiationType lazyType,
                         const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit, SkBudgeted,
-                        GrInternalSurfaceFlags);
+                        GrInternalSurfaceFlags, bool foo);
 
     // Wrapped version
     GrRenderTargetProxy(sk_sp<GrSurface>, GrSurfaceOrigin);

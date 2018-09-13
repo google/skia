@@ -147,6 +147,9 @@ public:
         GrGpuResource* resource = fUniqueHash.find(key);
         if (resource) {
             this->refAndMakeResourceMRU(resource);
+            SkDebugf("resource: hit\n");
+        } else {
+            SkDebugf("resource: miss\n");
         }
         return resource;
     }

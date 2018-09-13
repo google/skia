@@ -232,6 +232,7 @@ public:
 
     int numUniqueKeyProxies_TestOnly() const;
 
+    void fooAllUniqueKeys();
     void removeAllUniqueKeys();
 
     /**

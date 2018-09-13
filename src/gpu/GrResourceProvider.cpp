@@ -251,6 +251,7 @@ void GrResourceProvider::assignUniqueKeyToResource(const GrUniqueKey& key,
     if (this->isAbandoned() || !resource) {
         return;
     }
+    SkDebugf("resource: assigning key\n");
     resource->resourcePriv().setUniqueKey(key);
 }
 

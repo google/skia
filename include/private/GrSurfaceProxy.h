@@ -410,7 +410,7 @@ protected:
     GrSurfaceProxy(const GrSurfaceDesc& desc, GrSurfaceOrigin origin, SkBackingFit fit,
                    SkBudgeted budgeted, GrInternalSurfaceFlags surfaceFlags)
             : GrSurfaceProxy(nullptr, LazyInstantiationType::kSingleUse, desc, origin, fit,
-                             budgeted, surfaceFlags) {
+                             budgeted, surfaceFlags, false) {
         // Note: this ctor pulls a new uniqueID from the same pool at the GrGpuResources
     }
 
@@ -419,7 +419,7 @@ protected:
     // Lazy-callback version
     GrSurfaceProxy(LazyInstantiateCallback&&, LazyInstantiationType,
                    const GrSurfaceDesc&, GrSurfaceOrigin, SkBackingFit,
-                   SkBudgeted, GrInternalSurfaceFlags);
+                   SkBudgeted, GrInternalSurfaceFlags, bool foo);
 
     // Wrapped version
     GrSurfaceProxy(sk_sp<GrSurface>, GrSurfaceOrigin, SkBackingFit);

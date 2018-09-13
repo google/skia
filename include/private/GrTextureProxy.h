@@ -98,7 +98,7 @@ protected:
     // know the final size until flush time.
     GrTextureProxy(LazyInstantiateCallback&&, LazyInstantiationType, const GrSurfaceDesc& desc,
                    GrSurfaceOrigin, GrMipMapped, GrTextureType, SkBackingFit, SkBudgeted,
-                   GrInternalSurfaceFlags);
+                   GrInternalSurfaceFlags, bool foo);
 
     // Wrapped version
     GrTextureProxy(sk_sp<GrSurface>, GrSurfaceOrigin);
@@ -120,7 +120,7 @@ private:
     GrTextureType    fTextureType;
 
     GrUniqueKey      fUniqueKey;
-    GrProxyProvider* fProxyProvider; // only set when fUniqueKey is valid
+    GrProxyProvider* fProxyProvider1; // only set when fUniqueKey is valid
 
     // Only used for proxies whose contents are being prepared on a worker thread. This object
     // stores the texture data, allowing the proxy to remain uninstantiated until flush. At that

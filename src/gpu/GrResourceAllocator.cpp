@@ -339,6 +339,8 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
             continue;
         }
 
+        SkDebugf("allocating for %d %d\n", cur->proxy()->uniqueID().asUInt(),
+                 cur->proxy()->asTextureProxy() ? cur->proxy()->asTextureProxy()->getUniqueKey().isValid() : false);
         if (GrSurfaceProxy::LazyState::kNot != cur->proxy()->lazyInstantiationState()) {
             if (!cur->proxy()->priv().doLazyInstantiation(fResourceProvider)) {
                 *outError = AssignError::kFailedProxyInstantiation;
@@ -350,10 +352,12 @@ bool GrResourceAllocator::assign(int* startIndex, int* stopIndex,
             }
         } else if (sk_sp<GrSurface> surface = this->findSurfaceFor(cur->proxy(), needsStencil)) {
             // TODO: make getUniqueKey virtual on GrSurfaceProxy
-            GrTextureProxy* tex = cur->proxy()->asTextureProxy();
-            if (tex && tex->getUniqueKey().isValid()) {
-                fResourceProvider->assignUniqueKeyToResource(tex->getUniqueKey(), surface.get());
-                SkASSERT(surface->getUniqueKey() == tex->getUniqueKey());
+            GrTextureProxy* texProxy = cur->proxy()->asTextureProxy();
+            SkDebugf("proxy %d\n", texProxy->uniqueID().asUInt());
+            if (texProxy && texProxy->getUniqueKey().isValid()) {
+                fResourceProvider->assignUniqueKeyToResource(texProxy->getUniqueKey(),
+                                                             surface.get());
+                SkASSERT(surface->getUniqueKey() == texProxy->getUniqueKey());
             }
 
 #if GR_ALLOCATION_SPEW
