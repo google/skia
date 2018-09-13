@@ -349,25 +349,25 @@ skc_interop_create()
 
   *interop = (struct skc_interop)
     {
-     .fb            = { .type        = SKC_FRAMEBUFFER_CL_GL_RENDERBUFFER,
-                        .mem         = NULL,
-                        .interop     = interop,
-                        .post_render = skc_interop_blit },
+      .fb            = { .type        = SKC_FRAMEBUFFER_CL_GL_RENDERBUFFER,
+                         .mem         = NULL,
+                         .interop     = interop,
+                         .post_render = skc_interop_blit },
 
-     .is_msecs      = false,
-     .is_srgb       = true,
-     .is_vsync_on   = false,
-     .is_fullscreen = false,
-     .is_iconified  = false,
-     .is_resized    = true,
-     .is_spinning   = false,
-     .is_transform  = true,
+      .is_msecs      = false,
+      .is_srgb       = true,
+      .is_vsync_on   = false,
+      .is_fullscreen = false,
+      .is_iconified  = false,
+      .is_resized    = true,
+      .is_spinning   = false,
+      .is_transform  = true,
 
-     .scale         = 1.0f,
-     .translate     = { 0.0f, 0.0f },
-     .rotate_theta  = 0.0f,
+      .scale         = 1.0f,
+      .translate     = { 0.0f, 0.0f },
+      .rotate_theta  = 0.0f,
 
-     .key           = 0
+      .key           = 0
     };
 
   //
@@ -506,34 +506,89 @@ skc_interop_get_wgl_dc()
 #define SKC_ROTATE_STEP ((float)(M_PI / 180.0))
 
 void
-skc_interop_transform(struct skc_interop         * interop,
-                      struct skc_transform_stack * ts)
+skc_interop_transform(struct skc_interop        * interop,
+                      struct ts_transform_stack * ts)
 {
+#if 1
   // OpenGL'ism
-  skc_transform_stack_push_affine(ts,
-                                  1.0f, 0.0f,0.0f,
-                                  0.0f,-1.0f,(float)interop->height);
+  ts_transform_stack_push_affine(ts,
+                                 1.0f, 0.0f,0.0f,
+                                 0.0f,-1.0f,(float)interop->height);
   // multiply
-  skc_transform_stack_concat(ts);
+  ts_transform_stack_concat(ts);
+#endif
+
+#if 0
+  float const w = (float)interop->width;
+  float const h = (float)interop->height;
+
+#if 0
+  ts_transform_float_t const quad_tst[8] = { 50,   50,
+                                             1550, 50,
+                                             1550, 1550,
+                                             50,   1550 };
+  float const quad_src[8] = {
+    0.0f,0.0f,
+    w,   0.0f,
+    w,   h,
+    0.0f,h
+  };
+#endif
+
+  float const quad_dst[8] = {
+    w/2 - w/8, 0.0f,
+    w/2 + w/8, 0.0f + h/8,
+    w,         h    - h/8,
+    0.0f,      h
+  };
+
+#if 1
+  ts_transform_type_e const ts_type =
+    ts_transform_stack_push_rect_to_quad(ts,
+                                         0,0,w,h,
+                                         quad_dst);
+#else
+  ts_transform_type_e const ts_type =
+    ts_transform_stack_push_quad_to_quad(ts,
+                                         quad_src,
+                                         quad_dst);
+#endif
+
+  ts_transform_stack_concat(ts);
+
+#if 0
+  for (int ii=0; ii<8; ii+=2)
+    {
+      ts_transform_float_t xp,yp;
+
+      ts_transform_stack_transform_xy(ts,
+                                      quad_tst[ii],quad_tst[ii+1],
+                                      &xp,&yp);
+
+      printf("( %.2f, %.2f )\n",xp,yp);
+    }
+#endif
+#endif
 
   // spinner...
   if (interop->is_spinning)
     interop->rotate_theta = fmodf(interop->rotate_theta + SKC_ROTATE_STEP,(float)(M_PI*2.0));
 
   // always rotate and scale around surface center point
-  skc_transform_stack_push_rotate_scale_xy(ts,
-                                           interop->rotate_theta,
-                                           interop->scale,
-                                           interop->scale,
-                                           0.5f*interop->width,
-                                           0.5f*interop->height);
-  skc_transform_stack_concat(ts);
+  ts_transform_stack_push_rotate_scale_xy(ts,
+                                          interop->rotate_theta,
+                                          interop->scale,
+                                          interop->scale,
+                                          0.5f*interop->width,
+                                          0.5f*interop->height);
+  ts_transform_stack_concat(ts);
 
   // where did the mouse take us?
-  skc_transform_stack_push_translate(ts,
-                                     interop->translate.x,
-                                     interop->translate.y);
-  skc_transform_stack_concat(ts);
+  ts_transform_stack_push_translate(ts,
+                                    interop->translate.x,
+                                    interop->translate.y);
+  ts_transform_stack_concat(ts);
+
 }
 
 //

@@ -213,6 +213,17 @@ struct skc_subgroup_smem
 #endif
 
 //
+//
+//
+
+#define SKC_PROJECT(x,y,xp,yp)                                          \
+  {                                                                     \
+    float const d = native_recip(fma(x,tv->w0,fma(y,tv->w1,1.0f)));     \
+    xp *= d;                                                            \
+    yp *= d;                                                            \
+  }
+
+//
 // replenish block ids
 //
 // note that you can't overrun the block id pool since it's a ring
@@ -2130,17 +2141,37 @@ skc_rasterize_cubics(__global SKC_ATOMIC_UINT         volatile * const bp_atomic
   //
   // the affine transformation requires 8 FMA + 2 ROUND operations
   //
-  SKC_RASTERIZE_FLOAT const b0x = round(c0x * tv->sx  + c0y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const b0y = round(c0x * tv->shy + c0y * tv->sy  + tv->ty);
 
-  SKC_RASTERIZE_FLOAT const t1x = c1x * tv->sx  + c1y * tv->shx + tv->tx;
-  SKC_RASTERIZE_FLOAT const t1y = c1x * tv->shy + c1y * tv->sy  + tv->ty;
+  SKC_RASTERIZE_FLOAT b0x = c0x * tv->sx  + c0y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT b0y = c0x * tv->shy + c0y * tv->sy  + tv->ty;
 
-  SKC_RASTERIZE_FLOAT const t2x = c2x * tv->sx  + c2y * tv->shx + tv->tx;
-  SKC_RASTERIZE_FLOAT const t2y = c2x * tv->shy + c2y * tv->sy  + tv->ty;
+  SKC_RASTERIZE_FLOAT t1x = c1x * tv->sx  + c1y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT t1y = c1x * tv->shy + c1y * tv->sy  + tv->ty;
 
-  SKC_RASTERIZE_FLOAT const t3x = round(c3x * tv->sx  + c3y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const t3y = round(c3x * tv->shy + c3y * tv->sy  + tv->ty);
+  SKC_RASTERIZE_FLOAT t2x = c2x * tv->sx  + c2y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT t2y = c2x * tv->shy + c2y * tv->sy  + tv->ty;
+
+  SKC_RASTERIZE_FLOAT t3x = c3x * tv->sx  + c3y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT t3y = c3x * tv->shy + c3y * tv->sy  + tv->ty;
+
+  //
+  // FIXME -- this is temporary support for projection
+  //
+  bool const is_affine = (tv->w0 == 0.0f) && (tv->w1 == 0.0f);
+
+  if (!is_affine)
+    {
+      SKC_PROJECT(c0x,c0y,b0x,b0y);
+      SKC_PROJECT(c1x,c1y,t1x,t1y);
+      SKC_PROJECT(c2x,c2y,t2x,t2y);
+      SKC_PROJECT(c3x,c3y,t3x,t3y);
+    }
+
+  b0x = round(b0x);
+  b0y = round(b0y);
+
+  t3x = round(t3x);
+  t3y = round(t3y);
 
   //
   //
@@ -2310,7 +2341,7 @@ skc_rasterize_cubics(__global SKC_ATOMIC_UINT         volatile * const bp_atomic
   // allocate and init in-register TTSK keys
   //
   skc_uint     sk_v_next = 0;
-  skc_ttsk_v_t sk_v; 
+  skc_ttsk_v_t sk_v;
 
   sk_v.hi = cohort;
 
@@ -2469,7 +2500,7 @@ skc_rasterize_quads(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
                     __global skc_ttsk_s_t                     * const sk_extent,
 
                     __local struct skc_subgroup_smem volatile * const smem,
-                    
+
                     skc_uint                                  * const nodeword,
                     skc_block_id_t                            * const id,
 
@@ -2512,14 +2543,32 @@ skc_rasterize_quads(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   //
   // the affine transformation requires 8 FMA + 2 ROUND operations
   //
-  SKC_RASTERIZE_FLOAT const b0x = round(c0x * tv->sx  + c0y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const b0y = round(c0x * tv->shy + c0y * tv->sy  + tv->ty);
+  SKC_RASTERIZE_FLOAT b0x = c0x * tv->sx  + c0y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT b0y = c0x * tv->shy + c0y * tv->sy  + tv->ty;
 
-  SKC_RASTERIZE_FLOAT const t1x = c1x * tv->sx  + c1y * tv->shx + tv->tx;
-  SKC_RASTERIZE_FLOAT const t1y = c1x * tv->shy + c1y * tv->sy  + tv->ty;
+  SKC_RASTERIZE_FLOAT t1x = c1x * tv->sx  + c1y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT t1y = c1x * tv->shy + c1y * tv->sy  + tv->ty;
 
-  SKC_RASTERIZE_FLOAT const t2x = round(c2x * tv->sx  + c2y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const t2y = round(c2x * tv->shy + c2y * tv->sy  + tv->ty);
+  SKC_RASTERIZE_FLOAT t2x = c2x * tv->sx  + c2y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT t2y = c2x * tv->shy + c2y * tv->sy  + tv->ty;
+
+  //
+  // FIXME -- this is temporary support for projection
+  //
+  bool const is_affine = (tv->w0 == 0.0f) && (tv->w1 == 0.0f);
+
+  if (!is_affine)
+    {
+      SKC_PROJECT(c0x,c0y,b0x,b0y);
+      SKC_PROJECT(c1x,c1y,t1x,t1y);
+      SKC_PROJECT(c2x,c2y,t2x,t2y);
+    }
+
+  b0x = round(b0x);
+  b0y = round(b0y);
+
+  t2x = round(t2x);
+  t2y = round(t2y);
 
   //
   // Estimate how many line segments are in quad/cubic curve.
@@ -2574,7 +2623,7 @@ skc_rasterize_quads(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   // allocate and init in-register TTSK keys
   //
   skc_uint     sk_v_next = 0;
-  skc_ttsk_v_t sk_v; 
+  skc_ttsk_v_t sk_v;
 
   sk_v.hi = cohort;
 
@@ -2730,7 +2779,7 @@ skc_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
                     __global skc_ttsk_s_t                     * const sk_extent,
 
                     __local struct skc_subgroup_smem volatile * const smem,
-                    
+
                     skc_uint                                  * const nodeword,
                     skc_block_id_t                            * const id,
 
@@ -2757,7 +2806,6 @@ skc_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   SKC_RASTERIZE_FLOAT const c1y = bp_elems[SKC_RASTERIZE_SEGMENT(*id)].coord;
 
 #if 0
-  // printf("%5u : { { %5.0f, %5.0f }, { %5.0f, %5.0f } },\n",(skc_uint)get_global_id(0),c0x,c0y,c1x,c1y);
   printf("{ { %5.0f, %5.0f }, { %5.0f, %5.0f } },\n",c0x,c0y,c1x,c1y);
 #endif
 
@@ -2771,11 +2819,27 @@ skc_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   //
   // the affine transformation requires 8 FMA + 4 ROUND operations
   //
-  SKC_RASTERIZE_FLOAT const l0x = round(c0x * tv->sx  + c0y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const l0y = round(c0x * tv->shy + c0y * tv->sy  + tv->ty);
+  SKC_RASTERIZE_FLOAT l0x = c0x * tv->sx  + c0y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT l0y = c0x * tv->shy + c0y * tv->sy  + tv->ty;
 
-  SKC_RASTERIZE_FLOAT const l1x = round(c1x * tv->sx  + c1y * tv->shx + tv->tx);
-  SKC_RASTERIZE_FLOAT const l1y = round(c1x * tv->shy + c1y * tv->sy  + tv->ty);
+  SKC_RASTERIZE_FLOAT l1x = c1x * tv->sx  + c1y * tv->shx + tv->tx;
+  SKC_RASTERIZE_FLOAT l1y = c1x * tv->shy + c1y * tv->sy  + tv->ty;
+
+  //
+  // FIXME -- this is temporary support for projection
+  //
+  bool const is_affine = (tv->w0 == 0.0f) && (tv->w1 == 0.0f);
+
+  if (!is_affine) {
+    SKC_PROJECT(c0x,c0y,l0x,l0y);
+    SKC_PROJECT(c1x,c1y,l1x,l1y);
+  }
+
+  l0x = round(l0x);
+  l0y = round(l0y);
+
+  l1x = round(l1x);
+  l1y = round(l1y);
 
 #if 0
   printf("{ { %5.0f, %5.0f }, { %5.0f, %5.0f } },\n",l0x,l0y,l1x,l1y);
@@ -2785,7 +2849,7 @@ skc_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_atomics
   // allocate and init in-register TTSK keys
   //
   skc_uint     sk_v_next = 0;
-  skc_ttsk_v_t sk_v; 
+  skc_ttsk_v_t sk_v;
 
   sk_v.hi = cohort;
 
@@ -2867,7 +2931,7 @@ skc_kernel_rasterize_all(__global SKC_ATOMIC_UINT         volatile * const bp_at
   __local struct skc_subgroup_smem volatile                smem_wg[SKC_RASTERIZE_WORKGROUP_SUBGROUPS];
   __local struct skc_subgroup_smem volatile * const smem = smem_wg + get_sub_group_id();
 #endif
-  
+
   //
   // this is a subgroup/warp-centric kernel
   //
@@ -3025,7 +3089,7 @@ skc_kernel_rasterize_lines(__global SKC_ATOMIC_UINT         volatile * const bp_
   __local struct skc_subgroup_smem volatile                smem_wg[SKC_RASTERIZE_WORKGROUP_SUBGROUPS];
   __local struct skc_subgroup_smem volatile * const smem = smem_wg + get_sub_group_id();
 #endif
-  
+
   //
   // this is a subgroup/warp-centric kernel
   //
@@ -3134,7 +3198,7 @@ skc_kernel_rasterize_quads(__global SKC_ATOMIC_UINT         volatile * const bp_
   __local struct skc_subgroup_smem volatile                smem_wg[SKC_RASTERIZE_WORKGROUP_SUBGROUPS];
   __local struct skc_subgroup_smem volatile * const smem = smem_wg + get_sub_group_id();
 #endif
-  
+
   //
   // this is a subgroup/warp-centric kernel
   //
@@ -3239,7 +3303,7 @@ skc_kernel_rasterize_cubics(__global SKC_ATOMIC_UINT         volatile * const bp
   __local struct skc_subgroup_smem volatile                smem_wg[SKC_RASTERIZE_WORKGROUP_SUBGROUPS];
   __local struct skc_subgroup_smem volatile * const smem = smem_wg + get_sub_group_id();
 #endif
-  
+
   //
   // this is a subgroup/warp-centric kernel
   //

@@ -161,7 +161,7 @@ main(int argc, char * argv[])
 
   hsg_debug_print(rows,b,r);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 #endif

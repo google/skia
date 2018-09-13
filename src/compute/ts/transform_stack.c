@@ -6,65 +6,95 @@
  *
  */
 
-#include <stdlib.h>
-#include <assert.h>
-#include <math.h>
-
-//
-//
-//
-
 #include "transform_stack.h"
 
 //
 //
 //
 
-#define SKC_TRANSFORM_SUFFIX_EVAL(a)      a
-
-#define SKC_TRANSFORM_SUFFIX_CONCAT(func)                               \
-  SKC_TRANSFORM_SUFFIX_EVAL(func)##SKC_TRANSFORM_SUFFIX_EVAL(SKC_TRANSFORM_FLOAT_SUFFIX)
+#include <stdlib.h>
+#include <math.h>
 
 //
 //
 //
 
-#define SKC_TRANSFORM_SIN(x)  SKC_TRANSFORM_SUFFIX_CONCAT(sin)(x)
-#define SKC_TRANSFORM_COS(x)  SKC_TRANSFORM_SUFFIX_CONCAT(cos)(x)
-#define SKC_TRANSFORM_TAN(x)  SKC_TRANSFORM_SUFFIX_CONCAT(tan)(x)
-#define SKC_TRANSFORM_RCP(x)  (SKC_TRANSFORM_SUFFIX_CONCAT(1.0) / (x))
+#undef NDEBUG
+#include <assert.h>
 
 //
 //
 //
 
-union skc_transform_stack_3x3_u
+#define TS_TRANSFORM_SUFFIX_EVAL(a)  a
+
+#define TS_TRANSFORM_SUFFIX_CONCAT(func)                                \
+  TS_TRANSFORM_SUFFIX_EVAL(func)##TS_TRANSFORM_SUFFIX_EVAL(TS_TRANSFORM_FLOAT_SUFFIX)
+
+//
+//
+//
+
+#define TS_TRANSFORM_SIN(x)  TS_TRANSFORM_SUFFIX_CONCAT(sin)(x)
+#define TS_TRANSFORM_COS(x)  TS_TRANSFORM_SUFFIX_CONCAT(cos)(x)
+#define TS_TRANSFORM_TAN(x)  TS_TRANSFORM_SUFFIX_CONCAT(tan)(x)
+
+//
+//
+//
+#define TS_TRANSFORM_ZERO    ((ts_transform_float_t)0.0)
+#define TS_TRANSFORM_ONE     ((ts_transform_float_t)1.0)
+#define TS_TRANSFORM_RCP(f)  (TS_TRANSFORM_ONE / (f))
+
+
+//
+//
+//
+
+union ts_transform_stack_3x3_u
 {
-  skc_transform_float_t   a9[9];
+  ts_transform_float_t   a8[8];
 
   struct {
-    skc_transform_float_t sx;
-    skc_transform_float_t shx;
-    skc_transform_float_t tx;
+    ts_transform_float_t sx;
+    ts_transform_float_t shx;
+    ts_transform_float_t tx;
 
-    skc_transform_float_t shy;
-    skc_transform_float_t sy;
-    skc_transform_float_t ty;
+    ts_transform_float_t shy;
+    ts_transform_float_t sy;
+    ts_transform_float_t ty;
 
-    skc_transform_float_t w0;
-    skc_transform_float_t w1;
-    skc_transform_float_t w2;
+    ts_transform_float_t w0;
+    ts_transform_float_t w1;
+    // w2 is always 1.0
+  };
+
+  struct {
+    ts_transform_float_t a;
+    ts_transform_float_t b;
+    ts_transform_float_t c;
+
+    ts_transform_float_t d;
+    ts_transform_float_t e;
+    ts_transform_float_t f;
+
+    ts_transform_float_t g;
+    ts_transform_float_t h;
+    // i is always 1.0
   };
 };
 
+//
+//
+//
 
-struct skc_transform_stack
+struct ts_transform_stack
 {
-  uint32_t                          size;
-  uint32_t                          count;
+  uint32_t                         size;
+  uint32_t                         count;
 
-  skc_transform_weakref_t         * weakrefs;
-  union skc_transform_stack_3x3_u * transforms;
+  ts_transform_weakref_t         * weakrefs;
+  union ts_transform_stack_3x3_u * transforms;
 };
 
 //
@@ -73,43 +103,7 @@ struct skc_transform_stack
 
 static
 void
-skc_transform_stack_3x3_u_copy(union skc_transform_stack_3x3_u       * const __restrict dst,
-                               union skc_transform_stack_3x3_u const * const __restrict src)
-{
-  for (int32_t ii=0; ii<9; ii++)
-    dst->a9[ii] = src->a9[ii];
-}
-
-//
-// C = A * B
-//
-
-static
-void
-skc_transform_stack_3x3_u_multiply(union skc_transform_stack_3x3_u       * const __restrict C,
-                                   union skc_transform_stack_3x3_u const * const __restrict A,
-                                   union skc_transform_stack_3x3_u const * const __restrict B)
-{
-  C->sx  = A->sx  * B->sx   +  A->shx * B->shy  +  A->tx * B->w0;
-  C->shx = A->sx  * B->shx  +  A->shx * B->sy   +  A->tx * B->w1;
-  C->tx  = A->sx  * B->tx   +  A->shx * B->ty   +  A->tx * B->w2;
-
-  C->shy = A->shy * B->sx   +  A->sy  * B->shy  +  A->ty * B->w0;
-  C->sy  = A->shy * B->shx  +  A->sy  * B->sy   +  A->ty * B->w1;
-  C->ty  = A->shy * B->tx   +  A->sy  * B->ty   +  A->ty * B->w2;
-
-  C->w0  = A->w0  * B->sx   +  A->w1  * B->shy  +  A->w2 * B->w0;
-  C->w1  = A->w0  * B->shx  +  A->w1  * B->sy   +  A->w2 * B->w1;
-  C->w2  = A->w0  * B->tx   +  A->w1  * B->ty   +  A->w2 * B->w2;
-}
-
-//
-//
-//
-
-static
-void
-skc_transform_stack_resize(struct skc_transform_stack * const ts, uint32_t const size)
+ts_transform_stack_resize(struct ts_transform_stack * const ts, uint32_t const size)
 {
   ts->size       = size;
   ts->weakrefs   = realloc(ts->weakrefs,  size * sizeof(*ts->weakrefs));
@@ -118,23 +112,23 @@ skc_transform_stack_resize(struct skc_transform_stack * const ts, uint32_t const
 
 static
 void
-skc_transform_stack_ensure(struct skc_transform_stack * const ts)
+ts_transform_stack_ensure(struct ts_transform_stack * const ts)
 {
   if (ts->count < ts->size)
     return;
 
   // increase by 50% and by at least 8
-  skc_transform_stack_resize(ts,ts->size + max(ts->size/2,8));
+  ts_transform_stack_resize(ts,ts->size + max(ts->size/2,8));
 }
 
 //
 //
 //
 
-struct skc_transform_stack *
-skc_transform_stack_create(uint32_t const size)
+struct ts_transform_stack *
+ts_transform_stack_create(uint32_t const size)
 {
-  struct skc_transform_stack * ts = malloc(sizeof(*ts));
+  struct ts_transform_stack * ts = malloc(sizeof(*ts));
 
   ts->size       = size;
   ts->count      = 0;
@@ -142,13 +136,13 @@ skc_transform_stack_create(uint32_t const size)
   ts->transforms = NULL;
   ts->weakrefs   = NULL;
 
-  skc_transform_stack_resize(ts,size);
+  ts_transform_stack_resize(ts,size);
 
   return ts;
 }
 
 void
-skc_transform_stack_release(struct skc_transform_stack * const ts)
+ts_transform_stack_release(struct ts_transform_stack * const ts)
 {
   free(ts->transforms);
   free(ts->weakrefs);
@@ -161,14 +155,14 @@ skc_transform_stack_release(struct skc_transform_stack * const ts)
 //
 
 uint32_t
-skc_transform_stack_save(struct skc_transform_stack * const ts)
+ts_transform_stack_save(struct ts_transform_stack * const ts)
 {
   return ts->count;
 }
 
 void
-skc_transform_stack_restore(struct skc_transform_stack * const ts,
-                            uint32_t                     const restore)
+ts_transform_stack_restore(struct ts_transform_stack * const ts,
+                           uint32_t                    const restore)
 {
   ts->count = restore;
 }
@@ -178,8 +172,8 @@ skc_transform_stack_restore(struct skc_transform_stack * const ts,
 //
 
 static
-union skc_transform_stack_3x3_u *
-skc_transform_stack_tos(struct skc_transform_stack * const ts)
+union ts_transform_stack_3x3_u *
+ts_transform_stack_tos(struct ts_transform_stack * const ts)
 {
   return ts->transforms + ts->count - 1;
 }
@@ -188,51 +182,61 @@ skc_transform_stack_tos(struct skc_transform_stack * const ts)
 //
 //
 
-#if 0
-
+static
 void
-skc_transform_to_f32a8(float f32a8[8], skc_transform_float_t const a9[9])
+ts_transform_stack_3x3_u_copy(union ts_transform_stack_3x3_u       * const __restrict dst,
+                              union ts_transform_stack_3x3_u const * const __restrict src)
 {
-  if (a9[8] == 1.0)
-    {
-      f32a8[0] = (float)a9[0];
-      f32a8[1] = (float)a9[1];
-      f32a8[2] = (float)a9[2];
-      f32a8[3] = (float)a9[3];
-      f32a8[4] = (float)a9[4];
-      f32a8[5] = (float)a9[5];
-      f32a8[6] = (float)a9[6];
-      f32a8[7] = (float)a9[7];
-    }
+  *dst = *src;
+}
+
+//
+// C = A * B
+//
+// FIXME -- can save affine vs. projective flags and save a few ops
+//
+
+#define TS_TRANSFORM_MULTIPLY(A,B)                                    \
+  A->sx  * B->sx   +  A->shx * B->shy  +  A->tx * B->w0,              \
+  A->sx  * B->shx  +  A->shx * B->sy   +  A->tx * B->w1,              \
+  A->sx  * B->tx   +  A->shx * B->ty   +  A->tx,                      \
+  A->shy * B->sx   +  A->sy  * B->shy  +  A->ty * B->w0,              \
+  A->shy * B->shx  +  A->sy  * B->sy   +  A->ty * B->w1,              \
+  A->shy * B->tx   +  A->sy  * B->ty   +  A->ty,                      \
+  A->w0  * B->sx   +  A->w1  * B->shy  +          B->w0,              \
+  A->w0  * B->shx  +  A->w1  * B->sy   +          B->w1,              \
+  A->w0  * B->tx   +  A->w1  * B->ty   +          TS_TRANSFORM_ONE
+
+//
+//
+//
+
+#define TS_IS_AFFINE(t) ((t->w0 == TS_TRANSFORM_ZERO) && (t->w1 == TS_TRANSFORM_ZERO))
+
+static
+ts_transform_type_e
+ts_transform_stack_classify(struct ts_transform_stack * const ts)
+{
+  union ts_transform_stack_3x3_u const * const t = ts_transform_stack_tos(ts);
+
+  if (TS_IS_AFFINE(t))
+    return TS_TRANSFORM_TYPE_AFFINE;
   else
-    {
-      skc_transform_float_t const rcp = 1.0 / a9[8];
-
-      f32a8[0] = (float)(a9[0] * rcp);
-      f32a8[1] = (float)(a9[1] * rcp);
-      f32a8[2] = (float)(a9[2] * rcp);
-      f32a8[3] = (float)(a9[3] * rcp);
-      f32a8[4] = (float)(a9[4] * rcp);
-      f32a8[5] = (float)(a9[5] * rcp);
-      f32a8[6] = (float)(a9[6] * rcp);
-      f32a8[7] = (float)(a9[7] * rcp);
-    }
+    return TS_TRANSFORM_TYPE_PROJECTIVE;
 }
 
-#endif
-
 //
 //
 //
 
-skc_transform_float_t *
-skc_transform_stack_top_transform(struct skc_transform_stack * const ts)
+ts_transform_float_t *
+ts_transform_stack_top_transform(struct ts_transform_stack * const ts)
 {
-  return skc_transform_stack_tos(ts)->a9;
+  return ts_transform_stack_tos(ts)->a8;
 }
 
-skc_weakref_t *
-skc_transform_stack_top_weakref(struct skc_transform_stack * const ts)
+ts_transform_weakref_t *
+ts_transform_stack_top_weakref(struct ts_transform_stack * const ts)
 {
   return ts->weakrefs + ts->count - 1;
 }
@@ -242,46 +246,64 @@ skc_transform_stack_top_weakref(struct skc_transform_stack * const ts)
 //
 
 void
-skc_transform_stack_drop(struct skc_transform_stack * const ts)
+ts_transform_stack_dup(struct ts_transform_stack * const ts)
 {
-  assert(ts->count >= 1);
+  ts_transform_stack_ensure(ts);
 
-  ts->count -= 1;
-}
+  union ts_transform_stack_3x3_u * const tos = ts_transform_stack_tos(ts);
 
-void
-skc_transform_stack_dup(struct skc_transform_stack * const ts)
-{
-  skc_transform_stack_ensure(ts);
-
-  union skc_transform_stack_3x3_u * const tos = skc_transform_stack_tos(ts);
-
-  skc_transform_stack_3x3_u_copy(tos+1,tos);
+  ts_transform_stack_3x3_u_copy(tos+1,tos);
 
   ts->weakrefs[ts->count] = ts->weakrefs[ts->count-1];
 
   ts->count += 1;
 }
 
-//
-//
-//
-
 void
-skc_transform_stack_push_matrix(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const sx,
-                                skc_transform_float_t        const shx,
-                                skc_transform_float_t        const tx,
-                                skc_transform_float_t        const shy,
-                                skc_transform_float_t        const sy,
-                                skc_transform_float_t        const ty,
-                                skc_transform_float_t        const w0,
-                                skc_transform_float_t        const w1,
-                                skc_transform_float_t        const w2)
+ts_transform_stack_drop(struct ts_transform_stack * const ts)
 {
-  skc_transform_stack_ensure(ts);
+  assert(ts->count >= 1);
 
-  union skc_transform_stack_3x3_u * t = ts->transforms + ts->count;
+  ts->count -= 1;
+}
+
+//
+//
+//
+
+static
+void
+ts_transform_stack_swap_drop(struct ts_transform_stack * const ts)
+{
+  assert(ts->count >= 2);
+
+  union ts_transform_stack_3x3_u * const tos = ts_transform_stack_tos(ts);
+
+  ts_transform_stack_3x3_u_copy(tos-1,tos);
+
+  ts->weakrefs[ts->count-2] = ts->weakrefs[ts->count-1];
+
+  ts->count -= 1;
+}
+
+//
+//
+//
+
+static
+void
+ts_transform_stack_store_matrix_8(struct ts_transform_stack * const ts,
+                                  uint32_t                    const idx,
+                                  ts_transform_float_t        const sx,
+                                  ts_transform_float_t        const shx,
+                                  ts_transform_float_t        const tx,
+                                  ts_transform_float_t        const shy,
+                                  ts_transform_float_t        const sy,
+                                  ts_transform_float_t        const ty,
+                                  ts_transform_float_t        const w0,
+                                  ts_transform_float_t        const w1)
+{
+  union ts_transform_stack_3x3_u * t = ts->transforms + idx;
 
   t->sx  = sx;
   t->shx = shx;
@@ -293,409 +315,481 @@ skc_transform_stack_push_matrix(struct skc_transform_stack * const ts,
 
   t->w0  = w0;
   t->w1  = w1;
-  t->w2  = w2;
 
-  ts->weakrefs[ts->count++] = SKC_WEAKREF_INVALID;
+  ts->weakrefs[idx] = TS_TRANSFORM_WEAKREF_INVALID;
 }
-
-void
-skc_transform_stack_push_identity(struct skc_transform_stack * const ts)
-{
-  skc_transform_stack_push_matrix(ts,
-                                  1.0, 0.0, 0.0,
-                                  0.0, 1.0, 0.0,
-                                  0.0, 0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_affine(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const sx,
-                                skc_transform_float_t        const shx,
-                                skc_transform_float_t        const tx,
-                                skc_transform_float_t        const shy,
-                                skc_transform_float_t        const sy,
-                                skc_transform_float_t        const ty)
-{
-  skc_transform_stack_push_matrix(ts,
-                                  sx,  shx, tx,
-                                  shy, sy,  ty,
-                                  0.0, 0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_translate(struct skc_transform_stack * const ts,
-                                   skc_transform_float_t        const tx,
-                                   skc_transform_float_t        const ty)
-{
-  skc_transform_stack_push_matrix(ts,
-                                  1.0, 0.0, tx,
-                                  0.0, 1.0, ty,
-                                  0.0, 0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_scale(struct skc_transform_stack * const ts,
-                               skc_transform_float_t        const sx,
-                               skc_transform_float_t        const sy)
-{
-  skc_transform_stack_push_matrix(ts,
-                                  sx,  0.0, 0.0,
-                                  0.0, sy,  0.0,
-                                  0.0, 0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_shear(struct skc_transform_stack * const ts,
-                               skc_transform_float_t        const shx,
-                               skc_transform_float_t        const shy)
-{
-  skc_transform_stack_push_matrix(ts,
-                                  1.0, shx, 0.0,
-                                  shy, 1.0, 0.0,
-                                  0.0, 0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_skew_x(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const theta)
-{
-  skc_transform_float_t        const tan_theta = SKC_TRANSFORM_TAN(theta); // replace with tanpi if available
-
-  skc_transform_stack_push_matrix(ts,
-                                  1.0, tan_theta,0.0,
-                                  0.0, 1.0,      0.0,
-                                  0.0, 0.0,      1.0);
-}
-
-void
-skc_transform_stack_push_skew_y(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const theta)
-{
-  skc_transform_float_t const tan_theta = SKC_TRANSFORM_TAN(theta); // replace with tanpi if available
-
-  skc_transform_stack_push_matrix(ts,
-                                  1.0,       0.0, 0.0,
-                                  tan_theta, 1.0, 0.0,
-                                  0.0,       0.0, 1.0);
-}
-
-void
-skc_transform_stack_push_rotate(struct skc_transform_stack * const ts,
-                                skc_transform_float_t        const theta)
-{
-  skc_transform_float_t const cos_theta = SKC_TRANSFORM_COS(theta); // replace with cospi if available
-  skc_transform_float_t const sin_theta = SKC_TRANSFORM_SIN(theta); // replace with sinpi if available
-
-  skc_transform_stack_push_matrix(ts,
-                                  cos_theta,-sin_theta, 0.0,
-                                  sin_theta, cos_theta, 0.0,
-                                  0.0,       0.0,       1.0);
-}
-
-void
-skc_transform_stack_push_rotate_xy2(struct skc_transform_stack * const ts,
-                                    skc_transform_float_t        const theta,
-                                    skc_transform_float_t        const cx,
-                                    skc_transform_float_t        const cy,
-                                    skc_transform_float_t        const tx,
-                                    skc_transform_float_t        const ty)
-{
-  skc_transform_float_t const cos_theta = SKC_TRANSFORM_COS(theta); // replace with cospi if available
-  skc_transform_float_t const sin_theta = SKC_TRANSFORM_SIN(theta); // replace with sinpi if available
-
-  skc_transform_stack_push_matrix(ts,
-                                  cos_theta,-sin_theta, tx - (cx * cos_theta) + (cy * sin_theta),
-                                  sin_theta, cos_theta, ty - (cx * sin_theta) - (cy * cos_theta),
-                                  0.0,       0.0,       1.0);
-}
-
-void
-skc_transform_stack_push_rotate_xy(struct skc_transform_stack * const ts,
-                                   skc_transform_float_t        const theta,
-                                   skc_transform_float_t        const cx,
-                                   skc_transform_float_t        const cy)
-{
-  skc_transform_stack_push_rotate_xy2(ts,theta,cx,cy,cx,cy);
-}
-
-void
-skc_transform_stack_push_rotate_scale_xy(struct skc_transform_stack * const ts,
-                                         skc_transform_float_t        const theta,
-                                         skc_transform_float_t        const sx,
-                                         skc_transform_float_t        const sy,
-                                         skc_transform_float_t        const cx,
-                                         skc_transform_float_t        const cy)
-{
-  skc_transform_float_t const cos_theta = SKC_TRANSFORM_COS(theta); // replace with cospi if available
-  skc_transform_float_t const sin_theta = SKC_TRANSFORM_SIN(theta); // replace with sinpi if available
-
-  skc_transform_stack_push_matrix(ts,
-                                  sx*cos_theta,-sx*sin_theta, cx - cx*sx*cos_theta + cy*sy*sin_theta,
-                                  sy*sin_theta, sy*cos_theta, cy - cy*sy*cos_theta - cx*sx*sin_theta,
-                                  0.0,          0.0,          1.0);
-}
-
-//
-// See: https://www.ldv.ei.tum.de/fileadmin/w00bfa/www/content_uploads/Vorlesung_3.2_SpatialTransformations.pdf
-//
-
-#define DET4(m,a,b,c,d) (m->a9[a] * m->a9[d] - m->a9[b] * m->a9[c])
-#define DET3(m,a,b,c)   (m->a9[a]            - m->a9[b] * m->a9[c])
-
-#define DIAG3(m,a,b,c)  (m->a9[a] * m->a9[b] * m->a9[c])
-#define DIAG2(m,a,b)    (m->a9[a] * m->a9[b])
-
-#define X(v,i)          v[i*2]
-#define Y(v,i)          v[i*2+1]
 
 //
 //
 //
 
-bool
-skc_transform_stack_push_quad_to_unit(struct skc_transform_stack * const ts,
-                                      const float quad_src[8])
+static
+void
+ts_transform_stack_store_matrix(struct ts_transform_stack * const ts,
+                                uint32_t                    const idx,
+                                ts_transform_float_t        const sx,
+                                ts_transform_float_t        const shx,
+                                ts_transform_float_t        const tx,
+                                ts_transform_float_t        const shy,
+                                ts_transform_float_t        const sy,
+                                ts_transform_float_t        const ty,
+                                ts_transform_float_t        const w0,
+                                ts_transform_float_t        const w1,
+                                ts_transform_float_t        const w2)
 {
-  if (!skc_transform_stack_push_unit_to_quad(ts,quad_src))
-    return false;
-
-  union skc_transform_stack_3x3_u * const T = skc_transform_stack_tos(ts);
-
-#if 0
-  //
-  // dividing by the determinant (just w2?)
-  //
-  skc_transform_float_t const det =
-    DIAG2(T,0,4)   +
-    DIAG3(T,3,7,2) +
-    DIAG3(T,6,1,5) -
-    DIAG3(T,6,4,2) -
-    DIAG2(T,3,1)   -
-    DIAG3(T,0,7,5);
-
-  if (det == 0.0)
-    return false;
-
-  skc_transform_float_t const rcp = 1.0 / det;
-
-  const union skc_transform_stack_3x3_u A =
+  if (w2 == TS_TRANSFORM_ONE)
     {
-      +DET3(T,4,5,7)   * rcp,
-      -DET3(T,1,2,7)   * rcp,
-      +DET4(T,1,2,4,5) * rcp,
-
-      -DET3(T,3,5,6)   * rcp,
-      +DET3(T,0,2,6)   * rcp,
-      -DET4(T,0,2,3,5) * rcp,
-
-      +DET4(T,3,4,6,7) * rcp,
-      -DET4(T,0,1,6,7) * rcp,
-      +DET4(T,0,1,3,4) * rcp
-    };
-
-#else // just the adjoint can result in large values
-
-  const union skc_transform_stack_3x3_u A =
-    {
-      +DET3(T,4,5,7),
-      -DET3(T,1,2,7),
-      +DET4(T,1,2,4,5),
-
-      -DET3(T,3,5,6),
-      +DET3(T,0,2,6),
-      -DET4(T,0,2,3,5),
-
-      +DET4(T,3,4,6,7),
-      -DET4(T,0,1,6,7),
-      +DET4(T,0,1,3,4)
-    };
-
-#endif
-
-  skc_transform_stack_3x3_u_copy(T,&A);
-
-  return true;
-}
-
-//
-//
-//
-
-bool
-skc_transform_stack_push_unit_to_quad(struct skc_transform_stack * const ts,
-                                      const float quad_dst[8])
-{
-  skc_transform_float_t const x0  = (skc_transform_float_t)X(quad_dst,0);
-  skc_transform_float_t const y0  = (skc_transform_float_t)Y(quad_dst,0);
-
-  skc_transform_float_t const x1  = (skc_transform_float_t)X(quad_dst,1);
-  skc_transform_float_t const y1  = (skc_transform_float_t)Y(quad_dst,1);
-
-  skc_transform_float_t const x2  = (skc_transform_float_t)X(quad_dst,2);
-  skc_transform_float_t const y2  = (skc_transform_float_t)Y(quad_dst,2);
-
-  skc_transform_float_t const x3  = (skc_transform_float_t)X(quad_dst,3);
-  skc_transform_float_t const y3  = (skc_transform_float_t)Y(quad_dst,3);
-
-  skc_transform_float_t       sx  = x1 - x0;
-  skc_transform_float_t       shy = y1 - y0;
-
-  skc_transform_float_t const dx2 = x3 - x2;
-  skc_transform_float_t const dy2 = y3 - y2;
-
-  skc_transform_float_t const dx3 = -sx  - dx2;
-  skc_transform_float_t const dy3 = -shy - dy2;
-
-  // if both zero then quad_dst is a parallelogram and affine
-  if ((dx3 == 0.0) && (dy3 == 0.0))
-    {
-      skc_transform_float_t const shx = x2 - x1;
-      skc_transform_float_t const sy  = y2 - y1;
-
-      skc_transform_stack_push_matrix(ts,
-                                      sx,  shx, x0,
-                                      shy, sy,  y0,
-                                      0.0, 0.0, 1.0);
+      ts_transform_stack_store_matrix_8(ts,idx,
+                                        sx, shx,tx,
+                                        shy,sy, ty,
+                                        w0, w1);
     }
   else
     {
-      skc_transform_float_t const dx1    = x1 - x2;
-      skc_transform_float_t const dy1    = y1 - y2;
+      // normalize
+      ts_transform_float_t d = TS_TRANSFORM_RCP(w2);
 
-      skc_transform_float_t const wx_den = dx1 * dy2 - dx2 * dy1;
+      ts_transform_stack_store_matrix_8(ts,idx,
+                                        sx  * d, shx * d, tx * d,
+                                        shy * d, sy  * d, ty * d,
+                                        w0  * d, w1  * d);
+    }
+}
 
-      if (wx_den == 0.0)
-        return false;
+//
+//
+//
 
-      skc_transform_float_t const w0_num = dx3 * dy2 - dx2 * dy3;
-      skc_transform_float_t const w1_num = dx1 * dy3 - dx3 * dy1;
+static
+void
+ts_transform_stack_push_matrix_8(struct ts_transform_stack * const ts,
+                                 ts_transform_float_t        const sx,
+                                 ts_transform_float_t        const shx,
+                                 ts_transform_float_t        const tx,
+                                 ts_transform_float_t        const shy,
+                                 ts_transform_float_t        const sy,
+                                 ts_transform_float_t        const ty,
+                                 ts_transform_float_t        const w0,
+                                 ts_transform_float_t        const w1)
+{
+  ts_transform_stack_ensure(ts);
 
-      skc_transform_float_t const w0     = w0_num / wx_den;
-      skc_transform_float_t const w1     = w1_num / wx_den;
+  ts_transform_stack_store_matrix_8(ts,ts->count++,
+                                    sx, shx,tx,
+                                    shy,sy, ty,
+                                    w0, w1);
+}
+
+//
+//
+//
+
+void
+ts_transform_stack_push_matrix(struct ts_transform_stack * const ts,
+                               ts_transform_float_t        const sx,
+                               ts_transform_float_t        const shx,
+                               ts_transform_float_t        const tx,
+                               ts_transform_float_t        const shy,
+                               ts_transform_float_t        const sy,
+                               ts_transform_float_t        const ty,
+                               ts_transform_float_t        const w0,
+                               ts_transform_float_t        const w1,
+                               ts_transform_float_t        const w2)
+{
+  if (w2 == TS_TRANSFORM_ONE)
+    {
+      ts_transform_stack_push_matrix_8(ts,
+                                       sx, shx,tx,
+                                       shy,sy, ty,
+                                       w0, w1);
+    }
+  else
+    {
+      // normalize
+      ts_transform_float_t d = TS_TRANSFORM_RCP(w2);
+
+      ts_transform_stack_push_matrix_8(ts,
+                                       sx  * d, shx * d, tx * d,
+                                       shy * d, sy  * d, ty * d,
+                                       w0  * d, w1  * d);
+    }
+}
+
+//
+//
+//
+
+void
+ts_transform_stack_push_identity(struct ts_transform_stack * const ts)
+{
+  ts_transform_stack_push_matrix_8(ts,
+                                   1.0, 0.0, 0.0,
+                                   0.0, 1.0, 0.0,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_affine(struct ts_transform_stack * const ts,
+                               ts_transform_float_t        const sx,
+                               ts_transform_float_t        const shx,
+                               ts_transform_float_t        const tx,
+                               ts_transform_float_t        const shy,
+                               ts_transform_float_t        const sy,
+                               ts_transform_float_t        const ty)
+{
+  ts_transform_stack_push_matrix_8(ts,
+                                   sx,  shx, tx,
+                                   shy, sy,  ty,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_translate(struct ts_transform_stack * const ts,
+                                  ts_transform_float_t        const tx,
+                                  ts_transform_float_t        const ty)
+{
+  ts_transform_stack_push_matrix_8(ts,
+                                   1.0, 0.0, tx,
+                                   0.0, 1.0, ty,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_scale(struct ts_transform_stack * const ts,
+                              ts_transform_float_t        const sx,
+                              ts_transform_float_t        const sy)
+{
+  ts_transform_stack_push_matrix_8(ts,
+                                   sx,  0.0, 0.0,
+                                   0.0, sy,  0.0,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_shear(struct ts_transform_stack * const ts,
+                              ts_transform_float_t        const shx,
+                              ts_transform_float_t        const shy)
+{
+  ts_transform_stack_push_matrix_8(ts,
+                                   1.0, shx, 0.0,
+                                   shy, 1.0, 0.0,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_skew_x(struct ts_transform_stack * const ts,
+                               ts_transform_float_t        const theta)
+{
+  ts_transform_float_t        const tan_theta = TS_TRANSFORM_TAN(theta); // replace with tanpi if available
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   1.0, tan_theta,0.0,
+                                   0.0, 1.0,      0.0,
+                                   0.0, 0.0);
+}
+
+void
+ts_transform_stack_push_skew_y(struct ts_transform_stack * const ts,
+                               ts_transform_float_t        const theta)
+{
+  ts_transform_float_t const tan_theta = TS_TRANSFORM_TAN(theta); // replace with tanpi if available
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   1.0,       0.0, 0.0,
+                                   tan_theta, 1.0, 0.0,
+                                   0.0,       0.0);
+}
+
+void
+ts_transform_stack_push_rotate(struct ts_transform_stack * const ts,
+                               ts_transform_float_t        const theta)
+{
+  ts_transform_float_t const cos_theta = TS_TRANSFORM_COS(theta); // replace with cospi if available
+  ts_transform_float_t const sin_theta = TS_TRANSFORM_SIN(theta); // replace with sinpi if available
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   cos_theta,-sin_theta, 0.0,
+                                   sin_theta, cos_theta, 0.0,
+                                   0.0,       0.0);
+}
+
+void
+ts_transform_stack_push_rotate_xy2(struct ts_transform_stack * const ts,
+                                   ts_transform_float_t        const theta,
+                                   ts_transform_float_t        const cx,
+                                   ts_transform_float_t        const cy,
+                                   ts_transform_float_t        const tx,
+                                   ts_transform_float_t        const ty)
+{
+  ts_transform_float_t const cos_theta = TS_TRANSFORM_COS(theta); // replace with cospi if available
+  ts_transform_float_t const sin_theta = TS_TRANSFORM_SIN(theta); // replace with sinpi if available
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   cos_theta,-sin_theta, tx - (cx * cos_theta) + (cy * sin_theta),
+                                   sin_theta, cos_theta, ty - (cx * sin_theta) - (cy * cos_theta),
+                                   0.0,       0.0);
+}
+
+void
+ts_transform_stack_push_rotate_xy(struct ts_transform_stack * const ts,
+                                  ts_transform_float_t        const theta,
+                                  ts_transform_float_t        const cx,
+                                  ts_transform_float_t        const cy)
+{
+  ts_transform_stack_push_rotate_xy2(ts,theta,cx,cy,cx,cy);
+}
+
+void
+ts_transform_stack_push_rotate_scale_xy(struct ts_transform_stack * const ts,
+                                        ts_transform_float_t        const theta,
+                                        ts_transform_float_t        const sx,
+                                        ts_transform_float_t        const sy,
+                                        ts_transform_float_t        const cx,
+                                        ts_transform_float_t        const cy)
+{
+  ts_transform_float_t const cos_theta = TS_TRANSFORM_COS(theta); // replace with cospi if available
+  ts_transform_float_t const sin_theta = TS_TRANSFORM_SIN(theta); // replace with sinpi if available
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   sx*cos_theta,-sx*sin_theta, cx - cx*sx*cos_theta + cy*sy*sin_theta,
+                                   sy*sin_theta, sy*cos_theta, cy - cy*sy*cos_theta - cx*sx*sin_theta,
+                                   0.0,          0.0);
+}
+
+//
+// See: "Fundamentals of Texture Mapping and Image Warping" by Paul S. Heckbert (1989)
+//
+
+#define DET(a,b,c,d)  (a * d - b * c)
+
+#define X(v,i)        v[i*2]
+#define Y(v,i)        v[i*2+1]
+
+//
+//
+//
+
+ts_transform_type_e
+ts_transform_stack_adjoint(struct ts_transform_stack * const ts)
+{
+  union ts_transform_stack_3x3_u * const t = ts_transform_stack_tos(ts);
+
+#if 0
+  // save for determinant
+  ts_transform_float_t const a = t->a;
+  ts_transform_float_t const b = t->b;
+  ts_transform_float_t const c = t->c;
+#endif
+
+  ts_transform_stack_store_matrix(ts,ts->count-1,
+
+                                  +DET(t->e, t->f, t->h,             TS_TRANSFORM_ONE),
+                                  -DET(t->b, t->c, t->h,             TS_TRANSFORM_ONE),
+                                  +DET(t->b, t->c, t->e,             t->f),
+
+                                  -DET(t->d, t->f, t->g,             TS_TRANSFORM_ONE),
+                                  +DET(t->a, t->c, t->g,             TS_TRANSFORM_ONE),
+                                  -DET(t->a, t->c, t->d,             t->f),
+
+                                  +DET(t->d, t->e, t->g,             t->h),
+                                  -DET(t->a, t->b, t->g,             t->h),
+                                  +DET(t->a, t->b, t->d,             t->e));
+
+#if 0
+  // determinant of t
+  ts_transform_float_t const det = a * t->a + b * t->d + c * t->g;
+#endif
+
+  return ts_transform_stack_classify(ts);
+}
+
+//
+//
+//
+
+ts_transform_type_e
+ts_transform_stack_push_unit_to_quad(struct ts_transform_stack * const ts,
+                                     ts_transform_float_t        const quad[8])
+{
+  ts_transform_float_t const x0  = X(quad,0);
+  ts_transform_float_t const y0  = Y(quad,0);
+
+  ts_transform_float_t const x1  = X(quad,1);
+  ts_transform_float_t const y1  = Y(quad,1);
+
+  ts_transform_float_t const x2  = X(quad,2);
+  ts_transform_float_t const y2  = Y(quad,2);
+
+  ts_transform_float_t const x3  = X(quad,3);
+  ts_transform_float_t const y3  = Y(quad,3);
+
+  ts_transform_float_t       sx  = x1 - x0;
+  ts_transform_float_t       shy = y1 - y0;
+
+  ts_transform_float_t const dx2 = x3 - x2;
+  ts_transform_float_t const dy2 = y3 - y2;
+
+  ts_transform_float_t const dx3 = -sx  - dx2;
+  ts_transform_float_t const dy3 = -shy - dy2;
+
+  // if both zero then quad_dst is a parallelogram and affine
+  if ((dx3 == TS_TRANSFORM_ZERO) && (dy3 == TS_TRANSFORM_ZERO))
+    {
+      ts_transform_float_t const shx = x2 - x1;
+      ts_transform_float_t const sy  = y2 - y1;
+
+      ts_transform_stack_push_matrix_8(ts,
+                                       sx,  shx, x0,
+                                       shy, sy,  y0,
+                                       0.0, 0.0);
+
+      return TS_TRANSFORM_TYPE_AFFINE;
+    }
+  else
+    {
+      ts_transform_float_t const dx1    = x1 - x2;
+      ts_transform_float_t const dy1    = y1 - y2;
+
+      ts_transform_float_t const wx_den = dx1 * dy2 - dx2 * dy1;
+
+      if (wx_den == TS_TRANSFORM_ZERO)
+        return TS_TRANSFORM_TYPE_INVALID;
+
+      ts_transform_float_t const w0_num = dx3 * dy2 - dx2 * dy3;
+      ts_transform_float_t const w1_num = dx1 * dy3 - dx3 * dy1;
+
+      ts_transform_float_t const w0     = w0_num / wx_den;
+      ts_transform_float_t const w1     = w1_num / wx_den;
 
       sx                 += w0 * x1;
-      skc_transform_float_t const shx    = x3 - x0 + w1 * x3;
+      ts_transform_float_t const shx    = x3 - x0 + w1 * x3;
 
       shy                += w0 * y1;
-      skc_transform_float_t const sy     = y3 - y0 + w1 * y3;
+      ts_transform_float_t const sy     = y3 - y0 + w1 * y3;
 
-      skc_transform_stack_push_matrix(ts,
-                                      sx,  shx, x0,
-                                      shy, sy,  y0,
-                                      w0,  w1,  1.0);
+      ts_transform_stack_push_matrix_8(ts,
+                                       sx,  shx, x0,
+                                       shy, sy,  y0,
+                                       w0,  w1);
+
+      return TS_TRANSFORM_TYPE_PROJECTIVE;
     }
-
-  return true;
 }
 
 //
 //
 //
 
-bool
-skc_transform_stack_push_quad_to_quad(struct skc_transform_stack * const ts,
-                                      const float quad_src[8],
-                                      const float quad_dst[8])
+ts_transform_type_e
+ts_transform_stack_push_quad_to_unit(struct ts_transform_stack * const ts,
+                                     float                        const quad[8])
 {
-  if (skc_transform_stack_push_quad_to_unit(ts,quad_src) == false)
-    return false;
+  if (ts_transform_stack_push_unit_to_quad(ts,quad) == TS_TRANSFORM_TYPE_INVALID)
+    return TS_TRANSFORM_TYPE_INVALID;
 
-  if (skc_transform_stack_push_unit_to_quad(ts,quad_dst) == false)
-    return false;
-
-  union skc_transform_stack_3x3_u * const U2Q = skc_transform_stack_tos(ts);
-  union skc_transform_stack_3x3_u * const Q2U = U2Q - 1;
-  union skc_transform_stack_3x3_u         Q2Q;
-
-  // pre-multiply
-  skc_transform_stack_3x3_u_multiply(&Q2Q,U2Q,Q2U);
-
-  // drop TOS
-  skc_transform_stack_drop(ts);
-
-  // overwrite TOS
-  skc_transform_stack_3x3_u_copy(Q2U,&Q2Q);
-
-  return true;
+  return ts_transform_stack_adjoint(ts);
 }
 
 //
 //
 //
 
-bool
-skc_transform_stack_push_rect_to_quad(struct skc_transform_stack * const ts,
-                                      const float x0,
-                                      const float y0,
-                                      const float x1,
-                                      const float y1,
-                                      const float quad_dst[8])
+ts_transform_type_e
+ts_transform_stack_push_quad_to_quad(struct ts_transform_stack * const ts,
+                                     ts_transform_float_t        const quad_src[8],
+                                     ts_transform_float_t        const quad_dst[8])
 {
-  if (skc_transform_stack_push_unit_to_quad(ts,quad_dst) == false)
-    return false;
+  if (ts_transform_stack_push_unit_to_quad(ts,quad_dst) == TS_TRANSFORM_TYPE_INVALID)
+    return TS_TRANSFORM_TYPE_INVALID;
 
-  const union skc_transform_stack_3x3_u R2U =
-    {
-      SKC_TRANSFORM_RCP((skc_transform_float_t)(x1-x0)),
-      0.0f,
-      (skc_transform_float_t)-x0,
+  if (ts_transform_stack_push_quad_to_unit(ts,quad_src) == TS_TRANSFORM_TYPE_INVALID)
+    return TS_TRANSFORM_TYPE_INVALID;
 
-      0.0f,
-      SKC_TRANSFORM_RCP((skc_transform_float_t)(y1-y0)),
-      (skc_transform_float_t)-y0,
+  ts_transform_stack_multiply(ts);
 
-      0.0f,
-      0.0f,
-      1.0,
-    };
-
-  union skc_transform_stack_3x3_u * const U2Q = skc_transform_stack_tos(ts);
-  union skc_transform_stack_3x3_u         Q2Q;
-
-  // pre-multiply
-  skc_transform_stack_3x3_u_multiply(&Q2Q,U2Q,&R2U);
-
-  // overwrite TOS
-  skc_transform_stack_3x3_u_copy(U2Q,&Q2Q);
-
-  return true;
+  return ts_transform_stack_classify(ts);
 }
 
 //
 //
 //
 
+ts_transform_type_e
+ts_transform_stack_push_rect_to_quad(struct ts_transform_stack * const ts,
+                                     ts_transform_float_t        const x0,
+                                     ts_transform_float_t        const y0,
+                                     ts_transform_float_t        const x1,
+                                     ts_transform_float_t        const y1,
+                                     ts_transform_float_t        const quad_dst[8])
+{
+  if (ts_transform_stack_push_unit_to_quad(ts,quad_dst) == TS_TRANSFORM_TYPE_INVALID)
+    return TS_TRANSFORM_TYPE_INVALID;
+
+  ts_transform_stack_push_matrix_8(ts,
+                                   TS_TRANSFORM_RCP(x1-x0),
+                                   0.0,
+                                   -x0,
+                                   0.0,
+                                   TS_TRANSFORM_RCP(y1-y0),
+                                   -y0,
+                                   0.0,
+                                   0.0);
+
+  ts_transform_stack_multiply(ts);
+
+  return ts_transform_stack_classify(ts);
+}
+
+//
+// The second matrix on the stack (TOS[-1]) is post-multiplied by the
+// top matrix on the stack (TOS[0]).
+//
+// The result replaces TOS[0] and TOS[-1] is unmodified.
+//
+// The stack effect of concat is:
+//
+//   | B |    | A*B |
+//   | A |    |  A  |
+//   | . | => |  .  |
+//   | . |    |  .  |
+//   | . |    |  .  |
+//
 void
-skc_transform_stack_concat(struct skc_transform_stack * const ts)
+ts_transform_stack_concat(struct ts_transform_stack * const ts)
 {
-  //
-  // Transformation stack matrices are _post-multiplied_ and the top
-  // of stack is replaced with the product:
-  //
-  //   TOS' = TOS[-1] * TOS
-  //
-  // -or-
-  //
-  //   C = A * B
-  //   B = C
-  //
-  if (ts->count <= 1)
-    return;
+  assert(ts->count >= 2);
 
   // get A and B
-  union       skc_transform_stack_3x3_u * const B = skc_transform_stack_tos(ts);
-  const union skc_transform_stack_3x3_u * const A = B - 1;
+  union ts_transform_stack_3x3_u const * const B = ts_transform_stack_tos(ts);
+  union ts_transform_stack_3x3_u const * const A = B - 1;
 
-  union skc_transform_stack_3x3_u C;
+  ts_transform_stack_store_matrix(ts,ts->count-1,TS_TRANSFORM_MULTIPLY(A,B));
+}
 
-  // post multiply
-  skc_transform_stack_3x3_u_multiply(&C,A,B);
+//
+// The second matrix on the stack (TOS[-1]) is post-multiplied by the
+// top matrix on the stack (TOS[0]).
+//
+// The result replaces both matrices.
+//
+// The stack effect of multiply is:
+//
+//   | B |    | A*B |
+//   | A |    |  .  |
+//   | . | => |  .  |
+//   | . |    |  .  |
+//   | . |    |  .  |
+//
+void
+ts_transform_stack_multiply(struct ts_transform_stack * const ts)
+{
+  assert(ts->count >= 2);
 
-  // overwrite TOS
-  skc_transform_stack_3x3_u_copy(B,&C);
+  // get A and B
+  union ts_transform_stack_3x3_u const * const B = ts_transform_stack_tos(ts);
+  union ts_transform_stack_3x3_u const * const A = B - 1;
 
-  // invalidate TOS
-  *skc_transform_stack_top_weakref(ts) = SKC_WEAKREF_INVALID;
+  ts_transform_stack_store_matrix(ts,ts->count-- - 2,TS_TRANSFORM_MULTIPLY(A,B));
 }
 
 //
@@ -703,17 +797,151 @@ skc_transform_stack_concat(struct skc_transform_stack * const ts)
 //
 
 void
-skc_transform_stack_transform_affine(struct skc_transform_stack * const ts,
-                                     skc_transform_float_t        const x_pre,
-                                     skc_transform_float_t        const y_pre,
-                                     skc_transform_float_t      * const x_post,
-                                     skc_transform_float_t      * const y_post)
+ts_transform_stack_transform_xy(struct ts_transform_stack * const ts,
+                                ts_transform_float_t        const x,
+                                ts_transform_float_t        const y,
+                                ts_transform_float_t      * const xp,
+                                ts_transform_float_t      * const yp)
 {
-  union skc_transform_stack_3x3_u const * const t = skc_transform_stack_tos(ts);
+  union ts_transform_stack_3x3_u const * const t = ts_transform_stack_tos(ts);
 
-  *x_post = x_pre * t->sx  + y_pre * t->shx + t->tx;
-  *y_post = x_pre * t->shy + y_pre * t->sy  + t->ty;
+  *xp = x * t->sx  + y * t->shx + t->tx;
+  *yp = x * t->shy + y * t->sy  + t->ty;
+
+  if (!TS_IS_AFFINE(t))
+    {
+      ts_transform_float_t const d = TS_TRANSFORM_RCP(x * t->w0 + y * t->w1 + TS_TRANSFORM_ONE);
+
+      *xp *= d;
+      *yp *= d;
+    }
 }
+
+//
+// test it!
+//
+
+#ifdef TS_DEBUG
+
+#include <stdio.h>
+
+#define TS_DEBUG_SCALE 32.0
+
+//
+//
+//
+
+void
+ts_transform_stack_tos_debug(struct ts_transform_stack * const ts)
+{
+  union ts_transform_stack_3x3_u const * const t = ts_transform_stack_tos(ts);
+
+  printf("{ { %13.5f, %13.5f, %13.5f, },\n"
+         "  { %13.5f, %13.5f, %13.5f, },\n"
+         "  { %13.5f, %13.5f, %13.5f  } }\n",
+         t->a8[0],
+         t->a8[1],
+         t->a8[2],
+         t->a8[3],
+         t->a8[4],
+         t->a8[5],
+         t->a8[6],
+         t->a8[7],
+         TS_TRANSFORM_ONE);
+}
+
+//
+//
+//
+
+void
+ts_debug(struct ts_transform_stack * const ts,
+         ts_transform_float_t        const quad[8])
+{
+  ts_transform_stack_tos_debug(ts);
+
+  for (int ii=0; ii<8; ii+=2)
+    {
+      ts_transform_float_t xp,yp;
+
+      ts_transform_stack_transform_xy(ts,
+                                      quad[ii],quad[ii+1],
+                                      &xp,&yp);
+
+      printf("( %13.2f, %13.2f ) \t-> ( %13.2f, %13.2f )\n",
+             xp,yp,xp/TS_DEBUG_SCALE,yp/TS_DEBUG_SCALE);
+    }
+}
+
+//
+//
+//
+
+int
+main(int argc, char * argv[])
+{
+  struct ts_transform_stack * const ts = ts_transform_stack_create(32);
+
+  ts_transform_float_t const w = 1600;
+  ts_transform_float_t const h = 1600;
+
+  ts_transform_stack_push_scale(ts,TS_DEBUG_SCALE,TS_DEBUG_SCALE);
+
+  // OpenGL'ism
+  ts_transform_stack_push_affine(ts,
+                                 1.0f, 0.0f,0.0f,
+                                 0.0f,-1.0f,h);
+  // multiply
+  ts_transform_stack_concat(ts);
+
+  uint32_t const restore = ts_transform_stack_save(ts);
+
+  //
+  //
+  //
+  ts_transform_float_t const quad_src[8] = { 0.0f,0.0f,
+                                             w,   0.0f,
+                                             w,   h,
+                                             0.0f,h };
+
+  ts_transform_float_t const quad_dst[8] = { 300.0f,   0.0f,
+                                             w-300.0f, 0.0f,
+                                             w,        h,
+                                             0.0f,     h };
+
+  ts_transform_float_t const quad_tst[8] = { 50,   50,
+                                             1550, 50,
+                                             1550, 1550,
+                                             50,   1550 };
+  //
+  // RECT TO QUAD
+  //
+  printf("type = %d\n",
+         ts_transform_stack_push_rect_to_quad(ts,
+                                              0.0, 0.0,
+                                              w,   h,
+                                              quad_dst));
+  ts_transform_stack_concat(ts);
+
+  ts_debug(ts,quad_tst);
+
+  //
+  // QUAD TO QUAD
+  //
+  ts_transform_stack_restore(ts,restore);
+
+  printf("type = %d\n",
+         ts_transform_stack_push_quad_to_quad(ts,
+                                              quad_src,
+                                              quad_dst));
+  ts_transform_stack_concat(ts);
+
+  ts_debug(ts,quad_tst);
+
+  return EXIT_SUCCESS;
+}
+
+#endif
 
 //
 //
