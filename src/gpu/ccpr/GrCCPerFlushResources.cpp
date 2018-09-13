@@ -78,9 +78,6 @@ public:
         GrCCPathProcessor pathProc(atlasProxy);
         pathProc.drawPaths(flushState, pipeline, &dynamicState, *fResources, fBaseInstance,
                            fEndInstance, this->bounds());
-        // Ensure we released the stashed atlas proxy. This allows its underlying texture to be
-        // reused as the current flush's mainline CCPR atlas if needed.
-        fStashedAtlasProxy.reset();
     }
 
 private:
