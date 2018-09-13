@@ -1394,11 +1394,14 @@ void GrGLCaps::initConfigTable(const GrContextOptions& contextOptions,
     if (kGL_GrGLStandard == standard) {
         // We require some form of FBO support and all GLs with FBO support can render to RGBA8
         fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
+        SkDebugf("First if\n");
     } else {
-        if (version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
+        if (true || version >= GR_GL_VER(3,0) || ctxInfo.hasExtension("GL_OES_rgb8_rgba8") ||
             ctxInfo.hasExtension("GL_ARM_rgba8")) {
             fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= allRenderFlags;
+        SkDebugf("inner inner if\n");
         }
+        SkDebugf("Second if\n");
     }
     if (texStorageSupported) {
         fConfigTable[kRGBA_8888_GrPixelConfig].fFlags |= ConfigInfo::kCanUseTexStorage_Flag;
@@ -2809,6 +2812,7 @@ int GrGLCaps::getRenderTargetSampleCount(int requestedCount, GrPixelConfig confi
 
 int GrGLCaps::maxRenderTargetSampleCount(GrPixelConfig config) const {
     const auto& table = fConfigTable[config].fColorSampleCounts;
+    SkDebugf("table.count() %d\n", table.count());
     if (!table.count()) {
         return 0;
     }
