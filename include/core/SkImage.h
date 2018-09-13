@@ -403,7 +403,8 @@ public:
     */
     static sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer,
                                                  SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr);
+                                                 sk_sp<SkColorSpace> colorSpace = nullptr,
+                                                 GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin);
 #endif
 
     /** Returns pixel count in each row.
