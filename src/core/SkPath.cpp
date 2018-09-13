@@ -1708,14 +1708,21 @@ SkPath& SkPath::reversePathTo(const SkPath& path) {
     return *this;
 }
 
-SkPath& SkPath::reverseAddPath(const SkPath& src) {
-    SkPathRef::Editor ed(&fPathRef, src.fPathRef->countPoints(), src.fPathRef->countVerbs());
+SkPath& SkPath::reverseAddPath(const SkPath& srcPath) {
+    // Detect if we're trying to add ourself
+    const SkPath* src = &srcPath;
+    SkTLazy<SkPath> tmp;
+    if (this == src) {
+        src = tmp.set(srcPath);
+    }
 
-    const SkPoint* pts = src.fPathRef->pointsEnd();
+    SkPathRef::Editor ed(&fPathRef, src->fPathRef->countPoints(), src->fPathRef->countVerbs());
+
+    const SkPoint* pts = src->fPathRef->pointsEnd();
     // we will iterator through src's verbs backwards
-    const uint8_t* verbs = src.fPathRef->verbsMemBegin(); // points at the last verb
-    const uint8_t* verbsEnd = src.fPathRef->verbs(); // points just past the first verb
-    const SkScalar* conicWeights = src.fPathRef->conicWeightsEnd();
+    const uint8_t* verbs = src->fPathRef->verbsMemBegin(); // points at the last verb
+    const uint8_t* verbsEnd = src->fPathRef->verbs(); // points just past the first verb
+    const SkScalar* conicWeights = src->fPathRef->conicWeightsEnd();
 
     bool needMove = true;
     bool needClose = false;
