@@ -65,7 +65,8 @@ static bool can_import_protected_content(GrContext* context) {
 }
 
 std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
-        AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace) {
+        AHardwareBuffer* graphicBuffer, SkAlphaType alphaType, sk_sp<SkColorSpace> colorSpace,
+        GrSurfaceOrigin surfaceOrigin) {
     AHardwareBuffer_Desc bufferDesc;
     AHardwareBuffer_describe(graphicBuffer, &bufferDesc);
     SkColorType colorType;
@@ -97,17 +98,19 @@ std::unique_ptr<SkImageGenerator> GrAHardwareBufferImageGenerator::Make(
     SkImageInfo info = SkImageInfo::Make(bufferDesc.width, bufferDesc.height, colorType,
                                          alphaType, std::move(colorSpace));
     bool createProtectedImage = 0 != (bufferDesc.usage & AHARDWAREBUFFER_USAGE_PROTECTED_CONTENT);
-    return std::unique_ptr<SkImageGenerator>(new GrAHardwareBufferImageGenerator(info, graphicBuffer,
-            alphaType, createProtectedImage, bufferDesc.format));
+    return std::unique_ptr<SkImageGenerator>(new GrAHardwareBufferImageGenerator(
+            info, graphicBuffer, alphaType, createProtectedImage,
+            bufferDesc.format, surfaceOrigin));
 }
 
 GrAHardwareBufferImageGenerator::GrAHardwareBufferImageGenerator(const SkImageInfo& info,
         AHardwareBuffer* hardwareBuffer, SkAlphaType alphaType, bool isProtectedContent,
-        uint32_t bufferFormat)
+        uint32_t bufferFormat, GrSurfaceOrigin surfaceOrigin)
     : INHERITED(info)
     , fHardwareBuffer(hardwareBuffer)
     , fBufferFormat(bufferFormat)
-    , fIsProtectedContent(isProtectedContent) {
+    , fIsProtectedContent(isProtectedContent)
+    , fSurfaceOrigin(surfaceOrigin) {
     AHardwareBuffer_acquire(fHardwareBuffer);
 }
 
@@ -545,7 +548,7 @@ sk_sp<GrTextureProxy> GrAHardwareBufferImageGenerator::makeProxy(GrContext* cont
 
                 return tex;
             },
-            desc, kTopLeft_GrSurfaceOrigin, GrMipMapped::kNo, textureType, SkBackingFit::kExact,
+            desc, fSurfaceOrigin, GrMipMapped::kNo, textureType, SkBackingFit::kExact,
             SkBudgeted::kNo);
 
     if (!texProxy) {
