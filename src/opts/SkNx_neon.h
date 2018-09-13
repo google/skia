@@ -627,6 +627,9 @@ public:
     uint32x4_t fVec;
 };
 
+// N.B. unless otherwise noted, all these NEON instructions that convert
+// from larger to smaller types saturate to the range of the smaller type.
+
 template<> AI /*static*/ Sk4i SkNx_cast<int32_t, float>(const Sk4f& src) {
     return vcvtq_s32_f32(src.fVec);
 
@@ -666,6 +669,7 @@ template<> AI /*static*/ Sk4f SkNx_cast<float, uint8_t>(const Sk4b& src) {
 }
 
 template<> AI /*static*/ Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {
+    // TODO: it's unclear to me whether this saturates to uint8_t.
     Sk8f ab, cd;
     SkNx_split(src, &ab, &cd);
 
@@ -718,10 +722,11 @@ template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint16_t>(const Sk4h& src) {
 }
 
 template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, int32_t>(const Sk4i& src) {
-    return vmovn_u32(vreinterpretq_u32_s32(src.fVec));
+    return vqmovun_s32(src.fVec);
 }
 
 template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) {
+    // TODO: this does not saturate to int32_t.
     return vreinterpretq_s32_u32(src.fVec);
 }
 

@@ -699,19 +699,23 @@ template<> AI /*static*/ Sk4f SkNx_cast<float, uint32_t>(const Sk4u& src) {
 }
 
 template <> AI /*static*/ Sk4i SkNx_cast<int32_t, float>(const Sk4f& src) {
+    // TODO: this does not saturate to int32_t.
     return _mm_cvttps_epi32(src.fVec);
 }
 
 template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, int32_t>(const Sk4i& src) {
 #if 0 && SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSE41
     // TODO: This seems to be causing code generation problems.   Investigate?
+    // (This does saturate to uint16_t.)
     return _mm_packus_epi32(src.fVec);
 #elif SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
     // With SSSE3, we can just shuffle the low 2 bytes from each lane right into place.
+    // TODO: this does not saturate to uint16_t.
     const int _ = ~0;
     return _mm_shuffle_epi8(src.fVec, _mm_setr_epi8(0,1, 4,5, 8,9, 12,13, _,_,_,_,_,_,_,_));
 #else
     // With SSE2, we have to sign extend our input, making _mm_packs_epi32 do the pack we want.
+    // TODO: I'm not quite sure whether this saturates to uint16_t.
     __m128i x = _mm_srai_epi32(_mm_slli_epi32(src.fVec, 16), 16);
     return _mm_packs_epi32(x,x);
 #endif
@@ -724,9 +728,11 @@ template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, float>(const Sk4f& src) {
     auto _32 = _mm_cvttps_epi32(src.fVec);
 #if SK_CPU_SSE_LEVEL >= SK_CPU_SSE_LEVEL_SSSE3
+    // TODO: this does not saturate to uint8_t.
     const int _ = ~0;
     return _mm_shuffle_epi8(_32, _mm_setr_epi8(0,4,8,12, _,_,_,_, _,_,_,_, _,_,_,_));
 #else
+    // (This does saturate to uint8_t.)
     auto _16 = _mm_packus_epi16(_32, _32);
     return     _mm_packus_epi16(_16, _16);
 #endif
@@ -756,6 +762,7 @@ template<> AI /*static*/ Sk4f SkNx_cast<float, uint16_t>(const Sk4h& src) {
 }
 
 template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, int32_t>(const Sk8i& src) {
+    // (This does saturate to uint8_t.)
     Sk4i lo, hi;
     SkNx_split(src, &lo, &hi);
 
@@ -764,6 +771,7 @@ template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, int32_t>(const Sk8i& src) {
 }
 
 template<> AI /*static*/ Sk16b SkNx_cast<uint8_t, float>(const Sk16f& src) {
+    // (This does saturate to uint8_t.)
     Sk8f ab, cd;
     SkNx_split(src, &ab, &cd);
 
@@ -786,10 +794,12 @@ template<> AI /*static*/ Sk8h SkNx_cast<uint16_t, uint8_t>(const Sk8b& src) {
 }
 
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, uint16_t>(const Sk4h& src) {
+    // (This does saturate to uint8_t.)
     return _mm_packus_epi16(src.fVec, src.fVec);
 }
 
 template<> AI /*static*/ Sk8b SkNx_cast<uint8_t, uint16_t>(const Sk8h& src) {
+    // (This does saturate to uint8_t.)
     return _mm_packus_epi16(src.fVec, src.fVec);
 }
 
@@ -799,14 +809,17 @@ template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint16_t>(const Sk4h& src) {
 
 
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, int32_t>(const Sk4i& src) {
+    // (This does saturate to uint8_t.)
     return _mm_packus_epi16(_mm_packus_epi16(src.fVec, src.fVec), src.fVec);
 }
 
 template<> AI /*static*/ Sk4b SkNx_cast<uint8_t, uint32_t>(const Sk4u& src) {
+    // (This does saturate to uint8_t.)
     return _mm_packus_epi16(_mm_packus_epi16(src.fVec, src.fVec), src.fVec);
 }
 
 template<> AI /*static*/ Sk4i SkNx_cast<int32_t, uint32_t>(const Sk4u& src) {
+    // TODO: this does not saturate to int32_t.
     return src.fVec;
 }
 

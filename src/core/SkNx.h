@@ -376,7 +376,14 @@ AI static SkNx<N,Dst> SkNx_cast(const SkNx<N,Src>& v) {
 }
 template <typename Dst, typename Src>
 AI static SkNx<1,Dst> SkNx_cast(const SkNx<1,Src>& v) {
-    return static_cast<Dst>(v.fVal);
+    auto val = v.fVal;
+    if (std::numeric_limits<Dst>::max() < std::numeric_limits<Src>::max()) {
+        val = SkTMin(val, (Src)std::numeric_limits<Dst>::max());
+    }
+    if (std::numeric_limits<Dst>::min() > std::numeric_limits<Src>::min()) {
+        val = SkTMax(val, (Src)std::numeric_limits<Dst>::min());
+    }
+    return static_cast<Dst>(val);
 }
 
 template <int N, typename T>
