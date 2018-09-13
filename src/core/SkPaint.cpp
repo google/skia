@@ -618,21 +618,25 @@ SkPaint::GlyphCacheProc SkPaint::GetGlyphCacheProc(TextEncoding encoding,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define TEXT_AS_PATHS_PAINT_FLAGS_TO_IGNORE (   \
-SkPaint::kLinearText_Flag           |       \
-SkPaint::kLCDRenderText_Flag        |       \
-SkPaint::kEmbeddedBitmapText_Flag   |       \
-SkPaint::kAutoHinting_Flag          )
-
 SkScalar SkPaint::setupForAsPaths() {
+
+    constexpr uint32_t flagsToIgnore = SkPaint::kLinearText_Flag         |
+                                       SkPaint::kLCDRenderText_Flag      |
+                                       SkPaint::kEmbeddedBitmapText_Flag |
+                                       SkPaint::kAutoHinting_Flag;
+
     uint32_t flags = this->getFlags();
+
     // clear the flags we don't care about
-    flags &= ~TEXT_AS_PATHS_PAINT_FLAGS_TO_IGNORE;
+    flags &= ~flagsToIgnore;
+
     // set the flags we do care about
     flags |= SkPaint::kSubpixelText_Flag;
 
     this->setFlags(flags);
     this->setHinting(SkPaint::kNo_Hinting);
+    this->setStyle(SkPaint::kFill_Style);
+    this->setPathEffect(nullptr);
 
     SkScalar textSize = fTextSize;
     this->setTextSize(kCanonicalTextSizeForPaths);
