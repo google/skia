@@ -17,6 +17,7 @@
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTextureRenderTargetProxy.h"
 #include "../private/GrSingleOwner.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImage.h"
@@ -198,10 +199,22 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
-    GrPixelConfig config = SkImageInfo2GrPixelConfig(as_IB(srcImage)->onImageInfo());
+    SkImageInfo info = as_IB(srcImage)->onImageInfo();
+    GrPixelConfig config = SkImageInfo2GrPixelConfig(info);
 
     if (kUnknown_GrPixelConfig == config) {
         return nullptr;
+    }
+
+    if (!this->caps()->isConfigTexturable(config)) {
+        SkBitmap copy8888;
+        if (!copy8888.tryAllocPixels(info.makeColorType(kRGBA_8888_SkColorType)) ||
+            !srcImage->readPixels(copy8888.pixmap(), 0, 0)) {
+            return nullptr;
+        }
+        copy8888.setImmutable();
+        srcImage = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
+        config = kRGBA_8888_GrPixelConfig;
     }
 
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
@@ -297,12 +310,24 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
                                         SkBackingFit::kExact);
     }
 
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bitmap, nullptr));
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+        SkBitmap copy8888;
+        if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
+            !bitmap.readPixels(copy8888.pixmap())) {
+            return nullptr;
+        }
+        copy8888.setImmutable();
+        baseLevel = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+    }
+
+    SkPixmap pixmap;
+    SkAssertResult(baseLevel->peekPixels(&pixmap));
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
-
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
