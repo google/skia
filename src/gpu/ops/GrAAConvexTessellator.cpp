@@ -574,7 +574,9 @@ void GrAAConvexTessellator::createOuterRing(const Ring& previousRing, SkScalar o
                         // The bisector outset point
                         SkPoint miter = previousRing.bisector(cur);
                         SkScalar dotProd = normal1.dot(normal2);
-                        SkScalar sinHalfAngleSq = SkScalarHalf(SK_Scalar1 + dotProd);
+                        // The max is because this could go slightly negative if precision causes
+                        // us to become slightly concave.
+                        SkScalar sinHalfAngleSq = SkTMax(SkScalarHalf(SK_Scalar1 + dotProd), 0.f);
                         SkScalar lengthSq = sk_ieee_float_divide(outsetSq, sinHalfAngleSq);
                         if (lengthSq > miterLimitSq) {
                             // just bevel it
