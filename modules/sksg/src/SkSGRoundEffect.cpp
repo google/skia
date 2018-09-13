@@ -50,6 +50,8 @@ SkRect RoundEffect::onRevalidate(InvalidationController* ic, const SkMatrix& ctm
         fRoundedPath = path;
     }
 
+    fRoundedPath.shrinkToFit();
+
     return fRoundedPath.computeTightBounds();
 }
 

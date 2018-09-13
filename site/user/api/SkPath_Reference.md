@@ -707,22 +707,26 @@ SkPath member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>replaces <a href='#Last_Point'>Last Point</a></td>
   </tr>
   <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_shrinkToFit'>shrinkToFit</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes unused reserved space</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_swap'>swap</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>exchanges <a href='#Path'>Path</a> pair</td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_toggleInverseFillType'>toggleInverseFillType</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>toggles <a href='#Fill_Type'>Fill Type</a> between inside and outside geometry</td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_transform'>transform</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies <a href='SkMatrix_Reference#Matrix'>Matrix</a> to <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Weights</a></td>
   </tr>
-  <tr style='background-color: #f0f0f0; '>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_updateBoundsCache'>updateBoundsCache</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>refreshes result of <a href='#SkPath_getBounds'>getBounds</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_writeToMemory'>writeToMemory</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
   </tr>
@@ -2580,10 +2584,14 @@ rotated circle bounds = 14.6447, 9.64466, 85.3553, 80.3553
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_setLastPt'>setLastPt(SkScalar x, SkScalar y)</a></td>
   </tr>
   <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_shrinkToFit'>shrinkToFit</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>removes unused reserved space</td>
+  </tr>
+  <tr>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_updateBoundsCache'>updateBoundsCache</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>refreshes result of <a href='#SkPath_getBounds'>getBounds</a></td>
   </tr>
-  <tr>
+  <tr style='background-color: #f0f0f0; '>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPath_writeToMemory'>writeToMemory</a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>copies data to buffer</td>
   </tr>
@@ -2730,6 +2738,22 @@ reducing the number and size of allocations when creating <a href='#Path'>Path</
 ### See Also
 
 <a href='#Point_Array'>Point Array</a>
+
+---
+
+<a name='SkPath_shrinkToFit'></a>
+## shrinkToFit
+
+<pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
+void <a href='#SkPath_shrinkToFit'>shrinkToFit</a>()
+</pre>
+
+Shrinks <a href='#Path'>Path</a> <a href='#Verb_Array'>Verb Array</a> and <a href='#Point_Array'>Point Array</a> storage to discard unused capacity.
+May reduce the heap overhead for <a href='#Path'>Paths</a> known to be fully constructed.
+
+### See Also
+
+<a href='#SkPath_incReserve'>incReserve</a>
 
 ---
 

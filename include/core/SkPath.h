@@ -549,6 +549,10 @@ public:
     */
     void incReserve(unsigned extraPtCount);
 
+    /** Shrinks the verb and point array allocation to discard unused capacity.
+    */
+    void shrinkToFit();
+
     /** Adds beginning of contour at SkPoint (x, y).
 
         @param x  x-axis value of contour start

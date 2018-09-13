@@ -22,7 +22,7 @@ namespace sksg {
  */
 class PaintNode : public Node {
 public:
-    const SkPaint& makePaint();
+    SkPaint makePaint() const;
 
     SG_ATTRIBUTE(AntiAlias  , bool          , fAntiAlias  )
     SG_ATTRIBUTE(Opacity    , SkScalar      , fOpacity    )
@@ -41,8 +41,6 @@ protected:
     SkRect onRevalidate(InvalidationController*, const SkMatrix&) final;
 
 private:
-    SkPaint        fPaint;
-
     SkScalar       fOpacity     = 1,
                    fStrokeWidth = 1,
                    fStrokeMiter = 4;
