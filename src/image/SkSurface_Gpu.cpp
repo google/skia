@@ -522,7 +522,6 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
     if (!device) {
         return nullptr;
     }
-
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
