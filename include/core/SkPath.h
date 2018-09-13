@@ -1674,9 +1674,10 @@ public:
 private:
     sk_sp<SkPathRef>                                     fPathRef;
     int                                                  fLastMoveToIndex;
-    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;
-    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;  // SkPathPriv::FirstDirection
-    uint8_t                                              fFillType    : 2; // SkPath::Convexity
+    mutable SkAtomic<Convexity, sk_memory_order_relaxed> fConvexity;         // SkPath::Convexity
+                                                      // SkPathPriv::FirstDirection
+    mutable SkAtomic<uint8_t, sk_memory_order_relaxed>   fFirstDirection;
+    uint8_t                                              fFillType    : 2;
     uint8_t                                              fIsVolatile  : 1;
     uint8_t                                              fIsBadForDAA : 1;
 

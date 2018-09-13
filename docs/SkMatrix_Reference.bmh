@@ -2453,10 +2453,7 @@ canvas->drawBitmap(source, 0, 0);
 #In Set
 #In Operator
 #Line # post-multiplies Matrix by inverse scale ##
-Sets Matrix to Matrix constructed from scaling by
-#Formula
-(1/divx, 1/divy)
-##
+Sets Matrix to Matrix constructed from scaling by #Formula # (1/divx, 1/divy) ##,
 about pivot point (px, py), multiplied by Matrix.
 
 Returns false if either divx or divy is zero.
@@ -4207,14 +4204,9 @@ Returns true if scale components are found. scale and remaining are
 unchanged if Matrix contains perspective; scale factors are not finite, or
 are nearly zero.
 
-On success
+On success: #Formula # Matrix = scale * Remaining ##.
 
-#Formula
-Matrix = scale * Remaining
-##
-.
-
-#Param scale  axes scaling factors; may be nullptr  ##
+#Param scale  axes scaling factors; may be nullptr ##
 #Param remaining  Matrix without scaling; may be nullptr ##
 
 #Return  true if scale can be computed ##

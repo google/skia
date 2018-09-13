@@ -455,8 +455,7 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 void <a href='#SkIPoint_addto_operator'>operator+=(const SkIVector& v)</a>
 </pre>
 
-Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='#SkIPoint_addto_operator_v'>v</a>. Sets <a href='#IPoint'>IPoint</a> to(<a href='#SkIPoint_fX'>fX</a> + <a href='#SkIPoint_addto_operator_v'>v</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a> + <a href='#SkIPoint_addto_operator_v'>v</a>.<a href='#SkIPoint_fY'>fY</a>)
-.
+Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='#SkIPoint_addto_operator_v'>v</a>. Sets <a href='#IPoint'>IPoint</a> to <code>\(<a href='#SkIPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkIPoint_addto_operator_v'>v</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkIPoint_addto_operator_v'>v</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
 
 ### Parameters
 
@@ -482,9 +481,7 @@ Offsets <a href='#IPoint'>IPoint</a> by <a href='#IVector'>IVector</a> <a href='
 void <a href='#SkIPoint_subtractfrom_operator'>operator-=(const SkIVector& v)</a>
 </pre>
 
-Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operator_v'>v</a> from <a href='#IPoint'>IPoint</a>. Sets <a href='#IPoint'>IPoint</a> to:
-(<a href='#SkIPoint_fX'>fX</a> - <a href='#SkIPoint_subtractfrom_operator_v'>v</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a> - <a href='#SkIPoint_subtractfrom_operator_v'>v</a>.<a href='#SkIPoint_fY'>fY</a>)
-.
+Subtracts <a href='#IVector'>IVector</a> <a href='#SkIPoint_subtractfrom_operator_v'>v</a> from <a href='#IPoint'>IPoint</a>. Sets <a href='#IPoint'>IPoint</a> to: <code>\(<a href='#SkIPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
 
 ### Parameters
 
@@ -642,8 +639,7 @@ pt: -2147483648, -1  == pt
 <a href='#SkIVector'>SkIVector</a> <a href='#SkIPoint_subtract_operator'>operator-(const SkIPoint& a, const SkIPoint& b)</a>
 </pre>
 
-Returns <a href='#IVector'>IVector</a> from <a href='#SkIPoint_subtract_operator_b'>b</a> to <a href='#SkIPoint_subtract_operator_a'>a</a>; computed as(<a href='#SkIPoint_subtract_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> - <a href='#SkIPoint_subtract_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_subtract_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> - <a href='#SkIPoint_subtract_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>)
-.
+Returns <a href='#IVector'>IVector</a> from <a href='#SkIPoint_subtract_operator_b'>b</a> to <a href='#SkIPoint_subtract_operator_a'>a</a>; computed as <code>\(<a href='#SkIPoint_subtract_operator_a'>a</a>\.<a href='#SkIPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtract_operator_b'>b</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_subtract_operator_a'>a</a>\.<a href='#SkIPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkIPoint_subtract_operator_b'>b</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
 
 Can also be used to subtract <a href='#IVector'>IVector</a> from <a href='#IVector'>IVector</a>, returning <a href='#IVector'>IVector</a>.
 
@@ -679,8 +675,7 @@ Can also be used to subtract <a href='#IVector'>IVector</a> from <a href='#IVect
 </pre>
 
 Returns <a href='#IPoint'>IPoint</a> resulting from <a href='#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_a'>a</a> offset by <a href='#IVector'>IVector</a> <a href='#SkIPoint_add_operator_b'>b</a>, computed as:
-(<a href='#SkIPoint_add_operator_a'>a</a>.<a href='#SkIPoint_fX'>fX</a> + <a href='#SkIPoint_add_operator_b'>b</a>.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_add_operator_a'>a</a>.<a href='#SkIPoint_fY'>fY</a> + <a href='#SkIPoint_add_operator_b'>b</a>.<a href='#SkIPoint_fY'>fY</a>)
-.
+<code>\(<a href='#SkIPoint_add_operator_a'>a</a>\.<a href='#SkIPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkIPoint_add_operator_b'>b</a>\.<a href='#SkIPoint_fX'>fX</a>, <a href='#SkIPoint_add_operator_a'>a</a>\.<a href='#SkIPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkIPoint_add_operator_b'>b</a>\.<a href='#SkIPoint_fY'>fY</a>\)</code>.
 
 Can also be used to offset <a href='#IPoint'>IPoint</a> <a href='#SkIPoint_add_operator_b'>b</a> by <a href='#IVector'>IVector</a> <a href='#SkIPoint_add_operator_a'>a</a>, returning <a href='#IPoint'>IPoint</a>.
 Can also be used to add <a href='#IVector'>IVector</a> to <a href='#IVector'>IVector</a>, returning <a href='#IVector'>IVector</a>.

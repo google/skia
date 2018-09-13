@@ -144,7 +144,7 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                     if (!fReturnOnWrite && !literalOutdent) {
                         fIndent += 4;
                     }
-                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart);
+                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart, false);
                     if (fReturnOnWrite) {
                         return true;
                     }
@@ -190,7 +190,7 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 }
                 commentLen = (int) (prop->fContentEnd - commentStart);
                 if (commentLen > 0) {
-                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart);
+                    wroteSomething |= this->writeBlockIndent(commentLen, commentStart, false);
                     if (wroteSomething && fReturnOnWrite) {
                         return true;
                     }
@@ -230,8 +230,7 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                         if (fReturnOnWrite) {
                             return true;
                         }
-                        if (commentLen > 1 && '\n' == prop->fStart[-1] &&
-                                '\n' == prop->fStart[-2]) {
+                        if (commentLen > 1 && '\n' == prop->fStart[-1]) {
                             this->lf(1);
                         } else {
                             this->writeSpace();
@@ -243,7 +242,7 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 if (fIndent < fColumn + 1) {
                     fIndent = fColumn + 1;
                 }
-                wroteSomething |= this->writeBlockIndent(prop->length(), prop->fContentStart);
+                wroteSomething |= this->writeBlockIndent(prop->length(), prop->fContentStart, true);
                 fIndent = saveIndent;
                 if (wroteSomething && fReturnOnWrite) {
                     return true;
@@ -251,13 +250,8 @@ bool IncludeWriter::descriptionOut(const Definition* def, SkipFirstLine skipFirs
                 commentStart = prop->fTerminator;
                 commentLen = (int) (def->fContentEnd - commentStart);
                 if (!fReturnOnWrite) {
-                    if (commentLen > 1 && '\n' == commentStart[0] && '\n' == commentStart[1]) {
-                        this->lf(2);
-                    } else {
-                        SkASSERT('\n' == prop->fTerminator[0]);
-                        if ('.' != prop->fTerminator[1] && !fLinefeeds) {
-                            this->writeSpace();
-                        }
+                    if (commentLen > 1 && ' ' == commentStart[0] && !fLinefeeds) {
+                        this->writeSpace();
                     }
                 }
                 } break;
