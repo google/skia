@@ -307,9 +307,6 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
     pathPaint.setupForAsPaths();
 #endif
 
-    pathPaint.setStyle(SkPaint::kFill_Style);
-    pathPaint.setPathEffect(nullptr);
-
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
             pathPaint, &this->surfaceProps(), nullptr,
