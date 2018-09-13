@@ -17,6 +17,7 @@
 #include "GrTextureProxyCacheAccess.h"
 #include "GrTextureRenderTargetProxy.h"
 #include "../private/GrSingleOwner.h"
+#include "SkAutoPixmapStorage.h"
 #include "SkBitmap.h"
 #include "SkGr.h"
 #include "SkImage.h"
@@ -204,6 +205,12 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
         return nullptr;
     }
 
+    bool convertTo8888 = false;
+    if (!this->caps()->isConfigTexturable(config)) {
+        config = kRGBA_8888_GrPixelConfig;
+        convertTo8888 = true;
+    }
+
     if (SkToBool(descFlags & kRenderTarget_GrSurfaceFlag)) {
         sampleCnt = this->caps()->getRenderTargetSampleCount(sampleCnt, config);
         if (!sampleCnt) {
@@ -229,7 +236,7 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
     desc.fConfig = config;
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
-            [desc, budgeted, srcImage, fit](GrResourceProvider* resourceProvider) {
+            [desc, budgeted, srcImage, fit, convertTo8888](GrResourceProvider* resourceProvider) {
                 if (!resourceProvider) {
                     // Nothing to clean up here. Once the proxy (and thus lambda) is deleted the ref
                     // on srcImage will be released.
@@ -238,6 +245,16 @@ sk_sp<GrTextureProxy> GrProxyProvider::createTextureProxy(sk_sp<SkImage> srcImag
                 SkPixmap pixMap;
                 SkAssertResult(srcImage->peekPixels(&pixMap));
                 GrMipLevel mipLevel = { pixMap.addr(), pixMap.rowBytes() };
+
+                SkAutoPixmapStorage copy8888;
+                if (convertTo8888) {
+                    if (!copy8888.tryAlloc(pixMap.info().makeColorType(kRGBA_8888_SkColorType)) ||
+                        !pixMap.readPixels(copy8888)) {
+                        return sk_sp<GrTexture>();
+                    }
+                    mipLevel.fPixels = copy8888.addr();
+                    mipLevel.fRowBytes = copy8888.rowBytes();
+                }
 
                 return resourceProvider->createTexture(desc, budgeted, fit, mipLevel);
             },
@@ -297,12 +314,24 @@ sk_sp<GrTextureProxy> GrProxyProvider::createMipMapProxyFromBitmap(const SkBitma
                                         SkBackingFit::kExact);
     }
 
-    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(bitmap, nullptr));
+    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
+    if (!this->caps()->isConfigTexturable(desc.fConfig)) {
+        SkBitmap copy8888;
+        if (!copy8888.tryAllocPixels(bitmap.info().makeColorType(kRGBA_8888_SkColorType)) ||
+            !copy8888.writePixels(bitmap.pixmap())) {
+            return nullptr;
+        }
+        copy8888.setImmutable();
+        baseLevel = SkMakeImageFromRasterBitmap(copy8888, kNever_SkCopyPixelsMode);
+        desc.fConfig = kRGBA_8888_GrPixelConfig;
+    }
+
+    SkPixmap pixmap;
+    SkAssertResult(baseLevel->peekPixels(&pixmap));
+    sk_sp<SkMipMap> mipmaps(SkMipMap::Build(pixmap, nullptr));
     if (!mipmaps) {
         return nullptr;
     }
-
-    GrSurfaceDesc desc = GrImageInfoToSurfaceDesc(bitmap.info());
 
     sk_sp<GrTextureProxy> proxy = this->createLazyProxy(
             [desc, baseLevel, mipmaps](GrResourceProvider* resourceProvider) {
