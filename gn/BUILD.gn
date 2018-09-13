@@ -436,6 +436,10 @@ config("debug_symbols") {
   } else if (is_win) {
     cflags = [ "/Z7" ]
     ldflags = [ "/DEBUG:FASTLINK" ]
+    if (is_clang) {
+      # /DEBUG:FASTLINK requires every object file to have standalone debug information.
+      cflags += [ "-fstandalone-debug" ]
+    }
   } else {
     cflags = [ "-g" ]
   }
