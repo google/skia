@@ -27,16 +27,16 @@ Draw::~Draw() {
 }
 
 void Draw::onRender(SkCanvas* canvas, const RenderContext* ctx) const {
-    SkTCopyOnFirstWrite<SkPaint> paint(fPaint->makePaint());
+    auto paint = fPaint->makePaint();
     if (ctx) {
-        ctx->modulatePaint(paint.writable());
+        ctx->modulatePaint(&paint);
     }
 
-    const auto skipDraw = paint->nothingToDraw() ||
-            (paint->getStyle() == SkPaint::kStroke_Style && paint->getStrokeWidth() <= 0);
+    const auto skipDraw = paint.nothingToDraw() ||
+            (paint.getStyle() == SkPaint::kStroke_Style && paint.getStrokeWidth() <= 0);
 
     if (!skipDraw) {
-        fGeometry->draw(canvas, *paint);
+        fGeometry->draw(canvas, paint);
     }
 }
 
@@ -46,7 +46,7 @@ SkRect Draw::onRevalidate(InvalidationController* ic, const SkMatrix& ctm) {
     auto bounds = fGeometry->revalidate(ic, ctm);
     fPaint->revalidate(ic, ctm);
 
-    const auto& paint = fPaint->makePaint();
+    const auto paint = fPaint->makePaint();
     SkASSERT(paint.canComputeFastBounds());
 
     return paint.computeFastBounds(bounds, &bounds);

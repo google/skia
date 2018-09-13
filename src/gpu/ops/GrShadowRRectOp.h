@@ -24,8 +24,7 @@ std::unique_ptr<GrDrawOp> Make(GrContext*,
                                const SkMatrix& viewMatrix,
                                const SkRRect& rrect,
                                SkScalar blurWidth,
-                               SkScalar insetWidth,
-                               SkScalar blurClamp = 1);
+                               SkScalar insetWidth);
 }
 
 #endif

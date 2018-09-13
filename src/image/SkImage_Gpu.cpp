@@ -123,7 +123,7 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
                                                      SkColorSpace* dstColorSpace,
                                                      sk_sp<SkColorSpace>* texColorSpace,
                                                      SkScalar scaleAdjust[2]) const {
-    if (context != fContext.get()) {
+    if (context->uniqueID() != fContext->uniqueID()) {
         SkASSERT(0);
         return nullptr;
     }

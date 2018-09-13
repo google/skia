@@ -305,6 +305,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext*,
                                                         SkColorType,
                                                         sk_sp<SkColorSpace>,
                                                         const SkSurfaceProps*) {
+    SkDebugf("Should not be here\n");
     return nullptr;
 }
 

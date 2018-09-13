@@ -166,6 +166,7 @@ public:
     virtual int maxRenderTargetSampleCount(GrPixelConfig) const = 0;
 
     bool isConfigRenderable(GrPixelConfig config) const {
+        SkDebugf("Checking config renderable for %d\n", config);
         return this->maxRenderTargetSampleCount(config) > 0;
     }
 

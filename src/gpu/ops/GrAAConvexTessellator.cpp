@@ -74,6 +74,7 @@ int GrAAConvexTessellator::addPt(const SkPoint& pt,
                                  SkScalar coverage,
                                  bool movable,
                                  CurveState curve) {
+    SkASSERT(pt.isFinite());
     this->validate();
 
     int index = fPts.count();
@@ -369,6 +370,14 @@ bool GrAAConvexTessellator::computePtAlongBisector(int startIdx,
 
 bool GrAAConvexTessellator::extractFromPath(const SkMatrix& m, const SkPath& path) {
     SkASSERT(SkPath::kConvex_Convexity == path.getConvexity());
+
+    SkRect bounds = path.getBounds();
+    m.mapRect(&bounds);
+    if (!bounds.isFinite()) {
+        // We could do something smarter here like clip the path based on the bounds of the dst.
+        // We'd have to be careful about strokes to ensure we don't draw something wrong.
+        return false;
+    }
 
     // Outer ring: 3*numPts
     // Middle ring: numPts

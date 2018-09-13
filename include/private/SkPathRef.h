@@ -407,7 +407,7 @@ private:
             fFreeSpace = 0;
             fVerbCnt = 0;
             fPointCnt = 0;
-            this->makeSpace(minSize);
+            this->makeSpace(minSize, true);
             fVerbCnt = verbCount;
             fPointCnt = pointCount;
             fFreeSpace -= newSize;
@@ -437,24 +437,28 @@ private:
 
     /**
      * Ensures that the free space available in the path ref is >= size. The verb and point counts
-     * are not changed.
+     * are not changed. May allocate extra capacity, unless |exact| is true.
      */
-    void makeSpace(size_t size) {
+    void makeSpace(size_t size, bool exact = false) {
         SkDEBUGCODE(this->validate();)
         if (size <= fFreeSpace) {
             return;
         }
         size_t growSize = size - fFreeSpace;
         size_t oldSize = this->currSize();
-        // round to next multiple of 8 bytes
-        growSize = (growSize + 7) & ~static_cast<size_t>(7);
-        // we always at least double the allocation
-        if (growSize < oldSize) {
-            growSize = oldSize;
+
+        if (!exact) {
+            // round to next multiple of 8 bytes
+            growSize = (growSize + 7) & ~static_cast<size_t>(7);
+            // we always at least double the allocation
+            if (growSize < oldSize) {
+                growSize = oldSize;
+            }
+            if (growSize < kMinSize) {
+                growSize = kMinSize;
+            }
         }
-        if (growSize < kMinSize) {
-            growSize = kMinSize;
-        }
+
         constexpr size_t maxSize = std::numeric_limits<size_t>::max();
         size_t newSize;
         if (growSize <= maxSize - oldSize) {
@@ -555,6 +559,7 @@ private:
 
     friend class PathRefTest_Private;
     friend class ForceIsRRect_Private; // unit test isRRect
+    friend class SkPath;
 };
 
 #endif

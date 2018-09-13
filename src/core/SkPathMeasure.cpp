@@ -536,6 +536,7 @@ SkScalar SkPathMeasure::getLength() {
     }
     if (SkScalarIsNaN(fLength)) {
         fLength = 0;
+        fSegments.reset(); // may contain inf or NaN, which will fail later
     }
     SkASSERT(fLength >= 0);
     return fLength;

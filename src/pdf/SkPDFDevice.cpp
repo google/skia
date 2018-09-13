@@ -549,7 +549,6 @@ private:
 SkPDFDevice::SkPDFDevice(SkISize pageSize, SkPDFDocument* doc)
     : INHERITED(SkImageInfo::MakeUnknown(pageSize.width(), pageSize.height()),
                 SkSurfaceProps(0, kUnknown_SkPixelGeometry))
-    , fPageSize(pageSize)
     , fInitialTransform(SkMatrix::I())
     , fDocument(doc)
 {
@@ -563,7 +562,7 @@ void SkPDFDevice::setFlip() {
     // don't do it when layering.
     SkScalar rasterScale = SkPDFUtils::kDpiForRasterScaleOne / fDocument->rasterDpi();
     fInitialTransform.setConcat(SkMatrix::MakeScale(rasterScale, -rasterScale),
-                                SkMatrix::MakeTrans(0, -fPageSize.fHeight));
+                                SkMatrix::MakeTrans(0, -this->height()));
 }
 
 SkPDFDevice::~SkPDFDevice() = default;
@@ -636,7 +635,7 @@ void SkPDFDevice::internalDrawPaint(const SkPaint& paint,
     if (!contentEntry) {
         return;
     }
-    SkRect bbox = SkRect::Make(fPageSize);
+    SkRect bbox = SkRect::Make(this->imageInfo().dimensions());
     SkMatrix inverse;
     if (!contentEntry->fState.fMatrix.invert(&inverse)) {
         return;
@@ -1474,8 +1473,8 @@ sk_sp<SkPDFArray> SkPDFDevice::copyMediaBox() const {
     mediaBox->reserve(4);
     mediaBox->appendInt(0);
     mediaBox->appendInt(0);
-    mediaBox->appendInt(fPageSize.width());
-    mediaBox->appendInt(fPageSize.height());
+    mediaBox->appendInt(this->width());
+    mediaBox->appendInt(this->height());
     return mediaBox;
 }
 
@@ -2045,7 +2044,7 @@ void SkPDFDevice::internalDrawImageRect(SkKeyedImage imageSubset,
             return;
         }
         this->addSMaskGraphicState(std::move(maskDevice), content.stream());
-        SkPDFUtils::AppendRectangle(SkRect::Make(fPageSize), content.stream());
+        SkPDFUtils::AppendRectangle(SkRect::Make(this->imageInfo().dimensions()), content.stream());
         SkPDFUtils::PaintPath(SkPaint::kFill_Style, SkPath::kWinding_FillType, content.stream());
         this->clearMaskOnGraphicState(content.stream());
         return;

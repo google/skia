@@ -469,18 +469,22 @@ bool validate_backend_render_target(GrContext* ctx, const GrBackendRenderTarget&
     SkImageInfo info = SkImageInfo::Make(1, 1, ct, kPremul_SkAlphaType, cs);
 
     if (!SkSurface_Gpu::Valid(info)) {
+        SkDebugf("invalid info\n");
         return false;
     }
 
     if (!ctx->contextPriv().caps()->validateBackendRenderTarget(rt, ct, config)) {
+        SkDebugf("caps invalid render target\n");
         return false;
     }
 
     if (rt.sampleCnt() > 1) {
         if (ctx->contextPriv().caps()->maxRenderTargetSampleCount(*config) <= 1) {
+            SkDebugf("caps invalid maxRenderTargetSampleCount\n");
             return false;
         }
     } else if (!ctx->contextPriv().caps()->isConfigRenderable(*config)) {
+        SkDebugf("caps invalid isConfigRenderable\n");
         return false;
     }
 
@@ -494,18 +498,22 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                         sk_sp<SkColorSpace> colorSpace,
                                                         const SkSurfaceProps* props) {
     if (!context) {
+        SkDebugf("null context\n");
         return nullptr;
     }
 
     GrBackendRenderTarget rtCopy = rt;
     if (!validate_backend_render_target(context, rtCopy, &rtCopy.fConfig, colorType, colorSpace)) {
+        SkDebugf("could not validate\n");
         return nullptr;
     }
     if (!SkSurface_Gpu::Valid(context->contextPriv().caps(), rtCopy.config(), colorSpace.get())) {
+        SkDebugf("gpu valid\n");
         return nullptr;
     }
 
     if (!context) {
+        SkDebugf("null context 2\n");
         return nullptr;
     }
 
@@ -513,6 +521,7 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
             context->contextPriv().makeBackendRenderTargetRenderTargetContext(
                     rtCopy, origin, std::move(colorSpace), props));
     if (!rtc) {
+        SkDebugf("null rtc\n");
         return nullptr;
     }
 
@@ -520,9 +529,10 @@ sk_sp<SkSurface> SkSurface::MakeFromBackendRenderTarget(GrContext* context,
                                                 rtCopy.height(),
                                                 SkGpuDevice::kUninit_InitContents));
     if (!device) {
+        SkDebugf("null device\n");
         return nullptr;
     }
-
+    SkDebugf("making\n");
     return sk_make_sp<SkSurface_Gpu>(std::move(device));
 }
 
