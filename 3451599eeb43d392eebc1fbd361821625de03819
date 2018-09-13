@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "dc5e51e1_eb6ad561",
+        "filename": "include/core/SkImage.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-09-13T16:10:53Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "87b242f7_de3d2418",
+      "range": {
+        "startLine": 407,
+        "startChar": 49,
+        "endLine": 407,
+        "endChar": 64
+      },
+      "revId": "3451599eeb43d392eebc1fbd361821625de03819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "038e3488_d5e3dffe",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 1
@@ -45,6 +69,30 @@
       "revId": "3451599eeb43d392eebc1fbd361821625de03819",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9f4b0f47_e8a00a86",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5656
+      },
+      "writtenOn": "2018-09-13T16:10:53Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "038e3488_d5e3dffe",
+      "range": {
+        "startLine": 101,
+        "startChar": 100,
+        "endLine": 101,
+        "endChar": 101
+      },
+      "revId": "3451599eeb43d392eebc1fbd361821625de03819",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
