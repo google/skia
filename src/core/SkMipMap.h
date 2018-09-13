@@ -29,10 +29,6 @@ typedef SkDiscardableMemory* (*SkDiscardableFactoryProc)(size_t bytes);
  */
 class SkMipMap : public SkCachedData {
 public:
-    struct BuildParams;
-
-    static bool CanBuild(const SkImageInfo& info, BuildParams*);
-
     static SkMipMap* Build(const SkPixmap& src, SkDiscardableFactoryProc);
     static SkMipMap* Build(const SkBitmap& src, SkDiscardableFactoryProc);
 
