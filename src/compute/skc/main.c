@@ -185,10 +185,10 @@ main(int argc, char const * argv[])
   //
   // create a transform stack
   //
-  struct skc_transform_stack * ts = skc_transform_stack_create(32);
+  struct ts_transform_stack * ts = ts_transform_stack_create(32);
 
   // prime the transform stack with subpixel scale
-  skc_transform_stack_push_scale(ts,32.0,32.0);
+  ts_transform_stack_push_scale(ts,32.0,32.0);
 
   //
   // rasterize, render and reclaim svg until escape
@@ -211,7 +211,7 @@ main(int argc, char const * argv[])
       if (pipeline_start_at_loop <= SKC_PIPELINE_START_AT_RASTERIZE)
         {
           // save stack
-          uint32_t const ts_save = skc_transform_stack_save(ts);
+          uint32_t const ts_save = ts_transform_stack_save(ts);
 
           // update transform
           skc_interop_transform(interop,ts);
@@ -220,7 +220,7 @@ main(int argc, char const * argv[])
           rasters = svg_doc_rasters_decode(svg_doc,ts,paths,raster_builder);
 
           // restore the transform stack
-          skc_transform_stack_restore(ts,ts_save);
+          ts_transform_stack_restore(ts,ts_save);
         }
 
       // decode the styling and composition?
@@ -319,7 +319,7 @@ main(int argc, char const * argv[])
   //
   // dispose of mundane resources
   //
-  skc_transform_stack_release(ts);
+  ts_transform_stack_release(ts);
 
   //
   // dispose of all SKC resources

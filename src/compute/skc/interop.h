@@ -36,11 +36,11 @@ skc_interop_set_cl_context(struct skc_interop * interop,
 
 bool
 skc_interop_poll(struct skc_interop * interop,
-                 int                *  key);
+                 int                * key);
 
 void
-skc_interop_transform(struct skc_interop         * interop,
-                      struct skc_transform_stack * ts);
+skc_interop_transform(struct skc_interop        * interop,
+                      struct ts_transform_stack * ts);
 
 bool
 skc_interop_should_exit(struct skc_interop * interop);
