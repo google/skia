@@ -86,8 +86,24 @@ DEF_GM( return new StringArtGM; )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
+#if 1
 #include "Skottie.h"
+#include "SkSGNode.h"
+
+typedef SkTArray<sk_sp<sksg::Node>> NodeArray;
+
+static skottie::Animation* custom_make(sk_sp<SkData> data, NodeArray* array) {
+    skottie::Animation::Builder builder;
+
+    builder.setNodeFinder("nm", [array](const char tagValue[], sksg::Node* node) {
+        if (strcmp(tagValue, "\"Fill 1\"") == 0) {
+            sk_sp<sksg::Node> n = sk_ref_sp(node);
+            array->push_back(n);
+        }
+    });
+
+    return builder.make((const char*)data->data(), data->size()).release();
+}
 
 class SkottieGM : public skiagm::GM {
     enum {
@@ -96,11 +112,14 @@ class SkottieGM : public skiagm::GM {
     };
 
     enum {
-        N = 100,
+        N = 1,
     };
     skottie::Animation* fAnims[N];
     SkRect              fRects[N];
     SkScalar            fDur;
+
+    NodeArray fNodes;
+    SkRandom fRand;
 
 public:
     SkottieGM() {
@@ -120,10 +139,14 @@ protected:
 
     void init() {
         SkRandom rand;
-        auto data = SkData::MakeFromFileName("/Users/reed/Downloads/maps_pinlet.json");
+//        auto data = SkData::MakeFromFileName("/Users/reed/Downloads/maps_pinlet.json");
+        auto data = SkData::MakeFromFileName("/Users/reed/Downloads/sample_1_pretty.json");
    //     for (;;) skottie::Animation::Make((const char*)data->data(), data->size());
         for (int i = 0; i < N; ++i) {
             fAnims[i] = skottie::Animation::Make((const char*)data->data(), data->size()).release();
+
+            fAnims[i] = custom_make(data, &fNodes);
+
             SkScalar x = rand.nextF() * kWidth;
             SkScalar y = rand.nextF() * kHeight;
             fRects[i].setXYWH(x, y, 400, 400);
@@ -146,6 +169,18 @@ protected:
         for (auto anim : fAnims) {
             anim->seek(time);
         }
+
+        for (auto& node : fNodes) {
+            SkColor4f c = {
+                fRand.nextF(),
+                fRand.nextF(),
+                fRand.nextF(),
+                1
+            };
+            bool success = node->setColor(c);
+            SkASSERT(success);
+        }
+
         return true;
     }
 
