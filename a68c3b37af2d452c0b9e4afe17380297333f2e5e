@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "627d783c_2d1bdfe8",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-13T13:39:52Z",
+      "side": 1,
+      "message": "Yes, this was an outlier.",
+      "parentUuid": "e85f3eab_2bc3ca33",
+      "range": {
+        "startLine": 317,
+        "startChar": 16,
+        "endLine": 317,
+        "endChar": 25
+      },
+      "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "933b5a64_8b9b6627",
         "filename": "src/core/SkMipMap.cpp",
         "patchSetId": 5
@@ -45,6 +69,30 @@
       "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d950f58_77e534d5",
+        "filename": "src/core/SkMipMap.cpp",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-13T13:39:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "933b5a64_8b9b6627",
+      "range": {
+        "startLine": 326,
+        "startChar": 8,
+        "endLine": 326,
+        "endChar": 19
+      },
+      "revId": "a68c3b37af2d452c0b9e4afe17380297333f2e5e",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
