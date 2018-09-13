@@ -192,4 +192,101 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_BasicDrawTest,
     cleanup_resources(buffer);
 }
 
+// Test to draw a AHardwareBuffer with kBottomLeft_GrSurfaceOrigin.
+DEF_GPUTEST_FOR_RENDERING_CONTEXTS(GrAHardwareBuffer_DrawBottomLeftOriginTest,
+                                   reporter, context_info) {
+    GrContext* context = context_info.grContext();
+    if (!context->contextPriv().caps()->supportsAHardwareBufferImages()) {
+        return;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup SkBitmaps
+    ///////////////////////////////////////////////////////////////////////////
+
+    const SkBitmap srcBitmap = make_src_bitmap();
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Setup AHardwareBuffer
+    ///////////////////////////////////////////////////////////////////////////
+
+    AHardwareBuffer* buffer = nullptr;
+
+    AHardwareBuffer_Desc hwbDesc;
+    hwbDesc.width = DEV_W;
+    hwbDesc.height = DEV_H;
+    hwbDesc.layers = 1;
+    hwbDesc.usage = AHARDWAREBUFFER_USAGE_CPU_READ_NEVER |
+                    AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN |
+                    AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
+    hwbDesc.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+    // The following three are not used in the allocate
+    hwbDesc.stride = 0;
+    hwbDesc.rfu0= 0;
+    hwbDesc.rfu1= 0;
+
+    if (int error = AHardwareBuffer_allocate(&hwbDesc, &buffer)) {
+        ERRORF(reporter, "Failed to allocated hardware buffer, error: %d", error);
+        cleanup_resources(buffer);
+        return;
+    }
+
+    // Get actual desc for allocated buffer so we know the stride for uploading cpu data.
+    AHardwareBuffer_describe(buffer, &hwbDesc);
+
+    uint32_t* bufferAddr;
+    if (AHardwareBuffer_lock(buffer, AHARDWAREBUFFER_USAGE_CPU_WRITE_OFTEN, -1, nullptr,
+                             reinterpret_cast<void**>(&bufferAddr))) {
+        ERRORF(reporter, "Failed to lock hardware buffer");
+        cleanup_resources(buffer);
+        return;
+    }
+
+    // Upload the bitmap using bottom/left origin.
+    int bbp = srcBitmap.bytesPerPixel();
+    uint32_t* src = (uint32_t*)srcBitmap.getPixels() + (DEV_H-1)*DEV_W;
+    uint32_t* dst = bufferAddr;
+    for (int y = 0; y < DEV_H; ++y) {
+        memcpy(dst, src, DEV_W * bbp);
+        src -= DEV_W;
+        dst += hwbDesc.stride;
+    }
+    AHardwareBuffer_unlock(buffer, nullptr);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Wrap AHardwareBuffer in SkImage
+    ///////////////////////////////////////////////////////////////////////////
+
+    // Create an image with kBottomLeft_GrSurfaceOrigin.
+    sk_sp<SkImage> image = SkImage::MakeFromAHardwareBuffer(buffer, kPremul_SkAlphaType,
+                                                            nullptr, kBottomLeft_GrSurfaceOrigin);
+    REPORTER_ASSERT(reporter, image);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Make a surface to draw into
+    ///////////////////////////////////////////////////////////////////////////
+
+    SkImageInfo imageInfo = SkImageInfo::Make(DEV_W, DEV_H, kRGBA_8888_SkColorType,
+                                              kPremul_SkAlphaType);
+    sk_sp<SkSurface> surface = SkSurface::MakeRenderTarget(context, SkBudgeted::kNo,
+                                                           imageInfo);
+    REPORTER_ASSERT(reporter, surface);
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Draw the AHardwareBuffer SkImage into surface
+    ///////////////////////////////////////////////////////////////////////////
+
+    surface->getCanvas()->drawImage(image, 0, 0);
+
+    SkBitmap readbackBitmap;
+    readbackBitmap.allocN32Pixels(DEV_W, DEV_H);
+
+    REPORTER_ASSERT(reporter, surface->readPixels(readbackBitmap, 0, 0));
+    REPORTER_ASSERT(reporter, check_read(reporter, srcBitmap, readbackBitmap));
+
+    image.reset();
+
+    cleanup_resources(buffer);
+}
+
 #endif
