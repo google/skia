@@ -861,8 +861,9 @@ sk_sp<SkImage> SkImage::MakeCrossContextFromPixmap(GrContext* context,
 
 #if defined(SK_BUILD_FOR_ANDROID) && __ANDROID_API__ >= 26
 sk_sp<SkImage> SkImage::MakeFromAHardwareBuffer(AHardwareBuffer* graphicBuffer, SkAlphaType at,
-                                               sk_sp<SkColorSpace> cs) {
-    auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs);
+                                                sk_sp<SkColorSpace> cs,
+                                                GrSurfaceOrigin surfaceOrigin) {
+    auto gen = GrAHardwareBufferImageGenerator::Make(graphicBuffer, at, cs, surfaceOrigin);
     return SkImage::MakeFromGenerator(std::move(gen));
 }
 #endif
