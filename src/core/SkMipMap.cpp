@@ -313,19 +313,19 @@ size_t SkMipMap::AllocLevelsSize(int levelCount, size_t pixelSize) {
 }
 
 struct SkMipMap::BuildParams {
-    typedef void FilterProc(void*, const void* srcPtr, size_t srcRB, int count);
-    FilterProc* proc_1_2 = nullptr;
-    FilterProc* proc_1_3 = nullptr;
-    FilterProc* proc_2_1 = nullptr;
-    FilterProc* proc_2_2 = nullptr;
-    FilterProc* proc_2_3 = nullptr;
-    FilterProc* proc_3_1 = nullptr;
-    FilterProc* proc_3_2 = nullptr;
-    FilterProc* proc_3_3 = nullptr;
+    typedef void (*FilterProc)(void*, const void* srcPtr, size_t srcRB, int count);
+    FilterProc fProc_1_2 = nullptr;
+    FilterProc fProc_1_3 = nullptr;
+    FilterProc fProc_2_1 = nullptr;
+    FilterProc fProc_2_2 = nullptr;
+    FilterProc fProc_2_3 = nullptr;
+    FilterProc fProc_3_1 = nullptr;
+    FilterProc fProc_3_2 = nullptr;
+    FilterProc fProc_3_3 = nullptr;
 
-    int countLevels = 0;
-    size_t size = 0;
-    size_t storageSize = 0;
+    int    fCountLevels = 0;
+    size_t fSize = 0;
+    size_t fStorageSize = 0;
 };
 
 bool SkMipMap::CanBuild(const SkImageInfo& info, SkMipMap::BuildParams* outParams) {
@@ -336,55 +336,55 @@ bool SkMipMap::CanBuild(const SkImageInfo& info, SkMipMap::BuildParams* outParam
     switch (ct) {
         case kRGBA_8888_SkColorType:
         case kBGRA_8888_SkColorType:
-            params.proc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
-            params.proc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
-            params.proc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
-            params.proc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
-            params.proc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
-            params.proc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
-            params.proc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
-            params.proc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
+            params.fProc_1_2 = downsample_1_2<ColorTypeFilter_8888>;
+            params.fProc_1_3 = downsample_1_3<ColorTypeFilter_8888>;
+            params.fProc_2_1 = downsample_2_1<ColorTypeFilter_8888>;
+            params.fProc_2_2 = downsample_2_2<ColorTypeFilter_8888>;
+            params.fProc_2_3 = downsample_2_3<ColorTypeFilter_8888>;
+            params.fProc_3_1 = downsample_3_1<ColorTypeFilter_8888>;
+            params.fProc_3_2 = downsample_3_2<ColorTypeFilter_8888>;
+            params.fProc_3_3 = downsample_3_3<ColorTypeFilter_8888>;
             break;
         case kRGB_565_SkColorType:
-            params.proc_1_2 = downsample_1_2<ColorTypeFilter_565>;
-            params.proc_1_3 = downsample_1_3<ColorTypeFilter_565>;
-            params.proc_2_1 = downsample_2_1<ColorTypeFilter_565>;
-            params.proc_2_2 = downsample_2_2<ColorTypeFilter_565>;
-            params.proc_2_3 = downsample_2_3<ColorTypeFilter_565>;
-            params.proc_3_1 = downsample_3_1<ColorTypeFilter_565>;
-            params.proc_3_2 = downsample_3_2<ColorTypeFilter_565>;
-            params.proc_3_3 = downsample_3_3<ColorTypeFilter_565>;
+            params.fProc_1_2 = downsample_1_2<ColorTypeFilter_565>;
+            params.fProc_1_3 = downsample_1_3<ColorTypeFilter_565>;
+            params.fProc_2_1 = downsample_2_1<ColorTypeFilter_565>;
+            params.fProc_2_2 = downsample_2_2<ColorTypeFilter_565>;
+            params.fProc_2_3 = downsample_2_3<ColorTypeFilter_565>;
+            params.fProc_3_1 = downsample_3_1<ColorTypeFilter_565>;
+            params.fProc_3_2 = downsample_3_2<ColorTypeFilter_565>;
+            params.fProc_3_3 = downsample_3_3<ColorTypeFilter_565>;
             break;
         case kARGB_4444_SkColorType:
-            params.proc_1_2 = downsample_1_2<ColorTypeFilter_4444>;
-            params.proc_1_3 = downsample_1_3<ColorTypeFilter_4444>;
-            params.proc_2_1 = downsample_2_1<ColorTypeFilter_4444>;
-            params.proc_2_2 = downsample_2_2<ColorTypeFilter_4444>;
-            params.proc_2_3 = downsample_2_3<ColorTypeFilter_4444>;
-            params.proc_3_1 = downsample_3_1<ColorTypeFilter_4444>;
-            params.proc_3_2 = downsample_3_2<ColorTypeFilter_4444>;
-            params.proc_3_3 = downsample_3_3<ColorTypeFilter_4444>;
+            params.fProc_1_2 = downsample_1_2<ColorTypeFilter_4444>;
+            params.fProc_1_3 = downsample_1_3<ColorTypeFilter_4444>;
+            params.fProc_2_1 = downsample_2_1<ColorTypeFilter_4444>;
+            params.fProc_2_2 = downsample_2_2<ColorTypeFilter_4444>;
+            params.fProc_2_3 = downsample_2_3<ColorTypeFilter_4444>;
+            params.fProc_3_1 = downsample_3_1<ColorTypeFilter_4444>;
+            params.fProc_3_2 = downsample_3_2<ColorTypeFilter_4444>;
+            params.fProc_3_3 = downsample_3_3<ColorTypeFilter_4444>;
             break;
         case kAlpha_8_SkColorType:
         case kGray_8_SkColorType:
-            params.proc_1_2 = downsample_1_2<ColorTypeFilter_8>;
-            params.proc_1_3 = downsample_1_3<ColorTypeFilter_8>;
-            params.proc_2_1 = downsample_2_1<ColorTypeFilter_8>;
-            params.proc_2_2 = downsample_2_2<ColorTypeFilter_8>;
-            params.proc_2_3 = downsample_2_3<ColorTypeFilter_8>;
-            params.proc_3_1 = downsample_3_1<ColorTypeFilter_8>;
-            params.proc_3_2 = downsample_3_2<ColorTypeFilter_8>;
-            params.proc_3_3 = downsample_3_3<ColorTypeFilter_8>;
+            params.fProc_1_2 = downsample_1_2<ColorTypeFilter_8>;
+            params.fProc_1_3 = downsample_1_3<ColorTypeFilter_8>;
+            params.fProc_2_1 = downsample_2_1<ColorTypeFilter_8>;
+            params.fProc_2_2 = downsample_2_2<ColorTypeFilter_8>;
+            params.fProc_2_3 = downsample_2_3<ColorTypeFilter_8>;
+            params.fProc_3_1 = downsample_3_1<ColorTypeFilter_8>;
+            params.fProc_3_2 = downsample_3_2<ColorTypeFilter_8>;
+            params.fProc_3_3 = downsample_3_3<ColorTypeFilter_8>;
             break;
         case kRGBA_F16_SkColorType:
-            params.proc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
-            params.proc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
-            params.proc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
-            params.proc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
-            params.proc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
-            params.proc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
-            params.proc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
-            params.proc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
+            params.fProc_1_2 = downsample_1_2<ColorTypeFilter_F16>;
+            params.fProc_1_3 = downsample_1_3<ColorTypeFilter_F16>;
+            params.fProc_2_1 = downsample_2_1<ColorTypeFilter_F16>;
+            params.fProc_2_2 = downsample_2_2<ColorTypeFilter_F16>;
+            params.fProc_2_3 = downsample_2_3<ColorTypeFilter_F16>;
+            params.fProc_3_1 = downsample_3_1<ColorTypeFilter_F16>;
+            params.fProc_3_2 = downsample_3_2<ColorTypeFilter_F16>;
+            params.fProc_3_3 = downsample_3_3<ColorTypeFilter_F16>;
             break;
         default:
             return false;
@@ -394,14 +394,14 @@ bool SkMipMap::CanBuild(const SkImageInfo& info, SkMipMap::BuildParams* outParam
         return false;
     }
     // whip through our loop to compute the exact size needed
-    params.countLevels = ComputeLevelCount(info.width(), info.height());
-    for (int currentMipLevel = params.countLevels; currentMipLevel >= 0; currentMipLevel--) {
+    params.fCountLevels = ComputeLevelCount(info.width(), info.height());
+    for (int currentMipLevel = params.fCountLevels; currentMipLevel >= 0; currentMipLevel--) {
         SkISize mipSize = ComputeLevelSize(info.width(), info.height(), currentMipLevel);
-        params.size += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
+        params.fSize += SkColorTypeMinRowBytes(ct, mipSize.fWidth) * mipSize.fHeight;
     }
 
-    params.storageSize = SkMipMap::AllocLevelsSize(params.countLevels, params.size);
-    if (0 == params.storageSize) {
+    params.fStorageSize = SkMipMap::AllocLevelsSize(params.fCountLevels, params.fSize);
+    if (0 == params.fStorageSize) {
         return false;
     }
 
@@ -422,58 +422,58 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
 
     SkMipMap* mipmap;
     if (fact) {
-        SkDiscardableMemory* dm = fact(params.storageSize);
+        SkDiscardableMemory* dm = fact(params.fStorageSize);
         if (nullptr == dm) {
             return nullptr;
         }
-        mipmap = new SkMipMap(params.storageSize, dm);
+        mipmap = new SkMipMap(params.fStorageSize, dm);
     } else {
-        mipmap = new SkMipMap(sk_malloc_throw(params.storageSize), params.storageSize);
+        mipmap = new SkMipMap(sk_malloc_throw(params.fStorageSize), params.fStorageSize);
     }
 
     // init
     mipmap->fCS = sk_ref_sp(src.info().colorSpace());
-    mipmap->fCount = params.countLevels;
+    mipmap->fCount = params.fCountLevels;
     mipmap->fLevels = (Level*)mipmap->writable_data();
     SkASSERT(mipmap->fLevels);
 
     Level* levels = mipmap->fLevels;
-    uint8_t*    baseAddr = (uint8_t*)&levels[params.countLevels];
+    uint8_t*    baseAddr = (uint8_t*)&levels[params.fCountLevels];
     uint8_t*    addr = baseAddr;
     int         width = src.width();
     int         height = src.height();
     uint32_t    rowBytes;
     SkPixmap    srcPM(src);
 
-    for (int i = 0; i < params.countLevels; ++i) {
-        BuildParams::FilterProc* proc;
+    for (int i = 0; i < params.fCountLevels; ++i) {
+        BuildParams::FilterProc proc;
         if (height & 1) {
             if (height == 1) {        // src-height is 1
                 if (width & 1) {      // src-width is 3
-                    proc = params.proc_3_1;
+                    proc = params.fProc_3_1;
                 } else {              // src-width is 2
-                    proc = params.proc_2_1;
+                    proc = params.fProc_2_1;
                 }
             } else {                  // src-height is 3
                 if (width & 1) {
                     if (width == 1) { // src-width is 1
-                        proc = params.proc_1_3;
+                        proc = params.fProc_1_3;
                     } else {          // src-width is 3
-                        proc = params.proc_3_3;
+                        proc = params.fProc_3_3;
                     }
                 } else {              // src-width is 2
-                    proc = params.proc_2_3;
+                    proc = params.fProc_2_3;
                 }
             }
         } else {                      // src-height is 2
             if (width & 1) {
                 if (width == 1) {     // src-width is 1
-                    proc = params.proc_1_2;
+                    proc = params.fProc_1_2;
                 } else {              // src-width is 3
-                    proc = params.proc_3_2;
+                    proc = params.fProc_3_2;
                 }
             } else {                  // src-width is 2
-                proc = params.proc_2_2;
+                proc = params.fProc_2_2;
             }
         }
         width = SkTMax(1, width >> 1);
@@ -500,7 +500,7 @@ SkMipMap* SkMipMap::Build(const SkPixmap& src, SkDiscardableFactoryProc fact) {
         srcPM = dstPM;
         addr += height * rowBytes;
     }
-    SkASSERT(addr == baseAddr + params.size);
+    SkASSERT(addr == baseAddr + params.fSize);
 
     SkASSERT(mipmap->fLevels);
     return mipmap;
