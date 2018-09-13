@@ -83,24 +83,33 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 path->close();
                 break;
             case 13:
-                fuzz->next(&r, &dir);
+                fuzz->next(&r);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
                 path->addRect(r, dir);
                 break;
             case 14:
-                fuzz->next(&r, &dir, &ui);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
+                fuzz->next(&r, &ui);
                 path->addRect(r, dir, ui);
                 break;
             case 15:
-                fuzz->next(&r, &dir);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
+                fuzz->next(&r);
                 path->addOval(r, dir);
                 break;
             case 16:
-                fuzz->next(&r, &dir, &ui);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
+                fuzz->next(&r, &ui);
                 path->addOval(r, dir, ui);
                 break;
             case 17:
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
                 fuzz_nice_float(fuzz, &a, &b, &c);
-                fuzz->next(&dir);
                 path->addCircle(a, b, c, dir);
                 break;
             case 18:
@@ -110,27 +119,35 @@ void FuzzPath(Fuzz* fuzz, SkPath* path, int maxOps) {
                 break;
             case 19:
                 fuzz_nice_float(fuzz, &a, &b);
-                fuzz->next(&r, &dir);
+                fuzz->next(&r);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
                 path->addRoundRect(r, a, b, dir);
                 break;
             case 20:
-                fuzz->next(&rr, &dir);
+                fuzz->next(&rr);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
                 path->addRRect(rr, dir);
                 break;
             case 21:
-                fuzz->next(&rr, &dir, &ui);
+                fuzz->nextRange(&ui, 0, 1);
+                dir = static_cast<SkPath::Direction>(ui);
+                fuzz->next(&rr, &ui);
                 path->addRRect(rr, dir, ui);
                 break;
             case 22: {
-                SkPath::AddPathMode mode;
-                fuzz->next(&m, &mode);
+                fuzz->nextRange(&ui, 0, 1);
+                SkPath::AddPathMode mode = static_cast<SkPath::AddPathMode>(ui);
+                fuzz->next(&m);
                 FuzzPath(fuzz, &p, maxOps-1);
                 path->addPath(p, m, mode);
                 break;
             }
             case 23: {
-                SkPath::AddPathMode mode;
-                fuzz->next(&m, &mode);
+                fuzz->nextRange(&ui, 0, 1);
+                SkPath::AddPathMode mode = static_cast<SkPath::AddPathMode>(ui);
+                fuzz->next(&m);
                 path->addPath(*path, m, mode);
                 break;
             }
