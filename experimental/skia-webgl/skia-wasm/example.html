@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<title>Skia -> WebGL (via WASM)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  canvas {
+    width: 200px;
+    height: 200px;
+  }
+
+  canvas.big {
+    width: 300px;
+    height: 300px;
+  }
+
+</style>
+
+<h2> Skia draws to WebGL</h2>
+<canvas id=webgl class=big></canvas>
+
+
+<script type="text/javascript" src="/node_modules/skia-wasm/bin/skia.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  SkiaInit({
+    locateFile: (file) => '/node_modules/skia-wasm/bin/'+file,
+  }).then((Skia) => {
+    window.Skia = Skia;
+    DrawingExample(Skia);
+  });
+
+  function DrawingExample(Skia) {
+    Skia.webGLDemo('webgl');
+  }
+
+</script>
