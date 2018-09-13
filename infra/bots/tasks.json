@@ -19034,7 +19034,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -19134,7 +19134,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -19234,7 +19234,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -19334,7 +19334,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40195,7 +40195,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40295,7 +40295,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40395,7 +40395,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
@@ -40495,7 +40495,7 @@
         "Housekeeper-PerCommit-IsolateSkImage"
       ],
       "dimensions": [
-        "device_os:R16NW_G930FXXU2EREM",
+        "device_os:R16NW_G930FXXS2ERH6",
         "device_type:herolte",
         "os:Android",
         "pool:Skia"
