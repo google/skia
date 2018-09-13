@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a9bfa39a_89a1b4f1",
+        "filename": "src/gpu/GrProxyProvider.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-13T18:43:45Z",
+      "side": 1,
+      "message": "Given our discussion about building mips early/late, and the DDL tradeoffs, it seems like I should move this conversion step out of the lazy proxy lambda, too? That would make it consistent with the mipmapped case.",
+      "revId": "6643fbbf0261f6aba9ec1319119ec9038461afcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
