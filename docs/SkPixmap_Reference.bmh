@@ -322,11 +322,7 @@ width: 384 height: 384 color: BGRA_8888 alpha: Opaque
 #In Image_Info_Access
 #Line # returns interval between rows in bytes ##
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as:
-#Formula
-width() * info().bytesPerPixel()
-##
-.
+is at least as large as: #Formula # width() * info().bytesPerPixel() ##.
 
 Returns zero if colorType is kUnknown_SkColorType.
 It is up to the Bitmap creator to ensure that row bytes is a useful value.
@@ -393,10 +389,7 @@ inset address:  0x7f2a440fb210
 #Line # returns pixel column count ##
 Returns pixel count in each pixel row. Should be equal or less than:
 
-#Formula
-rowBytes() / info().bytesPerPixel()
-##
-.
+#Formula # rowBytes() / info().bytesPerPixel() ##.
 
 #Return  pixel width in Image_Info ##
 
@@ -1579,14 +1572,7 @@ false if pixel conversion is not possible.
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if Pixmap width() or height() is zero or negative. Returns false if:
 
-#Formula
-abs(srcX) >= Pixmap width()
-##
-, or if
-#Formula
-abs(srcY) >= Pixmap height()
-##
-.
+#Formula # abs(srcX) >= Pixmap width() ##, or if #Formula # abs(srcY) >= Pixmap height() ##.
 
 #Param dstInfo  destination width, height, Color_Type, Alpha_Type, Color_Space ##
 #Param dstPixels  destination pixel storage ##
@@ -1642,14 +1628,7 @@ false if pixel conversion is not possible.
 srcX and srcY may be negative to copy only top or left of source. Returns
 false Pixmap width() or height() is zero or negative. Returns false if:
 
-#Formula
-abs(srcX) >= Pixmap width()
-##
-, or if
-#Formula
-abs(srcY) >= Pixmap height()
-##
-.
+#Formula # abs(srcX) >= Pixmap width() ##, or if #Formula # abs(srcY) >= Pixmap height() ##.
 
 #Param dst  Image_Info and pixel address to write to ##
 #Param srcX  column index whose absolute value is less than width() ##

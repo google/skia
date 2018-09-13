@@ -559,11 +559,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 static constexpr <a href='#SkIRect'>SkIRect</a> SK_WARN_UNUSED_RESULT <a href='#SkIRect_MakeXYWH'>MakeXYWH</a>(int32_t x, int32_t y, int32_t w, int32_t h)
 </pre>
 
-Returns constructed <a href='#IRect'>IRect</a> set to:
-(x, y, x + <a href='#SkIRect_MakeXYWH_w'>w</a>, y + <a href='#SkIRect_MakeXYWH_h'>h</a>)
-.
-Does not validate input;
-<a href='#SkIRect_MakeXYWH_w'>w</a> or <a href='#SkIRect_MakeXYWH_h'>h</a> may be negative.
+Returns constructed <a href='#IRect'>IRect</a> set to: <code>\(x, y, x&nbsp;\+&nbsp;<a href='#SkIRect_MakeXYWH_w'>w</a>, y&nbsp;\+&nbsp;<a href='#SkIRect_MakeXYWH_h'>h</a>\)</code>.
+Does not validate input; <a href='#SkIRect_MakeXYWH_w'>w</a> or <a href='#SkIRect_MakeXYWH_h'>h</a> may be negative.
 
 ### Parameters
 
@@ -1354,11 +1351,8 @@ rect2: {3, 4, 1, 2}
 void <a href='#SkIRect_setXYWH'>setXYWH</a>(int32_t x, int32_t y, int32_t width, int32_t height)
 </pre>
 
-Sets <a href='#IRect'>IRect</a> to:
-(x, y, x + width, y + height)
-.
-Does not validate input;
-width or height may be negative.
+Sets <a href='#IRect'>IRect</a> to: <code>\(x, y, x&nbsp;\+&nbsp;width, y&nbsp;\+&nbsp;height\)</code>.
+Does not validate input; width or height may be negative.
 
 ### Parameters
 
@@ -1776,10 +1770,8 @@ rect: 5, 1, 55, 86
 <a href='#IRect'>IRects</a> intersect when they enclose a common area. To intersect, each of the pair
 must describe area; <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>;
 empty() returns false. The intersection of <a href='#IRect'>IRect</a> pair can be described by:
-
-(max(a.<a href='#SkIRect_fLeft'>fLeft</a>, b.<a href='#SkIRect_fLeft'>fLeft</a>), max(a.<a href='#SkIRect_fTop'>fTop</a>, b.<a href='#SkIRect_fTop'>fTop</a>),
-min(a.<a href='#SkIRect_fRight'>fRight</a>, b.<a href='#SkIRect_fRight'>fRight</a>), min(a.<a href='#SkIRect_fBottom'>fBottom</a>, b.<a href='#SkIRect_fBottom'>fBottom</a>))
-.
+<code>\(max\(a\.<a href='#SkIRect_fLeft'>fLeft</a>, b\.<a href='#SkIRect_fLeft'>fLeft</a>\), max\(a\.<a href='#SkIRect_fTop'>fTop</a>, b\.<a href='#SkIRect_fTop'>fTop</a>\),
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min\(a\.<a href='#SkIRect_fRight'>fRight</a>, b\.<a href='#SkIRect_fRight'>fRight</a>\), min\(a\.<a href='#SkIRect_fBottom'>fBottom</a>, b\.<a href='#SkIRect_fBottom'>fBottom</a>\)\)</code>.
 
 The intersection is only meaningful if the resulting <a href='#IRect'>IRect</a> is not empty and
 describes an area: <a href='#SkIRect_fLeft'>fLeft</a> is less than <a href='#SkIRect_fRight'>fRight</a>, and <a href='#SkIRect_fTop'>fTop</a> is less than <a href='#SkIRect_fBottom'>fBottom</a>.
@@ -1885,14 +1877,10 @@ rect: 10, 10, 20, 20
 bool <a href='#SkIRect_contains'>contains</a>(int32_t x, int32_t y) const
 </pre>
 
-Returns true if:
-<a href='#SkIRect_fLeft'>fLeft</a> <= x < <a href='#SkIRect_fRight'>fRight</a> && <a href='#SkIRect_fTop'>fTop</a> <= y < <a href='#SkIRect_fBottom'>fBottom</a>.
-
+Returns true if: <code><a href='#SkIRect_fLeft'>fLeft</a>&nbsp;<=&nbsp;x&nbsp;<&nbsp;<a href='#SkIRect_fRight'>fRight</a>&nbsp;&&&nbsp;<a href='#SkIRect_fTop'>fTop</a>&nbsp;<=&nbsp;y&nbsp;<&nbsp;<a href='#SkIRect_fBottom'>fBottom</a></code>.
 Returns false if <a href='#IRect'>IRect</a> is empty.
 
-Considers input to describe constructed <a href='#IRect'>IRect</a>:
-(x, y, x + 1, y + 1)
-and
+Considers input to describe constructed <a href='#IRect'>IRect</a>: <code>\(x, y, x&nbsp;\+&nbsp;1, y&nbsp;\+&nbsp;1\)</code> and
 returns true if constructed area is completely enclosed by <a href='#IRect'>IRect</a> area.
 
 ### Parameters

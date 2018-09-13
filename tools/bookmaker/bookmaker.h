@@ -657,6 +657,19 @@ public:
         return fChar + index;
     }
 
+    const char* trimmedBracketNoEnd(const char bracket) const {
+        int max = (int) (fEnd - fChar);
+        int index = 0;
+        while (index < max && bracket != fChar[index]) {
+            ++index;
+        }
+        SkASSERT(index < max);
+        while (index > 0 && ' ' >= fChar[index - 1]) {
+            --index;
+        }
+        return fChar + index;
+    }
+
     const char* trimmedLineEnd() const {
         const char* result = this->lineEnd();
         while (result > fChar && ' ' >= result[-1]) {
@@ -972,6 +985,8 @@ public:
         return nullptr;
     }
 
+    void trimEnd();
+
     string fText;  // if text is constructed instead of in a file, it's put here
     const char* fStart = nullptr;  // .. in original text file, or the start of fText
     const char* fContentStart;  // start past optional markup name
@@ -1150,6 +1165,7 @@ public:
         fParent = def;
     }
 
+    void checkLineLength(size_t len, const char* str);
     static void CopyToFile(string oldFile, string newFile);
 
     static char* FindDateTime(char* buffer, int size);
@@ -1169,6 +1185,7 @@ public:
     void indentToColumn(int column) {
         SkASSERT(column >= fColumn);
         SkASSERT(!fReturnOnWrite);
+        SkASSERT(column < 80);
         if (fDebugOut) {
             SkDebugf("%*s", column - fColumn, "");
         }
@@ -1229,6 +1246,7 @@ public:
     void resetCommon() {
         fLine = fChar = fStart;
         fLineCount = 0;
+        fLinesWritten = 1;
         fParent = nullptr;
         fIndent = 0;
         fOut = nullptr;
@@ -1236,6 +1254,7 @@ public:
         fPendingLF = 0;
         fPendingSpace = 0;
         fOutdentNext = false;
+        fWritingIncludes = false;
         nl();
    }
 
@@ -1255,7 +1274,7 @@ public:
         SkAssertResult(writeBlockTrim(size, data));
     }
 
-    bool writeBlockIndent(int size, const char* data);
+    bool writeBlockIndent(int size, const char* data, bool ignoreIndent);
 
     void writeBlockSeparator() {
             this->writeString(
@@ -1314,12 +1333,14 @@ public:
     int fColumn;       // current column; number of chars past last linefeed
     int fIndent;       // desired indention
     int fPendingSpace; // one or two spaces should preceed the next string or block
+    size_t fLinesWritten; // as opposed to fLineCount, number of lines read
     char fLastChar;    // last written
     bool fDebugOut;    // set true to write to std out
     bool fValidate;    // set true to check anchor defs and refs
     bool fOutdentNext; // set at end of embedded struct to prevent premature outdent
     bool fWroteSomething; // used to detect empty content; an alternative source is preferable
     bool fReturnOnWrite; // used to detect non-empty content; allowing early return
+    bool fWritingIncludes; // set true when writing includes to check >100 columns
 
 private:
     typedef TextParser INHERITED;
@@ -1369,7 +1390,8 @@ public:
         kNo,      // neither resolved nor output
         kYes,     // resolved, output
         kOut,     // mostly resolved, output (FIXME: is this really different from kYes?)
-        kFormula, // resolve methods as they are used, not as they are prototyped
+        kCode,    // resolve methods as they are used, not as they are prototyped
+        kFormula, // kCode, plus make most spaces non-breaking
         kLiteral, // output untouched
 		kClone,   // resolved, output, with references to clones as well
         kSimple,  // resolve simple words (used to resolve method declarations)
@@ -1453,8 +1475,11 @@ public:
         return findDefinitions();
     }
 
-    bool popParentStack(Definition* definition);
-    void reportDuplicates(const Definition& def, string dup) const;
+    void parseHashAnchor(Definition* );
+    void parseHashFormula(Definition* );
+    void parseHashLine(Definition* );
+    bool popParentStack(Definition* );
+    void reportDuplicates(const Definition& , string dup) const;
     void resetExampleHashes();
 
     void reset() override {
@@ -2057,7 +2082,8 @@ public:
         fPendingMethod = false;
         fFirstWrite = false;
         fStructEnded = false;
-    }
+        fWritingIncludes = true;
+   }
 
     string resolveAlias(const Definition* );
     string resolveMethod(const char* start, const char* end, bool first);

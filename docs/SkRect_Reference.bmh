@@ -229,12 +229,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 #In Constructor
 #Line # constructs from SkScalar input returning (x, y, width, height) ##
-Returns constructed Rect set to
-#Formula
-(x, y, x + w, y + h)
-##
-. Does not validate input;
-w or h may be negative.
+Returns constructed Rect set to #Formula # (x, y, x + w, y + h) ##.
+Does not validate input; w or h may be negative.
 
 #Param x  stored in fLeft ##
 #Param y  stored in fTop ##
@@ -1119,12 +1115,8 @@ p0 and p1 may be swapped and have the same effect unless one contains NaN.
 
 #In Set
 #Line # sets to SkScalar input (x, y, width, height) ##
-Sets Rect to
-#Formula
-(x, y, x + width, y + height)
-##
-. Does not validate input;
-width or height may be negative.
+Sets Rect to #Formula # (x, y, x + width, y + height) ##.
+Does not validate input; width or height may be negative.
 
 #Param x  stored in fLeft ##
 #Param y  stored in fTop ##
@@ -1507,12 +1499,8 @@ rect: 5, 1, 55, 86
 Rects intersect when they enclose a common area. To intersect, each of the pair
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
 empty() returns false. The intersection of Rect pair can be described by:
-
-#Formula
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
- min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
-##
-.
+#Formula # (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
+            min(a.fRight, b.fRight), min(a.fBottom, b.fBottom)) ##.
 
 The intersection is only meaningful if the resulting Rect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
@@ -1949,12 +1937,8 @@ sorted: 10, 0, 55, 100
 #In Rounding
 #Line # sets members to nearest integer value ##
 Sets IRect by adding 0.5 and discarding the fractional portion of Rect
-members, using
-#Formula
-(SkScalarRoundToInt(fLeft), SkScalarRoundToInt(fTop),
- SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom))
-##
-.
+members, using #Formula # (SkScalarRoundToInt(fLeft), SkScalarRoundToInt(fTop),
+                           SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom)) ##.
 
 #Param dst  storage for IRect ##
 
@@ -1978,13 +1962,10 @@ round: 31, 51, 41, 61
 
 #In Rounding
 #Line # sets members to nearest integer value away from opposite ##
-Sets IRect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and fBottom, using
-#Formula
-(SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
- SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))
-##
-.
+Sets IRect by discarding the fractional portion of fLeft and fTop; and rounding
+up fRight and fBottom, using 
+#Formula # (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
+            SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)) ##.
 
 #Param dst  storage for IRect ##
 
@@ -2007,13 +1988,10 @@ round: 30, 50, 41, 61
 #Method    void roundOut(SkRect* dst) const
 
 #In Rounding
-Sets Rect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and fBottom, using
-#Formula
-(SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
- SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))
-##
-.
+Sets Rect by discarding the fractional portion of fLeft and fTop; and rounding 
+up fRight and fBottom, using 
+#Formula # (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
+            SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)) ##.
 
 #Param dst  storage for Rect ##
 
@@ -2037,14 +2015,10 @@ round: 30, 50, 41, 61
 
 #In Rounding
 #Line # sets members to nearest integer value towards opposite ##
-Sets Rect by rounding up fLeft and fTop; and
-discarding the fractional portion of fRight and fBottom, using
-
-#Formula
-(SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
- SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom))
-##
-.
+Sets Rect by rounding up fLeft and fTop; and discarding the fractional portion
+of fRight and fBottom, using
+#Formula # (SkScalarCeilToInt(fLeft), SkScalarCeilToInt(fTop),
+            SkScalarFloorToInt(fRight), SkScalarFloorToInt(fBottom)) ##.
 
 #Param dst  storage for IRect ##
 
@@ -2068,12 +2042,8 @@ round: 31, 51, 40, 60
 
 #In Rounding
 Returns IRect by adding 0.5 and discarding the fractional portion of Rect
-members, using
-#Formula
-(SkScalarRoundToInt(fLeft), SkScalarRoundToInt(fTop),
- SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom))
-##
-.
+members, using #Formula # (SkScalarRoundToInt(fLeft), SkScalarRoundToInt(fTop),
+                           SkScalarRoundToInt(fRight), SkScalarRoundToInt(fBottom)) ##.
 
 #Return  rounded IRect ##
 
@@ -2095,13 +2065,10 @@ round: 31, 51, 41, 61
 #Method    SkIRect roundOut() const
 
 #In Rounding
-Sets IRect by discarding the fractional portion of fLeft and fTop; and
-rounding up fRight and fBottom, using
-#Formula
-(SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
- SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom))
-##
-.
+Sets IRect by discarding the fractional portion of fLeft and fTop; and rounding
+up fRight and fBottom, using
+#Formula # (SkScalarFloorToInt(fLeft), SkScalarFloorToInt(fTop),
+            SkScalarCeilToInt(fRight), SkScalarCeilToInt(fBottom)) ##.
 
 #Return  rounded IRect ##
 

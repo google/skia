@@ -1294,8 +1294,7 @@ bool <a href='#SkPath_interpolate'>interpolate</a>(const <a href='#SkPath'>SkPat
 Interpolates between <a href='#Path'>Paths</a> with <a href='#Point_Array'>Point Array</a> of equal size.
 Copy <a href='#Verb_Array'>Verb Array</a> and <a href='#Conic_Weight'>Weights</a> to <a href='#SkPath_interpolate_out'>out</a>, and set <a href='#SkPath_interpolate_out'>out</a> <a href='#Point_Array'>Point Array</a> to a weighted
 average of this <a href='#Point_Array'>Point Array</a> and <a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a>, using the formula:
-(<a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> * <a href='#SkPath_interpolate_weight'>weight</a>) + <a href='#SkPath_interpolate_ending'>ending</a> <a href='SkPoint_Reference#Point'>Point</a> * (1 - <a href='#SkPath_interpolate_weight'>weight</a>)
-.
+<code>\(<a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a>&nbsp;\*&nbsp;<a href='#SkPath_interpolate_weight'>weight</a>\)&nbsp;\+&nbsp;<a href='#SkPath_interpolate_ending'>ending</a> <a href='SkPoint_Reference#Point'>Point</a>&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;<a href='#SkPath_interpolate_weight'>weight</a>\)</code>.
 
 <a href='#SkPath_interpolate_weight'>weight</a> is most useful when between zero (<a href='#SkPath_interpolate_ending'>ending</a> <a href='#Point_Array'>Point Array</a>) and
 one (this <a href='#Point_Array'>Point Array</a>); will work with values outside of this
@@ -3323,7 +3322,7 @@ If weight is less than one, <a href='#Conic'>Conic</a> is an elliptical segment.
 
 ### Example
 
-<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight1 / sqrt(2).
+<div><fiddle-embed name="e88f554efacfa9f75f270fb1c0add5b4"><div>A 90 degree circular arc has the weight <code>1&nbsp;/&nbsp;sqrt(2)</code>.
 </div>
 
 #### Example Output
@@ -4034,14 +4033,16 @@ reference to <a href='#Path'>Path</a>
               const <a href='SkPoint_Reference#SkPoint'>SkPoint</a> xy)
 </pre>
 
-Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>. <a href='#Arc'>Arc</a> is implemented by one or more <a href='#Conic'>Conic</a> weighted to describe part of <a href='undocumented#Oval'>Oval</a>
-with radii (<a href='#SkPath_arcTo_5_r'>r</a>.fX, <a href='#SkPath_arcTo_5_r'>r</a>.fY) rotated by <a href='#SkPath_arcTo_5_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a> curves from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to
-(<a href='#SkPath_arcTo_5_xy'>xy</a>.fX, <a href='#SkPath_arcTo_5_xy'>xy</a>.fY), choosing one of four possible routes: clockwise or counterclockwise,
+Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>. <a href='#Arc'>Arc</a> is implemented by one or more <a href='#Conic'>Conic</a> weighted to describe
+part of <a href='undocumented#Oval'>Oval</a> with radii (<a href='#SkPath_arcTo_5_r'>r</a>.fX, <a href='#SkPath_arcTo_5_r'>r</a>.fY) rotated by <a href='#SkPath_arcTo_5_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a> curves
+from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> to (<a href='#SkPath_arcTo_5_xy'>xy</a>.fX, <a href='#SkPath_arcTo_5_xy'>xy</a>.fY), choosing one of four possible routes:
+clockwise or counterclockwise,
 and smaller or larger.
 
-<a href='#Arc'>Arc</a> <a href='#SkPath_arcTo_5_sweep'>sweep</a> is always less than 360 degrees. <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> to <a href='#SkPath_arcTo_5_xy'>xy</a> if either radii are zero,
-or if last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> equals (x, y). <a href='#SkPath_arcTo'>arcTo</a> scales radii <a href='#SkPath_arcTo_5_r'>r</a> to fit last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and
-<a href='#SkPath_arcTo_5_xy'>xy</a> if both are greater than zero but too small to describe an arc.
+<a href='#Arc'>Arc</a> <a href='#SkPath_arcTo_5_sweep'>sweep</a> is always less than 360 degrees. <a href='#SkPath_arcTo'>arcTo</a> appends <a href='undocumented#Line'>Line</a> to <a href='#SkPath_arcTo_5_xy'>xy</a> if either
+radii are zero, or if last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> equals (x, y). <a href='#SkPath_arcTo'>arcTo</a> scales radii <a href='#SkPath_arcTo_5_r'>r</a> to fit
+last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> and <a href='#SkPath_arcTo_5_xy'>xy</a> if both are greater than zero but too small to describe
+an arc.
 
 <a href='#SkPath_arcTo'>arcTo</a> appends up to four <a href='#Conic'>Conic</a> curves.
 <a href='#SkPath_arcTo'>arcTo</a> implements the functionality of <a href='undocumented#Arc'>SVG Arc</a>, although <a href='undocumented#SVG'>SVG</a> "<a href='#SkPath_arcTo_5_sweep'>sweep</a>-flag" value is
@@ -4092,10 +4093,7 @@ reference to <a href='#Path'>Path</a>
 Appends <a href='#Arc'>Arc</a> to <a href='#Path'>Path</a>, relative to last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a>. <a href='#Arc'>Arc</a> is implemented by one or
 more <a href='#Conic'>Conic</a>, weighted to describe part of <a href='undocumented#Oval'>Oval</a> with radii (<a href='#SkPath_rArcTo_rx'>rx</a>, <a href='#SkPath_rArcTo_ry'>ry</a>) rotated by
 <a href='#SkPath_rArcTo_xAxisRotate'>xAxisRotate</a> degrees. <a href='#Arc'>Arc</a> curves from last <a href='#Path'>Path</a> <a href='SkPoint_Reference#Point'>Point</a> (x0, y0) to end <a href='SkPoint_Reference#Point'>Point</a>:
-
-(x0 + <a href='#SkPath_rArcTo_dx'>dx</a>, y0 + <a href='#SkPath_rArcTo_dy'>dy</a>)
-,
-choosing one of four possible routes: clockwise or
+<code>\(x0&nbsp;\+&nbsp;<a href='#SkPath_rArcTo_dx'>dx</a>, y0&nbsp;\+&nbsp;<a href='#SkPath_rArcTo_dy'>dy</a>\)</code>, choosing one of four possible routes: clockwise or
 counterclockwise, and smaller or larger. If <a href='#Path'>Path</a> is empty, the start <a href='#Arc'>Arc</a> <a href='SkPoint_Reference#Point'>Point</a>
 is (0, 0).
 
@@ -4289,7 +4287,7 @@ control <a href='SkPoint_Reference#Point'>Point</a> <a href='#SkPath_ConvertConi
 Maximum <a href='#Quad'>Quad</a> count is 2 to the <a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a>.
 Every third point in array shares last <a href='SkPoint_Reference#Point'>Point</a> of previous <a href='#Quad'>Quad</a> and first <a href='SkPoint_Reference#Point'>Point</a> of
 next <a href='#Quad'>Quad</a>. Maximum <a href='#SkPath_ConvertConicToQuads_pts'>pts</a> storage size is given by:
-(1 + 2 * (1 << <a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a>)) * sizeof(SkPoint).
+<code>\(1&nbsp;\+&nbsp;2&nbsp;\*&nbsp;\(1&nbsp;<<&nbsp;<a href='#SkPath_ConvertConicToQuads_pow2'>pow2</a>\)\)&nbsp;\*&nbsp;sizeof(SkPoint)</code>.
 
 Returns <a href='#Quad'>Quad</a> count used the approximation, which may be smaller
 than the number requested.
@@ -4665,10 +4663,7 @@ reference to <a href='#Path'>Path</a>
 </pre>
 
 Adds <a href='undocumented#Circle'>Circle</a> centered at (<a href='#SkPath_addCircle_x'>x</a>, <a href='#SkPath_addCircle_y'>y</a>) of size <a href='#SkPath_addCircle_radius'>radius</a> to <a href='#Path'>Path</a>, appending <a href='#SkPath_kMove_Verb'>kMove Verb</a>,
-four <a href='#SkPath_kConic_Verb'>kConic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>. <a href='undocumented#Circle'>Circle</a> begins at:
-(<a href='#SkPath_addCircle_x'>x</a> + <a href='#SkPath_addCircle_radius'>radius</a>, <a href='#SkPath_addCircle_y'>y</a>)
-,
-continuing
+four <a href='#SkPath_kConic_Verb'>kConic Verb</a>, and <a href='#SkPath_kClose_Verb'>kClose Verb</a>. <a href='undocumented#Circle'>Circle</a> begins at: <code>\(<a href='#SkPath_addCircle_x'>x</a>&nbsp;\+&nbsp;<a href='#SkPath_addCircle_radius'>radius</a>, <a href='#SkPath_addCircle_y'>y</a>\)</code>, continuing
 clockwise if <a href='#SkPath_addCircle_dir'>dir</a> is <a href='#SkPath_kCW_Direction'>kCW Direction</a>, and counterclockwise if <a href='#SkPath_addCircle_dir'>dir</a> is <a href='#SkPath_kCCW_Direction'>kCCW Direction</a>.
 
 Has no effect if <a href='#SkPath_addCircle_radius'>radius</a> is zero or negative.
