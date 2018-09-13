@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "730ebe72_d0eb81ec",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "Could you add a bool here for the param that is passed into MakeRecAndEffects,\n\nbool enableTypefaceFiltering \u003d (type \u003d\u003d kDevice);\n\nand add a comment explaining why this is done for the device desc but no the key desc.",
+      "range": {
+        "startLine": 72,
+        "startChar": 86,
+        "endLine": 72,
+        "endChar": 90
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "77b35694_6b909baf",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "Is this change necessary?",
+      "range": {
+        "startLine": 331,
+        "startChar": 46,
+        "endLine": 331,
+        "endChar": 60
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18e4dd6e_bd2f7056",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "Is tracing disabled by a build time flag?",
+      "range": {
+        "startLine": 491,
+        "startChar": 69,
+        "endLine": 491,
+        "endChar": 92
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "67abbcf9_06ae821d",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "SkAutoDescriptor internally does a copy. But maybe since we avoid an allocation this way.",
+      "range": {
+        "startLine": 584,
+        "startChar": 10,
+        "endLine": 584,
+        "endChar": 24
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "43eb3027_e70e1f50",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 692,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "I don\u0027t follow why this logic, couldn\u0027t it just be:\n\nSkScalerContextEffects effects(fPaint);",
+      "range": {
+        "startLine": 692,
+        "startChar": 8,
+        "endLine": 692,
+        "endChar": 55
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cd90131a_6cee4f7c",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 7830
+      },
+      "writtenOn": "2018-09-13T01:08:38Z",
+      "side": 1,
+      "message": "I don\u0027t think we should store this paint by reference here. It should work out fine in the current code but its not obvious. The paint is updated each time before the cache is used, and that use happens to be scoped within the paint\u0027s lifetime.\n\nCould we just have all methods which lazily create the context have the paint or effects passed in? So this class doesn\u0027t need to keep a reference to it.",
+      "range": {
+        "startLine": 699,
+        "startChar": 4,
+        "endLine": 699,
+        "endChar": 19
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
