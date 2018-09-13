@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54b78cd4_d831a922",
+        "filename": "src/image/SkImage_Gpu.cpp",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-13T18:10:06Z",
+      "side": 1,
+      "message": "one more nit: align these :)",
+      "range": {
+        "startLine": 864,
+        "startChar": 46,
+        "endLine": 865,
+        "endChar": 79
+      },
+      "revId": "1373efdccf6f96c497cdbae56a79848121b278ee",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
