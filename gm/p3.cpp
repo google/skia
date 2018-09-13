@@ -141,7 +141,7 @@ static void compare_pixel(const char* label,
     }
 }
 
-DEF_SIMPLE_GM(p3, canvas, 450, 200) {
+DEF_SIMPLE_GM(p3, canvas, 450, 400) {
     auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                     SkColorSpace::kDCIP3_D65_Gamut);
 
@@ -183,6 +183,36 @@ DEF_SIMPLE_GM(p3, canvas, 450, 200) {
                           canvas, 69,69,
                           {0,1,0,1}, p3.get());
         canvas->restore();
+    }
+
+    canvas->translate(0,80);
+
+    // Draw an A8 image with the paint color set to P3 red, hitting a sprite case.
+    //    and
+    // Draw a scaled A8 image with the paint color set to P3 red, hitting a non-sprite case.
+    {
+        uint8_t mask[256];
+        for (int i = 0; i < 256; i++) {
+            mask[i] = 255-i;
+        }
+        SkBitmap bm;
+        bm.installPixels(SkImageInfo::MakeA8(16,16), mask, 16);
+
+        SkPaint paint;
+        paint.setFilterQuality(kLow_SkFilterQuality);
+        paint.setColor4f({1,0,0,1}, p3.get());
+
+        canvas->drawBitmap(bm, 10,10, &paint);
+        compare_pixel("A8 sprite P3 red",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+
+        canvas->translate(0,80);
+
+        canvas->drawBitmapRect(bm, {10,10,70,70}, &paint);
+        compare_pixel("A8 image P3 red",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
     }
 
     // TODO: draw P3 colors more ways
