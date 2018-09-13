@@ -384,6 +384,8 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
         // to do the color space transformation.  Might be possible to streamline.
         if (info.colorType() == kAlpha_8_SkColorType) {
             // The color for A8 images comes from the (sRGB) paint color.
+            // TODO: confirm that this is only ever called with the paint color set to black,
+            // then drop this step and the color correction below.
             p->append(SkRasterPipeline::set_rgb, &misc->paint_color);
             p->append(SkRasterPipeline::premul);
         } else if (info.alphaType() == kUnpremul_SkAlphaType) {

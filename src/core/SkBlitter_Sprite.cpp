@@ -112,6 +112,9 @@ public:
         fLeft = left;
         fTop  = top;
 
+        // TODO: confirm that fSource.colorType() is never called with kAlpha_8_SkColorType,
+        // cut that support and the need to handle fPaintColor at all.
+
         // Just like in SkImageShader, we'll keep the paint color as floats in sRGB.
         swizzle_rb(Sk4f_fromL32(paint.getColor())).store(fPaintColor.vec());
 
@@ -134,6 +137,7 @@ public:
                                             p.append(SkRasterPipeline::force_opaque     ); break;
             default: SkASSERT(false);
         }
+
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             // The color for A8 images comes from the (sRGB) paint color.
             p.append(SkRasterPipeline::set_rgb, &fPaintColor);
