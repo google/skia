@@ -224,10 +224,6 @@ void SkGlyphRunListPainter::drawForBitmapDevice(
             SkPaint pathPaint(glyphRun.paint());
             SkScalar matrixScale = pathPaint.setupForAsPaths();
 
-            // Temporarily jam in kFill, so we only ever ask for the raw outline from the cache.
-            pathPaint.setStyle(SkPaint::kFill_Style);
-            pathPaint.setPathEffect(nullptr);
-
             auto pathCache = SkStrikeCache::FindOrCreateStrikeExclusive(
                     pathPaint, &props, fScalerContextFlags, nullptr);
 
