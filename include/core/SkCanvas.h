@@ -2061,7 +2061,8 @@ public:
         @param matrix   SkMatrix to rotate, scale, translate, and so on; may be nullptr
         @param paint    SkPaint to apply transparency, filtering, and so on; may be nullptr
     */
-    void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix, const SkPaint* paint) {
+    void drawPicture(const sk_sp<SkPicture>& picture, const SkMatrix* matrix,
+                     const SkPaint* paint) {
         this->drawPicture(picture.get(), matrix, paint);
     }
 
