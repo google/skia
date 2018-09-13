@@ -356,11 +356,8 @@ Used by tests to iterate through all valid values.
 
 #Subtopic Clear
 #Line # makes destination pixels transparent ##
-SkBlendMode::kClear sets destination to:
-#Formula
-[0, 0]
-##
-. Use SkBlendMode::kClear to initialize a buffer to fully transparent pixels when
+SkBlendMode::kClear sets destination to: #Formula # [0, 0] ##. 
+Use SkBlendMode::kClear to initialize a buffer to fully transparent pixels when
 creating a mask with irregular edges.
 
 #Example
@@ -385,15 +382,9 @@ value and the destination pixel value, always setting the destination to zero.
 
 #Subtopic Src
 #Line # replaces destination, ignoring Alpha ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component
-##
-; SkBlendMode::kSrc sets destination to:
-#Formula
-[Sa, Sc]
-##
-. Use SkBlendMode::kSrc to copy one buffer to another. All pixels are copied,
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component;
+SkBlendMode::kSrc sets destination to: #Formula # [Sa, Sc] ##. 
+Use SkBlendMode::kSrc to copy one buffer to another. All pixels are copied,
 regardless of source and destination Alpha values. As a parameter to
 SkCanvas::drawAtlas, selects sprites and ignores colors.
 #Example
@@ -418,15 +409,9 @@ it punches a transparent hole in the existing image.
 
 #Subtopic Dst
 #Line # preserves destination, ignoring source ##
-Given:
-#Formula
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDst preserves destination set to:
-#Formula
-[Da, Dc]
-##
-. Setting Paint Blend_Mode to SkBlendMode::kDst causes drawing with
+Given: #Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+ SkBlendMode::kDst preserves destination set to: #Formula # [Da, Dc] ##.
+Setting Paint Blend_Mode to SkBlendMode::kDst causes drawing with
 Paint to have no effect. As a parameter to SkCanvas::drawAtlas,
 selects colors and ignores sprites.
 #Example
@@ -442,16 +427,10 @@ selects colors and ignores sprites.
 
 #Subtopic Src_Over
 #Line # blends source with destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kSrcOver replaces destination with:
-#Formula
-[Sa + Da * (1 - Sa), Sc + Dc * (1 - Sa)]
-##
-, drawing source over destination. SkBlendMode::kSrcOver is the default for Paint.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kSrcOver replaces destination with: #Formula # [Sa + Da * (1 - Sa), Sc + Dc * (1 - Sa)] ##,
+drawing source over destination. SkBlendMode::kSrcOver is the default for Paint.
 
 SkBlendMode::kSrcOver cannot make destination more transparent; the result will
 be at least as opaque as the less transparent of source and original destination.
@@ -475,16 +454,10 @@ be at least as opaque as the less transparent of source and original destination
 
 #Subtopic Dst_Over
 #Line # blends destination with source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDstOver replaces destination with:
-#Formula
-[Da + Sa * (1 - Da), Dc + Sc * (1 - Da)]
-##
-, drawing destination over source. Has no effect destination if is opaque.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDstOver replaces destination with: #Formula # [Da + Sa * (1 - Da), Dc + Sc * (1 - Da)] ##,
+drawing destination over source. Has no effect destination if is opaque.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -505,15 +478,10 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Src_In
 #Line # source trimmed inside destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component, Da as destination Alpha
-##
-; SkBlendMode::kSrcIn replaces destination with:
-#Formula
-[Sa * Da, Sc * Da]
-##
-, drawing source with destination opacity.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha;
+SkBlendMode::kSrcIn replaces destination with: #Formula # [Sa * Da, Sc * Da] ##,
+drawing source with destination opacity.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -534,15 +502,10 @@ Sa as source Alpha, Sc as source Color component, Da as destination Alpha
 
 #Subtopic Dst_In
 #Line # destination trimmed by source ##
-Given:
-#Formula
-Sa as source Alpha, Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDstIn replaces destination with:
-#Formula
-[Da * Sa, Dc * Sa]
-##
-, scaling destination Alpha by source Alpha. Resulting
+Given: #Formula # Sa ## as source Alpha,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDstIn replaces destination with: #Formula # [Da * Sa, Dc * Sa] ##,
+scaling destination Alpha by source Alpha. Resulting
 destination is visible where source is visible.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
@@ -564,15 +527,10 @@ destination is visible where source is visible.
 
 #Subtopic Src_Out
 #Line # source trimmed outside destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component, Da as destination Alpha
-##
-; SkBlendMode::kSrcOut replaces destination with:
-#Formula
-[Sa * (1 - Da), Sc * (1 - Da)]
-##
-, drawing source fully where destination Alpha is zero. Is destination
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha;
+SkBlendMode::kSrcOut replaces destination with: #Formula # [Sa * (1 - Da), Sc * (1 - Da)] ##,
+drawing source fully where destination Alpha is zero. Is destination
 is opaque, has no effect.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
@@ -594,15 +552,10 @@ is opaque, has no effect.
 
 #Subtopic Dst_Out
 #Line # destination trimmed outside source ##
-Given:
-#Formula
-Sa as source Alpha, Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDstOut replaces destination with:
-#Formula
-[Da * (1 - Sa), Dc * (1 - Sa)]
-##
-, scaling destination Alpha by source transparency. Resulting
+Given: #Formula # Sa ## as source Alpha,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDstOut replaces destination with: #Formula # [Da * (1 - Sa), Dc * (1 - Sa)] ##,
+scaling destination Alpha by source transparency. Resulting
 destination is visible where source is transparent. If source is transparent,
 has no effect.
 #Example
@@ -625,16 +578,10 @@ has no effect.
 
 #Subtopic Src_Atop
 #Line # source inside destination over destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kSrcATop replaces destination with:
-#Formula
-[Da, Sc * Da + Dc * (1 - Sa)]
-##
-, replacing opaque destination with opaque source. If source or destination
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kSrcATop replaces destination with: #Formula # [Da, Sc * Da + Dc * (1 - Sa)] ##,
+replacing opaque destination with opaque source. If source or destination
 is transparent, has no effect.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
@@ -656,16 +603,10 @@ is transparent, has no effect.
 
 #Subtopic Dst_Atop
 #Line # destination inside source over source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDstATop replaces destination with:
-#Formula
-[Sa, Dc * Sa + Sc * (1 - Da)]
-##
-, making destination transparent where source is transparent.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDstATop replaces destination with: #Formula # [Sa, Dc * Sa + Sc * (1 - Da)] ##,
+making destination transparent where source is transparent.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -686,16 +627,11 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Xor
 #Line # each of source and destination trimmed outside the other ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kXor replaces destination with:
-#Formula
-[Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa)]
-##
-, exchanging the transparency of the source and destination.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kXor replaces destination with:
+#Formula # [Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa)] ##,
+exchanging the transparency of the source and destination.
 #Example
    SkPaint paint;
    paint.setBlendMode(SkBlendMode::kXor);
@@ -712,16 +648,10 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Plus
 #Line # sum of colors ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kPlus replaces destination with:
-#Formula
-[Sa + Da, Sc + Dc]
-##
-, summing the Alpha and Color components.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kPlus replaces destination with: #Formula # [Sa + Da, Sc + Dc] ##,
+summing the Alpha and Color components.
 #Example
    canvas->drawColor(SK_ColorBLACK);
    SkPaint paint;
@@ -739,16 +669,10 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Modulate
 #Line # product of Premultiplied colors; darkens destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kModulate replaces destination with:
-#Formula
-[Sa * Da, Sc * Dc]
-##
-, scaling Alpha and Color components by the lesser of the values.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kModulate replaces destination with: #Formula # [Sa * Da, Sc * Dc] ##,
+scaling Alpha and Color components by the lesser of the values.
 SkBlendMode::kModulate differs from SkBlendMode::kMultiply in two ways.
 SkBlendMode::kModulate like SkBlendMode::kSrcATop alters the destination inside
 the destination area, as if the destination Alpha defined the boundaries of a
@@ -787,16 +711,10 @@ and destination using Unpremultiplied component values.
 
 #Subtopic Screen
 #Line # multiply inverse of pixels, inverting result; brightens destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kScreen replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
-##
-. 
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kScreen replaces destination with: #Formula # [Sa + Da - Sa * Da, Sc + Dc - Sc * Dc] ##.
+
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -817,17 +735,11 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Overlay
 #Line # multiply or screen, depending on destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kOverlay replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
-    (2 * Dc <= Da ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc))]
-##
-.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kOverlay replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
+    (2 * Dc <= Da ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc))] ##.
 #Example
     SkColor colors[] = { SK_ColorRED, SK_ColorBLUE };
     SkPoint horz[] = { { 0, 0 }, { 256, 0 } };
@@ -848,16 +760,11 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Darken
 #Line # darker of source and destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDarken replaces destination with:
-#Formula
-[Sa + Da - Sa * Da,  Sc + Dc - max(Sc * Da, Dc * Sa)]
-##
-. SkBlendMode::kDarken does not make an image darker; it replaces the destination
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDarken replaces destination with:
+#Formula # [Sa + Da - Sa * Da,  Sc + Dc - max(Sc * Da, Dc * Sa)] ##.
+SkBlendMode::kDarken does not make an image darker; it replaces the destination
 component with source if source is darker. 
 #Example
 #Image 3
@@ -874,16 +781,11 @@ component with source if source is darker.
 
 #Subtopic Lighten
 #Line # lighter of source and destination ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kLighten replaces destination with:
-#Formula
-[Sa + Da - Sa * Da,  Sc + Dc - min(Sc * Da, Dc * Sa)]
-##
-. SkBlendMode::kDarken does not make an image lighter; it replaces the destination
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kLighten replaces destination with:
+#Formula # [Sa + Da - Sa * Da,  Sc + Dc - min(Sc * Da, Dc * Sa)] ##. 
+SkBlendMode::kDarken does not make an image lighter; it replaces the destination
 component with source if source is lighter. 
 #Example
 #Image 3
@@ -900,17 +802,12 @@ component with source if source is lighter.
 
 #Subtopic Color_Dodge
 #Line # brighten destination to reflect source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kColorDodge replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Dc == 0 ? Sc * (1 - Da) : Sc == Sa ? Sc + Da * (1 - Sa) :
-            Sa * min(Da, Dc * Sa / (Sa - Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
-##
-, making destination brighter to reflect source.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kColorDodge replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Dc == 0 ? Sc * (1 - Da) : Sc == Sa ? Sc + Da * (1 - Sa) :
+            Sa * min(Da, Dc * Sa / (Sa - Sc)) + Sc * (1 - Da) + Da * (1 - Sa)] ##,
+making destination brighter to reflect source.
 #Example
 #Image 3
     canvas->drawImage(image, 0, 0);
@@ -921,17 +818,12 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Color_Burn
 #Line # darken destination to reflect source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kColorBurn replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Dc == Da ? Dc + Sc * (1 - Da) : Sc == 0 ? Da * (1 - Sa) :
-            Sa * (Da - min(Da, (Da - Dc) * Sa / Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
-##
-, making destination darker to reflect source.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kColorBurn replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Dc == Da ? Dc + Sc * (1 - Da) : Sc == 0 ? Da * (1 - Sa) :
+            Sa * (Da - min(Da, (Da - Dc) * Sa / Sc)) + Sc * (1 - Da) + Da * (1 - Sa)] ##,
+making destination darker to reflect source.
 #Example
 #Image 3
     canvas->drawImage(image, 0, 0);
@@ -942,17 +834,12 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Hard_Light
 #Line # multiply or screen, depending on source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kHardLight replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
-        2 * Sc <= Sa ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
-##
-, making destination lighter or darker, depending on source.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kHardLight replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
+        2 * Sc <= Sa ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc)] ##,
+making destination lighter or darker, depending on source.
 #Example
 #Image 3
    canvas->drawImage(image, 0, 0);
@@ -968,19 +855,13 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Soft_Light
 #Line # lighten or darken, depending on source ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-where m = Da > 0 ? Dc / Da : 0
-##
-; SkBlendMode::kSoftLight replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc / Da + Dc / Sa +
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+where #Formula # m = Da > 0 ? Dc / Da : 0 ##;
+SkBlendMode::kSoftLight replaces destination with: #Formula # [Sa + Da - Sa * Da, Sc / Da + Dc / Sa +
     (2 * Sc <= Sa ? Dc * (Sa + (2 * Sc - Sa) * (1 - m)) : Dc * Sa + Da * (2 * Sc - Sa) *
-    (4 * Dc <= Da ? (16 * m * m  + 4 * m) * (m - 1) + 7 * m : sqrt(m) - m))]\
-##
-, making destination lighter or darker, depending on source.
+    (4 * Dc <= Da ? (16 * m * m  + 4 * m) * (m - 1) + 7 * m : sqrt(m) - m))] ##,
+making destination lighter or darker, depending on source.
 #Example
 #Image 3
    const SkColor colors[] = { 0xFFFFFFFF, 0x3FFFFFFF };
@@ -995,16 +876,11 @@ where m = Da > 0 ? Dc / Da : 0
 
 #Subtopic Difference
 #Line # subtract darker from lighter with higher contrast ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kDifference replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc + Dc - 2 * min(Sc * Da, Dc * Sa)]
-##
-, replacing destination with lighter less darker.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kDifference replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Sc + Dc - 2 * min(Sc * Da, Dc * Sa)] ##,
+replacing destination with lighter less darker.
 #Example
 #Image 5
     canvas->drawImage(image, 0, 0);
@@ -1025,16 +901,11 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Exclusion
 #Line # subtract darker from lighter with lower contrast ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kExclusion replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc + Dc - 2 * Sc * Dc]
-##
-, replacing destination with lighter less darker, ignoring Alpha.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kExclusion replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Sc + Dc - 2 * Sc * Dc] ##,
+replacing destination with lighter less darker, ignoring Alpha.
 #Example
 #Image 5
     canvas->drawImage(image, 0, 0);
@@ -1055,16 +926,11 @@ Da as destination Alpha, Dc as destination Color component
 
 #Subtopic Multiply
 #Line # multiply source with destination, darkening image ##
-Given:
-#Formula
-Sa as source Alpha, Sc as source Color component,
-Da as destination Alpha, Dc as destination Color component
-##
-; SkBlendMode::kMultiply replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) + Sc * Dc]
-##
-, the product of Unpremultiplied source and destination.
+Given: #Formula # Sa ## as source Alpha, #Formula # Sc ## as source Color component,
+#Formula # Da ## as destination Alpha, #Formula # Dc ## as destination Color component;
+SkBlendMode::kMultiply replaces destination with:
+#Formula # [Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) + Sc * Dc] ##,
+the product of Unpremultiplied source and destination.
 SkBlendMode::kMultiply makes the image darker.
 #Example
 #Image 5
@@ -1086,16 +952,11 @@ SkBlendMode::kMultiply makes the image darker.
 
 #Subtopic Hue
 #Line # hue of source with saturation and luminosity of destination ##
-Given:
-#Formula
-Sa as source Alpha, S as source Color,
-Da as destination Alpha, D as destination Color
-##
-; SkBlendMode::kHue replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, SetLuminosity(SetSaturation(S, Saturation(D)), Luminosity(D))]
-##
-, source hue, leaving destination luminosity and saturation unchanged.
+Given: #Formula # Sa ## as source Alpha, #Formula # S ## as source Color,
+#Formula # Da ## as destination Alpha, #Formula # D ## as destination Color;
+SkBlendMode::kHue replaces destination with:
+#Formula # [Sa + Da - Sa * Da, SetLuminosity(SetSaturation(S, Saturation(D)), Luminosity(D))] ##,
+source hue, leaving destination luminosity and saturation unchanged.
 #Example
 #Image 3
 canvas->drawImage(image, 0, 0);
@@ -1105,16 +966,11 @@ canvas->drawColor(0xFF00FF00, SkBlendMode::kHue);
 
 #Subtopic Saturation
 #Line # saturation of source with hue and luminosity of destination ##
-Given:
-#Formula
-Sa as source Alpha, S as source Color,
-Da as destination Alpha, D as destination Color
-##
-; SkBlendMode::kHue replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, SetLuminosity(SetSaturation(D, Saturation(S)), Luminosity(D))]
-##
-, source hue, leaving destination luminosity and saturation unchanged.
+Given: #Formula # Sa ## as source Alpha, #Formula # S ## as source Color,
+#Formula # Da ## as destination Alpha, #Formula # D ## as destination Color;
+SkBlendMode::kHue replaces destination with:
+#Formula # [Sa + Da - Sa * Da, SetLuminosity(SetSaturation(D, Saturation(S)), Luminosity(D))] ##,
+source hue, leaving destination luminosity and saturation unchanged.
 #Example
 #Image 3
 canvas->drawImage(image, 0, 0);
@@ -1124,16 +980,11 @@ canvas->drawColor(0xFF00FF00, SkBlendMode::kSaturation);
 
 #Subtopic Color
 #Line # hue and saturation of source with luminosity of destination ##
-Given:
-#Formula
-Sa as source Alpha, S as source Color,
-Da as destination Alpha, D as destination Color
-##
-; SkBlendMode::kColor replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, SetLuminosity(S, Luminosity(D))]
-##
-, source hue and saturation, leaving destination luminosity unchanged.
+Given: #Formula # Sa ## as source Alpha, #Formula # S ## as source Color,
+#Formula # Da ## as destination Alpha, #Formula # D ## as destination Color;
+SkBlendMode::kColor replaces destination with:
+#Formula # [Sa + Da - Sa * Da, SetLuminosity(S, Luminosity(D))] ##,
+source hue and saturation, leaving destination luminosity unchanged.
 #Example
 #Image 3
 canvas->drawImage(image, 0, 0);
@@ -1143,16 +994,11 @@ canvas->drawColor(0xFF00FF00, SkBlendMode::kColor);
 
 #Subtopic Luminosity
 #Line # luminosity of source with hue and saturation of destination ##
-Given:
-#Formula
-Sa as source Alpha, S as source Color,
-Da as destination Alpha, D as destination Color
-##
-; SkBlendMode::kLuminosity replaces destination with:
-#Formula
-[Sa + Da - Sa * Da, SetLuminosity(D, Luminosity(S))]
-##
-, source luminosity, leaving destination hue and saturation unchanged.
+Given: #Formula # Sa ## as source Alpha, #Formula # S ## as source Color,
+#Formula # Da ## as destination Alpha, #Formula # D ## as destination Color;
+SkBlendMode::kLuminosity replaces destination with:
+#Formula # [Sa + Da - Sa * Da, SetLuminosity(D, Luminosity(S))] ##,
+source luminosity, leaving destination hue and saturation unchanged.
 #Example
 #Image 3
 canvas->drawImage(image, 0, 0);

@@ -1047,9 +1047,7 @@ width: 56 height: 56 color: BGRA_8888 alpha: Opaque
 int <a href='#SkBitmap_width'>width</a>() const
 </pre>
 
-Returns pixel count in each row. Should be equal or less than:
-
-<a href='#SkBitmap_rowBytes'>rowBytes</a> / <a href='#SkBitmap_info'>info</a>.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>.
+Returns pixel count in each row. Should be equal or less than <code><a href='#SkBitmap_rowBytes'>rowBytes</a>&nbsp;/&nbsp;<a href='#SkBitmap_info'>info</a>\.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a></code>.
 
 May be less than <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a>. Will not exceed <a href='#SkBitmap_pixelRef'>pixelRef</a>.<a href='#SkBitmap_width'>width</a> less
 <a href='#SkBitmap_pixelRefOrigin'>pixelRefOrigin</a>.fX.
@@ -1488,7 +1486,7 @@ size_t <a href='#SkBitmap_rowBytes'>rowBytes</a>() const
 </pre>
 
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as<a href='#SkBitmap_width'>width</a> * <a href='#SkBitmap_info'>info</a>.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a>.
+is at least as large as: <code><a href='#SkBitmap_width'>width</a>&nbsp;\*&nbsp;<a href='#SkBitmap_info'>info</a>\.<a href='#SkBitmap_bytesPerPixel'>bytesPerPixel</a></code>.
 
 Returns zero if <a href='#SkBitmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>, or if row bytes supplied to
 <a href='#SkBitmap_setInfo'>setInfo</a> is not large enough to hold a row of pixels.
@@ -3639,8 +3637,7 @@ false if pixel conversion is not possible.
 
 <a href='#SkBitmap_readPixels_srcX'>srcX</a> and <a href='#SkBitmap_readPixels_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> is zero or negative.
-Returns false ifabs(srcX) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a>,
-or ifabs(srcY) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a>.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a></code>.
 
 ### Parameters
 
@@ -3708,8 +3705,7 @@ false if pixel conversion is not possible.
 
 <a href='#SkBitmap_readPixels_2_srcX'>srcX</a> and <a href='#SkBitmap_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> is zero or negative.
-Returns false ifabs(srcX) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a>,
-or ifabs(srcY) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a>.
+Returns false if <code>abs(srcX)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a></code>.
 
 ### Parameters
 
@@ -3820,8 +3816,7 @@ false if pixel conversion is not possible.
 
 <a href='#SkBitmap_writePixels_dstX'>dstX</a> and <a href='#SkBitmap_writePixels_dstY'>dstY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#SkBitmap_width'>width</a> or <a href='#SkBitmap_height'>height</a> is zero or negative.
-Returns false ifabs(dstX) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a>,
-or ifabs(dstY) >= <a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a>.
+Returns false if <code>abs(dstX)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_width'>width</a></code>, or if <code>abs(dstY)&nbsp;>=&nbsp;<a href='#Bitmap'>Bitmap</a> <a href='#SkBitmap_height'>height</a></code>.
 
 ### Parameters
 

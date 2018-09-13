@@ -1136,9 +1136,7 @@ pt: nan, -nan  negate: -nan, nan
 void <a href='#SkPoint_addto_operator'>operator+=(const SkVector& v)</a>
 </pre>
 
-Adds <a href='#Vector'>Vector</a> <a href='#SkPoint_addto_operator_v'>v</a> to <a href='#Point'>Point</a>. Sets <a href='#Point'>Point</a> to:
-(<a href='#SkPoint_fX'>fX</a> + <a href='#SkPoint_addto_operator_v'>v</a>.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_fY'>fY</a> + <a href='#SkPoint_addto_operator_v'>v</a>.<a href='#SkPoint_fY'>fY</a>)
-.
+Adds <a href='#Vector'>Vector</a> <a href='#SkPoint_addto_operator_v'>v</a> to <a href='#Point'>Point</a>. Sets <a href='#Point'>Point</a> to: <code>\(<a href='#SkPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkPoint_addto_operator_v'>v</a>\.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkPoint_addto_operator_v'>v</a>\.<a href='#SkPoint_fY'>fY</a>\)</code>.
 
 ### Parameters
 
@@ -1164,9 +1162,7 @@ Adds <a href='#Vector'>Vector</a> <a href='#SkPoint_addto_operator_v'>v</a> to <
 void <a href='#SkPoint_subtractfrom_operator'>operator-=(const SkVector& v)</a>
 </pre>
 
-Subtracts <a href='#Vector'>Vector</a> <a href='#SkPoint_subtractfrom_operator_v'>v</a> from <a href='#Point'>Point</a>. Sets <a href='#Point'>Point</a> to:
-(<a href='#SkPoint_fX'>fX</a> - <a href='#SkPoint_subtractfrom_operator_v'>v</a>.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_fY'>fY</a> - <a href='#SkPoint_subtractfrom_operator_v'>v</a>.<a href='#SkPoint_fY'>fY</a>)
-.
+Subtracts <a href='#Vector'>Vector</a> <a href='#SkPoint_subtractfrom_operator_v'>v</a> from <a href='#Point'>Point</a>. Sets <a href='#Point'>Point</a> to: <code>\(<a href='#SkPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkPoint_subtractfrom_operator_v'>v</a>\.<a href='#SkPoint_fY'>fY</a>\)</code>.
 
 ### Parameters
 
@@ -1222,9 +1218,7 @@ Returns <a href='#Point'>Point</a> multiplied by scale.
 <a href='#SkPoint'>SkPoint</a>& <a href='#SkPoint_multiplyby_operator'>operator*=(SkScalar scale)</a>
 </pre>
 
-Multiplies <a href='#Point'>Point</a> by scale. Sets <a href='#Point'>Point</a> to:
-(<a href='#SkPoint_fX'>fX</a> * scale, <a href='#SkPoint_fY'>fY</a> * scale)
-.
+Multiplies <a href='#Point'>Point</a> by scale. Sets <a href='#Point'>Point</a> to: <code>\(<a href='#SkPoint_fX'>fX</a>&nbsp;\*&nbsp;scale, <a href='#SkPoint_fY'>fY</a>&nbsp;\*&nbsp;scale\)</code>.
 
 ### Parameters
 
@@ -1420,8 +1414,7 @@ pt: nan, -1  != pt
 <a href='#SkVector'>SkVector</a> <a href='#SkPoint_subtract_operator'>operator-(const SkPoint& a, const SkPoint& b)</a>
 </pre>
 
-Returns <a href='#Vector'>Vector</a> from <a href='#SkPoint_subtract_operator_b'>b</a> to <a href='#SkPoint_subtract_operator_a'>a</a>, computed as(<a href='#SkPoint_subtract_operator_a'>a</a>.<a href='#SkPoint_fX'>fX</a> - <a href='#SkPoint_subtract_operator_b'>b</a>.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_subtract_operator_a'>a</a>.<a href='#SkPoint_fY'>fY</a> - <a href='#SkPoint_subtract_operator_b'>b</a>.<a href='#SkPoint_fY'>fY</a>)
-.
+Returns <a href='#Vector'>Vector</a> from <a href='#SkPoint_subtract_operator_b'>b</a> to <a href='#SkPoint_subtract_operator_a'>a</a>, computed as <code>\(<a href='#SkPoint_subtract_operator_a'>a</a>\.<a href='#SkPoint_fX'>fX</a>&nbsp;\-&nbsp;<a href='#SkPoint_subtract_operator_b'>b</a>\.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_subtract_operator_a'>a</a>\.<a href='#SkPoint_fY'>fY</a>&nbsp;\-&nbsp;<a href='#SkPoint_subtract_operator_b'>b</a>\.<a href='#SkPoint_fY'>fY</a>\)</code>.
 
 Can also be used to subtract <a href='#Vector'>Vector</a> from <a href='#Point'>Point</a>, returning <a href='#Point'>Point</a>.
 Can also be used to subtract <a href='#Vector'>Vector</a> from <a href='#Vector'>Vector</a>, returning <a href='#Vector'>Vector</a>.
@@ -1458,8 +1451,7 @@ Can also be used to subtract <a href='#Vector'>Vector</a> from <a href='#Vector'
 </pre>
 
 Returns <a href='#Point'>Point</a> resulting from <a href='#Point'>Point</a> <a href='#SkPoint_add_operator_a'>a</a> offset by <a href='#Vector'>Vector</a> <a href='#SkPoint_add_operator_b'>b</a>, computed as:
-(<a href='#SkPoint_add_operator_a'>a</a>.<a href='#SkPoint_fX'>fX</a> + <a href='#SkPoint_add_operator_b'>b</a>.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_add_operator_a'>a</a>.<a href='#SkPoint_fY'>fY</a> + <a href='#SkPoint_add_operator_b'>b</a>.<a href='#SkPoint_fY'>fY</a>)
-.
+<code>\(<a href='#SkPoint_add_operator_a'>a</a>\.<a href='#SkPoint_fX'>fX</a>&nbsp;\+&nbsp;<a href='#SkPoint_add_operator_b'>b</a>\.<a href='#SkPoint_fX'>fX</a>, <a href='#SkPoint_add_operator_a'>a</a>\.<a href='#SkPoint_fY'>fY</a>&nbsp;\+&nbsp;<a href='#SkPoint_add_operator_b'>b</a>\.<a href='#SkPoint_fY'>fY</a>\)</code>.
 
 Can also be used to offset <a href='#Point'>Point</a> <a href='#SkPoint_add_operator_b'>b</a> by <a href='#Vector'>Vector</a> <a href='#SkPoint_add_operator_a'>a</a>, returning <a href='#Point'>Point</a>.
 Can also be used to add <a href='#Vector'>Vector</a> to <a href='#Vector'>Vector</a>, returning <a href='#Vector'>Vector</a>.

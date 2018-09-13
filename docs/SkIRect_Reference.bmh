@@ -186,12 +186,8 @@ rect: 5, 25, 15, 35  isEmpty: false
 
 #In Constructor
 #Line # constructs from int input returning (x, y, width, height) ##
-Returns constructed IRect set to:
-#Formula
-(x, y, x + w, y + h)
-##
-. Does not validate input;
-w or h may be negative.
+Returns constructed IRect set to: #Formula # (x, y, x + w, y + h) ##.
+Does not validate input; w or h may be negative.
 
 #Param x  stored in fLeft ##
 #Param y  stored in fTop ##
@@ -740,12 +736,8 @@ rect2: {3, 4, 1, 2}
 
 #In Set
 #Line # sets to (x, y, width, height) ##
-Sets IRect to:
-#Formula
-(x, y, x + width, y + height)
-##
-. Does not validate input;
-width or height may be negative.
+Sets IRect to: #Formula # (x, y, x + width, y + height) ##.
+Does not validate input; width or height may be negative.
 
 #Param x  stored in fLeft ##
 #Param y  stored in fTop ##
@@ -1027,12 +1019,8 @@ rect: 5, 1, 55, 86
 IRects intersect when they enclose a common area. To intersect, each of the pair
 must describe area; fLeft is less than fRight, and fTop is less than fBottom;
 empty() returns false. The intersection of IRect pair can be described by:
-
-#Formula
-(max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
- min(a.fRight, b.fRight), min(a.fBottom, b.fBottom))
-##
-.
+#Formula # (max(a.fLeft, b.fLeft), max(a.fTop, b.fTop),
+            min(a.fRight, b.fRight), min(a.fBottom, b.fBottom)) ##.
 
 The intersection is only meaningful if the resulting IRect is not empty and
 describes an area: fLeft is less than fRight, and fTop is less than fBottom.
@@ -1080,18 +1068,10 @@ rect: 10, 10, 20, 20
 
 #In Intersection
 #Line # returns true if IPoint (x, y) is equal or inside ##
-Returns true if:
-#Formula
-fLeft <= x < fRight && fTop <= y < fBottom
-##
-.
+Returns true if: #Formula # fLeft <= x < fRight && fTop <= y < fBottom ##.
 Returns false if IRect is empty.
 
-Considers input to describe constructed IRect:
-#Formula
-(x, y, x + 1, y + 1)
-##
-and
+Considers input to describe constructed IRect: #Formula # (x, y, x + 1, y + 1) ## and 
 returns true if constructed area is completely enclosed by IRect area.
 
 #Param x  test IPoint x-coordinate ##

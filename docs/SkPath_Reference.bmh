@@ -658,10 +658,7 @@ paths are interpolatable
 Interpolates between Paths with Point_Array of equal size.
 Copy Verb_Array and Weights to out, and set out Point_Array to a weighted
 average of this Point_Array and ending Point_Array, using the formula:
-#Formula
-(Path Point * weight) + ending Point * (1 - weight)
-##
-.
+#Formula # (Path Point * weight) + ending Point * (1 - weight) ##.
 
 weight is most useful when between zero (ending Point_Array) and
 one (this Point_Array); will work with values outside of this
@@ -2599,11 +2596,7 @@ If weight is less than one, Conic is an elliptical segment.
 
 #Example
 #Description
-A 90 degree circular arc has the weight
-#Formula
-1 / sqrt(2)
-##
-.
+A 90 degree circular arc has the weight #Formula # 1 / sqrt(2) ##.
 ##
 void draw(SkCanvas* canvas) {
     const char* verbNames[] = { "move", "line", "quad", "conic", "cubic", "close", "done" };
@@ -3490,14 +3483,16 @@ void draw(SkCanvas* canvas) {
 #In Build
 #In Arc
 
-Appends Arc to Path. Arc is implemented by one or more Conic weighted to describe part of Oval
-with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves from last Path Point to
-(xy.fX, xy.fY), choosing one of four possible routes: clockwise or counterclockwise,
+Appends Arc to Path. Arc is implemented by one or more Conic weighted to describe
+part of Oval with radii (r.fX, r.fY) rotated by xAxisRotate degrees. Arc curves
+from last Path Point to (xy.fX, xy.fY), choosing one of four possible routes:
+clockwise or counterclockwise,
 and smaller or larger.
 
-Arc sweep is always less than 360 degrees. arcTo appends Line to xy if either radii are zero,
-or if last Path Point equals (x, y). arcTo scales radii r to fit last Path Point and
-xy if both are greater than zero but too small to describe an arc.
+Arc sweep is always less than 360 degrees. arcTo appends Line to xy if either
+radii are zero, or if last Path Point equals (x, y). arcTo scales radii r to fit
+last Path Point and xy if both are greater than zero but too small to describe
+an arc.
 
 arcTo appends up to four Conic curves.
 arcTo implements the functionality of SVG_Arc, although SVG "sweep-flag" value is
@@ -3541,11 +3536,7 @@ void draw(SkCanvas* canvas) {
 Appends Arc to Path, relative to last Path Point. Arc is implemented by one or
 more Conic, weighted to describe part of Oval with radii (rx, ry) rotated by
 xAxisRotate degrees. Arc curves from last Path Point (x0, y0) to end Point:
-
-#Formula
-(x0 + dx, y0 + dy)
-##
-, choosing one of four possible routes: clockwise or
+#Formula # (x0 + dx, y0 + dy) ##, choosing one of four possible routes: clockwise or
 counterclockwise, and smaller or larger. If Path is empty, the start Arc Point
 is (0, 0).
 
@@ -3762,10 +3753,7 @@ Quad array is stored in pts; this storage is supplied by caller.
 Maximum Quad count is 2 to the pow2.
 Every third point in array shares last Point of previous Quad and first Point of
 next Quad. Maximum pts storage size is given by:
-#Formula
-(1 + 2 * (1 << pow2)) * sizeof(SkPoint)
-##
-.
+#Formula # (1 + 2 * (1 << pow2)) * sizeof(SkPoint) ##.
 
 Returns Quad count used the approximation, which may be smaller
 than the number requested.
@@ -4168,11 +4156,7 @@ void draw(SkCanvas* canvas) {
 #Line # adds one Contour containing Circle ##
 
 Adds Circle centered at (x, y) of size radius to Path, appending kMove_Verb,
-four kConic_Verb, and kClose_Verb. Circle begins at:
-#Formula
-(x + radius, y)
-##
-, continuing
+four kConic_Verb, and kClose_Verb. Circle begins at: #Formula # (x + radius, y) ##, continuing
 clockwise if dir is kCW_Direction, and counterclockwise if dir is kCCW_Direction.
 
 Has no effect if radius is zero or negative.

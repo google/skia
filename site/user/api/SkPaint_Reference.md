@@ -1743,7 +1743,7 @@ Dithering is always enabled for linear gradients drawing into
 <a href='#Dither'>Dither</a> can be enabled by default by setting <a href='undocumented#SkPaintDefaults_Flags'>SkPaintDefaults Flags</a> to <a href='#SkPaint_kDither_Flag'>kDither Flag</a>
 at compile time.
 
-Some platform implementations may ignore dithering. SetSK_IGNORE_GPU_DITHERto ignore <a href='#Dither'>Dither</a> on <a href='undocumented#GPU_Surface'>GPU Surface</a>.
+Some platform implementations may ignore dithering. Set <code>SK_IGNORE_GPU_DITHER</code>to ignore <a href='#Dither'>Dither</a> on <a href='undocumented#GPU_Surface'>GPU Surface</a>.
 
 ### Example
 
@@ -3073,9 +3073,10 @@ or <a href='#SkPaint_kStrokeAndFill_Style'>kStrokeAndFill Style</a>.
 If the miter at a corner exceeds this limit, <a href='#SkPaint_kMiter_Join'>kMiter Join</a>
 is replaced with <a href='#SkPaint_kBevel_Join'>kBevel Join</a>.
 
-<a href='#Miter_Limit'>Miter Limit</a> can be computed from the corner angle:
+<a href='#Miter_Limit'>Miter Limit</a> can be computed from the corner angle using:
+<code>miter limit&nbsp;=&nbsp;1&nbsp;/&nbsp;sin&nbsp;\(&nbsp;angle&nbsp;/&nbsp;2&nbsp;\)</code>.
 
-miter limit = 1 / sin ( angle / 2 )<a href='#Miter_Limit'>Miter Limit</a> default value is 4.
+<a href='#Miter_Limit'>Miter Limit</a> default value is 4.
 The default may be changed at compile time by setting <a href='undocumented#SkPaintDefaults_MiterLimit'>SkPaintDefaults MiterLimit</a>
 in "SkUserConfig.h" or as a define supplied by the build environment.
 

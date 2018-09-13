@@ -784,12 +784,7 @@ Dither is disabled by default.
 Dither can be enabled by default by setting SkPaintDefaults_Flags to kDither_Flag
 at compile time.
 
-Some platform implementations may ignore dithering. Set
-
-#Formula
-SK_IGNORE_GPU_DITHER
-##
-
+Some platform implementations may ignore dithering. Set #Formula # SK_IGNORE_GPU_DITHER ##
 to ignore Dither on GPU_Surface.
 
 #Example
@@ -2123,11 +2118,8 @@ or kStrokeAndFill_Style.
 If the miter at a corner exceeds this limit, kMiter_Join
 is replaced with kBevel_Join.
 
-Miter_Limit can be computed from the corner angle:
-
-#Formula
-    miter limit = 1 / sin ( angle / 2 )
-#Formula ##
+Miter_Limit can be computed from the corner angle using:
+#Formula # miter limit = 1 / sin ( angle / 2 ) ##.
 
 Miter_Limit default value is 4.
 The default may be changed at compile time by setting SkPaintDefaults_MiterLimit

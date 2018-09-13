@@ -5589,8 +5589,7 @@ grid entries.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_Lattice_fRectTypes'><code>fRectTypes</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Optional array of fill types, one per rectangular grid entry:
-array length must be(        <a href='#SkCanvas_Lattice_fXCount'>fXCount</a> + 1) * (<a href='#SkCanvas_Lattice_fYCount'>fYCount</a> + 1)
-.
+array length must be <code>\(<a href='#SkCanvas_Lattice_fXCount'>fXCount</a>&nbsp;\+&nbsp;1\)&nbsp;\*&nbsp;\(<a href='#SkCanvas_Lattice_fYCount'>fYCount</a>&nbsp;\+&nbsp;1\)</code>.
 
 Each <a href='#SkCanvas_Lattice_RectType'>RectType</a> is one of: <a href='#SkCanvas_Lattice_kDefault'>kDefault</a>, <a href='#SkCanvas_Lattice_kTransparent'>kTransparent</a>, <a href='#SkCanvas_Lattice_kFixedColor'>kFixedColor</a>.
 
@@ -5627,8 +5626,7 @@ If nullptr, source bounds is dimensions of <a href='SkBitmap_Reference#Bitmap'>B
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a name='SkCanvas_Lattice_fColors'><code>fColors</code></a></td>
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>
 Optional array of colors, one per rectangular grid entry.
-Array length must be(       <a href='#SkCanvas_Lattice_fXCount'>fXCount</a> + 1) * (<a href='#SkCanvas_Lattice_fYCount'>fYCount</a> + 1)
-.
+Array length must be <code>\(<a href='#SkCanvas_Lattice_fXCount'>fXCount</a>&nbsp;\+&nbsp;1\)&nbsp;\*&nbsp;\(<a href='#SkCanvas_Lattice_fYCount'>fYCount</a>&nbsp;\+&nbsp;1\)</code>.
 
 Array entries correspond to the rectangular grid entries, ascending
 left to right, then top to bottom.

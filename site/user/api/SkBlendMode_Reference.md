@@ -563,9 +563,7 @@ Used by tests to iterate through all valid values.
 
 ## <a name='Clear'>Clear</a>
 
-<a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> sets destination to:
-[0, 0]
-.
+<a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> sets destination to: <code>\[0, 0\]</code>.
 Use <a href='#SkBlendMode_kClear'>SkBlendMode::kClear</a> to initialize a buffer to fully transparent pixels when
 creating a mask with irregular edges.
 
@@ -581,11 +579,8 @@ value and the destination pixel value, always setting the destination to zero.
 
 ## <a name='Src'>Src</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a> sets destination to:
-[Sa, Sc]
-.
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a> sets destination to: <code>\[Sa, Sc\]</code>.
 Use <a href='#SkBlendMode_kSrc'>SkBlendMode::kSrc</a> to copy one buffer to another. All pixels are copied,
 regardless of source and destination <a href='SkColor_Reference#Alpha'>Alpha</a> values. As a parameter to
 <a href='SkCanvas_Reference#SkCanvas_drawAtlas'>SkCanvas::drawAtlas</a>, selects sprites and ignores colors.
@@ -602,11 +597,8 @@ it punches a transparent hole in the existing image.
 
 ## <a name='Dst'>Dst</a>
 
-Given:
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a> preserves destination set to:
-[Da, Dc]
-.
+Given: <code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a> preserves destination set to: <code>\[Da, Dc\]</code>.
 Setting <a href='SkPaint_Reference#Paint'>Paint</a> <a href='#Blend_Mode'>Blend Mode</a> to <a href='#SkBlendMode_kDst'>SkBlendMode::kDst</a> causes drawing with
 <a href='SkPaint_Reference#Paint'>Paint</a> to have no effect. As a parameter to <a href='SkCanvas_Reference#SkCanvas_drawAtlas'>SkCanvas::drawAtlas</a>,
 selects colors and ignores sprites.
@@ -617,12 +609,9 @@ selects colors and ignores sprites.
 
 ## <a name='Src_Over'>Src Over</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> replaces destination with:
-[Sa + Da * (1 - Sa), Sc + Dc * (1 - Sa)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> replaces destination with: <code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\), Sc&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 drawing source over destination. <a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> is the default for <a href='SkPaint_Reference#Paint'>Paint</a>.
 
 <a href='#SkBlendMode_kSrcOver'>SkBlendMode::kSrcOver</a> cannot make destination more transparent; the result will
@@ -634,12 +623,9 @@ be at least as opaque as the less transparent of source and original destination
 
 ## <a name='Dst_Over'>Dst Over</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kDstOver'>SkBlendMode::kDstOver</a> replaces destination with:
-[Da + Sa * (1 - Da), Dc + Sc * (1 - Da)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kDstOver'>SkBlendMode::kDstOver</a> replaces destination with: <code>\[Da&nbsp;\+&nbsp;Sa&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\), Dc&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)\]</code>,
 drawing destination over source. Has no effect destination if is opaque.
 
 ### Example
@@ -648,11 +634,9 @@ drawing destination over source. Has no effect destination if is opaque.
 
 ## <a name='Src_In'>Src In</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component, Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
-<a href='#SkBlendMode_kSrcIn'>SkBlendMode::kSrcIn</a> replaces destination with:
-[Sa * Da, Sc * Da]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
+<a href='#SkBlendMode_kSrcIn'>SkBlendMode::kSrcIn</a> replaces destination with: <code>\[Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;Da\]</code>,
 drawing source with destination opacity.
 
 ### Example
@@ -661,11 +645,9 @@ drawing source with destination opacity.
 
 ## <a name='Dst_In'>Dst In</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kDstIn'>SkBlendMode::kDstIn</a> replaces destination with:
-[Da * Sa, Dc * Sa]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kDstIn'>SkBlendMode::kDstIn</a> replaces destination with: <code>\[Da&nbsp;\*&nbsp;Sa, Dc&nbsp;\*&nbsp;Sa\]</code>,
 scaling destination <a href='SkColor_Reference#Alpha'>Alpha</a> by source <a href='SkColor_Reference#Alpha'>Alpha</a>. Resulting
 destination is visible where source is visible.
 
@@ -675,11 +657,9 @@ destination is visible where source is visible.
 
 ## <a name='Src_Out'>Src Out</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component, Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
-<a href='#SkBlendMode_kSrcOut'>SkBlendMode::kSrcOut</a> replaces destination with:
-[Sa * (1 - Da), Sc * (1 - Da)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>;
+<a href='#SkBlendMode_kSrcOut'>SkBlendMode::kSrcOut</a> replaces destination with: <code>\[Sa&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\), Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)\]</code>,
 drawing source fully where destination <a href='SkColor_Reference#Alpha'>Alpha</a> is zero. Is destination
 is opaque, has no effect.
 
@@ -689,11 +669,9 @@ is opaque, has no effect.
 
 ## <a name='Dst_Out'>Dst Out</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kDstOut'>SkBlendMode::kDstOut</a> replaces destination with:
-[Da * (1 - Sa), Dc * (1 - Sa)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kDstOut'>SkBlendMode::kDstOut</a> replaces destination with: <code>\[Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\), Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 scaling destination <a href='SkColor_Reference#Alpha'>Alpha</a> by source transparency. Resulting
 destination is visible where source is transparent. If source is transparent,
 has no effect.
@@ -704,12 +682,9 @@ has no effect.
 
 ## <a name='Src_Atop'>Src Atop</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a> replaces destination with:
-[Da, Sc * Da + Dc * (1 - Sa)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a> replaces destination with: <code>\[Da, Sc&nbsp;\*&nbsp;Da&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 replacing opaque destination with opaque source. If source or destination
 is transparent, has no effect.
 
@@ -719,12 +694,9 @@ is transparent, has no effect.
 
 ## <a name='Dst_Atop'>Dst Atop</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kDstATop'>SkBlendMode::kDstATop</a> replaces destination with:
-[Sa, Dc * Sa + Sc * (1 - Da)]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kDstATop'>SkBlendMode::kDstATop</a> replaces destination with: <code>\[Sa, Dc&nbsp;\*&nbsp;Sa&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)\]</code>,
 making destination transparent where source is transparent.
 
 ### Example
@@ -733,12 +705,10 @@ making destination transparent where source is transparent.
 
 ## <a name='Xor'>Xor</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kXor'>SkBlendMode::kXor</a> replaces destination with:
-[Sa + Da - 2 * Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;2&nbsp;\*&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 exchanging the transparency of the source and destination.
 
 ### Example
@@ -747,12 +717,9 @@ exchanging the transparency of the source and destination.
 
 ## <a name='Plus'>Plus</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> replaces destination with:
-[Sa + Da, Sc + Dc]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kPlus'>SkBlendMode::kPlus</a> replaces destination with: <code>\[Sa&nbsp;\+&nbsp;Da, Sc&nbsp;\+&nbsp;Dc\]</code>,
 summing the <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Color</a> components.
 
 ### Example
@@ -761,12 +728,9 @@ summing the <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Col
 
 ## <a name='Modulate'>Modulate</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> replaces destination with:
-[Sa * Da, Sc * Dc]
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> replaces destination with: <code>\[Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;Dc\]</code>,
 scaling <a href='SkColor_Reference#Alpha'>Alpha</a> and <a href='#Color'>Color</a> components by the lesser of the values.
 <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> differs from <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> in two ways.
 <a href='#SkBlendMode_kModulate'>SkBlendMode::kModulate</a> like <a href='#SkBlendMode_kSrcATop'>SkBlendMode::kSrcATop</a> alters the destination inside
@@ -785,12 +749,9 @@ and destination using <a href='undocumented#Unpremultiply'>Unpremultiplied</a> c
 
 ## <a name='Screen'>Screen</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
-<a href='#SkBlendMode_kScreen'>SkBlendMode::kScreen</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc + Dc - Sc * Dc]
-.
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+<a href='#SkBlendMode_kScreen'>SkBlendMode::kScreen</a> replaces destination with: <code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\+&nbsp;Dc&nbsp;\-&nbsp;Sc&nbsp;\*&nbsp;Dc\]</code>.
 
 ### Example
 
@@ -798,13 +759,11 @@ Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination
 
 ## <a name='Overlay'>Overlay</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kOverlay'>SkBlendMode::kOverlay</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
-(2 * Dc <= Da ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc))]
-.
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)&nbsp;\+
+&nbsp;&nbsp;&nbsp;&nbsp;\(2&nbsp;\*&nbsp;Dc&nbsp;<=&nbsp;Da&nbsp;?&nbsp;2&nbsp;\*&nbsp;Sc&nbsp;\*&nbsp;Dc&nbsp;:&nbsp;Sa&nbsp;\*&nbsp;Da&nbsp;\-&nbsp;2&nbsp;\*&nbsp;\(Da&nbsp;\-&nbsp;Dc\)&nbsp;\*&nbsp;\(Sa&nbsp;\-&nbsp;Sc\)\)\]</code>.
 
 ### Example
 
@@ -812,12 +771,10 @@ Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination
 
 ## <a name='Darken'>Darken</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kDarken'>SkBlendMode::kDarken</a> replaces destination with:
-[Sa + Da - Sa * Da,  Sc + Dc - max(Sc * Da, Dc * Sa)]
-.
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, &nbsp;Sc&nbsp;\+&nbsp;Dc&nbsp;\-&nbsp;max\(Sc&nbsp;\*&nbsp;Da, Dc&nbsp;\*&nbsp;Sa\)\]</code>.
 <a href='#SkBlendMode_kDarken'>SkBlendMode::kDarken</a> does not make an image darker; it replaces the destination
 component with source if source is darker.
 
@@ -827,12 +784,10 @@ component with source if source is darker.
 
 ## <a name='Lighten'>Lighten</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kLighten'>SkBlendMode::kLighten</a> replaces destination with:
-[Sa + Da - Sa * Da,  Sc + Dc - min(Sc * Da, Dc * Sa)]
-.
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, &nbsp;Sc&nbsp;\+&nbsp;Dc&nbsp;\-&nbsp;min\(Sc&nbsp;\*&nbsp;Da, Dc&nbsp;\*&nbsp;Sa\)\]</code>.
 <a href='#SkBlendMode_kDarken'>SkBlendMode::kDarken</a> does not make an image lighter; it replaces the destination
 component with source if source is lighter.
 
@@ -842,13 +797,11 @@ component with source if source is lighter.
 
 ## <a name='Color_Dodge'>Color Dodge</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kColorDodge'>SkBlendMode::kColorDodge</a> replaces destination with:
-[Sa + Da - Sa * Da, Dc == 0 ? Sc * (1 - Da) : Sc == Sa ? Sc + Da * (1 - Sa) :
-Sa * min(Da, Dc * Sa / (Sa - Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Dc&nbsp;==&nbsp;0&nbsp;?&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;:&nbsp;Sc&nbsp;==&nbsp;Sa&nbsp;?&nbsp;Sc&nbsp;\+&nbsp;Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sa&nbsp;\*&nbsp;min\(Da, Dc&nbsp;\*&nbsp;Sa&nbsp;/&nbsp;\(Sa&nbsp;\-&nbsp;Sc\)\)&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 making destination brighter to reflect source.
 
 ### Example
@@ -857,13 +810,11 @@ making destination brighter to reflect source.
 
 ## <a name='Color_Burn'>Color Burn</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kColorBurn'>SkBlendMode::kColorBurn</a> replaces destination with:
-[Sa + Da - Sa * Da, Dc == Da ? Dc + Sc * (1 - Da) : Sc == 0 ? Da * (1 - Sa) :
-Sa * (Da - min(Da, (Da - Dc) * Sa / Sc)) + Sc * (1 - Da) + Da * (1 - Sa)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Dc&nbsp;==&nbsp;Da&nbsp;?&nbsp;Dc&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;:&nbsp;Sc&nbsp;==&nbsp;0&nbsp;?&nbsp;Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)&nbsp;:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sa&nbsp;\*&nbsp;\(Da&nbsp;\-&nbsp;min\(Da, \(Da&nbsp;\-&nbsp;Dc\)&nbsp;\*&nbsp;Sa&nbsp;/&nbsp;Sc\)\)&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Da&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)\]</code>,
 making destination darker to reflect source.
 
 ### Example
@@ -872,13 +823,11 @@ making destination darker to reflect source.
 
 ## <a name='Hard_Light'>Hard Light</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kHardLight'>SkBlendMode::kHardLight</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) +
-2 * Sc <= Sa ? 2 * Sc * Dc : Sa * Da - 2 * (Da - Dc) * (Sa - Sc)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)&nbsp;\+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;\*&nbsp;Sc&nbsp;<=&nbsp;Sa&nbsp;?&nbsp;2&nbsp;\*&nbsp;Sc&nbsp;\*&nbsp;Dc&nbsp;:&nbsp;Sa&nbsp;\*&nbsp;Da&nbsp;\-&nbsp;2&nbsp;\*&nbsp;\(Da&nbsp;\-&nbsp;Dc\)&nbsp;\*&nbsp;\(Sa&nbsp;\-&nbsp;Sc\)\]</code>,
 making destination lighter or darker, depending on source.
 
 ### Example
@@ -887,15 +836,12 @@ making destination lighter or darker, depending on source.
 
 ## <a name='Soft_Light'>Soft Light</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component
-where m = Da > 0 ? Dc / Da : 0;
-<a href='#SkBlendMode_kSoftLight'>SkBlendMode::kSoftLight</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc / Da + Dc / Sa +
-(2 * Sc <= Sa ? Dc * (Sa + (2 * Sc - Sa) * (1 - m)) : Dc * Sa + Da * (2 * Sc - Sa) *
-(4 * Dc <= Da ? (16 * m * m  + 4 * m) * (m - 1) + 7 * m : sqrt(m) - m))]\
-,
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
+where <code>m&nbsp;=&nbsp;Da&nbsp;>&nbsp;0&nbsp;?&nbsp;Dc&nbsp;/&nbsp;Da&nbsp;:&nbsp;0</code>;
+<a href='#SkBlendMode_kSoftLight'>SkBlendMode::kSoftLight</a> replaces destination with: <code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;/&nbsp;Da&nbsp;\+&nbsp;Dc&nbsp;/&nbsp;Sa&nbsp;\+
+&nbsp;&nbsp;&nbsp;&nbsp;\(2&nbsp;\*&nbsp;Sc&nbsp;<=&nbsp;Sa&nbsp;?&nbsp;Dc&nbsp;\*&nbsp;\(Sa&nbsp;\+&nbsp;\(2&nbsp;\*&nbsp;Sc&nbsp;\-&nbsp;Sa\)&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;m\)\)&nbsp;:&nbsp;Dc&nbsp;\*&nbsp;Sa&nbsp;\+&nbsp;Da&nbsp;\*&nbsp;\(2&nbsp;\*&nbsp;Sc&nbsp;\-&nbsp;Sa\)&nbsp;\*
+&nbsp;&nbsp;&nbsp;&nbsp;\(4&nbsp;\*&nbsp;Dc&nbsp;<=&nbsp;Da&nbsp;?&nbsp;\(16&nbsp;\*&nbsp;m&nbsp;\*&nbsp;m&nbsp;&nbsp;\+&nbsp;4&nbsp;\*&nbsp;m\)&nbsp;\*&nbsp;\(m&nbsp;\-&nbsp;1\)&nbsp;\+&nbsp;7&nbsp;\*&nbsp;m&nbsp;:&nbsp;sqrt(m)&nbsp;\-&nbsp;m\)\)\]</code>,
 making destination lighter or darker, depending on source.
 
 ### Example
@@ -904,12 +850,10 @@ making destination lighter or darker, depending on source.
 
 ## <a name='Difference'>Difference</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kDifference'>SkBlendMode::kDifference</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc + Dc - 2 * min(Sc * Da, Dc * Sa)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\+&nbsp;Dc&nbsp;\-&nbsp;2&nbsp;\*&nbsp;min\(Sc&nbsp;\*&nbsp;Da, Dc&nbsp;\*&nbsp;Sa\)\]</code>,
 replacing destination with lighter less darker.
 
 ### Example
@@ -918,12 +862,10 @@ replacing destination with lighter less darker.
 
 ## <a name='Exclusion'>Exclusion</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a>,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kExclusion'>SkBlendMode::kExclusion</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc + Dc - 2 * Sc * Dc]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\+&nbsp;Dc&nbsp;\-&nbsp;2&nbsp;\*&nbsp;Sc&nbsp;\*&nbsp;Dc\]</code>,
 replacing destination with lighter less darker, ignoring <a href='SkColor_Reference#Alpha'>Alpha</a>.
 
 ### Example
@@ -932,12 +874,10 @@ replacing destination with lighter less darker, ignoring <a href='SkColor_Refere
 
 ## <a name='Multiply'>Multiply</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, Sc as source <a href='#Color'>Color</a> component,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, Dc as destination <a href='#Color'>Color</a> component;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Sc</code> as source <a href='#Color'>Color</a> component,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>Dc</code> as destination <a href='#Color'>Color</a> component;
 <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> replaces destination with:
-[Sa + Da - Sa * Da, Sc * (1 - Da) + Dc * (1 - Sa) + Sc * Dc]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, Sc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Da\)&nbsp;\+&nbsp;Dc&nbsp;\*&nbsp;\(1&nbsp;\-&nbsp;Sa\)&nbsp;\+&nbsp;Sc&nbsp;\*&nbsp;Dc\]</code>,
 the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source and destination.
 <a href='#SkBlendMode_kMultiply'>SkBlendMode::kMultiply</a> makes the image darker.
 
@@ -947,12 +887,10 @@ the product of <a href='undocumented#Unpremultiply'>Unpremultiplied</a> source a
 
 ## <a name='Hue'>Hue</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, S as source <a href='#Color'>Color</a>,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, D as destination <a href='#Color'>Color</a>;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a> replaces destination with:
-[Sa + Da - Sa * Da, SetLuminosity(SetSaturation(S, Saturation(D)), <a href='#Luminosity'>Luminosity(D)</a>)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(S, Saturation(D)\), <a href='#Luminosity'>Luminosity(D)</a>\)\]</code>,
 source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
@@ -961,12 +899,10 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ## <a name='Saturation'>Saturation</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, S as source <a href='#Color'>Color</a>,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, D as destination <a href='#Color'>Color</a>;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kHue'>SkBlendMode::kHue</a> replaces destination with:
-[Sa + Da - Sa * Da, SetLuminosity(SetSaturation(D, Saturation(S)), <a href='#Luminosity'>Luminosity(D)</a>)]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(SetSaturation(D, Saturation(S)\), <a href='#Luminosity'>Luminosity(D)</a>\)\]</code>,
 source hue, leaving destination luminosity and saturation unchanged.
 
 ### Example
@@ -975,12 +911,10 @@ source hue, leaving destination luminosity and saturation unchanged.
 
 ## <a name='Color'>Color</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, S as source <a href='#Color'>Color</a>,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, D as destination <a href='#Color'>Color</a>;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kColor'>SkBlendMode::kColor</a> replaces destination with:
-[Sa + Da - Sa * Da, SetLuminosity(S, Luminosity(D))]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(S, Luminosity(D)\)\]</code>,
 source hue and saturation, leaving destination luminosity unchanged.
 
 ### Example
@@ -989,12 +923,10 @@ source hue and saturation, leaving destination luminosity unchanged.
 
 ## <a name='Luminosity'>Luminosity</a>
 
-Given:
-Sa as source <a href='SkColor_Reference#Alpha'>Alpha</a>, S as source <a href='#Color'>Color</a>,
-Da as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, D as destination <a href='#Color'>Color</a>;
+Given: <code>Sa</code> as source <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>S</code> as source <a href='#Color'>Color</a>,
+<code>Da</code> as destination <a href='SkColor_Reference#Alpha'>Alpha</a>, <code>D</code> as destination <a href='#Color'>Color</a>;
 <a href='#SkBlendMode_kLuminosity'>SkBlendMode::kLuminosity</a> replaces destination with:
-[Sa + Da - Sa * Da, SetLuminosity(D, Luminosity(S))]
-,
+<code>\[Sa&nbsp;\+&nbsp;Da&nbsp;\-&nbsp;Sa&nbsp;\*&nbsp;Da, SetLuminosity(D, Luminosity(S)\)\]</code>,
 source luminosity, leaving destination hue and saturation unchanged.
 
 ### Example

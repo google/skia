@@ -14,6 +14,28 @@ static void debug_out(int len, const char* data) {
     SkDebugf("%.*s", len, data);
 }
 
+void ParserCommon::checkLineLength(size_t len, const char* str) {
+    if (!fWritingIncludes) {
+        return;
+    }
+    int column = fColumn;
+    const char* lineStart = str;
+    for (size_t index = 0; index < len; ++index) {
+        if ('\n' == str[index]) {
+            if (column > 100) {
+                SkDebugf("> 100 columns in %s line %d\n", fFileName.c_str(), fLinesWritten);
+                SkDebugf("%.*s\n", &str[index + 1] - lineStart, lineStart);
+                SkDebugf("");  // convenient place to set breakpoints
+            }
+            fLinesWritten++;
+            column = 0;
+            lineStart = &str[index + 1];
+        } else {
+            column++;
+        }
+    }
+}
+
 void ParserCommon::CopyToFile(string oldFile, string newFile) {
     int bufferSize;
     char* buffer = ParserCommon::ReadToBuffer(newFile, &bufferSize);
@@ -115,14 +137,15 @@ bool ParserCommon::parseSetup(const char* path) {
     return true;
 }
 
-bool ParserCommon::writeBlockIndent(int size, const char* data) {
+bool ParserCommon::writeBlockIndent(int size, const char* data, bool ignoreIdent) {
     bool wroteSomething = false;
     while (size && ' ' >= data[size - 1]) {
         --size;
     }
     bool newLine = false;
+    char firstCh = 0;
     while (size) {
-        while (size && ' ' > data[0]) {
+        while (size && (' ' > data[0] || (' ' == data[0] && ignoreIdent))) {
             ++data;
             --size;
         }
@@ -135,15 +158,22 @@ bool ParserCommon::writeBlockIndent(int size, const char* data) {
         if (newLine) {
             this->lf(1);
         }
+        int indent = fIndent;
+        if (!firstCh) {
+            firstCh = data[0];
+        } else if ('(' == firstCh) {
+            indent += 1;
+        }
         TextParser parser(fFileName, data, data + size, fLineCount);
         const char* lineEnd = parser.strnchr('\n', data + size);
         int len = lineEnd ? (int) (lineEnd - data) : size;
         this->writePending();
-        this->indentToColumn(fIndent);
+        this->indentToColumn(indent);
         if (fDebugOut) {
             debug_out(len, data);
         }
         fprintf(fOut, "%.*s", len, data);
+        checkLineLength(len, data);
         size -= len;
         data += len;
         newLine = true;
@@ -186,6 +216,7 @@ bool ParserCommon::writeBlockTrim(int size, const char* data) {
         debug_out(size, data);
     }
     fprintf(fOut, "%.*s", size, data);
+    checkLineLength(size, data);
     fWroteSomething = true;
     int added = 0;
     fLastChar = data[size - 1];
@@ -212,6 +243,7 @@ void ParserCommon::writePending() {
             SkDebugf("\n");
         }
         fprintf(fOut, "\n");
+        checkLineLength(1, "\n");
         ++fLinefeeds;
         wroteLF = true;
     }
@@ -219,6 +251,7 @@ void ParserCommon::writePending() {
     if (wroteLF) {
         SkASSERT(0 == fColumn);
         SkASSERT(fIndent >= fSpaces);
+        SkASSERT(fIndent - fSpaces < 80);
         if (fDebugOut) {
             SkDebugf("%*s", fIndent - fSpaces, "");
         }
@@ -226,6 +259,7 @@ void ParserCommon::writePending() {
         fColumn = fIndent;
         fSpaces = fIndent;
     }
+    SkASSERT(!fWritingIncludes || fColumn + fPendingSpace < 100);
     for (int index = 0; index < fPendingSpace; ++index) {
         if (fDebugOut) {
             SkDebugf(" ");
@@ -252,6 +286,7 @@ void ParserCommon::writeString(const char* str) {
         debug_out((int) strlen(str), str);
     }
     fprintf(fOut, "%s", str);
+    checkLineLength(strlen(str), str);
     fColumn += len;
     fSpaces = 0;
     fLinefeeds = 0;

@@ -196,11 +196,7 @@ pt: -2147483648, -2147483648  negate: -2147483648, -2147483648
 #Method void operator+=(const SkIVector& v)
 
 #Line # adds IVector to IPoint ##
-Offsets IPoint by IVector v. Sets IPoint to
-#Formula
-(fX + v.fX, fY + v.fY)
-##
-.
+Offsets IPoint by IVector v. Sets IPoint to #Formula # (fX + v.fX, fY + v.fY) ##.
 
 #Param v  IVector to add ##
 
@@ -235,11 +231,7 @@ Offsets IPoint by IVector v. Sets IPoint to
 #Method void operator-=(const SkIVector& v)
 
 #Line # subtracts IVector from IPoint ##
-Subtracts IVector v from IPoint. Sets IPoint to:
-#Formula
-(fX - v.fX, fY - v.fY)
-##
-.
+Subtracts IVector v from IPoint. Sets IPoint to: #Formula # (fX - v.fX, fY - v.fY) ##.
 
 #Param v  IVector to subtract ##
 
@@ -361,11 +353,7 @@ pt: -2147483648, -1  == pt
 #Method SkIVector operator-(const SkIPoint& a, const SkIPoint& b)
 
 #Line # returns IVector between IPoints ##
-Returns IVector from b to a; computed as
-#Formula
-(a.fX - b.fX, a.fY - b.fY)
-##
-.
+Returns IVector from b to a; computed as #Formula # (a.fX - b.fX, a.fY - b.fY) ##.
 
 Can also be used to subtract IVector from IVector, returning IVector.
 
@@ -406,10 +394,7 @@ Can also be used to subtract IVector from IVector, returning IVector.
 
 #Line # returns IPoint offset by IVector ##
 Returns IPoint resulting from IPoint a offset by IVector b, computed as:
-#Formula
-(a.fX + b.fX, a.fY + b.fY)
-##
-.
+#Formula # (a.fX + b.fX, a.fY + b.fY) ##.
 
 Can also be used to offset IPoint b by IVector a, returning IPoint.
 Can also be used to add IVector to IVector, returning IVector.

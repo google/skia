@@ -3635,7 +3635,7 @@ S(sx, sy) * Matrix = |  0 sy  0 | | M N O | = | sy*M sy*N sy*O |
 bool <a href='#SkMatrix_postIDiv'>postIDiv</a>(int divx, int divy)
 </pre>
 
-Sets <a href='#Matrix'>Matrix</a> to <a href='#Matrix'>Matrix</a> constructed from scaling by(1/<a href='#SkMatrix_postIDiv_divx'>divx</a>, 1/<a href='#SkMatrix_postIDiv_divy'>divy</a>)
+Sets <a href='#Matrix'>Matrix</a> to <a href='#Matrix'>Matrix</a> constructed from scaling by <code>\(1/<a href='#SkMatrix_postIDiv_divx'>divx</a>, 1/<a href='#SkMatrix_postIDiv_divy'>divy</a>\)</code>,
 about pivot point (px, py), multiplied by <a href='#Matrix'>Matrix</a>.
 
 Returns false if either <a href='#SkMatrix_postIDiv_divx'>divx</a> or <a href='#SkMatrix_postIDiv_divy'>divy</a> is zero.
@@ -5491,7 +5491,7 @@ Returns true if <a href='#SkMatrix_decomposeScale_scale'>scale</a> components ar
 unchanged if <a href='#Matrix'>Matrix</a> contains perspective; <a href='#SkMatrix_decomposeScale_scale'>scale</a> factors are not finite, or
 are nearly zero.
 
-On success<a href='#Matrix'>Matrix</a> = <a href='#SkMatrix_decomposeScale_scale'>scale</a> * Remaining.
+On success: <code><a href='#Matrix'>Matrix</a>&nbsp;=&nbsp;<a href='#SkMatrix_decomposeScale_scale'>scale</a>&nbsp;\*&nbsp;Remaining</code>.
 
 ### Parameters
 
