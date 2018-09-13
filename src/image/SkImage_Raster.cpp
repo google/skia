@@ -92,6 +92,7 @@ public:
     sk_sp<GrTextureProxy> asTextureProxyRef(GrContext*, const GrSamplerState&, SkColorSpace*,
                                             sk_sp<SkColorSpace>*,
                                             SkScalar scaleAdjust[2]) const override;
+    bool SkImage_Raster::asYUVATextureProxies(GrContext*) const override;
 #endif
 
     bool getROPixels(SkBitmap*, SkColorSpace* dstColorSpace, CachingHint) const override;
@@ -189,6 +190,11 @@ sk_sp<GrTextureProxy> SkImage_Raster::asTextureProxyRef(GrContext* context,
     }
 
     return GrRefCachedBitmapTextureProxy(context, fBitmap, params, scaleAdjust);
+}
+
+bool SkImage_Raster::asYUVATextureProxies(GrContext* context) const {
+
+    return false;
 }
 #endif
 

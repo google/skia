@@ -16,6 +16,7 @@ class GrContext;
 struct GrSurfaceDesc;
 class GrTexture;
 class GrTextureProxy;
+class SkCachedData;
 
 /**
  *  There are at least 2 different ways to extract/retrieve YUV planar data...
@@ -42,7 +43,10 @@ public:
                                             SkColorSpace* srcColorSpace,
                                             SkColorSpace* dstColorSpace);
 
-    virtual uint32_t onGetID() = 0;
+    sk_sp<SkCachedData> getPlanes(SkYUVSizeInfo*, SkYUVColorSpace*, const void* planes[3]);
+
+private:
+    virtual uint32_t onGetID() const = 0;
 
     // These are not meant to be called by a client, only by the implementation
 
@@ -68,7 +72,6 @@ public:
      */
     virtual bool onGetYUV8Planes(const SkYUVSizeInfo& sizeInfo, void* planes[3]) = 0;
 
-private:
     // This is used as release callback for the YUV data that we capture in an SkImage when
     // uploading to a gpu. When the upload is complete and we release the SkImage this callback will
     // release the underlying data.

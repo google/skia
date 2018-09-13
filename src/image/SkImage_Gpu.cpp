@@ -14,6 +14,7 @@
 #include "GrBackendTextureImageGenerator.h"
 #include "GrBitmapTextureMaker.h"
 #include "GrCaps.h"
+#include "GrClip.h"
 #include "GrColorSpaceXform.h"
 #include "GrContext.h"
 #include "GrContextPriv.h"
@@ -131,6 +132,10 @@ sk_sp<GrTextureProxy> SkImage_Gpu::asTextureProxyRef(GrContext* context,
     GrTextureAdjuster adjuster(fContext.get(), fProxy, this->alphaType(), this->uniqueID(),
                                this->fColorSpace.get());
     return adjuster.refTextureProxyForParams(params, dstColorSpace, texColorSpace, scaleAdjust);
+}
+
+bool SkImage_Gpu::asYUVATextureProxies(GrContext* context) const {
+    return false;
 }
 
 static void apply_premul(const SkImageInfo& info, void* pixels, size_t rowBytes) {
