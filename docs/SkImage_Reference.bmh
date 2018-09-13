@@ -777,9 +777,11 @@ with default Paint. colorSpace may be nullptr.
 
 # ------------------------------------------------------------------------------
 
-#Method static sk_sp<SkImage> MakeFromAHardwareBuffer(AHardwareBuffer* hardwareBuffer,
-                                                 SkAlphaType alphaType = kPremul_SkAlphaType,
-                                                 sk_sp<SkColorSpace> colorSpace = nullptr)
+#Method static sk_sp<SkImage> MakeFromAHardwareBuffer(
+        AHardwareBuffer* hardwareBuffer,
+        SkAlphaType alphaType = kPremul_SkAlphaType,
+        sk_sp<SkColorSpace> colorSpace = nullptr,
+        GrSurfaceOrigin surfaceOrigin = kTopLeft_GrSurfaceOrigin)
 #In Constructor
 #Line # creates Image from Android hardware buffer ##
 
@@ -794,6 +796,7 @@ Only available on Android, when __ANDROID_API__ is defined to be 26 or greater.
 #Param alphaType  one of: #list_of_alpha_types#
 ##
 #Param colorSpace  range of colors; may be nullptr ##
+#Param surfaceOrigin  one of: kBottomLeft_GrSurfaceOrigin, kTopLeft_GrSurfaceOrigin ##
 
 #Return created Image, or nullptr ##
 
