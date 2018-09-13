@@ -156,9 +156,6 @@ config("skia_private") {
     "src/xml",
     "third_party/gif",
   ]
-  if (skia_llvm_path != "") {
-    include_dirs += [ "$skia_llvm_path/include" ]
-  }
 
   defines = [ "SK_GAMMA_APPLY_TO_A8" ]
   if (is_android) {
