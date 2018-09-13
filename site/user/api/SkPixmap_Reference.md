@@ -514,8 +514,7 @@ size_t <a href='#SkPixmap_rowBytes'>rowBytes</a>() const
 </pre>
 
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as:
-<a href='#SkPixmap_width'>width</a> * <a href='#SkPixmap_info'>info</a>.bytesPerPixel().
+is at least as large as: <code><a href='#SkPixmap_width'>width</a>&nbsp;\*&nbsp;<a href='#SkPixmap_info'>info</a>\.bytesPerPixel()</code>.
 
 Returns zero if <a href='#SkPixmap_colorType'>colorType</a> is <a href='SkImageInfo_Reference#kUnknown_SkColorType'>kUnknown_SkColorType</a>.
 It is up to the <a href='SkBitmap_Reference#Bitmap'>Bitmap</a> creator to ensure that row bytes is a useful value.
@@ -587,7 +586,7 @@ int <a href='#SkPixmap_width'>width</a>() const
 
 Returns pixel count in each pixel row. Should be equal or less than:
 
-<a href='#SkPixmap_rowBytes'>rowBytes</a> / <a href='#SkPixmap_info'>info</a>.bytesPerPixel().
+<code><a href='#SkPixmap_rowBytes'>rowBytes</a>&nbsp;/&nbsp;<a href='#SkPixmap_info'>info</a>\.bytesPerPixel()</code>.
 
 ### Return Value
 
@@ -1896,8 +1895,7 @@ false if pixel conversion is not possible.
 <a href='#SkPixmap_readPixels_2_srcX'>srcX</a> and <a href='#SkPixmap_readPixels_2_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false if <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a> or <a href='#SkPixmap_height'>height</a> is zero or negative. Returns false if:
 
-abs(srcX) >= <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>,
-or ifabs(srcY) >= <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a>.
+<code>abs(srcX)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a></code>.
 
 ### Parameters
 
@@ -1954,8 +1952,7 @@ false if pixel conversion is not possible.
 <a href='#SkPixmap_readPixels_3_srcX'>srcX</a> and <a href='#SkPixmap_readPixels_3_srcY'>srcY</a> may be negative to copy only top or left of source. Returns
 false <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a> or <a href='#SkPixmap_height'>height</a> is zero or negative. Returns false if:
 
-abs(srcX) >= <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a>,
-or ifabs(srcY) >= <a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a>.
+<code>abs(srcX)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_width'>width</a></code>, or if <code>abs(srcY)&nbsp;>=&nbsp;<a href='#Pixmap'>Pixmap</a> <a href='#SkPixmap_height'>height</a></code>.
 
 ### Parameters
 

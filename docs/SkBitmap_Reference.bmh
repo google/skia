@@ -465,12 +465,8 @@ width: 56 height: 56 color: BGRA_8888 alpha: Opaque
 #Method int width() const
 #In Property
 #Line # returns pixel column count ##
-Returns pixel count in each row. Should be equal or less than:
-
-#Formula
-rowBytes() / info().bytesPerPixel()
-##
-.
+Returns pixel count in each row. Should be equal or less than
+#Formula # rowBytes() / info().bytesPerPixel() ##.
 
 May be less than pixelRef().width(). Will not exceed pixelRef().width() less
 pixelRefOrigin().fX.
@@ -841,11 +837,7 @@ empty:false isNull:false drawsNothing:false
 #In Property
 #Line # returns interval between rows in bytes ##
 Returns row bytes, the interval from one pixel row to the next. Row bytes
-is at least as large as
-#Formula
-width() * info().bytesPerPixel()
-##
-.
+is at least as large as: #Formula # width() * info().bytesPerPixel() ##.
 
 Returns zero if colorType is kUnknown_SkColorType, or if row bytes supplied to
 setInfo is not large enough to hold a row of pixels.
@@ -2769,15 +2761,7 @@ false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if
-#Formula
-abs(srcX) >= Bitmap width()
-##
-, or if
-#Formula
-abs(srcY) >= Bitmap height()
-##
-.
+Returns false if #Formula # abs(srcX) >= Bitmap width() ##, or if #Formula # abs(srcY) >= Bitmap height() ##.
 
 #Param dstInfo  destination width, height, Color_Type, Alpha_Type, Color_Space ##
 #Param dstPixels  destination pixel storage ##
@@ -2844,15 +2828,7 @@ false if pixel conversion is not possible.
 
 srcX and srcY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if
-#Formula
-abs(srcX) >= Bitmap width()
-##
-, or if
-#Formula
-abs(srcY) >= Bitmap height()
-##
-.
+Returns false if #Formula # abs(srcX) >= Bitmap width() ##, or if #Formula # abs(srcY) >= Bitmap height() ##.
 
 #Param dst  destination Pixmap: Image_Info, pixels, row bytes ##
 #Param srcX  column index whose absolute value is less than width() ##
@@ -2958,15 +2934,7 @@ false if pixel conversion is not possible.
 
 dstX and dstY may be negative to copy only top or left of source. Returns
 false if width() or height() is zero or negative.
-Returns false if
-#Formula
-abs(dstX) >= Bitmap width()
-##
-, or if
-#Formula
-abs(dstY) >= Bitmap height()
-##
-.
+Returns false if #Formula # abs(dstX) >= Bitmap width() ##, or if #Formula # abs(dstY) >= Bitmap height() ##.
 
 #Param src  source Pixmap: Image_Info, pixels, row bytes ##
 #Param dstX  column index whose absolute value is less than width() ##
