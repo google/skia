@@ -7,8 +7,11 @@ import math
 
 
 DEPS = [
+  'recipe_engine/context',
+  'recipe_engine/json',
   'recipe_engine/path',
   'recipe_engine/properties',
+  'recipe_engine/raw_io',
   'recipe_engine/step',
 ]
 
@@ -34,7 +37,23 @@ def RunSteps(api):
          '--issue', issue,
          '--patchset', patchset,
         ]
-  api.step('Trigger and wait for task on android-compile.skia.org', cmd=cmd)
+  try:
+    api.step('Trigger and wait for task on android-compile.skia.org', cmd=cmd)
+  except api.step.StepFailure as e:
+    # Add withpatch and nopatch logs as links (if they exist).
+    env = {'AWS_CREDENTIAL_FILE': None, 'BOTO_CONFIG': None}  # NEEDED??
+    with api.context(env=env):
+      gs_file = 'gs://android-compile-tasks/%s-%s.json' % (issue, patchset)
+      step_result = api.step('Get task log links',
+                             ['gsutil', 'cat', gs_file],
+                             stdout=api.json.output())
+      task_json = step_result.stdout
+      if task_json.get('withpatch_log'):
+        api.step.active_result.presentation.links[
+            'withpatch compilation log link'] = task_json['withpatch_log']
+      if task_json.get('nopatch_log'):
+        api.step.active_result.presentation.links[
+            'nopatch compilation log link'] = task_json['nopatch_log']
 
 
 def GenTests(api):
@@ -48,6 +67,23 @@ def GenTests(api):
         patch_issue=1234,
         patch_set=1,
     )
+  )
+
+  yield(
+    api.test('android_compile_trybot_failure') +
+    api.properties(
+        buildername='Build-Debian9-Clang-cf_x86_phone-eng-Android_Framework',
+        path_config='kitchen',
+        swarm_out_dir='[SWARM_OUT_DIR]',
+        repository='https://skia.googlesource.com/skia.git',
+        patch_issue=1234,
+        patch_set=1,
+    ) +
+    api.step_data('Trigger and wait for task on android-compile.skia.org',
+                  retcode=1) +
+    api.step_data('Get task log links',
+                  stdout=api.raw_io.output(
+                      '{"withpatch_log":"link1", "nopatch_log":"link2"}'))
   )
 
   yield(
