@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "aa1d9f1f_cce73fed",
+        "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5036
+      },
+      "writtenOn": "2018-09-13T12:51:54Z",
+      "side": 1,
+      "message": "Yeah so this code for the most part is doing pretty custom stuff in terms of its memory allocation (and we\u0027re not suballocating). So Brian and I had talked offline and decided it would be best to keep all the logic on importing external memory into this one place. If we find additional needs for the shared code we\u0027ll move it then.",
+      "parentUuid": "2d7c8db6_7dac928d",
+      "range": {
+        "startLine": 290,
+        "startChar": 18,
+        "endLine": 290,
+        "endChar": 32
+      },
+      "revId": "ae556781d0ac26af9f7f407e6e25a8471a5630b8",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5f986f4e_bd24b054",
         "filename": "src/gpu/GrAHardwareBufferImageGenerator.cpp",
         "patchSetId": 8
