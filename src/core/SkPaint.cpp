@@ -633,6 +633,8 @@ SkScalar SkPaint::setupForAsPaths() {
 
     this->setFlags(flags);
     this->setHinting(SkPaint::kNo_Hinting);
+    this->setStyle(SkPaint::kFill_Style);
+    this->setPathEffect(nullptr);
 
     SkScalar textSize = fTextSize;
     this->setTextSize(kCanonicalTextSizeForPaths);
