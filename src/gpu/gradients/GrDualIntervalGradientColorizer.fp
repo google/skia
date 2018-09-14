@@ -42,8 +42,7 @@ void main() {
 
 @cppEnd {
     std::unique_ptr<GrFragmentProcessor> GrDualIntervalGradientColorizer::Make(
-            const GrColor4f& c0, const GrColor4f& c1, const GrColor4f& c2,
-            const GrColor4f& c3, float threshold) {
+            const GrColor4f& c0, const GrColor4f& c1, const GrColor4f& c2,  const GrColor4f& c3, float threshold) {
         // Derive scale and biases from the 4 colors and threshold
         auto vc0 = Sk4f::Load(c0.fRGBA);
         auto vc1 = Sk4f::Load(c1.fRGBA);

@@ -115,6 +115,7 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
     // Convert all colors into destination space and into GrColor4fs, and handle
     // premul issues depending on the interpolation mode
     bool inputPremul = shader.getGradFlags() & SkGradientShader::kInterpolateColorsInPremul_Flag;
+    bool allOpaque = true;
     SkAutoSTMalloc<4, GrColor4f> colors(shader.fColorCount);
     SkColor4fXformer xformedColors(shader.fOrigColors4f, shader.fColorCount,
             shader.fColorSpace.get(), args.fDstColorSpaceInfo->colorSpace());
@@ -122,6 +123,9 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         colors[i] = GrColor4f::FromSkColor4f(xformedColors.fColors[i]);
         if (inputPremul) {
             colors[i] = colors[i].premul();
+        }
+        if (allOpaque && !SkScalarNearlyEqual(colors[i].fRGBA[3], 1.0)) {
+            allOpaque = false;
         }
     }
 
@@ -148,16 +152,23 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
         return nullptr;
     }
 
+    // The master effect has to export premul colors, but under certain conditions it doesn't need
+    // to do anything to achieve that: i.e. its interpolating already premul colors (inputPremul)
+    // or all the colors have a = 1, in which case premul is a no op. Note that this allOpaque
+    // check is more permissive than SkGradientShaderBase's isOpaque(), since we can optimize away
+    // the make-premul op for two point conical gradients (which report false for isOpaque).
+    bool makePremul = !inputPremul && !allOpaque;
+
     // All tile modes are supported (unless something was added to SkShader)
     std::unique_ptr<GrFragmentProcessor> master;
     switch(shader.getTileMode()) {
         case SkShader::kRepeat_TileMode:
             master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                 /* mirror */ false);
+                                                 /* mirror */ false, makePremul, allOpaque);
             break;
         case SkShader::kMirror_TileMode:
             master = GrTiledGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                 /* mirror */ true);
+                                                 /* mirror */ true, makePremul, allOpaque);
             break;
         case SkShader::kClamp_TileMode:
             // For the clamped mode, the border colors are the first and last colors, corresponding
@@ -165,26 +176,20 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
             // appropriate. If there is a hard stop, this grabs the expected outer colors for the
             // border.
             master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                   colors[0], colors[shader.fColorCount - 1]);
+                    colors[0], colors[shader.fColorCount - 1], makePremul, allOpaque);
             break;
         case SkShader::kDecal_TileMode:
+            // Even if the gradient colors are opaque, the decal borders are transparent so
+            // disable that optimization
             master = GrClampedGradientEffect::Make(std::move(colorizer), std::move(layout),
-                                                   GrColor4f::TransparentBlack(),
-                                                   GrColor4f::TransparentBlack());
+                    GrColor4f::TransparentBlack(), GrColor4f::TransparentBlack(),
+                    makePremul, /* colorsAreOpaque */ false);
             break;
     }
 
     if (master == nullptr) {
         // Unexpected tile mode
         return nullptr;
-    }
-
-    if (!inputPremul) {
-        // When interpolating unpremul colors, the output of the gradient
-        // effect fp's will also be unpremul, so wrap it to ensure its premul.
-        // - this is unnecessary when interpolating premul colors since the
-        //   output color is premul by nature
-        master = GrFragmentProcessor::PremulOutput(std::move(master));
     }
 
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(master));
