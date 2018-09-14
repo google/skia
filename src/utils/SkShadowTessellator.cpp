@@ -1005,6 +1005,10 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
         // get rotated quad in 3D
         SkPoint pts[4];
         ctm.mapRectToQuad(pts, pathBounds);
+        // No shadows for bowties or other degenerate cases
+        if (!SkIsConvexPolygon(pts, 4)) {
+            return;
+        }
         SkPoint3 pts3D[4];
         SkScalar z = this->heightFunc(pathBounds.fLeft, pathBounds.fTop);
         pts3D[0].set(pts[0].fX, pts[0].fY, z);
@@ -1017,7 +1021,12 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 
         // project from light through corners to z=0 plane
         for (int i = 0; i < 4; ++i) {
-            SkScalar zRatio = pts3D[i].fZ / (lightPos.fZ - pts3D[i].fZ);
+            SkScalar dz = lightPos.fZ - pts3D[i].fZ;
+            // light shouldn't be below or at a corner's z-location
+            if (dz <= SK_ScalarNearlyZero) {
+                return;
+            }
+            SkScalar zRatio = pts3D[i].fZ / dz;
             pts3D[i].fX -= (lightPos.fX - pts3D[i].fX)*zRatio;
             pts3D[i].fY -= (lightPos.fY - pts3D[i].fY)*zRatio;
             pts3D[i].fZ = SK_Scalar1;
@@ -1025,12 +1034,17 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
 
         // Generate matrix that projects from [-1,1]x[-1,1] square to projected quad
         SkPoint3 h0, h1, h2;
-        // Compute crossing point between top and bottom edges (gives new x-axis).
+        // Compute homogenous crossing point between top and bottom edges (gives new x-axis).
         h0 = (pts3D[1].cross(pts3D[0])).cross(pts3D[2].cross(pts3D[3]));
-        // Compute crossing point between left and right edges (gives new y-axis).
+        // Compute homogenous crossing point between left and right edges (gives new y-axis).
         h1 = (pts3D[0].cross(pts3D[3])).cross(pts3D[1].cross(pts3D[2]));
-        // Compute crossing point between diagonals (gives new origin).
+        // Compute homogenous crossing point between diagonals (gives new origin).
         h2 = (pts3D[0].cross(pts3D[2])).cross(pts3D[1].cross(pts3D[3]));
+        // If h2 is a vector (z=0 in 2D homogeneous space), that means that at least
+        // two of the quad corners are coincident and we don't have a realistic projection
+        if (SkScalarNearlyZero(h2.fZ)) {
+            return;
+        }
         // In some cases the crossing points are in the wrong direction
         // to map (-1,-1) to pts3D[0], so we need to correct for that.
         // Want h0 to be to the right of the left edge.
