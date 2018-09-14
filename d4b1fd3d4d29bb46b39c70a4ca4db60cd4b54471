@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6aa548ea_54b72561",
+        "filename": "src/core/SkPath.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 1719,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-09-14T15:20:02Z",
+      "side": 1,
+      "message": "Scary. I was trying to imagine a debug check that could detect this, (e.g., verbs \u003c\u003d points) ...",
+      "revId": "d4b1fd3d4d29bb46b39c70a4ca4db60cd4b54471",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
