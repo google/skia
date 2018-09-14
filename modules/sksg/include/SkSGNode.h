@@ -14,6 +14,7 @@
 #include <vector>
 
 class SkCanvas;
+struct SkColor4f;
 class SkMatrix;
 
 namespace sksg {
@@ -34,6 +35,8 @@ public:
     // Traverse the DAG and revalidate any dependant/invalidated nodes.
     // Returns the bounding box for the DAG fragment.
     const SkRect& revalidate(InvalidationController*, const SkMatrix&);
+
+    bool setColor(const SkColor4f&);
 
 protected:
     enum InvalTraits {
@@ -61,6 +64,8 @@ protected:
     // Register/unregister |this| to receive invalidation events from a descendant.
     void observeInval(const sk_sp<Node>&);
     void unobserveInval(const sk_sp<Node>&);
+
+    virtual bool onSetColor(const SkColor4f&) { return false; }
 
 private:
     enum Flags {

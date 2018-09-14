@@ -22,7 +22,10 @@ struct SkRect;
 class SkStream;
 
 namespace skjson { class ObjectValue; }
-namespace sksg { class Scene;  }
+namespace sksg {
+    class Node;
+    class Scene;
+}
 
 namespace skottie {
 
@@ -38,6 +41,7 @@ public:
 
 class SK_API Animation : public SkRefCnt {
 public:
+    typedef std::function<void(const char[], sksg::Node*)> NodeFinder;
 
     class Builder final {
     public:
@@ -66,6 +70,8 @@ public:
          */
         Builder& setFontManager(sk_sp<SkFontMgr>);
 
+        Builder& setNodeFinder(const char idTagName[], NodeFinder);
+
         /**
          * Animation factories.
          */
@@ -77,6 +83,9 @@ public:
         sk_sp<ResourceProvider> fResourceProvider;
         sk_sp<SkFontMgr>        fFontMgr;
         Stats                   fStats;
+
+        SkString    fNodeTagOfInterest;
+        NodeFinder  fNodeFinder;
     };
 
     /**
@@ -97,6 +106,10 @@ public:
      * @param dst      optional destination rect
      */
     void render(SkCanvas* canvas, const SkRect* dst = nullptr) const;
+
+    void render(SkCanvas* canvas, const SkRect& dst) const {
+        this->render(canvas, &dst);
+    }
 
     /**
      * Updates the animation state for |t|.

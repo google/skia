@@ -154,4 +154,8 @@ const SkRect& Node::revalidate(InvalidationController* ic, const SkMatrix& ctm) 
     return fBounds;
 }
 
+bool Node::setColor(const SkColor4f& c) {
+    return this->onSetColor(c);
+}
+
 } // namespace sksg

@@ -545,6 +545,7 @@ sk_sp<sksg::RenderNode> AttachShape(const skjson::ArrayValue* jshape, AttachShap
             auto paint = gPaintAttachers[rec->fInfo.fAttacherIndex](rec->fJson,
                                                                     ctx->fBuilder,
                                                                     ctx->fScope);
+            ctx->fBuilder->checkNodeFinder(rec->fJson, paint.get());
             if (!paint || geos.empty())
                 break;
 

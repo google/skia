@@ -6,6 +6,7 @@
  */
 
 #include "gm.h"
+#include "Resources.h"
 #include "sk_tool_utils.h"
 #include "SkAnimTimer.h"
 #include "SkCanvas.h"
@@ -86,8 +87,24 @@ DEF_GM( return new StringArtGM; )
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-#if 0
+#if 1
 #include "Skottie.h"
+#include "SkSGNode.h"
+
+typedef SkTArray<sk_sp<sksg::Node>> NodeArray;
+
+static sk_sp<skottie::Animation> custom_make(sk_sp<SkData> data, NodeArray* array) {
+    skottie::Animation::Builder builder;
+
+    builder.setNodeFinder("nm", [array](const char tagValue[], sksg::Node* node) {
+        if (strcmp(tagValue, "\"Fill 1\"") == 0) {
+            sk_sp<sksg::Node> n = sk_ref_sp(node);
+            array->push_back(n);
+        }
+    });
+
+    return builder.make((const char*)data->data(), data->size());
+}
 
 class SkottieGM : public skiagm::GM {
     enum {
@@ -95,22 +112,14 @@ class SkottieGM : public skiagm::GM {
         kHeight = 600,
     };
 
-    enum {
-        N = 100,
-    };
-    skottie::Animation* fAnims[N];
-    SkRect              fRects[N];
-    SkScalar            fDur;
+    sk_sp<skottie::Animation> fAnim;
+    SkScalar                  fDur;
+
+    NodeArray fNodes;
 
 public:
-    SkottieGM() {
-        sk_bzero(fAnims, sizeof(fAnims));
-    }
-    ~SkottieGM() override {
-        for (auto anim : fAnims) {
-            SkSafeUnref(anim);
-        }
-    }
+    SkottieGM() {}
+    ~SkottieGM() override {}
 
 protected:
 
@@ -119,33 +128,35 @@ protected:
     SkISize onISize() override { return SkISize::Make(kWidth, kHeight); }
 
     void init() {
-        SkRandom rand;
-        auto data = SkData::MakeFromFileName("/Users/reed/Downloads/maps_pinlet.json");
-   //     for (;;) skottie::Animation::Make((const char*)data->data(), data->size());
-        for (int i = 0; i < N; ++i) {
-            fAnims[i] = skottie::Animation::Make((const char*)data->data(), data->size()).release();
-            SkScalar x = rand.nextF() * kWidth;
-            SkScalar y = rand.nextF() * kHeight;
-            fRects[i].setXYWH(x, y, 400, 400);
-        }
-        fDur = fAnims[0]->duration();
+        auto data = GetResourceAsData("skotty/sample_1_pretty.json");
+        fAnim = custom_make(data, &fNodes);
+        fDur = fAnim->duration();
     }
 
     void onDraw(SkCanvas* canvas) override {
-        if (!fAnims[0]) {
+        if (!fAnim) {
             this->init();
         }
         canvas->drawColor(0xFFBBBBBB);
-        for (int i = 0; i < N; ++i) {
-            fAnims[0]->render(canvas, &fRects[i]);
-        }
+        canvas->scale(4, 4);
+        fAnim->render(canvas);
     }
 
     bool onAnimate(const SkAnimTimer& timer) override {
         SkScalar time = (float)(fmod(timer.secs(), fDur) / fDur);
-        for (auto anim : fAnims) {
-            anim->seek(time);
+        fAnim->seek(time);
+
+        SkColor4f c = {
+            sinf(time*M_PI),
+            cosf(time*M_PI),
+            sinf(time*time*M_PI),
+            1
+        };
+        for (auto& node : fNodes) {
+            bool success = node->setColor(c);
+            SkASSERT(success);
         }
+
         return true;
     }
 

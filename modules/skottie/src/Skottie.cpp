@@ -141,6 +141,22 @@ AnimationBuilder::AnimationBuilder(sk_sp<ResourceProvider> rp, sk_sp<SkFontMgr> 
     , fDuration(duration)
     , fFrameRate(framerate) {}
 
+void AnimationBuilder::setNodeFinder(const char nodeTag[],
+                                     skottie::Animation::NodeFinder finder) {
+    fNodeTagOfInterest.set(nodeTag);
+    fNodeFinder = std::move(finder);
+}
+
+void AnimationBuilder::checkNodeFinder(const skjson::ObjectValue& jnode, sksg::Node* node) const {
+    if (fNodeTagOfInterest.size() > 0) {
+        auto value = jnode[fNodeTagOfInterest.c_str()];
+        skjson::Value::Type t = value.getType();
+        if (t == skjson::Value::Type::kString) {
+            fNodeFinder(value.toString().c_str(), node);
+        }
+    }
+}
+
 std::unique_ptr<sksg::Scene> AnimationBuilder::parse(const skjson::ObjectValue& jroot) {
     this->parseAssets(jroot["assets"]);
     this->parseFonts(jroot["fonts"], jroot["chars"]);
@@ -174,6 +190,13 @@ Animation::Builder& Animation::Builder::setResourceProvider(sk_sp<ResourceProvid
 
 Animation::Builder& Animation::Builder::setFontManager(sk_sp<SkFontMgr> fmgr) {
     fFontMgr = std::move(fmgr);
+    return *this;
+}
+
+Animation::Builder& Animation::Builder::setNodeFinder(const char nodeTag[],
+                                                      NodeFinder finder) {
+    fNodeTagOfInterest.set(nodeTag);
+    fNodeFinder = std::move(finder);
     return *this;
 }
 
@@ -236,6 +259,10 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     SkASSERT(resolvedProvider);
     internal::AnimationBuilder builder(std::move(resolvedProvider), fFontMgr,
                                        &fStats, duration, fps);
+    if (fNodeTagOfInterest.size() > 0) {
+        builder.setNodeFinder(fNodeTagOfInterest.c_str(), fNodeFinder);
+    }
+
     auto scene = builder.parse(json);
 
     const auto t2 = SkTime::GetMSecs();

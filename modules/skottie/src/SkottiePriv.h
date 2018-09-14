@@ -47,6 +47,9 @@ public:
     AnimationBuilder(sk_sp<ResourceProvider>, sk_sp<SkFontMgr>, Animation::Builder::Stats*,
                     float duration, float framerate);
 
+    void setNodeFinder(const char idTagName[], skottie::Animation::NodeFinder);
+    void checkNodeFinder(const skjson::ObjectValue& jnode, sksg::Node* node) const;
+
     std::unique_ptr<sksg::Scene> parse(const skjson::ObjectValue&);
 
     sk_sp<SkTypeface> findFont(const SkString& name) const;
@@ -147,6 +150,9 @@ private:
     AssetMap           fAssets;
     FontMap            fFonts;
     mutable AssetCache fAssetCache;
+
+    SkString                       fNodeTagOfInterest;
+    skottie::Animation::NodeFinder fNodeFinder;
 
     using INHERITED = SkNoncopyable;
 };

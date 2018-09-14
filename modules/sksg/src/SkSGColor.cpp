@@ -9,10 +9,19 @@
 
 namespace sksg {
 
-Color::Color(SkColor c) : fColor(c) {}
+Color::Color(SkColor c) : fColor(c) {
+    SkDebugf("");
+}
 
 void Color::onApplyToPaint(SkPaint* paint) const {
     paint->setColor(fColor);
+}
+
+bool Color::onSetColor(const SkColor4f& c) {
+    SkPaint p;
+    p.setColor4f(c, nullptr);
+    this->setColor(p.getColor());
+    return true;
 }
 
 } // namespace sksg
