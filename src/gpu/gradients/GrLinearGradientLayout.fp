@@ -22,6 +22,11 @@ void main() {
     #include "SkLinearGradient.h"
 }
 
+// The linear gradient never rejects a pixel so it doesn't change opacity
+@optimizationFlags {
+    kPreservesOpaqueInput_OptimizationFlag
+}
+
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(const SkLinearGradient& gradient,
                                                      const GrFPArgs& args);
