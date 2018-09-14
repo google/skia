@@ -146,6 +146,80 @@ GrTwoPointConicalGradientLayout::GrTwoPointConicalGradientLayout(
 std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::clone() const {
     return std::unique_ptr<GrFragmentProcessor>(new GrTwoPointConicalGradientLayout(*this));
 }
+GR_DEFINE_FRAGMENT_PROCESSOR_TEST(GrTwoPointConicalGradientLayout);
+#if GR_TEST_UTILS
+std::unique_ptr<GrFragmentProcessor> GrTwoPointConicalGradientLayout::TestCreate(
+        GrProcessorTestData* d) {
+    SkPoint center1 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+    SkPoint center2 = {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()};
+    SkScalar radius1 = d->fRandom->nextUScalar1();
+    SkScalar radius2 = d->fRandom->nextUScalar1();
+
+    constexpr int kTestTypeMask = (1 << 2) - 1, kTestNativelyFocalBit = (1 << 2),
+                  kTestFocalOnCircleBit = (1 << 3), kTestSwappedBit = (1 << 4);
+    // We won't treat isWellDefined and isRadiusIncreasing specially because they
+    // should have high probability to be turned on and off as we're getting random
+    // radii and centers.
+
+    int mask = d->fRandom->nextU();
+    int type = mask & kTestTypeMask;
+    if (type == static_cast<int>(Type::kRadial)) {
+        center2 = center1;
+        // Make sure that the radii are different
+        if (SkScalarNearlyZero(radius1 - radius2)) {
+            radius2 += .1f;
+        }
+    } else if (type == static_cast<int>(Type::kStrip)) {
+        radius1 = SkTMax(radius1, .1f);  // Make sure that the radius is non-zero
+        radius2 = radius1;
+        // Make sure that the centers are different
+        if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
+            center2.fX += .1f;
+        }
+    } else {  // kFocal_Type
+        // Make sure that the centers are different
+        if (SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
+            center2.fX += .1f;
+        }
+
+        if (kTestNativelyFocalBit & mask) {
+            radius1 = 0;
+        }
+        if (kTestFocalOnCircleBit & mask) {
+            radius2 = radius1 + SkPoint::Distance(center1, center2);
+        }
+        if (kTestSwappedBit & mask) {
+            std::swap(radius1, radius2);
+            radius2 = 0;
+        }
+
+        // Make sure that the radii are different
+        if (SkScalarNearlyZero(radius1 - radius2)) {
+            radius2 += .1f;
+        }
+    }
+
+    if (SkScalarNearlyZero(radius1 - radius2) &&
+        SkScalarNearlyZero(SkPoint::Distance(center1, center2))) {
+        radius2 += .1f;  // make sure that we're not degenerated
+    }
+
+    GrGradientShader::RandomParams params(d->fRandom);
+    auto shader = params.fUseColors4f
+                          ? SkGradientShader::MakeTwoPointConical(
+                                    center1, radius1, center2, radius2, params.fColors4f,
+                                    params.fColorSpace, params.fStops, params.fColorCount,
+                                    params.fTileMode)
+                          : SkGradientShader::MakeTwoPointConical(
+                                    center1, radius1, center2, radius2, params.fColors,
+                                    params.fStops, params.fColorCount, params.fTileMode);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+
+    GrAlwaysAssert(fp);
+    return fp;
+}
+#endif
 
 // .fp files do not let you reference outside enum definitions, so we have to explicitly map
 // between the two compatible enum defs

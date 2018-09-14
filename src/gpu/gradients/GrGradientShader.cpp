@@ -217,4 +217,42 @@ std::unique_ptr<GrFragmentProcessor> MakeConical(const SkTwoPointConicalGradient
     return make_gradient(shader, args, GrTwoPointConicalGradientLayout::Make(shader, args));
 }
 
+#if GR_TEST_UTILS
+RandomParams::RandomParams(SkRandom* random) {
+    // Set color count to min of 2 so that we don't trigger the const color optimization and make
+    // a non-gradient processor.
+    fColorCount = random->nextRangeU(2, kMaxRandomGradientColors);
+    fUseColors4f = random->nextBool();
+
+    // if one color, omit stops, otherwise randomly decide whether or not to
+    if (fColorCount == 1 || (fColorCount >= 2 && random->nextBool())) {
+        fStops = nullptr;
+    } else {
+        fStops = fStopStorage;
+    }
+
+    // if using SkColor4f, attach a random (possibly null) color space (with linear gamma)
+    if (fUseColors4f) {
+        fColorSpace = GrTest::TestColorSpace(random);
+    }
+
+    SkScalar stop = 0.f;
+    for (int i = 0; i < fColorCount; ++i) {
+        if (fUseColors4f) {
+            fColors4f[i].fR = random->nextUScalar1();
+            fColors4f[i].fG = random->nextUScalar1();
+            fColors4f[i].fB = random->nextUScalar1();
+            fColors4f[i].fA = random->nextUScalar1();
+        } else {
+            fColors[i] = random->nextU();
+        }
+        if (fStops) {
+            fStops[i] = stop;
+            stop = i < fColorCount - 1 ? stop + random->nextUScalar1() * (1.f - stop) : 1.f;
+        }
+    }
+    fTileMode = static_cast<SkShader::TileMode>(random->nextULessThan(SkShader::kTileModeCount));
+}
+#endif
+
 }

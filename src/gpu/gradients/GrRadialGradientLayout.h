@@ -13,6 +13,7 @@
 #include "SkTypes.h"
 
 #include "SkRadialGradient.h"
+#include "GrGradientShader.h"
 #include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
 class GrRadialGradientLayout : public GrFragmentProcessor {
