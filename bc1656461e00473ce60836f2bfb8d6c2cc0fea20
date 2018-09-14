@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3237ec10_1b08e001",
+        "filename": "src/gpu/gradients/GrGradientBitmapCache.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-14T13:47:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1d1b06b4_51121a6a",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b35f4a80_536f7701",
         "filename": "src/gpu/gradients/GrGradientBitmapCache.h",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "37f9ad40_db4a212f",
+        "filename": "src/gpu/gradients/GrGradientBitmapCache.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-14T13:47:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b35f4a80_536f7701",
+      "range": {
+        "startLine": 2,
+        "startChar": 13,
+        "endLine": 2,
+        "endChar": 17
+      },
+      "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "079587f7_74be7860",
         "filename": "src/gpu/gradients/GrGradientBitmapCache.h",
         "patchSetId": 8
@@ -62,6 +110,24 @@
       "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c11bfa63_ac495579",
+        "filename": "src/gpu/gradients/GrGradientBitmapCache.h",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-14T13:47:54Z",
+      "side": 1,
+      "message": "That would be a good place to get to but I could see it being a challenge. Without some other way of attaching a filled-in gradient texture to the SkShader/configuration, we\u0027d have to fully rebuild the texture each time it\u0027s rendered. Is there something in Ganesh for this sort of situation besides writing a custom cache?",
+      "parentUuid": "079587f7_74be7860",
+      "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -88,6 +154,30 @@
     },
     {
       "key": {
+        "uuid": "f11b8b25_0f183b16",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-14T13:47:54Z",
+      "side": 1,
+      "message": "Gotcha, fixed.",
+      "parentUuid": "2e4aab47_d0e9720e",
+      "range": {
+        "startLine": 29,
+        "startChar": 0,
+        "endLine": 29,
+        "endChar": 54
+      },
+      "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b74a7537_c07a459b",
         "filename": "src/gpu/gradients/GrGradientShader.cpp",
         "patchSetId": 8
@@ -108,6 +198,30 @@
       "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3988519c_0932365c",
+        "filename": "src/gpu/gradients/GrGradientShader.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 8341
+      },
+      "writtenOn": "2018-09-14T13:47:54Z",
+      "side": 1,
+      "message": "Yep!",
+      "parentUuid": "b74a7537_c07a459b",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 102,
+        "endChar": 102
+      },
+      "revId": "bc1656461e00473ce60836f2bfb8d6c2cc0fea20",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
