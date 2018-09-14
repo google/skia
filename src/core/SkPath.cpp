@@ -1716,10 +1716,10 @@ SkPath& SkPath::reverseAddPath(const SkPath& srcPath) {
         src = tmp.set(srcPath);
     }
 
-    SkPathRef::Editor ed(&fPathRef, src->fPathRef->countPoints(), src->fPathRef->countVerbs());
+    SkPathRef::Editor ed(&fPathRef, src->countVerbs(), src->countPoints());
 
     const SkPoint* pts = src->fPathRef->pointsEnd();
-    // we will iterator through src's verbs backwards
+    // we will iterate through src's verbs backwards
     const uint8_t* verbs = src->fPathRef->verbsMemBegin(); // points at the last verb
     const uint8_t* verbsEnd = src->fPathRef->verbs(); // points just past the first verb
     const SkScalar* conicWeights = src->fPathRef->conicWeightsEnd();
@@ -1840,6 +1840,7 @@ void SkPath::transform(const SkMatrix& matrix, SkPath* dst) const {
         SkPathRef::CreateTransformedCopy(&dst->fPathRef, *fPathRef.get(), matrix);
 
         if (this != dst) {
+            dst->fLastMoveToIndex = fLastMoveToIndex;
             dst->fFillType = fFillType;
             dst->fConvexity.store(fConvexity);
             dst->fIsVolatile = fIsVolatile;
