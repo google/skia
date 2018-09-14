@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "88ac3fae_4a5160c2",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-14T17:28:02Z",
+      "side": 1,
+      "message": "This is a miss-feature. I will go fix it.",
+      "parentUuid": "555d552d_572aea93",
+      "range": {
+        "startLine": 331,
+        "startChar": 46,
+        "endLine": 331,
+        "endChar": 60
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "18e4dd6e_bd2f7056",
         "filename": "src/core/SkRemoteGlyphCache.cpp",
         "patchSetId": 6
@@ -329,6 +353,30 @@
       "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "51b7a587_035bd387",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-14T17:28:02Z",
+      "side": 1,
+      "message": "At this point, I would like to keep that API like I have it. I would like to try and figure out a better organization of the code, rather than complicate the API.",
+      "parentUuid": "7d0972f7_40dd7dd2",
+      "range": {
+        "startLine": 699,
+        "startChar": 4,
+        "endLine": 699,
+        "endChar": 19
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
