@@ -986,93 +986,13 @@ SkSpotShadowTessellator::SkSpotShadowTessellator(const SkPath& path, const SkMat
                                                  bool transparent)
     : INHERITED(zPlaneParams, transparent) {
 
-    const SkRect& pathBounds = path.getBounds();
-
-    // Set radius and colors
-    SkScalar occluderHeight = this->heightFunc(pathBounds.centerX(), pathBounds.centerY());
-
     // Compute the blur radius, scale and translation for the spot shadow.
-    SkScalar outset;
     SkMatrix shadowTransform;
-    if (!ctm.hasPerspective()) {
-        SkScalar scale;
-        SkVector translate;
-        SkDrawShadowMetrics::GetSpotParams(occluderHeight, lightPos.fX, lightPos.fY, lightPos.fZ,
-                                           lightRadius, &outset, &scale, &translate);
-        shadowTransform.setScaleTranslate(scale, scale, translate.fX, translate.fY);
-        shadowTransform.preConcat(ctm);
-    } else {
-        // get rotated quad in 3D
-        SkPoint pts[4];
-        ctm.mapRectToQuad(pts, pathBounds);
-        // No shadows for bowties or other degenerate cases
-        if (!SkIsConvexPolygon(pts, 4)) {
-            return;
-        }
-        SkPoint3 pts3D[4];
-        SkScalar z = this->heightFunc(pathBounds.fLeft, pathBounds.fTop);
-        pts3D[0].set(pts[0].fX, pts[0].fY, z);
-        z = this->heightFunc(pathBounds.fRight, pathBounds.fTop);
-        pts3D[1].set(pts[1].fX, pts[1].fY, z);
-        z = this->heightFunc(pathBounds.fRight, pathBounds.fBottom);
-        pts3D[2].set(pts[2].fX, pts[2].fY, z);
-        z = this->heightFunc(pathBounds.fLeft, pathBounds.fBottom);
-        pts3D[3].set(pts[3].fX, pts[3].fY, z);
-
-        // project from light through corners to z=0 plane
-        for (int i = 0; i < 4; ++i) {
-            SkScalar dz = lightPos.fZ - pts3D[i].fZ;
-            // light shouldn't be below or at a corner's z-location
-            if (dz <= SK_ScalarNearlyZero) {
-                return;
-            }
-            SkScalar zRatio = pts3D[i].fZ / dz;
-            pts3D[i].fX -= (lightPos.fX - pts3D[i].fX)*zRatio;
-            pts3D[i].fY -= (lightPos.fY - pts3D[i].fY)*zRatio;
-            pts3D[i].fZ = SK_Scalar1;
-        }
-
-        // Generate matrix that projects from [-1,1]x[-1,1] square to projected quad
-        SkPoint3 h0, h1, h2;
-        // Compute homogenous crossing point between top and bottom edges (gives new x-axis).
-        h0 = (pts3D[1].cross(pts3D[0])).cross(pts3D[2].cross(pts3D[3]));
-        // Compute homogenous crossing point between left and right edges (gives new y-axis).
-        h1 = (pts3D[0].cross(pts3D[3])).cross(pts3D[1].cross(pts3D[2]));
-        // Compute homogenous crossing point between diagonals (gives new origin).
-        h2 = (pts3D[0].cross(pts3D[2])).cross(pts3D[1].cross(pts3D[3]));
-        // If h2 is a vector (z=0 in 2D homogeneous space), that means that at least
-        // two of the quad corners are coincident and we don't have a realistic projection
-        if (SkScalarNearlyZero(h2.fZ)) {
-            return;
-        }
-        // In some cases the crossing points are in the wrong direction
-        // to map (-1,-1) to pts3D[0], so we need to correct for that.
-        // Want h0 to be to the right of the left edge.
-        SkVector3 v = pts3D[3] - pts3D[0];
-        SkVector3 w = h0 - pts3D[0];
-        SkScalar perpDot = v.fX*w.fY - v.fY*w.fX;
-        if (perpDot > 0) {
-            h0 = -h0;
-        }
-        // Want h1 to be above the bottom edge.
-        v = pts3D[1] - pts3D[0];
-        perpDot = v.fX*w.fY - v.fY*w.fX;
-        if (perpDot < 0) {
-            h1 = -h1;
-        }
-        shadowTransform.setAll(h0.fX / h2.fZ, h1.fX / h2.fZ, h2.fX / h2.fZ,
-                               h0.fY / h2.fZ, h1.fY / h2.fZ, h2.fY / h2.fZ,
-                               h0.fZ / h2.fZ, h1.fZ / h2.fZ, 1);
-        // generate matrix that transforms from bounds to [-1,1]x[-1,1] square
-        SkMatrix toHomogeneous;
-        SkScalar xScale = 2/(pathBounds.fRight - pathBounds.fLeft);
-        SkScalar yScale = 2/(pathBounds.fBottom - pathBounds.fTop);
-        toHomogeneous.setAll(xScale, 0, -xScale*pathBounds.fLeft - 1,
-                             0, yScale, -yScale*pathBounds.fTop - 1,
-                             0, 0, 1);
-        shadowTransform.preConcat(toHomogeneous);
-
-        outset = SkDrawShadowMetrics::SpotBlurRadius(occluderHeight, lightPos.fZ, lightRadius);
+    SkScalar outset;
+    if (!SkDrawShadowMetrics::GetSpotShadowTransform(lightPos, lightRadius,
+                                                     ctm, zPlaneParams, path.getBounds(),
+                                                     &shadowTransform, &outset)) {
+        return;
     }
     SkScalar inset = outset;
 

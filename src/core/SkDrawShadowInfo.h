@@ -62,6 +62,10 @@ inline void GetSpotParams(SkScalar occluderZ, SkScalar lightX, SkScalar lightY, 
     *translate = SkVector::Make(-zRatio * lightX, -zRatio * lightY);
 }
 
+bool GetSpotShadowTransform(const SkPoint3& lightPos, SkScalar lightRadius,
+                            const SkMatrix& ctm, const SkPoint3& zPlaneParams,
+                            const SkRect& pathBounds, SkMatrix* shadowTransform, SkScalar* outset);
+
 // get bounds prior to the ctm being applied
 void GetLocalBounds(const SkPath&, const SkDrawShadowRec&, const SkMatrix& ctm, SkRect* bounds);
 
