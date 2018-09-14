@@ -1288,6 +1288,11 @@ STAGE(set_rgb, const float* rgb) {
     g = rgb[1];
     b = rgb[2];
 }
+STAGE(unbounded_set_rgb, const float* rgb) {
+    r = rgb[0];
+    g = rgb[1];
+    b = rgb[2];
+}
 STAGE(swap_rb, Ctx::None) {
     auto tmp = r;
     r = b;
@@ -3252,7 +3257,7 @@ using NotImplemented = void(*)(void);
 
 static NotImplemented
         callback, load_rgba, store_rgba,
-        unbounded_uniform_color,
+        unbounded_set_rgb, unbounded_uniform_color,
         unpremul, dither,
         from_srgb, from_srgb_dst, to_srgb,
         load_f16    , load_f16_dst    , store_f16    , gather_f16,
