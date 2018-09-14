@@ -401,6 +401,30 @@
       "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "7096b61e_ea8f898a",
+        "filename": "src/core/SkRemoteGlyphCache.cpp",
+        "patchSetId": 6
+      },
+      "lineNbr": 699,
+      "author": {
+        "id": 5210
+      },
+      "writtenOn": "2018-09-14T18:14:58Z",
+      "side": 1,
+      "message": "Do you mean take a pointer, and reset the pointer? I think that would be a good idea. Coping the paint is expensive, and resetting the paint is not a clear concept for paint.",
+      "parentUuid": "2ce08276_67db5df1",
+      "range": {
+        "startLine": 699,
+        "startChar": 4,
+        "endLine": 699,
+        "endChar": 19
+      },
+      "revId": "cbe7ee6eb844fae806b2029a2856480dace596d3",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
