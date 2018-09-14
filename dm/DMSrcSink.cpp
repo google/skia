@@ -1466,25 +1466,27 @@ Error GPUSink::onDraw(const Src& src, SkBitmap* dst, SkWStream*, SkString* log,
     if (!err.isEmpty()) {
         return err;
     }
-    canvas->flush();
     if (FLAGS_gpuStats) {
         canvas->getGrContext()->contextPriv().dumpCacheStats(log);
         canvas->getGrContext()->contextPriv().dumpGpuStats(log);
     }
-    if (info.colorType() == kRGB_565_SkColorType || info.colorType() == kARGB_4444_SkColorType ||
-        info.colorType() == kRGB_888x_SkColorType) {
-        // We don't currently support readbacks into these formats on the GPU backend. Convert to
-        // 32 bit.
-        info = SkImageInfo::Make(size.width(), size.height(), kRGBA_8888_SkColorType,
-                                 kPremul_SkAlphaType, fColorSpace);
-    }
-    dst->allocPixels(info);
-    canvas->readPixels(*dst, 0, 0);
     if (FLAGS_abandonGpuContext) {
         factory.abandonContexts();
     } else if (FLAGS_releaseAndAbandonGpuContext) {
         factory.releaseResourcesAndAbandonContexts();
+    } else {
+        if (info.colorType() == kRGB_565_SkColorType ||
+            info.colorType() == kARGB_4444_SkColorType ||
+            info.colorType() == kRGB_888x_SkColorType) {
+            // We don't currently support readbacks into these formats on the GPU backend. Convert
+            // to 32 bit.
+            info = SkImageInfo::Make(size.width(), size.height(), kRGBA_8888_SkColorType,
+                                     kPremul_SkAlphaType, fColorSpace);
+        }
+        dst->allocPixels(info);
+        canvas->readPixels(*dst, 0, 0);
     }
+    context->flush();
     if (!context->abandoned()) {
         surface.reset();
         if (backendTexture.isValid()) {
