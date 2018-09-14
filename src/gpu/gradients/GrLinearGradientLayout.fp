@@ -20,6 +20,7 @@ void main() {
 
 @header {
     #include "SkLinearGradient.h"
+    #include "GrGradientShader.h"
 }
 
 // The linear gradient never rejects a pixel so it doesn't change opacity
@@ -42,4 +43,22 @@ void main() {
         matrix.postConcat(grad.getGradientMatrix());
         return std::unique_ptr<GrFragmentProcessor>(new GrLinearGradientLayout(matrix));
     }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+@test(d) {
+    SkPoint points[] = {{d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()},
+                        {d->fRandom->nextUScalar1(), d->fRandom->nextUScalar1()}};
+
+    GrGradientShader::RandomParams params(d->fRandom);
+    auto shader = params.fUseColors4f ?
+        SkGradientShader::MakeLinear(points, params.fColors4f, params.fColorSpace, params.fStops,
+                                     params.fColorCount, params.fTileMode) :
+        SkGradientShader::MakeLinear(points, params.fColors, params.fStops,
+                                     params.fColorCount, params.fTileMode);
+    GrTest::TestAsFPArgs asFPArgs(d);
+    std::unique_ptr<GrFragmentProcessor> fp = as_SB(shader)->asFragmentProcessor(asFPArgs.args());
+    GrAlwaysAssert(fp);
+    return fp;
 }
