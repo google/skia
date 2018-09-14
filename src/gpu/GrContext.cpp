@@ -242,13 +242,11 @@ void GrContext::abandonContext() {
     fProxyProvider->abandon();
     fResourceProvider->abandon();
 
-    // Need to abandon the drawing manager first so all the render targets
-    // will be released/forgotten before they too are abandoned.
-    fDrawingManager->abandon();
-
     // abandon first to so destructors
     // don't try to free the resources in the API.
     fResourceCache->abandonAll();
+
+    fDrawingManager->abandon();
 
     fGpu->disconnect(GrGpu::DisconnectType::kAbandon);
 
