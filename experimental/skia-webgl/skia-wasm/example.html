@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<title>Skia -> WebGL (via WASM)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  #demo,#paths,#sk_drinks,#sk_party {
+    width: 300px;
+    height: 300px;
+  }
+
+  #sk_legos {
+    width: 400px;
+    height: 300px;
+  }
+</style>
+
+<h2> Skia draws Paths to WebGL</h2>
+<canvas id=demo width=300 height=300></canvas>
+<canvas id=paths width=200 height=200></canvas>
+
+<h2> Skottie </h2>
+<canvas id=sk_legos width=800 height=600></canvas>
+<canvas id=sk_drinks width=500 height=500></canvas>
+<canvas id=sk_party width=800 height=800></canvas>
+
+<button id=lego_btn>Take a picture of the legos</button>
+
+<script type="text/javascript" src="/node_modules/skia-wasm/bin/skia.js"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  var SkiaWASM = null;
+  var legoJSON = null;
+  var drinksJSON = null;
+  var confettiJSON = null;
+  SkiaInit({
+    locateFile: (file) => '/node_modules/skia-wasm/bin/'+file,
+  }).then((Skia) => {
+    SkiaWASM = Skia;
+    DrawingExample(Skia);
+    PathExample(Skia);
+    SkottieExample(SkiaWASM, 'sk_legos', legoJSON);
+    SkottieExample(SkiaWASM, 'sk_drinks', drinksJSON);
+    SkottieExample(SkiaWASM, 'sk_party', confettiJSON);
+  });
+
+  fetch('/node_modules/skia-wasm/lego_loader.json').then((resp) => {
+    resp.text().then((str) => {
+      legoJSON = str;
+      SkottieExample(SkiaWASM, 'sk_legos', legoJSON);
+    });
+  });
+
+  fetch('/node_modules/skia-wasm/drinks.json').then((resp) => {
+    resp.text().then((str) => {
+      drinksJSON = str;
+      SkottieExample(SkiaWASM, 'sk_drinks', drinksJSON);
+    });
+  });
+
+  fetch('/node_modules/skia-wasm/confetti.json').then((resp) => {
+    resp.text().then((str) => {
+      confettiJSON = str;
+      SkottieExample(SkiaWASM, 'sk_party', confettiJSON);
+    });
+  });
+
+  // crashes the lego drawing
+  const btn = document.getElementById('lego_btn');
+  btn.addEventListener('click', () => {
+    const surface = SkiaWASM.getWebGLSurface('sk_legos');
+    if (!surface) {
+      console.log('Could not get lego surface');
+    }
+
+    const img = surface.makeImageSnapshot()
+    if (!img) { return }
+    const png = img.encodeToData()
+    if (!png) { return }
+    const pngBytes = SkiaWASM.getSkDataBytes(png);
+    // See https://stackoverflow.com/a/12713326
+    let b64encoded = btoa(String.fromCharCode.apply(null, pngBytes));
+    console.log("base64 encoded image", b64encoded);
+  });
+
+  function DrawingExample(Skia) {
+    const surface = Skia.getWebGLSurface('demo');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = Skia.currentContext();
+
+    const canvas = surface.getCanvas();
+    const path = starPath(Skia);
+    const paint = new Skia.SkPaint();
+
+    const textPaint = new Skia.SkPaint();
+    textPaint.setColor(Skia.Color(40, 0, 0, 1.0));
+    textPaint.setStrokeWidth(2);
+    textPaint.setTextSize(60);
+
+    let i = 0;
+
+    function drawFrame() {
+      Skia.setCurrentContext(context);
+      const dpe = Skia.MakeSkDiscretePathEffect(10.0, 4.0, i/20);
+      i++;
+
+      paint.setPathEffect(dpe);
+      paint.setStyle(Skia.PaintStyle.STROKE);
+      paint.setStrokeWidth(2.0);
+      paint.setAntiAlias(true);
+      paint.setColor(Skia.Color(66, 129, 164, 1.0));
+
+      canvas.clear(Skia.Color(255, 255, 255, 1.0));
+
+      canvas.drawPath(path, paint);
+      // Currently does not work.
+      canvas.drawText('Some Text', 10, 10, textPaint);
+      canvas.flush();
+      dpe.delete();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // A client would need to delete this if it didn't go on for ever.
+    //path.delete();
+    //paint.delete();
+  }
+
+  function PathExample(Skia) {
+    const surface = Skia.getWebGLSurface('paths');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = Skia.currentContext();
+
+    const canvas = surface.getCanvas();
+
+    function drawFrame() {
+      Skia.setCurrentContext(context);
+      const paint = new Skia.SkPaint();
+      paint.setStrokeWidth(1.0);
+      paint.setAntiAlias(true);
+      paint.setColor(Skia.Color(0, 0, 0, 1.0));
+      paint.setStyle(Skia.PaintStyle.STROKE);
+
+      const path = new Skia.SkPath();
+      path.moveTo(20, 5);
+      path.lineTo(30, 20);
+      path.lineTo(40, 10);
+      path.lineTo(50, 20);
+      path.lineTo(60, 0);
+      path.lineTo(20, 5);
+
+      path.moveTo(20, 80);
+      path.cubicTo(90, 10, 160, 150, 190, 10);
+
+      path.moveTo(36, 148);
+      path.quadTo(66, 188, 120, 136);
+      path.lineTo(36, 148);
+
+      path.moveTo(150, 180);
+      path.arcTo(150, 100, 50, 200, 20);
+      path.lineTo(160, 160);
+
+      path.moveTo(20, 120);
+      path.lineTo(20, 120);
+
+      canvas.drawPath(path, paint);
+
+      canvas.flush();
+
+      path.delete();
+      paint.delete();
+      // Intentionally just draw frame once
+    }
+    window.requestAnimationFrame(drawFrame);
+  }
+
+  function starPath(Skia) {
+    const R = 115.2;
+    const C = 128.0;
+    let p = new Skia.SkPath();
+    p.moveTo(C + R, C);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(C + R * Math.cos(a), C + R * Math.sin(a));
+    }
+    return p;
+  }
+
+  function SkottieExample(Skia, id, jsonStr) {
+    if (!Skia || !jsonStr) {
+      return;
+    }
+    const animation = Skia.MakeAnimation(jsonStr);
+    const duration = animation.duration();
+    const size = animation.size();
+    let c = document.getElementById(id);
+    c.width = size.w;
+    c.height = size.h;
+
+    const surface = Skia.getWebGLSurface(id);
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = Skia.currentContext();
+    const canvas = surface.getCanvas();
+
+    // We draw at about 60 frames per second.
+    // This normalizes the animation time so it
+    // lasts as long as it should (given the duration).
+    const timeTick = 1.0/(duration*60.0);
+
+    let i = 0;
+    function drawFrame() {
+      Skia.setCurrentContext(context);
+      animation.seek(i);
+      i += timeTick;
+      if (i > 1.0) {
+        i = 0;
+      }
+      animation.render(canvas);
+      canvas.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    //animation.delete();
+  }
+
+</script>
