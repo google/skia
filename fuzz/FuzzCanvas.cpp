@@ -1753,6 +1753,9 @@ DEF_FUZZ(ImageFilter, fuzz) {
 
 DEF_FUZZ(SerializedImageFilter, fuzz) {
     auto filter = make_fuzz_imageFilter(fuzz, 20);
+    if (!filter) {
+        return;
+    }
     auto data = filter->serialize();
     const unsigned char* ptr = static_cast<const unsigned char*>(data->data());
     size_t len = data->size();
