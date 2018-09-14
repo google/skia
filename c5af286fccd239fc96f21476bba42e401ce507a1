@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7e33fab_2e61a01b",
+        "filename": "src/core/SkDrawShadowInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-14T20:52:18Z",
+      "side": 1,
+      "message": "// Is there any useful documentation that would help posterity\n\n?",
+      "revId": "c5af286fccd239fc96f21476bba42e401ce507a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
