@@ -294,16 +294,16 @@ public:
     GrMeshTestProcessor(bool instanced, bool hasVertexBuffer)
             : INHERITED(kGrMeshTestProcessor_ClassID) {
         if (instanced) {
-            fInstanceLocation = {"location", kHalf2_GrVertexAttribType};
-            fColor = {"color", kUByte4_norm_GrVertexAttribType};
+            fInstanceLocation = {"location", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
             this->setInstanceAttributeCnt(2);
             if (hasVertexBuffer) {
-                fVertex = {"vertex", kHalf2_GrVertexAttribType};
+                fVertex = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
                 this->setVertexAttributeCnt(1);
             }
         } else {
-            fVertex = {"vertex", kHalf2_GrVertexAttribType};
-            fColor = {"color", kUByte4_norm_GrVertexAttribType};
+            fVertex = {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+            fColor = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
             this->setVertexAttributeCnt(2);
         }
     }

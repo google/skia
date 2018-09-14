@@ -37,11 +37,11 @@ public:
             : INHERITED(kVertexColorSpaceBenchGP_ClassID)
             , fMode(mode)
             , fColorSpaceXform(std::move(colorSpaceXform)) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         if (kFloat_Mode == fMode) {
-            fInColor = {"inColor", kFloat4_GrVertexAttribType};
+            fInColor = {"inColor", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         } else {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
         }
         this->setVertexAttributeCnt(2);
     }

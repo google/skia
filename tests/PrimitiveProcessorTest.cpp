@@ -62,7 +62,8 @@ private:
                 fAttributes.reset(new Attribute[numAttribs]);
                 for (auto i = 0; i < numAttribs; ++i) {
                     fAttribNames[i].printf("attr%d", i);
-                    fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType};
+                    fAttributes[i] = {fAttribNames[i].c_str(), kFloat2_GrVertexAttribType,
+                                                               kFloat2_GrSLType};
                 }
                 this->setVertexAttributeCnt(numAttribs);
             }

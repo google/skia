@@ -267,7 +267,7 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
         SkASSERT(3 == numInputPoints);
         SkASSERT(kFloat4_GrVertexAttribType ==
-                 proc.fInstanceAttributes[kInstanceAttribIdx_X].type());
+                 proc.fInstanceAttributes[kInstanceAttribIdx_X].cpuType());
         v->codeAppendf("wind *= %s.w;", proc.fInstanceAttributes[kInstanceAttribIdx_X].name());
     }
 
@@ -496,6 +496,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
     }
 
     GrVertexAttribType xyAttribType;
+    GrSLType xySLType;
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
         GR_STATIC_ASSERT(offsetof(QuadPointInstance, fX) == 0);
         GR_STATIC_ASSERT(sizeof(QuadPointInstance::fX) ==
@@ -503,6 +504,7 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         GR_STATIC_ASSERT(sizeof(QuadPointInstance::fY) ==
                          GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
         xyAttribType = kFloat4_GrVertexAttribType;
+        xySLType = kFloat4_GrSLType;
     } else {
         GR_STATIC_ASSERT(offsetof(TriPointInstance, fX) == 0);
         GR_STATIC_ASSERT(sizeof(TriPointInstance::fX) ==
@@ -510,11 +512,12 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
         GR_STATIC_ASSERT(sizeof(TriPointInstance::fY) ==
                          GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         xyAttribType = kFloat3_GrVertexAttribType;
+        xySLType = kFloat3_GrSLType;
     }
-    fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType};
-    fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType};
+    fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType, xySLType};
+    fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType, xySLType};
     this->setInstanceAttributeCnt(2);
-    fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType};
+    fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType, kInt_GrSLType};
     this->setVertexAttributeCnt(1);
 
     if (caps.usePrimitiveRestart()) {
