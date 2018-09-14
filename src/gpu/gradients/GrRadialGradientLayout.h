@@ -27,7 +27,8 @@ public:
 
 private:
     GrRadialGradientLayout(SkMatrix44 gradientMatrix)
-            : INHERITED(kGrRadialGradientLayout_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrRadialGradientLayout_ClassID,
+                        (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
             , fGradientMatrix(gradientMatrix)
             , fCoordTransform0(gradientMatrix) {
         this->addCoordTransform(&fCoordTransform0);

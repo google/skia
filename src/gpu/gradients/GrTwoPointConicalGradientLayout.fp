@@ -122,6 +122,12 @@ void main() {
     #include "SkTwoPointConicalGradient.h"
 }
 
+// The 2 point conical gradient can reject a pixel so it does change opacity
+// even if the input was opaque, so disable that optimization
+@optimizationFlags {
+    kNone_OptimizationFlags
+}
+
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(const SkTwoPointConicalGradient& gradient,
                                                      const GrFPArgs& args);

@@ -29,7 +29,8 @@ public:
 
 private:
     GrSweepGradientLayout(SkMatrix44 gradientMatrix, float bias, float scale)
-            : INHERITED(kGrSweepGradientLayout_ClassID, kNone_OptimizationFlags)
+            : INHERITED(kGrSweepGradientLayout_ClassID,
+                        (OptimizationFlags)kPreservesOpaqueInput_OptimizationFlag)
             , fGradientMatrix(gradientMatrix)
             , fBias(bias)
             , fScale(scale)

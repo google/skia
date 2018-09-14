@@ -20,15 +20,18 @@ in fragmentProcessor gradLayout;
 layout(ctype=GrColor4f, tracked) in uniform half4 leftBorderColor;  // t < 0.0
 layout(ctype=GrColor4f, tracked) in uniform half4 rightBorderColor; // t > 1.0
 
+layout(key) in bool makePremul;
+// Trust the creator that this matches the color spec of the gradient
+in bool colorsAreOpaque;
+
 void main() {
     half4 t = process(gradLayout);
     // If t.x is below 0, use the left border color without invoking the child processor. If any t.x
     // is above 1, use the right border color. Otherwise, t is in the [0, 1] range assumed by the
     // colorizer FP, so delegate to the child processor.
-    if (t.y < 0) {
-        // layout has rejected this fragment
-        // FIXME: only 2pt conic does this, can we add an optimization flag
-        // that lets us assume t.y >= 0 in many cases?
+    if (!gradLayout.preservesOpaqueInput && t.y < 0) {
+        // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
+        // preserves opacity is false)
         sk_OutColor = half4(0);
     } else if (t.x < 0) {
         sk_OutColor = leftBorderColor;
@@ -37,4 +40,19 @@ void main() {
     } else {
         sk_OutColor = process(colorizer, t);
     }
+
+    @if(makePremul) {
+        sk_OutColor.xyz *= sk_OutColor.w;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// If the layout does not preserve opacity, remove the opaque optimization,
+// but otherwise respect the provided color opacity state (which should take
+// into account the opacity of the border colors).
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (colorsAreOpaque && gradLayout->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
+                                                           : kNone_OptimizationFlags)
 }

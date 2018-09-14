@@ -11,14 +11,16 @@ in fragmentProcessor colorizer;
 in fragmentProcessor gradLayout;
 
 layout(key) in bool mirror;
+layout(key) in bool makePremul;
+// Trust the creator that this matches the color spec of the gradient
+in bool colorsAreOpaque;
 
 void main() {
     half4 t = process(gradLayout);
 
-    if (t.y < 0) {
-        // layout has rejected this fragment
-        // FIXME: only 2pt conic does this, can we add an optimization flag
-        // that lets us assume t.y >= 0 in many cases?
+    if (!gradLayout.preservesOpaqueInput && t.y < 0) {
+        // layout has rejected this fragment (rely on sksl to remove this branch if the layout FP
+        // preserves opacity is false)
         sk_OutColor = half4(0);
     } else {
         @if(mirror) {
@@ -40,4 +42,18 @@ void main() {
         // unmodified.
         sk_OutColor = process(colorizer, t);
     }
+
+    @if (makePremul) {
+        sk_OutColor.xyz *= sk_OutColor.w;
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+// If the layout does not preserve opacity, remove the opaque optimization,
+// but otherwise respect the provided color opacity state.
+@optimizationFlags {
+    kCompatibleWithCoverageAsAlpha_OptimizationFlag |
+    (colorsAreOpaque && gradLayout->preservesOpaqueInput() ? kPreservesOpaqueInput_OptimizationFlag
+                                                           : kNone_OptimizationFlags)
 }

@@ -22,6 +22,11 @@ void main() {
     #include "SkRadialGradient.h"
 }
 
+// The radial gradient never rejects a pixel so it doesn't change opacity
+@optimizationFlags {
+    kPreservesOpaqueInput_OptimizationFlag
+}
+
 @make {
     static std::unique_ptr<GrFragmentProcessor> Make(const SkRadialGradient& gradient,
                                                      const GrFPArgs& args);
