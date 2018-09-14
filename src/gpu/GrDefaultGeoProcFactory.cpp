@@ -321,29 +321,34 @@ private:
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fBones(bones)
             , fBoneCount(boneCount) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         int cnt = 1;
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
             ++cnt;
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
-            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType};
+            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
+                                              kFloat2_GrSLType};
             ++cnt;
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = {"inCoverage", kHalf_GrVertexAttribType};
+            fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrSLType};
             ++cnt;
         }
         if (fFlags & kBonesAttribute_GPFlag) {
             SkASSERT(bones && (boneCount > 0));
             // GLSL 1.10 and 1.20 don't support integer attributes.
-            GrVertexAttribType indicesAttribType =
-                    shaderCaps->unsignedSupport() ? kByte4_GrVertexAttribType :
-                                                    kUByte4_norm_GrVertexAttribType;
-            fInBoneIndices = {"inBoneIndices", indicesAttribType};
+            GrVertexAttribType indicesCPUType = kByte4_GrVertexAttribType;
+            GrSLType indicesGPUType = kByte4_GrSLType;
+            if (!shaderCaps->unsignedSupport()) {
+                indicesCPUType = kUByte4_norm_GrVertexAttribType;
+                indicesGPUType = kHalf4_GrSLType;
+            }
+            fInBoneIndices = {"inBoneIndices", indicesCPUType, indicesGPUType};
             ++cnt;
-            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType};
+            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType,
+                                               kHalf4_GrSLType};
             ++cnt;
         }
         this->setVertexAttributeCnt(cnt);

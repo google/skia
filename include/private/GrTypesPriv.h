@@ -721,66 +721,6 @@ enum GrVertexAttribType {
 };
 static const int kGrVertexAttribTypeCount = kLast_GrVertexAttribType + 1;
 
-/**
- * converts a GrVertexAttribType to a GrSLType
- */
-static inline GrSLType GrVertexAttribTypeToSLType(GrVertexAttribType type) {
-    switch (type) {
-        case kShort2_GrVertexAttribType:
-            return kShort2_GrSLType;
-        case kUShort2_GrVertexAttribType:
-            return kUShort2_GrSLType;
-        case kUShort2_norm_GrVertexAttribType:
-            return kFloat2_GrSLType;
-        case kUByte_norm_GrVertexAttribType:   // fall through
-        case kFloat_GrVertexAttribType:
-            return kFloat_GrSLType;
-        case kFloat2_GrVertexAttribType:
-            return kFloat2_GrSLType;
-        case kFloat3_GrVertexAttribType:
-            return kFloat3_GrSLType;
-        case kFloat4_GrVertexAttribType:
-            return kFloat4_GrSLType;
-        case kHalf_GrVertexAttribType:
-            return kHalf_GrSLType;
-        case kHalf2_GrVertexAttribType:
-            return kHalf2_GrSLType;
-        case kHalf3_GrVertexAttribType:
-            return kHalf3_GrSLType;
-        case kHalf4_GrVertexAttribType:
-        case kUByte4_norm_GrVertexAttribType:
-            return kHalf4_GrSLType;
-        case kInt2_GrVertexAttribType:
-            return kInt2_GrSLType;
-        case kInt3_GrVertexAttribType:
-            return kInt3_GrSLType;
-        case kInt4_GrVertexAttribType:
-            return kInt4_GrSLType;
-        case kByte_GrVertexAttribType:
-            return kByte_GrSLType;
-        case kByte2_GrVertexAttribType:
-            return kByte_GrSLType;
-        case kByte3_GrVertexAttribType:
-            return kByte_GrSLType;
-        case kByte4_GrVertexAttribType:
-            return kByte4_GrSLType;
-        case kUByte_GrVertexAttribType:
-            return kUByte_GrSLType;
-        case kUByte2_GrVertexAttribType:
-            return kUByte_GrSLType;
-        case kUByte3_GrVertexAttribType:
-            return kUByte_GrSLType;
-        case kUByte4_GrVertexAttribType:
-            return kUByte4_GrSLType;
-        case kInt_GrVertexAttribType:
-            return kInt_GrSLType;
-        case kUint_GrVertexAttribType:
-            return kUint_GrSLType;
-    }
-    SK_ABORT("Unsupported type conversion");
-    return kVoid_GrSLType;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 static const int kGrClipEdgeTypeCnt = (int) GrClipEdgeType::kLast + 1;

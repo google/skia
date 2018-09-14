@@ -61,7 +61,7 @@ protected:
         Shader::CalcWind(proc, g, "pts", wind.c_str());
         if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
             SkASSERT(3 == numInputPoints);
-            SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.type());
+            SkASSERT(kFloat4_GrVertexAttribType == proc.fVertexAttribute.cpuType());
             g->codeAppendf("%s *= sk_in[0].sk_Position.w;", wind.c_str());
         }
 
@@ -381,13 +381,15 @@ public:
 void GrCCCoverageProcessor::initGS() {
     SkASSERT(Impl::kGeometryShader == fImpl);
     if (4 == this->numInputPoints() || this->hasInputWeight()) {
-        fVertexAttribute = {"x_or_y_values", kFloat4_GrVertexAttribType};
+        fVertexAttribute =
+                {"x_or_y_values", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
         GR_STATIC_ASSERT(sizeof(QuadPointInstance) ==
                          2 * GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
         GR_STATIC_ASSERT(offsetof(QuadPointInstance, fY) ==
                          GrVertexAttribTypeSize(kFloat4_GrVertexAttribType));
     } else {
-        fVertexAttribute = {"x_or_y_values", kFloat3_GrVertexAttribType};
+        fVertexAttribute =
+                {"x_or_y_values", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
         GR_STATIC_ASSERT(sizeof(TriPointInstance) ==
                          2 * GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         GR_STATIC_ASSERT(offsetof(TriPointInstance, fY) ==

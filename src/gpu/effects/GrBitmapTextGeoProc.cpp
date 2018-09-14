@@ -132,17 +132,18 @@ GrBitmapTextGeoProc::GrBitmapTextGeoProc(GrColor color,
     SkASSERT(numActiveProxies <= kMaxTextures);
 
     if (usesW) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
-    fInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType};
+    fInTextureCoords =
+            {"inTextureCoords", kUShort2_GrVertexAttribType, kUShort2_GrSLType};
     int cnt = 2;
 
     bool hasVertexColor = kA8_GrMaskFormat == fMaskFormat ||
                           kA565_GrMaskFormat == fMaskFormat;
     if (hasVertexColor) {
-        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+        fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
         ++cnt;
     }
 

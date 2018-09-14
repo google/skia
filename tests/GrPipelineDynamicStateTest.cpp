@@ -71,8 +71,10 @@ private:
         return IthAttribute(i, kVertex, kColor);
     }
 
-    static constexpr Attribute kVertex = {"vertex", kHalf2_GrVertexAttribType};
-    static constexpr Attribute kColor = {"color", kUByte4_norm_GrVertexAttribType};
+    static constexpr Attribute kVertex =
+            {"vertex", kFloat2_GrVertexAttribType, kHalf2_GrSLType};
+    static constexpr Attribute kColor =
+            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
 
     friend class GLSLPipelineDynamicStateTestProcessor;
     typedef GrGeometryProcessor INHERITED;
