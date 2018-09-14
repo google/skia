@@ -24,17 +24,18 @@ void SkRRect::setRectXY(const SkRect& rect, SkScalar xRad, SkScalar yRad) {
     if (!SkScalarsAreFinite(xRad, yRad)) {
         xRad = yRad = 0;    // devolve into a simple rect
     }
-    if (xRad <= 0 || yRad <= 0) {
-        // all corners are square in this case
-        this->setRect(rect);
-        return;
-    }
 
     if (fRect.width() < xRad+xRad || fRect.height() < yRad+yRad) {
         SkScalar scale = SkMinScalar(fRect.width() / (xRad + xRad), fRect.height() / (yRad + yRad));
         SkASSERT(scale < SK_Scalar1);
         xRad *= scale;
         yRad *= scale;
+    }
+
+    if (xRad <= 0 || yRad <= 0) {
+        // all corners are square in this case
+        this->setRect(rect);
+        return;
     }
 
     for (int i = 0; i < 4; ++i) {
