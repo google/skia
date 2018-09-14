@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57d80771_a3bb87b0",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5632
+      },
+      "writtenOn": "2018-09-14T23:16:52Z",
+      "side": 1,
+      "message": "Is it possible to add a close() verb all by itself? I thought that path would prepend the close with a moveTo if there wasn\u0027t one already -- if that\u0027s true, then there may be no reason to have dirtyAfterEdit at all.",
+      "revId": "ec08f29d15996860b81dd0345fa90ff0197976b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
