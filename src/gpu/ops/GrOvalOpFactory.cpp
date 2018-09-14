@@ -77,21 +77,22 @@ public:
             , fStroke(stroke) {
         int cnt = 3;
         if (clipPlane) {
-            fInClipPlane = {"inClipPlane", kHalf3_GrVertexAttribType};
+            fInClipPlane = {"inClipPlane", kFloat3_GrVertexAttribType, kHalf3_GrVertexAttribType};
             ++cnt;
         }
         if (isectPlane) {
-            fInIsectPlane = {"inIsectPlane", kHalf3_GrVertexAttribType};
+            fInIsectPlane = {"inIsectPlane", kFloat3_GrVertexAttribType, kHalf3_GrVertexAttribType};
             ++cnt;
         }
         if (unionPlane) {
-            fInUnionPlane = {"inUnionPlane", kHalf3_GrVertexAttribType};
+            fInUnionPlane = {"inUnionPlane", kFloat3_GrVertexAttribType, kHalf3_GrVertexAttribType};
             ++cnt;
         }
         if (roundCaps) {
             SkASSERT(stroke);
             SkASSERT(clipPlane);
-            fInRoundCapCenters = {"inRoundCapCenters", kFloat4_GrVertexAttribType};
+            fInRoundCapCenters =
+                    {"inRoundCapCenters", kFloat4_GrVertexAttribType, kFloat4_GrVertexAttribType};
             ++cnt;
         }
         this->setVertexAttributeCnt(cnt);
@@ -237,9 +238,12 @@ private:
 
     SkMatrix fLocalMatrix;
 
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInCircleEdge =
+            {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrVertexAttribType};
 
     // Optional attributes.
     Attribute fInClipPlane;
@@ -489,10 +493,14 @@ private:
     }
 
     SkMatrix fLocalMatrix;
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInCircleEdge = {"inCircleEdge", kFloat4_GrVertexAttribType};
-    static constexpr Attribute kInDashParams = {"inDashParams", kFloat4_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInCircleEdge =
+            {"inCircleEdge", kFloat4_GrVertexAttribType, kFloat4_GrVertexAttribType};
+    static constexpr Attribute kInDashParams =
+            {"inDashParams", kFloat4_GrVertexAttribType, kFloat4_GrVertexAttribType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -635,10 +643,14 @@ private:
         return IthAttribute(i, kInPosition, kInColor, kInEllipseOffset, kInEllipseRadii);
     }
 
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInEllipseOffset = {"inEllipseOffset", kHalf2_GrVertexAttribType};
-    static constexpr Attribute kInEllipseRadii = {"inEllipseRadii", kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInEllipseOffset =
+            {"inEllipseOffset", kFloat2_GrVertexAttribType, kHalf2_GrVertexAttribType};
+    static constexpr Attribute kInEllipseRadii =
+            {"inEllipseRadii", kFloat4_GrVertexAttribType, kHalf4_GrVertexAttribType};
 
     SkMatrix fLocalMatrix;
     bool fStroke;
@@ -807,11 +819,15 @@ private:
         return IthAttribute(i, kInPosition, kInColor, kInEllipseOffsets0, kInEllipseOffsets1);
     }
 
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
     static constexpr Attribute kInEllipseOffsets0 = {"inEllipseOffsets0",
+                                                     kFloat2_GrVertexAttribType,
                                                      kHalf2_GrVertexAttribType};
     static constexpr Attribute kInEllipseOffsets1 = {"inEllipseOffsets1",
+                                                     kFloat2_GrVertexAttribType,
                                                      kHalf2_GrVertexAttribType};
 
     SkMatrix fViewMatrix;

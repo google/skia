@@ -266,8 +266,9 @@ void GrCCCoverageProcessor::VSImpl::onEmitCode(EmitArgs& args, GrGPArgs* gpArgs)
     Shader::CalcWind(proc, v, "pts", "wind");
     if (PrimitiveType::kWeightedTriangles == proc.fPrimitiveType) {
         SkASSERT(3 == numInputPoints);
+        // TODO: What is this assert really checking?
         SkASSERT(kFloat4_GrVertexAttribType ==
-                 proc.fInstanceAttributes[kInstanceAttribIdx_X].type());
+                 proc.fInstanceAttributes[kInstanceAttribIdx_X].cpuType());
         v->codeAppendf("wind *= %s.w;", proc.fInstanceAttributes[kInstanceAttribIdx_X].name());
     }
 
@@ -511,10 +512,10 @@ void GrCCCoverageProcessor::initVS(GrResourceProvider* rp) {
                          GrVertexAttribTypeSize(kFloat3_GrVertexAttribType));
         xyAttribType = kFloat3_GrVertexAttribType;
     }
-    fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType};
-    fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType};
+    fInstanceAttributes[kInstanceAttribIdx_X] = {"X", xyAttribType, xyAttribType};
+    fInstanceAttributes[kInstanceAttribIdx_Y] = {"Y", xyAttribType, xyAttribType};
     this->setInstanceAttributeCnt(2);
-    fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType};
+    fVertexAttribute = {"vertexdata", kInt_GrVertexAttribType, kInt_GrVertexAttribType};
     this->setVertexAttributeCnt(1);
 
     if (caps.usePrimitiveRestart()) {

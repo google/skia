@@ -93,7 +93,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
         vkAttrib.location = attribIndex;  // for now assume location = attribIndex
         vkAttrib.binding = vertexBinding;
-        vkAttrib.format = attrib_type_to_vkformat(attrib.type());
+        vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = vertexAttributeOffset;
         SkASSERT(vkAttrib.offset == primProc.debugOnly_vertexAttributeOffset(attribIndex));
         vertexAttributeOffset += attrib.sizeAlign4();
@@ -107,7 +107,7 @@ static void setup_vertex_input_state(const GrPrimitiveProcessor& primProc,
         VkVertexInputAttributeDescription& vkAttrib = attributeDesc[attribIndex];
         vkAttrib.location = attribIndex;  // for now assume location = attribIndex
         vkAttrib.binding = instanceBinding;
-        vkAttrib.format = attrib_type_to_vkformat(attrib.type());
+        vkAttrib.format = attrib_type_to_vkformat(attrib.cpuType());
         vkAttrib.offset = instanceAttributeOffset;
         SkASSERT(vkAttrib.offset == primProc.debugOnly_instanceAttributeOffset(iaIndex));
         instanceAttributeOffset += attrib.sizeAlign4();

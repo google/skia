@@ -106,10 +106,14 @@ private:
 
     const TextureSampler& onTextureSampler(int) const override { return fSampler; }
 
-    static constexpr Attribute kPositions = {"position", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kTextureDomain = {"textureDomain", kFloat4_GrVertexAttribType};
-    static constexpr Attribute kColors = {"color", kUByte4_norm_GrVertexAttribType};
+    static constexpr Attribute kPositions =
+            {"position", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kTextureCoords =
+            {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
+    static constexpr Attribute kTextureDomain =
+            {"textureDomain", kFloat4_GrVertexAttribType, kFloat4_GrVertexAttribType};
+    static constexpr Attribute kColors =
+            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
 
     sk_sp<GrColorSpaceXform> fColorSpaceXform;
     TextureSampler fSampler;

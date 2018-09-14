@@ -14,7 +14,7 @@ void GrGLSLVaryingHandler::addPassThroughAttribute(const GrGeometryProcessor::At
                                                    Interpolation interpolation) {
     SkASSERT(input.isInitialized());
     SkASSERT(!fProgramBuilder->primitiveProcessor().willUseGeoShader());
-    GrSLType type = GrVertexAttribTypeToSLType(input.type());
+    GrSLType type = GrVertexAttribTypeToSLType(input.gpuType());
     GrGLSLVarying v(type);
     this->addVarying(input.name(), &v, interpolation);
     fProgramBuilder->fVS.codeAppendf("%s = %s;", v.vsOut(), input.name());

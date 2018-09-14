@@ -321,18 +321,19 @@ private:
             , fColorSpaceXform(std::move(colorSpaceXform))
             , fBones(bones)
             , fBoneCount(boneCount) {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrVertexAttribType};
         int cnt = 1;
         if (fFlags & kColorAttribute_GPFlag) {
-            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
+            fInColor = {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrVertexAttribType};
             ++cnt;
         }
         if (fFlags & kLocalCoordAttribute_GPFlag) {
-            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType};
+            fInLocalCoords = {"inLocalCoord", kFloat2_GrVertexAttribType,
+                                              kFloat2_GrVertexAttribType};
             ++cnt;
         }
         if (fFlags & kCoverageAttribute_GPFlag) {
-            fInCoverage = {"inCoverage", kHalf_GrVertexAttribType};
+            fInCoverage = {"inCoverage", kFloat_GrVertexAttribType, kHalf_GrVertexAttribType};
             ++cnt;
         }
         if (fFlags & kBonesAttribute_GPFlag) {
@@ -341,9 +342,10 @@ private:
             GrVertexAttribType indicesAttribType =
                     shaderCaps->unsignedSupport() ? kByte4_GrVertexAttribType :
                                                     kUByte4_norm_GrVertexAttribType;
-            fInBoneIndices = {"inBoneIndices", indicesAttribType};
+            fInBoneIndices = {"inBoneIndices", indicesAttribType, indicesAttribType};
             ++cnt;
-            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType};
+            fInBoneWeights = {"inBoneWeights", kUByte4_norm_GrVertexAttribType,
+                                               kHalf4_GrVertexAttribType};
             ++cnt;
         }
         this->setVertexAttributeCnt(cnt);
