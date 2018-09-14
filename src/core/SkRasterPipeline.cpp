@@ -23,6 +23,8 @@ void SkRasterPipeline::reset() {
 void SkRasterPipeline::append(StockStage stage, void* ctx) {
     SkASSERT(stage !=           uniform_color);  // Please use append_constant_color().
     SkASSERT(stage != unbounded_uniform_color);  // Please use append_constant_color().
+    SkASSERT(stage !=                 set_rgb);  // Please use append_set_rgb().
+    SkASSERT(stage !=       unbounded_set_rgb);  // Please use append_set_rgb().
     this->unchecked_append(stage, ctx);
 }
 void SkRasterPipeline::unchecked_append(StockStage stage, void* ctx) {
@@ -89,6 +91,23 @@ void SkRasterPipeline::dump() const {
     #define INC_WHITE
     #define INC_COLOR
 #endif
+
+void SkRasterPipeline::append_set_rgb(SkArenaAlloc* alloc, const float rgb[3]) {
+    auto arg = alloc->makeArrayDefault<float>(3);
+    arg[0] = rgb[0];
+    arg[1] = rgb[1];
+    arg[2] = rgb[2];
+
+    auto stage = unbounded_set_rgb;
+    if (0 <= rgb[0] && rgb[0] <= 1 &&
+        0 <= rgb[1] && rgb[1] <= 1 &&
+        0 <= rgb[2] && rgb[2] <= 1)
+    {
+        stage = set_rgb;
+    }
+
+    this->unchecked_append(stage, arg);
+}
 
 void SkRasterPipeline::append_constant_color(SkArenaAlloc* alloc, const float rgba[4]) {
     // r,g,b might be outside [0,1], but alpha should probably always be in [0,1].

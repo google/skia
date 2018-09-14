@@ -40,7 +40,7 @@
     M(clamp_0) M(clamp_1) M(clamp_a) M(clamp_a_dst) M(clamp_gamut) \
     M(unpremul) M(premul) M(premul_dst)                            \
     M(force_opaque) M(force_opaque_dst)                            \
-    M(set_rgb) M(swap_rb)                                          \
+    M(set_rgb) M(unbounded_set_rgb) M(swap_rb)                     \
     M(from_srgb) M(to_srgb)                                        \
     M(black_color) M(white_color) M(uniform_color) M(unbounded_uniform_color) \
     M(seed_shader) M(dither)                                       \
@@ -145,6 +145,13 @@ public:
     }
     void append_constant_color(SkArenaAlloc* alloc, const SkColor4f& color) {
         this->append_constant_color(alloc, color.vec());
+    }
+
+    // Like append_constant_color() but only affecting r,g,b, ignoring the alpha channel.
+    void append_set_rgb(SkArenaAlloc*, const float rgb[3]);
+
+    void append_set_rgb(SkArenaAlloc* alloc, const SkColor4f& color) {
+        this->append_set_rgb(alloc, color.vec());
     }
 
     bool empty() const { return fStages == nullptr; }
