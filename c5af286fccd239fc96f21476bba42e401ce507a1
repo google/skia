@@ -16,6 +16,24 @@
       "revId": "c5af286fccd239fc96f21476bba42e401ce507a1",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8dfcafb2_386d838f",
+        "filename": "src/core/SkDrawShadowInfo.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5065
+      },
+      "writtenOn": "2018-09-14T21:16:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f7e33fab_2e61a01b",
+      "revId": "c5af286fccd239fc96f21476bba42e401ce507a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
