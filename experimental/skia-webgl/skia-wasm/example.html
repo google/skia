@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<title>Skia -> WebGL (via WASM)</title>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  svg, canvas {
+    border: 1px dashed #AAA;
+  }
+
+  canvas {
+    width: 300px;
+    height: 300px;
+  }
+
+
+</style>
+
+<h2> Skia draws to WebGL</h2>
+<canvas id=demo height=300 width=300></canvas>
+
+<h2> Skottie </h2>
+<canvas id=skottie height=600 width=600></canvas>
+
+<script type="text/javascript" src="/node_modules/skia-wasm/bin/skia.js"></script>
+<!-- Makes lego_animation variable with animation data. -->
+<script type="text/javascript" src="/node_modules/skia-wasm/lego_loader.json"></script>
+
+<script type="text/javascript" charset="utf-8">
+
+  SkiaInit({
+    locateFile: (file) => '/node_modules/skia-wasm/bin/'+file,
+  }).then((Skia) => {
+    window.Skia = Skia; // for debugging
+    DrawingExample(Skia);
+    SkottieExample(Skia);
+  });
+
+  function DrawingExample(Skia) {
+    const surface = Skia.getWebGLSurface('demo');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = Skia.currentContext();
+
+    const canvas = surface.getCanvas();
+    const path = starPath();
+    const paint = new Skia.SkPaint();
+
+    const textPaint = new Skia.SkPaint();
+    textPaint.setColor(Skia.Color(40, 0, 0, 1.0));
+    textPaint.setStrokeWidth(2);
+    textPaint.setTextSize(60);
+
+    let i = 0;
+
+    function drawFrame() {
+      Skia.setCurrentContext(context);
+      const dpe = Skia.MakeSkDiscretePathEffect(10.0, 4.0, i/20);
+      i++;
+
+      paint.setPathEffect(dpe);
+      paint.setStyle(Skia.PaintStyle.STROKE);
+      paint.setStrokeWidth(2.0);
+      paint.setAntiAlias(true);
+      paint.setColor(Skia.Color(66, 129, 164, 1.0));
+
+      canvas.clear(Skia.Color(255, 255, 255, 1.0));
+
+      canvas.drawPath(path, paint);
+      // Currently does not work.
+      canvas.drawText('Some Text', 10, 10, textPaint);
+      canvas.flush();
+      dpe.delete();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+    // A client would need to delete this if it didn't go on for ever.
+    //path.delete();
+    //paint.delete();
+  }
+
+  function starPath() {
+    const R = 115.2;
+    const C = 128.0;
+    let p = new Skia.SkPath();
+    p.moveTo(C + R, C);
+    for (let i = 1; i < 8; i++) {
+      let a = 2.6927937 * i;
+      p.lineTo(C + R * Math.cos(a), C + R * Math.sin(a));
+    }
+    return p;
+  }
+
+  function SkottieExample(Skia) {
+    const surface = Skia.getWebGLSurface('skottie');
+    if (!surface) {
+      console.log('Could not make surface');
+    }
+    const context = Skia.currentContext();
+
+    const canvas = surface.getCanvas();
+
+
+    const animation = Skia.MakeAnimation(JSON.stringify(lego_animation));
+
+    let i = 0;
+    function drawFrame() {
+      Skia.setCurrentContext(context);
+      animation.seek(i);
+      i += 1/240.0;
+      if (i > 1.0) {
+        i = 0;
+      }
+      animation.render(canvas);
+      canvas.flush();
+      window.requestAnimationFrame(drawFrame);
+    }
+    window.requestAnimationFrame(drawFrame);
+
+
+    //animation.delete();
+  }
+
+</script>
