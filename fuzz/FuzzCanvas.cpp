@@ -1107,6 +1107,7 @@ static void fuzz_canvas(Fuzz* fuzz, SkCanvas* canvas, int depth = 9) {
         SkMatrix matrix;
         unsigned drawCommand;
         fuzz->nextRange(&drawCommand, 0, 53);
+        SkDebugf("command %d\n", drawCommand);
         switch (drawCommand) {
             case 0:
                 canvas->flush();

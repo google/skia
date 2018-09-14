@@ -635,7 +635,6 @@ SkPoint* SkPathRef::growForVerb(int /* SkPath::Verb*/ verb, SkScalar weight) {
     switch (verb) {
         case SkPath::kMove_Verb:
             pCnt = 1;
-            dirtyAfterEdit = false;
             break;
         case SkPath::kLine_Verb:
             mask = SkPath::kLine_SegmentMask;
@@ -734,6 +733,7 @@ SkRRect SkPathRef::getRRect() const {
     Iter iter(*this);
     SkPoint pts[4];
     uint8_t verb = iter.next(pts);
+    SkDebugf("here\n");
     SkASSERT(SkPath::kMove_Verb == verb);
     while ((verb = iter.next(pts)) != SkPath::kDone_Verb) {
         if (SkPath::kConic_Verb == verb) {
