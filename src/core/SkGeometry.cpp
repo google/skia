@@ -274,7 +274,7 @@ SkScalar SkFindQuadMaxCurvature(const SkPoint src[3]) {
         return 1;
     }
     SkScalar t = numer / denom;
-    SkASSERT(0 <= t && t < 1);
+    SkASSERT((0 <= t && t < 1) || SkScalarIsNaN(t));
     return t;
 }
 
