@@ -130,7 +130,7 @@ GrCCDrawPathsOp::GrCCDrawPathsOp(const SkMatrix& m, const GrShape& shape, float 
 
 GrCCDrawPathsOp::~GrCCDrawPathsOp() {
     if (fOwningPerOpListPaths) {
-        // Remove CCPR's dangling pointer to this Op before deleting it.
+        // Remove the list's dangling pointer to this Op before deleting it.
         fOwningPerOpListPaths->fDrawOps.remove(this);
     }
 }
@@ -223,11 +223,11 @@ GrOp::CombineResult GrCCDrawPathsOp::onCombineIfPossible(GrOp* op, const GrCaps&
     return CombineResult::kMerged;
 }
 
-void GrCCDrawPathsOp::wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths) {
+void GrCCDrawPathsOp::wasRecorded(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths) {
     SkASSERT(1 == fNumDraws);
     SkASSERT(!fOwningPerOpListPaths);
-    owningPerOpListPaths->fDrawOps.addToTail(this);
-    fOwningPerOpListPaths = owningPerOpListPaths;
+    fOwningPerOpListPaths = std::move(owningPerOpListPaths);
+    fOwningPerOpListPaths->fDrawOps.addToTail(this);
 }
 
 void GrCCDrawPathsOp::accountForOwnPaths(GrCCPathCache* pathCache,

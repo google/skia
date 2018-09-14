@@ -28,10 +28,12 @@ public:
     GrCCClipPath(const GrCCClipPath&) = delete;
 
     ~GrCCClipPath() {
-        // Ensure no clip FPs exist with a dangling pointer back into this class.
+        // Ensure no clip FP exists with a dangling pointer back into this class. This works because
+        // a clip FP will have a ref on the proxy if it exists.
+        //
+        // This assert also guarantees there won't be a lazy proxy callback with a dangling pointer
+        // back into this class, since no proxy will exist after we destruct, if the assert passes.
         SkASSERT(!fAtlasLazyProxy || fAtlasLazyProxy->isUnique_debugOnly());
-        // Ensure no lazy proxy callbacks exist with a dangling pointer back into this class.
-        SkASSERT(fHasAtlasTransform);
     }
 
     bool isInitialized() const { return fAtlasLazyProxy != nullptr; }

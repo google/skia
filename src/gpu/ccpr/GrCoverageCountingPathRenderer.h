@@ -36,8 +36,6 @@ public:
 
     static sk_sp<GrCoverageCountingPathRenderer> CreateIfSupported(const GrCaps&, AllowCaching);
 
-    ~GrCoverageCountingPathRenderer() override;
-
     using PendingPathsMap = std::map<uint32_t, sk_sp<GrCCPerOpListPaths>>;
 
     // In DDL mode, Ganesh needs to be able to move the pending GrCCPerOpListPaths to the DDL object

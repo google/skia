@@ -18,17 +18,6 @@
 
 using PathInstance = GrCCPathProcessor::Instance;
 
-GrCCPerOpListPaths::~GrCCPerOpListPaths() {
-    // Ensure there are no surviving DrawPathsOps with a dangling pointer into this class.
-    if (!fDrawOps.isEmpty()) {
-        SK_ABORT("GrCCDrawPathsOp(s) not deleted during flush");
-    }
-    // Clip lazy proxies also reference this class from their callbacks, but those callbacks
-    // are only invoked at flush time while we are still alive. (Unlike DrawPathsOps, that
-    // unregister themselves upon destruction.) So it shouldn't matter if any clip proxies
-    // are still around.
-}
-
 bool GrCoverageCountingPathRenderer::IsSupported(const GrCaps& caps) {
     const GrShaderCaps& shaderCaps = *caps.shaderCaps();
     return shaderCaps.integerSupport() && shaderCaps.flatInterpolationSupport() &&
@@ -50,12 +39,6 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allo
     if (AllowCaching::kYes == allowCaching) {
         fPathCache = skstd::make_unique<GrCCPathCache>();
     }
-}
-
-GrCoverageCountingPathRenderer::~GrCoverageCountingPathRenderer() {
-    // Ensure callers are actually flushing paths they record, not causing us to leak memory.
-    SkASSERT(fPendingPaths.empty());
-    SkASSERT(!fFlushing);
 }
 
 GrCCPerOpListPaths* GrCoverageCountingPathRenderer::lookupPendingPaths(uint32_t opListID) {
@@ -165,7 +148,7 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
     if (GrCCDrawPathsOp* op = opHolder.get()) {
         GrRenderTargetContext* rtc = args.fRenderTargetContext;
         if (uint32_t opListID = rtc->addDrawOp(*args.fClip, std::move(opHolder))) {
-            op->wasRecorded(this->lookupPendingPaths(opListID));
+            op->wasRecorded(sk_ref_sp(this->lookupPendingPaths(opListID)));
         }
     }
 }
