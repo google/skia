@@ -1671,6 +1671,11 @@ bool IncludeWriter::populate(Definition* def, ParentPair* prevPair, RootDefiniti
                             Definition* codeBlock = nullptr;
                             Definition* nextBlock = nullptr;
                             for (auto test : fBmhStructDef->fChildren) {
+                                if (MarkType::kPopulate == test->fMarkType) {
+                                    priorBlock = codeBlock;
+                                    codeBlock = test;
+                                    continue;
+                                }
                                 if (MarkType::kCode == test->fMarkType) {
                                     SkASSERT(!codeBlock);  // FIXME: check enum earlier
                                     codeBlock = test;

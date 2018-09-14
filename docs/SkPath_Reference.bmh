@@ -5396,6 +5396,8 @@ public:
 };
 ##
 
+#Populate
+
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
 degenerate data.
