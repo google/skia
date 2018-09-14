@@ -42,7 +42,7 @@ bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
     }
 
     SkPath::Iter    iter(src, false);
-    SkPath::Verb    verb, prevVerb = (SkPath::Verb)-1;
+    SkPath::Verb    verb, prevVerb = SkPath::kDone_Verb;
     SkPoint         pts[4];
 
     bool        closed;
@@ -59,7 +59,7 @@ bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
     for (;;) {
         switch (verb = iter.next(pts, false)) {
             case SkPath::kMove_Verb:
-                    // close out the previous (open) contour
+                // close out the previous (open) contour
                 if (SkPath::kLine_Verb == prevVerb) {
                     dst->lineTo(lastCorner);
                 }
@@ -124,7 +124,7 @@ bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
                     dst->quadTo(lastCorner.fX, lastCorner.fY,
                                 lastCorner.fX + firstStep.fX,
                                 lastCorner.fY + firstStep.fY);
-                    }
+                }
                 dst->close();
                 prevIsValid = false;
                 break;
@@ -132,7 +132,10 @@ bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
                 if (prevIsValid) {
                     dst->lineTo(lastCorner);
                 }
-                goto DONE;
+                return true;
+            default:
+                SkDEBUGFAIL("default should not be reached");
+                return false;
         }
 
         if (SkPath::kMove_Verb == prevVerb) {
@@ -140,7 +143,7 @@ bool SkCornerPathEffect::onFilterPath(SkPath* dst, const SkPath& src,
         }
         prevVerb = verb;
     }
-DONE:
+
     return true;
 }
 
