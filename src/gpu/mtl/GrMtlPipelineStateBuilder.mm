@@ -86,17 +86,21 @@ static inline MTLVertexFormat attribute_type_to_mtlformat(GrVertexAttribType typ
     // metal to avoid an issue with narrow type coercions (float->half) http://skbug.com/8221
     switch (type) {
         case kFloat_GrVertexAttribType:
-        case kHalf_GrVertexAttribType:
             return MTLVertexFormatFloat;
         case kFloat2_GrVertexAttribType:
-        case kHalf2_GrVertexAttribType:
             return MTLVertexFormatFloat2;
         case kFloat3_GrVertexAttribType:
-        case kHalf3_GrVertexAttribType:
             return MTLVertexFormatFloat3;
         case kFloat4_GrVertexAttribType:
-        case kHalf4_GrVertexAttribType:
             return MTLVertexFormatFloat4;
+        case kHalf_GrVertexAttribType:
+            return MTLVertexFormatHalf;
+        case kHalf2_GrVertexAttribType:
+            return MTLVertexFormatHalf2;
+        case kHalf3_GrVertexAttribType:
+            return MTLVertexFormatHalf3;
+        case kHalf4_GrVertexAttribType:
+            return MTLVertexFormatHalf4;
         case kInt2_GrVertexAttribType:
             return MTLVertexFormatInt2;
         case kInt3_GrVertexAttribType:
@@ -158,7 +162,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
     for (int vertexIndex = 0; vertexIndex < vertexAttributeCount; vertexIndex++) {
         const GrGeometryProcessor::Attribute& attribute = primProc.vertexAttribute(vertexIndex);
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
-        mtlAttribute.format = attribute_type_to_mtlformat(attribute.type());
+        mtlAttribute.format = attribute_type_to_mtlformat(attribute.cpuType());
         mtlAttribute.offset = vertexAttributeOffset;
         mtlAttribute.bufferIndex = vertexBinding;
 
@@ -181,7 +185,7 @@ static MTLVertexDescriptor* create_vertex_descriptor(const GrPrimitiveProcessor&
     for (int instanceIndex = 0; instanceIndex < instanceAttributeCount; instanceIndex++) {
         const GrGeometryProcessor::Attribute& attribute = primProc.instanceAttribute(instanceIndex);
         MTLVertexAttributeDescriptor* mtlAttribute = vertexDescriptor.attributes[attributeIndex];
-        mtlAttribute.format = attribute_type_to_mtlformat(attribute.type());
+        mtlAttribute.format = attribute_type_to_mtlformat(attribute.cpuType());
         mtlAttribute.offset = instanceAttributeOffset;
         mtlAttribute.bufferIndex = instanceBinding;
 

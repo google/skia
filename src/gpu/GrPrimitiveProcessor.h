@@ -53,7 +53,10 @@ public:
     class Attribute {
     public:
         constexpr Attribute() = default;
-        constexpr Attribute(const char* name, GrVertexAttribType type) : fName(name), fType(type) {}
+        constexpr Attribute(const char* name,
+                            GrVertexAttribType cpuType,
+                            GrSLType gpuType)
+            : fName(name), fCPUType(cpuType), fGPUType(gpuType) {}
         constexpr Attribute(const Attribute&) = default;
 
         Attribute& operator=(const Attribute&) = default;
@@ -61,18 +64,20 @@ public:
         constexpr bool isInitialized() const { return SkToBool(fName); }
 
         constexpr const char* name() const { return fName; }
-        constexpr GrVertexAttribType type() const { return fType; }
+        constexpr GrVertexAttribType cpuType() const { return fCPUType; }
+        constexpr GrSLType           gpuType() const { return fGPUType; }
 
         inline constexpr size_t size() const;
         constexpr size_t sizeAlign4() const { return SkAlign4(this->size()); }
 
         GrShaderVar asShaderVar() const {
-            return {fName, GrVertexAttribTypeToSLType(fType), GrShaderVar::kIn_TypeModifier};
+            return {fName, fGPUType, GrShaderVar::kIn_TypeModifier};
         }
 
     private:
         const char* fName = nullptr;
-        GrVertexAttribType fType = kFloat_GrVertexAttribType;
+        GrVertexAttribType fCPUType = kFloat_GrVertexAttribType;
+        GrSLType fGPUType = kFloat_GrSLType;
     };
 
     GrPrimitiveProcessor(ClassID);
@@ -253,13 +258,13 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
         case kFloat4_GrVertexAttribType:
             return 4 * sizeof(float);
         case kHalf_GrVertexAttribType:
-            return sizeof(float);
+            return sizeof(uint16_t);
         case kHalf2_GrVertexAttribType:
-            return 2 * sizeof(float);
+            return 2 * sizeof(uint16_t);
         case kHalf3_GrVertexAttribType:
-            return 3 * sizeof(float);
+            return 3 * sizeof(uint16_t);
         case kHalf4_GrVertexAttribType:
-            return 4 * sizeof(float);
+            return 4 * sizeof(uint16_t);
         case kInt2_GrVertexAttribType:
             return 2 * sizeof(int32_t);
         case kInt3_GrVertexAttribType:
@@ -305,7 +310,7 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
 }
 
 constexpr size_t GrPrimitiveProcessor::Attribute::size() const {
-    return GrVertexAttribTypeSize(fType);
+    return GrVertexAttribTypeSize(fCPUType);
 }
 
 #endif

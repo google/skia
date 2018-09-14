@@ -118,8 +118,10 @@ private:
     float            fDistanceAdjust;
 #endif
 
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kInTextureCoords =
+            {"inTextureCoords", kUShort2_GrVertexAttribType, kUShort2_GrSLType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -175,9 +177,12 @@ private:
     TextureSampler   fTextureSamplers[kMaxTextures];
     SkISize          fAtlasSize;  // size for all textures used with fTextureSamplers[].
     uint32_t         fFlags;
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kInTextureCoords =
+            {"inTextureCoords", kUShort2_GrVertexAttribType, kUShort2_GrSLType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -253,8 +258,10 @@ private:
     Attribute        fInPosition;
     uint32_t         fFlags;
 
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInTextureCoords = {"inTextureCoords", kUShort2_GrVertexAttribType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kInTextureCoords =
+            {"inTextureCoords", kUShort2_GrVertexAttribType, kUShort2_GrSLType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

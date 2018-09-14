@@ -226,9 +226,9 @@ GrDistanceFieldA8TextGeoProc::GrDistanceFieldA8TextGeoProc(const sk_sp<GrTexture
     SkASSERT(!(flags & ~kNonLCD_DistanceFieldEffectMask));
 
     if (flags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     this->setVertexAttributeCnt(3);
 
@@ -837,9 +837,9 @@ GrDistanceFieldLCDTextGeoProc::GrDistanceFieldLCDTextGeoProc(const sk_sp<GrTextu
     SkASSERT(!(flags & ~kLCD_DistanceFieldEffectMask) && (flags & kUseLCD_DistanceFieldEffectFlag));
 
     if (fFlags & kPerspective_DistanceFieldEffectFlag) {
-        fInPosition = {"inPosition", kFloat3_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
     } else {
-        fInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+        fInPosition = {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
     }
     this->setVertexAttributeCnt(3);
 

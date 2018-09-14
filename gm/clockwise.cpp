@@ -22,7 +22,8 @@
 
 namespace skiagm {
 
-static constexpr GrGeometryProcessor::Attribute gVertex{"vertex", kFloat2_GrVertexAttribType};
+static constexpr GrGeometryProcessor::Attribute gVertex =
+        {"vertex", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
 
 /**
  * This is a GPU-backend specific test. It ensures that SkSL properly identifies clockwise-winding

@@ -653,9 +653,12 @@ private:
     const Attribute& onVertexAttribute(int i) const override {
         return IthAttribute(i, kInPosition, kInColor, kInQuadEdge);
     }
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInQuadEdge = {"inQuadEdge", kHalf4_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kInQuadEdge =
+            {"inQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType};
     SkMatrix fLocalMatrix;
     bool fUsesLocalCoords;
 

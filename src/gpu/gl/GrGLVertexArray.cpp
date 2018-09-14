@@ -28,13 +28,13 @@ static AttribLayout attrib_layout(GrVertexAttribType type) {
         case kFloat4_GrVertexAttribType:
             return {false, 4, GR_GL_FLOAT};
         case kHalf_GrVertexAttribType:
-            return {false, 1, GR_GL_FLOAT};
+            return {false, 1, GR_GL_HALF_FLOAT};
         case kHalf2_GrVertexAttribType:
-            return {false, 2, GR_GL_FLOAT};
+            return {false, 2, GR_GL_HALF_FLOAT};
         case kHalf3_GrVertexAttribType:
-            return {false, 3, GR_GL_FLOAT};
+            return {false, 3, GR_GL_HALF_FLOAT};
         case kHalf4_GrVertexAttribType:
-            return {false, 4, GR_GL_FLOAT};
+            return {false, 4, GR_GL_HALF_FLOAT};
         case kInt2_GrVertexAttribType:
             return {false, 2, GR_GL_INT};
         case kInt3_GrVertexAttribType:

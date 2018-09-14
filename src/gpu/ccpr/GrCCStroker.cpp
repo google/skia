@@ -87,8 +87,8 @@ private:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
     static constexpr Attribute kInstanceAttribs[2] = {
-            {"endpts", kFloat4_GrVertexAttribType},
-            {"stroke_radius", kFloat_GrVertexAttribType}
+            {"endpts", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"stroke_radius", kFloat_GrVertexAttribType, kFloat_GrSLType}
     };
 
     const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
@@ -186,9 +186,9 @@ private:
     void getGLSLProcessorKey(const GrShaderCaps&, GrProcessorKeyBuilder*) const override {}
 
     static constexpr Attribute kInstanceAttribs[3] = {
-            {"X", kFloat4_GrVertexAttribType},
-            {"Y", kFloat4_GrVertexAttribType},
-            {"stroke_info", kFloat2_GrVertexAttribType}
+            {"X", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"Y", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"stroke_info", kFloat2_GrVertexAttribType, kFloat2_GrSLType}
     };
 
     const Attribute& onInstanceAttribute(int i) const override { return kInstanceAttribs[i]; }
