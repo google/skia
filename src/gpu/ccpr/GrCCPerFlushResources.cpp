@@ -205,7 +205,7 @@ GrCCAtlas* GrCCPerFlushResources::copyPathToCachedAtlas(const GrCCPathCacheEntry
     return &fCopyAtlasStack.current();
 }
 
-static void transform_path_pts(const SkMatrix& m, const SkPath& path,
+static bool transform_path_pts(const SkMatrix& m, const SkPath& path,
                                const SkAutoSTArray<32, SkPoint>& outDevPts, SkRect* devBounds,
                                SkRect* devBounds45) {
     const SkPoint* pts = SkPathPriv::PointData(path);
@@ -246,6 +246,11 @@ static void transform_path_pts(const SkMatrix& m, const SkPath& path,
         devPt.store(&outDevPts[i]);
     }
 
+    if (!(Sk4f(0) == topLeft*0).allTrue() || !(Sk4f(0) == bottomRight*0).allTrue()) {
+        // The bounds are infinite or NaN.
+        return false;
+    }
+
     SkPoint topLeftPts[2], bottomRightPts[2];
     topLeft.store(topLeftPts);
     bottomRight.store(bottomRightPts);
@@ -253,6 +258,7 @@ static void transform_path_pts(const SkMatrix& m, const SkPath& path,
                        bottomRightPts[0].y());
     devBounds45->setLTRB(topLeftPts[1].x(), topLeftPts[1].y(), bottomRightPts[1].x(),
                          bottomRightPts[1].y());
+    return true;
 }
 
 const GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
@@ -267,7 +273,11 @@ const GrCCAtlas* GrCCPerFlushResources::renderShapeInAtlas(
         SkDEBUGCODE(--fEndPathInstance);
         return nullptr;
     }
-    transform_path_pts(m, path, fLocalDevPtsBuffer, devBounds, devBounds45);
+    if (!transform_path_pts(m, path, fLocalDevPtsBuffer, devBounds, devBounds45)) {
+        // The transformed path had infinite or NaN bounds.
+        SkDEBUGCODE(--fEndPathInstance);
+        return nullptr;
+    }
 
     const SkStrokeRec& stroke = shape.style().strokeRec();
     if (!stroke.isFillStyle()) {
