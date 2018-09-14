@@ -1716,48 +1716,65 @@ SkPath& SkPath::reverseAddPath(const SkPath& srcPath) {
         src = tmp.set(srcPath);
     }
 
-    SkPathRef::Editor ed(&fPathRef, src->fPathRef->countPoints(), src->fPathRef->countVerbs());
+    SkPathRef::Editor ed(&fPathRef, src->countVerbs(), src->countPoints());
 
-    const SkPoint* pts = src->fPathRef->pointsEnd();
-    // we will iterator through src's verbs backwards
+    const SkPoint* pts1 = src->fPathRef->points();
+    const SkPoint* ptsEnd = src->fPathRef->pointsEnd();
+    // we will iterate through src's verbs backwards
     const uint8_t* verbs = src->fPathRef->verbsMemBegin(); // points at the last verb
     const uint8_t* verbsEnd = src->fPathRef->verbs(); // points just past the first verb
-    const SkScalar* conicWeights = src->fPathRef->conicWeightsEnd();
+    const SkScalar* conicWeights1 = src->fPathRef->conicWeights();
+    const SkScalar* conicWeightsEnd = src->fPathRef->conicWeightsEnd();
+
+    SkDebugf("----------------------------\n");
+    SkDebugf("verbs %d\n", src->fPathRef->countVerbs());
+    SkDebugf("pts %d\n", src->fPathRef->countPoints());
+    SkDebugf("weights %d\n", src->fPathRef->countWeights());
 
     bool needMove = true;
     bool needClose = false;
     while (verbs < verbsEnd) {
         uint8_t v = *(verbs++);
         int n = pts_in_verb(v);
+        SkDebugf("pts in v %d\n", n);
 
         if (needMove) {
-            --pts;
-            this->moveTo(pts->fX, pts->fY);
+            --ptsEnd;
+            this->moveTo(ptsEnd->fX, ptsEnd->fY);
             needMove = false;
         }
-        pts -= n;
+        ptsEnd -= n;
         switch (v) {
             case kMove_Verb:
+                            SkDebugf("move\n");
                 if (needClose) {
                     this->close();
                     needClose = false;
                 }
                 needMove = true;
-                pts += 1;   // so we see the point in "if (needMove)" above
+                ptsEnd += 1;   // so we see the point in "if (needMove)" above
                 break;
             case kLine_Verb:
-                this->lineTo(pts[0]);
+                            SkDebugf("line\n");
+                this->lineTo(ptsEnd[0]);
                 break;
             case kQuad_Verb:
-                this->quadTo(pts[1], pts[0]);
+              SkDebugf("quad\n");
+                this->quadTo(ptsEnd[1], ptsEnd[0]);
                 break;
             case kConic_Verb:
-                this->conicTo(pts[1], pts[0], *--conicWeights);
+                SkDebugf("1 weight\n");
+                --conicWeightsEnd;
+                SkAssertResult(conicWeightsEnd >= conicWeights1);
+                SkAssertResult(ptsEnd >= pts1);
+                this->conicTo(ptsEnd[1], ptsEnd[0], *conicWeightsEnd);
                 break;
             case kCubic_Verb:
-                this->cubicTo(pts[2], pts[1], pts[0]);
+              SkDebugf("cubic\n");
+                this->cubicTo(ptsEnd[2], ptsEnd[1], ptsEnd[0]);
                 break;
             case kClose_Verb:
+              SkDebugf("close\n");
                 needClose = true;
                 break;
             default:
