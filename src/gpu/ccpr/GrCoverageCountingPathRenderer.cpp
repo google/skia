@@ -53,8 +53,6 @@ GrCoverageCountingPathRenderer::GrCoverageCountingPathRenderer(AllowCaching allo
 }
 
 GrCoverageCountingPathRenderer::~GrCoverageCountingPathRenderer() {
-    // Ensure callers are actually flushing paths they record, not causing us to leak memory.
-    SkASSERT(fPendingPaths.empty());
     SkASSERT(!fFlushing);
 }
 
@@ -152,7 +150,7 @@ void GrCoverageCountingPathRenderer::recordOp(std::unique_ptr<GrCCDrawPathsOp> o
     if (GrCCDrawPathsOp* op = opHolder.get()) {
         GrRenderTargetContext* rtc = args.fRenderTargetContext;
         if (uint32_t opListID = rtc->addDrawOp(*args.fClip, std::move(opHolder))) {
-            op->wasRecorded(this->lookupPendingPaths(opListID));
+            op->wasRecorded(sk_ref_sp(this->lookupPendingPaths(opListID)));
         }
     }
 }

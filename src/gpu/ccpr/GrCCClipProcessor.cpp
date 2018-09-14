@@ -22,6 +22,7 @@ GrCCClipProcessor::GrCCClipProcessor(const GrCCClipPath* clipPath, MustCheckBoun
         , fOverrideFillType(overrideFillType)
         , fAtlasAccess(sk_ref_sp(fClipPath->atlasLazyProxy()), GrSamplerState::Filter::kNearest,
                        GrSamplerState::WrapMode::kClamp) {
+    SkASSERT(fAtlasAccess.proxy());
     this->setTextureSamplerCnt(1);
 }
 

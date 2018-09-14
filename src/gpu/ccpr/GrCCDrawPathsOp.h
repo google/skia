@@ -40,7 +40,7 @@ public:
     void visitProxies(const VisitProxyFunc& fn) const override { fProcessors.visitProxies(fn); }
     void onPrepare(GrOpFlushState*) override {}
 
-    void wasRecorded(GrCCPerOpListPaths* owningPerOpListPaths);
+    void wasRecorded(sk_sp<GrCCPerOpListPaths> owningPerOpListPaths);
 
     // Makes decisions about how to draw each path (cached, copied, rendered, etc.), and
     // increments/fills out the corresponding GrCCPerFlushResourceSpecs. 'stashedAtlasKey', if
@@ -112,7 +112,7 @@ private:
     GrCCSTLList<SingleDraw> fDraws;
     SkDEBUGCODE(int fNumDraws = 1);
 
-    GrCCPerOpListPaths* fOwningPerOpListPaths = nullptr;
+    sk_sp<GrCCPerOpListPaths> fOwningPerOpListPaths;
     GrProcessorSet fProcessors;
 
     struct InstanceRange {
