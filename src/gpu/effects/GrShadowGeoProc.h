@@ -43,9 +43,12 @@ private:
 
     GrColor          fColor;
 
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
-    static constexpr Attribute kInColor = {"inColor", kUByte4_norm_GrVertexAttribType};
-    static constexpr Attribute kInShadowParams = {"inShadowParams", kHalf3_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
+    static constexpr Attribute kInColor =
+            {"inColor", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+    static constexpr Attribute kInShadowParams =
+            {"inShadowParams", kFloat3_GrVertexAttribType, kHalf3_GrSLType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

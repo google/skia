@@ -120,8 +120,10 @@ private:
     bool                fUsesLocalCoords;
     uint8_t             fCoverageScale;
     GrClipEdgeType fEdgeType;
-    static constexpr Attribute kAttributes[] = {{"inPosition", kFloat2_GrVertexAttribType},
-                                                {"inConicCoeffs", kHalf4_GrVertexAttribType}};
+    static constexpr Attribute kAttributes[] = {
+        {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+        {"inConicCoeffs", kFloat4_GrVertexAttribType, kHalf4_GrSLType}
+    };
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -205,8 +207,10 @@ private:
     uint8_t fCoverageScale;
     GrClipEdgeType fEdgeType;
 
-    static constexpr Attribute kAttributes[] = {{"inPosition", kFloat2_GrVertexAttribType},
-                                                {"inHairQuadEdge", kHalf4_GrVertexAttribType}};
+    static constexpr Attribute kAttributes[] = {
+        {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType},
+        {"inHairQuadEdge", kFloat4_GrVertexAttribType, kHalf4_GrSLType}
+    };
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 
@@ -292,7 +296,8 @@ private:
     SkMatrix fDevKLMMatrix;
     GrClipEdgeType fEdgeType;
 
-    static constexpr Attribute kInPosition = {"inPosition", kFloat2_GrVertexAttribType};
+    static constexpr Attribute kInPosition =
+            {"inPosition", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
 
     GR_DECLARE_GEOMETRY_PROCESSOR_TEST
 

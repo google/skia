@@ -101,12 +101,13 @@ private:
 
     SkMatrix fLocalMatrix;
     static constexpr Attribute kInstanceAttribs[kNumInstanceAttribs] = {
-            {"devbounds", kFloat4_GrVertexAttribType},
-            {"devbounds45", kFloat4_GrVertexAttribType},
-            {"dev_to_atlas_offset", kInt2_GrVertexAttribType},
-            {"color", kUByte4_norm_GrVertexAttribType}
+            {"devbounds", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"devbounds45", kFloat4_GrVertexAttribType, kFloat4_GrSLType},
+            {"dev_to_atlas_offset", kInt2_GrVertexAttribType, kInt2_GrSLType},
+            {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType}
     };
-    static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType};
+    static constexpr Attribute kEdgeNormsAttrib = {"edge_norms", kFloat4_GrVertexAttribType,
+                                                                 kFloat4_GrSLType};
 
     typedef GrGeometryProcessor INHERITED;
 };

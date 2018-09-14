@@ -95,7 +95,7 @@ public:
         b->add32(GrColorSpaceXform::XformKey(fTextureColorSpaceXform.get()));
         b->add32(GrColorSpaceXform::XformKey(fPaintColorSpaceXform.get()));
         uint32_t x = this->usesCoverageEdgeAA() ? 0 : 1;
-        x |= kFloat3_GrVertexAttribType == fPositions.type() ? 0 : 2;
+        x |= kFloat3_GrVertexAttribType == fPositions.cpuType() ? 0 : 2;
         x |= fDomain.isInitialized() ? 4 : 0;
         b->add32(x);
     }
@@ -121,7 +121,7 @@ public:
                 fPaintColorSpaceXformHelper.emitCode(
                         args.fUniformHandler, textureGP.fPaintColorSpaceXform.get(),
                         kVertex_GrShaderFlag);
-                if (kFloat2_GrVertexAttribType == textureGP.fPositions.type()) {
+                if (kFloat2_GrVertexAttribType == textureGP.fPositions.cpuType()) {
                     args.fVaryingHandler->setNoPerspective();
                 }
                 args.fVaryingHandler->emitAttributes(textureGP);
@@ -165,7 +165,7 @@ public:
                     bool mulByFragCoordW = false;
                     GrGLSLVarying aaDistVarying(kFloat4_GrSLType,
                                                 GrGLSLVarying::Scope::kVertToFrag);
-                    if (kFloat3_GrVertexAttribType == textureGP.fPositions.type()) {
+                    if (kFloat3_GrVertexAttribType == textureGP.fPositions.cpuType()) {
                         args.fVaryingHandler->addVarying("aaDists", &aaDistVarying);
                         // The distance from edge equation e to homogenous point p=sk_Position
                         // is e.x*p.x/p.wx + e.y*p.y/p.w + e.z. However, we want screen space
@@ -224,23 +224,23 @@ private:
         this->setTextureSamplerCnt(1);
 
         if (perspective) {
-            fPositions = {"position", kFloat3_GrVertexAttribType};
+            fPositions = {"position", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
         } else {
-            fPositions = {"position", kFloat2_GrVertexAttribType};
+            fPositions = {"position", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         }
-        fColors = {"color", kUByte4_norm_GrVertexAttribType};
-        fTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType};
+        fColors = {"color", kUByte4_norm_GrVertexAttribType, kHalf4_GrSLType};
+        fTextureCoords = {"textureCoords", kFloat2_GrVertexAttribType, kFloat2_GrSLType};
         int vertexAttributeCnt = 3;
 
         if (domain == Domain::kYes) {
-            fDomain = {"domain", kFloat4_GrVertexAttribType};
+            fDomain = {"domain", kFloat4_GrVertexAttribType, kFloat4_GrSLType};
             ++vertexAttributeCnt;
         }
         if (coverageAA) {
-            fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType};
-            fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType};
-            fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType};
-            fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType};
+            fAAEdges[0] = {"aaEdge0", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+            fAAEdges[1] = {"aaEdge1", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+            fAAEdges[2] = {"aaEdge2", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
+            fAAEdges[3] = {"aaEdge3", kFloat3_GrVertexAttribType, kFloat3_GrSLType};
             vertexAttributeCnt += 4;
         }
         this->setVertexAttributeCnt(vertexAttributeCnt);
