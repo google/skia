@@ -141,7 +141,7 @@ static void compare_pixel(const char* label,
     }
 }
 
-DEF_SIMPLE_GM(p3, canvas, 450, 400) {
+DEF_SIMPLE_GM(p3, canvas, 450, 500) {
     auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                     SkColorSpace::kDCIP3_D65_Gamut);
 
@@ -187,9 +187,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 400) {
 
     canvas->translate(0,80);
 
-    // Draw an A8 image with the paint color set to P3 red, hitting a sprite case.
-    //    and
-    // Draw a scaled A8 image with the paint color set to P3 red, hitting a non-sprite case.
+    // Draw an A8 image with a P3 red, scaled and not, as a shader or bitmap.
     {
         uint8_t mask[256];
         for (int i = 0; i < 256; i++) {
@@ -198,19 +196,46 @@ DEF_SIMPLE_GM(p3, canvas, 450, 400) {
         SkBitmap bm;
         bm.installPixels(SkImageInfo::MakeA8(16,16), mask, 16);
 
-        SkPaint paint;
-        paint.setFilterQuality(kLow_SkFilterQuality);
-        paint.setColor4f({1,0,0,1}, p3.get());
+        SkPaint as_bitmap;
+        as_bitmap.setColor4f({1,0,0,1}, p3.get());
+        as_bitmap.setFilterQuality(kLow_SkFilterQuality);
 
-        canvas->drawBitmap(bm, 10,10, &paint);
-        compare_pixel("A8 sprite P3 red",
+        SkPaint as_shader;
+        as_shader.setColor4f({1,0,0,1}, p3.get());
+        as_shader.setFilterQuality(kLow_SkFilterQuality);
+        as_shader.setShader(SkShader::MakeBitmapShader(bm, SkShader::kClamp_TileMode
+                                                         , SkShader::kClamp_TileMode));
+
+        canvas->drawBitmap(bm, 10,10, &as_bitmap);
+        compare_pixel("A8 sprite bitmap P3 red",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+
+        canvas->translate(0, 80);
+
+        canvas->save();
+            canvas->translate(10,10);
+            canvas->drawRect({0,0,16,16}, as_shader);
+        canvas->restore();
+        compare_pixel("A8 sprite shader P3 red",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
 
         canvas->translate(0,80);
 
-        canvas->drawBitmapRect(bm, {10,10,70,70}, &paint);
-        compare_pixel("A8 image P3 red",
+        canvas->drawBitmapRect(bm, {10,10,70,70}, &as_bitmap);
+        compare_pixel("A8 scaled bitmap P3 red",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+
+        canvas->translate(0,80);
+
+        canvas->save();
+            canvas->translate(10,10);
+            canvas->scale(3.75,3.75);
+            canvas->drawRect({0,0,16,16}, as_shader);
+        canvas->restore();
+        compare_pixel("A8 scaled shader P3 red",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
     }
