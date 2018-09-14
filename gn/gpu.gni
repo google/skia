@@ -405,6 +405,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrDualIntervalGradientColorizer.h",
   "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.cpp",
   "$_src/gpu/gradients/GrSingleIntervalGradientColorizer.h",
+  "$_src/gpu/gradients/GrTextureGradientColorizer.cpp",
+  "$_src/gpu/gradients/GrTextureGradientColorizer.h",
   "$_src/gpu/gradients/GrLinearGradientLayout.cpp",
   "$_src/gpu/gradients/GrLinearGradientLayout.h",
   "$_src/gpu/gradients/GrRadialGradientLayout.cpp",
@@ -417,6 +419,8 @@ skia_gpu_sources = [
   "$_src/gpu/gradients/GrClampedGradientEffect.h",
   "$_src/gpu/gradients/GrTiledGradientEffect.cpp",
   "$_src/gpu/gradients/GrTiledGradientEffect.h",
+  "$_src/gpu/gradients/GrGradientBitmapCache.cpp",
+  "$_src/gpu/gradients/GrGradientBitmapCache.h",
   "$_src/gpu/gradients/GrGradientShader.cpp",
   "$_src/gpu/gradients/GrGradientShader.h",
 

@@ -17,15 +17,52 @@
 
 #include "GrDualIntervalGradientColorizer.h"
 #include "GrSingleIntervalGradientColorizer.h"
+#include "GrTextureGradientColorizer.h"
+#include "GrGradientBitmapCache.h"
 
-#include "SkGradientShaderPriv.h"
+#include "SkGr.h"
 #include "GrColor.h"
+#include "GrContext.h"
+#include "GrContextPriv.h"
+
+// Each cache entry costs 1K or 2K of RAM. Each bitmap will be 1x256 at either 32bpp or 64bpp.
+static const int kMaxNumCachedGradientBitmaps = 32;
+static const int kGradientTextureSize = 256;
+
+// NOTE: signature takes raw pointers to the color/pos arrays and a count to make it easy for
+// MakeColorizer to transparently take care of hard stops at the end points of the gradient.
+static std::unique_ptr<GrFragmentProcessor> make_textured_colorizer(const GrColor4f* colors,
+        const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
+    static GrGradientBitmapCache gCache(kMaxNumCachedGradientBitmaps, kGradientTextureSize);
+
+    // Use 8888 or F16, depending on the destination config.
+    // TODO: Use 1010102 for opaque gradients, at least if destination is 1010102?
+    SkColorType colorType = kRGBA_8888_SkColorType;
+    if (kLow_GrSLPrecision != GrSLSamplerPrecision(args.fDstColorSpaceInfo->config()) &&
+        args.fContext->contextPriv().caps()->isConfigTexturable(kRGBA_half_GrPixelConfig)) {
+        colorType = kRGBA_F16_SkColorType;
+    }
+    SkAlphaType alphaType = premul ? kPremul_SkAlphaType : kUnpremul_SkAlphaType;
+
+    SkBitmap bitmap;
+    gCache.getGradient(colors, positions, count, colorType, alphaType, &bitmap);
+    SkASSERT(1 == bitmap.height() && SkIsPow2(bitmap.width()));
+    SkASSERT(bitmap.isImmutable());
+
+    sk_sp<GrTextureProxy> proxy = GrMakeCachedBitmapProxy(
+            args.fContext->contextPriv().proxyProvider(), bitmap);
+    if (proxy == nullptr) {
+        SkDebugf("Gradient won't draw. Could not create texture.");
+        return nullptr;
+    }
+
+    return GrTextureGradientColorizer::Make(std::move(proxy));
+}
 
 // Analyze the shader's color stops and positions and chooses an appropriate colorizer to represent
 // the gradient.
 static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colors,
-                                                           const SkScalar* positions,
-                                                           int count) {
+        const SkScalar* positions, int count, bool premul, const GrFPArgs& args) {
     // If there are hard stops at the beginning or end, the first and/or last color should be
     // ignored by the colorizer since it should only be used in a clamped border color. By detecting
     // and removing these stops at the beginning, it makes optimizing the remaining color stops
@@ -34,8 +71,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colo
     // SkGradientShaderBase guarantees that pos[0] == 0 by adding a dummy
     bool bottomHardStop = SkScalarNearlyEqual(positions[0], positions[1]);
     // The same is true for pos[end] == 1
-    bool topHardStop = SkScalarNearlyEqual(positions[count - 2],
-                                           positions[count - 1]);
+    bool topHardStop = SkScalarNearlyEqual(positions[count - 2], positions[count - 1]);
 
     int offset = 0;
     if (bottomHardStop) {
@@ -63,7 +99,7 @@ static std::unique_ptr<GrFragmentProcessor> make_colorizer(const GrColor4f* colo
                                                      positions[offset + 1]);
     }
 
-    return nullptr;
+    return make_textured_colorizer(colors + offset, positions + offset, count, premul, args);
 }
 
 // Combines the colorizer and layout with an appropriately configured master effect based on the
@@ -106,8 +142,8 @@ static std::unique_ptr<GrFragmentProcessor> make_gradient(const SkGradientShader
     }
 
     // All gradients are colorized the same way, regardless of layout
-    std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(colors.get(), positions,
-                                                                    shader.fColorCount);
+    std::unique_ptr<GrFragmentProcessor> colorizer = make_colorizer(
+            colors.get(), positions, shader.fColorCount, inputPremul, args);
     if (colorizer == nullptr) {
         return nullptr;
     }
