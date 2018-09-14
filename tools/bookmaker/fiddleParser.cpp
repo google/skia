@@ -7,6 +7,13 @@
 
 #include "bookmaker.h"
 
+// could make this more elaborate and look up the example definition in the bmh file;
+// see if a simpler hint provided is sufficient
+static bool report_error(const char* blockName, const char* errorMessage) {
+    SkDebugf("%s: %s\n", blockName, errorMessage);
+    return false;
+}
+
 bool FiddleBase::parseFiddles() {
     if (fStack.empty()) {
         return false;
@@ -17,35 +24,35 @@ bool FiddleBase::parseFiddles() {
         Definition* example = nullptr;
         string textString;
         if (!status->fObject.isObject()) {
-            return this->reportError<bool>("expected object");
+            return report_error(blockName, "expected object");
         }
         for (auto iter = status->fIter->begin(); status->fIter->end() != iter; ++iter) {
             const char* memberName = iter.memberName();
             if (!strcmp("compile_errors", memberName)) {
                 if (!iter->isArray()) {
-                    return this->reportError<bool>("expected array");
+                    return report_error(blockName, "expected array");
                 }
                 if (iter->size()) {
-                    return this->reportError<bool>("fiddle compiler error");
+                    return report_error(blockName, "fiddle compiler error");
                 }
                 continue;
             }
             if (!strcmp("runtime_error", memberName)) {
                 if (!iter->isString()) {
-                    return this->reportError<bool>("expected string 1");
+                    return report_error(blockName, "expected string 1");
                 }
                 if (iter->asString().length()) {
-                    return this->reportError<bool>("fiddle runtime error");
+                    return report_error(blockName, "fiddle runtime error");
                 }
                 continue;
             }
             if (!strcmp("fiddleHash", memberName)) {
                 if (!iter->isString()) {
-                    return this->reportError<bool>("expected string 2");
+                    return report_error(blockName, "expected string 2");
                 }
                 example = this->findExample(blockName);
                 if (!example) {
-                    return this->reportError<bool>("missing example");
+                    return report_error(blockName, "missing example");
                 }
                 if (example->fHash.length() && example->fHash != iter->asString()) {
                     return example->reportError<bool>("mismatched hash");
@@ -55,15 +62,15 @@ bool FiddleBase::parseFiddles() {
             }
             if (!strcmp("text", memberName)) {
                 if (!iter->isString()) {
-                    return this->reportError<bool>("expected string 3");
+                    return report_error(blockName, "expected string 3");
                 }
                 textString = iter->asString();
                 continue;
             }
-            return this->reportError<bool>("unexpected key");
+            return report_error(blockName, "unexpected key");
         }
         if (!example) {
-            return this->reportError<bool>("missing fiddleHash");
+            return report_error(blockName, "missing fiddleHash");
         }
         size_t strLen = textString.length();
         if (strLen) {
