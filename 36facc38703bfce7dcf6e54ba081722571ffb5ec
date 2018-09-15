@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "49339dab_d392e8ec",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "f7dca708_67de81a1",
+      "range": {
+        "startLine": 120,
+        "startChar": 0,
+        "endLine": 124,
+        "endChar": 78
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c38317d_9f099cff",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -116,6 +140,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d11dda32_a1619eb6",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c38317d_9f099cff",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 75
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -166,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "24a31144_9fddf49f",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e02d5f70_c2c05d10",
+      "range": {
+        "startLine": 183,
+        "startChar": 0,
+        "endLine": 187,
+        "endChar": 28
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "057818f3_2e3e7464",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -186,6 +258,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dba085b6_84c203d1",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "I think this is obsolete after https://skia-review.googlesource.com/c/skia/+/149483 \"Reland \"Switch SkCodec to use skcms plus fixes\"\".",
+      "parentUuid": "057818f3_2e3e7464",
+      "range": {
+        "startLine": 201,
+        "startChar": 52,
+        "endLine": 201,
+        "endChar": 68
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -212,6 +308,30 @@
     },
     {
       "key": {
+        "uuid": "6ee5c437_d1793f1f",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c6a9c33f_95e64911",
+      "range": {
+        "startLine": 313,
+        "startChar": 0,
+        "endLine": 315,
+        "endChar": 36
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4f5b88f6_e5f88428",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -232,6 +352,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "06025985_9317ecf8",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4f5b88f6_e5f88428",
+      "range": {
+        "startLine": 317,
+        "startChar": 0,
+        "endLine": 320,
+        "endChar": 26
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -258,6 +402,30 @@
     },
     {
       "key": {
+        "uuid": "49c1c3a5_9a771e71",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "c490c8a9_463bae4a",
+      "range": {
+        "startLine": 350,
+        "startChar": 0,
+        "endLine": 351,
+        "endChar": 50
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3b49cb5a_a2ccff2a",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -281,6 +449,30 @@
     },
     {
       "key": {
+        "uuid": "45d3d754_76cbf9dd",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3b49cb5a_a2ccff2a",
+      "range": {
+        "startLine": 382,
+        "startChar": 0,
+        "endLine": 385,
+        "endChar": 45
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "335d5d13_0606d337",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -301,6 +493,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a26aa662_181e6135",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Copy/paste/edited that explanation into the code as a comment. Thanks!",
+      "parentUuid": "335d5d13_0606d337",
+      "range": {
+        "startLine": 415,
+        "startChar": 8,
+        "endLine": 415,
+        "endChar": 78
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -423,6 +639,30 @@
     },
     {
       "key": {
+        "uuid": "ada0514a_cca39a3b",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "573540bd_276513b2",
+      "range": {
+        "startLine": 429,
+        "startChar": 46,
+        "endLine": 430,
+        "endChar": 54
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "235799b3_51094f00",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -443,6 +683,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dab2a916_37a930a2",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Obsolete after https://skia-review.googlesource.com/c/skia/+/150300 \"Add an explicit SkFrame move constructor\".",
+      "parentUuid": "235799b3_51094f00",
+      "range": {
+        "startLine": 450,
+        "startChar": 0,
+        "endLine": 453,
+        "endChar": 70
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -469,6 +733,30 @@
     },
     {
       "key": {
+        "uuid": "6e092306_57be412b",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 463,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "This concern about clipping is obsolete. Wuffs now always clips any returned frame rect to the image rect. (If the underlying GIF image has an overhanging frame, those excess pixels will be decoded but written to /dev/null).",
+      "parentUuid": "9b9d8a79_cfc55692",
+      "range": {
+        "startLine": 461,
+        "startChar": 56,
+        "endLine": 463,
+        "endChar": 51
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e0f05974_ef50daed",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 3
@@ -489,6 +777,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4d2b1aee_1d80a4da",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "FYI I\u0027ve updated this to reflect random access (instead of sequential access) to an animation\u0027s frames.",
+      "parentUuid": "e0f05974_ef50daed",
+      "range": {
+        "startLine": 504,
+        "startChar": 0,
+        "endLine": 535,
+        "endChar": 72
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -657,6 +969,30 @@
     },
     {
       "key": {
+        "uuid": "20c83e2a_a1a0d0bd",
+        "filename": "src/codec/SkWuffsGifCodec.h",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Spun out as https://skia-review.googlesource.com/c/skia/+/150300 \"Add an explicit SkFrame move constructor\".",
+      "parentUuid": "6fca3b08_385d3fe3",
+      "range": {
+        "startLine": 107,
+        "startChar": 4,
+        "endLine": 110,
+        "endChar": 69
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "54a9297f_406ce8ac",
         "filename": "tests/CodecAnimTest.cpp",
         "patchSetId": 3
@@ -703,6 +1039,30 @@
     },
     {
       "key": {
+        "uuid": "d4cd5a81_11f15f1b",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3aa7ce12_08d59f80",
+      "range": {
+        "startLine": 98,
+        "startChar": 0,
+        "endLine": 99,
+        "endChar": 79
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e9af5af_b3eafb90",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 3
@@ -723,6 +1083,30 @@
       "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "27b5a08e_63078ad1",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9e9af5af_b3eafb90",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 23
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -785,6 +1169,30 @@
       "side": 1,
       "message": "Although this particular file is invalid, and I don\u0027t think it\u0027s necessary to enforce this particular behavior for this particular file, there could be a similar file which is valid except it\u0027s missing some/all LZW blocks. How would wuffs handle that? We need to make sure we initialize all rows, unless we never created an SkCodec.",
       "parentUuid": "b95eba57_278345f9",
+      "range": {
+        "startLine": 1565,
+        "startChar": 0,
+        "endLine": 1566,
+        "endChar": 16
+      },
+      "revId": "36facc38703bfce7dcf6e54ba081722571ffb5ec",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1b38f214_e38af7e3",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 3
+      },
+      "lineNbr": 1566,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "For missing LZW blocks, I copy/pasted out a new Codec_GifTruncated3 test, based on this one (Codec_ossfuzz6274).\n\nFWIW, I\u0027m not sure if it\u0027s a great test. It still seems to pass if I comment out the SkSampler::Fill call in SkWuffsGifCodec::onStartIncrementalDecode, which is what I assume it\u0027s trying to test...",
+      "parentUuid": "1ab5f30b_9369b3f9",
       "range": {
         "startLine": 1565,
         "startChar": 0,

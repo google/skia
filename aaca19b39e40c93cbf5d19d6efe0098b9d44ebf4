@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "18c42dda_fdb40226",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5026e610_761b6794",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b74cb39d_eb8aeeb0",
         "filename": "BUILD.gn",
         "patchSetId": 10
@@ -69,6 +87,24 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "59b86170_c62a7697",
+        "filename": "BUILD.gn",
+        "patchSetId": 10
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Removed the TODOs.",
+      "parentUuid": "dd33f91c_6af01e3c",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -107,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "fefc9e92_fbbc368b",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd07bbca_b3f2806c",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b00d2dfe_86daa9a5",
         "filename": "src/codec/SkCodec.cpp",
         "patchSetId": 10
@@ -139,6 +193,24 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a690567_20db9f93",
+        "filename": "src/codec/SkCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e1e66c32_ec7757d5",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -231,6 +303,24 @@
     },
     {
       "key": {
+        "uuid": "ff1caf9f_8a7f9688",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e7d94a0c_4a69c312",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7ab0175d_046cbb16",
         "filename": "src/codec/SkWuffsGifCodec.cpp",
         "patchSetId": 10
@@ -266,6 +356,24 @@
     },
     {
       "key": {
+        "uuid": "e8ef4d29_1d193df2",
+        "filename": "src/codec/SkWuffsGifCodec.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "aaeafbd6_cd973fa6",
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fc60d03_e4c9de77",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
@@ -286,6 +394,30 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5be3f5ec_1805adfc",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "9fc60d03_e4c9de77",
+      "range": {
+        "startLine": 1433,
+        "startChar": 61,
+        "endLine": 1434,
+        "endChar": 48
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -312,6 +444,30 @@
     },
     {
       "key": {
+        "uuid": "9537d3e4_f3b3fede",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1486,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "FWIW, the Go stdlib\u0027s GIF decoder has been enforcing (literal_width \u003e\u003d 2) for 8 or 10 years now, and I don\u0027t remember anyone filing a bug about it. In constrast, I have seen lots of different Go GIF bugs, often along the lines of \"other GIF decoders accept such-and-such; why not Go?\", such as:\n\nhttps://github.com/golang/go/issues/3565\nhttps://github.com/golang/go/issues/5401\nhttps://github.com/golang/go/issues/6441\nhttps://github.com/golang/go/issues/8789\nhttps://github.com/golang/go/issues/9856\nhttps://github.com/golang/go/issues/10676\nhttps://github.com/golang/go/issues/11150\nhttps://github.com/golang/go/issues/20804\nhttps://github.com/golang/go/issues/20856",
+      "parentUuid": "0ec5d897_8027c219",
+      "range": {
+        "startLine": 1485,
+        "startChar": 0,
+        "endLine": 1486,
+        "endChar": 13
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45aabc90_080d06da",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
@@ -332,6 +488,30 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "88e5d650_7946c666",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1525,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "45aabc90_080d06da",
+      "range": {
+        "startLine": 1522,
+        "startChar": 64,
+        "endLine": 1525,
+        "endChar": 45
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     },
     {
       "key": {
@@ -358,6 +538,30 @@
     },
     {
       "key": {
+        "uuid": "438d7aa3_e2594334",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "Yeah, that\u0027s correct: wuffs returned kErrorInInput for incrementalDecode (not startIncrementalDecode) on the first iteration of this loop, but we just never check for that.",
+      "parentUuid": "1496af7b_7ba27cab",
+      "range": {
+        "startLine": 1527,
+        "startChar": 0,
+        "endLine": 1533,
+        "endChar": 18
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "552c9c5b_f81e740c",
         "filename": "tests/CodecTest.cpp",
         "patchSetId": 10
@@ -378,6 +582,30 @@
       "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8b1a6b0f_b8679871",
+        "filename": "tests/CodecTest.cpp",
+        "patchSetId": 10
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 8223
+      },
+      "writtenOn": "2018-09-15T03:51:08Z",
+      "side": 1,
+      "message": "I\u0027m happy to delete it... in a follow-up commit. I think it\u0027d be useful to keep (in the revision history) why the test behavior changed from other-GIF to Wuffs-GIF.",
+      "parentUuid": "552c9c5b_f81e740c",
+      "range": {
+        "startLine": 1536,
+        "startChar": 0,
+        "endLine": 1537,
+        "endChar": 41
+      },
+      "revId": "aaca19b39e40c93cbf5d19d6efe0098b9d44ebf4",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
