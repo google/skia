@@ -732,3 +732,13 @@ DEF_GPUTEST_FOR_RENDERING_CONTEXTS(BlurMaskBiggerThanDest, reporter, ctxInfo) {
     REPORTER_ASSERT(reporter, SkColorGetB(readback.getColor(15, 15)) == 0);
     REPORTER_ASSERT(reporter, readback.getColor(31, 31) == SK_ColorBLACK);
 }
+
+DEF_TEST(zero_blur, reporter) {
+    SkBitmap alpha, bitmap;
+
+    SkPaint paint;
+    paint.setMaskFilter(SkMaskFilter::MakeBlur(kOuter_SkBlurStyle, 3));
+    SkIPoint offset;
+    bitmap.extractAlpha(&alpha, &paint, nullptr, &offset);
+}
+

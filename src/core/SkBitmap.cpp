@@ -542,6 +542,9 @@ bool SkBitmap::extractAlpha(SkBitmap* dst, const SkPaint* paint,
     SkMatrix    identity;
     SkMask      srcM, dstM;
 
+    if (this->width() == 0 || this->height() == 0) {
+        return false;
+    }
     srcM.fBounds.set(0, 0, this->width(), this->height());
     srcM.fRowBytes = SkAlign4(this->width());
     srcM.fFormat = SkMask::kA8_Format;
