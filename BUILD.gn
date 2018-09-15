@@ -31,6 +31,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
+  skia_use_x11 = is_linux
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -599,7 +600,7 @@ optional("gpu") {
   } else if (skia_use_egl) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
     libs += [ "EGL" ]
-  } else if (is_linux) {
+  } else if (is_linux && skia_use_x11) {
     sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
     libs += [ "GL" ]
   } else if (is_mac) {
@@ -1275,7 +1276,7 @@ if (skia_enable_tools) {
     } else if (is_ios) {
       sources += [ "tools/gpu/gl/iOS/CreatePlatformGLTestContext_iOS.mm" ]
       libs += [ "OpenGLES.framework" ]
-    } else if (is_linux) {
+    } else if (is_linux && skia_use_x11) {
       sources += [ "tools/gpu/gl/glx/CreatePlatformGLTestContext_glx.cpp" ]
       libs += [
         "GLU",
@@ -1937,7 +1938,7 @@ if (skia_enable_tools) {
         "tools/sk_app/android/surface_glue_android.cpp",
       ]
       libs += [ "android" ]
-    } else if (is_linux) {
+    } else if (is_linux && skia_use_x11) {
       sources += [
         "tools/sk_app/unix/GLWindowContext_unix.cpp",
         "tools/sk_app/unix/RasterWindowContext_unix.cpp",
@@ -1984,7 +1985,7 @@ if (skia_enable_tools) {
       sources += [ "tools/sk_app/VulkanWindowContext.cpp" ]
       if (is_android) {
         sources += [ "tools/sk_app/android/VulkanWindowContext_android.cpp" ]
-      } else if (is_linux) {
+      } else if (is_linux && skia_use_x11) {
         sources += [ "tools/sk_app/unix/VulkanWindowContext_unix.cpp" ]
         libs += [ "X11-xcb" ]
       } else if (is_win) {
