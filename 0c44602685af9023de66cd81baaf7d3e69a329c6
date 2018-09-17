@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a8c65c65_a23e4ece",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-09-17T01:38:22Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "6c317446_640c3826",
+      "revId": "0c44602685af9023de66cd81baaf7d3e69a329c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "26d4c8d4_8b2fb205",
         "filename": "gm/imagefromyuvtextures.cpp",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2018-09-14T18:45:15Z",
       "side": 1,
       "message": "Doesn\u0027t this return an SkImage that you could use rather than using SkImage::MakeFromTexture below?",
+      "revId": "0c44602685af9023de66cd81baaf7d3e69a329c6",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d5dea4df_9b954941",
+        "filename": "gm/imagefromyuvtextures.cpp",
+        "patchSetId": 11
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 8459
+      },
+      "writtenOn": "2018-09-17T01:38:22Z",
+      "side": 1,
+      "message": "Yes. The purpose to add \"MakeFromTexture\" as below is to check whether the content is in the backend texture. However, I think use the return image directly are enough to cover new API. I\u0027ll change this.",
+      "parentUuid": "26d4c8d4_8b2fb205",
       "revId": "0c44602685af9023de66cd81baaf7d3e69a329c6",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
