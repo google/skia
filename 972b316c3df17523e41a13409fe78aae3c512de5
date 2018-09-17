@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e6a58bc7_fc1da0dc",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-17T16:33:12Z",
+      "side": 1,
+      "message": "This seems problematic",
+      "revId": "972b316c3df17523e41a13409fe78aae3c512de5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
