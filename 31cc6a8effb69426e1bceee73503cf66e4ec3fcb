@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6ee3e0d1_4ed92dc1",
+        "filename": "fuzz/Fuzz.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-17T18:23:49Z",
+      "side": 1,
+      "message": "THink it makes sense to move that implementation into here?  Seems weird to have both void fuzz_region(Fuzz*,SkRegion*) and void Fuzz::next(SkRegion*) exist.",
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4443db75_19108a89",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-17T18:23:49Z",
+      "side": 1,
+      "message": "are Min and Max not T?\n\nWhat\u0027s different between nextEnum() and nextRange()?  Just the name?",
+      "range": {
+        "startLine": 56,
+        "startChar": 18,
+        "endLine": 56,
+        "endChar": 30
+      },
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ac91a68_bfda0f41",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-17T18:23:49Z",
+      "side": 1,
+      "message": "Why do we sometimes fuzz-\u003enext(\u0026thing) and sometimes fuzz_thing(fuzz, \u0026thing)?\n\nShould we just make them all -\u003enext()?",
+      "range": {
+        "startLine": 218,
+        "startChar": 15,
+        "endLine": 218,
+        "endChar": 43
+      },
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "5359e5af_1125c177",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5045
+      },
+      "writtenOn": "2018-09-17T18:23:49Z",
+      "side": 1,
+      "message": "Usually we name extern functions FuzzRRect, FuzzMatrix, etc.  fuzz_rrect() looks like a file-local static function in usual Skia style.",
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
