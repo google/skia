@@ -171,7 +171,7 @@ SkScalar SkPointPriv::DistanceToLineBetweenSqd(const SkPoint& pt, const SkPoint&
 }
 
 SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const SkPoint& a,
-                                                  const SkPoint& b) {
+                                                      const SkPoint& b) {
     // See comments to distanceToLineBetweenSqd. If the projection of c onto
     // u is between a and b then this returns the same result as that
     // function. Otherwise, it returns the distance to the closer of a and
@@ -199,6 +199,10 @@ SkScalar SkPointPriv::DistanceToLineSegmentBetweenSqd(const SkPoint& pt, const S
     } else if (uDotV > uLengthSqd) {
         return DistanceToSqd(b, pt);
     } else {
+        // degenerate line segment, return distance to point A
+        if (uLengthSqd < SK_ScalarNearlyZero*SK_ScalarNearlyZero) {
+            return SkPoint::DotProduct(v, v);
+        }
         SkScalar det = u.cross(v);
         SkScalar temp = det / uLengthSqd;
         temp *= det;
