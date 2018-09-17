@@ -78,6 +78,14 @@ void GrRenderTargetOpList::visitProxies_debugOnly(const GrOp::VisitProxyFunc& fu
         recordedOp.visitProxies(func);
     }
 }
+
+static void assert_chain_bounds(const GrOp* op) {
+    SkASSERT(op->isChainHead());
+    auto headBounds = op->bounds();
+    while ((op = op->nextInChain())) {
+        SkASSERT(headBounds.contains(op->bounds()));
+    }
+}
 #endif
 
 void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
@@ -99,7 +107,7 @@ void GrRenderTargetOpList::onPrepare(GrOpFlushState* flushState) {
                 fRecordedOps[i].fAppliedClip,
                 fRecordedOps[i].fDstProxy
             };
-
+            SkDEBUGCODE(assert_chain_bounds(opArgs.fOp));
             flushState->setOpArgs(&opArgs);
             fRecordedOps[i].fOp->prepare(flushState);
             flushState->setOpArgs(nullptr);
