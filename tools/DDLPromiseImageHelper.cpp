@@ -104,7 +104,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         // a separate bitmap-backed image for each thread.
         // Note: we would like to share the same bitmap between all the threads but
         // SkBitmap is not thread-safe.
-        return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
+        SkASSERT(curImage.fBitmap.isImmutable());
+        return SkImage::MakeFromBitmap(curImage.fBitmap);
     }
     SkASSERT(curImage.fIndex == *indexPtr);
 
