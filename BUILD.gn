@@ -31,6 +31,7 @@ declare_args() {
   skia_use_zlib = true
   skia_use_metal = false
   skia_use_libheif = is_skia_dev_build
+  skia_use_x11 = is_linux
 
   skia_android_serial = ""
   skia_enable_discrete_gpu = true
@@ -599,7 +600,7 @@ optional("gpu") {
   } else if (skia_use_egl) {
     sources += [ "src/gpu/gl/egl/GrGLMakeNativeInterface_egl.cpp" ]
     libs += [ "EGL" ]
-  } else if (is_linux) {
+  } else if (is_linux && skia_use_x11) {
     sources += [ "src/gpu/gl/glx/GrGLMakeNativeInterface_glx.cpp" ]
     libs += [ "GL" ]
   } else if (is_mac) {
