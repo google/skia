@@ -4,22 +4,34 @@
 
 #Struct SkIPoint
 
+#Code
+struct SkIPoint {
+    int32_t fX;
+    int32_t fY;
+
+    static constexpr SkIPoint Make(int32_t x, int32_t y);
+    int32_t x() const;
+    int32_t y() const;
+    bool isZero() const;
+    void set(int32_t x, int32_t y);
+    SkIPoint operator-() const;
+    void operator+=(const SkIVector& v);
+    void operator-=(const SkIVector& v);
+    bool equals(int32_t x, int32_t y) const;
+    friend bool operator==(const SkIPoint& a, const SkIPoint& b);
+    friend bool operator!=(const SkIPoint& a, const SkIPoint& b);
+    friend SkIVector operator-(const SkIPoint& a, const SkIPoint& b);
+    friend SkIPoint operator+(const SkIPoint& a, const SkIVector& b);
+};
+##
+
 SkIPoint holds two 32-bit integer coordinates.
 
-#Subtopic Overview
 #Populate
-##
-
-#Subtopic Related_Function
-#Populate
-##
-
-#Subtopic Member_Function
-#Populate
-##
 
 #Subtopic Member
 #Populate
+#Subtopic Member ##
 
 #Member int32_t  fX
 #Line # x-axis value ##
@@ -31,13 +43,11 @@ x-axis value used by IPoint.
 y-axis value used by IPoint.
 ##
 
-#Subtopic Member ##
-
 # ------------------------------------------------------------------------------
 
 #Subtopic Constructor
 #Populate
-##
+#Subtopic Constructor ##
 
 #Method static constexpr SkIPoint Make(int32_t x, int32_t y)
 
@@ -63,12 +73,13 @@ pt1 == pt2
 
 #Method ##
 
+
 # ------------------------------------------------------------------------------
 
 #Subtopic Property
 #Line # member values ##
 #Populate
-##
+#Subtopic Property ##
 
 #Method int32_t x() const
 #In Property

@@ -1756,25 +1756,27 @@ void draw(SkCanvas* canvas) {
 #Line # contains the state used to create the Layer ##
 
 #Code
-    struct SaveLayerRec {
-        SaveLayerRec*(...
+struct SaveLayerRec {
+    SaveLayerRec*();
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, SaveLayerFlags saveLayerFlags = 0);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    SaveLayerFlags saveLayerFlags);
+    SaveLayerRec(const SkRect* bounds, const SkPaint* paint, const SkImageFilter* backdrop,
+                    const SkImage* clipMask, const SkMatrix* clipMatrix,
+                    SaveLayerFlags saveLayerFlags);
 
-        const SkRect*           fBounds;
-        const SkPaint*          fPaint;
-        const SkImageFilter*    fBackdrop;
-        SaveLayerFlags          fSaveLayerFlags;
-    };
+    const SkRect*           fBounds;
+    const SkPaint*          fPaint;
+    const SkImageFilter*    fBackdrop;
+    const SkImage*          fClipMask;
+    const SkMatrix*         fClipMatrix;
+    SaveLayerFlags          fSaveLayerFlags;
+};
 ##
 
 SaveLayerRec contains the state used to create the Layer.
 
-#Subtopic Overview
 #Populate
-##
-
-#Subtopic Member
-#Populate
-##
 
 #Member const SkRect*           fBounds
 #Line # hints at Layer size limit ##

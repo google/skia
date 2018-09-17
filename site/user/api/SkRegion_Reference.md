@@ -295,56 +295,6 @@ SkRegion member functions read and modify the structure properties.
 
 # <a name='SkRegion_Iterator'>Class SkRegion::Iterator</a>
 
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Iterator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_copy_const_SkRegion'>Iterator(const SkRegion& region)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Iterator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_Iterator'>Iterator()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_done'>done</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data parsing is complete</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next <a href='SkIRect_Reference#IRect'>IRect</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rect'>rect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns part of <a href='#Region'>Region</a> as <a href='SkIRect_Reference#IRect'>IRect</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_reset'>reset</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Region'>Region</a> to iterate</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rewind'>rewind</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>points <a href='#SkRegion_Iterator_Iterator'>Iterator</a> to start</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Iterator_rgn'>rgn</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns original <a href='#Region'>Region</a></td>
-  </tr>
-</table>
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkRegion_Iterator_Iterator'>Iterator</a> {
     public:
@@ -626,40 +576,6 @@ iterated <a href='#Region'>Region</a>
 
 # <a name='SkRegion_Cliperator'>Class SkRegion::Cliperator</a>
 
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Cliperator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_const_SkRegion_const_SkIRect'>Cliperator(const SkRegion& region, const SkIRect& clip)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator with clip</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Cliperator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_done'>done</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns if data parsing is complete</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next <a href='SkIRect_Reference#IRect'>IRect</a> within clip</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Cliperator_rect'>rect</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returns part of <a href='#Region'>Region</a> as <a href='SkIRect_Reference#IRect'>IRect</a> intersected with clip</td>
-  </tr>
-</table>
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class SK_API <a href='#SkRegion_Cliperator'>Cliperator</a> {
     public:
@@ -810,32 +726,6 @@ after set rect rect={1,2,3,3}
 ---
 
 # <a name='SkRegion_Spanerator'>Class SkRegion::Spanerator</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkRegion::Spanerator can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Spanerator_const_SkRegion_int_int_int'>Spanerator(const SkRegion& region, int y, int left, int right)</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Region'>Region</a> iterator on scan line</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkRegion::Spanerator member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkRegion_Spanerator_next'>next</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>advances to next span on horizontal line</td>
-  </tr>
-</table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkRegion_Spanerator'>Spanerator</a> {

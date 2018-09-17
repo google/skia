@@ -1273,30 +1273,6 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             if (string::npos != fRoot->fFileName.find("undocumented")) {
                 break;
             }
-            // if class or struct contains constants, and doesn't contain subtopic kConstant, add it
-            // and add a child populate
-            const Definition* subtopic = def->subtopicParent();
-            const Definition* topic = def->topicParent();
-            for (auto item : SubtopicKeys::kGeneratedSubtopics) {
-                string subname;
-                if (subtopic != topic) {
-                    subname = subtopic->fName + '_';
-                }
-                subname += item;
-                if (fRoot->populator(item).fMembers.size()
-                        && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
-                        [subname](const Definition* child) {
-                            return MarkType::kSubtopic == child->fMarkType
-                                    && subname == child->fName;
-                        } )) {
-                    // generate subtopic
-                    this->mdHeaderOut(2);
-                    this->htmlOut(anchorDef(subname, item));
-                    this->lf(2);
-                    // generate populate
-                    this->subtopicOut(item);
-                }
-            }
             } break;
         case MarkType::kCode:
             this->lfAlways(2);
@@ -1637,15 +1613,54 @@ void MdOut::markTypeOut(Definition* def, const Definition** prior) {
             break;
         case MarkType::kPlatform:
             break;
-        case MarkType::kPopulate: {
-            SkASSERT(MarkType::kSubtopic == def->fParent->fMarkType);
-            string name = def->fParent->fName;
-            if (string::npos != name.find(SubtopicKeys::kOverview)) {
-                this->subtopicsOut(def->fParent);
+        case MarkType::kPopulate:
+            if (MarkType::kSubtopic == def->fParent->fMarkType) {
+                string name = def->fParent->fName;
+                if (string::npos != name.find(SubtopicKeys::kOverview)) {
+                    this->subtopicsOut(def->fParent);
+                } else {
+                    this->subtopicOut(name);
+                }
             } else {
-                this->subtopicOut(name);
+                Definition* parent = def->fParent;
+                SkASSERT(MarkType::kClass == parent->fMarkType
+                        || MarkType::kStruct == parent->fMarkType);
+ //               SkASSERT(parent->csParent());
+                if (!parent->csParent()) {
+                    this->subtopicsOut(def->fParent);
+                }
+                // if class or struct contains constants, and doesn't contain subtopic kConstant,
+                //add it and add a child populate
+                const Definition* subtopic = parent->subtopicParent();
+                const Definition* topic = parent->topicParent();
+                for (auto item : SubtopicKeys::kGeneratedSubtopics) {
+                    string subname;
+                    if (subtopic != topic) {
+                        subname = subtopic->fName + '_';
+                    }
+                    subname += item;
+                    if (fRoot->populator(item).fMembers.size()
+                            && !std::any_of(fRoot->fChildren.begin(), fRoot->fChildren.end(),
+                            [subname](const Definition* child) {
+                                return MarkType::kSubtopic == child->fMarkType
+                                        && subname == child->fName;
+                            } )) {
+                        // generate subtopic
+                        this->mdHeaderOut(2);
+                        string itemStr(item);
+                        std::replace(itemStr.begin(), itemStr.end(), '_', ' ');
+                        SkASSERT('s' != itemStr.back());
+                        if (SubtopicKeys::kClasses == itemStr) {
+                            itemStr += 'e';
+                        }
+                        this->htmlOut(anchorDef(subname, itemStr + 's'));
+                        this->lf(2);
+                        // generate populate
+                        this->subtopicOut(item);
+                    }
+                }
             }
-            } break;
+            break;
         case MarkType::kPrivate:
             break;
         case MarkType::kReturn:
@@ -2179,15 +2194,22 @@ void MdOut::subtopicOut(string name) {
         this->anchorDef(name, name);
         this->lfAlways(1);
     }
+    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
+    this->subtopicOut(tableContents.fMembers, csParent, topicParent, tableContents.fShowClones);
+}
+
+void MdOut::subtopicOut(const vector<Definition*>& data, const Definition* csParent,
+        const Definition* topicParent, bool showClones) {
     FPRINTF("%s", kTableDeclaration);
     this->lfAlways(1);
     FPRINTF("%s", kTopicsTableHeader);
     this->lfAlways(1);
     fOddRow = true;
     std::map<string, const Definition*> items;
-    const RootDefinition::SubtopicContents& tableContents = fRoot->populator(name.c_str());
-    auto& data = tableContents.fMembers;
     for (auto entry : data) {
+        if (!BmhParser::IsExemplary(entry)) {
+            continue;
+        }
         if (entry->csParent() != csParent && entry->topicParent() != topicParent) {
             continue;
         }
@@ -2227,7 +2249,7 @@ void MdOut::subtopicOut(string name) {
         }
         this->rowOut(keyName.c_str(), string(oneLiner->fContentStart,
                 oneLiner->fContentEnd - oneLiner->fContentStart), false);
-        if (tableContents.fShowClones && entry.second->fCloned) {
+        if (showClones && entry.second->fCloned) {
             int cloneNo = 2;
             string builder = entry.second->fName;
             if ("()" == builder.substr(builder.length() - 2)) {

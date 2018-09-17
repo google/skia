@@ -4,16 +4,6 @@ SkPoint Reference
 # <a name='Point'>Point</a>
 
 # <a name='SkPoint'>Struct SkPoint</a>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkPoint  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
 <a href='#SkPoint'>SkPoint</a> holds two 32-bit floating point coordinates.
 
 ## Overview

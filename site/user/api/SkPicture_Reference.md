@@ -4,28 +4,6 @@ SkPicture Reference
 # <a name='Picture'>Picture</a>
 
 # <a name='SkPicture'>Class SkPicture</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPicture can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromData'>MakeFromData</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from data</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakeFromStream'>MakeFromStream</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#Picture'>Picture</a> from stream</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_MakePlaceholder'>MakePlaceholder</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs placeholder with unique identifier</td>
-  </tr>
-</table>
-
 <a href='#Picture'>Picture</a> records drawing commands made to <a href='SkCanvas_Reference#Canvas'>Canvas</a>. The command stream may be
 played in whole or in part at a later time.
 
@@ -116,40 +94,6 @@ SkPicture member functions read and modify the structure properties.
 </table>
 
 # <a name='SkPicture_AbortCallback'>Class SkPicture::AbortCallback</a>
-
-## <a name='Constructor'>Constructor</a>
-
-
-SkPicture::AbortCallback can be constructed or initialized by these functions, including C++ class constructors.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default constructor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_destructor'>~AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default destructor</td>
-  </tr>
-</table>
-
-## <a name='Member_Function'>Member_Function</a>
-
-
-SkPicture::AbortCallback member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>defines default constructor</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkPicture_AbortCallback_abort'>abort</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>aborts playback by callback</td>
-  </tr>
-</table>
 
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     class <a href='#SkPicture_AbortCallback_AbortCallback'>AbortCallback</a> {
