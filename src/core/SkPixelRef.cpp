@@ -92,15 +92,19 @@ void SkPixelRef::addGenIDChangeListener(GenIDChangeListener* listener) {
         delete listener;
         return;
     }
-    *fGenIDChangeListeners.append() = listener;
+
+    listener->next = fGenIDChangeListeners;
+    while (!fGenIDChangeListeners.compare_exchange_weak(listener->next, listener)) {}
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPixelRef::callGenIDChangeListeners() {
     // We don't invalidate ourselves if we think another SkPixelRef is sharing our genID.
+    GenIDChangeListener* head = fGenIDChangeListeners.exchange(nullptr);
+
     if (this->genIDIsUnique()) {
-        for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
-            fGenIDChangeListeners[i]->onChange();
+        for (auto cursor = head; cursor != nullptr; cursor = cursor->next) {
+            cursor->onChange();
         }
 
         // TODO: SkAtomic could add "old_value = atomic.xchg(new_value)" to make this clearer.
@@ -110,7 +114,11 @@ void SkPixelRef::callGenIDChangeListeners() {
         }
     }
     // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.deleteAll();
+    for (auto cursor = head; cursor != nullptr;) {
+        auto next = cursor->next;
+        delete cursor;
+        cursor = next;
+    }
 }
 
 void SkPixelRef::notifyPixelsChanged() {

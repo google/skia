@@ -86,6 +86,7 @@ public:
     struct GenIDChangeListener {
         virtual ~GenIDChangeListener() {}
         virtual void onChange() = 0;
+        GenIDChangeListener* next;
     };
 
     // Takes ownership of listener.
@@ -116,7 +117,7 @@ private:
     const uint32_t fStableID;
 #endif
 
-    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are owned
+    std::atomic<GenIDChangeListener*> fGenIDChangeListeners{nullptr};  // pointers are owned
 
     // Set true by caches when they cache content that's derived from the current pixels.
     std::atomic<bool> fAddedToCache;
