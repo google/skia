@@ -6,6 +6,7 @@
  */
 
 #include "Fuzz.h"
+#include "FuzzCommon.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
@@ -690,3 +691,23 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Compiled input.\n");
 }
 #endif
+
+// UBSAN reminds us that bool can only legally hold 0 or 1.
+void Fuzz::next(bool* b) {
+  uint8_t n;
+  this->next(&n);
+  *b = (n & 1) == 1;
+}
+
+void Fuzz::next(SkImageFilter::CropRect* cropRect) {
+    SkRect rect;
+    uint8_t flags;
+    this->next(&rect);
+    this->nextRange(&flags, 0, 0xF);
+    *cropRect = SkImageFilter::CropRect(rect, flags);
+}
+
+
+void Fuzz::next(SkRegion* region) {
+    fuzz_region(this, region, 10);
+}

@@ -10,7 +10,9 @@
 
 #include "../tools/Registry.h"
 #include "SkData.h"
+#include "SkImageFilter.h"
 #include "SkMalloc.h"
+#include "SkRegion.h"
 #include "SkTypes.h"
 
 #include <limits>
@@ -48,6 +50,12 @@ public:
     template <typename T, typename Min, typename Max>
     void nextRange(T*, Min, Max);
 
+    template <typename T, typename Min, typename Max>
+    void nextEnum(T* value, Min rmin, Max rmax) {
+        using U = skstd::underlying_type_t<T>;
+        this->nextRange((U*)value, (U)rmin, (U)rmax);
+    }
+
     // nextN loads n * sizeof(T) bytes into ptr
     template <typename T>
     void nextN(T* ptr, int n);
@@ -58,6 +66,11 @@ public:
         raise(SIGSEGV);
     }
 
+    // Specialized versions for when true random doesn't quite make sense
+    void next(bool* b);
+    void next(SkImageFilter::CropRect* cropRect);
+    void next(SkRegion* region);
+
 private:
     template <typename T>
     T nextT();
@@ -66,14 +79,6 @@ private:
     size_t fNextByte;
     friend void fuzz__MakeEncoderCorpus(Fuzz*);
 };
-
-// UBSAN reminds us that bool can only legally hold 0 or 1.
-template <>
-inline void Fuzz::next(bool* b) {
-  uint8_t n;
-  this->next(&n);
-  *b = (n & 1) == 1;
-}
 
 template <typename T>
 inline void Fuzz::next(T* n) {
