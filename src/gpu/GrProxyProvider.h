@@ -232,6 +232,11 @@ public:
 
     int numUniqueKeyProxies_TestOnly() const;
 
+    // This is called on a DDL's proxyprovider when the DDL is finished. The uniquely keyed
+    // proxies need to keep their unique key but cannot hold on to the proxy provider unique
+    // pointer.
+    void orphanAllUniqueKeys();
+    // This is only used by GrContext::releaseResourcesAndAbandonContext()
     void removeAllUniqueKeys();
 
     /**

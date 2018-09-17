@@ -15,8 +15,8 @@
 DDLPromiseImageHelper::PromiseImageCallbackContext::~PromiseImageCallbackContext() {
     GrGpu* gpu = fContext->contextPriv().getGpu();
 
-    if (fBackendTexture.isValid()) {
-        gpu->deleteTestingOnlyBackendTexture(fBackendTexture);
+    if (fBackendTexture1.isValid()) {
+        gpu->deleteTestingOnlyBackendTexture(fBackendTexture1);
     }
 }
 
@@ -55,6 +55,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
 
         const PromiseImageInfo& info = fImageInfo[i];
 
+#if 0
         // DDL TODO: how can we tell if we need mipmapping!
         callbackContext->setBackendTexture(gpu->createTestingOnlyBackendTexture(
                                                             info.fBitmap.getPixels(),
@@ -62,6 +63,7 @@ void DDLPromiseImageHelper::uploadAllToGPU(GrContext* context) {
                                                             info.fBitmap.height(),
                                                             info.fBitmap.colorType(),
                                                             false, GrMipMapped::kNo));
+#endif
         // The GMs sometimes request too large an image
         //SkAssertResult(callbackContext->backendTexture().isValid());
 
@@ -104,7 +106,8 @@ sk_sp<SkImage> DDLPromiseImageHelper::PromiseImageCreator(const void* rawData,
         // a separate bitmap-backed image for each thread.
         // Note: we would like to share the same bitmap between all the threads but
         // SkBitmap is not thread-safe.
-        return SkImage::MakeRasterCopy(curImage.fBitmap.pixmap());
+        SkASSERT(curImage.fBitmap.isImmutable());
+        return SkImage::MakeFromBitmap(curImage.fBitmap);
     }
     SkASSERT(curImage.fIndex == *indexPtr);
 
