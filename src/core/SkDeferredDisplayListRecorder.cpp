@@ -61,7 +61,7 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
 
         // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
         // uniquely keyed proxies.
-        proxyProvider->removeAllUniqueKeys();
+        proxyProvider->orphanAllUniqueKeys();
     }
 }
 

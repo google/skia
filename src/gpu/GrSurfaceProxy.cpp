@@ -392,7 +392,14 @@ void GrSurfaceProxyPriv::exactify() {
 bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvider) {
     SkASSERT(GrSurfaceProxy::LazyState::kNot != fProxy->lazyInstantiationState());
 
-    sk_sp<GrSurface> surface = fProxy->fLazyInstantiateCallback(resourceProvider);
+    sk_sp<GrSurface> surface;
+    if (fProxy->asTextureProxy() && fProxy->asTextureProxy()->getUniqueKey().isValid()) {
+        surface = resourceProvider->findByUniqueKey<GrSurface>(fProxy->asTextureProxy()->getUniqueKey());
+    }
+
+    if (!surface) {
+        surface = fProxy->fLazyInstantiateCallback(resourceProvider);
+    }
     if (GrSurfaceProxy::LazyInstantiationType::kSingleUse == fProxy->fLazyInstantiationType) {
         fProxy->fLazyInstantiateCallback(nullptr);
         fProxy->fLazyInstantiateCallback = nullptr;
@@ -423,7 +430,12 @@ bool GrSurfaceProxyPriv::doLazyInstantiation(GrResourceProvider* resourceProvide
     if (GrTextureProxy* texProxy = fProxy->asTextureProxy()) {
         const GrUniqueKey& key = texProxy->getUniqueKey();
         if (key.isValid()) {
-            resourceProvider->assignUniqueKeyToResource(key, surface.get());
+            if (!surface->asTexture()->getUniqueKey().isValid()) {
+                SkDebugf("pushing lazy id %d\n", texProxy->uniqueID().asUInt());
+                resourceProvider->assignUniqueKeyToResource(key, surface.get());
+            } else {
+                SkASSERT(surface->asTexture()->getUniqueKey() == key);
+            }
         }
     }
 

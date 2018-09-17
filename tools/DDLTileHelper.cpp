@@ -112,7 +112,7 @@ DDLTileHelper::DDLTileHelper(SkCanvas* canvas, const SkIRect& viewport, int numD
             // TODO: this is here to deal w/ a resource allocator bug (skbug.com/8007). If all
             // the DDLs are flushed at the same time (w/o the composition draws) the allocator
             // feels free to reuse the backing GrSurfaces!
-            tileSurface->flush();
+//            tileSurface->flush();
 
             fTiles.push_back(TileData(std::move(tileSurface), clip));
         }
@@ -127,7 +127,7 @@ void DDLTileHelper::createSKPPerTile(SkData* compressedPictureData,
 }
 
 void DDLTileHelper::createDDLsInParallel() {
-#if 1
+#if 0
     SkTaskGroup().batch(fTiles.count(), [&](int i) { fTiles[i].createDDL(); });
     SkTaskGroup().wait();
 #else
