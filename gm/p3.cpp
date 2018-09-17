@@ -141,7 +141,7 @@ static void compare_pixel(const char* label,
     }
 }
 
-DEF_SIMPLE_GM(p3, canvas, 450, 500) {
+DEF_SIMPLE_GM(p3, canvas, 450, 800) {
     auto p3 = SkColorSpace::MakeRGB(SkColorSpace::kSRGB_RenderTargetGamma,
                                     SkColorSpace::kDCIP3_D65_Gamut);
 
@@ -149,10 +149,59 @@ DEF_SIMPLE_GM(p3, canvas, 450, 500) {
     {
         SkPaint paint;
         paint.setColor4f({1,0,0,1}, p3.get());
-        canvas->drawRect({10,10,70,70}, SkPaint{});
-        canvas->drawRect({10,10,70,70}, paint);
 
+        canvas->drawRect({10,10,70,70}, paint);
         compare_pixel("drawRect P3 red ",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+    }
+
+    canvas->translate(0,80);
+
+    // Draw a P3 red bitmap, using a draw.
+    {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(60,60, kRGBA_F16_SkColorType, kPremul_SkAlphaType, p3));
+
+        SkPaint paint;
+        paint.setColor4f({1,0,0,1}, p3.get());
+        SkCanvas{bm}.drawPaint(paint);
+
+        canvas->drawBitmap(bm, 10,10);
+        compare_pixel("drawBitmap P3 red, from drawPaint",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+    }
+
+    canvas->translate(0,80);
+
+    // Draw a P3 red bitmap, using SkBitmap::eraseColor().
+    {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(60,60, kRGBA_F16_SkColorType, kPremul_SkAlphaType, p3));
+
+        bm.eraseColor(0xffff0000/*in P3*/);
+
+        canvas->drawBitmap(bm, 10,10);
+        compare_pixel("drawBitmap P3 red, from SkBitmap::eraseColor()",
+                      canvas, 10,10,
+                      {1,0,0,1}, p3.get());
+    }
+
+    canvas->translate(0,80);
+
+    // Draw a P3 red bitmap, using SkPixmap::erase().
+    {
+        SkBitmap bm;
+        bm.allocPixels(SkImageInfo::Make(60,60, kRGBA_F16_SkColorType, kPremul_SkAlphaType, p3));
+
+        // At the moment only SkPixmap has an erase() that takes an SkColor4f.
+        SkPixmap pm;
+        SkAssertResult(bm.peekPixels(&pm));
+        SkAssertResult(pm.erase({1,0,0,1} /*in p3*/));
+
+        canvas->drawBitmap(bm, 10,10);
+        compare_pixel("drawBitmap P3 red, from SkPixmap::erase",
                       canvas, 10,10,
                       {1,0,0,1}, p3.get());
     }
@@ -169,9 +218,7 @@ DEF_SIMPLE_GM(p3, canvas, 450, 500) {
         paint.setShader(SkGradientShader::MakeLinear(points, colors, p3,
                                                      nullptr, SK_ARRAY_COUNT(colors),
                                                      SkShader::kClamp_TileMode));
-        canvas->drawRect({10,10,70,70}, SkPaint{});
         canvas->drawRect({10,10,70,70}, paint);
-
         canvas->save();
             compare_pixel("gradient P3 red",
                           canvas, 10,10,
