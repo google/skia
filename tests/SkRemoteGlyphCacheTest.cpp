@@ -789,7 +789,9 @@ DEF_TEST(SkRemoteGlyphCache_ReWriteGlyph, reporter) {
         SkScalerContextEffects effects;
         SkScalerContextFlags flags = SkScalerContextFlags::kFakeGammaAndBoostContrast;
         paint.setTypeface(serverTf);
-        auto* cacheState = server.getOrCreateCache(paint, nullptr, nullptr, flags, &effects);
+        auto* cacheState = server.getOrCreateCache(
+                paint, SkSurfaceProps(SkSurfaceProps::kLegacyFontHost_InitType),
+                SkMatrix::I(), flags, &effects);
         cacheState->addGlyph(lostGlyphID, false);
 
         std::vector<uint8_t> serverStrikeData;
