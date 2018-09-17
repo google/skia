@@ -23,7 +23,15 @@ public:
     constexpr static int kNumPaths = 1500;
     virtual const char* getName() const { return "PathText"; }
 
-    PathText() {
+    PathText() {}
+
+    virtual void reset() {
+        for (Glyph& glyph : fGlyphs) {
+            glyph.reset(fRand, this->width(), this->height());
+        }
+    }
+
+    void onOnceBeforeDraw() final {
         SkPaint defaultPaint;
         auto cache = SkStrikeCache::FindOrCreateStrikeExclusive(defaultPaint);
         SkPath glyphPaths[52];
@@ -38,15 +46,10 @@ public:
             const SkPath& p = glyphPaths[i % 52];
             fGlyphs[i].init(fRand, p);
         }
-    }
 
-    virtual void reset() {
-        for (Glyph& glyph : fGlyphs) {
-            glyph.reset(fRand, this->width(), this->height());
-        }
+        this->INHERITED::onOnceBeforeDraw();
+        this->reset();
     }
-
-    void onOnceBeforeDraw() final { this->INHERITED::onOnceBeforeDraw(); this->reset(); }
     void onSizeChange() final { this->INHERITED::onSizeChange(); this->reset(); }
 
     bool onQuery(Sample::Event* evt) final {
