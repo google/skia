@@ -1,19 +1,6 @@
-SkPoint Reference
-===
 
-# <a name='Point'>Point</a>
 
 # <a name='SkPoint'>Struct SkPoint</a>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkPoint  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
 <a href='#SkPoint'>SkPoint</a> holds two 32-bit floating point coordinates.
 
 ## Overview
@@ -1099,7 +1086,7 @@ pt: nan, -nan  negate: -nan, nan
 ## operator-
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPoint'>SkPoint</a> operator-() _const
+<a href='#SkPoint'>SkPoint</a> operator-() const
 </pre>
 
 Returns <a href='#Point'>Point</a> changing the signs of <a href='#SkPoint_fX'>fX</a> and <a href='#SkPoint_fY'>fY</a>.
@@ -1185,7 +1172,7 @@ Subtracts <a href='#Vector'>Vector</a> <a href='#SkPoint_subtractfrom_operator_v
 ## operator*
 
 <pre style="padding: 1em 1em 1em 1em; width: 62.5em;background-color: #f0f0f0">
-<a href='#SkPoint'>SkPoint</a> operator*(SkScalar scale) _const
+<a href='#SkPoint'>SkPoint</a> operator*(SkScalar scale) const
 </pre>
 
 Returns <a href='#Point'>Point</a> multiplied by scale.

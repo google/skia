@@ -74,6 +74,8 @@ is useful to position one or more Bitmaps within a shared pixel array.
 
 Abstract subclass of HeapAllocator.
 
+#Populate
+
 # ------------------------------------------------------------------------------
 
 #Method virtual bool allocPixelRef(SkBitmap* bitmap) = 0
@@ -111,6 +113,8 @@ or setPixelRef was called.
 Subclass of SkBitmap::Allocator that returns a Pixel_Ref that allocates its pixel
 memory from the heap. This is the default SkBitmap::Allocator invoked by
 allocPixels.
+
+#Populate
 
 # ------------------------------------------------------------------------------
 

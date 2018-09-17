@@ -4,20 +4,6 @@ SkTextBlobBuilder Reference
 # <a name='Text_Blob_Builder'>Text Blob Builder</a>
 
 # <a name='SkTextBlobBuilder'>Class SkTextBlobBuilder</a>
-
-## <a name='Struct'>Struct</a>
-
-
-SkTextBlobBuilder uses C++ structs to declare the public data structures and interfaces.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkTextBlobBuilder_RunBuffer'>RunBuffer</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>storage for <a href='undocumented#Glyph'>Glyphs</a> and <a href='undocumented#Glyph'>Glyph</a> positions</td>
-  </tr>
-</table>
-
 Helper class for constructing <a href='SkTextBlob_Reference#SkTextBlob'>SkTextBlob</a>.
 
 ## Overview
