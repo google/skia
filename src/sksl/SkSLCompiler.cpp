@@ -57,6 +57,7 @@ static const char* SKSL_FP_INCLUDE =
 ;
 
 static const char* SKSL_PIPELINE_STAGE_INCLUDE =
+#include "sksl_enums.inc"
 #include "sksl_pipeline.inc"
 ;
 
@@ -1060,7 +1061,6 @@ void Compiler::simplifyStatement(DefinitionMap& definitions,
                         defaultCase = c.get();
                         continue;
                     }
-                    SkASSERT(c->fValue->fKind == s.fValue->fKind);
                     found = c->fValue->compareConstant(*fContext, *s.fValue);
                     if (found) {
                         std::unique_ptr<Statement> newBlock = block_for_case(&s, c.get());
