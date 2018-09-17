@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1e961b97_79171e72",
+        "filename": "fuzz/Fuzz.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-17T18:48:49Z",
+      "side": 1,
+      "message": "I thought about it, but it made more sense to put it in FuzzCommon because clients want to be able to play with that last parameter.",
+      "parentUuid": "6ee3e0d1_4ed92dc1",
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4443db75_19108a89",
         "filename": "fuzz/Fuzz.h",
         "patchSetId": 7
@@ -30,6 +48,30 @@
       "writtenOn": "2018-09-17T18:23:49Z",
       "side": 1,
       "message": "are Min and Max not T?\n\nWhat\u0027s different between nextEnum() and nextRange()?  Just the name?",
+      "range": {
+        "startLine": 56,
+        "startChar": 18,
+        "endLine": 56,
+        "endChar": 30
+      },
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "fbe02f0e_59dcb300",
+        "filename": "fuzz/Fuzz.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-17T18:48:49Z",
+      "side": 1,
+      "message": "The name and the \"skstd::underlying_type_t\" helper logic.\n\nMin and Max should be T, but they can be something that\u0027s castable to T.  e.g. fuzzNextEnum(foo, 0, Bar::Zoot::k_last)",
+      "parentUuid": "4443db75_19108a89",
       "range": {
         "startLine": 56,
         "startChar": 18,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "e3bf12cc_0fee1712",
+        "filename": "fuzz/FuzzCanvas.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-17T18:48:49Z",
+      "side": 1,
+      "message": "Sometimes we want a \"well-behaved version\" (fuzz_matrix, fuzz_rrect) and othertimes, we want the completely random type (fuzz-\u003enext).\n\nI renamed them FuzzNice* to make that a little more clear.",
+      "parentUuid": "2ac91a68_bfda0f41",
+      "range": {
+        "startLine": 218,
+        "startChar": 15,
+        "endLine": 218,
+        "endChar": 43
+      },
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "5359e5af_1125c177",
         "filename": "fuzz/FuzzCommon.h",
         "patchSetId": 7
@@ -79,6 +145,24 @@
       "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3c20abf0_0f08e1fd",
+        "filename": "fuzz/FuzzCommon.h",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5395
+      },
+      "writtenOn": "2018-09-17T18:48:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5359e5af_1125c177",
+      "revId": "31cc6a8effb69426e1bceee73503cf66e4ec3fcb",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": false
     }
   ]
 }
