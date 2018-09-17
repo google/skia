@@ -71,17 +71,17 @@ private:
 
         ~PromiseImageCallbackContext();
 
-        void setBackendTexture(const GrBackendTexture& backendTexture) {
-            fBackendTexture = backendTexture;
+        void setBackendTexture1(const GrBackendTexture& backendTexture) {
+            fBackendTexture1 = backendTexture;
         }
 
-        const GrBackendTexture& backendTexture() const { return fBackendTexture; }
+        const GrBackendTexture& backendTexture() const { return fBackendTexture1; }
 
         const GrCaps* caps() const;
 
     private:
         GrContext*       fContext;
-        GrBackendTexture fBackendTexture;
+        GrBackendTexture fBackendTexture1;
 
         typedef SkRefCnt INHERITED;
     };
