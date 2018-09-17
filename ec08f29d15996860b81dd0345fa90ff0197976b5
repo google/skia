@@ -16,6 +16,24 @@
       "revId": "ec08f29d15996860b81dd0345fa90ff0197976b5",
       "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d84882ed_16b7432d",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 7
+      },
+      "lineNbr": 657,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-17T13:12:48Z",
+      "side": 1,
+      "message": "I think we could remove it. I think it was supposed to handle the case where one calls addRRect or addOval and then calls close(). However, the close() entry point should just pitch the extra close so we should never get here.",
+      "parentUuid": "57d80771_a3bb87b0",
+      "revId": "ec08f29d15996860b81dd0345fa90ff0197976b5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
     }
   ]
 }
