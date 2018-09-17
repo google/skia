@@ -576,6 +576,16 @@ void GrGLCaps::init(const GrContextOptions& contextOptions,
     // Safely moving textures between contexts requires fences.
     fCrossContextTextureSupport = fFenceSyncSupport;
 
+    // Half float vertex attributes requires GL3 or ES3
+    // It can also work with OES_VERTEX_HALF_FLOAT, but that requires a different enum.
+    if (kGL_GrGLStandard == standard) {
+        if (version >= GR_GL_VER(3, 0)) {
+            fHalfFloatVertexAttributeSupport = true;
+        }
+    } else if (version >= GR_GL_VER(3, 0)) {
+        fHalfFloatVertexAttributeSupport = true;
+    }
+
     if (kGL_GrGLStandard == standard) {
         if (version >= GR_GL_VER(4, 1)) {
             fProgramBinarySupport = true;

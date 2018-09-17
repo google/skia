@@ -58,6 +58,7 @@ public:
     bool multisampleDisableSupport() const { return fMultisampleDisableSupport; }
     bool instanceAttribSupport() const { return fInstanceAttribSupport; }
     bool usesMixedSamples() const { return fUsesMixedSamples; }
+    bool halfFloatVertexAttributeSupport() const { return fHalfFloatVertexAttributeSupport; }
 
     // Primitive restart functionality is core in ES 3.0, but using it will cause slowdowns on some
     // systems. This cap is only set if primitive restart will improve performance.
@@ -322,6 +323,7 @@ protected:
     bool fPreferFullscreenClears                     : 1;
     bool fMustClearUploadedBufferData                : 1;
     bool fSupportsAHardwareBufferImages              : 1;
+    bool fHalfFloatVertexAttributeSupport            : 1;
 
     // Driver workaround
     bool fBlacklistCoverageCounting                  : 1;
