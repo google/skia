@@ -247,7 +247,7 @@ sk_sp<Animation> Animation::Builder::make(const char* data, size_t data_len) {
     }
 
     return sk_sp<Animation>(
-        new Animation(std::move(scene), std::move(version), size, inPoint, outPoint, duration));
+        new Animation(std::move(scene), std::move(version), size, inPoint, outPoint, duration, fps));
 }
 
 sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
@@ -284,13 +284,14 @@ sk_sp<Animation> Animation::Builder::makeFromFile(const char path[]) {
 }
 
 Animation::Animation(std::unique_ptr<sksg::Scene> scene, SkString version, const SkSize& size,
-                     SkScalar inPoint, SkScalar outPoint, SkScalar duration)
+                     SkScalar inPoint, SkScalar outPoint, SkScalar duration, SkScalar fps)
     : fScene(std::move(scene))
     , fVersion(std::move(version))
     , fSize(size)
     , fInPoint(inPoint)
     , fOutPoint(outPoint)
-    , fDuration(duration) {
+    , fDuration(duration)
+    , fFrameRate(fps) {
 
     // In case the client calls render before the first tick.
     this->seek(0);

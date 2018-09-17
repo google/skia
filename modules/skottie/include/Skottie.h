@@ -111,6 +111,11 @@ public:
      */
     SkScalar duration() const { return fDuration; }
 
+    /**
+     * Returns the animation framerate in fps.
+     */
+    SkScalar framerate() const { return fFrameRate; }
+
     const SkString& version() const { return fVersion;   }
     const SkSize&      size() const { return fSize;      }
 
@@ -118,14 +123,15 @@ public:
 
 private:
     Animation(std::unique_ptr<sksg::Scene>, SkString ver, const SkSize& size,
-              SkScalar inPoint, SkScalar outPoint, SkScalar duration);
+              SkScalar inPoint, SkScalar outPoint, SkScalar duration, SkScalar fps);
 
     std::unique_ptr<sksg::Scene> fScene;
     const SkString               fVersion;
     const SkSize                 fSize;
     const SkScalar               fInPoint,
                                  fOutPoint,
-                                 fDuration;
+                                 fDuration,
+                                 fFrameRate;
 
     typedef SkRefCnt INHERITED;
 };
