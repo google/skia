@@ -293,8 +293,6 @@ static constexpr inline size_t GrVertexAttribTypeSize(GrVertexAttribType type) {
             return 4 * sizeof(char);
         case kShort2_GrVertexAttribType:
             return 2 * sizeof(int16_t);
-        case kShort4_GrVertexAttribType:
-            return 4 * sizeof(int16_t);
         case kUShort2_GrVertexAttribType: // fall through
         case kUShort2_norm_GrVertexAttribType:
             return 2 * sizeof(uint16_t);
