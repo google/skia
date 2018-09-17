@@ -9,6 +9,7 @@
 
 #include <limits>
 
+#include "SkNx.h"
 #include "SkPointPriv.h"
 #include "SkTArray.h"
 #include "SkTemplates.h"
@@ -47,9 +48,8 @@ int SkGetPolygonWinding(const SkPoint* polygonVerts, int polygonSize) {
     // compute area and use sign to determine winding
     SkScalar quadArea = 0;
     SkVector v0 = polygonVerts[1] - polygonVerts[0];
-    for (int curr = 1; curr < polygonSize - 1; ++curr) {
-        int next = (curr + 1) % polygonSize;
-        SkVector v1 = polygonVerts[next] - polygonVerts[0];
+    for (int curr = 2; curr < polygonSize; ++curr) {
+        SkVector v1 = polygonVerts[curr] - polygonVerts[0];
         quadArea += v0.cross(v1);
         v0 = v1;
     }
@@ -1425,22 +1425,51 @@ static bool point_in_triangle(const SkPoint& p0, const SkPoint& p1, const SkPoin
 // Data structure to track reflex vertices and check whether any are inside a given triangle
 class ReflexHash {
 public:
+    ReflexHash(const SkRect& bounds, const SkVector& gridSize)
+        : fBounds(bounds)
+        , fHCount(bounds.width() / gridSize.fX )
+        , fVCount(bounds.height() / gridSize.fY) {
+        // set final grid size
+        fGridSize.set(bounds.width() / fHCount, bounds.height() / fVCount);
+        fGrid.setCount(fHCount*fVCount + fHCount + fVCount + 1);
+        for (int i = 0; i < fGrid.count(); ++i) {
+            fGrid[i].reset();
+        }
+    }
+
     void add(TriangulationVertex* v) {
-        fReflexList.addToTail(v);
+        int index = hash(v);
+        fGrid[index].addToTail(v);
     }
 
     void remove(TriangulationVertex* v) {
-        fReflexList.remove(v);
+        int index = hash(v);
+        fGrid[index].remove(v);
     }
 
     bool checkTriangle(const SkPoint& p0, const SkPoint& p1, const SkPoint& p2,
                        uint16_t ignoreIndex0, uint16_t ignoreIndex1) {
-        for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fReflexList.begin();
-             reflexIter != fReflexList.end(); ++reflexIter) {
-            TriangulationVertex* reflexVertex = *reflexIter;
-            if (reflexVertex->fIndex != ignoreIndex0 && reflexVertex->fIndex != ignoreIndex1 &&
-                point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
-                return true;
+        SkPoint pts[3] = { p0, p1, p2 };
+        SkRect triBounds;
+        triBounds.setBounds(pts, 3);
+        int h0 = (triBounds.fLeft - fBounds.fLeft) / fGridSize.fX;
+        int h1 = (triBounds.fRight - fBounds.fLeft) / fGridSize.fX;
+        int v0 = (triBounds.fTop - fBounds.fTop) / fGridSize.fY;
+        int v1 = (triBounds.fBottom - fBounds.fTop) / fGridSize.fY;
+
+        for (int v = v0; v <= v1; ++v) {
+            for (int h = h0; h <= h1; ++h) {
+                int i = v * fHCount + h;
+                for (SkTInternalLList<TriangulationVertex>::Iter reflexIter = fGrid[i].begin();
+                     reflexIter != fGrid[i].end(); ++reflexIter) {
+                    TriangulationVertex* reflexVertex = *reflexIter;
+                    if (reflexVertex->fIndex != ignoreIndex0 &&
+                        reflexVertex->fIndex != ignoreIndex1 &&
+                        point_in_triangle(p0, p1, p2, reflexVertex->fPosition)) {
+                        return true;
+                    }
+                }
+
             }
         }
 
@@ -1448,8 +1477,18 @@ public:
     }
 
 private:
-    // TODO: switch to an actual spatial hash
-    SkTInternalLList<TriangulationVertex> fReflexList;
+    int hash(TriangulationVertex* vert) {
+        // this isn't quite right, but will get us going
+        int h = (vert->fPosition.fX - fBounds.fLeft)/fGridSize.fX;
+        int v = (vert->fPosition.fY - fBounds.fTop)/fGridSize.fY;
+        return v * fHCount + h;
+    }
+
+    SkRect fBounds;
+    int fHCount;
+    int fVCount;
+    SkVector fGridSize;
+    SkTDArray<SkTInternalLList<TriangulationVertex>> fGrid;
 };
 
 // Check to see if a reflex vertex has become a convex vertex after clipping an ear
@@ -1478,23 +1517,40 @@ bool SkTriangulateSimplePolygon(const SkPoint* polygonVerts, uint16_t* indexMap,
         return false;
     }
 
-    // get winding direction
-    // TODO: we do this for all the polygon routines -- might be better to have the client
-    // compute it and pass it in
-    int winding = SkGetPolygonWinding(polygonVerts, polygonSize);
-    if (0 == winding) {
+    // get bounds, winding direction, and grid size (average horiz. and vert. segment distances)
+    SkRect bounds = SkRect::MakeEmpty();
+    bounds.setBounds(polygonVerts, polygonSize);
+    SkScalar quadArea = 0;
+    SkVector v0 = polygonVerts[1] - polygonVerts[0];
+    SkVector gridSize = SkVector::Make(SkTAbs(v0.fX), SkTAbs(v0.fY));
+    int prev = 1;
+    for (int curr = 2; curr < polygonSize; ++curr) {
+        SkVector v1 = polygonVerts[curr] - polygonVerts[0];
+        quadArea += v0.cross(v1);
+        v0 = v1;
+        SkVector diff = polygonVerts[curr] - polygonVerts[prev];
+        gridSize.fX += SkTAbs(diff.fX);
+        gridSize.fY += SkTAbs(diff.fY);
+        prev = curr;
+    }
+    if (SkScalarNearlyZero(quadArea, kCrossTolerance)) {
         return false;
     }
+    int winding = (quadArea > 0) ? 1 : -1;
+    SkVector diff = polygonVerts[0] - polygonVerts[polygonSize - 1];
+    gridSize.fX += SkTAbs(diff.fX);
+    gridSize.fY += SkTAbs(diff.fY);
+    gridSize *= SK_Scalar1 / polygonSize;
 
     // Classify initial vertices into a list of convex vertices and a hash of reflex vertices
     // TODO: possibly sort the convexList in some way to get better triangles
     SkTInternalLList<TriangulationVertex> convexList;
-    ReflexHash reflexHash;
+    ReflexHash reflexHash(bounds, gridSize);
     SkAutoSTMalloc<64, TriangulationVertex> triangulationVertices(polygonSize);
     int prevIndex = polygonSize - 1;
     int currIndex = 0;
     int nextIndex = 1;
-    SkVector v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
+    v0 = polygonVerts[currIndex] - polygonVerts[prevIndex];
     SkVector v1 = polygonVerts[nextIndex] - polygonVerts[currIndex];
     for (int i = 0; i < polygonSize; ++i) {
         SkDEBUGCODE(memset(&triangulationVertices[currIndex], 0, sizeof(TriangulationVertex)));
