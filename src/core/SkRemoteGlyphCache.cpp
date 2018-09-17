@@ -207,7 +207,7 @@ void add_fallback_text_to_cache(const GrTextContext::FallbackGlyphRunHelper& hel
 
     SkScalerContextEffects effects;
     auto* glyphCacheState =
-            server->getOrCreateCache(fallbackPaint, &props, &fallbackMatrix,
+            server->getOrCreateCache(fallbackPaint, props, fallbackMatrix,
                                      SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
     for (auto glyphID : helper.fallbackText()) {
@@ -285,7 +285,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForMask(
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            runPaint, &this->surfaceProps(), &runMatrix,
+            runPaint, this->surfaceProps(), runMatrix,
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
     SkASSERT(glyphCacheState);
 
@@ -321,7 +321,7 @@ void SkTextBlobCacheDiffCanvas::TrackLayerDevice::processGlyphRunForPaths(
 
     SkScalerContextEffects effects;
     auto* glyphCacheState = fStrikeServer->getOrCreateCache(
-            pathPaint, &this->surfaceProps(), &SkMatrix::I(),
+            pathPaint, this->surfaceProps(), SkMatrix::I(),
             SkScalerContextFlags::kFakeGammaAndBoostContrast, &effects);
 
     const bool asPath = true;
@@ -369,8 +369,8 @@ bool SkTextBlobCacheDiffCanvas::TrackLayerDevice::maybeProcessGlyphRunForDFT(
     GrTextContext::InitDistanceFieldPaint(nullptr, &dfPaint, runMatrix, options, &textRatio,
                                           &flags);
     SkScalerContextEffects effects;
-    auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, &this->surfaceProps(),
-                                                            &SkMatrix::I(), flags, &effects);
+    auto* glyphCacheState = fStrikeServer->getOrCreateCache(dfPaint, this->surfaceProps(),
+                                                            SkMatrix::I(), flags, &effects);
 
     GrTextContext::FallbackGlyphRunHelper fallbackTextHelper(runMatrix, runPaint, textRatio);
     const bool asPath = false;
@@ -473,12 +473,12 @@ void SkStrikeServer::writeStrikeData(std::vector<uint8_t>* memory) {
 
 SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         const SkPaint& paint,
-        const SkSurfaceProps* props,
-        const SkMatrix* matrix,
+        const SkSurfaceProps& props,
+        const SkMatrix& matrix,
         SkScalerContextFlags flags,
         SkScalerContextEffects* effects) {
     SkAutoDescriptor keyAutoDesc;
-    auto keyDesc = create_descriptor(kKey, paint, *matrix, *props, flags, &keyAutoDesc, effects);
+    auto keyDesc = create_descriptor(kKey, paint, matrix, props, flags, &keyAutoDesc, effects);
 
     // In cases where tracing is turned off, make sure not to get an unused function warning.
     // Lambdaize the function.
@@ -510,7 +510,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
         SkScalerContextEffects deviceEffects;
         SkAutoDescriptor deviceAutoDesc;
         auto deviceDesc = create_descriptor(
-                kDevice, paint, *matrix, *props, flags, &deviceAutoDesc, &deviceEffects);
+                kDevice, paint, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
         SkASSERT(cache->getDeviceDescriptor() == *deviceDesc);
 #endif
         bool locked = fDiscardableHandleManager->lockHandle(it->second->discardableHandleId());
@@ -536,7 +536,7 @@ SkStrikeServer::SkGlyphCacheState* SkStrikeServer::getOrCreateCache(
     SkScalerContextEffects deviceEffects;
     SkAutoDescriptor deviceAutoDesc;
     auto deviceDesc = create_descriptor(
-            kDevice, paint, *matrix, *props, flags, &deviceAutoDesc, &deviceEffects);
+            kDevice, paint, matrix, props, flags, &deviceAutoDesc, &deviceEffects);
 
     auto context = tf->createScalerContext(deviceEffects, deviceDesc);
 

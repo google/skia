@@ -124,7 +124,7 @@ public:
     // Methods used internally in skia ------------------------------------------
     class SkGlyphCacheState;
 
-    SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps*, const SkMatrix*,
+    SkGlyphCacheState* getOrCreateCache(const SkPaint&, const SkSurfaceProps&, const SkMatrix&,
                                         SkScalerContextFlags flags,
                                         SkScalerContextEffects* effects);
 
