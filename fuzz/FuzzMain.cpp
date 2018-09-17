@@ -6,6 +6,7 @@
  */
 
 #include "Fuzz.h"
+#include "FuzzCommon.h"
 #include "SkCanvas.h"
 #include "SkCodec.h"
 #include "SkCommandLineFlags.h"
@@ -690,3 +691,4 @@ static void fuzz_sksl2glsl(sk_sp<SkData> bytes) {
     SkDebugf("[terminated] Success! Compiled input.\n");
 }
 #endif
+

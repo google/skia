@@ -239,3 +239,72 @@ void BuildPath(Fuzz* fuzz, SkPath* path, int last_verb) {
     }
   }
 }
+
+void fuzz_rrect(Fuzz* fuzz, SkRRect* rr) {
+    SkRect r;
+    SkVector radii[4];
+    fuzz->next(&r);
+    r.sort();
+    for (SkVector& vec : radii) {
+        fuzz->nextRange(&vec.fX, 0.0f, 1.0f);
+        vec.fX *= 0.5f * r.width();
+        fuzz->nextRange(&vec.fY, 0.0f, 1.0f);
+        vec.fY *= 0.5f * r.height();
+    }
+    rr->setRectRadii(r, radii);
+}
+
+void fuzz_matrix(Fuzz* fuzz, SkMatrix* m) {
+    constexpr int kArrayLength = 9;
+    SkScalar buffer[kArrayLength];
+    int matrixType;
+    fuzz->nextRange(&matrixType, 0, 4);
+    switch (matrixType) {
+        case 0:  // identity
+            *m = SkMatrix::I();
+            return;
+        case 1:  // translate
+            fuzz->nextRange(&buffer[0], -4000.0f, 4000.0f);
+            fuzz->nextRange(&buffer[1], -4000.0f, 4000.0f);
+            *m = SkMatrix::MakeTrans(buffer[0], buffer[1]);
+            return;
+        case 2:  // translate + scale
+            fuzz->nextRange(&buffer[0], -400.0f, 400.0f);
+            fuzz->nextRange(&buffer[1], -400.0f, 400.0f);
+            fuzz->nextRange(&buffer[2], -4000.0f, 4000.0f);
+            fuzz->nextRange(&buffer[3], -4000.0f, 4000.0f);
+            *m = SkMatrix::MakeScale(buffer[0], buffer[1]);
+            m->postTranslate(buffer[2], buffer[3]);
+            return;
+        case 3:  // affine
+            fuzz->nextN(buffer, 6);
+            m->setAffine(buffer);
+            return;
+        case 4:  // perspective
+            fuzz->nextN(buffer, kArrayLength);
+            m->set9(buffer);
+            return;
+        default:
+            SkASSERT(false);
+            return;
+    }
+}
+
+void fuzz_region(Fuzz* fuzz, SkRegion* region, int maxN) {
+    uint8_t N;
+    fuzz->nextRange(&N, 0, maxN);
+    for (uint8_t i = 0; i < N; ++i) {
+        SkIRect r;
+        SkRegion::Op op;
+        // Avoid the sentinal value used by Region.
+        fuzz->nextRange(&r.fLeft,   -2147483646, 2147483646);
+        fuzz->nextRange(&r.fTop,    -2147483646, 2147483646);
+        fuzz->nextRange(&r.fRight,  -2147483646, 2147483646);
+        fuzz->nextRange(&r.fBottom, -2147483646, 2147483646);
+        r.sort();
+        fuzz->nextEnum(&op, 0, SkRegion::kLastOp);
+        if (!region->op(r, op)) {
+            return;
+        }
+    }
+}
