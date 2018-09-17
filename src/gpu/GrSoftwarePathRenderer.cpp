@@ -370,13 +370,8 @@ bool GrSoftwarePathRenderer::onDrawPath(const DrawPathArgs& args) {
         if (useCache) {
             SkASSERT(proxy->origin() == kTopLeft_GrSurfaceOrigin);
             fProxyProvider->assignUniqueKeyToProxy(maskKey, proxy.get());
-
-            if (!fProxyProvider->recordingDDL()) {
-                // If we're recording a DDL we cannot add genID change listeners because
-                // that process isn't thread safe
-                args.fShape->addGenIDChangeListener(
-                        sk_make_sp<PathInvalidator>(maskKey, args.fContext->uniqueID()));
-            }
+            args.fShape->addGenIDChangeListener(
+                    sk_make_sp<PathInvalidator>(maskKey, args.fContext->uniqueID()));
         }
     }
     if (inverseFilled) {
