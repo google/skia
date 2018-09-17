@@ -193,3 +193,78 @@ void SkRasterPipeline::append_matrix(SkArenaAlloc* alloc, const SkMatrix& matrix
         }
     }
 }
+
+void SkRasterPipeline::append_load(SkColorType ct, const SkJumper_MemoryCtx* ctx) {
+    switch (ct) {
+        case kUnknown_SkColorType: SkASSERT(false); break;
+
+        case kGray_8_SkColorType:       this->append(load_g8,      ctx); break;
+        case kAlpha_8_SkColorType:      this->append(load_a8,      ctx); break;
+        case kRGB_565_SkColorType:      this->append(load_565,     ctx); break;
+        case kARGB_4444_SkColorType:    this->append(load_4444,    ctx); break;
+        case kBGRA_8888_SkColorType:    this->append(load_bgra,    ctx); break;
+        case kRGBA_8888_SkColorType:    this->append(load_8888,    ctx); break;
+        case kRGBA_1010102_SkColorType: this->append(load_1010102, ctx); break;
+        case kRGBA_F16_SkColorType:     this->append(load_f16,     ctx); break;
+        case kRGBA_F32_SkColorType:     this->append(load_f32,     ctx); break;
+
+        case kRGB_888x_SkColorType:    this->append(load_8888, ctx);
+                                       this->append(force_opaque);
+                                       break;
+
+        case kRGB_101010x_SkColorType: this->append(load_1010102, ctx);
+                                       this->append(force_opaque);
+                                       break;
+    }
+}
+
+void SkRasterPipeline::append_load_dst(SkColorType ct, const SkJumper_MemoryCtx* ctx) {
+    switch (ct) {
+        case kUnknown_SkColorType: SkASSERT(false); break;
+
+        case kGray_8_SkColorType:       this->append(load_g8_dst,      ctx); break;
+        case kAlpha_8_SkColorType:      this->append(load_a8_dst,      ctx); break;
+        case kRGB_565_SkColorType:      this->append(load_565_dst,     ctx); break;
+        case kARGB_4444_SkColorType:    this->append(load_4444_dst,    ctx); break;
+        case kBGRA_8888_SkColorType:    this->append(load_bgra_dst,    ctx); break;
+        case kRGBA_8888_SkColorType:    this->append(load_8888_dst,    ctx); break;
+        case kRGBA_1010102_SkColorType: this->append(load_1010102_dst, ctx); break;
+        case kRGBA_F16_SkColorType:     this->append(load_f16_dst,     ctx); break;
+        case kRGBA_F32_SkColorType:     this->append(load_f32_dst,     ctx); break;
+
+        case kRGB_888x_SkColorType:     this->append(load_8888_dst, ctx);
+                                        this->append(force_opaque_dst);
+                                        break;
+
+        case kRGB_101010x_SkColorType:  this->append(load_1010102_dst, ctx);
+                                        this->append(force_opaque_dst);
+                                        break;
+    }
+}
+
+void SkRasterPipeline::append_store(SkColorType ct, const SkJumper_MemoryCtx* ctx) {
+    switch (ct) {
+        case kUnknown_SkColorType: SkASSERT(false); break;
+
+        case kAlpha_8_SkColorType:      this->append(store_a8,      ctx); break;
+        case kRGB_565_SkColorType:      this->append(store_565,     ctx); break;
+        case kARGB_4444_SkColorType:    this->append(store_4444,    ctx); break;
+        case kBGRA_8888_SkColorType:    this->append(store_bgra,    ctx); break;
+        case kRGBA_8888_SkColorType:    this->append(store_8888,    ctx); break;
+        case kRGBA_1010102_SkColorType: this->append(store_1010102, ctx); break;
+        case kRGBA_F16_SkColorType:     this->append(store_f16,     ctx); break;
+        case kRGBA_F32_SkColorType:     this->append(store_f32,     ctx); break;
+
+        case kRGB_888x_SkColorType:    this->append(force_opaque);
+                                       this->append(store_8888, ctx);
+                                       break;
+
+        case kRGB_101010x_SkColorType: this->append(force_opaque);
+                                       this->append(store_1010102, ctx);
+                                       break;
+
+        case kGray_8_SkColorType:      this->append(luminance_to_alpha);
+                                       this->append(store_a8, ctx);
+                                       break;
+    }
+}

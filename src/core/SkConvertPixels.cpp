@@ -179,46 +179,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
                        dst = { (void*)dstRow, (int)(dstRB / dstInfo.bytesPerPixel()) };
 
     SkRasterPipeline_<256> pipeline;
-    switch (srcInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_8888, &src);
-            break;
-        case kRGB_888x_SkColorType:
-            pipeline.append(SkRasterPipeline::load_8888, &src);
-            pipeline.append(SkRasterPipeline::force_opaque);
-            break;
-        case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::load_bgra, &src);
-            break;
-        case kRGBA_1010102_SkColorType:
-            pipeline.append(SkRasterPipeline::load_1010102, &src);
-            break;
-        case kRGB_101010x_SkColorType:
-            pipeline.append(SkRasterPipeline::load_1010102, &src);
-            pipeline.append(SkRasterPipeline::force_opaque);
-            break;
-        case kRGB_565_SkColorType:
-            pipeline.append(SkRasterPipeline::load_565, &src);
-            break;
-        case kRGBA_F16_SkColorType:
-            pipeline.append(SkRasterPipeline::load_f16, &src);
-            break;
-        case kRGBA_F32_SkColorType:
-            pipeline.append(SkRasterPipeline::load_f32, &src);
-            break;
-        case kGray_8_SkColorType:
-            pipeline.append(SkRasterPipeline::load_g8, &src);
-            break;
-        case kAlpha_8_SkColorType:
-            pipeline.append(SkRasterPipeline::load_a8, &src);
-            break;
-        case kARGB_4444_SkColorType:
-            pipeline.append(SkRasterPipeline::load_4444, &src);
-            break;
-        case kUnknown_SkColorType:
-            SkASSERT(false);
-            break;
-    }
+    pipeline.append_load(srcInfo.colorType(), &src);
 
     SkColorSpaceXformSteps steps{srcInfo.colorSpace(), srcInfo.alphaType(),
                                  dstInfo.colorSpace(), dstInfo.alphaType()};
@@ -237,48 +198,7 @@ static void convert_with_pipeline(const SkImageInfo& dstInfo, void* dstRow, size
         pipeline.append(SkRasterPipeline::dither, &dither_rate);
     }
 
-    switch (dstInfo.colorType()) {
-        case kRGBA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::store_8888, &dst);
-            break;
-        case kRGB_888x_SkColorType:
-            pipeline.append(SkRasterPipeline::force_opaque);
-            pipeline.append(SkRasterPipeline::store_8888, &dst);
-            break;
-        case kBGRA_8888_SkColorType:
-            pipeline.append(SkRasterPipeline::store_bgra, &dst);
-            break;
-        case kRGBA_1010102_SkColorType:
-            pipeline.append(SkRasterPipeline::store_1010102, &dst);
-            break;
-        case kRGB_101010x_SkColorType:
-            pipeline.append(SkRasterPipeline::force_opaque);
-            pipeline.append(SkRasterPipeline::store_1010102, &dst);
-            break;
-        case kRGB_565_SkColorType:
-            pipeline.append(SkRasterPipeline::store_565, &dst);
-            break;
-        case kRGBA_F16_SkColorType:
-            pipeline.append(SkRasterPipeline::store_f16, &dst);
-            break;
-        case kRGBA_F32_SkColorType:
-            pipeline.append(SkRasterPipeline::store_f32, &dst);
-            break;
-        case kARGB_4444_SkColorType:
-            pipeline.append(SkRasterPipeline::store_4444, &dst);
-            break;
-        case kAlpha_8_SkColorType:
-            pipeline.append(SkRasterPipeline::store_a8, &dst);
-            break;
-        case kGray_8_SkColorType:
-            pipeline.append(SkRasterPipeline::luminance_to_alpha);
-            pipeline.append(SkRasterPipeline::store_a8, &dst);
-            break;
-        case kUnknown_SkColorType:
-            SkASSERT(false);
-            break;
-    }
-
+    pipeline.append_store(dstInfo.colorType(), &dst);
     pipeline.run(0,0, srcInfo.width(), srcInfo.height());
 }
 

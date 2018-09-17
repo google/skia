@@ -41,13 +41,8 @@ public:
                            src_ctx = { (void*)src, 0 },
                             aa_ctx = { (void*)aa,  0 };
 
-        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::load_bgra_dst, &dst_ctx);
-            p.append(SkRasterPipeline::load_bgra    , &src_ctx);
-        } else {
-            p.append(SkRasterPipeline::load_8888_dst, &dst_ctx);
-            p.append(SkRasterPipeline::load_8888,     &src_ctx);
-        }
+        p.append_load    (kN32_SkColorType, &src_ctx);
+        p.append_load_dst(kN32_SkColorType, &dst_ctx);
 
         if (SkBlendMode_ShouldPreScaleCoverage(fMode, /*rgb_coverage=*/false)) {
             if (aa) {
@@ -61,11 +56,7 @@ public:
             }
         }
 
-        if (kN32_SkColorType == kBGRA_8888_SkColorType) {
-            p.append(SkRasterPipeline::store_bgra, &dst_ctx);
-        } else {
-            p.append(SkRasterPipeline::store_8888, &dst_ctx);
-        }
+        p.append_store(kN32_SkColorType, &dst_ctx);
         p.run(0, 0, count,1);
     }
 

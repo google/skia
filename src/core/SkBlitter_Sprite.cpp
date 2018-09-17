@@ -114,24 +114,7 @@ public:
         fPaintColor = paint.getColor4f();
 
         SkRasterPipeline p(fAlloc);
-        void* ctx = &fSrcPtr;
-        switch (fSource.colorType()) {
-            case kAlpha_8_SkColorType:      p.append(SkRasterPipeline::load_a8,      ctx); break;
-            case kGray_8_SkColorType:       p.append(SkRasterPipeline::load_g8,      ctx); break;
-            case kRGB_565_SkColorType:      p.append(SkRasterPipeline::load_565,     ctx); break;
-            case kARGB_4444_SkColorType:    p.append(SkRasterPipeline::load_4444,    ctx); break;
-            case kBGRA_8888_SkColorType:    p.append(SkRasterPipeline::load_bgra,    ctx); break;
-            case kRGBA_8888_SkColorType:    p.append(SkRasterPipeline::load_8888,    ctx); break;
-            case kRGBA_1010102_SkColorType: p.append(SkRasterPipeline::load_1010102, ctx); break;
-            case kRGBA_F16_SkColorType:     p.append(SkRasterPipeline::load_f16,     ctx); break;
-            case kRGBA_F32_SkColorType:     p.append(SkRasterPipeline::load_f32,     ctx); break;
-
-            case kRGB_888x_SkColorType:     p.append(SkRasterPipeline::load_8888,    ctx);
-                                            p.append(SkRasterPipeline::force_opaque     ); break;
-            case kRGB_101010x_SkColorType:  p.append(SkRasterPipeline::load_1010102, ctx);
-                                            p.append(SkRasterPipeline::force_opaque     ); break;
-            default: SkASSERT(false);
-        }
+        p.append_load(fSource.colorType(), &fSrcPtr);
 
         if (fSource.colorType() == kAlpha_8_SkColorType) {
             // The color for A8 images comes from the (sRGB) paint color.
