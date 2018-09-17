@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "53d55a25_37134b3d",
+        "filename": "bench/VertexColorSpaceBench.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-17T19:42:03Z",
+      "side": 1,
+      "message": "^ Unrelated bugfix.",
+      "revId": "9112e2804e91291e91c20708ccff357aac36e185",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
