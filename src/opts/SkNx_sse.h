@@ -717,6 +717,10 @@ template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, int32_t>(const Sk4i& src) {
 #endif
 }
 
+template<> AI /*static*/ SkNx<4,int16_t> SkNx_cast<int16_t, int32_t>(const Sk4i& src) {
+    return _mm_packs_epi32(src.fVec, src.fVec/*or whatever*/);
+}
+
 template<> AI /*static*/ Sk4h SkNx_cast<uint16_t, float>(const Sk4f& src) {
     return SkNx_cast<uint16_t>(SkNx_cast<int32_t>(src));
 }
