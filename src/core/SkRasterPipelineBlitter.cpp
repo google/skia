@@ -255,25 +255,7 @@ SkBlitter* SkRasterPipelineBlitter::Create(const SkPixmap& dst,
 }
 
 void SkRasterPipelineBlitter::append_load_dst(SkRasterPipeline* p) const {
-    const void* ctx = &fDstPtr;
-    switch (fDst.info().colorType()) {
-        default: break;
-
-        case kGray_8_SkColorType:       p->append(SkRasterPipeline::load_g8_dst,      ctx); break;
-        case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::load_a8_dst,      ctx); break;
-        case kRGB_565_SkColorType:      p->append(SkRasterPipeline::load_565_dst,     ctx); break;
-        case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::load_4444_dst,    ctx); break;
-        case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::load_bgra_dst,    ctx); break;
-        case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::load_8888_dst,    ctx); break;
-        case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::load_1010102_dst, ctx); break;
-        case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::load_f16_dst,     ctx); break;
-        case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::load_f32_dst,     ctx); break;
-
-        case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::load_8888_dst,    ctx);
-                                        p->append(SkRasterPipeline::force_opaque_dst     ); break;
-        case kRGB_101010x_SkColorType:  p->append(SkRasterPipeline::load_1010102_dst, ctx);
-                                        p->append(SkRasterPipeline::force_opaque_dst     ); break;
-    }
+    p->append_load_dst(fDst.info().colorType(), &fDstPtr);
     if (fDst.info().alphaType() == kUnpremul_SkAlphaType) {
         p->append(SkRasterPipeline::premul_dst);
     }
@@ -287,26 +269,7 @@ void SkRasterPipelineBlitter::append_store(SkRasterPipeline* p) const {
         p->append(SkRasterPipeline::dither, &fDitherRate);
     }
 
-    const void* ctx = &fDstPtr;
-    switch (fDst.info().colorType()) {
-        default: break;
-
-        case kGray_8_SkColorType:       p->append(SkRasterPipeline::luminance_to_alpha);
-                                        p->append(SkRasterPipeline::store_a8,      ctx); break;
-        case kAlpha_8_SkColorType:      p->append(SkRasterPipeline::store_a8,      ctx); break;
-        case kRGB_565_SkColorType:      p->append(SkRasterPipeline::store_565,     ctx); break;
-        case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::store_4444,    ctx); break;
-        case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::store_bgra,    ctx); break;
-        case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::store_8888,    ctx); break;
-        case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::store_1010102, ctx); break;
-        case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::store_f16,     ctx); break;
-        case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::store_f32,     ctx); break;
-
-        case kRGB_888x_SkColorType:     p->append(SkRasterPipeline::force_opaque         );
-                                        p->append(SkRasterPipeline::store_8888,       ctx); break;
-        case kRGB_101010x_SkColorType:  p->append(SkRasterPipeline::force_opaque         );
-                                        p->append(SkRasterPipeline::store_1010102,    ctx); break;
-    }
+    p->append_store(fDst.info().colorType(), &fDstPtr);
 }
 
 void SkRasterPipelineBlitter::burst_shade(int x, int y, int w) {

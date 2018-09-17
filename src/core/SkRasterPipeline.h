@@ -16,6 +16,7 @@
 #include "SkTypes.h"
 #include <functional>
 #include <vector>
+#include "../jumper/SkJumper.h"
 
 /**
  * SkRasterPipeline provides a cheap way to chain together a pixel processing pipeline.
@@ -154,7 +155,12 @@ public:
         this->append_set_rgb(alloc, color.vec());
     }
 
+    void append_load    (SkColorType, const SkJumper_MemoryCtx*);
+    void append_load_dst(SkColorType, const SkJumper_MemoryCtx*);
+    void append_store   (SkColorType, const SkJumper_MemoryCtx*);
+
     bool empty() const { return fStages == nullptr; }
+
 
 private:
     struct StageList {
