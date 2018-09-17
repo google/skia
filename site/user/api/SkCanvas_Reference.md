@@ -2303,19 +2303,6 @@ scalePaint blends <a href='#Layer'>Layer</a> back with transparency.
 
 # <a name='SkCanvas_SaveLayerRec'>Struct SkCanvas::SaveLayerRec</a>
 
-## <a name='Layer_SaveLayerRec_Member_Function'>Member_Function</a>
-
-
-SkCanvas::SaveLayerRec member functions read and modify the structure properties.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec()</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a></td>
-  </tr>
-</table>
-
 <pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
     struct <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> {
         <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a>*(...
@@ -2329,32 +2316,50 @@ SkCanvas::SaveLayerRec member functions read and modify the structure properties
 
 <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a> contains the state used to create the <a href='#Layer'>Layer</a>.
 
-## <a name='Layer_SaveLayerRec_Overview'>Layer SaveLayerRec Overview</a>
+## <a name='Layer_SaveLayerRec_Member_Function'>Member Function</a>
 
+
+SkCanvas::SaveLayerRec member functions read and modify the structure properties.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
   <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Constructor'>Constructors</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>functions that construct <a href='#SkCanvas_SaveLayerRec'>SkCanvas::SaveLayerRec</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member_Function'>Functions</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>global and class member functions</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#Layer_SaveLayerRec_Member'>Members</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>member values</td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec()</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>constructs <a href='#SkCanvas_SaveLayerRec_SaveLayerRec'>SaveLayerRec</a></td>
   </tr>
 </table>
 
+## <a name='Layer_SaveLayerRec_Member'>Member</a>
 
-## <a name='Layer_SaveLayerRec_Member'>Layer SaveLayerRec Member</a>
 
-
+SkCanvas::SaveLayerRec members may be read and written directly without using a member function.
 <table style='border-collapse: collapse; width: 62.5em'>
   <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
 <th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fBackdrop'>fBackdrop</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>applies <a href='undocumented#Image_Filter'>Image Filter</a> to prior <a href='#Layer'>Layer</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fBounds'>fBounds</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>hints at <a href='#Layer'>Layer</a> size limit</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fClipMask'>fClipMask</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>clips <a href='#Layer'>Layer</a> with <a href='undocumented#Mask_Alpha'>Mask Alpha</a></td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fClipMatrix'>fClipMatrix</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>transforms <a href='undocumented#Mask_Alpha'>Mask Alpha</a> used to clip</td>
+  </tr>
+  <tr style='background-color: #f0f0f0; '>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fPaint'>fPaint</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>modifies overlay</td>
+  </tr>
+  <tr>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkCanvas_SaveLayerRec_fSaveLayerFlags'>fSaveLayerFlags</a></td>
+    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>preserves LCD <a href='undocumented#Text'>Text</a>, creates with prior <a href='#Layer'>Layer</a> contents</td>
+  </tr>
 </table>
 
 ### Members

@@ -4,16 +4,6 @@ SkIPoint Reference
 # <a name='IPoint'>IPoint</a>
 
 # <a name='SkIPoint'>Struct SkIPoint</a>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkIPoint  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-</table>
-
 <a href='#SkIPoint'>SkIPoint</a> holds two 32-bit integer coordinates.
 
 ## Overview
