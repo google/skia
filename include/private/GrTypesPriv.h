@@ -711,6 +711,8 @@ enum GrVertexAttribType {
                                      // 255 -> 1.0f.
 
     kShort2_GrVertexAttribType,       // vector of 2 16-bit shorts.
+    kShort4_GrVertexAttribType,       // vector of 4 16-bit shorts.
+
     kUShort2_GrVertexAttribType,      // vector of 2 unsigned shorts. 0 -> 0, 65535 -> 65535.
     kUShort2_norm_GrVertexAttribType, // vector of 2 unsigned shorts. 0 -> 0.0f, 65535 -> 1.0f.
 
