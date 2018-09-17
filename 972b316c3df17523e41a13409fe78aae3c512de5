@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "6e0edce5_bd1a0ffc",
+        "filename": "include/private/SkPathRef.h",
+        "patchSetId": 1
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-17T16:46:13Z",
+      "side": 1,
+      "message": "You don\u0027t want to have some awesome SkTLocklessStack ?",
+      "revId": "972b316c3df17523e41a13409fe78aae3c512de5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6d294e80_b583ceec",
+        "filename": "src/core/SkPathRef.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 714,
+      "author": {
+        "id": 5230
+      },
+      "writtenOn": "2018-09-17T16:46:13Z",
+      "side": 1,
+      "message": "You don\u0027t think this would be clearer as:\n\nptr-\u003enext \u003d fGenIDChangeListenerHead;\n\nwhile (!fGenIDChangeListenerHead.compare_exchange_weak(ptr-\u003enext, ptr,\n                                                       std::memory_order_release,\n                                                       std::memory_order_relaxed))\n    ;\n\n?",
+      "revId": "972b316c3df17523e41a13409fe78aae3c512de5",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "e6a58bc7_fc1da0dc",
         "filename": "src/core/SkPathRef.cpp",
         "patchSetId": 1
