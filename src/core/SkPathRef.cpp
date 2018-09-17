@@ -700,20 +700,31 @@ uint32_t SkPathRef::genID() const {
 }
 
 void SkPathRef::addGenIDChangeListener(sk_sp<GenIDChangeListener> listener) {
+
     if (nullptr == listener || this == gEmpty) {
         return;
     }
-    *fGenIDChangeListeners.append() = listener.release();
+
+    SkPathRef::GenIDChangeListener* ptr = listener.release();
+    SkPathRef::GenIDChangeListener* next = nullptr;
+    do {
+        next = fGenIDChangeListeners;
+        ptr->next = next;
+    } while (fGenIDChangeListeners.compare_exchange_weak(next, ptr));
 }
 
 // we need to be called *before* the genID gets changed or zerod
 void SkPathRef::callGenIDChangeListeners() {
-    for (int i = 0; i < fGenIDChangeListeners.count(); i++) {
-        fGenIDChangeListeners[i]->onChange();
-    }
 
-    // Listeners get at most one shot, so whether these triggered or not, blow them away.
-    fGenIDChangeListeners.unrefAll();
+    SkPathRef::GenIDChangeListener* ptr = fGenIDChangeListeners.exchange(nullptr);
+
+    while (ptr != nullptr) {
+        ptr->onChange();
+        ptr = ptr->next;
+
+        // Listeners get at most one shot, so whether these triggered or not, blow them away.
+        ptr->unref();
+    }
 }
 
 SkRRect SkPathRef::getRRect() const {
