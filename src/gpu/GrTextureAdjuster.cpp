@@ -65,11 +65,7 @@ sk_sp<GrTextureProxy> GrTextureAdjuster::refTextureProxyCopy(const CopyParams& c
                 proxyProvider->removeUniqueKeyFromProxy(key, cachedCopy.get());
             }
             proxyProvider->assignUniqueKeyToProxy(key, copy.get());
-            if (!proxyProvider->recordingDDL()) {
-                // If we're recording a DDL we cannot add genID change listeners because
-                // that process isn't thread safe
-                this->didCacheCopy(key, proxyProvider->contextUniqueID());
-            }
+            this->didCacheCopy(key, proxyProvider->contextUniqueID());
         }
     }
     return copy;
