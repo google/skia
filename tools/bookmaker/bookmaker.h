@@ -1463,6 +1463,7 @@ public:
     Definition* findExample(string name) const;
     MarkType getMarkType(MarkLookup lookup) const;
     bool hasEndToken() const;
+    static bool IsExemplary(const Definition* );
     string memberName();
     string methodName();
     const Definition* parentSpace() const;
@@ -2350,6 +2351,8 @@ private:
 
     void subtopicOut(string name);
     void subtopicsOut(Definition* def);
+    void subtopicOut(const vector<Definition*>& data, const Definition* csParent,
+        const Definition* topicParent, bool showClones);
     void summaryOut(const Definition* def, MarkType , string name);
     string tableDataCodeDef(const Definition* def);
     string tableDataCodeDef(string def, string name);
@@ -2430,7 +2433,7 @@ public:
                 if (ptr && '(' ==  *ptr && strncmp(ptr, "(...", 4)) {
                     this->skipToEndBracket(')');
                     SkAssertResult(')' == this->next());
-                    this->skipExact("_const");
+                    this->skipExact("_const") || this->skipExact(" const");
                     return;
                 }
             }

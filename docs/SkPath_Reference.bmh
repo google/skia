@@ -5400,6 +5400,8 @@ Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Provides options to treat open Contours as closed, and to ignore
 degenerate data.
 
+#Populate
+
 #Example
 #Height 128
 #Description
@@ -5793,6 +5795,8 @@ with close(),    forceClose is true : isClosedContour returns true
 
 Iterates through Verb_Array, and associated Point_Array and Conic_Weight.
 Verb_Array, Point_Array, and Conic_Weight are returned unaltered.
+
+#Populate
 
     #Method RawIter()
     #Line # constructs empty Path iterator ##

@@ -5953,6 +5953,23 @@ To be deprecated soon.
 
 # <a name='SkPath_Iter'>Class SkPath::Iter</a>
 
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+class <a href='#SkPath_Iter_Iter'>Iter</a> {
+public:
+    <a href='#SkPath_Iter_Iter'>Iter()</a>;
+    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
+    void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
+    <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
+    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a> const;
+    bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a> const;
+    bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a> const;
+};
+</pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
+degenerate data.
+
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -5966,7 +5983,7 @@ SkPath::Iter can be constructed or initialized by these functions, including C++
   </tr>
 </table>
 
-## <a name='Member_Function'>Member_Function</a>
+## <a name='Member_Function'>Member Function</a>
 
 
 SkPath::Iter member functions read and modify the structure properties.
@@ -5998,23 +6015,6 @@ SkPath::Iter member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>resets <a href='#SkPath_Iter_Iter'>Iter</a> to <a href='#Path'>Path</a></td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-class <a href='#SkPath_Iter_Iter'>Iter</a> {
-public:
-    <a href='#SkPath_Iter_Iter'>Iter()</a>;
-    <a href='#SkPath_Iter_const_SkPath'>Iter(const SkPath& path, bool forceClose)</a>;
-    void <a href='#SkPath_Iter_setPath'>setPath(const SkPath& path, bool forceClose)</a>;
-    <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_Iter_next'>next(SkPoint pts[4], bool doConsumeDegenerates = true, bool exact = false)</a>;
-    <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_Iter_conicWeight'>conicWeight</a> const;
-    bool <a href='#SkPath_Iter_isCloseLine'>isCloseLine</a> const;
-    bool <a href='#SkPath_Iter_isClosedContour'>isClosedContour</a> const;
-};
-</pre>
-
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-Provides options to treat open <a href='#Contour'>Contours</a> as closed, and to ignore
-degenerate data.
 
 ### Example
 
@@ -6356,6 +6356,21 @@ with close(),    forceClose is true : isClosedContour returns true
 
 # <a name='SkPath_RawIter'>Class SkPath::RawIter</a>
 
+<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
+    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
+    public:
+        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
+        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
+        void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
+        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a> const;
+        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a> const;
+    }
+</pre>
+
+Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
+<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
+
 ## <a name='Constructor'>Constructor</a>
 
 
@@ -6369,7 +6384,7 @@ SkPath::RawIter can be constructed or initialized by these functions, including 
   </tr>
 </table>
 
-## <a name='Member_Function'>Member_Function</a>
+## <a name='Member_Function'>Member Function</a>
 
 
 SkPath::RawIter member functions read and modify the structure properties.
@@ -6397,21 +6412,6 @@ SkPath::RawIter member functions read and modify the structure properties.
     <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>sets <a href='#Path'>Path</a> to iterate over</td>
   </tr>
 </table>
-
-<pre style="padding: 1em 1em 1em 1em;width: 62.5em; background-color: #f0f0f0">
-    class <a href='#SkPath_RawIter_RawIter'>RawIter</a> {
-    public:
-        <a href='#SkPath_RawIter_RawIter'>RawIter()</a>;
-        <a href='#SkPath_RawIter_copy_const_SkPath'>RawIter(const SkPath& path)</a>;
-        void <a href='#SkPath_RawIter_setPath'>setPath(const SkPath& path)</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_next'>next(SkPoint pts[4])</a>;
-        <a href='#SkPath_Verb'>Verb</a> <a href='#SkPath_RawIter_peek'>peek</a> const;
-        <a href='undocumented#SkScalar'>SkScalar</a> <a href='#SkPath_RawIter_conicWeight'>conicWeight</a> const;
-    }
-</pre>
-
-Iterates through <a href='#Verb_Array'>Verb Array</a>, and associated <a href='#Point_Array'>Point Array</a> and <a href='#Conic_Weight'>Conic Weight</a>.
-<a href='#Verb_Array'>Verb Array</a>, <a href='#Point_Array'>Point Array</a>, and <a href='#Conic_Weight'>Conic Weight</a> are returned unaltered.
 
 <a name='SkPath_RawIter_RawIter'></a>
 ## RawIter

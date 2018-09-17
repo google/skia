@@ -4,69 +4,6 @@ SkImage Reference
 # <a name='Image'>Image</a>
 
 # <a name='SkImage'>Class SkImage</a>
-
-## <a name='Constant'>Constant</a>
-
-
-SkImage related constants are defined by <code>enum</code>, <code>enum class</code>,  <code>#define</code>, <code>const</code>, and <code>constexpr</code>.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kF16'>BitDepth::kF16</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 16-bit float per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth_kU8'>BitDepth::kU8</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>uses 8-bit unsigned int per <a href='SkColor_Reference#Color'>Color</a> component</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BitDepth'>BitDepth</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkImage_MakeFromPicture'>MakeFromPicture</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_CachingHint'>CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>options for <a href='#SkImage_readPixels'>readPixels</a> and <a href='#SkImage_scalePixels'>scalePixels</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kAllow_CachingHint'>kAllow CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>allows internally caching decoded and copied pixels</td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kDisallow_CachingHint'>kDisallow CachingHint</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>disallows internally caching decoded and copied pixels</td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_kRO_LegacyBitmapMode'>kRO LegacyBitmapMode</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>returned bitmap is read-only and immutable</td>
-  </tr>
-</table>
-
-## <a name='Typedef'>Typedef</a>
-
-
-SkImage  <code>typedef</code> define a data type.
-<table style='border-collapse: collapse; width: 62.5em'>
-  <tr><th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Topic</th>
-<th style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>Description</th></tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_BackendTextureReleaseProc'>BackendTextureReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeBackendTextureFromSkImage'>MakeBackendTextureFromSkImage</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_RasterReleaseProc'>RasterReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
-  </tr>
-  <tr style='background-color: #f0f0f0; '>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_ReleaseContext'>ReleaseContext</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromRaster'>MakeFromRaster</a></td>
-  </tr>
-  <tr>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '><a href='#SkImage_TextureReleaseProc'>TextureReleaseProc</a></td>
-    <td style='text-align: left; border: 2px solid #dddddd; padding: 8px; '>parameter type for <a href='#SkImage_MakeFromTexture'>MakeFromTexture</a></td>
-  </tr>
-</table>
-
 <a href='#Image'>Image</a> describes a two dimensional array of pixels to draw. The pixels may be
 decoded in a <a href='undocumented#Raster_Bitmap'>Raster Bitmap</a>, encoded in a <a href='SkPicture_Reference#Picture'>Picture</a> or compressed data stream,
 or located in GPU memory as a <a href='undocumented#GPU_Texture'>GPU Texture</a>.
