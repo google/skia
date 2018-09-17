@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0edfa70b_10cc1abb",
+        "filename": "BUILD.gn",
+        "patchSetId": 1
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5631
+      },
+      "writtenOn": "2018-09-17T13:23:00Z",
+      "side": 1,
+      "message": "I think this is the only spot that\u0027s necessary to check skia_use_x11. The others are in skia\u0027s private tool code.",
+      "revId": "db414e0b360522200f5c94856b79171c1ea0ef9a",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
