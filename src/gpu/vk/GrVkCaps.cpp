@@ -35,6 +35,7 @@ GrVkCaps::GrVkCaps(const GrContextOptions& contextOptions, const GrVkInterface* 
     fBlacklistCoverageCounting = true; // blacklisting ccpr until we work through a few issues.
     fFenceSyncSupport = true;   // always available in Vulkan
     fCrossContextTextureSupport = true;
+    fHalfFloatVertexAttributeSupport = true;
 
     fMapBufferFlags = kNone_MapFlags; //TODO: figure this out
     fBufferMapThreshold = SK_MaxS32;  //TODO: figure this out
