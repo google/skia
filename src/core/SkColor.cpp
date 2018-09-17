@@ -157,6 +157,12 @@ SkColor4f SkColor4f::FromColor(SkColor bgra) {
     return rgba;
 }
 
+SkColor4f SkColor4f::From4f(const Sk4f& x) {
+    SkColor4f c4;
+    x.store(c4.vec());
+    return c4;
+}
+
 SkColor SkColor4f::toSkColor() const {
     return Sk4f_toL32(swizzle_rb(Sk4f::Load(this->vec())));
 }
@@ -167,10 +173,18 @@ SkColor4f SkColor4f::Pin(float r, float g, float b, float a) {
     return c4;
 }
 
-SkPM4f SkColor4f::premul() const {
+SkColor4f SkColor4f::premul() const {
     auto src = Sk4f::Load(this->pin().vec());
     float srcAlpha = src[3];  // need the pinned version of our alpha
-    src = src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1);
+    return SkColor4f::From4f(src * Sk4f(srcAlpha, srcAlpha, srcAlpha, 1));
+}
 
-    return SkPM4f::From4f(src);
+SkColor4f SkColor4f::unpremul() const {
+    float alpha = fA;
+    if (0 == alpha) {
+        return { 0, 0, 0, 0 };
+    } else {
+        float invAlpha = 1 / alpha;
+        return { fR * invAlpha, fG * invAlpha, fB * invAlpha, alpha };
+    }
 }

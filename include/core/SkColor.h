@@ -227,7 +227,7 @@ SK_API SkPMColor SkPreMultiplyARGB(U8CPU a, U8CPU r, U8CPU g, U8CPU b);
 */
 SK_API SkPMColor SkPreMultiplyColor(SkColor c);
 
-struct SkPM4f;
+struct Sk4f;
 
 /** \struct SkColor4f
     Each component is stored as a 32-bit single precision floating point float value.
@@ -293,6 +293,13 @@ struct SK_API SkColor4f {
     */
     static SkColor4f FromColor(SkColor);
 
+    /** Converts to SkColor4f.
+
+        @param Sk4f     color with alpha, red, blue, and green components
+        @return         SkColor4f
+    */
+    static SkColor4f From4f(const Sk4f&);
+
     /** Converts to closest SkColor.
 
         @return  closest color
@@ -307,11 +314,17 @@ struct SK_API SkColor4f {
         return Pin(fR, fG, fB, fA);
     }
 
-    /** Internal use only.
+    /** Returns SkColor4f with red, blue, and green components premultiplied by alpha.
 
         @return  premultiplied color
     */
-    SkPM4f premul() const;
+    SkColor4f premul() const;
+
+    /** Returns SkColor4f with red, blue, and green components divided by alpha.
+
+        @return  unpremultiplied color
+    */
+    SkColor4f unpremul() const;
 };
 
 #endif

@@ -15,7 +15,6 @@
 #include "SkFlattenablePriv.h"
 #include "SkMaskFilter.h"
 #include "SkPath.h"
-#include "SkPM4f.h"
 #include "SkRandom.h"
 #include "SkRasterPipeline.h"
 #include "SkResourceCache.h"
