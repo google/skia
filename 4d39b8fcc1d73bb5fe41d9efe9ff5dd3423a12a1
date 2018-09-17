@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "f7f45b8a_49bec3ee",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-17T21:20:33Z",
+      "side": 1,
+      "message": "How is it that inputs.fPrevRect is actually the previous rect?",
+      "range": {
+        "startLine": 207,
+        "startChar": 19,
+        "endLine": 207,
+        "endChar": 35
+      },
+      "revId": "4d39b8fcc1d73bb5fe41d9efe9ff5dd3423a12a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e17314a6_af28bd47",
+        "filename": "src/gpu/effects/GrConvexPolyEffect.cpp",
+        "patchSetId": 8
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5085
+      },
+      "writtenOn": "2018-09-17T21:20:33Z",
+      "side": 1,
+      "message": "pretty minor but we could do this like:\n\n    if (inputs.fRect !\u003d inputs.fPrevRect) {\n        const SkRect\u0026 newRect \u003d GrProcessorEdgeTypeIsAA(inputs.fEdgeType) ?\n                            inputs.fRect.makeInset(.5f, .5f) : inputs.fRect;\n        pdman.set4f(uniforms[0], newRect.fLeft, newRect.fTop, newRect.fRight, newRect.fBottom);\n        inputs.fPrevRect \u003d inputs.fRect;\n   }\nand then not do the insetting/branch if the rect hasn\u0027t changed.",
+      "range": {
+        "startLine": 204,
+        "startChar": 0,
+        "endLine": 211,
+        "endChar": 1
+      },
+      "revId": "4d39b8fcc1d73bb5fe41d9efe9ff5dd3423a12a1",
+      "serverId": "5086850b-e599-37d2-8ec8-ff16aeccbf02",
+      "unresolved": true
+    }
+  ]
+}
