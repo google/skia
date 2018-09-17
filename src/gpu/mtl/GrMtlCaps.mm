@@ -255,6 +255,7 @@ void GrMtlCaps::initGrCaps(const id<MTLDevice> device) {
 
     fFenceSyncSupport = true;   // always available in Metal
     fCrossContextTextureSupport = false;
+    fHalfFloatVertexAttributeSupport = true;
 }
 
 
