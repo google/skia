@@ -26,8 +26,9 @@ public:
     using Element = SkClipStack::Element;
     using ElementList = SkTLList<SkClipStack::Element, 16>;
 
-    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, const GrCaps* caps,
-                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0, int maxCCPRClipPaths = 0);
+    GrReducedClip(const SkClipStack&, const SkRect& queryBounds, GrContext* context,
+                  int maxWindowRectangles = 0, int maxAnalyticFPs = 0,
+                  int maxCCPRClipPaths = 0);
 
     enum class InitialState : bool {
         kAllIn,
@@ -83,7 +84,7 @@ public:
     bool maskRequiresAA() const { SkASSERT(!fMaskElements.isEmpty()); return fMaskRequiresAA; }
 
     bool drawAlphaClipMask(GrRenderTargetContext*) const;
-    bool drawStencilClipMask(GrContext*, GrRenderTargetContext*) const;
+    bool drawStencilClipMask(GrRenderTargetContext*) const;
 
     int numAnalyticFPs() const { return fAnalyticFPs.count() + fCCPRClipPaths.count(); }
 
@@ -131,7 +132,7 @@ private:
 
     void makeEmpty();
 
-    const GrCaps* fCaps;
+    GrContext* fContext;
     const int fMaxWindowRectangles;
     const int fMaxAnalyticFPs;
     const int fMaxCCPRClipPaths;

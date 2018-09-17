@@ -205,7 +205,9 @@ protected:
                 path->transform(m, &p);
 
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, p));
+                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(
+                                                                           edgeType, p,
+                                                                           canvas->getGrContext()));
                 if (!fp) {
                     continue;
                 }
@@ -245,7 +247,9 @@ protected:
                 SkRect rect = *iter.get();
                 rect.offset(x, y);
                 GrClipEdgeType edgeType = (GrClipEdgeType) et;
-                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(edgeType, rect));
+                std::unique_ptr<GrFragmentProcessor> fp(GrConvexPolyEffect::Make(
+                                                                           edgeType, rect,
+                                                                           canvas->getGrContext()));
                 if (!fp) {
                     continue;
                 }

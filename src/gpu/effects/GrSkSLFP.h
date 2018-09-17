@@ -9,12 +9,14 @@
 #define GrSkSLFP_DEFINED
 
 #include "GrCaps.h"
-#include "GrFragmentProcessor.h"
 #include "GrCoordTransform.h"
+#include "GrFragmentProcessor.h"
 #include "GrShaderCaps.h"
 #include "SkSLCompiler.h"
 #include "SkSLPipelineStageCodeGenerator.h"
 #include "SkRefCnt.h"
+#include "glsl/GrGLSLProgramDataManager.h"
+#include "glsl/GrGLSLUniformHandler.h"
 #include "../private/GrSkSLFPFactoryCache.h"
 
 #if GR_TEST_UTILS
@@ -28,6 +30,8 @@ class GrSkSLFPFactory;
 
 class GrSkSLFP : public GrFragmentProcessor {
 public:
+    using UniformHandle = GrGLSLUniformHandler::UniformHandle;
+
     /**
      * Returns a new unique identifier. Each different SkSL fragment processor should call
      * NewIndex once, statically, and use this index for all calls to Make.
@@ -78,6 +82,14 @@ public:
 
     void addChild(std::unique_ptr<GrFragmentProcessor> child);
 
+    /**
+     * Sets a function to be called after the automatic handling of 'in uniform' variables is
+     * completed. This function should ensure that data is provided for all non-'in' uniform
+     * variables.
+     */
+    void setSetDataHook(void (*hook)(const GrGLSLProgramDataManager& pdman,
+                                     void* inputs, const std::vector<UniformHandle> uniforms));
+
     std::unique_ptr<GrFragmentProcessor> clone() const override;
 
 private:
@@ -109,6 +121,9 @@ private:
     const std::unique_ptr<int8_t[]> fInputs;
 
     size_t fInputSize;
+
+    void (*fSetDataHook)(const GrGLSLProgramDataManager&, void*,
+                         const std::vector<UniformHandle>) = nullptr;
 
     mutable SkSL::String fKey;
 
@@ -146,6 +161,8 @@ public:
     std::shared_ptr<SkSL::Program> fBaseProgram;
 
     std::vector<const SkSL::Variable*> fInputVars;
+
+    std::vector<const SkSL::Variable*> fUniformVars;
 
     std::vector<const SkSL::Variable*> fKeyVars;
 
