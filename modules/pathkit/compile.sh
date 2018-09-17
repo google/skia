@@ -121,12 +121,14 @@ src/core/SkPathRef.cpp \
 src/core/SkPoint.cpp \
 src/core/SkRRect.cpp \
 src/core/SkRect.cpp \
+src/core/SkSemaphore.cpp \
 src/core/SkStream.cpp \
 src/core/SkString.cpp \
 src/core/SkStringUtils.cpp \
 src/core/SkStroke.cpp \
 src/core/SkStrokeRec.cpp \
 src/core/SkStrokerPriv.cpp \
+src/core/SkThreadID.cpp \
 src/core/SkUtils.cpp \
 src/effects/SkDashPathEffect.cpp \
 src/effects/SkTrimPathEffect.cpp \

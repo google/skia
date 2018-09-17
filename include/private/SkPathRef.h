@@ -8,10 +8,9 @@
 #ifndef SkPathRef_DEFINED
 #define SkPathRef_DEFINED
 
-#include <atomic>
-
 #include "SkAtomics.h"
 #include "SkMatrix.h"
+#include "SkMutex.h"
 #include "SkPoint.h"
 #include "SkRRect.h"
 #include "SkRect.h"
@@ -313,10 +312,9 @@ public:
     struct GenIDChangeListener : SkRefCnt {
         virtual ~GenIDChangeListener() {}
         virtual void onChange() = 0;
-        GenIDChangeListener* next;
     };
 
-    void addGenIDChangeListener(sk_sp<GenIDChangeListener>);
+    void addGenIDChangeListener(sk_sp<GenIDChangeListener>);  // Threadsafe.
 
     bool isValid() const;
     SkDEBUGCODE(void validate() const { SkASSERT(this->isValid()); } )
@@ -547,7 +545,8 @@ private:
     mutable uint32_t    fGenerationID;
     SkDEBUGCODE(int32_t fEditorsAttached;) // assert that only one editor in use at any time.
 
-    std::atomic<GenIDChangeListener*> fGenIDChangeListeners{nullptr};  // pointers are reffed
+    SkMutex                         fGenIDChangeListenersMutex;
+    SkTDArray<GenIDChangeListener*> fGenIDChangeListeners;  // pointers are reffed
 
     mutable uint8_t  fBoundsIsDirty;
     mutable bool     fIsFinite;    // only meaningful if bounds are valid
