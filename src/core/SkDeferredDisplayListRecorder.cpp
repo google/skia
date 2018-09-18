@@ -38,10 +38,15 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
     return nullptr;
 }
 
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVPromiseTexture(const GrBackendFormat backendFormats[4]) {
+    return nullptr;
+}
+
 #else
 
 #include "GrContextPriv.h"
 #include "GrProxyProvider.h"
+#include "GrRenderTargetContext.h"
 #include "GrTexture.h"
 
 #include "SkGr.h"
@@ -201,6 +206,15 @@ sk_sp<SkImage> SkDeferredDisplayListRecorder::makePromiseTexture(
                                            textureReleaseProc,
                                            promiseDoneProc,
                                            textureContext);
+}
+
+sk_sp<SkImage> SkDeferredDisplayListRecorder::makeYUVPromiseTexture(
+        const GrBackendFormat backendFormats[4]) {
+    if (!fContext) {
+        return nullptr;
+    }
+
+    return nullptr;
 }
 
 #endif

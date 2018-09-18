@@ -115,6 +115,8 @@ public:
                                       PromiseDoneProc promiseDoneProc,
                                       TextureContext textureContext);
 
+    sk_sp<SkImage> makeYUVPromiseTexture(const GrBackendFormat backendFormats[4]);
+
 private:
     bool init();
 
