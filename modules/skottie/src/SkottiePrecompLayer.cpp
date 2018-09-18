@@ -63,8 +63,9 @@ sk_sp<sksg::RenderNode> AnimationBuilder::attachPrecompLayer(const skjson::Objec
     if (requires_time_mapping) {
         const auto t_bias  = -start_time,
                    t_scale = sk_ieee_float_divide(1, stretch_time);
-        auto time_mapper = skstd::make_unique<CompTimeMapper>(std::move(local_animators),
-                                                              t_bias, t_scale);
+        auto time_mapper =
+            skstd::make_unique<CompTimeMapper>(std::move(local_animators), t_bias,
+                                               sk_float_isfinite(t_scale) ? t_scale : 0);
         if (time_remap) {
             // The lambda below captures a raw pointer to the mapper object.  That should be safe,
             // because both the lambda and the mapper are scoped/owned by ctx->fAnimators.
