@@ -40,7 +40,8 @@ public:
     void set(GrGLGpu*,
              int attribIndex,
              const GrBuffer* vertexBuffer,
-             GrVertexAttribType type,
+             GrVertexAttribType cpuType,
+             GrSLType gpuType,
              GrGLsizei stride,
              size_t offsetInBytes,
              int divisor = 0);
@@ -77,7 +78,8 @@ private:
         }
 
         GrGpuResource::UniqueID   fVertexBufferUniqueID;
-        GrVertexAttribType        fType;
+        GrVertexAttribType        fCPUType;
+        GrSLType                  fGPUType;
         GrGLsizei                 fStride;
         size_t                    fOffset;
         int                       fDivisor;

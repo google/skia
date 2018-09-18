@@ -348,8 +348,8 @@ private:
                 matrix = &SkMatrix::I();
             }
             flushInfo.fGeometryProcessor = GrDistanceFieldPathGeoProc::Make(
-                    *matrix, fAtlas->getProxies(), fAtlas->numActivePages(),
-                    GrSamplerState::ClampBilerp(), flags);
+                    *target->caps().shaderCaps(), *matrix, fAtlas->getProxies(),
+                    fAtlas->numActivePages(), GrSamplerState::ClampBilerp(), flags);
         } else {
             SkMatrix invert;
             if (fHelper.usesLocalCoords()) {
@@ -359,9 +359,9 @@ private:
             }
 
             flushInfo.fGeometryProcessor = GrBitmapTextGeoProc::Make(
-                    this->color(), fAtlas->getProxies(), fAtlas->numActivePages(),
-                    GrSamplerState::ClampNearest(), kA8_GrMaskFormat, invert,
-                    false);
+                    *target->caps().shaderCaps(), this->color(), fAtlas->getProxies(),
+                    fAtlas->numActivePages(), GrSamplerState::ClampNearest(), kA8_GrMaskFormat,
+                    invert, false);
         }
 
         // allocate vertices

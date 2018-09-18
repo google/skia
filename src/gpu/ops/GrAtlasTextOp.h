@@ -151,7 +151,8 @@ private:
 
     CombineResult onCombineIfPossible(GrOp* t, const GrCaps& caps) override;
 
-    sk_sp<GrGeometryProcessor> setupDfProcessor(const sk_sp<GrTextureProxy>* proxies,
+    sk_sp<GrGeometryProcessor> setupDfProcessor(const GrShaderCaps& caps,
+                                                const sk_sp<GrTextureProxy>* proxies,
                                                 unsigned int numActiveProxies) const;
 
     SkAutoSTMalloc<kMinGeometryAllocated, Geometry> fGeoData;
