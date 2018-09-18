@@ -59,9 +59,16 @@ SkDeferredDisplayListRecorder::~SkDeferredDisplayListRecorder() {
     if (fContext) {
         auto proxyProvider = fContext->contextPriv().proxyProvider();
 
-        // DDL TODO: Remove this. DDL contexts should allow for deletion while still having live
-        // uniquely keyed proxies.
-        proxyProvider->removeAllUniqueKeys();
+        // This allows the uniquely keyed proxies to keep their keys but removes their back
+        // pointer to the about-to-be-deleted proxy provider. The proxies will use their
+        // unique key to reattach to cached versions of themselves or to appropriately tag new
+        // resources (if a cached version was not found). This system operates independent of
+        // the replaying context's proxy provider (i.e., these uniquely keyed proxies will not
+        // appear in the replaying proxy providers uniquely keyed proxy map). This should be fine
+        // since no one else should be trying to reconnect to the orphaned proxies and orphaned
+        // proxies from different DDLs that share the same key should simply reconnect to the
+        // same cached resource.
+        proxyProvider->orphanAllUniqueKeys();
     }
 }
 

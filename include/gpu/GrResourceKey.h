@@ -80,6 +80,22 @@ protected:
         return &fKey[kMetaDataCnt];
     }
 
+#ifdef SK_DEBUG
+    void dump() const {
+        if (!this->isValid()) {
+            SkDebugf("Invalid Key\n");
+        } else {
+            SkDebugf("hash: %d ", this->hash());
+            SkDebugf("domain: %d ", this->domain());
+            SkDebugf("size: %dB ", this->internalSize());
+            for (size_t i = 0; i < this->internalSize(); ++i) {
+                SkDebugf("%d ", fKey[i]);
+            }
+            SkDebugf("\n");
+        }
+    }
+#endif
+
     /** Used to initialize a key. */
     class Builder {
     public:
@@ -229,7 +245,7 @@ public:
     static Domain GenerateDomain();
 
     /** Creates an invalid unique key. It must be initialized using a Builder object before use. */
-    GrUniqueKey() {}
+    GrUniqueKey() : fTag(nullptr) {}
 
     GrUniqueKey(const GrUniqueKey& that) { *this = that; }
 
@@ -258,6 +274,13 @@ public:
     }
 
     const char* tag() const { return fTag; }
+
+#ifdef SK_DEBUG
+    void dump(const char* label) const {
+        SkDebugf("%s tag: %s\n", label, fTag ? fTag : "None");
+        this->INHERITED::dump();
+    }
+#endif
 
     class Builder : public INHERITED::Builder {
     public:

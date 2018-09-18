@@ -66,7 +66,11 @@ GrTextureProxy::~GrTextureProxy() {
     // Due to the order of cleanup the GrSurface this proxy may have wrapped may have gone away
     // at this point. Zero out the pointer so the cache invalidation code doesn't try to use it.
     fTarget = nullptr;
-    if (fUniqueKey.isValid()) {
+
+    // In DDL-mode, uniquely keyed proxies keep their key even after their originating
+    // proxy provider has gone away. In that case there is noone to send the invalid key
+    // message to (Note: in this case we don't want to remove its cached resource).
+    if (fUniqueKey.isValid() && fProxyProvider) {
         fProxyProvider->processInvalidProxyUniqueKey(fUniqueKey, this, false);
     } else {
         SkASSERT(!fProxyProvider);

@@ -67,7 +67,12 @@ GrProxyProvider::GrProxyProvider(uint32_t contextUniqueID,
 }
 
 GrProxyProvider::~GrProxyProvider() {
-    SkASSERT(!fUniquelyKeyedProxies.count());
+    if (fResourceCache) {
+        // In DDL-mode a proxy provider can still have extant uniquely keyed proxies (since
+        // they need their unique keys to, potentially, find a cached resource when the
+        // DDL is played) but, in non-DDL-mode they should all have been cleaned up by this point.
+        SkASSERT(!fUniquelyKeyedProxies.count());
+    }
 }
 
 bool GrProxyProvider::assignUniqueKeyToProxy(const GrUniqueKey& key, GrTextureProxy* proxy) {
@@ -104,6 +109,7 @@ void GrProxyProvider::removeUniqueKeyFromProxy(const GrUniqueKey& key, GrTexture
     if (this->isAbandoned() || !proxy) {
         return;
     }
+
     this->processInvalidProxyUniqueKey(key, proxy, true);
 }
 
@@ -684,6 +690,15 @@ void GrProxyProvider::processInvalidProxyUniqueKey(const GrUniqueKey& key, GrTex
         if (surface) {
             surface->resourcePriv().removeUniqueKey();
         }
+    }
+}
+
+void GrProxyProvider::orphanAllUniqueKeys() {
+    UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies);
+    for (UniquelyKeyedProxyHash::Iter iter(&fUniquelyKeyedProxies); !iter.done(); ++iter) {
+        GrTextureProxy& tmp = *iter;
+
+        tmp.fProxyProvider = nullptr;
     }
 }
 
